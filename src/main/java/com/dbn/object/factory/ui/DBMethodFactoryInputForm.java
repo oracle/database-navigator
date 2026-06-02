@@ -51,7 +51,7 @@ import static com.dbn.common.util.Strings.isWord;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
 
-public class DBMethodFactoryInputForm extends DBSchemaObjectFactoryInputForm<DBObjectSpec> {
+public class DBMethodFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel mainPanel;
     private @Getter JPanel headerPanel;
     private @Getter JTextField nameTextField;

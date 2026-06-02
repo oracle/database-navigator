@@ -44,7 +44,7 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.USER_NAME;
 import static com.dbn.object.factory.model.DBObjectAttributeType.USER_OCID;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 
-public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec, DBCredentialFactoryInputForm> {
+public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public DBObjectType getObjectType() {

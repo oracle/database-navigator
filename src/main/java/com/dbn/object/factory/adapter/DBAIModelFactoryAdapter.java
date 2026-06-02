@@ -28,8 +28,9 @@ import com.dbn.diagnostics.Diagnostics;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
-import com.dbn.object.factory.model.DBAIModelSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.DBAIModelFactoryInputForm;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBAIModelSourceType;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -45,9 +46,13 @@ import java.util.List;
 
 import static com.dbn.common.Priority.MEDIUM;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_CREDENTIAL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_SOURCE_LOCATION;
+import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_SOURCE_TYPE;
+import static com.dbn.object.type.DBAIModelSourceType.MODEL_FILE;
 import static com.dbn.object.type.DBObjectType.AI_MODEL;
 
-public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelSpec, DBAIModelFactoryInputForm> {
+public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public DBObjectType getObjectType() {
@@ -55,22 +60,24 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelSp
     }
 
     @Override
-    public DBAIModelSpec createInput(DBSchema schema) {
-        return new DBAIModelSpec(schema);
+    public DBObjectSpec createInput(DBSchema schema) {
+        DBObjectSpec input = new DBObjectSpec(schema, AI_MODEL);
+        input.setAttributeValue(AI_MODEL_SOURCE_TYPE, MODEL_FILE);
+        return input;
     }
 
-    public DBAIModelFactoryInputForm createInputForm(DBNComponent parent, DBAIModelSpec input) {
+    public DBAIModelFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec input) {
         return new DBAIModelFactoryInputForm(parent, input);
     }
 
     @Override
-    public void validateInput(DBAIModelSpec input, List<String> errors) {
+    public void validateInput(DBObjectSpec input, List<String> errors) {
         // TODO
     }
 
     @Override
-    public void createObject(DBAIModelSpec input) throws SQLException {
-        DBAIModelSourceType modelSourceType = input.getSourceType();
+    public void createObject(DBObjectSpec input) throws SQLException {
+        DBAIModelSourceType modelSourceType = AI_MODEL_SOURCE_TYPE.of(input);
         DBSchema schema = input.getSchema();
 
         ConnectionId connectionId = schema.getConnectionId();
@@ -86,11 +93,13 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelSp
                 conn -> {
                     DatabaseVectorInterface dataDefinition = schema.getVectorInterface();
                     if (modelSourceType == DBAIModelSourceType.OBJECT_STORAGE) {
+                        String modelLocation = AI_MODEL_SOURCE_LOCATION.of(input);
+                        String credentialName = getCredentialName(input);
                         dataDefinition.createModelFromStorage(conn,
                                 input.getSchemaName(true),
                                 input.getAdjustedObjectName(),
-                                input.getSourceLocation(),
-                                input.getCredentialName());
+                                modelLocation,
+                                credentialName);
 
                     } else if (modelSourceType == DBAIModelSourceType.MODEL_FILE) {
                         Blob modelBlob = uploadOnnxModel(conn, input, progress);
@@ -107,11 +116,15 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelSp
         ObjectChangeEvent.notify(CREATE, AI_MODEL, connectionId, schemaId);
     }
 
+    private static String getCredentialName(DBObjectSpec input) {
+        return DBObjectRef.getQualifiedObjectName(AI_MODEL_CREDENTIAL.of(input));
+    }
+
     private Blob uploadOnnxModel(
             DBNConnection conn,
-            DBAIModelSpec input,
+            DBObjectSpec input,
             ProgressIndicator progress) throws SQLException {
-        File modelFile = new File(input.getSourceLocation());
+        File modelFile = new File(AI_MODEL_SOURCE_LOCATION.of(input));
         long fileSize = modelFile.length();
         double totalMB = fileSize / (1024.0 * 1024.0);
 

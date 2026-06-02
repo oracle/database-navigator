@@ -15,7 +15,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.factory.ObjectFactoryManager;
-import com.dbn.object.factory.model.DBAIModelSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBAIModelSourceType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
@@ -43,6 +43,9 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.FileChoosers.addFileChooser;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
+import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_CREDENTIAL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_SOURCE_LOCATION;
+import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_SOURCE_TYPE;
 import static com.dbn.object.type.DBAIModelSourceType.MODEL_FILE;
 import static com.dbn.object.type.DBAIModelSourceType.OBJECT_STORAGE;
 import static com.dbn.object.type.DBCredentialType.PASSWORD;
@@ -51,7 +54,7 @@ import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
 
-public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm<DBAIModelSpec> {
+public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel mainPanel;
     private @Getter JPanel headerPanel;
     private @Getter DBNComboBox<ConnectionHandler> connectionComboBox;
@@ -72,7 +75,7 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm<DB
     private JCheckBox preserveCaseCheckBox;
     private DBNInfoLabel preserveCaseInfoLabel;
 
-    public DBAIModelFactoryInputForm(DBNComponent parent, DBAIModelSpec input) {
+    public DBAIModelFactoryInputForm(DBNComponent parent, DBObjectSpec input) {
         super(parent, input);
 
         initHeaderForm();
@@ -110,7 +113,7 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm<DB
     }
 
     private void initComboBoxes() {
-        DBAIModelSpec input = getInput();
+        DBObjectSpec input = getInput();
         ConnectionHandler connection = input.getConnection();
         DBSchema schema = input.getSchema();
 
@@ -127,8 +130,9 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm<DB
         schemaComboBox.setEnabled(false); // TODO support connection switch
 
         // model source combo-box
+        DBAIModelSourceType sourceType = AI_MODEL_SOURCE_TYPE.of(input);
         initComboBox(sourceComboBox, DBAIModelSourceType.values());
-        setSelection(sourceComboBox, MODEL_FILE);
+        setSelection(sourceComboBox, sourceType == null ? MODEL_FILE : sourceType);
         onSelectionChange(sourceComboBox, e -> updateFieldAvailability());
 
         // credential combo-boxes
@@ -245,9 +249,9 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm<DB
     public void applyFormChanges() {
         input.setObjectName(getText(nameTextField));
         input.setIdentifierCase(getSelectedIdentifierCase());
-        input.setCredential(getCredential());
-        input.setSourceType(getModelSourceType());
-        input.setSourceLocation(getModelSourceLocation());
+        input.setAttributeValue(AI_MODEL_CREDENTIAL, getCredential());
+        input.setAttributeValue(AI_MODEL_SOURCE_TYPE, getModelSourceType());
+        input.setAttributeValue(AI_MODEL_SOURCE_LOCATION, getModelSourceLocation());
     }
 
     private DBObjectRef<DBCredential> getCredential() {
@@ -257,7 +261,7 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm<DB
     @Override
     public void resetFormChanges() {
         nameTextField.setText(input.getObjectName());
-        modelFileTextField.setText(input.getSourceLocation());
+        modelFileTextField.setText(AI_MODEL_SOURCE_LOCATION.of(input));
     }
 
     private DBAIModelSourceType getModelSourceType() {

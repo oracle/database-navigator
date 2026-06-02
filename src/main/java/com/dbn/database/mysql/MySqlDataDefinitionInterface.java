@@ -228,7 +228,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
 
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        DBObjectSpecList<DBObjectSpec> arguments = methodSpec.getChildren(ARGUMENT);
+        DBObjectSpecList arguments = methodSpec.getChildren(ARGUMENT);
         for (DBObjectSpec argument : arguments) {
             boolean in = IS_INPUT.is(argument);
             boolean out = IS_OUTPUT.is(argument);

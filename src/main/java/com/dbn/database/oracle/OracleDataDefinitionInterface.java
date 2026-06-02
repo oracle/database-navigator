@@ -201,7 +201,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        DBObjectSpecList<DBObjectSpec> arguments = methodSpec.getChildren(ARGUMENT);
+        DBObjectSpecList arguments = methodSpec.getChildren(ARGUMENT);
         for (DBObjectSpec argument : arguments) {
             boolean in = IS_INPUT.is(argument);
             boolean out = IS_OUTPUT.is(argument);
@@ -253,7 +253,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         builder.append(" (\n");
 
         boolean first = true;
-        DBObjectSpecList<DBObjectSpec> columnSpecs = tableSpec.getChildren(COLUMN);
+        DBObjectSpecList columnSpecs = tableSpec.getChildren(COLUMN);
         for (DBObjectSpec columnSpec : columnSpecs) {
             if (first) {
                 first = false;
@@ -268,7 +268,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             builder.append(IS_PRIMARY_KEY.is(columnSpec) ? " primary key" : "");
         }
 
-        DBObjectSpecList<DBObjectSpec> constraintSpecs = tableSpec.getChildren(CONSTRAINT);
+        DBObjectSpecList constraintSpecs = tableSpec.getChildren(CONSTRAINT);
         for (DBObjectSpec constraintSpec : constraintSpecs) {
             String constraintType = CONSTRAINT_TYPE.of(constraintSpec);
             String[] constraintColumns = CONSTRAINT_COLUMNS.of(constraintSpec);

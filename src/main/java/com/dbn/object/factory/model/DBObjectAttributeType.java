@@ -18,7 +18,11 @@ package com.dbn.object.factory.model;
 
 import com.dbn.common.constant.PseudoConstant;
 import com.dbn.database.DatabaseIdentifierCase;
+import com.dbn.object.DBCredential;
+import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBAIModelSourceType;
 import com.dbn.object.type.DBCredentialType;
+import com.dbn.object.type.DBJavaClassType;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
@@ -51,6 +55,14 @@ public class DBObjectAttributeType<T> extends PseudoConstant<DBObjectAttributeTy
     public static final DBObjectAttributeType<String> INDEX_DEFINITION = new DBObjectAttributeType<>("INDEX_DEFINITION", String.class);
     public static final DBObjectAttributeType<String[]> INDEX_COLUMNS = new DBObjectAttributeType<>("INDEX_COLUMNS", String[].class);
     public static final DBObjectAttributeType<DBObjectSpec> RETURN_ARGUMENT = new DBObjectAttributeType<>("RETURN_ARGUMENT", DBObjectSpec.class);
+
+    public static final DBObjectAttributeType<DBAIModelSourceType> AI_MODEL_SOURCE_TYPE = new DBObjectAttributeType<>("AI_MODEL_SOURCE_TYPE", DBAIModelSourceType.class);
+    public static final DBObjectAttributeType<String> AI_MODEL_SOURCE_LOCATION = new DBObjectAttributeType<>("AI_MODEL_SOURCE_LOCATION", String.class);
+    public static final DBObjectAttributeType<DBObjectRef<DBCredential>> AI_MODEL_CREDENTIAL = new DBObjectAttributeType<>("AI_MODEL_CREDENTIAL");
+
+    public static final DBObjectAttributeType<DBJavaClassType> JAVA_CLASS_TYPE = new DBObjectAttributeType<>("JAVA_CLASS_TYPE", DBJavaClassType.class);
+    public static final DBObjectAttributeType<String> JAVA_PACKAGE_NAME = new DBObjectAttributeType<>("JAVA_PACKAGE_NAME", String.class);
+    public static final DBObjectAttributeType<String> JAVA_CLASS_NAME = new DBObjectAttributeType<>("JAVA_CLASS_NAME", String.class);
 
     public static final DBObjectAttributeType<DBCredentialType> CREDENTIAL_TYPE = new DBObjectAttributeType<>("CREDENTIAL_TYPE", DBCredentialType.class);
     public static final DBObjectAttributeType<String> USER_NAME = new DBObjectAttributeType<>("USER_NAME", String.class);

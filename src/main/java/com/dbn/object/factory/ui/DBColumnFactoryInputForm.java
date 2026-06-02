@@ -42,7 +42,7 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.IS_NOT_NULL;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_PRIMARY_KEY;
 import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_NAME;
 
-public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm<DBObjectSpec> {
+public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm {
     private JPanel mainPanel;
     private JLabel iconLabel;
     private JBTextField nameTextField;

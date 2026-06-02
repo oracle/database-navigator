@@ -42,10 +42,10 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_TYPE;
 
 @Getter
 @Setter
-public class DBObjectSpec extends DBObjectSpecBase{
+public final class DBObjectSpec extends DBObjectSpecBase{
     private boolean readonly;
 
-    private final Map<DBObjectType, DBObjectSpecList<DBObjectSpec>> children = new EnumMap<>(DBObjectType.class);
+    private final Map<DBObjectType, DBObjectSpecList> children = new EnumMap<>(DBObjectType.class);
     private final Map<DBObjectAttributeType, DBObjectAttribute> attributes = new HashMap<>();
 
     public DBObjectSpec(DBObjectSpec parent) {
@@ -94,15 +94,15 @@ public class DBObjectSpec extends DBObjectSpecBase{
         getChildren(objectType).setReadonly(readonly);
     }
 
-    public DBObjectSpecList<DBObjectSpec> getChildren(DBObjectType type) {
-        return this.children.computeIfAbsent(type, t -> new DBObjectSpecList<>(this));
+    public DBObjectSpecList getChildren(DBObjectType type) {
+        return this.children.computeIfAbsent(type, t -> new DBObjectSpecList(this));
     }
 
     public int getIndex() {
         DBObjectSpec parent = getParent();
         if (parent == null) return 0;
 
-        DBObjectSpecList<DBObjectSpec> children = parent.getChildren(getObjectType());
+        DBObjectSpecList children = parent.getChildren(getObjectType());
         return children.indexOf(this);
     }
 
@@ -196,7 +196,7 @@ public class DBObjectSpec extends DBObjectSpecBase{
         }
 
         for (DBObjectType objectType : children.keySet()) {
-            DBObjectSpecList<DBObjectSpec> objectSpecs = children.get(objectType);
+            DBObjectSpecList objectSpecs = children.get(objectType);
             for (DBObjectSpec objectSpec : objectSpecs) {
                 DBObjectAttribute<Object> attribute = objectSpec.findAttribute(attributeId);
                 if (attribute != null) return cast(attribute);

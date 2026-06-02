@@ -39,7 +39,7 @@ import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
 @Getter
-public class DBTableFactoryInputForm extends DBSchemaObjectFactoryInputForm<DBObjectSpec> {
+public class DBTableFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel mainPanel;
     private JTextField nameTextField;
     private JPanel columnListPanel;

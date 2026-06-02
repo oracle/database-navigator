@@ -36,9 +36,9 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
 
-public abstract class DBSchemaObjectFactoryInputForm<T extends DBObjectSpec> extends DBObjectFactoryInputForm<T> {
+public abstract class DBSchemaObjectFactoryInputForm extends DBObjectFactoryInputForm {
 
-    public DBSchemaObjectFactoryInputForm(@NotNull DBNComponent parent, T input) {
+    public DBSchemaObjectFactoryInputForm(@NotNull DBNComponent parent, DBObjectSpec input) {
         super(parent, input);
     }
 

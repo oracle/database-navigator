@@ -63,7 +63,7 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.TENANCY_OCID;
 import static com.dbn.object.factory.model.DBObjectAttributeType.USER_NAME;
 import static com.dbn.object.factory.model.DBObjectAttributeType.USER_OCID;
 
-public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm<DBObjectSpec> {
+public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel mainPanel;
     private @Getter JPanel headerPanel;
     private @Getter DBNComboBox connectionComboBox;
