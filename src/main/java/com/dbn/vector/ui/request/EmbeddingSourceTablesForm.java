@@ -49,7 +49,7 @@ public class EmbeddingSourceTablesForm extends VectorToolboxFormBase {
         addValidation(
                 tableListForm.getTableList(),
                 list -> list.getModel().getSize() > 0,
-                "Please specify at least one table"
+                txt("msg.vector.error.SpecifyAtLeastOneTable")
         );
     }
 

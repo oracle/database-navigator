@@ -86,9 +86,9 @@ public class JavaDownloadInputForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addSelectionValidation(moduleComboBox, "Please select the target module");
-        addSelectionValidation(contentRootComboBox, "Please select the target content root");
-        addSelectionValidation(contentList, "Please select at least one resource to download");
+        addSelectionValidation(moduleComboBox, txt("msg.shared.error.SelectTargetModule"));
+        addSelectionValidation(contentRootComboBox, txt("msg.shared.error.SelectTargetContentRoot"));
+        addSelectionValidation(contentList, txt("msg.java.error.SelectResourceToDownload"));
     }
 
     private void initHeaderPanel() {

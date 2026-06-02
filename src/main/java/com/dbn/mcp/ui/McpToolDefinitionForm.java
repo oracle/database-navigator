@@ -139,7 +139,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
     protected void initValidation() {
         addTextValidation(nameTextField, field -> validateToolName(field.getText()));
         addTextValidation(descriptionTextField, field -> McpToolDescription.validationError(field.getText()));
-        addValidation(sqlEditorPanel, c -> getSqlStatement().isBlank() ? "Please enter a SQL query" : null);
+        addValidation(sqlEditorPanel, c -> getSqlStatement().isBlank() ? txt("msg.mcp.error.SqlQueryEmpty") : null);
     }
 
     private String validateToolName(String value) {

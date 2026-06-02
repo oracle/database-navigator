@@ -179,10 +179,10 @@ public class EmbeddingSourceInputTableForm extends VectorToolboxFormBase {
 
     @Override
     protected void initValidation() {
-        addSelectionValidation(schemaComboBox, "Please select a schema");
-        addSelectionValidation(tableComboBox, "Please select a table");
-        addSelectionValidation(keyColumnComboBox, "Please select the primary key column");
-        addSelectionValidation(dataColumnComboBox, "Please select a data column");
+        addSelectionValidation(schemaComboBox, txt("msg.shared.error.SelectSchema"));
+        addSelectionValidation(tableComboBox, txt("msg.shared.error.SelectTable"));
+        addSelectionValidation(keyColumnComboBox, txt("msg.vector.error.SelectPrimaryKeyColumn"));
+        addSelectionValidation(dataColumnComboBox, txt("msg.vector.error.SelectDataColumn"));
     }
 
     private void populateColumns() {

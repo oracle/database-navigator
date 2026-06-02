@@ -69,8 +69,8 @@ public class CreateRenameSessionForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(sessionNameTextField, n-> isNotEmpty(n), "Session name must be specified");
-        addTextValidation(sessionNameTextField, n-> isNotUsed(n), "Session name already in use");
+        addTextValidation(sessionNameTextField, n-> isNotEmpty(n), txt("msg.connection.error.SessionNameRequired"));
+        addTextValidation(sessionNameTextField, n-> isNotUsed(n), txt("msg.connection.error.SessionNameAlreadyInUse"));
     }
 
     private boolean isNotUsed(String name) {

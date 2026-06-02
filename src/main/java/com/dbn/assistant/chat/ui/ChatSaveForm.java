@@ -49,8 +49,8 @@ public class ChatSaveForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, Strings::isNotEmpty, "Please provide a chat name");
-        addTextValidation(nameTextField, this::isNotUsed, "The chat name is already in use");
+        addTextValidation(nameTextField, Strings::isNotEmpty, txt("msg.assistant.error.ChatNameRequired"));
+        addTextValidation(nameTextField, this::isNotUsed, txt("msg.assistant.error.ChatNameAlreadyInUse"));
     }
 
     private boolean isNotUsed(String name) {

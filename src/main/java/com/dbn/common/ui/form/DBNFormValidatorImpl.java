@@ -24,6 +24,7 @@ import com.dbn.common.ui.util.Lists;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.ui.ValidationInfo;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
@@ -93,7 +94,7 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
     }
 
     @Override
-    public <C extends JComponent> void addValidation(C component, Predicate<C> validator, String message) {
+    public <C extends JComponent> void addValidation(C component, Predicate<C> validator, @Nls String message) {
         addValidator(component, target -> validateTarget(target, validator, message));
     }
 
@@ -108,17 +109,17 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
     }
 
     @Override
-    public void addTextValidation(JTextComponent textField, Predicate<String> validator, String message) {
+    public void addTextValidation(JTextComponent textField, Predicate<String> validator, @Nls String message) {
         addValidation(textField, f -> validator.test(getText(f)), message);
     }
 
     @Override
-    public void addSelectionValidation(JComboBox comboBox, String message) {
+    public void addSelectionValidation(JComboBox comboBox, @Nls String message) {
         addValidation(comboBox, c -> c.getSelectedItem() != null, message);
     }
 
     @Override
-    public void addSelectionValidation(CheckBoxList checkBoxList, String message) {
+    public void addSelectionValidation(CheckBoxList checkBoxList, @Nls String message) {
         addValidation(checkBoxList, l -> l.hasSelection(), message);
     }
 

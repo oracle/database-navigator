@@ -73,7 +73,7 @@ public interface DBNFormValidator {
      *                   It returns {@code true} if the component is valid, and {@code false} otherwise.
      * @param message    the error message to display if the validation fails.
      */
-    <C extends JComponent> void addValidation(C component, Predicate<C> validator, String message);
+    <C extends JComponent> void addValidation(C component, Predicate<C> validator, @Nls String message);
 
     <C extends JComponent> void addValidation(C component, Function<C, String> validator);
 
@@ -99,9 +99,9 @@ public interface DBNFormValidator {
 
     void addTextValidation(JTextComponent textField, Function<JTextComponent, String> validator);
 
-    void addSelectionValidation(JComboBox comboBox, String message);
+    void addSelectionValidation(JComboBox comboBox, @Nls String message);
 
-    void addSelectionValidation(CheckBoxList checkBoxList, String message);
+    void addSelectionValidation(CheckBoxList checkBoxList, @Nls String message);
 
 
     default void validateInput() {

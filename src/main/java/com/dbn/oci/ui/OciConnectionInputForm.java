@@ -128,13 +128,12 @@ public class OciConnectionInputForm extends DBNFormBase {
 
   protected void initValidation() {
     // Validator for the confirm password field
-    addTextValidation(passwordTextField, this::validatePassword,"Password must be 8-60 characters long and include at least one letter and one number.");
+    addTextValidation(passwordTextField, this::validatePassword, txt("cfg.oci.error.WalletPasswordInvalid"));
 
     // Validator for the confirm password field
-    addTextValidation(passwordConfirmTextField, this::validateConfirmPassword,"Confirm Password does not match.");
+    addTextValidation(passwordConfirmTextField, this::validateConfirmPassword, txt("cfg.oci.error.WalletPasswordMismatch"));
 
-    addTextValidation(walletLocationField.getTextField(),this::validateWalletPath,"<html><b>Error:</b> Invalid location:<br>"
-            +walletTooltip+"</html>");
+    addTextValidation(walletLocationField.getTextField(), this::validateWalletPath, txt("cfg.oci.error.WalletLocationInvalid", walletTooltip));
   }
 
   public boolean validatePassword(String passwordText) {

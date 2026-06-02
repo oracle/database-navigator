@@ -67,7 +67,7 @@ public class RenameExecutionResultForm extends DBNFormBase {
     }
 
     protected void initValidation() {
-        addTextValidation(nameTextField, n -> !Strings.isEmpty(n), "Please specify a result name");
+        addTextValidation(nameTextField, n -> !Strings.isEmpty(n), txt("msg.execution.error.ResultNameRequired"));
     }
 
     @Nullable

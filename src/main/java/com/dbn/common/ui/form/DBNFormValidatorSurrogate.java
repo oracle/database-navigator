@@ -19,6 +19,7 @@ package com.dbn.common.ui.form;
 import com.dbn.common.ui.list.CheckBoxList;
 import com.intellij.openapi.ui.ValidationInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nls;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -53,7 +54,7 @@ public class DBNFormValidatorSurrogate implements DBNFormValidator{
     }
 
     @Override
-    public <C extends JComponent> void addValidation(C component, Predicate<C> validator, String message) {
+    public <C extends JComponent> void addValidation(C component, Predicate<C> validator, @Nls String message) {
         notSupported();
     }
 
@@ -68,17 +69,17 @@ public class DBNFormValidatorSurrogate implements DBNFormValidator{
     }
 
     @Override
-    public void addTextValidation(JTextComponent textField, Predicate<String> validator, String message) {
+    public void addTextValidation(JTextComponent textField, Predicate<String> validator, @Nls String message) {
         notSupported();
     }
 
     @Override
-    public void addSelectionValidation(JComboBox comboBox, String message) {
+    public void addSelectionValidation(JComboBox comboBox, @Nls String message) {
         notSupported();
     }
 
     @Override
-    public void addSelectionValidation(CheckBoxList checkBoxList, String message) {
+    public void addSelectionValidation(CheckBoxList checkBoxList, @Nls String message) {
         notSupported();
     }
 

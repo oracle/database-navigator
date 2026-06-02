@@ -100,13 +100,13 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
     }
 
     protected void initValidation() {
-        addTextValidation(nameTextField, t -> isNotEmpty(t), "Please specify an interface name");
-        addTextValidation(nameTextField, t -> isNotUsed(t), "Interface name already in use");
+        addTextValidation(nameTextField, t -> isNotEmpty(t), txt("cfg.execution.error.InterfaceNameRequired"));
+        addTextValidation(nameTextField, t -> isNotUsed(t), txt("cfg.execution.error.InterfaceNameAlreadyInUse"));
 
         JTextField execTextField = executableTextField.getTextField();
-        addTextValidation(execTextField, t -> Strings.isNotEmpty(t), "Please specify the command-line interface executable");
-        addTextValidation(execTextField, t -> new File(t).isFile(), "File does not exist");
-        addTextValidation(execTextField, t -> isMatchingDatabaseType(t), "Executable does not match the selected database type");
+        addTextValidation(execTextField, t -> Strings.isNotEmpty(t), txt("cfg.execution.error.CommandLineExecutableRequired"));
+        addTextValidation(execTextField, t -> new File(t).isFile(), txt("msg.shared.error.FileDoesNotExist"));
+        addTextValidation(execTextField, t -> isMatchingDatabaseType(t), txt("cfg.execution.error.CommandLineExecutableDatabaseTypeMismatch"));
     }
 
     private boolean isMatchingDatabaseType(String filePath) {

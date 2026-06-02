@@ -101,9 +101,9 @@ public class OciConfigSelectionForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(configFileTextField.getTextField(), s -> isNotEmpty(s), "Please select a Configuration file");
-        addTextValidation(configFileTextField.getTextField(), s -> new File(s).isFile(), "Please select a valid Configuration file");
-        addSelectionValidation(configProfileComboBox, "Please select an OCI configuration profile");
+        addTextValidation(configFileTextField.getTextField(), s -> isNotEmpty(s), txt("cfg.oci.error.ConfigFileRequired"));
+        addTextValidation(configFileTextField.getTextField(), s -> new File(s).isFile(), txt("cfg.oci.error.ValidConfigFileRequired"));
+        addSelectionValidation(configProfileComboBox, txt("cfg.oci.error.ConfigProfileRequired"));
     }
 
     protected void initFieldAvailability() {

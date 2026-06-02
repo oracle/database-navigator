@@ -199,10 +199,10 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), "Please enter a name for the new model");
-        addTextValidation(modelFileTextField.getTextField(), n -> isNotEmptyOrSpaces(n), "Please select a model file");
-        addTextValidation(objectUrlTextField, n -> isNotEmptyOrSpaces(n), "Please provide an object URL");
-//    addSelectionValidation(credentialComboBox, "Please select or create a credential");
+        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ModelNameRequired"));
+        addTextValidation(modelFileTextField.getTextField(), n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ModelFileRequired"));
+        addTextValidation(objectUrlTextField, n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ObjectUrlRequired"));
+//    addSelectionValidation(credentialComboBox, txt("msg.vector.error.SelectOrCreateCredential"));
     }
 
     private DBSchema getSchema() {

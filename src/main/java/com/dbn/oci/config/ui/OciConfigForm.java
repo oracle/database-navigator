@@ -96,23 +96,23 @@ public class OciConfigForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(configFileTextField.getTextField(), s -> isNotEmpty(s), "Please select a Configuration file");
-        addTextValidation(configFileTextField.getTextField(), s -> new File(s).isFile(), "Please select a valid Configuration file");
-        addSelectionValidation(configProfileComboBox, "Please select an OCI configuration profile");
+        addTextValidation(configFileTextField.getTextField(), s -> isNotEmpty(s), txt("cfg.oci.error.ConfigFileRequired"));
+        addTextValidation(configFileTextField.getTextField(), s -> new File(s).isFile(), txt("cfg.oci.error.ValidConfigFileRequired"));
+        addSelectionValidation(configProfileComboBox, txt("cfg.oci.error.ConfigProfileRequired"));
 
-        addTextValidation(compartmentIdTextField, s -> isNotEmpty(s), "Please provide an Compartment ID");
-        addTextValidation(compartmentIdTextField, s -> s.startsWith("ocid1.compartment.oc1.."), "Please provide a valid Compartment ID");
+        addTextValidation(compartmentIdTextField, s -> isNotEmpty(s), txt("cfg.oci.error.CompartmentIdRequired"));
+        addTextValidation(compartmentIdTextField, s -> s.startsWith("ocid1.compartment.oc1.."), txt("cfg.oci.error.ValidCompartmentIdRequired"));
 
-        addTextValidation(userIdTextField, s -> isNotEmpty(s), "Please provide a User ID");
-        addTextValidation(userIdTextField, s -> s.startsWith("ocid1.user.oc1.."), "Please provide a valid User ID");
+        addTextValidation(userIdTextField, s -> isNotEmpty(s), txt("cfg.oci.error.UserIdRequired"));
+        addTextValidation(userIdTextField, s -> s.startsWith("ocid1.user.oc1.."), txt("cfg.oci.error.ValidUserIdRequired"));
 
-        addTextValidation(tenancyIdTextField, s -> isNotEmpty(s), "Please provide a Tenancy ID");
-        addTextValidation(tenancyIdTextField, s -> s.startsWith("ocid1.tenancy.oc1.."), "Please provide a valid Tenancy ID");
+        addTextValidation(tenancyIdTextField, s -> isNotEmpty(s), txt("cfg.oci.error.TenancyIdRequired"));
+        addTextValidation(tenancyIdTextField, s -> s.startsWith("ocid1.tenancy.oc1.."), txt("cfg.oci.error.ValidTenancyIdRequired"));
 
-        addTextValidation(configFileTextField.getTextField(), s -> isNotEmpty(s), "Please select a Private key file");
-        addTextValidation(configFileTextField.getTextField(), s -> new File(s).isFile(), "Please select a valid Private key file");
+        addTextValidation(configFileTextField.getTextField(), s -> isNotEmpty(s), txt("cfg.oci.error.PrivateKeyFileRequired"));
+        addTextValidation(configFileTextField.getTextField(), s -> new File(s).isFile(), txt("cfg.oci.error.ValidPrivateKeyFileRequired"));
 
-        addTextValidation(fingerprintTextField, s -> isNotEmpty(s), "Please provide a Fingerprint");
+        addTextValidation(fingerprintTextField, s -> isNotEmpty(s), txt("cfg.oci.error.FingerprintRequired"));
 
     }
 

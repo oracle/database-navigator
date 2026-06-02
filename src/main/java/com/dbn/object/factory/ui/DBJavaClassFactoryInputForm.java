@@ -173,9 +173,9 @@ public class DBJavaClassFactoryInputForm extends DBSchemaObjectFactoryInputForm 
 
     @Override
     protected void initValidation() {
-        addTextValidation(packageTextField, p -> isValidPackageName(p), "Please enter a valid package name");
-        addTextValidation(nameTextField, p -> isNotEmpty(p), "Please enter a class name");
-        addTextValidation(nameTextField, p -> isValidClassName(p), "Please enter a valid class name");
+        addTextValidation(packageTextField, p -> isValidPackageName(p), txt("msg.java.error.ValidPackageName"));
+        addTextValidation(nameTextField, p -> isNotEmpty(p), txt("msg.java.error.ClassNameRequired"));
+        addTextValidation(nameTextField, p -> isValidClassName(p), txt("msg.java.error.ValidClassName"));
     }
 
     @Override

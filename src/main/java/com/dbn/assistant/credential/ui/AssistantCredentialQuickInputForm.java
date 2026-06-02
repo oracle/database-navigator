@@ -102,7 +102,7 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(keyPasswordField, Strings::isNotEmpty, "Please provide an API key");
+        addTextValidation(keyPasswordField, Strings::isNotEmpty, txt("msg.assistant.error.ApiKeyRequired"));
     }
 
     @Override

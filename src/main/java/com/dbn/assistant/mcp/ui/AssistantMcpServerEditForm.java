@@ -225,10 +225,10 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, n -> isNotEmpty(n), "Please provide a server name");
-        addTextValidation(nameTextField, n -> isNotUsed(n), "The server name is already in use");
-        addTextValidation(httpUrlTextField, s -> isNotEmpty(s), "Please provide the server URL");
-        addTextValidation(commandTextField.getTextField(), s -> isNotEmpty(s), "Please provide the server command executable");
+        addTextValidation(nameTextField, n -> isNotEmpty(n), txt("msg.assistant.error.McpServerNameRequired"));
+        addTextValidation(nameTextField, n -> isNotUsed(n), txt("msg.assistant.error.McpServerNameAlreadyInUse"));
+        addTextValidation(httpUrlTextField, s -> isNotEmpty(s), txt("msg.assistant.error.McpServerUrlRequired"));
+        addTextValidation(commandTextField.getTextField(), s -> isNotEmpty(s), txt("msg.assistant.error.McpServerCommandExecutableRequired"));
     }
 
     @Nullable

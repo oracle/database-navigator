@@ -76,11 +76,11 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
     }
 
     protected void initValidation() {
-        addSelectionValidation(moduleComboBox, "Please select the destination module");
-        addSelectionValidation(contentRootComboBox, "Please select the destination content root");
-        addTextValidation(packageTextField, p -> isValidPackageName(p), "Please enter a valid package name");
-        addTextValidation(classNameTextField, p -> isNotEmpty(p), "Please enter a class name");
-        addTextValidation(classNameTextField, p -> isValidClassName(p), "Please enter a valid class name");
+        addSelectionValidation(moduleComboBox, txt("msg.java.error.SelectDestinationModule"));
+        addSelectionValidation(contentRootComboBox, txt("msg.java.error.SelectDestinationContentRoot"));
+        addTextValidation(packageTextField, p -> isValidPackageName(p), txt("msg.java.error.ValidPackageName"));
+        addTextValidation(classNameTextField, p -> isNotEmpty(p), txt("msg.java.error.ClassNameRequired"));
+        addTextValidation(classNameTextField, p -> isValidClassName(p), txt("msg.java.error.ValidClassName"));
     }
 
     @Override

@@ -44,7 +44,7 @@ public class EmbeddingSourceQueriesForm extends VectorToolboxFormBase {
         addValidation(
                 queryListForm.getQueriesList(),
                 list -> list.getModel().getSize() > 0,
-                "Please specify at least one query"
+                txt("msg.vector.error.SpecifyAtLeastOneQuery")
         );
     }
 

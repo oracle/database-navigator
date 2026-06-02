@@ -66,8 +66,8 @@ public class EmbeddingModelDatabaseForm extends VectorToolboxFormBase {
 
     @Override
     protected void initValidation() {
-        addSelectionValidation(schemaComboBox, "Please select a schema");
-        addSelectionValidation(modelComboBox, "Please select or create a model");
+        addSelectionValidation(schemaComboBox, txt("msg.shared.error.SelectSchema"));
+        addSelectionValidation(modelComboBox, txt("msg.vector.error.SelectOrCreateModel"));
     }
 
     private List<DBAIModel> loadModels() {

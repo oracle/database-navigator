@@ -162,7 +162,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase {
             } catch (ParseException e) {
                 String pattern = formatter.getDateFormatPattern();
                 String sample = formatter.formatDate(new Date());
-                return "Invalid date. Expected format \"" + pattern + "\" (e.g. \"" + sample + "\")";
+                return txt("msg.shared.error.InvalidDateFormat", pattern, sample);
             }
         } else if (dataType == GenericDataType.NUMERIC){
             try {
@@ -170,7 +170,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase {
             } catch (ParseException e) {
                 String pattern = formatter.getNumberFormatPattern();
                 String sample = formatter.formatNumber(123456.7890);
-                return "Invalid number. Expected format \"" + pattern + "\" (e.g. \"" + sample + "\")";
+                return txt("msg.shared.error.InvalidNumberFormat", pattern, sample);
             }
         }
         return null;

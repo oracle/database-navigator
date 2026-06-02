@@ -104,7 +104,7 @@ public class EmbeddingChunkingConfigForm extends VectorToolboxFormBase implement
         if ("NONE".equals(chunkBy)) {
             EmbeddingSourceType sourceType = getToolboxForm().getEmbeddingSourceForm().getSelectedSourceType();
             if (sourceType == EmbeddingSourceType.FILE_SYSTEM) {
-                return "Chunking configuration is mandatory for contents sourced from file system";
+                return txt("msg.vector.error.ChunkingRequiredForFileSystem");
             }
         }
 

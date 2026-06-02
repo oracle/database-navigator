@@ -92,11 +92,11 @@ public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm {
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), "Please enter an argument name");
-        addTextValidation(nameTextField, n -> isWord(n), "Please enter a valid argument name");
-        addTextValidation(nameTextField, n -> isNotUsed(n), "Please enter a unique argument name");
+        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ArgumentNameRequired"));
+        addTextValidation(nameTextField, n -> isWord(n), txt("msg.objects.error.ValidArgumentNameRequired"));
+        addTextValidation(nameTextField, n -> isNotUsed(n), txt("msg.objects.error.UniqueArgumentNameRequired"));
 
-        addTextValidation(getTypeTextField(), t -> isNotEmptyOrSpaces(t), "Please enter the argument data type");
+        addTextValidation(getTypeTextField(), t -> isNotEmptyOrSpaces(t), txt("msg.objects.error.ArgumentDataTypeRequired"));
     }
 
     private boolean isNotUsed(String argumentName) {

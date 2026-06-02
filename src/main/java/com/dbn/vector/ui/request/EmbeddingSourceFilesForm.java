@@ -37,7 +37,7 @@ public class EmbeddingSourceFilesForm extends VectorToolboxFormBase {
 
     @Override
     protected void initValidation() {
-        addValidation(fileListForm.getFileList(), l -> l.getModel().getSize() > 0, "Please select at least one file");
+        addValidation(fileListForm.getFileList(), l -> l.getModel().getSize() > 0, txt("msg.vector.error.SelectAtLeastOneFile"));
     }
 
     @Override

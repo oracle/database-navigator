@@ -140,9 +140,9 @@ public class AssistantCredentialEditForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, n -> isNotEmpty(n), "Please provide a credential name");
-        addTextValidation(nameTextField, n -> isNotUsed(n), "The credential name is already in use");
-        addTextValidation(secretTextField, s -> isNotEmpty(s), "Please provide a credential");
+        addTextValidation(nameTextField, n -> isNotEmpty(n), txt("msg.assistant.error.CredentialNameRequired"));
+        addTextValidation(nameTextField, n -> isNotUsed(n), txt("msg.assistant.error.CredentialNameAlreadyInUse"));
+        addTextValidation(secretTextField, s -> isNotEmpty(s), txt("msg.assistant.error.CredentialRequired"));
     }
 
     protected void updateFieldAvailability() {

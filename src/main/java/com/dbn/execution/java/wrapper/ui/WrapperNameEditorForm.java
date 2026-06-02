@@ -105,10 +105,10 @@ public class WrapperNameEditorForm extends DBNFormBase {
 
     protected void initValidation() {
         int maxLength = getMaxIdentifierLength();
-        addTextValidation(objectNameTextField, p -> isNotEmptyOrSpaces(p), "Identifier cannot be empty");
-        addTextValidation(objectNameTextField, p -> p.trim().length() <= maxLength, "Identifier length cannot exceed " + maxLength + " characters");
-        addTextValidation(objectNameTextField, p -> p.trim().matches("^[a-zA-Z][a-zA-Z0-9_$#]*$"), "Identifiers can only contain alphanumeric characters, underscores, dollar and hash signs");
-        addTextValidation(objectNameTextField, p -> isUniqueIdentifier(), "Identifier names must be unique");
+        addTextValidation(objectNameTextField, p -> isNotEmptyOrSpaces(p), txt("msg.java.error.IdentifierEmpty"));
+        addTextValidation(objectNameTextField, p -> p.trim().length() <= maxLength, txt("msg.java.error.IdentifierLengthExceeded", maxLength));
+        addTextValidation(objectNameTextField, p -> p.trim().matches("^[a-zA-Z][a-zA-Z0-9_$#]*$"), txt("msg.java.error.IdentifierCharactersInvalid"));
+        addTextValidation(objectNameTextField, p -> isUniqueIdentifier(), txt("msg.java.error.IdentifierNamesMustBeUnique"));
     }
 
     private boolean isUniqueIdentifier() {

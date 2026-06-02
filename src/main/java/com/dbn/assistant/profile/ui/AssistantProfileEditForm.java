@@ -247,10 +247,10 @@ public class AssistantProfileEditForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, Strings::isNotEmpty, "Please provide a profile name");
-        addTextValidation(nameTextField, this::isNotUsed, "The profile name is already in use");
-        addSelectionValidation(providerComboBox, "Please select a LLM provider");
-        addSelectionValidation(credentialComboBox, "Please select or create a credential");
+        addTextValidation(nameTextField, Strings::isNotEmpty, txt("msg.assistant.error.ProfileNameRequired"));
+        addTextValidation(nameTextField, this::isNotUsed, txt("msg.assistant.error.ProfileNameAlreadyInUse"));
+        addSelectionValidation(providerComboBox, txt("msg.assistant.error.LlmProviderRequired"));
+        addSelectionValidation(credentialComboBox, txt("msg.assistant.error.SelectOrCreateCredential"));
     }
 
     public void applyFormChanges() {

@@ -117,11 +117,11 @@ public class EmbeddingModelThirdPartyForm extends VectorToolboxFormBase {
 
     @Override
     protected void initValidation() {
-        addSelectionValidation(credentialSchemaComboBox, "Please select a credential schema");
-        addSelectionValidation(credentialComboBox, "Please select or create a credential");
-        addSelectionValidation(providerComboBox, "Please specify the embedding model provider");
-        addTextValidation(urlTextField, t -> Strings.isNotEmpty(t), "Please specify the embedding model URL");
-        addTextValidation(modelTextField, t -> Strings.isNotEmpty(t), "Please specify the embedding model name");
+        addSelectionValidation(credentialSchemaComboBox, txt("msg.vector.error.SelectCredentialSchema"));
+        addSelectionValidation(credentialComboBox, txt("msg.vector.error.SelectOrCreateCredential"));
+        addSelectionValidation(providerComboBox, txt("msg.vector.error.EmbeddingModelProviderRequired"));
+        addTextValidation(urlTextField, t -> Strings.isNotEmpty(t), txt("msg.vector.error.EmbeddingModelUrlRequired"));
+        addTextValidation(modelTextField, t -> Strings.isNotEmpty(t), txt("msg.vector.error.EmbeddingModelNameRequired"));
     }
 
     @Override

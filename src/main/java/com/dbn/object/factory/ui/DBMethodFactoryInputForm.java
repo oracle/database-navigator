@@ -120,11 +120,11 @@ public class DBMethodFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     @Override
     protected void initValidation() {
         String objectTypeName = getObjectType().getName();
-        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), "Please enter a " + objectTypeName + " name");
-        addTextValidation(nameTextField, n -> isWord(n), "Please enter a valid " + objectTypeName + " name");
+        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ObjectNameRequired", objectTypeName));
+        addTextValidation(nameTextField, n -> isWord(n), txt("msg.objects.error.ValidObjectNameRequired", objectTypeName));
 
         if (hasReturnArgument()) {
-            addTextValidation(getReturnDataTypeEditor().getTextField(), t -> isNotEmptyOrSpaces(t), "Please enter the return argument data type");
+            addTextValidation(getReturnDataTypeEditor().getTextField(), t -> isNotEmptyOrSpaces(t), txt("msg.objects.error.ReturnArgumentDataTypeRequired"));
         }
     }
 

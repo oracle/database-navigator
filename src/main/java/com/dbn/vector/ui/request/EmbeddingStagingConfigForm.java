@@ -129,8 +129,8 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
 
     @Override
     protected void initValidation() {
-        addSelectionValidation(schemaComboBox,"Please select a schema");
-        addSelectionValidation(tableComboBox,"Please select a table");
+        addSelectionValidation(schemaComboBox, txt("msg.shared.error.SelectSchema"));
+        addSelectionValidation(tableComboBox, txt("msg.shared.error.SelectTable"));
     }
 
     private void populateTables() {

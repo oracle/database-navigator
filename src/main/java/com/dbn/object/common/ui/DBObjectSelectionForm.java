@@ -162,11 +162,11 @@ public class DBObjectSelectionForm<T extends DBObject> extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addSelectionValidation(schemaComboBox, "Please select a schema");
+        addSelectionValidation(schemaComboBox, txt("msg.shared.error.SelectSchema"));
         DBObjectType objectType = input.getObjectType();
         String objectTypeName = objectType.getTitleCasedName();
 
-        addSelectionValidation(objectComboBox, "Please select " + (startsWithVowel(objectTypeName) ? "an " : "a ") +  objectTypeName);
+        addSelectionValidation(objectComboBox, txt("msg.objects.error.SelectObject", (startsWithVowel(objectTypeName) ? "an " : "a ") +  objectTypeName));
     }
 
     private void populateColumns() {

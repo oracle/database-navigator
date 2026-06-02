@@ -296,16 +296,16 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     private String validateHttpPort(String value) {
         if (!getTransportType().isHttp()) return null;
-        if (value == null || value.isBlank()) return "HTTP port is required for HTTP transport";
+        if (value == null || value.isBlank()) return txt("msg.mcp.error.HttpPortRequired");
 
         try {
             int port = Integer.parseInt(value.trim());
             if (port < 1 || port > 65535) {
-                return "HTTP port must be between 1 and 65535";
+                return txt("msg.mcp.error.HttpPortRangeInvalid");
             }
             return null;
         } catch (NumberFormatException e) {
-            return "HTTP port must be a number";
+            return txt("msg.mcp.error.HttpPortNumberInvalid");
         }
     }
 

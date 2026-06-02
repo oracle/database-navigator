@@ -75,11 +75,11 @@ public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm {
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), "Please enter a column name");
-        addTextValidation(nameTextField, n -> isWord(n), "Please enter a valid column name");
-        addTextValidation(nameTextField, n -> isNotUsed(n), "Please enter a unique column name");
+        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ColumnNameRequired"));
+        addTextValidation(nameTextField, n -> isWord(n), txt("msg.objects.error.ValidColumnNameRequired"));
+        addTextValidation(nameTextField, n -> isNotUsed(n), txt("msg.objects.error.UniqueColumnNameRequired"));
 
-        addTextValidation(getTypeTextField(), t -> isNotEmptyOrSpaces(t), "Please enter the column data type");
+        addTextValidation(getTypeTextField(), t -> isNotEmptyOrSpaces(t), txt("msg.objects.error.ColumnDataTypeRequired"));
     }
 
     @Override
