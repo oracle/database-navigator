@@ -28,12 +28,12 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.approval.UserApprovalManager.COMPONENT_NAME;
@@ -92,9 +92,12 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         if (approvals.contains(approvalKey)) return;
 
         // check for recent rejections
-        Long rejectionTimestamp = rejections.get(approvalKey);
-        if (rejectionTimestamp != null && !TimeUtil.isOlderThan(rejectionTimestamp, 10, TimeUnit.SECONDS)) {
-            throw new UserApprovalCancelledException();
+        Duration rejectionCooldown = adapter.getRejectionCooldown(approvable);
+        if (rejectionCooldown != null) {
+            Long rejectionTimestamp = rejections.get(approvalKey);
+            if (rejectionTimestamp != null && !TimeUtil.isOlderThan(rejectionTimestamp, rejectionCooldown)) {
+                throw new UserApprovalCancelledException();
+            }
         }
 
         if (pendingApprovals.contains(approvalKey)) {

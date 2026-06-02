@@ -27,7 +27,7 @@ import com.dbn.common.util.Characters;
 import com.dbn.common.util.Strings;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.language.common.DBLanguage;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.object.DBSynonym;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBVirtualObject;
@@ -42,6 +42,7 @@ import javax.swing.Icon;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.common.util.Strings.toUpperCase;
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 
 public class ObjectLookupItemBuilder extends LookupItemBuilder {
     private final DBLanguage language;
@@ -61,7 +62,7 @@ public class ObjectLookupItemBuilder extends LookupItemBuilder {
         DatabaseCompatibilityInterface compatibility = object.getCompatibilityInterface();
         String lookupString = object.getName();
         QuotePair quotes = compatibility.getDefaultIdentifierQuotes();
-        lookupString = quotes.quote(lookupString);
+        lookupString = quotes.quote(lookupString, DATABASE);
         lookupItem.setLookupString(lookupString);
 
 

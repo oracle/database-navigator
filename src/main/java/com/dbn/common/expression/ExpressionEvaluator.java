@@ -16,13 +16,15 @@
 
 package com.dbn.common.expression;
 
+import org.jetbrains.annotations.NonNls;
+
 public interface ExpressionEvaluator {
 
-    boolean verifyExpression(String expression, ExpressionEvaluatorContext context);
+    boolean verifyExpression(@NonNls String expression, ExpressionEvaluatorContext context);
 
-    boolean verifyExpression(String expression, ExpressionEvaluatorContext context, Class<?> expectedOutcome);
+    boolean verifyExpression(@NonNls String expression, ExpressionEvaluatorContext context, Class<?> expectedOutcome);
 
-    boolean evaluateBooleanExpression(String expression, ExpressionEvaluatorContext context);
+    boolean evaluateBooleanExpression(@NonNls String expression, ExpressionEvaluatorContext context);
 
-    <T> T evaluateExpression(String expression, ExpressionEvaluatorContext context);
+    <T> T evaluateExpression(@NonNls String expression, ExpressionEvaluatorContext context);
 }

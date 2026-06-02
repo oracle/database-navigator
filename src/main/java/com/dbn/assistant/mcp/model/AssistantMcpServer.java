@@ -33,8 +33,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
@@ -57,7 +59,7 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
     private String key;
     private String url;
     private String command;
-    private String commandArguments;
+    private List<String> commandArguments;
 
     private transient boolean acknowledged;
 
@@ -81,7 +83,7 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
 
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add(command);
-        tokens.addAll(Strings.split(commandArguments, "\\s+"));
+        tokens.addAll(commandArguments);
         return tokens;
     }
 
@@ -127,7 +129,13 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
         key = stringAttribute(element, "key");
         url = stringAttribute(element, "url");
         command = stringAttribute(element, "command");
-        commandArguments = stringAttribute(element, "command-arguments");
+
+        List<Element> argumentElements = childrenOf(element, "command-argument");
+        commandArguments = new ArrayList<>();
+        for (Element argumentElement : argumentElements) {
+            String text = argumentElement.getText();
+            commandArguments.add(text);
+        }
     }
 
     @Override
@@ -139,7 +147,11 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
         setStringAttribute(element, "key", key);
         setStringAttribute(element, "url", url);
         setStringAttribute(element, "command", command);
-        setStringAttribute(element, "command-arguments", commandArguments);
+
+        for (String commandArgument : commandArguments) {
+            Element argumentElement = newElement(element, "command-argument");
+            argumentElement.setText(commandArgument);
+        }
     }
 
     @Override

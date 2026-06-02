@@ -22,12 +22,13 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
+import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.ObjectFactoryManager;
-import com.dbn.object.factory.model.DBJavaClassSpec;
-import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBJavaClassType;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,25 +43,31 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
+import static com.dbn.common.util.Java.getQualifiedClassName;
 import static com.dbn.common.util.Java.isValidClassName;
 import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.object.factory.model.DBObjectAttributeType.JAVA_CLASS_NAME;
+import static com.dbn.object.factory.model.DBObjectAttributeType.JAVA_CLASS_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.JAVA_PACKAGE_NAME;
+import static com.dbn.object.type.DBJavaClassType.CLASS;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 
-public class DBJavaClassFactoryInputForm extends DBObjectFactoryInputForm<DBJavaClassSpec> {
+public class DBJavaClassFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel mainPanel;
-    private JPanel headerPanel;
-    private JTextField nameTextField;
-    private JTextField packageTextField;
-    private DBNComboBox<ConnectionHandler> connectionComboBox;
-    private DBNComboBox<SchemaId> schemaComboBox;
+    private @Getter JPanel headerPanel;
+    private @Getter JTextField packageTextField;
+    private @Getter JTextField nameTextField;
+    private @Getter DBNComboBox<ConnectionHandler> connectionComboBox;
+    private @Getter DBNComboBox<SchemaId> schemaComboBox;
     private DBNComboBox<DBJavaClassType> classTypeComboBox;
 
     public DBJavaClassFactoryInputForm(DBNComponent parent, DBSchema schema) {
-        this(parent, new DBJavaClassSpec(schema));
+        this(parent, createInput(schema));
     }
 
-    public DBJavaClassFactoryInputForm(DBNComponent parent, DBJavaClassSpec input) {
+    public DBJavaClassFactoryInputForm(DBNComponent parent, DBObjectSpec input) {
         super(parent, input);
         DBSchema schema = input.getSchema();
 
@@ -90,6 +97,12 @@ public class DBJavaClassFactoryInputForm extends DBObjectFactoryInputForm<DBJava
         resetFormChanges();
     }
 
+    private static DBObjectSpec createInput(DBSchema schema) {
+        DBObjectSpec input = new DBObjectSpec(schema, JAVA_CLASS);
+        input.setAttributeValue(JAVA_CLASS_TYPE, CLASS);
+        return input;
+    }
+
     @Nullable
     private Icon getHeaderIcon() {
         DBJavaClassType selectedValue = classTypeComboBox.getSelectedValue();
@@ -113,6 +126,11 @@ public class DBJavaClassFactoryInputForm extends DBObjectFactoryInputForm<DBJava
     }
 
     @Override
+    protected DatabaseIdentifierCase getSelectedIdentifierCase() {
+        return DatabaseIdentifierCase.PRESERVE;
+    }
+
+    @Override
     public String getObjectName() {
         return getText(nameTextField);
     }
@@ -133,16 +151,24 @@ public class DBJavaClassFactoryInputForm extends DBObjectFactoryInputForm<DBJava
 
     @Override
     public void applyFormChanges() {
-        input.setPackageName(getText(packageTextField));
-        input.setClassName(getText(nameTextField));
-        input.setClassType(getSelection(classTypeComboBox));
+        String packageName = getText(packageTextField);
+        String className = getText(nameTextField);
+        input.setAttributeValue(JAVA_PACKAGE_NAME, packageName);
+        input.setAttributeValue(JAVA_CLASS_NAME, className);
+        input.setAttributeValue(JAVA_CLASS_TYPE, getSelection(classTypeComboBox));
+        input.setObjectName(getQualifiedClassName(packageName, className));
     }
 
     @Override
     public void resetFormChanges() {
-        setText(packageTextField, input.getPackageName());
-        setText(nameTextField, input.getClassName());
-        classTypeComboBox.setSelectedValue(input.getClassType());
+        setText(packageTextField, JAVA_PACKAGE_NAME.of(input));
+        setText(nameTextField, JAVA_CLASS_NAME.of(input));
+        classTypeComboBox.setSelectedValue(getClassType());
+    }
+
+    private DBJavaClassType getClassType() {
+        DBJavaClassType classType = JAVA_CLASS_TYPE.of(input);
+        return classType == null ? CLASS : classType;
     }
 
     @Override

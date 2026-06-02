@@ -204,7 +204,10 @@ public class Messages {
     public static int showAcknowledgementDialog(@Nullable Project project, String title, String message, String[] options, int defaultOptionIndex,  MessageCallback callback) {
         return Dispatch.call(() -> {
             int option = showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_WARNING, null);
-            callback.accept(option);
+            if (callback != null) {
+                callback.accept(option);
+            }
+
             return option;
         });
     }
