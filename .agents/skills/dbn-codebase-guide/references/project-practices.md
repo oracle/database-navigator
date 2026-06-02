@@ -90,7 +90,10 @@
 
 - Resource bundle: `src/main/resources/messages/DBNResources.properties`.
 - Access text with `static com.dbn.nls.NlsResources.txt`.
-- Key families commonly start with `app.`, `cfg.`, `msg.`, or `prc.`; shared labels use `app.shared.*` and `msg.shared.*`.
+- Key families commonly start with `app.`, `cfg.`, `msg.`, `ntf.`, `prc.`, or `log.`; shared labels use `app.shared.*` and `msg.shared.*`.
+- Name keys as `<family>.<component>.<element>.<Name>`, where `element` describes the UI/string role, for example `title`, `text`, `action`, `label`, `tooltip`, `button`, `question`, `info`, `error`, `warning`, `const`, or `aria`.
+- For progress/process strings use paired keys under `prc.<component>.title.<Operation>` and `prc.<component>.text.<Operation>`. Keep operation names stable and descriptive, for example `CompilingJavaClass`, `LoadingCompilerData`, or `CreatingExecutionWrappers`.
+- Prefer parameterized values over string concatenation in user-visible text: `txt("prc.object.text.CreatingObjectDescription", description)` rather than `"Creating " + description`.
 - `txt(...)` falls back to literal text for non-key strings, but new user-visible strings should still get real keys when nearby code is localized.
 - Use DBN `Messages`, `Dialogs`, and `MessageBundle` helpers for user-facing notifications/dialogs.
 
