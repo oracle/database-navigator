@@ -58,7 +58,6 @@ import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
-// TODO NLS
 @Slf4j
 @UtilityClass
 public class Messages {
