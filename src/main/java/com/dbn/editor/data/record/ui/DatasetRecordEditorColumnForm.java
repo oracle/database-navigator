@@ -140,7 +140,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
 
                             if (!column.isPrimaryKey() && !column.isUniqueKey() && dataLength <= valueListPopupSettings.getDataLengthThreshold()) {
                                 ListPopupValuesProvider valuesProvider = ListPopupValuesProviderBase.
-                                        create("Possible Values", () -> columnInfo.getPossibleValues());
+                                        create(txt("msg.dataEditor.title.PossibleValues"), () -> columnInfo.getPossibleValues());
                                 textFieldWithPopup.createValuesListPopup(valuesProvider, column, valueListPopupSettings.isShowPopupButton());
                             }
 

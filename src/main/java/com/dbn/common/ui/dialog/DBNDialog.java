@@ -40,6 +40,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.OptionAction;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.openapi.util.UserDataHolder;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.wm.IdeFrame;
@@ -102,12 +103,12 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     private final DBNFormValidator formValidator = new DBNFormValidatorImpl(this);
     private final UserDataHolder userDataHolder = new UserDataHolderBase();
 
-    protected DBNDialog(@NotNull ConnectionHandler connection, String title, boolean canBeParent) {
+    protected DBNDialog(@NotNull ConnectionHandler connection, @DialogTitle String title, boolean canBeParent) {
         this(connection.getProject(), title, canBeParent);
         putUserData(UserDataKeys.CONNECTION_REF, ConnectionRef.of(connection));
     }
 
-    protected DBNDialog(@Nullable Project project, String title, boolean canBeParent) {
+    protected DBNDialog(@Nullable Project project, @DialogTitle String title, boolean canBeParent) {
         super(project, canBeParent);
         putUserData(PROJECT_REF, ProjectRef.of(project));
         setTitle(Titles.signed(title));

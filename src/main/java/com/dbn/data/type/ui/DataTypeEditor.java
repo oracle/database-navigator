@@ -30,6 +30,8 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DataTypeEditor extends TextFieldWithPopup {
     public DataTypeEditor(ConnectionHandler connection) {
         super(connection.getProject());
@@ -43,7 +45,8 @@ public class DataTypeEditor extends TextFieldWithPopup {
             typeName = caseOption.format(typeName);
             nativeDataTypeNames.add(typeName);
         }
-        BasicListPopupValuesProvider valuesProvider = new BasicListPopupValuesProvider("Native Data Types", nativeDataTypeNames);
+        BasicListPopupValuesProvider valuesProvider =
+                new BasicListPopupValuesProvider(txt("msg.dataType.title.NativeDataTypes"), nativeDataTypeNames);
         createValuesListPopup(valuesProvider, null, true);
         setEmptyText("Data type");
     }

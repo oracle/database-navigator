@@ -204,7 +204,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 		return new ListPopupValuesProvider() {
 			@Override
 			public String getName() {
-				return "Value History";
+				return txt("msg.execution.title.ValueHistory");
 			}
 
 			@Override

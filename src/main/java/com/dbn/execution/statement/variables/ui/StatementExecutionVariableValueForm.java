@@ -33,6 +33,7 @@ import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.execution.statement.variables.StatementExecutionVariable;
 import com.dbn.execution.statement.variables.StatementExecutionVariables;
 import com.dbn.execution.statement.variables.VariableValueProvider;
+import com.dbn.nls.NlsResources;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ui.UIUtil;
@@ -190,7 +191,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase {
         return new ListPopupValuesProvider() {
             @Override
             public String getName() {
-                return "Value History";
+                return NlsResources.txt("msg.execution.title.ValueHistory");
             }
 
             @Override

@@ -181,7 +181,7 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
     @Override
     public String getName() {
-        return "Array Editor";
+        return txt("msg.dataEditor.title.ArrayEditor");
     }
 
     @Override
