@@ -17,6 +17,7 @@
 package com.dbn.execution.script;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
@@ -47,7 +48,6 @@ import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -86,6 +86,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.logging.LogOutput.createSysOutput;
 import static com.dbn.execution.script.ScriptExecutionProcessHandler.startProcess;
 import static com.dbn.nls.NlsResources.txt;
+import static com.intellij.openapi.ui.DialogWrapper.OK_EXIT_CODE;
 import static java.nio.file.Files.createTempDirectory;
 import static java.nio.file.Files.createTempFile;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -143,34 +144,40 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
             ScriptExecutionInputDialog inputDialog = new ScriptExecutionInputDialog(project,executionInput);
 
             inputDialog.show();
-            if (inputDialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) {
-                ConnectionHandler connection = executionInput.getConnection();
-                SchemaId schemaId = executionInput.getSchemaId();
-                CmdLineInterface cmdLineExecutable = executionInput.getCmdLineInterface();
-                contextManager.setConnection(virtualFile, connection);
-                contextManager.setDatabaseSchema(virtualFile, schemaId);
-                if (connection != null) {
-                    recentlyUsedInterfaces.put(connection.getDatabaseType(), cmdLineExecutable.getId());
-                }
-                clearOutputOption = executionInput.isClearOutput();
+            if (inputDialog.getExitCode() != OK_EXIT_CODE) return;
 
-                Progress.background(project, connection, true,
-                        txt("prc.execution.title.ExecutingScript"),
-                        txt("prc.execution.text.ExecutingScript",virtualFile.getName()),
-                        progress -> {
-                            try {
-                                doExecuteScript(executionInput);
-                            } catch (Exception e) {
-                                conditionallyLog(e);
-                                Messages.showErrorDialog(getProject(),
-                                        txt("msg.execution.error.ErrorExecutingScript", virtualFile.getPath(), e.getMessage()));
-                            }
-                        });
+            ConnectionHandler connection = executionInput.getConnection();
+            SchemaId schemaId = executionInput.getSchemaId();
+            CmdLineInterface cmdLineExecutable = executionInput.getCmdLineInterface();
+            contextManager.setConnection(virtualFile, connection);
+            contextManager.setDatabaseSchema(virtualFile, schemaId);
+            if (connection != null) {
+                recentlyUsedInterfaces.put(connection.getDatabaseType(), cmdLineExecutable.getId());
             }
+            clearOutputOption = executionInput.isClearOutput();
+
+            Progress.background(project, connection, true,
+                    txt("prc.execution.title.ExecutingScript"),
+                    txt("prc.execution.text.ExecutingScript",virtualFile.getName()),
+                    progress -> {
+                        try {
+                            doExecuteScript(executionInput);
+                        } catch (ProcessCanceledException e) {
+                            conditionallyLog(e);
+                        } catch (Exception e) {
+                            conditionallyLog(e);
+                            Messages.showErrorDialog(getProject(),
+                                    txt("msg.execution.error.ErrorExecutingScript", virtualFile.getPath(), e.getMessage()));
+                        }
+                    });
         }
     }
 
     private void doExecuteScript(ScriptExecutionInput input) throws Exception {
+        CmdLineInterface cmdLineInterface = input.getCmdLineInterface();
+        UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+        approvalManager.ensureApproved(cmdLineInterface);
+
         ScriptExecutionContext context = input.getExecutionContext();
         context.set(ExecutionStatus.EXECUTING, true);
         ConnectionHandler connection = nd(input.getConnection());
@@ -196,7 +203,6 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     tempScriptFile.set(temporaryScriptFile);
 
                     DatabaseExecutionInterface executionInterface = connection.getInterfaces().getExecutionInterface();
-                    CmdLineInterface cmdLineInterface = input.getCmdLineInterface();
                     CmdLineExecutionInput executionInput = executionInterface.createScriptExecutionInput(cmdLineInterface,
                             temporaryScriptFile.getPath(),
                             content,
@@ -304,24 +310,28 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
         boolean updateSettings = false;
         VirtualFile virtualFile = selectCmdLineExecutable(databaseType, null);
-        if (virtualFile != null) {
-            Project project = getProject();
-            ExecutionEngineSettings executionEngineSettings = ExecutionEngineSettings.getInstance(project);
-            if (bannedNames == null) {
-                bannedNames = executionEngineSettings.getScriptExecutionSettings().getCommandLineInterfaces().getInterfaceNames();
-                updateSettings = true;
-            }
+        if (virtualFile == null) return;
 
-            CmdLineInterface cmdLineInterface = new CmdLineInterface(databaseType, virtualFile.getPath(), CmdLineInterface.getDefault(databaseType).getName(), null);
-            CmdLineInterfaceInputDialog dialog = new CmdLineInterfaceInputDialog(project, cmdLineInterface, bannedNames);
-            dialog.show();
-            if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) {
-                consumer.accept(cmdLineInterface);
-                if (updateSettings) {
-                    CmdLineInterfaceBundle commandLineInterfaces = executionEngineSettings.getScriptExecutionSettings().getCommandLineInterfaces();
-                    commandLineInterfaces.add(cmdLineInterface);
-                }
-            }
+        Project project = getProject();
+        ExecutionEngineSettings executionEngineSettings = ExecutionEngineSettings.getInstance(project);
+        if (bannedNames == null) {
+            bannedNames = executionEngineSettings.getScriptExecutionSettings().getCommandLineInterfaces().getInterfaceNames();
+            updateSettings = true;
+        }
+
+        CmdLineInterface cmdLineInterface = new CmdLineInterface(databaseType, virtualFile.getPath(), CmdLineInterface.getDefault(databaseType).getName(), null);
+        CmdLineInterfaceInputDialog dialog = new CmdLineInterfaceInputDialog(project, cmdLineInterface, bannedNames);
+        dialog.show();
+        if (dialog.getExitCode() != OK_EXIT_CODE) return;
+
+        cmdLineInterface.setAcknowledged(true);
+        consumer.accept(cmdLineInterface);
+        if (updateSettings) {
+            CmdLineInterfaceBundle commandLineInterfaces = executionEngineSettings.getScriptExecutionSettings().getCommandLineInterfaces();
+            commandLineInterfaces.add(cmdLineInterface);
+
+            UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+            approvalManager.approve(cmdLineInterface);
         }
     }
 

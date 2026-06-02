@@ -24,8 +24,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
+/**
+ * Loads database metadata result sets used to build and refresh the database object model.
+ */
 @NonNls
-public interface DatabaseMetadataInterface extends DatabaseInterface{
+public interface DatabaseMetadataInterface extends DatabaseInterface {
+    @Override
+    default DatabaseInterfaceType getInterfaceType() {
+        return DatabaseInterfaceType.METADATA;
+    }
 
     ResultSet getDistinctValues(String ownerName, String datasetName, String columnName, DBNConnection connection) throws SQLException;
 

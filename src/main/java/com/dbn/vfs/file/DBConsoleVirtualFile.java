@@ -101,8 +101,8 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
 
     public void updateContent(String text) {
         setContent(text);
-        Document document = Documents.getDocument(this);
-        Documents.setText(document, text);
+        Document document = Documents.ensureDocument(this);
+        Documents.setText(getProject(), document, text);
     }
 
     @Override

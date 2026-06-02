@@ -23,6 +23,8 @@ import java.sql.SQLException;
 
 public interface DatabaseInterface extends NlsSupport {
 
+    DatabaseInterfaceType getInterfaceType();
+
     default void reset() {
     }
 

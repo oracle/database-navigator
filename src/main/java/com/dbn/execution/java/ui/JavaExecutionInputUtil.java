@@ -12,7 +12,6 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
-import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,6 +19,7 @@ import javax.swing.JTextField;
 import java.util.List;
 
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.execution.java.JavaExecutionTypeResolver.resolveInputType;
 import static com.dbn.execution.java.ui.JavaExecutionInputUtil.UiSuitability.UI_NOT_PREFERRED;
 import static com.dbn.execution.java.ui.JavaExecutionInputUtil.UiSuitability.UI_NOT_SUPPORTED;
 import static com.dbn.execution.java.ui.JavaExecutionInputUtil.UiSuitability.UI_PREFERRED;
@@ -61,7 +61,6 @@ public class JavaExecutionInputUtil {
                 inputField);
     }
 
-    @SneakyThrows
     private static void setupSingleDimArrayEditor(
             DBObject argument,
             DBObjectRef<DBJavaClass> argumentJavaClass,
@@ -90,13 +89,8 @@ public class JavaExecutionInputUtil {
         });
     }
 
-    private static @NotNull Class<?> resolveArgumentType(DBObjectRef<DBJavaClass> argumentJavaClass) throws ClassNotFoundException {
-        // assumed to be a java primitive or a scalar type (Number, String, Boolean... )
+    private static @NotNull Class<?> resolveArgumentType(DBObjectRef<DBJavaClass> argumentJavaClass) {
         String argumentTypeName = getCanonicalName(argumentJavaClass);
-        Class<?> argumentType = Data.asPrimitiveClass(argumentTypeName);
-        if (argumentType == null) {
-            argumentType = Class.forName(argumentTypeName);
-        }
-        return argumentType;
+        return resolveInputType(argumentTypeName);
     }
 }

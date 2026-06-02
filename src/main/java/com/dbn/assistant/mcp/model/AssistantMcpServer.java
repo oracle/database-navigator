@@ -17,6 +17,7 @@
 package com.dbn.assistant.mcp.model;
 
 import com.dbn.common.EntityId;
+import com.dbn.common.approval.UserApprovable;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
@@ -28,24 +29,27 @@ import lombok.SneakyThrows;
 import org.jdom.Element;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
+import static com.dbn.common.util.Strings.concatenate;
 import static com.dbn.common.util.Unsafe.cast;
+import static java.util.Collections.emptyList;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class AssistantMcpServer implements PersistentConfiguration, Presentable, Cloneable<AssistantMcpServer> {
+public class AssistantMcpServer implements PersistentConfiguration, Presentable, Cloneable<AssistantMcpServer>, UserApprovable {
     public static final EntityId IDE_MCP_SERVER_ID = EntityId.get("ide-mcp-server-id");
     private static final Set<String> serverKeyStore = new HashSet<>();
 
@@ -55,7 +59,9 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
     private String key;
     private String url;
     private String command;
-    private String commandArguments;
+    private List<String> commandArguments;
+
+    private transient boolean acknowledged;
 
     public AssistantMcpServer(EntityId id) {
         this.id = id;
@@ -68,16 +74,16 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
     public String getEndpoint() {
         return switch (type) {
             case HTTP -> url;
-            case STDIO -> command + " " + commandArguments;
+            case STDIO -> concatenate(getCommandTokens(), " ");
         };
     }
 
     public List<String> getCommandTokens() {
-        if (Strings.isEmpty(command)) return Collections.emptyList();
+        if (Strings.isEmpty(command)) return emptyList();
 
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add(command);
-        tokens.addAll(List.of(commandArguments.split("\\s+")));
+        tokens.addAll(commandArguments);
         return tokens;
     }
 
@@ -123,7 +129,13 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
         key = stringAttribute(element, "key");
         url = stringAttribute(element, "url");
         command = stringAttribute(element, "command");
-        commandArguments = stringAttribute(element, "command-arguments");
+
+        List<Element> argumentElements = childrenOf(element, "command-argument");
+        commandArguments = new ArrayList<>();
+        for (Element argumentElement : argumentElements) {
+            String text = argumentElement.getText();
+            commandArguments.add(text);
+        }
     }
 
     @Override
@@ -135,7 +147,11 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
         setStringAttribute(element, "key", key);
         setStringAttribute(element, "url", url);
         setStringAttribute(element, "command", command);
-        setStringAttribute(element, "command-arguments", commandArguments);
+
+        for (String commandArgument : commandArguments) {
+            Element argumentElement = newElement(element, "command-argument");
+            argumentElement.setText(commandArgument);
+        }
     }
 
     @Override

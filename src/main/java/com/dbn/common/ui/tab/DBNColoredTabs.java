@@ -32,6 +32,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.util.SystemInfo;
+import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.tabs.JBTabsPosition;
 import com.intellij.ui.tabs.JBTabsPresentation;
 import com.intellij.ui.tabs.TabInfo;
@@ -64,7 +65,7 @@ public class DBNColoredTabs<T extends DBNForm> extends JBEditorTabs {
     private boolean closeable;
 
     public DBNColoredTabs(@NotNull Disposable parentDisposable) {
-        super(null, parentDisposable);
+        super(null, IdeFocusManager.getGlobalInstance(), parentDisposable);
 
         initTabsPresentation();
     }

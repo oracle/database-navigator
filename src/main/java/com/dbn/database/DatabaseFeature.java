@@ -57,6 +57,7 @@ public enum DatabaseFeature {
     DATA_CHANGE_NOTIFICATION("Data change notification"),
     VECTOR_EMBEDDING("Vector embedding"),
     VECTOR_SEARCH("Vector search"),
+    MCP_SERVER_BUILDER("MCP server builder"),
 
     // OJVM
     JAVA_VIRTUAL_MACHINE("Embedded java virtual machine"),

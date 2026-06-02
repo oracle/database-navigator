@@ -21,6 +21,8 @@ import com.dbn.connection.jdbc.DBNConnection;
 
 import java.sql.SQLException;
 
+import static com.dbn.database.interfaces.DatabaseInterfaceType.ASSISTANT;
+
 /**
  * Defines the interface for managing Oracle AI profiles and credentials in a database.
  * This includes creating, updating, and deleting credentials and profiles,
@@ -29,6 +31,10 @@ import java.sql.SQLException;
  * @author Ayoub Aarrasse (Oracle)
  */
 public interface DatabaseAssistantInterface extends DatabaseInterface {
+  @Override
+  default DatabaseInterfaceType getInterfaceType() {
+    return ASSISTANT;
+  }
 
   /**
    * Executes an AI-related query using a specified action and text on a specific profile.

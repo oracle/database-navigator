@@ -17,6 +17,7 @@
 package com.dbn.common.presentation.provider;
 
 
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.common.DBObject;
 
 import javax.swing.Icon;
@@ -28,7 +29,15 @@ public class DBObjectPresentationProvider extends PresentationProviderBase<DBObj
 
     @Override
     public String getName(DBObject object) {
-        return object.getName();
+        return object.getQualifiedName();
+    }
+
+    @Override
+    public String getDetailedName(DBObject object) {
+        ConnectionHandler connection = object.getConnection();
+
+        String connectionName = connection.getName();
+        return connectionName + " - " + getName(object);
     }
 
     @Override

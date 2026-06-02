@@ -41,7 +41,7 @@ import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.TABLE;
 
-public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec, DBTableFactoryInputForm> {
+public class DBTableFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public DBObjectType getObjectType() {
@@ -100,7 +100,7 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec,
                 conn -> {
                     DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
                     dataDefinition.createTable(tableSpec, conn);
-                    DBObjectSpecList<DBObjectSpec> indexSpecs = tableSpec.getChildren(DBObjectType.INDEX);
+                    DBObjectSpecList indexSpecs = tableSpec.getChildren(DBObjectType.INDEX);
                     for (DBObjectSpec indexSpec : indexSpecs) {
                         dataDefinition.createIndex(indexSpec, conn);
                     }
