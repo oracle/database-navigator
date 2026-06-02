@@ -16,10 +16,7 @@
 
 package com.dbn.assistant.tool.feature;
 
-import com.dbn.assistant.chat.context.ChatContext;
-import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantToolType;
-import com.dbn.assistant.tool.execution.AssistantToolRequest;
 import com.dbn.common.extension.ExtensionPoint;
 import com.intellij.openapi.extensions.ExtensionPointName;
 import org.jetbrains.annotations.NotNull;
@@ -53,10 +50,7 @@ public interface AssistantToolFeature extends ExtensionPoint {
     }
 
     /**
-     * Executes this feature for the given tool request.
+     * Executes this feature for the given tool request context.
      */
-    void execute(
-            @NotNull AssistantToolRequest toolRequest,
-            @NotNull ChatContext chatContext,
-            @NotNull AssistantState assistantState);
+    void execute(@NotNull AssistantToolFeatureContext context);
 }
