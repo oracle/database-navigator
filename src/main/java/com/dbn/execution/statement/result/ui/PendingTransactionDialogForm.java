@@ -99,7 +99,7 @@ public class PendingTransactionDialogForm extends DBNFormBase {
         ConnectionHandler connection = Failsafe.nn(executionProcessor.getConnection());
         SchemaId currentSchema = executionProcessor.getTargetSchema();
         Project project = connection.getProject();
-        String previewText = executionProcessor.getExecutionInput().getExecutableStatementText();
+        String previewText = executionProcessor.getExecutionInput().getPreviewStatementText();
 
         DBLanguageDialect languageDialect = connection.getLanguageDialect(SQLLanguage.INSTANCE);
         DBLanguagePsiFile selectStatementFile = DBLanguagePsiFile.createFromText(

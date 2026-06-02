@@ -19,7 +19,9 @@ package com.dbn.object.factory.ui;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBCredentialType;
@@ -33,8 +35,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -61,27 +63,13 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.TENANCY_OCID;
 import static com.dbn.object.factory.model.DBObjectAttributeType.USER_NAME;
 import static com.dbn.object.factory.model.DBObjectAttributeType.USER_OCID;
 
-@Getter
-public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm<DBObjectSpec> {
+public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel mainPanel;
-    private JPanel headerPanel;
-    private DBNComboBox connectionComboBox;
-    private DBNComboBox schemaComboBox;
-    private JTextField nameTextField;
+    private @Getter JPanel headerPanel;
+    private @Getter DBNComboBox connectionComboBox;
+    private @Getter DBNComboBox schemaComboBox;
+    private @Getter JTextField nameTextField;
 
-    private JLabel connectionLabel;
-    private JLabel schemaLabel;
-    private JLabel credentialNameLabel;
-    private JLabel accessTokenLabel;
-    private JLabel userNameLabel;
-    private JLabel passwordLabel;
-    private JLabel userOcidLabel;
-    private JLabel tenancyOcidLabel;
-    private JLabel privateKeyLabel;
-    private JLabel fingerprintLabel;
-    private JLabel credentialTypeLabel;
-
-    private JPanel attributesPanel;
     private JPanel passwordCredentialPanel;
     private JPanel ociCredentialPanel;
     private JPanel tokenCredentialPanel;
@@ -94,6 +82,8 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
     private JPasswordField tokenCredentialPasswordField;
     private JComboBox<DBCredentialType> credentialTypeComboBox;
     private JButton ociConfigFileButton;
+    private JCheckBox preserveCaseCheckBox;
+    private DBNInfoLabel preserveCaseInfoLabel;
 
 
     private final Set<String> usedCredentialNames = new HashSet<>(); // TODO
@@ -104,10 +94,15 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
         initHeaderForm();
         initContextComponents();
         initCredentialTypes();
+        initPreserveCaseFields();
 
         resetFormChanges();
 
         onButtonClick(ociConfigFileButton, e -> openOciConfigSelector());
+    }
+
+    private void initPreserveCaseFields() {
+        preserveCaseInfoLabel.setContent(getPreserveCaseInfoText());
     }
 
     private void openOciConfigSelector() {
@@ -129,6 +124,7 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
 
         StateAttributes state = factoryManager.getState(getObjectType());
         initPersistence(credentialTypeComboBox, state, "credential-type-selection");
+        initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
     }
 
     @Override
@@ -242,6 +238,14 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
                 input.setAttributeValue(FINGERPRINT, getText(ociCredentialFingerprintField));
             }
         }
+
+        input.setIdentifierCase(getSelectedIdentifierCase());
+    }
+
+    protected DatabaseIdentifierCase getSelectedIdentifierCase() {
+        return preserveCaseCheckBox.isSelected() ?
+                DatabaseIdentifierCase.PRESERVE :
+                getDefaultIdentifierCase();
     }
 
     @Nullable

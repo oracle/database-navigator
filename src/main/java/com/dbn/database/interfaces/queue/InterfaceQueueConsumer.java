@@ -22,8 +22,12 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.ThreadMonitor;
 import com.dbn.common.thread.ThreadProperty;
+import com.dbn.common.util.Modality;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
+
+import static com.dbn.common.thread.Dispatch.getCurrentModalityState;
+import static com.dbn.database.interfaces.queue.InterfaceThreadMonitor.getRunningThreadCount;
 
 public class InterfaceQueueConsumer implements Consumer<InterfaceTask<?>>{
     private final WeakRef<InterfaceQueue> queue;
@@ -64,14 +68,14 @@ public class InterfaceQueueConsumer implements Consumer<InterfaceTask<?>>{
 
     private static boolean canUseProgress(InterfaceTask<?> task) {
         if (!task.isProgress()) return false;
-        if (isProgressModalOrExhausted()) return false;
-        return true;
-    }
 
-
-    private static boolean isProgressModalOrExhausted() {
         ProgressManager progressManager = ProgressManager.getInstance();
-        return progressManager.hasModalProgressIndicator() || InterfaceThreadMonitor.getRunningThreadCount(true) >= 10;
+        if (progressManager.hasModalProgressIndicator()) return false;
+
+        if (getRunningThreadCount(true) >= 10) return false;
+        if (getCurrentModalityState() != Modality.nonModal()) return false;
+
+        return true;
     }
 
     private static boolean useProgress(InterfaceTask<?> task) {

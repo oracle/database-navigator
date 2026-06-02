@@ -44,7 +44,7 @@ public class DBColumnFactoryInputListForm extends DBObjectFactoryInputListForm {
     }
 
     @Override
-    protected DBObjectSpecList<DBObjectSpec> getChildInputs() {
+    protected DBObjectSpecList getChildInputs() {
         return getTableInput().getChildren(COLUMN);
     }
 
@@ -64,7 +64,7 @@ public class DBColumnFactoryInputListForm extends DBObjectFactoryInputListForm {
     }
 
     @Override
-    public DBObjectFactoryInputForm<DBObjectSpec> createChildInputForm(DBObjectSpec input) {
+    public DBObjectFactoryInputForm createChildInputForm(DBObjectSpec input) {
         return new DBColumnFactoryInputForm(this, input);
     }
 

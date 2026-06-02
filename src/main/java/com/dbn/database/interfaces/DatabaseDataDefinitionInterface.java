@@ -27,8 +27,17 @@ import org.jetbrains.annotations.NonNls;
 
 import java.sql.SQLException;
 
+import static com.dbn.database.interfaces.DatabaseInterfaceType.DATA_DEFINITION;
+
+/**
+ * Provides database-specific DDL operations for creating, changing, dropping, compiling, and extracting schema object definitions.
+ */
 @NonNls
-public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
+public interface DatabaseDataDefinitionInterface extends DatabaseInterface {
+    @Override
+    default DatabaseInterfaceType getInterfaceType() {
+        return DATA_DEFINITION;
+    }
 
     String createDDLStatement(Project project, DatabaseObjectTypeId objectTypeId, String userName, String schemaName, String objectName, DBContentType contentType, String code, String alternativeDelimiter);
 
@@ -51,8 +60,6 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
     void createObject(String code, DBNConnection connection) throws SQLException;
 
-    default void createJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {};
-
     /*********************************************************
      *                   UPDATE statements                   *
      *********************************************************/
@@ -64,14 +71,6 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
     void updateObject(String ownerName, String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException;
 
-    default void updateJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException{};
-
-    default void replaceJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException{};
-
-    default void replaceJavaClass(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException{};
-
-    default void updateJavaResource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {}
-
     /*********************************************************
     *                   DROP statements                     *
     *********************************************************/
@@ -81,8 +80,6 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
     void dropObjectBody(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
-    default void dropJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {}
-
     /*********************************************************
      *                   COMPILE statements                  *
      *********************************************************/
@@ -90,7 +87,5 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
     void compileObject(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
 
     void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
-
-    void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
 }

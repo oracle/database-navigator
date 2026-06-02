@@ -25,7 +25,16 @@ import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static com.dbn.database.interfaces.DatabaseInterfaceType.VECTOR;
+
+/**
+ * Provides database-specific vector, embedding, model, file-store, and similarity-search operations.
+ */
 public interface DatabaseVectorInterface extends DatabaseInterface {
+    @Override
+    default DatabaseInterfaceType getInterfaceType() {
+        return VECTOR;
+    }
 
     void createModelFromStorage(DBNConnection conn, String ownerName, String modelName, String modelLocation, String credentialName) throws SQLException;
 

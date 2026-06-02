@@ -24,10 +24,13 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.ui.SwingUndoUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.UIManager;
+import javax.swing.text.JTextComponent;
 
 public class CompatibilityUtil {
     public static void setSmallerFont(JComponent component) {
@@ -54,5 +57,10 @@ public class CompatibilityUtil {
     @Workaround
     public static boolean isStructureViewAccess() {
         return Traces.isCalledThroughClass(c -> StructureViewWrapper.class.isAssignableFrom(c), 20);
+    }
+
+    @Workaround
+    public static void addUndoRedoActions(@NotNull JTextComponent textComponent) {
+        SwingUndoUtil.addUndoRedoActions(textComponent);
     }
 }

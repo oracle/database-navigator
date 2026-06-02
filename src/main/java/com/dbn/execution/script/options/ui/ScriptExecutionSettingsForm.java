@@ -17,6 +17,7 @@
 package com.dbn.execution.script.options.ui;
 
 import com.dbn.common.action.BasicAction;
+import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
 import com.dbn.common.ui.util.Popups;
@@ -126,9 +127,16 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
         int executionTimeout = ConfigurationEditors.validateIntegerValue(executionTimeoutTextField, "Execution timeout", true, 0, 6000, "\nUse value 0 for no timeout");
         CmdLineInterfacesTableModel model = cmdLineInterfacesTable.getModel();
         model.validate();
+
+        CmdLineInterfaceBundle oldExecutorBundle = configuration.getCommandLineInterfaces();
         CmdLineInterfaceBundle executorBundle = model.getBundle();
         configuration.setCommandLineInterfaces(executorBundle);
         configuration.setExecutionTimeout(executionTimeout);
+
+        UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+        approvalManager.updateApprovals(
+                oldExecutorBundle.getInterfaces(),
+                executorBundle.getInterfaces());
     }
 
     @Override

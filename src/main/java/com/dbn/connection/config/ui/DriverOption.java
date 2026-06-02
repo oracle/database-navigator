@@ -46,4 +46,16 @@ public class DriverOption implements Presentable {
         }
         return null;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        DriverOption that = (DriverOption) o;
+        return Objects.equals(driver.getName(), that.driver.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(driver.getName());
+    }
 }

@@ -20,9 +20,9 @@ import com.dbn.common.compatibility.Workaround;
 import com.dbn.editor.code.SourceCodeManagerListener;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XDebuggerManager;
-import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointManager;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +31,9 @@ import java.util.Objects;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
+import static com.dbn.debugger.common.breakpoint.DBBreakpointUtil.getAllLineBreakpoints;
+import static com.dbn.debugger.common.breakpoint.DBBreakpointUtil.getBreakpointFile;
+import static com.dbn.debugger.common.breakpoint.DBBreakpointUtil.registerBreakpoint;
 
 /**
  * WORKAROUND: Breakpoints do not seem to be registered properly in
@@ -49,20 +52,19 @@ public class DBBreakpointUpdaterListener implements SourceCodeManagerListener {
     }
 
     private static void registerBreakpoints(@NotNull DBSourceCodeVirtualFile file) {
+        Project project = file.getProject();
         DBEditableObjectVirtualFile databaseFile = file.getMainDatabaseFile();
-        XDebuggerManager debuggerManager = XDebuggerManager.getInstance(file.getProject());
+        XDebuggerManager debuggerManager = XDebuggerManager.getInstance(project);
 
         XBreakpointManager breakpointManager = debuggerManager.getBreakpointManager();
-        for (XBreakpoint<?> breakpoint : breakpointManager.getAllBreakpoints()) {
-            if (breakpoint instanceof XLineBreakpoint<?> lineBreakpoint) {
-                VirtualFile virtualFile = DBBreakpointUtil.getVirtualFile(lineBreakpoint);
-                if (Objects.equals(virtualFile, databaseFile)) {
-                    breakpointManager.removeBreakpoint(lineBreakpoint);
-                    DBBreakpointUtil.registerBreakpoint(file,
-                            lineBreakpoint.getLine(),
-                            lineBreakpoint.isEnabled(),
-                            lineBreakpoint.isTemporary());
-                }
+        for (XLineBreakpoint<?> breakpoint : getAllLineBreakpoints(project)) {
+            VirtualFile virtualFile = getBreakpointFile(breakpoint);
+            if (Objects.equals(virtualFile, databaseFile)) {
+                breakpointManager.removeBreakpoint(breakpoint);
+                registerBreakpoint(file,
+                        breakpoint.getLine(),
+                        breakpoint.isEnabled(),
+                        breakpoint.isTemporary());
             }
         }
     }

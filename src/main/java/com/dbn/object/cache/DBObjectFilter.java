@@ -16,11 +16,12 @@
 
 package com.dbn.object.cache;
 
+import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.common.filter.Filter;
 import com.dbn.object.common.DBObject;
 import com.intellij.openapi.extensions.ExtensionPointName;
 
-public interface DBObjectFilter<T extends DBObject> extends Filter<T> {
+public interface DBObjectFilter<T extends DBObject> extends Filter<T>, ExtensionPoint {
     ExtensionPointName<DBObjectFilter> EP = ExtensionPointName.create("com.dbn.objectFilter");
 
     DBObjectFilterType getType();

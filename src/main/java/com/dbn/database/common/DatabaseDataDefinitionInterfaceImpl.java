@@ -24,7 +24,7 @@ import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.editor.code.content.GuardedBlockMarker;
 import com.dbn.editor.code.content.SourceCodeContent;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBConstraintType;
 import org.jetbrains.annotations.NonNls;
@@ -35,6 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 
 @NonNls
 public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterfaceBase implements DatabaseDataDefinitionInterface {
@@ -107,39 +108,26 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
         executeUpdate(connection, "drop-object-body", objectType, ownerName, objectName);
     }
 
-    @Override
-    public void dropJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
-        // TODO move to OracleDataDefinitionInterface (too specific for this level)
-        executeUpdate(connection, "drop-java-object", ownerName, objectName);
-    }
-
     protected String updateNameQualification(String code, boolean qualified, String objectType, String schemaName, String objectName, CodeStyleCaseSettings caseSettings) {
         CodeStyleCaseOption kco = caseSettings.getKeywordCaseOption();
-        CodeStyleCaseOption oco = caseSettings.getObjectCaseOption();
 
         StringBuilder buffer = new StringBuilder();
         QuotePair quotes = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
+
+        String rawSchemaName = quotes.unquote(schemaName, DATABASE);
+        String rawObjectName = quotes.unquote(objectName, DATABASE);
         String bq = "(" + Pattern.quote(quotes.beginQuote()) + ")?";
         String eq = "(" + Pattern.quote(quotes.endQuote()) + ")?";
-        String regex = objectType + "\\s+(" + bq + schemaName + eq + "\\s*\\.)?\\s*" + bq + objectName + eq;
-        if (qualified) {
-            Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(code);
-            if (matcher.find()) {
-                String replacement = kco.format(objectType) + " " + oco.format(schemaName + "." + objectName);
-                matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement));
-                matcher.appendTail(buffer);
-                code = buffer.toString();
-            }
-        } else {
-            Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(code);
-            if (matcher.find()) {
-                String replacement = kco.format(objectType) + " " + oco.format(objectName);
-                matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement));
-                matcher.appendTail(buffer);
-                code = buffer.toString();
-            }
+
+        String regex = objectType + "\\s+(" + bq + rawSchemaName + eq + "\\s*\\.)?\\s*" + bq + rawObjectName + eq;
+
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(code);
+        if (matcher.find()) {
+            String replacement = kco.format(objectType) + " " + (qualified ? schemaName + "." : "") + objectName;
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement));
+            matcher.appendTail(buffer);
+            code = buffer.toString();
         }
         return code;
     }
@@ -166,17 +154,6 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
     public void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "compile-object-body", ownerName, objectName, objectType, debug ? "DEBUG" : "");
     }
-
-    @Override
-    public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "compile-java-class", ownerName, objectName);
-    }
-
-    protected String quoted(String identifier) {
-        QuotePair quotes = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
-        return quotes.quote(identifier);
-    }
-
 
     /*********************************************************
      *                   CREATE statements                   *

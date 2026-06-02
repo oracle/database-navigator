@@ -252,22 +252,24 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
     }
 
     @Override
-    public synchronized void refresh() {
-        if (is(REFRESHING)) return;
+    public void refresh() {
+        Synchronized.on(this, o -> {
+            if (o.is(REFRESHING)) return;
 
-        try {
-            set(REFRESHING, true);
-            // refresh sources even if this content itself does not need refresh
-            // (e.g. if not loaded yet or already marked dirty)
-            refreshSources();
+            try {
+                o.set(REFRESHING, true);
+                // refresh sources even if this content itself does not need refresh
+                // (e.g. if not loaded yet or already marked dirty)
+                o.refreshSources();
 
-            if (shouldRefresh()) {
-                refreshElements();
-                markDirty();
+                if (o.shouldRefresh()) {
+                    o.refreshElements();
+                    o.markDirty();
+                }
+            } finally {
+                o.set(REFRESHING, false);
             }
-        } finally {
-            set(REFRESHING, false);
-        }
+        });
     }
 
     private void refreshSources() {

@@ -5,11 +5,19 @@ import com.dbn.connection.DatabaseProtocol;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.parameter.CheckForInvalidCharactersValidator;
 import com.dbn.connection.config.parameter.RegexConstraintValidator;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuotePair;
+import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NonNls;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
+import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.common.util.Strings.trim;
 import static com.dbn.connection.DatabaseUrlType.EZCONNECT;
 
 /**
@@ -137,20 +145,16 @@ public class EasyConnectParameters {
      */
     public static Map<String, String> ensureQuoted(Map<String, String> parameters, boolean escapeQuotes) {
         PARAMETERS_THAT_NEED_QUOTING.forEach(key -> {
-            if (parameters.containsKey(key)) {
-                String originalValue = parameters.get(key);
-                originalValue = originalValue.trim();
-                if (!originalValue.isBlank()) {
-                    // method won't requote a quoted value
-                    if (escapeQuotes) {
-                        originalValue = QuotePair.DEFAULT_IDENTIFIER_QUOTE_PAIR.quoteWithJavaEscape(originalValue);
-                    } else {
-                        originalValue = QuotePair.DEFAULT_IDENTIFIER_QUOTE_PAIR.quote(originalValue);
+            if (!parameters.containsKey(key)) return;
 
-                    }
-                    parameters.put(key,originalValue);
-                }
+            String originalValue = trim(parameters.get(key));
+            if (isEmpty(originalValue)) return;
+
+            originalValue = QuotePair.DEFAULT_IDENTIFIER_QUOTE_PAIR.quote(originalValue);
+            if (escapeQuotes) {
+                originalValue = StringUtil.escapeStringCharacters(originalValue);
             }
+            parameters.put(key, originalValue);
         });
         return parameters;
     }

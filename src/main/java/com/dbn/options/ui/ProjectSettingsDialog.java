@@ -21,6 +21,7 @@ import com.dbn.common.util.Alarms;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseType;
+import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.tns.TnsImportData;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
@@ -62,30 +63,34 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
 
     public ProjectSettingsDialog(Project project, @NotNull DatabaseType databaseType, @NotNull ConnectionConfigType configType) {
         this(project);
-        ConnectionId connectionId = getConnectionSettingsEditor().createNewConnection(databaseType, configType);
+        ConnectionId connectionId = initConnectionSettingsEditor().createNewConnection(databaseType, configType);
         selectConnectionSettings(connectionId);
     }
 
     public ProjectSettingsDialog(Project project, @NotNull DatabaseType databaseType, @NotNull ConnectionConfigType configType, OciConnectionData connectionData) {
         this(project);
-        ConnectionId connectionId = getConnectionSettingsEditor().createNewConnection(databaseType, configType, connectionData);
+        ConnectionId connectionId = initConnectionSettingsEditor().createNewConnection(databaseType, configType, connectionData);
         selectConnectionSettings(connectionId);
     }
 
     public ProjectSettingsDialog(Project project, @NotNull TnsImportData importData) {
         this(project);
-        getConnectionSettingsEditor().importTnsNames(importData);
-        selectConnectionSettings(null);
+        ConnectionBundleSettingsForm settingsForm = initConnectionSettingsEditor();
+        ConnectionId connectionId = settingsForm.importTnsNames(importData);
+        selectConnectionSettings(connectionId);
     }
     public ProjectSettingsDialog(Project project, @NotNull TnsImportData importData, OciConnectionData connectionData) {
         this(project);
-        getConnectionSettingsEditor().importTnsNames(importData, connectionData);
-        selectConnectionSettings(null);
+        ConnectionBundleSettingsForm settingsForm = initConnectionSettingsEditor();
+        ConnectionId connectionId = settingsForm.importTnsNames(importData, connectionData);
+        selectConnectionSettings(connectionId);
     }
 
     @NotNull
-    private ConnectionBundleSettingsForm getConnectionSettingsEditor() {
-        return nd(projectSettings.getConnectionSettings().getSettingsEditor());
+    private ConnectionBundleSettingsForm initConnectionSettingsEditor() {
+        ConnectionBundleSettings connectionSettings = projectSettings.getConnectionSettings();
+        connectionSettings.createComponent();
+        return nd(connectionSettings.getSettingsEditor());
     }
 
     public ProjectSettingsDialog(Project project) {

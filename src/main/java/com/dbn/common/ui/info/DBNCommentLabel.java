@@ -18,12 +18,13 @@ package com.dbn.common.ui.info;
 
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBFont;
-import com.intellij.util.ui.JBUI;
+
+import static com.intellij.util.ui.UIUtil.getContextHelpForeground;
 
 public class DBNCommentLabel extends JBLabel {
 
     public DBNCommentLabel() {
         setFont(JBFont.medium());
-        setForeground(JBUI.CurrentTheme.ContextHelp.FOREGROUND);
+        setForeground(getContextHelpForeground());
     }
 }

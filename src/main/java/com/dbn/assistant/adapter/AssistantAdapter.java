@@ -23,10 +23,11 @@ import com.dbn.assistant.adapter.ui.AssistantPromptActionsForm;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.extensions.ExtensionPointName;
 
-public interface AssistantAdapter {
+public interface AssistantAdapter extends ExtensionPoint {
     ExtensionPointName<AssistantAdapter> EP = ExtensionPointName.create("com.dbn.assistantAdapter");
 
     AssistantType getAssistantType();
