@@ -362,6 +362,7 @@ Object-list filters narrow one list at a time. For example, you can filter a `Ta
 ## Related Documentation
 
 - [Database Browser Settings](./database-browser-settings.md): Settings reference for browser layout, filters, sorting, default editors, and toolbar state.
+- [Database Events](./database-events.md): Guide to enabling table data-change notifications from supported table actions.
 - [Environment Types](./environment-types.md): Guide to environment colors shown on browser tabs and object-related UI.
 - [Workspace Integration](./workspace-integration.md): Guide to creating and attaching DDL files from source-backed database objects.
 - [Connection Management](./connection-management.md): Guide to creating and managing the connections shown in the Database Browser.

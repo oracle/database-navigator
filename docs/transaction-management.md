@@ -188,6 +188,7 @@ Disconnect and kill actions can be immediate, normal, or post-transaction depend
 ## Related Documentation
 
 - [Transaction Management Settings](./transaction-management-settings.md): Configure auto-commit, transaction prompts, Resource Monitor behavior, and Session Browser options.
+- [Database Events](./database-events.md): Guide to monitoring table data-change notifications from Oracle sessions and applications.
 - [Connection Management](./connection-management.md): Create and configure connections used by transaction and session workflows.
 - [Connection Management Settings](./connection-management-settings.md): Configure connection properties, auto-commit defaults, session management, and pooling.
 - [Execution Engine](./execution-engine.md): Run statements, scripts, methods, and Java methods that may participate in transactions.
