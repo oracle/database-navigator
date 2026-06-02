@@ -146,7 +146,7 @@ public class OciConnectionInputDialog extends DBNDialog<OciConnectionInputForm> 
       DownloadWalletCommand command = new DownloadWalletCommand(database, walletLocation, walletType, password);
       command.execute();
       // soft non-intrusive notification
-      sendInfoNotification(NotificationCategory.CONNECTION, "The wallet for database \"" + displayName + "\" was downloaded successfully.");
+      sendInfoNotification(NotificationCategory.CONNECTION, txt("ntf.connection.info.WalletDownloaded", displayName));
     } catch (Exception e) {
       // error prompt
       showErrorDialog(getProject(), txt("msg.oci.title.WalletDownloadFailed"), txt("msg.oci.message.WalletDownloadFailed", displayName), e);

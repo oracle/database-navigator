@@ -397,7 +397,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                                                 conn);
                                     });
                         } catch (SQLException e) {
-                            sendErrorNotification(NotificationCategory.COMPILER, "Failed to compile class \"" + className + "\": " + e.getMessage());
+                            sendErrorNotification(NotificationCategory.COMPILER, txt("ntf.compiler.error.FailedToCompileClass", className, e.getMessage()));
                         }
                         progress.setFraction(progressOf(i + 1, size));
                     }
