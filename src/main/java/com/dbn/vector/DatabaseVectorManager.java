@@ -63,6 +63,7 @@ import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.TABLE;
 import static java.util.Collections.emptyList;
 
@@ -194,8 +195,8 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         Progress.prompt(
                 getProject(),
                 connection.getSchema(), true,
-                "Embedding Data",
-                "Embedding data into \"" + destinationConfig.getSchemaName() + "\".\"" + destinationConfig.getTableName() + "\"",
+                txt("prc.vector.title.EmbeddingData"),
+                txt("prc.vector.text.EmbeddingData", destinationConfig.getSchemaName(), destinationConfig.getTableName()),
                 p -> DatabaseInterfaceInvoker.execute(MEDIUM,
                         p.getText(),
                         p.getText2(),

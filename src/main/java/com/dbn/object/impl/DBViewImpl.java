@@ -119,8 +119,8 @@ class DBViewImpl<M extends DBViewMetadata> extends DBDatasetImpl<M> implements D
     @Override
     public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Updating source code",
-                "Updating sources of " + getQualifiedNameWithType(),
+                txt("prc.object.title.UpdatingSourceCode"),
+                txt("prc.object.text.UpdatingSources", getQualifiedNameWithType()),
                 getProject(),
                 getConnectionId(),
                 getSchemaId(),

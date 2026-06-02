@@ -369,8 +369,8 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
     public void compileJavaClasses(ConnectionHandler connection, List<DBObjectRef<DBJavaClass>> javaClasses) {
         Project project = getProject();
         Progress.background(project, connection, true,
-                "Compiling Java Classes",
-                "Compiling java classes",
+                txt("prc.compiler.title.CompilingJavaClasses"),
+                txt("prc.compiler.text.CompilingJavaClasses"),
                 progress -> {
                     progress.setIndeterminate(false);
 
@@ -386,8 +386,11 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                         String objectName = javaClass.getObjectName(true);
                         try {
                             DatabaseInterfaceInvoker.execute(Priority.MEDIUM,
-                                    "Compiling Java Class",
-                                    "Compiling java class \"" + className + "\"", project, connection.getConnectionId(), conn -> {
+                                    txt("prc.compiler.title.CompilingJavaClass"),
+                                    txt("prc.compiler.text.CompilingJavaClass", className),
+                                    project,
+                                    connection.getConnectionId(),
+                                    conn -> {
                                         javaInterface.compileJavaClass(
                                                 schemaName,
                                                 objectName,

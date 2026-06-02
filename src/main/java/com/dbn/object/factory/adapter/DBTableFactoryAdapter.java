@@ -92,8 +92,8 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter {
         SchemaId schemaId = schema.getSchemaId();
 
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Creating " + tableSpec.getObjectType().getTitleCasedName(),
-                "Creating " + tableSpec.getObjectDescription(),
+                txt("prc.object.title.CreatingObject", tableSpec.getObjectType().getTitleCasedName()),
+                txt("prc.object.text.CreatingObjectDescription", tableSpec.getObjectDescription()),
                 schema.getProject(),
                 connectionId,
                 schemaId,

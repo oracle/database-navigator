@@ -111,8 +111,8 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         String connectionName = connection.getName();
         String qualifiedTableName = table.getQualifiedNameWithType();
 
-        String processTitle = "Registering Event Listener";
-        String processText = "Registering event listener for " + qualifiedTableName;
+        String processTitle = txt("prc.events.title.RegisteringEventListener");
+        String processText = txt("prc.events.text.RegisteringEventListener", qualifiedTableName);
 
         Progress.prompt(project, table, false, processTitle, processText, progress -> {
             try {
@@ -212,8 +212,8 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         String connectionName = connection.getName();
         String qualifiedTableName = table.getQualifiedNameWithType();
 
-        String processTitle = "Stopping Event Listener";
-        String processText = "Stopping event listener for " + qualifiedTableName;
+        String processTitle = txt("prc.events.title.StoppingEventListener");
+        String processText = txt("prc.events.text.StoppingEventListener", qualifiedTableName);
 
         Progress.prompt(project, table, false, processTitle, processText, progress -> {
             try {
@@ -239,8 +239,8 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         Project project = connection.getProject();
         String connectionName = connection.getName();
 
-        String processTitle = "Stopping Event Listener";
-        String processText = "Stopping event listener for " + tableName;
+        String processTitle = txt("prc.events.title.StoppingEventListener");
+        String processText = txt("prc.events.text.StoppingEventListener", tableName);
 
         Progress.prompt(project, connection, false, processTitle, processText, progress -> {
             try {
@@ -336,4 +336,3 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         states.readState(element, "registration-states");
     }
 }
-

@@ -71,8 +71,8 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter {
         SchemaId schemaId = input.getSchemaId();
 
         DatabaseInterfaceInvoker.execute(HIGH,
-                "Creating " + input.getObjectType().getTitleCasedName(),
-                "Creating " + input.getObjectDescription(),
+                txt("prc.object.title.CreatingObject", input.getObjectType().getTitleCasedName()),
+                txt("prc.object.text.CreatingObjectDescription", input.getObjectDescription()),
                 input.getProject(),
                 connectionId,
                 schemaId,

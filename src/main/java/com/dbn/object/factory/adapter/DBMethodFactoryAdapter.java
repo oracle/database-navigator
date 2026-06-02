@@ -94,8 +94,8 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter {
         SchemaId schemaId = schema.getSchemaId();
 
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Creating " + input.getObjectType().getTitleCasedName(),
-                "Creating " + input.getObjectDescription(),
+                txt("prc.object.title.CreatingObject", input.getObjectType().getTitleCasedName()),
+                txt("prc.object.text.CreatingObjectDescription", input.getObjectDescription()),
                 schema.getProject(),
                 connectionId,
                 schemaId,
