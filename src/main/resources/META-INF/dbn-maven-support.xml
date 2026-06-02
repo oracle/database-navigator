@@ -16,6 +16,6 @@
 
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
-        <projectService serviceInterface="com.dbn.mcp.build.McpMavenService" serviceImplementation="com.dbn.mcp.build.McpMavenPluginService"/>
+        <projectService serviceImplementation="com.dbn.mcp.build.McpMavenBuildManager"/>
     </extensions>
 </idea-plugin>

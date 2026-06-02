@@ -43,6 +43,9 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
     @Override
     public String createDDLStatement(Project project, DatabaseObjectTypeId objectTypeId, String userName, String schemaName, String objectName, DBContentType contentType, String code, String alternativeDelimiter) {
+        schemaName = quoted(schemaName);
+        objectName = quoted(objectName);
+
         if (Strings.isEmpty(alternativeDelimiter)) {
             alternativeDelimiter = getInterfaces().getCompatibilityInterface().getDefaultAlternativeStatementDelimiter();
         }

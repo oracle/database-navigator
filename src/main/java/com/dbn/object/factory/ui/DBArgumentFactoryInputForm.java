@@ -45,7 +45,7 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_OUTPUT;
 
-public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm<DBObjectSpec> {
+public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm {
     private JPanel mainPanel;
     private JLabel iconLabel;
     private JBTextField nameTextField;

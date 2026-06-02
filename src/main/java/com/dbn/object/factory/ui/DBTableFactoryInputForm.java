@@ -16,29 +16,38 @@
 
 package com.dbn.object.factory.ui;
 
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.component.DBNComponent;
+import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
+import com.dbn.database.DatabaseIdentifierCase;
+import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
 @Getter
-public class DBTableFactoryInputForm extends DBSchemaObjectFactoryInputForm<DBObjectSpec> {
+public class DBTableFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel mainPanel;
     private JTextField nameTextField;
     private JPanel columnListPanel;
     private JPanel headerPanel;
     private DBNComboBox<ConnectionHandler> connectionComboBox;
     private DBNComboBox<SchemaId> schemaComboBox;
+    private JCheckBox preserveCaseCheckBox;
+    private DBNInfoLabel preserveCaseInfoLabel;
 
     private DBColumnFactoryInputListForm columnListForm;
 
@@ -47,8 +56,22 @@ public class DBTableFactoryInputForm extends DBSchemaObjectFactoryInputForm<DBOb
 
         initContextComponents();
         initHeaderForm();
+        initPreserveCaseFields();
 
         resetFormChanges();
+    }
+
+    private void initPreserveCaseFields() {
+        preserveCaseInfoLabel.setContent(getPreserveCaseInfoText());
+    }
+
+    @Override
+    protected void initStatePersistence() {
+        Project project = ensureProject();
+        ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
+
+        StateAttributes state = factoryManager.getState(getObjectType());
+        initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
     }
 
     @Override
@@ -60,7 +83,15 @@ public class DBTableFactoryInputForm extends DBSchemaObjectFactoryInputForm<DBOb
     @Override
     public void applyFormChanges() throws ConfigurationException {
         super.applyFormChanges();
+        input.setIdentifierCase(getSelectedIdentifierCase());
         columnListForm.applyFormChanges();
+    }
+
+    @Override
+    protected DatabaseIdentifierCase getSelectedIdentifierCase() {
+        return preserveCaseCheckBox.isSelected() ?
+                DatabaseIdentifierCase.PRESERVE :
+                getDefaultIdentifierCase();
     }
 
     @Override

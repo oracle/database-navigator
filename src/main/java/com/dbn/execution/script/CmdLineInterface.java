@@ -16,6 +16,7 @@
 
 package com.dbn.execution.script;
 
+import com.dbn.common.approval.UserApprovable;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
@@ -25,7 +26,7 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.nls.NlsResources;
 import com.intellij.openapi.util.SystemInfo;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -36,10 +37,10 @@ import java.util.UUID;
 
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Unsafe.cast;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class CmdLineInterface implements Cloneable<CmdLineInterface>, PersistentConfiguration, Presentable {
+public class CmdLineInterface implements Cloneable<CmdLineInterface>, PersistentConfiguration, Presentable, UserApprovable {
     public static final String DEFAULT_ID = "DEFAULT";
 
     private DatabaseType databaseType;
@@ -47,6 +48,8 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
     private String id;
     private String name;
     private String description;
+
+    private transient boolean acknowledged;
 
     private interface Defaults {
         String extension = SystemInfo.isWindows ? ".exe" : "";
@@ -58,15 +61,15 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
     }
 
     public static CmdLineInterface getDefault(@Nullable DatabaseType databaseType) {
-        if (databaseType != null) {
-            switch (databaseType) {
-                case ORACLE: return Defaults.ORACLE;
-                case MYSQL: return Defaults.MYSQL;
-                case POSTGRES: return Defaults.POSTGRES;
-                case SQLITE: return Defaults.SQLITE;
-            }
-        }
-        return Defaults.GENERIC;
+        if (databaseType == null) return Defaults.GENERIC;
+
+        return switch (databaseType) {
+            case ORACLE -> Defaults.ORACLE;
+            case MYSQL -> Defaults.MYSQL;
+            case POSTGRES -> Defaults.POSTGRES;
+            case SQLITE -> Defaults.SQLITE;
+            default -> Defaults.GENERIC;
+        };
     }
 
     public static DatabaseType resolveDatabaseType(String executableName) {
@@ -94,6 +97,7 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
         this.databaseType = databaseType;
         this.executablePath = executablePath;
         this.description = description;
+        this.acknowledged = DEFAULT_ID.equals(id);
     }
 
     @Nullable
@@ -132,7 +136,8 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
     }
 
     @Override
+    @SneakyThrows
     public CmdLineInterface clone() {
-        return new CmdLineInterface(id, databaseType, executablePath, name, description);
+        return cast(super.clone());
     }
 }

@@ -179,11 +179,12 @@ public class EditableStringList extends DBNEditableTable<EditableStringListModel
     }
 
     public void setStringValues(List<String> stringValues) {
+        if (stringValues == null) stringValues = new ArrayList<>();
         if (is(SORTED)) {
             stringValues = new ArrayList<>(stringValues);
             Collections.sort(stringValues);
         }
-        setModel(new EditableStringListModel(stringValues));
+        getModel().setValues(stringValues);
     }
 
 
