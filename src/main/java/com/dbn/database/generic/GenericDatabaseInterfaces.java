@@ -20,23 +20,13 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.database.common.DatabaseEnvironmentInterfaceImpl;
 import com.dbn.database.common.DatabaseInterfacesBase;
 import com.dbn.database.common.DatabaseNativeDataTypes;
-import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
-import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
-import com.dbn.database.interfaces.DatabaseEnvironmentInterface;
-import com.dbn.database.interfaces.DatabaseExecutionInterface;
-import com.dbn.database.interfaces.DatabaseMessageParserInterface;
-import com.dbn.database.interfaces.DatabaseMetadataInterface;
+import com.dbn.database.interfaces.DatabaseInterface;
+import com.dbn.database.interfaces.DatabaseInterfaceType;
 import com.dbn.language.common.DBLanguageDialectIdentifier;
 import com.dbn.language.sql.SQLLanguage;
 import lombok.Getter;
 
 public final class GenericDatabaseInterfaces extends DatabaseInterfacesBase {
-    private final @Getter(lazy = true) DatabaseMessageParserInterface messageParserInterface = new GenericMessageParserInterface();
-    private final @Getter(lazy = true) DatabaseCompatibilityInterface compatibilityInterface = new GenericCompatibilityInterface();
-    private final @Getter(lazy = true) DatabaseEnvironmentInterface environmentInterface = new DatabaseEnvironmentInterfaceImpl();
-    private final @Getter(lazy = true) DatabaseMetadataInterface metadataInterface = new GenericMetadataInterface(this);
-    private final @Getter(lazy = true) DatabaseDataDefinitionInterface dataDefinitionInterface = new GenericDataDefinitionInterface(this);
-    private final @Getter(lazy = true) DatabaseExecutionInterface executionInterface = new GenericExecutionInterface();
     private final @Getter(lazy = true) DatabaseNativeDataTypes nativeDataTypes = new GenericNativeDataTypes();
 
     public GenericDatabaseInterfaces() {
@@ -48,5 +38,18 @@ public final class GenericDatabaseInterfaces extends DatabaseInterfacesBase {
     @Override
     public DatabaseType getDatabaseType() {
         return DatabaseType.GENERIC;
+    }
+
+    @Override
+    protected DatabaseInterface createInterface(DatabaseInterfaceType interfaceType) {
+        return switch (interfaceType) {
+            case MESSAGE_PARSER -> new GenericMessageParserInterface();
+            case ENVIRONMENT -> new DatabaseEnvironmentInterfaceImpl();
+            case COMPATIBILITY -> new GenericCompatibilityInterface();
+            case METADATA -> new GenericMetadataInterface(this);
+            case DATA_DEFINITION -> new GenericDataDefinitionInterface(this);
+            case EXECUTION -> new GenericExecutionInterface();
+            default -> null;
+        };
     }
 }

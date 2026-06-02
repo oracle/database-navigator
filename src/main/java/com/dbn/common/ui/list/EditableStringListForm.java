@@ -18,13 +18,16 @@ package com.dbn.common.ui.list;
 
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.util.Strings;
 import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.TableModelEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
@@ -43,6 +46,7 @@ public class EditableStringListForm extends DBNFormBase {
     public EditableStringListForm(DBNComponent parent, String title, List<String> elements, ListProperty ... properties) {
         super(parent);
         titleLabel.setText(title);
+        titleLabel.setVisible(Strings.isNotEmpty(title));
 
         stringList = new EditableStringList(this, elements, properties);
         listPanel.add(initListComponent());
@@ -70,5 +74,9 @@ public class EditableStringListForm extends DBNFormBase {
 
     public void setStringValues(List<String> stringValues) {
         stringList.setStringValues(stringValues);
+    }
+
+    public void onListChanges(Consumer<TableModelEvent> runnable) {
+        stringList.getModel().addTableModelListener(e -> runnable.accept(e));
     }
 }

@@ -17,20 +17,27 @@
 package com.dbn.execution.statement.variables;
 
 import com.dbn.common.list.MostRecentStack;
+import com.dbn.common.locale.Formatter;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.type.GenericDataType;
+import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.language.common.psi.ExecVariablePsiElement;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import java.text.ParseException;
+import java.util.Date;
 import java.util.StringTokenizer;
 
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.statement.variables.VariableNames.adjust;
 
 @Getter
@@ -41,6 +48,8 @@ public class StatementExecutionVariable extends VariableValueProvider implements
     private GenericDataType dataType;
     private MostRecentStack<String> valueHistory = new MostRecentStack<>();
     private VariableValueProvider previewValueProvider;
+
+    private transient String error;
 
     public StatementExecutionVariable() {}
 
@@ -57,7 +66,77 @@ public class StatementExecutionVariable extends VariableValueProvider implements
 
     @Override
     public String getValue() {
-        return valueHistory.get();
+        return previewValueProvider == null ? valueHistory.get() : previewValueProvider.getValue();
+    }
+
+    public GenericDataType getDataType() {
+        return previewValueProvider == null ? dataType : previewValueProvider.getDataType();
+    }
+
+    public Object getExecutionValue(@NotNull ConnectionHandler connection) {
+        error = null; // reset error
+        String value = getValue();
+        if (isEmpty(value)) return null;
+
+        GenericDataType dataType = getDataType();
+        if (dataType == GenericDataType.LITERAL) return value;
+
+        Formatter formatter = Formatter.getInstance(connection.getProject());
+        if (dataType == GenericDataType.DATE_TIME){
+            try {
+                Date date = formatter.parseDateTime(value);
+                return new java.sql.Timestamp(date.getTime());
+            } catch (ParseException e) {
+                conditionallyLog(e);
+                try {
+                    Date date = formatter.parseDate(value);
+                    return new java.sql.Date(date.getTime());
+                } catch (ParseException e1) {
+                    conditionallyLog(e1);
+                    error = "Invalid date";
+                }
+            }
+            return null;
+        }
+
+        if (dataType == GenericDataType.NUMERIC){
+            try {
+                return formatter.parseNumber(value);
+            } catch (ParseException e) {
+                conditionallyLog(e);
+                error = "Invalid number";
+            }
+            return null;
+        }
+
+        throw new IllegalArgumentException("Data type " + this.dataType.getName() + " not supported with execution variables.");
+    }
+
+    public String getPreviewValue(@NotNull ConnectionHandler connection) {
+        error = null;
+        DatabaseMetadataInterface metadataInterface = connection.getMetadataInterface();
+        GenericDataType dataType = getDataType();
+        String value = getValue();
+        if (isEmpty(value)) return null;
+
+        if (dataType == GenericDataType.LITERAL) {
+            value = Strings.replace(value, "'", "''");
+            return  '\'' + value + '\'';
+        }
+
+        Object executionValue = getExecutionValue(connection);
+        if (executionValue == null) return null;
+
+        if (dataType == GenericDataType.DATE_TIME){
+            Date date = (Date) executionValue;
+            return metadataInterface.createDateString(date);
+        }
+
+        return value;
+    }
+
+    public boolean hasError() {
+        return error != null;
     }
 
     public void setValue(String value) {

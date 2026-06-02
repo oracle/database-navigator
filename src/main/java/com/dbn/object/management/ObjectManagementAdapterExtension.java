@@ -16,6 +16,7 @@
 
 package com.dbn.object.management;
 
+import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.type.DBObjectType;
@@ -28,7 +29,7 @@ import com.intellij.openapi.extensions.ExtensionPointName;
  *
  * @author Dan Cioca (Oracle)
  */
-public interface ObjectManagementAdapterExtension<T extends DBObject> {
+public interface ObjectManagementAdapterExtension<T extends DBObject> extends ExtensionPoint {
     ExtensionPointName<ObjectManagementAdapterExtension> EP = ExtensionPointName.create("com.dbn.objectManagementAdapter");
 
     DBObjectType[] getObjectTypes();

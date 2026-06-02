@@ -43,7 +43,7 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
-public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputForm<?>> {
+public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputForm> {
     private final DBObjectRef<DBSchema> schema;
     private final DBObjectType objectType;
     private final DBObjectSpec initialInput;

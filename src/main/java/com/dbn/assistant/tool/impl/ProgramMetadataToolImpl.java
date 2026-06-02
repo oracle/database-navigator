@@ -25,49 +25,54 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.DBType;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 public class ProgramMetadataToolImpl extends AssistantToolBase implements ProgramMetadataTool {
 
     @Override
-    public List<String> listProgramNames(String schemaName, String programType) {
+    public List<String> listProgramNames(String schemaName, String programType, String programNameRegex) {
         return switch (programType.toUpperCase()) {
-            case "FUNCTION" -> listFunctionNames(schemaName);
-            case "PROCEDURE" -> listProcedureNames(schemaName);
-            case "PACKAGE" -> listPackageNames(schemaName);
-            case "TYPE" -> listTypeNames(schemaName);
+            case "FUNCTION" -> listFunctionNames(schemaName, programNameRegex);
+            case "PROCEDURE" -> listProcedureNames(schemaName, programNameRegex);
+            case "PACKAGE" -> listPackageNames(schemaName, programNameRegex);
+            case "TYPE" -> listTypeNames(schemaName, programNameRegex);
             default -> throw new IllegalArgumentException("Invalid program type \"" + programType + "\". Expected one of the following values: FUNCTION, PROCEDURE, PACKAGE or TYPE");
         };
     }
 
     @Override
-    public List<String> listTypeNames(String schemaName) {
+    public List<String> listTypeNames(String schemaName, String typeNameRegex) {
         DBSchema schema = getSchema(schemaName);
 
         List<DBType> types = schema.getTypes();
-        return getObjectNames(types, false);
+        Predicate<DBType> nameFilter = nameFilter(typeNameRegex);
+        return getObjectNames(types, false, nameFilter);
     }
 
     @Override
-    public List<String> listFunctionNames(String schemaName) {
+    public List<String> listFunctionNames(String schemaName, String functionNameRegex) {
         DBSchema schema = getSchema(schemaName);
 
         List<DBFunction> functions = schema.getFunctions();
-        return getObjectNames(functions, false);
+        Predicate<DBFunction> nameFilter = nameFilter(functionNameRegex);
+        return getObjectNames(functions, false, nameFilter);
     }
 
     @Override
-    public List<String> listProcedureNames(String schemaName) {
+    public List<String> listProcedureNames(String schemaName, String procedureNameRegex) {
         DBSchema schema = getSchema(schemaName);
 
         List<DBProcedure> procedures = schema.getProcedures();
-        return getObjectNames(procedures, false);
+        Predicate<DBProcedure> nameFilter = nameFilter(procedureNameRegex);
+        return getObjectNames(procedures, false, nameFilter);
     }
 
     @Override
-    public List<String> listPackageNames(String schemaName) {
+    public List<String> listPackageNames(String schemaName, String packageNameRegex) {
         DBSchema schema = getSchema(schemaName);
 
         List<DBPackage> packages = schema.getPackages();
-        return getObjectNames(packages, false);
+        Predicate<DBPackage> nameFilter = nameFilter(packageNameRegex);
+        return getObjectNames(packages, false, nameFilter);
     }
 }

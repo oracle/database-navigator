@@ -44,7 +44,7 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.USER_NAME;
 import static com.dbn.object.factory.model.DBObjectAttributeType.USER_OCID;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 
-public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec, DBCredentialFactoryInputForm> {
+public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public DBObjectType getObjectType() {
@@ -83,7 +83,7 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter<DBObject
                     if (credentialType == DBCredentialType.OCI) {
                         assistantInterface.createOciCredential(
                                 conn,
-                                input.getObjectName(true),
+                                input.getAdjustedObjectName(),
                                 USER_OCID.of(input),
                                 TENANCY_OCID.of(input),
                                 PRIVATE_KEY.of(input),
@@ -91,7 +91,7 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter<DBObject
                     } else if (credentialType == DBCredentialType.PASSWORD) {
                         assistantInterface.createPwdCredential(
                                 conn,
-                                input.getObjectName(true),
+                                input.getAdjustedObjectName(),
                                 USER_NAME.of(input),
                                 Data.asString(PASSWORD.of(input))
                         );

@@ -19,9 +19,10 @@ package com.dbn.assistant.service.generic.model;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.service.generic.context.AssistantMemoryId;
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.common.extension.ExtensionPoint;
 import com.intellij.openapi.extensions.ExtensionPointName;
 
-public interface AssistantModelInvoker<T> {
+public interface AssistantModelInvoker<T> extends ExtensionPoint {
     ExtensionPointName<AssistantModelInvoker> EP = ExtensionPointName.create("com.dbn.assistantModelInvoker");
 
     AssistantModelType getModelType();

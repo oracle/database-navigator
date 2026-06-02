@@ -22,6 +22,6 @@ import static com.dbn.common.util.Classes.simpleClassName;
 
 public class OutdatedContentException extends ProcessCanceledException {
     public OutdatedContentException(Object o) {
-        super(new IllegalStateException(simpleClassName(o) + " is outdated"));
+        super(simpleClassName(o) + " is outdated");
     }
 }

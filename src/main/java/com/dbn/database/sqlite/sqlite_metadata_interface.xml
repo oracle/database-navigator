@@ -120,7 +120,7 @@
                    SQL as SOURCE_CODE
               from "{0}".SQLITE_MASTER
              where TYPE = 'trigger'
-               and TBL_NAME = '{1}'
+               and TBL_NAME = {#1}
              order by TRIGGER_NAME asc
         </statement>
     </statement-execution-processor>
@@ -147,7 +147,7 @@
             select SQL as SOURCE_CODE
               from "{0}".SQLITE_MASTER
              where TYPE = 'view'
-               and NAME = '{1}'
+               and NAME = {#1}
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="dataset-trigger-source-code">
@@ -155,8 +155,8 @@
             select SQL as SOURCE_CODE
               from "{0}".SQLITE_MASTER
              where TYPE = 'trigger'
-               and TBL_NAME = '{1}'
-               and NAME = '{2}'
+               and TBL_NAME = {#1}
+               and NAME = {#2}
         </statement>
     </statement-execution-processor>
 

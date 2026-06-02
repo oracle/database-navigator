@@ -22,7 +22,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 
-public interface DatabaseMessageParserInterface extends DatabaseInterface{
+/**
+ * Classifies and normalizes vendor-specific database messages and SQL exceptions.
+ */
+public interface DatabaseMessageParserInterface extends DatabaseInterface {
+    @Override
+    default DatabaseInterfaceType getInterfaceType() {
+        return DatabaseInterfaceType.MESSAGE_PARSER;
+    }
 
     @Nullable
     DatabaseObjectIdentifier identifyObject(SQLException exception);

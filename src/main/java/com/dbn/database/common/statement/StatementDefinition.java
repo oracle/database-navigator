@@ -16,6 +16,7 @@
 
 package com.dbn.database.common.statement;
 
+import com.dbn.common.data.Data;
 import com.dbn.common.util.TransientId;
 import com.dbn.connection.jdbc.DBNCallableStatement;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -42,13 +43,15 @@ public class StatementDefinition {
 
     private final List<Integer> parameterIndices;
     private final List<Integer> placeholderIndices;
+    private final List<Integer> silentErrorCodes;
 
     private final TransientId id = TransientId.create();
 
-    StatementDefinition(String statementText, String prefix, double sinceVersion) {
+    StatementDefinition(String statementText, String prefix, String silentErrorCodes, double sinceVersion) {
         this.sinceVersion = sinceVersion;
         this.parameterIndices = getDynamicContentIndices(statementText, parameterPattern);
         this.placeholderIndices = getDynamicContentIndices(statementText, placeholderPattern);
+        this.silentErrorCodes = Data.csvToList(silentErrorCodes, Integer.class);
 
         statementText = statementText.trim();
         statementText = statementText.replaceAll("\\t", "    ");
@@ -63,6 +66,10 @@ public class StatementDefinition {
         }
 
         this.statementText = statementText;
+    }
+
+    public boolean isSilentError(SQLException exception) {
+        return silentErrorCodes.contains(exception.getErrorCode());
     }
 
     private List<Integer> getDynamicContentIndices(String statementText, Pattern pattern) {

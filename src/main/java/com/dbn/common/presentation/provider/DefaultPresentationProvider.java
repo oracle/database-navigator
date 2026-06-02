@@ -26,8 +26,8 @@ import javax.swing.Icon;
 
 public class DefaultPresentationProvider implements PresentationProvider<Object> {
     @Override
-    public boolean supports(Class objectType) {
-        return true;
+    public Class<Object> getObjectType() {
+        return Object.class;
     }
 
     @Override

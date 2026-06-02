@@ -30,7 +30,7 @@ import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
@@ -47,6 +47,7 @@ import static com.dbn.common.util.Lists.lastElement;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_OUTPUT;
@@ -61,7 +62,9 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
 
     @Override
     public String createDDLStatement(Project project, DatabaseObjectTypeId objectTypeId, String userName, String schemaName, String objectName, DBContentType contentType, String code, String alternativeDelimiter) {
-        // TODO SQL-Injection
+        schemaName = quoted(schemaName);
+        objectName = quoted(objectName);
+
         if (isEmpty(alternativeDelimiter)) {
             alternativeDelimiter = getInterfaces().getCompatibilityInterface().getDefaultAlternativeStatementDelimiter();
         }
@@ -72,12 +75,11 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
 
         CodeStyleCaseSettings caseSettings = DBLCodeStyleManager.getInstance(project).getCodeStyleCaseSettings(SQLLanguage.INSTANCE);
         CodeStyleCaseOption kco = caseSettings.getKeywordCaseOption();
-        CodeStyleCaseOption oco = caseSettings.getObjectCaseOption();
 
 
         if (objectTypeId == DatabaseObjectTypeId.VIEW) {
             return kco.format("create" + (makeRerunnable ? " or replace" : "") + " view ") +
-                    oco.format((useQualified ? schemaName + "." : "") + objectName) +
+                    (useQualified ? schemaName + "." : "") + objectName +
                     kco.format(" as\n") +
                     code;
         }
@@ -91,7 +93,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
             String delimiterChange = kco.format("delimiter ") + alternativeDelimiter + "\n";
             String dropStatement =
                     kco.format("drop " + objectType + " if exists ") +
-                    oco.format((useQualified ? schemaName + "." : "") + objectName) + alternativeDelimiter + "\n";
+                    (useQualified ? schemaName + "." : "") + objectName + alternativeDelimiter + "\n";
             String createStatement = kco.format("create definer=current_user\n") + code + alternativeDelimiter + "\n";
             String delimiterReset = kco.format("delimiter ;");
             return delimiterChange + (makeRerunnable ? dropStatement : "") + createStatement + delimiterReset;
@@ -181,7 +183,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
             dropObjectIfExists(objectType, ownerName, tempObjectName, connection);
 
             QuotePair quotePair = getIdentifierEnquoter(connection);
-            String rawObjectName = quotePair.unquote(objectName);
+            String rawObjectName = quotePair.unquote(objectName, DATABASE);
 
             createObject(newCode.replaceFirst("(?i)" + rawObjectName, tempObjectName), connection);
             dropObjectIfExists(objectType, ownerName, tempObjectName, connection);
@@ -215,24 +217,24 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
         Project project = methodSpec.getSchema().getProject();
         CodeStyleCaseSettings caseSettings = PSQLCodeStyle.caseSettings(project);
         CodeStyleCaseOption kco = caseSettings.getKeywordCaseOption();
-        CodeStyleCaseOption oco = caseSettings.getObjectCaseOption();
         CodeStyleCaseOption dco = caseSettings.getDatatypeCaseOption();
         boolean function = methodSpec.getObjectType() == DBObjectType.FUNCTION;
 
         StringBuilder buffer = new StringBuilder();
         String methodType = function ? "function " : "procedure ";
         buffer.append(kco.format(methodType));
-        buffer.append(oco.format(methodSpec.getObjectName()));
+        buffer.append(methodSpec.getAdjustedObjectName());
         buffer.append("(");
 
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        DBObjectSpecList<DBObjectSpec> arguments = methodSpec.getChildren(ARGUMENT);
+        DBObjectSpecList arguments = methodSpec.getChildren(ARGUMENT);
         for (DBObjectSpec argument : arguments) {
             boolean in = IS_INPUT.is(argument);
             boolean out = IS_OUTPUT.is(argument);
 
-            maxArgNameLength = Math.max(maxArgNameLength, argument.getObjectName().length());
+            String argumentName = argument.getAdjustedObjectName();
+            maxArgNameLength = Math.max(maxArgNameLength, argumentName.length());
             maxArgDirectionLength = Math.max(maxArgDirectionLength, in && out ? 5 : in ? 2 : out ? 3 : 0);
         }
 
@@ -251,8 +253,9 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
                 buffer.append(Strings.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
             }
 
-            buffer.append(oco.format(argument.getObjectName()));
-            buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
+            String argumentName = argument.getAdjustedObjectName();
+            buffer.append(argumentName);
+            buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argumentName.length() + 1));
 
             buffer.append(dco.format(DATA_TYPE.of(argument)));
             if (argument != lastElement(arguments)) {

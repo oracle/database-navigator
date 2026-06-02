@@ -75,6 +75,7 @@ import static com.dbn.common.data.Data.asLongPrimitive;
 import static com.dbn.common.data.Data.asShort;
 import static com.dbn.common.data.Data.asShortPrimitive;
 import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.execution.java.JavaExecutionTypeResolver.resolveInputType;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
@@ -227,18 +228,15 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	}
 
 	@SneakyThrows
-	private Array getArrayObject(JavaExecutionInput executionInput,DBObjectRef dbJavaClass, WrapperModel wrapperModel, String objectName, String fieldPath){
+	private Array getArrayObject(JavaExecutionInput executionInput, DBObjectRef<DBJavaClass> javaClass, WrapperModel wrapperModel, String objectName, String fieldPath){
 		ConnectionHandler connection = getMethod().getConnection();
 		SessionId targetSessionId = executionInput.getTargetSessionId();
 		SchemaId targetSchemaId = executionInput.getTargetSchemaId();
 		DBNConnection conn = connection.getConnection(targetSessionId, targetSchemaId);
 
 		String fieldValue = executionInput.getInputValue(fieldPath);
-		String className = getCanonicalName(dbJavaClass);
-		Class<?> clazz = Data.asPrimitiveClass(className);
-		if(clazz == null){
-			clazz = Class.forName(className);
-		}
+		String className = getCanonicalName(javaClass);
+		Class<?> clazz = resolveInputType(className);
 		List<?> values = Data.arrayStringToList(fieldValue, clazz);
 		Object[] attributes = values == null ? new Object[0] : values.toArray();
 

@@ -56,7 +56,7 @@ public class ExecutablePsiElement extends NamedPsiElement implements Cloneable<E
     private final Latent<ElementType> specificOverrideElementType =         Latent.mutable(() -> getFileModificationStamp(), () -> resolveSpecificElementType(true));
     private final Latent<StatementGutterRenderer> statementGutterRenderer = Latent.mutable(() -> getFileModificationStamp(), () -> createStatementGutterRenderer());
 
-    public String prepareStatementText(){
+    public String getExecutableStatementText(){
         PsiElement lastChild = getLastChild();
         while (lastChild != null && !(lastChild instanceof BasePsiElement)) {
             lastChild = lastChild.getPrevSibling();
