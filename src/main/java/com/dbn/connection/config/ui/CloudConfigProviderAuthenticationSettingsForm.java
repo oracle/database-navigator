@@ -32,6 +32,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.util.Objects;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -56,6 +57,8 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     private TextFieldWithBrowseButton configFileTextField;
     private JLabel profileLabel;
     private DBNComboBox<String> profileComboBox;
+    private JLabel azureClientIdLabel;
+    private JTextField azureClientIdTextField;
     private CloudConfigProviderType cloudProviderType;
 
     public CloudConfigProviderAuthenticationSettingsForm(@NotNull ConnectionDatabaseSettingsForm parentComponent) {
@@ -100,10 +103,19 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     }
 
     public void applyFormChanges(ConfigProviderInfo configProviderInfo) {
-        configProviderInfo.applyOciAuthentication(
-                getCloudConfigProviderAuthentication(),
-                isOciProvider() && isDefaultAuthentication() ? getOciConfigProviderConfigFile() : null,
-                isOciProvider() && isDefaultAuthentication() ? getOciConfigProviderProfile() : null);
+        CloudConfigProviderAuthentication authentication = getCloudConfigProviderAuthentication();
+        if (isOciProvider()) {
+            configProviderInfo.applyOciAuthentication(
+                    authentication,
+                    isDefaultAuthentication() ? getOciConfigProviderConfigFile() : null,
+                    isDefaultAuthentication() ? getOciConfigProviderProfile() : null);
+        } else if (isAzureProvider()) {
+            if (isAzureInteractiveAuthentication()) {
+                configProviderInfo.applyAzureAuthentication(authentication, getText(azureClientIdTextField));
+            } else {
+                configProviderInfo.applyAzureAuthentication(authentication, null);
+            }
+        }
     }
 
     public void resetFormChanges() {
@@ -123,10 +135,12 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                     .withValuePreselector(p -> Objects.equals(p, databaseInfo.getConfigProviderInfo().getOciProfile()))
                     .triggerLoad();
         } else {
-            setSelection(authenticationComboBox, null);
             configFileTextField.setText(null);
             profileComboBox.removeAllItems();
         }
+
+        azureClientIdTextField.setText(isAzureProvider() ?
+                databaseInfo.getConfigProviderInfo().getAzureClientId() : null);
         updateFieldVisibility();
     }
 
@@ -139,6 +153,11 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         boolean authenticationChanged = !Commons.match(
                 Commons.nvl(databaseInfo.getConfigProviderInfo().getAuthentication(), CloudConfigProviderAuthentication.getDefault(cloudProviderType)),
                 getCloudConfigProviderAuthentication());
+        if (isAzureProvider()) {
+            return authenticationChanged ||
+                    isAzureInteractiveAuthentication() &&
+                            !Commons.match(databaseInfo.getConfigProviderInfo().getAzureClientId(), getText(azureClientIdTextField));
+        }
         if (!isOciProvider()) return authenticationChanged;
 
         return authenticationChanged ||
@@ -149,6 +168,7 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     public void addChangeListeners(Runnable runnable) {
         authenticationComboBox.addActionListener(e -> runnable.run());
         onTextChange(configFileTextField, e -> runnable.run());
+        onTextChange(azureClientIdTextField, e -> runnable.run());
         profileComboBox.addActionListener(e -> runnable.run());
     }
 
@@ -162,6 +182,7 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         boolean authenticationProvider = isAuthenticationProvider();
         boolean infoProvider = isInfoProvider();
         boolean ociDefaultAuthentication = ociProvider && isDefaultAuthentication();
+        boolean azureInteractiveAuthentication = isAzureInteractiveAuthentication();
 
         authenticationLabel.setVisible(authenticationProvider);
         authenticationComboBox.setVisible(authenticationProvider);
@@ -171,6 +192,8 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         configFileTextField.setVisible(ociDefaultAuthentication);
         profileLabel.setVisible(ociDefaultAuthentication);
         profileComboBox.setVisible(ociDefaultAuthentication);
+        azureClientIdLabel.setVisible(azureInteractiveAuthentication);
+        azureClientIdTextField.setVisible(azureInteractiveAuthentication);
 
         if (cloudProviderType == null) return;
 
@@ -189,8 +212,17 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         return getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.OCI_DEFAULT;
     }
 
+    private boolean isAzureInteractiveAuthentication() {
+        return isAzureProvider() &&
+                getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.AZURE_INTERACTIVE;
+    }
+
     private boolean isOciProvider() {
         return cloudProviderType != null && cloudProviderType.isOci();
+    }
+
+    private boolean isAzureProvider() {
+        return cloudProviderType != null && cloudProviderType.isAzure();
     }
 
     private boolean isAuthenticationProvider() {

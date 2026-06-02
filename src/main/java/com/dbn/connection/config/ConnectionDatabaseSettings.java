@@ -504,6 +504,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         if (authenticationType != AuthenticationType.TOKEN) return false;
 
         AuthenticationTokenType tokenType = authenticationInfo.getTokenType();
-        return tokenType == AuthenticationTokenType.OCI_INTERACTIVE; // TODO Azure interactive
+        return tokenType == AuthenticationTokenType.OCI_INTERACTIVE ||
+                tokenType == AuthenticationTokenType.AZURE_INTERACTIVE;
     }
 }

@@ -55,6 +55,7 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
     private String location;
     private String profileKey;
     private String label;
+    private String azureClientId;
 
     public void reset() {
         sourceType = ConfigFileSourceType.LOCAL_FILE;
@@ -66,6 +67,7 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         location = null;
         profileKey = null;
         label = null;
+        azureClientId = null;
     }
 
     public void applyOciAuthentication(
@@ -75,6 +77,13 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         this.authentication = authentication;
         this.ociConfigFile = ociConfigFile;
         this.ociProfile = ociProfile;
+    }
+
+    public void applyAzureAuthentication(
+            CloudConfigProviderAuthentication authentication,
+            String azureClientId) {
+        this.authentication = authentication;
+        this.azureClientId = isAzureProvider() ? azureClientId : null;
     }
 
     public void apply(
@@ -132,12 +141,18 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
     public boolean isInteractiveAuthentication() {
         return isCloudProviderConfig() &&
                 cloudProviderType != null &&
-                cloudProviderType.isOci() &&
-                authentication == CloudConfigProviderAuthentication.OCI_INTERACTIVE;
+                ((cloudProviderType.isOci() &&
+                        authentication == CloudConfigProviderAuthentication.OCI_INTERACTIVE) ||
+                 (cloudProviderType.isAzure() &&
+                        authentication == CloudConfigProviderAuthentication.AZURE_INTERACTIVE));
     }
 
     public boolean isAzureAppConfig() {
         return isCloudProviderConfig() && cloudProviderType == CloudConfigProviderType.AZURE_APP_CONFIG;
+    }
+
+    private boolean isAzureProvider() {
+        return isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isAzure();
     }
 
     public String getProviderSlug() {
@@ -167,6 +182,11 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         }
         if (includeAuthentication && isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isAzure() && authentication != null) {
             parameters.put("AUTHENTICATION", authentication.getParameterValue());
+            if (authentication == CloudConfigProviderAuthentication.AZURE_INTERACTIVE) {
+                if (isNotEmptyOrSpaces(azureClientId)) {
+                    parameters.put("AZURE_CLIENT_ID", azureClientId.trim());
+                }
+            }
         }
 
         return parameters.isEmpty() ? Collections.emptyMap() : parameters;
@@ -202,6 +222,12 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
     }
 
     public void validate(List<String> errors) {
+        if (isAzureProvider() &&
+                authentication == CloudConfigProviderAuthentication.AZURE_INTERACTIVE &&
+                isEmptyOrSpaces(azureClientId)) {
+            errors.add("Azure interactive authentication requires client ID");
+        }
+
         if (cloudProviderType != CloudConfigProviderType.GCP_STORAGE) return;
 
         Map<String, String> values = parseNamedLocation();
@@ -249,6 +275,10 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
             ociConfigFile = getParameterIgnoreCase(parameters, "OCI_CONFIG_FILE");
             ociProfile = getParameterIgnoreCase(parameters, "OCI_PROFILE");
         }
+        if (isAzureProvider()) {
+            authentication = CloudConfigProviderAuthentication.get(getParameterIgnoreCase(parameters, "AUTHENTICATION"));
+            azureClientId = getParameterIgnoreCase(parameters, "AZURE_CLIENT_ID");
+        }
         if (isRegionConfig()) {
             region = getParameterIgnoreCase(parameters, cloudProviderType.getRegionParameterName());
         }
@@ -282,6 +312,9 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
                 authentication,
                 getString(element, "oci-config-provider-config-file", null),
                 getString(element, "oci-config-provider-profile", null));
+        applyAzureAuthentication(
+                authentication,
+                getString(element, "azure-config-provider-client-id", null));
     }
 
     public void writeConfiguration(Element element) {
@@ -290,6 +323,7 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         setEnum(element, "cloud-config-provider-authentication", authentication);
         setString(element, "oci-config-provider-config-file", ociConfigFile);
         setString(element, "oci-config-provider-profile", ociProfile);
+        setString(element, "azure-config-provider-client-id", azureClientId);
         setString(element, "cloud-config-provider-region", region);
         setString(element, "config-location", location);
         setString(element, "config-file-profile-key", profileKey);
@@ -308,6 +342,7 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         clone.location = location;
         clone.profileKey = profileKey;
         clone.label = label;
+        clone.azureClientId = azureClientId;
         return clone;
     }
 }
