@@ -115,7 +115,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
     }
 
     private static CompilerResult createErrorCompilerResult(CompilerAction compilerAction, DBSchemaObject object, DBContentType contentType, Exception e) {
-        return new CompilerResult(compilerAction, object, contentType, "Could not perform compile operation. \nCause: " + e.getMessage());
+        return new CompilerResult(compilerAction, object, contentType, txt("msg.compiler.message.CompileOperationFailed", e.getMessage()));
     }
 
     public CompileType getCompileType(@Nullable DBSchemaObject object, DBContentType contentType) {

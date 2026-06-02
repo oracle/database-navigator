@@ -94,17 +94,28 @@ public class CompilerResult implements Disposable, NotificationSupport, NlsSuppo
 
 
         if (compilerMessages.isEmpty()) {
-            // TODO NLS
-            String contentDesc =
-                    contentType == DBContentType.CODE_SPEC ? "spec of " :
-                    contentType == DBContentType.CODE_BODY ? "body of " : "";
-
-            String message = "The " + contentDesc + object.getQualifiedNameWithType() + " was " + (compilerAction.isSave() ? "updated" : "compiled") + " successfully.";
-            CompilerMessage compilerMessage = new CompilerMessage(this, contentType, message);
+            CompilerMessage compilerMessage = new CompilerMessage(this, contentType, getSuccessMessage(contentType));
             compilerMessages.add(compilerMessage);
         } else {
             Collections.sort(compilerMessages);
         }
+    }
+
+    private String getSuccessMessage(DBContentType contentType) {
+        String objectName = object.getQualifiedNameWithType();
+        if (compilerAction.isSave()) {
+            return switch (contentType) {
+                case CODE_SPEC -> txt("msg.compiler.message.ObjectSpecUpdated", objectName);
+                case CODE_BODY -> txt("msg.compiler.message.ObjectBodyUpdated", objectName);
+                default -> txt("msg.compiler.message.ObjectUpdated", objectName);
+            };
+        }
+
+        return switch (contentType) {
+            case CODE_SPEC -> txt("msg.compiler.message.ObjectSpecCompiled", objectName);
+            case CODE_BODY -> txt("msg.compiler.message.ObjectBodyCompiled", objectName);
+            default -> txt("msg.compiler.message.ObjectCompiled", objectName);
+        };
     }
 
     private void loadCompilerErrors(ConnectionHandler connection, DBSchema schema, String objectName, DBContentType contentType, DBNConnection conn) throws SQLException {
