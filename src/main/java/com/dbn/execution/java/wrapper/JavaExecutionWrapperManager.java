@@ -83,7 +83,7 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
                         sourceObject.getTypeName(),
                         sourceObject.getPresentableName()),
                 progress -> {
-                    progress.setText2("Building execution wrapper model");
+                    progress.setText2(txt("prc.java.text.BuildingExecutionWrapperModel"));
                     WrapperModelBuilder builder = WrapperModelBuilder.getInstance();
                     WrapperModel model = builder.buildModel(modelInput);
                     if(!model.hasErrors()) {
@@ -114,7 +114,7 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
     }
 
     private void createExecutionWrappers(WrapperModel model) {
-        ProgressMonitor.setProgressDetail("Creating execution wrapper objects");
+        ProgressMonitor.setProgressDetail(txt("prc.java.text.CreatingExecutionWrapperObjects"));
         try {
             WrapperStatementExecutor.createExecutionWrappers(model);
             if (!model.getInput().isTemporary()) {

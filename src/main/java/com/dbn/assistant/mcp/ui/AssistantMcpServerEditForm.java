@@ -186,8 +186,8 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
 
     private void verifyMcpServer() {
         Progress.modal(getProject(), null, true,
-                "Verifying MCP Server Configuration",
-                "Connecting to \"" + mcpServer.getName() + "\" MCP Server",
+                txt("prc.assistant.title.VerifyingMcpServerConfiguration"),
+                txt("prc.assistant.text.ConnectingToMcpServer", mcpServer.getName()),
                 p -> doVerifyMcpServer(p));
     }
 
@@ -195,8 +195,8 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
         AssistantMcpServer mcpServer = getConfigMcpServer();
         try {
             String detail = mcpServer.getType() == HTTP ?
-                    "Accessing http url \"" + mcpServer.getUrl() + "\"":
-                    "Invoking command \"" + mcpServer.getEndpoint() + "\"";
+                    txt("prc.assistant.text.AccessingMcpHttpUrl", mcpServer.getUrl()) :
+                    txt("prc.assistant.text.InvokingMcpCommand", mcpServer.getEndpoint());
             indicator.setText2(detail);
 
             // approve this endpoint for the verify call; persistent approval happens on settings Apply

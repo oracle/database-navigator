@@ -69,6 +69,7 @@ import static com.dbn.common.file.util.ProjectFiles.isModuleDependency;
 import static com.dbn.common.file.util.ProjectFiles.isProjectSourceFile;
 import static com.dbn.common.file.util.VirtualFiles.isArchive;
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.sync.java.upload.JavaUploadManager.COMPONENT_NAME;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
@@ -100,8 +101,8 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 	public void openCodeUploader(VirtualFile file) {
 		FileDocumentManager.getInstance().saveAllDocuments();
 		Progress.prompt(getProject(), null, true,
-				"Preparing Java Upload",
-				"Loading java dependencies for " + file.getPresentableName() + "...",
+				txt("prc.java.title.PreparingJavaUpload"),
+				txt("prc.java.text.LoadingJavaDependencies", file.getPresentableName()),
 				progress -> prepareUploadDialog(file));
 	}
 

@@ -128,8 +128,7 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter {
         long fileSize = modelFile.length();
         double totalMB = fileSize / (1024.0 * 1024.0);
 
-        // Tell the ProgressIndicator what we're doing
-        progress.setText("Uploading ONNX model \"" + modelFile.getName() + "\" as " + input.getSchema().getName(true) + ".\"" + input.getObjectName() + "\"");
+        progress.setText(txt("prc.object.text.UploadingOnnxModel", modelFile.getName(), input.getSchema().getName(true), input.getObjectName()));
         progress.setIndeterminate(false);
         progress.setFraction(0.0);
 
@@ -156,11 +155,9 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter {
 
                 // update the progress bar
                 progress.setFraction(fraction);
-                progress.setText2(String.format(
-                        "Uploaded %.1f MB of %.1f MB",
-                        bytesUploaded / (1024.0 * 1024.0),
-                        totalMB
-                ));
+                progress.setText2(txt("prc.object.text.UploadedModelSize",
+                        String.format("%.1f", bytesUploaded / (1024.0 * 1024.0)),
+                        String.format("%.1f", totalMB)));
             }
         } catch (Throwable e) {
             Diagnostics.conditionallyLog(e);
@@ -169,7 +166,7 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter {
 
         // final update (100%)
         progress.setFraction(1.0);
-        progress.setText("Upload complete");
+        progress.setText(txt("prc.object.text.UploadComplete"));
 
 
         return modelBlob;

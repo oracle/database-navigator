@@ -59,6 +59,7 @@ import java.util.List;
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.sync.java.download.JavaDownloadManager.COMPONENT_NAME;
 import static com.dbn.sync.java.download.JavaDownloadUtil.prepareDestinationFolders;
 
@@ -80,8 +81,8 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 		ConnectionHandler connection = sourceObject.getConnection();
 		ConnectionAction.invoke(null, true, connection, a -> {
 			Progress.prompt(getProject(), connection, true,
-					"Preparing Java Download",
-					"Loading java dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
+					txt("prc.java.title.PreparingJavaDownload"),
+					txt("prc.java.text.LoadingJavaDependencies", sourceObject.getQualifiedNameWithType()),
 					progress -> prepareDownloadDialog(sourceObject, DBObjectType.JAVA_CLASS));
 		});
 	}
@@ -90,7 +91,7 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 		ConnectionHandler connection = sourceObject.getConnection();
 		ConnectionAction.invoke(null, true, connection, a -> {
 			Progress.prompt(getProject(), connection, true,
-					"Preparing Java Resource Download",
+					txt("prc.java.title.PreparingJavaResourceDownload"),
 					null,
 					progress -> prepareDownloadDialog(sourceObject, DBObjectType.JAVA_RESOURCE));
 		});

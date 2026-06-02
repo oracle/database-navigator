@@ -68,7 +68,9 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
   }
 
   private void verifyAndSubmit() {
-    Progress.modal(ensureProject(), request.getConnection(), true, "Verifying Request", "Verifying embedding request", i -> {
+    Progress.modal(ensureProject(), request.getConnection(), true,
+            txt("prc.vector.title.VerifyingRequest"),
+            txt("prc.vector.text.VerifyingEmbeddingRequest"), i -> {
         if (!VectorEmbeddingRequestVerifier.verifyRequest(request, i)) return;
 
         dispatch(() -> {

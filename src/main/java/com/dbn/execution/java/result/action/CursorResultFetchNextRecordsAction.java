@@ -31,6 +31,7 @@ import java.sql.SQLException;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class CursorResultFetchNextRecordsAction extends JavaExecutionCursorResultAction {
 
@@ -41,8 +42,8 @@ public class CursorResultFetchNextRecordsAction extends JavaExecutionCursorResul
 
         ResultSetDataModel model = resultSetTable.getModel();
         Progress.prompt(project, model, false,
-                "Loading cursor result",
-                "Loading method execution cursor result",
+                txt("prc.execution.title.LoadingCursorResult"),
+                txt("prc.execution.text.LoadingMethodCursorResult"),
                 progress -> {
                     try {
                         if (!model.isResultSetExhausted()) {

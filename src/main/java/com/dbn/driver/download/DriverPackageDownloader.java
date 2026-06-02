@@ -31,6 +31,7 @@ import java.io.File;
 import java.util.function.Consumer;
 
 import static com.dbn.driver.download.MavenArtifactDownloader.downloadArtifact;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class DriverPackageDownloader {
@@ -41,8 +42,8 @@ public class DriverPackageDownloader {
         DriverDownloadManager downloadManager = getDownloadManager();
 
         Progress.modal(project, null, true,
-                "Downloading Drivers",
-                "Downloading driver packages for " + driverPackage.getName(),
+                txt("prc.connection.title.DownloadingDrivers"),
+                txt("prc.connection.text.DownloadingDriverPackages", driverPackage.getName()),
                 indicator -> {
                     int downloadCount = driverPackage.getLibraries().size();
                     String packageId = driverPackage.getId();

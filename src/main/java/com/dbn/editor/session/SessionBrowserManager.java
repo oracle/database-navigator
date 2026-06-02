@@ -233,10 +233,9 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
                             Object sessionId = entry.getSessionId();
                             Object serialNumber = entry.getSerialNumber();
 
-                            // TODO NLS
                             checkDisposed();
                             progress.checkCanceled();
-                            progress.setText(Strings.capitalize(type.disconnectingAction()) + " session id " + sessionId + " (serial " + serialNumber + ")");
+                            progress.setText(txt("prc.sessions.text.InterruptingSession", Strings.capitalize(type.disconnectingAction()), sessionId, serialNumber));
                             progress.setFraction(Progress.progressOf(index, sessionIds.size()));
 
                             try {

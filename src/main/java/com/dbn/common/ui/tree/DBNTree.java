@@ -49,6 +49,7 @@ import java.awt.event.MouseEvent;
 import static com.dbn.common.dispose.ComponentDisposer.removeListeners;
 import static com.dbn.common.ui.util.Keyboard.onKeyPress;
 import static com.dbn.common.ui.util.Mouse.onButtonRelease;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBNTree extends Tree implements DBNComponent {
     private WeakRef<DBNComponent> parent;
@@ -145,8 +146,8 @@ public class DBNTree extends Tree implements DBNComponent {
                 getProject(),
                 context,
                 true,
-                "Preparing context menu",
-                "Creating context menu for " + getContextMenuNodeName(pathNode) + "...",
+                txt("prc.common.title.PreparingContextMenu"),
+                txt("prc.common.text.CreatingContextMenu", getContextMenuNodeName(pathNode)),
                 progress -> {
                     ActionGroup contextActions = createContextActions(path);
                     if (contextActions == null) return;

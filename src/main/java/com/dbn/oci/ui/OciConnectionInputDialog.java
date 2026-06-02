@@ -118,7 +118,9 @@ public class OciConnectionInputDialog extends DBNDialog<OciConnectionInputForm> 
       return;
     }
 
-    Progress.prompt(getProject(), null, true, "Downloading wallet", "Downloading wallet for database \"" + connectionData.getDisplayName() + "\"",
+    Progress.prompt(getProject(), null, true,
+            txt("prc.oci.title.DownloadingWallet"),
+            txt("prc.oci.text.DownloadingWalletForDatabase", connectionData.getDisplayName()),
             progress -> {
               if (preDownloadRunnable != null) {
                 preDownloadRunnable.run();

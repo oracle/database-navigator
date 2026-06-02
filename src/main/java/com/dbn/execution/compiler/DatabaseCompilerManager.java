@@ -301,7 +301,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
     private void doCompileInvalidObjects(List<? extends DBSchemaObject> objects, String description, ProgressIndicator progress, CompileType compileType) {
         if (progress.isCanceled()) return;
 
-        progress.setText("Compiling invalid " + description + "...");
+        progress.setText(txt("prc.compiler.text.CompilingInvalidObjects", description));
         int count = objects.size();
         for (int i=0; i< count; i++) {
             if (progress.isCanceled() || objects.size() == 0 /* may be disposed meanwhile*/) {
@@ -318,14 +318,14 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                         if (objectStatus.isNot(contentType, DBObjectStatus.VALID)) {
                             CompilerAction compilerAction = new CompilerAction(CompilerActionSource.BULK_COMPILE, contentType);
                             doCompileObject(object, compileType, compilerAction);
-                            progress.setText("Compiling " + object.getQualifiedNameWithType());
+                            progress.setText(txt("prc.compiler.text.CompilingObject", object.getQualifiedNameWithType()));
                         }
                     }
                 } else {
                     if (objectStatus.isNot(DBObjectStatus.VALID)) {
                         CompilerAction compilerAction = new CompilerAction(CompilerActionSource.BULK_COMPILE, objectContentType);
                         doCompileObject(object, compileType, compilerAction);
-                        progress.setText("Compiling " + object.getQualifiedNameWithType());
+                        progress.setText(txt("prc.compiler.text.CompilingObject", object.getQualifiedNameWithType()));
                     }
                 }
             }

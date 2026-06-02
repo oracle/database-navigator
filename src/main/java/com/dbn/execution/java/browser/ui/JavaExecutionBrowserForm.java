@@ -123,8 +123,8 @@ public class JavaExecutionBrowserForm extends DBNFormBase {
 
     private void updateTree() {
         Progress.prompt(getProject(), null, false,
-                "Loading data dictionary",
-                "Loading executable elements",
+                txt("prc.execution.title.LoadingDataDictionary"),
+                txt("prc.execution.text.LoadingExecutableElements"),
                 progress -> {
                     JavaBrowserSettings settings = getSettings();
                     ObjectTreeModel model = new ObjectTreeModel(settings.getSelectedSchema(), settings.getVisibleObjectTypes(), null);

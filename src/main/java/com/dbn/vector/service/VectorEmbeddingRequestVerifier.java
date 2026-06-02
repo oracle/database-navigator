@@ -31,6 +31,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class VectorEmbeddingRequestVerifier {
     public static boolean verifyRequest(VectorEmbeddingRequest request, ProgressIndicator indicator) {
@@ -51,7 +52,7 @@ public class VectorEmbeddingRequestVerifier {
         Project project = request.getProject();
         ConnectionHandler connection = request.getConnection();
 
-        indicator.setText2("Verifying destination model consistency");
+        indicator.setText2(txt("prc.vector.text.VerifyingDestinationModelConsistency"));
         String modelMetadata = DatabaseInterfaceInvoker.load(Priority.MEDIUM, project, request.getConnectionId(), conn -> {
             DatabaseVectorInterface vectorInterface = connection.getVectorInterface();
             EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();

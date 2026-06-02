@@ -212,7 +212,10 @@ public class JavaExecutionHistoryForm extends DBNFormBase {
 	private final TreeSelectionListener treeSelectionListener = e -> {
 		JavaExecutionInput executionInput = getTree().getSelectedExecutionInput();
 		if (executionInput != null) {
-			ConnectionAction.invoke("loading the execution history", true, executionInput, action -> Progress.prompt(getProject(), action, false, "Loading method details", "Loading details of " + executionInput.getMethodRef().getQualifiedNameWithType(), progress -> {
+			ConnectionAction.invoke("loading the execution history", true, executionInput, action -> Progress.prompt(getProject(), action, false,
+					txt("prc.execution.title.LoadingMethodDetails"),
+					txt("prc.execution.text.LoadingMethodDetails", executionInput.getMethodRef().getQualifiedNameWithType()),
+					progress -> {
                                                                 /*DBMethod method = executionInput.getMethod();
                                 if (method != null) {
                                     method.getArguments();

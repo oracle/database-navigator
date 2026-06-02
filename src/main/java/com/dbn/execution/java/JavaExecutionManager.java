@@ -67,6 +67,7 @@ import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
 		name = JavaExecutionManager.COMPONENT_NAME,
@@ -141,8 +142,8 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 
 		ConnectionAction.invoke("The Method Execution", false, executionInput,
 				action -> Progress.prompt(project, action, true,
-						"Loading method details",
-						"Loading details of " + methodRef.getQualifiedNameWithType(),
+						txt("prc.execution.title.LoadingMethodDetails"),
+						txt("prc.execution.text.LoadingMethodDetails", methodRef.getQualifiedNameWithType()),
 						progress -> {
 							ConnectionHandler connection = action.getConnection();
 							String methodIdentifier = methodRef.getPath();
@@ -180,8 +181,8 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 
 		Project project = getProject();
 		Progress.prompt(project, selection, true,
-				"Loading data dictionary",
-				"Loading java execution history",
+				txt("prc.execution.title.LoadingDataDictionary"),
+				txt("prc.execution.text.LoadingJavaExecutionHistory"),
 				progress -> {
 					JavaExecutionInput selectedInput = Commons.nvln(selection, executionHistory.getLastSelection());
 					if (selectedInput != null) {
@@ -229,8 +230,8 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 			JavaExecutionProcessor executionProcessor = executionInterface.createExecutionProcessor(method);
 
 			Progress.prompt(project, method, true,
-					"Executing method",
-					"Executing " + method.getQualifiedNameWithType(),
+					txt("prc.execution.title.ExecutingMethod"),
+					txt("prc.execution.text.ExecutingMethod", method.getQualifiedNameWithType()),
 					progress -> {
 						try {
 							executionProcessor.execute(input, DBDebuggerType.NONE);
@@ -283,8 +284,8 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 			@Nullable Consumer<JavaExecutionInput> callback) {
 
 		Progress.prompt(getProject(), executionInput, true,
-				"Loading data dictionary",
-				"Loading executable elements",
+				txt("prc.execution.title.LoadingDataDictionary"),
+				txt("prc.execution.text.LoadingExecutableElements"),
 				progress -> {
 					Project project = getProject();
 					JavaExecutionManager executionManager = JavaExecutionManager.getInstance(project);

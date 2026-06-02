@@ -204,8 +204,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         downloadButton.addActionListener(e -> {
             Progress.modal(ensureProject(),
                     null, true,
-                    "Loading Drivers",
-                    "Loading driver package metadata...",
+                    txt("prc.connection.title.LoadingDrivers"),
+                    txt("prc.connection.text.LoadingDriverPackageMetadata"),
                     indicator -> showDownloadPopup()
             );
         });
@@ -381,8 +381,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
                 Project project = getProject();
                 Progress.modal(project, null, true,
-                        "Loading Drivers",
-                        "Loading driver package metadata...",
+                        txt("prc.connection.title.LoadingDrivers"),
+                        txt("prc.connection.text.LoadingDriverPackageMetadata"),
                         indicator -> initDownloadManagerDialog(indicator));
             }
         });

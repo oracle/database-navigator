@@ -51,6 +51,7 @@ import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.mcp.build.McpJavaVersionManager.MIN_JAVA_VERSION;
 import static com.dbn.mcp.build.McpMavenPluginSupport.verifyMavenAvailability;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class McpBuildTask {
@@ -75,7 +76,10 @@ public class McpBuildTask {
     }
 
     public void execute(Runnable onInitSuccess, Runnable onBuildFailure) {
-        Progress.prompt(project, null, true, "Building MCP Server", "Verifying build prerequisites", indicator -> {
+        Progress.prompt(project, null, true,
+                txt("prc.mcp.title.BuildingMcpServer"),
+                txt("prc.mcp.text.VerifyingBuildPrerequisites"),
+                indicator -> {
             verifyBuilt(indicator);
             onInitSuccess.run();
 
@@ -84,25 +88,25 @@ public class McpBuildTask {
     }
 
     private void verifyBuilt(ProgressIndicator indicator) {
-        indicator.setText2("Verifying server definition...");
+        indicator.setText2(txt("prc.mcp.text.VerifyingServerDefinition"));
         verifyServerDefinition();
 
-        indicator.setText2("Verifying Maven availability...");
+        indicator.setText2(txt("prc.mcp.text.VerifyingMavenAvailability"));
         verifyMavenAvailability(project);
 
-        indicator.setText2("Verifying project Java version...");
+        indicator.setText2(txt("prc.mcp.text.VerifyingProjectJavaVersion"));
         verifyJavaVersion(project);
 
-        indicator.setText2("Verifying connection url...");
+        indicator.setText2(txt("prc.mcp.text.VerifyingConnectionUrl"));
         verifyConnectionUrl();
 
-        indicator.setText2("Initializing output directory...");
+        indicator.setText2(txt("prc.mcp.text.InitializingOutputDirectory"));
         initOutputDirectory();
 
-        indicator.setText2("Preparing server configuration content...");
+        indicator.setText2(txt("prc.mcp.text.PreparingServerConfigurationContent"));
         initServerConfig();
 
-        indicator.setText2("Preparing main class content...");
+        indicator.setText2(txt("prc.mcp.text.PreparingMainClassContent"));
         initMainClassContent();
     }
 
@@ -331,14 +335,17 @@ public class McpBuildTask {
     }
 
     private void buildServerPackage(Runnable onBuildFailure) {
-        Progress.prompt(project, null, true, "Building MCP Server", "Maven build...", indicator -> {
+        Progress.prompt(project, null, true,
+                txt("prc.mcp.title.BuildingMcpServer"),
+                txt("prc.mcp.text.MavenBuild"),
+                indicator -> {
             indicator.setIndeterminate(true);
             try {
-                indicator.setText2("Preparing project...");
+                indicator.setText2(txt("prc.mcp.text.PreparingProject"));
                 Path outputDirectory = result.getOutputDirectory();
                 Path sourceDirectory = outputDirectory.resolve(SOURCE_PROJECT).toAbsolutePath().normalize();
                 result.setSourceDirectory(sourceDirectory);
-                indicator.setText2("Running Maven build (clean package)...");
+                indicator.setText2(txt("prc.mcp.text.RunningMavenBuild"));
                 Path tempJar = McpMavenBuilder.build(
                         project,
                         result.getBaseDirectory().resolve(DIST),
@@ -349,7 +356,7 @@ public class McpBuildTask {
                         sourceDirectory,
                         indicator,
                         null);
-                indicator.setText2("Finalizing output...");
+                indicator.setText2(txt("prc.mcp.text.FinalizingOutput"));
                 Files.createDirectories(outputDirectory);
                 Path serverJar = outputDirectory.resolve(tempJar.getFileName());
                 result.setServerJar(serverJar);
@@ -360,12 +367,12 @@ public class McpBuildTask {
                 result.setConfigFile(outputConfigFile);
 
                 Files.deleteIfExists(outputDirectory.resolve("Main.java"));
-                indicator.setText2("Creating wallet...");
+                indicator.setText2(txt("prc.mcp.text.CreatingWallet"));
                 createWallet(outputDirectory);
 
-                indicator.setText2("Writing README...");
+                indicator.setText2(txt("prc.mcp.text.WritingReadme"));
                 writeReadme(outputDirectory);
-                indicator.setText2("Done");
+                indicator.setText2(txt("prc.mcp.text.Done"));
                 showResult();
             } catch (Throwable e) {
                 conditionallyLog(e);

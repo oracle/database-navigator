@@ -107,8 +107,8 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
         DBObjectSpec input = form.getInput();
         super.doOKAction();
 
-        String title = "Creating " + input.getObjectTypeName();
-        String text = "Creating " + input.getObjectDescription();
+        String title = txt("prc.object.title.CreatingObject", input.getObjectTypeName());
+        String text = txt("prc.object.text.CreatingObjectDescription", input.getObjectDescription());
         ProgressRunnable invoker = p -> invokeObjectFactory(project, schema, objectType, input);
 
         if (isRootDialog()) {
