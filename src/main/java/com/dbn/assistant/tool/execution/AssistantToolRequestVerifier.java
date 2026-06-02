@@ -21,10 +21,16 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.stream.IntStream;
+import java.util.Set;
+
+import static com.dbn.assistant.tool.execution.AssistantToolParameters.getToolParameter;
+import static com.dbn.assistant.tool.execution.AssistantToolParameters.getToolParameters;
 
 @Slf4j
 @UtilityClass
@@ -46,36 +52,84 @@ public class AssistantToolRequestVerifier {
     }
 
     private static void verifyParameterNames(AssistantToolRequest request) {
-        Class<?>[] parameterTypes = request.getMethod().getParameterTypes();
-        List<String> argumentNames = request.getToolArgumentNames();
+        Map<String, AssistantToolParameter> parameters = getToolParameters(request.getMethod());
+        List<String> requestArgumentNames = request.getToolArgumentNames();
 
-        int parameterCount = parameterTypes.length;
-        int argumentCount = argumentNames.size();
+        Set<String> toolArgumentNames = new HashSet<>(parameters.keySet());
 
-        if (parameterCount != argumentCount) {
-            throw new IllegalArgumentException("Tool request does not match the expected number of arguments (expected " + parameterCount + ", received " + argumentCount + ")");
+        List<String> unknownArgumentNames = new ArrayList<>();
+        for (String argumentName : requestArgumentNames) {
+            boolean removed = toolArgumentNames.remove(argumentName);
+            if (!removed) unknownArgumentNames.add(argumentName);
         }
-        IntStream.range(0, parameterCount).mapToObj(i -> "arg" + i).forEach(n -> argumentNames.remove(n));
-        if (!argumentNames.isEmpty()) {
-            String unknownArgs = Csvs.stringsToCsv(argumentNames);
-            throw new IllegalArgumentException("Tool request does not match the expected argument names (unknown arguments: " + unknownArgs + "). Check tool specifications.");
+
+        if (!unknownArgumentNames.isEmpty()) {
+            String unknownArgs = Csvs.stringsToCsv(unknownArgumentNames);
+            throw new IllegalArgumentException(
+                    "The tool request does not match the expected argument names " +
+                    "(unknown arguments: " + unknownArgs + "). " +
+                    "Check tool specifications.");
         }
+
+        List<String> missingArgumentNames = new ArrayList<>();
+        for (String toolArgumentName : toolArgumentNames) {
+            AssistantToolParameter parameter = parameters.get(toolArgumentName);
+            if (parameter.required()) {
+                missingArgumentNames.add(toolArgumentName);
+            }
+        }
+
+        if (!missingArgumentNames.isEmpty()) {
+            String missingArgs = Csvs.stringsToCsv(missingArgumentNames);
+            throw new IllegalArgumentException(
+                    "The tool request does not contain all required arguments " +
+                    "(missing arguments: " + missingArgs + "). " +
+                    "Check tool specifications.");
+        }
+
     }
 
     private static void verifyParameterTypes(AssistantToolRequest request, Object[] args) {
-        Class<?>[] parameterTypes = request.getMethod().getParameterTypes();
+        Method method = request.getMethod();
+        Class<?>[] parameterTypes = method.getParameterTypes();
 
         int parameterCount = parameterTypes.length;
         int argumentCount = args == null ? 0 : args.length;
 
         if (parameterCount != argumentCount) {
-            throw new IllegalArgumentException("Tool request does not match the expected number of arguments (expected " + parameterCount + ", received " + argumentCount + ")");
+            throw new IllegalArgumentException(
+                    "The tool request does not match the expected number of arguments " +
+                    "(expected " + parameterCount + ", received " + argumentCount + ")");
         }
+
+        List<String> missingArgumentValues = new ArrayList<>();
         for (int i = 0; i < parameterCount; i++) {
+            if (args[i] != null) continue;
+
+            AssistantToolParameter toolParameter = getToolParameter(method, i);
+            if (toolParameter == null) continue; // should not happen
+            if (toolParameter.required()) {
+                missingArgumentValues.add(toolParameter.name());
+            }
+        }
+
+        if (!missingArgumentValues.isEmpty()) {
+            String missingArgs = Csvs.stringsToCsv(missingArgumentValues);
+            throw new IllegalArgumentException(
+                    "The tool request does not contain values for all required arguments " +
+                    "(missing argument values: " + missingArgs + "). " +
+                    "Check tool specifications.");
+        }
+
+        for (int i = 0; i < parameterCount; i++) {
+            if (args[i] == null) continue;
+
             Class expectedType = normalizeClass(parameterTypes[i]);
             Class receivedType = normalizeClass(args[i]);
             if (!Objects.equals(expectedType, receivedType)) {
-                throw new IllegalArgumentException("Tool request does not match the expected argument type at index " + i + " (" + expectedType + ", received " + receivedType + ")");
+                throw new IllegalArgumentException(
+                        "The tool request does not match the expected argument type at index " + i + " " +
+                        "(" + expectedType + ", received " + receivedType + ")");
             }
         }
     }

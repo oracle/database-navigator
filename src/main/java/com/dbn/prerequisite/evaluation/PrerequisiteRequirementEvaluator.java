@@ -16,6 +16,7 @@
 
 package com.dbn.prerequisite.evaluation;
 
+import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.prerequisite.model.PrerequisiteMandate;
@@ -24,7 +25,7 @@ import com.intellij.openapi.project.DumbAware;
 
 import java.util.List;
 
-public interface PrerequisiteRequirementEvaluator extends DumbAware {
+public interface PrerequisiteRequirementEvaluator extends ExtensionPoint, DumbAware {
     ExtensionPointName<PrerequisiteRequirementEvaluator> EP = ExtensionPointName.create("com.dbn.prerequisiteRequirementEvaluator");
 
     boolean supports(DatabaseOperation operation);

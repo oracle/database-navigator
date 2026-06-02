@@ -17,15 +17,14 @@
 package com.dbn.execution.statement.result;
 
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.dispose.Checks;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.connection.jdbc.DBNResultSet;
-import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.execution.ExecutionStatus;
@@ -42,6 +41,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -87,34 +88,41 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
                     txt("prc.execution.text.LoadingResultFor", executionProcessor.getStatementName()),
                     progress -> {
                         StatementExecutionResultForm resultForm = getForm();
-                        if (Checks.isValid(resultForm)) {
-                            StatementExecutionContext context = executionProcessor.initExecutionContext();
-                            context.set(ExecutionStatus.EXECUTING, true);
+                        if (isNotValid(resultForm)) return;
 
+                        StatementExecutionContext context = executionProcessor.initExecutionContext();
+                        context.set(ExecutionStatus.EXECUTING, true);
+
+                        try {
+                            resultForm.highlightLoading(true);
+                            StatementExecutionInput executionInput = getExecutionInput();
                             try {
-                                resultForm.highlightLoading(true);
-                                StatementExecutionInput executionInput = getExecutionInput();
-                                try {
-                                    ConnectionHandler connection = getConnection();
-                                    SchemaId currentSchema = getDatabaseSchema();
-                                    DBNConnection conn = connection.getMainConnection(currentSchema);
-                                    DBNStatement<?> statement = conn.createStatement();
-                                    statement.setQueryTimeout(executionInput.getExecutionTimeout());
-                                    statement.setFetchSize(executionInput.getResultSetFetchBlockSize());
-                                    statement.execute(executionInput.getExecutableStatementText());
-                                    DBNResultSet resultSet = statement.getResultSet();
-                                    if (resultSet != null) {
-                                        loadResultSet(resultSet);
-                                    }
-                                } catch (final SQLException e) {
-                                    conditionallyLog(e);
-                                    Messages.showErrorDialog(getProject(), "Could not perform reload operation.", e);
+                                ConnectionHandler connection = getConnection();
+                                SchemaId currentSchema = getDatabaseSchema();
+                                DBNConnection conn = connection.getMainConnection(currentSchema);
+
+                                String statementText = executionInput.getExecutableStatementText();
+                                DBNPreparedStatement<?> statement = conn.prepareStatement(statementText);
+                                context.setStatement(statement);
+
+                                executionInput.bindExecutionVariables(connection, statement);
+
+                                statement.setQueryTimeout(executionInput.getExecutionTimeout());
+                                statement.setFetchSize(executionInput.getResultSetFetchBlockSize());
+                                statement.execute();
+
+                                DBNResultSet resultSet = statement.getResultSet();
+                                if (resultSet != null) {
+                                    loadResultSet(resultSet);
                                 }
-                            } finally {
-                                calculateExecDuration();
-                                resultForm.highlightLoading(false);
-                                context.reset();
+                            } catch (final SQLException e) {
+                                conditionallyLog(e);
+                                Messages.showErrorDialog(getProject(), "Could not perform reload operation.", e);
                             }
+                        } finally {
+                            calculateExecDuration();
+                            resultForm.highlightLoading(false);
+                            context.reset();
                         }
                     });
         });
@@ -122,7 +130,7 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
 
     public void loadResultSet(DBNResultSet resultSet) throws SQLException {
         StatementExecutionResultForm resultForm = getForm();
-        if (Checks.isValid(resultForm)) {
+        if (isValid(resultForm)) {
             int rowCount = Math.max(dataModel == null ? 0 : dataModel.getRowCount() + 1, 100);
             dataModel = new ResultSetDataModel<>(resultSet, getConnection(), rowCount);
             resultForm.rebuildForm();
@@ -145,7 +153,7 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
                 txt("prc.execution.text.LoadingNextRecordsFor", getExecutionProcessor().getStatementName()),
                 progress -> {
                     StatementExecutionResultForm resultForm = getForm();
-                    if (Checks.isValid(resultForm)) {
+                    if (isValid(resultForm)) {
                         resultForm.highlightLoading(true);
                         try {
                             if (hasResult() && !dataModel.isResultSetExhausted()) {
@@ -175,7 +183,7 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
     @Nullable
     public ResultSetTable<?> getResultTable() {
         StatementExecutionResultForm resultForm = getForm();
-        return Checks.isValid(resultForm) ? resultForm.getResultTable() : null;
+        return isValid(resultForm) ? resultForm.getResultTable() : null;
     }
 
     public boolean hasResult() {
@@ -184,7 +192,7 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
 
     public void navigateToResult() {
         StatementExecutionResultForm resultForm = getForm();
-        if (Checks.isValid(resultForm)) {
+        if (isValid(resultForm)) {
             resultForm.show();
         }
     }

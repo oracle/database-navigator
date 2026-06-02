@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Locale;
 
 import static com.dbn.common.util.Commons.nvl;
 import static org.junit.Assume.assumeFalse;
@@ -44,7 +45,7 @@ public class ChecksumTest {
         File file = FileUtil.getFileFromClasspath(getClass(), "checksum");
         String checksum = Checksum.fromFileAttributes(file, ChecksumType.SHA_256);
 
-        Assert.assertEquals("7f196cd5d143cadab0e61d98017e088f4088bf91e2da98c2b06d1fe3e9144106", checksum);
+        Assert.assertEquals("9693cd2ab9516e799bfac9a72df6574243e732f4b35c9e904c442ff53825be4b", checksum);
     }
 
     @Test
@@ -54,7 +55,20 @@ public class ChecksumTest {
         File file = FileUtil.getFileFromClasspath(getClass(), "checksum");
         String checksum = Checksum.fromFileContents(file, ChecksumType.SHA_256);
 
-        Assert.assertEquals("d3d6a0e6bc321f42fca0ab97fd1c1ddde74c91026610653f4e6d2518ced18355", checksum);
+        Assert.assertEquals("cad835459672813b9e42aaafb81c17e8f7981a84cd0a8915bdc4201fc8706ece", checksum);
+    }
+
+    @Test
+    public void verifyChecksumTest() {
+        String checksum = "5eaaa3637c055ff9b4a33bb25ad868d0486cf206f8077f5e30bf29a5f81bf103";
+
+        Assert.assertTrue(Checksum.verifyChecksum(checksum, checksum, ChecksumType.SHA_256));
+        Assert.assertTrue(Checksum.verifyChecksum(checksum.toUpperCase(Locale.ROOT), checksum, ChecksumType.SHA_256));
+        Assert.assertTrue(Checksum.verifyChecksum(" " + checksum.toUpperCase(Locale.ROOT) + " ", checksum, ChecksumType.SHA_256));
+        Assert.assertFalse(Checksum.verifyChecksum(checksum.replace('e', 'g'), checksum, ChecksumType.SHA_256));
+        Assert.assertFalse(Checksum.verifyChecksum(checksum.substring(0, 40), checksum.substring(0, 40), ChecksumType.SHA_256));
+        Assert.assertFalse(Checksum.verifyChecksum(null, checksum, ChecksumType.SHA_256));
+        Assert.assertFalse(Checksum.verifyChecksum(checksum, null, ChecksumType.SHA_256));
     }
 
 

@@ -16,8 +16,19 @@
 
 package com.dbn.database.common;
 
+import com.dbn.database.interfaces.DatabaseAssistantInterface;
+import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
+import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
+import com.dbn.database.interfaces.DatabaseDebuggerInterface;
+import com.dbn.database.interfaces.DatabaseEnvironmentInterface;
+import com.dbn.database.interfaces.DatabaseExecutionInterface;
 import com.dbn.database.interfaces.DatabaseInterface;
+import com.dbn.database.interfaces.DatabaseInterfaceType;
 import com.dbn.database.interfaces.DatabaseInterfaces;
+import com.dbn.database.interfaces.DatabaseJavaInterface;
+import com.dbn.database.interfaces.DatabaseMessageParserInterface;
+import com.dbn.database.interfaces.DatabaseMetadataInterface;
+import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.psql.PSQLLanguage;
@@ -26,14 +37,31 @@ import com.dbn.language.sql.SQLLanguage;
 import com.dbn.language.sql.dialect.SQLLanguageDialect;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.dbn.database.interfaces.DatabaseInterfaceType.ASSISTANT;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.COMPATIBILITY;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.DATA_DEFINITION;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.DEBUGGER;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.ENVIRONMENT;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.EXECUTION;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.JAVA;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.MESSAGE_PARSER;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.METADATA;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.VECTOR;
+
 public abstract class DatabaseInterfacesBase implements DatabaseInterfaces {
     private final SQLLanguageDialect sqlLanguageDialect;
     private final PSQLLanguageDialect psqlLanguageDialect;
+    private final Map<DatabaseInterfaceType, DatabaseInterface> interfaces = new ConcurrentHashMap<>();
 
     protected DatabaseInterfacesBase(SQLLanguageDialect sqlLanguageDialect, @Nullable PSQLLanguageDialect psqlLanguageDialect) {
         this.sqlLanguageDialect = sqlLanguageDialect;
         this.psqlLanguageDialect = psqlLanguageDialect;
     }
+
+    protected abstract DatabaseInterface createInterface(DatabaseInterfaceType interfaceType);
 
     @Nullable
     @Override
@@ -44,15 +72,71 @@ public abstract class DatabaseInterfacesBase implements DatabaseInterfaces {
     }
 
     @Override
-    public void reset() {
-        reset(getMetadataInterface());
-        reset(getDataDefinitionInterface());
-        reset(getAssistantInterface());
-        reset(getVectorInterface());
-        reset(getDebuggerInterface());
+    public DatabaseMessageParserInterface getMessageParserInterface() {
+        return getInterface(MESSAGE_PARSER);
     }
 
-    private static void reset(DatabaseInterface databaseInterface) {
-        if (databaseInterface != null) databaseInterface.reset();
+    @Override
+    public DatabaseEnvironmentInterface getEnvironmentInterface() {
+        return getInterface(ENVIRONMENT);
+    }
+
+    @Override
+    public DatabaseCompatibilityInterface getCompatibilityInterface() {
+        return getInterface(COMPATIBILITY);
+    }
+
+    @Override
+    public DatabaseMetadataInterface getMetadataInterface() {
+        return getInterface(METADATA);
+    }
+
+    @Override
+    public DatabaseDataDefinitionInterface getDataDefinitionInterface() {
+        return getInterface(DATA_DEFINITION);
+    }
+
+    @Override
+    public DatabaseExecutionInterface getExecutionInterface() {
+        return getInterface(EXECUTION);
+    }
+
+    @Override
+    public DatabaseDebuggerInterface getDebuggerInterface() {
+        return getInterface(DEBUGGER);
+    }
+
+    @Override
+    public DatabaseAssistantInterface getAssistantInterface() {
+        return getInterface(ASSISTANT);
+    }
+
+    @Override
+    public DatabaseVectorInterface getVectorInterface() {
+        return getInterface(VECTOR);
+    }
+
+    @Override
+    public DatabaseJavaInterface getJavaInterface() {
+        return getInterface(JAVA);
+    }
+
+    @Override
+    public void reset() {
+        interfaces.values().forEach(DatabaseInterface::reset);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private <T extends DatabaseInterface> T getInterface(DatabaseInterfaceType interfaceType) {
+        return (T) interfaces.computeIfAbsent(interfaceType, t -> createRequiredInterface(t));
+    }
+
+    private DatabaseInterface createRequiredInterface(DatabaseInterfaceType interfaceType) {
+        DatabaseInterface databaseInterface = createInterface(interfaceType);
+        if (databaseInterface != null) return databaseInterface;
+
+        throw new UnsupportedOperationException(
+                "Database interface " + interfaceType + " is not supported for " + getDatabaseType().getName() + " database type");
     }
 }

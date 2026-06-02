@@ -28,17 +28,19 @@ import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import static com.dbn.common.util.Lists.convert;
 
 public class ViewMetadataToolImpl extends AssistantToolBase implements ViewMetadataTool {
 
     @Override
-    public List<String> listViewNames(String schemaName) {
+    public List<String> listViewNames(String schemaName, String viewNameRegex) {
         DBSchema schema = getSchema(schemaName);
 
         List<DBView> views = schema.getViews();
-        return getObjectNames(views, false);
+        Predicate<DBView> nameFilter = nameFilter(viewNameRegex);
+        return getObjectNames(views, false, nameFilter);
     }
 
     @Override

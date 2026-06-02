@@ -43,6 +43,7 @@ import com.dbn.vfs.file.DBObjectListVirtualFile;
 import com.dbn.vfs.file.DBObjectVirtualFile;
 import com.dbn.vfs.file.DBSessionBrowserVirtualFile;
 import com.dbn.vfs.file.DBSessionStatementVirtualFile;
+import com.dbn.mcp.vfs.McpToolSqlVirtualFile;
 import com.dbn.vfs.file.DBSingleQueryVirtualFile;
 import com.intellij.openapi.components.NamedComponent;
 import com.intellij.openapi.progress.ProcessCanceledException;
@@ -404,6 +405,11 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
                 return connectionId + PSS + LOOSE_CONTENTS + file.getName();
             }
 
+            if (virtualFile instanceof McpToolSqlVirtualFile) {
+                McpToolSqlVirtualFile file = (McpToolSqlVirtualFile) virtualFile;
+                return connectionId + PSS + LOOSE_CONTENTS + file.getName();
+            }
+
             throw new IllegalArgumentException("File of type " + virtualFile.getClass() + " is not supported");
         } catch (ProcessCanceledException e) {
             conditionallyLog(e);
@@ -505,10 +511,11 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
         while (objectRefs.hasNext()) {
             DBObjectRef<?> objectRef = objectRefs.next();
             DBEditableObjectVirtualFile file = filesCache.get(objectRef);
-            if (file.getProject() == project) {
-                objectRefs.remove();
-                Disposer.dispose(file);
-            }
+            if (file == null) continue;
+            if (file.getProject() != project) continue;
+
+            objectRefs.remove();
+            Disposer.dispose(file);
         }
     }
 

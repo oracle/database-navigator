@@ -1,0 +1,44 @@
+<mcp-server-definition connection-id="f6cf7fc1-4e08-44bf-8f98-b8f48100a24d" server-name="human-resources-mcp" transport-type="STDIO">
+    <description />
+    <tools>
+        <tool name="list-countries" verified="true">
+            <description><![CDATA[Lists all countries with ISO code and name.
+Country names are in english]]></description>
+            <statement><![CDATA[select COUNTRY_ID, COUNTRY_NAME from COUNTRIES]]></statement>
+            <parameters />
+        </tool>
+        <tool name="get-country-name" verified="true">
+            <description><![CDATA[Gets the name of a country for a given ISO country code.
+Country name is in english.]]></description>
+            <statement><![CDATA[select COUNTRY_NAME from COUNTRIES where COUNTRY_ID = :COUNTRY_ID]]></statement>
+            <parameters>
+                <parameter type="STRING" name=":COUNTRY_ID" required="true">
+                    <description><![CDATA[The country code]]></description>
+                </parameter>
+            </parameters>
+        </tool>
+        <tool name="get-employee-info" verified="true">
+            <description><![CDATA[Returns employee information]]></description>
+            <statement><![CDATA[SELECT
+    e.first_name,
+    e.last_name,
+    l.city,
+    e.salary,
+    DENSE_RANK() OVER (PARTITION BY l.city ORDER BY e.salary DESC) as salary_rank
+FROM
+    employees e
+JOIN
+    departments d ON e.department_id = d.department_id
+JOIN
+    locations l ON d.location_id = l.location_id
+where e.EMPLOYEE_ID = :EMPLOYEE_ID
+ORDER BY
+    l.city, salary_rank]]></statement>
+            <parameters>
+                <parameter type="STRING" name=":EMPLOYEE_ID" required="true">
+                    <description><![CDATA[The employee id]]></description>
+                </parameter>
+            </parameters>
+        </tool>
+    </tools>
+</mcp-server-definition>

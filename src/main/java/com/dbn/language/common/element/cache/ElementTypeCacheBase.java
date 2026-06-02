@@ -75,7 +75,12 @@ public abstract class ElementTypeCacheBase<T extends ElementTypeBase> implements
     }
 
     private Set<TokenPairTemplate> computeFirstPossibleTokenPairs() {
-        return Set.of(getFirstPossibleTokens().stream().map(t -> t.getTokenPairTemplate()).filter(t -> t != null).toArray(TokenPairTemplate[]::new));
+        return Set.of(getFirstPossibleTokens()
+                .stream()
+                .map(t -> t.getTokenPairTemplate())
+                .filter(t -> t != null)
+                .distinct()
+                .toArray(i -> new TokenPairTemplate[i]));
     }
 
     @Override
@@ -157,5 +162,10 @@ public abstract class ElementTypeCacheBase<T extends ElementTypeBase> implements
     @Override
     public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
         return bucket;
+    }
+
+    @Override
+    public String toString() {
+        return elementType.getId();
     }
 }

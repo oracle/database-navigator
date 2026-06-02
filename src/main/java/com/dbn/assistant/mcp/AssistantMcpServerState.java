@@ -22,6 +22,7 @@ import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.common.EntityId;
+import com.dbn.common.approval.UserApprovalCancelledException;
 import com.dbn.common.state.PersistentStateElement;
 import com.intellij.openapi.project.Project;
 import dev.langchain4j.agent.tool.ToolSpecification;
@@ -42,7 +43,6 @@ import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
-import static com.dbn.assistant.mcp.AssistantMcpToolProviders.createToolProvider;
 import static com.dbn.assistant.mcp.ide.IdeMcpServerManager.isConflictingIdeTool;
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_MCP_SERVER_STATE;
 import static com.dbn.common.action.UserDataKeys.getUserDataSync;
@@ -120,6 +120,20 @@ public class AssistantMcpServerState extends AssistantStateExtension implements 
                 .map(s -> createToolProvider(s, errorHandler, filter, executor))
                 .filter(p -> p != null)
                 .toList();
+    }
+
+    private ToolProvider createToolProvider(
+            AssistantMcpServer mcpServer,
+            BiConsumer<String, Throwable> errorHandler,
+            BiPredicate<McpClient, ToolSpecification> filter,
+            Function<ToolExecutor, ToolExecutor> executor) {
+        try {
+            return AssistantMcpToolProviders.createToolProvider(mcpServer, errorHandler, filter, executor);
+        } catch (UserApprovalCancelledException e) {
+            // user declined; unselect so we do not prompt on every chat message
+            setSelected(mcpServer.getId(), false);
+            return null;
+        }
     }
 
     private boolean isMcpToolAvailable(McpClient client, ToolSpecification specification) {

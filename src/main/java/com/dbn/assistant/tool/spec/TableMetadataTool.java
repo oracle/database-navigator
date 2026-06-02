@@ -56,7 +56,8 @@ public interface TableMetadataTool extends AssistantTool {
     List<String> listTableNames(
             @P("Schema name") String schemaName,
             @P("Include regular tables") boolean includeRegularTables,
-            @P("Include temporary tables") boolean includeTemporaryTables);
+            @P("Include temporary tables") boolean includeTemporaryTables,
+            @P(value = "Optional name filter (see REGEX_NAME_EXPRESSION tool instruction)", required = false) String tableNameRegex);
 
 
     @Tool(name = "LOAD_TABLE_DEFINITION")

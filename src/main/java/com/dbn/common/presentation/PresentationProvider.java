@@ -16,14 +16,27 @@
 
 package com.dbn.common.presentation;
 
+import com.dbn.common.extension.ExtensionPoint;
+import com.intellij.openapi.extensions.ExtensionPointName;
+
 import javax.swing.Icon;
 
-public interface PresentationProvider<T> {
-    boolean supports(Class objectType);
+public interface PresentationProvider<T> extends ExtensionPoint {
+    ExtensionPointName<PresentationProvider> EP = ExtensionPointName.create("com.dbn.presentationProvider");
+
+    Class<T> getObjectType();
+
+    default boolean supports(Class<?> objectType) {
+        return getObjectType().isAssignableFrom(objectType);
+    }
 
     String getName(T object);
 
     String getTypeName(T object);
+
+    default String getDetailedName(T object) {
+        return getName(object);
+    }
 
     default Icon getIcon(T object) {
         return null;

@@ -17,9 +17,10 @@
 package com.dbn.assistant.tool;
 
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.common.extension.ExtensionPoint;
 import com.intellij.openapi.extensions.ExtensionPointName;
 
-public interface AssistantToolFactory<T extends AssistantTool> {
+public interface AssistantToolFactory<T extends AssistantTool> extends ExtensionPoint {
     ExtensionPointName<AssistantToolFactory> EP = ExtensionPointName.create("com.dbn.assistantToolFactory");
 
     Class<T> getToolSpecification();

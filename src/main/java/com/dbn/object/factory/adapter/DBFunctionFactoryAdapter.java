@@ -20,6 +20,8 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
 
+import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
+import static com.dbn.object.type.DBObjectType.ARGUMENT;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 
 public class DBFunctionFactoryAdapter extends DBMethodFactoryAdapter {
@@ -31,6 +33,9 @@ public class DBFunctionFactoryAdapter extends DBMethodFactoryAdapter {
 
     @Override
     public DBObjectSpec createInput(DBSchema schema) {
-        return new DBObjectSpec(schema, FUNCTION);
+        DBObjectSpec functionSpec = new DBObjectSpec(schema, FUNCTION);
+        DBObjectSpec returnArgumentSpec = new DBObjectSpec(functionSpec, ARGUMENT);
+        functionSpec.setAttributeValue(RETURN_ARGUMENT, returnArgumentSpec);
+        return functionSpec;
     }
 }
