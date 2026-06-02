@@ -18,8 +18,9 @@ package com.dbn.database.oracle;
 
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
+import com.dbn.database.interfaces.DatabaseInterfaceType;
 import com.dbn.database.interfaces.DatabaseInterfaces;
-import com.dbn.database.interfaces.DatabaseMLInterface;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.ResultSet;
@@ -32,12 +33,17 @@ import java.sql.SQLException;
  * @author Oracle
  */
 @Slf4j
-public class OracleMLInterface extends DatabaseInterfaceBase implements DatabaseMLInterface {
+public class OracleMachineLearningInterface extends DatabaseInterfaceBase implements DatabaseMachineLearningInterface {
 
-    public OracleMLInterface(DatabaseInterfaces provider) {
+    public OracleMachineLearningInterface(DatabaseInterfaces provider) {
         super("oracle_ml_interface.xml", provider);
     }
 
+
+    @Override
+    public DatabaseInterfaceType getInterfaceType() {
+        return DatabaseInterfaceType.MACHINE_LEARNING;
+    }
     // ==================== MODEL CREATION ====================
 
     @Override

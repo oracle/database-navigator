@@ -51,10 +51,7 @@ public interface DatabaseInterfaces {
 
     DatabaseJavaInterface getJavaInterface();
 
-    default DatabaseMLInterface getMLInterface() {
-        return null;
-    }
-
+    DatabaseMachineLearningInterface getMachineLearningInterface();
 
     void reset();
 }

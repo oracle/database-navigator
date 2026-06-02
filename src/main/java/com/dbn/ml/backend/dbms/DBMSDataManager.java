@@ -19,7 +19,7 @@ package com.dbn.ml.backend.dbms;
 import com.dbn.common.Priority;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.DatabaseMLInterface;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLFileSourceConfig;
@@ -172,7 +172,7 @@ public class DBMSDataManager {
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     if (mlInterface.tableExists(conn, schemaName, tableName)) {
                         mlInterface.dropStagingTable(conn, schemaName, tableName);
                         log.info("Dropped staging table: {}.{}", schemaName, tableName);
@@ -222,7 +222,7 @@ public class DBMSDataManager {
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     mlInterface.createStagingTable(conn, schemaName, tableName, columnDefsStr);
                 });
 

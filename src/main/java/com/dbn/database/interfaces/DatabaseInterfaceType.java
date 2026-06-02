@@ -29,5 +29,6 @@ public enum DatabaseInterfaceType {
     DEBUGGER,
     ASSISTANT,
     VECTOR,
+    MACHINE_LEARNING,
     JAVA
 }

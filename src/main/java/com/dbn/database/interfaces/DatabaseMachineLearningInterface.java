@@ -27,7 +27,7 @@ import java.sql.SQLException;
  *
  * @author Oracle
  */
-public interface DatabaseMLInterface extends DatabaseInterface {
+public interface DatabaseMachineLearningInterface extends DatabaseInterface {
 
     // ==================== MODEL CREATION ====================
 

@@ -17,21 +17,19 @@
 package com.dbn.ml.backend.dbms;
 
 import com.dbn.common.Priority;
+import com.dbn.common.cloud.CloudSourceConfig;
 import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.DatabaseMLInterface;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.backend.model.MLModelMetadata;
 import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.MLModelDetails;
 import com.dbn.ml.model.MLTaskType;
-import com.dbn.common.cloud.CloudSourceConfig;
-import com.dbn.ml.model.source.MLSourceConfig;
 import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.ml.model.source.MLSourceType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
-import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectUtil;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
@@ -126,7 +124,7 @@ public class DBMSBackend {
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     mlInterface.createModel(
                             conn,
                             finalModelName,
@@ -188,7 +186,7 @@ public class DBMSBackend {
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     if (context.getTaskType() == MLTaskType.CLASSIFICATION) {
                         return evaluateClassificationProper(mlInterface, conn, modelHandle, context);
                     } else {
@@ -230,7 +228,7 @@ public class DBMSBackend {
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
 
                     // Drop staging table if created from CSV
                     if (context.getStagingTableName() != null && context.isShouldCleanupStagingTable()) {
@@ -291,7 +289,7 @@ public class DBMSBackend {
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
 
                     // Create training table with SAMPLE SEED
                     mlInterface.createTrainingTable(conn, trainTableName, sourceTableName, trainPercent, seed);
@@ -326,7 +324,7 @@ public class DBMSBackend {
      * For binary classification, also computes ROC/AUC.
      */
     private DBMSEvaluationResult evaluateClassificationProper(
-            DatabaseMLInterface mlInterface,
+            DatabaseMachineLearningInterface mlInterface,
             DBNConnection conn,
             DBMSModelHandle modelHandle,
             MLTrainingContext context) throws SQLException {
@@ -412,7 +410,7 @@ public class DBMSBackend {
      * Evaluates regression model on test data.
      */
     private DBMSEvaluationResult evaluateRegressionProper(
-            DatabaseMLInterface mlInterface,
+            DatabaseMachineLearningInterface mlInterface,
             DBNConnection conn,
             DBMSModelHandle modelHandle,
             MLTrainingContext context) throws SQLException {
@@ -464,7 +462,7 @@ public class DBMSBackend {
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     mlInterface.createCloudExternalTable(
                             conn,
                             extTableName,
@@ -498,7 +496,7 @@ public class DBMSBackend {
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     mlInterface.createSettingsTable(conn, settingsTableName);
                     for (Map.Entry<String, String> entry : settings.entrySet()) {
                         mlInterface.insertSetting(conn, settingsTableName, entry.getKey(), entry.getValue());
@@ -538,7 +536,7 @@ public class DBMSBackend {
                     connection.getConnectionId(),
                     conn -> {
                         Set<String> names = new HashSet<>();
-                        DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                        DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                         try (ResultSet rs = mlInterface.getExistingModelNames(conn)) {
                             while (rs.next()) {
                                 names.add(rs.getString("MODEL_NAME").toUpperCase());
@@ -561,7 +559,7 @@ public class DBMSBackend {
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     return mlInterface.getDistinctClassCount(conn, columnName, tableName);
                 });
     }
@@ -572,7 +570,7 @@ public class DBMSBackend {
                 connection.getConnectionId(),
                 conn -> {
                     List<String> values = new ArrayList<>();
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     try (ResultSet rs = mlInterface.getClassValues(conn, columnName, tableName)) {
                         while (rs.next()) {
                             values.add(rs.getString("CLASS_VALUE"));
@@ -582,7 +580,7 @@ public class DBMSBackend {
                 });
     }
 
-    private void dropTableSafe(DatabaseMLInterface mlInterface, DBNConnection conn, String tableName) {
+    private void dropTableSafe(DatabaseMachineLearningInterface mlInterface, DBNConnection conn, String tableName) {
         try {
             mlInterface.dropTable(conn, tableName);
             log.debug("Dropped table: {}", tableName);
@@ -816,7 +814,7 @@ public class DBMSBackend {
 
     @FunctionalInterface
     private interface ResultSetQuery {
-        ResultSet query(DatabaseMLInterface ml, DBNConnection conn) throws SQLException;
+        ResultSet query(DatabaseMachineLearningInterface ml, DBNConnection conn) throws SQLException;
     }
 
     @FunctionalInterface
@@ -829,7 +827,7 @@ public class DBMSBackend {
         try {
             return DatabaseInterfaceInvoker.load(Priority.LOW, getProject(),
                     connection.getConnectionId(), conn -> {
-                        DatabaseMLInterface ml = connection.getInterfaces().getMLInterface();
+                        DatabaseMachineLearningInterface ml = connection.getInterfaces().getMachineLearningInterface();
                         try (ResultSet rs = query.query(ml, conn)) {
                             return mapper.map(rs);
                         }

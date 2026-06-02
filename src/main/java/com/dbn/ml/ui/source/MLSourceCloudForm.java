@@ -16,14 +16,14 @@
 
 package com.dbn.ml.ui.source;
 
+import com.dbn.common.cloud.CloudSourceConfig;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.DatabaseMLInterface;
-import com.dbn.common.cloud.CloudSourceConfig;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.ui.MLToolboxForm;
 import com.dbn.ml.ui.MLToolboxFormBase;
 import com.dbn.object.DBCredential;
@@ -44,8 +44,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.Priority.HIGH;
+import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
@@ -53,7 +53,6 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
-
 
 
 /**
@@ -213,7 +212,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
                         connection.getProject(),
                         connection.getConnectionId(),
                         conn -> {
-                            DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                            DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                             String fileHead = mlInterface.getCloudCsvHeader(conn, credential, uri);
 
                             List<String> columns = parseHeaderLine(fileHead, delimiter);

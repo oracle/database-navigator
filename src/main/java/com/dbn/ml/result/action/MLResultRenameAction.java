@@ -22,7 +22,7 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.interfaces.DatabaseMLInterface;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.result.MLExecutionResult;
@@ -68,7 +68,7 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
         Background.run(() -> {
             try {
                 ConnectionHandler connection = modelHandle.getConnection();
-                DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
 
                 try (DBNConnection conn = connection.getMainConnection()) {
                     mlInterface.renameModel(conn, oldName, newName);

@@ -92,8 +92,9 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter {
                 connectionId,
                 conn -> {
                     DatabaseVectorInterface dataDefinition = schema.getVectorInterface();
+                    String modelLocation = AI_MODEL_SOURCE_LOCATION.of(input);
                     if (modelSourceType == DBAIModelSourceType.OBJECT_STORAGE) {
-                        String modelLocation = AI_MODEL_SOURCE_LOCATION.of(input);
+
                         String credentialName = getCredentialName(input);
                         dataDefinition.createModelFromStorage(conn,
                                 input.getSchemaName(true),
@@ -102,7 +103,7 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter {
                                 credentialName);
 
                     } else if (modelSourceType == DBAIModelSourceType.MODEL_FILE) {
-                        File modelFile = new File(input.getSourceLocation());
+                        File modelFile = new File(modelLocation);
                         Blob modelBlob = uploadOnnxModel(conn, input, progress);
                         // TODO: support Oracle metadata sidecar JSON file (e.g. model.json next to model.onnx)
                         dataDefinition.createModelFromFile(conn,

@@ -26,6 +26,7 @@ import com.dbn.database.interfaces.DatabaseInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceType;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseJavaInterface;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
@@ -47,6 +48,7 @@ import static com.dbn.database.interfaces.DatabaseInterfaceType.DEBUGGER;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.ENVIRONMENT;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.EXECUTION;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.JAVA;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.MACHINE_LEARNING;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.MESSAGE_PARSER;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.METADATA;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.VECTOR;
@@ -114,6 +116,11 @@ public abstract class DatabaseInterfacesBase implements DatabaseInterfaces {
     @Override
     public DatabaseVectorInterface getVectorInterface() {
         return getInterface(VECTOR);
+    }
+
+    @Override
+    public DatabaseMachineLearningInterface getMachineLearningInterface() {
+        return getInterface(MACHINE_LEARNING);
     }
 
     @Override

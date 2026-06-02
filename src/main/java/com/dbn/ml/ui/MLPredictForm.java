@@ -23,7 +23,7 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.DatabaseMLInterface;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.model.MLTaskType;
@@ -167,7 +167,7 @@ public class MLPredictForm extends DBNFormBase {
                     project,
                     connection.getConnectionId(),
                     conn -> {
-                        DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                        DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                         if (isClassification) {
                             ResultSet rs = mlInterface.predictWithProbability(conn, modelName, featureClause);
                             try {
