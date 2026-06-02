@@ -54,8 +54,8 @@ public class ExportScrambledSourcecodeAction extends ProjectAction {
 
     private @NotNull FileChooserDescriptor codeDestinationDirectory() {
         return FileChoosers.singleFolder().
-                withTitle("Select Destination Directory").
-                withDescription("Select destination directory for the scrambled sources");
+                withTitle(txt("msg.diagnostics.title.SelectDestinationDirectory")).
+                withDescription(txt("msg.diagnostics.text.ScrambledSourcesDestinationDirectory"));
     }
 
     @Override

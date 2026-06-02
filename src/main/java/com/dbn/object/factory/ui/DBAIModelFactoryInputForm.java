@@ -89,10 +89,10 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         addFileChooser(getProject(), modelFileTextField, modelFileChooser());
     }
 
-    private static FileChooserDescriptor modelFileChooser() {
+    private FileChooserDescriptor modelFileChooser() {
         FileChooserDescriptor descriptor = FileChoosers.singleFile().
-                withTitle("Select Model File").
-                withDescription("Select an ONNX model file (.onnx)")/*.
+                withTitle(txt("msg.objects.title.SelectModelFile")).
+                withDescription(txt("msg.objects.text.SelectOnnxModelFile"))/*.
                 withFileFilter(extensionFilter("onnx"))*/;
 
         return FileChoosers.withExtensionFilter(descriptor, "onnx");

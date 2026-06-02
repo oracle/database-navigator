@@ -230,10 +230,10 @@ public class McpServerDefinitionForm extends DBNFormBase {
         updateFieldAvailability();
     }
 
-    public static @NotNull FileChooserDescriptor configFileChooser() {
+    public @NotNull FileChooserDescriptor configFileChooser() {
         FileChooserDescriptor descriptor = FileChoosers.singleFile().
-                withTitle("Select MCP Server Definition File").
-                withDescription("Select an MCP Server definition file ")/*.
+                withTitle(txt("msg.mcp.title.SelectServerDefinitionFile")).
+                withDescription(txt("msg.mcp.text.SelectServerDefinitionFile"))/*.
                 withExtensionFilter("xml")*/;
         return FileChoosers.withExtensionFilter(descriptor, "xml");
     }

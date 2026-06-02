@@ -104,7 +104,7 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
 
         onTextChange(commandTextField, e -> updateCommandPreview());
         //onTextChange(commandArgumentsTextField, e -> updateCommandPreview());
-        addSingleFileChooser(getProject(), commandTextField, "Select MCP Server executable", null);
+        addSingleFileChooser(getProject(), commandTextField, txt("msg.mcp.title.SelectMcpServerExecutable"), null);
 
         commandArgumentsList = new EditableStringListForm(this, null, SORTED, EDITABLE);
         commandArgumentsList.onListChanges(e -> updateCommandPreview());

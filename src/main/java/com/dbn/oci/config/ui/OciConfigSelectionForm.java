@@ -62,7 +62,7 @@ public class OciConfigSelectionForm extends DBNFormBase {
         super(parent);
         this.config = config;
 
-        addSingleFileChooser(getProject(), configFileTextField, "Select OCI configuration file", "");
+        addSingleFileChooser(getProject(), configFileTextField, txt("cfg.oci.title.SelectConfigFile"), "");
 
         userIdTextField.getEmptyText().setText("ocid1.user.oc1..");
         tenancyIdTextField.getEmptyText().setText("ocid1.tenancy.oc1..");

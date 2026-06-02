@@ -117,8 +117,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
         addSingleFileChooser(
                 getProject(), tokenConfigFileTextField,
-                "Select OCI Configuration File",
-                "Folder must contain an oci config file (usually ~/.oci/config)");
+                txt("cfg.oci.title.SelectConfigFile"),
+                txt("cfg.oci.text.ValidOciConfigFile"));
         onTextChange(tokenConfigFileTextField, e -> tokenProfileComboBox.reloadValues());
 
         initComboBox(authTypeComboBox, AuthenticationType.values());
@@ -139,8 +139,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
         addSingleFileChooser(
                 getProject(), azureClientCertificateFileTextField,
-                "Select Azure Client Certificate File",
-                "File is a certificate file in pem format");
+                txt("cfg.connection.title.SelectAzureClientCertificateFile"),
+                txt("cfg.connection.text.AzureClientCertificateFile"));
         onTextChange(azureClientCertificateFileTextField, e -> refreshAzureClientCertificateFile());
 
     }

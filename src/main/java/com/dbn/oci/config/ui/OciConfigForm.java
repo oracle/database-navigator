@@ -85,11 +85,11 @@ public class OciConfigForm extends DBNFormBase {
     }
 
     private void initConfigFileChooser() {
-        addSingleFileChooser(getProject(), configFileTextField, "Select OCI configuration file", "");
+        addSingleFileChooser(getProject(), configFileTextField, txt("cfg.oci.title.SelectConfigFile"), "");
     }
 
     private void initPrivateKeyFileChooser() {
-        FileChooserDescriptor descriptor = addSingleFileChooser(getProject(), privateKeyFileTextField, "Select OCI private key file (.pem)", "");
+        FileChooserDescriptor descriptor = addSingleFileChooser(getProject(), privateKeyFileTextField, txt("cfg.oci.title.SelectPrivateKeyFile"), "");
         //descriptor.withFileFilter(extensionFilter("pem"));
         FileChoosers.withExtensionFilter(descriptor, "pem");
     }

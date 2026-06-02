@@ -342,8 +342,8 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         CmdLineInterface defaultCli = CmdLineInterface.getDefault(databaseType);
         String extension = OS.isWindows() ? ".exe" : "";
         FileChooserDescriptor fileChooserDescriptor = FileChoosers.singleFile().
-                withTitle("Select Command-Line Client").
-                withDescription("Select Command-Line Interface executable (" + defaultCli.getExecutablePath() + extension + ")").
+                withTitle(txt("cfg.execution.title.SelectCommandLineClient")).
+                withDescription(txt("cfg.execution.text.SelectCommandLineClient", defaultCli.getExecutablePath() + extension)).
                 withShowHiddenFiles(true);
         VirtualFile selectedFile = Strings.isEmpty(selectedExecutable) ? null : LocalFileSystem.getInstance().findFileByPath(selectedExecutable);
         VirtualFile[] virtualFiles = FileChooser.chooseFiles(fileChooserDescriptor, getProject(), selectedFile);

@@ -86,8 +86,8 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
         String extension = OS.isWindows() ? ".exe" : "";
         addSingleFileChooser(
                 getProject(), executableTextField,
-                "Select Command-Line Client",
-                "Select Command-Line Interface executable (" + defaultClient.getExecutablePath() + extension + ")");
+                txt("cfg.execution.title.SelectCommandLineClient"),
+                txt("cfg.execution.text.SelectCommandLineClient", defaultClient.getExecutablePath() + extension));
     }
 
     private void initNameField() {

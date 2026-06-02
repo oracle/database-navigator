@@ -64,8 +64,8 @@ public class OciConnectionInputForm extends DBNFormBase {
     addSingleFileChooser(
             getProject(),
             walletLocationField,
-            "Select Wallet",
-            "Select an Oracle database wallet folder");
+            txt("cfg.oci.title.SelectWallet"),
+            txt("cfg.oci.text.SelectWallet"));
   }
 
 
