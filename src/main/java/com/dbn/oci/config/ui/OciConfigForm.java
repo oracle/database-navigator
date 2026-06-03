@@ -48,6 +48,9 @@ import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.oci.util.OciIdentifiers.isCompartmentScopeOcid;
+import static com.dbn.oci.util.OciIdentifiers.isTenancyOcid;
+import static com.dbn.oci.util.OciIdentifiers.isUserOcid;
 
 public class OciConfigForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -79,7 +82,7 @@ public class OciConfigForm extends DBNFormBase {
 
         userIdTextField.getEmptyText().setText("ocid1.user.oc1..");
         tenancyIdTextField.getEmptyText().setText("ocid1.tenancy.oc1..");
-        compartmentIdTextField.getEmptyText().setText("ocid1.compartment.oc1..");
+        compartmentIdTextField.getEmptyText().setText("ocid1.compartment.oc1.. / ocid1.tenancy.oc1..");
         onTextChange(configFileTextField, e -> configProfileComboBox.reloadValues());
         onSelectionChange(configTypeComboBox, v -> updateFieldAvailability());
     }
@@ -100,17 +103,20 @@ public class OciConfigForm extends DBNFormBase {
         addTextValidation(configFileTextField.getTextField(), s -> new File(s).isFile(), txt("cfg.oci.error.ValidConfigFileRequired"));
         addSelectionValidation(configProfileComboBox, txt("cfg.oci.error.ConfigProfileRequired"));
 
+        addTextValidation(compartmentIdTextField, s -> isNotEmpty(s), "Please provide a Compartment or Tenancy ID");
+        addTextValidation(compartmentIdTextField, s -> isCompartmentScopeOcid(s), "Please provide a valid Compartment or Tenancy ID");
+        // TODO merge issues cleanup
         addTextValidation(compartmentIdTextField, s -> isNotEmpty(s), txt("cfg.oci.error.CompartmentIdRequired"));
         addTextValidation(compartmentIdTextField, s -> s.startsWith("ocid1.compartment.oc1.."), txt("cfg.oci.error.ValidCompartmentIdRequired"));
 
         addTextValidation(userIdTextField, s -> isNotEmpty(s), txt("cfg.oci.error.UserIdRequired"));
-        addTextValidation(userIdTextField, s -> s.startsWith("ocid1.user.oc1.."), txt("cfg.oci.error.ValidUserIdRequired"));
+        addTextValidation(userIdTextField, s -> isUserOcid(s), txt("cfg.oci.error.ValidUserIdRequired"));
 
         addTextValidation(tenancyIdTextField, s -> isNotEmpty(s), txt("cfg.oci.error.TenancyIdRequired"));
-        addTextValidation(tenancyIdTextField, s -> s.startsWith("ocid1.tenancy.oc1.."), txt("cfg.oci.error.ValidTenancyIdRequired"));
+        addTextValidation(tenancyIdTextField, s -> isTenancyOcid(s), txt("cfg.oci.error.ValidTenancyIdRequired"));
 
-        addTextValidation(configFileTextField.getTextField(), s -> isNotEmpty(s), txt("cfg.oci.error.PrivateKeyFileRequired"));
-        addTextValidation(configFileTextField.getTextField(), s -> new File(s).isFile(), txt("cfg.oci.error.ValidPrivateKeyFileRequired"));
+        addTextValidation(privateKeyFileTextField.getTextField(), s -> isNotEmpty(s), txt("cfg.oci.error.PrivateKeyFileRequired"));
+        addTextValidation(privateKeyFileTextField.getTextField(), s -> new File(s).isFile(), txt("cfg.oci.error.ValidPrivateKeyFileRequired"));
 
         addTextValidation(fingerprintTextField, s -> isNotEmpty(s), txt("cfg.oci.error.FingerprintRequired"));
 
