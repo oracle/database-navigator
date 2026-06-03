@@ -61,7 +61,9 @@ public class AssistantCredentialEditDialog extends DBNDialog<AssistantCredential
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        String actionName = request.isNewCredential() ? "Create" : "Update";
+        String actionName = request.isNewCredential() ?
+                txt("msg.shared.button.Create") :
+                txt("msg.shared.button.Update");
         renameAction(getOKAction(), actionName);
         return actions(
                 getOKAction(),

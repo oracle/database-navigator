@@ -53,7 +53,9 @@ public class CreateRenameSessionDialog extends DBNDialog<CreateRenameSessionForm
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        String actionName = session == null ? "Create" : "Rename";
+        String actionName = session == null ?
+                txt("msg.shared.button.Create") :
+                txt("msg.shared.button.Rename");
         renameAction(getOKAction(), actionName);
 
         return actions(

@@ -60,7 +60,9 @@ public class AssistantProfileEditDialog extends DBNDialog<AssistantProfileEditFo
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        String actionName = request.isNewProfile() ? "Create" : "Update";
+        String actionName = request.isNewProfile() ?
+                txt("msg.shared.button.Create") :
+                txt("msg.shared.button.Update");
         renameAction(getOKAction(), actionName);
         return actions(
                 getOKAction(),

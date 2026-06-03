@@ -62,7 +62,9 @@ public class AssistantMcpServerEditDialog extends DBNDialog<AssistantMcpServerEd
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        String actionName = request.isNewMcpServer() ? "Create" : "Update";
+        String actionName = request.isNewMcpServer() ?
+                txt("msg.shared.button.Create") :
+                txt("msg.shared.button.Update");
         renameAction(getOKAction(), actionName);
         return actions(
                 getOKAction(),

@@ -53,7 +53,9 @@ public class ObjectFilterDetailsDialog extends DBNDialog<ObjectFilterDetailsForm
 
     @Override
     protected Action[] initializeActions() {
-        String actionName = create ? "Create" : "Update";
+        String actionName = create ?
+                txt("msg.shared.button.Create") :
+                txt("msg.shared.button.Update");
         renameAction(getOKAction(), actionName);
 
         return actions(
