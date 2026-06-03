@@ -257,7 +257,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         JLabel closeLabel = new JLabel(" ", AllIcons.Actions.Close, SwingConstants.RIGHT);
         closeLabel.addMouseListener(Mouse.listener().onClick(e -> close()));
 
-        closeLabel.setToolTipText("Close search bar (Escape)");
+        closeLabel.setToolTipText(txt("app.dataEditor.tooltip.CloseSearchBar"));
         //CompatibilityUtil.setSmallerFont(searchField);
 
         searchField.registerKeyboardAction(e -> {

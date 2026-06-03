@@ -75,7 +75,7 @@ public class ObjectPropertiesForm extends DBNFormBase {
         closeLabel.setIcon(Icons.ACTION_CLOSE_SMALL);
         closeLabel.setCursor(Cursors.handCursor());
         closeLabel.addMouseListener(closeMouseListener());
-        closeLabel.setToolTipText("Hide Object Properties");
+        closeLabel.setToolTipText(txt("app.object.tooltip.HideObjectProperties"));
 
         Project project = ensureProject();
         ProjectEvents.subscribe(project, this, BrowserTreeEventListener.TOPIC, browserTreeEventListener());

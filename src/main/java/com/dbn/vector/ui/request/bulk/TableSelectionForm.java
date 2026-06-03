@@ -190,10 +190,10 @@ public class TableSelectionForm extends VectorToolboxFormBase {
                     // Show check or warning icon based on configuration status
                     if (isConfigured) {
                         setIcon(Icons.COMMON_CHECK);
-                        setToolTipText("Configured: " + getTableConfigSummary(table));
+                        setToolTipText(txt("app.vector.tooltip.TableConfigured", getTableConfigSummary(table)));
                     } else {
                         setIcon(Icons.COMMON_WARNING);
-                        setToolTipText("Not configured - click to configure columns");
+                        setToolTipText(txt("app.vector.tooltip.TableNotConfigured"));
                     }
                 }
                 return this;
@@ -472,8 +472,8 @@ public class TableSelectionForm extends VectorToolboxFormBase {
     private String getTableConfigSummary(DBTable table) {
         DBColumn keyCol = keyColumnSelections.get(table);
         DBColumn dataCol = dataColumnSelections.get(table);
-        if (keyCol == null || dataCol == null) return "incomplete";
-        return "ID=" + keyCol.getName() + ", Data=" + dataCol.getName();
+        if (keyCol == null || dataCol == null) return txt("app.vector.tooltip.TableConfigIncomplete");
+        return txt("app.vector.tooltip.TableConfigSummary", keyCol.getName(), dataCol.getName());
     }
 
     // ========== Public API for Dialog ==========

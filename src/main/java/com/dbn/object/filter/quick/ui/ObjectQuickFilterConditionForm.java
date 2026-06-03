@@ -73,7 +73,7 @@ public class ObjectQuickFilterConditionForm extends DBNFormBase {
             condition.setOperator(newValue);
         });
 
-        patternTextField.setToolTipText("<html>press <b>Up/Down</b> keys to change the operator</html>");
+        patternTextField.setToolTipText(txt("app.object.tooltip.ChangeQuickFilterOperator"));
         patternTextField.addKeyListener(ComboBoxSelectionKeyListener.create(operatorComboBox, false));
         onTextChange(patternTextField, e -> condition.setPattern(getText(patternTextField)));
 

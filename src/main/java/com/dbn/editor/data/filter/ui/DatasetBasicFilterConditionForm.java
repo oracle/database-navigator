@@ -113,9 +113,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         operatorSelector.addListener(createOperatorSelectorListener());
         columnSelector.addListener(createColumnSelectorListener());
 
-        valueTextField.setToolTipText("<html>While editing value, <br> " +
-                "press <b>Up/Down</b> keys to change column or <br> " +
-                "press <b>Ctrl-Up/Ctrl-Down</b> keys to change operator</html>");
+        valueTextField.setToolTipText(txt("app.dataEditor.tooltip.ChangeBasicFilterInput"));
 
 
         Disposer.register(this, editorComponent);

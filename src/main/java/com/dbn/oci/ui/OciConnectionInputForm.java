@@ -44,7 +44,6 @@ public class OciConnectionInputForm extends DBNFormBase {
 
   @Getter
   private boolean walletDownload; // indicator that wallet download is required
-  String walletTooltip = "Please provide either an empty folder or a valid wallet location containing only the wallet files,<br> with no additional files or directories.";
 
   public OciConnectionInputForm(@Nullable Disposable parent, boolean isMtlsRequired, String parentCompartment) {
     super(parent);
@@ -88,7 +87,7 @@ public class OciConnectionInputForm extends DBNFormBase {
 
   private void initForm(boolean isMtlsRequired, String parentCompartment) {
     walletLocationField.setText(walletDefaultPath);
-    walletLocationField.setToolTipText(walletTooltip);
+    walletLocationField.setToolTipText(txt("cfg.oci.tooltip.WalletLocation"));
     passwordTextField.setVisible(false);
     passwordLabel.setVisible(false);
     passwordConfirmTextField.setVisible(false);
@@ -133,7 +132,7 @@ public class OciConnectionInputForm extends DBNFormBase {
     // Validator for the confirm password field
     addTextValidation(passwordConfirmTextField, this::validateConfirmPassword, txt("cfg.oci.error.WalletPasswordMismatch"));
 
-    addTextValidation(walletLocationField.getTextField(), this::validateWalletPath, txt("cfg.oci.error.WalletLocationInvalid", walletTooltip));
+    addTextValidation(walletLocationField.getTextField(), this::validateWalletPath, txt("cfg.oci.error.WalletLocationInvalid", walletTooltip()));
   }
 
   public boolean validatePassword(String passwordText) {

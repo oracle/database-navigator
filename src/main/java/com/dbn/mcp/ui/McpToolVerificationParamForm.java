@@ -92,7 +92,7 @@ public class McpToolVerificationParamForm extends DBNFormBase {
             validateInput(textField);
         });
 
-        textField.setToolTipText("<html>While editing variable value, press <b>Up/Down</b> keys to change data type");
+        textField.setToolTipText(txt("app.shared.tooltip.ChangeVariableDataType"));
         Disposer.register(this, editorComponent);
     }
 

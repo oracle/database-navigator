@@ -96,9 +96,8 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
             handleChange(false);
         } catch (NumberFormatException e1) {
             conditionallyLog(e1);
-            //errorLabel.setText("Timeout must be an integer");
             hintLabel.setIcon(Icons.COMMON_ERROR);
-            hintLabel.setToolTipText("Timeout must be an integer");
+            hintLabel.setToolTipText(txt("app.execution.tooltip.TimeoutMustBeInteger"));
             hasErrors = true;
             handleChange(true);
         }

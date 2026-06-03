@@ -60,7 +60,7 @@ public class TextFieldWithTextEditor extends TextFieldWithButtons {
         Shortcut[] shortcuts = Keyboard.getShortcuts(IdeActions.ACTION_SHOW_INTENTION_ACTIONS);
         String shortcutText = KeymapUtil.getShortcutsText(shortcuts);
 
-        button.setToolTipText("Open editor (" + shortcutText + ')');
+        button.setToolTipText(txt("app.dataEditor.tooltip.OpenTextEditor", shortcutText));
         add(button, BorderLayout.EAST);
 
         JTextField textField = getTextField();
