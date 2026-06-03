@@ -24,7 +24,7 @@
         </constraints>
         <properties>
           <labelFor value="15b13"/>
-          <text value="Schema"/>
+          <text resource-bundle="messages/DBNResources" key="app.vector.label.Schema"/>
         </properties>
       </component>
       <component id="e8c80" class="javax.swing.JLabel" binding="tableLabel">
@@ -33,7 +33,7 @@
         </constraints>
         <properties>
           <labelFor value="b8d5"/>
-          <text value="Table"/>
+          <text resource-bundle="messages/DBNResources" key="app.vector.label.Table"/>
         </properties>
       </component>
       <component id="15b13" class="com.dbn.object.common.ui.DBObjectSelector" binding="schemaComboBox">

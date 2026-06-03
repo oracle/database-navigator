@@ -46,7 +46,7 @@
         </constraints>
         <properties>
           <labelFor value="fc76d"/>
-          <text value="T&amp;oken type"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.TokenType"/>
         </properties>
       </component>
       <component id="fc76d" class="com.intellij.openapi.ui.ComboBox" binding="tokenTypeComboBox">
@@ -106,7 +106,7 @@
         </constraints>
         <properties>
           <labelFor value="a87ad"/>
-          <text value="Token &amp;config file"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.TokenConfigFile"/>
         </properties>
       </component>
       <component id="a87ad" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="tokenConfigFileTextField">
@@ -120,7 +120,7 @@
           <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Token &amp;profile"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.TokenProfile"/>
         </properties>
       </component>
       <component id="baa57" class="javax.swing.JLabel" binding="databaseOcidLabel">
@@ -129,8 +129,8 @@
         </constraints>
         <properties>
           <labelFor value="93ca0"/>
-          <text value="Database OCID"/>
-          <toolTipText value="The ocid of the autonomous database."/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.DatabaseOCID"/>
+          <toolTipText resource-bundle="messages/DBNResources" key="cfg.connection.tooltip.TheOcidOfTheAutonomousDatabase"/>
         </properties>
       </component>
       <component id="93ca0" class="javax.swing.JTextField" binding="databaseOcidTextField">
@@ -140,7 +140,7 @@
           </grid>
         </constraints>
         <properties>
-          <toolTipText value="The ocid of the autonomous database."/>
+          <toolTipText resource-bundle="messages/DBNResources" key="cfg.connection.tooltip.TheOcidOfTheAutonomousDatabase"/>
         </properties>
       </component>
       <component id="37f10" class="javax.swing.JLabel" binding="compartmentOcidLabel">
@@ -149,8 +149,8 @@
         </constraints>
         <properties>
           <labelFor value="b08ac"/>
-          <text value="Compartment OCID"/>
-          <toolTipText value="The ocid of the compartment that contains the autonomous database."/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.CompartmentOCID"/>
+          <toolTipText resource-bundle="messages/DBNResources" key="cfg.connection.tooltip.CompartmentOcid"/>
         </properties>
       </component>
       <component id="b08ac" class="javax.swing.JTextField" binding="compartmentOcidTextField">
@@ -160,7 +160,7 @@
           </grid>
         </constraints>
         <properties>
-          <toolTipText value="The ocid of the compartment that contains the autonomous database."/>
+          <toolTipText resource-bundle="messages/DBNResources" key="cfg.connection.tooltip.CompartmentOcid"/>
         </properties>
       </component>
       <component id="4bd3e" class="javax.swing.JLabel" binding="azureClientIdLabel">
@@ -169,7 +169,7 @@
         </constraints>
         <properties>
           <labelFor value="1a9df"/>
-          <text value="&amp;Client Id"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.ClientId"/>
         </properties>
       </component>
       <component id="1a9df" class="javax.swing.JTextField" binding="azureClientIdTextField">
@@ -186,7 +186,7 @@
         </constraints>
         <properties>
           <labelFor value="1a9df"/>
-          <text value="&amp;Tenant Id"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.TenantId"/>
         </properties>
       </component>
       <component id="3ad39" class="javax.swing.JTextField" binding="azureTenantIdTextField">
@@ -203,7 +203,7 @@
         </constraints>
         <properties>
           <labelFor value="d0445"/>
-          <text value="Client &amp;secret"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.ClientSecret"/>
         </properties>
       </component>
       <component id="d0445" class="javax.swing.JPasswordField" binding="azureClientSecretPasswordField">
@@ -220,7 +220,7 @@
         </constraints>
         <properties>
           <labelFor value="4d55b"/>
-          <text value="Client certificate &amp;file"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.ClientCertificateFileMnemonic"/>
         </properties>
       </component>
       <component id="4d55b" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="azureClientCertificateFileTextField">
@@ -235,7 +235,7 @@
         </constraints>
         <properties>
           <labelFor value="5ab84"/>
-          <text value="Client certificate &amp;password"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.ClientCertificatePassword"/>
         </properties>
       </component>
       <component id="5ab84" class="javax.swing.JPasswordField" binding="azureClientCertificateFilePasswordField">
@@ -252,7 +252,7 @@
         </constraints>
         <properties>
           <labelFor value="8a37f"/>
-          <text value="Database application Id &amp;URI"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.DatabaseApplicationIdURI"/>
         </properties>
       </component>
       <component id="8a37f" class="javax.swing.JTextField" binding="azureAppIdUriTextField">

@@ -26,7 +26,7 @@
               <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Initializing..."/>
+              <text resource-bundle="messages/DBNResources" key="cfg.assistant.text.Initializing"/>
             </properties>
           </component>
           <hspacer id="60742">
@@ -64,7 +64,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Oracle Select AI is not supported for your database"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.assistant.text.SelectAiUnsupported"/>
             </properties>
           </component>
           <hspacer id="971df">
@@ -100,7 +100,7 @@
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Retry"/>
+              <text resource-bundle="messages/DBNResources" key="msg.shared.button.Retry"/>
             </properties>
           </component>
         </children>

@@ -61,8 +61,8 @@
           <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="..."/>
-          <toolTipText value="Download driver libraries"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.button.Browse"/>
+          <toolTipText resource-bundle="messages/DBNResources" key="cfg.connection.tooltip.DownloadDriverLibraries"/>
         </properties>
       </component>
       <grid id="8fd6b" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -92,7 +92,7 @@
                 <constraints border-constraint="Center"/>
                 <properties>
                   <enabled value="false"/>
-                  <text value="Loading drivers..."/>
+                  <text resource-bundle="messages/DBNResources" key="cfg.connection.text.LoadingDrivers"/>
                 </properties>
               </component>
             </children>
