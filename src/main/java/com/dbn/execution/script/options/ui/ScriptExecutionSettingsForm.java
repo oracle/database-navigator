@@ -124,7 +124,7 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
     @Override
     public void applyFormChanges() throws ConfigurationException {
         ScriptExecutionSettings configuration = getConfiguration();
-        int executionTimeout = ConfigurationEditors.validateIntegerValue(executionTimeoutTextField, "Execution timeout", true, 0, 6000, "\nUse value 0 for no timeout");
+        int executionTimeout = ConfigurationEditors.validateIntegerValue(executionTimeoutTextField, txt("cfg.execution.field.ExecutionTimeout"), true, 0, 6000, txt("cfg.shared.hint.ZeroForNoTimeout"));
         CmdLineInterfacesTableModel model = cmdLineInterfacesTable.getModel();
         model.validate();
 

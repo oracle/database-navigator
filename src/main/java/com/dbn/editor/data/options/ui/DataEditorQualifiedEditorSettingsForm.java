@@ -45,7 +45,7 @@ public class DataEditorQualifiedEditorSettingsForm extends ConfigurationEditorFo
         checkBoxList.applyChanges();
         settings.setTextLengthThreshold(validateIntegerValue(
                 textLengthThresholdTextField,
-                "Text Length Threshold", true, 0, 999999999, null));
+                txt("cfg.dataEditor.field.TextLengthThreshold"), true, 0, 999999999, null));
     }
 
     @Override

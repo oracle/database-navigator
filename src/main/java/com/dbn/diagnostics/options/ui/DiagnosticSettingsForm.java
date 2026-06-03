@@ -138,9 +138,9 @@ public class DiagnosticSettingsForm extends DBNFormBase {
 
         DatabaseLag databaseLag = Diagnostics.getDatabaseLag();
         databaseLag.setEnabled(databaseLaggingCheckBox.isSelected());
-        databaseLag.setConnectivity(validateIntegerValue(connectivityLagTextField, "Connectivity Lag", true, 0, 60000, null));
-        databaseLag.setQuerying(validateIntegerValue(queryingLagTextField, "Querying Lag", true, 0, 60000, null));
-        databaseLag.setLoading(validateIntegerValue(fetchingLagTextField, "Fetching Lag", true, 0, 10000, null));
+        databaseLag.setConnectivity(validateIntegerValue(connectivityLagTextField, txt("cfg.diagnostics.field.ConnectivityLag"), true, 0, 60000, null));
+        databaseLag.setQuerying(validateIntegerValue(queryingLagTextField, txt("cfg.diagnostics.field.QueryingLag"), true, 0, 60000, null));
+        databaseLag.setLoading(validateIntegerValue(fetchingLagTextField, txt("cfg.diagnostics.field.FetchingLag"), true, 0, 10000, null));
 
         Miscellaneous miscellaneous = Diagnostics.getMiscellaneous();
         miscellaneous.setDialogSizingReset(dialogSizingCheckbox.isSelected());

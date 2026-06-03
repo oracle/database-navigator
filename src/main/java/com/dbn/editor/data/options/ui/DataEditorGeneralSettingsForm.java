@@ -58,8 +58,8 @@ public class DataEditorGeneralSettingsForm extends ConfigurationEditorForm<DataE
 
     @Override
     public void applyFormChanges() throws ConfigurationException {
-        ConfigurationEditors.validateIntegerValue(fetchBlockSizeTextField, "Fetch block size", true, 1, 10000, null);
-        ConfigurationEditors.validateIntegerValue(fetchTimeoutTextField, "Fetch timeout", true, 0, 300, "\nUse value 0 for no timeout");
+        ConfigurationEditors.validateIntegerValue(fetchBlockSizeTextField, txt("cfg.dataEditor.field.FetchBlockSize"), true, 1, 10000, null);
+        ConfigurationEditors.validateIntegerValue(fetchTimeoutTextField, txt("cfg.dataEditor.field.FetchTimeout"), true, 0, 300, txt("cfg.shared.hint.ZeroForNoTimeout"));
 
         DataEditorGeneralSettings settings = getConfiguration();
         settings.getFetchBlockSize().to(fetchBlockSizeTextField);
