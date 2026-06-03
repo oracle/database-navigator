@@ -30,6 +30,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBColumnNavigationInfoProvider extends DBObjectNavigationInfoProviderBase<DBColumn> {
     public DBColumnNavigationInfoProvider() {
         super(DBObjectType.COLUMN);
@@ -49,29 +51,29 @@ public class DBColumnNavigationInfoProvider extends DBObjectNavigationInfoProvid
         DBDataType dataType = column.getDataType();
 
         if (dataType.isDeclared()) {
-            navigationLists.add(DBObjectNavigationList.create("Type", dataType.getDeclaredType()));
+            navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.Type"), dataType.getDeclaredType()));
         }
 
         List<DBConstraint> constraints = column.getConstraints();
         if (!constraints.isEmpty()) {
-            navigationLists.add(DBObjectNavigationList.create("Constraints", constraints));
+            navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.Constraints"), constraints));
         }
 
         if (column.getParentObject() instanceof DBTable) {
             List<DBIndex> indexes = column.getIndexes();
             if (!indexes.isEmpty()) {
-                navigationLists.add(DBObjectNavigationList.create("Indexes", indexes));
+                navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.Indexes"), indexes));
             }
 
             if (column.isForeignKey()) {
                 DBColumn foreignKeyColumn = column.getForeignKeyColumn();
-                navigationLists.add(DBObjectNavigationList.create("Referenced column", foreignKeyColumn));
+                navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.ReferencedColumn"), foreignKeyColumn));
             }
         }
 
         if (column.isPrimaryKey()) {
             ObjectListProvider<DBColumn> objectListProvider = () -> column.getReferencingColumns();
-            navigationLists.add(DBObjectNavigationList.create("Foreign-key columns", objectListProvider));
+            navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.ForeignKeyColumns"), objectListProvider));
         }
         return navigationLists;
     }

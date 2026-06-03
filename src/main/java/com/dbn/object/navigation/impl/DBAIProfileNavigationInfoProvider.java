@@ -22,6 +22,8 @@ import com.dbn.object.type.DBObjectType;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBAIProfileNavigationInfoProvider extends DBObjectNavigationInfoProviderBase<DBAIProfile> {
     public DBAIProfileNavigationInfoProvider() {
         super(DBObjectType.AI_PROFILE);
@@ -30,7 +32,7 @@ public class DBAIProfileNavigationInfoProvider extends DBObjectNavigationInfoPro
     @Override
     public List<DBObjectNavigationList<?>> createNavigationTargets(DBAIProfile profile) {
         return List.of(
-                DBObjectNavigationList.create("Profile objects", profile.getObjects()),
-                DBObjectNavigationList.create("Credential", profile.getCredential()));
+                DBObjectNavigationList.create(txt("app.objects.navigation.ProfileObjects"), profile.getObjects()),
+                DBObjectNavigationList.create(txt("app.objects.navigation.Credential"), profile.getCredential()));
     }
 }
