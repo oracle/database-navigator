@@ -28,9 +28,9 @@ public class AssistantMcpServersTableModel extends DBNEntityEditableTableModel<A
     AssistantMcpServersTableModel(AssistantMcpServerBundle mcpServers) {
         super(() -> mcpServers.getElements());
 
-        addColumn("Server Name", String.class, c -> c.getName(), (c, v) -> c.setName(v));
-        addColumn("Server Type", AssistantMcpServerType.class, c -> c.getType(), null);
-        addColumn("Url / Command", String.class, c -> c.getEndpoint(), null);
+        addColumn(txt("app.assistant.column.ServerName"), String.class, c -> c.getName(), (c, v) -> c.setName(v));
+        addColumn(txt("app.assistant.column.ServerType"), AssistantMcpServerType.class, c -> c.getType(), null);
+        addColumn(txt("app.assistant.column.UrlCommand"), String.class, c -> c.getEndpoint(), null);
     }
 
 

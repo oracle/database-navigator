@@ -46,6 +46,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.PlatformIcons;
 import com.intellij.util.ui.UIUtil;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.BoxLayout;
@@ -190,6 +191,8 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         if (dataset == null) return;
 
         updateGeneratedName();
+
+        @NonNls
         StringBuilder selectStatement = new StringBuilder("select * from ");
         selectStatement.append(dataset.getSchemaName(true)).append('.');
         selectStatement.append(dataset.getName(true));

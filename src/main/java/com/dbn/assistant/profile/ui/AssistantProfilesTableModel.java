@@ -41,10 +41,10 @@ public class AssistantProfilesTableModel extends DBNEntityEditableTableModel<Dec
         super(() -> profiles.getDeclaredProfiles());
         this.credentials = () -> profiles.getCredentials();
 
-        addColumn("Profile Name", String.class, p -> p.getName(), null);
-        addColumn("LLM Provider", String.class, p -> getProviderName(p), null);
-        addColumn("Credential", String.class, p -> getCredentialName(p), null);
-        addColumn("Temperature", String.class, p -> getTemperatureName(p), null);
+        addColumn(txt("app.assistant.column.ProfileName"), String.class, p -> p.getName(), null);
+        addColumn(txt("app.assistant.column.LlmProvider"), String.class, p -> getProviderName(p), null);
+        addColumn(txt("app.assistant.column.Credential"), String.class, p -> getCredentialName(p), null);
+        addColumn(txt("app.assistant.column.Temperature"), String.class, p -> getTemperatureName(p), null);
     }
 
     private String getTemperatureName(DeclaredAssistantProfile profile) {
