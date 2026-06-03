@@ -103,11 +103,8 @@ public class OciConfigForm extends DBNFormBase {
         addTextValidation(configFileTextField.getTextField(), s -> new File(s).isFile(), txt("cfg.oci.error.ValidConfigFileRequired"));
         addSelectionValidation(configProfileComboBox, txt("cfg.oci.error.ConfigProfileRequired"));
 
-        addTextValidation(compartmentIdTextField, s -> isNotEmpty(s), "Please provide a Compartment or Tenancy ID");
-        addTextValidation(compartmentIdTextField, s -> isCompartmentScopeOcid(s), "Please provide a valid Compartment or Tenancy ID");
-        // TODO merge issues cleanup
         addTextValidation(compartmentIdTextField, s -> isNotEmpty(s), txt("cfg.oci.error.CompartmentIdRequired"));
-        addTextValidation(compartmentIdTextField, s -> s.startsWith("ocid1.compartment.oc1.."), txt("cfg.oci.error.ValidCompartmentIdRequired"));
+        addTextValidation(compartmentIdTextField, s -> isCompartmentScopeOcid(s), txt("cfg.oci.error.ValidCompartmentIdRequired"));
 
         addTextValidation(userIdTextField, s -> isNotEmpty(s), txt("cfg.oci.error.UserIdRequired"));
         addTextValidation(userIdTextField, s -> isUserOcid(s), txt("cfg.oci.error.ValidUserIdRequired"));
