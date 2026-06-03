@@ -27,7 +27,12 @@ public enum CloudConfigProviderAuthentication implements Presentable {
     OCI_INTERACTIVE("Interactive", "OCI_INTERACTIVE", CloudConfigProviderType.OCI_OBJECT, CloudConfigProviderType.OCI_DB_TOOLS, CloudConfigProviderType.OCI_VAULT),
     AZURE_DEFAULT("Azure Default", "AZURE_DEFAULT", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT),
     AZURE_SERVICE_PRINCIPAL("Service Principal", "AZURE_SERVICE_PRINCIPAL", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT),
-    AZURE_INTERACTIVE("Interactive", "AZURE_INTERACTIVE", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT);
+    AZURE_INTERACTIVE("Interactive", "AZURE_INTERACTIVE", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT),
+    HCP_DEFAULT("HashiCorp Default", "auto_detect", CloudConfigProviderType.HASHICORP_VAULT),
+    HCP_VAULT_TOKEN("Vault Token", "vault_token", CloudConfigProviderType.HASHICORP_VAULT),
+    HCP_USERPASS("Userpass", "userpass", CloudConfigProviderType.HASHICORP_VAULT),
+    HCP_APPROLE("AppRole", "approle", CloudConfigProviderType.HASHICORP_VAULT),
+    HCP_GITHUB("GitHub", "github", CloudConfigProviderType.HASHICORP_VAULT);
 
     private final String name;
     private final String parameterValue;
