@@ -160,7 +160,7 @@ public class AssistantCredentialEditForm extends DBNFormBase {
         guideHyperlink.setVisible(infoAvailable);
         if (infoAvailable) {
             String providerName = provider.getName();
-            guideHyperlink.setHyperlinkText(providerName + " API keys");
+            guideHyperlink.setHyperlinkText(txt("cfg.assistant.link.ProviderApiKeys", providerName));
             guideHyperlink.setHyperlinkTarget(provider.getUrl(ProviderUrlType.KEYS));
         }
     }

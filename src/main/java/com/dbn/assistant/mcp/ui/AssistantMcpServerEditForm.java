@@ -112,8 +112,8 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
     }
 
     private void initHyperlinkFields() {
-        verifyLink.setHyperlinkText("Verify configuration");
-        approvalsLink.setHyperlinkText("Tool approvals");
+        verifyLink.setHyperlinkText(txt("cfg.assistant.link.VerifyConfiguration"));
+        approvalsLink.setHyperlinkText(txt("cfg.assistant.link.ToolApprovals"));
         onHyperlinkAccess(verifyLink, e -> verifyMcpServer());
         onHyperlinkAccess(approvalsLink, e -> openMcpToolApprovals());
     }

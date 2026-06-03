@@ -83,7 +83,7 @@ public class SelectAiIntroductionForm extends DBNFormBase implements AssistantIn
     }
 
     private void initHyperlink() {
-        poweredByHyperlink.setHyperlinkText("Oracle Select AI");
+        poweredByHyperlink.setHyperlinkText(txt("cfg.assistant.link.OracleSelectAi"));
         poweredByHyperlink.setHyperlinkTarget("https://www.oracle.com/autonomous-database/select-ai/");
     }
 

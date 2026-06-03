@@ -102,7 +102,7 @@ public class SelectAiHelpForm extends DBNFormBase {
     List<AIProvider> providers = AIProviderData.getProviders(AssistantType.SELECT_AI);
     ComboBoxes.initComboBox(providerComboBox, providers);
 
-    docuLink.setHyperlinkText("Select AI Docs");
+    docuLink.setHyperlinkText(txt("cfg.assistant.link.SelectAiDocs"));
     docuLink.setHyperlinkTarget(SELECT_AI_DOCS);
 
     Color background = Colors.lafBrighter(Colors.getEditorBackground(), 5);

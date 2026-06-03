@@ -141,10 +141,10 @@ public class McpServerDefinitionForm extends DBNFormBase {
     }
 
     private void initConfigHyperlinks() {
-        loadConfigHyperlink.setHyperlinkText("Load Configuration");
+        loadConfigHyperlink.setHyperlinkText(txt("msg.mcp.link.LoadConfiguration"));
         onHyperlinkAccess(loadConfigHyperlink, e -> selectConfigFile());
 
-        resetHyperlink.setHyperlinkText("Reset Form");
+        resetHyperlink.setHyperlinkText(txt("msg.mcp.link.ResetForm"));
         onHyperlinkAccess(resetHyperlink, e -> resetConfiguration());
     }
 

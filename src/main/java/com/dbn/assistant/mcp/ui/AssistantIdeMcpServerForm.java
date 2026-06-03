@@ -89,9 +89,9 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
 
     private void initAvailabilityLinks() {
         serverStatusLabel.setForeground(JBUI.CurrentTheme.ContextHelp.FOREGROUND);
-        installHyperlink.setHyperlinkText("Install");
-        configHyperlink.setHyperlinkText("Enable");
-        approvalsHyperlink.setHyperlinkText("Tool approvals");
+        installHyperlink.setHyperlinkText(txt("cfg.assistant.link.Install"));
+        configHyperlink.setHyperlinkText(txt("cfg.assistant.link.Enable"));
+        approvalsHyperlink.setHyperlinkText(txt("cfg.assistant.link.ToolApprovals"));
         onHyperlinkAccess(installHyperlink, e -> installMcpServerPlugin());
         onHyperlinkAccess(configHyperlink, e -> enableMcpServer());
         onHyperlinkAccess(approvalsHyperlink, e -> openMcpToolApprovals());
@@ -122,14 +122,14 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
             serverStatusLabel.setIcon(Icons.COMMON_STATUS_ERROR);
         } else if (a == DISABLED) {
             configHyperlink.setVisible(enabled);
-            configHyperlink.setHyperlinkText("Enable");
+            configHyperlink.setHyperlinkText(txt("cfg.assistant.link.Enable"));
 
             serverStatusLabel.setVisible(enabled);
             serverStatusLabel.setText("MCP Server not enabled");
             serverStatusLabel.setIcon(Icons.COMMON_STATUS_ERROR);
         } else if (a == ENABLED) {
             configHyperlink.setVisible(enabled);
-            configHyperlink.setHyperlinkText("Configure");
+            configHyperlink.setHyperlinkText(txt("cfg.assistant.link.Configure"));
 
             serverStatusLabel.setVisible(enabled);
             serverStatusLabel.setText("MCP Server active");

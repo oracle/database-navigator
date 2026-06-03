@@ -171,7 +171,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
         verifiedLabel.setIcon(Icons.COMMON_CHECK);
 
 
-        verifyHyperlink.setHyperlinkText("Verify");
+        verifyHyperlink.setHyperlinkText(txt("msg.mcp.link.Verify"));
         onHyperlinkAccess(verifyHyperlink, e -> {
             if (getSqlStatement().isBlank()) {
                 showErrorDialog(getProject(), txt("msg.mcp.error.SqlQueryRequired"));

@@ -96,7 +96,7 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
     private void initGuideHyperlink() {
         String providerName = provider.getName();
 
-        guideHyperlink.setHyperlinkText(providerName + " API keys");
+        guideHyperlink.setHyperlinkText(txt("cfg.assistant.link.ProviderApiKeys", providerName));
         guideHyperlink.setHyperlinkTarget(provider.getUrl(ProviderUrlType.KEYS));
     }
 
