@@ -52,7 +52,7 @@ public class CredentialPickerDialog extends DBNDialog<CredentialPickerForm> {
   @NotNull
   @Override
   protected Action[] initializeActions() {
-    renameAction(getOKAction(), "Select");
+    renameAction(getOKAction(), txt("msg.shared.button.Select"));
     return actions(
             getOKAction(),
             getCancelAction());

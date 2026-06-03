@@ -52,7 +52,7 @@ public class DriverDownloadDialog extends DBNDialog<DriverDownloadForm> {
     @NotNull
     @Override
     protected Action[] initializeActions() {
-        renameAction(getOKAction(), "Download");
+        renameAction(getOKAction(), txt("msg.shared.button.Download"));
         return actions(
                 getOKAction(),
                 getCancelAction());

@@ -72,7 +72,7 @@ public class TextEditorDialog extends DBNDialog<TextEditorForm> {
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(
                 getOKAction(),
                 getCancelAction());
@@ -95,7 +95,7 @@ public class TextEditorDialog extends DBNDialog<TextEditorForm> {
     private final DocumentListener documentListener = new DocumentListener() {
         @Override
         public void documentChanged(@NotNull DocumentEvent event) {
-            renameAction(getCancelAction(), "Cancel");
+            renameAction(getCancelAction(), txt("msg.shared.button.Cancel"));
             getOKAction().setEnabled(true);
         }
     };

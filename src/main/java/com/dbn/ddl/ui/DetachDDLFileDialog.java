@@ -62,7 +62,7 @@ public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Detach selected");
+        renameAction(getOKAction(), txt("msg.ddlFiles.button.DetachSelected"));
         return actions(
                 getOKAction(),
                 new SelectAllAction(),

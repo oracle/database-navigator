@@ -36,7 +36,7 @@ public class SelectAiHelpDialog extends DBNDialog<SelectAiHelpForm> {
   @NotNull
   @Override
   protected Action[] initializeActions() {
-    renameAction(getCancelAction(), "Close");
+    renameAction(getCancelAction(), txt("msg.shared.button.Close"));
     return actions(getCancelAction());
   }
 

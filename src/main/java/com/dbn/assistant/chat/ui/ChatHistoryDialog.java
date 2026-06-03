@@ -61,8 +61,8 @@ public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
     @Override
     @NotNull
     protected final Action [] initializeActions() {
-        renameAction(getOKAction(), "Open Chat");
-        renameAction(getCancelAction(), "Close");
+        renameAction(getOKAction(), txt("msg.assistant.button.OpenChat"));
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(
                 getOKAction(),
                 getCancelAction());

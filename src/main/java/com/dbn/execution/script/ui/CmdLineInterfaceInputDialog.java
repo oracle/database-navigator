@@ -58,7 +58,7 @@ public class CmdLineInterfaceInputDialog extends DBNDialog<CmdLineInterfaceInput
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Save");
+        renameAction(getOKAction(), txt("msg.shared.button.Save"));
         return actions(
                 getOKAction(),
                 getCancelAction());

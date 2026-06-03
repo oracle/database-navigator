@@ -50,7 +50,7 @@ public class FileConnectionMappingDialog extends DBNDialog<FileConnectionMapping
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(getCancelAction());
     }
 }

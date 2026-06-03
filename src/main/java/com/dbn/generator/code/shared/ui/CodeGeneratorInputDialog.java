@@ -66,7 +66,7 @@ public class CodeGeneratorInputDialog extends DBNDialog<CodeGeneratorInputForm> 
     @NotNull
     @Override
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Generate Code");
+        renameAction(getOKAction(), txt("msg.codeGenerator.button.GenerateCode"));
         return actions(
                 getOKAction(),
                 getCancelAction());

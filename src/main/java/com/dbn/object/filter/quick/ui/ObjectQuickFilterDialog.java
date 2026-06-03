@@ -36,7 +36,7 @@ public class ObjectQuickFilterDialog extends DBNDialog<ObjectQuickFilterForm> {
         this.objectList = objectList;
         setModal(true);
         //setResizable(false);
-        renameAction(getOKAction(), "Apply");
+        renameAction(getOKAction(), txt("msg.shared.button.Apply"));
         init();
     }
 
@@ -56,7 +56,7 @@ public class ObjectQuickFilterDialog extends DBNDialog<ObjectQuickFilterForm> {
     protected Action[] initializeActions() {
         return actions(
                 getOKAction(),
-                new AbstractAction("Clear Filters") {
+                new AbstractAction(txt("msg.objects.button.ClearFilters")) {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         getForm().getFilter().clear();

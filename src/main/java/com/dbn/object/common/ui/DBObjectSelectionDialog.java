@@ -46,7 +46,7 @@ public class DBObjectSelectionDialog<T extends DBObject> extends DBNDialog<DBObj
 
     @Override
     protected Action[] initializeActions() {
-        renameAction(getOKAction(), "Select");
+        renameAction(getOKAction(), txt("msg.shared.button.Select"));
         return actions(
                 getOKAction(),
                 getCancelAction());

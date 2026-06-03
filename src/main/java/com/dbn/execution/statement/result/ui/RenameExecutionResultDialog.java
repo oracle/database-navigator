@@ -45,7 +45,7 @@ public class RenameExecutionResultDialog extends DBNDialog<RenameExecutionResult
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Rename");
+        renameAction(getOKAction(), txt("msg.shared.button.Rename"));
         return actions(
                 getOKAction(),
                 getCancelAction());

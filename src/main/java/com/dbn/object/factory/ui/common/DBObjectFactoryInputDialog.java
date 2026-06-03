@@ -85,7 +85,7 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
 
     @Override
     protected Action[] initializeActions() {
-        renameAction(getOKAction(), "Create " + objectType.getTitleCasedName());
+        renameAction(getOKAction(), txt("msg.objects.button.CreateObject", objectType.getTitleCasedName()));
         return actions(
                 getOKAction(),
                 getCancelAction());

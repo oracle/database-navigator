@@ -87,6 +87,7 @@ import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -386,6 +387,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     @NotNull
     @Override
     protected final Action[] createActions() {
+        initializeDefaultActionLabels();
         Action[] actions = initializeActions();
         if (getHelpId() == null) return actions;
 
@@ -393,6 +395,12 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         System.arraycopy(actions, 0, allActions, 0, actions.length);
         allActions[actions.length] = getHelpAction();
         return allActions;
+    }
+
+    private void initializeDefaultActionLabels() {
+        renameAction(getOKAction(), txt("msg.shared.button.OK"));
+        renameAction(getCancelAction(), txt("msg.shared.button.Cancel"));
+        renameAction(getHelpAction(), txt("msg.shared.button.Help"));
     }
 
     protected abstract Action[] initializeActions();

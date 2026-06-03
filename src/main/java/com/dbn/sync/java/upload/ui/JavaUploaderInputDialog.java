@@ -60,7 +60,7 @@ public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
 
     @Override
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Upload");
+        renameAction(getOKAction(), txt("msg.shared.button.Upload"));
         return actions(
                 getOKAction(),
                 getCancelAction());

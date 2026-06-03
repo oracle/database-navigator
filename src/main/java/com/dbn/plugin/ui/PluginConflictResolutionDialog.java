@@ -55,7 +55,7 @@ public class PluginConflictResolutionDialog extends DBNDialog<PluginConflictReso
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Continue");
+        renameAction(getOKAction(), txt("msg.shared.button.Continue"));
         return actions(getOKAction());
     }
 

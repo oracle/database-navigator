@@ -34,13 +34,13 @@ public class EmbeddingChunkLabDialog extends DBNDialog<EmbeddingChunkLabForm> {
   public EmbeddingChunkLabDialog(ConnectionHandler connection, EmbeddingChunkingConfig chunkConfig) {
     super(connection, txt("msg.vector.title.ChunkLab"), true);
     this.chunkConfig = chunkConfig;
-    renameAction(getOKAction(), "Use Configuration");
+    renameAction(getOKAction(), txt("msg.vector.button.UseConfiguration"));
     init();
   }
 
   @Override
   protected Action[] initializeActions() {
-    renameAction(getOKAction(), "Use Configuration");
+    renameAction(getOKAction(), txt("msg.vector.button.UseConfiguration"));
     return actions(
             getOKAction(),
             getCancelAction());

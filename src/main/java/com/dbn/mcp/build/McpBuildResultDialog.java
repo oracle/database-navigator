@@ -32,7 +32,7 @@ public class McpBuildResultDialog extends DBNDialog<McpBuildResultForm> {
     }
 
     protected final Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(getCancelAction());
     }
 }

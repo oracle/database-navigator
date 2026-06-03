@@ -26,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class BatchMonitorDialog extends DBNDialog<BatchMonitorForm> implements BatchEventListener {
     private final Batch batch;
@@ -50,7 +52,7 @@ public class BatchMonitorDialog extends DBNDialog<BatchMonitorForm> implements B
 
     @Override
     protected final Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(
                 getShowResultsAction(),
                 getCancelAction());
@@ -63,7 +65,7 @@ public class BatchMonitorDialog extends DBNDialog<BatchMonitorForm> implements B
         }
     }
 
-    private final Action showResultsAction = createAction("Show Results", () -> {
+    private final Action showResultsAction = createAction(txt("msg.batch.button.ShowResults"), () -> {
         super.doOKAction();
         getBatch().showResults();
     });

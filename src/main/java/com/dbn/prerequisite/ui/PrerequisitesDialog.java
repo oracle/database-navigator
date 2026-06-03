@@ -59,7 +59,7 @@ public class PrerequisitesDialog extends DBNDialog<PrerequisitesForm> implements
 
     @Override
     protected final Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(
                 reevaluateAction,
                 getCancelAction());

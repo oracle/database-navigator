@@ -54,7 +54,7 @@ public class AssistantToolApprovalDialog extends DBNDialog<AssistantToolApproval
   @NotNull
   @Override
   protected Action[] initializeActions() {
-    renameAction(getCancelAction(), "Close");
+    renameAction(getCancelAction(), txt("msg.shared.button.Close"));
     return actions(getCancelAction());
   }
 

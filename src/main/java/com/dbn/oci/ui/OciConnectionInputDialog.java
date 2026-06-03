@@ -47,7 +47,7 @@ public class OciConnectionInputDialog extends DBNDialog<OciConnectionInputForm> 
 
   @Override
   protected Action[] initializeActions() {
-    renameAction(getOKAction(), "Create Connection");
+    renameAction(getOKAction(), txt("msg.connection.button.CreateConnection"));
     return actions(
             getOKAction(),
             getCancelAction());

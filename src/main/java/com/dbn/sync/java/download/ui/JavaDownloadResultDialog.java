@@ -54,7 +54,7 @@ public class JavaDownloadResultDialog extends DBNDialog<JavaDownloadResultForm> 
     @NotNull
     @Override
     protected Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(
                 createErrorAction(),
                 openAllAction,

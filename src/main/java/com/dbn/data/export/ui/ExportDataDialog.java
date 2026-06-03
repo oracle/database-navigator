@@ -64,7 +64,7 @@ public class ExportDataDialog extends DBNDialog<ExportDataForm> {
     @NotNull
     @Override
     protected Action[] initializeActions() {
-        renameAction(getOKAction(), "Export");
+        renameAction(getOKAction(), txt("msg.shared.button.Export"));
         return actions(
                 getOKAction(),
                 getCancelAction());

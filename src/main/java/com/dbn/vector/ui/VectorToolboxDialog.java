@@ -42,8 +42,8 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
 
   @Override
   protected Action[] initializeActions() {
-    renameAction(getOKAction(), "Create Embeddings");
-    renameAction(getCancelAction(), "Close");
+    renameAction(getOKAction(), txt("msg.vector.button.CreateEmbeddings"));
+    renameAction(getCancelAction(), txt("msg.shared.button.Close"));
 
     return request.isTemplate() ?
             actions(

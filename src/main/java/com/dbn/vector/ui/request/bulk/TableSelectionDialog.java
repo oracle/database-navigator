@@ -46,7 +46,7 @@ public class TableSelectionDialog extends DBNDialog<TableSelectionForm> {
 
     @Override
     protected Action[] initializeActions() {
-        renameAction(getOKAction(), "Add Selected");
+        renameAction(getOKAction(), txt("msg.vector.button.AddSelected"));
         return actions(
                 getOKAction(),
                 getCancelAction());

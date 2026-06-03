@@ -164,7 +164,7 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
         try {
             projectSettings.apply();
             applyButton.setEnabled(false);
-            setCancelButtonText("Close");
+            setCancelButtonText(txt("msg.shared.button.Close"));
         } catch (ConfigurationException e) {
             conditionallyLog(e);
             Messages.showErrorDialog(getProject(), e.getTitle(), e.getMessage());
@@ -195,7 +195,7 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
         }
 
         public ApplyAction() {
-            renameAction(this, "Apply");
+            renameAction(this, txt("msg.shared.button.Apply"));
             addReloadRequest();
         }
 

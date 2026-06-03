@@ -55,7 +55,7 @@ public class RecordViewerDialog extends DBNDialog<RecordViewerForm> {
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(
                 new OpenInEditorAction(),
                 getCancelAction());

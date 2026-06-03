@@ -96,7 +96,7 @@ public class ConnectionAuthenticationDialog extends DBNDialog<ConnectionAuthenti
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Connect");
+        renameAction(getOKAction(), txt("msg.shared.button.Connect"));
         return actions(
                 getOKAction(),
                 getCancelAction());

@@ -62,8 +62,8 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
     }
 
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Build Server");
-        renameAction(getCancelAction(), "Close");
+        renameAction(getOKAction(), txt("msg.mcp.button.BuildServer"));
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
 
         Action saveAction = createAction("Save", () -> getForm().saveConfiguration());
         saveAsAction = createAction("Save As...", () -> getForm().saveConfigurationAs());

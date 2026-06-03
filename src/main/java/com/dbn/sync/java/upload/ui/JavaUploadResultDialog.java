@@ -40,7 +40,7 @@ public class JavaUploadResultDialog extends DBNDialog<JavaUploadResultForm> {
 
 	@Override
 	protected Action[] initializeActions() {
-		renameAction(getCancelAction(), "Close");
+		renameAction(getCancelAction(), txt("msg.shared.button.Close"));
 		return actions(
 				getCancelAction(),
 				createErrorAction());

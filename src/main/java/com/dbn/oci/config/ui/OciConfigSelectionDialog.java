@@ -43,7 +43,7 @@ public class OciConfigSelectionDialog extends DBNDialog<OciConfigSelectionForm> 
 
     @Override
     protected Action[] initializeActions() {
-        renameAction(getOKAction(), "Select");
+    renameAction(getOKAction(), txt("msg.shared.button.Select"));
         return actions(
                 getOKAction(),
                 getCancelAction());

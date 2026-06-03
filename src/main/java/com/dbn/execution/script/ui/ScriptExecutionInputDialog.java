@@ -55,7 +55,7 @@ public class ScriptExecutionInputDialog extends DBNDialog<ScriptExecutionInputFo
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Execute");
+        renameAction(getOKAction(), txt("msg.shared.button.Execute"));
         return actions(
                 getOKAction(),
                 getCancelAction());

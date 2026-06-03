@@ -53,7 +53,7 @@ public class ChatSaveDialog extends DBNDialog<ChatSaveForm> {
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Save");
+        renameAction(getOKAction(), txt("msg.shared.button.Save"));
         return actions(
                 getOKAction(),
                 discardAction,
@@ -64,7 +64,7 @@ public class ChatSaveDialog extends DBNDialog<ChatSaveForm> {
     public void doCancelAction() {
         close(0);
     }
-    private final Action discardAction = new AbstractAction("Discard") {
+    private final Action discardAction = new AbstractAction(txt("msg.assistant.button.Discard")) {
         @Override
         public void actionPerformed(ActionEvent e) {
             close(1);

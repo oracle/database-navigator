@@ -60,7 +60,7 @@ public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
 
     @Override
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Download");
+        renameAction(getOKAction(), txt("msg.shared.button.Download"));
         return actions(
                 getOKAction(),
                 getCancelAction());

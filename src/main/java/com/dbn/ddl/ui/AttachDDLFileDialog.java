@@ -69,7 +69,7 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Attach Selected");
+        renameAction(getOKAction(), txt("msg.ddlFiles.button.AttachSelected"));
         return actions(
                 getOKAction(),
                 new SelectAllAction(),
