@@ -74,7 +74,7 @@ public class DBNCollapsiblePanel extends DBNFormBase {
     }
 
     protected void initAccessibility() {
-        setAccessibleName(togglePanel, contentForm.getFormTitle() + " " + getStateName(expanded));
+        setAccessibleName(togglePanel, txt("app.shared.aria.ToggleState", contentForm.getFormTitle(), getStateName(expanded)));
         setAccessibleDescription(togglePanel, expanded ? null : contentForm.getFormTitleDetail());
     }
 
