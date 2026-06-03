@@ -40,10 +40,8 @@ public class TransactionManagerSettings extends BasicConfiguration<OperationSett
     private final InteractiveOptionBroker<TransactionOption> closeProject =
             new InteractiveOptionBroker<>(
                     "on-project-close",
-                    "Open transactions",
-                    "You have uncommitted changes on one or more connections for project \"{0}\". \n" +
-                            "Please specify whether to commit or rollback these changes before closing the project" +
-                            REMEMBER_OPTION_HINT,
+                    txt("msg.transactions.title.OpenTransactions"),
+                    txt("msg.transactions.question.CloseProjectWithOpenTransactions"),
                     TransactionOption.ASK,
                     TransactionOption.COMMIT,
                     TransactionOption.ROLLBACK,
@@ -53,10 +51,8 @@ public class TransactionManagerSettings extends BasicConfiguration<OperationSett
     private final InteractiveOptionBroker<TransactionOption> toggleAutoCommit =
             new InteractiveOptionBroker<>(
                     "on-autocommit-toggle",
-                    "Open transactions",
-                    "You have uncommitted changes on the connection \"{0}\". \n" +
-                            "Please specify whether to commit or rollback these changes before switching Auto-Commit ON." +
-                            REMEMBER_OPTION_HINT,
+                    txt("msg.transactions.title.OpenTransactions"),
+                    txt("msg.transactions.question.ToggleAutoCommitWithOpenTransactions"),
                     TransactionOption.ASK,
                     TransactionOption.COMMIT,
                     TransactionOption.ROLLBACK,
@@ -66,10 +62,8 @@ public class TransactionManagerSettings extends BasicConfiguration<OperationSett
     private final InteractiveOptionBroker<TransactionOption> disconnect =
             new InteractiveOptionBroker<>(
                     "on-disconnect",
-                    "Open transactions",
-                    "You have uncommitted changes on the connection \"{0}\". \n" +
-                            "Please specify whether to commit or rollback these changes before disconnecting" +
-                            REMEMBER_OPTION_HINT,
+                    txt("msg.transactions.title.OpenTransactions"),
+                    txt("msg.transactions.question.DisconnectWithOpenTransactions"),
                     TransactionOption.ASK,
                     TransactionOption.COMMIT,
                     TransactionOption.ROLLBACK,
@@ -79,10 +73,8 @@ public class TransactionManagerSettings extends BasicConfiguration<OperationSett
     private final InteractiveOptionBroker<TransactionOption> commitMultipleChanges =
             new InteractiveOptionBroker<>(
                     "on-commit",
-                    "Commit multiple changes",
-                    "This commit action will affect several other changes on the connection \"{0}\", " +
-                            "\nnot only the ones done in \"{1}\"" +
-                            REMEMBER_OPTION_HINT,
+                    txt("msg.transactions.title.CommitMultipleChanges"),
+                    txt("msg.transactions.question.CommitMultipleChanges"),
                     TransactionOption.ASK,
                     TransactionOption.COMMIT,
                     TransactionOption.REVIEW_CHANGES,
@@ -91,10 +83,8 @@ public class TransactionManagerSettings extends BasicConfiguration<OperationSett
     private final InteractiveOptionBroker<TransactionOption> rollbackMultipleChanges =
             new InteractiveOptionBroker<>(
                     "on-rollback",
-                    "Rollback multiple changes",
-                    "This rollback action will affect several other changes on the connection \"{0}\", " +
-                            "\nnot only the ones done in \"{1}\"." +
-                            REMEMBER_OPTION_HINT,
+                    txt("msg.transactions.title.RollbackMultipleChanges"),
+                    txt("msg.transactions.question.RollbackMultipleChanges"),
                     TransactionOption.ASK,
                     TransactionOption.ROLLBACK,
                     TransactionOption.REVIEW_CHANGES,

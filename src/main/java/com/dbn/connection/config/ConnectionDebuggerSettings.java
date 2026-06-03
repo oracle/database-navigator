@@ -53,8 +53,8 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
     private final InteractiveOptionBroker<DebuggerTypeOption> debuggerType =
             new InteractiveOptionBroker<>(
                     "debugger-type",
-                    "Debugger Type",
-                    "Please select debugger type to use.",
+                    txt("msg.debugger.title.DebuggerType"),
+                    txt("msg.debugger.question.SelectDebuggerType"),
                     DBDebuggerType.JDWP.isSupported() ? DebuggerTypeOption.ASK : DebuggerTypeOption.JDBC,
                     DebuggerTypeOption.JDWP,
                     DebuggerTypeOption.JDBC,

@@ -49,6 +49,7 @@ import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.TimeUtil.isOlderThan;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.prerequisite.DatabasePrerequisiteManager.COMPONENT_NAME;
@@ -137,7 +138,7 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
         Project project = connection.getProject();
         PrerequisiteData prerequisiteData = getPrerequisiteData(connection);
         OptionBroker<PrerequisiteOption> optionBroker = prerequisiteData.getOptionBroker(operation);
-        optionBroker.resolve(project, null,
+        optionBroker.resolve(project, array(operation.getMissingPrerequisiteMessage()),
                 option -> brokerOption(connection, operation, operationRunner, option));
     }
 

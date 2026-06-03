@@ -37,8 +37,8 @@ public class SessionBrowserSettings extends BasicConfiguration<OperationSettings
     private final InteractiveOptionBroker<SessionInterruptionOption> disconnectSession =
             new InteractiveOptionBroker<>(
                     "disconnect-session",
-                    "app.sessions.title.DisconnectSessions",
-                    "app.sessions.message.DisconnectSessions" /*+ REMEMBER_OPTION_HINT*/,
+                    txt("app.sessions.title.DisconnectSessions"),
+                    txt("app.sessions.message.DisconnectSessions") /*+ REMEMBER_OPTION_HINT*/,
                     SessionInterruptionOption.ASK,
                     SessionInterruptionOption.IMMEDIATE,
                     SessionInterruptionOption.POST_TRANSACTION,
@@ -47,8 +47,8 @@ public class SessionBrowserSettings extends BasicConfiguration<OperationSettings
     private final InteractiveOptionBroker<SessionInterruptionOption> killSession =
             new InteractiveOptionBroker<>(
                     "kill-session",
-                    "app.sessions.title.KillSessions",
-                    "app.sessions.message.KillSessions"/* + REMEMBER_OPTION_HINT*/,
+                    txt("app.sessions.title.KillSessions"),
+                    txt("app.sessions.message.KillSessions")/* + REMEMBER_OPTION_HINT*/,
                     SessionInterruptionOption.ASK,
                     SessionInterruptionOption.NORMAL,
                     SessionInterruptionOption.IMMEDIATE,

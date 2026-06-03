@@ -22,27 +22,35 @@ import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.options.setting.Settings;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
+import com.dbn.nls.NlsResources;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.format;
+
 @Getter
 @Setter
 public class InteractiveConfirmationBroker implements RememberOption, PersistentConfiguration{
-    private final String configName;
-    private final String title;
-    private final String message;
+    private final @NonNls String configName;
+    private final @Nls String title;
+    private final @Nls String message;
 
     private Icon dialogIcon = Icons.DIALOG_QUESTION;
-    private String doNotShowMessage = "Do not ask again";
+    private @Nls String doNotShowMessage = NlsResources.txt("msg.shared.option.DoNotAskAgain");
 
     protected transient boolean confirm;
 
-    public InteractiveConfirmationBroker(@NonNls String configName, String title, String message, boolean defaultKeepAsking) {
+    public InteractiveConfirmationBroker(
+            @NonNls String configName,
+            @Nls String title,
+            @Nls String message,
+            boolean defaultKeepAsking) {
         this.configName = configName;
         this.title = title;
         this.message = message;
@@ -54,7 +62,7 @@ public class InteractiveConfirmationBroker implements RememberOption, Persistent
         return this;
     }
 
-    public InteractiveConfirmationBroker withDoNotShowMessage(String doNotShowMessage) {
+    public InteractiveConfirmationBroker withDoNotShowMessage(@Nls String doNotShowMessage) {
         this.doNotShowMessage = doNotShowMessage;
         return this;
     }
@@ -87,8 +95,8 @@ public class InteractiveConfirmationBroker implements RememberOption, Persistent
     private boolean prompt(Project project, Object[] messageArgs) {
         int optionIndex = Messages.showDialog(
                 project,
-                txt(message, messageArgs),
-                txt(title),
+                format(message, messageArgs),
+                title,
                 Messages.OPTIONS_YES_NO, 0,
                 dialogIcon, this);
         return optionIndex == 0;

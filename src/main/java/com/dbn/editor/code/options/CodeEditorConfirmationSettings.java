@@ -33,20 +33,20 @@ public class CodeEditorConfirmationSettings extends BasicConfiguration<CodeEdito
     private final InteractiveConfirmationBroker saveChanges =
             new InteractiveConfirmationBroker(
                     "save-changes",
-                    "Save changes",
-                    "Save the changes for {0}?" + REMEMBER_OPTION_HINT, false);
+                    txt("msg.codeEditor.title.SaveChanges"),
+                    txt("msg.codeEditor.question.SaveChanges"), false);
 
     private final InteractiveConfirmationBroker revertChanges =
             new InteractiveConfirmationBroker(
                     "revert-changes",
-                    "Revert Changes",
-                    "Revert the changes for {0}?" + REMEMBER_OPTION_HINT, true);
+                    txt("msg.codeEditor.title.RevertChanges"),
+                    txt("msg.codeEditor.question.RevertChanges"), true);
 
     private final InteractiveOptionBroker<CodeEditorChangesOption> exitOnChanges =
             new InteractiveOptionBroker<>(
                     "exit-on-changes",
-                    "Unsaved Changes",
-                    "You are about to close the editor for {0} and you have unsaved changes.\n\nPlease choose whether to save or discard the changes." + REMEMBER_OPTION_HINT,
+                    txt("msg.codeEditor.title.UnsavedChanges"),
+                    txt("msg.codeEditor.question.CloseEditorWithUnsavedChanges"),
                     CodeEditorChangesOption.ASK,
                     CodeEditorChangesOption.SAVE,
                     CodeEditorChangesOption.DISCARD,
@@ -57,8 +57,8 @@ public class CodeEditorConfirmationSettings extends BasicConfiguration<CodeEdito
     private final InteractiveOptionBroker<CodeEditorChangesOption> temporaryConsole =
             new InteractiveOptionBroker<>(
                     "close-temporary-console",
-                    "Temporary Console",
-                    "You are about to close the temporary console \"{0}\" created by {1}.\n\nPlease choose whether to save or discard the console." + REMEMBER_OPTION_HINT,
+                    txt("msg.codeEditor.title.TemporaryConsole"),
+                    txt("msg.codeEditor.question.CloseTemporaryConsole"),
                     CodeEditorChangesOption.ASK,
                     CodeEditorChangesOption.SAVE,
                     CodeEditorChangesOption.DISCARD,

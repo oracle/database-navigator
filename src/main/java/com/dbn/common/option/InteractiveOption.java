@@ -17,8 +17,13 @@
 package com.dbn.common.option;
 
 import com.dbn.common.ui.Presentable;
+import org.jetbrains.annotations.Nls;
 
 public interface InteractiveOption extends Presentable{
+    @Override
+    @Nls
+    String getName();
+
     boolean isCancel();
 
     default boolean isAsk() {
