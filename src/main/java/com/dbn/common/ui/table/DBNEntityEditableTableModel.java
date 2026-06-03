@@ -104,12 +104,12 @@ public abstract class DBNEntityEditableTableModel<T extends Cloneable<T>> extend
      */
     @Getter
     private static class ColumnDefinition<E, V> {
-        private final String name;
+        private final @Nls String name;
         private final Class<V> type;
         private final ValueGetter<E, V> valueGetter;
         private final ValueSetter<E, V> valueSetter;
 
-        public ColumnDefinition(String name, Class<V> type, ValueGetter<E, V> valueGetter, ValueSetter<E, V> valueSetter) {
+        public ColumnDefinition(@Nls String name, Class<V> type, ValueGetter<E, V> valueGetter, ValueSetter<E, V> valueSetter) {
             this.name = name;
             this.type = type;
             this.valueGetter = valueGetter;
@@ -167,7 +167,7 @@ public abstract class DBNEntityEditableTableModel<T extends Cloneable<T>> extend
 
 
     @Override
-    public final String getColumnName(int columnIndex) {
+    public final @Nls String getColumnName(int columnIndex) {
         ColumnDefinition<?, ?> definition = getColumnDefinition(columnIndex);
         if (definition == null) return null;
 

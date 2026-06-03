@@ -18,6 +18,7 @@ package com.dbn.common.ui;
 
 import com.dbn.common.ui.form.DBNForm;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CardLayouts {
 
+    @NonNls
     private static final String BLANK_CARD_ID = "DBN_BLANK_CARD";
 
     public static void addBlankCard(JPanel container) {

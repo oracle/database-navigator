@@ -51,8 +51,8 @@ public class DatabaseFilesTableModel extends DBNEditableTableModel {
 
     @Override
     public String getColumnName(int columnIndex) {
-        return columnIndex == 0 ? "File Path" :
-               columnIndex == 1 ? "Database Name" : null;
+        return columnIndex == 0 ? txt("app.connection.column.FilePath") :
+               columnIndex == 1 ? txt("app.connection.column.DatabaseName") : null;
     }
 
     @Override

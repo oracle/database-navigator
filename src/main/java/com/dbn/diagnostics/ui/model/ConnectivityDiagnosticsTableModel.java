@@ -23,19 +23,21 @@ import com.dbn.connection.session.DatabaseSession;
 import com.dbn.diagnostics.DiagnosticsManager;
 import com.dbn.diagnostics.data.DiagnosticBundle;
 import com.dbn.diagnostics.data.DiagnosticEntry;
+import com.dbn.nls.NlsResources;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 public class ConnectivityDiagnosticsTableModel extends AbstractDiagnosticsTableModel<SessionId> {
     private final ConnectionRef connection;
 
     private static final String[] COLUMN_NAMES = new String[] {
-            "Session",
-            "Attempts",
-            "Failures",
-            "Timeouts",
-            "Average Time (ms)",
-            "Total Time (ms)"};
+            NlsResources.txt("app.shared.column.Session"),
+            NlsResources.txt("app.diagnostics.column.Attempts"),
+            NlsResources.txt("app.diagnostics.column.Failures"),
+            NlsResources.txt("app.diagnostics.column.Timeouts"),
+            NlsResources.txt("app.diagnostics.column.AverageTimeMillis"),
+            NlsResources.txt("app.diagnostics.column.TotalTimeMillis")};
 
     public ConnectivityDiagnosticsTableModel(ConnectionHandler connection) {
         super(connection.getProject());
@@ -44,7 +46,7 @@ public class ConnectivityDiagnosticsTableModel extends AbstractDiagnosticsTableM
 
     @NotNull
     @Override
-    protected String[] getColumnNames() {
+    protected @Nls String[] getColumnNames() {
         return COLUMN_NAMES;
     }
 

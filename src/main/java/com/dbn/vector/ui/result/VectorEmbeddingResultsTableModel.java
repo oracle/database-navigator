@@ -40,9 +40,9 @@ public class VectorEmbeddingResultsTableModel extends DBNDynamicTableModel<Embed
         EmbeddingSourceType sourceType = result.getSourceType();
 
         String sourceName = switch (sourceType) {
-            case FILE_SYSTEM -> "File sources";
-            case DATABASE_TABLE -> "Table sources";
-            case DATABASE_QUERY -> "Query sources";
+            case FILE_SYSTEM -> txt("msg.vector.column.FileSources");
+            case DATABASE_TABLE -> txt("msg.vector.column.TableSources");
+            case DATABASE_QUERY -> txt("msg.vector.column.QuerySources");
         };
 
         addColumn(sourceName, r -> r.getName()).withIcon(r -> r.getIcon()).
@@ -50,23 +50,23 @@ public class VectorEmbeddingResultsTableModel extends DBNDynamicTableModel<Embed
                 withAttributes(r -> attributes(r));
 
         if (sourceType == EmbeddingSourceType.FILE_SYSTEM) {
-            addColumn("Source size", r -> r.getPresentableSize()).
+            addColumn(txt("msg.vector.column.SourceSize"), r -> r.getPresentableSize()).
                     withAttributes(r -> attributes(r));
-            addColumn("File store ID", r -> ((EmbeddingFileResult) r).getFileStoreId()).
+            addColumn(txt("msg.vector.column.FileStoreId"), r -> ((EmbeddingFileResult) r).getFileStoreId()).
                     withAttributes(r -> attributes(r));
         }
 
-        addColumn("Rows embedded", r -> r.getRowsInserted()).
+        addColumn(txt("msg.vector.column.RowsEmbedded"), r -> r.getRowsInserted()).
                 withAttributes(r -> attributes(r));
 
-        addColumn("Task duration", r -> presentableDuration(r.getDuration(), true)).
+        addColumn(txt("msg.vector.column.TaskDuration"), r -> presentableDuration(r.getDuration(), true)).
                 withAttributes(r -> attributes(r));
 
-        addColumn("Status", r -> r.getStatus()).
+        addColumn(txt("app.shared.column.Status"), r -> r.getStatus()).
                 withAttributes(r -> statusAttributes(r)).
                 withTooltip(r -> r.getStatusTooltip());
 
-        addColumn("Status message", r -> r.getStatusMessage()).
+        addColumn(txt("msg.vector.column.StatusMessage"), r -> r.getStatusMessage()).
                 withAttributes(r -> attributes(r));
     }
 

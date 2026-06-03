@@ -53,9 +53,9 @@ public class CmdLineInterfacesTableModel extends DBNEditableTableModel {
 
     @Override
     public String getColumnName(int columnIndex) {
-        return columnIndex == 0 ? "Database Type" :
-               columnIndex == 1 ? "Name" :
-               columnIndex == 2 ? "Executable Path" : null;
+        return columnIndex == 0 ? txt("cfg.execution.column.DatabaseType") :
+               columnIndex == 1 ? txt("app.shared.column.Name") :
+               columnIndex == 2 ? txt("cfg.execution.column.ExecutablePath") : null;
     }
 
     @Override

@@ -45,8 +45,8 @@ public class ObjectPropertiesTableModel extends StatefulDisposableBase implement
     @Override
     public String getColumnName(int columnIndex) {
         return
-            columnIndex == 0 ? "Property" :
-            columnIndex == 1 ? "Value" : null;
+            columnIndex == 0 ? txt("app.shared.column.Property") :
+            columnIndex == 1 ? txt("app.shared.column.Value") : null;
     }
 
     @Override public Class<?> getColumnClass(int columnIndex) {

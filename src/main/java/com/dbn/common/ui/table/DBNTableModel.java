@@ -20,12 +20,17 @@ import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.exception.OutdatedContentException;
 import com.dbn.nls.NlsSupport;
 import com.intellij.ui.SimpleTextAttributes;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import javax.swing.table.TableModel;
 
 public interface DBNTableModel<R> extends TableModel, StatefulDisposable, NlsSupport {
+    @Override
+    @Nls
+    String getColumnName(int columnIndex);
+
     default Object getValue(R rowObject, int column) {
         throw new UnsupportedOperationException();
     };

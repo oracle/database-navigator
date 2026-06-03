@@ -43,7 +43,7 @@ public class DBNDynamicTableModel<T> extends DBNMutableTableModel<T> implements 
         this.data = new ArrayList<>(data);
     }
 
-    protected <V> ColumnSpec<V> addColumn(String name, Function<T, V> value) {
+    protected <V> ColumnSpec<V> addColumn(@Nls String name, Function<T, V> value) {
         ColumnSpec<V> columnSpec = new ColumnSpec<>(name, value);
         columns.add(columnSpec);
         return columnSpec;
@@ -113,12 +113,12 @@ public class DBNDynamicTableModel<T> extends DBNMutableTableModel<T> implements 
 
     @Getter
     public class ColumnSpec<V> {
-        private final String name;
+        private final @Nls String name;
         private final Function<T, V> value;
         private Function<T, Icon> icon;
         private Function<T, String> tooltip;
         private Function<T, SimpleTextAttributes> attributes;
-        public ColumnSpec(String name, Function<T, V> value) {
+        public ColumnSpec(@Nls String name, Function<T, V> value) {
             this.name = name;
             this.value = value;
         }

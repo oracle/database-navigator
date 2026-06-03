@@ -54,7 +54,7 @@ public class EditableStringListModel extends DBNEditableTableModel {
 
     @Override
     public String getColumnName(int columnIndex) {
-        return "DATA";
+        return txt("app.shared.column.Data");
     }
 
     @Override

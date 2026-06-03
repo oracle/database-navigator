@@ -109,7 +109,7 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
                 }
             });
 
-            Tables.attachValueSelector(this, 1, "Editor Type", DefaultEditorType.values());
+            Tables.attachValueSelector(this, 1, NlsResources.txt("cfg.browser.title.EditorType"), DefaultEditorType.values());
         }
 
         @Override
@@ -145,8 +145,8 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
         @Override
         public String getColumnName(int columnIndex) {
             return switch (columnIndex) {
-                case 0 -> "Object Type";
-                case 1 -> "Default Editor";
+                case 0 -> txt("cfg.browser.column.ObjectType");
+                case 1 -> txt("cfg.browser.column.DefaultEditor");
                 default -> null;
             };
         }

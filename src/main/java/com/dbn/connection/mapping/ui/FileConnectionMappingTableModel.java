@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class FileConnectionMappingTableModel extends DBNMutableTableModel<FileConnectionContext> {
-    public static final String[] COLUMNS = {"File", "Connection", "Schema", "Session", "Environment"};
     private final List<FileConnectionContext> mappings;
 
     public FileConnectionMappingTableModel(List<FileConnectionContext> mappings) {
@@ -50,12 +49,19 @@ public class FileConnectionMappingTableModel extends DBNMutableTableModel<FileCo
 
     @Override
     public final int getColumnCount() {
-        return COLUMNS.length;
+        return 5;
     }
 
     @Override
     public final String getColumnName(int columnIndex) {
-        return COLUMNS[columnIndex];
+        return switch (columnIndex) {
+            case 0 -> txt("app.shared.column.File");
+            case 1 -> txt("app.shared.column.Connection");
+            case 2 -> txt("app.shared.column.Schema");
+            case 3 -> txt("app.shared.column.Session");
+            case 4 -> txt("app.shared.column.Environment");
+            default -> null;
+        };
     }
 
     @Override

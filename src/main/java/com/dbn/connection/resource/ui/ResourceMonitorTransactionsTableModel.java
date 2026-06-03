@@ -62,8 +62,8 @@ public class ResourceMonitorTransactionsTableModel extends StatefulDisposableBas
     @Override
     public String getColumnName(int columnIndex) {
         return
-            columnIndex == 0 ? "Source" :
-            columnIndex == 1 ? "Details" : null ;
+            columnIndex == 0 ? txt("app.shared.column.Source") :
+            columnIndex == 1 ? txt("app.shared.column.Details") : null ;
     }
 
     @Override

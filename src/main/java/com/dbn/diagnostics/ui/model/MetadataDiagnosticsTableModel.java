@@ -21,26 +21,28 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.diagnostics.DiagnosticsManager;
 import com.dbn.diagnostics.data.DiagnosticBundle;
 import com.dbn.diagnostics.data.DiagnosticEntry;
+import com.dbn.nls.NlsResources;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 public class MetadataDiagnosticsTableModel extends AbstractDiagnosticsTableModel<String> {
     private final ConnectionRef connection;
 
     private static final String[] COLUMN_NAMES = new String[] {
-            "Identifier",
-            "Invocations",
-            "Failures",
-            "Timeouts",
-            "Best Query (ms)",
-            "Best Load (ms)",
-            "Worst Query (ms)",
-            "Worst Load (ms)",
-            "Average Query (ms)",
-            "Average Load (ms)",
-            "Total Query (ms)",
-            "Total Load (ms)",
-            "Fetch Block Size"};
+            NlsResources.txt("app.diagnostics.column.Identifier"),
+            NlsResources.txt("app.diagnostics.column.Invocations"),
+            NlsResources.txt("app.diagnostics.column.Failures"),
+            NlsResources.txt("app.diagnostics.column.Timeouts"),
+            NlsResources.txt("app.diagnostics.column.BestQueryMillis"),
+            NlsResources.txt("app.diagnostics.column.BestLoadMillis"),
+            NlsResources.txt("app.diagnostics.column.WorstQueryMillis"),
+            NlsResources.txt("app.diagnostics.column.WorstLoadMillis"),
+            NlsResources.txt("app.diagnostics.column.AverageQueryMillis"),
+            NlsResources.txt("app.diagnostics.column.AverageLoadMillis"),
+            NlsResources.txt("app.diagnostics.column.TotalQueryMillis"),
+            NlsResources.txt("app.diagnostics.column.TotalLoadMillis"),
+            NlsResources.txt("app.diagnostics.column.FetchBlockSize")};
 
     public MetadataDiagnosticsTableModel(ConnectionHandler connection) {
         super(connection.getProject());
@@ -49,7 +51,7 @@ public class MetadataDiagnosticsTableModel extends AbstractDiagnosticsTableModel
 
     @NotNull
     @Override
-    protected String[] getColumnNames() {
+    protected @Nls String[] getColumnNames() {
         return COLUMN_NAMES;
     }
 

@@ -28,6 +28,8 @@ import javax.swing.table.TableModel;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class AvailableDatasetsTableModel implements TableModel {
 
@@ -51,7 +53,7 @@ public class AvailableDatasetsTableModel implements TableModel {
 
     @Override
     public @Nls String getColumnName(int columnIndex) {
-        return "Dataset";
+        return txt("app.assistant.column.Dataset");
     }
 
     @Override

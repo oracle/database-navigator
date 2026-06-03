@@ -50,11 +50,11 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
     private final ListModel gutterModel = new DBNTableGutterModel<>(this);
     private final ConnectionRef connection;
 
-    private final String COLUMN_TABLE = "Table Name";
-    private final String COLUMN_OPERATION = "Operation";
-    private final String COLUMN_TIMESTAMP = "Timestamp";
-    private final String COLUMN_ROWID = "Row Id";
-    private final String COLUMN_REG_ID = "Source Registration Id";
+    private final String COLUMN_TABLE = txt("app.eventNotification.column.TableName");
+    private final String COLUMN_OPERATION = txt("app.eventNotification.column.Operation");
+    private final String COLUMN_TIMESTAMP = txt("app.eventNotification.column.Timestamp");
+    private final String COLUMN_ROWID = txt("app.eventNotification.column.RowId");
+    private final String COLUMN_REG_ID = txt("app.eventNotification.column.SourceRegistrationId");
     private final String[] columnNames = {
             COLUMN_TABLE,
             COLUMN_OPERATION,

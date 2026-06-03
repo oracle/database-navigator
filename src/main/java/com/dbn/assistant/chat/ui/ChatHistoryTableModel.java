@@ -24,7 +24,6 @@ import com.dbn.common.ui.table.DBNReadonlyTableModel;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.event.TableModelEvent;
@@ -56,13 +55,12 @@ public class ChatHistoryTableModel extends StatefulDisposableBase implements DBN
         return 2;
     }
 
-    @NonNls
     @Override
     public String getColumnName(int columnIndex) {
         return switch (columnIndex) {
-            case 0 -> "Title";
+            case 0 -> txt("app.assistant.column.Title");
             //case 1 -> "Profile";
-            case 1 -> "Date";
+            case 1 -> txt("app.assistant.column.Date");
             default -> "";
         };
     }

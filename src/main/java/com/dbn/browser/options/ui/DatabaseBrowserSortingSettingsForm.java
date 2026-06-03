@@ -113,7 +113,7 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
                 }
             });
 
-            Tables.attachValueSelector(this, 1, "Sorting Type", SortingType.values());
+            Tables.attachValueSelector(this, 1, NlsResources.txt("cfg.browser.title.SortingType"), SortingType.values());
         }
 
         @Override
@@ -149,8 +149,8 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
         @Override
         public String getColumnName(int columnIndex) {
             return switch (columnIndex) {
-                case 0 -> "Object Type";
-                case 1 -> "Sorting Type";
+                case 0 -> txt("cfg.browser.column.ObjectType");
+                case 1 -> txt("cfg.browser.column.SortingType");
                 default -> null;
             };
         }

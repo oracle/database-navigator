@@ -29,6 +29,7 @@ import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.event.registration.EventRegistrationUtil;
 import com.dbn.event.registration.filter.EventRegistrationFilter;
 import com.dbn.event.registration.filter.EventRegistrationFilterType;
+import com.dbn.nls.NlsResources;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,14 +50,14 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
     private List<DataChangeRegistration> registrations;
 
     // Column identifiers
-    public static final String COL_REG_ID = "Registration Id";
-    public static final String COL_USERNAME = "User Name";
-    public static final String COL_TABLE_NAME = "Table Name";
-    public static final String COL_OPERATIONS = "Operations";
-    public static final String COL_TIMEOUT = "Timeout";
-    public static final String COL_CHANGE_LAG = "Change Lag";
-    public static final String COL_CALLBACK = "Callback";
-    public static final String COL_REG_FLAGS = "Reg FLags";
+    public static final String COL_REG_ID = NlsResources.txt("app.eventRegistration.column.RegistrationId");
+    public static final String COL_USERNAME = NlsResources.txt("app.eventRegistration.column.UserName");
+    public static final String COL_TABLE_NAME = NlsResources.txt("app.eventRegistration.column.TableName");
+    public static final String COL_OPERATIONS = NlsResources.txt("app.eventRegistration.column.Operations");
+    public static final String COL_TIMEOUT = NlsResources.txt("app.eventRegistration.column.Timeout");
+    public static final String COL_CHANGE_LAG = NlsResources.txt("app.eventRegistration.column.ChangeLag");
+    public static final String COL_CALLBACK = NlsResources.txt("app.eventRegistration.column.Callback");
+    public static final String COL_REG_FLAGS = NlsResources.txt("app.eventRegistration.column.RegFlags");
 
     private static final String[] COLUMN_NAMES = {
             COL_REG_ID,
