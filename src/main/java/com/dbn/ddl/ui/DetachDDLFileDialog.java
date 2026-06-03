@@ -73,7 +73,7 @@ public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
 
     private class SelectAllAction extends AbstractAction {
         private SelectAllAction() {
-            super("Detach all");
+            super(txt("msg.ddlFiles.button.DetachAll"));
         }
 
         @Override
@@ -85,7 +85,7 @@ public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
 
     private class SelectNoneAction extends AbstractAction {
         private SelectNoneAction() {
-            super("Detach none");
+            super(txt("msg.ddlFiles.button.DetachNone"));
         }
 
         @Override

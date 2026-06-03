@@ -102,8 +102,7 @@ public class DatasetFilterDialog extends DBNDialog<DatasetFilterForm> {
 
     private class NoFilterAction extends AbstractAction {
         public NoFilterAction() {
-            super("No Filter");
-            //putValue(DEFAULT_ACTION, Boolean.FALSE);
+            super(txt("msg.dataEditor.button.NoFilter"));
         }
 
         @Override

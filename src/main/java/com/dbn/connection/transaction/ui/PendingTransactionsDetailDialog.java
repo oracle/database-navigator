@@ -64,7 +64,7 @@ public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactio
 
     private class CommitAction extends AbstractAction {
         CommitAction() {
-            super("Commit", Icons.CONNECTION_COMMIT);
+            super(txt("msg.transactions.button.Commit"), Icons.CONNECTION_COMMIT);
         }
 
         @Override
@@ -80,7 +80,7 @@ public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactio
 
     private class RollbackAction extends AbstractAction {
         RollbackAction() {
-            super("Rollback", Icons.CONNECTION_ROLLBACK);
+            super(txt("msg.transactions.button.Rollback"), Icons.CONNECTION_ROLLBACK);
         }
 
         @Override

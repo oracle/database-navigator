@@ -84,7 +84,7 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
 
     private class SelectAllAction extends AbstractAction {
         private SelectAllAction() {
-            super("Attach all");
+            super(txt("msg.ddlFiles.button.AttachAll"));
         }
 
         @Override
@@ -96,7 +96,7 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
 
     private class SelectNoneAction extends AbstractAction {
         private SelectNoneAction() {
-            super("Attach none");
+            super(txt("msg.ddlFiles.button.AttachNone"));
         }
 
         @Override

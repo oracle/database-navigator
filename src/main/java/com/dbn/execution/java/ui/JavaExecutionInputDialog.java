@@ -79,8 +79,12 @@ public class JavaExecutionInputDialog extends DBNDialog<JavaExecutionInputForm> 
 
     private class ExecuteAction extends AbstractAction {
         ExecuteAction() {
-            super(debuggerType.isDebug() ? "Debug" : "Execute",
-                    debuggerType.isDebug() ? Icons.METHOD_EXECUTION_DEBUG : Icons.METHOD_EXECUTION_RUN);
+            super(debuggerType.isDebug() ?
+                            txt("msg.shared.button.Debug") :
+                            txt("msg.shared.button.Execute"),
+                    debuggerType.isDebug() ?
+                            Icons.METHOD_EXECUTION_DEBUG :
+                            Icons.METHOD_EXECUTION_RUN);
             makeFocusAction(this);
         }
 

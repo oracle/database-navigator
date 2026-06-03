@@ -89,7 +89,7 @@ public class MethodExecutionBrowserDialog extends DBNDialog<MethodExecutionBrows
     private class SelectAction extends AbstractAction {
 
         public SelectAction() {
-            super("Select");
+            super(txt("msg.shared.button.Select"));
         }
 
         @Override

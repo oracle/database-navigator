@@ -65,8 +65,7 @@ public class CompilerTypeSelectionDialog extends DBNDialog<CompilerTypeSelection
 
     private class CompileKeep extends AbstractAction {
         private CompileKeep() {
-            super("Keep current");
-            //super("Keep current", Icons.OBEJCT_COMPILE_KEEP);
+            super(txt("msg.compiler.button.KeepCurrent"));
             makeDefaultAction(this);;
         }
 
@@ -79,8 +78,7 @@ public class CompilerTypeSelectionDialog extends DBNDialog<CompilerTypeSelection
 
     private class CompileNormalAction extends AbstractAction {
         private CompileNormalAction() {
-            super("Normal", Icons.OBJECT_COMPILE);
-            //putValue(DEFAULT_ACTION, Boolean.TRUE);
+            super(txt("msg.compiler.button.Normal"), Icons.OBJECT_COMPILE);
         }
 
         @Override
@@ -92,7 +90,7 @@ public class CompilerTypeSelectionDialog extends DBNDialog<CompilerTypeSelection
 
     private class CompileDebugAction extends AbstractAction {
         private CompileDebugAction() {
-            super("Debug", Icons.OBJECT_COMPILE_DEBUG);
+            super(txt("msg.shared.button.Debug"), Icons.OBJECT_COMPILE_DEBUG);
         }
 
         @Override

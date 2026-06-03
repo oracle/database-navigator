@@ -132,7 +132,7 @@ public class OciConnectionInputForm extends DBNFormBase {
     // Validator for the confirm password field
     addTextValidation(passwordConfirmTextField, this::validateConfirmPassword, txt("cfg.oci.error.WalletPasswordMismatch"));
 
-    addTextValidation(walletLocationField.getTextField(), this::validateWalletPath, txt("cfg.oci.error.WalletLocationInvalid", walletTooltip()));
+    addTextValidation(walletLocationField.getTextField(), this::validateWalletPath, txt("cfg.oci.error.WalletLocationInvalid", txt("cfg.oci.tooltip.WalletLocation")));
   }
 
   public boolean validatePassword(String passwordText) {

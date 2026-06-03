@@ -67,7 +67,12 @@ public class StatementExecutionInputsDialog extends DBNDialog<StatementExecution
 
     private class ExecuteAction extends AbstractAction {
         ExecuteAction() {
-            super(debuggerType.isDebug() ? "Debug" : "Execute", debuggerType.isDebug() ? Icons.STMT_EXECUTION_DEBUG : Icons.STMT_EXECUTION_RUN);
+            super(debuggerType.isDebug() ?
+                            txt("msg.shared.button.Debug") :
+                            txt("msg.shared.button.Execute"),
+                    debuggerType.isDebug() ?
+                            Icons.STMT_EXECUTION_DEBUG :
+                            Icons.STMT_EXECUTION_RUN);
             makeDefaultAction(this);
         }
 

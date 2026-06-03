@@ -65,7 +65,7 @@ public class TnsNamesImportDialog extends DBNDialog<TnsNamesImportForm> {
 
     private class ImportAllAction extends AbstractAction {
         private ImportAllAction() {
-            super("Import All");
+            super(txt("msg.connection.button.ImportAll"));
         }
 
         @Override
@@ -79,7 +79,7 @@ public class TnsNamesImportDialog extends DBNDialog<TnsNamesImportForm> {
     
     private class ImportSelectedAction extends AbstractAction {
         private ImportSelectedAction() {
-            super("Import Selected");
+            super(txt("msg.connection.button.ImportSelected"));
         }
 
         @Override

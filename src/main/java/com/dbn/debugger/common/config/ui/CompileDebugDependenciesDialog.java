@@ -67,7 +67,7 @@ public class CompileDebugDependenciesDialog extends DBNDialog<CompileDebugDepend
 
     private class CompileSelectedAction extends AbstractAction {
         private CompileSelectedAction() {
-            super("Compile selected");
+            super(txt("msg.compiler.button.CompileSelected"));
         }
 
         @Override
@@ -78,7 +78,7 @@ public class CompileDebugDependenciesDialog extends DBNDialog<CompileDebugDepend
 
     private class CompileAllAction extends AbstractAction {
         private CompileAllAction() {
-            super("Compile all");
+            super(txt("msg.compiler.button.CompileAll"));
         }
 
         @Override
@@ -90,7 +90,7 @@ public class CompileDebugDependenciesDialog extends DBNDialog<CompileDebugDepend
 
     private class CompileNoneAction extends AbstractAction {
         private CompileNoneAction() {
-            super("Compile none");
+            super(txt("msg.compiler.button.CompileNone"));
         }
 
         @Override

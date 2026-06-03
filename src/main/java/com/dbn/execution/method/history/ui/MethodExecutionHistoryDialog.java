@@ -127,7 +127,7 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
      **********************************************************/
     private class SelectAction extends AbstractAction {
         SelectAction() {
-            super("Select");
+            super(txt("msg.shared.button.Select"));
         }
 
         @Override
@@ -139,7 +139,7 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
 
     private class ExecuteAction extends AbstractAction {
         ExecuteAction() {
-            super("Execute", Icons.METHOD_EXECUTION_RUN);
+            super(txt("msg.shared.button.Execute"), Icons.METHOD_EXECUTION_RUN);
         }
 
         @Override
@@ -156,7 +156,7 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
 
     private class DebugAction extends AbstractAction {
         DebugAction() {
-            super("Debug", Icons.METHOD_EXECUTION_DEBUG);
+            super(txt("msg.shared.button.Debug"), Icons.METHOD_EXECUTION_DEBUG);
         }
 
         @Override
@@ -173,7 +173,7 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
 
     private class SaveAction extends AbstractAction {
         SaveAction() {
-            super("Save");
+            super(txt("msg.shared.button.Save"));
         }
 
         @Override
@@ -186,7 +186,7 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
 
     private class CloseAction extends AbstractAction {
         CloseAction() {
-            super("Close");
+            super(txt("msg.shared.button.Close"));
         }
 
         @Override

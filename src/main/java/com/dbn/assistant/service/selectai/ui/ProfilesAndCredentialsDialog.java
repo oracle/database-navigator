@@ -64,7 +64,7 @@ public class ProfilesAndCredentialsDialog extends DBNDialog<ProfilesAndCredentia
   @Deprecated // TODO use standard help mechanism
   private class HelpAction extends AbstractAction {
     private HelpAction() {
-      super("Help");
+      super(txt("msg.shared.button.Help"));
     }
 
     @Override
