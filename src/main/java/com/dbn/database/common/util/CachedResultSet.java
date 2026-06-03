@@ -373,7 +373,7 @@ public class CachedResultSet extends StatefulDisposableBase implements ResultSet
 
     @FunctionalInterface
     public interface Columns {
-        String[] names();
+        String @NonNls [] names();
     }
 
     @FunctionalInterface

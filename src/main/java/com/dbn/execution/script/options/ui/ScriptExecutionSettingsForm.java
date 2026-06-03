@@ -86,7 +86,7 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
         }
 
         ListPopup popup = Popups.popupBuilder(actionGroup, dataContext)
-                .withTitle("Database Type")
+                .withTitle(txt("cfg.execution.title.DatabaseType"))
                 .withTitleVisible(false)
                 .build();
 

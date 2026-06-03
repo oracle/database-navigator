@@ -34,6 +34,7 @@ import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.database.DatabaseFeature.MCP_SERVER_BUILDER;
+import static com.dbn.nls.NlsResources.txt;
 
 public class McpBuilderOpenAction extends ProjectAction {
 
@@ -61,7 +62,7 @@ public class McpBuilderOpenAction extends ProjectAction {
 
         List<SelectConnectionAction> actions = convert(connections, SelectConnectionAction::new);
         popupBuilder(actions, e)
-                .withTitle("Select MCP Server Connection")
+                .withTitle(txt("msg.mcp.title.SelectMcpServerConnection"))
                 .withSpeedSearch()
                 .buildAndShowCentered();
     }

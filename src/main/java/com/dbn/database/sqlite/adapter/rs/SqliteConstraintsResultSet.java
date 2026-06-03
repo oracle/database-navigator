@@ -18,6 +18,7 @@ package com.dbn.database.sqlite.adapter.rs;
 
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.sqlite.adapter.SqliteMetadataResultSetRow;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -97,6 +98,7 @@ public abstract class SqliteConstraintsResultSet extends SqliteConstraintInfoRes
             Objects.equals(columnLabel, "IS_ENABLED") ? "Y" : null;
     }
 
+    @NonNls
     static class Constraint implements SqliteMetadataResultSetRow<Constraint> {
         private String datasetName;
         private String constraintName;

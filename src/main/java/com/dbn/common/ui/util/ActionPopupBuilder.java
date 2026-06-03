@@ -32,7 +32,9 @@ import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.Condition;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.SwingConstants;
 import java.awt.Component;
@@ -57,8 +59,8 @@ public class ActionPopupBuilder {
     private final ActionGroup actionGroup;
     private final DataContext dataContext;
 
-    private String title;
-    private String hint;
+    private @Nullable @Nls String title;
+    private @Nullable @Nls String hint;
     private JBPopupFactory.ActionSelectionAid selectionAid;
 
     private String actionPlace = ActionPlaces.POPUP;
@@ -91,12 +93,12 @@ public class ActionPopupBuilder {
         return new ActionPopupBuilder(actionGroup, Context.getDataContext(context));
     }
 
-    public ActionPopupBuilder withTitle(String title) {
+    public ActionPopupBuilder withTitle(@Nullable @Nls String title) {
         this.title = title;
         return this;
     }
 
-    public ActionPopupBuilder withHint(String hint) {
+    public ActionPopupBuilder withHint(@Nullable @Nls String hint) {
         this.hint = hint;
         return this;
     }
@@ -140,7 +142,7 @@ public class ActionPopupBuilder {
     }
 
     public ListPopup build() {
-        String popupTitle = titleVisible ? title : null;
+        @Nullable @Nls String popupTitle = titleVisible ? title : null;
         ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
                 popupTitle,
                 actionGroup,

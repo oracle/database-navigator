@@ -17,6 +17,7 @@
 package com.dbn.prerequisite.resolution;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 @Getter
 public class PrerequisiteAdvice {
@@ -24,7 +25,7 @@ public class PrerequisiteAdvice {
     private final String description;
     private final String code;
 
-    public PrerequisiteAdvice(String title, String description, String code) {
+    public PrerequisiteAdvice(String title, String description, @NonNls String code) {
         this.title = title;
         this.description = description;
         this.code = code;

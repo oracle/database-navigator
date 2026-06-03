@@ -110,7 +110,7 @@ public class TextContent {
         replaceFields("TABLE_GRID_COLOR", "#" + toHex(UIUtil.getLabelDisabledForeground()));
     }
 
-    private void replaceFields(String identifier, String replacement) {
+    private void replaceFields(@NonNls String identifier, @NonNls String replacement) {
         replacement = Matcher.quoteReplacement(replacement);
         text = text.replaceAll("\\$\\{" + identifier + "}", replacement);
     }
@@ -132,6 +132,7 @@ public class TextContent {
     }
 
     public static TextContent tooltip(String bodyContent, String bodyStyle) {
+        @NonNls
         TextContent content = html("<html><body style='${HTML_BODY_STYLE}; ${REGULAR_FONT_STYLE}'>${HTML_BODY_CONTENT}</body></html>");
         content.initField("HTML_BODY_STYLE", bodyStyle);
         content.initField("HTML_BODY_CONTENT", bodyContent);

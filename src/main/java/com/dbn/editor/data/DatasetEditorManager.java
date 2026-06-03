@@ -174,7 +174,7 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
             Component component = (Component) inputEvent.getSource();
 
             ListPopup popup = popupBuilder(actions, component)
-                    .withTitle("Select Navigation Target")
+                    .withTitle(txt("msg.dataEditor.title.SelectNavigationTarget"))
                     .withMaxRowCount(10)
                     .withSpeedSearch()
                     .build();

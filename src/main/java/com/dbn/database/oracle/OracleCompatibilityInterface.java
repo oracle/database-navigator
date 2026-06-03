@@ -92,6 +92,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 public class OracleCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
     public static final QuoteDefinition IDENTIFIER_QUOTE_DEFINITION = new QuoteDefinition(new QuotePair('"', '"'));
 
+    @NonNls
     private interface Property {
         String SESSION_PROGRAM = "v$session.program";
 

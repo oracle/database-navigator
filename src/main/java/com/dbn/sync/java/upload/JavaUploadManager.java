@@ -195,7 +195,7 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 	}
 
     @NotNull
-    public StateAttributes getState(String category) {
+    public StateAttributes getState(@NonNls String category) {
         StateCategory stateCategory = StateCategory.get(category);
         return states.ensureAttributes(stateCategory);
     }
