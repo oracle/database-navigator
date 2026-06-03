@@ -107,8 +107,8 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 	public String getJavaVersion(ConnectionId connectionId) throws SQLException {
 		ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
 		return DatabaseInterfaceInvoker.load(Priority.MEDIUM,
-				"Loading Java Version",
-				"Loading database java version (OJVM)",
+				txt("prc.java.title.LoadingJavaVersion"),
+				txt("prc.java.text.LoadingDatabaseJavaVersion"),
 				getProject(),
 				connectionId,
 				c -> {

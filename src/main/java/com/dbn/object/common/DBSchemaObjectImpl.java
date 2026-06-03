@@ -172,10 +172,10 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
         return loadReferencingSchemas(this);
     }
 
-    private static List<DBSchema> loadReferencingSchemas(DBSchemaObject object) throws SQLException {
+    private List<DBSchema> loadReferencingSchemas(DBSchemaObject object) throws SQLException {
         return DatabaseInterfaceInvoker.load(HIGHEST,
-                "Loading data dictionary",
-                "Loading schema references for " + object.getQualifiedNameWithType(),
+                txt("prc.database.title.LoadingDataDictionary"),
+                txt("prc.database.text.LoadingSchemaReferencesFor", object.getQualifiedNameWithType()),
                 object.getProject(),
                 object.getConnectionId(),
                 conn -> {

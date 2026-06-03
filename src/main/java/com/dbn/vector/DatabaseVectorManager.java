@@ -148,8 +148,8 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
 
     public ResultSet chunkTextContent(ConnectionHandler connection, EmbeddingChunkingConfig config, String text) throws SQLException {
         return DatabaseInterfaceInvoker.load(MEDIUM,
-                "Chunking Data",
-                "Chunking text content",
+                txt("prc.vector.title.ChunkingData"),
+                txt("prc.vector.text.ChunkingTextContent"),
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {
@@ -171,8 +171,8 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
 
     public ResultSet performSimilaritySearch(ConnectionHandler connection, String schemaName, String tableName, String queryText, DBVectorDistanceMetric metric, int rows) throws SQLException {
         return DatabaseInterfaceInvoker.load(MEDIUM,
-                "Perform Similarity Search",
-                "Perform similarity search on vector table " + schemaName + "." + tableName,
+                txt("prc.vector.title.PerformingSimilaritySearch"),
+                txt("prc.vector.text.PerformingSimilaritySearchOn", schemaName, tableName),
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {

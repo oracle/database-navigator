@@ -50,8 +50,8 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
 
   private static String getDialogTitle(@Nullable DBCredential credential) {
     return credential == null ?
-            com.dbn.nls.NlsResources.txt("msg.assistant.title.CreateCredential") :
-            com.dbn.nls.NlsResources.txt("msg.assistant.title.UpdateCredential");
+            txt("msg.assistant.title.CreateCredential") :
+            txt("msg.assistant.title.UpdateCredential");
   }
 
   /**

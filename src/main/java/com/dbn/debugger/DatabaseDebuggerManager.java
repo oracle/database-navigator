@@ -323,8 +323,8 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
 
         try {
             return DatabaseInterfaceInvoker.load(HIGHEST,
-                    "Loading metadata",
-                    "Loading debugger version",
+                    txt("prc.debugger.title.LoadingMetadata"),
+                    txt("prc.debugger.text.LoadingDebuggerVersion"),
                     connection.getProject(),
                     connection.getConnectionId(),
                     conn -> {

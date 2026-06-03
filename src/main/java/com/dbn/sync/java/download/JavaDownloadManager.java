@@ -115,8 +115,8 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 	private List<JavaDownloadTask> createDownloadTasks(DBObject sourceObject, DBObjectType objectType) throws SQLException {
 		ConnectionHandler connection = sourceObject.getConnection();
 		return DatabaseInterfaceInvoker.load(HIGH,
-				"Loading Java Dependencies",
-				"Loading java dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
+				txt("prc.java.title.LoadingJavaDependencies"),
+				txt("prc.java.text.LoadingJavaDependencies", sourceObject.getQualifiedNameWithType()),
 				connection.getProject(),
 				connection.getConnectionId(),
 				c -> createDownloadTasks(connection, sourceObject, objectType, c));

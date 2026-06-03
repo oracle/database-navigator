@@ -141,8 +141,8 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
         ConnectionHandler connection = sessionBrowserFile.getConnection();
         try {
             return DatabaseInterfaceInvoker.load(HIGH,
-                    "Loading sessions",
-                    "Loading database sessions",
+                    txt("prc.sessionBrowser.title.LoadingSessions"),
+                    txt("prc.sessionBrowser.text.LoadingSessions"),
                     connection.getProject(),
                     connection.getConnectionId(),
                     conn -> {
@@ -169,8 +169,8 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
 
         try {
             return DatabaseInterfaceInvoker.load(HIGH,
-                    "Loading session details",
-                    "Loading current session details",
+                    txt("prc.sessionBrowser.title.LoadingSessionDetails"),
+                    txt("prc.sessionBrowser.text.LoadingCurrentSessionDetails"),
                     connection.getProject(),
                     connection.getConnectionId(),
                     conn -> {

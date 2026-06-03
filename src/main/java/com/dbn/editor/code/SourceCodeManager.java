@@ -332,8 +332,8 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     public SourceCodeContent loadSourceFromDatabase(@NotNull DBSchemaObject object, DBContentType contentType) throws SQLException {
         SourceCodeContent sourceCodeContent = DatabaseInterfaceInvoker.load(HIGH,
-                "Loading source code",
-                "Loading source code of " + object.getQualifiedNameWithType(),
+                txt("prc.codeEditor.title.LoadingSourceCode"),
+                txt("prc.codeEditor.text.LoadingSourceCodeOf", object.getQualifiedNameWithType()),
                 object.getProject(),
                 object.getConnectionId(),
                 conn -> loadSourceFromDatabase(object, contentType, conn));
@@ -536,8 +536,8 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         if (OBJECT_CHANGE_MONITORING.isNotSupported(object)) return ChangeTimestamp.now();
 
         Timestamp timestamp = DatabaseInterfaceInvoker.load(HIGHEST,
-                "Loading object details",
-                "Loading change timestamp for " + object.getQualifiedNameWithType(),
+                txt("prc.codeEditor.title.LoadingObjectDetails"),
+                txt("prc.codeEditor.text.LoadingChangeTimestampFor", object.getQualifiedNameWithType()),
                 object.getProject(),
                 object.getConnectionId(),
                 conn -> {

@@ -20,15 +20,16 @@ import com.dbn.common.icon.Icons;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.debugger.jdbc.config.DBStatementJdbcRunConfigFactory;
 import com.dbn.debugger.jdwp.config.DBJdwpStatementRunConfigFactory;
-import com.dbn.nls.NlsResources;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class DBStatementRunConfigType extends DBRunConfigType<DBStatementRunConfigFactory> {
-    public static final String DEFAULT_RUNNER_NAME = NlsResources.txt("cfg.execution.title.StatementRunnerDefault");
+    public static final String DEFAULT_RUNNER_NAME = txt("cfg.execution.title.StatementRunnerDefault");
     private final DBStatementRunConfigFactory[] configurationFactories = new DBStatementRunConfigFactory[]{
             new DBStatementJdbcRunConfigFactory(this),
             new DBJdwpStatementRunConfigFactory(this)};

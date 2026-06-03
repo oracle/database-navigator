@@ -32,13 +32,14 @@ import java.util.List;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorUtils {
     public static List<String> loadDistinctColumnValues(@NotNull DBColumn column) {
         try {
             return DatabaseInterfaceInvoker.load(HIGH,
-                    "Loading data",
-                    "Loading possible values for " + column.getQualifiedNameWithType(),
+                    txt("prc.dataEditor.title.LoadingValues"),
+                    txt("prc.dataEditor.text.LoadingPossibleValuesFor", column.getQualifiedNameWithType()),
                     column.getProject(),
                     column.getConnectionId(),
                     conn -> loadDistinctColumnValues(column, conn));
