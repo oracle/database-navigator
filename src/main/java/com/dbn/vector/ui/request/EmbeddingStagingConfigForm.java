@@ -97,7 +97,7 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadTables())
                 .withValuePreselector(() -> config.getTableName())
-                .withObjectFactory("New Table...")
+                .withObjectFactory(txt("msg.vector.button.NewTable"))
                 .withValueFactoryInput(() -> createTableFactoryInput())
                 .withValueFactoryNameConsumer(() -> name -> getStagingTablesCache().addObjectName(getSelectedSchemaId(), name))
                 .triggerLoad();
@@ -171,7 +171,7 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
 
     @Override
     public String getFormTitle() {
-        return "Staging Location";
+        return txt("msg.vector.title.StagingLocation");
     }
 
     @Override

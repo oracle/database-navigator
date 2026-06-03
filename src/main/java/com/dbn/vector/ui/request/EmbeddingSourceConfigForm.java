@@ -118,7 +118,7 @@ public class EmbeddingSourceConfigForm extends VectorToolboxFormBase implements 
 
     @Override
     public String getFormTitle() {
-        return "Data Source";
+        return txt("msg.vector.title.DataSource");
     }
 
     @Override
@@ -128,19 +128,31 @@ public class EmbeddingSourceConfigForm extends VectorToolboxFormBase implements 
 
         if (sourceType == EmbeddingSourceType.FILE_SYSTEM) {
             int count = filesForm.getFileCount();
-            return sourceTypeName + " - " + count + (count == 1 ? " file" : " files");
+            return txt("msg.vector.text.SourceSelectionDetail", sourceTypeName, count, getFileUnit(count));
         }
 
         if (sourceType == EmbeddingSourceType.DATABASE_TABLE) {
             int count = tablesForm.getTableCount();
-            return sourceTypeName + " - " + count + (count == 1 ? " table" : " tables");
+            return txt("msg.vector.text.SourceSelectionDetail", sourceTypeName, count, getTableUnit(count));
         }
 
         if (sourceType == EmbeddingSourceType.DATABASE_QUERY) {
             int count = queriesForm.getQueryCount();
-            return sourceTypeName + " - " + count + (count == 1 ? " query" : " queries");
+            return txt("msg.vector.text.SourceSelectionDetail", sourceTypeName, count, getQueryUnit(count));
         }
         return sourceTypeName;
+    }
+
+    private String getFileUnit(int count) {
+        return txt(count == 1 ? "msg.vector.unit.File" : "msg.vector.unit.Files");
+    }
+
+    private String getTableUnit(int count) {
+        return txt(count == 1 ? "msg.vector.unit.Table" : "msg.vector.unit.Tables");
+    }
+
+    private String getQueryUnit(int count) {
+        return txt(count == 1 ? "msg.vector.unit.Query" : "msg.vector.unit.Queries");
     }
 
     public EmbeddingSourceType getSelectedSourceType() {

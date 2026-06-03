@@ -87,7 +87,7 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadTables())
                 .withValuePreselector(() -> config.getTableName())
-                .withObjectFactory("New Table...")
+                .withObjectFactory(txt("msg.vector.button.NewTable"))
                 .withValueFactoryInput(tableSpec)
                 .withValueFactoryNameConsumer(() -> name -> getDestinationTablesCache().addObjectName(getSelectedSchemaId(), name))
                 .triggerLoad();
@@ -178,7 +178,7 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
 
     @Override
     public String getFormTitle() {
-        return "Embedding Destination";
+        return txt("msg.vector.title.EmbeddingDestination");
     }
 
     @Override

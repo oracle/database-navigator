@@ -83,7 +83,7 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
             targetSchemaComboBox.addActionListener(actionListener);
         } else {
             SchemaId targetSchema = executionInput.getTargetSchemaId();
-            if (targetSchema == null) targetSchema = SchemaId.get("No schema selected");
+            if (targetSchema == null) targetSchema = SchemaId.get(txt("cfg.execution.label.NoSchemaSelected"));
             targetSchemaComboBox.setValues(targetSchema);
             targetSchemaComboBox.setSelectedValue(targetSchema);
             targetSchemaComboBox.setEnabled(false);
@@ -124,7 +124,7 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
             DatabaseCompatibilityInterface compatibility = connection.getCompatibilityInterface();
             String databaseLogName = compatibility.getDatabaseLogName();
             if (Strings.isNotEmpty(databaseLogName)) {
-                enableLoggingCheckBox.setText("Enable logging (" + databaseLogName + ")");
+                enableLoggingCheckBox.setText(txt("cfg.execution.label.EnableLoggingNamed", databaseLogName));
             }
         } else{
             enableLoggingCheckBox.setVisible(false);
@@ -146,7 +146,7 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
 
     @Override
     public String getFormTitle() {
-        return "Target context";
+        return txt("cfg.execution.title.TargetContext");
     }
 
     @Override

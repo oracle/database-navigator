@@ -158,11 +158,15 @@ public class EmbeddingChunkingConfigForm extends VectorToolboxFormBase implement
 
     @Override
     public String getFormTitle() {
-        return "Chunk Configuration";
+        return txt("msg.vector.title.ChunkConfiguration");
     }
 
     @Override
     public String getFormTitleDetail() {
-        return getChunkBy() + " / " + getSplitBy() + " / " + maxSizeSpinner.getValue() + " / " + overlapSpinner.getValue();
+        return txt("msg.vector.text.ChunkConfigurationDetail",
+                getChunkBy(),
+                getSplitBy(),
+                maxSizeSpinner.getValue(),
+                overlapSpinner.getValue());
     }
 }

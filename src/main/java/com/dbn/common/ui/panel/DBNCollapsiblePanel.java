@@ -103,8 +103,10 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         }
     }
 
-    private static String getStateName(boolean expanded) {
-        return expanded ? "expanded" : "collapsed";
+    private String getStateName(boolean expanded) {
+        return expanded ?
+                txt("app.shared.aria.Expanded") :
+                txt("app.shared.aria.Collapsed");
     }
 
     public void updateComponents() {
