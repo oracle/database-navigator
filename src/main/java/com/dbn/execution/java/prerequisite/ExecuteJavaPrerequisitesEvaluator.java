@@ -22,6 +22,7 @@ import com.dbn.prerequisite.model.PrerequisiteMandate;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_PROCEDURE;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_TYPE;
 
@@ -33,7 +34,7 @@ public class ExecuteJavaPrerequisitesEvaluator extends PrerequisiteRequirementEv
 
     @Override
     protected void createMandates(List<PrerequisiteMandate> mandates, DatabaseOperation operation) {
-        createMandate(mandates, CREATE_PROCEDURE, "Allows user to create functions, procedures, and packages in own schema. This is required for creating the java execution wrappers");
-        createMandate(mandates, CREATE_TYPE, "Allows user to create database types in own schema. These are sometimes required as data converters in the java execution wrappers");
+        createMandate(mandates, CREATE_PROCEDURE, txt("msg.prerequisite.text.Reason_CREATE_PROCEDURE"));
+        createMandate(mandates, CREATE_TYPE, txt("msg.prerequisite.text.Reason_CREATE_TYPE"));
     }
 }
