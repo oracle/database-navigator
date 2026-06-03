@@ -74,15 +74,13 @@ public class ConnectionAuthenticationForm extends DBNFormBase {
             headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
             int passwordExpiryTime = connection.getSettings().getDetailSettings().getCredentialExpiryMinutes();
-            String expiryTimeText = passwordExpiryTime == 0 ? "0 - no expiry" :
-                    passwordExpiryTime == 1 ? "1 minute" : passwordExpiryTime + " minutes";
+            String expiryTimeText = passwordExpiryTime == 0 ? txt("cfg.connection.text.NoCredentialExpiry") :
+                    passwordExpiryTime == 1 ? txt("app.shared.label.OneMinute") : txt("app.shared.label.MoreMinutes", passwordExpiryTime);
 
-            hintText = plain("The system needs your credentials to connect to this database. " +
-                            "\nYou can configure how long the credentials stay active for an idle connection, " +
-                            "in the Connection Details settings (currently set to " + expiryTimeText + ")");
+            hintText = plain(txt("cfg.connection.hint.AuthenticationWithExpiry", expiryTimeText));
 
         } else {
-            hintText = plain("The system needs your credentials to connect to this database.");
+            hintText = plain(txt("cfg.connection.hint.Authentication"));
         }
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);

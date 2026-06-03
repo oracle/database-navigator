@@ -94,8 +94,8 @@ public class JavaClassWrapperAction extends AnObjectAction<DBJavaClass> {
 
 	private static @NotNull SelectionListDialog<DBJavaMethod> createDialog(DBJavaClass javaClass, List<DBJavaMethod> javaMethods) {
 		Project project = javaClass.getProject();
-        String title = "Create Execution Wrappers";
-        TextContent hint = TextContent.plain("This will generate all required PL/SQL objects for executing the selected methods. \n\nSelect the methods to create execution wrappers for.");
+        String title = txt("msg.java.title.CreateExecutionWrappers");
+        TextContent hint = TextContent.plain(txt("msg.java.hint.CreateExecutionWrappers"));
         return new SelectionListDialog<>(project, title, javaMethods, null, javaClass, hint, JAVA_EXECUTION_WRAPPERS);
 	}
 

@@ -100,9 +100,7 @@ public class JavaDownloadInputForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hintText = TextContent.plain(
-                "Following java classes and resources will be downloaded to the project. " +
-                        "Please specify the target module and content root, as well as the resources to be downloaded.\n\n" +
-                        "NOTE: Already existing java classes and resources in the selected destination will be overwritten.");
+                txt("msg.java.hint.DownloadInput"));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }

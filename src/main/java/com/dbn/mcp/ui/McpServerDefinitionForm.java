@@ -122,10 +122,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hintContent = TextContent.plain(
-                "MCP Server Builder helps you define SQL-backed MCP tools for this database connection.\n\n" +
-                        "Each tool exposes a named SQL statement with typed parameters to MCP clients. Choose STDIO " +
-                        "or HTTP transport and build a standalone server package with a runnable JAR, configuration, " +
-                        "wallet, source project, and README.");
+                txt("msg.mcp.hint.ServerDefinition"));
         hintPanel.add(new DBNHintForm(this, hintContent, null, true).getComponent());
     }
 

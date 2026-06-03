@@ -73,9 +73,7 @@ public class EventRegistrationInputForm extends DBNFormBase {
     }
 
     private void initHintForm() {
-        TextContent hintText = plain("Receive real-time notifications on data changes in the " + table.getObjectName(true) + " table. " +
-                "You will be notified about inserts, updates, or deletes.\n\n" +
-                "Please select the actions you want to receive notifications for.");
+        TextContent hintText = plain(txt("msg.events.hint.EventListenerRegistration", table.getObjectName(true)));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
 

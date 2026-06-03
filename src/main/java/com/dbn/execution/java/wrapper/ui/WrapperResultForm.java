@@ -54,7 +54,7 @@ public class WrapperResultForm extends DBNFormBase {
 
     private void initHintPanel(WrapperModel model) {
         DBObjectType objectType = model.getSourceObject().getObjectType();
-        TextContent hintText = TextContent.plain("The following execution wrapper objects were created in the database for the given " + objectType.getName());
+        TextContent hintText = TextContent.plain(txt("msg.java.hint.WrapperResult", objectType.getName()));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }

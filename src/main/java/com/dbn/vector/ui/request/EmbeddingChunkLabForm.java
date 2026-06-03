@@ -86,8 +86,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent textContent = TextContent.plain(
-                "Use this tool to experiment with different chunking settings before applying them in embedding and retrieval workflows. " +
-                        "Adjust the parameters, preview the resulting chunks, and fine-tune the configuration that works best for your data.");
+                txt("msg.vector.hint.ChunkLab"));
         DBNHintForm hintForm = new DBNHintForm(this, textContent, null, true);
         hintPanel.add(hintForm.getComponent());
     }

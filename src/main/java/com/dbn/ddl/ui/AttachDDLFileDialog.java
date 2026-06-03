@@ -55,9 +55,9 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
         DBSchemaObject object = getObject();
         String typeName = object.getTypeName();
         TextContent hintText = plain(
-                "Following DDL files were found matching the name of the " + object.getQualifiedNameWithType() + ".\n" +
-                        "NOTE: Attached DDL files will become readonly and their content will change automatically when the " + typeName + " is edited.\n\n" +
-                        "Select the files to attach to this " + typeName + ".");
+                txt("msg.ddlFiles.hint.AttachDdlFiles",
+                        object.getQualifiedNameWithType(),
+                        typeName));
         return new SelectDDLFileForm(this, object, fileInfos, hintText, showLookupOption);
     }
 

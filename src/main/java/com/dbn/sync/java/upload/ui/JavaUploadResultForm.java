@@ -59,9 +59,9 @@ public class JavaUploadResultForm extends DBNFormBase {
     private void initHintPanel(JavaUploadBatch batch) {
         JavaUploadInput input = batch.getInput();
         TextContent hintText = TextContent.plain(
-                "The following java classes and resources were created or updated " +
-                        "in your \"" + input.getTargetConnectionName() + "\" database, " +
-                    "under the user schema \"" + input.getTargetSchemaName() + "\".");
+                txt("msg.java.hint.UploadResult",
+                        input.getTargetConnectionName(),
+                        input.getTargetSchemaName()));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }

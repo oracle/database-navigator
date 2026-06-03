@@ -65,8 +65,7 @@ public class JavaDownloadResultForm extends DBNFormBase {
         PsiDirectory rootDirectory = batch.getTargetRootDirectory();
         String rootDirectoryPath = Presentation.presentableName(rootDirectory);
         TextContent hintText = TextContent.plain(
-                "The following classes were created or updated in your project under \"" + rootDirectoryPath + "\"\n\n" +
-                        "(double click on the files, or press Enter to open them in the editor)");
+                txt("msg.java.hint.DownloadResult", rootDirectoryPath));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }

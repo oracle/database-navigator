@@ -81,9 +81,7 @@ public class JavaUploadInputForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hintText = TextContent.plain(
-                "Following java classes and resources will be uploaded to the database. " +
-                        "Please select the target connection and schema, as well as the resources to be uploaded.\n\n" +
-                        "NOTE: Already existing java classes and resources in the selected destination will be overwritten.");
+                txt("msg.java.hint.UploadInput"));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }

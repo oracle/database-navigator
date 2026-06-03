@@ -47,7 +47,7 @@ public class DDLFileGeneralSettingsForm extends ConfigurationEditorForm<DDLFileG
     public DDLFileGeneralSettingsForm(DDLFileGeneralSettings settings) {
         super(settings);
 
-        TextContent hintText = plain("NOTE: When \"Synchronize\" option is enabled, the DDL file content gets overwritten with the source from the underlying database object whenever this gets saved to database.");
+        TextContent hintText = plain(txt("cfg.ddlFiles.hint.SynchronizeDdlFiles"));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, MessageType.INFO, false);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
 

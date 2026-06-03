@@ -84,8 +84,7 @@ public class EmbeddingSourceInputTableForm extends VectorToolboxFormBase {
     }
 
     private void initHintPanel() {
-        TextContent hint = TextContent.plain("Please specify the table, the primary‑key column, and the column containing the text to be embedded.\n\n" +
-                "NOTE: Table and column information will be recorded as metadata in the embedding results, so each vector can be traced back to its original record.");
+        TextContent hint = TextContent.plain(txt("msg.vector.hint.SourceInputTable"));
         DBNHintForm hintForm = new DBNHintForm(this, hint, null, true);
         hintPanel.add(hintForm.getComponent());
 

@@ -77,8 +77,7 @@ public class ScriptExecutionInputForm extends DBNFormBase {
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
         TextContent hintText = plain(
-                "Script execution uses the Command-Line Interface executable supplied with your database client. " +
-                "Make sure it is available in the \"PATH\" environment variable or provide the path to the executable.");
+                txt("msg.execution.hint.ScriptExecutionInput"));
 
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);

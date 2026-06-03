@@ -55,8 +55,7 @@ public class CodeStyleFormattingSettingsForm extends ConfigurationEditorForm<Cod
         CodeStyleFormattingOption[] options = settings.getOptions();
         settingsPanel.setLayout(new GridLayoutManager(options.length + 1, 2, JBUI.insets(4), -1, -1));
         TextContent hintText = TextContent.plain(
-                "Code formatting is currently an experimental feature and can only be enabled along with developer-mode. " +
-                "Use with caution and avoid uncontrolled code formatting activities like version-control pre-commit actions.");
+                txt("cfg.codeStyle.hint.ExperimentalFormatting"));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, MessageType.WARNING, true);
 
         hintPanel.add(hintForm.getComponent());

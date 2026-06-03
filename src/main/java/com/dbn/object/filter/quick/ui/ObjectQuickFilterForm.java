@@ -80,7 +80,7 @@ public class ObjectQuickFilterForm extends DBNFormBase {
 
         Filter<?> configFilter = objectList.getConfigFilter();
         if (configFilter != null) {
-            TextContent hintText = TextContent.plain("NOTE: This list is already filtered according to connection \"Filter\" settings. Any additional condition will narrow down the already filtered list.");
+            TextContent hintText = TextContent.plain(txt("msg.objects.hint.QuickFilter"));
             DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
             hintPanel.add(hintForm.getComponent());
         }

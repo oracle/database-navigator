@@ -54,9 +54,7 @@ public class CompileDebugDependenciesForm extends DBNFormBase {
 
     public CompileDebugDependenciesForm(CompileDebugDependenciesDialog parent, DBRunConfig<?> runConfiguration, List<DBSchemaObject> compileList) {
         super(parent);
-        TextContent hintText = plain("The program you are trying to debug or some of its dependencies are not compiled with debug information." +
-                "This may result in breakpoints being ignored during the debug execution, as well as missing information about execution stacks and variables.\n" +
-                "In order to achieve full debugging support you are advised to compile the respective programs in debug mode.");
+        TextContent hintText = plain(txt("msg.debugger.hint.CompileDebugDependencies"));
 
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());

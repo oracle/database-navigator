@@ -63,8 +63,7 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hintText = TextContent.plain(
-                "Please provide a name for storing the Command-Line interface executable.\n" +
-                "Command-Line interfaces can be configured in the Execution Engine settings.");
+                txt("msg.execution.hint.CommandLineInterfaceInput"));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
     }

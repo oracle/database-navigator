@@ -132,9 +132,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   }
 
   private void initHintPanel() {
-    TextContent hintText = plain("AI-Profiles must include information about your data model to be forwarded to the language model. This will allow it to produce more accurate results, closely tailored to your data model. " +
-            "The metadata can include database table names, column names, column data types, and comments. Your data will never be sent out to the language model.\n\n" +
-            "Please find the datasets you want to include in the profile, and drag them to the container on the right. Start by selecting the schema.");
+    TextContent hintText = plain(txt("cfg.assistant.hint.ProfileDatasetSelection"));
     DBNHintForm hintForm = new DBNHintForm(null, hintText, null, true);
 
     JComponent hintComponent = hintForm.getComponent();

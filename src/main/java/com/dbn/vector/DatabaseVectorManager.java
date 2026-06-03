@@ -262,7 +262,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
         DBObjectNameCache<DBTable> names = getObjectNamesCache(connectionId, DBObjectFilterType.EMBEDDING_DESTINATION_TABLES);
 
-        TextContent hint = TextContent.plain("Select vector embeddings table to use as source for your RAG (Retrieval-Augmented Generation) actions.");
+        TextContent hint = TextContent.plain(txt("msg.vector.hint.SelectEmbeddingsTable"));
         return new DBObjectSelectionInput<DBTable>(connection, DBObjectType.TABLE)
                 .withSchemaFilter(s -> !s.isSystemSchema())
                 .withSchemaPreselector(s -> s.getSchemaId() == connection.getUserSchemaId())

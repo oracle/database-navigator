@@ -54,7 +54,7 @@ public class RenameExecutionResultForm extends DBNFormBase {
         nameTextField.setText(resultName);
 
         if (executionResult.supportsStickyNames()) {
-            TextContent hint = plain("Use \"Sticky\" option to retain the name after the result is closed.");
+            TextContent hint = plain(txt("msg.execution.hint.RenameResult"));
             DBNHintForm hintForm = new DBNHintForm(this, hint, null, false);
             hintPanel.add(hintForm.getComponent());
 

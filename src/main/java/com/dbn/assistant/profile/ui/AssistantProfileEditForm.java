@@ -103,9 +103,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hintContent = TextContent.plain(
-                "Profiles let you customize your experience with the LLM. " +
-                    "You can choose from different temperature presets to adjust the balance between accuracy and creativity. " +
-                    "You can also specify custom instructions to help the LLM better understand your needs.");
+                txt("cfg.assistant.hint.ProfileEdit"));
         DBNHintForm hintForm = new DBNHintForm(this, hintContent, null, true);
         hintPanel.add(hintForm.getComponent());
     }

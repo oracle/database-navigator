@@ -127,11 +127,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hintContent = TextContent.plain(
-                "MCP Tool Builder turns a SQL statement into a callable tool for this MCP server.\n\n" +
-                "Name and describe the tool so MCP clients can choose it correctly. Use named SQL " +
-                "parameters such as :employee_id; the parameter list is derived from the statement " +
-                "and lets you define types, required flags, descriptions, and test values. Run Verify " +
-                "to execute the query with sample values before saving.");
+                txt("msg.mcp.hint.ToolDefinition"));
         hintPanel.add(new DBNHintForm(this, hintContent, null, true).getComponent());
     }
 

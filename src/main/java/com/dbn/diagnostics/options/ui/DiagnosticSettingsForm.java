@@ -67,10 +67,7 @@ public class DiagnosticSettingsForm extends DBNFormBase {
         developerModeCheckBox.setSelected(Diagnostics.isDeveloperMode());
         developerModeTimeoutTextField.setText(Integer.toString(Diagnostics.getDeveloperMode().getTimeout()));
 
-        TextContent hintText = plain("NOTE\nDeveloper Mode enables actions that can affect your system stability and data integrity. " +
-                "Features like \"Slow Database Simulations\" or excessive \"Debug Logging\" are meant for diagnostic activities only " +
-                "and are significantly degrading the performance of your development environment.\n\n" +
-                "Please disable developer mode unless explicitly instructed to use it and properly guided throughout the process by DBN plugin developers.");
+        TextContent hintText = plain(txt("cfg.diagnostics.hint.DeveloperMode"));
         disclaimerForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(disclaimerForm.getComponent());
 
