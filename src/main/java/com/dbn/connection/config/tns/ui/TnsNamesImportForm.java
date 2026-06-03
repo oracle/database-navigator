@@ -111,8 +111,8 @@ public class TnsNamesImportForm extends DBNFormBase {
 
             errorLabel.setVisible(true);
             String message = e.getMessage();
-            message = Strings.isEmpty(message) ? "File may be corrupt or not a valid tnsnames.ora file." : message;
-            errorLabel.setText("Error reading file: " + message);
+            message = Strings.isEmpty(message) ? txt("msg.connection.error.TnsNamesFileInvalid") : message;
+            errorLabel.setText(txt("msg.connection.error.ErrorReadingFile", message));
         }
     }
 

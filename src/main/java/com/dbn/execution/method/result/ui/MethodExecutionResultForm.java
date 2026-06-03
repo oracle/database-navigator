@@ -196,13 +196,13 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
         MethodExecutionResult executionResult = getExecutionResult();
         SessionId sessionId = executionResult.getExecutionInput().getTargetSessionId();
         String connectionType =
-                sessionId == SessionId.MAIN ? " (main)" :
-                sessionId == SessionId.POOL ? " (pool)" : " (session)";
+                sessionId == SessionId.MAIN ? txt("app.execution.label.MainSession") :
+                sessionId == SessionId.POOL ? txt("app.execution.label.PoolSession") : txt("app.execution.label.Session");
         ConnectionHandler connection = executionResult.getConnection();
         connectionLabel.setIcon(connection.getIcon());
         connectionLabel.setText(connection.getName() + connectionType);
 
-        durationLabel.setText(": " + executionResult.getExecutionDuration() + " ms");
+        durationLabel.setText(txt("app.execution.label.DurationMillis", executionResult.getExecutionDuration()));
     }
 
 

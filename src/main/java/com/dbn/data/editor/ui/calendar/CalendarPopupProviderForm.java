@@ -192,7 +192,7 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
         monthYearLabel.setText(tableModel.getCurrentMonthName() + " " + tableModel.getCurrentYear());
 
         timeTextField.setText(getFormatter().formatTime(date));
-        timeLabel.setText("Time (" + getFormatter().getTimeFormatPattern() + ")");
+        timeLabel.setText(txt("msg.dataEditor.label.TimeFormat", getFormatter().getTimeFormatPattern()));
 
         return popupBuilder.createPopup();
     }

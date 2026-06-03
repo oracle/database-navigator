@@ -68,8 +68,8 @@ public class ObjectPropertiesForm extends DBNFormBase {
         super(parent);
         objectPropertiesTable = new ObjectPropertiesTable(this, new ObjectPropertiesTableModel());
         objectPropertiesScrollPane.setViewportView(objectPropertiesTable);
-        objectTypeLabel.setText("Object properties:");
-        objectLabel.setText("(no object selected)");
+        objectTypeLabel.setText(txt("app.object.label.ObjectProperties"));
+        objectLabel.setText(txt("app.object.label.NoObjectSelected"));
 
         closeLabel.setText("");
         closeLabel.setIcon(Icons.ACTION_CLOSE_SMALL);
@@ -149,8 +149,8 @@ public class ObjectPropertiesForm extends DBNFormBase {
 
             dispatch(() -> {
                 if (object == null) {
-                    objectTypeLabel.setText("Object properties:");
-                    objectLabel.setText("(no object selected)");
+                    objectTypeLabel.setText(txt("app.object.label.ObjectProperties"));
+                    objectLabel.setText(txt("app.object.label.NoObjectSelected"));
                     objectLabel.setIcon(null);
                     UserInterface.setBackgroundRecursive(headerPanel, EnvironmentType.DEFAULT.getColor());
                 } else {

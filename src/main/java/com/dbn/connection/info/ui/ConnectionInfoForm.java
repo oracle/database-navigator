@@ -157,7 +157,7 @@ public class ConnectionInfoForm extends DBNFormBase {
         initValueField(infoConnectionUrlLabel, infoConnectionUrlTextField, connectionInfo.getUrl());
         initValueField(infoUserNameLabel, infoUserNameTextField, connectionInfo.getUserName());
 
-        statusMessageLabel.setText("Connection successful");
+        statusMessageLabel.setText(txt("app.connection.label.ConnectionSuccessful"));
         statusMessageLabel.setIcon(Icons.COMMON_CHECK);
         errorTextPane.setText("");
         errorTextPane.setVisible(false);

@@ -101,7 +101,10 @@ public class AutoCommitLabel extends DBNPanelImpl implements Disposable {
 
 
                 String sessionName = session.getName();
-                connectionLabel.setText(disconnected ? " - not connected" : " - connected");
+                connectionLabel.setText(
+                        disconnected ?
+                                txt("app.connection.label.NotConnected") :
+                                txt("app.connection.label.Connected"));
                 connectionLabel.setToolTipText(
                         disconnected ?
                                 txt("app.connection.tooltip.NotConnectedToSession", sessionName) : null);
@@ -113,7 +116,10 @@ public class AutoCommitLabel extends DBNPanelImpl implements Disposable {
                 autoCommitLabel.setForeground(autoCommit ?
                         com.dbn.common.color.Colors.FAILURE_COLOR :
                         com.dbn.common.color.Colors.SUCCESS_COLOR);
-                autoCommitLabel.setText(autoCommit ? "Auto-Commit ON" : "Auto-Commit OFF");
+                autoCommitLabel.setText(
+                        autoCommit ?
+                                txt("app.connection.label.AutoCommitOn") :
+                                txt("app.connection.label.AutoCommitOff"));
                 autoCommitLabel.setToolTipText(
                         autoCommit ?
                                 txt("app.connection.tooltip.AutoCommitEnabled", connection) :

@@ -116,17 +116,17 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
             String connectionName = connection.getName();
             SessionId sessionId = executionResult.getExecutionInput().getTargetSessionId();
             String connectionType =
-                    sessionId == SessionId.MAIN ? " (main)" :
-                    sessionId == SessionId.POOL ? " (pool)" : " (session)";
+                    sessionId == SessionId.MAIN ? txt("app.execution.label.MainSession") :
+                    sessionId == SessionId.POOL ? txt("app.execution.label.PoolSession") : txt("app.execution.label.Session");
             int rowCount = dataModel.getRowCount();
-            String partialResultInfo = dataModel.isResultSetExhausted() ? "" : " (partial)";
+            String partialResultInfo = dataModel.isResultSetExhausted() ? "" : txt("app.execution.label.PartialResult");
             long executeDuration = dataModel.getExecuteDuration();
             long fetchDuration = dataModel.getFetchDuration();
 
-            String executionDurationInfo = executeDuration == -1 ? "" : " - executed in " + executeDuration + " ms.";
-            String fetchDurationInfo = fetchDuration == -1 ? "" : " / fetched in " + fetchDuration + " ms.";
+            String executionDurationInfo = executeDuration == -1 ? "" : txt("app.execution.label.ExecutedMillis", executeDuration);
+            String fetchDurationInfo = fetchDuration == -1 ? "" : txt("app.execution.label.FetchedMillis", fetchDuration);
 
-            statusLabel.setText(connectionName + connectionType + ": " + rowCount + " records " + partialResultInfo + executionDurationInfo + fetchDurationInfo );
+            statusLabel.setText(txt("app.execution.label.StatementResultStatus", connectionName, connectionType, rowCount, partialResultInfo, executionDurationInfo, fetchDurationInfo));
             statusLabel.setIcon(connection.getIcon());
         });
     }

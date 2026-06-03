@@ -58,10 +58,10 @@ public class DialogWithTimeoutForm extends DBNFormBase {
             }
 
             if (minutes == 0) {
-                timeLeftLabel.setText(seconds + " seconds");
+                timeLeftLabel.setText(txt("app.shared.label.MoreSeconds", seconds));
                 timeLeftLabel.setForeground(JBColor.RED);
             } else {
-                timeLeftLabel.setText(minutes +":" + (seconds < 10 ? "0" :"") + seconds + " minutes");
+                timeLeftLabel.setText(txt("app.shared.label.MoreMinutes", minutes +":" + (seconds < 10 ? "0" :"") + seconds));
             }
         });
     }

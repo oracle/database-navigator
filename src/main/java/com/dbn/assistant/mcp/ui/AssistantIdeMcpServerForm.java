@@ -118,21 +118,21 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
             installHyperlink.setVisible(enabled);
 
             serverStatusLabel.setVisible(enabled);
-            serverStatusLabel.setText("MCP Server plugin not installed");
+            serverStatusLabel.setText(txt("cfg.assistant.label.McpServerPluginNotInstalled"));
             serverStatusLabel.setIcon(Icons.COMMON_STATUS_ERROR);
         } else if (a == DISABLED) {
             configHyperlink.setVisible(enabled);
             configHyperlink.setHyperlinkText(txt("cfg.assistant.link.Enable"));
 
             serverStatusLabel.setVisible(enabled);
-            serverStatusLabel.setText("MCP Server not enabled");
+            serverStatusLabel.setText(txt("cfg.assistant.label.McpServerNotEnabled"));
             serverStatusLabel.setIcon(Icons.COMMON_STATUS_ERROR);
         } else if (a == ENABLED) {
             configHyperlink.setVisible(enabled);
             configHyperlink.setHyperlinkText(txt("cfg.assistant.link.Configure"));
 
             serverStatusLabel.setVisible(enabled);
-            serverStatusLabel.setText("MCP Server active");
+            serverStatusLabel.setText(txt("cfg.assistant.label.McpServerActive"));
             serverStatusLabel.setIcon(Icons.COMMON_STATUS_SUCCESS);
             approvalsHyperlink.setVisible(enabled);
         }

@@ -114,7 +114,10 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
 
         Project project = getProject();
         boolean defaultProject = project != null && project.isDefault();
-        subtitleLabel.setText(defaultProject ? "Default Project Settings" : "Project Settings");
+        subtitleLabel.setText(
+                defaultProject ?
+                        txt("msg.settings.title.DefaultProjectSettings") :
+                        txt("msg.settings.title.ProjectSettings"));
 
         markBorderless(configList);
         configList.setModel(configListModel);

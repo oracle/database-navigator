@@ -61,7 +61,7 @@ public class ObjectQuickFilterConditionForm extends DBNFormBase {
 
         DBObjectType objectType = filter.getObjectType();
         objectNameLabel.setIcon(objectType.getIcon());
-        objectNameLabel.setText(cachedUpperCase(objectType.getName()) + " NAME");
+        objectNameLabel.setText(txt("app.objects.label.ObjectName", cachedUpperCase(objectType.getName())));
 
         patternTextField.setText(condition.getPattern());
         operatorComboBox.setValues(ConditionOperator.values());

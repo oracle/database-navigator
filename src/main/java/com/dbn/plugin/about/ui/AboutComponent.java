@@ -88,7 +88,7 @@ public class AboutComponent extends DBNFormBase {
         String version = ideaPluginDescriptor.getVersion();
         version = version.substring(0, version.lastIndexOf(".")); // remove the compatibility qualifier
 
-        versionLabel.setText("Version: " + version);
+        versionLabel.setText(txt("app.plugin.label.Version", version));
 
         whenFirstShown(() -> downloadPageLabel.requestFocus());
     }

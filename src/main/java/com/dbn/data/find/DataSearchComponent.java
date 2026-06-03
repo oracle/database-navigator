@@ -126,7 +126,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
 
         initializeFindModel();
         matchesLabel.setFont(Fonts.regular(-2));
-        matchesLabel.setText("0 results");
+        matchesLabel.setText(txt("app.dataEditor.label.NoSearchResults"));
         matchesLabel.setForeground(Colors.getLabelInfoForeground());
 
         findModel = new DataFindModel();
@@ -209,14 +209,16 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
             if (count <= searchResult.getMatchesLimit()) {
                 if (count > 0) {
                     setRegularBackground();
-                    updateMatchesLabel(count > 1 ? count + " results" : "1 result", false);
+                    updateMatchesLabel(count > 1 ?
+                            txt("app.dataEditor.label.SearchResults", count) :
+                            txt("app.dataEditor.label.OneSearchResult"), false);
                 } else {
                     setNotFoundBackground();
-                    updateMatchesLabel("0 results", true);
+                    updateMatchesLabel(txt("app.dataEditor.label.NoSearchResults"), true);
                 }
             } else {
                 setRegularBackground();
-                updateMatchesLabel("More than " + searchResult.getMatchesLimit() + " results", false);
+                updateMatchesLabel(txt("app.dataEditor.label.MoreThanSearchResults", searchResult.getMatchesLimit()), false);
             }
         }
     }
@@ -456,7 +458,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
                 } catch (Exception e) {
                     conditionallyLog(e);
                     setNotFoundBackground();
-                    updateMatchesLabel("Incorrect regular expression", true);
+                    updateMatchesLabel(txt("app.dataEditor.label.IncorrectRegularExpression"), true);
                     getSearchResult().clear();
                     return;
                 }
@@ -494,7 +496,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
 
     private void updateUIWithEmptyResults() {
         setRegularBackground();
-        updateMatchesLabel("0 results", false);
+        updateMatchesLabel(txt("app.dataEditor.label.NoSearchResults"), false);
 
     }
 

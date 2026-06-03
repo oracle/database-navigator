@@ -69,7 +69,7 @@ public class WrapperNameEditorForm extends DBNFormBase {
         int length = identifier.length();
         int maxLength = getMaxIdentifierLength();
 
-        statusLabel.setText(length + " chars");
+        statusLabel.setText(txt("msg.java.label.IdentifierLength", length));
 
         Color foreground = length > 0 && length <= maxLength ?
                 Colors.faded(UIUtil.getLabelForeground()) :

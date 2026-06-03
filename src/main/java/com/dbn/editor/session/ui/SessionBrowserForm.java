@@ -123,13 +123,8 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
         if (visible) {
             SessionBrowserModel model = getBrowserTable().getModel();
             long timestamp = model.getTimestamp();
-/*
-            RegionalSettings regionalSettings = RegionalSettings.getInstance(sessionBrowser.getProject());
-            String dateTime = regionalSettings.getFormatter().formatTime(new Date(timestamp));
-            loadTimestampLabel.setText("Updated: " + dateTime + " (" + DateFormatUtil.formatPrettyDateTime(timestamp)+ ")");
-*/
-
-            loadTimestampLabel.setText("Updated: " + DateFormatUtil.formatPrettyDateTime(timestamp));
+            String formattedDate = DateFormatUtil.formatPrettyDateTime(timestamp);
+            loadTimestampLabel.setText(txt("app.sessionBrowser.label.Updated", formattedDate));
         }
         loadTimestampLabel.setVisible(visible);
     }

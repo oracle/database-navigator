@@ -73,7 +73,7 @@ public class ParserDiagnosticsForm extends DBNFormBase {
         diagnosticsTable = new ParserDiagnosticsTable(this, new ParserDiagnosticsTableModel(null, null));
         diagnosticsTableScrollPane.setViewportView(diagnosticsTable);
 
-        detailsLabel.setText("No result selected");
+        detailsLabel.setText(txt("app.diagnostics.label.NoResultSelected"));
         stateTransitionLabel.setText("");
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.ParserDiagnostics");
@@ -104,11 +104,11 @@ public class ParserDiagnosticsForm extends DBNFormBase {
         ParserDiagnosticsTableModel tableModel = new ParserDiagnosticsTableModel(deltaResult, manager.getResultFilter());
         diagnosticsTable.setModel(tableModel);
 
-        detailsLabel.setText(deltaResult == null ? "No result selected" : deltaResult.getName());
+        detailsLabel.setText(deltaResult == null ? txt("app.diagnostics.label.NoResultSelected") : deltaResult.getName());
 
         StateTransition stateTransition = deltaResult == null ? StateTransition.UNCHANGED : deltaResult.getFilter();
         StateTransition.Category category = stateTransition.getCategory();
-        stateTransitionLabel.setText(previous == null ? current == null ? "" : "INITIAL" : stateTransition.name());
+        stateTransitionLabel.setText(previous == null ? current == null ? "" : txt("app.diagnostics.label.Initial") : stateTransition.name());
         stateTransitionLabel.setForeground(category.getColor());
         stateTransitionLabel.setFont(category.isBold() ?
                 Fonts.regularBold() :
