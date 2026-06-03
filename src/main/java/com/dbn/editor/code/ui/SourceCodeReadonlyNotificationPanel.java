@@ -42,8 +42,8 @@ public class SourceCodeReadonlyNotificationPanel extends SourceCodeEditorNotific
         DBContentType contentType = sourceCodeEditor.getContentType();
 
         if (isReadonly(sourceCodeEditor)) {
-            setText("READONLY CODE - This is meant to prevent accidental code changes in \"" + environmentName + "\" environments (check environment settings)");
-            createActionLabel("Edit mode", () ->
+            setText(txt("ntf.codeEditor.text.ReadonlyCode", environmentName));
+            createActionLabel(txt("app.codeEditor.link.EditMode"), () ->
                     showQuestionDialog(project,
                             txt("msg.codeEditor.title.EnableEditMode"),
                             txt("msg.codeEditor.question.EnableEditMode", object.getQualifiedNameWithType()),
@@ -53,14 +53,14 @@ public class SourceCodeReadonlyNotificationPanel extends SourceCodeEditorNotific
                                 environmentManager.enableEditing(object, contentType);
                             })));
         } else {
-            setText("EDITABLE CODE! - Edit-mode enabled (the environment \"" + environmentName + "\" is configured as \"Readonly Code\")");
-            createActionLabel(txt("app.dataEditor.link.CancelEditing"), () -> {
+            setText(txt("ntf.codeEditor.text.EditableCode", environmentName));
+            createActionLabel(txt("app.codeEditor.link.CancelEditing"), () -> {
                 EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
                 environmentManager.disableEditing(object, contentType);
             });
         }
 
-        createActionLabel(txt("app.dataEditor.link.Settings"), () -> {
+        createActionLabel(txt("app.codeEditor.link.Settings"), () -> {
             ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
             settingsManager.openProjectSettings(ConfigId.GENERAL);
         });

@@ -28,8 +28,8 @@ public class SourceCodeLoadErrorNotificationPanel extends SourceCodeEditorNotifi
     public SourceCodeLoadErrorNotificationPanel(DBSchemaObject object, @NotNull FileEditor fileEditor, Exception exception) {
         super(object, fileEditor, MessageType.ERROR);
 
-        setText("Could not load source for " + object.getQualifiedNameWithType());
-        createActionLabel("Error details", () -> showErrorDetails(exception));
+        setText(txt("ntf.codeEditor.error.CouldNotLoadSource", object.getQualifiedNameWithType()));
+        createActionLabel(txt("app.codeEditor.action.ErrorDetails"), () -> showErrorDetails(exception));
     }
 
     private void showErrorDetails(Exception exception) {

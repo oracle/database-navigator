@@ -52,21 +52,21 @@ public class FileConnectionContextNotificationPanel extends EditorNotificationPa
             setText(connection.getName());
             setIcon(connection.getIcon());
         } else {
-            setText("No connection selected");
+            setText(txt("app.fileContext.action.NoConnection"));
             setIcon(null);
         }
 
         VirtualFile mappingFile = mapping.getFile();
         inheritedContext = mappingFile != null && !file.equals(mappingFile);
         if (inheritedContext) {
-            JLabel inheritedLabel = new JLabel("(database context inherited from " + mappingFile.getPath() + ")");
+            JLabel inheritedLabel = new JLabel(txt("ntf.fileContext.text.InheritedDatabaseContext", mappingFile.getPath()));
             inheritedLabel.setForeground(UIUtil.getLabelDisabledForeground());
             inheritedLabel.setOpaque(false);
             setContent(inheritedLabel);
         }
 
-        createActionLabel("Delink", () -> delink());
-        createActionLabel("Mappings", () -> mappings());
+        createActionLabel(txt("app.fileContext.action.Delink"), () -> delink());
+        createActionLabel(txt("app.fileContext.action.Mappings"), () -> mappings());
     }
 
     private void delink() {
