@@ -100,7 +100,7 @@ public class DiagnosticSettingsForm extends DBNFormBase {
         setAccessibleUnit(connectivityLagTextField, txt("app.shared.unit.Milliseconds"));
         setAccessibleUnit(queryingLagTextField, txt("app.shared.unit.Milliseconds"));
         setAccessibleUnit(fetchingLagTextField, txt("app.shared.unit.Milliseconds"));
-        setAccessibleName(developerModeTimeoutTextField, "Developer mode timeout");
+        setAccessibleName(developerModeTimeoutTextField, txt("cfg.diagnostics.aria.DeveloperModeTimeout"));
     }
 
     private void updateFields(ActionEvent e) {

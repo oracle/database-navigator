@@ -32,6 +32,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.TableModel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DiagnosticsTable<T extends AbstractDiagnosticsTableModel> extends DBNTable<T> implements Borderless{
 
@@ -44,7 +45,7 @@ public class DiagnosticsTable<T extends AbstractDiagnosticsTableModel> extends D
         setCellSelectionEnabled(true);
         initTableSorter();
 
-        setAccessibleName(this, "Diagnostic Results");
+        setAccessibleName(this, txt("app.diagnostics.aria.DiagnosticResults"));
     }
 
     @Override

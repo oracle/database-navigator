@@ -167,7 +167,7 @@ public class MethodExecutionInputForm extends DBNFormBase {
             Dimension minSize = new Dimension(-1, Math.min(argumentForms.size(), 10) * scrollUnitIncrement + 2);
             argumentsScrollPane.setMinimumSize(minSize);
             argumentsScrollPane.getVerticalScrollBar().setUnitIncrement(scrollUnitIncrement);
-            Accessibility.setAccessibleName(argumentsScrollPane, "Method arguments");
+            Accessibility.setAccessibleName(argumentsScrollPane, txt("app.execution.aria.MethodArguments"));
         }
 
         for (MethodExecutionInputArgumentForm argumentComponent : argumentForms){

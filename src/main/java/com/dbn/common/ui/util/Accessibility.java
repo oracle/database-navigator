@@ -48,6 +48,7 @@ import static com.dbn.common.ui.util.UserInterface.getComponentText;
 import static com.dbn.common.ui.util.UserInterface.visitRecursively;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Component accessibility utilities
@@ -211,25 +212,30 @@ public class Accessibility {
     }
 
     @Compatibility
-    public static void announceEvent(Accessible component, String eventMessage) {
+    public static void announceEvent(Accessible component, @Nls String eventMessage) {
         AccessibleAnnouncerUtil.announce(component, eventMessage, true);
     }
 
-    public static void attachSelectionAnnouncer(DBNComboBox<?> comboBox, String name) {
-        ComboBoxes.onSelectionChange(comboBox, selectedItem -> announceEvent(comboBox, name + " selection changed to " + getAccessibleName(selectedItem)));
+    public static void attachSelectionAnnouncer(DBNComboBox<?> comboBox, @Nls String name) {
+        ComboBoxes.onSelectionChange(comboBox, selectedItem ->
+                announceEvent(comboBox, txt("app.shared.aria.SelectionChanged", name, getAccessibleName(selectedItem))));
     }
 
-    private static String getAccessibleName(Object value) {
-        if (value == null) return "empty";
+    private static @Nls String getAccessibleName(Object value) {
+        if (value == null) return txt("app.shared.aria.Empty");
         if (value instanceof Presentable presentable) {
             return presentable.getAccessibleName();
         }
         return value.toString();
     }
 
-    public static void attachStateAnnouncer(JToggleButton toggle, String name) {
-        toggle.addActionListener(e -> announceEvent(toggle, name + " state changed to " + (toggle.isSelected() ? "checked" : "unchecked")));
+    public static void attachStateAnnouncer(JToggleButton toggle, @Nls String name) {
+        toggle.addActionListener(e -> announceEvent(toggle, txt(
+                "app.shared.aria.StateChanged",
+                name,
+                toggle.isSelected() ?
+                        txt("app.shared.aria.Checked") :
+                        txt("app.shared.aria.Unchecked"))));
     }
 }
-
 

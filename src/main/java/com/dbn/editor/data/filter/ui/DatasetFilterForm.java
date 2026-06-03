@@ -84,7 +84,7 @@ public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGrou
         }
         valueChanged(null);
         filtersList.addListSelectionListener(this);
-        Accessibility.setAccessibleName(filtersList, "Filters");
+        Accessibility.setAccessibleName(filtersList, txt("app.dataEditor.aria.Filters"));
 
         setSplitPaneProportion(filtersSplitPane, 0.3);
     }

@@ -157,18 +157,17 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
 
             updateNameAndPreview();
             operatorSelector.reloadValues();
-            announceEvent(columnSelector, "Selected column is " + columnSelector.getSelectedValueName());
+            announceEvent(columnSelector, txt("app.shared.aria.SelectedColumn", columnSelector.getSelectedValueName()));
         };
     }
 
     @Override
     protected void initAccessibility() {
         Accessibility.setAccessibleDescription(editorComponent.getTextField(),
-                "Press Up or Down arrow keys to change column or " +
-                "press Ctrl-Up or Ctrl-Down arrow keys to change operator");
+                txt("app.dataEditor.aria.ChangeColumnOrOperatorHint"));
 
-        attachSelectionAnnouncer(columnSelector, "Column");
-        attachSelectionAnnouncer(operatorSelector, "Operator");
+        attachSelectionAnnouncer(columnSelector, txt("app.shared.aria.Column"));
+        attachSelectionAnnouncer(operatorSelector, txt("app.shared.aria.Operator"));
     }
 
     @NotNull

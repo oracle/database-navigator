@@ -79,8 +79,8 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
 
     @Override
     protected void initAccessibility() {
-        setAccessibleName(tcpPortFromTextField, "TCP port lower range");
-        setAccessibleName(tcpPortToTextField, "TCP port upper range");
+        setAccessibleName(tcpPortFromTextField, txt("cfg.debugger.aria.TcpPortLowerRange"));
+        setAccessibleName(tcpPortToTextField, txt("cfg.debugger.aria.TcpPortUpperRange"));
     }
 
     @Override

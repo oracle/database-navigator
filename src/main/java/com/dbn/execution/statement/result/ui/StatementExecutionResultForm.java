@@ -77,7 +77,7 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
 
     @Override
     protected void initAccessibility() {
-        setAccessibleName(resultTable, "Statement execution result " + getExecutionResult().getName());
+        setAccessibleName(resultTable, txt("app.execution.aria.StatementExecutionResult", getExecutionResult().getName()));
         setAccessibleName(actionToolbar, txt("app.execution.aria.StatementExecutionResultActions"));
     }
 

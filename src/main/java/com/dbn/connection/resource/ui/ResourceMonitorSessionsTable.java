@@ -31,6 +31,7 @@ import javax.swing.ListSelectionModel;
 import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 class ResourceMonitorSessionsTable extends DBNTable<ResourceMonitorSessionsTableModel> {
     ResourceMonitorSessionsTable(@NotNull DBNComponent parent, ResourceMonitorSessionsTableModel tableModel) {
@@ -40,7 +41,7 @@ class ResourceMonitorSessionsTable extends DBNTable<ResourceMonitorSessionsTable
         setCellSelectionEnabled(false);
         setRowSelectionAllowed(true);
 
-        setAccessibleName(this, "Resource Monitor Sessions");
+        setAccessibleName(this, txt("app.connection.aria.ResourceMonitorSessions"));
     }
 
 

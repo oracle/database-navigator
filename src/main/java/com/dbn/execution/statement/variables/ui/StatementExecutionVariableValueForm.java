@@ -180,11 +180,11 @@ public class StatementExecutionVariableValueForm extends DBNFormBase {
     @Override
     protected void initAccessibility() {
         JTextField textField = editorComponent.getTextField();
-        setAccessibleName(dataTypeComboBox, "Data type");
+        setAccessibleName(dataTypeComboBox, txt("app.shared.aria.DataType"));
         setAccessibleUnit(textField, dataTypeComboBox.getSelectedValueName());
-        setAccessibleDescription(textField, "Press up or down arrow keys to change data type");
-        setAccessibleDescription(dataTypeComboBox, "Data type for " + variableNameLabel.getText() + " variable");
-        attachSelectionAnnouncer(dataTypeComboBox, "Data type");
+        setAccessibleDescription(textField, txt("app.shared.aria.ChangeDataTypeHint"));
+        setAccessibleDescription(dataTypeComboBox, txt("app.shared.aria.DataTypeForVariable", variableNameLabel.getText()));
+        attachSelectionAnnouncer(dataTypeComboBox, txt("app.shared.aria.DataType"));
     }
 
     private static @NotNull ListPopupValuesProvider createValuesProvider(StatementExecutionVariable variable, StatementExecutionProcessor executionProcessor, StatementExecutionVariables variablesCache) {

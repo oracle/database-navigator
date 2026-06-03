@@ -85,10 +85,10 @@ public class ObjectQuickFilterConditionForm extends DBNFormBase {
 
     @Override
     protected void initAccessibility() {
-        setAccessibleName(operatorComboBox, "Condition operator");
-        setAccessibleName(patternTextField, "Condition value for " + objectNameLabel.getText());
-        setAccessibleDescription(patternTextField, "Press Up or Down arrow keys to change the operator");
-        attachSelectionAnnouncer(operatorComboBox, "Operator");
+        setAccessibleName(operatorComboBox, txt("app.objects.aria.ConditionOperator"));
+        setAccessibleName(patternTextField, txt("app.objects.aria.ConditionValueForObject", objectNameLabel.getText()));
+        setAccessibleDescription(patternTextField, txt("app.shared.aria.ChangeOperatorHint"));
+        attachSelectionAnnouncer(operatorComboBox, txt("app.shared.aria.Operator"));
     }
 
     @NotNull

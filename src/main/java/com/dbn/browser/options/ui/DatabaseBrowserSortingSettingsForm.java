@@ -26,6 +26,7 @@ import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.Tables;
 import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Cursors;
+import com.dbn.nls.NlsResources;
 import com.dbn.object.common.sorting.DBObjectComparator;
 import com.dbn.object.common.sorting.DBObjectComparators;
 import com.dbn.object.common.sorting.SortingType;
@@ -61,7 +62,7 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
 
     @Override
     protected void initAccessibility() {
-        Accessibility.setAccessibleName(sortingTypeTable, "Objects sorting");
+        Accessibility.setAccessibleName(sortingTypeTable, txt("cfg.browser.aria.ObjectsSorting"));
     }
 
 
@@ -108,7 +109,7 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
                     String name = sortingType == null ? "" : sortingType.getName();
 
                     append(name, SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                    setAccessibleDescription(this, "Press space key to change the sorting type");
+                    setAccessibleDescription(this, NlsResources.txt("cfg.browser.aria.ChangeSortingTypeHint"));
                 }
             });
 

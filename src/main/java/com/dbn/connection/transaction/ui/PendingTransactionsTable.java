@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class PendingTransactionsTable extends DBNTable<PendingTransactionsTableModel> {
     public PendingTransactionsTable(@NotNull PendingTransactionsDetailForm parent, @NotNull PendingTransactionsTableModel model) {
@@ -51,7 +52,7 @@ public class PendingTransactionsTable extends DBNTable<PendingTransactionsTableM
         setCellSelectionEnabled(true);
         addMouseListener(Mouse.listener().onClick(e -> clickEvent(e)));
 
-        setAccessibleName(this, "Pending Transactions");
+        setAccessibleName(this, txt("app.connection.aria.PendingTransactions"));
         setProportionalColumnWidths(15, 55, 30);
     }
 

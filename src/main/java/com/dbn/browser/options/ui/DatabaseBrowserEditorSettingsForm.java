@@ -26,6 +26,7 @@ import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.Tables;
 import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Cursors;
+import com.dbn.nls.NlsResources;
 import com.dbn.object.common.editor.DefaultEditorOption;
 import com.dbn.object.common.editor.DefaultEditorType;
 import com.dbn.object.type.DBObjectType;
@@ -60,7 +61,7 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
 
     @Override
     protected void initAccessibility() {
-        Accessibility.setAccessibleName(editorTypeTable, "Default editor types");
+        Accessibility.setAccessibleName(editorTypeTable, txt("cfg.browser.aria.DefaultEditorTypes"));
     }
 
     @Override
@@ -104,7 +105,7 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
                     DefaultEditorType editorType = (DefaultEditorType) value;
 
                     append(editorType.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                    setAccessibleDescription(this, "Press space key to change the default editor type");
+                    setAccessibleDescription(this, NlsResources.txt("cfg.browser.aria.ChangeDefaultEditorTypeHint"));
                 }
             });
 

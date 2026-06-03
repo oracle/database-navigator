@@ -21,6 +21,7 @@ import com.dbn.common.util.Primitives;
 import com.dbn.common.util.Unsafe;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -161,7 +162,7 @@ public class Reflection {
     }
 
     @SneakyThrows
-    public static void updateFieldValue(Object object, String fieldName, Object fieldValue) {
+    public static void updateFieldValue(Object object, @NonNls String fieldName, Object fieldValue) {
         Field field = object.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(object, fieldValue);

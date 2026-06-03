@@ -121,7 +121,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         ActionUtil.registerDataProvider(this, dataProvider, false);
         ActionUtil.registerDataProvider(getTableHeader(), dataProvider, false);
 */
-        setAccessibleName(this, "Dataset Editor");
+        setAccessibleName(this, txt("app.dataEditor.aria.DatasetEditor"));
         setFocusable(true);
         setRequestFocusEnabled(true);
 

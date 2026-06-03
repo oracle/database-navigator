@@ -59,8 +59,8 @@ public class CodeCompletionFiltersSettingsForm extends CompositeConfigurationEdi
         basicCompletionLabel.setText("Basic" + basicCompletionShortcut);
         extendedCompletionLabel.setText("Extended" + extendedCompletionShortcut);
 
-        Accessibility.setAccessibleName(basicCompletionLabel, "Basic Code Completion" + basicCompletionShortcut);
-        Accessibility.setAccessibleName(extendedCompletionLabel, "Extended Code Completion" + extendedCompletionShortcut);
+        Accessibility.setAccessibleName(basicCompletionLabel, txt("cfg.codeEditor.aria.BasicCodeCompletion", basicCompletionShortcut));
+        Accessibility.setAccessibleName(extendedCompletionLabel, txt("cfg.codeEditor.aria.ExtendedCodeCompletion", extendedCompletionShortcut));
 
         basicCompletionLabel.setLabelFor(basicFilterSettings.getPreferredFocusedComponent());
         extendedCompletionLabel.setLabelFor(extendedFilterSettings.getPreferredFocusedComponent());

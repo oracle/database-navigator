@@ -160,7 +160,7 @@ public class DBNMessageForm extends DBNFormBase {
     }
 
     protected void initAccessibility() {
-        Accessibility.setAccessibleDescription(messageTextPane, "Message");
+        Accessibility.setAccessibleDescription(messageTextPane, txt("app.shared.aria.Message"));
     }
 
     private void initDragging() {

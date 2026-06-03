@@ -61,7 +61,7 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
                 new MoveUpAction(sortingItemsList, settings),
                 new MoveDownAction(sortingItemsList, settings));
         actionPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
-        setAccessibleName(sortingItemsList, "Code completion sorting elements");
+        setAccessibleName(sortingItemsList, txt("cfg.codeEditor.aria.CodeCompletionSortingElements"));
         enableSelectOnFocus(sortingItemsList);
 
         registerComponent(mainPanel);

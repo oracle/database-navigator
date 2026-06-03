@@ -87,7 +87,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
         Mouse.onMouseClick(this, MouseEvent.BUTTON1, 2, e -> openFileEditor());
         manager = FileConnectionContextManager.getInstance(getProject());
 
-        setAccessibleName(this, "File Connection Mappings");
+        setAccessibleName(this, txt("cfg.connections.aria.FileConnectionMappings"));
     }
 
     @Override

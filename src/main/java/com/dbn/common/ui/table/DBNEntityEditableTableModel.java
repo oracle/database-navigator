@@ -21,6 +21,7 @@ import com.dbn.common.util.Commons;
 import com.dbn.common.util.Lists;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -130,7 +131,7 @@ public abstract class DBNEntityEditableTableModel<T extends Cloneable<T>> extend
      * @param valueSetter functional interface to update the value of the attribute representing the column
      * @param <V> the type of the attribute representing the column
      */
-    public final <V> void addColumn(String name, Class<V> type, ValueGetter<T, V> valueGetter, ValueSetter<T, V> valueSetter) {
+    public final <V> void addColumn(@Nls String name, Class<V> type, ValueGetter<T, V> valueGetter, ValueSetter<T, V> valueSetter) {
         columns.add(new ColumnDefinition<>(name, type, valueGetter, valueSetter));
     }
 

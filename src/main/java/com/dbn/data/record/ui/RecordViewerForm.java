@@ -110,7 +110,7 @@ public class RecordViewerForm extends DBNFormBase {
 
     @Override
     protected void initAccessibility() {
-        setAccessibleName(columnsScrollPane, "Record columns");
+        setAccessibleName(columnsScrollPane, txt("app.dataEditor.aria.RecordColumns"));
     }
 
     @Override

@@ -127,8 +127,8 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   }
 
   private void initAccessibility() {
-    Accessibility.setAccessibleName(databaseObjectsTable, "Available Datasets");
-    Accessibility.setAccessibleName(profileObjectListTable, "Profile Datasets");
+    Accessibility.setAccessibleName(databaseObjectsTable, txt("cfg.assistant.aria.AvailableDatasets"));
+    Accessibility.setAccessibleName(profileObjectListTable, txt("cfg.assistant.aria.ProfileDatasets"));
   }
 
   private void initHintPanel() {
@@ -152,7 +152,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   }
 
   protected void initFiltersPanel() {
-    Accessibility.setAccessibleName(filtersPanel, "Dataset Type Filters");
+    Accessibility.setAccessibleName(filtersPanel, txt("cfg.assistant.aria.DatasetTypeFilters"));
     initializingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
     tablesCheckBox.addActionListener(e -> filterDatasets(DBObjectType.TABLE, tablesCheckBox.isSelected()));
     viewsCheckBox.addActionListener(e -> filterDatasets(DBObjectType.VIEW, viewsCheckBox.isSelected()));

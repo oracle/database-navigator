@@ -109,10 +109,10 @@ public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm {
     protected void initAccessibility() {
         JTextField typeTextField = getTypeTextField();
 
-        setAccessibleName(typeTextField, "Argument type");
-        setAccessibleName(nameTextField, "Argument name");
-        setAccessibleName(inCheckBox, "Is input argument");
-        setAccessibleName(outCheckBox, "Is output argument");
+        setAccessibleName(typeTextField, txt("app.objects.aria.ArgumentType"));
+        setAccessibleName(nameTextField, txt("app.objects.aria.ArgumentName"));
+        setAccessibleName(inCheckBox, txt("app.objects.aria.IsInputArgument"));
+        setAccessibleName(outCheckBox, txt("app.objects.aria.IsOutputArgument"));
     }
 
     @Override

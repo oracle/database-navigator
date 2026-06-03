@@ -123,8 +123,8 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
 
     @Override
     protected void initAccessibility() {
-        setAccessibleName(columnsPanelScrollPane, "Column values");
-        setAccessibleName(actionToolbar, "Record navigation");
+        setAccessibleName(columnsPanelScrollPane, txt("app.dataEditor.aria.ColumnValues"));
+        setAccessibleName(actionToolbar, txt("app.dataEditor.aria.RecordNavigation"));
     }
 
     @Override

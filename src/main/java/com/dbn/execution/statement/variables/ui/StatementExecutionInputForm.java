@@ -149,7 +149,7 @@ public class StatementExecutionInputForm extends DBNFormBase {
 
     @Override
     protected void initAccessibility() {
-        setAccessibleName(variablesScrollPane, "Execution variables");
+        setAccessibleName(variablesScrollPane, txt("app.execution.aria.ExecutionVariables"));
     }
 
     @Override

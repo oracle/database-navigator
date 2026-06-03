@@ -98,8 +98,8 @@ public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm {
     protected void initAccessibility() {
         JTextField typeTextField = getTypeTextField();
 
-        setAccessibleName(typeTextField, "Column type");
-        setAccessibleName(nameTextField, "Column name");
+        setAccessibleName(typeTextField, txt("app.objects.aria.ColumnType"));
+        setAccessibleName(nameTextField, txt("app.objects.aria.ColumnName"));
     }
 
     private JBTextField getTypeTextField() {

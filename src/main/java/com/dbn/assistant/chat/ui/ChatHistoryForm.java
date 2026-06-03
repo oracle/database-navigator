@@ -110,7 +110,7 @@ public class ChatHistoryForm extends DBNFormBase {
 
     private void createActionPanel(){
         ActionToolbar chatActions = Actions.createActionToolbar(chatActionsPanel, true, "DBNavigator.ActionGroup.AssistantChatHistory");
-        setAccessibleName(chatActions, "Chat History");
+        setAccessibleName(chatActions, txt("app.assistant.aria.ChatHistory"));
         this.chatActionsPanel.add(chatActions.getComponent());
     }
 

@@ -112,7 +112,7 @@ public class DatasetSortingColumnForm extends DBNFormBase {
     public void setIndex(int index) {
         sortingInstruction.setIndex(index);
         indexLabel.setText(Integer.toString(index));
-        setAccessibleName(columnComboBox, "Sorting column " + index);
+        setAccessibleName(columnComboBox, txt("app.dataEditor.aria.SortingColumn", index));
     }
 
     @NotNull

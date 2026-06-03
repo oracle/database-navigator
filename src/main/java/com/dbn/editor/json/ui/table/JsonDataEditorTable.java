@@ -91,7 +91,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
         onMouseClick(this, BUTTON1, 2, e -> showContentEditor());
         onMouseClick(this, BUTTON3, 1, e -> selectCellAt(e.getPoint()));
 
-        setAccessibleName(this, "Json Data Editor");
+        setAccessibleName(this, txt("app.dataEditor.aria.JsonDataEditor"));
         setFocusable(true);
         setRequestFocusEnabled(true);
     }
