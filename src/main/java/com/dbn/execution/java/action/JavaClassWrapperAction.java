@@ -54,7 +54,7 @@ public class JavaClassWrapperAction extends AnObjectAction<DBJavaClass> {
             @NotNull Presentation presentation,
             @NotNull Project project,
             @Nullable DBJavaClass target) {
-        presentation.setText("Create Execution Wrappers...");
+        presentation.setText(txt("app.execution.action.CreateExecutionWrappers"));
     }
 
 	@Override
@@ -64,7 +64,7 @@ public class JavaClassWrapperAction extends AnObjectAction<DBJavaClass> {
 
     private void createExecutionWrappers(@NotNull AnActionEvent e, DBJavaClass javaClass) {
         Project project = javaClass.getProject();
-        String listName = "executable elements";
+        String listName = txt("app.execution.token.ExecutableElements");
         String title = txt("msg.objects.title.LoadingObjects", titleCased(listName));
         ConnectionAction.invoke(title, true, javaClass,
                 action -> Progress.prompt(project, javaClass, true,

@@ -193,7 +193,7 @@ public class RecordViewerForm extends DBNFormBase {
      *********************************************************/
     private class SortAlphabeticallyAction extends ToggleAction {
         private SortAlphabeticallyAction() {
-            super("Sort Columns Alphabetically", null, Icons.ACTION_SORT_ALPHA);
+            super(txt("app.data.action.SortColumnsAlphabetically"), null, Icons.ACTION_SORT_ALPHA);
         }
 
         @Override

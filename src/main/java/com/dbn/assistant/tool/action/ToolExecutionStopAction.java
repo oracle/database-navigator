@@ -25,6 +25,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.icon.Icons.ACTION_STOP;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Action for starting a new chat
@@ -44,7 +45,7 @@ public class ToolExecutionStopAction extends AssistantToolAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setVisible(enabled);
-        presentation.setText("Stop Execution");
+        presentation.setText(txt("app.assistant.action.StopExecution"));
         presentation.setIcon(ACTION_STOP);
     }
 

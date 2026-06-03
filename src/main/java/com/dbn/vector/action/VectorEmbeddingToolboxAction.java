@@ -12,6 +12,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class VectorEmbeddingToolboxAction extends AbstractVectorEmbeddingResultAction {
 
   @Override
@@ -26,7 +28,7 @@ public class VectorEmbeddingToolboxAction extends AbstractVectorEmbeddingResultA
 
   @Override
   protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable VectorEmbeddingExecutionResult target) {
-    presentation.setText("Open Vector Toolbox");
+    presentation.setText(txt("app.vector.action.OpenVectorToolbox"));
     presentation.setIcon(Icons.EXEC_RESULT_INPUT_FORM);
   }
 }

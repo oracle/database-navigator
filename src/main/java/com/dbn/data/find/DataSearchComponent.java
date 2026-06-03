@@ -247,7 +247,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         JTextComponent searchField = getSearchField();
         onTextChange(searchField, e -> searchFieldDocumentChanged());
 
-        DefaultActionGroup actionsGroup = new DefaultActionGroup("Search Bar", false);
+        DefaultActionGroup actionsGroup = new DefaultActionGroup(txt("app.data.action.SearchBar"), false);
         actionsGroup.add(new PrevOccurrenceAction(this, searchField, true));
         actionsGroup.add(new NextOccurrenceAction(this, searchField, true));
         actionsToolbar = Actions.createActionToolbar(actionsPanel, true, actionsGroup);

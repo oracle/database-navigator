@@ -77,7 +77,7 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
 
     public class ViewToolStatementAction extends BasicAction {
         ViewToolStatementAction() {
-            super("View SQL Statement", null, Icons.ACTION_PREVIEW);
+            super(txt("app.mcp.action.ViewSqlStatement"), null, Icons.ACTION_PREVIEW);
         }
 
         @Override
@@ -107,7 +107,7 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
 
     public class EditToolAction extends BasicAction {
         EditToolAction() {
-            super("Edit Tool", null, Icons.ACTION_EDIT);
+            super(txt("app.mcp.action.EditTool"), null, Icons.ACTION_EDIT);
         }
 
         @Override
@@ -126,7 +126,7 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
 
     public class RemoveToolAction extends BasicAction {
         RemoveToolAction() {
-            super(txt("app.objects.action.RemoveObject", "Tool"), null, Icons.ACTION_DELETE);
+            super(txt("app.mcp.action.RemoveTool"), null, Icons.ACTION_DELETE);
         }
 
         @Override

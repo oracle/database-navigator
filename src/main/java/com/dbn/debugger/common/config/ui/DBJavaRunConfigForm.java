@@ -95,7 +95,7 @@ public class DBJavaRunConfigForm extends DBProgramRunConfigForm<DBJavaRunConfig>
         @Override
         public void update(@NotNull AnActionEvent e, Project project) {
             Presentation presentation = e.getPresentation();
-            presentation.setText("Select Method");
+            presentation.setText(txt("app.execution.action.SelectMethod"));
             presentation.setIcon(Icons.DBO_METHOD);
         }
     }
@@ -110,7 +110,7 @@ public class DBJavaRunConfigForm extends DBProgramRunConfigForm<DBJavaRunConfig>
 
         @Override
         protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-            e.getPresentation().setText("Method Browser");
+            e.getPresentation().setText(txt("app.execution.action.MethodBrowser"));
         }
     }
     public class MethodHistoryOpenAction extends ProjectAction {
@@ -118,7 +118,7 @@ public class DBJavaRunConfigForm extends DBProgramRunConfigForm<DBJavaRunConfig>
         @Override
         protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
             Presentation presentation = e.getPresentation();
-            presentation.setText("Execution History");
+            presentation.setText(txt("app.execution.action.ExecutionHistory"));
             presentation.setIcon(Icons.METHOD_EXECUTION_HISTORY);
         }
 

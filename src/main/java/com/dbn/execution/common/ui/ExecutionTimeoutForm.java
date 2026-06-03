@@ -139,7 +139,7 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
         @Override
         protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
             Presentation presentation = e.getPresentation();
-            presentation.setText("Settings");
+            presentation.setText(txt("app.execution.action.Settings"));
             presentation.setIcon(Icons.ACTION_OPTIONS);
             presentation.setEnabled(!hasErrors && timeout != getSettingsTimeout());
         }

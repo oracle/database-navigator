@@ -66,7 +66,7 @@ public class CursorResultFetchNextRecordsAction extends JavaExecutionCursorResul
         super.update(e, project);
         ResultSetTable resultSetTable = getResultSetTable(e);
         Presentation presentation = e.getPresentation();
-        presentation.setText("Fetch Next Records");
+        presentation.setText(txt("app.execution.action.FetchNextRecords"));
         presentation.setIcon(Icons.EXEC_RESULT_RESUME);
 
         if (resultSetTable != null) {

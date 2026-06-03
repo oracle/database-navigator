@@ -22,10 +22,12 @@ import com.dbn.object.DBMethod;
 import com.dbn.object.DBProgram;
 import com.dbn.object.common.DBSchemaObject;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ProgramExecutionActionGroup extends DefaultActionGroup {
 
     public ProgramExecutionActionGroup(DBSchemaObject object) {
-        super("Execute", true);
+        super(txt("app.execution.action.ExecutePlain"), true);
         if (object.getContentType() == DBContentType.CODE_SPEC_AND_BODY) {
             add(new ProgramMethodExecuteAction((DBProgram) object));
             add(new ProgramMethodDebugAction((DBProgram) object));

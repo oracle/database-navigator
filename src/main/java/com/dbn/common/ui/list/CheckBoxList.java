@@ -191,7 +191,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
 
     private class SelectAllAction extends AnAction {
         public SelectAllAction() {
-            super("Select All");
+            super(txt("app.shared.action.SelectAll"));
             //getTemplatePresentation().putClientProperty(ActionUtil.SHOW_TEXT_IN_TOOLBAR, true);
         }
 

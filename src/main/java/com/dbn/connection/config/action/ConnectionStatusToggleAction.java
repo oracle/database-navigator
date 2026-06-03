@@ -24,6 +24,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Toggle action for the connection management dialogs, allowing to quickly change the active status of a Connection
  * @author Dan Cioca (Oracle)
@@ -43,8 +45,12 @@ public class ConnectionStatusToggleAction extends ConnectionSettingsAction {
 
         presentation.setIcon(active ? Icons.ACTION_CHECK_BOX_SELECTED: Icons.ACTION_CHECK_BOX);
         presentation.setText(active ?
-                (size == 1 ? "Disable Connection" : "Disable Connections") :
-                (size == 1 ? "Enable Connection" : "Enable Connections"));
+                (size == 1 ?
+                        txt("cfg.connection.action.DisableConnection") :
+                        txt("cfg.connection.action.DisableConnections")) :
+                (size == 1 ?
+                        txt("cfg.connection.action.EnableConnection") :
+                        txt("cfg.connection.action.EnableConnections")));
         presentation.setEnabled(size > 0);
 
     }

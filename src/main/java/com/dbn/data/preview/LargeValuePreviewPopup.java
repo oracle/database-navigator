@@ -305,7 +305,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
     public class WrapUnwrapContentAction extends ToggleAction {
 
         WrapUnwrapContentAction() {
-            super("Wrap/Unwrap", "", Icons.ACTION_WRAP_TEXT);
+            super(txt("app.data.action.WrapUnwrap"), "", Icons.ACTION_WRAP_TEXT);
         }
 
 
@@ -330,7 +330,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
             DatasetEditorManager dataEditorManager = getDataEditorManager(e);
             if (dataEditorManager != null) {
                 boolean isWrapped = dataEditorManager.isValuePreviewTextWrapping();
-                e.getPresentation().setText(isWrapped ? "Unwrap Content" : "Wrap Content");
+                e.getPresentation().setText(isWrapped ? txt("app.data.action.UnwrapContent") : txt("app.data.action.WrapContent"));
             }
         }
     }
@@ -338,7 +338,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
     public class PinUnpinPopupAction extends ToggleAction {
 
         public PinUnpinPopupAction() {
-            super("Pin/Unpin", "", Icons.ACTION_PIN);
+            super(txt("app.data.action.PinUnpin"), "", Icons.ACTION_PIN);
         }
 
         @Override
@@ -358,7 +358,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
         @Override
         public void update(@NotNull AnActionEvent e) {
             super.update(e);
-            e.getPresentation().setText(pinned ? "Unpin" : "Pin");
+            e.getPresentation().setText(pinned ? txt("app.data.action.Unpin") : txt("app.data.action.Pin"));
 
         }
     }

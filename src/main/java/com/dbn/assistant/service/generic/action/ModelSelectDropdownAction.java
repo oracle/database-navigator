@@ -55,7 +55,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
 
         DefaultActionGroup actionGroup = new DefaultActionGroup();
 
-        DefaultActionGroup moreActionGroup = new DefaultActionGroup("More...", true);
+        DefaultActionGroup moreActionGroup = new DefaultActionGroup(txt("app.assistant.action.More"), true);
         for (AIModel model : models) {
             if (model.isDeprecated()) {
                 moreActionGroup.add(new ModelSelectAction(model));

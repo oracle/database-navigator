@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EmbeddingTableSelectionAction extends ComboBoxAction implements AssistantActionSupport {
 
@@ -99,7 +100,9 @@ public class EmbeddingTableSelectionAction extends ComboBoxAction implements Ass
         actionGroup.addSeparator();
 
 
-        actionGroup.add(new ObjectSelectAction<>(embeddingTables.isEmpty() ? "Select..." : "More...", selectorInput, selectionConsumer));
+        actionGroup.add(new ObjectSelectAction<>(embeddingTables.isEmpty() ?
+                txt("app.assistant.action.SelectEmbeddingTable") :
+                txt("app.assistant.action.MoreEmbeddingTables"), selectorInput, selectionConsumer));
         return actionGroup;
     }
 
@@ -111,11 +114,11 @@ public class EmbeddingTableSelectionAction extends ComboBoxAction implements Ass
         presentation.setIcon(getIcon(e));
         presentation.setEnabled(isEnabled(e));
         presentation.setVisible(isVisible(e));
-        presentation.setDescription("Vector embeddings table");
+        presentation.setDescription(txt("app.assistant.tooltip.EmbeddingTable"));
     }
 
     private @ActionText String getText(@NotNull AnActionEvent e) {
-        String text = "Embedding Table";
+        String text = txt("app.assistant.action.EmbeddingTable");
 
         AssistantState assistantState = getAssistantState(e);
         if (assistantState == null) return text;
@@ -127,7 +130,7 @@ public class EmbeddingTableSelectionAction extends ComboBoxAction implements Ass
     }
 
     private static @NotNull String getTablePath(DBObjectRef<DBTable> table) {
-        if (table == null) return "[UNDEFINED]";
+        if (table == null) return txt("app.assistant.action.UndefinedEmbeddingTable");
         return Actions.adjustActionName(table.getSchemaName() + "." + table.getObjectName());
     }
 

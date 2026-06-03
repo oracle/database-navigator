@@ -205,7 +205,7 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
 
     public class WrapUnwrapContentAction extends ToggleAction {
         WrapUnwrapContentAction() {
-            super("Wrap/Unwrap", "", Icons.ACTION_WRAP_TEXT);
+            super(txt("app.data.action.WrapUnwrap"), "", Icons.ACTION_WRAP_TEXT);
         }
 
         @Override
@@ -222,7 +222,9 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
         public void update(@NotNull AnActionEvent e) {
             super.update(e);
             boolean isWrapped = viewer != null && viewer.getSettings().isUseSoftWraps();
-            e.getPresentation().setText(isWrapped ? "Unwrap Content" : "Wrap Content");
+            e.getPresentation().setText(isWrapped ?
+                    txt("app.data.action.UnwrapContent") :
+                    txt("app.data.action.WrapContent"));
 
         }
     }

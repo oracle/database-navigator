@@ -86,7 +86,7 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
             public void update(@NotNull AnActionEvent e) {
                 Presentation presentation = e.getPresentation();
                 presentation.setIcon(Icons.ACTION_CHECK_LIST);
-                presentation.setText("Tool Approvals");
+                presentation.setText(txt("cfg.assistant.action.ToolApprovals"));
                 presentation.setEnabled(mcpServersTable.getSelectedRows().length == 1);
             }
         });

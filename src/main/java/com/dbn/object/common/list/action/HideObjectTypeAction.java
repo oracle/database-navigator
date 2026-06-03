@@ -45,7 +45,7 @@ public class HideObjectTypeAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Hide " + objectList.getObjectType().getTitleCasedListName());
+        presentation.setText(txt("app.objects.action.HideObjectType", objectList.getObjectType().getTitleCasedListName()));
 
         boolean visible = isVisible();
         presentation.setVisible(visible);

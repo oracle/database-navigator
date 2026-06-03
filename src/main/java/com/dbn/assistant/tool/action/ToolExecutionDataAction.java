@@ -24,6 +24,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ToolExecutionDataAction extends AssistantToolAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
@@ -40,7 +42,7 @@ public class ToolExecutionDataAction extends AssistantToolAction {
 
 
         Presentation presentation = e.getPresentation();
-        presentation.setText("Tool Details");
+        presentation.setText(txt("app.assistant.action.ToolDetails"));
         presentation.setIcon(foldableComponent.isFolded() ?
                 Icons.ACTION_CONTENT_EXPAND :
                 Icons.ACTION_CONTENT_COLLAPSE);

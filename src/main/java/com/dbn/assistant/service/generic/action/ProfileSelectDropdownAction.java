@@ -76,7 +76,7 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
         } else {
             // group new profiles
             actionGroup.addSeparator();
-            DefaultActionGroup newProvidersGroup = new DefaultActionGroup("New", true);
+            DefaultActionGroup newProvidersGroup = new DefaultActionGroup(txt("app.assistant.action.New"), true);
             actionGroup.add(newProvidersGroup);
             addProfileActions(newProvidersGroup, potentialProfiles);
         }

@@ -26,6 +26,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class JavaExecutionStartAction extends AbstractJavaExecutionResultAction {
 
     @Override
@@ -51,7 +53,7 @@ public class JavaExecutionStartAction extends AbstractJavaExecutionResultAction 
                 target.getExecutionContext().isNot(ExecutionStatus.EXECUTING);
 
         presentation.setEnabled(enabled);
-        presentation.setText("Execute Again");
+        presentation.setText(txt("app.execution.action.ExecuteAgain"));
         presentation.setIcon(Icons.METHOD_EXECUTION_RERUN);
     }
 }

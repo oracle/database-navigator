@@ -24,6 +24,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class JsonDataContentEditorToggleAction extends AbstractJsonDataEditorAction {
 
     @Override
@@ -31,10 +33,10 @@ public class JsonDataContentEditorToggleAction extends AbstractJsonDataEditorAct
         if (editor == null) {
             presentation.setEnabled(false);
             presentation.setIcon(Icons.ACTION_LAYOUT_DATA_CONTENT);
-            presentation.setText("Show / Hide Content Editor");
+            presentation.setText(txt("app.dataEditor.action.ShowHideContentEditor"));
         } else {
             boolean visible = editor.isContentEditorVisible();
-            presentation.setText(visible ? "Hide Content Editor" : "Show Content Editor");
+            presentation.setText(visible ? txt("app.dataEditor.action.HideContentEditor") : txt("app.dataEditor.action.ShowContentEditor"));
             presentation.setIcon(visible ? Icons.ACTION_LAYOUT_DATA : Icons.ACTION_LAYOUT_DATA_CONTENT);
             boolean enabled = !editor.isInserting();
             presentation.setEnabled(enabled);

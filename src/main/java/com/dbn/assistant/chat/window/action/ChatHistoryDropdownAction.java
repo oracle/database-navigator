@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Action for selecting an old chat
  */
@@ -63,6 +65,6 @@ public class ChatHistoryDropdownAction extends BasicActionGroup implements DumbA
     @Override
     public void update(@NotNull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        presentation.setDescription("Select a chat from history");
+        presentation.setDescription(txt("app.assistant.tooltip.ChatHistory"));
     }
 }

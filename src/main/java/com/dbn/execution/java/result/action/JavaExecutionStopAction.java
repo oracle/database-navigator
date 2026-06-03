@@ -27,6 +27,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class JavaExecutionStopAction extends AbstractJavaExecutionResultAction {
 
     @Override
@@ -57,7 +59,7 @@ public class JavaExecutionStopAction extends AbstractJavaExecutionResultAction {
                 target.getExecutionContext().isNot(ExecutionStatus.CANCEL_REQUESTED);
 
         presentation.setEnabled(enabled) ;
-        presentation.setText("Stop Execution");
+        presentation.setText(txt("app.execution.action.StopExecution"));
         presentation.setIcon(Icons.METHOD_EXECUTION_STOP);
     }
 }

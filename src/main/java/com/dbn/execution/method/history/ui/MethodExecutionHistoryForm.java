@@ -167,7 +167,7 @@ public class MethodExecutionHistoryForm extends DBNFormBase {
         @Override
         protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
             Presentation presentation = e.getPresentation();
-            presentation.setText("Delete");
+            presentation.setText(txt("app.execution.action.Delete"));
             presentation.setIcon(Icons.ACTION_REMOVE);
             presentation.setEnabled(!getTree().isSelectionEmpty());
             presentation.setVisible(getParentDialog().isEditable());
@@ -185,13 +185,13 @@ public class MethodExecutionHistoryForm extends DBNFormBase {
         protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
             Presentation presentation = e.getPresentation();
             presentation.setIcon(Icons.ACTION_OPTIONS);
-            presentation.setText("Settings");
+            presentation.setText(com.dbn.nls.NlsResources.txt("app.execution.action.Settings"));
         }
     }
 
     public class ShowGroupedTreeAction extends ToggleAction {
         ShowGroupedTreeAction() {
-            super("Group by Program", "Show grouped by program", Icons.ACTION_GROUP);
+            super(txt("app.execution.action.GroupByProgram"), txt("app.execution.tooltip.GroupByProgram"), Icons.ACTION_GROUP);
         }
 
         @Override
@@ -201,7 +201,7 @@ public class MethodExecutionHistoryForm extends DBNFormBase {
 
         @Override
         public void setSelected(@NotNull AnActionEvent e, boolean state) {
-            getTemplatePresentation().setText(state ? "Ungroup" : "Group by Program");
+            getTemplatePresentation().setText(state ? txt("app.execution.action.Ungroup") : txt("app.execution.action.GroupByProgram"));
             MethodExecutionHistoryTree historyTree = getTree();
             List<MethodExecutionInput> executionInputs = historyTree.getModel().getExecutionInputs();
             historyTree.init(executionInputs, state);

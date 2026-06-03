@@ -49,6 +49,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.dbn.common.util.Modality.nonModal;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ConsoleUpdateDiffFeature implements AssistantToolFeature {
     private static final String UPDATE_SQL_CONSOLE_CONTENT = "UPDATE_SQL_CONSOLE_CONTENT";
@@ -57,7 +58,7 @@ public class ConsoleUpdateDiffFeature implements AssistantToolFeature {
 
     @Override
     public @NotNull String getName() {
-        return "Show Diff";
+        return txt("app.assistant.action.ShowDiff");
     }
 
     @Override
@@ -129,8 +130,8 @@ public class ConsoleUpdateDiffFeature implements AssistantToolFeature {
 
         AtomicBoolean resolved = new AtomicBoolean();
         diffRequest.putUserData(DiffUserDataKeys.CONTEXT_ACTIONS, List.of(
-                new ResolveUpdateAction("Apply Update", Icons.ACTION_CHECK, resolved, diffWindowKey, onApprove),
-                new ResolveUpdateAction("Reject Update", Icons.ACTION_CLOSE, resolved, diffWindowKey, onDeny)));
+                new ResolveUpdateAction(txt("app.assistant.action.ApplyUpdate"), Icons.ACTION_CHECK, resolved, diffWindowKey, onApprove),
+                new ResolveUpdateAction(txt("app.assistant.action.RejectUpdate"), Icons.ACTION_CLOSE, resolved, diffWindowKey, onDeny)));
 
         DiffDialogHints hints = new DiffDialogHints(WindowWrapper.Mode.NON_MODAL, null, wrapper -> {
             OPENING_DIFF_WINDOWS.remove(diffWindowKey);

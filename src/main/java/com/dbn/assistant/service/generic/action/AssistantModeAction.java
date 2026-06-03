@@ -35,6 +35,7 @@ import java.util.List;
 import static com.dbn.assistant.AssistantMode.ANALYTICS;
 import static com.dbn.assistant.AssistantMode.DEVELOPMENT;
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantModeAction extends SelectDropdownAction<AssistantMode> implements AssistantActionSupport {
     @Override
@@ -73,7 +74,7 @@ public class AssistantModeAction extends SelectDropdownAction<AssistantMode> imp
 
     @Override
     protected String getDescription(AnActionEvent e) {
-        return "Assistant operating mode";
+        return txt("app.assistant.tooltip.Mode");
     }
 
     @Override

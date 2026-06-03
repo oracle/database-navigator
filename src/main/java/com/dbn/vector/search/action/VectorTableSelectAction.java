@@ -32,6 +32,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
 @BackgroundUpdate
@@ -95,11 +96,11 @@ public class VectorTableSelectAction extends SelectDropdownAction<DBTable> imple
 
     @Override
     protected String getEmptySelectionText(AnActionEvent e) {
-        return "Table";
+        return txt("app.vector.action.Table");
     }
 
     @Override
     protected String getDescription(AnActionEvent e) {
-        return "Vector table";
+        return txt("app.vector.tooltip.VectorTable");
     }
 }

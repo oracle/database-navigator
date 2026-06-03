@@ -9,6 +9,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class VectorEmbeddingCloseAction extends AbstractVectorEmbeddingResultAction {
   @Override
   protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull VectorEmbeddingExecutionResult executionResult) {
@@ -17,7 +19,7 @@ public class VectorEmbeddingCloseAction extends AbstractVectorEmbeddingResultAct
 
   @Override
   protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable VectorEmbeddingExecutionResult target) {
-    presentation.setText("Close");
+    presentation.setText(txt("app.shared.action.Close"));
     presentation.setIcon(Icons.EXEC_RESULT_CLOSE);
   }
 }

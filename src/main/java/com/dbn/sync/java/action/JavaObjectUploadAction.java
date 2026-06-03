@@ -31,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.common.file.util.VirtualFiles.isJarFileSystem;
 import static com.dbn.common.util.Java.isDbSupportAvailable;
 import static com.dbn.common.util.Java.isIdeSupportAvailable;
+import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
 public class JavaObjectUploadAction extends AbstractFolderContextAction {
@@ -63,7 +64,7 @@ public class JavaObjectUploadAction extends AbstractFolderContextAction {
 
 		Presentation presentation = e.getPresentation();
 		presentation.setVisible(visible);
-		presentation.setText("Upload to Database");
+		presentation.setText(txt("app.java.action.UploadToDatabase"));
 		presentation.setIcon(Icons.ACTION_UPLOAD);
 	}
 }

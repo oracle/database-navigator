@@ -199,7 +199,7 @@ public class ObjectDependencyTree extends DBNTree{
         @Override
         public void update(@NotNull AnActionEvent e) {
             Presentation presentation = e.getPresentation();
-            presentation.setText("Select");
+            presentation.setText(txt("app.shared.action.Select"));
         }
     }
 
@@ -223,7 +223,7 @@ public class ObjectDependencyTree extends DBNTree{
         @Override
         protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
             Presentation presentation = e.getPresentation();
-            presentation.setText("Edit");
+            presentation.setText(txt("app.shared.action.Edit"));
             presentation.setIcon(Icons.ACTION_EDIT);
         }
     }

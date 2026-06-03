@@ -27,6 +27,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ProjectSettingsAction extends ProjectAction {
     private final ConfigId configId;
 
@@ -52,7 +54,7 @@ public class ProjectSettingsAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(configId.getName() + "...");
+        presentation.setText(txt("app.settings.action.OpenConfig", configId.getName()));
     /*
             presentation.setIcon(Icons.ACTION_SETTINGS);
             presentation.setText("Settings");

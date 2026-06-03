@@ -41,7 +41,7 @@ public class McpBuilderOpenAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Open MCP Server Builder...");
+        presentation.setText(txt("app.menu.action.OpenMcpServerBuilder"));
         presentation.setIcon(Icons.ASSISTANT_TOOL);
         presentation.setVisible(isVisible(project));
     }
