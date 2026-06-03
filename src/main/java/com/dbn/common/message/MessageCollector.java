@@ -18,6 +18,7 @@ package com.dbn.common.message;
 
 import com.intellij.openapi.util.UserDataHolderBase;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,41 +48,41 @@ public class MessageCollector extends UserDataHolderBase implements MessageBundl
         messages.add(message);
     }
 
-    public void addMessage(MessageType type, String message) {
+    public void addMessage(MessageType type, @Nls String message) {
         addMessage(new Message(type, message));
     }
 
-    public void addMessage(MessageType type, String title, String message) {
+    public void addMessage(MessageType type, @Nls String title, @Nls String message) {
         addMessage(new TitledMessage(type, title, message));
     }
 
     @Override
-    public void addInfoMessage(String message) {
+    public void addInfoMessage(@Nls String message) {
         addMessage(INFO, message);
     }
 
     @Override
-    public void addWarningMessage(String message) {
+    public void addWarningMessage(@Nls String message) {
         addMessage(WARNING, message);
     }
 
     @Override
-    public void addErrorMessage(String message) {
+    public void addErrorMessage(@Nls String message) {
         addMessage(ERROR, message);
     }
 
     @Override
-    public void addInfoMessage(String title, String message) {
+    public void addInfoMessage(@Nls String title, @Nls String message) {
         addMessage(INFO, title, message);
     }
 
     @Override
-    public void addWarningMessage(String title, String message) {
+    public void addWarningMessage(@Nls String title, @Nls String message) {
         addMessage(WARNING, title, message);
     }
 
     @Override
-    public void addErrorMessage(String title, String message) {
+    public void addErrorMessage(@Nls String title, @Nls String message) {
         addMessage(ERROR, title, message);
     }
 

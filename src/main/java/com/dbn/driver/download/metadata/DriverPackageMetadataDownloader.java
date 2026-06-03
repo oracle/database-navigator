@@ -46,6 +46,7 @@ import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.thread.Progress.installThreadInterrupter;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DriverPackageMetadataDownloader {
     @SneakyThrows
@@ -147,7 +148,7 @@ public class DriverPackageMetadataDownloader {
                 return libraries; // Return all resolved dependencies
             } catch (Throwable e) {
                 e = Exceptions.rootCauseOf(e);
-                session.addErrorMessage("Failed to download library " + library.getLibraryId() + ". Cause: " + e.getMessage());
+                session.addErrorMessage(txt("msg.connection.error.FailedToDownloadLibrary", library.getLibraryId(), e.getMessage()));
                 return Collections.emptyList();
             }
 

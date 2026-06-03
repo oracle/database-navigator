@@ -123,7 +123,7 @@ public class DriverPackageDownloader {
         try {
             while (!session.isComplete()) {
                 if (ProgressMonitor.isProgressCancelled()) {
-                    session.addInfoMessage("Download process cancelled for package: " + packageId);
+                    session.addInfoMessage(txt("msg.connection.info.DownloadCancelledForPackage", packageId));
                     break;
                 }
                 if (session.awaitCompletion()) {
@@ -132,7 +132,7 @@ public class DriverPackageDownloader {
             }
         } catch (Exception e) {
             log.warn("Error waiting on download completion for package: {}", packageId, e);
-            session.addErrorMessage("Download process interrupted for package: " + packageId);
+            session.addErrorMessage(txt("msg.connection.error.DownloadInterruptedForPackage", packageId));
         }
     }
 
@@ -140,7 +140,7 @@ public class DriverPackageDownloader {
         DriverDownloadManager downloadManager = getDownloadManager();
         if (session.hasErrors()) {
             log.warn("Package '{}' download and verification failed.", packageId);
-            session.addErrorMessage("One or more downloads failed. Cleaning up...");
+            session.addErrorMessage(txt("msg.connection.error.DownloadsFailedCleaningUp"));
             cleanupDownloadedJars(session);
             downloadManager.cleanupPackage(packageId);
             ApplicationManager.getApplication().invokeLater(()->{
@@ -170,7 +170,7 @@ public class DriverPackageDownloader {
                 log.info("Deleted library file '{}'", filePath);
             } else {
                 log.warn("Failed to delete library file '{}'", filePath);
-                session.addErrorMessage("Failed to delete file: " + libraryFile.getAbsolutePath());
+                session.addErrorMessage(txt("msg.connection.error.FailedToDeleteFile", libraryFile.getAbsolutePath()));
             }
         });
     }

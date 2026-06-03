@@ -18,12 +18,13 @@ package com.dbn.common.message;
 
 import com.dbn.common.util.Tagged;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 
 @Getter
 public class TaggedMessage<T> extends Message implements Tagged<T> {
     private final T subject;
 
-    public TaggedMessage(MessageType type, String text, T subject) {
+    public TaggedMessage(MessageType type, @Nls String text, T subject) {
         super(type, text);
         this.subject = subject;
     }

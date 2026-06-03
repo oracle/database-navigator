@@ -22,6 +22,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nls;
 
 import javax.swing.Icon;
 
@@ -36,9 +37,9 @@ import static com.dbn.common.options.setting.Settings.writeCdata;
 @NoArgsConstructor
 public class Message extends StatefulDisposableBase implements PersistentStateElement {
     protected MessageType type;
-    protected String text;
+    protected @Nls String text;
 
-    public Message(MessageType type, String text) {
+    public Message(MessageType type, @Nls String text) {
         this.type = type;
         this.text = text;
     }

@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SelectStatementGenerator extends StatementGenerator {
     private final AliasBundle aliases = new AliasBundle();
@@ -72,9 +73,7 @@ public class SelectStatementGenerator extends StatementGenerator {
                 datasets.add(dataset);
                 columns.addAll(dataset.getColumns());
             } else {
-                messages.addErrorMessage(
-                        "Only objects of type DATASET and COLUMN are supported for select statement generation.\n" +
-                        "Please review your selection and try again.");
+                messages.addErrorMessage(txt("msg.codeGenerator.error.UnsupportedSelectStatementObjects"));
             }
         }
 
@@ -83,8 +82,7 @@ public class SelectStatementGenerator extends StatementGenerator {
             joinBundle = new DatasetJoinBundle(datasets, true);
             for (DBDataset dataset : datasets) {
                 if (!joinBundle.contains(dataset)) {
-                    messages.addWarningMessage("Could not join table " +
-                            dataset.getName() + ". No references found to the other tables.");
+                    messages.addWarningMessage(txt("msg.codeGenerator.warning.CouldNotJoinTable", dataset.getName()));
                 }
             }
         }

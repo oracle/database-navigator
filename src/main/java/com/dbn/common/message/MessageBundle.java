@@ -17,6 +17,7 @@
 package com.dbn.common.message;
 
 import com.intellij.openapi.util.UserDataHolder;
+import org.jetbrains.annotations.Nls;
 
 import java.util.List;
 
@@ -31,17 +32,17 @@ public interface MessageBundle extends UserDataHolder {
 
     void addMessage(Message message);
 
-    void addInfoMessage(String message);
+    void addInfoMessage(@Nls String message);
 
-    void addWarningMessage(String message);
+    void addWarningMessage(@Nls String message);
 
-    void addErrorMessage(String message);
+    void addErrorMessage(@Nls String message);
 
-    void addInfoMessage(String title, String message);
+    void addInfoMessage(@Nls String title, @Nls String message);
 
-    void addWarningMessage(String title, String message);
+    void addWarningMessage(@Nls String title, @Nls String message);
 
-    void addErrorMessage(String title, String message);
+    void addErrorMessage(@Nls String title, @Nls String message);
 
     boolean hasErrors();
 

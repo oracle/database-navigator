@@ -128,7 +128,9 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
             //Messages.showErrorDialog(project, "Failed to create " + input.getObjectTypeName() + ".", e);
 
             InteractiveMessage message =
-                    InteractiveMessage.error("Object creation failed", "Failed to create " + input.getObjectTypeName() + ".").
+                    InteractiveMessage.error(
+                            txt("msg.objects.title.ObjectCreationFailed"),
+                            txt("msg.objects.error.ObjectCreationFailed", input.getObjectTypeName())).
                     withException(e).
                     withOptions(Messages.OPTIONS_RETRY_CANCEL, 0).
                     withCallback(o -> Conditional.when(o == 0, () -> reopenInputDialog(project, schema, objectType, input)));
