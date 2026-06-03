@@ -64,10 +64,10 @@ public class PluginConflictResolutionForm extends DBNFormBase {
 
             selectOptionLabel.setVisible(false);
             switch (resolution) {
-                case DISABLE_PLUGIN: dialog.renameAction("Disable DBN and restart"); break;
-                case CONTINUE_FEATURED: dialog.renameAction("Continue with full DBN support"); break;
-                case CONTINUE_LIMITED: dialog.renameAction("Continue with limited DBN support"); break;
-                case DECIDE_LATER: dialog.renameAction("Continue"); break;
+                case DISABLE_PLUGIN: dialog.renameAction(txt("msg.plugin.button.DisableDbnAndRestart")); break;
+                case CONTINUE_FEATURED: dialog.renameAction(txt("msg.plugin.button.ContinueWithFullDbnSupport")); break;
+                case CONTINUE_LIMITED: dialog.renameAction(txt("msg.plugin.button.ContinueWithLimitedDbnSupport")); break;
+                case DECIDE_LATER: dialog.renameAction(txt("msg.shared.button.Continue")); break;
                 default:
             }
         };

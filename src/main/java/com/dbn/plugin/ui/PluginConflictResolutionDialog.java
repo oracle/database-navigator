@@ -20,6 +20,7 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.plugin.PluginConflictManager;
 import com.dbn.plugin.PluginConflictResolution;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
@@ -48,7 +49,7 @@ public class PluginConflictResolutionDialog extends DBNDialog<PluginConflictReso
         return new PluginConflictResolutionForm(this);
     }
 
-    protected void renameAction(String name) {
+    protected void renameAction(@Nls String name) {
         renameAction(getOKAction(), name);
     }
 

@@ -78,7 +78,7 @@ public class AssistantCredentialQuickInputDialog extends DBNDialog<AssistantCred
     protected final Action[] initializeActions() {
         return actions(
                 getOKAction(),
-                createAction("Advanced Setup", () -> openAdvancedSettings()),
+                createAction(txt("cfg.assistant.button.AdvancedSetup"), () -> openAdvancedSettings()),
                 getCancelAction());
     }
 

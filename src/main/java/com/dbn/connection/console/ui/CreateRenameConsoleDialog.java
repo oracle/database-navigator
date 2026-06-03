@@ -61,7 +61,7 @@ public class CreateRenameConsoleDialog extends DBNDialog<CreateRenameConsoleForm
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), console == null ? "Create" : "Rename");
+        renameAction(getOKAction(), console == null ? txt("msg.shared.button.Create") : txt("msg.shared.button.Rename"));
         return actions(
                 getOKAction(),
                 getCancelAction());

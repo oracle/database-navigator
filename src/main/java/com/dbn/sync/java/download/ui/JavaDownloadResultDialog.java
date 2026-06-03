@@ -37,8 +37,8 @@ import static com.dbn.nls.NlsResources.txt;
 public class JavaDownloadResultDialog extends DBNDialog<JavaDownloadResultForm> {
 
     private final JavaDownloadBatch batch;
-    private final Action openAllAction = createAction("Open All", () -> openJavaEditors(false));
-    private final Action openSelectedAction = createAction("Open Selected", () -> openJavaEditors(true));
+    private final Action openAllAction = createAction(txt("msg.shared.button.OpenAll"), () -> openJavaEditors(false));
+    private final Action openSelectedAction = createAction(txt("msg.shared.button.OpenSelected"), () -> openJavaEditors(true));
 
     public JavaDownloadResultDialog(JavaDownloadBatch batch) {
         super(batch.getProject(), txt("msg.java.title.JavaDownloadResult"), false);
@@ -67,7 +67,7 @@ public class JavaDownloadResultDialog extends DBNDialog<JavaDownloadResultForm> 
     private Action createErrorAction() {
         if (!batch.getMessages().hasErrors()) return null;
 
-        return createAction("Show Errors", () -> {
+        return createAction(txt("msg.shared.button.ShowErrors"), () -> {
             DatabaseBatchManager batchManager = DatabaseBatchManager.getInstance(getProject());
             batchManager.showErrorDialog(batch);
         });

@@ -89,7 +89,7 @@ public class JavaExecutionHistoryDialog extends DBNDialog<JavaExecutionHistoryFo
 			selectAction = new SelectAction();
 			selectAction.setEnabled(false);
 			closeAction = new CloseAction();
-			renameAction(closeAction, "Cancel");
+			renameAction(closeAction, txt("msg.shared.button.Cancel"));
 			return actions(
 					selectAction,
 					closeAction);
@@ -174,7 +174,7 @@ public class JavaExecutionHistoryDialog extends DBNDialog<JavaExecutionHistoryFo
 		public void actionPerformed(ActionEvent e) {
 			saveChanges();
 			saveAction.setEnabled(false);
-			renameAction(closeAction, "Close");
+			renameAction(closeAction, txt("msg.shared.button.Close"));
 		}
 	}
 
@@ -205,6 +205,6 @@ public class JavaExecutionHistoryDialog extends DBNDialog<JavaExecutionHistoryFo
 		if (isDisposed()) return;
 
 		if (saveAction != null) saveAction.setEnabled(enabled);
-		renameAction(closeAction, enabled ? "Cancel" : "Close");
+		renameAction(closeAction, enabled ? txt("msg.shared.button.Cancel") : txt("msg.shared.button.Close"));
 	}
 }

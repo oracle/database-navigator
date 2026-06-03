@@ -55,7 +55,7 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
 
   @NotNull
   private Action getResetAction() {
-    return createAction("Reset", () -> getForm().reset());
+    return createAction(txt("msg.shared.button.Reset"), () -> getForm().reset());
   }
 
   @Override

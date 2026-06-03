@@ -56,7 +56,7 @@ public class EmbeddingSourceInputQueryDialog extends DBNDialog<EmbeddingSourceIn
 
     @Override
     protected Action[] initializeActions() {
-        renameAction(getOKAction(), operation == RecordOperation.CREATE ? "Add" : "Update");
+        renameAction(getOKAction(), operation == RecordOperation.CREATE ? txt("msg.shared.button.Add") : txt("msg.shared.button.Update"));
         return actions(
                 getOKAction(),
                 getCancelAction());

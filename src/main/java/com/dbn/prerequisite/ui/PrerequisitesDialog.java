@@ -65,7 +65,7 @@ public class PrerequisitesDialog extends DBNDialog<PrerequisitesForm> implements
                 getCancelAction());
     }
 
-    private final Action reevaluateAction = createAction("Reevaluate", () -> reevaluatePrerequisites());
+    private final Action reevaluateAction = createAction(txt("msg.prerequisites.button.Reevaluate"), () -> reevaluatePrerequisites());
 
     private void reevaluatePrerequisites() {
         prerequisiteGroup.evaluateAll(true);

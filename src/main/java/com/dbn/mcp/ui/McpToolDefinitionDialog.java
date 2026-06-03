@@ -29,7 +29,7 @@ public class McpToolDefinitionDialog extends DBNDialog<McpToolDefinitionForm> {
         this.serverDefinition = serverDefinition;
         this.toolDefinition = toolDefinition;
         setDefaultSize(800, 600);
-        renameAction(getOKAction(), toolDefinition == null ? "Add Tool" : "Save Tool");
+        renameAction(getOKAction(), toolDefinition == null ? txt("msg.mcp.button.AddTool") : txt("msg.mcp.button.SaveTool"));
         init();
     }
 

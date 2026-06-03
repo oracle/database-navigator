@@ -50,7 +50,7 @@ public class JavaUploadResultDialog extends DBNDialog<JavaUploadResultForm> {
 	private Action createErrorAction() {
 		if (!batch.getMessages().hasErrors()) return null;
 
-		return createAction("Show Errors", () -> {
+		return createAction(txt("msg.shared.button.ShowErrors"), () -> {
 			DatabaseBatchManager batchManager = DatabaseBatchManager.getInstance(getProject());
 			batchManager.showErrorDialog(batch);
 
