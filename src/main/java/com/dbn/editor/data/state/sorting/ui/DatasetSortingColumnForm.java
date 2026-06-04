@@ -81,7 +81,7 @@ public class DatasetSortingColumnForm extends DBNFormBase {
 
     private class ColumnSelector extends ValueSelector<DBColumn>{
         ColumnSelector(DBColumn selectedColumn) {
-            super(Icons.DBO_COLUMN_HIDDEN, "Select column...", selectedColumn, ValueSelectorOption.HIDE_DESCRIPTION);
+            super(Icons.DBO_COLUMN_HIDDEN, txt("app.dataEditor.action.SelectColumn"), selectedColumn, ValueSelectorOption.HIDE_DESCRIPTION);
             addListener((oldValue, newValue) -> {
                 sortingInstruction.setColumnName(newValue.getName());
                 dataTypeLabel.setText(newValue.getDataType().getQualifiedName());

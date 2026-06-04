@@ -109,7 +109,7 @@ public abstract class DBObjectFactoryInputListForm extends DBNFormBase {
 
     private class DetailSelector extends ValueSelector<Presentable> {
         DetailSelector() {
-            super(PlatformIcons.ADD_ICON, "Add " + getObjectType().getName(), null, ValueSelectorOption.HIDE_DESCRIPTION);
+            super(PlatformIcons.ADD_ICON, txt("app.objects.action.AddObject", getObjectType().getName()), null, ValueSelectorOption.HIDE_DESCRIPTION);
             addListener((oldValue, newValue) -> createChildInputPanel(newValue));
 
             setEmptyValueFactory(new ValueFactory<>(txt("app.objects.action.CustomType")) {

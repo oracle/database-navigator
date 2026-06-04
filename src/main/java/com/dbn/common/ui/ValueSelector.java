@@ -37,6 +37,7 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -71,15 +72,15 @@ public abstract class ValueSelector<T extends Presentable> extends DBNButtonPane
     private ValueFactory<T> emptyValueFactory;
 
 
-    public ValueSelector(@Nullable String text, @Nullable T preselectedValue, ValueSelectorOption... options) {
+    public ValueSelector(@Nullable @Nls String text, @Nullable T preselectedValue, ValueSelectorOption... options) {
         this(null, text, null, preselectedValue, options);
     }
 
-    public ValueSelector(@Nullable Icon icon, @Nullable String text, @Nullable T preselectedValue, ValueSelectorOption... options) {
+    public ValueSelector(@Nullable Icon icon, @Nullable @Nls String text, @Nullable T preselectedValue, ValueSelectorOption... options) {
         this(icon, text, null, preselectedValue, options);
     }
 
-    public ValueSelector(@Nullable Icon icon, @Nullable String text, @Nullable List<T> values, @Nullable T preselectedValue, ValueSelectorOption... options) {
+    public ValueSelector(@Nullable Icon icon, @Nullable @Nls String text, @Nullable List<T> values, @Nullable T preselectedValue, ValueSelectorOption... options) {
         super(new BorderLayout());
         setOptions(options);
         this.values = values;

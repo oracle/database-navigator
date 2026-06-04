@@ -144,7 +144,7 @@ public class ObjectQuickFilterForm extends DBNFormBase {
         }
 
         NewFilterSelector(final ObjectQuickFilter<?> filter) {
-            super(PlatformIcons.ADD_ICON, "Add Name Condition", null, ValueSelectorOption.HIDE_DESCRIPTION);
+            super(PlatformIcons.ADD_ICON, txt("app.objects.action.AddNameCondition"), null, ValueSelectorOption.HIDE_DESCRIPTION);
             addListener((oldValue, newValue) -> {
                 Project project = ensureProject();
                 ObjectQuickFilterManager quickFilterManager = ObjectQuickFilterManager.getInstance(project);
