@@ -64,6 +64,7 @@ import java.util.Set;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.debugger.impl.PrioritizedTask.Priority.NORMAL;
 
 public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProcess> {
@@ -125,7 +126,6 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
     private void createBreakpointRequest(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
         DBDebugConsoleLogger console = getDebugProcess().getConsole();
         DBObjectRef databaseObject = DBBreakpointUtil.getDatabaseObject(breakpoint);
-        String breakpointLocation = databaseObject == null ? "" : " on " + databaseObject.getQualifiedName() + " at line " + (breakpoint.getLine() + 1);
         try {
             VirtualMachineProxyImpl virtualMachineProxy = getVirtualMachineProxy();
             RequestManagerImpl requestsManager = getRequestsManager();
@@ -151,11 +151,15 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
             }
 
             if (!registered) {
-                console.warning("Failed to register breakpoint" + breakpointLocation + ". Resource not found");
+                console.warning(databaseObject == null ?
+                        txt("log.debugger.warning.FailedRegisteringBreakpointResourceNotFound") :
+                        txt("log.debugger.warning.FailedRegisteringBreakpointResourceNotFoundAtLocation", databaseObject.getQualifiedName(), breakpoint.getLine() + 1));
             }
         } catch (Exception e) {
             conditionallyLog(e);
-            console.error("Failed to register breakpoint" + breakpointLocation + ". " + nvl(e.getMessage(), ""));
+            console.error(databaseObject == null ?
+                    txt("log.debugger.error.FailedRegisteringBreakpoint", nvl(e.getMessage(), "")) :
+                    txt("log.debugger.error.FailedRegisteringBreakpointAtLocation", databaseObject.getQualifiedName(), breakpoint.getLine() + 1, nvl(e.getMessage(), "")));
         }
     }
 
