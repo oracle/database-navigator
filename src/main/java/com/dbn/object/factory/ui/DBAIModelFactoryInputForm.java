@@ -149,7 +149,7 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
                 .withConnectionContext(() -> getConnection())
                 .withSchemaContext(() -> getCredentialSchema())
                 .withValueLoader(() -> loadCredentials())
-                .withObjectFactory("New Credential...")
+                .withObjectFactory(txt("app.objects.action.NewCredential"))
                 .triggerLoad();
         updateFieldAvailability();
     }

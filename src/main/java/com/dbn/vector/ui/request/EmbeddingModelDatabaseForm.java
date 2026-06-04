@@ -104,7 +104,7 @@ public class EmbeddingModelDatabaseForm extends VectorToolboxFormBase {
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadModels())
                 .withValuePreselector(() -> config.getModelName())
-                .withObjectFactory("New AI Model...")
+                .withObjectFactory(txt("app.vector.action.NewAiModel"))
                 .triggerLoad();
 
         updateFieldAvailability();

@@ -119,7 +119,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
     }
 
     private ValueFactory<AssistantCredential> createCredentialFactory() {
-        return new ValueFactory<>("New Credential...") {
+        return new ValueFactory<>(txt("cfg.assistant.action.NewCredential")) {
             @Override
             public void createValue(Consumer<AssistantCredential> consumer) {
                 AssistantCredentialEditRequest request = createNewCredentialRequest(consumer);

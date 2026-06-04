@@ -126,7 +126,7 @@ public class ScriptExecutionInputForm extends DBNFormBase {
     }
 
     private ValueFactory<CmdLineInterface> createCmdLineFactory(Project project) {
-        return new ValueFactory<>("New Cmd-Line Interface...") {
+        return new ValueFactory<>(txt("app.execution.action.NewCmdLineInterface")) {
             @Override
             public void createValue(Consumer<CmdLineInterface> consumer) {
                 ConnectionHandler connection = connectionComboBox.getSelectedValue();

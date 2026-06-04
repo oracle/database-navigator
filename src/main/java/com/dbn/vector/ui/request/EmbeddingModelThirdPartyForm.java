@@ -99,7 +99,7 @@ public class EmbeddingModelThirdPartyForm extends VectorToolboxFormBase {
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadCredentials())
                 .withValuePreselector(() -> config.getCredentialName())
-                .withObjectFactory("New Credential...")
+                .withObjectFactory(txt("app.vector.action.NewCredential"))
                 .triggerLoad();
 
         updateFieldAvailability();

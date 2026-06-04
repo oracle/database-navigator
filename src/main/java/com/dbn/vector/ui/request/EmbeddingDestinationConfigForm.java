@@ -88,7 +88,7 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadTables())
                 .withValuePreselector(() -> config.getTableName())
-                .withObjectFactory(txt("msg.vector.button.NewTable"))
+                .withObjectFactory(txt("app.vector.action.NewTable"))
                 .withValueFactoryInput(tableSpec)
                 .withValueFactoryNameConsumer(() -> name -> getDestinationTablesCache().addObjectName(getSelectedSchemaId(), name))
                 .triggerLoad();

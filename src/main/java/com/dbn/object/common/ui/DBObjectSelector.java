@@ -32,6 +32,7 @@ import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -111,7 +112,7 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
         return cast(super.withValuePreselector(o -> o.getName().equalsIgnoreCase(preselectName.get())));
     }
 
-    public DBObjectSelector<T> withObjectFactory(String actionName) {
+    public DBObjectSelector<T> withObjectFactory(@Nls String actionName) {
         return cast(super.withValueFactory(ValueFactory.create(actionName, () -> openObjectFactory(getSchema()))));
     }
 
