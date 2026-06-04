@@ -22,6 +22,7 @@ import com.dbn.vector.model.result.StepResult;
 import com.dbn.vector.service.QueryProcessingService;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -130,9 +131,10 @@ public class QueryEmbeddingPipeline implements EmbeddingPipeline {
      *  - remove tailing semicolons
      *  - identify first select-item and make sure it has an alias named "TEXT"
      */
+    @NonNls
     private String adjustSelectStatement(
             @NotNull ConnectionHandler connection,
-            @NotNull String selectStatement) {
+            @NotNull @NonNls String selectStatement) {
         DBLanguageDialect languageDialect = nd(connection.getLanguageDialect(SQLLanguage.INSTANCE));
 
         // cleanup tailing semicolons
