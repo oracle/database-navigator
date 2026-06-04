@@ -37,6 +37,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.WindowWrapper;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
@@ -53,7 +54,7 @@ import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ConsoleUpdateDiffFeature implements AssistantToolFeature {
-    private static final String UPDATE_SQL_CONSOLE_CONTENT = "UPDATE_SQL_CONSOLE_CONTENT";
+    private static final @NonNls String UPDATE_SQL_CONSOLE_CONTENT = "UPDATE_SQL_CONSOLE_CONTENT";
     private static final Map<String, WindowWrapper> ACTIVE_DIFF_WINDOWS = new ConcurrentHashMap<>();
     private static final Set<String> OPENING_DIFF_WINDOWS = ConcurrentHashMap.newKeySet();
 
