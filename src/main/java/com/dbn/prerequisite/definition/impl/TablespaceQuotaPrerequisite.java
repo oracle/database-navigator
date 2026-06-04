@@ -28,6 +28,7 @@ import com.dbn.prerequisite.model.PrerequisiteType;
 import com.dbn.prerequisite.resolution.PrerequisiteAdvice;
 import com.dbn.prerequisite.resolution.PrerequisiteAdvisor;
 import com.dbn.prerequisite.resolution.PrerequisiteResolver;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -88,6 +89,7 @@ public abstract class TablespaceQuotaPrerequisite extends PrerequisiteDefinition
         };
     }
 
+    @NonNls
     @Override
     public String toString() {
         return "System tablespace quota";

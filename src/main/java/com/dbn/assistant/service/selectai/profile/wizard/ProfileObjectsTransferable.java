@@ -64,11 +64,4 @@ public class ProfileObjectsTransferable implements Transferable {
         }
         return this.transferred;
     }
-
-    @Override
-    public String toString() {
-        return "DatabaseObjectsTransferable{" +
-                "transfered=" + transferred +
-                '}';
-    }
 }

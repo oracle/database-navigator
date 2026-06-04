@@ -56,14 +56,15 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class McpBuildTask {
-    private static final String DEFAULT_SEPS_USERNAME = "oracle.security.client.default_username";
-    private static final String DEFAULT_SEPS_PASSWORD = "oracle.security.client.default_password";
-    private static final String TEMPLATE = "DBN - MCP Server Main";
-    private static final String CONFIG = "mcp-config.yaml";
-    private static final String DIST = "mcp-dist";
-    private static final String SOURCE_PROJECT = "source-project";
-    private static final String MCP_SDK = "io.modelcontextprotocol.sdk:mcp:1.1.1";
-    private static final String JDBC = "com.oracle.database.jdbc:ojdbc11:23.26.1.0.0";
+    private static final @NonNls String DEFAULT_SEPS_USERNAME = "oracle.security.client.default_username";
+    private static final @NonNls String DEFAULT_SEPS_PASSWORD = "oracle.security.client.default_password";
+    private static final @NonNls String TEMPLATE = "DBN - MCP Server Main";
+    private static final @NonNls String README_TEMPLATE = "DBN - MCP Server README";
+    private static final @NonNls String CONFIG = "mcp-config.yaml";
+    private static final @NonNls String DIST = "mcp-dist";
+    private static final @NonNls String SOURCE_PROJECT = "source-project";
+    private static final @NonNls String MCP_SDK = "io.modelcontextprotocol.sdk:mcp:1.1.1";
+    private static final @NonNls String JDBC = "com.oracle.database.jdbc:ojdbc11:23.26.1.0.0";
 
     private final Project project;
     private final ConnectionHandler connection;
@@ -477,12 +478,12 @@ public class McpBuildTask {
                             "description", safe(t.getDescription(), "SQL tool")))
                     .collect(Collectors.toList());
 
-            Map<String, Object> context = new LinkedHashMap<>();
+            @NonNls Map<String, Object> context = new LinkedHashMap<>();
             context.put("SERVER_NAME", serverName);
             context.put("JAR_NAME", serverName + ".jar");
             context.put("HTTP_PORT", httpPort);
             context.put("TOOLS", toolList);
-            String content = TemplateUtilities.generateCode(project, "DBN - MCP Server README", context);
+            String content = TemplateUtilities.generateCode(project, README_TEMPLATE, context);
             Files.writeString(dir.resolve("README.md"), content, StandardCharsets.UTF_8);
         } catch (IOException e) {
             log.error("Failed to write README", e);

@@ -198,7 +198,7 @@ public class ChatBoxForm extends DBNFormBase {
     private void initHeaderForm() {
         ConnectionHandler connection = getConnection();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
-        headerForm.setSelector(txt("app.assistant.action.SelectConnection"), createConnectionActions());
+        headerForm.setSelector(txt("app.assistant.tooltip.SelectConnection"), createConnectionActions());
         headerForm.setActions(createAssistantTypeActions());
 
         headerPanel.add(headerForm.getComponent());

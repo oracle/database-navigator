@@ -26,6 +26,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.experimental.Delegate;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -78,7 +79,7 @@ public final class SelectAiChatContext implements ChatContext {
     public String getAttributes() {
         AIModel model = getModel();
         String modelApiName = model == null ? "undefined" : model.getApiName();
-        Map<String, String> attributes = Map.of("model", modelApiName);
+        @NonNls Map<String, String> attributes = Map.of("model", modelApiName);
         return GSON.toJson(attributes);
     }
 
