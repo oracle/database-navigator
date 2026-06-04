@@ -58,6 +58,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -275,6 +276,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         return connectionId;
     }
 
+    @NonNls
     private String  getUrl(OciConnectionData connectionData){
         String urlPrefix = "jdbc:oracle:thin:@tcps://";
         String connectionStringHigh = connectionData.getAllConnectionStrings().get("HIGH");

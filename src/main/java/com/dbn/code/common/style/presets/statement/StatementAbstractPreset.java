@@ -24,10 +24,11 @@ import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.TokenPsiElement;
 import com.intellij.formatting.Spacing;
 import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 
 public abstract class StatementAbstractPreset extends CodeStylePresetImpl {
-    StatementAbstractPreset(@NonNls String id, String name) {
+    StatementAbstractPreset(@NonNls String id, @Nls String name) {
         super(id, name);
     }
 
