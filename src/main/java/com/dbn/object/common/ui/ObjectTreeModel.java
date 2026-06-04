@@ -30,13 +30,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class ObjectTreeModel extends DBNTreeModel {
     private TreePath initialSelection;
     private Object[] elements;
 
     public ObjectTreeModel(DBSchema schema, Set<DBObjectType> objectTypes, DBObject selectedObject) {
-        super(new DBNTreeNode(schema == null ? "No schema selected" : schema.ref()));
+        super(new DBNTreeNode(schema == null ? txt("app.objects.placeholder.NoSchemaSelected") : schema.ref()));
         if (schema == null) return;
 
 
