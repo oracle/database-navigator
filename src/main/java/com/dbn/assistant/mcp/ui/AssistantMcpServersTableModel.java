@@ -39,7 +39,7 @@ public class AssistantMcpServersTableModel extends DBNEntityEditableTableModel<A
     public void validate() throws ConfigurationException {
         for (AssistantMcpServer mcpServer : getElements()) {
             if (Strings.isEmpty(mcpServer.getName())) {
-                throw new ConfigurationException("Please provide names for all mcp servers.");
+                throw new ConfigurationException(txt("cfg.assistant.error.McpServerNamesRequired"));
             }
         }
     }

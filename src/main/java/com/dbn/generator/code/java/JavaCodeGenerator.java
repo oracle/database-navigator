@@ -136,7 +136,7 @@ public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R exte
             PsiDirectory subdirectory = directory.findSubdirectory(packageToken);
             if (subdirectory == null)  {
                 subdirectory = createSubdirectory(directory, packageToken);
-                if (subdirectory == null) fail("Cannot create package directory " + packageToken);
+                if (subdirectory == null) fail(txt("msg.java.error.PackageDirectoryCreationFailed", packageToken));
             }
             directory = subdirectory;
         }

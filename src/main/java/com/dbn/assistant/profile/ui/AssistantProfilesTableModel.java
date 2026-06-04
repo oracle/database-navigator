@@ -75,7 +75,7 @@ public class AssistantProfilesTableModel extends DBNEntityEditableTableModel<Dec
     public void validate() throws ConfigurationException {
         for (AssistantProfile profile : getElements()) {
             if (Strings.isEmpty(profile.getName())) {
-                throw new ConfigurationException("Please provide names for all profiles.");
+                throw new ConfigurationException(txt("cfg.assistant.error.ProfileNamesRequired"));
             }
         }
     }

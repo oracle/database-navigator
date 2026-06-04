@@ -135,9 +135,9 @@ public class CmdLineInterfacesTableModel extends DBNEditableTableModel {
         for (CmdLineInterface cmdLineInterface : bundle.getInterfaces()) {
             String name = cmdLineInterface.getName();
             if (Strings.isEmpty(name)) {
-                throw new ConfigurationException("Please provide names for each Command-Line Interface.");
+                throw new ConfigurationException(txt("cfg.execution.error.CommandLineInterfaceNamesRequired"));
             } else if (names.contains(name)) {
-                throw new ConfigurationException("Please provide unique Command-Line Interface names.");
+                throw new ConfigurationException(txt("cfg.execution.error.CommandLineInterfaceNamesUnique"));
             } else {
                 names.add(name);
             }
@@ -145,7 +145,7 @@ public class CmdLineInterfacesTableModel extends DBNEditableTableModel {
 
         for (CmdLineInterface cmdLineInterface : bundle.getInterfaces()) {
             if (Strings.isEmpty(cmdLineInterface.getExecutablePath())) {
-                throw new ConfigurationException("Please provide executable paths for each Command-Line Interface.");
+                throw new ConfigurationException(txt("cfg.execution.error.CommandLineInterfaceExecutablePathsRequired"));
             }
         }
     }

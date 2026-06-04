@@ -50,7 +50,7 @@ public class AssistantCredentialsTableModel extends DBNEntityEditableTableModel<
     public void validate() throws ConfigurationException {
         for (AssistantCredential credential : getElements()) {
             if (Strings.isEmpty(credential.getName())) {
-                throw new ConfigurationException("Please provide names for all credentials.");
+                throw new ConfigurationException(txt("cfg.assistant.error.CredentialNamesRequired"));
             }
         }
     }

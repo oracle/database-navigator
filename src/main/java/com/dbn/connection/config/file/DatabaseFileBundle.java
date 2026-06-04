@@ -36,6 +36,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Lists.filter;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class DatabaseFileBundle implements PersistentConfiguration, Cloneable<DatabaseFileBundle> {
@@ -115,11 +116,11 @@ public class DatabaseFileBundle implements PersistentConfiguration, Cloneable<Da
     public void validate() throws ConfigurationException {
         Set<String> set = new HashSet<>();
         if (!files.stream().map(file -> file.getPath()).allMatch(e -> set.add(e))) {
-            throw new ConfigurationException("Invalid Database files configuration. Duplicate database files.");
+            throw new ConfigurationException(txt("cfg.connection.error.DuplicateDatabaseFiles"));
         }
         set.clear();
         if (!files.stream().map(file -> file.getSchema()).allMatch(e -> set.add(e))) {
-            throw new ConfigurationException("Invalid Database files configuration. Duplicate database identifiers");
+            throw new ConfigurationException(txt("cfg.connection.error.DuplicateDatabaseIdentifiers"));
         }
     }
 
