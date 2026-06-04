@@ -1,6 +1,6 @@
 ---
 name: dbn-codebase-guide
-description: Oracle© Database Navigator (DBN) project coding guide. Use when Codex is changing, reviewing, explaining, or planning Java/Kotlin/Gradle/XML code in this repository, especially IntelliJ plugin services, DBN managers, actions, UI forms/dialogs, settings persistence, NLS resources, database object models, connection/session code, language/parser code, or when the user asks about DBN naming patterns, common practices, or shared/shard utilities.
+description: Oracle© Database Navigator (DBN) project coding guide. Use when Codex is changing, reviewing, explaining, or planning Java/Kotlin/Gradle/XML code in this repository, especially IntelliJ plugin services, DBN managers, actions, UI forms/dialogs, settings persistence, database object models, connection/session code, language/parser code, or when the user asks about DBN naming patterns, common practices, or shared/shard utilities. For localization/NLS-only work, use dbn-localization-guide instead.
 ---
 
 # DBN Codebase Guide
@@ -23,7 +23,7 @@ Primary supported databases are Oracle, MySQL, PostgreSQL, and SQLite, with expe
 
 ## References
 
-Read [references/project-practices.md](references/project-practices.md) when making or reviewing code changes. It covers package layout, naming conventions, services, actions, UI forms/dialogs, settings, NLS, extension registration, and validation.
+Read [references/project-practices.md](references/project-practices.md) when making or reviewing code changes. It covers package layout, naming conventions, services, actions, UI forms/dialogs, settings, extension registration, and validation.
 
 Read [references/shared-utilities.md](references/shared-utilities.md) when choosing helper APIs. It maps common needs to DBN utility classes and explains the "shared/shard utilities" layer. If the user says "shard utilities", treat it as DBN shared utilities unless the codebase contains a task-specific shard concept.
 
@@ -50,6 +50,6 @@ Use this map as a source-discovery starting point. Package roots are not exhaust
 
 - Keep edits localized and idiomatic. DBN has many small domain-specific base classes; use them.
 - Do not introduce a generic helper if an equivalent exists under `com.dbn.common`.
-- Do not bypass `txt(...)` for user-visible strings when surrounding code uses NLS keys.
+- For localization/NLS work, use `dbn-localization-guide`.
 - Do not hold strong references to long-lived project, connection, object, or UI objects when nearby code uses `ProjectRef`, `ConnectionRef`, `DBObjectRef`, or `WeakRef`.
 - Do not use raw background, dispatch, progress, or write-action APIs without checking DBN wrappers first.
