@@ -80,6 +80,8 @@ import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
+import static com.dbn.debugger.DBDebuggerType.JDBC;
+import static com.dbn.debugger.DBDebuggerType.JDWP;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -137,15 +139,16 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
     }
 
     public static void verifyJdwpSupport(boolean jdbcFallback) throws RuntimeConfigurationError {
-        if (DBDebuggerType.JDWP.isSupported()) return;
+        if (JDWP.isSupported()) return;
 
         ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
         String versionName = applicationInfo.getVersionName();
         String fullVersion = applicationInfo.getFullVersion();
 
-        String message = "JDWP debugging is not supported in \"" + versionName + " " + fullVersion + "\".";
-        String messageFallbackHint = jdbcFallback ? "" : " Please use Classic debugger over JDBC instead.";
-        throw new RuntimeConfigurationError(message + messageFallbackHint);
+        String message = jdbcFallback ?
+                txt("msg.debugger.error.UnsupportedDebugger", JDWP.getName(), versionName, fullVersion) :
+                txt("msg.debugger.error.UnsupportedDebuggerUseClassicJdbc", JDWP.getName(), versionName, fullVersion);
+        throw new RuntimeConfigurationError(message);
     }
 
     public void startMethodDebugger(@NotNull DBMethod method) {
@@ -154,8 +157,8 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
             RunnerAndConfigurationSettings settings = configManager.createConfiguration(method, debuggerType);
 
             String runnerId =
-                    debuggerType == DBDebuggerType.JDBC ? DBMethodJdbcRunner.RUNNER_ID :
-                    debuggerType == DBDebuggerType.JDWP ? DBMethodJdwpRunner.RUNNER_ID : null;
+                    debuggerType == JDBC ? DBMethodJdbcRunner.RUNNER_ID :
+                    debuggerType == JDWP ? DBMethodJdwpRunner.RUNNER_ID : null;
 
             try {
                 startDebugger(runnerId, settings);
@@ -175,8 +178,8 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
             RunnerAndConfigurationSettings settings = configManager.createConfiguration(executionProcessor, debuggerType);
 
             String runnerId =
-                    debuggerType == DBDebuggerType.JDBC ? DBStatementJdbcRunner.RUNNER_ID :
-                    debuggerType == DBDebuggerType.JDWP ? DBStatementJdwpRunner.RUNNER_ID :
+                    debuggerType == JDBC ? DBStatementJdbcRunner.RUNNER_ID :
+                    debuggerType == JDWP ? DBStatementJdwpRunner.RUNNER_ID :
                                     null;
 
             try {
@@ -194,7 +197,7 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
 
         startJdwpDebugger(() -> {
             ExecutionConfigManager configManager = getConfigManager();
-            RunnerAndConfigurationSettings settings = configManager.createConfiguration(method, DBDebuggerType.JDWP);
+            RunnerAndConfigurationSettings settings = configManager.createConfiguration(method, JDWP);
 
             try {
                 startDebugger(DBJavaJdwpRunner.RUNNER_ID, settings);
@@ -240,15 +243,15 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
                                 applicationInfo.getVersionName(),
                                 applicationInfo.getFullVersion()),
                         new String[]{
-                                txt("msg.debugger.button.UseDebugger",DBDebuggerType.JDBC.getName()),
+                                txt("msg.debugger.button.UseDebugger", JDBC.getName()),
                                 txt("msg.shared.button.Cancel")}, 0,
-                        o -> when(o == 0, () -> debuggerStarter.accept(DBDebuggerType.JDBC)));
+                        o -> when(o == 0, () -> debuggerStarter.accept(JDBC)));
             }
         });
     }
 
     private void startJdwpDebugger(@NotNull Runnable debuggerStarter) {
-        DBDebuggerType debuggerType = DBDebuggerType.JDWP;
+        DBDebuggerType debuggerType = JDWP;
         if (debuggerType.isSupported()) {
             debuggerStarter.run();
         } else {
