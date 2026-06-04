@@ -131,7 +131,7 @@ public class TextContent {
         return new TextContent(text, MimeType.TEXT_HTML);
     }
 
-    public static TextContent tooltip(String bodyContent, String bodyStyle) {
+    public static TextContent tooltip(String bodyContent, @NonNls String bodyStyle) {
         @NonNls
         TextContent content = html("<html><body style='${HTML_BODY_STYLE}; ${REGULAR_FONT_STYLE}'>${HTML_BODY_CONTENT}</body></html>");
         content.initField("HTML_BODY_STYLE", bodyStyle);
