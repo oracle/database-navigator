@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SessionBrowserColorSettingsPage implements ColorSettingsPage {
     protected final List<AttributesDescriptor> attributeDescriptors = new ArrayList<>();
     protected final List<ColorDescriptor> colorDescriptors = new ArrayList<>();
@@ -77,7 +79,7 @@ public class SessionBrowserColorSettingsPage implements ColorSettingsPage {
     @NotNull
     @Override
     public String getDisplayName() {
-        return "Session Browser (DBN)";
+        return txt("cfg.sessions.title.SessionBrowserColorSettings");
     }
 
     @Override
