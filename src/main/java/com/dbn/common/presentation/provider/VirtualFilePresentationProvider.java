@@ -20,6 +20,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class VirtualFilePresentationProvider extends PresentationProviderBase<VirtualFile> {
     public VirtualFilePresentationProvider() {
         super(VirtualFile.class);
@@ -32,7 +34,7 @@ public class VirtualFilePresentationProvider extends PresentationProviderBase<Vi
 
     @Override
     public String getTypeName(VirtualFile object) {
-        return object.getFileType().getName().toLowerCase() + " file";
+        return txt("app.shared.text.FileTypeName", object.getFileType().getName().toLowerCase());
     }
 
     @Override

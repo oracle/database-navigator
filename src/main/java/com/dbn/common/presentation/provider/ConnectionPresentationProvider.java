@@ -21,6 +21,8 @@ import com.dbn.connection.ConnectionHandler;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ConnectionPresentationProvider extends PresentationProviderBase<ConnectionHandler> {
     public ConnectionPresentationProvider() {
         super(ConnectionHandler.class);
@@ -33,7 +35,7 @@ public class ConnectionPresentationProvider extends PresentationProviderBase<Con
 
     @Override
     public String getTypeName(ConnectionHandler object) {
-        return "database connection";
+        return txt("app.connection.text.DatabaseConnection");
     }
 
     @Override
