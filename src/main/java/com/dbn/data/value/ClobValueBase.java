@@ -16,7 +16,6 @@
 
 package com.dbn.data.value;
 
-import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +30,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 
+import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 abstract class ClobValueBase<T extends Clob> extends LargeObjectValue {
@@ -137,7 +138,7 @@ abstract class ClobValueBase<T extends Clob> extends LargeObjectValue {
             return new String(buffer);
         } catch (Throwable e) {
             conditionallyLog(e);
-            throw Exceptions.toSqlException(e, "Could not read value from CLOB.");
+            throw toSqlException(e, txt("msg.data.exception.CouldNotReadClobValue"));
         } finally {
             if (totalLength <= size) release();
         }

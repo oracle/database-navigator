@@ -62,6 +62,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import static com.dbn.common.content.DynamicContentProperty.INTERNAL;
+import static com.dbn.common.exception.Exceptions.toSqlTimeoutException;
 import static com.dbn.connection.Resources.markClosed;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.diagnostics.Diagnostics.isDatabaseAccessDebug;
@@ -242,7 +243,7 @@ public abstract class DynamicContentResultSetLoader<E extends DynamicContentElem
         } catch (ProcessCanceledException e) {
             conditionallyLog(e);
             postLoadContentFailure(content, debugInfo, e);
-            throw Exceptions.toSqlTimeoutException(e, "Load process cancelled");
+            throw toSqlTimeoutException(e, txt("msg.shared.exception.LoadProcessCancelled"));
 
         } catch (SQLTimeoutException |
                  SQLFeatureNotSupportedException |
