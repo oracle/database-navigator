@@ -121,7 +121,7 @@ public class DBMethodFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
     @Override
     protected void initValidation() {
-        String objectTypeName = getObjectType().getName();
+        String objectTypeName = getObjectType().getDisplayName();
         addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ObjectNameRequired", objectTypeName));
         addTextValidation(nameTextField, n -> isWord(n), txt("msg.objects.error.ValidObjectNameRequired", objectTypeName));
 

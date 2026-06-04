@@ -50,7 +50,7 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
     private final DBObjectSpec initialInput;
 
     public DBObjectFactoryInputDialog(@NotNull Project project, DBSchema schema, DBObjectType objectType, DBObjectSpec initialInput) {
-        super(project, txt("msg.objects.title.CreateObject", objectType.getName()), true);
+        super(project, txt("msg.objects.title.CreateObject", objectType.getDisplayName()), true);
         this.schema = DBObjectRef.of(schema);
         this.objectType = objectType;
         this.initialInput = initialInput;
@@ -85,7 +85,7 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
 
     @Override
     protected Action[] initializeActions() {
-        renameAction(getOKAction(), txt("msg.objects.button.CreateObject", objectType.getTitleCasedName()));
+        renameAction(getOKAction(), txt("msg.objects.button.CreateObject", objectType.getTitleCasedDisplayName()));
         return actions(
                 getOKAction(),
                 getCancelAction());

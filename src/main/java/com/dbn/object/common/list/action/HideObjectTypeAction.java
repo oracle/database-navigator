@@ -45,7 +45,7 @@ public class HideObjectTypeAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.objects.action.HideObjectType", objectList.getObjectType().getTitleCasedListName()));
+        presentation.setText(txt("app.objects.action.HideObjectType", objectList.getObjectType().getTitleCasedListDisplayName()));
 
         boolean visible = isVisible();
         presentation.setVisible(visible);
@@ -57,7 +57,7 @@ public class HideObjectTypeAction extends ProjectAction {
         ObjectTypeFilterSettings settings = getTypeFilterSettings();
 
         DBObjectType objectType = objectList.getObjectType();
-        String listName = objectType.getTitleCasedListName();
+        String listName = objectType.getTitleCasedListDisplayName();
 
         String title = txt("msg.objects.title.HideObjectType", listName);
         String message = txt("msg.objects.question.HideObjectType", listName, connection.getName());

@@ -33,7 +33,7 @@ public class DBObjectSelectionDialog<T extends DBObject> extends DBNDialog<DBObj
     private final Consumer<T> callback;
 
     public DBObjectSelectionDialog(DBObjectSelectionInput<T> input, Consumer<T> callback) {
-        super(input.getConnection(), txt("msg.objects.title.SelectObject", input.getObjectType().getTitleCasedName()), false);
+        super(input.getConnection(), txt("msg.objects.title.SelectObject", input.getObjectType().getTitleCasedDisplayName()), false);
         this.input = input;
         this.callback = callback;
         init();

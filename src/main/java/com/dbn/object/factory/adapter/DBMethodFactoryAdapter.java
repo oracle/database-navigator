@@ -53,14 +53,15 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public void validateInput(DBObjectSpec input, List<@Nls String> errors) {
+        DBObjectType objectType = input.getObjectType();
         String objectName = input.getObjectName();
         if (objectName.isEmpty()) {
             errors.add(input.getParent() == null ?
-                    txt("msg.objects.error.ObjectNameNotSpecified", input.getObjectType().getName()) :
-                    txt("msg.objects.error.ObjectNameNotSpecifiedAtIndex", input.getObjectType().getName(), input.getIndex()));
+                    txt("msg.objects.error.ObjectNameNotSpecified", objectType.getDisplayName()) :
+                    txt("msg.objects.error.ObjectNameNotSpecifiedAtIndex", objectType.getDisplayName(), input.getIndex()));
 
         } else if (!Strings.isWord(objectName)) {
-            errors.add(txt("msg.objects.error.ObjectNameInvalid", input.getObjectType().getName(), objectName));
+            errors.add(txt("msg.objects.error.ObjectNameInvalid", objectType.getDisplayName(), objectName));
         }
 
 
@@ -82,7 +83,7 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter {
             if (argumentNames.contains(argumentName)) {
                 errors.add(input.getParent() == null ?
                         txt("msg.objects.error.DuplicateArgumentName", argumentName) :
-                        txt("msg.objects.error.DuplicateArgumentNameForObject", argumentName, input.getObjectType().getName(), objectName));
+                        txt("msg.objects.error.DuplicateArgumentNameForObject", argumentName, objectType.getDisplayName(), objectName));
             }
             argumentNames.add(argumentName);
         }
@@ -98,7 +99,7 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter {
         SchemaId schemaId = schema.getSchemaId();
 
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                txt("prc.object.title.CreatingObject", input.getObjectType().getTitleCasedName()),
+                txt("prc.object.title.CreatingObject", objectType.getTitleCasedDisplayName()),
                 txt("prc.object.text.CreatingObjectDescription", input.getObjectDescription()),
                 schema.getProject(),
                 connectionId,

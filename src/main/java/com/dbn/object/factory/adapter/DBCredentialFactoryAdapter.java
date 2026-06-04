@@ -69,11 +69,12 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public void createObject(DBObjectSpec input) throws SQLException {
+        DBObjectType objectType = input.getObjectType();
         ConnectionId connectionId = input.getConnectionId();
         SchemaId schemaId = input.getSchemaId();
 
         DatabaseInterfaceInvoker.execute(HIGH,
-                txt("prc.object.title.CreatingObject", input.getObjectType().getTitleCasedName()),
+                txt("prc.object.title.CreatingObject", objectType.getTitleCasedDisplayName()),
                 txt("prc.object.text.CreatingObjectDescription", input.getObjectDescription()),
                 input.getProject(),
                 connectionId,

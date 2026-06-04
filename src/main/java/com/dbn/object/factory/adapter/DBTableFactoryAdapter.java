@@ -65,11 +65,11 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter {
 
         if (objectName.isEmpty()) {
             errors.add(tableSpec.getParent() == null ?
-                    txt("msg.objects.error.ObjectNameNotSpecified", objectType.getName()) :
-                    txt("msg.objects.error.ObjectNameNotSpecifiedAtIndex", objectType.getName(), tableSpec.getIndex()));
+                    txt("msg.objects.error.ObjectNameNotSpecified", objectType.getDisplayName()) :
+                    txt("msg.objects.error.ObjectNameNotSpecifiedAtIndex", objectType.getDisplayName(), tableSpec.getIndex()));
 
         } else if (!Strings.isWord(objectName)) {
-            errors.add(txt("msg.objects.error.ObjectNameInvalid", objectType.getName(), objectName));
+            errors.add(txt("msg.objects.error.ObjectNameInvalid", objectType.getDisplayName(), objectName));
         }
 
         DBColumnFactoryAdapter columnAdapter = ObjectFactoryAdapters.get(COLUMN);
@@ -82,29 +82,30 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter {
             if (columnNames.contains(columnName)) {
                 errors.add(tableSpec.getParent() == null ?
                         txt("msg.objects.error.DuplicateColumnName", columnName) :
-                        txt("msg.objects.error.DuplicateColumnNameForObject", columnName, objectType.getName(), objectName));
+                        txt("msg.objects.error.DuplicateColumnNameForObject", columnName, objectType.getDisplayName(), objectName));
             }
             columnNames.add(columnName);
         }
     }
 
     @Override
-    public void createObject(DBObjectSpec tableSpec) throws SQLException {
-        DBSchema schema = tableSpec.getSchema();
+    public void createObject(DBObjectSpec input) throws SQLException {
+        DBObjectType objectType = input.getObjectType();
+        DBSchema schema = input.getSchema();
 
         ConnectionId connectionId = schema.getConnectionId();
         SchemaId schemaId = schema.getSchemaId();
 
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                txt("prc.object.title.CreatingObject", tableSpec.getObjectType().getTitleCasedName()),
-                txt("prc.object.text.CreatingObjectDescription", tableSpec.getObjectDescription()),
+                txt("prc.object.title.CreatingObject", objectType.getTitleCasedDisplayName()),
+                txt("prc.object.text.CreatingObjectDescription", input.getObjectDescription()),
                 schema.getProject(),
                 connectionId,
                 schemaId,
                 conn -> {
                     DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
-                    dataDefinition.createTable(tableSpec, conn);
-                    DBObjectSpecList indexSpecs = tableSpec.getChildren(DBObjectType.INDEX);
+                    dataDefinition.createTable(input, conn);
+                    DBObjectSpecList indexSpecs = input.getChildren(DBObjectType.INDEX);
                     for (DBObjectSpec indexSpec : indexSpecs) {
                         dataDefinition.createIndex(indexSpec, conn);
                     }

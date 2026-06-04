@@ -92,7 +92,7 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
         int size = getModelSize();
         if (size < 10) return null;
 
-        return txt("app.objects.hint.FilterObjectList", getObjectType().getListName());
+        return txt("app.objects.hint.FilterObjectList", getObjectType().getListDisplayName());
     }
 
     public DBObjectSelector<T> withConnectionContext(Supplier<ConnectionHandler> connectionContext) {

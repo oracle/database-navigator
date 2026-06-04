@@ -80,15 +80,16 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter {
     @Override
     public void createObject(DBObjectSpec input) throws SQLException {
         DBAIModelSourceType modelSourceType = AI_MODEL_SOURCE_TYPE.of(input);
-        DBSchema schema = input.getSchema();
 
+        DBObjectType objectType = input.getObjectType();
+        DBSchema schema = input.getSchema();
         ConnectionId connectionId = schema.getConnectionId();
         SchemaId schemaId = schema.getSchemaId();
 
         ProgressIndicator progress = ProgressMonitor.ensureProgressIndicator();
 
         DatabaseInterfaceInvoker.execute(MEDIUM,
-                txt("prc.object.title.CreatingObject", input.getObjectType().getTitleCasedName()),
+                txt("prc.object.title.CreatingObject", objectType.getTitleCasedDisplayName()),
                 txt("prc.object.text.CreatingObjectDescription", input.getObjectDescription()),
                 schema.getProject(),
                 connectionId,

@@ -97,8 +97,9 @@ public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter {
         ConnectionId connectionId = schema.getConnectionId();
         SchemaId schemaId = schema.getSchemaId();
 
+        DBObjectType objectType = input.getObjectType();
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                txt("prc.object.title.CreatingObject", input.getObjectType().getTitleCasedName()),
+                txt("prc.object.title.CreatingObject", objectType.getTitleCasedDisplayName()),
                 txt("prc.object.text.CreatingObjectDescription", getObjectDescription(input)),
                 schema.getProject(),
                 connectionId,

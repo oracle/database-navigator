@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showQuestionDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -107,13 +108,13 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
         if (ObjectFactoryAdapters.isSupported(objectType)) {
             if (isOwnerRestricted(objectType) && !schema.isUserSchema()) {
-                String objectTypeName = objectType.getName();
+                String objectTypeName = objectType.getDisplayName();
                 ConnectionHandler connection = schema.getConnection();
                 DBSchema userSchema = connection.getUserSchema();
 
                 showQuestionDialog(project,
                         txt("msg.objects.title.OwnerRestriction"),
-                        txt("msg.objects.question.OwnerRestriction", objectTypeName, objectType.getListName()),
+                        txt("msg.objects.question.OwnerRestriction", objectTypeName, objectType.getListDisplayName()),
                         Messages.OPTIONS_YES_CANCEL, 0,
                         option -> when(option == 0, () ->
                                 openFactoryInputDialog(
@@ -127,9 +128,9 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
             Dialogs.show(() -> new DBObjectFactoryInputDialog(project, schema, objectType, initialInput), callback);
         } else {
-            Messages.showErrorDialog(project,
+            showErrorDialog(project,
                     txt("msg.objects.title.OperationNotSupported"),
-                    txt("msg.objects.error.ObjectCreationNotSupported", objectType.getListName()));
+                    txt("msg.objects.error.ObjectCreationNotSupported", objectType.getListDisplayName()));
         }
     }
 
@@ -152,9 +153,9 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         if (errors.isEmpty()) {
             factoryAdapter.createObject(input);
         } else {
-            String objectTypeName = objectType.getName();
+            String objectTypeName = objectType.getDisplayName();
             String objectErrors = errors.stream().map(error -> " - " + error + "\n").collect(Collectors.joining());
-            Messages.showErrorDialog(project, txt("msg.objects.error.ObjectCreationError", objectTypeName, objectErrors));
+            showErrorDialog(project, txt("msg.objects.error.ObjectCreationError", objectTypeName, objectErrors));
         }
 
     }
@@ -230,7 +231,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         } catch (SQLException e) {
             conditionallyLog(e);
             String message = txt("msg.objects.error.CouldNotDropObject", object.getQualifiedNameWithType());
-            Messages.showErrorDialog(project, message, e);
+            showErrorDialog(project, message, e);
         }
     }
 }

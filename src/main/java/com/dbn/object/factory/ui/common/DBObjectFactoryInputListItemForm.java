@@ -79,7 +79,7 @@ public class DBObjectFactoryInputListItemForm extends DBNFormBase {
     }
 
     private @NotNull String getObjectTypeName() {
-        return getParentForm().getObjectType().getName();
+        return getParentForm().getObjectType().getDisplayName();
     }
 
     DBObjectFactoryInputForm getObjectDetailsPanel() {

@@ -89,7 +89,7 @@ public class DBObjectSelectionForm<T extends DBObject> extends DBNFormBase {
     }
 
     private void initObjectLabel() {
-        String objectTypeName = input.getObjectType().getTitleCasedName();
+        String objectTypeName = input.getObjectType().getTitleCasedDisplayName();
         objectLabel.setText(objectTypeName);
     }
 
@@ -165,7 +165,7 @@ public class DBObjectSelectionForm<T extends DBObject> extends DBNFormBase {
     protected void initValidation() {
         addSelectionValidation(schemaComboBox, txt("msg.shared.error.SelectSchema"));
         DBObjectType objectType = input.getObjectType();
-        String objectTypeName = objectType.getTitleCasedName();
+        String objectTypeName = objectType.getTitleCasedDisplayName();
 
         addSelectionValidation(objectComboBox, txt("msg.objects.error.SelectObject", (startsWithVowel(objectTypeName) ? "an " : "a ") +  objectTypeName));
     }
