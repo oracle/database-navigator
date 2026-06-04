@@ -171,8 +171,8 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
     private void initDocumentationLink() {
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
-                "Documentation:",
-                "ONNX ML Model Import into DB ",
+                txt("app.objects.label.Documentation"),
+                txt("app.objects.link.OnnxModelImport"),
                 "https://blogs.oracle.com/machinelearning/use-our-prebuilt-onnx-model-now-available-for-embedding-generation-in-oracle-database-23ai#:~:text=https%3A//adwc4pm.objectstorage.us%2Dashburn%2D1.oci.customer%2Doci.com/p/eLddQappgBJ7jNi6Guz9m9LOtYe2u8LWY19GfgU8flFK4N9YgP4kTlrE9Px3pE12/n/adwc4pm/b/OML%2DResources/o/");
         hyperLinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
     }

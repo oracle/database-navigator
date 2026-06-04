@@ -18,6 +18,8 @@ package com.dbn.common.ui.link;
 
 import com.dbn.common.ui.form.DBNFormBase;
 import com.intellij.ui.HyperlinkLabel;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -30,7 +32,7 @@ public class HyperLinkForm extends DBNFormBase {
     private JLabel textLabel;
     private HyperlinkLabel hyperLink;
 
-    private HyperLinkForm(String text, String linkText, String linkUrl) {
+    private HyperLinkForm(@Nls String text, @Nls String linkText, @NonNls String linkUrl) {
         super(null);
         NON_DISABLEABLE.set(textLabel, true);
         NON_DISABLEABLE.set(hyperLink, true);
@@ -41,11 +43,11 @@ public class HyperLinkForm extends DBNFormBase {
         hyperLink.setToolTipText(linkUrl);
     }
 
-    public static HyperLinkForm create(String text, String linkText, String linkUrl) {
+    public static HyperLinkForm create(@Nls String text, @Nls String linkText, @NonNls String linkUrl) {
         return new HyperLinkForm(text, linkText, linkUrl);
     }
 
-    public void setTooltipText(String tooltip) {
+    public void setTooltipText(@Nls String tooltip) {
         hyperLink.setToolTipText(tooltip);
     }
 
