@@ -157,7 +157,7 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
         HORIZONTAL_SCROLL_POLICY.set(toolsScrollPane, HORIZONTAL_SCROLLBAR_NEVER);
         Layouts.verticalBoxLayout(toolsPanel);
 
-        loadingPanel.add(new AsyncProcessIcon("Loading tools..."), BorderLayout.WEST);
+        loadingPanel.add(new AsyncProcessIcon(txt("cfg.assistant.text.LoadingTools")), BorderLayout.WEST);
         mainPanel.remove(toolsHeaderPanel);
         toolsScrollPane.setColumnHeaderView(toolsHeaderPanel);
 
@@ -179,7 +179,7 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
             return tools;
         } catch (Throwable e) {
             groupStatusPanel.setVisible(false);
-            initMessagePanel("Failed to load tools for MCP Server \"" + mcpServer.getName() + "\".\n\nCause:\n" + e.getMessage());
+            initMessagePanel(txt("msg.assistant.error.McpToolsLoadFailed", mcpServer.getName(), e.getMessage()));
             return List.of();
         } finally {
             loadingPanel.setVisible(false);
