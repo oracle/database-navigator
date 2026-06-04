@@ -23,6 +23,7 @@ import com.dbn.common.util.Strings;
 import com.intellij.openapi.options.ConfigurationException;
 import lombok.Getter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -72,7 +73,7 @@ public class DatabaseFileBundle implements PersistentConfiguration, Cloneable<Da
     }
 
     @Nullable
-    public DatabaseFile getFile(String schema) {
+    public DatabaseFile getFile(@NonNls String schema) {
         return files.stream().filter(f -> Objects.equals(f.getSchema(), schema)).findFirst().orElse(null);
     }
 

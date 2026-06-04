@@ -32,6 +32,7 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.JBUI;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -132,7 +133,7 @@ public class DBNTree extends Tree implements DBNComponent {
      * @param node the object representing the node from which the name is derived
      * @return the string representation of the node's name, as retrieved by the {@code toString()} method of the node
      */
-    protected String getContextMenuNodeName(Object node) {
+    protected @Nls String getContextMenuNodeName(Object node) {
         return node.toString();
     }
 

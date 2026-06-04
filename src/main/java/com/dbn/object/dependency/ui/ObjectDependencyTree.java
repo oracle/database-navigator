@@ -43,6 +43,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.tree.TreeUtil;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +53,6 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.event.MouseEvent;
 
-import static com.dbn.common.util.Naming.doubleQuoted;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectDependencyTree extends DBNTree{
@@ -98,12 +98,12 @@ public class ObjectDependencyTree extends DBNTree{
     }
 
     @Override
-    protected String getContextMenuNodeName(Object node) {
+    protected @Nls String getContextMenuNodeName(Object node) {
         ObjectDependencyTreeNode objectNode = (ObjectDependencyTreeNode) node;
         DBObject object = objectNode.getObject();
         if (object == null) return super.getContextMenuNodeName(node);
 
-        return object.getTypeName() + " " + doubleQuoted(object.getName());
+        return txt("app.object.token.QualifiedNameWithType", object.getTypeName(), object.getName());
     }
 
     @Override
