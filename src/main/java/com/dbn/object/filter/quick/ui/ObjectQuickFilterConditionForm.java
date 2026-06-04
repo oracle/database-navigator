@@ -44,6 +44,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectQuickFilterConditionForm extends DBNFormBase {
     private JPanel mainPanel;

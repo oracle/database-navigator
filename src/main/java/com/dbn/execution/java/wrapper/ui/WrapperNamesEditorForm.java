@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.nls.NlsResources.txt;
 
 public class WrapperNamesEditorForm extends DBNFormBase {
     private final WrapperModel model;

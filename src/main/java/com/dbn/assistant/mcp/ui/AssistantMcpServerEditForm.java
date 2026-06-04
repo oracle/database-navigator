@@ -61,6 +61,7 @@ import static com.dbn.common.util.Messages.showSuccessDialog;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantMcpServerEditForm extends DBNFormBase {
     private JPanel mainPanel;

@@ -42,6 +42,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public abstract class ExecutionTimeoutForm extends DBNFormBase {
     private JTextField executionTimeoutTextField;

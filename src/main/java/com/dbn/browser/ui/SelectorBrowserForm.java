@@ -45,6 +45,7 @@ import javax.swing.JPanel;
 import java.util.Map;
 
 import static com.dbn.common.ui.util.UserInterface.setBackgroundRecursive;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SelectorBrowserForm extends DatabaseBrowserForm {
     private JPanel mainPanel;

@@ -22,7 +22,6 @@ import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.options.setting.Settings;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
-import com.dbn.nls.NlsResources;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,6 +32,7 @@ import org.jetbrains.annotations.NonNls;
 import javax.swing.Icon;
 
 import static com.dbn.nls.NlsResources.format;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -42,7 +42,7 @@ public class InteractiveConfirmationBroker implements RememberOption, Persistent
     private final @Nls String message;
 
     private Icon dialogIcon = Icons.DIALOG_QUESTION;
-    private @Nls String doNotShowMessage = NlsResources.txt("msg.shared.option.DoNotAskAgain");
+    private @Nls String doNotShowMessage = txt("msg.shared.option.DoNotAskAgain");
 
     protected transient boolean confirm;
 

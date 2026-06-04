@@ -35,6 +35,7 @@ import java.awt.event.ActionListener;
 import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.text.TextContent.html;
+import static com.dbn.nls.NlsResources.txt;
 
 public class PluginConflictResolutionForm extends DBNFormBase {
     private JPanel mainPanel;

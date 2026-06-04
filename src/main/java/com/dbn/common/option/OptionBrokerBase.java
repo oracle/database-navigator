@@ -17,7 +17,6 @@
 package com.dbn.common.option;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.nls.NlsResources;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +26,7 @@ import org.jetbrains.annotations.NonNls;
 import javax.swing.Icon;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -37,7 +37,7 @@ public abstract class OptionBrokerBase<T> implements OptionBroker<T> {
     private final @Nls String message;
 
     private Icon icon = Icons.DIALOG_QUESTION;
-    private @Nls String doNotShowMessage = NlsResources.txt("msg.shared.option.DoNotAskAgain");
+    private @Nls String doNotShowMessage = txt("msg.shared.option.DoNotAskAgain");
 
     private final T defaultOption;
     private T selectedOption;

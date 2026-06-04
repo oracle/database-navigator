@@ -36,6 +36,7 @@ import java.awt.event.InputEvent;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.ClientProperty.NON_DISABLEABLE;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBNCollapsiblePanel extends DBNFormBase {
 

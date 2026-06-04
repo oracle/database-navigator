@@ -45,6 +45,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.Priority.MEDIUM;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_CREDENTIAL;
 import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_SOURCE_LOCATION;

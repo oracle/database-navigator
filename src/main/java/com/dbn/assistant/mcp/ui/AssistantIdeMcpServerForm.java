@@ -47,6 +47,7 @@ import static com.dbn.assistant.mcp.ide.IdeMcpServerManager.MCP_SERVER_PLUGIN_ID
 import static com.dbn.common.thread.Dispatch.async;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.CheckBoxes.onSelectionChange;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantIdeMcpServerForm extends DBNFormBase {
     private JPanel mainPanel;

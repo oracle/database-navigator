@@ -57,6 +57,7 @@ import static com.dbn.common.ui.util.Accessibility.attachSelectionAnnouncer;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Lists.sortedCopy;
 import static com.dbn.editor.data.filter.ConditionOperator.getConditionOperators;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
 public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<DatasetBasicFilterCondition> {

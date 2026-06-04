@@ -66,6 +66,7 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setTextSilently;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantProfileEditForm extends DBNFormBase {
     private JPanel hintPanel;

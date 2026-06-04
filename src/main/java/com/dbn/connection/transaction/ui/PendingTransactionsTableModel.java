@@ -31,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class PendingTransactionsTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel {
     private final ConnectionRef connection;
     private final List<DBNConnection> connections;

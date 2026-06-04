@@ -32,6 +32,8 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import java.awt.Color;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class EnvironmentTypesTableModel extends DBNEditableTableModel {
     private EnvironmentTypeBundle environmentTypes;
     private final ProjectRef project;

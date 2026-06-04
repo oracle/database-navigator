@@ -33,6 +33,7 @@ import javax.swing.JTextField;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 
 public class RenameExecutionResultForm extends DBNFormBase {
     private JPanel headerPanel;

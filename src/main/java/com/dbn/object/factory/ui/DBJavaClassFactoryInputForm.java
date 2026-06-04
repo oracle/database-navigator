@@ -48,6 +48,7 @@ import static com.dbn.common.util.Java.isValidClassName;
 import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.model.DBObjectAttributeType.JAVA_CLASS_NAME;
 import static com.dbn.object.factory.model.DBObjectAttributeType.JAVA_CLASS_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.JAVA_PACKAGE_NAME;

@@ -21,6 +21,8 @@ import com.dbn.common.ui.table.DBNReadonlyTableModel;
 import com.dbn.editor.session.model.SessionBrowserModelRow;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SessionDetailsTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel {
     private String sessionId = "";
     private String user = "";

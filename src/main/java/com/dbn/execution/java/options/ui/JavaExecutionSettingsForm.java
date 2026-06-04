@@ -25,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class JavaExecutionSettingsForm extends ConfigurationEditorForm<JavaExecutionSettings> {
     private JPanel mainPanel;
     private JTextField executionTimeoutTextField;

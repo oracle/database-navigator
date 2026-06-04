@@ -87,6 +87,7 @@ import static com.dbn.database.DatabaseObjectTypeId.CREDENTIAL;
 import static com.dbn.database.DatabaseObjectTypeId.JAVA_CLASS;
 import static com.dbn.database.DatabaseObjectTypeId.JAVA_RESOURCE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class OracleCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {

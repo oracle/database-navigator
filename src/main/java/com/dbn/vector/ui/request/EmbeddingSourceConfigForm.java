@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EmbeddingSourceConfigForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
     private JPanel mainPanel;

@@ -43,6 +43,7 @@ import java.awt.Dimension;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptExecutionSettings> {
     private JPanel mainPanel;

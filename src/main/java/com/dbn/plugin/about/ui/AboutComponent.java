@@ -42,6 +42,7 @@ import java.awt.event.KeyEvent;
 import static com.dbn.common.ui.util.Borders.LINK_FOCUS_BORDER;
 import static com.dbn.common.ui.util.Keyboard.onKeyPress;
 import static com.dbn.common.ui.util.Mouse.onMouseClick;
+import static com.dbn.nls.NlsResources.txt;
 import static java.awt.event.MouseEvent.BUTTON1;
 
 public class AboutComponent extends DBNFormBase {

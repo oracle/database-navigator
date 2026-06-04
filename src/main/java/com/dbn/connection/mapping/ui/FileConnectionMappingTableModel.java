@@ -25,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class FileConnectionMappingTableModel extends DBNMutableTableModel<FileConnectionContext> {
     private final List<FileConnectionContext> mappings;
 

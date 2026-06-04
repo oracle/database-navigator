@@ -35,7 +35,6 @@ import com.dbn.execution.compiler.CompileType;
 import com.dbn.execution.compiler.CompilerAction;
 import com.dbn.execution.compiler.CompilerActionSource;
 import com.dbn.execution.compiler.DatabaseCompilerManager;
-import com.dbn.nls.NlsSupport;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
@@ -66,10 +65,11 @@ import java.util.Objects;
 import static com.dbn.common.notification.NotificationCategory.DEBUGGER;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.openapi.ui.DialogWrapper.OK_EXIT_CODE;
 
 @Getter
-public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericProgramRunner implements NlsSupport {
+public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericProgramRunner  {
     public static final String INVALID_RUNNER_ID = "DBNInvalidRunner";
 
     private final DBDebuggerType debuggerType;

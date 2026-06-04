@@ -42,6 +42,8 @@ import javax.swing.JTextPane;
 import java.awt.Color;
 import java.awt.Font;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteEventListener {
 
     private JPanel mainPanel;

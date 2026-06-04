@@ -38,6 +38,7 @@ import javax.swing.Icon;
 import java.sql.SQLException;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.type.DBObjectType.JAVA_RESOURCE;

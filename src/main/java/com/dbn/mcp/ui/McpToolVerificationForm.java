@@ -54,6 +54,7 @@ import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.mcp.util.SqlParameterParser.parseOccurrences;
 import static com.dbn.mcp.util.SqlParameterParser.stripColon;
 import static com.dbn.mcp.util.SqlParameterParser.uniqueInOrder;
+import static com.dbn.nls.NlsResources.txt;
 
 public class McpToolVerificationForm extends DBNFormBase {
     private static final int PREVIEW_ROW_LIMIT = 200;

@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGroup> implements ListSelectionListener {
     private final Map<String, ConfigurationEditorForm> filterDetailPanels = DisposableContainers.map(this);

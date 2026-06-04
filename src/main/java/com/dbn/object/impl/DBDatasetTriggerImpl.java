@@ -37,6 +37,7 @@ import java.sql.SQLException;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.util.Strings.cachedLowerCase;
+import static com.dbn.nls.NlsResources.txt;
 
 class DBDatasetTriggerImpl extends DBTriggerImpl implements DBDatasetTrigger {
     DBDatasetTriggerImpl(DBDataset dataset, DBTriggerMetadata metadata) throws SQLException {

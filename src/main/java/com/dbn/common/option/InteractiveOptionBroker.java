@@ -21,7 +21,6 @@ import com.dbn.common.options.setting.Settings;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
-import com.dbn.nls.NlsResources;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,6 +34,7 @@ import java.util.List;
 
 import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.nls.NlsResources.format;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -51,7 +51,7 @@ public class InteractiveOptionBroker<T extends InteractiveOption> extends Option
             T... options) {
         super(configName, title, message, defaultOption);
         this.options = Arrays.asList(options);
-        setDoNotShowMessage(NlsResources.txt("msg.shared.option.RememberOption"));
+        setDoNotShowMessage(txt("msg.shared.option.RememberOption"));
     }
 
     @Override

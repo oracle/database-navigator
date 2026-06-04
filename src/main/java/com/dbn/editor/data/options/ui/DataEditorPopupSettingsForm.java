@@ -28,6 +28,7 @@ import java.awt.event.ActionListener;
 
 import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DataEditorPopupSettingsForm extends ConfigurationEditorForm<DataEditorPopupSettings> {
     private JTextField lengthThresholdTextField;

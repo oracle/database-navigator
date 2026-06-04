@@ -17,7 +17,6 @@
 package com.dbn.object.factory;
 
 import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.nls.NlsSupport;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.extension.DBObjectExtensionPoint;
 import com.dbn.object.factory.model.DBObjectSpec;
@@ -27,7 +26,7 @@ import com.intellij.openapi.extensions.ExtensionPointName;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface ObjectFactoryAdapter extends DBObjectExtensionPoint, NlsSupport {
+public interface ObjectFactoryAdapter extends DBObjectExtensionPoint {
     ExtensionPointName<ObjectFactoryAdapter> EP = ExtensionPointName.create("com.dbn.objectFactoryAdapter");
 
     DBObjectSpec createInput(DBSchema schema);

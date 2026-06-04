@@ -34,6 +34,7 @@ import java.util.Set;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
+import static com.dbn.nls.NlsResources.txt;
 
 public class WrapperNameEditorForm extends DBNFormBase {
     private JPanel mainPanel;

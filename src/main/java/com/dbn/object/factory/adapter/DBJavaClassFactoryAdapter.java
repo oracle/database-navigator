@@ -41,6 +41,7 @@ import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.util.Java.getQualifiedClassName;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.JAVA_CLASS_NAME;
 import static com.dbn.object.factory.model.DBObjectAttributeType.JAVA_CLASS_TYPE;

@@ -41,6 +41,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.debugger.JDWPTunnelType.NONE;
 import static com.dbn.debugger.JDWPTunnelType.SSH_REVERSE_TUNNEL;
 import static com.dbn.debugger.JDWPTunnelType.TCP_DRIVER_TUNNEL;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<ConnectionDebuggerSettings> {
     private JPanel mainPanel;

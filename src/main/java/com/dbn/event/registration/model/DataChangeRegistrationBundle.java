@@ -29,7 +29,6 @@ import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.event.registration.EventRegistrationUtil;
 import com.dbn.event.registration.filter.EventRegistrationFilter;
 import com.dbn.event.registration.filter.EventRegistrationFilterType;
-import com.dbn.nls.NlsResources;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,6 +40,7 @@ import java.util.stream.Collectors;
 import static com.dbn.common.util.Lists.isInBounds;
 import static com.dbn.event.registration.filter.EventRegistrationFilterType.FILTER_STATUS_LISTENING;
 import static com.dbn.event.registration.filter.EventRegistrationFilterType.FILTER_STATUS_NOT_LISTENING;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChangeRegistration> implements DBNTableWithGutterModel<DataChangeRegistration>, DatabaseContextBase {
@@ -50,14 +50,14 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
     private List<DataChangeRegistration> registrations;
 
     // Column identifiers
-    public static final String COL_REG_ID = NlsResources.txt("app.eventRegistration.column.RegistrationId");
-    public static final String COL_USERNAME = NlsResources.txt("app.eventRegistration.column.UserName");
-    public static final String COL_TABLE_NAME = NlsResources.txt("app.eventRegistration.column.TableName");
-    public static final String COL_OPERATIONS = NlsResources.txt("app.eventRegistration.column.Operations");
-    public static final String COL_TIMEOUT = NlsResources.txt("app.eventRegistration.column.Timeout");
-    public static final String COL_CHANGE_LAG = NlsResources.txt("app.eventRegistration.column.ChangeLag");
-    public static final String COL_CALLBACK = NlsResources.txt("app.eventRegistration.column.Callback");
-    public static final String COL_REG_FLAGS = NlsResources.txt("app.eventRegistration.column.RegFlags");
+    public static final String COL_REG_ID = txt("app.eventRegistration.column.RegistrationId");
+    public static final String COL_USERNAME = txt("app.eventRegistration.column.UserName");
+    public static final String COL_TABLE_NAME = txt("app.eventRegistration.column.TableName");
+    public static final String COL_OPERATIONS = txt("app.eventRegistration.column.Operations");
+    public static final String COL_TIMEOUT = txt("app.eventRegistration.column.Timeout");
+    public static final String COL_CHANGE_LAG = txt("app.eventRegistration.column.ChangeLag");
+    public static final String COL_CALLBACK = txt("app.eventRegistration.column.Callback");
+    public static final String COL_REG_FLAGS = txt("app.eventRegistration.column.RegFlags");
 
     private static final String[] COLUMN_NAMES = {
             COL_REG_ID,

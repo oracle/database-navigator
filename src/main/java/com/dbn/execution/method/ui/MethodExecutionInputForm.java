@@ -52,6 +52,8 @@ import java.awt.Dimension;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MethodExecutionInputForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel argumentsPanel;

@@ -55,6 +55,7 @@ import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.ui.util.TextFields.setTextSilently;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantCredentialEditForm extends DBNFormBase {
     private JPanel mainPanel;

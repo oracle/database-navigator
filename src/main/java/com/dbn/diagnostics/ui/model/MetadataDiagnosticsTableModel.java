@@ -21,28 +21,29 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.diagnostics.DiagnosticsManager;
 import com.dbn.diagnostics.data.DiagnosticBundle;
 import com.dbn.diagnostics.data.DiagnosticEntry;
-import com.dbn.nls.NlsResources;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class MetadataDiagnosticsTableModel extends AbstractDiagnosticsTableModel<String> {
     private final ConnectionRef connection;
 
     private static final String[] COLUMN_NAMES = new String[] {
-            NlsResources.txt("app.diagnostics.column.Identifier"),
-            NlsResources.txt("app.diagnostics.column.Invocations"),
-            NlsResources.txt("app.diagnostics.column.Failures"),
-            NlsResources.txt("app.diagnostics.column.Timeouts"),
-            NlsResources.txt("app.diagnostics.column.BestQueryMillis"),
-            NlsResources.txt("app.diagnostics.column.BestLoadMillis"),
-            NlsResources.txt("app.diagnostics.column.WorstQueryMillis"),
-            NlsResources.txt("app.diagnostics.column.WorstLoadMillis"),
-            NlsResources.txt("app.diagnostics.column.AverageQueryMillis"),
-            NlsResources.txt("app.diagnostics.column.AverageLoadMillis"),
-            NlsResources.txt("app.diagnostics.column.TotalQueryMillis"),
-            NlsResources.txt("app.diagnostics.column.TotalLoadMillis"),
-            NlsResources.txt("app.diagnostics.column.FetchBlockSize")};
+            txt("app.diagnostics.column.Identifier"),
+            txt("app.diagnostics.column.Invocations"),
+            txt("app.diagnostics.column.Failures"),
+            txt("app.diagnostics.column.Timeouts"),
+            txt("app.diagnostics.column.BestQueryMillis"),
+            txt("app.diagnostics.column.BestLoadMillis"),
+            txt("app.diagnostics.column.WorstQueryMillis"),
+            txt("app.diagnostics.column.WorstLoadMillis"),
+            txt("app.diagnostics.column.AverageQueryMillis"),
+            txt("app.diagnostics.column.AverageLoadMillis"),
+            txt("app.diagnostics.column.TotalQueryMillis"),
+            txt("app.diagnostics.column.TotalLoadMillis"),
+            txt("app.diagnostics.column.FetchBlockSize")};
 
     public MetadataDiagnosticsTableModel(ConnectionHandler connection) {
         super(connection.getProject());

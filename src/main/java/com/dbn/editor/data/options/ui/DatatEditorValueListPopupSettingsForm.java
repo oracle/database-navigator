@@ -27,6 +27,7 @@ import javax.swing.JTextField;
 
 import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatatEditorValueListPopupSettingsForm extends ConfigurationEditorForm<DataEditorValueListPopupSettings> {
     private JTextField elementCountThresholdTextBox;

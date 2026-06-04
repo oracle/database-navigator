@@ -43,6 +43,7 @@ import java.awt.FontMetrics;
 import java.sql.SQLException;
 
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 
 @SuppressWarnings("unused")
 public class ConnectionInfoForm extends DBNFormBase {

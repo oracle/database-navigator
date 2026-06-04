@@ -82,6 +82,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.connection.DatabaseType.GENERIC;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.driver.approval.DriverLibraryApprovalUtil.approveTemporarily;
+import static com.dbn.nls.NlsResources.txt;
 
 
 public class ConnectionDriverSettingsForm extends DBNFormBase {

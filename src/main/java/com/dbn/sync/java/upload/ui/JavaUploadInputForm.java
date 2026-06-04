@@ -44,6 +44,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
 public class JavaUploadInputForm extends DBNFormBase {

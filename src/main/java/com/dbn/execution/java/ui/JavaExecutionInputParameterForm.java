@@ -65,6 +65,7 @@ import static com.dbn.execution.common.input.CodeBlocks.isCodeBlock;
 import static com.dbn.execution.java.ui.JavaExecutionInputUtil.classifyForUi;
 import static com.dbn.execution.java.ui.JavaExecutionInputUtil.setupSingleDimArrayEditor;
 import static com.dbn.execution.java.wrapper.WrapperStatementBuilder.arrayBrackets;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static java.util.Collections.emptyList;
 

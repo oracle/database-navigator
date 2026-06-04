@@ -42,6 +42,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetSortingColumnForm extends DBNFormBase {
     private JPanel actionsPanel;

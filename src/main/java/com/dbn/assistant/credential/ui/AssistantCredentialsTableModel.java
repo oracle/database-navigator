@@ -27,6 +27,8 @@ import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.options.ConfigurationException;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class AssistantCredentialsTableModel extends DBNEntityEditableTableModel<AssistantCredential> {
 
     AssistantCredentialsTableModel(AssistantCredentialBundle credentials) {

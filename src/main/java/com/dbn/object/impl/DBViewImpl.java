@@ -39,6 +39,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.EDITIONABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_OBJECT;
 

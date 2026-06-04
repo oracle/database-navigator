@@ -60,6 +60,7 @@ import static com.dbn.common.ui.CardLayouts.getCard;
 import static com.dbn.common.ui.CardLayouts.showCard;
 import static com.dbn.common.ui.util.Borderless.markBorderless;
 import static com.dbn.common.ui.util.Lists.onSelectionChange;
+import static com.dbn.nls.NlsResources.txt;
 import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
 public class ProjectSettingsForm extends CompositeConfigurationEditorForm<ProjectSettings> {

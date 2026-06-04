@@ -58,6 +58,7 @@ import java.util.List;
 import static com.dbn.common.util.Actions.createActionToolbar;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
 public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {

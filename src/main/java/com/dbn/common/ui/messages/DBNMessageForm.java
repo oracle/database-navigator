@@ -49,6 +49,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
 
 import static com.dbn.common.message.MessageType.PROCESSING;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.util.ui.JBUI.emptyInsets;
 
 public class DBNMessageForm extends DBNFormBase {

@@ -29,6 +29,8 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class ResourceMonitorTransactionsTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel, Disposable {
     private final ConnectionRef connection;

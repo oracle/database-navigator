@@ -51,6 +51,7 @@ import java.util.Map;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 

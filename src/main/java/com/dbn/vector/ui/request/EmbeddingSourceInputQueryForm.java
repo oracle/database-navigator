@@ -57,6 +57,7 @@ import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.common.util.Editors.updateEditorScrollPane;
 import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     private JPanel mainPanel;

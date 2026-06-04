@@ -53,6 +53,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Java.isValidClassName;
 import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extends CodeGeneratorInputForm<I> {
     private JPanel headerPanel;

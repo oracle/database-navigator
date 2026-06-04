@@ -33,6 +33,8 @@ import com.intellij.ui.components.JBList;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class JavaUploadResultForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;

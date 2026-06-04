@@ -35,6 +35,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter

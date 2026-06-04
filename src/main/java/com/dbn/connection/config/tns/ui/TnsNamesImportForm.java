@@ -40,6 +40,7 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.FileChoosers.addFileChooser;
 import static com.dbn.connection.config.tns.TnsNamesParser.tnsFileChooser;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class TnsNamesImportForm extends DBNFormBase {
     private TextFieldWithBrowseButton tnsNamesFileTextField;

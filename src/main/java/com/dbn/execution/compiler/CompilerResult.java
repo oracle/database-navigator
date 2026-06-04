@@ -26,7 +26,6 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.editor.DBContentType;
-import com.dbn.nls.NlsSupport;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
@@ -45,9 +44,10 @@ import java.util.List;
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.notification.NotificationCategory.COMPILER;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
-public class CompilerResult implements Disposable, NotificationSupport, NlsSupport {
+public class CompilerResult implements Disposable, NotificationSupport {
     private final DBObjectRef<DBSchemaObject> object;
     private final List<CompilerMessage> compilerMessages = new ArrayList<>();
     private CompilerAction compilerAction;

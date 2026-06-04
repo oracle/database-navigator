@@ -26,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.nls.NlsResources.txt;
 
 public class MethodExecutionSettingsForm extends ConfigurationEditorForm<MethodExecutionSettings> {
     private JPanel mainPanel;

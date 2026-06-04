@@ -66,6 +66,7 @@ import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.mcp.util.SqlParameterParser.parseOccurrences;
 import static com.dbn.mcp.util.SqlParameterParser.stripColon;
 import static com.dbn.mcp.util.SqlParameterParser.uniqueInOrder;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.util.ui.UIUtil.getContextHelpForeground;
 
 public class McpToolDefinitionForm extends DBNFormBase {

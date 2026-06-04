@@ -57,6 +57,7 @@ import java.util.List;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.nls.NlsResources.txt;
 
 public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExecutionResult> {
     private JPanel mainPanel;

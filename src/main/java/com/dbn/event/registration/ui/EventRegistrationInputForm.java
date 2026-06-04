@@ -36,6 +36,7 @@ import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EventRegistrationInputForm extends DBNFormBase {
     private JPanel mainPanel;

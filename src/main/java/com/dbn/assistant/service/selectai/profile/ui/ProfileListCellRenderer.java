@@ -19,7 +19,6 @@ package com.dbn.assistant.service.selectai.profile.ui;
 import com.dbn.assistant.service.selectai.SelectAiContextUtil;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
-import com.dbn.nls.NlsSupport;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.common.ui.DBObjectListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
@@ -27,10 +26,11 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JList;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
 
-public class ProfileListCellRenderer extends DBObjectListCellRenderer<DBAIProfile> implements NlsSupport {
+public class ProfileListCellRenderer extends DBObjectListCellRenderer<DBAIProfile>  {
     private final ConnectionRef connection;
 
     public ProfileListCellRenderer(ConnectionHandler connection) {

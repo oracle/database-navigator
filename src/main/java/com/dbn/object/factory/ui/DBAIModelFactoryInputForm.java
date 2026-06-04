@@ -43,6 +43,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.FileChoosers.addFileChooser;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_CREDENTIAL;
 import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_SOURCE_LOCATION;
 import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_SOURCE_TYPE;

@@ -46,6 +46,7 @@ import java.util.List;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static com.dbn.object.type.DBObjectType.TABLE;

@@ -34,6 +34,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DDLFileGeneralSettingsForm extends ConfigurationEditorForm<DDLFileGeneralSettings> {
     private JPanel mainPanel;

@@ -81,6 +81,7 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.count;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<ConnectionBundleSettings> implements ListSelectionListener {

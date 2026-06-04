@@ -51,6 +51,8 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectQuickFilterForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;

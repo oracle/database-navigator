@@ -23,6 +23,8 @@ import com.dbn.common.ui.table.DBNEntityEditableTableModel;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.options.ConfigurationException;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class AssistantMcpServersTableModel extends DBNEntityEditableTableModel<AssistantMcpServer> {
 
     AssistantMcpServersTableModel(AssistantMcpServerBundle mcpServers) {

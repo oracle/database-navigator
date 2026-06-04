@@ -40,6 +40,7 @@ import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DiagnosticSettingsForm extends DBNFormBase {
     private JPanel mainPanel;

@@ -40,6 +40,7 @@ import javax.swing.JPanel;
 
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantCredentialQuickInputForm extends DBNFormBase {
     private JPanel hintPanel;

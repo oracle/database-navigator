@@ -44,6 +44,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class StatementExecutionResultForm extends ExecutionResultFormBase<StatementExecutionCursorResult> implements SearchableDataComponent {
     private JPanel mainPanel;

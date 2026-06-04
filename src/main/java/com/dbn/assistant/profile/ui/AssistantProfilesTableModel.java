@@ -34,6 +34,8 @@ import com.intellij.openapi.options.ConfigurationException;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class AssistantProfilesTableModel extends DBNEntityEditableTableModel<DeclaredAssistantProfile> {
 
     private final Supplier<AssistantCredentialBundle> credentials;

@@ -26,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DataEditorQualifiedEditorSettingsForm extends ConfigurationEditorForm<DataEditorQualifiedEditorSettings> {
     private JPanel mainPanel;

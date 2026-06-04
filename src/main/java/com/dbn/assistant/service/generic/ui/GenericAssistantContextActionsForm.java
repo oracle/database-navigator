@@ -27,6 +27,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class GenericAssistantContextActionsForm extends AssistantDetailFormBase implements AssistantContextActionsForm {

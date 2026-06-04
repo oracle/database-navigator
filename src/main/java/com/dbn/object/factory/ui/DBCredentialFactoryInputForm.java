@@ -54,6 +54,7 @@ import static com.dbn.common.ui.util.TextFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.model.DBObjectAttributeType.CREDENTIAL_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.FINGERPRINT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.PASSWORD;

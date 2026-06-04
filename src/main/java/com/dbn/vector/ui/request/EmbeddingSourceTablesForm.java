@@ -24,6 +24,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class EmbeddingSourceTablesForm extends VectorToolboxFormBase {
     private JPanel mainPanel;
     private JPanel tableListPanel;

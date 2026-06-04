@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.TABLE;

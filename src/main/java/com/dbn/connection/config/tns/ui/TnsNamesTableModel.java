@@ -26,6 +26,8 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class TnsNamesTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<TnsProfile> {
     private final TnsNames tnsNames;
     private final Listeners<TableModelListener> listeners = Listeners.create(this);

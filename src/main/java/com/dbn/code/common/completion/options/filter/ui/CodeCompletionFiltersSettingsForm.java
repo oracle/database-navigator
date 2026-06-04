@@ -31,6 +31,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CodeCompletionFiltersSettingsForm extends CompositeConfigurationEditorForm<CodeCompletionFiltersSettings> {
 
     private JLabel basicCompletionLabel;

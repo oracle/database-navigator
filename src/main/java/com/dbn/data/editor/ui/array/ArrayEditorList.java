@@ -24,6 +24,7 @@ import javax.swing.table.TableCellEditor;
 import java.awt.Component;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 
 public class ArrayEditorList extends EditableStringList {

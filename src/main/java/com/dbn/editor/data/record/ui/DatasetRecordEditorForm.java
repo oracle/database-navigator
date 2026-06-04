@@ -50,6 +50,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetRecordEditorForm extends DBNFormBase {
     private JPanel actionsPanel;

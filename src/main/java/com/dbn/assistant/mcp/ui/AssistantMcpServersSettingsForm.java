@@ -42,6 +42,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<AssistantMcpServerSettings> {
     private JPanel mainPanel;

@@ -39,6 +39,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.util.Dialogs.whenOk;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vector.model.request.EmbeddingChunkingConfigValidator.validateMaxSize;
 import static com.dbn.vector.model.request.EmbeddingChunkingConfigValidator.validateOverlap;
 

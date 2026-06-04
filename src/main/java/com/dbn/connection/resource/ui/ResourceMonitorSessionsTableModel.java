@@ -28,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ResourceMonitorSessionsTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel {
     private final ConnectionRef connection;
     private final List<DatabaseSession> sessions;

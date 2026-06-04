@@ -60,6 +60,7 @@ import java.util.Date;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implements TableModelListener {
     private static final TableCellRenderer CELL_RENDERER = new CalendarTableCellRenderer();

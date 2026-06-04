@@ -43,6 +43,7 @@ import static com.dbn.common.notification.NotificationSupport.sendErrorNotificat
 import static com.dbn.database.DatabaseFeature.CONNECTION_ERROR_RECOVERY;
 import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 class SqliteCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
 

@@ -62,6 +62,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.isEmptyText;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.FileChoosers.addSingleFolderChooser;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExportDataForm extends DBNFormBase {
     private JPanel mainPanel;

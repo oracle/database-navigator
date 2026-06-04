@@ -63,6 +63,7 @@ import java.util.Objects;
 
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecutionResult> {
     private JPanel mainPanel;

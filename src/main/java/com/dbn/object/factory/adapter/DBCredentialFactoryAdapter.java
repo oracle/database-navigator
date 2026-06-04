@@ -34,6 +34,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGH;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.CREDENTIAL_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.FINGERPRINT;

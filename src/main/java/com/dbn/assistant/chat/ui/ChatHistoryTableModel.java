@@ -31,6 +31,8 @@ import javax.swing.event.TableModelListener;
 import java.util.Date;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 
 public class ChatHistoryTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<Chat> {
     private final Listeners<TableModelListener> listeners = Listeners.create(this);

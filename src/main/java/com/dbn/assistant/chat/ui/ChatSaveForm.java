@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ChatSaveForm extends DBNFormBase {
     private JPanel headerPanel;

@@ -27,6 +27,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DialogWithTimeoutForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel contentPanel;

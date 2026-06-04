@@ -48,6 +48,7 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleForm {
     private JPanel mainPanel;

@@ -61,6 +61,7 @@ import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.common.util.Editors.updateEditorScrollPane;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.help.HelpTopic.VECTOR_SEARCH;
+import static com.dbn.nls.NlsResources.txt;
 
 public class VectorSearchForm extends DBNFormBase {
     private JPanel actionsPanel;

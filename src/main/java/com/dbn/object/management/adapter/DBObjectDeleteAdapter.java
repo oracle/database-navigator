@@ -22,6 +22,7 @@ import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.event.ObjectListRefreshHandler;
 import org.jetbrains.annotations.Nls;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.openapi.util.NlsContexts.DialogMessage;
 import static com.intellij.openapi.util.NlsContexts.DialogTitle;
 import static com.intellij.openapi.util.NlsContexts.ProgressText;

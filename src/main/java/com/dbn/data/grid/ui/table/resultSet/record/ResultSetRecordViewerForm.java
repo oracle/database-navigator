@@ -56,6 +56,7 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ResultSetRecordViewerForm extends DBNFormBase {
     private JPanel actionsPanel;

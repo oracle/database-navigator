@@ -47,6 +47,7 @@ import java.util.Objects;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JsonDataEditorModelCell
         extends ResultSetDataModelCell<JsonDataEditorModelRow, JsonDataEditorModel>

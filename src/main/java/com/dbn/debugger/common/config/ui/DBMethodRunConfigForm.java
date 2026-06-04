@@ -50,6 +50,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 
 import static com.dbn.common.dispose.Disposer.replace;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBMethodRunConfigForm extends DBProgramRunConfigForm<DBMethodRunConfig> {
     private JPanel headerPanel;

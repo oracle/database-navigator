@@ -26,7 +26,6 @@ import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.Tables;
 import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Cursors;
-import com.dbn.nls.NlsResources;
 import com.dbn.object.common.editor.DefaultEditorOption;
 import com.dbn.object.common.editor.DefaultEditorType;
 import com.dbn.object.type.DBObjectType;
@@ -45,6 +44,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<DatabaseBrowserEditorSettings> {
     private JPanel mainPanel;
@@ -105,11 +105,11 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
                     DefaultEditorType editorType = (DefaultEditorType) value;
 
                     append(editorType.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                    setAccessibleDescription(this, NlsResources.txt("cfg.browser.aria.ChangeDefaultEditorTypeHint"));
+                    setAccessibleDescription(this, txt("cfg.browser.aria.ChangeDefaultEditorTypeHint"));
                 }
             });
 
-            Tables.attachValueSelector(this, 1, NlsResources.txt("cfg.browser.title.EditorType"), DefaultEditorType.values());
+            Tables.attachValueSelector(this, 1, txt("cfg.browser.title.EditorType"), DefaultEditorType.values());
         }
 
         @Override

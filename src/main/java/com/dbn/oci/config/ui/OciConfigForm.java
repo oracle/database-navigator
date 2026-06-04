@@ -48,6 +48,7 @@ import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.oci.util.OciIdentifiers.isCompartmentScopeOcid;
 import static com.dbn.oci.util.OciIdentifiers.isTenancyOcid;
 import static com.dbn.oci.util.OciIdentifiers.isUserOcid;

@@ -49,6 +49,7 @@ import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.content.DynamicContentProperty.DEPENDENCY;
 import static com.dbn.common.content.DynamicContentProperty.INTERNAL;
 import static com.dbn.common.util.Commons.nvln;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;

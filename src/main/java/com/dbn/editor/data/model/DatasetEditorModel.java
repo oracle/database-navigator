@@ -73,6 +73,7 @@ import static com.dbn.editor.data.model.RecordStatus.DIRTY;
 import static com.dbn.editor.data.model.RecordStatus.INSERTED;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
 import static com.dbn.editor.data.model.RecordStatus.UPDATING;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @Getter

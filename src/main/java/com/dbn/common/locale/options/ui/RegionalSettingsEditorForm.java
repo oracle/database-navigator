@@ -52,6 +52,7 @@ import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class RegionalSettingsEditorForm extends ConfigurationEditorForm<RegionalSettings> {
     private JPanel mainPanel;

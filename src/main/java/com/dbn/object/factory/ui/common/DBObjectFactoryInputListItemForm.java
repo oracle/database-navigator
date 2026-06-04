@@ -26,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBObjectFactoryInputListItemForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel removeActionPanel;

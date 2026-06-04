@@ -51,6 +51,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectPropertiesForm extends DBNFormBase {
     private JPanel mainPanel;
     private JLabel objectLabel;

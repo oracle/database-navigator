@@ -23,6 +23,8 @@ import com.dbn.object.properties.DBObjectProperty;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectPropertiesTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<DBObjectProperty> {
     private List<DBObjectProperty> properties = new ArrayList<>();
 

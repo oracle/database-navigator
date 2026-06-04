@@ -47,6 +47,7 @@ import java.awt.BorderLayout;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.help.HelpTopic.SESSION_BROWSER;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SessionBrowserForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel actionsPanel;

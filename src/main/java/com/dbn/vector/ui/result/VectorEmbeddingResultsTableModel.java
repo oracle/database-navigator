@@ -28,6 +28,7 @@ import lombok.Getter;
 
 import static com.dbn.common.task.TaskStatus.SKIPPED;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;

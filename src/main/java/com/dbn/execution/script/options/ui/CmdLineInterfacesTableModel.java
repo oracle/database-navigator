@@ -28,6 +28,8 @@ import lombok.Getter;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class CmdLineInterfacesTableModel extends DBNEditableTableModel {
     private CmdLineInterfaceBundle bundle;

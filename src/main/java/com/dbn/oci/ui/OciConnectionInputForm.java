@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
+import static com.dbn.nls.NlsResources.txt;
 
 
 public class OciConnectionInputForm extends DBNFormBase {

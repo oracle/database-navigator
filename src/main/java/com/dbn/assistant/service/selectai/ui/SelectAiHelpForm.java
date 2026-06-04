@@ -44,6 +44,7 @@ import java.awt.datatransfer.StringSelection;
 import java.util.List;
 
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Database Assistant prerequisites information form

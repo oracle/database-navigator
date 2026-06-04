@@ -53,6 +53,7 @@ import java.util.Map;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.Splitters.makeRegular;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JavaExecutionHistoryForm extends DBNFormBase {
 	private JPanel mainPanel;
@@ -179,7 +180,7 @@ public class JavaExecutionHistoryForm extends DBNFormBase {
 		protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
 			Presentation presentation = e.getPresentation();
 			presentation.setIcon(Icons.ACTION_OPTIONS);
-			presentation.setText(com.dbn.nls.NlsResources.txt("app.execution.action.Settings"));
+			presentation.setText(txt("app.execution.action.Settings"));
 		}
 	}
 

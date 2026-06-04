@@ -61,6 +61,8 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
     private JPanel actionsPanel;
     private JPanel viewerPanel;

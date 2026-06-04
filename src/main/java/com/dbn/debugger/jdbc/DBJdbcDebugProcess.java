@@ -50,7 +50,6 @@ import com.dbn.debugger.jdbc.frame.DBJdbcDebugSuspendContext;
 import com.dbn.editor.DBContentType;
 import com.dbn.execution.ExecutionContext;
 import com.dbn.execution.ExecutionInput;
-import com.dbn.nls.NlsSupport;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.DBSchemaObject;
@@ -91,10 +90,11 @@ import static com.dbn.debugger.common.process.DBDebugProcessStatus.TARGET_EXECUT
 import static com.dbn.debugger.common.process.DBDebugProcessStatus.TARGET_EXECUTION_THREW_EXCEPTION;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.ExecutionStatus.CANCELLED;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
-public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebugProcess implements DBDebugProcess, NotificationSupport, NlsSupport {
+public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebugProcess implements DBDebugProcess, NotificationSupport {
     private DBNConnection targetConnection;
     private DBNConnection debuggerConnection;
     private final DBDebugProcessStatusHolder status = new DBDebugProcessStatusHolder();

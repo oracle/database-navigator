@@ -49,6 +49,7 @@ import java.util.List;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ScriptExecutionInputForm extends DBNFormBase {
     private JPanel headerPanel;

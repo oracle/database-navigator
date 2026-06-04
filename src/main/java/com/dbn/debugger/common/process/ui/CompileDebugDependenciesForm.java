@@ -44,6 +44,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.nls.NlsResources.txt;
 
 public class CompileDebugDependenciesForm extends DBNFormBase {
     private JList<DBSchemaObject> objectList;

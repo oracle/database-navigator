@@ -97,6 +97,7 @@ import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.debugger.JDWPTunnelType.SSH_REVERSE_TUNNEL;
 import static com.dbn.debugger.JDWPTunnelType.TCP_DRIVER_TUNNEL;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.debugger.impl.PrioritizedTask.Priority.LOWEST;
 import static com.intellij.debugger.impl.PrioritizedTask.Priority.NORMAL;
 

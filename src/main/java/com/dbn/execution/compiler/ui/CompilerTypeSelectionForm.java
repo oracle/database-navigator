@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.nls.NlsResources.txt;
 
 public class CompilerTypeSelectionForm extends DBNFormBase {
     private JPanel mainPanel;

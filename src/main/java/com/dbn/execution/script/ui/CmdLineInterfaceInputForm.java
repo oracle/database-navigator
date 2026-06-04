@@ -37,6 +37,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 import static com.dbn.common.util.Strings.trim;
+import static com.dbn.nls.NlsResources.txt;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 public class CmdLineInterfaceInputForm extends DBNFormBase {

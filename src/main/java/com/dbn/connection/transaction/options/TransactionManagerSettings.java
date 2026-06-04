@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.help.HelpTopic.TRANSACTION_HANDLING;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter

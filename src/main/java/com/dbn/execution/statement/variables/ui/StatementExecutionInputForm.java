@@ -60,6 +60,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.nls.NlsResources.txt;
 
 public class StatementExecutionInputForm extends DBNFormBase {
     private JPanel mainPanel;

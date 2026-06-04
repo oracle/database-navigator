@@ -24,6 +24,8 @@ import lombok.Getter;
 
 import javax.swing.event.TableModelListener;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class DatabaseFilesTableModel extends DBNEditableTableModel {
     private DatabaseFileBundle fileBundle;

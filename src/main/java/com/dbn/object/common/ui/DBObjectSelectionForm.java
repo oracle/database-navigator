@@ -45,6 +45,7 @@ import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.startsWithVowel;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static com.dbn.object.type.DBObjectType.TABLE;
 

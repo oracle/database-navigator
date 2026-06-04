@@ -73,6 +73,7 @@ import static com.dbn.data.type.GenericDataType.VECTOR;
 import static com.dbn.data.type.GenericDataType.XMLTYPE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetRecordEditorColumnForm extends DBNFormBase {
     private JLabel columnLabel;

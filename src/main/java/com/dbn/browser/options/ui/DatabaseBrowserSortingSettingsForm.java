@@ -26,7 +26,6 @@ import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.Tables;
 import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Cursors;
-import com.dbn.nls.NlsResources;
 import com.dbn.object.common.sorting.DBObjectComparator;
 import com.dbn.object.common.sorting.DBObjectComparators;
 import com.dbn.object.common.sorting.SortingType;
@@ -47,6 +46,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<DatabaseBrowserSortingSettings> {
     private JPanel mainPanel;
@@ -109,11 +109,11 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
                     String name = sortingType == null ? "" : sortingType.getName();
 
                     append(name, SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                    setAccessibleDescription(this, NlsResources.txt("cfg.browser.aria.ChangeSortingTypeHint"));
+                    setAccessibleDescription(this, txt("cfg.browser.aria.ChangeSortingTypeHint"));
                 }
             });
 
-            Tables.attachValueSelector(this, 1, NlsResources.txt("cfg.browser.title.SortingType"), SortingType.values());
+            Tables.attachValueSelector(this, 1, txt("cfg.browser.title.SortingType"), SortingType.values());
         }
 
         @Override

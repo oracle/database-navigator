@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.html;
+import static com.dbn.nls.NlsResources.txt;
 
 public class VectorToolboxForm extends VectorToolboxFormBase {
   private JPanel mainPanel;

@@ -37,6 +37,7 @@ import javax.swing.JTextField;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class DBTableFactoryInputForm extends DBSchemaObjectFactoryInputForm {

@@ -23,6 +23,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class EmbeddingSourceQueriesForm extends VectorToolboxFormBase {
     private JPanel mainPanel;
     private JPanel queryListPanel;

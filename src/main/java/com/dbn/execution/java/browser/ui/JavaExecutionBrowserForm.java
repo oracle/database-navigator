@@ -45,6 +45,7 @@ import javax.swing.tree.TreePath;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JavaExecutionBrowserForm extends DBNFormBase {
 

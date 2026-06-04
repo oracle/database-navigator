@@ -52,6 +52,7 @@ import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.util.Lists.filter;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;

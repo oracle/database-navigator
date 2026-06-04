@@ -81,6 +81,7 @@ import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DataSearchComponent extends DBNFormBase implements SelectionListener, DataSearchResultListener, DataModelListener {
     private static final int MATCHES_LIMIT = 10000;

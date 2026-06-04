@@ -23,7 +23,6 @@ import com.dbn.diagnostics.data.DiagnosticEntry;
 import com.dbn.diagnostics.data.ParserDiagnosticsDeltaResult;
 import com.dbn.diagnostics.data.ParserDiagnosticsEntry;
 import com.dbn.diagnostics.data.ParserDiagnosticsFilter;
-import com.dbn.nls.NlsResources;
 import com.intellij.openapi.Disposable;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,18 +32,20 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.ListModel;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ParserDiagnosticsTableModel implements DBNReadonlyTableModel<ParserDiagnosticsEntry>, DBNTableWithGutterModel<ParserDiagnosticsEntry>, Disposable {
     public static final String[] INITIAL_COLUMNS = {
-            NlsResources.txt("app.shared.column.File"),
-            NlsResources.txt("app.diagnostics.column.Size"),
-            NlsResources.txt("app.diagnostics.column.Errors"),
-            NlsResources.txt("app.diagnostics.column.Warnings")};
+            txt("app.shared.column.File"),
+            txt("app.diagnostics.column.Size"),
+            txt("app.diagnostics.column.Errors"),
+            txt("app.diagnostics.column.Warnings")};
     public static final String[] DELTA_COLUMNS = {
-            NlsResources.txt("app.shared.column.File"),
-            NlsResources.txt("app.diagnostics.column.Size"),
-            NlsResources.txt("app.diagnostics.column.ErrorsPreviousCurrent"),
-            NlsResources.txt("app.diagnostics.column.WarningsPreviousCurrent"),
-            NlsResources.txt("app.diagnostics.column.Transition")};
+            txt("app.shared.column.File"),
+            txt("app.diagnostics.column.Size"),
+            txt("app.diagnostics.column.ErrorsPreviousCurrent"),
+            txt("app.diagnostics.column.WarningsPreviousCurrent"),
+            txt("app.diagnostics.column.Transition")};
 
     private final ParserDiagnosticsDeltaResult deltaResult;
     private final ListModel gutterModel = new DBNTableGutterModel<>(this);

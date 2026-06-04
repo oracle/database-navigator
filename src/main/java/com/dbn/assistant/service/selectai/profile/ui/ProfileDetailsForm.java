@@ -36,6 +36,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import static com.dbn.common.ui.table.Tables.adjustTableRowHeight;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ProfileDetailsForm extends DBNFormBase {
     private JPanel mainPanel;

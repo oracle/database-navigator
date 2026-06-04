@@ -34,6 +34,8 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Database Assistant introduction form
  * This form is presented to the user on top of the chat-box after the availability of the AI-Assistant is evaluated.

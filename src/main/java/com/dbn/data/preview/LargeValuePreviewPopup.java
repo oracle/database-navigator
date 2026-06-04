@@ -63,6 +63,7 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class LargeValuePreviewPopup extends DBNFormBase {
     public static final int INITIAL_MAX_SIZE = 4000;

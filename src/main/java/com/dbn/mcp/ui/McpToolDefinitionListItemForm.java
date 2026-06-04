@@ -33,6 +33,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
