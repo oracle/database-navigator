@@ -36,6 +36,7 @@ import com.dbn.language.common.DBLanguagePsiFile;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -124,12 +125,12 @@ public class StatementExecutionBasicResult extends ExecutionResultBase<Statement
     }
 
     @Override
-    public void updateExecutionMessage(MessageType messageType, String message, DatabaseMessage databaseMessage) {
+    public void updateExecutionMessage(MessageType messageType, @Nls String message, DatabaseMessage databaseMessage) {
         executionMessage = new StatementExecutionMessage(this, message, databaseMessage, messageType);
     }
 
     @Override
-    public void updateExecutionMessage(MessageType messageType, String message) {
+    public void updateExecutionMessage(MessageType messageType, @Nls String message) {
         executionMessage = new StatementExecutionMessage(this, message, null, messageType);
     }
 
