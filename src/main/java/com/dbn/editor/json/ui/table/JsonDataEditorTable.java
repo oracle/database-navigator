@@ -211,9 +211,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
                 }
 
                 if (editorTableCell.isModified() && !(editorTableCell.getUserValue() instanceof ValueAdapter)) {
-                    text.append("<br>Original value: <b>");
-                    text.append(editorTableCell.getOriginalUserValue());
-                    text.append("</b>");
+                    text.append(txt("app.dataEditor.tooltip.OriginalValueLine", editorTableCell.getOriginalUserValue()));
                 }
 
                 text.append("</html>");
@@ -224,11 +222,11 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
             if (editorTableCell.isModified() && !e.isControlDown()) {
                 Object userValue = editorTableCell.getUserValue();
                 if (userValue instanceof ArrayValue) {
-                    return "ARRAY value has changed";
+                    return txt("app.dataEditor.tooltip.ArrayValueChanged");
                 } else  if (userValue instanceof LargeObjectValue largeObjectValue) {
-                    return largeObjectValue.getGenericDataType() + " content has changed";
+                    return txt("app.dataEditor.tooltip.LargeObjectContentChanged", largeObjectValue.getGenericDataType());
                 } else {
-                    return "<html>Original value: <b>" + editorTableCell.getOriginalUserValue() + "</b></html>";
+                    return txt("app.dataEditor.tooltip.OriginalValue", editorTableCell.getOriginalUserValue());
                 }
 
             }
