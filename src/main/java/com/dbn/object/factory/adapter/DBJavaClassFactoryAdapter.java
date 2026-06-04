@@ -33,6 +33,7 @@ import com.dbn.object.factory.ui.DBJavaClassFactoryInputForm;
 import com.dbn.object.type.DBJavaClassType;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -68,7 +69,7 @@ public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     @Override
-    public void validateInput(DBObjectSpec input, List<String> errors) {
+    public void validateInput(DBObjectSpec input, List<@Nls String> errors) {
         // TODO
     }
 

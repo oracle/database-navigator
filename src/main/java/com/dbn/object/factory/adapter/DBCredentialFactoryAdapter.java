@@ -29,6 +29,7 @@ import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.DBCredentialFactoryInputForm;
 import com.dbn.object.type.DBCredentialType;
 import com.dbn.object.type.DBObjectType;
+import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -63,7 +64,7 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     @Override
-    public void validateInput(DBObjectSpec input, List<String> errors) {
+    public void validateInput(DBObjectSpec input, List<@Nls String> errors) {
     }
 
     @Override

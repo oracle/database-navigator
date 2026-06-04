@@ -31,6 +31,7 @@ import com.dbn.object.factory.ObjectFactoryAdapters;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.DBMethodFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
+import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -51,14 +52,15 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     @Override
-    public void validateInput(DBObjectSpec input, List<String> errors) {
+    public void validateInput(DBObjectSpec input, List<@Nls String> errors) {
         String objectName = input.getObjectName();
         if (objectName.isEmpty()) {
-            String hint = input.getParent() == null ? "" : " at index " + input.getIndex();
-            errors.add(input.getObjectType().getName() + " name is not specified" + hint);
+            errors.add(input.getParent() == null ?
+                    txt("msg.objects.error.ObjectNameNotSpecified", input.getObjectType().getName()) :
+                    txt("msg.objects.error.ObjectNameNotSpecifiedAtIndex", input.getObjectType().getName(), input.getIndex()));
 
         } else if (!Strings.isWord(objectName)) {
-            errors.add("invalid " + input.getObjectType().getName() + " name specified" + ": \"" + objectName + "\"");
+            errors.add(txt("msg.objects.error.ObjectNameInvalid", input.getObjectType().getName(), objectName));
         }
 
 
@@ -66,7 +68,7 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter {
         if (returnArgument != null) {
             String dataType = DATA_TYPE.of(returnArgument);
             if (Strings.isEmpty(dataType)){
-                errors.add("missing data type for return argument");
+                errors.add(txt("msg.objects.error.ReturnArgumentDataTypeMissing"));
             }
         }
 
@@ -78,8 +80,9 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter {
             if (Strings.isEmptyOrSpaces(argumentName)) continue; // already covered by field validator
 
             if (argumentNames.contains(argumentName)) {
-                String hint = input.getParent() == null ? "" : " for " + input.getObjectType().getName() + " \"" + objectName + "\"";
-                errors.add("duplicate argument name \"" + argumentName + "\"" + hint);
+                errors.add(input.getParent() == null ?
+                        txt("msg.objects.error.DuplicateArgumentName", argumentName) :
+                        txt("msg.objects.error.DuplicateArgumentNameForObject", argumentName, input.getObjectType().getName(), objectName));
             }
             argumentNames.add(argumentName);
         }

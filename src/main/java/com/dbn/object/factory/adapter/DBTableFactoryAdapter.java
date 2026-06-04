@@ -30,6 +30,7 @@ import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
 import com.dbn.object.factory.ui.DBTableFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
+import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -58,16 +59,17 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     @Override
-    public void validateInput(DBObjectSpec tableSpec, List<String> errors) {
+    public void validateInput(DBObjectSpec tableSpec, List<@Nls String> errors) {
         String objectName = tableSpec.getObjectName();
         DBObjectType objectType = tableSpec.getObjectType();
 
         if (objectName.isEmpty()) {
-            String hint = tableSpec.getParent() == null ? "" : " at index " + tableSpec.getIndex();
-            errors.add(objectType.getName() + " name is not specified" + hint);
+            errors.add(tableSpec.getParent() == null ?
+                    txt("msg.objects.error.ObjectNameNotSpecified", objectType.getName()) :
+                    txt("msg.objects.error.ObjectNameNotSpecifiedAtIndex", objectType.getName(), tableSpec.getIndex()));
 
         } else if (!Strings.isWord(objectName)) {
-            errors.add("invalid " + objectType.getName() + " name specified" + ": \"" + objectName + "\"");
+            errors.add(txt("msg.objects.error.ObjectNameInvalid", objectType.getName(), objectName));
         }
 
         DBColumnFactoryAdapter columnAdapter = ObjectFactoryAdapters.get(COLUMN);
@@ -78,8 +80,9 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter {
             if (Strings.isEmptyOrSpaces(columnName)) continue; // already covered by field validator
 
             if (columnNames.contains(columnName)) {
-                String hint = tableSpec.getParent() == null ? "" : " for " + objectType.getName() + " \"" + objectName + "\"";
-                errors.add("duplicate column name \"" + columnName + "\"" + hint);
+                errors.add(tableSpec.getParent() == null ?
+                        txt("msg.objects.error.DuplicateColumnName", columnName) :
+                        txt("msg.objects.error.DuplicateColumnNameForObject", columnName, objectType.getName(), objectName));
             }
             columnNames.add(columnName);
         }

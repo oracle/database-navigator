@@ -22,6 +22,7 @@ import com.dbn.object.common.extension.DBObjectExtensionPoint;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.intellij.openapi.extensions.ExtensionPointName;
+import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -33,7 +34,7 @@ public interface ObjectFactoryAdapter extends DBObjectExtensionPoint {
 
     DBObjectFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec input);
 
-    void validateInput(DBObjectSpec input, List<String> errors);
+    void validateInput(DBObjectSpec input, List<@Nls String> errors);
 
     void createObject(DBObjectSpec input) throws SQLException;
 }

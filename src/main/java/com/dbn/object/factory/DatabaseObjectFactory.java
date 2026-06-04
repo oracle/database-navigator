@@ -43,6 +43,7 @@ import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.DatabaseFileManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -145,7 +146,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         DBObjectType objectType = input.getObjectType();
         ObjectFactoryAdapter factoryAdapter = ObjectFactoryAdapters.get(objectType);
 
-        List<String> errors = new ArrayList<>();
+        List<@Nls String> errors = new ArrayList<>();
         factoryAdapter.validateInput(input, errors);
 
         if (errors.isEmpty()) {

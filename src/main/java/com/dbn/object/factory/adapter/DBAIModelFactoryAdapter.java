@@ -34,6 +34,7 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBAIModelSourceType;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.progress.ProgressIndicator;
+import org.jetbrains.annotations.Nls;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -72,7 +73,7 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     @Override
-    public void validateInput(DBObjectSpec input, List<String> errors) {
+    public void validateInput(DBObjectSpec input, List<@Nls String> errors) {
         // TODO
     }
 
