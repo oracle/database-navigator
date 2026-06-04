@@ -216,7 +216,7 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
 
         Executor executorInstance = DefaultDebugExecutor.getDebugExecutorInstance();
         if (executorInstance == null) {
-            throw new ExecutionException("Could not resolve debug executor");
+            throw new ExecutionException(txt("msg.debugger.error.CouldNotResolveDebugExecutor"));
         }
 
         Project project = getProject();

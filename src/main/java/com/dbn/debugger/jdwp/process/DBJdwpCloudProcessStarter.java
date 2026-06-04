@@ -64,6 +64,7 @@ import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.debugger.JDWPTunnelType.TCP_DRIVER_TUNNEL;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
@@ -89,15 +90,15 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
         try {
             Driver driver = ConnectionUtil.resolveDriver(databaseSettings);
             if (driver == null) {
-                throw new IOException("Could not find driver for Cloud NSTunnelConnection class loading");
+                throw new IOException(txt("msg.debugger.error.CloudNsDriverNotFound"));
             }
             ClassLoader classLoader = driver.getClass().getClassLoader();
             if (classLoader == null) {
-                throw new IOException("Could not resolve class loader for Cloud NSTunnelConnection");
+                throw new IOException(txt("msg.debugger.error.CloudNsClassLoaderNotResolved"));
             }
             debugConnection = NSTunnelConnectionInitializer.newInstance(classLoader, URL, props);
             if (debugConnection == null) {
-                throw new IOException("Could not load tunneling object. Does the current driver support Cloud NS?");
+                throw new IOException(txt("msg.debugger.error.CloudNsTunnelingObjectNotLoaded"));
             }
 
             jdwpHostPort = debugConnection.tunnelAddress();
@@ -105,7 +106,7 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
             connectionSettings.getProperties().put("jdwpHostPort", jdwpHostPort);
 
         } catch (Throwable e) {
-            throw new ExecutionException("Failed to connect debugger. Cause: " + e.getMessage(), e);
+            throw new ExecutionException(txt("msg.debugger.error.FailedToConnectDebugger", e.getMessage()), e);
         }
     }
 
@@ -147,7 +148,7 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
 
         Executor executor = DefaultDebugExecutor.getDebugExecutorInstance();
         RunProfile runProfile = session.getRunProfile();
-        assertNotNull(runProfile,"invalid run profile");
+        assertNotNull(runProfile, txt("msg.debugger.error.InvalidRunProfile"));
 
 
         Project project = session.getProject();
@@ -164,7 +165,7 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
         DebugEnvironment debugEnvironment = new DefaultDebugEnvironment(environment, state, remoteConnection, true);
         DebuggerManagerEx debuggerManagerEx = DebuggerManagerEx.getInstanceEx(project);
         DebuggerSession debuggerSession = debuggerManagerEx.attachVirtualMachine(debugEnvironment);
-        assertNotNull(debuggerSession, "Could not initialize JDWP listener");
+        assertNotNull(debuggerSession, txt("msg.debugger.error.CouldNotInitializeJdwpListener"));
 
 
         return createDebugProcess(session, debuggerSession, tcpConfig);
@@ -189,7 +190,7 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
                 c.name().equals("com.jetbrains.jdi.SocketAttach") ||
                 c.name().equals("com.sun.jdi.SocketAttach"));
 
-        if (connector == null) throw new ExecutionException("Failed to initialise socket connector");
+        if (connector == null) throw new ExecutionException(txt("msg.debugger.error.FailedToInitialiseSocketConnector"));
 
         TransportService transportService = createTransportService();
         patchConnector(connector, transportService);
@@ -205,7 +206,7 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
 
             return cast(initMethod.invoke(null));
         } catch (Throwable e) {
-            throw new ExecutionException("Failed to initialise virtual machine", e);
+            throw new ExecutionException(txt("msg.debugger.error.FailedToInitialiseVirtualMachine"), e);
         }
     }
 
@@ -221,7 +222,7 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
             declaredField.setAccessible(true);
             declaredField.set(connector, transportService);
         } catch (Throwable e) {
-            throw new ExecutionException("Failed to initialise transport service", e);
+            throw new ExecutionException(txt("msg.debugger.error.FailedToInitialiseTransportService"), e);
         }
     }
 

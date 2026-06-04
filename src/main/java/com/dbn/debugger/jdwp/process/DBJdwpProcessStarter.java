@@ -24,6 +24,7 @@ import com.intellij.openapi.util.Key;
 import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugSession;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +54,7 @@ public abstract class DBJdwpProcessStarter extends DBDebugProcessStarter {
     protected abstract DBJdwpDebugProcess createDebugProcess(@NotNull XDebugSession session, DebuggerSession debuggerSession, DBJdwpTcpConfig tcpConfig);
 
     @NotNull
-    protected <T> T assertNotNull(@Nullable T object, String message) throws ExecutionException {
+    protected <T> T assertNotNull(@Nullable T object, @Nls String message) throws ExecutionException {
         if (object == null) {
             throw new ExecutionException(message);
         }
