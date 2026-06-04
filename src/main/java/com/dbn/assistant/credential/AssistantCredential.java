@@ -17,6 +17,7 @@
 package com.dbn.assistant.credential;
 
 import com.dbn.assistant.provider.AIProviderId;
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Chars;
@@ -34,17 +35,14 @@ import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.options.setting.Settings.charsAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.setCharsAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.util.Base64.decode;
-import static com.dbn.common.util.Base64.encode;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.common.options.ConfigActivity.APPLYING;
 import static com.dbn.credentials.SecretType.GENERIC_CREDENTIAL;
 
 @Getter
@@ -110,9 +108,9 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         }
 
         if (isTransientContext()) {
-            // only propagate credential key when config context is transient
-            // (avoid storing it in config xml)
-            secret = decode(charsAttribute(element, "transient-key"));
+            // never trust transient XML for secrets
+            // load from PasswordSafe only
+            loadSecretFromKeychain();
         }
     }
 
@@ -129,9 +127,11 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         }
 
         if (isTransientContext()) {
-            // only propagate credential key when config context is transient
-            // (avoid storing it in config xml)
-            setCharsAttribute(element, "transient-key", encode(secret));
+            // apply writes to settings before queued secret updates complete
+            // store synchronously so transient read can load the latest value from PasswordSafe
+            if (ConfigMonitor.is(APPLYING)) {
+                storeSecretToKeychain();
+            }
         }
     }
 
@@ -158,6 +158,15 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
 
     private Secret getKeySecret() {
         return new Secret(SecretType.GENERIC_CREDENTIAL, user, secret);
+    }
+
+    void storeSecretToKeychain() {
+        DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
+        credentialManager.storeSecret(getSecretOwnerId(), getKeySecret());
+    }
+
+    void loadSecretFromKeychain() {
+        initSecrets();
     }
 
     @Override
