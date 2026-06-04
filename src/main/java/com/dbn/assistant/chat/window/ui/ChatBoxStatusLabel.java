@@ -34,6 +34,8 @@ import javax.swing.JLabel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ChatBoxStatusLabel extends DBNPanelImpl implements Disposable {
     private interface Colors {
         Color CONVERSATIONAL = new JBColor(new Color(0x55A76A), new Color(0x57965C));  // Green
@@ -113,9 +115,9 @@ public class ChatBoxStatusLabel extends DBNPanelImpl implements Disposable {
     @Getter
     private enum Status {
         UNAVAILABLE ("", "", null),
-        INTERACTIVE("Interactive", "<html>The selected profile is conversational.<br>It considers up to ten of your previous prompts in the response</html>", Colors.CONVERSATIONAL),
-        NON_INTERACTIVE("Non-Interactive", "<html>The selected profile is non-conversational.<br>Every prompt is treated as an isolated question, with no consideration on any of the previous prompts</html>", Colors.NON_CONVERSATIONAL),
-        DISCONTINUED("Discontinued", "<html>This conversation is discontinued can no longer be prompted against.</html>", Colors.CONVERSATION_DISCONTINUED),;
+        INTERACTIVE("Interactive", txt("app.assistant.tooltip.ChatStatusInteractive"), Colors.CONVERSATIONAL),
+        NON_INTERACTIVE("Non-Interactive", txt("app.assistant.tooltip.ChatStatusNonInteractive"), Colors.NON_CONVERSATIONAL),
+        DISCONTINUED("Discontinued", txt("app.assistant.tooltip.ChatStatusDiscontinued"), Colors.CONVERSATION_DISCONTINUED),;
 
         private final Color color;
         private final String text;
@@ -129,4 +131,3 @@ public class ChatBoxStatusLabel extends DBNPanelImpl implements Disposable {
     }
 
 }
-
