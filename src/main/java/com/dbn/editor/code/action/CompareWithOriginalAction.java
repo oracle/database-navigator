@@ -38,7 +38,12 @@ public class CompareWithOriginalAction extends AbstractCodeEditorDiffAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
         CharSequence referenceText = sourceCodeFile.getOriginalContent();
-        openDiffWindow(project, sourceCodeFile, referenceText.toString(), "Original version", "Local version");
+        openDiffWindow(
+                project,
+                sourceCodeFile,
+                referenceText.toString(),
+                txt("app.codeEditor.title.OriginalVersion"),
+                txt("app.codeEditor.title.LocalVersion"));
     }
 
     @Override

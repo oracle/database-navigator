@@ -40,6 +40,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,7 +69,7 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
 
     public void openCodeMergeDialog(DBSourceCodeVirtualFile sourceCodeFile, SourceCodeEditor fileEditor, MergeAction mergeAction) {
         DBSchemaObject object = sourceCodeFile.getObject();
-        ConnectionAction.invoke("Merging changes", false, sourceCodeFile,
+        ConnectionAction.invoke(txt("msg.codeEditor.title.MergingChanges"), false, sourceCodeFile,
                 action -> Progress.prompt(getProject(), object, true,
                         txt("prc.codeEditor.title.LoadingSourceCode"),
                         txt("prc.codeEditor.text.LoadingSourceCodeOf", object.getQualifiedNameWithType()),
@@ -100,9 +101,9 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
     }
 
     private static @NotNull MergeRequest createMergeRequest(String databaseContent, DBSourceCodeVirtualFile sourceCodeFile, SourceCodeEditor fileEditor, MergeAction action, Project project) throws InvalidDiffRequestException {
-        SourceCodeDiffContent leftContent = new SourceCodeDiffContent("Database version", databaseContent);
-        SourceCodeDiffContent targetContent = new SourceCodeDiffContent("Merge result", sourceCodeFile.getOriginalContent());
-        SourceCodeDiffContent rightContent = new SourceCodeDiffContent("Your version", sourceCodeFile.getContent());
+        SourceCodeDiffContent leftContent = new SourceCodeDiffContent(txt("app.codeEditor.title.DatabaseVersion"), databaseContent);
+        SourceCodeDiffContent targetContent = new SourceCodeDiffContent(txt("app.codeEditor.title.MergeResult"), sourceCodeFile.getOriginalContent());
+        SourceCodeDiffContent rightContent = new SourceCodeDiffContent(txt("app.codeEditor.title.YourVersion"), sourceCodeFile.getContent());
         MergeContent mergeContent = new MergeContent(leftContent, targetContent, rightContent );
 
         DiffRequestFactory diffRequestFactory = DiffRequestFactory.getInstance();
@@ -110,7 +111,7 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
                 project,
                 sourceCodeFile,
                 mergeContent.getByteContents(),
-                "Version conflict resolution for " + sourceCodeFile.getObject().getQualifiedNameWithType(),
+                txt("app.codeEditor.title.VersionConflictResolution", sourceCodeFile.getObject().getQualifiedNameWithType()),
                 mergeContent.getTitles(),
                 mergeResult -> {
                     if (action == MergeAction.SAVE) {
@@ -146,7 +147,7 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
     }
 
 
-    public void openDiffWindow(@NotNull DBSourceCodeVirtualFile sourceCodeFile, String referenceText, String referenceTitle, String windowTitle) {
+    public void openDiffWindow(@NotNull DBSourceCodeVirtualFile sourceCodeFile, String referenceText, @Nls String referenceTitle, @Nls String windowTitle) {
         DBSchemaObject object = sourceCodeFile.getObject();
         FileType fileType = sourceCodeFile.getFileType();
         DBObjectContentVirtualFile counterContent = new DBObjectContentVirtualFile(object, referenceText, fileType);
@@ -163,7 +164,7 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
                 changedContent,
                 originalContent,
                 referenceTitle,
-                "Your version");
+                txt("app.codeEditor.title.YourVersion"));
 
         Dispatch.run(nonModal(), () -> DiffManager.getInstance().showDiff(project, diffRequest));
     }
@@ -183,7 +184,11 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
                                 CharSequence referenceText = sourceCodeContent.getText();
                                 if (action.isCancelled()) return;
 
-                                openDiffWindow(sourceCodeFile, referenceText.toString(), "Database version", "Local version vs. database version");
+                                openDiffWindow(
+                                        sourceCodeFile,
+                                        referenceText.toString(),
+                                        txt("app.codeEditor.title.DatabaseVersion"),
+                                        txt("app.codeEditor.title.LocalDatabaseDiff"));
 
                             } catch (Exception e1) {
                                 conditionallyLog(e1);

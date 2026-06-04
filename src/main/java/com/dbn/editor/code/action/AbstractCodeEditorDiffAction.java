@@ -19,6 +19,7 @@ package com.dbn.editor.code.action;
 import com.dbn.editor.code.diff.SourceCodeDiffManager;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 abstract class AbstractCodeEditorDiffAction extends AbstractCodeEditorAction {
@@ -31,8 +32,8 @@ abstract class AbstractCodeEditorDiffAction extends AbstractCodeEditorAction {
             @NotNull Project project,
             @NotNull DBSourceCodeVirtualFile sourceCodeFile,
             String referenceText,
-            String referenceTitle,
-            String windowTitle) {
+            @Nls String referenceTitle,
+            @Nls String windowTitle) {
         SourceCodeDiffManager diffManager = SourceCodeDiffManager.getInstance(project);
         diffManager.openDiffWindow(sourceCodeFile, referenceText, referenceTitle, windowTitle);
     }
