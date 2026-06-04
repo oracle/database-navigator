@@ -83,7 +83,7 @@ public class DriverPackageMetadataDownloader {
         name = getFormattedString(name, libraries, placeholderCount, false);
         DriverPackage driverPackage = new DriverPackage(id, name, DatabaseType.resolve(databaseType), libraries);
 
-        session.setText("Downloading metadata for " + id + " ...");
+        session.setText(txt("prc.connection.text.DownloadingDriverPackageMetadata", id));
         session.countDown();
         session.updateProgress();
         return driverPackage;

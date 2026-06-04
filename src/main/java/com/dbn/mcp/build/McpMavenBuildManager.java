@@ -46,12 +46,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.component.Components.optionalProjectService;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class McpMavenBuildManager extends ProjectComponentBase {
     private static final String COMPONENT_NAME = "DBNavigator.Project.McpMavenBuildManager";
     private static final long PROCESS_ATTACH_TIMEOUT_MILLIS = 30_000;
-    private static final String BUILD_PROGRESS_TEXT = "Running Maven build (clean package)...";
 
     private McpMavenBuildManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
@@ -77,7 +77,7 @@ public class McpMavenBuildManager extends ProjectComponentBase {
     }
 
     public void runBuild(@NotNull Path projectDir, @NotNull ProgressIndicator indicator, Consumer<String> outputHandler) throws IOException {
-        indicator.setText2(BUILD_PROGRESS_TEXT);
+        indicator.setText2(txt("prc.mcp.text.RunningMavenBuild"));
 
         Project project = getProject();
         MavenDistribution distribution = resolveSettingsDistribution();
@@ -175,7 +175,7 @@ public class McpMavenBuildManager extends ProjectComponentBase {
             StringBuilder output) throws IOException {
         long startedAt = System.currentTimeMillis();
         while (finished.getCount() > 0) {
-            indicator.setText2(BUILD_PROGRESS_TEXT);
+            indicator.setText2(txt("prc.mcp.text.RunningMavenBuild"));
 
             if (indicator.isCanceled()) {
                 ProcessHandler processHandler = processRef.get();

@@ -30,6 +30,7 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.connection.Resources.commit;
 import static com.dbn.connection.Resources.rollbackSilently;
+import static com.dbn.nls.NlsResources.txt;
 
 
 public class QueryEmbeddingPipeline implements EmbeddingPipeline {
@@ -50,7 +51,7 @@ public class QueryEmbeddingPipeline implements EmbeddingPipeline {
 
             String metadata = queryProcessingService.buildRowMetadata(request, source);
             queryResult.setMetadata(metadata);
-            context.getProgressIndicator().setText2("Processing query " + queryResult.getName());
+            context.getProgressIndicator().setText2(txt("prc.vector.text.ProcessingQuery", queryResult.getName()));
 
             // Execute the embedding with batching
             embedQueryDataInBatches(context, request, queryResult);
@@ -85,7 +86,7 @@ public class QueryEmbeddingPipeline implements EmbeddingPipeline {
                 if (progressIndicator.isCanceled()) break;
 
                 batchNumber++;
-                progressIndicator.setText2("Processing query " + result.getName() + " (batch " + batchNumber + " / rows embedded " + totalRowsEmbedded + ")");
+                progressIndicator.setText2(txt("prc.vector.text.ProcessingQueryBatch", result.getName(), batchNumber, totalRowsEmbedded));
                 EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
 
                 // Process one batch
