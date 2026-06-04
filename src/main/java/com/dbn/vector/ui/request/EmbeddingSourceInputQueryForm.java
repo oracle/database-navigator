@@ -130,7 +130,7 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
 
     private void initOutputPanel() {
         ConnectionHandler connection = getConnection();
-        RecordViewInfo recordViewInfo = new RecordViewInfo("Query data", null);
+        RecordViewInfo recordViewInfo = new RecordViewInfo(txt("app.vector.title.QueryData"), null);
         ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
         outputTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
         outputScrollPane.setViewportView(outputTable);

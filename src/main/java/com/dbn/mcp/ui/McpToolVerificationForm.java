@@ -225,7 +225,7 @@ public class McpToolVerificationForm extends DBNFormBase {
     }
 
     private void initOutputPanel() {
-        RecordViewInfo recordViewInfo = new RecordViewInfo("Query data", null);
+        RecordViewInfo recordViewInfo = new RecordViewInfo(txt("app.mcp.title.QueryData"), null);
         ResultSetDataModel dataModel = new ResultSetDataModel<>(getConnection());
         outputTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
         outputScrollPane.setViewportView(outputTable);

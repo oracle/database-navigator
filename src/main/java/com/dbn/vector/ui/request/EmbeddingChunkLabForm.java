@@ -94,7 +94,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
 
     private void initOutputPanel() {
         ConnectionHandler connection = getConnection();
-        RecordViewInfo recordViewInfo = new RecordViewInfo("Chunk data", null);
+        RecordViewInfo recordViewInfo = new RecordViewInfo(txt("app.vector.title.ChunkData"), null);
         ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
         chunkDataTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
         outputScrollPane.setViewportView(chunkDataTable);
