@@ -91,10 +91,6 @@ public class ParserDiagnosticsResult implements PersistentStateElement, Comparab
         this.draft = false;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
     @NotNull
     public Project getProject() {
         return project.ensure();
