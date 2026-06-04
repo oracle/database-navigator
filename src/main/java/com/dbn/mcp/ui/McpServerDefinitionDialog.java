@@ -56,7 +56,7 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
     @Override
     protected ValidationInfo doValidate() {
         if (!getForm().hasTools()) {
-            return new ValidationInfo("Please add at least one tool definition");
+            return new ValidationInfo(txt("msg.mcp.error.ToolDefinitionRequired"));
         }
         return super.doValidate();
     }

@@ -85,7 +85,7 @@ public class EventRegistrationInputDialog extends DBNDialog<EventRegistrationInp
 
     this.mask = mask;
     if (!insertOperation && !updateOperation && !deleteOperation) {
-      return new ValidationInfo("At least one operation should be selected !");
+      return new ValidationInfo(txt("msg.events.error.OperationRequired"));
     }
     return super.doValidate();
   }
@@ -98,4 +98,3 @@ public class EventRegistrationInputDialog extends DBNDialog<EventRegistrationInp
     super.doOKAction();
   }
 }
-
