@@ -92,6 +92,7 @@ import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
 import static com.dbn.common.navigation.NavigationInstruction.SELECT;
 import static com.dbn.common.ui.tab.DBNTabs.updateTabColor;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionConsoleForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -380,7 +381,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
         }
         JComponent component = messagesPanel.getComponent();
         if (tabs.getTabsCount() == 0 || tabs.getTabComponent(0) != component) {
-            tabs.insertTab("Messages", component, 0);
+            tabs.insertTab(txt("app.execution.title.Messages"), component, 0);
             tabs.setTabIcon(component, Icons.EXEC_RESULT_MESSAGES);
         }
 

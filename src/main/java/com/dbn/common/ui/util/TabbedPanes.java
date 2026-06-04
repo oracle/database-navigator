@@ -21,6 +21,7 @@ import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.util.Strings;
 import com.intellij.ui.components.JBTabbedPane;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -30,6 +31,8 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+
+import static org.jetbrains.annotations.Nls.Capitalization.Title;
 
 @UtilityClass
 public class TabbedPanes {
@@ -114,7 +117,7 @@ public class TabbedPanes {
         }
     }
 
-    public static void setTabTitle(JBTabbedPane tabbedPane, Component component, String title) {
+    public static void setTabTitle(JBTabbedPane tabbedPane, Component component, @Nls(capitalization = Title) String title) {
         int index = getTabIndex(tabbedPane, component);
         tabbedPane.setTitleAt(index, normalizeTitle(title));
     }

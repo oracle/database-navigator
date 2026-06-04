@@ -8,7 +8,6 @@ import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.components.JBTextArea;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
@@ -23,9 +22,6 @@ import java.awt.datatransfer.StringSelection;
 import static com.dbn.nls.NlsResources.txt;
 
 public class McpBuildResultForm extends DBNFormBase {
-    private static final @NonNls String CLAUDE_TAB_NAME = "Claude";
-    private static final @NonNls String CLINE_TAB_NAME = "Cline";
-
     private final JPanel mainPanel;
     private final McpServerDefinition definition;
     private final McpBuilderResult result;
@@ -68,10 +64,10 @@ public class McpBuildResultForm extends DBNFormBase {
     private JBTabbedPane createConfigTabs() {
         boolean httpTransport = isHttpTransport();
         JBTabbedPane tabs = new JBTabbedPane();
-        tabs.addTab(httpTransport ? CLAUDE_TAB_NAME : txt("app.mcp.title.McpConfig"), createConfigTab(result.getClaudeSnippetJson()));
+        tabs.addTab(httpTransport ? txt("app.mcp.title.Claude") : txt("app.mcp.title.McpConfig"), createConfigTab(result.getClaudeSnippetJson()));
         String clineSnippetJson = result.getClineSnippetJson();
         if (httpTransport && clineSnippetJson != null) {
-            tabs.addTab(CLINE_TAB_NAME, createConfigTab(clineSnippetJson));
+            tabs.addTab(txt("app.mcp.title.Cline"), createConfigTab(clineSnippetJson));
         }
         return tabs;
     }
