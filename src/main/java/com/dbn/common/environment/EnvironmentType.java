@@ -23,12 +23,14 @@ import com.dbn.common.ui.util.LookAndFeel;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
+import com.intellij.openapi.util.NlsContexts.ListItem;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.ColorIcon;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,6 +42,7 @@ import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.cachedLowerCase;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -58,10 +61,10 @@ public class EnvironmentType implements Cloneable<EnvironmentType>, PersistentCo
     }
 
     public static final EnvironmentType DEFAULT     = new EnvironmentType(EnvironmentTypeId.DEFAULT, "", "", new Color(214,214,214), new Color(72,74,74), false, false);
-    public static final EnvironmentType DEVELOPMENT = new EnvironmentType(EnvironmentTypeId.DEVELOPMENT, "Development", "Development environment", new Color(-2430209), new Color(0x445F80), false, false);
-    public static final EnvironmentType INTEGRATION = new EnvironmentType(EnvironmentTypeId.INTEGRATION, "Integration", "Integration environment", new Color(-2621494), new Color(0x466646), true, false);
-    public static final EnvironmentType PRODUCTION  = new EnvironmentType(EnvironmentTypeId.PRODUCTION, "Production", "Productive environment", new Color(-11574), new Color(0x634544), true, true);
-    public static final EnvironmentType OTHER       = new EnvironmentType(EnvironmentTypeId.OTHER, "Other", "", new Color(-1576), new Color(0x5C5B41), false, false);
+    public static final EnvironmentType DEVELOPMENT = new EnvironmentType(EnvironmentTypeId.DEVELOPMENT, txt("cfg.environment.const.EnvironmentType_DEVELOPMENT"), txt("cfg.environment.text.DevelopmentEnvironment"), new Color(-2430209), new Color(0x445F80), false, false);
+    public static final EnvironmentType INTEGRATION = new EnvironmentType(EnvironmentTypeId.INTEGRATION, txt("cfg.environment.const.EnvironmentType_INTEGRATION"), txt("cfg.environment.text.IntegrationEnvironment"), new Color(-2621494), new Color(0x466646), true, false);
+    public static final EnvironmentType PRODUCTION  = new EnvironmentType(EnvironmentTypeId.PRODUCTION, txt("cfg.environment.const.EnvironmentType_PRODUCTION"), txt("cfg.environment.text.ProductiveEnvironment"), new Color(-11574), new Color(0x634544), true, true);
+    public static final EnvironmentType OTHER       = new EnvironmentType(EnvironmentTypeId.OTHER, txt("cfg.environment.const.EnvironmentType_OTHER"), "", new Color(-1576), new Color(0x5C5B41), false, false);
     private static final EnvironmentType[] DEFAULT_ENVIRONMENT_TYPES = new EnvironmentType[] {
             DEVELOPMENT,
             INTEGRATION,
@@ -69,8 +72,8 @@ public class EnvironmentType implements Cloneable<EnvironmentType>, PersistentCo
             OTHER};
 
     private EnvironmentTypeId id;
-    private String name;
-    private String description;
+    private @Nls String name;
+    private @Nls String description;
     private Color regularColor;
     private Color darkColor;
     private JBColor color;
@@ -94,7 +97,7 @@ public class EnvironmentType implements Cloneable<EnvironmentType>, PersistentCo
         this.id = id;
     }
 
-    public EnvironmentType(EnvironmentTypeId id, String name, String description, Color regularColor, Color darkColor, boolean readonlyCode, boolean dataEditable) {
+    public EnvironmentType(EnvironmentTypeId id, @ListItem String name, @Nls String description, Color regularColor, Color darkColor, boolean readonlyCode, boolean dataEditable) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -106,7 +109,7 @@ public class EnvironmentType implements Cloneable<EnvironmentType>, PersistentCo
 
     @Override
     @NotNull
-    public String getName() {
+    public @ListItem String getName() {
         return Commons.nvl(name, "");
     }
 

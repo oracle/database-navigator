@@ -46,6 +46,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
+import com.intellij.openapi.util.NlsContexts.PopupTitle;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.SimpleTextAttributes;
 import lombok.Getter;
@@ -214,7 +215,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
 
         actions.add(Separator.getInstance());
         actions.add(new ConnectionAction(file, null));
-        promptSelector("Connections", actions, a -> a instanceof ConnectionAction && ((ConnectionAction) a).getConnectionId() == mapping.getConnectionId());
+        promptSelector(txt("cfg.connection.title.Connections"), actions, a -> a instanceof ConnectionAction && ((ConnectionAction) a).getConnectionId() == mapping.getConnectionId());
     }
 
     private void promptSchemaSelector(@NotNull FileConnectionContext mapping) {
@@ -230,7 +231,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
                     List<DBSchema> schemas = connection.getObjectBundle().getSchemas();
                     List<AnAction> actions = convert(schemas, s -> new SchemaAction(file, s.getIdentifier()));
 
-                    promptSelector("Schemas", actions,  a -> a instanceof SchemaAction && ((SchemaAction) a).getSchemaId() == mapping.getSchemaId());
+                    promptSelector(txt("cfg.connection.title.Schemas"), actions,  a -> a instanceof SchemaAction && ((SchemaAction) a).getSchemaId() == mapping.getSchemaId());
                 });
     }
 
@@ -245,10 +246,10 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
                 ConnectionType.SESSION);
         List<AnAction> actions = convert(sessions, s -> new SessionAction(file, s));
 
-        promptSelector("Sessions", actions, a -> a instanceof SessionAction && ((SessionAction) a).getSession() == mapping.getSession());
+        promptSelector(txt("cfg.connection.title.Sessions"), actions, a -> a instanceof SessionAction && ((SessionAction) a).getSession() == mapping.getSession());
     }
 
-    private <T extends AnAction> void promptSelector(String title, List<T> actions, Condition<T> preselectCondition) {
+    private <T extends AnAction> void promptSelector(@PopupTitle String title, List<T> actions, Condition<T> preselectCondition) {
         Dispatch.run(true, () ->
                 popupBuilder(actions, this).
                         withTitle(title).

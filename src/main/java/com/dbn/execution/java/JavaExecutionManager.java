@@ -140,7 +140,7 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 		Project project = executionInput.getProject();
 		DBObjectRef<DBJavaMethod> methodRef = executionInput.getMethodRef();
 
-		ConnectionAction.invoke("The Method Execution", false, executionInput,
+		ConnectionAction.invoke(txt("msg.execution.title.MethodExecution"), false, executionInput,
 				action -> Progress.prompt(project, action, true,
 						txt("prc.execution.title.LoadingMethodDetails"),
 						txt("prc.execution.text.LoadingMethodDetails", methodRef.getQualifiedNameWithType()),

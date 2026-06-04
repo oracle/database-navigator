@@ -103,7 +103,7 @@ public class EnvironmentTypesEditorTable extends DBNEditableTable<EnvironmentTyp
 
     private void chooseColor(int rowIndex, int columnIndex) {
         Color color = (Color) getValueAt(rowIndex, columnIndex);
-        color = Colors.chooseColor(getProject(), this, color, "Select Environment Color");
+        color = Colors.chooseColor(getProject(), this, color, txt("cfg.environment.title.SelectEnvironmentColor"));
         if (color == null) return;
 
         setValueAt(color, rowIndex, columnIndex);

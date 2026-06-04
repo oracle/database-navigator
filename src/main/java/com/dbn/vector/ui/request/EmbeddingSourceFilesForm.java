@@ -33,7 +33,7 @@ public class EmbeddingSourceFilesForm extends VectorToolboxFormBase {
 
     public EmbeddingSourceFilesForm(@NotNull VectorToolboxFormBase parent) {
         super(parent);
-        fileListForm = new VirtualFileListForm(this, "Source files");
+        fileListForm = new VirtualFileListForm(this, txt("app.vector.title.SourceFiles"));
         fileListPanel.add(fileListForm.getComponent());
     }
 
