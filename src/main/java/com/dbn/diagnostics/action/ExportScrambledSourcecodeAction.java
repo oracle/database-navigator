@@ -37,6 +37,10 @@ import static com.dbn.nls.NlsResources.txt;
 @Slf4j
 public class ExportScrambledSourcecodeAction extends ProjectAction {
 
+    public ExportScrambledSourcecodeAction() {
+        super(txt("app.diagnostics.action.ScrambleProjectCode"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         VirtualFile[] virtualFiles = FileChooser.chooseFiles(codeDestinationDirectory(), project, null);

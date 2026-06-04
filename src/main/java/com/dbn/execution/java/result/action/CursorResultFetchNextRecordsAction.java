@@ -35,6 +35,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class CursorResultFetchNextRecordsAction extends JavaExecutionCursorResultAction {
 
+    public CursorResultFetchNextRecordsAction() {
+        super(txt("app.execution.action.JavaExecutionCursorResultFetchNextRecords"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ResultSetTable resultSetTable = getResultSetTable(e);

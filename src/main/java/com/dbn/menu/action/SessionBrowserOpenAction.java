@@ -37,6 +37,10 @@ import static com.dbn.common.util.Lists.convert;
 import static com.dbn.nls.NlsResources.txt;
 
 public class SessionBrowserOpenAction extends ProjectAction {
+    public SessionBrowserOpenAction() {
+        super(txt("app.menu.action.OpenSessionBrowser"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();

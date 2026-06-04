@@ -39,6 +39,10 @@ import static com.dbn.nls.NlsResources.txt;
 public abstract class SelectDropdownAction<T extends Presentable> extends ComboBoxAction implements DumbAware {
     private transient WeakRef<T> lastSelection;
 
+    protected SelectDropdownAction(@Nullable String text) {
+        super(text);
+    }
+
     @Nullable
     protected List<T> getObjects(AnActionEvent e) {
         return getObjects(e.getDataContext());

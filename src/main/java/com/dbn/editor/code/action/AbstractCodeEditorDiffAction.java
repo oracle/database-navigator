@@ -22,7 +22,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 abstract class AbstractCodeEditorDiffAction extends AbstractCodeEditorAction {
-    public AbstractCodeEditorDiffAction() {
+
+    public AbstractCodeEditorDiffAction(String text) {
+        super(text);
     }
 
     void openDiffWindow(
@@ -35,4 +37,3 @@ abstract class AbstractCodeEditorDiffAction extends AbstractCodeEditorAction {
         diffManager.openDiffWindow(sourceCodeFile, referenceText, referenceTitle, windowTitle);
     }
 }
-

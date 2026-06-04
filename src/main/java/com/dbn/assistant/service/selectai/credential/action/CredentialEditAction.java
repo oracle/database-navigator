@@ -34,6 +34,10 @@ import static com.dbn.nls.NlsResources.txt;
  * @author Dan Cioca (Oracle)
  */
 public class CredentialEditAction extends CredentialManagementAction {
+    public CredentialEditAction() {
+        super(txt("app.assistant.action.AssistantEditCredential"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         CredentialManagementForm managementForm = getManagementForm(e);

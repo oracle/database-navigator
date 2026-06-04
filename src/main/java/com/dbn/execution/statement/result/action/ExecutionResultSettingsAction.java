@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionResultSettingsAction extends AbstractExecutionResultAction {
 
+    public ExecutionResultSettingsAction() {
+        super(txt("app.execution.action.ExecutionResultSettings"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull StatementExecutionCursorResult executionResult) {
         ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);

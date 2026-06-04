@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
 @Slf4j
 public class DeveloperModeAction extends ProjectAction {
 
+    public DeveloperModeAction() {
+        super(txt("app.diagnostics.action.DeveloperMode"));
+    }
+
     private static void openDiagnosticSettings(Project project) {
         DiagnosticsManager diagnosticsManager = DiagnosticsManager.getInstance(project);
         diagnosticsManager.openDiagnosticsSettings();

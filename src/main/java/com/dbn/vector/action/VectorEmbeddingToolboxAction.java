@@ -16,6 +16,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class VectorEmbeddingToolboxAction extends AbstractVectorEmbeddingResultAction {
 
+  public VectorEmbeddingToolboxAction() {
+    super(txt("app.execution.action.VectorEmbeddingResultOpenVectorToolbox"));
+  }
+
   @Override
   protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull VectorEmbeddingExecutionResult executionResult) {
     VectorEmbeddingResult embeddingResult = executionResult.getVectorEmbeddingResult();

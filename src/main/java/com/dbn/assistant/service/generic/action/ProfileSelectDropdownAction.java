@@ -54,6 +54,10 @@ import static com.dbn.nls.NlsResources.txt;
 public class ProfileSelectDropdownAction extends ComboBoxAction implements AssistantActionSupport, DumbAware {
     private transient String selectedProfileId;
 
+    public ProfileSelectDropdownAction() {
+        super(txt("app.assistant.action.AssistantSelectProfile"));
+    }
+
     @Override
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent component, DataContext dataContext) {

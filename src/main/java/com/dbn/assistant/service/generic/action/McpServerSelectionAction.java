@@ -45,6 +45,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class McpServerSelectionAction extends ComboBoxAction implements AssistantActionSupport {
 
+    public McpServerSelectionAction() {
+        super(txt("app.assistant.action.AssistantMcpServers"));
+    }
+
     @Override
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent component, @NotNull DataContext dataContext) {

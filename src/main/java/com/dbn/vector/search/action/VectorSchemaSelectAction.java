@@ -35,6 +35,10 @@ import static java.util.Collections.emptyList;
 @BackgroundUpdate
 public class VectorSchemaSelectAction extends SelectDropdownAction<DBSchema> implements VectorActionSupport {
 
+    public VectorSchemaSelectAction() {
+        super(txt("app.vector.action.VectorSearchSchema"));
+    }
+
     @Override
     protected List<DBSchema> getObjects(DataContext dataContext) {
         VectorSearchConsole console = getConsole(dataContext);

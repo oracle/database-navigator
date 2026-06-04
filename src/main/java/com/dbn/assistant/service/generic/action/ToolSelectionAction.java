@@ -39,6 +39,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ToolSelectionAction extends ComboBoxAction implements AssistantActionSupport {
 
+    public ToolSelectionAction() {
+        super(txt("app.assistant.action.AssistantTools"));
+    }
+
     @Override
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent component, @NotNull DataContext dataContext) {

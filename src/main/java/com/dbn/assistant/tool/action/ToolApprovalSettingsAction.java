@@ -32,6 +32,10 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ToolApprovalSettingsAction extends AssistantToolAction {
+    public ToolApprovalSettingsAction() {
+        super(txt("app.assistant.action.AssistantToolSettings"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         AssistantState assistantState = getAssistantState(e);

@@ -18,11 +18,21 @@ package com.dbn.editor.json.action;
 
 import com.dbn.options.ConfigId;
 import com.dbn.options.action.ProjectSettingsOpenAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class JsonDataEditorOptionsAction extends ProjectSettingsOpenAction {
 
 
     public JsonDataEditorOptionsAction() {
-        super(ConfigId.DATA_EDITOR, true);
+        super(ConfigId.DATA_EDITOR, true, txt("app.dataEditor.action.JsonDataEditorSettings"));
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        e.getPresentation().setText(txt("app.dataEditor.action.Settings"));
     }
 }

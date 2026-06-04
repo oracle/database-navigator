@@ -31,6 +31,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class CompareWithOriginalAction extends AbstractCodeEditorDiffAction {
 
+    public CompareWithOriginalAction() {
+        super(txt("app.codeEditor.action.CodeEditorCompareWithOriginal"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
         CharSequence referenceText = sourceCodeFile.getOriginalContent();

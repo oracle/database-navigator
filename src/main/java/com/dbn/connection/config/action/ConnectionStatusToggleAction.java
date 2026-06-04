@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
  */
 public class ConnectionStatusToggleAction extends ConnectionSettingsAction {
 
+    public ConnectionStatusToggleAction() {
+        super(txt("cfg.connection.action.ActivateDeactivateConnection"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ConnectionBundleSettingsForm target) {
         boolean active = target.isSelectionDominantlyEnabled();

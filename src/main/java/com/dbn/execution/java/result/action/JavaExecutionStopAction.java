@@ -31,6 +31,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class JavaExecutionStopAction extends AbstractJavaExecutionResultAction {
 
+    public JavaExecutionStopAction() {
+        super(txt("app.execution.action.JavaExecutionResultStopExecution"));
+    }
+
     @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,

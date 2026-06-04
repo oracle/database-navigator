@@ -34,6 +34,7 @@ import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Clob;
@@ -193,6 +194,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         CodeStyleCaseOption dco = styleCaseSettings.getDatatypeCaseOption();
         boolean function = methodSpec.getObjectType() == FUNCTION;
 
+        @NonNls
         StringBuilder buffer = new StringBuilder();
         String methodType = function ? "function " : "procedure ";
         buffer.append(kco.format(methodType));
@@ -245,6 +247,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
     @Override
     public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
+        @NonNls
         StringBuilder builder = new StringBuilder();
         builder.append("table ");
         builder.append(tableSpec.getSchemaName(true));
@@ -296,6 +299,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         String indexName = indexSpec.getAdjustedObjectName();
         String tableName = tableSpec.getAdjustedObjectName();
 
+        @NonNls
         StringBuilder builder = new StringBuilder();
         builder.append("index ");
 

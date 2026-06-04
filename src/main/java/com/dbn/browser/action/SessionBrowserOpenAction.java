@@ -31,6 +31,10 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.nls.NlsResources.txt;
 
 public class SessionBrowserOpenAction extends ProjectAction {
+    public SessionBrowserOpenAction() {
+        super(txt("app.browser.action.BrowserSessionBrowser"));
+    }
+
     private static ConnectionHandler getConnection(@NotNull AnActionEvent e) {
         Project project = Lookups.getProject(e);
         if (project != null) {

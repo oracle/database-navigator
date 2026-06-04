@@ -18,10 +18,20 @@ package com.dbn.editor.code.action;
 
 import com.dbn.options.ConfigId;
 import com.dbn.options.action.ProjectSettingsOpenAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class CodeEditorSettingsAction extends ProjectSettingsOpenAction {
 
     public CodeEditorSettingsAction() {
-        super(ConfigId.CODE_EDITOR, true);
+        super(ConfigId.CODE_EDITOR, true, txt("app.codeEditor.action.CodeEditorSettings"));
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        e.getPresentation().setText(txt("app.codeEditor.action.Settings"));
     }
 }

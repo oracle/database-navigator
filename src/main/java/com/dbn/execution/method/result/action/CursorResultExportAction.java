@@ -29,6 +29,10 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.nls.NlsResources.txt;
 
 public class CursorResultExportAction extends MethodExecutionCursorResultAction {
+    public CursorResultExportAction() {
+        super(txt("app.execution.action.MethodExecutionCursorResultExport"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();

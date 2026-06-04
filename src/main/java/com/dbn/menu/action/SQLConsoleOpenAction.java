@@ -51,6 +51,10 @@ import static com.dbn.vfs.DBConsoleType.STANDARD;
 
 public class SQLConsoleOpenAction extends ProjectAction {
 
+    public SQLConsoleOpenAction() {
+        super(txt("app.menu.action.OpenSqlConsole"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();

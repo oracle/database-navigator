@@ -28,6 +28,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class JsonDataContentEditorToggleAction extends AbstractJsonDataEditorAction {
 
+    public JsonDataContentEditorToggleAction() {
+        super(txt("app.dataEditor.action.JsonDataEditorShowHideContentEditor"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable JsonDataEditor editor) {
         if (editor == null) {

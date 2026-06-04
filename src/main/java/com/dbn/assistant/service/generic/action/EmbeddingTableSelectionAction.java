@@ -54,6 +54,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class EmbeddingTableSelectionAction extends ComboBoxAction implements AssistantActionSupport {
 
+    public EmbeddingTableSelectionAction() {
+        super(txt("app.assistant.action.AssistantEmbeddingTable"));
+    }
+
     @Override
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent component, @NotNull DataContext dataContext) {

@@ -38,6 +38,10 @@ import static java.util.Collections.emptyList;
 @BackgroundUpdate
 public class VectorTableSelectAction extends SelectDropdownAction<DBTable> implements VectorActionSupport{
 
+    public VectorTableSelectAction() {
+        super(txt("app.vector.action.VectorSearchTable"));
+    }
+
     @Override
     protected List<DBTable> getObjects(DataContext dataContext) {
         VectorSearchConsole console = getConsole(dataContext);

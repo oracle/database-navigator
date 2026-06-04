@@ -31,6 +31,10 @@ import static com.dbn.nls.NlsResources.txt;
  * Action for starting a new chat
  */
 public class ToolExecutionStopAction extends AssistantToolAction {
+    public ToolExecutionStopAction() {
+        super(txt("app.assistant.action.AssistantStopToolExecution"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
@@ -45,7 +49,7 @@ public class ToolExecutionStopAction extends AssistantToolAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setVisible(enabled);
-        presentation.setText(txt("app.assistant.action.StopExecution"));
+        presentation.setText(txt("app.assistant.action.StopToolExecution"));
         presentation.setIcon(ACTION_STOP);
     }
 

@@ -35,6 +35,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
 public class JavaObjectUploadAction extends AbstractFolderContextAction {
+	public JavaObjectUploadAction() {
+		super(txt("app.java.action.Upload"));
+	}
+
 	@Override
 	protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
 		VirtualFile file = e.getData(CommonDataKeys.VIRTUAL_FILE);

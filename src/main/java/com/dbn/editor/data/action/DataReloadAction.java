@@ -35,6 +35,10 @@ public class DataReloadAction extends AbstractDataEditorAction {
 
     private static final DataLoadInstructions LOAD_INSTRUCTIONS = new DataLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
 
+    public DataReloadAction() {
+        super(txt("app.dataEditor.action.DataEditorReload"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         datasetEditor.loadData(LOAD_INSTRUCTIONS);

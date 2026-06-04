@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class JavaExecutionPromptAction extends AbstractJavaExecutionResultAction {
 
+    public JavaExecutionPromptAction() {
+        super(txt("app.execution.action.JavaExecutionResultOpenExecutionDialog"));
+    }
+
     @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,

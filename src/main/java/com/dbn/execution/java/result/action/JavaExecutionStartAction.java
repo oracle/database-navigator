@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class JavaExecutionStartAction extends AbstractJavaExecutionResultAction {
 
+    public JavaExecutionStartAction() {
+        super(txt("app.execution.action.JavaExecutionResultExecuteAgain"));
+    }
+
     @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,

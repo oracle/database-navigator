@@ -28,6 +28,10 @@ import static com.dbn.nls.NlsResources.txt;
  */
 public class SelectAiExplainSqlAction extends SelectAiBaseEditorAction {
 
+  public SelectAiExplainSqlAction() {
+    super(txt("app.assistant.action.AssistantGenerateSqlWithExplanation"));
+  }
+
   @Override
   protected PromptAction getAction() {
     return PromptAction.EXPLAIN_SQL;

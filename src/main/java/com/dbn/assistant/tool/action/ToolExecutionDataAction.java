@@ -27,6 +27,10 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ToolExecutionDataAction extends AssistantToolAction {
+    public ToolExecutionDataAction() {
+        super(txt("app.assistant.action.AssistantToolExecutionData"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
@@ -42,7 +46,7 @@ public class ToolExecutionDataAction extends AssistantToolAction {
 
 
         Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.assistant.action.ToolDetails"));
+        presentation.setText(txt("app.assistant.action.ToolExecutionData"));
         presentation.setIcon(foldableComponent.isFolded() ?
                 Icons.ACTION_CONTENT_EXPAND :
                 Icons.ACTION_CONTENT_COLLAPSE);

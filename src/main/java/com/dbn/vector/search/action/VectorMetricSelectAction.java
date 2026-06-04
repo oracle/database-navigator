@@ -27,6 +27,10 @@ import java.util.List;
 import static com.dbn.nls.NlsResources.txt;
 
 public class VectorMetricSelectAction extends SelectDropdownAction<DBVectorDistanceMetric> implements VectorActionSupport{
+    public VectorMetricSelectAction() {
+        super(txt("app.vector.action.VectorSearchDistanceMetric"));
+    }
+
     @Override
     protected List<DBVectorDistanceMetric> getObjects(DataContext dataContext) {
         return List.of(

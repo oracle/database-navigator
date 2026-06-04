@@ -37,6 +37,10 @@ import static com.dbn.nls.NlsResources.txt;
  * @author Dan Cioca (Oracle)
  */
 public class ChatDeleteAction extends AbstractChatBoxAction {
+    public ChatDeleteAction() {
+        super(txt("app.assistant.action.AssistantClearChat"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         boolean enabled = isEnabled(e);

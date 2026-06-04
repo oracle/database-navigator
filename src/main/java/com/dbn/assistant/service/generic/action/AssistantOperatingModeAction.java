@@ -37,7 +37,12 @@ import static com.dbn.assistant.AssistantMode.DEVELOPMENT;
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 import static com.dbn.nls.NlsResources.txt;
 
-public class AssistantModeAction extends SelectDropdownAction<AssistantMode> implements AssistantActionSupport {
+public class AssistantOperatingModeAction extends SelectDropdownAction<AssistantMode> implements AssistantActionSupport {
+
+    public AssistantOperatingModeAction() {
+        super(txt("app.assistant.action.AssistantOperatingMode"));
+    }
+
     @Override
     protected @Nullable List<AssistantMode> getObjects(DataContext dataContext) {
         AssistantState assistantState = getAssistantState(dataContext);
@@ -74,7 +79,7 @@ public class AssistantModeAction extends SelectDropdownAction<AssistantMode> imp
 
     @Override
     protected String getDescription(AnActionEvent e) {
-        return txt("app.assistant.tooltip.Mode");
+        return txt("app.assistant.tooltip.OperatingMode");
     }
 
     @Override

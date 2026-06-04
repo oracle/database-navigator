@@ -38,6 +38,10 @@ import static com.dbn.nls.NlsResources.txt;
 public class ChatHistoryDropdownAction extends BasicActionGroup implements DumbAware, AssistantActionSupport {
     private static final int MAX_SIZE = 5;
 
+    public ChatHistoryDropdownAction() {
+        super(txt("app.assistant.action.AssistantChatHistory"));
+    }
+
     @Override
     protected @NotNull AnAction[] loadChildren(AnActionEvent e) {
         ChatBoxForm chatBox = getChatBox(e);
@@ -65,6 +69,7 @@ public class ChatHistoryDropdownAction extends BasicActionGroup implements DumbA
     @Override
     public void update(@NotNull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
+        presentation.setText(txt("app.assistant.action.ChatHistory"));
         presentation.setDescription(txt("app.assistant.tooltip.ChatHistory"));
     }
 }

@@ -29,6 +29,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class TransactionRollbackAction extends TransactionEditorAction {
 
+    public TransactionRollbackAction() {
+        super(txt("app.codeEditor.action.ScriptEditorRollbackTransaction"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         super.update(e, project);

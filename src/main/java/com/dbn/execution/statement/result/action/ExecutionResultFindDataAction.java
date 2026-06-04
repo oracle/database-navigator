@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionResultFindDataAction extends AbstractExecutionResultAction {
 
+    public ExecutionResultFindDataAction() {
+        super(txt("app.execution.action.ExecutionResultFindData"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull StatementExecutionCursorResult executionResult) {
         StatementExecutionResultForm resultForm = executionResult.getForm();
