@@ -25,6 +25,8 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Transferable object for Database object and profile object
  * This class is used during drag and drop between tables.
@@ -32,8 +34,8 @@ import java.util.List;
  */
 public class ProfileObjectsTransferable implements Transferable {
 
-    public static final DataFlavor ADD_FLAVOR = new DataFlavor(DBDataset.class, "Datasets");
-    public static final DataFlavor REMOVE_FLAVOR = new DataFlavor(Void.class, "Remove datasets");
+    public static final DataFlavor ADD_FLAVOR = new DataFlavor(DBDataset.class, txt("cfg.assistant.text.Datasets"));
+    public static final DataFlavor REMOVE_FLAVOR = new DataFlavor(Void.class, txt("cfg.assistant.text.RemoveDatasets"));
 
     private static final DataFlavor[] supportedFlavor = {ADD_FLAVOR};
     private final List<DBDataset> transferred;

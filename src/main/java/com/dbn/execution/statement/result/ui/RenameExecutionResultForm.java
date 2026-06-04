@@ -46,7 +46,7 @@ public class RenameExecutionResultForm extends DBNFormBase {
         super(parent);
 
         DBNHeaderForm headerForm = new DBNHeaderForm(this,
-                "Execution result - " + executionResult.getName(),
+                txt("app.execution.label.ExecutionResult", executionResult.getName()),
                 executionResult.getIcon(),
                 executionResult.getConnection().getEnvironmentType().getColor());
         headerPanel.add(headerForm.getComponent());

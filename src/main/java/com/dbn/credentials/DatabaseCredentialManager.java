@@ -145,7 +145,7 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
     @NotNull
     @Compatibility
     protected static CredentialAttributes createAttributes(SecretType secretType, Object ownerId, String user) {
-        String serviceTypeName = secretType.getName();
+        String serviceTypeName = secretType.getServiceName();
         String ownerName = SecretsOwnerRegistry.getOwnerName(ownerId);
         // JDBC-4636: a secret with no user will come in empty when saving and null when
         // loading.  Make sure both scenarios have a consistent user name and resulting

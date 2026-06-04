@@ -118,7 +118,7 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
         if (editorTable.getSelectedRowCount() == 1) {
             SessionBrowserModelRow selectedRow = editorTable.getModel().getRowAtIndex(editorTable.getSelectedRow());
             if (selectedRow != null) {
-                setPreviewText("-- Loading...");
+                setPreviewText(txt("app.sessionBrowser.text.LoadingCurrentSql"));
                 selectedSessionId = selectedRow.getSessionId();
 
                 Object sessionId = selectedSessionId;

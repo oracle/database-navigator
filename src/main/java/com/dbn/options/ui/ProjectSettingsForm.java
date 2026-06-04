@@ -141,7 +141,7 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
         String configurationId = configuration.getId();
         showCard(configsPanel, configurationId);
         selectionBreadcrumbs.setCrumbs(List.of(
-                new Crumb.Impl(null, "Settings", null),
+                new Crumb.Impl(null, txt("cfg.project.title.Settings"), null),
                 new Crumb.Impl(null, configuration.getDisplayName(), null)
                 ));
 
