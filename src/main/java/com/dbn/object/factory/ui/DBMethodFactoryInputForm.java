@@ -95,8 +95,9 @@ public class DBMethodFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
         DBObjectType objectType = input.getObjectType();
         nameLabel.setText(
-                objectType == DBObjectType.FUNCTION ? "Function name" :
-                objectType == DBObjectType.PROCEDURE ? "Procedure name" : "Name");
+                objectType == DBObjectType.FUNCTION ? txt("app.object.label.FunctionName") :
+                objectType == DBObjectType.PROCEDURE ? txt("app.object.label.ProcedureName") :
+                txt("app.object.label.GenericName"));
 
         DBNHeaderForm headerForm = createHeaderForm();
         headerPanel.add(headerForm.getComponent());

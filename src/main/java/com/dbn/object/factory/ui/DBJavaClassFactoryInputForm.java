@@ -114,7 +114,7 @@ public class DBJavaClassFactoryInputForm extends DBSchemaObjectFactoryInputForm 
         String packageName = getPackageName();
         String className = getObjectName();
         if (isEmpty(className)) {
-            className = "[new]";
+            className = txt("app.object.placeholder.New");
         }
 
         String schemaName = getSchemaName();
