@@ -190,7 +190,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         AtomicReference<File> tempScriptFile = new AtomicReference<>();
         LogOutputContext outputContext = new LogOutputContext(connection, sourceFile, null);
         int timeout = input.getExecutionTimeout();
-        executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, " - Initializing script execution", input.isClearOutput()));
+        executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, txt("log.execution.info.InitializingScriptExecution"), input.isClearOutput()));
 
         try {
             new CancellableDatabaseCall<>(connection, null, timeout, SECONDS) {
@@ -201,7 +201,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     String content = new String(sourceFile.contentsToByteArray());
                     File temporaryScriptFile = createTempScriptFile();
 
-                    executionManager.writeLogOutput(outputContext, createSysOutput("Creating temporary script file " + temporaryScriptFile));
+                    executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.CreatingTemporaryScriptFile", temporaryScriptFile)));
                     tempScriptFile.set(temporaryScriptFile);
 
                     DatabaseExecutionInterface executionInterface = connection.getInterfaces().getExecutionInterface();
@@ -214,12 +214,12 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
                     FileUtil.writeToFile(temporaryScriptFile, executionInput.getTextContent());
                     if (!temporaryScriptFile.isFile() || !temporaryScriptFile.exists()) {
-                        executionManager.writeLogOutput(outputContext, LogOutput.createErrOutput("Failed to create temporary script file " + temporaryScriptFile + "."));
-                        throw new IllegalStateException("Failed to create temporary script file " + temporaryScriptFile + ". Check access rights at location.");
+                        executionManager.writeLogOutput(outputContext, LogOutput.createErrOutput(txt("log.execution.error.TemporaryScriptFileCreationFailed", temporaryScriptFile)));
+                        throw new IllegalStateException(txt("msg.execution.error.TemporaryScriptFileCreationFailed", temporaryScriptFile));
                     }
 
                     String commandLine = executionInput.getCommandLine();
-                    executionManager.writeLogOutput(outputContext, createSysOutput("Executing command: " + commandLine));
+                    executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.ExecutingCommand", commandLine)));
                     executionManager.writeLogOutput(outputContext, createSysOutput(""));
 
                     ScriptExecutionProcessHandler processHandler = startProcess(executionInput);
@@ -233,7 +233,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
                     outputContext.setHideEmptyLines(false);
                     outputContext.start();
-                    executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, " - Script execution started", false));
+                    executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, txt("log.execution.info.ScriptExecutionStarted"), false));
 
                     // start monitoring the process and wait for completion
                     processHandler.startNotify();
@@ -241,8 +241,8 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
                     LogOutput logOutput = createSysOutput(outputContext,
                             outputContext.isStopped() ?
-                                    " - Script execution interrupted by user" :
-                                    " - Script execution finished", false);
+                                    txt("log.execution.info.ScriptExecutionInterrupted") :
+                                    txt("log.execution.info.ScriptExecutionFinished"), false);
                     executionManager.writeLogOutput(outputContext, logOutput);
                     ProjectEvents.notify(project,
                             ScriptExecutionListener.TOPIC,
@@ -280,7 +280,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         } catch (Exception e) {
             conditionallyLog(e);
             executionManager.writeLogOutput(outputContext, LogOutput.createErrOutput(e.getMessage()));
-            executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, " - Script execution finished with errors", false));
+            executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, txt("log.execution.info.ScriptExecutionFinishedWithErrors"), false));
             throw e;
         } finally {
             context.set(ExecutionStatus.EXECUTING, false);
@@ -288,12 +288,12 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
             activeProcesses.remove(sourceFile);
             File temporaryScriptFile = tempScriptFile.get();
             if (temporaryScriptFile != null && temporaryScriptFile.exists()) {
-                executionManager.writeLogOutput(outputContext, createSysOutput("Deleting temporary script file " + temporaryScriptFile));
+                executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.DeletingTemporaryScriptFile", temporaryScriptFile)));
                 FileUtil.delete(temporaryScriptFile);
             }
             File temporaryScriptDirectory = temporaryScriptFile == null ? null : temporaryScriptFile.getParentFile();
             if (temporaryScriptDirectory != null && temporaryScriptDirectory.exists()) {
-                executionManager.writeLogOutput(outputContext, createSysOutput("Deleting temporary script directory " + temporaryScriptDirectory));
+                executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.DeletingTemporaryScriptDirectory", temporaryScriptDirectory)));
                 FileUtil.delete(temporaryScriptDirectory);
             }
         }

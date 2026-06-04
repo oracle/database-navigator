@@ -84,7 +84,7 @@ public class DatabaseLoggingToggleAction extends ToggleAction implements DumbAwa
                 DatabaseCompatibilityInterface compatibility = connection.getCompatibilityInterface();
                 String databaseLogName = compatibility.getDatabaseLogName();
                 if (Strings.isNotEmpty(databaseLogName)) {
-                    name = name + " (" + databaseLogName + ")";
+                    name = txt("app.execution.action.DatabaseLoggingNamed", databaseLogName);
                 }
             }
         }
