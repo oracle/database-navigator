@@ -115,9 +115,9 @@ public class ChatBoxStatusLabel extends DBNPanelImpl implements Disposable {
     @Getter
     private enum Status {
         UNAVAILABLE ("", "", null),
-        INTERACTIVE("Interactive", txt("app.assistant.tooltip.ChatStatusInteractive"), Colors.CONVERSATIONAL),
-        NON_INTERACTIVE("Non-Interactive", txt("app.assistant.tooltip.ChatStatusNonInteractive"), Colors.NON_CONVERSATIONAL),
-        DISCONTINUED("Discontinued", txt("app.assistant.tooltip.ChatStatusDiscontinued"), Colors.CONVERSATION_DISCONTINUED),;
+        INTERACTIVE(txt("app.assistant.text.ChatStatusInteractive"), txt("app.assistant.tooltip.ChatStatusInteractive"), Colors.CONVERSATIONAL),
+        NON_INTERACTIVE(txt("app.assistant.text.ChatStatusNonInteractive"), txt("app.assistant.tooltip.ChatStatusNonInteractive"), Colors.NON_CONVERSATIONAL),
+        DISCONTINUED(txt("app.assistant.text.ChatStatusDiscontinued"), txt("app.assistant.tooltip.ChatStatusDiscontinued"), Colors.CONVERSATION_DISCONTINUED),;
 
         private final Color color;
         private final String text;
