@@ -80,7 +80,7 @@ public class SQLConsoleOpenAction extends ProjectAction {
 
         List<SelectConnectionAction> actions = convert(connections, c -> new SelectConnectionAction(c));
         Popups.popupBuilder(actions, e).
-                withTitle("Select Console Connection").
+                withTitle(txt("app.consoles.title.SelectConnection")).
                 withSpeedSearch().
                 buildAndShowCentered();
     }

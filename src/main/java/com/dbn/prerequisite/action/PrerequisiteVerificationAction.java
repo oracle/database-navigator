@@ -100,7 +100,7 @@ public class PrerequisiteVerificationAction extends ActionGroup {
 
             List<SelectTargetConnection> actions = convert(connections, c -> new SelectTargetConnection(c, operation));
             Popups.popupBuilder(actions, e).
-                    withTitle("Prerequisite Verification Target").
+                    withTitle(txt("app.prerequisite.title.VerificationTarget")).
                     withSpeedSearch().
                     buildAndShowCentered();
         }

@@ -336,6 +336,7 @@ public final class WrapperStatementBuilder {
         String fieldName = fieldWrapper.getName();
         int fieldIndex = fieldWrapper.getIndex();
 
+        @NonNls
         String valueExpression = "objArray[" + fieldIndex + "]";
 
         // Build conversion expression.

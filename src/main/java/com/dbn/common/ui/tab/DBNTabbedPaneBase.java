@@ -125,7 +125,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
         }
 
         popupBuilder(actions, hiddenTabsActionPanel).
-                withTitle("Hidden Tabs").
+                withTitle(txt("app.shared.title.HiddenTabs")).
                 withTitleVisible(false).
                 withSpeedSearch().
                 buildAndShow();
@@ -324,7 +324,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
         location.setLocation(location.getX() + x, location.getY() + y);
 
         ListPopup popup = popupBuilder(actionGroup, this).
-                withTitle("Tab Actions").
+                withTitle(txt("app.shared.title.TabActions")).
                 withTitleVisible(false).
                 withDisposeCallback(() -> showingPopup = false).
                 withMaxRowCount(10).

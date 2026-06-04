@@ -33,6 +33,7 @@ import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.oci.config.OciConfigFileUtil;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -344,7 +345,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         File certificateFile = new File(certificateFileStr);
         if (!certificateFile.isFile()) {
             TextFields.updateFieldError(textField,
-                String.format("Can't find the certificate file. %s is not a file", certificateFileStr));
+                txt("cfg.connection.error.CertificateFileNotFound", certificateFileStr));
         }
     }
 
@@ -408,14 +409,12 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         return getSelection(tokenTypeComboBox);
     }
 
-    private String checkSystemWarnings() {
+    private @Nullable @Nls String checkSystemWarnings() {
         if (!verifyInteractivePortBinding()) {
-            // TODO NLS
-            return "TCP port 8181 appears to be bound.\nThis may cause interactive OCI authentication to fail.";
+            return txt("cfg.connection.warning.OciInteractivePortBound", OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT);
         }
         if (!checkNoProxyIfAzure()) {
-            // TODO NLS
-            return "The system properties contain one or more HTTP proxy settings.\nThis may cause Azure Authentication to fail.";
+            return txt("cfg.connection.warning.AzureAuthenticationProxySettings");
         }
         return null;
     }

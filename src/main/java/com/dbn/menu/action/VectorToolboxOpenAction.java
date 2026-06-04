@@ -70,7 +70,7 @@ public class VectorToolboxOpenAction extends ProjectAction {
         List<SelectConnectionAction> actions = convert(connections, c -> new SelectConnectionAction(c));
 
         popupBuilder(actions, e).
-                withTitle("Select Vector Toolbox Connection").
+                withTitle(txt("app.vector.title.SelectConnection")).
                 withSpeedSearch().
                 buildAndShowCentered();
     }

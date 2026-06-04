@@ -106,7 +106,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
             if (actionGroup.getChildrenCount() > 1) {
                 removeActionLock();
                 popupBuilder(actionGroup, event).
-                        withTitle("Select Connection / Schema for Lookup").
+                        withTitle(txt("app.navigation.title.SelectLookupScope")).
                         withSpeedSearch().
                         withMaxRowCount(20).
                         withPreselectCondition(a -> {

@@ -67,7 +67,7 @@ public class SessionBrowserOpenAction extends ProjectAction {
         List<SelectConnectionAction> actions = convert(connections, c -> new SelectConnectionAction(c));
 
         popupBuilder(actions, e).
-                withTitle("Select Session Browser Connection").
+                withTitle(txt("app.sessionBrowser.title.SelectConnection")).
                 withSpeedSearch().
                 buildAndShowCentered();
     }

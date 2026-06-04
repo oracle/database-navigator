@@ -388,7 +388,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             }
         });
         popupBuilder(actions, button).
-                withTitle("Driver Libraries").
+                withTitle(txt("cfg.connection.title.DriverLibraries")).
                 withTitleVisible(false).
                 withSpeedSearch().
                 buildAndShow();
