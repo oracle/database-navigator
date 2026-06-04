@@ -19,8 +19,11 @@ package com.dbn.diagnostics.data;
 import com.dbn.common.color.Colors;
 import com.intellij.ui.SimpleTextAttributes;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 
 import java.awt.Color;
+
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public enum StateTransition {
@@ -34,6 +37,10 @@ public enum StateTransition {
 
     StateTransition(Category category) {
         this.category = category;
+    }
+
+    public @Nls String getName() {
+        return txt("app.diagnostics.label.StateTransition_" + name());
     }
 
     @Getter

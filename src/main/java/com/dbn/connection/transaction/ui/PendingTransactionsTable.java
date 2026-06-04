@@ -121,9 +121,10 @@ public class PendingTransactionsTable extends DBNTable<PendingTransactionsTableM
 
             } else if (column == 2) {
                 int changesCount = transaction.getChangesCount();
-                append(changesCount == 1 ?
-                        changesCount + " uncommitted change" :
-                        changesCount + " uncommitted changes",
+                append(txt(changesCount == 1 ?
+                                "app.connection.text.UncommittedChange" :
+                                "app.connection.text.UncommittedChanges",
+                        changesCount),
                         SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
         }

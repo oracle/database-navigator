@@ -90,7 +90,12 @@ public class ResourceMonitorTransactionsTable extends DBNTable<ResourceMonitorTr
                 append(transaction.getFilePath(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
 
             } else if (column == 1) {
-                append(transaction.getChangesCount() + " uncommitted changes", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                int changesCount = transaction.getChangesCount();
+                append(txt(changesCount == 1 ?
+                                "app.connection.text.UncommittedChange" :
+                                "app.connection.text.UncommittedChanges",
+                        changesCount),
+                        SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
         }
     }

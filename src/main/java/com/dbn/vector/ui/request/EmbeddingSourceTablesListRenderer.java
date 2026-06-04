@@ -34,7 +34,7 @@ public class EmbeddingSourceTablesListRenderer extends ColoredListCellRenderer<E
     @Override
     protected void customize(@NotNull JList<? extends EmbeddingSourceTable> list, EmbeddingSourceTable value, int index, boolean selected, boolean hasFocus) {
         if (value == null) {
-            append("(null)", ERROR_ATTRIBUTES);
+            append(txt("app.vector.placeholder.Null"), ERROR_ATTRIBUTES);
             return;
         }
 
@@ -53,7 +53,7 @@ public class EmbeddingSourceTablesListRenderer extends ColoredListCellRenderer<E
         if (isNotEmpty(tableName)) {
             append(tableName, regularAttributes);
         } else {
-            append("(no table)", ERROR_ATTRIBUTES);
+            append(txt("app.vector.placeholder.NoTable"), ERROR_ATTRIBUTES);
         }
 
         // Column info

@@ -47,7 +47,7 @@ public class ProfileListCellRenderer extends DBObjectListCellRenderer<DBAIProfil
 
         boolean enabled = list.isEnabled() && profile.isEnabled();
         SimpleTextAttributes attributes = enabled ? REGULAR_ATTRIBUTES : GRAY_ATTRIBUTES;
-        if (isDefault(profile)) append(" (default)", attributes);
+        if (isDefault(profile)) append(" " + txt("app.assistant.label.DefaultMarker"), attributes);
 
         setToolTipText(enabled ? null : txt("cfg.assistant.tooltip.ProfileDisabled"));
     }

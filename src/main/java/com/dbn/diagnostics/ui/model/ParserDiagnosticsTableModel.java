@@ -139,7 +139,7 @@ public class ParserDiagnosticsTableModel implements DBNReadonlyTableModel<Parser
                 case 1: return Long.toString(row.getFileSize());
                 case 2: return row.getOldIssues().getErrors() + " / " + row.getNewIssues().getErrors();
                 case 3: return row.getOldIssues().getWarnings() +  " / " + row.getNewIssues().getWarnings();
-                case 4: return row.getStateTransition().name();
+                case 4: return row.getStateTransition().getName();
             }
         }
         return "";

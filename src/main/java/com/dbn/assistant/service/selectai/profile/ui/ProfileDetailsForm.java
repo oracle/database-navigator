@@ -125,7 +125,7 @@ public class ProfileDetailsForm extends DBNFormBase {
                             SimpleTextAttributes.REGULAR_ATTRIBUTES :
                             SimpleTextAttributes.GRAY_ATTRIBUTES);
                 } else {
-                    append("<all>", table.isEnabled() ?
+                    append(txt("app.assistant.placeholder.All"), table.isEnabled() ?
                             SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES :
                             SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES);
                 }

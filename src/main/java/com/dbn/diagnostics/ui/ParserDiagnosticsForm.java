@@ -109,7 +109,7 @@ public class ParserDiagnosticsForm extends DBNFormBase {
 
         StateTransition stateTransition = deltaResult == null ? StateTransition.UNCHANGED : deltaResult.getFilter();
         StateTransition.Category category = stateTransition.getCategory();
-        stateTransitionLabel.setText(previous == null ? current == null ? "" : txt("app.diagnostics.label.Initial") : stateTransition.name());
+        stateTransitionLabel.setText(previous == null ? current == null ? "" : txt("app.diagnostics.label.Initial") : stateTransition.getName());
         stateTransitionLabel.setForeground(category.getColor());
         stateTransitionLabel.setFont(category.isBold() ?
                 Fonts.regularBold() :
@@ -157,16 +157,16 @@ public class ParserDiagnosticsForm extends DBNFormBase {
             append(value.getName() + " - ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
             ParserDiagnosticsResult previous = manager.getPreviousResult(value);
             if (previous == null) {
-                append("INITIAL", SimpleTextAttributes.GRAY_ATTRIBUTES);
+                append(txt("app.diagnostics.label.Initial"), SimpleTextAttributes.GRAY_ATTRIBUTES);
             } else {
                 int previousCount = previous.getIssues().issueCount();
                 int currentCount = value.getIssues().issueCount();
                 if (previousCount < currentCount) {
-                    append("DEGRADED", StateTransition.DEGRADED.getCategory().getTextAttributes());
+                    append(StateTransition.DEGRADED.getName(), StateTransition.DEGRADED.getCategory().getTextAttributes());
                 } else if (previousCount > currentCount) {
-                    append("IMPROVED", StateTransition.IMPROVED.getCategory().getTextAttributes());
+                    append(StateTransition.IMPROVED.getName(), StateTransition.IMPROVED.getCategory().getTextAttributes());
                 } else {
-                    append("UNCHANGED", SimpleTextAttributes.GRAY_ATTRIBUTES);
+                    append(StateTransition.UNCHANGED.getName(), SimpleTextAttributes.GRAY_ATTRIBUTES);
                 }
             }
         }
