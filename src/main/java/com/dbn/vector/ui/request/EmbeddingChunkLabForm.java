@@ -112,7 +112,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
         inputEditor = Editors.createEditor(document, project, virtualFile, fileType);
         inputEditor.setEmbeddedIntoDialogWrapper(false);
         inputEditor.getContentComponent().setFocusTraversalKeysEnabled(false);
-        inputEditor.setPlaceholder("Enter your sample text for chunking here");
+        inputEditor.setPlaceholder(txt("app.vector.placeholder.ChunkSampleText"));
         inputEditor.setBorder(null);
         inputEditor.getComponent().setBorder(null);
 

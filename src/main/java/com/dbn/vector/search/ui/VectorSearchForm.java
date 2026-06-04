@@ -107,7 +107,7 @@ public class VectorSearchForm extends DBNFormBase {
         requestEditor = Editors.createEditor(document, project, virtualFile, fileType);
         requestEditor.setEmbeddedIntoDialogWrapper(false);
         requestEditor.getContentComponent().setFocusTraversalKeysEnabled(false);
-        requestEditor.setPlaceholder("Enter your search text here");
+        requestEditor.setPlaceholder(txt("app.vector.placeholder.SearchText"));
 
         EditorSettings settings = requestEditor.getSettings();
         settings.setUseSoftWraps(true);
