@@ -95,7 +95,7 @@ public class DatasetRecordEditorForm extends DBNFormBase {
         sortColumns(columnSortingType);
         updateFieldAlignment();
 
-        filterTextField.getEmptyText().setText("Filter");
+        filterTextField.getEmptyText().setText(txt("app.dataEditor.placeholder.Filter"));
         onTextChange(filterTextField, e -> filterColumForms());
 
         if (columnForms.size() > 0) {

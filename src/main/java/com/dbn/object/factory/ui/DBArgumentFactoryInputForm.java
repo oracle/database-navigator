@@ -67,7 +67,7 @@ public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm {
             inCheckBox.addActionListener(actionListener);
             outCheckBox.addActionListener(actionListener);
         }
-        nameTextField.getEmptyText().setText("Argument name");
+        nameTextField.getEmptyText().setText(txt("app.objects.placeholder.ArgumentName"));
 
         dataTypeEditor = new DataTypeEditor(getConnection());
         dataTypeEditorPanel.add(dataTypeEditor);

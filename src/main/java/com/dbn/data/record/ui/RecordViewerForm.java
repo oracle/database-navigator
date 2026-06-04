@@ -102,7 +102,7 @@ public class RecordViewerForm extends DBNFormBase {
         sortColumns(sortingType);
         updateFieldAlignment();
 
-        filterTextField.getEmptyText().setText("Filter");
+        filterTextField.getEmptyText().setText(txt("app.dataEditor.placeholder.Filter"));
         onTextChange(filterTextField, e -> filterColumForms());
 
         int scrollUnitIncrement = (int) columnForms.get(0).getComponent().getPreferredSize().getHeight();

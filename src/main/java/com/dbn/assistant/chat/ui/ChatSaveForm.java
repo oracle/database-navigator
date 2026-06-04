@@ -44,7 +44,7 @@ public class ChatSaveForm extends DBNFormBase {
         warningLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
         this.headerPanel.add(warningLabel);
         this.usedNames = usedNames;
-        this.nameTextField.getEmptyText().setText("Chat name");
+        this.nameTextField.getEmptyText().setText(txt("app.assistant.placeholder.ChatName"));
 
     }
 

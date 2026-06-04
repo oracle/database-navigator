@@ -147,7 +147,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   }
 
   private void initFilterField() {
-    filterTextField.getEmptyText().setText("Filter");
+    filterTextField.getEmptyText().setText(txt("cfg.assistant.placeholder.Filter"));
     onTextChange(filterTextField, e -> updateDatasetsFilter());
   }
 

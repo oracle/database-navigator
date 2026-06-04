@@ -65,8 +65,8 @@ public class OciConfigSelectionForm extends DBNFormBase {
 
         addSingleFileChooser(getProject(), configFileTextField, txt("cfg.oci.title.SelectConfigFile"), "");
 
-        userIdTextField.getEmptyText().setText("ocid1.user.oc1..");
-        tenancyIdTextField.getEmptyText().setText("ocid1.tenancy.oc1..");
+        userIdTextField.getEmptyText().setText(txt("cfg.oci.placeholder.UserOcidExample"));
+        tenancyIdTextField.getEmptyText().setText(txt("cfg.oci.placeholder.TenancyOcidExample"));
         onTextChange(configFileTextField, e -> configProfileComboBox.reloadValues());
         onSelectionChange(configProfileComboBox, v -> updateConfigFieldValues());
 

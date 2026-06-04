@@ -110,7 +110,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
     }
 
     private void initInstructionsField() {
-        instructionsTextArea.getEmptyText().setText("e.g. ‘Use Java best practices’ or ‘Comment each step.’");
+        instructionsTextArea.getEmptyText().setText(txt("cfg.assistant.placeholder.ProfileInstructionsExample"));
     }
 
     private void initCredentialFields() {

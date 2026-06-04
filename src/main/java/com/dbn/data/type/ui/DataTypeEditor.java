@@ -48,7 +48,7 @@ public class DataTypeEditor extends TextFieldWithPopup {
         BasicListPopupValuesProvider valuesProvider =
                 new BasicListPopupValuesProvider(txt("msg.dataType.title.NativeDataTypes"), nativeDataTypeNames);
         createValuesListPopup(valuesProvider, null, true);
-        setEmptyText("Data type");
+        setEmptyText(txt("app.objects.placeholder.DataType"));
     }
 
 

@@ -81,9 +81,9 @@ public class OciConfigForm extends DBNFormBase {
         initConfigFileChooser();
         initPrivateKeyFileChooser();
 
-        userIdTextField.getEmptyText().setText("ocid1.user.oc1..");
-        tenancyIdTextField.getEmptyText().setText("ocid1.tenancy.oc1..");
-        compartmentIdTextField.getEmptyText().setText("ocid1.compartment.oc1.. / ocid1.tenancy.oc1..");
+        userIdTextField.getEmptyText().setText(txt("cfg.oci.placeholder.UserOcidExample"));
+        tenancyIdTextField.getEmptyText().setText(txt("cfg.oci.placeholder.TenancyOcidExample"));
+        compartmentIdTextField.getEmptyText().setText(txt("cfg.oci.placeholder.CompartmentOrTenancyOcidExample"));
         onTextChange(configFileTextField, e -> configProfileComboBox.reloadValues());
         onSelectionChange(configTypeComboBox, v -> updateFieldAvailability());
     }

@@ -69,7 +69,7 @@ public class ChatHistoryForm extends DBNFormBase {
         chatHistoryTable.adjustColumnWidths();
         updateDialogButtonState(parent);
 
-        filterTextField.getEmptyText().setText("Filter");
+        filterTextField.getEmptyText().setText(txt("app.assistant.placeholder.Filter"));
         createActionPanel();
     }
 

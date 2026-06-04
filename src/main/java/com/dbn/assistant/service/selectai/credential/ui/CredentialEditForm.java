@@ -191,8 +191,8 @@ public class CredentialEditForm extends DBNFormBase {
             credentialTypeComboBox.addActionListener((e) -> updateFieldAvailability());
         }
 
-        ociCredentialUserOcidField.getEmptyText().setText("ocid1.user.oc1...");
-        ociCredentialTenancyOcidField.getEmptyText().setText("ocid1.tenancy.oc1...");
+        ociCredentialUserOcidField.getEmptyText().setText(txt("cfg.assistant.placeholder.UserOcidExample"));
+        ociCredentialTenancyOcidField.getEmptyText().setText(txt("cfg.assistant.placeholder.TenancyOcidExample"));
     }
 
     /**

@@ -58,6 +58,7 @@ import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.containsIgnoreCase;
+import static com.dbn.nls.NlsResources.txt;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
 public class AssistantMcpToolApprovalsForm extends DBNFormBase {
@@ -116,7 +117,7 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
     }
 
     private void initFilterField() {
-        filterTextField.getEmptyText().setText("Filter");
+        filterTextField.getEmptyText().setText(txt("app.assistant.placeholder.Filter"));
         onTextChange(filterTextField, e -> filterToolForms());
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, new AssistantMcpToolsReloadAction());

@@ -107,7 +107,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         super(searchableComponent);
 
         JBTextArea textArea = new JBTextArea();
-        textArea.getEmptyText().setText("Search");
+        textArea.getEmptyText().setText(txt("app.dataEditor.placeholder.Search"));
         searchTextField = new SearchTextArea(textArea, true);
 
         searchFieldPanel.add(searchTextField, BorderLayout.CENTER);

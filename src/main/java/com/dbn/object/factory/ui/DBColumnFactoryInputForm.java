@@ -58,7 +58,7 @@ public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm {
         iconLabel.setText(null);
         iconLabel.setIcon(DBObjectType.COLUMN.getIcon());
 
-        nameTextField.getEmptyText().setText("Column name");
+        nameTextField.getEmptyText().setText(txt("app.objects.placeholder.ColumnName"));
         dataTypeEditor = new DataTypeEditor(getConnection());
         dataTypeEditorPanel.add(dataTypeEditor);
 

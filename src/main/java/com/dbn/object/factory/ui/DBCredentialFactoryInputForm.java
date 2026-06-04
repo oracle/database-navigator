@@ -183,8 +183,8 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
             credentialTypeComboBox.addActionListener((e) -> updateFieldAvailability());
         }
 
-        ociCredentialUserOcidField.getEmptyText().setText("ocid1.user.oc1...");
-        ociCredentialTenancyOcidField.getEmptyText().setText("ocid1.tenancy.oc1...");
+        ociCredentialUserOcidField.getEmptyText().setText(txt("app.objects.placeholder.UserOcidExample"));
+        ociCredentialTenancyOcidField.getEmptyText().setText(txt("app.objects.placeholder.TenancyOcidExample"));
     }
 
     @Override
