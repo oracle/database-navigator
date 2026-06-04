@@ -53,7 +53,7 @@ public class CreateRenameConsoleForm extends DBNFormBase {
         this.consoleType = consoleType;
 
         DBNHeaderForm headerForm = console == null ?
-                new DBNHeaderForm(this, "[New " + consoleType.getName() + "]", consoleType.getIcon(), connection.getEnvironmentType().getColor()) :
+                new DBNHeaderForm(this, txt("app.connection.placeholder.NewConsole", consoleType.getName()), consoleType.getIcon(), connection.getEnvironmentType().getColor()) :
                 new DBNHeaderForm(this, console);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 

@@ -107,9 +107,10 @@ public class ObjectQuickFilterForm extends DBNFormBase {
         Icon headerIcon = Icons.DATASET_FILTER;
         ConnectionHandler connection = objectList.getConnection();
         DatabaseEntity parentElement = objectList.getParentEntity();
-        String headerText = "[" + connection.getName() + "] " +
-                (parentElement instanceof DBSchema ? (parentElement.getName() + " - ") : "") +
-                objectList.getObjectType().getTitleCasedName() + " filters";
+        String objectTypeName = objectList.getObjectType().getTitleCasedName();
+        String headerText = parentElement instanceof DBSchema ?
+                txt("app.objects.text.SchemaQuickFilters", connection.getName(), parentElement.getName(), objectTypeName) :
+                txt("app.objects.text.ConnectionQuickFilters", connection.getName(), objectTypeName);
         Color headerBackground = connection.getEnvironmentType().getColor();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, headerText, headerIcon, headerBackground);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);

@@ -60,11 +60,11 @@ public class DBNHeaderForm extends DBNFormBase {
         objectLabel.setForeground(Colors.getLabelForeground());
     }
 
-    public DBNHeaderForm(DBNForm parent, String title, Icon icon) {
+    public DBNHeaderForm(DBNForm parent, @Nls String title, Icon icon) {
         this(parent, title, icon, null);
     }
 
-    public DBNHeaderForm(DBNForm parent, String title, Icon icon, Color background) {
+    public DBNHeaderForm(DBNForm parent, @Nls String title, Icon icon, Color background) {
         this(parent);
         objectLabel.setText(title);
         objectLabel.setIcon(icon);
@@ -126,7 +126,7 @@ public class DBNHeaderForm extends DBNFormBase {
         mainPanel.setBackground(background);
     }
 
-    public void setTitle(String title) {
+    public void setTitle(@Nls String title) {
         objectLabel.setText(title);
     }
 

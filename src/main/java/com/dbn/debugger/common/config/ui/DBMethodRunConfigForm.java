@@ -152,7 +152,7 @@ public class DBMethodRunConfigForm extends DBProgramRunConfigForm<DBMethodRunCon
         methodArgumentsPanel.removeAll();
         inputForm = replace(inputForm, null);
 
-        String headerTitle = "No method selected";
+        String headerTitle = txt("cfg.execution.placeholder.NoMethodSelected");
         Icon headerIcon = null;
         Color headerBackground = Colors.getPanelBackground();
 
