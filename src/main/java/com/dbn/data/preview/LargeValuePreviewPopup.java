@@ -163,17 +163,17 @@ public class LargeValuePreviewPopup extends DBNFormBase {
 
                 long contentSize = largeObjectValue.size();
                 if (initial && contentSize > INITIAL_MAX_SIZE) {
-                    contentInfoText = getNumberOfLines(text) + " lines, " + INITIAL_MAX_SIZE + " characters (partially loaded)";
+                    contentInfoText = txt("app.data.text.LargeValueInfoPartial", getNumberOfLines(text), INITIAL_MAX_SIZE);
                     loadContentVisible = true;
-                    loadContentCaption = "Load entire content";
+                    loadContentCaption = txt("app.data.action.LoadEntireContent");
                 } else {
-                    contentInfoText = getNumberOfLines(text) + " lines, " + text.length() + " characters";
+                    contentInfoText = txt("app.data.text.LargeValueInfo", getNumberOfLines(text), text.length());
                     loadContentVisible = false;
                 }
             } catch (SQLException e) {
                 conditionallyLog(e);
-                contentInfoText = "Could not load " + largeObjectValue.getDisplayValue() + " content. Cause: " + e.getMessage();
-                loadContentCaption = "Reload content";
+                contentInfoText = txt("msg.dataEditor.error.ContentLoadFailed", largeObjectValue.getDisplayValue(), e);
+                loadContentCaption = txt("app.data.action.ReloadContent");
             }
         } else if (userValue instanceof VectorValue vectorValue) {
             List<String> stringValues = vectorValue.getStringValues();
@@ -185,7 +185,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
             loadContentVisible = false;
         } else {
             text = userValue == null ? "" : userValue.toString();
-            contentInfoText = getNumberOfLines(text) + " lines, " + text.length() + " characters";
+            contentInfoText = txt("app.data.text.LargeValueInfo", getNumberOfLines(text), text.length());
             loadContentVisible = false;
         }
         int caretPosition = valueTextArea.getText().length();

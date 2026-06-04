@@ -8,6 +8,7 @@ import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.components.JBTextArea;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
@@ -19,7 +20,12 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.datatransfer.StringSelection;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class McpBuildResultForm extends DBNFormBase {
+    private static final @NonNls String CLAUDE_TAB_NAME = "Claude";
+    private static final @NonNls String CLINE_TAB_NAME = "Cline";
+
     private final JPanel mainPanel;
     private final McpServerDefinition definition;
     private final McpBuilderResult result;
@@ -45,27 +51,13 @@ public class McpBuildResultForm extends DBNFormBase {
 
     private JLabel createHeaderLabel() {
         boolean httpTransport = isHttpTransport();
-        String transportSteps = httpTransport
-                ? "1. Start the JAR so it serves HTTP (see README for transport/httpPort).<br>"
-                + "2. Copy the JSON below into your MCP client configuration.<br>"
-                + "3. Keep the <code>wallet/</code> folder private and secure.<br>"
-                : "1. Copy the JSON below into your MCP client configuration (e.g. Claude Desktop).<br>"
-                + "2. Keep the <code>wallet/</code> folder private.<br>";
-        String readmeStep = httpTransport ? "4." : "3.";
-        String readmeMessage = httpTransport
-                ? " See <code>README.md</code> in the output folder for full run details and HTTP customization (including <code>httpPort</code> changes)."
-                : " See <code>README.md</code> in the output folder for full run and customization details.";
-
-        String headerHtml = "<html>"
-                + "<b>MCP server built successfully.</b><br><br>"
-                + "Built JAR: " + escapeHtml(result.getServerJar().toString()) + "<br>"
-                + "Config: " + escapeHtml(result.getConfigFile().toString()) + "<br>"
-                + "Wallet: " + escapeHtml(result.getWalletDirectory().toString()) + "<br>"
-                + "Source project: " + escapeHtml(result.getSourceDirectory().toString()) + "<br><br>"
-                + "<b>Next steps:</b><br>"
-                + transportSteps
-                + readmeStep + readmeMessage
-                + "</html>";
+        String headerHtml = txt(httpTransport ?
+                        "msg.mcp.text.BuildResultHttp" :
+                        "msg.mcp.text.BuildResultStdio",
+                escapeHtml(result.getServerJar().toString()),
+                escapeHtml(result.getConfigFile().toString()),
+                escapeHtml(result.getWalletDirectory().toString()),
+                escapeHtml(result.getSourceDirectory().toString()));
         return new JLabel(headerHtml);
     }
 
@@ -76,10 +68,10 @@ public class McpBuildResultForm extends DBNFormBase {
     private JBTabbedPane createConfigTabs() {
         boolean httpTransport = isHttpTransport();
         JBTabbedPane tabs = new JBTabbedPane();
-        tabs.addTab(httpTransport ? "Claude" : "MCP Config", createConfigTab(result.getClaudeSnippetJson()));
+        tabs.addTab(httpTransport ? CLAUDE_TAB_NAME : txt("app.mcp.title.McpConfig"), createConfigTab(result.getClaudeSnippetJson()));
         String clineSnippetJson = result.getClineSnippetJson();
         if (httpTransport && clineSnippetJson != null) {
-            tabs.addTab("Cline", createConfigTab(clineSnippetJson));
+            tabs.addTab(CLINE_TAB_NAME, createConfigTab(clineSnippetJson));
         }
         return tabs;
     }
@@ -99,7 +91,7 @@ public class McpBuildResultForm extends DBNFormBase {
     }
 
     private JPanel createCopyButtonPanel(String content) {
-        JButton copyButton = new JButton("Copy to Clipboard");
+        JButton copyButton = new JButton(txt("app.mcp.button.CopyToClipboard"));
         copyButton.addActionListener(e ->
                 CopyPasteManager.getInstance().setContents(new StringSelection(content))
         );
