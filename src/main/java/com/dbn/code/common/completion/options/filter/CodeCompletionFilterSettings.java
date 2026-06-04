@@ -57,10 +57,10 @@ public class CodeCompletionFilterSettings
     public CodeCompletionFilterSettings(CodeCompletionFiltersSettings parent, boolean extended) {
         super(parent);
         this.extended = extended;
-        rootFilterOptions = new CodeCompletionFilterOptionBundle("Root elements", this);
-        userSchemaOptions = new CodeCompletionFilterOptionBundle("User schema", this);
-        publicSchemaOptions = new CodeCompletionFilterOptionBundle("Public schema", this);
-        anySchemaOptions = new CodeCompletionFilterOptionBundle("Any schema", this);
+        rootFilterOptions = new CodeCompletionFilterOptionBundle(txt("cfg.codeCompletion.title.RootElements"), this);
+        userSchemaOptions = new CodeCompletionFilterOptionBundle(txt("cfg.codeCompletion.title.UserSchema"), this);
+        publicSchemaOptions = new CodeCompletionFilterOptionBundle(txt("cfg.codeCompletion.title.PublicSchema"), this);
+        anySchemaOptions = new CodeCompletionFilterOptionBundle(txt("cfg.codeCompletion.title.AnySchema"), this);
     }
 
     @Override
@@ -208,4 +208,3 @@ public class CodeCompletionFilterSettings
 
 
 }
-
