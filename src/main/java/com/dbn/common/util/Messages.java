@@ -196,11 +196,11 @@ public class Messages {
         showSuccessDialog(project, title, message, OPTIONS_OK, 0, null);
     }
 
-    public static int showConfirmationDialog(@Nullable Project project, String title, String message, String[] options, int defaultOptionIndex) {
+    public static int showConfirmationDialog(@Nullable Project project, @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex) {
         return Dispatch.call(() -> showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_QUESTION, null));
     }
 
-    public static int showAcknowledgementDialog(@Nullable Project project, String title, String message, String[] options, int defaultOptionIndex,  MessageCallback callback) {
+    public static int showAcknowledgementDialog(@Nullable Project project, @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex,  MessageCallback callback) {
         return Dispatch.call(() -> {
             int option = showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_WARNING, null);
             if (callback != null) {
@@ -231,14 +231,14 @@ public class Messages {
         });
     }
 
-    public static int showDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable RememberOption rememberOption) {
+    public static int showDialog(@Nullable Project project, @DialogMessage String message, @DialogTitle String title, @Button String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable RememberOption rememberOption) {
         closeProgressDialogs();
         return Diagnostics.isNativeAlertsEnabled() ?
                 showNativeDialog(project, message, title, options, defaultOptionIndex, icon, rememberOption) :
                 showCustomDialog(project, message, title, options, defaultOptionIndex, icon, rememberOption);
     }
 
-    private static int showCustomDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable RememberOption rememberOption) {
+    private static int showCustomDialog(@Nullable Project project, @DialogMessage String message, @DialogTitle String title, @Button String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable RememberOption rememberOption) {
         DBNMessageDialog messageDialog = new DBNMessageDialog(project, icon, title, message, options, defaultOptionIndex, rememberOption);
         messageDialog.show();
         return messageDialog.getExitCode();
@@ -246,7 +246,7 @@ public class Messages {
 
     @Workaround
     @Compatibility
-    private static int showNativeDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable RememberOption rememberOption) {
+    private static int showNativeDialog(@Nullable Project project, @DialogMessage String message, @DialogTitle String title, @Button String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable RememberOption rememberOption) {
         try {
             Class<DoNotAskOption> optionClass = RememberOption.spec();
             DoNotAskOption option = RememberOption.wrap(rememberOption);

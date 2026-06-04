@@ -20,24 +20,25 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.project.ProjectRef;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 
 import javax.swing.Action;
 
 @Getter
 public class MessageBundleDialogConfig {
     private final ProjectRef project;
-    private final String title;
-    private String mainMessage;
+    private final @Nls String title;
+    private @Nls String mainMessage;
     private Object contextObject;
     private Action[] actions;
     private MessageType[] messageTypes;
 
-    private MessageBundleDialogConfig(Project project, String title) {
+    private MessageBundleDialogConfig(Project project, @Nls String title) {
         this.project = ProjectRef.of(project);
         this.title = title;
     }
 
-    public static MessageBundleDialogConfig create(Project project, String title) {
+    public static MessageBundleDialogConfig create(Project project, @Nls String title) {
         return new MessageBundleDialogConfig(project, title);
     }
 
@@ -45,7 +46,7 @@ public class MessageBundleDialogConfig {
         return project.ensure();
     }
 
-    public MessageBundleDialogConfig withMainMessage(String mainMessage) {
+    public MessageBundleDialogConfig withMainMessage(@Nls String mainMessage) {
         this.mainMessage = mainMessage;
         return this;
     }

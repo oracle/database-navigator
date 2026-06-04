@@ -95,11 +95,11 @@ public class TnsNamesImportDialog extends DBNDialog<TnsNamesImportForm> {
         TnsImportService importService = TnsImportService.getInstance();
         OptionsDialog.open(
                 getProject(),
-                "TNS Import Type",
-                "Import Type",
+                txt("msg.connection.title.TnsImportType"),
+                txt("msg.connection.label.ImportType"),
                 TnsImportType.values(),
                 importService.getImportType(),
-                new String[]{"Import"},
+                new String[]{txt("msg.connection.button.Import")},
                 (i, o) -> {
                     if (i != 0) return;
                     importData.setImportType(o);

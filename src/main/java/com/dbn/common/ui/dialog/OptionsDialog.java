@@ -22,6 +22,7 @@ import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.AbstractAction;
@@ -33,13 +34,13 @@ import java.awt.event.ActionEvent;
 public class OptionsDialog<O extends Presentable> extends DBNDialog<OptionsDialogForm>{
     private final O[] options;
     private final String[] actionNames;
-    private final String optionLabel;
+    private final @Nls String optionLabel;
     private Action[] actions;
     private O selectedOption;
 
     private final Listeners<OptionDialogActionListener<O>> listeners = Listeners.create(this);
 
-    protected OptionsDialog(Project project, String dialogTitle, String optionLabel, O[] options, O selectedOption, String[] actionNames) {
+    protected OptionsDialog(Project project, @Nls String dialogTitle, @Nls String optionLabel, O[] options, O selectedOption, @Nls String[] actionNames) {
         super(project, dialogTitle, false);
         this.optionLabel = optionLabel;
         this.options = options;
@@ -105,11 +106,11 @@ public class OptionsDialog<O extends Presentable> extends DBNDialog<OptionsDialo
 
     public static <O extends Presentable> void open(
             Project project,
-            String dialogTitle,
-            String optionLabel,
+            @Nls String dialogTitle,
+            @Nls String optionLabel,
             O[] options,
             O selectedOption,
-            String[] actions,
+            @Nls String[] actions,
             OptionDialogActionListener<O> actionListener) {
         Dialogs.show(() -> {
             OptionsDialog<O> optionsDialog = new OptionsDialog<>(project, dialogTitle, optionLabel, options, selectedOption, actions);
@@ -119,4 +120,3 @@ public class OptionsDialog<O extends Presentable> extends DBNDialog<OptionsDialo
     }
 
 }
-
