@@ -25,6 +25,7 @@ import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBTextField;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -154,23 +155,23 @@ public class TextFields {
 
     }
 
-    public static void updateFieldError(JTextComponent textComponent, @Nullable String error) {
+    public static void updateFieldError(JTextComponent textComponent, @Nullable @Nls String error) {
         FIELD_ERROR.set(textComponent, error);
         textComponent.setForeground(error == null ? Colors.getTextFieldForeground() : JBColor.RED);
         textComponent.setToolTipText(error);
     }
 
-    public static void setEmptyText(JTextField textField, String emptyText) {
+    public static void setEmptyText(JTextField textField, @Nls String emptyText) {
         if (textField instanceof JBTextField jbTextField) {
             jbTextField.getEmptyText().setText(emptyText);
         }
     }
 
-    public static void installErrorHighlighting(TextFieldWithBrowseButton textField, Function<String, String> verifier) {
+    public static void installErrorHighlighting(TextFieldWithBrowseButton textField, Function<String, @Nullable @Nls String> verifier) {
         installErrorHighlighting(textField.getTextField(), verifier);
     }
 
-    public static void installErrorHighlighting(JTextField textComponent, Function<String, String> verifier) {
+    public static void installErrorHighlighting(JTextField textComponent, Function<String, @Nullable @Nls String> verifier) {
         onTextChange(textComponent, e -> {
             String errorMessage = verifier.apply(textComponent.getText());
             updateFieldError(textComponent, errorMessage);

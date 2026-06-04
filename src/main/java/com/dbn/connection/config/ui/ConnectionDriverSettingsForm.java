@@ -132,7 +132,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 txt("cfg.connection.text.LibraryDriverClasses"));
 
         onTextChange(driverLibraryTextField, e -> reloadDrivers());
-        installErrorHighlighting(driverLibraryTextField, s -> isNotEmpty(s) && !fileExists(s) ? "Invalid driver library (not a file or directory)" : null);
+        installErrorHighlighting(driverLibraryTextField, s -> isNotEmpty(s) && !fileExists(s) ? txt("cfg.connection.error.DriverLibraryNotFileOrDirectory") : null);
     }
 
     private void initDriverStatusFields() {

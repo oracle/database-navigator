@@ -100,7 +100,7 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
     }
 
     private void initEndpointFields() {
-        setEmptyText(httpUrlTextField, "http://localhost:3001/mcp-server");
+        setEmptyText(httpUrlTextField, txt("cfg.assistant.placeholder.McpServerUrlExample"));
         onTextChange(httpUrlTextField, e -> updateFieldAvailability());
 
         onTextChange(commandTextField, e -> updateCommandPreview());
