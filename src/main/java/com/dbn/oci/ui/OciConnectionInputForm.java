@@ -9,6 +9,7 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBPasswordField;
 import com.oracle.oci.intellij.ui.common.AutonomousDatabaseConstants;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JCheckBox;
@@ -23,9 +24,9 @@ import static com.dbn.nls.NlsResources.txt;
 
 
 public class OciConnectionInputForm extends DBNFormBase {
-  public static final String AUTHENTICATION_TYPE_MTLS = "Mutual TLS (Wallet Required)";
-  public static final String AUTHENTICATION_TYPE_TLS = "TLS (Walletless)";
-  public static final String WALLET_DEFAULT_LOCATION = System.getProperty("user.home") + "/.oci_toolkit/wallets";
+  public static final String AUTHENTICATION_TYPE_MTLS = txt("cfg.oci.const.AuthenticationType_MTLS");
+  public static final String AUTHENTICATION_TYPE_TLS = txt("cfg.oci.const.AuthenticationType_TLS");
+  public static final @NonNls String WALLET_DEFAULT_LOCATION = System.getProperty("user.home") + "/.oci_toolkit/wallets";
 
   private final String walletDefaultPath;
 
