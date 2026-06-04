@@ -23,6 +23,7 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,8 +71,9 @@ public class ConnectionAuthenticationDialog extends DBNDialog<ConnectionAuthenti
 
                 @NotNull
                 @Override
+                @Nls
                 public String getDoNotShowMessage() {
-                    return "Remember credentials";
+                    return txt("msg.connection.option.RememberCredentials");
                 }
             });
         }
