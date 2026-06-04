@@ -22,6 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.LinkedHashMap;
@@ -35,10 +36,10 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 public class CodeStyleFormattingOption implements PersistentConfiguration {
     private final Map<String, CodeStylePreset> presets = new LinkedHashMap<>();
     private String name;
-    private String displayName;
+    private @Nls String displayName;
     private CodeStylePreset preset;
 
-    public CodeStyleFormattingOption(@NonNls String name, String displayName) {
+    public CodeStyleFormattingOption(@NonNls String name, @Nls String displayName) {
         this.name = name;
         this.displayName = displayName;
     }

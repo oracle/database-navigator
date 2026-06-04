@@ -284,7 +284,7 @@ public abstract class TokenTypeBundleBase {
         return tokenTypes.get(id);
     }
 
-    public TokenSet getTokenSet(String id) {
+    public TokenSet getTokenSet(@NonNls String id) {
         return tokenSets.get(id);
     }
 

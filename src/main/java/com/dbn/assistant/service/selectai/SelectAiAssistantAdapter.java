@@ -49,6 +49,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Collections;
 import java.util.List;
@@ -245,6 +246,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         return SelectAiChatContext.wrap(context);
     }
 
+    @NonNls
     @Override
     public String preparePrompt(ConnectionId connectionId, ChatContext chatContext, String prompt) {
         PromptAction action = PromptAction.get(chatContext.getActionId());
@@ -314,6 +316,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         if (userPrompts.isEmpty()) return null;
 
         String prompts = Lists.toCsv(userPrompts, "\n", s -> "\"" + s + "\"");
+        @NonNls
         String titlePrompt = "Summarize the following prompts into a concise title (3-5 words). Respond with the title only, no additional information:\n\n" + prompts;
 
         ConnectionHandler connection = getConnection(connectionId);
