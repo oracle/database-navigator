@@ -17,11 +17,11 @@
 package com.dbn.common.option;
 
 import com.dbn.common.ui.Presentable;
-import org.jetbrains.annotations.Nls;
+import com.intellij.openapi.util.NlsContexts.Button;
 
 public interface InteractiveOption extends Presentable{
     @Override
-    @Nls
+    @Button
     String getName();
 
     boolean isCancel();

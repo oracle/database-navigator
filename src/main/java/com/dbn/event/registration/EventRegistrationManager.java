@@ -271,6 +271,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
 */
 
 
+        @NonNls
         String creationStatement = "{ call DBMS_CHANGE_NOTIFICATION.deregister(?) }";
 
         PreparedStatement statement = null;

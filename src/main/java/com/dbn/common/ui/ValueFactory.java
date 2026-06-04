@@ -17,17 +17,17 @@
 package com.dbn.common.ui;
 
 import com.dbn.common.routine.Consumer;
+import com.intellij.openapi.util.NlsActions.ActionText;
 import lombok.Getter;
-import org.jetbrains.annotations.Nls;
 
 import javax.swing.Icon;
 import java.util.function.Supplier;
 
 @Getter
 public abstract class ValueFactory<T> {
-    private final @Nls String actionName;
+    private final @ActionText String actionName;
 
-    public ValueFactory(@Nls String actionName) {
+    public ValueFactory(@ActionText String actionName) {
         this.actionName = actionName;
     }
 
@@ -37,7 +37,7 @@ public abstract class ValueFactory<T> {
 
     public abstract void createValue(Consumer<T> consumer);
 
-    public static <T> ValueFactory<T> create(@Nls String actionName, Supplier<T> supplier) {
+    public static <T> ValueFactory<T> create(@ActionText String actionName, Supplier<T> supplier) {
         return new ValueFactory<T>(actionName) {
             @Override
             public void createValue(Consumer<T> consumer) {

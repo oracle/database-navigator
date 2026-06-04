@@ -193,7 +193,7 @@ public class CachedResultSet extends StatefulDisposableBase implements ResultSet
         return this;
     }
 
-    public CachedResultSet enrich(String columnName, ColumnValue value) throws SQLException {
+    public CachedResultSet enrich(@NonNls String columnName, ColumnValue value) throws SQLException {
         columnNames.add(columnName);
         for (int i = 0; i < rows.size(); i++) {
             CachedResultSetRow row = rows.get(i);

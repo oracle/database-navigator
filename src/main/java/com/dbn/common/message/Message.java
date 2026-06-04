@@ -18,11 +18,11 @@ package com.dbn.common.message;
 
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.state.PersistentStateElement;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.jdom.Element;
-import org.jetbrains.annotations.Nls;
 
 import javax.swing.Icon;
 
@@ -37,9 +37,9 @@ import static com.dbn.common.options.setting.Settings.writeCdata;
 @NoArgsConstructor
 public class Message extends StatefulDisposableBase implements PersistentStateElement {
     protected MessageType type;
-    protected @Nls String text;
+    protected @DialogMessage String text;
 
-    public Message(MessageType type, @Nls String text) {
+    public Message(MessageType type, @DialogMessage String text) {
         this.type = type;
         this.text = text;
     }

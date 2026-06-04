@@ -16,9 +16,10 @@
 
 package com.dbn.common.message;
 
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.openapi.util.UserDataHolderBase;
 import lombok.Getter;
-import org.jetbrains.annotations.Nls;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,41 +49,41 @@ public class MessageCollector extends UserDataHolderBase implements MessageBundl
         messages.add(message);
     }
 
-    public void addMessage(MessageType type, @Nls String message) {
+    public void addMessage(MessageType type, @DialogMessage String message) {
         addMessage(new Message(type, message));
     }
 
-    public void addMessage(MessageType type, @Nls String title, @Nls String message) {
+    public void addMessage(MessageType type, @DialogTitle String title, @DialogMessage String message) {
         addMessage(new TitledMessage(type, title, message));
     }
 
     @Override
-    public void addInfoMessage(@Nls String message) {
+    public void addInfoMessage(@DialogMessage String message) {
         addMessage(INFO, message);
     }
 
     @Override
-    public void addWarningMessage(@Nls String message) {
+    public void addWarningMessage(@DialogMessage String message) {
         addMessage(WARNING, message);
     }
 
     @Override
-    public void addErrorMessage(@Nls String message) {
+    public void addErrorMessage(@DialogMessage String message) {
         addMessage(ERROR, message);
     }
 
     @Override
-    public void addInfoMessage(@Nls String title, @Nls String message) {
+    public void addInfoMessage(@DialogTitle String title, @DialogMessage String message) {
         addMessage(INFO, title, message);
     }
 
     @Override
-    public void addWarningMessage(@Nls String title, @Nls String message) {
+    public void addWarningMessage(@DialogTitle String title, @DialogMessage String message) {
         addMessage(WARNING, title, message);
     }
 
     @Override
-    public void addErrorMessage(@Nls String title, @Nls String message) {
+    public void addErrorMessage(@DialogTitle String title, @DialogMessage String message) {
         addMessage(ERROR, title, message);
     }
 

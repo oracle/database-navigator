@@ -61,8 +61,8 @@ public class DBNMessageForm extends DBNFormBase {
 
     private Icon icon;
     private AsyncProcessIcon processIcon;
-    private String title;
-    private String message;
+    private @DialogTitle String title;
+    private @DialogMessage String message;
 
     public DBNMessageForm(@NotNull DBNComponent parent, TitledMessage message) {
         this(parent,
@@ -100,12 +100,12 @@ public class DBNMessageForm extends DBNFormBase {
         initIcon();
     }
 
-    public void setTitle(String title) {
+    public void setTitle(@DialogTitle String title) {
         this.title = title;
         initTitle();
     }
 
-    public void setMessage(String message) {
+    public void setMessage(@DialogMessage String message) {
         this.message = message;
         initMessage();
     }

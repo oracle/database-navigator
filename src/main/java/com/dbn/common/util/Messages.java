@@ -62,12 +62,12 @@ import static com.dbn.nls.NlsResources.txt;
 @UtilityClass
 public class Messages {
 
-    public static final String[] OPTIONS_OK = options(txt("msg.shared.button.OK"));
-    public static final String[] OPTIONS_YES_NO = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.No"));
-    public static final String[] OPTIONS_YES_NO_CANCEL = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.No"), txt("msg.shared.button.Cancel"));
-    public static final String[] OPTIONS_YES_CANCEL = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.Cancel"));
-    public static final String[] OPTIONS_RETRY_CANCEL = options(txt("msg.shared.button.Retry"), txt("msg.shared.button.Cancel"));
-    public static final String[] OPTIONS_CONTINUE_CANCEL = options(txt("msg.shared.button.Continue"), txt("msg.shared.button.Cancel"));
+    public static final @Button String[] OPTIONS_OK = options(txt("msg.shared.button.OK"));
+    public static final @Button String[] OPTIONS_YES_NO = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.No"));
+    public static final @Button String[] OPTIONS_YES_NO_CANCEL = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.No"), txt("msg.shared.button.Cancel"));
+    public static final @Button String[] OPTIONS_YES_CANCEL = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.Cancel"));
+    public static final @Button String[] OPTIONS_RETRY_CANCEL = options(txt("msg.shared.button.Retry"), txt("msg.shared.button.Cancel"));
+    public static final @Button String[] OPTIONS_CONTINUE_CANCEL = options(txt("msg.shared.button.Continue"), txt("msg.shared.button.Cancel"));
 
     public static void showMessagesDialog(@Nullable Project project, TitledMessageBundle messages) {
         MessageBundleDialogConfig config = MessageBundleDialogConfig.create(project, messages.getTitle());
@@ -262,7 +262,7 @@ public class Messages {
         }
     }
 
-    public static @Button String[] options(String ... options) {
+    public static @Button String[] options(@Button String ... options) {
         return array(options);
     }
 

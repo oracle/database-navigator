@@ -22,10 +22,12 @@ import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.Button;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,8 +47,8 @@ public class InteractiveOptionBroker<T extends InteractiveOption> extends Option
     @SafeVarargs
     public InteractiveOptionBroker(
             @NonNls String configName,
-            @Nls String title,
-            @Nls String message,
+            @DialogTitle String title,
+            @DialogMessage String message,
             @NotNull T defaultOption,
             T... options) {
         super(configName, title, message, defaultOption);
@@ -110,8 +112,8 @@ public class InteractiveOptionBroker<T extends InteractiveOption> extends Option
         return index == -1 ? options.get(options.size() -1) : options.get(index);
     }
 
-    public static String[] toStringOptions(List<? extends InteractiveOption> options) {
-        String[] stringOptions = new String[options.size()];
+    public static @Button String[] toStringOptions(List<? extends InteractiveOption> options) {
+        @Button String[] stringOptions = new String[options.size()];
         for (int i = 0; i < options.size(); i++) {
             stringOptions[i] = options.get(i).getName();
         }

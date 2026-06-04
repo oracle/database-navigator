@@ -16,8 +16,9 @@
 
 package com.dbn.common.message;
 
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.openapi.util.UserDataHolder;
-import org.jetbrains.annotations.Nls;
 
 import java.util.List;
 
@@ -32,17 +33,17 @@ public interface MessageBundle extends UserDataHolder {
 
     void addMessage(Message message);
 
-    void addInfoMessage(@Nls String message);
+    void addInfoMessage(@DialogMessage String message);
 
-    void addWarningMessage(@Nls String message);
+    void addWarningMessage(@DialogMessage String message);
 
-    void addErrorMessage(@Nls String message);
+    void addErrorMessage(@DialogMessage String message);
 
-    void addInfoMessage(@Nls String title, @Nls String message);
+    void addInfoMessage(@DialogTitle String title, @DialogMessage String message);
 
-    void addWarningMessage(@Nls String title, @Nls String message);
+    void addWarningMessage(@DialogTitle String title, @DialogMessage String message);
 
-    void addErrorMessage(@Nls String title, @Nls String message);
+    void addErrorMessage(@DialogTitle String title, @DialogMessage String message);
 
     boolean hasErrors();
 

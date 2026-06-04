@@ -23,10 +23,12 @@ import com.dbn.common.options.setting.Settings;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.Checkbox;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 
 import javax.swing.Icon;
@@ -38,18 +40,18 @@ import static com.dbn.nls.NlsResources.txt;
 @Setter
 public class InteractiveConfirmationBroker implements RememberOption, PersistentConfiguration{
     private final @NonNls String configName;
-    private final @Nls String title;
-    private final @Nls String message;
+    private final @DialogTitle String title;
+    private final @DialogMessage String message;
 
     private Icon dialogIcon = Icons.DIALOG_QUESTION;
-    private @Nls String doNotShowMessage = txt("msg.shared.option.DoNotAskAgain");
+    private @Checkbox String doNotShowMessage = txt("msg.shared.option.DoNotAskAgain");
 
     protected transient boolean confirm;
 
     public InteractiveConfirmationBroker(
             @NonNls String configName,
-            @Nls String title,
-            @Nls String message,
+            @DialogTitle String title,
+            @DialogMessage String message,
             boolean defaultKeepAsking) {
         this.configName = configName;
         this.title = title;
@@ -62,7 +64,7 @@ public class InteractiveConfirmationBroker implements RememberOption, Persistent
         return this;
     }
 
-    public InteractiveConfirmationBroker withDoNotShowMessage(@Nls String doNotShowMessage) {
+    public InteractiveConfirmationBroker withDoNotShowMessage(@Checkbox String doNotShowMessage) {
         this.doNotShowMessage = doNotShowMessage;
         return this;
     }

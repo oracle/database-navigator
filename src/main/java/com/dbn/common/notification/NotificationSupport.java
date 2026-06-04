@@ -25,43 +25,43 @@ import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.Nls;
+import com.intellij.openapi.util.NlsContexts.NotificationContent;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
 public interface NotificationSupport extends ProjectSupplier {
 
-    default void sendNotification(NotificationType type, NotificationCategory category, @Nls String message) {
+    default void sendNotification(NotificationType type, NotificationCategory category, @NotificationContent String message) {
         sendNotification(getProject(), type, category, message);
     }
 
-    default void sendInfoNotification(NotificationCategory category, @Nls String message) {
+    default void sendInfoNotification(NotificationCategory category, @NotificationContent String message) {
         sendInfoNotification(getProject(), category, message);
     }
 
-    default void sendWarningNotification(NotificationCategory category, @Nls String message) {
+    default void sendWarningNotification(NotificationCategory category, @NotificationContent String message) {
         sendWarningNotification(getProject(), category, message);
     }
 
-    default void sendErrorNotification(NotificationCategory category, @Nls String message) {
+    default void sendErrorNotification(NotificationCategory category, @NotificationContent String message) {
         sendErrorNotification(getProject(), category, message);
     }
 
 
-    static void sendInfoNotification(@Nullable Project project, NotificationCategory category, @Nls String message) {
+    static void sendInfoNotification(@Nullable Project project, NotificationCategory category, @NotificationContent String message) {
         sendNotification(project, NotificationType.INFORMATION, category, message);
     }
 
-    static void sendWarningNotification(@Nullable Project project, NotificationCategory category, @Nls String message) {
+    static void sendWarningNotification(@Nullable Project project, NotificationCategory category, @NotificationContent String message) {
         sendNotification(project, NotificationType.WARNING, category, message);
     }
 
-    static void sendErrorNotification(@Nullable Project project, NotificationCategory category, @Nls String message) {
+    static void sendErrorNotification(@Nullable Project project, NotificationCategory category, @NotificationContent String message) {
         sendNotification(project, NotificationType.ERROR, category, message);
     }
 
-    static void sendNotification(@Nullable Project project, NotificationType type, NotificationCategory category, @Nls String message) {
+    static void sendNotification(@Nullable Project project, NotificationType type, NotificationCategory category, @NotificationContent String message) {
         if (project != null && project.isDisposed()) return;
 
         NotificationGroup notificationGroup = category.getGroup();

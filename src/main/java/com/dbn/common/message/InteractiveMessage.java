@@ -20,6 +20,7 @@ import com.dbn.common.option.RememberOption;
 import com.dbn.common.util.Classes;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Messages;
+import com.intellij.openapi.util.NlsContexts.Button;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.Getter;
@@ -56,7 +57,7 @@ public class InteractiveMessage extends TitledMessage{
         return new InteractiveMessage(MessageType.ERROR, title, text);
     }
 
-    public InteractiveMessage withOptions(String[] options, int defaultOptionIndex) {
+    public InteractiveMessage withOptions(@Button String[] options, int defaultOptionIndex) {
         this.options = options;
         this.defaultOptionIndex = defaultOptionIndex;
         return this;

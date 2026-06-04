@@ -28,7 +28,7 @@ import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.actionSystem.impl.PresentationFactory;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.ui.popup.ListPopup;
-import org.jetbrains.annotations.Nls;
+import com.intellij.openapi.util.NlsActions.ActionText;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
@@ -46,15 +46,15 @@ public final class DBNSelector extends JPanel implements UIResource {
     private ActionGroup actionGroup;
     private ActionButton actionButton;
 
-    public DBNSelector(@Nls String tooltip, ActionGroup actionGroup) {
+    public DBNSelector(@ActionText String name, ActionGroup actionGroup) {
         this();
         this.actionGroup = actionGroup;
-        initAction(tooltip, () -> displayPopup(this));
+        initAction(name, () -> displayPopup(this));
     }
 
-    public DBNSelector(@Nls String tooltip, Runnable runnable) {
+    public DBNSelector(@ActionText String name, Runnable runnable) {
         this();
-        initAction(tooltip, runnable);
+        initAction(name, runnable);
     }
 
     private DBNSelector() {
@@ -66,8 +66,8 @@ public final class DBNSelector extends JPanel implements UIResource {
         Mouse.onMousePress(component, BUTTON1, e ->  displayPopup(component));
     }
 
-    private void initAction(@Nls String tooltip, Runnable runnable) {
-        AnAction action = new DumbAwareAction(tooltip, null, ACTION_CONTENT_EXPAND) {
+    private void initAction(@ActionText String name, Runnable runnable) {
+        AnAction action = new DumbAwareAction(name, null, ACTION_CONTENT_EXPAND) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 runnable.run();

@@ -24,7 +24,7 @@ import com.dbn.common.ui.util.Lists;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.ui.ValidationInfo;
-import org.jetbrains.annotations.Nls;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
@@ -94,32 +94,32 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
     }
 
     @Override
-    public <C extends JComponent> void addValidation(C component, Predicate<C> validator, @Nls String message) {
+    public <C extends JComponent> void addValidation(C component, Predicate<C> validator, @DialogMessage String message) {
         addValidator(component, target -> validateTarget(target, validator, message));
     }
 
     @Override
-    public <C extends JComponent> void addValidation(C component, Function<C, String> validator) {
+    public <C extends JComponent> void addValidation(C component, Function<C, @DialogMessage String> validator) {
         addValidator(component, c -> validateTarget(validator, c));
     }
 
     @Override
-    public void addTextValidation(JTextComponent textField, Function<JTextComponent, String> validator) {
+    public void addTextValidation(JTextComponent textField, Function<JTextComponent, @DialogMessage String> validator) {
         addValidation(textField, validator);
     }
 
     @Override
-    public void addTextValidation(JTextComponent textField, Predicate<String> validator, @Nls String message) {
+    public void addTextValidation(JTextComponent textField, Predicate<String> validator, @DialogMessage String message) {
         addValidation(textField, f -> validator.test(getText(f)), message);
     }
 
     @Override
-    public void addSelectionValidation(JComboBox comboBox, @Nls String message) {
+    public void addSelectionValidation(JComboBox comboBox, @DialogMessage String message) {
         addValidation(comboBox, c -> c.getSelectedItem() != null, message);
     }
 
     @Override
-    public void addSelectionValidation(CheckBoxList checkBoxList, @Nls String message) {
+    public void addSelectionValidation(CheckBoxList checkBoxList, @DialogMessage String message) {
         addValidation(checkBoxList, l -> l.hasSelection(), message);
     }
 
@@ -235,7 +235,7 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         dialog.validateInput(component);
     }
 
-    private static <C extends JComponent> List<ValidationInfo> validateTarget(C target, Predicate<C> validator, String message) {
+    private static <C extends JComponent> List<ValidationInfo> validateTarget(C target, Predicate<C> validator, @DialogMessage String message) {
         boolean valid = validator.test(target);
         if (valid) {
             resetInfo(target);
@@ -247,8 +247,8 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         }
     }
 
-    private static <C extends JComponent> List<ValidationInfo> validateTarget(Function<C, String> validator, C target) {
-        String error = validator.apply(target);
+    private static <C extends JComponent> List<ValidationInfo> validateTarget(Function<C, @DialogMessage String> validator, C target) {
+        @DialogMessage String error = validator.apply(target);
         if (error == null) {
             resetInfo(target);
             return emptyList();
