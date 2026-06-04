@@ -92,6 +92,11 @@ public class TextFields {
     }
 
 
+    public static boolean isEmptyText(TextFieldWithBrowseButton textComponent) {
+        if (textComponent == null) return false;
+        return isEmptyText(textComponent.getTextField());
+    }
+
     public static boolean isEmptyText(JTextComponent textComponent) {
         if (textComponent == null) return true;
 

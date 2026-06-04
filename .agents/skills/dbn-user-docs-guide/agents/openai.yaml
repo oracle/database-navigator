@@ -1,0 +1,4 @@
+interface:
+  display_name: "DBN User Docs Guide"
+  short_description: "Oracle© Database Navigator (DBN) Markdown docs style and structure"
+  default_prompt: "Use $dbn-user-docs-guide when creating or editing Oracle© Database Navigator (DBN) user documentation."

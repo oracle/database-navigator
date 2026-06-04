@@ -51,7 +51,6 @@ public class AssistantToolApprovals implements PersistentStateElement, Signed {
     public boolean isApproved(AssistantTool tool) {
         if (isBlocked(tool.getCategory())) return false;
         if (isApproved(tool.getType())) return true;
-        if (tool.isExternal()) return true;
 
         return false;
     }

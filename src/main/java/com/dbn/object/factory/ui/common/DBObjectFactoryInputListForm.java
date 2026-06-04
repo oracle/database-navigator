@@ -43,12 +43,12 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 
-public abstract class DBObjectFactoryInputListForm<T extends DBObjectSpec> extends DBNFormBase {
+public abstract class DBObjectFactoryInputListForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel listPanel;
     private JPanel actionPanel;
 
-    private final List<DBObjectFactoryInputForm<T>> inputForms = DisposableContainers.list(this);
+    private final List<DBObjectFactoryInputForm> inputForms = DisposableContainers.list(this);
 
     public DBObjectFactoryInputListForm(DBNComponent parent) {
         super(parent);
@@ -69,13 +69,13 @@ public abstract class DBObjectFactoryInputListForm<T extends DBObjectSpec> exten
         return mainPanel;
     }
 
-    protected abstract DBObjectSpecList<T> getChildInputs();
+    protected abstract DBObjectSpecList getChildInputs();
 
     public ConnectionHandler getConnection() {
         return getChildInputs().getConnection();
     }
 
-    protected abstract DBObjectFactoryInputForm<T> createChildInputForm(T input);
+    protected abstract DBObjectFactoryInputForm createChildInputForm(DBObjectSpec input);
 
     public abstract DBObjectType getObjectType();
 
@@ -83,17 +83,17 @@ public abstract class DBObjectFactoryInputListForm<T extends DBObjectSpec> exten
 
     @Override
     public void applyFormChanges() throws ConfigurationException {
-        for (DBObjectFactoryInputForm<T> inputForm : inputForms) {
+        for (DBObjectFactoryInputForm inputForm : inputForms) {
             inputForm.applyFormChanges();
         }
     }
 
     @Override
     public void resetFormChanges() {
-        List<DBObjectFactoryInputForm<T>> oldInputForms = new ArrayList<>(inputForms);
+        List<DBObjectFactoryInputForm> oldInputForms = new ArrayList<>(inputForms);
         inputForms.clear();
 
-        for (T input : getChildInputs()) {
+        for (DBObjectSpec input : getChildInputs()) {
             createChildInputPanel(input);
         }
 
@@ -125,17 +125,17 @@ public abstract class DBObjectFactoryInputListForm<T extends DBObjectSpec> exten
         }
     }
 
-    protected abstract T createChildInput(Presentable detail);
+    protected abstract DBObjectSpec createChildInput(Presentable detail);
 
     private void createChildInputPanel(Presentable detail) {
-        T input = createChildInput(detail);
-        DBObjectSpecList<T> inputs = getChildInputs();
+        DBObjectSpec input = createChildInput(detail);
+        DBObjectSpecList inputs = getChildInputs();
         inputs.add(input);
         createChildInputPanel(input);
     }
 
-    public void createChildInputPanel(T input) {
-        DBObjectFactoryInputForm<T> inputForm = createChildInputForm(input);
+    public void createChildInputPanel(DBObjectSpec input) {
+        DBObjectFactoryInputForm inputForm = createChildInputForm(input);
         DBObjectFactoryInputListItemForm listItemForm = new DBObjectFactoryInputListItemForm(this, inputForm);
 
         inputForms.add(inputForm);
@@ -149,7 +149,7 @@ public abstract class DBObjectFactoryInputListForm<T extends DBObjectSpec> exten
     }
 
     public void removeObjectPanel(int index) {
-        DBObjectFactoryInputForm<T> inputForm = inputForms.remove(index);
+        DBObjectFactoryInputForm inputForm = inputForms.remove(index);
         Disposer.dispose(inputForm);
         listPanel.remove(index);
     }
@@ -159,7 +159,7 @@ public abstract class DBObjectFactoryInputListForm<T extends DBObjectSpec> exten
         listPanel.remove(child.getComponent());
         Disposer.dispose(child);
         DBObjectSpec input = child.getObjectDetailsPanel().getInput();
-        DBObjectSpecList<T> childInputs = getChildInputs();
+        DBObjectSpecList childInputs = getChildInputs();
         childInputs.remove(input);
 
         UserInterface.repaint(mainPanel);

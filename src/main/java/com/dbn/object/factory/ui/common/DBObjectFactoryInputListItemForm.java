@@ -31,9 +31,9 @@ public class DBObjectFactoryInputListItemForm extends DBNFormBase {
     private JPanel removeActionPanel;
     private JPanel objectDetailsComponent;
 
-    private final DBObjectFactoryInputForm<?> inputForm;
+    private final DBObjectFactoryInputForm inputForm;
 
-    DBObjectFactoryInputListItemForm(@NotNull DBObjectFactoryInputListForm<?> listForm, DBObjectFactoryInputForm<?> inputForm) {
+    DBObjectFactoryInputListItemForm(@NotNull DBObjectFactoryInputListForm listForm, DBObjectFactoryInputForm inputForm) {
         super(listForm);
         this.inputForm = inputForm;
 
@@ -43,7 +43,7 @@ public class DBObjectFactoryInputListItemForm extends DBNFormBase {
     private void initActionPanel() {
         if (inputForm.isReadonlyInput()) return;
 
-        DBObjectFactoryInputListForm<?> listForm = ensureParentComponent();
+        DBObjectFactoryInputListForm listForm = ensureParentComponent();
         if (listForm.isReadonlyList()) return;
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(removeActionPanel, true, new RemoveObjectAction());
@@ -51,7 +51,7 @@ public class DBObjectFactoryInputListItemForm extends DBNFormBase {
     }
 
     @NotNull
-    public DBObjectFactoryInputListForm<?> getParentForm() {
+    public DBObjectFactoryInputListForm getParentForm() {
         return ensureParentComponent();
     }
 
@@ -80,7 +80,7 @@ public class DBObjectFactoryInputListItemForm extends DBNFormBase {
         return getParentForm().getObjectType().getName();
     }
 
-    DBObjectFactoryInputForm<?> getObjectDetailsPanel() {
+    DBObjectFactoryInputForm getObjectDetailsPanel() {
         return inputForm;
     }
 }

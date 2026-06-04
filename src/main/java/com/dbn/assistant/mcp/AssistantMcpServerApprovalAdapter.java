@@ -20,6 +20,9 @@ import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.common.approval.UserApprovalAdapter;
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.util.Messages;
+import org.jetbrains.annotations.Nullable;
+
+import java.time.Duration;
 
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
 
@@ -59,5 +62,11 @@ public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<As
 
     private String getEndpointFingerprint(AssistantMcpServer mcpServer) {
         return Checksum.fromStringContent(mcpServer.getType().name() + ":" + mcpServer.getEndpoint(), SHA_256);
+    }
+
+    @Override
+    @Nullable
+    public Duration getRejectionCooldown(AssistantMcpServer approvable) {
+        return Duration.ofSeconds(10);
     }
 }

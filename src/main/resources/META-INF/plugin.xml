@@ -205,7 +205,7 @@
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseFileEditorManager"/>
         <projectService serviceImplementation="com.dbn.event.notification.EventNotificationManager"/>
-        <projectService serviceImplementation="com.dbn.mcp.MCPServerManager"/>
+        <projectService serviceImplementation="com.dbn.mcp.McpServerBuilderManager"/>
         <projectService serviceImplementation="com.dbn.event.registration.EventRegistrationManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.vector.DatabaseVectorManager"/>
@@ -249,6 +249,7 @@
         <extensionPoint name="assistantModelFactory" qualifiedName="com.dbn.assistantModelFactory" interface="com.dbn.assistant.service.generic.model.AssistantModelFactory" dynamic="true"/>
         <extensionPoint name="assistantModelInvoker" qualifiedName="com.dbn.assistantModelInvoker" interface="com.dbn.assistant.service.generic.model.AssistantModelInvoker" dynamic="true"/>
         <extensionPoint name="assistantToolFactory" qualifiedName="com.dbn.assistantToolFactory" interface="com.dbn.assistant.tool.AssistantToolFactory" dynamic="true"/>
+        <extensionPoint name="assistantToolFeature" qualifiedName="com.dbn.assistantToolFeature" interface="com.dbn.assistant.tool.feature.AssistantToolFeature" dynamic="true"/>
         <extensionPoint name="userApprovalAdapter" qualifiedName="com.dbn.userApprovalAdapter" interface="com.dbn.common.approval.UserApprovalAdapter" dynamic="true"/>
         <extensionPoint name="presentationProvider" qualifiedName="com.dbn.presentationProvider" interface="com.dbn.common.presentation.PresentationProvider" dynamic="true"/>
 
@@ -324,6 +325,7 @@
 
         <!--user approval adapters-->
         <userApprovalAdapter implementation="com.dbn.assistant.mcp.AssistantMcpServerApprovalAdapter"/>
+        <userApprovalAdapter implementation="com.dbn.execution.script.CmdLineInterfaceApprovalAdapter"/>
         <userApprovalAdapter implementation="com.dbn.driver.approval.DriverLibraryApprovalAdapter"/>
 
         <!--shared prerequisites-->
@@ -394,6 +396,8 @@
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ProgramSourceCodeEditorTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.JavaSourceCodeEditorTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SemanticSearchTool$Factory" />
+
+        <assistantToolFeature implementation="com.dbn.assistant.tool.feature.ConsoleUpdateDiffFeature" />
     </extensions>
 
     <actions>

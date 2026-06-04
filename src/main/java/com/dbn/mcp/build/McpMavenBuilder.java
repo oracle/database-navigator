@@ -1,34 +1,30 @@
 package com.dbn.mcp.build;
 
 import com.dbn.common.template.TemplateUtilities;
-import com.intellij.ide.plugins.PluginManagerCore;
-import com.intellij.openapi.extensions.PluginId;
-import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import lombok.extern.slf4j.Slf4j;
+import com.intellij.util.Consumer;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Properties;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-@Slf4j
-public final class McpMavenBuild {
-    private static final PluginId MAVEN_PLUGIN_ID = PluginId.getId("org.jetbrains.idea.maven");
+import static com.dbn.mcp.build.McpJavaVersionManager.resolveJavaVersion;
+
+public final class McpMavenBuilder {
     private static final String POM_TEMPLATE = "DBN - MCP Server POM.xml";
     private static final Pattern PKG = Pattern.compile("\\bpackage\\s+([a-zA-Z_][a-zA-Z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z0-9_]*)*)\\s*;");
     private static final Pattern PUB_CLASS = Pattern.compile("\\bpublic\\s+class\\s+([A-Za-z_][A-Za-z0-9_]*)");
     private static final Pattern ANY_CLASS = Pattern.compile("\\bclass\\s+([A-Za-z_][A-Za-z0-9_]*)");
 
-    private McpMavenBuild() {}
+    private McpMavenBuilder() {}
 
-    public static Path buildWithMaven(
+    public static Path build(
             Project project,
             Path outDir,
             String serverName,
@@ -39,14 +35,14 @@ public final class McpMavenBuild {
             ProgressIndicator indicator,
             Consumer<String> outputHandler)
             throws IOException {
-        Coord sdk = Coord.parse(sdkCoord);
-        Coord jdbc = Coord.parse(jdbcCoord);
-        Info info = analyze(java);
+        MavenCoordinate sdk = MavenCoordinate.parse(sdkCoord);
+        MavenCoordinate jdbc = MavenCoordinate.parse(jdbcCoord);
+        ServerMainClass mainClass = resolveServerMainClass(java);
 
-        Path projDir = uniqueDir(outDir, info.className);
+        Path projDir = uniqueDir(outDir, mainClass.className);
         try {
-            setupProject(projDir, java, info);
-            writePom(project, projDir, serverName, sdk, jdbc, info.fqn);
+            setupProject(projDir, java, mainClass);
+            writePom(project, projDir, serverName, sdk, jdbc, mainClass.fullyQualifiedName);
             runMaven(project, projDir, indicator, outputHandler);
             exportSourceProject(projDir, sourceProjectDir);
             return copyJar(projDir, outDir);
@@ -106,12 +102,13 @@ public final class McpMavenBuild {
         } catch (IOException ignored) {}
     }
 
-    private static Info analyze(String src) {
-        String pkg = find(PKG, src);
-        String cls = find(PUB_CLASS, src);
-        if (cls == null) cls = find(ANY_CLASS, src);
-        if (cls == null) cls = "GeneratedMcpServer";
-        return new Info(pkg, cls, pkg != null ? pkg + "." + cls : cls);
+    private static ServerMainClass resolveServerMainClass(String src) {
+        String packageName = find(PKG, src);
+        String className = find(PUB_CLASS, src);
+        if (className == null) className = find(ANY_CLASS, src);
+        if (className == null) className = "GeneratedMcpServer";
+        String fullyQualifiedName = packageName != null ? packageName + "." + className : className;
+        return new ServerMainClass(packageName, className, fullyQualifiedName);
     }
 
     private static String find(Pattern p, String src) {
@@ -126,56 +123,42 @@ public final class McpMavenBuild {
         return dir;
     }
 
-    private static void setupProject(Path dir, String java, Info info) throws IOException {
+    private static void setupProject(Path dir, String java, ServerMainClass mainClass) throws IOException {
         Path src = dir.resolve("src/main/java");
         Files.createDirectories(src);
 
-        Path pkg = info.pkg != null ? src.resolve(info.pkg.replace('.', '/')) : src;
-        Files.createDirectories(pkg);
-        Files.writeString(pkg.resolve(info.className + ".java"), java);
+        Path packagePath = mainClass.packageName != null ? src.resolve(mainClass.packageName.replace('.', '/')) : src;
+        Files.createDirectories(packagePath);
+        Files.writeString(packagePath.resolve(mainClass.className + ".java"), java);
     }
 
-    private static void writePom(Project project, Path dir, String serverName, Coord sdk, Coord jdbc, String main) throws IOException {
+    private static void writePom(
+            Project project,
+            Path dir,
+            String serverName,
+            MavenCoordinate sdk,
+            MavenCoordinate jdbc,
+            String main)
+            throws IOException {
         Properties p = new Properties();
         p.setProperty("SERVER_NAME", serverName);
-        p.setProperty("MCP_SDK_GROUP_ID", sdk.g);
-        p.setProperty("MCP_SDK_ARTIFACT_ID", sdk.a);
-        p.setProperty("MCP_SDK_VERSION", sdk.v);
-        p.setProperty("JDBC_GROUP_ID", jdbc.g);
-        p.setProperty("JDBC_ARTIFACT_ID", jdbc.a);
-        p.setProperty("JDBC_VERSION", jdbc.v);
+        p.setProperty("MCP_SDK_GROUP_ID", sdk.groupId);
+        p.setProperty("MCP_SDK_ARTIFACT_ID", sdk.artifactId);
+        p.setProperty("MCP_SDK_VERSION", sdk.version);
+        p.setProperty("JDBC_GROUP_ID", jdbc.groupId);
+        p.setProperty("JDBC_ARTIFACT_ID", jdbc.artifactId);
+        p.setProperty("JDBC_VERSION", jdbc.version);
         p.setProperty("MAIN_CLASS_FQ", main);
+        p.setProperty("PROJECT_JAVA_VERSION", resolveJavaVersion(project));
         Files.writeString(dir.resolve("pom.xml"), TemplateUtilities.generateCode(project, POM_TEMPLATE, p));
     }
 
     private static void runMaven(Project project, Path dir, ProgressIndicator indicator, Consumer<String> outputHandler) throws IOException {
-        McpMavenService mavenService = McpMavenService.getInstance(project);
-        if (mavenService == null) {
+        McpMavenBuildManager mavenManager = McpMavenBuildManager.getInstance(project);
+        if (mavenManager == null) {
             throw new IOException("Maven service is not available. Please enable the Maven plugin.");
         }
-        mavenService.runBuild(dir, indicator, outputHandler);
-    }
-
-
-    public static boolean isMavenAvailable(Project project) {
-        if (project == null) return false;
-        if (!isMavenPluginAvailable()) return false;
-
-        try {
-            McpMavenService mavenService = McpMavenService.getInstance(project);
-            return mavenService != null && mavenService.isRuntimeAvailable();
-        } catch (Throwable e) {
-            log.warn("Could not resolve Maven runtime", e);
-            return false;
-        }
-    }
-
-    public static boolean isMavenPluginAvailable() {
-        return PluginManagerCore.isPluginInstalled(MAVEN_PLUGIN_ID) && !PluginManagerCore.isDisabled(MAVEN_PLUGIN_ID);
-    }
-
-    public static void openMavenPluginSettings(Project project) {
-        ShowSettingsUtil.getInstance().showSettingsDialog(project, "preferences.pluginManager");
+        mavenManager.runBuild(dir, indicator, outputHandler);
     }
 
     private static Path copyJar(Path proj, Path out) throws IOException {
@@ -191,14 +174,12 @@ public final class McpMavenBuild {
     }
 
 
-    private static class Coord {
-        final String g, a, v;
-        Coord(String g, String a, String v) { this.g = g; this.a = a; this.v = v; }
-        static Coord parse(String s) { String[] p = s.split(":"); return new Coord(p[0], p[1], p[2]); }
+    private record MavenCoordinate(String groupId, String artifactId, String version) {
+        static MavenCoordinate parse(String s) {
+            String[] p = s.split(":");
+            return new MavenCoordinate(p[0], p[1], p[2]);
+        }
     }
 
-    private static class Info {
-        final String pkg, className, fqn;
-        Info(String pkg, String className, String fqn) { this.pkg = pkg; this.className = className; this.fqn = fqn; }
-    }
+    private record ServerMainClass(String packageName, String className, String fullyQualifiedName) {}
 }

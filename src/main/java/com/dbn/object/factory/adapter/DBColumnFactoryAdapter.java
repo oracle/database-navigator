@@ -30,7 +30,7 @@ import java.util.List;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 
-public class DBColumnFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec, DBColumnFactoryInputForm> {
+public class DBColumnFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public DBObjectType getObjectType() {

@@ -53,7 +53,7 @@ import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.execution.statement.StatementExecutionQueue;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.navigation.psi.DBConnectionPsiDirectory;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectBundle;
@@ -79,6 +79,7 @@ import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.common.util.TimeUtil.isOlderThan;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 import static com.dbn.nls.NlsResources.txt;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
@@ -579,8 +580,9 @@ public class ConnectionHandlerImpl extends StatefulDisposableBase implements Con
 
             DatabaseCompatibilityInterface compatibility = getCompatibilityInterface();
             QuotePair quotePair = compatibility.getDefaultIdentifierQuotes();
+            schemaName = quotePair.quote(schemaName, DATABASE);
 
-            getMetadataInterface().setCurrentSchema(quotePair.quote(schemaName), conn);
+            getMetadataInterface().setCurrentSchema(schemaName, conn);
             conn.setCurrentSchema(schema);
         });
     }

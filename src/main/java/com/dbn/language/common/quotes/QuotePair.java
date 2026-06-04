@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.dbn.language.common;
-
-import com.intellij.util.containers.ContainerUtil;
+package com.dbn.language.common.quotes;
 
 import java.util.Set;
 
+import static java.util.concurrent.ConcurrentHashMap.newKeySet;
+
 public class QuotePair {
-    private static final Set<String> POSSIBLE_BEGIN_QUOTES = ContainerUtil.newConcurrentSet();
-    private static final Set<String> POSSIBLE_END_QUOTES = ContainerUtil.newConcurrentSet();
+    private static final Set<String> POSSIBLE_BEGIN_QUOTES = newKeySet();
+    private static final Set<String> POSSIBLE_END_QUOTES = newKeySet();
 
     public static final QuotePair DEFAULT_IDENTIFIER_QUOTE_PAIR = new QuotePair('"', '"');
     private final String beginQuote;
@@ -32,6 +32,11 @@ public class QuotePair {
     public QuotePair(char beginQuote, char endChar) {
         this(String.valueOf(beginQuote), String.valueOf(endChar));
     }
+
+    public QuotePair(String quote) {
+        this(quote, quote);
+    }
+
     public QuotePair(String beginQuote, String endQuote) {
         this.beginQuote = beginQuote;
         this.endQuote = endQuote;
@@ -64,48 +69,24 @@ public class QuotePair {
     }
 
     public String quote(String identifier) {
-        // TODO consider inner quotes escaping
+        return quote(identifier, QuoteEscaping.NONE);
+    }
+
+    public String quote(String identifier, QuoteEscaping escaping) {
         if (isQuoted(identifier)) return identifier;
 
-        return beginQuote + identifier + endQuote;
+        return beginQuote + escaping.escape(identifier, this) + endQuote;
     }
 
-    /**
-     * Quotes identifier with Java-escaped quotes.  Does
-     * not modify a string that is already escape-quoted
-     * but does add escaping if the value is normally quoted.
-     * @param identifier
-     * @return the quoted version of identifier
-     */
-    public String quoteWithJavaEscape(String identifier) {
-        if (!identifier.startsWith("\\"+beginQuote)) {
-           if (identifier.startsWith(beginQuote)) {
-                // already quoted without escape
-                identifier = "\\" + identifier;
-            }
-           else {
-               // not lead quoted at all
-               identifier = "\\\"" + identifier;
-           }
-        }
-
-        if (!identifier.endsWith("\\"+endQuote)) {
-            if (identifier.endsWith(endQuote)) {
-                // trailing unescaped quote so strip existing quote and add escaped.
-                identifier = identifier.substring(0, identifier.length()-1);
-                identifier += "\\\"";
-            }
-            else {
-                identifier += "\\\"";
-            }
-        }
-        return identifier;
-    }
     public String unquote(String identifier) {
-        // TODO consider inner quotes unescaping
+        return unquote(identifier, QuoteEscaping.NONE);
+    }
+
+    public String unquote(String identifier, QuoteEscaping escaping) {
         if (!isQuoted(identifier)) return identifier;
 
-        return identifier.substring(beginQuote.length(), identifier.length() - endQuote.length());
+        String unquoted = identifier.substring(beginQuote.length(), identifier.length() - endQuote.length());
+        return escaping.unescape(unquoted, this);
     }
 
     @Override
