@@ -71,7 +71,7 @@ public class SelectorBrowserForm extends DatabaseBrowserForm {
 
     private void initConnectionSelector() {
         ActionGroup connectionActions = createConnectionActions();
-        DBNSelector selector = new DBNSelector("Select Connection", connectionActions);
+        DBNSelector selector = new DBNSelector(txt("app.browser.action.SelectConnection"), connectionActions);
         selector.bindComponent(connectionLabel);
         connectionSelectActions.add(selector);
     }

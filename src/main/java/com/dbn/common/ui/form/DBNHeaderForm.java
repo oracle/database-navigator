@@ -30,6 +30,7 @@ import com.dbn.connection.context.DatabaseContext;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.AbstractButton;
@@ -138,7 +139,7 @@ public class DBNHeaderForm extends DBNFormBase {
         buttonsPanel.add(button);
     }
 
-    public void setSelector(String tooltip, ActionGroup actions) {
+    public void setSelector(@Nls String tooltip, ActionGroup actions) {
         DBNSelector selector = new DBNSelector(tooltip, actions);
         selector.bindComponent(objectLabel);
         selectorPanel.add(selector);
