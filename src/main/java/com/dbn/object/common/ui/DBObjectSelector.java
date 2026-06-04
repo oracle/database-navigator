@@ -41,6 +41,7 @@ import java.util.function.Supplier;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
@@ -87,11 +88,11 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
     }
 
     @Override
-    protected String getHint() {
+    protected @Nullable @Nls String getHint() {
         int size = getModelSize();
         if (size < 10) return null;
 
-        return "Start typing to filter the " + getObjectType().getListName() + "...";
+        return txt("app.objects.hint.FilterObjectList", getObjectType().getListName());
     }
 
     public DBObjectSelector<T> withConnectionContext(Supplier<ConnectionHandler> connectionContext) {
