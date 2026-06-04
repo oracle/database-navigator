@@ -101,9 +101,9 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
     }
 
     private static @NotNull MergeRequest createMergeRequest(String databaseContent, DBSourceCodeVirtualFile sourceCodeFile, SourceCodeEditor fileEditor, MergeAction action, Project project) throws InvalidDiffRequestException {
-        SourceCodeDiffContent leftContent = new SourceCodeDiffContent(txt("app.codeEditor.title.DatabaseVersion"), databaseContent);
-        SourceCodeDiffContent targetContent = new SourceCodeDiffContent(txt("app.codeEditor.title.MergeResult"), sourceCodeFile.getOriginalContent());
-        SourceCodeDiffContent rightContent = new SourceCodeDiffContent(txt("app.codeEditor.title.YourVersion"), sourceCodeFile.getContent());
+        SourceCodeDiffContent leftContent = new SourceCodeDiffContent(txt("app.codeEditor.label.DatabaseVersion"), databaseContent);
+        SourceCodeDiffContent targetContent = new SourceCodeDiffContent(txt("app.codeEditor.label.MergeResult"), sourceCodeFile.getOriginalContent());
+        SourceCodeDiffContent rightContent = new SourceCodeDiffContent(txt("app.codeEditor.label.YourVersion"), sourceCodeFile.getContent());
         MergeContent mergeContent = new MergeContent(leftContent, targetContent, rightContent );
 
         DiffRequestFactory diffRequestFactory = DiffRequestFactory.getInstance();
@@ -111,7 +111,7 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
                 project,
                 sourceCodeFile,
                 mergeContent.getByteContents(),
-                txt("app.codeEditor.title.VersionConflictResolution", sourceCodeFile.getObject().getQualifiedNameWithType()),
+                txt("app.codeEditor.text.VersionConflictResolution", sourceCodeFile.getObject().getQualifiedNameWithType()),
                 mergeContent.getTitles(),
                 mergeResult -> {
                     if (action == MergeAction.SAVE) {
@@ -164,7 +164,7 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
                 changedContent,
                 originalContent,
                 referenceTitle,
-                txt("app.codeEditor.title.YourVersion"));
+                txt("app.codeEditor.label.YourVersion"));
 
         Dispatch.run(nonModal(), () -> DiffManager.getInstance().showDiff(project, diffRequest));
     }
@@ -187,8 +187,8 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
                                 openDiffWindow(
                                         sourceCodeFile,
                                         referenceText.toString(),
-                                        txt("app.codeEditor.title.DatabaseVersion"),
-                                        txt("app.codeEditor.title.LocalDatabaseDiff"));
+                                        txt("app.codeEditor.label.DatabaseVersion"),
+                                        txt("app.codeEditor.text.LocalDatabaseDiff"));
 
                             } catch (Exception e1) {
                                 conditionallyLog(e1);

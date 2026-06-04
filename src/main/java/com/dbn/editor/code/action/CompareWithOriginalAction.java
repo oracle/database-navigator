@@ -42,8 +42,8 @@ public class CompareWithOriginalAction extends AbstractCodeEditorDiffAction {
                 project,
                 sourceCodeFile,
                 referenceText.toString(),
-                txt("app.codeEditor.title.OriginalVersion"),
-                txt("app.codeEditor.title.LocalVersion"));
+                txt("app.codeEditor.label.OriginalVersion"),
+                txt("app.codeEditor.label.LocalVersion"));
     }
 
     @Override

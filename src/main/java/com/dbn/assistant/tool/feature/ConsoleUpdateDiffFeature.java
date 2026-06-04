@@ -36,6 +36,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.WindowWrapper;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
@@ -79,7 +80,10 @@ public class ConsoleUpdateDiffFeature implements AssistantToolFeature {
         Project project = context.getProject();
         List<?> argumentValues = toolRequest.getToolArgumentValues();
         if (argumentValues.size() < 2) {
-            Messages.showErrorDialog(project, "Show Diff", "Could not resolve SQL console update arguments.");
+            Messages.showErrorDialog(
+                    project,
+                    txt("msg.assistant.title.ShowDiff"),
+                    txt("msg.assistant.error.SqlConsoleUpdateArgumentsUnresolved"));
             return;
         }
 
@@ -88,7 +92,10 @@ public class ConsoleUpdateDiffFeature implements AssistantToolFeature {
 
         DBConsole console = connection.getConsoleBundle().getConsole(consoleName);
         if (console == null) {
-            Messages.showErrorDialog(project, "Show Diff", "Could not find SQL console \"" + consoleName + "\".");
+            Messages.showErrorDialog(
+                    project,
+                    txt("msg.assistant.title.ShowDiff"),
+                    txt("msg.assistant.error.SqlConsoleNotFound", consoleName));
             return;
         }
 
@@ -116,7 +123,7 @@ public class ConsoleUpdateDiffFeature implements AssistantToolFeature {
         if (focusDiffWindow(diffWindowKey)) return;
         if (!OPENING_DIFF_WINDOWS.add(diffWindowKey)) return;
 
-        String title = consoleName + " (AI update)";
+        String title = txt("app.assistant.text.SqlConsoleAiUpdateDiff", consoleName);
         DiffContentFactory contentFactory = DiffContentFactory.getInstance();
         DiffContent current = contentFactory.create(project, currentContent, fileType);
         DiffContent requested = contentFactory.create(project, requestedContent, fileType);
@@ -125,8 +132,8 @@ public class ConsoleUpdateDiffFeature implements AssistantToolFeature {
                 title,
                 current,
                 requested,
-                "Current content",
-                "Requested content");
+                txt("app.assistant.label.CurrentContent"),
+                txt("app.assistant.label.RequestedContent"));
 
         AtomicBoolean resolved = new AtomicBoolean();
         diffRequest.putUserData(DiffUserDataKeys.CONTEXT_ACTIONS, List.of(
@@ -193,7 +200,7 @@ public class ConsoleUpdateDiffFeature implements AssistantToolFeature {
         private final Runnable callback;
 
         private ResolveUpdateAction(
-                @NotNull String text,
+                @NotNull @Nls String text,
                 @NotNull Icon icon,
                 @NotNull AtomicBoolean resolved,
                 @NotNull String diffWindowKey,
