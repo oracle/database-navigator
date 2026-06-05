@@ -50,6 +50,7 @@ Keep new keys in the associated resource group and preserve sorted order within 
 - `action`: visible action text or menu item text.
 - `tooltip`: action descriptions and UI tooltip text. IntelliJ action descriptions are tooltips.
 - `button`: `JButton` text and dialog/action button captions.
+- `intention`: IntelliJ intention and quick-fix names returned by APIs such as `EditorIntentionAction#getText()` or `LocalQuickFix#getName()`.
 - `label`: short JLabel/check box/radio button captions that behave like labels.
 - `text`: sentence-like labels, explanatory text, status text, HTML bodies, and longer UI copy.
 - `title`: dialog, popup, panel, group, message, or progress titles.
@@ -71,6 +72,7 @@ If a label is a full sentence or instruction, prefer `text` over `label`. Check 
 - Table model column names use `app.<area>.column.<Name>`.
 - Presentable enums use `app.<area>.const.<EnumName_VALUE>` or `cfg.<area>.const.<EnumName_VALUE>`, depending on runtime versus configuration context.
 - Runtime action keys use `app.<area>.action.<Name>`. For `AnAction` classes whose plugin XML text is only a keymap/context caption, set the template presentation from code using DBN keys and keep runtime update text unprefixed when needed.
+- Editor intention keys use `app.<area>.intention.<Name>`. Do not reuse `.action.` keys for `EditorIntentionAction#getText()` just because an intention invokes the same behavior as a menu or toolbar action.
 - Do not touch `plugin.xml` unless explicitly requested. When action descriptions are localized in code, use `.tooltip.` keys.
 - For strings inserted into composed sentences, use `.token.` rather than `.action.` or `.label.`.
 
@@ -88,7 +90,7 @@ If a label is a full sentence or instruction, prefer `text` over `label`. Check 
 ## UI Writing Rules
 
 - Use title capitalization for actions in buttons and menus, and for table, popup, message-box, dialog, and control-group headers.
-- Use sentence capitalization for control labels, combo/list/tree/table items, links, notification bodies, error body text, tooltips, status descriptions, instructions, inspections, quick-fixes, and editor messages.
+- Use sentence capitalization for control labels, combo/list/tree/table items, links, notification bodies, error body text, tooltips, status descriptions, instructions, inspections, intentions, quick-fixes, and editor messages.
 - Keep UI text short and clear: present tense, one idea per sentence, active voice, user-perspective wording, and no unnecessary generic words.
 - Use ellipsis only for actions that open input-capable dialogs, truncated text without a scrollbar, or ongoing progress text.
 - Do not end a single sentence or IDE action with a period. Use periods between multiple sentences.
