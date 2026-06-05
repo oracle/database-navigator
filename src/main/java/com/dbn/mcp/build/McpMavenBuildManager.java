@@ -99,7 +99,7 @@ public class McpMavenBuildManager extends ProjectComponentBase {
         StringBuilder output = new StringBuilder();
         Consumer<String> capture = line -> {
             output.append(line).append('\n');
-            if (outputHandler != null) outputHandler.accept(line);
+            if (outputHandler != null) outputHandler.consume(line);
         };
 
         AtomicReference<ProcessHandler> processRef = new AtomicReference<>();
@@ -118,7 +118,7 @@ public class McpMavenBuildManager extends ProjectComponentBase {
                             outputType == ProcessOutputTypes.STDOUT ? "STDOUT" : "SYSTEM";
                     for (String line : text.split("\\R")) {
                         if (!line.isBlank()) {
-                            capture.accept("[" + source + "] " + line);
+                            capture.consume("[" + source + "] " + line);
                         }
                     }
                 }
