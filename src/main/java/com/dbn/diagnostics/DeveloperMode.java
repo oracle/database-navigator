@@ -76,10 +76,10 @@ public class DeveloperMode implements PersistentStateElement {
         if (enabled) {
             start();
             // just became active - notify activated
-            sendInfoNotification(null, DIAGNOSTICS, txt("ntf.diagnostics.warning.DeveloperModeActivatedFor", timeout));
+            sendInfoNotification(null, DIAGNOSTICS, txt("ntf.diagnostics.info.DeveloperModeActivatedFor", timeout));
         } else if (changed) {
             // not active and changed just now -> notify deactivated
-            sendInfoNotification(null, DIAGNOSTICS, txt("ntf.diagnostics.warning.DeveloperModeDeactivated"));
+            sendInfoNotification(null, DIAGNOSTICS, txt("ntf.diagnostics.info.DeveloperModeDeactivated"));
         }
     }
 

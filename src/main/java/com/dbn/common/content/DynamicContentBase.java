@@ -331,7 +331,7 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
             set(DynamicContentProperty.LOADED, true);
             set(DynamicContentProperty.ERROR, true);
             sendWarningNotification(METADATA,
-                    txt("ntf.metadata.error.FailedToLoadContent",
+                    txt("ntf.objects.warning.FailedToLoadContent",
                             getContentDescription(),
                             e.getMessage()));
 

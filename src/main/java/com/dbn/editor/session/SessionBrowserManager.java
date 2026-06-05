@@ -188,7 +188,7 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
             });
         } catch (SQLException e) {
             conditionallyLog(e);
-            sendWarningNotification(SESSION_BROWSER, txt("ntf.sessions.error.FailedToLoadCurrentSql", e));
+            sendWarningNotification(SESSION_BROWSER, txt("ntf.sessions.warning.FailedToLoadCurrentSql", e));
         }
 
         return EMPTY_CONTENT;

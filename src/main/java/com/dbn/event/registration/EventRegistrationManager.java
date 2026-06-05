@@ -129,7 +129,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
                 notifyRegistrationListeners(connectionId, ObjectChangeAction.CREATE);
             } catch (Exception e) {
                 conditionallyLog(e);
-                sendErrorNotification(DCN, txt("ntf.events.warning.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
+                sendErrorNotification(DCN, txt("ntf.events.error.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
             }
         });
     }
@@ -230,7 +230,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
                 notifyRegistrationListeners(connectionId, ObjectChangeAction.DELETE);
             } catch (Exception e) {
                 conditionallyLog(e);
-                sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
+                sendErrorNotification(DCN, txt("ntf.events.error.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
             }
         });
     }
@@ -256,7 +256,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
                 notifyRegistrationListeners(connectionId, ObjectChangeAction.DELETE);
             } catch (Exception e) {
                 conditionallyLog(e);
-                sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", tableName, connectionName, e.getMessage()));
+                sendErrorNotification(DCN, txt("ntf.events.error.ListenerDeregistrationFailedFor", tableName, connectionName, e.getMessage()));
             }
         });
     }

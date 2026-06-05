@@ -381,7 +381,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Override
     public void startStepOver(@Nullable XSuspendContext suspendContext) {
-        DBDebugOperation.run(getProject(), txt("ntf.debugger.constant.Operation_STEP_OVER"), () -> {
+        DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_STEP_OVER"), () -> {
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.stepOver(debuggerConnection);
             suspendSession();
@@ -390,7 +390,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Override
     public void startStepInto(@Nullable XSuspendContext suspendContext) {
-        DBDebugOperation.run(getProject(), txt("ntf.debugger.constant.Operation_STEP_INTO"), () -> {
+        DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_STEP_INTO"), () -> {
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.stepInto(debuggerConnection);
             suspendSession();
@@ -400,7 +400,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Override
     public void startStepOut(@Nullable XSuspendContext suspendContext) {
-        DBDebugOperation.run(getProject(), txt("ntf.debugger.constant.Operation_STEP_OUT"), () -> {
+        DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_STEP_OUT"), () -> {
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.stepOut(debuggerConnection);
             suspendSession();
@@ -409,7 +409,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Override
     public void resume(@Nullable XSuspendContext suspendContext) {
-        DBDebugOperation.run(getProject(), txt("ntf.debugger.constant.Operation_RESUME_EXECUTION"), () -> {
+        DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_RESUME_EXECUTION"), () -> {
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.resumeExecution(debuggerConnection);
             suspendSession();
@@ -418,7 +418,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Override
     public void runToPosition(@NotNull XSourcePosition position, @Nullable XSuspendContext suspendContext) {
-        DBDebugOperation.run(getProject(), txt("ntf.debugger.constant.Operation_RUN_TO_POSITION"), () -> {
+        DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_RUN_TO_POSITION"), () -> {
             DBSchemaObject object = DBDebugUtil.getObject(position);
             if (object != null) {
                 DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
@@ -443,7 +443,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     @Override
     public void startPausing() {
         // NOT SUPPORTED!!!
-        DBDebugOperation.run(getProject(), txt("ntf.debugger.constant.Operation_RUN_TO_POSITION"), () -> {
+        DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_RUN_TO_POSITION"), () -> {
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.synchronizeSession(debuggerConnection);
             suspendSession();

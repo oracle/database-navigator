@@ -236,7 +236,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         contextManager.addListener(createContextListener());
         process.setXDebugProcess(this);
 
-        DBDebugOperation.run(getProject(), txt("ntf.debugger.constant.Operation_INITIALIZE_ENVIRONMENT"), () -> {
+        DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_INITIALIZE_ENVIRONMENT"), () -> {
             try {
                 T input = getExecutionInput();
                 if (input == null) return;
