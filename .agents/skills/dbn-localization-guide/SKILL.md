@@ -101,6 +101,63 @@ If a label is a full sentence or instruction, prefer `text` over `label`. Check 
 
 Use verification passes for broad resource-file cleanup. Keep each pass focused on one rule, and re-scan after editing.
 
+### Placeholder and MessageFormat Safety
+
+- Preserve every `{0}` / `{1}` placeholder, MessageFormat choice/plural pattern, escaped newline (`\n`), and HTML boundary unless the caller is changed at the same time.
+- Compare old and new placeholder sets for every changed resource value. Treat any mismatch as a blocker until the Java/.form caller is inspected.
+- Do not add unnecessary escapes for double quotes in `.properties` values. Use `"{0}"`, not `\"{0}\"`, unless the visible text really needs a backslash.
+- Be careful with apostrophes in MessageFormat values: a single quote starts/ends quoting, and a literal apostrophe usually needs to be doubled. SQL/code snippets may already use doubled quotes intentionally.
+- For values ending with or containing `\n`, inspect the caller before removing or moving the newline. Some dialog text depends on resource-level spacing, while other code adds the newline itself.
+
+Useful check:
+
+```bash
+rg -n '\{[0-9]' src/main/resources/messages/DBNResources.properties
+```
+
+After editing a broad set of values, derive changed keys from `git diff -U0` and compare placeholder sets for old and new values before compiling.
+
+### Key Family and Usage Context
+
+- Verify key family from the display context, not from the class name. The same concept can be `app.*` in runtime UI, `cfg.*` in settings, `msg.*` in a dialog body/title, `ntf.*` in a notification, and `prc.*` in progress text.
+- Check exact usages before renaming or moving keys. Do not infer from the key name alone, especially when the value is used by an action, intention, notification, progress task, or form label.
+- When renaming keys, update Java, `.form`, and resource references together, then re-run `rg` for every old key and old visible value.
+- Keep moved or renamed keys sorted within their resource group after editing.
+- Allow casing to differ by usage space: a menu/action can be title-cased while an intention, hint, notification body, or configuration label should usually be sentence-cased.
+
+Useful check:
+
+```bash
+rg -n 'txt\("([^"]+)"' src/main/java
+```
+
+### Required and Missing Wording
+
+- For validation messages, prefer direct remediation over passive failure labels: `Enter a credential name`, `Select a database file`, `Specify a JDBC driver`, `Configure a schema`.
+- Use `Enter` for typed values, `Select` for choices/files/schemas, `Specify` for named configuration values, and `Configure` when the user must open or adjust settings.
+- Avoid unnecessary `required`, `missing`, `not specified`, and `cannot be empty` wording when a direct action is clearer.
+- Keep composite-message use cases in mind. Direct imperative messages work well in cumulative lists such as `Correct the following errors:\n - Enter a data type`, but sentence fragments may not.
+- Keep genuine state descriptions when they are not field validation, for example missing privileges, missing prerequisites, missing database objects, or unavailable files.
+
+Useful check:
+
+```bash
+rg -n -i '\b(required|missing|not specified|cannot be empty|must be specified|not selected)\b' src/main/resources/messages/DBNResources.properties
+```
+
+### Ellipsis Usage
+
+- Use ellipsis only for actions that open input-capable dialogs, truncated text without a scrollbar, or ongoing progress text.
+- Do not add ellipsis simply because an action opens a popup, performs work, or shows a confirmation.
+- Preserve ellipsis in progress/log values that intentionally show an operation is in progress, for example `Loading...`.
+- Review action, button, link, progress, and title values separately; the same visual `...` can mean different things by element type.
+
+Useful check:
+
+```bash
+rg -n '\.\.\.' src/main/resources/messages/DBNResources.properties
+```
+
 ### Sentence vs. Title Case
 
 - Use title capitalization for `action`, `button`, and true UI-header `title` values such as dialogs, message boxes, popups, table/tree/group headers, and menu/action presentation text.
@@ -123,6 +180,21 @@ For a safe candidate list, group keys by element type first. For `action`, `butt
 
 After editing, re-scan the touched packages for old key usages and old visible values. For intention migrations, expect zero `.action.` resource calls in intention packages and exact-key usages for every new `.intention.` key.
 
+### Technical Casing
+
+- Keep technical acronyms fully uppercase in visible values: `AI`, `API`, `DB`, `DDL`, `IDE`, `JAR`, `JDBC`, `JSON`, `MCP`, `OCI`, `OCID`, `ONNX`, `PL/SQL`, `SQL`, `SSH`, `URL`, `URI`, `XML`.
+- Use normal capitalization around technical terms: `JSON view`, `MCP server`, `Java source code`, `JDBC driver`, `JAR file`.
+- Prefer established product/protocol names such as `OpenSSH` and `PL/SQL`.
+- Do not mechanically change key names, HTML tags, URLs, file paths, package/class names such as `java.sql.Driver`, SQL/code snippets, or file extensions such as `.onnx`.
+- Run the scan against values, not key names, when checking visible text.
+
+Useful checks:
+
+```bash
+rg -n 'Json|Jdbc|Mcp|Oci|Ocid|Onnx|PLSQL|Ssh|Sql|Url|Uri|Open SSH' src/main/resources/messages/DBNResources.properties
+rg -n -i '\b(json|jdbc|mcp|oci|ocid|onnx|plsql|ssh|sql|url|uri)\b' src/main/resources/messages/DBNResources.properties
+```
+
 ### Terminal Periods
 
 - Remove a final `.` from standalone, single-sentence UI values, especially one-line `error`, `hint`, `info`, `label`, `message`, `text`, and `tooltip` values.
@@ -141,6 +213,48 @@ rg -n '^[^#].*=.*\.$' src/main/resources/messages/DBNResources.properties
 For a safe candidate list, filter out ellipses, multiline values, HTML, code keys, placeholders, questions, and values with multiple sentence-ending periods. After editing, rerun the same filter and expect zero remaining candidates for the chosen scope.
 
 For composition safety, derive the period-only changed keys from `git diff -U0`, search exact usages outside the resource bundle, and flag same-line composition patterns such as `txt(...) +`, `+ txt(...)`, `append(txt(...))`, `String.format(...txt(...))`, and `MessageFormat.format(...txt(...))`. Treat flagged keys as mandatory manual review items.
+
+### Courtesy and Professional Tone
+
+- Avoid courtesy wrappers such as `Please verify`, `Please select`, and `Please contact` in product UI. Prefer direct, professional instructions: `Verify`, `Select`, `Contact`.
+- Avoid `your` when the object is not meaningfully personal. Prefer `the JDBC driver`, `the selected database type`, `the current account`, or `the configured database client`.
+- Keep user-context wording when it is genuinely useful, for example assistant profile copy about `your data model` or credentials that belong to the user.
+- Preserve standard confirmation wording such as `Are you sure... ?` and `Do you want... ?` when it clearly asks for a decision.
+- For security/trust prompts, keep direct wording such as `Only continue if you recognize...`; do not soften it with politeness.
+
+Useful checks:
+
+```bash
+rg -n 'Please|please' src/main/resources/messages/DBNResources.properties
+rg -n -i '\b(you|your|not allowed|cannot|must|may not|did not|provided invalid)\b' src/main/resources/messages/DBNResources.properties
+```
+
+### Shouty Warning Text
+
+- Avoid all-caps emphasis in prose: use `Note:` instead of `NOTE:`, `active` instead of `ACTIVE`, and sentence-style warning bodies instead of banner text like `READ-ONLY DATA - ...`.
+- Keep genuine acronyms, SQL keywords, placeholder tokens, enum-like constants, and log severity tokens uppercase when they are intentionally token-like, for example `[ERROR]`, `NOT NULL`, `ERROR`, `INFO`, `WARNING`.
+- Keep warning copy serious without shouting. Prefer precise consequence wording over exclamation points or all-caps emphasis.
+- Re-scan after editing and classify remaining uppercase matches as intentional tokens, acronyms, or candidates.
+
+Useful check:
+
+```bash
+rg -n '^[^#].*=(.*[^A-Za-z]|)(NOTE|NOT|ACTIVE|INACTIVE|MERGED|EDITABLE|READ-ONLY|WARNING|ERROR|INFO)([^A-Za-z].*|$)' src/main/resources/messages/DBNResources.properties
+```
+
+### Accusatory Phrasing
+
+- Avoid phrasing that sounds like blame in error and warning bodies: `You did not`, `You provided invalid`, `You cannot`, `You are not allowed`, `You must`.
+- Prefer neutral state plus recovery: `No schema selected. Select a schema to continue`, `Invalid or unsupported variable values. Correct the input and try again`.
+- Use neutral capability wording for restrictions: `Statements cannot be executed against this connection`, `This operation may not be available`, `Object name and type cannot be changed`.
+- Standard confirmation questions and explicit user decisions can keep `you`, especially `Are you sure... ?`, `Do you want... ?`, and trust prompts.
+- In cumulative error lists, keep messages short and independently actionable.
+
+Useful check:
+
+```bash
+rg -n -i '\b(you did not|you provided|you cannot|you are not allowed|you must|your input|your jdbc driver|you may not be able)\b' src/main/resources/messages/DBNResources.properties
+```
 
 ### Mnemonics and `labelFor`
 
