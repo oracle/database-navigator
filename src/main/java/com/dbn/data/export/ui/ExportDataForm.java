@@ -25,6 +25,7 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.config.ui.CharsetOption;
+import com.dbn.data.export.DataExportException;
 import com.dbn.data.export.DataExportFormat;
 import com.dbn.data.export.DataExportInstructions;
 import com.dbn.data.export.DataExportManager;
@@ -293,7 +294,16 @@ public class ExportDataForm extends DBNFormBase {
         }
 
         if (destinationFileRadioButton.isSelected()) {
-            File file = getExportInstructions().getFile();
+            File file;
+            try {
+                file = getExportInstructions().getFile();
+            } catch (DataExportException e) {
+                Messages.showErrorDialog(
+                        project,
+                        txt("msg.dataExport.title.InvalidFilePath"),
+                        txt("msg.dataExport.error.InvalidFilePath"));
+                return;
+            }
             if (file.exists()) {
                 Messages.showQuestionDialog(project,
                         txt("msg.dataExport.title.FileExists"),
