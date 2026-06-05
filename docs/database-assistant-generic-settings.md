@@ -39,6 +39,8 @@ Generic Assistant settings are DBN project settings. They configure the DBN-mana
 
 Credentials define how DBN authenticates with a language model provider.
 
+![Assistant credentials settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-assistant-credentials.png)
+
 - **`Name`:** Display name used in profile configuration.
 - **`Provider`:** Provider family, such as OCI Generative AI, OpenAI, Google, Anthropic, Mistral AI, or X AI where supported.
 - **`User`:** User field when required by the selected provider or credential type.
@@ -50,6 +52,8 @@ Use separate credentials when providers, accounts, compartments, or access polic
 ## Profiles
 
 Profiles define how the generic assistant should use a provider credential.
+
+![Assistant profiles settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-assistant-profiles.png)
 
 - **`Name`:** Display name shown in the `Select Profile` control.
 - **`Provider`:** Language model provider used by the profile.
@@ -70,6 +74,8 @@ DBN can also show implicit or potential profiles based on configured credentials
 ## MCP Servers
 
 MCP server settings expose external tools to the generic assistant.
+
+![Assistant MCP server settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-assistant-mcp.png)
 
 - **`Name`:** Display name shown in Assistant settings and the `MCP Servers` selector.
 - **`HTTP`:** Connects to an MCP server by URL.

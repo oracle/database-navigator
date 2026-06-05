@@ -28,6 +28,8 @@ Database Assistant settings are split between DBN project configuration for the 
 - **Oracle Select AI help:** `DB Assistant` toolbar -> `Help` when Select AI is active.
 - **Oracle Select AI object management:** Database Browser -> AI profiles, credentials, and related object context actions where supported.
 
+![Assistant settings page](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-assistant.png)
+
 ## Settings Pages
 
 - **[Generic Assistant Settings](./database-assistant-generic-settings.md):** Use this page for DBN-managed assistant credentials, provider profiles, MCP servers, built-in tool approvals, and MCP tool approvals.

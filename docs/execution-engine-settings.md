@@ -42,9 +42,13 @@ Execution Engine settings define the defaults for statement execution, script ex
 - **Method history settings:** Method Execution History toolbar -> `Settings`
 - **Java history settings:** Java Execution History toolbar -> `Settings`
 
+![Execution Engine settings page](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-execution-engine.png)
+
 ## Statement Execution Settings
 
 Statement Execution settings control single-statement execution, selected-text execution, bulk statement execution, statement debugging, and query result fetching.
+
+![Statement execution settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-execution-engine-statement.png)
 
 | Setting | Default | Valid range | Description |
 | --- | --- | --- | --- |
@@ -64,6 +68,8 @@ Statement Execution settings control single-statement execution, selected-text e
 ## Script Execution Settings
 
 Script Execution settings control execution of complete SQL files through database command-line clients.
+
+![Script execution settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-execution-engine-script.png.png)
 
 | Setting | Default | Valid range | Description |
 | --- | --- | --- | --- |
@@ -97,6 +103,8 @@ Custom command-line interfaces are tracked as approved executables. When the con
 ## Method Execution Settings
 
 Method Execution settings control database method execution and debugging.
+
+![Method execution settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-execution-engine-method.png)
 
 | Setting | Default | Valid range | Description |
 | --- | --- | --- | --- |
