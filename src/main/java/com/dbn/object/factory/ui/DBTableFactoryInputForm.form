@@ -24,7 +24,7 @@
         </constraints>
         <properties>
           <labelFor value="b8964"/>
-          <text resource-bundle="messages/DBNResources" key="app.object.label.Connection"/>
+          <text resource-bundle="messages/DBNResources" key="app.object.label.ConnectionMnemonic"/>
         </properties>
       </component>
       <component id="b8964" class="com.dbn.common.ui.misc.DBNComboBox" binding="connectionComboBox">
@@ -39,7 +39,7 @@
         </constraints>
         <properties>
           <labelFor value="fbc51"/>
-          <text resource-bundle="messages/DBNResources" key="app.object.label.Schema"/>
+          <text resource-bundle="messages/DBNResources" key="app.object.label.SchemaMnemonic"/>
         </properties>
       </component>
       <component id="fbc51" class="com.dbn.common.ui.misc.DBNComboBox" binding="schemaComboBox">

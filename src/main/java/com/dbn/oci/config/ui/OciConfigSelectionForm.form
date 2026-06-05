@@ -96,6 +96,7 @@
         </constraints>
         <properties>
           <enabled value="false"/>
+          <labelFor value="260e0"/>
           <text resource-bundle="messages/DBNResources" key="cfg.oci.label.PrivateKeyFile"/>
         </properties>
       </component>
@@ -105,6 +106,7 @@
         </constraints>
         <properties>
           <enabled value="false"/>
+          <labelFor value="6bbe2"/>
           <text resource-bundle="messages/DBNResources" key="cfg.oci.label.Fingerprint"/>
         </properties>
       </component>

@@ -22,7 +22,7 @@
             </constraints>
             <properties>
               <labelFor value="10717"/>
-              <text resource-bundle="messages/DBNResources" key="app.data.label.Name"/>
+              <text resource-bundle="messages/DBNResources" key="app.data.label.NameMnemonic"/>
             </properties>
           </component>
           <component id="10717" class="javax.swing.JTextField" binding="nameTextField">

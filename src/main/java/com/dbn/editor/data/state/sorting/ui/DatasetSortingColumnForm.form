@@ -16,7 +16,6 @@
         </constraints>
         <properties>
           <font style="1"/>
-          <labelFor value=""/>
           <text resource-bundle="messages/DBNResources" key="app.data.placeholder.Index"/>
         </properties>
       </component>

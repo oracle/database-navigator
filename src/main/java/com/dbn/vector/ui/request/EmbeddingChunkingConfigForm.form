@@ -64,7 +64,7 @@
         </constraints>
         <properties>
           <labelFor value="5708d"/>
-          <text resource-bundle="messages/DBNResources" key="app.vector.label.SplitBy"/>
+          <text resource-bundle="messages/DBNResources" key="app.vector.label.SplitByMnemonic"/>
         </properties>
       </component>
       <component id="5708d" class="javax.swing.JComboBox" binding="splitByComboBox">

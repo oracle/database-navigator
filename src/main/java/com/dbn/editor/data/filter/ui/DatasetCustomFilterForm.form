@@ -24,7 +24,7 @@
             </constraints>
             <properties>
               <labelFor value="132ac"/>
-              <text resource-bundle="messages/DBNResources" key="app.data.label.Name"/>
+              <text resource-bundle="messages/DBNResources" key="app.data.label.NameMnemonic"/>
             </properties>
           </component>
           <component id="132ac" class="javax.swing.JTextField" binding="nameTextField">

@@ -32,6 +32,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <labelFor value="schemaCmb"/>
               <text resource-bundle="messages/DBNResources" key="app.vector.label.SchemaLabel"/>
             </properties>
           </component>
@@ -227,6 +228,7 @@
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <labelFor value="keyColCmb"/>
               <text resource-bundle="messages/DBNResources" key="app.vector.label.IDColumn"/>
               <toolTipText resource-bundle="messages/DBNResources" key="app.vector.tooltip.PrimaryKeyColumn"/>
             </properties>
@@ -245,6 +247,7 @@
               <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <labelFor value="dataColCmb"/>
               <text resource-bundle="messages/DBNResources" key="app.vector.label.DataColumnLabel"/>
               <toolTipText resource-bundle="messages/DBNResources" key="app.vector.tooltip.TextColumnContainingDataToEmbed"/>
             </properties>
