@@ -18,6 +18,7 @@ package com.dbn.options.action;
 
 import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.common.action.ProjectAction;
+import com.dbn.common.options.Configuration;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.options.ConfigId;
@@ -27,6 +28,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.util.Naming.createFriendlyName;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ProjectSettingsAction extends ProjectAction {
@@ -54,10 +56,16 @@ public class ProjectSettingsAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.settings.action.OpenConfig", configId.getName()));
+        presentation.setText(txt("app.settings.action.OpenConfig", getConfigName(project)));
     /*
             presentation.setIcon(Icons.ACTION_SETTINGS);
             presentation.setText("Settings");
     */
+    }
+
+    private String getConfigName(@NotNull Project project) {
+        ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
+        Configuration configuration = settingsManager.getProjectSettings().getConfiguration(configId);
+        return configuration == null ? createFriendlyName(configId.name()) : configuration.getDisplayName();
     }
 }
