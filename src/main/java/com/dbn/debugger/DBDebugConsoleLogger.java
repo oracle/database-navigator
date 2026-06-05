@@ -68,7 +68,7 @@ public class DBDebugConsoleLogger {
                     messageType == MessageType.ERROR ? txt("log.debugger.token.Error") :
                     messageType == MessageType.WARNING ? txt("log.debugger.token.Warning") : txt("log.debugger.token.Info");
 
-            text = txt("log.debugger.text.ConsoleEntry", prefix, date, text);
+            text = txt("log.debugger.text.ConsoleEntry", prefix, date, text) + "\n";
             Key outputType =
                     messageType == MessageType.SYSTEM ? ProcessOutputTypes.SYSTEM :
                     messageType == MessageType.ERROR  ? ProcessOutputTypes.STDERR : ProcessOutputTypes.STDOUT;

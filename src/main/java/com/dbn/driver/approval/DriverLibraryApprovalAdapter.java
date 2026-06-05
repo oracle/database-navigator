@@ -49,7 +49,7 @@ public class DriverLibraryApprovalAdapter implements UserApprovalAdapter<DriverL
             String jarLabel = info.getJarCount() == 1 ?
                     txt("msg.driver.text.JarFile") :
                     txt("msg.driver.text.JarFiles");
-            directoryInfo = txt("msg.driver.message.TrustExternalJdbcDriverLibraryDirectory", info.getJarCount(), jarLabel);
+            directoryInfo = txt("msg.driver.message.TrustExternalJdbcDriverLibraryDirectory", info.getJarCount(), jarLabel) + "\n";
         }
         return txt("msg.driver.message.TrustExternalJdbcDriverLibrary", info.getPath(), directoryInfo);
     }
