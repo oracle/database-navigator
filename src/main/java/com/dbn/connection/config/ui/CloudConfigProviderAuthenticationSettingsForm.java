@@ -33,6 +33,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.util.List;
 import java.util.Objects;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -64,13 +65,20 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     public CloudConfigProviderAuthenticationSettingsForm(@NotNull ConnectionDatabaseSettingsForm parentComponent) {
         super(parentComponent);
 
+        profileComboBox.withValueLoader(() -> loadOciConfigProfiles());
+
         setCloudProviderType(CloudConfigProviderType.OCI_OBJECT);
 
         addSingleFileChooser(
                 getProject(), configFileTextField,
                 "Select OCI Configuration File",
                 "Select the OCI config file (usually ~/.oci/config)");
-        authenticationComboBox.addActionListener(e -> updateFieldVisibility());
+        authenticationComboBox.addActionListener(e -> {
+            updateFieldVisibility();
+            if (isDefaultAuthentication()) {
+                profileComboBox.reloadValues();
+            }
+        });
         onTextChange(configFileTextField, e -> profileComboBox.reloadValues());
         updateFieldVisibility();
     }
@@ -131,7 +139,6 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         if (isOciProvider()) {
             configFileTextField.setText(databaseInfo.getConfigProviderInfo().getOciConfigFile());
             profileComboBox
-                    .withValueLoader(() -> OciConfigFileUtil.getConfigProfileNames(getOciConfigProviderConfigFile()))
                     .withValuePreselector(p -> Objects.equals(p, databaseInfo.getConfigProviderInfo().getOciProfile()))
                     .triggerLoad();
         } else {
@@ -175,6 +182,10 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     private DatabaseInfo getDatabaseInfo() {
         ConnectionDatabaseSettingsForm parent = ensureParentComponent();
         return parent.getConfiguration().getDatabaseInfo();
+    }
+
+    private List<String> loadOciConfigProfiles() {
+        return OciConfigFileUtil.getConfigProfileNames(getOciConfigProviderConfigFile());
     }
 
     private void updateFieldVisibility() {
