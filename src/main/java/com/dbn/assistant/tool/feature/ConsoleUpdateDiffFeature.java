@@ -50,6 +50,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -167,7 +168,7 @@ public class ConsoleUpdateDiffFeature implements AssistantToolFeature {
         WindowWrapper windowWrapper = ACTIVE_DIFF_WINDOWS.get(diffWindowKey);
         if (windowWrapper == null) return false;
 
-        if (windowWrapper.isDisposed()) {
+        if (isNotValid(windowWrapper)) {
             ACTIVE_DIFF_WINDOWS.remove(diffWindowKey, windowWrapper);
             return false;
         }
@@ -182,8 +183,7 @@ public class ConsoleUpdateDiffFeature implements AssistantToolFeature {
         OPENING_DIFF_WINDOWS.remove(diffWindowKey);
 
         WindowWrapper windowWrapper = ACTIVE_DIFF_WINDOWS.remove(diffWindowKey);
-        if (windowWrapper == null) return;
-        if (windowWrapper.isDisposed()) return;
+        if (isNotValid(windowWrapper)) return;
 
         windowWrapper.close();
     }

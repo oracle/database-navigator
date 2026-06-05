@@ -16,12 +16,21 @@
 
 package com.dbn.common.routine;
 
+import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.compatibility.Workaround;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
+@Workaround
+@Compatibility // Intellij api back and forth...
 @FunctionalInterface
-public interface Consumer<T> extends java.util.function.Consumer<T> {
+public interface Consumer<T> extends java.util.function.Consumer<T>, com.intellij.util.Consumer<T> {
+
+    @Override
+    default void consume(T o) {
+        accept(o);
+    }
 
     default void acceptAll(@Nullable Collection<? extends T> collection) {
         if (collection != null) {
