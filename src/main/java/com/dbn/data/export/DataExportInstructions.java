@@ -26,7 +26,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
@@ -57,7 +56,7 @@ public class DataExportInstructions implements PersistentStateElement, Cloneable
         Path filePath = basePath.resolve(fileName).normalize();
 
         if (!filePath.startsWith(basePath)) {
-            throw new DataExportException("Invalid export file path.");
+            throw new DataExportException("Invalid export file path. The file name resolves outside the selected location.");
         }
         return filePath.toFile();
     }
