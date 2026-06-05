@@ -46,7 +46,7 @@ public class MavenArtifactDownloader {
             downloadAndVerify(session, packageId, artifactUrl, library);
 
         } catch (ProcessCanceledException ignored) {
-            session.addInfoMessage(txt("msg.connection.info.DownloadCancelledForPackage", packageId));
+            session.addInfoMessage(txt("msg.connection.info.DownloadCanceledForPackage", packageId));
         } catch (Exception e) {
             log.warn("Failed to download artifact '{}'", libraryId, e);
             session.addErrorMessage(txt("msg.connection.error.DownloadFailedForLibrary", libraryId, e));

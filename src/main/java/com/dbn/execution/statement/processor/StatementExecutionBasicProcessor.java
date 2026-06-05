@@ -518,8 +518,8 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
                 getProject(),
                 getConnection(),
                 false,
-                txt("prc.execution.title.CancellingExecution"),
-                txt("prc.execution.text.CancellingExecution"),
+                txt("prc.execution.title.CancelingExecution"),
+                txt("prc.execution.text.CancelingExecution"),
                 progress -> Safe.run(databaseCall, call -> call.cancelSilently()));
     }
 

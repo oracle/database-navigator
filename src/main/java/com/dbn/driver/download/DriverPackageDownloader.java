@@ -123,7 +123,7 @@ public class DriverPackageDownloader {
         try {
             while (!session.isComplete()) {
                 if (ProgressMonitor.isProgressCancelled()) {
-                    session.addInfoMessage(txt("msg.connection.info.DownloadCancelledForPackage", packageId));
+                    session.addInfoMessage(txt("msg.connection.info.DownloadCanceledForPackage", packageId));
                     break;
                 }
                 if (session.awaitCompletion()) {

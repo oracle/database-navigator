@@ -190,7 +190,7 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
                 c.name().equals("com.jetbrains.jdi.SocketAttach") ||
                 c.name().equals("com.sun.jdi.SocketAttach"));
 
-        if (connector == null) throw new ExecutionException(txt("msg.debugger.error.FailedToInitialiseSocketConnector"));
+        if (connector == null) throw new ExecutionException(txt("msg.debugger.error.FailedToInitializeSocketConnector"));
 
         TransportService transportService = createTransportService();
         patchConnector(connector, transportService);
@@ -206,7 +206,7 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
 
             return cast(initMethod.invoke(null));
         } catch (Throwable e) {
-            throw new ExecutionException(txt("msg.debugger.error.FailedToInitialiseVirtualMachine"), e);
+            throw new ExecutionException(txt("msg.debugger.error.FailedToInitializeVirtualMachine"), e);
         }
     }
 
@@ -222,7 +222,7 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
             declaredField.setAccessible(true);
             declaredField.set(connector, transportService);
         } catch (Throwable e) {
-            throw new ExecutionException(txt("msg.debugger.error.FailedToInitialiseTransportService"), e);
+            throw new ExecutionException(txt("msg.debugger.error.FailedToInitializeTransportService"), e);
         }
     }
 

@@ -57,7 +57,7 @@ public abstract class BatchMessengerBase<
 
         if (batch.isCancelled() || batch.isFinished())  {
             int cancelCount = queuedCount - counters.processedItems();
-            String cancelSegment = cancelCount == 0 ? "" : txt("app.batch.text.TasksCancelled", cancelCount);
+            String cancelSegment = cancelCount == 0 ? "" : txt("app.batch.text.TasksCanceled", cancelCount);
             return txt("app.batch.text.Progress", successSegment, errorSegment, cancelSegment);
         } else {
             return txt("app.batch.text.Progress", successSegment, errorSegment, "");

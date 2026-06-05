@@ -35,7 +35,7 @@ public class JavaDownloadMessenger extends BatchMessengerBase<JavaDownloadTask, 
     @Override
     public String getProgressTitle(JavaDownloadBatch batch) {
         if (batch.isRunning() || batch.isPaused()) return txt("app.java.title.DownloadingJavaResources");
-        if (batch.isCancelled()) return txt("app.java.title.DownloadCancelled");
+        if (batch.isCancelled()) return txt("app.java.title.DownloadCanceled");
         if (batch.isFinished()) {
             MessageType messageType = getProgressMessageType(batch);
             return switch (messageType) {
@@ -54,7 +54,7 @@ public class JavaDownloadMessenger extends BatchMessengerBase<JavaDownloadTask, 
         String progressText = getProgressText(batch);
         if (task != null) return txt("app.java.text.DownloadingJavaResourceNamed", task.getName(), progressText);
         if (batch.isPaused()) return txt("app.batch.text.Paused", progressText);
-        if (batch.isCancelled()) return txt("app.java.text.JavaResourceDownloadCancelled", progressText);
+        if (batch.isCancelled()) return txt("app.java.text.JavaResourceDownloadCanceled", progressText);
         if (batch.isFinished()) return txt("app.java.text.JavaResourceDownloadFinished", progressText);
         return "";
     }

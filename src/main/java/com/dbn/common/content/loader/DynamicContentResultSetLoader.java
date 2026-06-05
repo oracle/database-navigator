@@ -243,7 +243,7 @@ public abstract class DynamicContentResultSetLoader<E extends DynamicContentElem
         } catch (ProcessCanceledException e) {
             conditionallyLog(e);
             postLoadContentFailure(content, debugInfo, e);
-            throw toSqlTimeoutException(e, txt("msg.shared.exception.LoadProcessCancelled"));
+            throw toSqlTimeoutException(e, txt("msg.shared.exception.LoadProcessCanceled"));
 
         } catch (SQLTimeoutException |
                  SQLFeatureNotSupportedException |

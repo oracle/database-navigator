@@ -66,7 +66,7 @@ public class ExportScrambledSourcecodeAction extends ProjectAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setVisible(Diagnostics.isBulkActionsEnabled());
-        presentation.setText(txt("app.diagnostics.action.ExportScrambledSourcecode"));
+        presentation.setText(txt("app.diagnostics.action.ExportScrambledSourceCode"));
     }
 
 

@@ -35,7 +35,7 @@ public class JavaUploadMessenger extends BatchMessengerBase<JavaUploadTask, Java
     @Override
     public String getProgressTitle(JavaUploadBatch batch) {
         if (batch.isRunning() || batch.isPaused()) return txt("app.java.title.UploadingJavaResources");
-        if (batch.isCancelled()) return txt("app.java.title.UploadCancelled");
+        if (batch.isCancelled()) return txt("app.java.title.UploadCanceled");
         if (batch.isFinished()) {
             MessageType messageType = getProgressMessageType(batch);
             return switch (messageType) {
@@ -54,7 +54,7 @@ public class JavaUploadMessenger extends BatchMessengerBase<JavaUploadTask, Java
         String progressText = getProgressText(batch);
         if (task != null) return txt("app.java.text.UploadingJavaResourceNamed", task.getName(), progressText);
         if (batch.isPaused()) return txt("app.batch.text.Paused", progressText);
-        if (batch.isCancelled()) return txt("app.java.text.JavaResourceUploadCancelled", progressText);
+        if (batch.isCancelled()) return txt("app.java.text.JavaResourceUploadCanceled", progressText);
         if (batch.isFinished()) return txt("app.java.text.JavaResourceUploadFinished", progressText);
         return "";
     }
