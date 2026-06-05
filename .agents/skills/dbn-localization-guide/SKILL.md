@@ -101,6 +101,28 @@ If a label is a full sentence or instruction, prefer `text` over `label`. Check 
 
 Use verification passes for broad resource-file cleanup. Keep each pass focused on one rule, and re-scan after editing.
 
+### Sentence vs. Title Case
+
+- Use title capitalization for `action`, `button`, and true UI-header `title` values such as dialogs, message boxes, popups, table/tree/group headers, and menu/action presentation text.
+- Use sentence capitalization for `intention`, `tooltip`, `error`, `warning`, `info`, `hint`, `message`, `text`, `label`, `link`, accessibility descriptions, editor messages, inspections, and quick-fixes.
+- Do not mechanically title-case every `.title.` key. Progress/process titles, status titles, generated task names, and sentence-like titles can intentionally use sentence capitalization.
+- Do not reuse `.action.` keys for `EditorIntentionAction#getText()` or quick-fix names just because the intention performs the same operation as an action. Add a matching `.intention.` key and keep it sentence-cased.
+- Preserve mnemonics (`&`), placeholders (`{0}`), escaped newlines (`\n`), HTML markup, keyboard names, SQL keywords, object type names, acronyms, and product/provider names.
+- Keep acronyms fully uppercase (`AI`, `API`, `DB`, `DDL`, `IDE`, `JDBC`, `JSON`, `MCP`, `OCI`, `OCID`, `SQL`, `SSH`, `URL`, `URI`, `XML`). Use normal capitalization for ordinary words next to them, for example `MCP server`, `JSON view`, and `Java source code`.
+- Treat quoted UI labels as references to the actual visible label. If a button/action label changes from `Keep current` to `Keep Current`, update explanatory text that quotes that label.
+- Defer ambiguous items instead of forcing them. In particular, review enum/presentable constants, product names, tree-root labels, progress text, and values containing quoted section names in context.
+
+Useful checks:
+
+```bash
+rg -n '^[^#].*\\.(action|button|title|intention|tooltip|error|warning|info|hint|message|text|label|link)\\.[^=]+=.*' src/main/resources/messages/DBNResources.properties
+rg -n 'txt\("app\.[^"]+\.action\.[^"]+"\)' src/main/java/com/dbn/code/common/intention src/main/java/com/dbn/assistant/service/selectai/editor/intention
+```
+
+For a safe candidate list, group keys by element type first. For `action`, `button`, and true header `title` values, flag non-small words that remain lowercase after the first word. For sentence-cased elements, flag non-acronym words capitalized after the first word. Review every hit in context before editing.
+
+After editing, re-scan the touched packages for old key usages and old visible values. For intention migrations, expect zero `.action.` resource calls in intention packages and exact-key usages for every new `.intention.` key.
+
 ### Terminal Periods
 
 - Remove a final `.` from standalone, single-sentence UI values, especially one-line `error`, `hint`, `info`, `label`, `message`, `text`, and `tooltip` values.
