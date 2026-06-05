@@ -282,7 +282,7 @@ public class McpToolVerificationForm extends DBNFormBase {
 
                 boolean hasResultSet = statement.execute();
                 if (!hasResultSet) {
-                    throw new IllegalStateException("Only queries returning rows can be previewed.");
+                    throw new IllegalStateException(txt("msg.mcp.exception.QueryRowsRequired"));
                 }
 
                 resultSet = statement.getResultSet();
@@ -303,7 +303,7 @@ public class McpToolVerificationForm extends DBNFormBase {
     }
 
     private String buildValidationMessage() {
-        StringBuilder builder = new StringBuilder("Please fix SQL parameter values before executing:\n");
+        StringBuilder builder = new StringBuilder(txt("msg.mcp.exception.SqlParameterValuesInvalid")).append('\n');
         for (StatementExecutionVariable variable : executionVariables.getVariables()) {
             String error = variable.getError();
             if (error != null) {
@@ -327,7 +327,7 @@ public class McpToolVerificationForm extends DBNFormBase {
 
         if (executionVariables.hasErrors()) {
             StringBuilder builder = new StringBuilder(previewText);
-            builder.append("\n\n-- Value issues\n");
+            builder.append("\n\n-- ").append(txt("msg.mcp.text.ValueIssues")).append('\n');
             for (StatementExecutionVariable variable : executionVariables.getVariables()) {
                 String error = variable.getError();
                 if (error != null) {

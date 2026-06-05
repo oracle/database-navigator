@@ -241,15 +241,15 @@ public class McpBuildTask {
         String tnsProfile = safe(info.getTnsProfile());
 
         if (Strings.isEmptyOrSpaces(tnsFolder)) {
-            throw new UnsupportedOperationException("TNS folder is not configured for this connection.");
+            throw new UnsupportedOperationException(txt("msg.mcp.exception.TnsFolderNotConfigured"));
         }
         if (Strings.isEmptyOrSpaces(tnsProfile)) {
-            throw new UnsupportedOperationException("TNS profile is not configured for this connection.");
+            throw new UnsupportedOperationException(txt("msg.mcp.exception.TnsProfileNotConfigured"));
         }
 
         File tnsFile = Paths.get(tnsFolder, "tnsnames.ora").toFile();
         if (!tnsFile.isFile()) {
-            throw new UnsupportedOperationException("TNS file not found: " + tnsFile.getAbsolutePath());
+            throw new UnsupportedOperationException(txt("msg.mcp.exception.TnsFileNotFound", tnsFile.getAbsolutePath()));
         }
 
         try {
@@ -257,17 +257,17 @@ public class McpBuildTask {
                     .filter(p -> p.getProfile().equalsIgnoreCase(tnsProfile))
                     .findFirst()
                     .orElseThrow(() -> new UnsupportedOperationException(
-                            "TNS profile '" + tnsProfile + "' not found in " + tnsFile.getAbsolutePath()));
+                            txt("msg.mcp.exception.TnsProfileNotFound", tnsProfile, tnsFile.getAbsolutePath())));
 
             String descriptor = safe(profile.getDescriptor()).trim();
             if (descriptor.isEmpty()) {
-                throw new UnsupportedOperationException("TNS profile '" + tnsProfile + "' has an empty descriptor.");
+                throw new UnsupportedOperationException(txt("msg.mcp.exception.TnsProfileDescriptorEmpty", tnsProfile));
             }
             return "jdbc:oracle:thin:@" + descriptor;
         } catch (UnsupportedOperationException e) {
             throw e;
         } catch (Exception e) {
-            throw new UnsupportedOperationException("Failed to parse TNS file: " + tnsFile.getAbsolutePath(), e);
+            throw new UnsupportedOperationException(txt("msg.mcp.exception.TnsFileParseFailed", tnsFile.getAbsolutePath()), e);
         }
     }
 
@@ -413,7 +413,7 @@ public class McpBuildTask {
             String message = root != null && root.getMessage() != null && !root.getMessage().isBlank()
                     ? root.getMessage()
                     : e.getClass().getSimpleName();
-            throw new IOException("Failed to create Oracle SEPS wallet: " + message, e);
+            throw new IOException(txt("msg.mcp.exception.OracleSepsWalletCreationFailed", message), e);
         } finally {
             Arrays.fill(walletPassword, '\0');
             Arrays.fill(user, '\0');
@@ -428,8 +428,7 @@ public class McpBuildTask {
         }
 
         throw new ClassNotFoundException(
-                "oracle.security.pki.OracleWallet is not available in the selected Oracle driver bundle. " +
-                "Please add oraclepki to the driver libraries for this connection.");
+                txt("msg.mcp.exception.OraclePkiLibraryMissing"));
     }
 
     private static boolean containsClass(ClassLoader classLoader, String className) {

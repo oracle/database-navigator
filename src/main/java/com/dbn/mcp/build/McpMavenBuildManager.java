@@ -82,7 +82,7 @@ public class McpMavenBuildManager extends ProjectComponentBase {
         Project project = getProject();
         MavenDistribution distribution = resolveSettingsDistribution();
         if (!distribution.isValid()) {
-            throw new IOException("Maven runtime is not valid: " + describeDistribution(distribution));
+            throw new IOException(txt("msg.mcp.exception.MavenRuntimeInvalid", describeDistribution(distribution)));
         }
 
         log.info("POM: {}", projectDir.resolve("pom.xml"));
@@ -153,7 +153,7 @@ public class McpMavenBuildManager extends ProjectComponentBase {
                 true);
 
         if (!success) {
-            throw new IllegalStateException("Maven build could not be started.");
+            throw new IllegalStateException(txt("msg.mcp.exception.MavenBuildStartFailed"));
         }
 
         waitForCompletion(indicator, processRef, finished, exitCode, distribution, output);
@@ -162,7 +162,7 @@ public class McpMavenBuildManager extends ProjectComponentBase {
                     .filter(line -> line.contains("ERROR") || line.contains("error:"))
                     .collect(Collectors.joining("\n"));
             log.error("Maven build output:\n{}", output);
-            throw new IllegalStateException("Maven failed:\n" + (errors.isBlank() ? output.toString() : errors));
+            throw new IllegalStateException(txt("msg.mcp.exception.MavenBuildFailed", errors.isBlank() ? output.toString() : errors));
         }
     }
 
@@ -182,7 +182,7 @@ public class McpMavenBuildManager extends ProjectComponentBase {
                 if (processHandler != null && !processHandler.isProcessTerminated()) {
                     processHandler.destroyProcess();
                 }
-                throw new IOException("Maven build cancelled.");
+                throw new IOException(txt("msg.mcp.exception.MavenBuildCancelled"));
             }
 
             ProcessHandler processHandler = processRef.get();
@@ -196,10 +196,10 @@ public class McpMavenBuildManager extends ProjectComponentBase {
             }
 
             if (processRef.get() == null && System.currentTimeMillis() - startedAt > PROCESS_ATTACH_TIMEOUT_MILLIS) {
-                throw new IOException(
-                        "Maven process did not start within timeout (" + (PROCESS_ATTACH_TIMEOUT_MILLIS / 1000) + "s). " +
-                        "Distribution: " + describeDistribution(distribution) + ". " +
-                        "Recent output: " + tail(output, 400));
+                throw new IOException(txt("msg.mcp.exception.MavenProcessStartTimedOut",
+                        PROCESS_ATTACH_TIMEOUT_MILLIS / 1000,
+                        describeDistribution(distribution),
+                        tail(output, 400)));
             }
 
             try {
@@ -208,7 +208,7 @@ public class McpMavenBuildManager extends ProjectComponentBase {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new IOException("Interrupted while waiting for Maven build to finish.", e);
+                throw new IOException(txt("msg.mcp.exception.MavenBuildInterrupted"), e);
             }
         }
     }
@@ -223,10 +223,10 @@ public class McpMavenBuildManager extends ProjectComponentBase {
     }
 
     private static String tail(StringBuilder sb, int maxChars) {
-        if (sb == null || sb.isEmpty()) return "<no output>";
+        if (sb == null || sb.isEmpty()) return txt("msg.mcp.placeholder.NoOutput");
         int len = sb.length();
         int from = Math.max(0, len - maxChars);
         String text = sb.substring(from, len).replaceAll("\\s+", " ").trim();
-        return text.isEmpty() ? "<no output>" : text;
+        return text.isEmpty() ? txt("msg.mcp.placeholder.NoOutput") : text;
     }
 }
