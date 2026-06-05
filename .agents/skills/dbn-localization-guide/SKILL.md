@@ -142,6 +142,29 @@ For a safe candidate list, filter out ellipses, multiline values, HTML, code key
 
 For composition safety, derive the period-only changed keys from `git diff -U0`, search exact usages outside the resource bundle, and flag same-line composition patterns such as `txt(...) +`, `+ txt(...)`, `append(txt(...))`, `String.format(...txt(...))`, and `MessageFormat.format(...txt(...))`. Treat flagged keys as mandatory manual review items.
 
+### Mnemonics and `labelFor`
+
+- Add mnemonics (`&`) to labels, buttons, check boxes, radio buttons, and other direct controls when they participate in keyboard navigation.
+- Every `JLabel` that labels a focusable input in a `.form` file should have a `labelFor` pointing to that actual input component.
+- `labelFor` targets must be non-empty and must reference an existing component id in the same `.form` file.
+- Watch for copy/paste mistakes: a label often points to a nearby name field, the first combo box, or another row's input. If the label text describes a same-row field, point `labelFor` to that field.
+- Prefer existing `*Mnemonic` keys when a plain label is reused in both focusable-input and non-input contexts, for example `Connection` versus `ConnectionMnemonic`. Add a separate mnemonic key instead of putting `&` into a shared read-only/status value.
+- Keep mnemonic choices local to the containing panel or dialog when practical. Avoid obvious duplicates among neighboring controls, but do not force awkward letters just for global uniqueness.
+- Do not add mnemonics or `labelFor` to status readouts, placeholder labels, unit labels (`ms`, `seconds`, `records`), preview/sample labels, decorative labels, section headers, table/list captions, or labels that only describe a read-only value group.
+- Check boxes and radio buttons usually carry their own mnemonic in their `text` value and do not need a separate `JLabel`/`labelFor`.
+- Disabled or read-only text fields can still have `labelFor` when the label directly names the field and keyboard focus is useful for inspection or copying.
+
+Useful checks:
+
+```bash
+rg -n '<labelFor value=""' -g '*.form' src/main/java
+rg -n 'class="javax.swing.JLabel"|<labelFor|<text resource-bundle="messages/DBNResources"' -g '*.form' src/main/java
+```
+
+For a broad audit, use a namespace-aware XML scan rather than grep only. Verify that all `labelFor` values resolve to component ids, that localized `JLabel` values with `labelFor` contain a mnemonic, and that same-row copied targets are reviewed manually. After editing, rerun the scan and expect zero empty `labelFor` values, zero missing target ids, zero labels-with-targets lacking mnemonics, and zero obvious copied targets.
+
+Treat possible missing `labelFor` results as candidates, not automatic fixes. Manually exclude status/readout labels, units, preview labels, placeholders, headers, and labels in nested panels where grid row/column positions only look adjacent by coincidence.
+
 ## Workflow
 
 1. Search with `rg` for the target class/API and nearby resource keys.
