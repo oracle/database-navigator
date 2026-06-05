@@ -95,6 +95,29 @@ If a label is a full sentence or instruction, prefer `text` over `label`. Check 
 - Use question marks only for confirmation alerts. Do not use exclamation points.
 - Inspection NLS should be short, sentence-cased, problem-focused, and specific. Descriptions should start with a verb such as `Reports`.
 
+## Verification Passes
+
+Use verification passes for broad resource-file cleanup. Keep each pass focused on one rule, and re-scan after editing.
+
+### Terminal Periods
+
+- Remove a final `.` from standalone, single-sentence UI values, especially one-line `error`, `hint`, `info`, `label`, `message`, `text`, and `tooltip` values.
+- Keep periods in multi-sentence values, multiline explanatory text, HTML bodies, code snippets, placeholder examples, values that intentionally end with `...`, and confirmation questions.
+- Be cautious with values that are sentence fragments, status fragments, or are inserted into a larger message. A fragment may look like a single sentence but still need punctuation when composed.
+- Before finalizing a broad period cleanup, audit every changed key for composition usage. Search exact key usages outside `DBNResources.properties`, and inspect any key used in string concatenation, `StringBuilder.append(...)`, `String.format(...)`, `MessageFormat.format(...)`, or another sentence-building call.
+- Restore the period when the value is composed with following text but the code only adds spacing or a newline. Example pattern: `txt("some.key") + "\n"` where the next translated sentence follows.
+- For fragment-like labels, manually inspect the caller even if no concatenation is present. Values such as execution-duration fragments may be inserted into a larger status format and should be judged by the final rendered text.
+
+Useful checks:
+
+```bash
+rg -n '^[^#].*=.*\.$' src/main/resources/messages/DBNResources.properties
+```
+
+For a safe candidate list, filter out ellipses, multiline values, HTML, code keys, placeholders, questions, and values with multiple sentence-ending periods. After editing, rerun the same filter and expect zero remaining candidates for the chosen scope.
+
+For composition safety, derive the period-only changed keys from `git diff -U0`, search exact usages outside the resource bundle, and flag same-line composition patterns such as `txt(...) +`, `+ txt(...)`, `append(txt(...))`, `String.format(...txt(...))`, and `MessageFormat.format(...txt(...))`. Treat flagged keys as mandatory manual review items.
+
 ## Workflow
 
 1. Search with `rg` for the target class/API and nearby resource keys.
