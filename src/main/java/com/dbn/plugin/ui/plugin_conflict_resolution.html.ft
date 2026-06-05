@@ -17,7 +17,7 @@
 <html lang="en">
 <head><title>Oracle© Database Navigator plugin conflict</title></head>
 <body style="${REGULAR_FONT_STYLE}">
-Oracle© Database Navigator Plugin Conflict<br>
+<span style="font-size: 1.1em;">Oracle© Database Navigator Plugin Conflict</span><br>
 <ul>
     <li><b>Oracle© Database Navigator</b> (DBN) - Oracle© database plugin</li>
     <li><b>Database Tools and SQL</b> - JetBrains bundled plugin</li>
