@@ -31,6 +31,7 @@ public class BrowserProjectSettingsAction extends ProjectSettingsOpenAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        super.update(e, project);
         e.getPresentation().setText(txt("app.browser.action.Settings"));
     }
 }
