@@ -75,6 +75,13 @@ public final class Checks {
             return reference.get() != null;
         }
 
+/*
+        TODO verify if this can cause performance issues
+        if (object instanceof Disposable) {
+            return !Unsafe.silent(Boolean.FALSE, object, o -> invokeMethod(o, "isDisposed"));
+        }
+*/
+
         return true;
     }
 
