@@ -51,7 +51,7 @@ Connection Management settings define how DBN connects to databases, which drive
 - **Connection information:** Connection editor header -> `Info`
 - **Connection object filters:** Connection editor -> `Filters`
 
-![Connections settings page](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-connections.png)
+![Connections settings page](./img/settings-connections.png)
 
 ## Connection List Settings
 

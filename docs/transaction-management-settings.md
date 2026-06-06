@@ -39,7 +39,7 @@ Transaction Management settings are spread across connection settings and operat
 - **Session Browser behavior:** `DB Navigator` -> `Settings` -> `Operations` -> `Session Browser`.
 - **Commit after execution:** Statement, method, and Java execution input dialogs or Execution Engine settings.
 
-![Operations settings page](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-operations.png)
+![Operations settings page](./img/settings-operations.png)
 
 ## Auto-Commit Setting
 
@@ -68,7 +68,7 @@ If session management is disabled, the `Current Session` selector is hidden for 
 
 Transaction Manager settings decide what DBN does when an action encounters uncommitted changes.
 
-![Transaction Manager settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-operations-transactions.png)
+![Transaction Manager settings](./img/settings-operations-transactions.png)
 
 ### Uncommitted Changes Handling
 
@@ -99,7 +99,7 @@ Runtime prompts can also offer `Cancel` so the user can abandon the current acti
 
 Session Browser settings control reload behavior and the default prompt options for disconnecting or killing database sessions.
 
-![Session Browser settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-operations-sessions.png)
+![Session Browser settings](./img/settings-operations-sessions.png)
 
 | Setting | Default | Available Saved Options | Description |
 | --- | --- | --- | --- |

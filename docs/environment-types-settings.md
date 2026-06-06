@@ -42,13 +42,13 @@ Environment Types settings define project-level database environment classificat
 - **Connection environment assignment:** `DB Navigator` -> `Settings` -> `Connections` -> selected connection -> `Details` -> `Environment type`
 - **Environment settings from editor notification:** Read-only data, JSON, or source editor notification -> `Settings`
 
-![General settings page](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-general.png)
+![General settings page](./img/settings-general.png)
 
 ## Regional Settings
 
 Regional Settings control how DBN formats numbers, dates, and times in its own UI surfaces.
 
-![Regional settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-general-regional.png)
+![Regional settings](./img/settings-general-regional.png)
 
 | Setting | Default | Description |
 | --- | --- | --- |
@@ -64,7 +64,7 @@ Regional Settings control how DBN formats numbers, dates, and times in its own U
 
 The Environment Types table defines the available environments for the project.
 
-![Environment types and applicability settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-general-environments.png)
+![Environment types and applicability settings](./img/settings-general-environments.png)
 
 - **`Name`:** Display name used in connection settings and notifications. Required.
 - **`Description`:** Optional explanation of the environment.

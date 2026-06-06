@@ -51,11 +51,11 @@ Code Editors settings control DBN source editor behavior, code completion, execu
 
 Code Editor settings apply mainly to DBN source editors, including Program Editors and Java Editors. Some confirmation behavior also applies to SQL Consoles.
 
-![Code Editor settings page](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-code-editor.png)
+![Code Editor settings page](./img/settings-code-editor.png)
 
 ### General
 
-![Code Editor general settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-code-editor-general.png)
+![Code Editor general settings](./img/settings-code-editor-general.png)
 
 | Setting | Default | Description |
 | --- | --- | --- |
@@ -66,7 +66,7 @@ Code Editor settings apply mainly to DBN source editors, including Program Edito
 
 ### Confirmations
 
-![Code Editor confirmation settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-code-editor-confirmations.png)
+![Code Editor confirmation settings](./img/settings-code-editor-confirmations.png)
 
 | Setting | Default | Options | Description |
 | --- | --- | --- | --- |
@@ -79,7 +79,7 @@ Code Editor settings apply mainly to DBN source editors, including Program Edito
 
 Code Completion settings apply to DBN SQL and PSQL language files, SQL Consoles, Program Editors, Java-related database source where DBN language support applies, and DDL files using DBN file types.
 
-![Code Completion settings page](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-code-completion.png)
+![Code Completion settings page](./img/settings-code-completion.png)
 
 ### Format
 
@@ -91,7 +91,7 @@ Code Completion settings apply to DBN SQL and PSQL language files, SQL Consoles,
 
 Completion filters define what appears in basic and extended completion lists.
 
-![Code Completion filter settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-code-completion-filter.png)
+![Code Completion filter settings](./img/settings-code-completion-filter.png)
 
 - **`Basic`:** Used by standard code completion.
 - **`Extended`:** Used by smart or extended completion.
@@ -104,7 +104,7 @@ Filterable items include reserved word categories and database object types such
 
 ### Sorting
 
-![Code Completion sorting settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-code-completion-sorting.png)
+![Code Completion sorting settings](./img/settings-code-completion-sorting.png)
 
 | Setting | Default | Description |
 | --- | --- | --- |
@@ -214,7 +214,7 @@ Each extension field accepts a comma-separated list. Extension values must be un
 
 Compiler settings are located under `Operations`, but they affect Program Editors when compiling database source.
 
-![Compiler settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-operations-compiler.png)
+![Compiler settings](./img/settings-operations-compiler.png)
 
 | Setting | Default | Options | Description |
 | --- | --- | --- | --- |

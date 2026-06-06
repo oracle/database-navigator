@@ -53,7 +53,7 @@ Database Browser settings control how DBN displays database connections, which o
 - **Object properties panel:** `DB Browser` toolbar -> `Show Object Properties` or `Hide Object Properties`
 - **Autoscroll toggles:** `DB Browser` toolbar -> `Options`
 
-![Database Browser settings page](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-database-browser.png)
+![Database Browser settings page](./img/settings-database-browser.png)
 
 ## Project-Level Settings
 
@@ -61,7 +61,7 @@ Project-level Database Browser settings are grouped into `General`, `Filters`, `
 
 ### General
 
-![Database Browser general settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-database-browser-general.png)
+![Database Browser general settings](./img/settings-database-browser-general.png)
 
 | Setting | Default | Description |
 | --- | --- | --- |
@@ -107,7 +107,7 @@ The Database Browser keeps a selection history for toolbar `Back` and `Forward` 
 
 The project-level `Filters` section controls which database object types are visible in the Database Browser. By default, all browsable object types are enabled.
 
-![Database Browser filter settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-database-browser-filters.png)
+![Database Browser filter settings](./img/settings-database-browser-filters.png)
 
 These filters apply broadly. Connection-level filter settings can inherit them or override them for a specific connection.
 
@@ -123,7 +123,7 @@ For the object type catalog, see [Database Browser](./database-browser.md#object
 
 The `Sorting` section controls how selected object lists are sorted in the Database Browser. The available sorting types are `Name` and `Position`.
 
-![Database Browser sorting settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-database-browser-sorting.png)
+![Database Browser sorting settings](./img/settings-database-browser-sorting.png)
 
 | Object type | Default sorting | Notes |
 | --- | --- | --- |
@@ -144,7 +144,7 @@ Use `Position` for ordered structures where database order matters. Use `Name` w
 
 The `Default Editors` section controls what opens when an object supports more than one editor target.
 
-![Database Browser default editor settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-database-browser-default-editors.png)
+![Database Browser default editor settings](./img/settings-database-browser-default-editors.png)
 
 | Object type | Default | Available editor choices |
 | --- | --- | --- |
@@ -166,7 +166,7 @@ Use an explicit editor choice when you consistently want one target. Use `Last S
 
 Navigation settings control object lookup actions, including which connection is searched and which object types appear in lookup results.
 
-![Navigation settings page](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-navigation.png)
+![Navigation settings page](./img/settings-navigation.png)
 
 | Setting | Default | Description |
 | --- | --- | --- |
@@ -174,7 +174,7 @@ Navigation settings control object lookup actions, including which connection is
 | `Behavior` | `Lookup loaded objects only` | Controls whether lookup searches loaded Database Browser objects only. |
 | `Object types` | Selected object categories | Limits lookup results to the selected database object types. |
 
-![Navigation object lookup settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-navigation-objects-lookup.png)
+![Navigation object lookup settings](./img/settings-navigation-objects-lookup.png)
 
 Object lookup selections are independent from Database Browser visibility filters. Use them to keep lookup results focused without hiding object types from the browser tree.
 

@@ -47,11 +47,11 @@ Workspace Integration settings control how DBN connects local project files to d
 
 DDL Files settings are project-level settings that control DDL attachment behavior and file type associations.
 
-![DDL Files settings page](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-ddl-files.png)
+![DDL Files settings page](./img/settings-ddl-files.png)
 
 ### General
 
-![DDL Files general settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-ddl-files-general.png)
+![DDL Files general settings](./img/settings-ddl-files-general.png)
 
 | Setting | Default | Description |
 | --- | --- | --- |
@@ -65,7 +65,7 @@ When `Synchronize DDL files` is enabled, DBN enables `Make DDL scripts rerunnabl
 
 ### Extensions
 
-![DDL Files extension settings](https://raw.githubusercontent.com/oracle/database-navigator/master/docs/img/settings-ddl-files-extensions.png)
+![DDL Files extension settings](./img/settings-ddl-files-extensions.png)
 
 | DDL file type | Default extension | Language file type | Content scope |
 | --- | --- | --- | --- |
