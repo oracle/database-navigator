@@ -28,12 +28,14 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class EventRegistrationInputDialog extends DBNDialog<EventRegistrationInputForm> {
   private final DBObjectRef<DBTable> table;
   private int mask;
 
   public EventRegistrationInputDialog(Project project, DBTable table) {
-    super(project, "Event Listener Registration", true);
+    super(project, txt("msg.events.title.EventListenerRegistration"), true);
     this.table = DBObjectRef.of(table);
     setModal(false);
     setResizable(true);
@@ -83,7 +85,7 @@ public class EventRegistrationInputDialog extends DBNDialog<EventRegistrationInp
 
     this.mask = mask;
     if (!insertOperation && !updateOperation && !deleteOperation) {
-      return new ValidationInfo("At least one operation should be selected !");
+      return new ValidationInfo(txt("msg.events.error.OperationRequired"));
     }
     return super.doValidate();
   }
@@ -96,5 +98,3 @@ public class EventRegistrationInputDialog extends DBNDialog<EventRegistrationInp
     super.doOKAction();
   }
 }
-
-

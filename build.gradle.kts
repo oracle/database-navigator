@@ -106,6 +106,7 @@ dependencies {
 
 
     // ********** DEPENDENCY FLAT MODEL **********
+    implementation("joda-time:joda-time:2.14.2@jar")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.21@jar")
     implementation("com.fasterxml.jackson.core:jackson-core:2.21.1@jar")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.21.1@jar")

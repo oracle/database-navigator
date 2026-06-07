@@ -20,6 +20,9 @@ import com.dbn.common.option.RememberOption;
 import com.dbn.common.util.Classes;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Messages;
+import com.intellij.openapi.util.NlsContexts.Button;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.Getter;
 
 @Getter
@@ -30,7 +33,7 @@ public class InteractiveMessage extends TitledMessage{
     private RememberOption rememberOption;
     private Exception exception;
 
-    public InteractiveMessage(MessageType type, String title, String text) {
+    public InteractiveMessage(MessageType type, @DialogTitle String title, @DialogMessage String text) {
         super(type, title, text);
     }
 
@@ -46,15 +49,15 @@ public class InteractiveMessage extends TitledMessage{
         return text + "\n" + exceptionMessage.trim();
     }
 
-    public static InteractiveMessage info(String title, String text) {
+    public static InteractiveMessage info(@DialogTitle String title, @DialogMessage String text) {
         return new InteractiveMessage(MessageType.INFO, title, text);
     }
 
-    public static InteractiveMessage error(String title, String text) {
+    public static InteractiveMessage error(@DialogTitle String title, @DialogMessage String text) {
         return new InteractiveMessage(MessageType.ERROR, title, text);
     }
 
-    public InteractiveMessage withOptions(String[] options, int defaultOptionIndex) {
+    public InteractiveMessage withOptions(@Button String[] options, int defaultOptionIndex) {
         this.options = options;
         this.defaultOptionIndex = defaultOptionIndex;
         return this;

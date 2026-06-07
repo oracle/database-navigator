@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Action;
 
 import static com.dbn.help.HelpTopic.DATABASE_ASSISTANT_TOOLS;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Wrapper factory result dialog
@@ -37,7 +38,7 @@ public class AssistantToolApprovalDialog extends DBNDialog<AssistantToolApproval
   private final AssistantToolSettings settings;
 
   public AssistantToolApprovalDialog(Project project, AssistantToolSettings settings) {
-    super(project, "Assistant Tool Settings", false);
+    super(project, txt("msg.assistant.title.AssistantToolSettings"), false);
     this.setDefaultSize(640,  800);
     this.setModal(true);
     this.setAutoSize(true);
@@ -53,7 +54,7 @@ public class AssistantToolApprovalDialog extends DBNDialog<AssistantToolApproval
   @NotNull
   @Override
   protected Action[] initializeActions() {
-    renameAction(getCancelAction(), "Close");
+    renameAction(getCancelAction(), txt("msg.shared.button.Close"));
     return actions(getCancelAction());
   }
 

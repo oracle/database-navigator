@@ -55,6 +55,7 @@ import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JsonDataEditorForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel actionsPanel;

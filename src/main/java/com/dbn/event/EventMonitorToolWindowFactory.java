@@ -23,12 +23,13 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.icon.Icons.WINDOW_DATABASE_EVENTS;
 import static com.dbn.help.HelpTopic.EVENTS_MONITOR;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EventMonitorToolWindowFactory extends DBNToolWindowFactory {
   @Override
   protected void initialize(@NotNull ToolWindow toolWindow) {
-    toolWindow.setTitle("DB Events");
-    toolWindow.setStripeTitle("DB Events");
+    toolWindow.setTitle(txt("app.events.title.DatabaseEventsToolWindow"));
+    toolWindow.setStripeTitle(txt("app.events.title.DatabaseEventsToolWindow"));
     toolWindow.setIcon(WINDOW_DATABASE_EVENTS.get());
     toolWindow.setHelpId(EVENTS_MONITOR.asHelpTopicId());
   }

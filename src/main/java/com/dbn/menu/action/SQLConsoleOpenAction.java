@@ -51,6 +51,10 @@ import static com.dbn.vfs.DBConsoleType.STANDARD;
 
 public class SQLConsoleOpenAction extends ProjectAction {
 
+    public SQLConsoleOpenAction() {
+        super(txt("app.menu.action.OpenSqlConsole"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
@@ -76,7 +80,7 @@ public class SQLConsoleOpenAction extends ProjectAction {
 
         List<SelectConnectionAction> actions = convert(connections, c -> new SelectConnectionAction(c));
         Popups.popupBuilder(actions, e).
-                withTitle("Select Console Connection").
+                withTitle(txt("app.consoles.title.SelectConnection")).
                 withSpeedSearch().
                 buildAndShowCentered();
     }

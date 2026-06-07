@@ -45,6 +45,7 @@ import javax.swing.JPanel;
 import java.util.Map;
 
 import static com.dbn.common.ui.util.UserInterface.setBackgroundRecursive;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SelectorBrowserForm extends DatabaseBrowserForm {
     private JPanel mainPanel;
@@ -70,7 +71,7 @@ public class SelectorBrowserForm extends DatabaseBrowserForm {
 
     private void initConnectionSelector() {
         ActionGroup connectionActions = createConnectionActions();
-        DBNSelector selector = new DBNSelector("Select Connection", connectionActions);
+        DBNSelector selector = new DBNSelector(txt("app.browser.action.SelectConnection"), connectionActions);
         selector.bindComponent(connectionLabel);
         connectionSelectActions.add(selector);
     }

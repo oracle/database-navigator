@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class DataEditingLockToggleAction extends AbstractDataEditorAction {
 
+    public DataEditingLockToggleAction() {
+        super(txt("app.dataEditor.action.DataEditorLockUnlockEditing"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         datasetEditor.toggleEditingLock();

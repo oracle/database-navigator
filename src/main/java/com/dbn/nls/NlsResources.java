@@ -58,6 +58,13 @@ public class NlsResources extends DynamicBundle{
         return key;
     }
 
+    public static @Nls String format(@Nls String text, Object... params) {
+        if (params == null || params.length == 0) return text;
+
+        adjustParams(params);
+        return MessageFormat.format(text, params);
+    }
+
     /**
      * NLS Key validator
      * Workaround for partial implementation of nls resources

@@ -16,7 +16,7 @@
           <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="[field type]"/>
+          <text resource-bundle="messages/DBNResources" key="app.execution.placeholder.FieldType"/>
         </properties>
       </component>
       <component id="3bf57" class="javax.swing.JLabel" binding="fieldLabel">
@@ -24,7 +24,7 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="[field]"/>
+          <text resource-bundle="messages/DBNResources" key="app.execution.placeholder.Field"/>
         </properties>
       </component>
       <grid id="351ef" binding="inputFieldPanel" layout-manager="BorderLayout" hgap="0" vgap="0">

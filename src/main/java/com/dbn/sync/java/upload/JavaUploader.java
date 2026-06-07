@@ -28,6 +28,8 @@ import lombok.experimental.UtilityClass;
 
 import java.sql.SQLException;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @UtilityClass
 public class JavaUploader {
 
@@ -58,8 +60,8 @@ public class JavaUploader {
 		String objectName = entity.getObjectName(true);
 		DatabaseInterfaceInvoker.execute(
 				Priority.HIGH,
-				"Uploading Java Resource",
-				"Uploading java resource " + objectName,
+				txt("prc.java.title.UploadingJavaResource"),
+				txt("prc.java.text.UploadingJavaResource", objectName),
 				batch.getProject(),
 				batch.getConnectionId(),
 				c -> {
@@ -74,8 +76,8 @@ public class JavaUploader {
 
 		DatabaseInterfaceInvoker.execute(
 				Priority.HIGH,
-				"Uploading Java Source",
-				"Uploading java source " + objectName,
+				txt("prc.java.title.UploadingJavaSource"),
+				txt("prc.java.text.UploadingJavaSource", objectName),
 				batch.getProject(),
 				batch.getConnectionId(),
 				c -> {
@@ -91,8 +93,8 @@ public class JavaUploader {
 
 		DatabaseInterfaceInvoker.execute(
 				Priority.HIGH,
-				"Uploading Java Class",
-				"Uploading java class " + objectName,
+				txt("prc.java.title.UploadingJavaClass"),
+				txt("prc.java.text.UploadingJavaClass", objectName),
 				batch.getProject(),
 				batch.getConnectionId(),
 				c -> {

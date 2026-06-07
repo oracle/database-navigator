@@ -24,6 +24,7 @@ import com.dbn.driver.download.metadata.LibraryChecksum;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.util.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,6 +90,8 @@ final class MavenArtifactIntegrityVerifier {
         String artifactPath = library.getArtefactPath();
         String repositoryUrl = resolveRepositoryUrl(artifactUrl, artifactPath);
         String fileName = library.getFileName();
+
+        @NonNls
         String resolvedUrl = checksumUrl
                 .replace("{artifactUrl}", artifactUrl)
                 .replace("{repositoryUrl}", repositoryUrl)

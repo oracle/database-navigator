@@ -38,17 +38,17 @@ public class ReferencingObjectsListShowAction extends ObjectListShowAction {
 
     @Override
     public String getTitle() {
-        return "Objects referencing " + getSourceObject().getQualifiedNameWithType();
+        return txt("app.objects.action.ObjectsReferencing", getSourceObject().getQualifiedNameWithType());
     }
 
     @Override
     public String getEmptyListMessage() {
-        return "No references on " +  getSourceObject().getQualifiedNameWithType() + " found";
+        return txt("app.objects.action.NoReferencesOnObject", getSourceObject().getQualifiedNameWithType());
     }
 
     @Override
     public String getListName() {
-       return "referencing objects";
+       return txt("app.objects.token.ReferencingObjects");
     }
 
     @Override

@@ -39,6 +39,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionResultVariablesDialogAction extends AbstractExecutionResultAction {
 
+    public ExecutionResultVariablesDialogAction() {
+        super(txt("app.execution.action.ExecutionResultOpenVariablesDialog"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull StatementExecutionCursorResult executionResult) {
         StatementExecutionCursorProcessor executionProcessor = executionResult.getExecutionProcessor();

@@ -23,6 +23,7 @@ import com.dbn.execution.method.MethodExecutionInput;
 import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBMethod;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -37,6 +38,7 @@ public class PostgresMethodExecutionProcessor extends MethodExecutionProcessorIm
 
     @Override
     public String buildExecutionCommand(MethodExecutionInput executionInput) throws SQLException {
+        @NonNls
         StringBuilder buffer = new StringBuilder();
         String methodName = getMethod().getQualifiedName(true);
         if (isQuery()) {

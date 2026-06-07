@@ -27,7 +27,6 @@ import com.dbn.common.exception.Exceptions;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.ThreadBlocker;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.UUIDs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -41,6 +40,7 @@ import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.common.message.MessageType.NEUTRAL;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.options;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -85,12 +85,12 @@ public class SelectAiEditorPromptUtil {
     }
 
     private static void handleGenerateException(Project project, ConnectionId connectionId, AIProvider provider, Throwable e) {
-        String title = SELECT_AI.getName() + " Error";
+        String title = txt("msg.assistant.title.AssistantError", SELECT_AI.getName());
 
         String message = getPresentableMessage(provider, e);
 
-        Messages.showErrorDialog(project, title,
-                message, options("Help", "Cancel"), 0,
+        showErrorDialog(project, title,
+                message, options(txt("msg.shared.button.Help"), txt("msg.shared.button.Cancel")), 0,
                 option -> when(option == 0, () -> showPrerequisitesDialog(connectionId)));
     }
 

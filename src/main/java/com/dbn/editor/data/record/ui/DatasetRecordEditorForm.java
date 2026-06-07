@@ -50,6 +50,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetRecordEditorForm extends DBNFormBase {
     private JPanel actionsPanel;
@@ -94,7 +95,7 @@ public class DatasetRecordEditorForm extends DBNFormBase {
         sortColumns(columnSortingType);
         updateFieldAlignment();
 
-        filterTextField.getEmptyText().setText("Filter");
+        filterTextField.getEmptyText().setText(txt("app.dataEditor.placeholder.Filter"));
         onTextChange(filterTextField, e -> filterColumForms());
 
         if (columnForms.size() > 0) {
@@ -217,7 +218,7 @@ public class DatasetRecordEditorForm extends DBNFormBase {
      *********************************************************/
     private class SortAlphabeticallyAction extends ToggleAction {
         private SortAlphabeticallyAction() {
-            super("Sort Columns Alphabetically", null, Icons.ACTION_SORT_ALPHA);
+            super(txt("app.data.action.SortColumnsAlphabetically"), null, Icons.ACTION_SORT_ALPHA);
         }
 
         @Override

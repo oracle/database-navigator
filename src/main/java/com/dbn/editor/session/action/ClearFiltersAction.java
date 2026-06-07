@@ -29,6 +29,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ClearFiltersAction extends AbstractSessionBrowserAction {
 
+    public ClearFiltersAction() {
+        super(txt("app.sessionBrowser.action.SessionBrowserClearFilters"));
+    }
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         SessionBrowser sessionBrowser = getSessionBrowser(e);

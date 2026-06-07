@@ -119,7 +119,7 @@ public final class DBObjectSpec extends DBObjectSpecBase{
     }
 
     public String getObjectTypeName() {
-        return getObjectType().getName();
+        return getObjectType().getDisplayName();
     }
 
     public void setObjectName(String objectName) {
@@ -221,5 +221,4 @@ public final class DBObjectSpec extends DBObjectSpecBase{
         DBObjectAttribute<T> attribute = findAttribute(attributeId);
         return attribute == null ? null : attribute.getValue();
     }
-
 }

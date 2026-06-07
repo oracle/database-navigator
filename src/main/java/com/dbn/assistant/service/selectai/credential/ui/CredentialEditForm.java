@@ -54,13 +54,15 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
 import static com.dbn.common.util.Strings.isNotEmpty;
-import static com.dbn.common.util.Strings.startsWith;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBAttributeType.FINGERPRINT;
 import static com.dbn.object.type.DBAttributeType.PASSWORD;
 import static com.dbn.object.type.DBAttributeType.PRIVATE_KEY;
 import static com.dbn.object.type.DBAttributeType.TENANCY_OCID;
 import static com.dbn.object.type.DBAttributeType.USER_NAME;
 import static com.dbn.object.type.DBAttributeType.USER_OCID;
+import static com.dbn.oci.util.OciIdentifiers.isTenancyOcid;
+import static com.dbn.oci.util.OciIdentifiers.isUserOcid;
 
 /**
  * A dialog window for creating new AI credentials.
@@ -155,9 +157,9 @@ public class CredentialEditForm extends DBNFormBase {
         addTextValidation(tokenCredentialPasswordField, c -> !isToken() || isNotEmpty(c), txt("cfg.assistant.error.TokenEmpty"));
 
         addTextValidation(ociCredentialUserOcidField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.UserOcidEmpty"));
-        addTextValidation(ociCredentialUserOcidField, c -> !isOci() || startsWith(c, "ocid1.user.oc1."), txt("cfg.assistant.error.UserOcidInvalid"));
+        addTextValidation(ociCredentialUserOcidField, c -> !isOci() || isUserOcid(c), txt("cfg.assistant.error.UserOcidInvalid"));
         addTextValidation(ociCredentialTenancyOcidField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.UserTenancyOcidEmpty"));
-        addTextValidation(ociCredentialTenancyOcidField, c -> !isOci() || startsWith(c, "ocid1.tenancy.oc1."), txt("cfg.assistant.error.UserTenancyOcidInvalid"));
+        addTextValidation(ociCredentialTenancyOcidField, c -> !isOci() || isTenancyOcid(c), txt("cfg.assistant.error.UserTenancyOcidInvalid"));
         addTextValidation(ociCredentialFingerprintField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.FingerprintEmpty"));
         addTextValidation(ociCredentialPrivateKeyField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.PrivateKeyEmpty"));
     }
@@ -189,8 +191,8 @@ public class CredentialEditForm extends DBNFormBase {
             credentialTypeComboBox.addActionListener((e) -> updateFieldAvailability());
         }
 
-        ociCredentialUserOcidField.getEmptyText().setText("ocid1.user.oc1...");
-        ociCredentialTenancyOcidField.getEmptyText().setText("ocid1.tenancy.oc1...");
+        ociCredentialUserOcidField.getEmptyText().setText(txt("cfg.assistant.placeholder.UserOcidExample"));
+        ociCredentialTenancyOcidField.getEmptyText().setText(txt("cfg.assistant.placeholder.TenancyOcidExample"));
     }
 
     /**

@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
 import static com.dbn.editor.data.DataLoadInstruction.PRESERVE_CHANGES;
 import static com.dbn.editor.data.DataLoadInstruction.USE_CURRENT_FILTER;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetChangesNotificationPanel extends DatasetEditorNotificationPanel {
     private static final DataLoadInstructions RELOAD_INSTRUCTIONS = new DataLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
@@ -33,9 +34,9 @@ public class DatasetChangesNotificationPanel extends DatasetEditorNotificationPa
     public DatasetChangesNotificationPanel(DBTable table, @NotNull DatasetEditor editor) {
         super(table, editor, MessageType.WARNING);
 
-        setText("The content of the " + table.getQualifiedNameWithType() + " has changed since the last time it was loaded.");
-        createActionLabel("Reload data", () -> editor.loadData(RELOAD_INSTRUCTIONS));
-        createActionLabel("Show events", () -> {
+        setText(txt("ntf.dataEditor.warning.ContentChanged", table.getQualifiedNameWithType()));
+        createActionLabel(txt("app.dataEditor.action.ReloadData"), () -> editor.loadData(RELOAD_INSTRUCTIONS));
+        createActionLabel(txt("app.dataEditor.action.ShowEvents"), () -> {
             EventNotificationManager eventNotificationManager = EventNotificationManager.getInstance(getProject());
             eventNotificationManager.showTableNotifications(table);
 

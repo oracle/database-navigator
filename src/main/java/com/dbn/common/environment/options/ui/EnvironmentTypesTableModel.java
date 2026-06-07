@@ -32,6 +32,8 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import java.awt.Color;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class EnvironmentTypesTableModel extends DBNEditableTableModel {
     private EnvironmentTypeBundle environmentTypes;
     private final ProjectRef project;
@@ -78,11 +80,11 @@ public class EnvironmentTypesTableModel extends DBNEditableTableModel {
 
     @Override
     public String getColumnName(int columnIndex) {
-        return columnIndex == 0 ? "Name" :
-               columnIndex == 1 ? "Description" :
-               columnIndex == 2 ? "Readonly Data" :
-               columnIndex == 3 ? "Readonly Code" :
-               columnIndex == 4 ? "Color" : null;
+        return columnIndex == 0 ? txt("app.shared.column.Name") :
+               columnIndex == 1 ? txt("app.shared.column.Description") :
+               columnIndex == 2 ? txt("cfg.environment.column.ReadonlyData") :
+               columnIndex == 3 ? txt("cfg.environment.column.ReadonlyCode") :
+               columnIndex == 4 ? txt("app.shared.column.Color") : null;
     }
 
     @Override

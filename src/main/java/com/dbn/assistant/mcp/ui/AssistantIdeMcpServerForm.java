@@ -47,6 +47,7 @@ import static com.dbn.assistant.mcp.ide.IdeMcpServerManager.MCP_SERVER_PLUGIN_ID
 import static com.dbn.common.thread.Dispatch.async;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.CheckBoxes.onSelectionChange;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantIdeMcpServerForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -89,9 +90,9 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
 
     private void initAvailabilityLinks() {
         serverStatusLabel.setForeground(JBUI.CurrentTheme.ContextHelp.FOREGROUND);
-        installHyperlink.setHyperlinkText("Install");
-        configHyperlink.setHyperlinkText("Enable");
-        approvalsHyperlink.setHyperlinkText("Tool approvals");
+        installHyperlink.setHyperlinkText(txt("cfg.assistant.link.Install"));
+        configHyperlink.setHyperlinkText(txt("cfg.assistant.link.Enable"));
+        approvalsHyperlink.setHyperlinkText(txt("cfg.assistant.link.ToolApprovals"));
         onHyperlinkAccess(installHyperlink, e -> installMcpServerPlugin());
         onHyperlinkAccess(configHyperlink, e -> enableMcpServer());
         onHyperlinkAccess(approvalsHyperlink, e -> openMcpToolApprovals());
@@ -118,21 +119,21 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
             installHyperlink.setVisible(enabled);
 
             serverStatusLabel.setVisible(enabled);
-            serverStatusLabel.setText("MCP Server plugin not installed");
+            serverStatusLabel.setText(txt("cfg.assistant.label.McpServerPluginNotInstalled"));
             serverStatusLabel.setIcon(Icons.COMMON_STATUS_ERROR);
         } else if (a == DISABLED) {
             configHyperlink.setVisible(enabled);
-            configHyperlink.setHyperlinkText("Enable");
+            configHyperlink.setHyperlinkText(txt("cfg.assistant.link.Enable"));
 
             serverStatusLabel.setVisible(enabled);
-            serverStatusLabel.setText("MCP Server not enabled");
+            serverStatusLabel.setText(txt("cfg.assistant.label.McpServerNotEnabled"));
             serverStatusLabel.setIcon(Icons.COMMON_STATUS_ERROR);
         } else if (a == ENABLED) {
             configHyperlink.setVisible(enabled);
-            configHyperlink.setHyperlinkText("Configure");
+            configHyperlink.setHyperlinkText(txt("cfg.assistant.link.Configure"));
 
             serverStatusLabel.setVisible(enabled);
-            serverStatusLabel.setText("MCP Server active");
+            serverStatusLabel.setText(txt("cfg.assistant.label.McpServerActive"));
             serverStatusLabel.setIcon(Icons.COMMON_STATUS_SUCCESS);
             approvalsHyperlink.setVisible(enabled);
         }

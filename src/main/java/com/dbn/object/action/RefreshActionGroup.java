@@ -23,9 +23,11 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class RefreshActionGroup  extends DefaultActionGroup {
     public RefreshActionGroup(DBObject object) {
-        super("Refresh", true);
+        super(txt("app.objects.action.Refresh"), true);
         getTemplatePresentation().setIcon(Icons.ACTION_REFRESH);
         DBObjectList objectList = (DBObjectList) object.getParent();
         add(new ObjectsReloadAction(objectList));

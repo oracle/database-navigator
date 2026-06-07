@@ -24,6 +24,8 @@ import com.dbn.object.type.DBObjectType;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBSynonymPropertiesProvider extends DBGenericObjectPropertiesProvider<DBSynonym> {
     public DBSynonymPropertiesProvider() {
         super(DBObjectType.SYNONYM);
@@ -34,7 +36,7 @@ public class DBSynonymPropertiesProvider extends DBGenericObjectPropertiesProvid
         List<DBObjectProperty> properties = super.getProperties(synonym);
         DBObject underlyingObject = synonym.getUnderlyingObject();
         if (underlyingObject != null) {
-            properties.add(0, new DBObjectPresentableProperty("Underlying object", underlyingObject, true));
+            properties.add(0, new DBObjectPresentableProperty(txt("app.objects.property.UnderlyingObject"), underlyingObject, true));
         }
         return properties;
     }

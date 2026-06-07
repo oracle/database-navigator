@@ -28,6 +28,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class EventRegistrationReloadAction extends BasicAction {
 
+    public EventRegistrationReloadAction() {
+        super(txt("app.eventRegistration.action.EventRegistrationsReload"));
+    }
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         EventRegistrationsForm registrationsForm = getRegistrationsForm(e);

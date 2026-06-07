@@ -25,6 +25,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class DBObjectPresentableProperty extends DBObjectPropertyBase {
@@ -45,7 +47,7 @@ public class DBObjectPresentableProperty extends DBObjectPropertyBase {
 
     @Override
     public String getName() {
-        if (object == null) return name == null ? "Undefined" : name;
+        if (object == null) return name == null ? txt("app.objects.property.Undefined") : name;
 
         return name == null ? object.getObjectType().getTitleCasedName() : name;
     }

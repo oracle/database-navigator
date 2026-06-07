@@ -31,6 +31,7 @@ import java.awt.Component;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBNTableGutterRenderer implements ListCellRenderer {
     protected JLabel textLabel;
@@ -71,7 +72,7 @@ public class DBNTableGutterRenderer implements ListCellRenderer {
                 Colors.getTableGutterForeground());
 
         textLabel.setText(Integer.toString(index + 1));
-        setAccessibleName(mainPanel, "Row index " + (index + 1));
+        setAccessibleName(mainPanel, txt("app.shared.aria.RowIndex", index + 1));
 
         adjustListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         return mainPanel;

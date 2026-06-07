@@ -30,6 +30,10 @@ import org.jetbrains.annotations.Nullable;
 @BackgroundUpdate
 public abstract class AbstractExecutionResultAction extends ContextAction<StatementExecutionCursorResult> {
 
+    protected AbstractExecutionResultAction(String text) {
+        super(text);
+    }
+
     @Nullable
     protected StatementExecutionCursorResult getContext(@NotNull AnActionEvent e) {
         StatementExecutionCursorResult result = e.getData(DataKeys.STATEMENT_EXECUTION_CURSOR_RESULT);

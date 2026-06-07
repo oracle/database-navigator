@@ -6,7 +6,7 @@
       <xy x="20" y="20" width="708" height="325"/>
     </constraints>
     <properties/>
-    <border type="none" title="Script Execution"/>
+    <border type="none" title-resource-bundle="messages/DBNResources" title-key="cfg.execution.title.ScriptExecution"/>
     <children>
       <vspacer id="d81a3">
         <constraints>
@@ -21,7 +21,7 @@
         </constraints>
         <properties>
           <labelFor value="297f2"/>
-          <text value="Execution &amp;timeout"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.execution.label.ExecutionTimeout"/>
         </properties>
       </component>
       <component id="297f2" class="javax.swing.JTextField" binding="executionTimeoutTextField">
@@ -40,7 +40,7 @@
           <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="seconds (0 = no timeout)"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.execution.label.Seconds0NoTimeout"/>
         </properties>
       </component>
       <component id="cae11" class="javax.swing.JLabel" binding="cmdLineInterfaceLabel">
@@ -48,7 +48,7 @@
           <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Command line interfaces"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.execution.label.CommandLineInterfaces"/>
         </properties>
       </component>
       <hspacer id="97b7c">

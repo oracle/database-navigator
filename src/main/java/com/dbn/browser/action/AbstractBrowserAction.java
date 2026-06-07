@@ -27,6 +27,10 @@ import org.jetbrains.annotations.Nullable;
 @BackgroundUpdate
 public abstract class AbstractBrowserAction extends ProjectAction {
 
+    protected AbstractBrowserAction(String text) {
+        super(text);
+    }
+
     @Nullable
     protected static DatabaseBrowserTree getActiveBrowserTree(@NotNull Project project) {
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);

@@ -27,9 +27,14 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
+import static com.dbn.nls.NlsResources.txt;
 
 
 public class JavaExecutionHistoryAction extends ProjectAction {
+
+	public JavaExecutionHistoryAction() {
+		super(txt("app.menu.action.JavaExecutionHistory"));
+	}
 
 	@Override
 	protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
@@ -56,4 +61,3 @@ public class JavaExecutionHistoryAction extends ProjectAction {
 		return JAVA_VIRTUAL_MACHINE.isSupported(project);
 	}
 }
-

@@ -38,6 +38,10 @@ import static com.dbn.database.DatabaseFeature.VECTOR_EMBEDDING;
 import static com.dbn.nls.NlsResources.txt;
 
 public class VectorToolboxOpenAction extends ProjectAction {
+    public VectorToolboxOpenAction() {
+        super(txt("app.menu.action.OpenVectorToolbox"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         boolean visible = isVisible(project);
@@ -66,7 +70,7 @@ public class VectorToolboxOpenAction extends ProjectAction {
         List<SelectConnectionAction> actions = convert(connections, c -> new SelectConnectionAction(c));
 
         popupBuilder(actions, e).
-                withTitle("Select Vector Toolbox Connection").
+                withTitle(txt("app.vector.title.SelectConnection")).
                 withSpeedSearch().
                 buildAndShowCentered();
     }

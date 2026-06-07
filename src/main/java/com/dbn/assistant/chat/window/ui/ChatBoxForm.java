@@ -73,6 +73,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Database Assistant ChatBox component
@@ -197,7 +198,7 @@ public class ChatBoxForm extends DBNFormBase {
     private void initHeaderForm() {
         ConnectionHandler connection = getConnection();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
-        headerForm.setSelector("Select Connection", createConnectionActions());
+        headerForm.setSelector(txt("app.assistant.tooltip.SelectConnection"), createConnectionActions());
         headerForm.setActions(createAssistantTypeActions());
 
         headerPanel.add(headerForm.getComponent());

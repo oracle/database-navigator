@@ -30,6 +30,7 @@ import static com.dbn.assistant.chat.ChatAvailability.DISABLED_PROFILE_SELECTED;
 import static com.dbn.assistant.chat.ChatAvailability.NOT_INITIALIZED;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_AVAILABLE;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Action for refreshing (reloading) the AI-assistant profiles
@@ -37,6 +38,10 @@ import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
  * @author Dan Cioca (Oracle)
  */
 public class ProfilesRefreshAction extends AbstractChatBoxAction {
+    public ProfilesRefreshAction() {
+        super(txt("app.assistant.action.AssistantReloadProfiles"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
@@ -51,6 +56,7 @@ public class ProfilesRefreshAction extends AbstractChatBoxAction {
         boolean enabled = isEnabled(e);
 
         Presentation presentation = e.getPresentation();
+        presentation.setText(txt("app.assistant.action.ReloadProfiles"));
         presentation.setEnabled(enabled);
     }
 

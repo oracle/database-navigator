@@ -20,6 +20,7 @@ import com.dbn.common.thread.Synchronized;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.util.Range;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -120,7 +121,7 @@ public class Sockets {
         });
     }
 
-    private static boolean tryToBindPort(String hostName, int port) {
+    private static boolean tryToBindPort(@NonNls String hostName, int port) {
         ServerSocket socket = null;
         try  {
             InetAddress address = InetAddress.getByName(hostName);

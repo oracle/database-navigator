@@ -23,10 +23,13 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
+
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class ConnectionAuthenticationDialog extends DBNDialog<ConnectionAuthenticationForm> {
@@ -34,7 +37,7 @@ public class ConnectionAuthenticationDialog extends DBNDialog<ConnectionAuthenti
     private final WeakRef<AuthenticationInfo> authenticationInfo; // TODO dialog result - Disposable.nullify(...)
 
     public ConnectionAuthenticationDialog(Project project, @Nullable ConnectionHandler connection, @NotNull AuthenticationInfo authenticationInfo) {
-        super(project, "Enter credentials", true);
+        super(project, txt("msg.connection.title.EnterCredentials"), true);
         this.authenticationInfo = WeakRef.of(authenticationInfo);
         setModal(true);
         setResizable(true);
@@ -68,8 +71,9 @@ public class ConnectionAuthenticationDialog extends DBNDialog<ConnectionAuthenti
 
                 @NotNull
                 @Override
+                @Nls
                 public String getDoNotShowMessage() {
-                    return "Remember credentials";
+                    return txt("msg.connection.option.RememberCredentials");
                 }
             });
         }
@@ -94,7 +98,7 @@ public class ConnectionAuthenticationDialog extends DBNDialog<ConnectionAuthenti
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Connect");
+        renameAction(getOKAction(), txt("msg.shared.button.Connect"));
         return actions(
                 getOKAction(),
                 getCancelAction());

@@ -27,6 +27,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @EqualsAndHashCode(callSuper = false)
 public class NavigationSettings extends CompositeProjectConfiguration<ProjectSettings, NavigationSettingsForm> implements TopLevelConfig {
     private final @Getter(lazy = true) ObjectsLookupSettings objectsLookupSettings = new ObjectsLookupSettings(this);

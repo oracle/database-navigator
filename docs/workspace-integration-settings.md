@@ -47,7 +47,11 @@ Workspace Integration settings control how DBN connects local project files to d
 
 DDL Files settings are project-level settings that control DDL attachment behavior and file type associations.
 
+![DDL Files settings page](./img/settings-ddl-files.png)
+
 ### General
+
+![DDL Files general settings](./img/settings-ddl-files-general.png)
 
 | Setting | Default | Description |
 | --- | --- | --- |
@@ -60,6 +64,8 @@ DDL Files settings are project-level settings that control DDL attachment behavi
 When `Synchronize DDL files` is enabled, DBN enables `Make DDL scripts rerunnable` and `Use qualified names`. Synchronization overwrites attached DDL file content with generated DDL from the linked database object.
 
 ### Extensions
+
+![DDL Files extension settings](./img/settings-ddl-files-extensions.png)
 
 | DDL file type | Default extension | Language file type | Content scope |
 | --- | --- | --- | --- |

@@ -23,6 +23,8 @@ import com.dbn.language.common.DBLanguageFileType;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SQLFileType extends DBLanguageFileType {
     public static final SQLFileType INSTANCE = new SQLFileType();
 
@@ -30,7 +32,7 @@ public class SQLFileType extends DBLanguageFileType {
         super(
             SQLLanguage.INSTANCE,
             Files.SQL_FILE_EXTENSIONS,
-            "SQL file (DBN)",
+            txt("app.codeEditor.text.SqlFileDescription"),
             DBContentType.CODE);
     }
 

@@ -27,6 +27,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ProjectDefaultSettingsImportAction extends ProjectAction {
 
+    public ProjectDefaultSettingsImportAction() {
+        super(txt("app.menu.action.ImportSettings"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ProjectSettingsManager projectSettingsManager = ProjectSettingsManager.getInstance(project);

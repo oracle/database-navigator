@@ -28,6 +28,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class EventRegistrationClearFiltersAction extends BasicAction {
 
+    public EventRegistrationClearFiltersAction() {
+        super(txt("app.eventRegistration.action.EventRegistrationsClearFilters"));
+    }
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         EventRegistrationsForm registrationsForm = getRegistrationsForm(e);
@@ -39,7 +43,7 @@ public class EventRegistrationClearFiltersAction extends BasicAction {
     @Override
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.sessions.action.ClearFilter"));
+        presentation.setText(txt("app.eventRegistration.action.ClearFilters"));
         presentation.setIcon(Icons.DATASET_FILTER_CLEAR);
 
         presentation.setEnabled(isEnabled(e));

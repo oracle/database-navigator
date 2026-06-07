@@ -31,6 +31,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CodeCompletionFiltersSettingsForm extends CompositeConfigurationEditorForm<CodeCompletionFiltersSettings> {
 
     private JLabel basicCompletionLabel;
@@ -56,11 +58,11 @@ public class CodeCompletionFiltersSettingsForm extends CompositeConfigurationEdi
         String basicCompletionShortcut = " (" + KeymapUtil.getShortcutsText(basicShortcuts) + ")";
         String extendedCompletionShortcut = " (" + KeymapUtil.getShortcutsText(extendedShortcuts) + ")";
 
-        basicCompletionLabel.setText("Basic" + basicCompletionShortcut);
-        extendedCompletionLabel.setText("Extended" + extendedCompletionShortcut);
+        basicCompletionLabel.setText(txt("cfg.codeCompletion.label.Basic", basicCompletionShortcut));
+        extendedCompletionLabel.setText(txt("cfg.codeCompletion.label.Extended", extendedCompletionShortcut));
 
-        Accessibility.setAccessibleName(basicCompletionLabel, "Basic Code Completion" + basicCompletionShortcut);
-        Accessibility.setAccessibleName(extendedCompletionLabel, "Extended Code Completion" + extendedCompletionShortcut);
+        Accessibility.setAccessibleName(basicCompletionLabel, txt("cfg.codeEditor.aria.BasicCodeCompletion", basicCompletionShortcut));
+        Accessibility.setAccessibleName(extendedCompletionLabel, txt("cfg.codeEditor.aria.ExtendedCodeCompletion", extendedCompletionShortcut));
 
         basicCompletionLabel.setLabelFor(basicFilterSettings.getPreferredFocusedComponent());
         extendedCompletionLabel.setLabelFor(extendedFilterSettings.getPreferredFocusedComponent());

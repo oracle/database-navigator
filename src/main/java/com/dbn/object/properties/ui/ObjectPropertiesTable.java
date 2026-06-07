@@ -36,6 +36,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectPropertiesTable extends DBNTable<DBNTableModel> implements Borderless{
     ObjectPropertiesTable(DBNForm parent, DBNTableModel tableModel) {
@@ -49,7 +50,7 @@ public class ObjectPropertiesTable extends DBNTable<DBNTableModel> implements Bo
         setProportionalColumnWidth(0, 30);
         setProportionalColumnWidth(1, 70);
 
-        setAccessibleName(this, "Object Properties");
+        setAccessibleName(this, txt("app.objects.aria.ObjectProperties"));
     }
 
     private MouseListener createMouseListener() {

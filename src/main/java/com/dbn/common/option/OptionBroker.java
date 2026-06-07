@@ -19,7 +19,7 @@ package com.dbn.common.option;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.routine.Consumer;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.Nls;
+import com.intellij.openapi.util.NlsContexts.Checkbox;
 
 import javax.swing.Icon;
 
@@ -28,7 +28,7 @@ public interface OptionBroker<T> extends RememberOption, PersistentConfiguration
 
     OptionBroker<T> withIcon(Icon icon);
 
-    OptionBroker<T> withDoNotShowMessage(@Nls String doNotShowMessage);
+    OptionBroker<T> withDoNotShowMessage(@Checkbox String doNotShowMessage);
 
     T getSelectedOption();
 

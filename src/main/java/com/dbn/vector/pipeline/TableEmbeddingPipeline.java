@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.connection.Resources.commit;
 import static com.dbn.connection.Resources.rollbackSilently;
+import static com.dbn.nls.NlsResources.txt;
 
 
 public class TableEmbeddingPipeline implements EmbeddingPipeline {
@@ -36,7 +37,7 @@ public class TableEmbeddingPipeline implements EmbeddingPipeline {
 
             String metadata = tableProcessingService.buildRowMetadata(request, tableSource);
             tableResult.setMetadata(metadata);
-            context.getProgressIndicator().setText2("Processing table " + tableResult.getName());
+            context.getProgressIndicator().setText2(txt("prc.vector.text.ProcessingTable", tableResult.getName()));
 
             // Execute the embedding with batching
             embedTableDataInBatches(context, request, tableResult);
@@ -66,7 +67,7 @@ public class TableEmbeddingPipeline implements EmbeddingPipeline {
                 if (progressIndicator.isCanceled()) break;
 
                 batchNumber++;
-                progressIndicator.setText2("Processing table " + result.getName() + " (batch " + batchNumber + " / rows embedded " + totalRowsEmbedded + ")");
+                progressIndicator.setText2(txt("prc.vector.text.ProcessingTableBatch", result.getName(), batchNumber, totalRowsEmbedded));
 
                 // Process one batch
                 DatabaseVectorInterface vectorInterface = request.getConnection().getVectorInterface();

@@ -31,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Strings.toLowerCase;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SourceCodeOutdatedNotificationPanel extends SourceCodeEditorNotificationPanel{
     public SourceCodeOutdatedNotificationPanel(DBSourceCodeVirtualFile sourceCodeFile, @NotNull FileEditor fileEditor, SourceCodeEditor sourceCodeEditor) {
@@ -41,16 +42,16 @@ public class SourceCodeOutdatedNotificationPanel extends SourceCodeEditorNotific
                 DatabaseFeature.OBJECT_CHANGE_MONITORING.isSupported(editableObject) ?
                         toLowerCase(DateFormatUtil.formatPrettyDateTime(sourceCodeFile.getDatabaseChangeTimestamp())) : "";
 
-
-        String text = "Outdated version";
         boolean mergeRequired = sourceCodeFile.isMergeRequired();
-        if (sourceCodeFile.isModified() && !mergeRequired) {
-            text += " (MERGED)";
-        }
-        text += ". The " + editableObject.getQualifiedNameWithType() + " was changed in database by another user (" + presentableChangeTime + ")";
+        String text = txt(
+                sourceCodeFile.isModified() && !mergeRequired ?
+                        "ntf.codeEditor.warning.OutdatedVersionMerged" :
+                        "ntf.codeEditor.warning.OutdatedVersion",
+                editableObject.getQualifiedNameWithType(),
+                presentableChangeTime);
 
         setText(text);
-        createActionLabel("Show diff", () -> {
+        createActionLabel(txt("app.codeEditor.action.ShowDiff"), () -> {
             if (isNotValid(project)) return;
 
             SourceCodeDiffManager diffManager = SourceCodeDiffManager.getInstance(project);
@@ -58,7 +59,7 @@ public class SourceCodeOutdatedNotificationPanel extends SourceCodeEditorNotific
         });
 
         if (mergeRequired) {
-            createActionLabel("Merge", () -> {
+            createActionLabel(txt("app.codeEditor.action.Merge"), () -> {
                 if (isNotValid(project)) return;
 
                 SourceCodeDiffManager diffManager = SourceCodeDiffManager.getInstance(project);
@@ -66,7 +67,9 @@ public class SourceCodeOutdatedNotificationPanel extends SourceCodeEditorNotific
             });
         }
 
-        createActionLabel(sourceCodeFile.isModified() ? "Revert local changes" : "Reload", () -> {
+        createActionLabel(sourceCodeFile.isModified() ?
+                txt("app.codeEditor.action.RevertLocalChanges") :
+                txt("app.codeEditor.action.Reload"), () -> {
             if (isNotValid(project)) return;
 
             SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);

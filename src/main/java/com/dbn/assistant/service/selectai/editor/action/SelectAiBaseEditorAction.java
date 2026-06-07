@@ -49,6 +49,10 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 @BackgroundUpdate
 public abstract class SelectAiBaseEditorAction extends ProjectAction {
 
+    protected SelectAiBaseEditorAction(String text) {
+        super(text);
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         Editor editor = getEditor(e);

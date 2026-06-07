@@ -25,6 +25,8 @@ import com.dbn.object.type.DBObjectType;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBAIProfilePropertiesProvider extends DBGenericObjectPropertiesProvider<DBAIProfile> {
     public DBAIProfilePropertiesProvider() {
         super(DBObjectType.AI_PROFILE);
@@ -33,14 +35,14 @@ public class DBAIProfilePropertiesProvider extends DBGenericObjectPropertiesProv
     @Override
     public List<DBObjectProperty> getProperties(DBAIProfile profile) {
         List<DBObjectProperty> properties = super.getProperties(profile);
-        properties.add(0, new SimplePresentableProperty("AI provider", profile.getProvider()));
-        properties.add(1, new SimplePresentableProperty("AI model", profile.getModel()));
-        properties.add(2, new SimplePresentableProperty("Enabled", profile.isEnabled()));
-        properties.add(3, new SimplePresentableProperty("Interactive", profile.isInteractive()));
-        properties.add(4, new SimplePresentableProperty("Temperature", profile.getTemperature()));
+        properties.add(0, new SimplePresentableProperty(txt("app.objects.property.AiProvider"), profile.getProvider()));
+        properties.add(1, new SimplePresentableProperty(txt("app.objects.property.AiModel"), profile.getModel()));
+        properties.add(2, new SimplePresentableProperty(txt("app.objects.property.Enabled"), profile.isEnabled()));
+        properties.add(3, new SimplePresentableProperty(txt("app.objects.property.Interactive"), profile.isInteractive()));
+        properties.add(4, new SimplePresentableProperty(txt("app.objects.property.Temperature"), profile.getTemperature()));
         DBCredential credential = profile.getCredential();
         if (credential != null) {
-            properties.add(5, new DBObjectPresentableProperty("Credential", credential, true));
+            properties.add(5, new DBObjectPresentableProperty(txt("app.objects.property.Credential"), credential, true));
         }
         return properties;
     }

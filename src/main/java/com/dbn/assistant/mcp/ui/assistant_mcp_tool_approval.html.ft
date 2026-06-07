@@ -11,16 +11,16 @@
     </style>
 </head>
 <body>
-    This is an overview of all tools supplied by the MCP Server "${MCP_SERVER_NAME}".<br>
-    It allows you to determine which tools the language model can access.
+    This is an overview of all tools supplied by the MCP server "${MCP_SERVER_NAME}".<br>
+    Use this page to determine which tools the language model can access.
 
     <br><br>
-    You can manage tool access by enabling or disabling individual tools.<br>
+    Manage tool access by enabling or disabling individual tools.<br>
     The status of a tool determines its visibility to the LLM:
     <ul>
         <li>Tools marked as "Approved" will be invoked automatically.</li>
-        <li>Tools marked as "Prompted" will be prompted for approval before every invocation.</li>
-        <li>Blocked tools will not be visible to the LLM.</li>
+        <li>Tools marked as "Prompted" will require approval before every invocation.</li>
+        <li>Tools marked as "Blocked" will not be visible to the LLM.</li>
     </ul>
 </body>
 </html>

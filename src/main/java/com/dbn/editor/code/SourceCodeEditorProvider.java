@@ -31,6 +31,7 @@ import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
 import static com.dbn.editor.DBContentType.CODE;
 import static com.dbn.editor.DBContentType.CODE_AND_DATA;
 import static com.dbn.editor.DBContentType.CODE_AND_JSON;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SourceCodeEditorProvider extends SourceCodeEditorProviderBase {
 
@@ -67,7 +68,7 @@ public class SourceCodeEditorProvider extends SourceCodeEditorProviderBase {
 
     @Override
     public String getName() {
-        return "Code";
+        return txt("app.codeEditor.title.Code");
     }
 
     @Override

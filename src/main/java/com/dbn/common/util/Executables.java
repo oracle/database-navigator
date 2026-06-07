@@ -18,6 +18,7 @@ package com.dbn.common.util;
 
 import com.intellij.openapi.util.SystemInfo;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -60,6 +61,7 @@ public class Executables {
 
         if (!SystemInfo.isWindows || executablePath.contains(".")) return executableNames;
 
+        @NonNls
         String pathExt = Environment.getVariable("PATHEXT");
         if (isEmptyOrSpaces(pathExt)) pathExt = ".EXE;.BAT;.CMD;.COM";
 

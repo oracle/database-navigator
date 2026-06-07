@@ -18,6 +18,7 @@ package com.dbn.common.ui.misc;
 
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
+import org.jetbrains.annotations.Nls;
 
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleRole;
@@ -31,7 +32,7 @@ import java.awt.event.MouseListener;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 public class DBNButton extends JLabel {
-    public DBNButton(Icon image, String name) {
+    public DBNButton(Icon image, @Nls String name) {
         super(image);
         setBorder(Borders.EMPTY_BORDER);
         setCursor(Cursors.handCursor());

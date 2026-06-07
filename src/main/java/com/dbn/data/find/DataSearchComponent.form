@@ -40,7 +40,7 @@
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="[results]"/>
+                  <text resource-bundle="messages/DBNResources" key="app.dataEditor.placeholder.Results"/>
                 </properties>
               </component>
               <grid id="292f8" binding="actionsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
@@ -63,7 +63,7 @@
                   <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="[close]"/>
+                  <text resource-bundle="messages/DBNResources" key="app.dataEditor.placeholder.Close"/>
                 </properties>
               </component>
               <component id="44c48" class="javax.swing.JSeparator">

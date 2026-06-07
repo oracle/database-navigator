@@ -26,6 +26,7 @@ import java.util.List;
 
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBTriggerPropertiesProvider extends DBGenericObjectPropertiesProvider<DBTrigger> {
     public DBTriggerPropertiesProvider() {
@@ -39,10 +40,11 @@ public class DBTriggerPropertiesProvider extends DBGenericObjectPropertiesProvid
         events.append(" ");
         DBTriggerEvent[] triggerEvents = trigger.getTriggerEvents();
         for (DBTriggerEvent triggeringEvent : triggerEvents) {
-            if (triggeringEvent != triggerEvents[0]) events.append(" or ");
+            if (triggeringEvent != triggerEvents[0]) events.append(' ').append(txt("app.objects.propertyValue.Or")).append(' ');
             events.append(cachedUpperCase(triggeringEvent.getName()));
         }
 
-        properties.add(0, new SimplePresentableProperty("Trigger event", events.toString()));        return properties;
+        properties.add(0, new SimplePresentableProperty(txt("app.objects.property.TriggerEvent"), events.toString()));
+        return properties;
     }
 }

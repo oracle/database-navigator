@@ -19,11 +19,12 @@ package com.dbn.common;
 import com.dbn.common.constant.PseudoConstant;
 import com.dbn.common.constant.PseudoConstantConverter;
 import com.dbn.common.util.UUIDs;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Objects;
 
 public final class EntityId extends PseudoConstant<EntityId> {
-    private EntityId(String id) {
+    private EntityId(@NonNls String id) {
         super(id);
     }
 
@@ -31,7 +32,7 @@ public final class EntityId extends PseudoConstant<EntityId> {
         return EntityId.get(compact ? UUIDs.compact() : UUIDs.regular());
     }
 
-    public static EntityId get(String id) {
+    public static EntityId get(@NonNls String id) {
         return PseudoConstant.get(EntityId.class, id);
     }
 

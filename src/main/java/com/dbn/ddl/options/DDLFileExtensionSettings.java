@@ -37,6 +37,7 @@ import static com.dbn.editor.DBContentType.CODE;
 import static com.dbn.editor.DBContentType.CODE_BODY;
 import static com.dbn.editor.DBContentType.CODE_SPEC;
 import static com.dbn.editor.DBContentType.CODE_SPEC_AND_BODY;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class DDLFileExtensionSettings extends BasicProjectConfiguration<DDLFileSettings, DDLFileExtensionSettingsForm> {

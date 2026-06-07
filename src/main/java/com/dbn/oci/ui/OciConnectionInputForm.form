@@ -14,7 +14,7 @@
         </constraints>
         <properties>
           <labelFor value="efa45"/>
-          <text value="&amp;TLS type"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.oci.label.TLSType"/>
         </properties>
       </component>
       <component id="efa45" class="com.intellij.openapi.ui.ComboBox" binding="authenticationTypeComboBox">
@@ -29,7 +29,7 @@
         </constraints>
         <properties>
           <labelFor value="f95e7"/>
-          <text value="&amp;Wallet type"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.oci.label.WalletType"/>
         </properties>
       </component>
       <component id="f95e7" class="com.intellij.openapi.ui.ComboBox" binding="walletTypeComboBox">
@@ -44,7 +44,7 @@
         </constraints>
         <properties>
           <labelFor value="4ef08"/>
-          <text value="&amp;Wallet location"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.oci.label.WalletLocation"/>
         </properties>
       </component>
       <component id="4ef08" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="walletLocationField">
@@ -63,7 +63,7 @@
           <foreground color="-8092281"/>
           <horizontalAlignment value="2"/>
           <inheritsPopupMenu value="true"/>
-          <text value="Specify an empty folder to make the plugin download a new wallet"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.oci.text.WalletDownloadHint"/>
           <verticalAlignment value="3"/>
           <verticalTextPosition value="3"/>
         </properties>
@@ -73,7 +73,7 @@
           <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Specify password to download credentials ?"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.oci.label.DownloadCredentialsPassword"/>
           <visible value="true"/>
         </properties>
       </component>
@@ -83,7 +83,7 @@
         </constraints>
         <properties>
           <labelFor value="c07f2"/>
-          <text value="&amp;Password"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.oci.label.Password"/>
           <visible value="true"/>
         </properties>
       </component>
@@ -99,7 +99,7 @@
         </constraints>
         <properties>
           <labelFor value="c9019"/>
-          <text value="&amp;Confirm password"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.oci.label.ConfirmPassword"/>
           <visible value="true"/>
         </properties>
       </component>

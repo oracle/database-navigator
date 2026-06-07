@@ -30,6 +30,7 @@ import java.awt.event.ActionEvent;
 
 import static com.dbn.help.HelpTopic.JAVA_DEBUGGING;
 import static com.dbn.help.HelpTopic.JAVA_EXECUTION;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JavaExecutionInputDialog extends DBNDialog<JavaExecutionInputForm> {
     private final JavaExecutionInput executionInput;
@@ -37,7 +38,9 @@ public class JavaExecutionInputDialog extends DBNDialog<JavaExecutionInputForm> 
     private final Runnable executor;
 
     public JavaExecutionInputDialog(@NotNull JavaExecutionInput executionInput, @NotNull DBDebuggerType debuggerType, @NotNull Runnable executor) {
-        super(executionInput.getProject(), (debuggerType.isDebug() ? "Debug" : "Execute") + " method", true);
+        super(executionInput.getProject(), debuggerType.isDebug() ?
+                txt("msg.execution.title.DebugMethod") :
+                txt("msg.execution.title.ExecuteMethod"), true);
         this.executionInput = executionInput;
         this.debuggerType = debuggerType;
         this.executor = executor;
@@ -76,8 +79,12 @@ public class JavaExecutionInputDialog extends DBNDialog<JavaExecutionInputForm> 
 
     private class ExecuteAction extends AbstractAction {
         ExecuteAction() {
-            super(debuggerType.isDebug() ? "Debug" : "Execute",
-                    debuggerType.isDebug() ? Icons.METHOD_EXECUTION_DEBUG : Icons.METHOD_EXECUTION_RUN);
+            super(debuggerType.isDebug() ?
+                            txt("msg.shared.button.Debug") :
+                            txt("msg.shared.button.Execute"),
+                    debuggerType.isDebug() ?
+                            Icons.METHOD_EXECUTION_DEBUG :
+                            Icons.METHOD_EXECUTION_RUN);
             makeFocusAction(this);
         }
 

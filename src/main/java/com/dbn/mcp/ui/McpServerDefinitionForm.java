@@ -27,7 +27,6 @@ import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.util.FileChoosers;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Titles;
 import com.dbn.connection.ConnectionHandler;
@@ -67,8 +66,10 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class McpServerDefinitionForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -122,10 +123,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hintContent = TextContent.plain(
-                "MCP Server Builder helps you define SQL-backed MCP tools for this database connection.\n\n" +
-                        "Each tool exposes a named SQL statement with typed parameters to MCP clients. Choose STDIO " +
-                        "or HTTP transport and build a standalone server package with a runnable JAR, configuration, " +
-                        "wallet, source project, and README.");
+                txt("msg.mcp.hint.ServerDefinition"));
         hintPanel.add(new DBNHintForm(this, hintContent, null, true).getComponent());
     }
 
@@ -144,10 +142,10 @@ public class McpServerDefinitionForm extends DBNFormBase {
     }
 
     private void initConfigHyperlinks() {
-        loadConfigHyperlink.setHyperlinkText("Load Configuration");
+        loadConfigHyperlink.setHyperlinkText(txt("msg.mcp.link.LoadConfiguration"));
         onHyperlinkAccess(loadConfigHyperlink, e -> selectConfigFile());
 
-        resetHyperlink.setHyperlinkText("Reset Form");
+        resetHyperlink.setHyperlinkText(txt("msg.mcp.link.ResetForm"));
         onHyperlinkAccess(resetHyperlink, e -> resetConfiguration());
     }
 
@@ -183,13 +181,13 @@ public class McpServerDefinitionForm extends DBNFormBase {
                 updateConfiguration(file, serverDefinition);
                 return file;
             } else {
-                Messages.showErrorDialog(project, "Not an MCP Server Definition",
-                        "\"" + file.getPath() + "\" does not look like an MCP server definition file. " +
-                        "Choose an XML file created by MCP Server Builder.");
+                showErrorDialog(project,
+                        txt("msg.mcp.title.NotMcpServerDefinition"),
+                        txt("msg.mcp.error.InvalidServerDefinition", file.getPath()));
                 return null;
             }
         } catch (Throwable e) {
-            Messages.showErrorDialog(project, "Could not load MCP Server definition file", e);
+            showErrorDialog(project, txt("msg.mcp.error.McpServerDefinitionLoadFailed"), e);
             return null;
         }
     }
@@ -230,10 +228,10 @@ public class McpServerDefinitionForm extends DBNFormBase {
         updateFieldAvailability();
     }
 
-    public static @NotNull FileChooserDescriptor configFileChooser() {
+    public @NotNull FileChooserDescriptor configFileChooser() {
         FileChooserDescriptor descriptor = FileChoosers.singleFile().
-                withTitle("Select MCP Server Definition File").
-                withDescription("Select an MCP Server definition file ")/*.
+                withTitle(txt("msg.mcp.title.SelectServerDefinitionFile")).
+                withDescription(txt("msg.mcp.text.SelectServerDefinitionFile"))/*.
                 withExtensionFilter("xml")*/;
         return FileChoosers.withExtensionFilter(descriptor, "xml");
     }
@@ -296,16 +294,16 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     private String validateHttpPort(String value) {
         if (!getTransportType().isHttp()) return null;
-        if (value == null || value.isBlank()) return "HTTP port is required for HTTP transport";
+        if (value == null || value.isBlank()) return txt("msg.mcp.error.HttpPortRequired");
 
         try {
             int port = Integer.parseInt(value.trim());
             if (port < 1 || port > 65535) {
-                return "HTTP port must be between 1 and 65535";
+                return txt("msg.mcp.error.HttpPortRangeInvalid");
             }
             return null;
         } catch (NumberFormatException e) {
-            return "HTTP port must be a number";
+            return txt("msg.mcp.error.HttpPortNumberInvalid");
         }
     }
 
@@ -354,7 +352,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
             } catch (IOException e) {
                 conditionallyLog(e);
                 String fileName = file.getName();
-                Messages.showErrorDialog(project,
+                showErrorDialog(project,
                         txt("msg.consoles.title.CouldNotSaveToFile"),
                         txt("msg.consoles.error.CouldNotSaveToFile", fileName), e);
             }

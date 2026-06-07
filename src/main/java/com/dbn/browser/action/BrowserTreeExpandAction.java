@@ -27,6 +27,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class BrowserTreeExpandAction extends AbstractBrowserAction {
 
+    public BrowserTreeExpandAction() {
+        super(txt("app.browser.action.BrowserExpandAll"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();

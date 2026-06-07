@@ -20,6 +20,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 public class ToolWindows {
 
     @Nullable
-    public static ToolWindow getToolWindow(@NotNull Project project, String toolWindowId) {
+    public static ToolWindow getToolWindow(@NotNull Project project, @NonNls String toolWindowId) {
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
         return toolWindowManager.getToolWindow(toolWindowId);
     }

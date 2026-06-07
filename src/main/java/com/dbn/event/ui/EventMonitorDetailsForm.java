@@ -32,6 +32,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EventMonitorDetailsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -49,10 +50,10 @@ public class EventMonitorDetailsForm extends DBNFormBase {
 
         // Initialize tables
         registrationsForm = new EventRegistrationsForm(this, registrationModel);
-        contentTabs.addTab("Registrations", registrationsForm.getComponent());
+        contentTabs.addTab(txt("app.eventRegistration.title.Registrations"), registrationsForm.getComponent());
 
         notificationsForm = new EventNotificationsForm(this, eventModel);
-        contentTabs.addTab("Notifications", notificationsForm.getComponent());
+        contentTabs.addTab(txt("app.eventNotification.title.Notifications"), notificationsForm.getComponent());
 
         initFormHeader(connection);
 

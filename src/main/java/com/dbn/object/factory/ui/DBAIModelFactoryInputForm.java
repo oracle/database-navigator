@@ -43,6 +43,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.FileChoosers.addFileChooser;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_CREDENTIAL;
 import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_SOURCE_LOCATION;
 import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_SOURCE_TYPE;
@@ -89,10 +90,10 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         addFileChooser(getProject(), modelFileTextField, modelFileChooser());
     }
 
-    private static FileChooserDescriptor modelFileChooser() {
+    private FileChooserDescriptor modelFileChooser() {
         FileChooserDescriptor descriptor = FileChoosers.singleFile().
-                withTitle("Select Model File").
-                withDescription("Select an ONNX model file (.onnx)")/*.
+                withTitle(txt("msg.objects.title.SelectModelFile")).
+                withDescription(txt("msg.objects.text.SelectOnnxModelFile"))/*.
                 withFileFilter(extensionFilter("onnx"))*/;
 
         return FileChoosers.withExtensionFilter(descriptor, "onnx");
@@ -148,7 +149,7 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
                 .withConnectionContext(() -> getConnection())
                 .withSchemaContext(() -> getCredentialSchema())
                 .withValueLoader(() -> loadCredentials())
-                .withObjectFactory("New Credential...")
+                .withObjectFactory(txt("app.objects.action.NewCredential"))
                 .triggerLoad();
         updateFieldAvailability();
     }
@@ -170,8 +171,8 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
     private void initDocumentationLink() {
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
-                "Documentation:",
-                "ONNX ML Model Import into DB ",
+                txt("app.objects.label.Documentation"),
+                txt("app.objects.link.OnnxModelImport"),
                 "https://blogs.oracle.com/machinelearning/use-our-prebuilt-onnx-model-now-available-for-embedding-generation-in-oracle-database-23ai#:~:text=https%3A//adwc4pm.objectstorage.us%2Dashburn%2D1.oci.customer%2Doci.com/p/eLddQappgBJ7jNi6Guz9m9LOtYe2u8LWY19GfgU8flFK4N9YgP4kTlrE9Px3pE12/n/adwc4pm/b/OML%2DResources/o/");
         hyperLinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
     }
@@ -199,10 +200,10 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), "Please enter a name for the new model");
-        addTextValidation(modelFileTextField.getTextField(), n -> isNotEmptyOrSpaces(n), "Please select a model file");
-        addTextValidation(objectUrlTextField, n -> isNotEmptyOrSpaces(n), "Please provide an object URL");
-//    addSelectionValidation(credentialComboBox, "Please select or create a credential");
+        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ModelNameRequired"));
+        addTextValidation(modelFileTextField.getTextField(), n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ModelFileRequired"));
+        addTextValidation(objectUrlTextField, n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ObjectUrlRequired"));
+//    addSelectionValidation(credentialComboBox, txt("msg.vector.error.SelectOrCreateCredential"));
     }
 
     private DBSchema getSchema() {

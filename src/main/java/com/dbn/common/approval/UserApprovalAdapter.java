@@ -18,6 +18,8 @@ package com.dbn.common.approval;
 
 import com.dbn.common.extension.ExtensionPoint;
 import com.intellij.openapi.extensions.ExtensionPointName;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
@@ -39,18 +41,22 @@ public interface UserApprovalAdapter<T extends UserApprovable> extends Extension
     /**
      * Returns the title shown in the approval dialog.
      */
+    @Nls
     String getApprovalTitle(T approvable);
 
     /**
      * Returns the message shown in the approval dialog.
      */
+    @Nls
     String getApprovalMessage(T approvable);
 
     /**
      * Returns the stable key used to persist approval for this approvable object.
      */
+    @NonNls
     String getApprovalKey(T approvable);
 
+    @Nls
     String[] getApprovalOptions(T approvable);
 
     /**

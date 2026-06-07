@@ -93,6 +93,7 @@ import static com.dbn.common.search.Search.comboSearch;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Titles.titleCased;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
 @Slf4j
