@@ -17,27 +17,25 @@
 package com.dbn.editor.session;
 
 import com.dbn.common.icon.Icons;
+import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
+@Getter
 public enum SessionBrowserFilterType {
-    USER("user", Icons.SB_FILTER_USER),
-    HOST("host", Icons.SB_FILTER_SERVER),
-    STATUS("status", Icons.SB_FILTER_STATUS);
+    USER(txt("app.sessionBrowser.const.SessionBrowserFilterType_USER"), Icons.SB_FILTER_USER),
+    HOST(txt("app.sessionBrowser.const.SessionBrowserFilterType_HOST"), Icons.SB_FILTER_SERVER),
+    STATUS(txt("app.sessionBrowser.const.SessionBrowserFilterType_STATUS"), Icons.SB_FILTER_STATUS);
 
-    private String name;
-    private Icon icon;
+    private final @Nls String name;
+    private final Icon icon;
 
-    SessionBrowserFilterType(String name, Icon icon) {
+    SessionBrowserFilterType(@Nls String name, Icon icon) {
         this.name = name;
         this.icon = icon;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public Icon getIcon() {
-        return icon;
-    }
 }

@@ -19,8 +19,9 @@ package com.dbn.common.ui.table;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.Presentable;
 import com.dbn.data.grid.addon.ColumnDragScrollAddon;
+import com.intellij.openapi.util.NlsContexts.PopupTitle;
 import com.intellij.util.ui.UIUtil;
-import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -79,7 +80,7 @@ public class Tables {
      * @param title       the title of the value selector popup
      * @param values      an array of possible values that the user can select
      */
-    public static <T extends Presentable> void attachValueSelector(JTable table, int columnIndex, @Nls String title, T[] values) {
+    public static <T extends Presentable> void attachValueSelector(JTable table, int columnIndex, @PopupTitle String title, T[] values) {
         new TableValueSelector<>(table, columnIndex, title, values);
     }
 
@@ -184,7 +185,7 @@ public class Tables {
     public static void adjustTableRowHeight(JTable table, int padding) {
         Font font = table.getFont();
         FontRenderContext fontRenderContext = table.getFontMetrics(font).getFontRenderContext();
-        LineMetrics lineMetrics = font.getLineMetrics("ABCÄÜÖÂÇĞIİÖŞĀČḎĒËĠḤŌŠṢṬŪŽY", fontRenderContext);
+        @NonNls LineMetrics lineMetrics = font.getLineMetrics("ABCÄÜÖÂÇĞIİÖŞĀČḎĒËĠḤŌŠṢṬŪŽY", fontRenderContext);
         int fontHeight = Math.round(lineMetrics.getHeight());
         table.setRowHeight(fontHeight + (padding * 2));
     }

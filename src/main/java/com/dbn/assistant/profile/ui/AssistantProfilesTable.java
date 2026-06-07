@@ -22,6 +22,7 @@ import com.dbn.common.ui.table.DBNEntityEditableTable;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantProfilesTable extends DBNEntityEditableTable<AssistantProfilesTableModel> {
 
@@ -29,7 +30,7 @@ public class AssistantProfilesTable extends DBNEntityEditableTable<AssistantProf
         super(parent, createModel(profiles), true);
 
         setProportionalColumnWidths(25, 15, 25, 35);
-        setAccessibleName(this, "Assistant Profiles");
+        setAccessibleName(this, txt("app.assistant.aria.AssistantProfiles"));
     }
 
     @NotNull

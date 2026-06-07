@@ -51,6 +51,8 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectQuickFilterForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
@@ -80,7 +82,7 @@ public class ObjectQuickFilterForm extends DBNFormBase {
 
         Filter<?> configFilter = objectList.getConfigFilter();
         if (configFilter != null) {
-            TextContent hintText = TextContent.plain("NOTE: This list is already filtered according to connection \"Filter\" settings. Any additional condition will narrow down the already filtered list.");
+            TextContent hintText = TextContent.plain(txt("msg.objects.hint.QuickFilter"));
             DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
             hintPanel.add(hintForm.getComponent());
         }
@@ -105,9 +107,10 @@ public class ObjectQuickFilterForm extends DBNFormBase {
         Icon headerIcon = Icons.DATASET_FILTER;
         ConnectionHandler connection = objectList.getConnection();
         DatabaseEntity parentElement = objectList.getParentEntity();
-        String headerText = "[" + connection.getName() + "] " +
-                (parentElement instanceof DBSchema ? (parentElement.getName() + " - ") : "") +
-                objectList.getObjectType().getTitleCasedName() + " filters";
+        String objectTypeName = objectList.getObjectType().getTitleCasedName();
+        String headerText = parentElement instanceof DBSchema ?
+                txt("app.objects.text.SchemaQuickFilters", connection.getName(), parentElement.getName(), objectTypeName) :
+                txt("app.objects.text.ConnectionQuickFilters", connection.getName(), objectTypeName);
         Color headerBackground = connection.getEnvironmentType().getColor();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, headerText, headerIcon, headerBackground);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
@@ -142,7 +145,7 @@ public class ObjectQuickFilterForm extends DBNFormBase {
         }
 
         NewFilterSelector(final ObjectQuickFilter<?> filter) {
-            super(PlatformIcons.ADD_ICON, "Add Name Condition", null, ValueSelectorOption.HIDE_DESCRIPTION);
+            super(PlatformIcons.ADD_ICON, txt("app.objects.action.AddNameCondition"), null, ValueSelectorOption.HIDE_DESCRIPTION);
             addListener((oldValue, newValue) -> {
                 Project project = ensureProject();
                 ObjectQuickFilterManager quickFilterManager = ObjectQuickFilterManager.getInstance(project);

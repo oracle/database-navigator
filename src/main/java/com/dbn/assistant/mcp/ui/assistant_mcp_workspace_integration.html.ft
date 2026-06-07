@@ -13,9 +13,9 @@
 <body>
     <strong>Workspace Integration via MCP Server Plugin</strong><br><br>
 
-    This feature uses the <a href="https://plugins.jetbrains.com/plugin/26071-mcp-server">JetBrains MCP Server</a> plugin to further integrate DB-Assistant with your workspace.
+    This feature uses the <a href="https://plugins.jetbrains.com/plugin/26071-mcp-server">JetBrains MCP Server</a> plugin to further integrate DB Assistant with your workspace.
 
     <br><br>
-    Please make sure the plugin is installed and the server is enabled<br>
+    Make sure the plugin is installed and the server is enabled<br>
 </body>
 </html>

@@ -35,8 +35,13 @@ import javax.swing.JComponent;
 import java.util.List;
 
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ToolSelectionAction extends ComboBoxAction implements AssistantActionSupport {
+
+    public ToolSelectionAction() {
+        super(txt("app.assistant.action.AssistantTools"));
+    }
 
     @Override
     @NotNull
@@ -68,21 +73,21 @@ public class ToolSelectionAction extends ComboBoxAction implements AssistantActi
         Presentation presentation = e.getPresentation();
         presentation.setText(getText(e));
         presentation.setEnabled(isEnabled(e));
-        presentation.setDescription("Assistant tool selection");
+        presentation.setDescription(txt("app.assistant.tooltip.ToolSelection"));
     }
 
     private @ActionText String getText(@NotNull AnActionEvent e) {
         AssistantToolApprovals approvals = getToolApprovals(e);
-        if (approvals == null) return "Tools";
+        if (approvals == null) return txt("app.assistant.action.Tools");
 
         AssistantState assistantState = getAssistantState(e);
-        if (assistantState == null) return "Tools";
+        if (assistantState == null) return txt("app.assistant.action.Tools");
 
         List<AssistantToolType> toolTypes = AssistantToolData.getSupportedToolTypes(assistantState, null);
         int available = toolTypes.size();
         int blocked = approvals.countBlockedTools(toolTypes);
 
-        return "Tools (" + (available - blocked) + "/" + available + ")";
+        return txt("app.assistant.action.ToolsCount", available - blocked, available);
     }
 
     private boolean isEnabled(@NotNull AnActionEvent e) {

@@ -56,6 +56,7 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ResultSetRecordViewerForm extends DBNFormBase {
     private JPanel actionsPanel;
@@ -114,7 +115,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
         sortColumns(columnSortingType);
         updateFieldAlignment();
 
-        filterTextField.getEmptyText().setText("Filter");
+        filterTextField.getEmptyText().setText(txt("app.dataEditor.placeholder.Filter"));
         onTextChange(filterTextField, e -> filterColumForms());
 
         int scrollUnitIncrement = (int) columnForms.get(0).getComponent().getPreferredSize().getHeight();
@@ -123,8 +124,8 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
 
     @Override
     protected void initAccessibility() {
-        setAccessibleName(columnsPanelScrollPane, "Column values");
-        setAccessibleName(actionToolbar, "Record navigation");
+        setAccessibleName(columnsPanelScrollPane, txt("app.dataEditor.aria.ColumnValues"));
+        setAccessibleName(actionToolbar, txt("app.dataEditor.aria.RecordNavigation"));
     }
 
     @Override
@@ -229,7 +230,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
      *********************************************************/
     private class SortAlphabeticallyAction extends ToggleAction {
         private SortAlphabeticallyAction() {
-            super("Sort Columns Alphabetically", null, Icons.ACTION_SORT_ALPHA);
+            super(txt("app.data.action.SortColumnsAlphabetically"), null, Icons.ACTION_SORT_ALPHA);
         }
 
         @Override

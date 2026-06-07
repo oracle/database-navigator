@@ -42,6 +42,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class ConnectionSelectDropdownAction extends ComboBoxAction implements DumbAware {
 
+    public ConnectionSelectDropdownAction() {
+        super(txt("app.codeEditor.action.ScriptEditorDbConnections"));
+    }
+
     @Override
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent component, @NotNull DataContext dataContext) {

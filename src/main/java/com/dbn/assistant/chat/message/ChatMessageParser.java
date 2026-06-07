@@ -31,6 +31,7 @@ import org.intellij.markdown.ast.ASTNode;
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor;
 import org.intellij.markdown.html.HtmlGenerator;
 import org.intellij.markdown.parser.MarkdownParser;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Comment;
@@ -221,8 +222,9 @@ public class ChatMessageParser {
             super(customizer, includeSrcPositions);
         }
 
+        @NonNls
         @Override
-        public @NotNull CharSequence openTag(@NotNull ASTNode node, @NotNull CharSequence tagName, @NotNull CharSequence[] attributes, boolean autoClose) {
+        public @NotNull CharSequence openTag(@NotNull ASTNode node, @NotNull @NonNls CharSequence tagName, @NotNull CharSequence[] attributes, boolean autoClose) {
             if (tagName.equals("table")) {
                 return "<table cellspacing='0' cellpadding='4'>";
             }

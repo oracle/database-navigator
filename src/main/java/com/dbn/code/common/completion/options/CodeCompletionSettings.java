@@ -33,6 +33,8 @@ import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @EqualsAndHashCode(callSuper = false)
 public class CodeCompletionSettings extends CompositeProjectConfiguration<ProjectSettings, CodeCompletionSettingsForm> implements TopLevelConfig {
     private final @Getter(lazy = true) CodeCompletionFiltersSettings filterSettings = new CodeCompletionFiltersSettings(this);

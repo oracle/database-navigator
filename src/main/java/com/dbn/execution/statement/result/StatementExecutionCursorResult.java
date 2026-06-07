@@ -18,7 +18,6 @@ package com.dbn.execution.statement.result;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
@@ -44,6 +43,7 @@ import java.sql.SQLException;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -117,7 +117,7 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
                                 }
                             } catch (final SQLException e) {
                                 conditionallyLog(e);
-                                Messages.showErrorDialog(getProject(), "Could not perform reload operation.", e);
+                                showErrorDialog(getProject(), txt("msg.execution.message.CouldNotPerformReloadOperation"), e);
                             }
                         } finally {
                             calculateExecDuration();
@@ -168,7 +168,7 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
 
                         } catch (SQLException e) {
                             conditionallyLog(e);
-                            Messages.showErrorDialog(project, "Could not perform operation.", e);
+                            showErrorDialog(project, txt("msg.execution.message.CouldNotPerformOperation"), e);
                         } finally {
                             resultForm.highlightLoading(false);
                         }

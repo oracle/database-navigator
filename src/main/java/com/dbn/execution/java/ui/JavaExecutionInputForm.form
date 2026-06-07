@@ -31,7 +31,7 @@
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Debugger version"/>
+              <text resource-bundle="messages/DBNResources" key="app.execution.label.DebuggerVersion"/>
             </properties>
           </component>
           <hspacer id="c20bf">
@@ -45,7 +45,7 @@
             </constraints>
             <properties>
               <font style="1"/>
-              <text value="[debugger version]"/>
+              <text resource-bundle="messages/DBNResources" key="app.execution.placeholder.DebuggerVersion"/>
             </properties>
           </component>
           <component id="88a4b" class="javax.swing.JLabel">
@@ -53,7 +53,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Debugger type"/>
+              <text resource-bundle="messages/DBNResources" key="app.execution.label.DebuggerType"/>
             </properties>
           </component>
           <component id="a68e3" class="javax.swing.JLabel" binding="debuggerTypeLabel">
@@ -62,7 +62,7 @@
             </constraints>
             <properties>
               <font style="1"/>
-              <text value="[debugger type]"/>
+              <text resource-bundle="messages/DBNResources" key="app.execution.placeholder.DebuggerType"/>
             </properties>
           </component>
           <component id="df54d" class="javax.swing.JSeparator">
@@ -107,7 +107,7 @@
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="No parameters"/>
+                      <text resource-bundle="messages/DBNResources" key="app.execution.label.NoParameters"/>
                     </properties>
                   </component>
                   <grid id="22e4" binding="loadingParamsPanel" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -131,7 +131,7 @@
                           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties>
-                          <text value="Loading parameters..."/>
+                          <text resource-bundle="messages/DBNResources" key="app.execution.text.LoadingParameters"/>
                         </properties>
                       </component>
                       <hspacer id="f6f63">

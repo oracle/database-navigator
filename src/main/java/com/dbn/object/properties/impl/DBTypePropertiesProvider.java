@@ -24,6 +24,8 @@ import com.dbn.object.type.DBObjectType;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBTypePropertiesProvider extends DBGenericObjectPropertiesProvider<DBType> {
     public DBTypePropertiesProvider() {
         super(DBObjectType.TYPE);
@@ -34,7 +36,7 @@ public class DBTypePropertiesProvider extends DBGenericObjectPropertiesProvider<
         List<DBObjectProperty> properties = super.getProperties(type);
         DBDataType collectionElementType = type.getCollectionElementType();
         if (collectionElementType != null) {
-            properties.add(0, new DBDataTypePresentableProperty("Collection element type", collectionElementType));
+            properties.add(0, new DBDataTypePresentableProperty(txt("app.objects.property.CollectionElementType"), collectionElementType));
         }
         return properties;
     }

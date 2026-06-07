@@ -40,9 +40,14 @@ import javax.swing.JComponent;
 import java.util.List;
 
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
+import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
 public class McpServerSelectionAction extends ComboBoxAction implements AssistantActionSupport {
+
+    public McpServerSelectionAction() {
+        super(txt("app.assistant.action.AssistantMcpServers"));
+    }
 
     @Override
     @NotNull
@@ -90,13 +95,13 @@ public class McpServerSelectionAction extends ComboBoxAction implements Assistan
 
     private @ActionText String getText(@NotNull AnActionEvent e) {
         AssistantState assistantState = getAssistantState(e);
-        if (assistantState == null) return "MCP Servers";
+        if (assistantState == null) return txt("app.assistant.action.McpServers");
 
         AssistantMcpServerBundle mcpServers = getMcpServers(assistantState);
         int available = mcpServers.size();
         int selected = assistantState.getMcpServerState().countSelected();
 
-        return "MCP Servers (" + selected + "/" + available + ")";
+        return txt("app.assistant.action.McpServersCount", selected, available);
     }
 
     private boolean isEnabled(@NotNull AnActionEvent e) {

@@ -20,7 +20,6 @@ import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.DatabaseType;
 import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.metadata.DriverPackageMetadata;
@@ -45,9 +44,11 @@ import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Files.getPluginDeploymentRoot;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.driver.download.DownloadStatus.DONE;
 import static com.dbn.driver.download.DownloadStatus.NEW;
 import static com.dbn.driver.download.DriverDownloadManager.COMPONENT_NAME;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Download Manager for tracking the state of driver package downloads.
@@ -198,7 +199,7 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
                 when(exitCode == DialogWrapper.OK_EXIT_CODE, () -> successCallback.accept(dialog.getSelectedDownloadPath()));
             });
         } catch (Exception e) {
-            Messages.showErrorDialog(project, "Failed to download driver libraries metadata", e);
+            showErrorDialog(project, txt("msg.driver.error.DriverLibrariesMetadataDownloadFailed"), e);
         }
     }
 

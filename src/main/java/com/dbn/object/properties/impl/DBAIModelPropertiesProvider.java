@@ -23,6 +23,8 @@ import com.dbn.object.type.DBObjectType;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBAIModelPropertiesProvider extends DBGenericObjectPropertiesProvider<DBAIModel> {
     public DBAIModelPropertiesProvider() {
         super(DBObjectType.AI_MODEL);
@@ -31,13 +33,15 @@ public class DBAIModelPropertiesProvider extends DBGenericObjectPropertiesProvid
     @Override
     public List<DBObjectProperty> getProperties(DBAIModel model) {
         List<DBObjectProperty> properties = super.getProperties(model);
-        properties.add(0, new SimplePresentableProperty("Mining function", model.getMiningFunction()));
-        properties.add(1, new SimplePresentableProperty("Algorithm", model.getAlgorithm()));
-        properties.add(2, new SimplePresentableProperty("Algorithm type", model.getAlgorithmType()));
-        properties.add(3, new SimplePresentableProperty("Model size", model.getModelSize() + " MB"));
-        properties.add(4, new SimplePresentableProperty("Partitioned", model.isPartitioned()));
-        properties.add(5, new SimplePresentableProperty("In memory", model.isInmemory()));
-        properties.add(5, new SimplePresentableProperty("External data", model.isExternalData()));
+        properties.add(0, new SimplePresentableProperty(txt("app.objects.property.MiningFunction"), model.getMiningFunction()));
+        properties.add(1, new SimplePresentableProperty(txt("app.objects.property.Algorithm"), model.getAlgorithm()));
+        properties.add(2, new SimplePresentableProperty(txt("app.objects.property.AlgorithmType"), model.getAlgorithmType()));
+        properties.add(3, new SimplePresentableProperty(
+                txt("app.objects.property.ModelSize"),
+                txt("app.objects.propertyValue.Megabytes", model.getModelSize())));
+        properties.add(4, new SimplePresentableProperty(txt("app.objects.property.Partitioned"), model.isPartitioned()));
+        properties.add(5, new SimplePresentableProperty(txt("app.objects.property.InMemory"), model.isInmemory()));
+        properties.add(5, new SimplePresentableProperty(txt("app.objects.property.ExternalData"), model.isExternalData()));
         return properties;
     }
 }

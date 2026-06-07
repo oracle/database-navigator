@@ -59,19 +59,19 @@ public class ProgramMethodExecuteAction extends ObjectListShowAction {
 
     @Override
     public String getTitle() {
-        return "Select method to execute";
+        return txt("app.execution.action.SelectMethodToExecute");
     }
 
     @Override
     public String getEmptyListMessage() {
         DBProgram program = (DBProgram) getSourceObject();
-        return "The " + program.getQualifiedNameWithType() + " has no methods to execute.";
+        return txt("app.execution.action.NoMethodsToExecute", program.getQualifiedNameWithType());
     }
 
 
     @Override
     public String getListName() {
-       return "executable elements";
+       return txt("app.execution.token.ExecutableElements");
    }
 
     @Override

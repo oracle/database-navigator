@@ -24,13 +24,17 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class AssistantProfileEditDialog extends DBNDialog<AssistantProfileEditForm> {
     private final DeclaredAssistantProfile profile;
     private final AssistantProfileEditRequest request;
 
     public AssistantProfileEditDialog(Project project, AssistantProfileEditRequest request) {
-        super(project, request.isNewProfile() ? "Create Profile" : "Update Profile", true);
+        super(project, request.isNewProfile() ?
+                txt("msg.assistant.title.CreateProfile") :
+                txt("msg.assistant.title.UpdateProfile"), true);
         this.request = request;
         this.profile = initProfile();
         setModal(true);
@@ -56,7 +60,9 @@ public class AssistantProfileEditDialog extends DBNDialog<AssistantProfileEditFo
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        String actionName = request.isNewProfile() ? "Create" : "Update";
+        String actionName = request.isNewProfile() ?
+                txt("msg.shared.button.Create") :
+                txt("msg.shared.button.Update");
         renameAction(getOKAction(), actionName);
         return actions(
                 getOKAction(),
@@ -76,4 +82,3 @@ public class AssistantProfileEditDialog extends DBNDialog<AssistantProfileEditFo
         super.doOKAction();
     }
 }
-

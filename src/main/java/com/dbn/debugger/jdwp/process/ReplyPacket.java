@@ -24,13 +24,10 @@ public class ReplyPacket extends Packet {
 
 
 	public String toString() {
-		StringBuilder builder = new StringBuilder(super.toString());
-		
-		builder.append(", errorCode: ");
-		builder.append(getErrorCode());
-		builder.append(", payload size: ");
-		builder.append(getData().length);
-		return builder.toString();
+        return super.toString() + ", errorCode: " +
+                getErrorCode() +
+                ", payload size: " +
+                getData().length;
 	}
 
 }

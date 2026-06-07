@@ -26,6 +26,8 @@ import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.util.Range;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +35,7 @@ import java.util.List;
 public class GuardedBlocks {
     private GuardedBlocks(){}
 
-    public static void createGuardedBlock(Document document, GuardedBlockType type, String reason, boolean highlight) {
+    public static void createGuardedBlock(Document document, GuardedBlockType type, @Nullable @Nls String reason, boolean highlight) {
         createGuardedBlock(document, type, 0, document.getTextLength(), reason);
         if (highlight) return;
 
@@ -44,13 +46,13 @@ public class GuardedBlocks {
         }
     }
 
-    public static void createGuardedBlocks(Document document, GuardedBlockType type, GuardedBlockMarkers ranges, String reason) {
+    public static void createGuardedBlocks(Document document, GuardedBlockType type, GuardedBlockMarkers ranges, @Nullable @Nls String reason) {
         for (Range<Integer> range : ranges.getRanges()) {
             createGuardedBlock(document, type, range.getFrom(), range.getTo(), reason);
         }
     }
 
-    public static void createGuardedBlock(Document document, GuardedBlockType type, int startOffset, int endOffset, String reason) {
+    public static void createGuardedBlock(Document document, GuardedBlockType type, int startOffset, int endOffset, @Nullable @Nls String reason) {
         int textLength = document.getTextLength();
         endOffset = Math.min(endOffset, textLength);
 

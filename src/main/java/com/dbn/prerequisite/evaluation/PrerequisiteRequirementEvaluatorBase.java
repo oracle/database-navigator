@@ -20,6 +20,7 @@ import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.prerequisite.model.PrerequisiteMandate;
 import com.dbn.prerequisite.model.PrerequisiteType;
+import org.jetbrains.annotations.Nls;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ public abstract class PrerequisiteRequirementEvaluatorBase implements Prerequisi
         return mandates;
     }
 
-    protected static void createMandate(List<PrerequisiteMandate> mandates, PrerequisiteType type, String reason) {
+    protected static void createMandate(List<PrerequisiteMandate> mandates, PrerequisiteType type, @Nls String reason) {
         mandates.add(new PrerequisiteMandate(type, reason));
     }
 

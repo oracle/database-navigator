@@ -43,6 +43,7 @@ import com.intellij.util.BitUtil;
 import com.intellij.util.ui.JBUI;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,6 +58,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static com.dbn.common.Reflection.invokeMethod;
+import static org.jetbrains.annotations.Nls.Capitalization.Title;
 
 @Getter
 @Setter
@@ -87,7 +89,7 @@ public class DBNColoredTabs<T extends DBNForm> extends JBEditorTabs {
         }
     }
 
-    public void addTab(String title, JComponent component) {
+    public void addTab(@Nls(capitalization = Title) String title, JComponent component) {
         TabInfo tabInfo = new TabInfo(component);
         setTabTitle(title, tabInfo);
         initTabActions(tabInfo);
@@ -96,7 +98,7 @@ public class DBNColoredTabs<T extends DBNForm> extends JBEditorTabs {
         invokeMethod(this, "addTab", tabInfo);
     }
 
-    public void insertTab(String title, JComponent component, int index) {
+    public void insertTab(@Nls(capitalization = Title) String title, JComponent component, int index) {
         TabInfo tabInfo = new TabInfo(component);
         setTabTitle(title, tabInfo);
         initTabActions(tabInfo);
@@ -112,7 +114,7 @@ public class DBNColoredTabs<T extends DBNForm> extends JBEditorTabs {
         tabInfo.setTabColor(color);
     }
 
-    public void setTabTitle(Component component, String title) {
+    public void setTabTitle(Component component, @Nls(capitalization = Title) String title) {
         TabInfo tabInfo = getTabInfo(component);
         if (tabInfo == null) return;
 
@@ -120,7 +122,7 @@ public class DBNColoredTabs<T extends DBNForm> extends JBEditorTabs {
 
     }
 
-    private static void setTabTitle(String title, TabInfo tabInfo) {
+    private static void setTabTitle(@Nls(capitalization = Title) String title, TabInfo tabInfo) {
         title = normalizeTitle(title);
         tabInfo.setText(title);
     }

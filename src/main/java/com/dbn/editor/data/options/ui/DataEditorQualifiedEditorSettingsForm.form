@@ -6,7 +6,7 @@
       <xy x="20" y="20" width="500" height="400"/>
     </constraints>
     <properties/>
-    <border type="none" title="Qualified Text Editor"/>
+    <border type="none" title-resource-bundle="messages/DBNResources" title-key="app.data.title.QualifiedTextEditor"/>
     <children>
       <component id="5214d" class="javax.swing.JLabel">
         <constraints>
@@ -14,7 +14,7 @@
         </constraints>
         <properties>
           <labelFor value="e1a55"/>
-          <text value="&amp;Text length threshold"/>
+          <text resource-bundle="messages/DBNResources" key="app.data.label.TextLengthThreshold"/>
         </properties>
       </component>
       <component id="e1a55" class="javax.swing.JTextField" binding="textLengthThresholdTextField" default-binding="true">
@@ -37,7 +37,7 @@
         </constraints>
         <properties>
           <labelFor value="aae4c"/>
-          <text value="Active &amp;content types"/>
+          <text resource-bundle="messages/DBNResources" key="app.data.label.ActiveContentTypes"/>
         </properties>
       </component>
       <scrollpane id="45cd8" class="com.intellij.ui.components.JBScrollPane">

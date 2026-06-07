@@ -35,6 +35,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SQLConsoleEditorToolbarForm extends DBNToolbarForm {
     private JPanel mainPanel;

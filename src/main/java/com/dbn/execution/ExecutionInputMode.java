@@ -17,15 +17,18 @@
 package com.dbn.execution;
 
 import com.dbn.common.ui.Presentable;
+import com.intellij.openapi.util.NlsContexts.ListItem;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public enum ExecutionInputMode implements Presentable {
-    CODE("Code"),
-    FIELDS("Fields");
+    CODE(txt("app.execution.const.ExecutionInputMode_CODE")),
+    FIELDS(txt("app.execution.const.ExecutionInputMode_FIELDS"));
 
-    private final String label;
+    private final @ListItem String label;
 
-    ExecutionInputMode(String label) {
+    ExecutionInputMode(@ListItem String label) {
         this.label = label;
     }
 
@@ -36,7 +39,8 @@ public enum ExecutionInputMode implements Presentable {
 
     @NotNull
     @Override
-    public String getName() {
+    public @ListItem String getName() {
         return label;
     }
+
 }

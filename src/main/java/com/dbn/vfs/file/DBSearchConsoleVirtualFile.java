@@ -17,12 +17,13 @@
 package com.dbn.vfs.file;
 
 import com.dbn.object.DBConsole;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 public class DBSearchConsoleVirtualFile extends DBConsoleVirtualFile {
-    public static final String ATTR_VECTOR_SCHEMA = "search-schema";
-    public static final String ATTR_VECTOR_TABLE = "search-table";
-    public static final String ATTR_DISTANCE_METRIC = "distance-metric";
+    public static final @NonNls String ATTR_VECTOR_SCHEMA = "search-schema";
+    public static final @NonNls String ATTR_VECTOR_TABLE = "search-table";
+    public static final @NonNls String ATTR_DISTANCE_METRIC = "distance-metric";
 
     public DBSearchConsoleVirtualFile(@NotNull DBConsole console) {
         super(console);

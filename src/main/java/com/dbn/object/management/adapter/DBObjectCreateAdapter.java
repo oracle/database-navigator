@@ -24,6 +24,8 @@ import com.intellij.openapi.util.NlsContexts.ProgressText;
 import com.intellij.openapi.util.NlsContexts.ProgressTitle;
 import org.jetbrains.annotations.Nls;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Abstract implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} for CREATE actions,
  * providing generic process titles and messages

@@ -24,6 +24,8 @@ import com.dbn.object.type.DBObjectType;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBJsonViewNavigationInfoProvider extends DBObjectNavigationInfoProviderBase<DBJsonView> {
     public DBJsonViewNavigationInfoProvider() {
         super(DBObjectType.JSON_VIEW);
@@ -34,11 +36,11 @@ public class DBJsonViewNavigationInfoProvider extends DBObjectNavigationInfoProv
         List<DBObjectNavigationList<?>> navigationLists = new LinkedList<>();
 
         List<DBTable> tables = view.getTables();
-        navigationLists.add(DBObjectNavigationList.create("Tables", tables));
+        navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.Tables"), tables));
 
         DBTable rootTable = view.getRootTable();
         if (rootTable != null) {
-            navigationLists.add(DBObjectNavigationList.create("Root Table", rootTable));
+            navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.RootTable"), rootTable));
         }
 
         return navigationLists;

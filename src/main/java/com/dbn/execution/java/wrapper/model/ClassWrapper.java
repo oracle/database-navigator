@@ -25,6 +25,7 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,10 +90,12 @@ public class ClassWrapper extends EntityWrapper {
 		return arrayDepth > 0;
 	}
 
-	public String getSqlToJavaConverterName() {
+    @NonNls
+    public String getSqlToJavaConverterName() {
 		return getSqlTypeName() + "_TO_JAVA";
 	}
 
+    @NonNls
 	public String getJavaToSqlConverterName() {
 		return getSqlTypeName() + "_TO_SQL";
 	}

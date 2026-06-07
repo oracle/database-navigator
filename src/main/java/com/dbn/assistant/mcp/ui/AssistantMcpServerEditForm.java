@@ -61,6 +61,7 @@ import static com.dbn.common.util.Messages.showSuccessDialog;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantMcpServerEditForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -99,12 +100,12 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
     }
 
     private void initEndpointFields() {
-        setEmptyText(httpUrlTextField, "http://localhost:3001/mcp-server");
+        setEmptyText(httpUrlTextField, txt("cfg.assistant.placeholder.McpServerUrlExample"));
         onTextChange(httpUrlTextField, e -> updateFieldAvailability());
 
         onTextChange(commandTextField, e -> updateCommandPreview());
         //onTextChange(commandArgumentsTextField, e -> updateCommandPreview());
-        addSingleFileChooser(getProject(), commandTextField, "Select MCP Server executable", null);
+        addSingleFileChooser(getProject(), commandTextField, txt("msg.mcp.title.SelectMcpServerExecutable"), null);
 
         commandArgumentsList = new EditableStringListForm(this, null, SORTED, EDITABLE);
         commandArgumentsList.onListChanges(e -> updateCommandPreview());
@@ -112,8 +113,8 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
     }
 
     private void initHyperlinkFields() {
-        verifyLink.setHyperlinkText("Verify configuration");
-        approvalsLink.setHyperlinkText("Tool approvals");
+        verifyLink.setHyperlinkText(txt("cfg.assistant.link.VerifyConfiguration"));
+        approvalsLink.setHyperlinkText(txt("cfg.assistant.link.ToolApprovals"));
         onHyperlinkAccess(verifyLink, e -> verifyMcpServer());
         onHyperlinkAccess(approvalsLink, e -> openMcpToolApprovals());
     }
@@ -186,8 +187,8 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
 
     private void verifyMcpServer() {
         Progress.modal(getProject(), null, true,
-                "Verifying MCP Server Configuration",
-                "Connecting to \"" + mcpServer.getName() + "\" MCP Server",
+                txt("prc.assistant.title.VerifyingMcpServerConfiguration"),
+                txt("prc.assistant.text.ConnectingToMcpServer", mcpServer.getName()),
                 p -> doVerifyMcpServer(p));
     }
 
@@ -195,8 +196,8 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
         AssistantMcpServer mcpServer = getConfigMcpServer();
         try {
             String detail = mcpServer.getType() == HTTP ?
-                    "Accessing http url \"" + mcpServer.getUrl() + "\"":
-                    "Invoking command \"" + mcpServer.getEndpoint() + "\"";
+                    txt("prc.assistant.text.AccessingMcpHttpUrl", mcpServer.getUrl()) :
+                    txt("prc.assistant.text.InvokingMcpCommand", mcpServer.getEndpoint());
             indicator.setText2(detail);
 
             // approve this endpoint for the verify call; persistent approval happens on settings Apply
@@ -207,24 +208,28 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
             if (indicator.isCanceled()) return;
 
             int count = tools.size();
-            showSuccessDialog(getProject(), "MCP Server Config",
-                    "Successfully verified \"" + mcpServer.getName() + "\" MCP Server configuration. " +
-                            count + (count == 1 ? " tool" : " tools") + " found.");
+            String messageKey = count == 1 ?
+                    "msg.assistant.info.McpServerConfigVerifiedOne" :
+                    "msg.assistant.info.McpServerConfigVerifiedMany";
+            showSuccessDialog(getProject(),
+                    txt("msg.assistant.title.McpServerConfig"),
+                    txt(messageKey, mcpServer.getName(), count));
         } catch (Throwable e) {
             conditionallyLog(e);
 
             if (indicator.isCanceled()) return;
-            showErrorDialog(getProject(), "MCP Server Config",
-                    "Failed to validate \"" + mcpServer.getName() + "\" MCP Server configuration.", e);
+            showErrorDialog(getProject(),
+                    txt("msg.assistant.title.McpServerConfig"),
+                    txt("msg.assistant.error.McpServerConfigValidationFailed", mcpServer.getName()), e);
         }
     }
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, n -> isNotEmpty(n), "Please provide a server name");
-        addTextValidation(nameTextField, n -> isNotUsed(n), "The server name is already in use");
-        addTextValidation(httpUrlTextField, s -> isNotEmpty(s), "Please provide the server URL");
-        addTextValidation(commandTextField.getTextField(), s -> isNotEmpty(s), "Please provide the server command executable");
+        addTextValidation(nameTextField, n -> isNotEmpty(n), txt("msg.assistant.error.McpServerNameRequired"));
+        addTextValidation(nameTextField, n -> isNotUsed(n), txt("msg.assistant.error.McpServerNameAlreadyInUse"));
+        addTextValidation(httpUrlTextField, s -> isNotEmpty(s), txt("msg.assistant.error.McpServerUrlRequired"));
+        addTextValidation(commandTextField.getTextField(), s -> isNotEmpty(s), txt("msg.assistant.error.McpServerCommandExecutableRequired"));
     }
 
     @Nullable

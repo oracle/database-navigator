@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 @Slf4j
 public class ParserDiagnosticsOpenAction extends ProjectAction {
 
+    public ParserDiagnosticsOpenAction() {
+        super(txt("app.diagnostics.action.ParserDiagnostics"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ParserDiagnosticsManager diagnosticsManager = ParserDiagnosticsManager.get(project);

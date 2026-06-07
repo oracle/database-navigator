@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class FolderConnectionUnlinkAction extends AbstractFolderContextAction {
 
+    public FolderConnectionUnlinkAction() {
+        super(txt("app.fileContext.action.ConnectionContextRemoveConnectionAssociation"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         VirtualFile file = Lookups.getVirtualFile(e);

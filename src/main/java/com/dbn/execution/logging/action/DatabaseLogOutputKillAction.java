@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseLogOutputKillAction extends AbstractDatabaseLoggingAction implements ComponentBase {
 
+    public DatabaseLogOutputKillAction() {
+        super(txt("app.execution.action.DatabaseLogOutputKillProcess"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatabaseLoggingResult loggingResult) {
         LogOutputContext context = loggingResult.getContext();

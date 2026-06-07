@@ -42,6 +42,7 @@ import java.util.List;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.cache.DBObjectFilterType.EMBEDDING_STAGING_TABLES;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static com.dbn.object.type.DBObjectType.TABLE;
@@ -97,7 +98,7 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadTables())
                 .withValuePreselector(() -> config.getTableName())
-                .withObjectFactory("New Table...")
+                .withObjectFactory(txt("app.vector.action.NewTable"))
                 .withValueFactoryInput(() -> createTableFactoryInput())
                 .withValueFactoryNameConsumer(() -> name -> getStagingTablesCache().addObjectName(getSelectedSchemaId(), name))
                 .triggerLoad();
@@ -129,8 +130,8 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
 
     @Override
     protected void initValidation() {
-        addSelectionValidation(schemaComboBox,"Please select a schema");
-        addSelectionValidation(tableComboBox,"Please select a table");
+        addSelectionValidation(schemaComboBox, txt("msg.shared.error.SelectSchema"));
+        addSelectionValidation(tableComboBox, txt("msg.shared.error.SelectTable"));
     }
 
     private void populateTables() {
@@ -171,7 +172,7 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
 
     @Override
     public String getFormTitle() {
-        return "Staging Location";
+        return txt("msg.vector.title.StagingLocation");
     }
 
     @Override

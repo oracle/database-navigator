@@ -16,8 +16,12 @@
 
 package com.dbn.data.editor.ui.calendar;
 
+import org.jetbrains.annotations.Nls;
+
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /******************************************************
  *                  TableModels                       *
@@ -50,14 +54,19 @@ class CalendarHeaderTableModel implements TableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        return getWeekdayShortName(columnIndex);
+    }
+
+    @Nls
+    private static String getWeekdayShortName(int columnIndex) {
         return switch (columnIndex) {
-            case 0 -> "S";
-            case 1 -> "M";
-            case 2 -> "T";
-            case 3 -> "W";
-            case 4 -> "T";
-            case 5 -> "F";
-            case 6 -> "S";
+            case 0 -> txt("app.dataEditor.const.CalendarWeekdayShort_SUNDAY");
+            case 1 -> txt("app.dataEditor.const.CalendarWeekdayShort_MONDAY");
+            case 2 -> txt("app.dataEditor.const.CalendarWeekdayShort_TUESDAY");
+            case 3 -> txt("app.dataEditor.const.CalendarWeekdayShort_WEDNESDAY");
+            case 4 -> txt("app.dataEditor.const.CalendarWeekdayShort_THURSDAY");
+            case 5 -> txt("app.dataEditor.const.CalendarWeekdayShort_FRIDAY");
+            case 6 -> txt("app.dataEditor.const.CalendarWeekdayShort_SATURDAY");
             default -> null;
         };
     }

@@ -24,6 +24,7 @@ import com.dbn.common.util.Commons;
 import com.dbn.database.common.metadata.DBObjectMetadata;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,7 +51,7 @@ public abstract class DynamicContentLoaderImpl<
     }
 
     public static <T extends DynamicContentElement, M extends DBObjectMetadata> DynamicContentLoader<T, M> create(
-            String identifier,
+            @NonNls String identifier,
             @Nullable DynamicContentType parentContentType,
             @NotNull DynamicContentType contentType,
             boolean register,

@@ -37,6 +37,7 @@ import javax.swing.JTextField;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class DBTableFactoryInputForm extends DBSchemaObjectFactoryInputForm {
@@ -76,8 +77,8 @@ public class DBTableFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), "Please enter a table name");
-        addTextValidation(nameTextField, n -> isWord(n), "Please enter a valid table name");
+        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.TableNameRequired"));
+        addTextValidation(nameTextField, n -> isWord(n), txt("msg.objects.error.ValidTableNameRequired"));
     }
 
     @Override

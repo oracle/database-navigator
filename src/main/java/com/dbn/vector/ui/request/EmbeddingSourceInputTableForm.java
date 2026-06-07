@@ -46,6 +46,7 @@ import java.util.List;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static com.dbn.object.type.DBObjectType.TABLE;
@@ -84,8 +85,7 @@ public class EmbeddingSourceInputTableForm extends VectorToolboxFormBase {
     }
 
     private void initHintPanel() {
-        TextContent hint = TextContent.plain("Please specify the table, the primary‑key column, and the column containing the text to be embedded.\n\n" +
-                "NOTE: Table and column information will be recorded as metadata in the embedding results, so each vector can be traced back to its original record.");
+        TextContent hint = TextContent.plain(txt("msg.vector.hint.SourceInputTable"));
         DBNHintForm hintForm = new DBNHintForm(this, hint, null, true);
         hintPanel.add(hintForm.getComponent());
 
@@ -179,10 +179,10 @@ public class EmbeddingSourceInputTableForm extends VectorToolboxFormBase {
 
     @Override
     protected void initValidation() {
-        addSelectionValidation(schemaComboBox, "Please select a schema");
-        addSelectionValidation(tableComboBox, "Please select a table");
-        addSelectionValidation(keyColumnComboBox, "Please select the primary key column");
-        addSelectionValidation(dataColumnComboBox, "Please select a data column");
+        addSelectionValidation(schemaComboBox, txt("msg.shared.error.SelectSchema"));
+        addSelectionValidation(tableComboBox, txt("msg.shared.error.SelectTable"));
+        addSelectionValidation(keyColumnComboBox, txt("msg.vector.error.SelectPrimaryKeyColumn"));
+        addSelectionValidation(dataColumnComboBox, txt("msg.vector.error.SelectDataColumn"));
     }
 
     private void populateColumns() {

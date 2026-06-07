@@ -27,11 +27,12 @@ import java.time.Duration;
 import static com.dbn.common.checksum.Checksum.fromFileAttributes;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.util.Executables.resolveExecutableFile;
+import static com.dbn.nls.NlsResources.txt;
 
 public class CmdLineInterfaceApprovalAdapter implements UserApprovalAdapter<CmdLineInterface> {
     private static final String[] APPROVAL_OPTIONS = Messages.options(
-            "Trust and Execute",
-            "Cancel");
+            txt("msg.execution.button.TrustAndExecute"),
+            txt("msg.shared.button.Cancel"));
 
     @Override
     public Class<CmdLineInterface> getApprovalClass() {
@@ -40,7 +41,7 @@ public class CmdLineInterfaceApprovalAdapter implements UserApprovalAdapter<CmdL
 
     @Override
     public String getApprovalTitle(CmdLineInterface cmdLineInterface) {
-        return "Trust Command-Line Interface";
+        return txt("msg.execution.title.TrustCommandLineInterface");
     }
 
     @Override
@@ -48,13 +49,9 @@ public class CmdLineInterfaceApprovalAdapter implements UserApprovalAdapter<CmdL
         String executablePath = getExecutablePath(cmdLineInterface);
         File executableFile = resolveExecutableFile(executablePath);
 
-        return "Database Navigator wants to invoke \"" + cmdLineInterface.getName() + "\" command line interface.\n\n" +
-                "Executable path: " + (executableFile == null ? executablePath : executableFile.getAbsolutePath()) + "\n" +
-                "\n" +
-                "Command-line clients are local executables that run with your IDE user's permissions. " +
-                "They may access local files, environment variables, network resources, database connection details, " +
-                "and the script content being executed.\n\n" +
-                "Only continue if you recognize this executable and consider it safe to use.";
+        return txt("msg.execution.question.TrustCommandLineInterface",
+                cmdLineInterface.getName(),
+                executableFile == null ? executablePath : executableFile.getAbsolutePath());
     }
 
     @Override

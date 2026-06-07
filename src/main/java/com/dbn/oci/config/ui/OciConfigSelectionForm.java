@@ -46,6 +46,7 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 
 public class OciConfigSelectionForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -62,10 +63,10 @@ public class OciConfigSelectionForm extends DBNFormBase {
         super(parent);
         this.config = config;
 
-        addSingleFileChooser(getProject(), configFileTextField, "Select OCI configuration file", "");
+        addSingleFileChooser(getProject(), configFileTextField, txt("cfg.oci.title.SelectConfigFile"), "");
 
-        userIdTextField.getEmptyText().setText("ocid1.user.oc1..");
-        tenancyIdTextField.getEmptyText().setText("ocid1.tenancy.oc1..");
+        userIdTextField.getEmptyText().setText(txt("cfg.oci.placeholder.UserOcidExample"));
+        tenancyIdTextField.getEmptyText().setText(txt("cfg.oci.placeholder.TenancyOcidExample"));
         onTextChange(configFileTextField, e -> configProfileComboBox.reloadValues());
         onSelectionChange(configProfileComboBox, v -> updateConfigFieldValues());
 
@@ -101,9 +102,9 @@ public class OciConfigSelectionForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(configFileTextField.getTextField(), s -> isNotEmpty(s), "Please select a Configuration file");
-        addTextValidation(configFileTextField.getTextField(), s -> new File(s).isFile(), "Please select a valid Configuration file");
-        addSelectionValidation(configProfileComboBox, "Please select an OCI configuration profile");
+        addTextValidation(configFileTextField.getTextField(), s -> isNotEmpty(s), txt("cfg.oci.error.ConfigFileRequired"));
+        addTextValidation(configFileTextField.getTextField(), s -> new File(s).isFile(), txt("cfg.oci.error.ValidConfigFileRequired"));
+        addSelectionValidation(configProfileComboBox, txt("cfg.oci.error.ConfigProfileRequired"));
     }
 
     protected void initFieldAvailability() {

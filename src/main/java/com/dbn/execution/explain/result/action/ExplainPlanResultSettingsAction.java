@@ -29,6 +29,10 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ExplainPlanResultSettingsAction extends AbstractExplainPlanResultAction {
+    public ExplainPlanResultSettingsAction() {
+        super(txt("app.execution.action.ExplainPlanResultSettings"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ExplainPlanResult explainPlanResult) {
         ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);

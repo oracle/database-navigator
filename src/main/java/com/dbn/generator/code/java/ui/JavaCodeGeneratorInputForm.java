@@ -53,6 +53,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Java.isValidClassName;
 import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extends CodeGeneratorInputForm<I> {
     private JPanel headerPanel;
@@ -76,11 +77,11 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
     }
 
     protected void initValidation() {
-        addSelectionValidation(moduleComboBox, "Please select the destination module");
-        addSelectionValidation(contentRootComboBox, "Please select the destination content root");
-        addTextValidation(packageTextField, p -> isValidPackageName(p), "Please enter a valid package name");
-        addTextValidation(classNameTextField, p -> isNotEmpty(p), "Please enter a class name");
-        addTextValidation(classNameTextField, p -> isValidClassName(p), "Please enter a valid class name");
+        addSelectionValidation(moduleComboBox, txt("msg.java.error.SelectDestinationModule"));
+        addSelectionValidation(contentRootComboBox, txt("msg.java.error.SelectDestinationContentRoot"));
+        addTextValidation(packageTextField, p -> isValidPackageName(p), txt("msg.java.error.ValidPackageName"));
+        addTextValidation(classNameTextField, p -> isNotEmpty(p), txt("msg.java.error.ClassNameRequired"));
+        addTextValidation(classNameTextField, p -> isValidClassName(p), txt("msg.java.error.ValidClassName"));
     }
 
     @Override

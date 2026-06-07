@@ -54,6 +54,7 @@ import static com.dbn.common.ui.util.TextFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.model.DBObjectAttributeType.CREDENTIAL_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.FINGERPRINT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.PASSWORD;
@@ -182,8 +183,8 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
             credentialTypeComboBox.addActionListener((e) -> updateFieldAvailability());
         }
 
-        ociCredentialUserOcidField.getEmptyText().setText("ocid1.user.oc1...");
-        ociCredentialTenancyOcidField.getEmptyText().setText("ocid1.tenancy.oc1...");
+        ociCredentialUserOcidField.getEmptyText().setText(txt("app.objects.placeholder.UserOcidExample"));
+        ociCredentialTenancyOcidField.getEmptyText().setText(txt("app.objects.placeholder.TenancyOcidExample"));
     }
 
     @Override

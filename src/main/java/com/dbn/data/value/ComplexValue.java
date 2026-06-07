@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ComplexValue extends ValueAdapter<String> implements Comparable<ComplexValue>{
     private String displayValue;
@@ -73,7 +74,7 @@ public class ComplexValue extends ValueAdapter<String> implements Comparable<Com
             }
         } catch (Throwable e) {
             conditionallyLog(e);
-            throw toSqlException(e, "Could not write complex value. Your JDBC driver may not support this feature");
+            throw toSqlException(e, txt("msg.data.exception.CouldNotWriteComplexValue"));
         }
 
     }
@@ -88,7 +89,7 @@ public class ComplexValue extends ValueAdapter<String> implements Comparable<Com
             }
         } catch (Throwable e) {
             conditionallyLog(e);
-            throw toSqlException(e, "Could not write complex value. Your JDBC driver may not support this feature");
+            throw toSqlException(e, txt("msg.data.exception.CouldNotWriteComplexValue"));
         }
     }
 

@@ -26,9 +26,11 @@ import com.intellij.formatting.Wrap;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class IterationChopDownIfLongStatementPreset extends IterationAbstractPreset {
     public IterationChopDownIfLongStatementPreset() {
-        super("chop_down_if_statement_long", "Chop down if statement long");
+        super("chop_down_if_statement_long", txt("cfg.codeStyle.const.CodeStylePreset_CHOP_DOWN_IF_STATEMENT_LONG"));
     }
 
     @Override

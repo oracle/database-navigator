@@ -46,6 +46,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
@@ -73,7 +74,7 @@ public class EmbeddingModelThirdPartyForm extends VectorToolboxFormBase {
     private void initDocumentationLink() {
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
                 "",
-                "Supported Third-Party Providers",
+                txt("app.vector.link.SupportedThirdPartyProviders"),
                 "https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/supported-third-party-provider-operations-and-endpoints.html");
 
         hyperLinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.WEST);
@@ -98,7 +99,7 @@ public class EmbeddingModelThirdPartyForm extends VectorToolboxFormBase {
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadCredentials())
                 .withValuePreselector(() -> config.getCredentialName())
-                .withObjectFactory("New Credential...")
+                .withObjectFactory(txt("app.vector.action.NewCredential"))
                 .triggerLoad();
 
         updateFieldAvailability();
@@ -117,11 +118,11 @@ public class EmbeddingModelThirdPartyForm extends VectorToolboxFormBase {
 
     @Override
     protected void initValidation() {
-        addSelectionValidation(credentialSchemaComboBox, "Please select a credential schema");
-        addSelectionValidation(credentialComboBox, "Please select or create a credential");
-        addSelectionValidation(providerComboBox, "Please specify the embedding model provider");
-        addTextValidation(urlTextField, t -> Strings.isNotEmpty(t), "Please specify the embedding model URL");
-        addTextValidation(modelTextField, t -> Strings.isNotEmpty(t), "Please specify the embedding model name");
+        addSelectionValidation(credentialSchemaComboBox, txt("msg.vector.error.SelectCredentialSchema"));
+        addSelectionValidation(credentialComboBox, txt("msg.vector.error.SelectOrCreateCredential"));
+        addSelectionValidation(providerComboBox, txt("msg.vector.error.EmbeddingModelProviderRequired"));
+        addTextValidation(urlTextField, t -> Strings.isNotEmpty(t), txt("msg.vector.error.EmbeddingModelUrlRequired"));
+        addTextValidation(modelTextField, t -> Strings.isNotEmpty(t), txt("msg.vector.error.EmbeddingModelNameRequired"));
     }
 
     @Override

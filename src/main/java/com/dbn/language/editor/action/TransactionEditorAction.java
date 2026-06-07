@@ -40,6 +40,10 @@ import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 @BackgroundUpdate
 public abstract class TransactionEditorAction extends ProjectAction {
 
+    protected TransactionEditorAction(String text) {
+        super(text);
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         VirtualFile virtualFile = Lookups.getVirtualFile(e);

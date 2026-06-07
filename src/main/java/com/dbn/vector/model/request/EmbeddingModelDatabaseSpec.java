@@ -21,6 +21,7 @@ import com.dbn.common.util.Json;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -43,6 +44,7 @@ public class EmbeddingModelDatabaseSpec implements PersistentStateElement {
     return Json.writeAsString(params);
   }
 
+  @NonNls
   @NotNull
   public Map<String, ?> getConfigMap() {
       return Map.of(

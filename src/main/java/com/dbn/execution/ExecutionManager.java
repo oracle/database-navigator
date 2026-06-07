@@ -63,6 +63,7 @@ import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.common.util.Modality.nonModal;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
     name = ExecutionManager.COMPONENT_NAME,
@@ -154,7 +155,7 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
                 c.displayLogOutput(
                         context, LogOutput.createSysOutput(context,
                                 executionResult.getExecutionContext().getExecutionTimestamp(),
-                                " - Statement execution started", false));
+                                txt("log.execution.info.StatementExecutionStarted"), false));
 
                 if (Strings.isNotEmptyOrSpaces(loggingOutput)) {
                     c.displayLogOutput(context,
@@ -162,7 +163,7 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
                 }
 
                 c.displayLogOutput(context,
-                        LogOutput.createSysOutput(context, " - Statement execution finished\n", false));
+                        LogOutput.createSysOutput(context, txt("log.execution.info.StatementExecutionFinished"), false));
             }
 
             c.addResult(executionResult, instructions);

@@ -21,6 +21,8 @@ import lombok.experimental.UtilityClass;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @UtilityClass
 public class Presentation {
     public static final DefaultPresentationProvider GENERIC_PROVIDER = new DefaultPresentationProvider();
@@ -30,17 +32,17 @@ public class Presentation {
     }
 
     public static String presentableName(Object object) {
-        if (object == null) return "Undefined";
+        if (object == null) return txt("app.shared.text.Undefined");
         return getProvider(object).getName(object);
     }
 
     public static String presentableDetailedName(Object object) {
-        if (object == null) return "Undefined";
+        if (object == null) return txt("app.shared.text.Undefined");
         return getProvider(object).getDetailedName(object);
     }
 
     public static String presentableTypeName(Object object) {
-        if (object == null) return "Undefined";
+        if (object == null) return txt("app.shared.text.Undefined");
         return getProvider(object).getTypeName(object);
     }
 

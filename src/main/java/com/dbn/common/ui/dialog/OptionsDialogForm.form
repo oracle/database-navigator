@@ -14,7 +14,7 @@
         </constraints>
         <properties>
           <labelFor value="d7f4c"/>
-          <text value="[option type]"/>
+          <text resource-bundle="messages/DBNResources" key="app.shared.placeholder.OptionType"/>
         </properties>
       </component>
       <hspacer id="25a8a">

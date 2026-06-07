@@ -28,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.IOException;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Slf4j
 public class MavenArtifactDownloader {
 
@@ -44,10 +46,10 @@ public class MavenArtifactDownloader {
             downloadAndVerify(session, packageId, artifactUrl, library);
 
         } catch (ProcessCanceledException ignored) {
-            session.addInfoMessage("Download process canceled for " + packageId);
+            session.addInfoMessage(txt("msg.connection.info.DownloadCanceledForPackage", packageId));
         } catch (Exception e) {
             log.warn("Failed to download artifact '{}'", libraryId, e);
-            session.addErrorMessage("Download failed for " + libraryId + ": " + e.getMessage());
+            session.addErrorMessage(txt("msg.connection.error.DownloadFailedForLibrary", libraryId, e));
         }
     }
 

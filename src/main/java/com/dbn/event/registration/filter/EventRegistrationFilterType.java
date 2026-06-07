@@ -19,24 +19,27 @@ package com.dbn.event.registration.filter;
 import com.dbn.common.filter.FilterOption;
 import com.dbn.common.icon.Icons;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public enum EventRegistrationFilterType {
-    USER("user", Icons.DBO_USER),
-    TABLE("table", Icons.DBO_TABLE),
-    STATUS("status", null),
+    USER(txt("app.eventRegistration.const.EventRegistrationFilterType_USER"), Icons.DBO_USER),
+    TABLE(txt("app.eventRegistration.const.EventRegistrationFilterType_TABLE"), Icons.DBO_TABLE),
+    STATUS(txt("app.eventRegistration.const.EventRegistrationFilterType_STATUS"), null),
     //...
     ;
 
-    public static final FilterOption FILTER_STATUS_LISTENING = new FilterOption("LISTENING", "Listening", Icons.COMMON_FILTER_ACTIVE);
-    public static final FilterOption FILTER_STATUS_NOT_LISTENING = new FilterOption("NOT_LISTENING", "Not Listening", Icons.COMMON_FILTER_INACTIVE);
+    public static final FilterOption FILTER_STATUS_LISTENING = new FilterOption("LISTENING", txt("app.eventRegistration.const.FilterStatus_LISTENING"), Icons.COMMON_FILTER_ACTIVE);
+    public static final FilterOption FILTER_STATUS_NOT_LISTENING = new FilterOption("NOT_LISTENING", txt("app.eventRegistration.const.FilterStatus_NOT_LISTENING"), Icons.COMMON_FILTER_INACTIVE);
 
-    private final String name;
+    private final @Nls String name;
     private final Icon icon;
 
-    EventRegistrationFilterType(String name, Icon icon) {
+    EventRegistrationFilterType(@Nls String name, Icon icon) {
         this.name = name;
         this.icon = icon;
     }

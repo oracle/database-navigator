@@ -19,11 +19,13 @@ package com.dbn.vector.model.request;
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public enum EmbeddingSourceType implements Presentable {
-    FILE_SYSTEM("File system"),
-    DATABASE_TABLE("Database tables"),
-    DATABASE_QUERY("Database queries");
+    FILE_SYSTEM(txt("msg.vector.const.EmbeddingSourceType_FILE_SYSTEM")),
+    DATABASE_TABLE(txt("msg.vector.const.EmbeddingSourceType_DATABASE_TABLE")),
+    DATABASE_QUERY(txt("msg.vector.const.EmbeddingSourceType_DATABASE_QUERY"));
 
     private final String name;
 

@@ -31,6 +31,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class DataImportAction extends AbstractDataEditorAction {
 
+    public DataImportAction() {
+        super(txt("app.dataEditor.action.DataEditorImport"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         Messages.showInfoDialog(project,

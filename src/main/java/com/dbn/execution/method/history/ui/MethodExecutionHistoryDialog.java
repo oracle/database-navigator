@@ -33,6 +33,7 @@ import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
 import static com.dbn.help.HelpTopic.METHOD_EXECUTION_HISTORY;
+import static com.dbn.nls.NlsResources.txt;
 
 public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHistoryForm> {
     private SelectAction selectAction;
@@ -51,7 +52,7 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
             boolean modal,
             boolean debug) {
 
-        super(project, "Method execution history", true);
+        super(project, txt("msg.execution.title.MethodExecutionHistory"), true);
         this.selectedExecutionInput = WeakRef.of(executionInput);
         this.editable = editable;
         this.debug = debug;
@@ -94,7 +95,7 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
             selectAction = new SelectAction();
             selectAction.setEnabled(false);
             closeAction = new CloseAction();
-            renameAction(closeAction, "Cancel");
+            renameAction(closeAction, txt("msg.shared.button.Cancel"));
             return actions(
                     selectAction,
                     closeAction);
@@ -126,7 +127,7 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
      **********************************************************/
     private class SelectAction extends AbstractAction {
         SelectAction() {
-            super("Select");
+            super(txt("msg.shared.button.Select"));
         }
 
         @Override
@@ -138,7 +139,7 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
 
     private class ExecuteAction extends AbstractAction {
         ExecuteAction() {
-            super("Execute", Icons.METHOD_EXECUTION_RUN);
+            super(txt("msg.shared.button.Execute"), Icons.METHOD_EXECUTION_RUN);
         }
 
         @Override
@@ -155,7 +156,7 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
 
     private class DebugAction extends AbstractAction {
         DebugAction() {
-            super("Debug", Icons.METHOD_EXECUTION_DEBUG);
+            super(txt("msg.shared.button.Debug"), Icons.METHOD_EXECUTION_DEBUG);
         }
 
         @Override
@@ -172,20 +173,20 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
 
     private class SaveAction extends AbstractAction {
         SaveAction() {
-            super("Save");
+            super(txt("msg.shared.button.Save"));
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
             saveChanges();
             saveAction.setEnabled(false);
-            renameAction(closeAction, "Close");
+            renameAction(closeAction, txt("msg.shared.button.Close"));
         }
     }
 
     private class CloseAction extends AbstractAction {
         CloseAction() {
-            super("Close");
+            super(txt("msg.shared.button.Close"));
         }
 
         @Override
@@ -210,6 +211,6 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
         if (isDisposed()) return;
 
         if (saveAction != null) saveAction.setEnabled(enabled);
-        renameAction(closeAction, enabled ? "Cancel" : "Close");
+        renameAction(closeAction, enabled ? txt("msg.shared.button.Cancel") : txt("msg.shared.button.Close"));
     }
 }

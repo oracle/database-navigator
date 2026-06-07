@@ -25,6 +25,10 @@ import org.jetbrains.annotations.Nullable;
 
 abstract class AbstractExecutionMessagesAction extends ContextAction<MessagesTree> {
 
+    protected AbstractExecutionMessagesAction(String text) {
+        super(text);
+    }
+
     @Nullable
     protected MessagesTree getContext(@NotNull AnActionEvent e) {
         return DataKeys.MESSAGES_TREE.getData(e.getDataContext());

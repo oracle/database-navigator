@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionResultExportAction extends AbstractExecutionResultAction {
 
+    public ExecutionResultExportAction() {
+        super(txt("app.execution.action.ExecutionResultExportData"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull StatementExecutionCursorResult sourceResult) {
         ResultSetTable sourceTable = sourceResult.getResultTable();

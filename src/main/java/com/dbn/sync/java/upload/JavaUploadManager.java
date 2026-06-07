@@ -27,7 +27,6 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Files;
-import com.dbn.common.util.Messages;
 import com.dbn.sync.java.upload.ui.JavaUploadResultDialog;
 import com.dbn.sync.java.upload.ui.JavaUploaderInputDialog;
 import com.intellij.openapi.components.State;
@@ -69,6 +68,9 @@ import static com.dbn.common.file.util.ProjectFiles.isModuleDependency;
 import static com.dbn.common.file.util.ProjectFiles.isProjectSourceFile;
 import static com.dbn.common.file.util.VirtualFiles.isArchive;
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showInfoDialog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.sync.java.upload.JavaUploadManager.COMPONENT_NAME;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
@@ -100,8 +102,8 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 	public void openCodeUploader(VirtualFile file) {
 		FileDocumentManager.getInstance().saveAllDocuments();
 		Progress.prompt(getProject(), null, true,
-				"Preparing Java Upload",
-				"Loading java dependencies for " + file.getPresentableName() + "...",
+				txt("prc.java.title.PreparingJavaUpload"),
+				txt("prc.java.text.LoadingJavaDependencies", file.getPresentableName()),
 				progress -> prepareUploadDialog(file));
 	}
 
@@ -112,14 +114,14 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 		try {
 			Set<VirtualFile> dependencies = loadDependencies(rootFile);
 			if (dependencies.isEmpty()) {
-				Messages.showInfoDialog(project, "No Java Resources", "No uploadable java content found under workspace directory \"" + rootFilePath + "\"");
+				showInfoDialog(project, txt("msg.java.title.NoJavaResources"), txt("msg.java.info.NoJavaResources", rootFilePath));
 				return;
 			}
 
 			JavaUploadBatch batch = createBatch(rootFile, project, dependencies);
 			Dialogs.show(() -> new JavaUploaderInputDialog(batch));
 		} catch (Exception e) {
-			Messages.showErrorDialog(project, "Error Loading Java Resources", "Failed to load java content from workspace directory \"" + rootFilePath + "\"", e);
+			showErrorDialog(project, txt("msg.java.title.ErrorLoadingJavaResources"), txt("msg.java.error.JavaResourcesLoadFailed", rootFilePath), e);
 		}
 	}
 
@@ -193,7 +195,7 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 	}
 
     @NotNull
-    public StateAttributes getState(String category) {
+    public StateAttributes getState(@NonNls String category) {
         StateCategory stateCategory = StateCategory.get(category);
         return states.ensureAttributes(stateCategory);
     }

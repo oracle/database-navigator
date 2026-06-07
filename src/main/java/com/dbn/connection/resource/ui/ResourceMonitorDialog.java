@@ -25,11 +25,12 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Action;
 
 import static com.dbn.help.HelpTopic.RESOURCE_MONITOR;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ResourceMonitorDialog extends DBNDialog<ResourceMonitorForm> {
 
     public ResourceMonitorDialog(Project project) {
-        super(project, "Resource Monitor", true);
+        super(project, txt("msg.connection.title.ResourceMonitor"), true);
         setModal(false);
         setResizable(true);
         setDefaultSize(1000, 600);
@@ -50,7 +51,7 @@ public class ResourceMonitorDialog extends DBNDialog<ResourceMonitorForm> {
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(getCancelAction());
     }
 

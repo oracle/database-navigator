@@ -44,6 +44,7 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.ui.util.ClientProperty.FORM;
+import static com.dbn.nls.NlsResources.txt;
 
 public class TabbedBrowserForm extends DatabaseBrowserForm{
     private final DBNColoredTabs<SimpleBrowserForm> connectionTabs;

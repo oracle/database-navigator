@@ -34,6 +34,8 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Database Assistant introduction form
  * This form is presented to the user on top of the chat-box after the availability of the AI-Assistant is evaluated.
@@ -83,7 +85,7 @@ public class SelectAiIntroductionForm extends DBNFormBase implements AssistantIn
     }
 
     private void initHyperlink() {
-        poweredByHyperlink.setHyperlinkText("Oracle Select AI");
+        poweredByHyperlink.setHyperlinkText(txt("cfg.assistant.link.OracleSelectAi"));
         poweredByHyperlink.setHyperlinkTarget("https://www.oracle.com/autonomous-database/select-ai/");
     }
 

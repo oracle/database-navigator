@@ -26,8 +26,13 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.browser.DatabaseBrowserManager.TOOL_WINDOW_ID;
 import static com.dbn.common.dispose.Failsafe.nn;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseBrowserOpenAction extends ProjectAction {
+
+    public DatabaseBrowserOpenAction() {
+        super(txt("app.menu.action.DatabaseBrowser"));
+    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {

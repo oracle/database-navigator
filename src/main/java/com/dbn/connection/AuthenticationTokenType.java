@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Enumeration for all possible token authentication types<br>
  * See: <a href="https://docs.oracle.com/en/database/oracle/oracle-database/23/odpnt/ConnectionTokenAuthentication.html">Oracle token auth types</a>
@@ -34,15 +36,15 @@ import java.util.Set;
 @Getter
 @AllArgsConstructor
 public enum AuthenticationTokenType implements Presentable, Constant<AuthenticationTokenType> {
-    OCI_API_KEY("OCI API Key"),
-    OCI_INSTANCE_PRINCIPAL("OCI Instance Principal"),
-    OCI_RESOURCE_PRINCIPAL("OCI Resource Principal"),
-    OCI_DELEGATION_TOKEN("OCI Delegation Token"),
-    OCI_INTERACTIVE("OCI Interactive"),
+    OCI_API_KEY(txt("cfg.connection.const.AuthenticationTokenType_OCI_API_KEY")),
+    OCI_INSTANCE_PRINCIPAL(txt("cfg.connection.const.AuthenticationTokenType_OCI_INSTANCE_PRINCIPAL")),
+    OCI_RESOURCE_PRINCIPAL(txt("cfg.connection.const.AuthenticationTokenType_OCI_RESOURCE_PRINCIPAL")),
+    OCI_DELEGATION_TOKEN(txt("cfg.connection.const.AuthenticationTokenType_OCI_DELEGATION_TOKEN")),
+    OCI_INTERACTIVE(txt("cfg.connection.const.AuthenticationTokenType_OCI_INTERACTIVE")),
 
-    AZURE_SERVICE_PRINCIPAL_CERTIFICATE("Azure Service Principal with Certificate"),
-    AZURE_SERVICE_PRINCIPAL_TOKEN("Azure Service Principal with Token"),
-    AZURE_INTERACTIVE("Azure Interactive");
+    AZURE_SERVICE_PRINCIPAL_CERTIFICATE(txt("cfg.connection.const.AuthenticationTokenType_AZURE_SERVICE_PRINCIPAL_CERTIFICATE")),
+    AZURE_SERVICE_PRINCIPAL_TOKEN(txt("cfg.connection.const.AuthenticationTokenType_AZURE_SERVICE_PRINCIPAL_TOKEN")),
+    AZURE_INTERACTIVE(txt("cfg.connection.const.AuthenticationTokenType_AZURE_INTERACTIVE"));
 
     private final String name;
 

@@ -28,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ResourceMonitorSessionsTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel {
     private final ConnectionRef connection;
     private final List<DatabaseSession> sessions;
@@ -64,12 +66,12 @@ public class ResourceMonitorSessionsTableModel extends StatefulDisposableBase im
     @Override
     public String getColumnName(int columnIndex) {
         return switch (columnIndex) {
-            case 0 -> "Session";
-            case 1 -> "Status";
-            case 2 -> "Last Access";
-            case 3 -> "Open Connections / Peak";
-            case 4 -> "Open Cursors";
-            case 5 -> "Cached Statements";
+            case 0 -> txt("app.shared.column.Session");
+            case 1 -> txt("app.shared.column.Status");
+            case 2 -> txt("app.connection.column.LastAccess");
+            case 3 -> txt("app.connection.column.OpenConnectionsPeak");
+            case 4 -> txt("app.connection.column.OpenCursors");
+            case 5 -> txt("app.connection.column.CachedStatements");
             default -> null;
         };
     }
