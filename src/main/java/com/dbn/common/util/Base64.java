@@ -19,7 +19,6 @@ package com.dbn.common.util;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Arrays;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 
@@ -31,41 +30,11 @@ import java.util.Base64.Encoder;
 public final class Base64 {
 
     public static char[] encode(char[] chars) {
-        if (Chars.isEmpty(chars)) return Chars.EMPTY_ARRAY;
-
-        byte[] bytes = null;
-        byte[] encoded = null;
-        try {
-            Encoder encoder = java.util.Base64.getEncoder();
-            bytes = Chars.toBytes(chars);
-            encoded = encoder.encode(bytes);
-            return Chars.fromBytes(encoded);
-        } catch (Exception e) {
-            log.warn("Failed to encode chars. Returning original", e);
-        } finally {
-            Chars.clear(bytes);
-            Chars.clear(encoded);
-        }
-        return Arrays.copyOf(chars, chars.length);
+        return Chars.fromString(encode(Chars.toString(chars)));
     }
 
     public static char[] decode(char[] chars) {
-        if (Chars.isEmpty(chars)) return Chars.EMPTY_ARRAY;
-
-        byte[] bytes = null;
-        byte[] decoded = null;
-        try {
-            Decoder decoder = java.util.Base64.getDecoder();
-            bytes = Chars.toBytes(chars);
-            decoded = decoder.decode(bytes);
-            return Chars.fromBytes(decoded);
-        } catch (Exception e) {
-            log.warn("Failed to decode chars. Returning original", e);
-        } finally {
-            Chars.clear(bytes);
-            Chars.clear(decoded);
-        }
-        return Arrays.copyOf(chars, chars.length);
+        return Chars.fromString(decode(Chars.toString(chars)));
     }
 
     public static String encode(String string) {

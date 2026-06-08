@@ -26,8 +26,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.dbn.common.util.Base64.decode;
-import static com.dbn.common.util.Base64.encode;
 import static com.dbn.common.util.TimeUtil.Millis.THIRTY_SECONDS;
 import static java.lang.System.currentTimeMillis;
 
@@ -41,9 +39,8 @@ import static java.lang.System.currentTimeMillis;
  * configuration data while the secret value is temporarily available from this store.
  * <p>
  * Entries expire after thirty seconds and are single-use: {@link #consume(char[], Object...)}
- * removes the entry before returning it. Secrets are stored as Base64-encoded {@code char[]}
- * values only to avoid keeping the original clear text array shape in the map; Base64 is not
- * encryption and this class must not be used for persistent storage or cross-restart transfer.
+ * removes the entry before returning it. This class must not be used for persistent storage or
+ * cross-restart transfer.
  */
 public final class TransientSecretStore {
     private static final long TIMEOUT = THIRTY_SECONDS;
@@ -55,14 +52,14 @@ public final class TransientSecretStore {
     /**
      * Stores a secret under the supplied key parts for a short transient window.
      *
-     * @param secret the secret to store, copied into an encoded internal representation
+     * @param secret the secret to store, copied into an internal array
      * @param keyParts stable non-secret values that uniquely identify the transient secret
      */
     public static void store(char[] secret, @NotNull Object ... keyParts) {
         cleanupExpired();
 
         Key key = new Key(keyParts);
-        Entry entry = new Entry(encode(secret), currentTimeMillis() + TIMEOUT);
+        Entry entry = new Entry(secret, currentTimeMillis() + TIMEOUT);
         Entry oldEntry = DATA.put(key, entry);
         if (oldEntry != null) oldEntry.clear();
 
@@ -83,7 +80,7 @@ public final class TransientSecretStore {
 
         try {
             if (entry.isExpired()) return defaultSecret;
-            return decode(entry.secret);
+            return entry.secret();
         } finally {
             entry.clear();
         }
@@ -116,45 +113,45 @@ public final class TransientSecretStore {
         }
     }
 
-    private static class Entry {
-        private final char[] secret;
-        private final long expiresAt;
+    private record Entry(char[] secret, long expiresAt) {
+            private Entry(char[] secret, long expiresAt) {
+                this.secret = Chars.isEmpty(secret) ? Chars.EMPTY_ARRAY : Arrays.copyOf(secret, secret.length);
+                this.expiresAt = expiresAt;
+            }
 
-        private Entry(char[] secret, long expiresAt) {
-            this.secret = secret;
-            this.expiresAt = expiresAt;
+            @Override
+            public char[] secret() {
+                return Arrays.copyOf(secret, secret.length);
+            }
+
+            private boolean isExpired() {
+                return isExpired(currentTimeMillis());
+            }
+
+            private boolean isExpired(long time) {
+                return time >= expiresAt;
+            }
+
+            private void clear() {
+                Chars.clear(secret);
+            }
         }
 
-        private boolean isExpired() {
-            return isExpired(currentTimeMillis());
-        }
+    private record Key(Object[] parts) {
+            private Key(Object[] parts) {
+                this.parts = Arrays.copyOf(parts, parts.length);
+            }
 
-        private boolean isExpired(long time) {
-            return time >= expiresAt;
-        }
+            @Override
+            public boolean equals(Object o) {
+                if (o == null || getClass() != o.getClass()) return false;
+                Key key = (Key) o;
+                return Arrays.equals(parts, key.parts);
+            }
 
-        private void clear() {
-            Chars.clear(secret);
+            @Override
+            public int hashCode() {
+                return Arrays.hashCode(parts);
+            }
         }
-    }
-
-    private static final class Key {
-        private final Object[] parts;
-
-        private Key(Object[] parts) {
-            this.parts = Arrays.copyOf(parts, parts.length);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            Key key = (Key) o;
-            return Arrays.equals(parts, key.parts);
-        }
-
-        @Override
-        public int hashCode() {
-            return Arrays.hashCode(parts);
-        }
-    }
 }

@@ -18,11 +18,7 @@ package com.dbn.common.util;
 
 import lombok.experimental.UtilityClass;
 
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.util.Arrays;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Basic char array utilities
@@ -51,53 +47,9 @@ public class Chars {
         return string == null ? null : string.toCharArray();
     }
 
-    public static byte[] toBytes(char[] chars) {
-        if (chars == null) return null;
-
-        ByteBuffer buffer = UTF_8.encode(CharBuffer.wrap(chars));
-        try {
-            byte[] bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-            return bytes;
-        } finally {
-            clear(buffer);
-        }
-    }
-
-    public static char[] fromBytes(byte[] bytes) {
-        if (bytes == null) return null;
-
-        CharBuffer buffer = UTF_8.decode(ByteBuffer.wrap(bytes));
-        try {
-            char[] chars = new char[buffer.remaining()];
-            buffer.get(chars);
-            return chars;
-        } finally {
-            clear(buffer);
-        }
-    }
-
     public static void clear(char[] chars) {
         if (chars != null) {
             Arrays.fill(chars, ' ');
-        }
-    }
-
-    public static void clear(byte[] bytes) {
-        if (bytes != null) {
-            Arrays.fill(bytes, (byte) 0);
-        }
-    }
-
-    private static void clear(ByteBuffer buffer) {
-        if (buffer != null && buffer.hasArray()) {
-            clear(buffer.array());
-        }
-    }
-
-    private static void clear(CharBuffer buffer) {
-        if (buffer != null && buffer.hasArray()) {
-            clear(buffer.array());
         }
     }
 }
