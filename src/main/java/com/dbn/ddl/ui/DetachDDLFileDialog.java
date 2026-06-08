@@ -31,12 +31,13 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     private final List<VirtualFileInfo> fileInfos;
     private final DBObjectRef<DBSchemaObject> objectRef;
     public DetachDDLFileDialog(@NotNull List<VirtualFileInfo> fileInfos, @NotNull DBSchemaObject object) {
-        super(object.getProject(), "Detach DDL files", true);
+        super(object.getProject(), txt("msg.ddlFiles.title.DetachDdlFiles"), true);
         this.fileInfos = fileInfos;
         this.objectRef = DBObjectRef.of(object);
         setDefaultSize(700, 400);
@@ -48,8 +49,9 @@ public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     protected SelectDDLFileForm createForm() {
         DBSchemaObject object = objectRef.ensure();
         TextContent hintText = plain(
-                "Following DDL files are currently attached the " + object.getQualifiedNameWithType() + ".\n\n" +
-                "Select the files to detach from this " + object.getTypeName() + ".");
+                txt("msg.ddlFiles.hint.DetachDdlFiles",
+                        object.getQualifiedNameWithType(),
+                        object.getTypeName()));
         return new SelectDDLFileForm(this, object, fileInfos, hintText, false);
     }
 
@@ -61,7 +63,7 @@ public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Detach selected");
+        renameAction(getOKAction(), txt("msg.ddlFiles.button.DetachSelected"));
         return actions(
                 getOKAction(),
                 new SelectAllAction(),
@@ -71,7 +73,7 @@ public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
 
     private class SelectAllAction extends AbstractAction {
         private SelectAllAction() {
-            super("Detach all");
+            super(txt("msg.ddlFiles.button.DetachAll"));
         }
 
         @Override
@@ -83,7 +85,7 @@ public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
 
     private class SelectNoneAction extends AbstractAction {
         private SelectNoneAction() {
-            super("Detach none");
+            super(txt("msg.ddlFiles.button.DetachNone"));
         }
 
         @Override

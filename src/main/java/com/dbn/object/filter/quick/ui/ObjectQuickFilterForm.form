@@ -45,7 +45,7 @@
             </constraints>
             <properties>
               <labelFor value="a45ba"/>
-              <text value="&amp;Join type"/>
+              <text resource-bundle="messages/DBNResources" key="app.object.label.JoinType"/>
             </properties>
           </component>
           <component id="a45ba" class="com.dbn.common.ui.misc.DBNComboBox" binding="joinTypeComboBox">

@@ -23,6 +23,8 @@ import com.dbn.object.type.DBObjectType;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBTablePropertiesProvider extends DBGenericObjectPropertiesProvider<DBTable> {
     public DBTablePropertiesProvider() {
         super(DBObjectType.TABLE);
@@ -32,7 +34,7 @@ public class DBTablePropertiesProvider extends DBGenericObjectPropertiesProvider
     public List<DBObjectProperty> getProperties(DBTable table) {
         List<DBObjectProperty> properties = super.getProperties(table);
         if (table.isTemporary()) {
-            properties.add(0, new SimplePresentableProperty("Attributes", "temporary"));
+            properties.add(0, new SimplePresentableProperty(txt("app.objects.property.Attributes"), txt("app.objects.propertyValue.Temporary")));
         }
         return properties;
     }

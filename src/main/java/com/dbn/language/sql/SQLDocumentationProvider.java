@@ -31,6 +31,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SQLDocumentationProvider implements DocumentationProvider {
 
     @Nullable
@@ -51,15 +53,15 @@ public class SQLDocumentationProvider implements DocumentationProvider {
 
             BasePsiElement aliasedObjectElement = PsiUtil.resolveAliasedEntityElement(identifierPsiElement);
             if (aliasedObjectElement == null) {
-                return "unknown alias";
+                return txt("app.codeEditor.text.UnknownAlias");
             }
 
             DBObject aliasedObject = aliasedObjectElement.getUnderlyingObject();
             if (aliasedObject == null) {
-                return "alias of " + aliasedObjectElement.getReferenceQualifiedName();
+                return txt("app.codeEditor.text.AliasOf", aliasedObjectElement.getReferenceQualifiedName());
             }
 
-            return "alias of " + aliasedObject.getQualifiedNameWithType();
+            return txt("app.codeEditor.text.AliasOf", aliasedObject.getQualifiedNameWithType());
         }
         return null;
     }

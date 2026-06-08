@@ -8,6 +8,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class McpBuildResultDialog extends DBNDialog<McpBuildResultForm> {
 
     private final McpServerDefinition definition;
@@ -17,7 +19,7 @@ public class McpBuildResultDialog extends DBNDialog<McpBuildResultForm> {
             @Nullable Project project,
             @NotNull McpServerDefinition definition,
             @NotNull McpBuilderResult result) {
-        super(project, "MCP Build Complete", true);
+        super(project, txt("msg.mcp.title.McpBuildComplete"), true);
         this.definition = definition;
         this.result = result;
         init();
@@ -30,7 +32,7 @@ public class McpBuildResultDialog extends DBNDialog<McpBuildResultForm> {
     }
 
     protected final Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(getCancelAction());
     }
 }

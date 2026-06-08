@@ -57,6 +57,7 @@ import java.awt.event.ActionListener;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.options.ConfigActivity.CLONING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<ConnectionSettings> {
     private JPanel mainPanel;

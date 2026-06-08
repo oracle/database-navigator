@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -81,8 +82,8 @@ public class PropertiesTableModel extends DBNEditableTableModel {
 
     @Override
     public String getColumnName(int columnIndex) {
-        return columnIndex == 0 ? "Property" :
-               columnIndex == 1 ? "Value" : null;
+        return columnIndex == 0 ? txt("app.shared.column.Property") :
+               columnIndex == 1 ? txt("app.shared.column.Value") : null;
     }
 
     @Override

@@ -61,6 +61,8 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
     private JPanel actionsPanel;
     private JPanel viewerPanel;
@@ -116,7 +118,7 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
         if (editorTable.getSelectedRowCount() == 1) {
             SessionBrowserModelRow selectedRow = editorTable.getModel().getRowAtIndex(editorTable.getSelectedRow());
             if (selectedRow != null) {
-                setPreviewText("-- Loading...");
+                setPreviewText(txt("app.sessionBrowser.text.LoadingCurrentSql"));
                 selectedSessionId = selectedRow.getSessionId();
 
                 Object sessionId = selectedSessionId;
@@ -205,7 +207,7 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
 
     public class WrapUnwrapContentAction extends ToggleAction {
         WrapUnwrapContentAction() {
-            super("Wrap/Unwrap", "", Icons.ACTION_WRAP_TEXT);
+            super(txt("app.data.action.WrapUnwrap"), "", Icons.ACTION_WRAP_TEXT);
         }
 
         @Override
@@ -222,7 +224,9 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
         public void update(@NotNull AnActionEvent e) {
             super.update(e);
             boolean isWrapped = viewer != null && viewer.getSettings().isUseSoftWraps();
-            e.getPresentation().setText(isWrapped ? "Unwrap Content" : "Wrap Content");
+            e.getPresentation().setText(isWrapped ?
+                    txt("app.data.action.UnwrapContent") :
+                    txt("app.data.action.WrapContent"));
 
         }
     }

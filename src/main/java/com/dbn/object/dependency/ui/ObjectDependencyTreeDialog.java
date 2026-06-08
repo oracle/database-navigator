@@ -24,11 +24,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectDependencyTreeDialog extends DBNDialog<ObjectDependencyTreeForm> {
     private final DBObjectRef<DBSchemaObject> object;
 
     public ObjectDependencyTreeDialog(Project project, DBSchemaObject object) {
-        super(project, "Object dependency tree", true);
+        super(project, txt("msg.objects.title.ObjectDependencyTree"), true);
         this.object = DBObjectRef.of(object);
         setModal(false);
         setResizable(true);
@@ -50,7 +52,7 @@ public class ObjectDependencyTreeDialog extends DBNDialog<ObjectDependencyTreeFo
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(getCancelAction());
     }
 }

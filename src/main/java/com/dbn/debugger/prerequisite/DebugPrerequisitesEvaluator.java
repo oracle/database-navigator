@@ -25,6 +25,7 @@ import java.util.List;
 import static com.dbn.common.operation.DatabaseOperation.DEBUG_JAVA_CODE;
 import static com.dbn.common.operation.DatabaseOperation.DEBUG_PLSQL_CODE_JDBC;
 import static com.dbn.common.operation.DatabaseOperation.DEBUG_PLSQL_CODE_JDWP;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_PROCEDURE;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_TYPE;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.DEBUG_ANY_PROCEDURE;
@@ -47,20 +48,20 @@ public class DebugPrerequisitesEvaluator extends PrerequisiteRequirementEvaluato
     @Override
     protected void createMandates(List<PrerequisiteMandate> mandates, DatabaseOperation operation) {
         if (operation == DEBUG_JAVA_CODE) {
-            createMandate(mandates, CREATE_PROCEDURE, "Allows user to create functions, procedures, and packages in own schema. This is required for creating the java execution wrappers");
-            createMandate(mandates, CREATE_TYPE, "Allows user to create database types in own schema. These are sometimes required as data converters in the java execution wrappers");
+            createMandate(mandates, CREATE_PROCEDURE, txt("msg.prerequisite.text.Reason_CREATE_PROCEDURE"));
+            createMandate(mandates, CREATE_TYPE, txt("msg.prerequisite.text.Reason_CREATE_TYPE"));
         }
 
-        createMandate(mandates, DEBUG_CONNECT_SESSION, "Enables debugging of PL/SQL code by granting access to the databases's debugging facilities");
-        createMandate(mandates, DEBUG_ANY_PROCEDURE, "Allows user to debug PL/SQL code in any schema");
-        createMandate(mandates, EXECUTE_DBMS_DEBUG, "Allows the user to execute procedures and functions of the SYS.DBMS_DEBUG package, which provides an API for debugging PL/SQL code within the database");
+        createMandate(mandates, DEBUG_CONNECT_SESSION, txt("msg.prerequisite.text.Reason_DEBUG_CONNECT_SESSION"));
+        createMandate(mandates, DEBUG_ANY_PROCEDURE, txt("msg.prerequisite.text.Reason_DEBUG_ANY_PROCEDURE"));
+        createMandate(mandates, EXECUTE_DBMS_DEBUG, txt("msg.prerequisite.text.Reason_EXECUTE_DBMS_DEBUG"));
 
         if (operation.isOneOf(
                 DEBUG_JAVA_CODE,
                 DEBUG_PLSQL_CODE_JDWP)) {
 
-            createMandate(mandates, EXECUTE_DBMS_DEBUG_JDWP, "Allows the user to execute procedures and functions of the SYS.DBMS_DEBUG_JDWP package, which provides an API for debugging PL/SQL and Java code within the database");
-            createMandate(mandates, HOST_ACE_JDWP, "Grants database access to a network location. Enables a database user to establish a JDWP connection to a specific host");
+            createMandate(mandates, EXECUTE_DBMS_DEBUG_JDWP, txt("msg.prerequisite.text.Reason_EXECUTE_DBMS_DEBUG_JDWP"));
+            createMandate(mandates, HOST_ACE_JDWP, txt("msg.prerequisite.text.Reason_HOST_ACE_JDWP"));
         }
     }
 }

@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.nls.NlsResources.txt;
 
 public class CompilerTypeSelectionForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -45,10 +46,7 @@ public class CompilerTypeSelectionForm extends DBNFormBase {
             headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
         }
         TextContent hintText = plain(
-                "The compile option type \"Debug\" enables you to use the selected object(s) in debugging activities (i.e. pause/trace execution). " +
-                        "For runtime performance reasons, it is recommended to use normal compile option, unless you plan to debug the selected element(s)." +
-                        "\n\"Keep current\" will carry over the existing compile type.\n\n" +
-                        "Please select your compile option.");
+                txt("msg.compiler.hint.CompileTypeSelection"));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
 

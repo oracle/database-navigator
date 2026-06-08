@@ -18,6 +18,7 @@ package com.dbn.data.editor.ui.calendar;
 
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.util.Listeners;
+import org.jetbrains.annotations.Nls;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -29,6 +30,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 class CalendarTableModel implements TableModel {
     private final Listeners<TableModelListener> listeners = Listeners.create();
@@ -62,6 +64,7 @@ class CalendarTableModel implements TableModel {
         return null;
     }
 
+    @Nls
     String getCurrentMonthName() {
         return getMonthName(activeMonth.get(Calendar.MONTH));
     }
@@ -70,20 +73,21 @@ class CalendarTableModel implements TableModel {
         return String.valueOf(activeMonth.get(Calendar.YEAR));
     }
 
+    @Nls
     String getMonthName(int month) {
         return switch (month) {
-            case Calendar.JANUARY -> "January";
-            case Calendar.FEBRUARY -> "February";
-            case Calendar.MARCH -> "March";
-            case Calendar.APRIL -> "April";
-            case Calendar.MAY -> "May";
-            case Calendar.JUNE -> "June";
-            case Calendar.JULY -> "July";
-            case Calendar.AUGUST -> "August";
-            case Calendar.SEPTEMBER -> "September";
-            case Calendar.OCTOBER -> "October";
-            case Calendar.NOVEMBER -> "November";
-            case Calendar.DECEMBER -> "December";
+            case Calendar.JANUARY -> txt("app.dataEditor.const.CalendarMonth_JANUARY");
+            case Calendar.FEBRUARY -> txt("app.dataEditor.const.CalendarMonth_FEBRUARY");
+            case Calendar.MARCH -> txt("app.dataEditor.const.CalendarMonth_MARCH");
+            case Calendar.APRIL -> txt("app.dataEditor.const.CalendarMonth_APRIL");
+            case Calendar.MAY -> txt("app.dataEditor.const.CalendarMonth_MAY");
+            case Calendar.JUNE -> txt("app.dataEditor.const.CalendarMonth_JUNE");
+            case Calendar.JULY -> txt("app.dataEditor.const.CalendarMonth_JULY");
+            case Calendar.AUGUST -> txt("app.dataEditor.const.CalendarMonth_AUGUST");
+            case Calendar.SEPTEMBER -> txt("app.dataEditor.const.CalendarMonth_SEPTEMBER");
+            case Calendar.OCTOBER -> txt("app.dataEditor.const.CalendarMonth_OCTOBER");
+            case Calendar.NOVEMBER -> txt("app.dataEditor.const.CalendarMonth_NOVEMBER");
+            case Calendar.DECEMBER -> txt("app.dataEditor.const.CalendarMonth_DECEMBER");
             default -> null;
         };
     }

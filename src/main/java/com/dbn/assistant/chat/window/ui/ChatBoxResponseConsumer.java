@@ -47,6 +47,7 @@ import static com.dbn.assistant.state.AssistantStatus.QUERYING;
 import static com.dbn.common.message.MessageType.ERROR;
 import static com.dbn.common.message.MessageType.NEUTRAL;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 class ChatBoxResponseConsumer implements AssistantResponseConsumer {
@@ -214,7 +215,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
     private Chat ensureChat() {
         Chat chat = getChat();
         if (chat == null) {
-            throw new RequestCancelledException("Chat already discarded by user");
+            throw new RequestCancelledException(txt("msg.assistant.error.ChatAlreadyDiscarded"));
         }
         return chat;
     }

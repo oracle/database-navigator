@@ -14,7 +14,7 @@
         </constraints>
         <properties>
           <iconTextGap value="4"/>
-          <text value="[column]"/>
+          <text resource-bundle="messages/DBNResources" key="app.data.placeholder.Column"/>
         </properties>
       </component>
       <grid id="3090f" binding="valueFieldPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
@@ -32,7 +32,7 @@
         <properties>
           <foreground color="-16777216"/>
           <iconTextGap value="0"/>
-          <text value="[data type]"/>
+          <text resource-bundle="messages/DBNResources" key="app.data.placeholder.DataType"/>
         </properties>
       </component>
     </children>

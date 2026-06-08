@@ -36,6 +36,7 @@ import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EventRegistrationInputForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -73,9 +74,7 @@ public class EventRegistrationInputForm extends DBNFormBase {
     }
 
     private void initHintForm() {
-        TextContent hintText = plain("Receive real-time notifications on data changes in the " + table.getObjectName(true) + " table. " +
-                "You will be notified about inserts, updates, or deletes.\n\n" +
-                "Please select the actions you want to receive notifications for.");
+        TextContent hintText = plain(txt("msg.events.hint.EventListenerRegistration", table.getObjectName(true)));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
 
@@ -83,8 +82,8 @@ public class EventRegistrationInputForm extends DBNFormBase {
 
     private void initPoweredByPanel() {
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
-                "Powered by",
-                "Oracle Continuous Query Notification",
+                txt("msg.events.label.PoweredBy"),
+                txt("msg.events.link.OracleContinuousQueryNotification"),
                 "https://docs.oracle.com/en/database/oracle/oracle-database/26/jjdbc/continuos-query-notification.html");
         hyperlinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
     }

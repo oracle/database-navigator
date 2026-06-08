@@ -25,10 +25,12 @@ import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class TestAction extends BasicAction {
     private final DBObject object;
     public TestAction(DBObject object) {
-        super("Test", "Test", null);
+        super(txt("app.objects.action.Test"), txt("app.objects.tooltip.Test"), null);
         this.object = object;
     }
 

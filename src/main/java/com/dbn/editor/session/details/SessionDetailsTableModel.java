@@ -21,6 +21,8 @@ import com.dbn.common.ui.table.DBNReadonlyTableModel;
 import com.dbn.editor.session.model.SessionBrowserModelRow;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SessionDetailsTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel {
     private String sessionId = "";
     private String user = "";
@@ -61,8 +63,8 @@ public class SessionDetailsTableModel extends StatefulDisposableBase implements 
     @Override
     public String getColumnName(int columnIndex) {
         return switch (columnIndex) {
-            case 0 -> "Attribute";
-            case 1 -> "Value";
+            case 0 -> txt("app.sessionBrowser.column.Attribute");
+            case 1 -> txt("app.shared.column.Value");
             default -> null;
         };
     }
@@ -76,11 +78,11 @@ public class SessionDetailsTableModel extends StatefulDisposableBase implements 
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (columnIndex == 0) {
             switch (rowIndex) {
-                case 0: return "Session Id";
-                case 1: return "User";
-                case 2: return "Schema";
-                case 3: return "Host";
-                case 4: return "Status";
+                case 0: return txt("app.sessionBrowser.label.SessionId");
+                case 1: return txt("app.shared.column.User");
+                case 2: return txt("app.shared.column.Schema");
+                case 3: return txt("app.connection.column.Host");
+                case 4: return txt("app.shared.column.Status");
             }
         } else if (columnIndex == 1) {
             switch (rowIndex) {

@@ -31,6 +31,13 @@ import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static java.util.Arrays.stream;
 
 public abstract class ProjectPopupAction extends ProjectAction {
+    protected ProjectPopupAction() {
+    }
+
+    protected ProjectPopupAction(String text) {
+        super(text);
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         DefaultActionGroup actionGroup = new DefaultActionGroup();

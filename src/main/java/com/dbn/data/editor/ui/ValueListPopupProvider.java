@@ -53,6 +53,7 @@ import java.util.List;
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Strings.nonEmptyStrings;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -107,12 +108,13 @@ public class ValueListPopupProvider implements TextFieldPopupProvider{
         preparing = true;
         Project project = getEditorComponent().getProject();
         DBObject contextObject = getContextObject();
+        String progressText = contextObject == null ?
+                txt("prc.dataEditor.text.LoadingPossibleValues") :
+                txt("prc.dataEditor.text.LoadingPossibleValuesFor", contextObject.getQualifiedNameWithType());
 
         Progress.prompt(project, null, true,
-                "Loading Values",
-                contextObject == null ?
-                        "Loading possible values" :
-                        "Loading possible values for " + contextObject.getQualifiedNameWithType(),
+                txt("prc.dataEditor.title.LoadingValues"),
+                progressText,
                 p -> loadAndDisplayValues(p));
     }
 

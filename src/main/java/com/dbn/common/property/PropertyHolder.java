@@ -16,11 +16,10 @@
 
 package com.dbn.common.property;
 
-import com.dbn.nls.NlsSupport;
 
 import java.util.Collection;
 
-public interface PropertyHolder<T extends Property> extends NlsSupport {
+public interface PropertyHolder<T extends Property>  {
     boolean set(T property, boolean value);
 
     boolean is(T property);

@@ -44,6 +44,7 @@ import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.database.DatabaseFeature.EMPTY_SCHEMA_EVALUATION;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 

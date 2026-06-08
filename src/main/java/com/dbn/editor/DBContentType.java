@@ -19,40 +19,43 @@ package com.dbn.editor;
 import com.dbn.common.util.Enumerations;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
+
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public enum DBContentType {
-    NONE("No Content"),
-    DATA("Data", EditorProviderId.DATA),
-    JSON("Data", EditorProviderId.JSON),
+    NONE(txt("app.editor.const.DBContentType_NONE")),
+    DATA(txt("app.editor.const.DBContentType_DATA"), EditorProviderId.DATA),
+    JSON(txt("app.editor.const.DBContentType_JSON"), EditorProviderId.JSON),
 
-    CODE("Code", EditorProviderId.CODE),
-    CODE_SPEC("Spec", EditorProviderId.CODE_SPEC),
-    CODE_BODY("Body", "BODY", EditorProviderId.CODE_BODY),
-    CODE_SPEC_AND_BODY("Spec and Body", new DBContentType[]{CODE_SPEC, CODE_BODY}),
-    CODE_AND_DATA("Code and Data", new DBContentType[]{CODE, DATA}),
-    CODE_AND_JSON("Code and Json", new DBContentType[]{CODE, JSON});
+    CODE(txt("app.editor.const.DBContentType_CODE"), EditorProviderId.CODE),
+    CODE_SPEC(txt("app.editor.const.DBContentType_CODE_SPEC"), EditorProviderId.CODE_SPEC),
+    CODE_BODY(txt("app.editor.const.DBContentType_CODE_BODY"), "BODY", EditorProviderId.CODE_BODY),
+    CODE_SPEC_AND_BODY(txt("app.editor.const.DBContentType_CODE_SPEC_AND_BODY"), new DBContentType[]{CODE_SPEC, CODE_BODY}),
+    CODE_AND_DATA(txt("app.editor.const.DBContentType_CODE_AND_DATA"), new DBContentType[]{CODE, DATA}),
+    CODE_AND_JSON(txt("app.editor.const.DBContentType_CODE_AND_JSON"), new DBContentType[]{CODE, JSON});
 
     private DBContentType[] subContentTypes = new DBContentType[0];
-    private final String description;
+    private final @Nls String description;
     private String objectTypeSubname;
     private EditorProviderId editorProviderId;
 
-    DBContentType(String description, DBContentType[] subContentTypes) {
+    DBContentType(@Nls String description, DBContentType[] subContentTypes) {
         this.description = description;
         this.subContentTypes = subContentTypes;
     }
 
-    DBContentType(String description) {
+    DBContentType(@Nls String description) {
         this.description = description;
     }
 
-    DBContentType(String description, EditorProviderId editorProviderId) {
+    DBContentType(@Nls String description, EditorProviderId editorProviderId) {
         this.description = description;
         this.editorProviderId = editorProviderId;
     }
 
-    DBContentType(String description, String objectTypeSubname, EditorProviderId editorProviderId) {
+    DBContentType(@Nls String description, String objectTypeSubname, EditorProviderId editorProviderId) {
         this.description = description;
         this.objectTypeSubname = objectTypeSubname;
         this.editorProviderId = editorProviderId;
@@ -78,7 +81,7 @@ public enum DBContentType {
         return this == JSON;
     }
 
-    public String toString() {
+    public @Nls String toString() {
         return description;
     }
 

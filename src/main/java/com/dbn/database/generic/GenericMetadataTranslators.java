@@ -50,6 +50,7 @@ import java.util.Objects;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static java.sql.DatabaseMetaData.functionColumnIn;
 import static java.sql.DatabaseMetaData.functionColumnInOut;
 import static java.sql.DatabaseMetaData.functionColumnOut;
@@ -622,7 +623,7 @@ public class GenericMetadataTranslators {
             } catch (Throwable e) {
                 conditionallyLog(e);
                 if (i == resolvers.length -1) {
-                    throw toSqlException(e, "Operation failed");
+                    throw toSqlException(e, txt("msg.shared.exception.OperationFailed"));
                 }
             }
         }

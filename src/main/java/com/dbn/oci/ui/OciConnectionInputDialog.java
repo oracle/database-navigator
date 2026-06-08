@@ -5,7 +5,6 @@ import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Dialogs.DialogCallback;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.tns.TnsImportData;
@@ -26,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.dbn.browser.DatabaseBrowserUtils.promoteNewConnection;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.oci.util.WalletPasswordGenerator.generateRandomPassword;
 
 public class OciConnectionInputDialog extends DBNDialog<OciConnectionInputForm> implements NotificationSupport {
@@ -46,7 +47,7 @@ public class OciConnectionInputDialog extends DBNDialog<OciConnectionInputForm> 
 
   @Override
   protected Action[] initializeActions() {
-    renameAction(getOKAction(), "Create Connection");
+    renameAction(getOKAction(), txt("msg.connection.button.CreateConnection"));
     return actions(
             getOKAction(),
             getCancelAction());
@@ -114,11 +115,13 @@ public class OciConnectionInputDialog extends DBNDialog<OciConnectionInputForm> 
 
   private void downloadNewWallet(String walletLocation, String password, Runnable preDownloadRunnable, Runnable showConnectionSettingsRunnable) {
     if (walletLocation == null || walletLocation.isEmpty()) {
-      Messages.showErrorDialog(getProject(), "Missing Wallet Location", "Wallet location not specified.");
+      showErrorDialog(getProject(), txt("msg.oci.title.MissingWalletLocation"), txt("msg.oci.message.MissingWalletLocation"));
       return;
     }
 
-    Progress.prompt(getProject(), null, true, "Downloading wallet", "Downloading wallet for database \"" + connectionData.getDisplayName() + "\"",
+    Progress.prompt(getProject(), null, true,
+            txt("prc.oci.title.DownloadingWallet"),
+            txt("prc.oci.text.DownloadingWalletForDatabase", connectionData.getDisplayName()),
             progress -> {
               if (preDownloadRunnable != null) {
                 preDownloadRunnable.run();
@@ -144,10 +147,10 @@ public class OciConnectionInputDialog extends DBNDialog<OciConnectionInputForm> 
       DownloadWalletCommand command = new DownloadWalletCommand(database, walletLocation, walletType, password);
       command.execute();
       // soft non-intrusive notification
-      sendInfoNotification(NotificationCategory.CONNECTION, "The wallet for database \"" + displayName + "\" was downloaded successfully.");
+      sendInfoNotification(NotificationCategory.CONNECTION, txt("ntf.connection.info.WalletDownloaded", displayName));
     } catch (Exception e) {
       // error prompt
-      Messages.showErrorDialog(getProject(), "Wallet Download Failed", "Failed to download the wallet for database " + displayName + ".", e);
+      showErrorDialog(getProject(), txt("msg.oci.title.WalletDownloadFailed"), txt("msg.oci.message.WalletDownloadFailed", displayName), e);
     }
   }
 

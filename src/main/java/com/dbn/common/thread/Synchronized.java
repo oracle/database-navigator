@@ -20,6 +20,7 @@ import com.dbn.common.routine.ParametricCallable;
 import com.dbn.common.routine.ParametricRunnable;
 import com.dbn.common.util.Unsafe;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +33,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Synchronized {
 	static final Map<Object, SyncObject> LOCKS = new ConcurrentHashMap<>(100);
 
-	public static <O, E extends Throwable> void on(O owner, ParametricRunnable<O, E> runnable) throws E{
+	public static <O, E extends Throwable> void on(@NonNls O owner, ParametricRunnable<O, E> runnable) throws E{
 		SyncObject<O> lock = acquire(owner);
 		try {
 			lock.execute(owner, runnable);
@@ -41,7 +42,7 @@ public class Synchronized {
 		}
 	}
 
-	public static <O, R, E extends Throwable> R on(O owner, ParametricCallable<O, R, E> callable) throws E{
+	public static <O, R, E extends Throwable> R on(@NonNls O owner, ParametricCallable<O, R, E> callable) throws E{
 		SyncObject<R> lock = acquire(owner);
 		try {
 			return lock.execute(owner, callable);

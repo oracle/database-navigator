@@ -19,6 +19,7 @@ package com.dbn.object;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.type.DBAttributeType;
 import com.dbn.object.type.DBCredentialType;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Map;
 
@@ -27,9 +28,9 @@ public interface DBCredential extends DBSchemaObject {
 
     String getUserName();
 
-    Map<DBAttributeType, String> getAttributes();
+    Map<DBAttributeType, @NonNls String> getAttributes();
 
-    void setAttribute(DBAttributeType attr, String value);
+    void setAttribute(DBAttributeType attr, @NonNls String value);
 
     String getAttribute(DBAttributeType attr);
 }

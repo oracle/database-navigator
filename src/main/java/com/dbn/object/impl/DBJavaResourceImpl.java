@@ -38,6 +38,7 @@ import javax.swing.Icon;
 import java.sql.SQLException;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.type.DBObjectType.JAVA_RESOURCE;
@@ -116,8 +117,8 @@ public class DBJavaResourceImpl extends DBSchemaObjectImpl<DBJavaResourceMetadat
 	public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
 
 		DatabaseInterfaceInvoker.execute(HIGHEST,
-				"Updating source code",
-				"Updating sources of " + getQualifiedNameWithType(),
+				txt("prc.object.title.UpdatingSourceCode"),
+				txt("prc.object.text.UpdatingSources", getQualifiedNameWithType()),
 				getProject(),
 				getConnectionId(),
 				conn -> {

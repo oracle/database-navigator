@@ -10,7 +10,6 @@ import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNExpandableTextField;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.language.sql.SQLFileType;
@@ -61,11 +60,13 @@ import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.mcp.util.SqlParameterParser.parseOccurrences;
 import static com.dbn.mcp.util.SqlParameterParser.stripColon;
 import static com.dbn.mcp.util.SqlParameterParser.uniqueInOrder;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.util.ui.UIUtil.getContextHelpForeground;
 
 public class McpToolDefinitionForm extends DBNFormBase {
@@ -127,11 +128,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hintContent = TextContent.plain(
-                "MCP Tool Builder turns a SQL statement into a callable tool for this MCP server.\n\n" +
-                "Name and describe the tool so MCP clients can choose it correctly. Use named SQL " +
-                "parameters such as :employee_id; the parameter list is derived from the statement " +
-                "and lets you define types, required flags, descriptions, and test values. Run Verify " +
-                "to execute the query with sample values before saving.");
+                txt("msg.mcp.hint.ToolDefinition"));
         hintPanel.add(new DBNHintForm(this, hintContent, null, true).getComponent());
     }
 
@@ -139,7 +136,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
     protected void initValidation() {
         addTextValidation(nameTextField, field -> validateToolName(field.getText()));
         addTextValidation(descriptionTextField, field -> McpToolDescription.validationError(field.getText()));
-        addValidation(sqlEditorPanel, c -> getSqlStatement().isBlank() ? "Please enter a SQL query" : null);
+        addValidation(sqlEditorPanel, c -> getSqlStatement().isBlank() ? txt("msg.mcp.error.SqlQueryEmpty") : null);
     }
 
     private String validateToolName(String value) {
@@ -175,16 +172,16 @@ public class McpToolDefinitionForm extends DBNFormBase {
         verifiedLabel.setIcon(Icons.COMMON_CHECK);
 
 
-        verifyHyperlink.setHyperlinkText("Verify");
+        verifyHyperlink.setHyperlinkText(txt("msg.mcp.link.Verify"));
         onHyperlinkAccess(verifyHyperlink, e -> {
             if (getSqlStatement().isBlank()) {
-                Messages.showErrorDialog(getProject(), "Please enter the SQL query first, then run Test SQL Query.");
+                showErrorDialog(getProject(), txt("msg.mcp.error.SqlQueryRequired"));
                 return;
             }
             try {
                 openSqlTestDialog();
             } catch (Exception ex) {
-                Messages.showErrorDialog(getProject(), "Failed to open SQL tester", ex);
+                showErrorDialog(getProject(), txt("msg.mcp.error.SqlTesterOpenFailed"), ex);
             }
         });
     }

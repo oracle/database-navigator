@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.operation.DatabaseOperation.EXECUTE_JAVA_CODE;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JavaMethodExecuteAction extends AnObjectAction<DBJavaMethod> {
     private final boolean listElement;
@@ -59,7 +60,7 @@ public class JavaMethodExecuteAction extends AnObjectAction<DBJavaMethod> {
         if (listElement) {
             super.update(e, presentation, project, target);
         } else {
-            presentation.setText("Execute...");
+            presentation.setText(txt("app.execution.action.Execute"));
             presentation.setIcon(Icons.METHOD_EXECUTION_RUN);
         }
     }

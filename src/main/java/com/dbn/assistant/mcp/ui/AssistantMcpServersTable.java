@@ -22,6 +22,7 @@ import com.dbn.common.ui.table.DBNEntityEditableTable;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantMcpServersTable extends DBNEntityEditableTable<AssistantMcpServersTableModel> {
 
@@ -29,7 +30,7 @@ public class AssistantMcpServersTable extends DBNEntityEditableTable<AssistantMc
         super(parent, createModel(mcpServers), true);
 
         setProportionalColumnWidths(25, 15, 60);
-        setAccessibleName(this, "MCP Servers");
+        setAccessibleName(this, txt("app.assistant.aria.McpServers"));
     }
 
     @NotNull

@@ -26,6 +26,7 @@ import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -46,7 +47,7 @@ public final class Timeout {
     private static final Object lock = new Object();
 
     @SneakyThrows
-    public static <T> T call(String identifier, int seconds, T defaultValue, boolean daemon, ThrowableCallable<T, Throwable> callable) {
+    public static <T> T call(@NonNls String identifier, int seconds, T defaultValue, boolean daemon, ThrowableCallable<T, Throwable> callable) {
         long start = System.currentTimeMillis();
         try {
             Threads.delay(lock);

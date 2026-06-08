@@ -39,6 +39,7 @@ import javax.swing.JPanel;
 import java.awt.Dimension;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class MethodExecutionCursorResultForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel actionsPanel;

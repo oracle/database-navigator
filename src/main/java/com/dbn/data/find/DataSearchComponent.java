@@ -81,6 +81,7 @@ import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DataSearchComponent extends DBNFormBase implements SelectionListener, DataSearchResultListener, DataModelListener {
     private static final int MATCHES_LIMIT = 10000;
@@ -106,7 +107,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         super(searchableComponent);
 
         JBTextArea textArea = new JBTextArea();
-        textArea.getEmptyText().setText("Search");
+        textArea.getEmptyText().setText(txt("app.dataEditor.placeholder.Search"));
         searchTextField = new SearchTextArea(textArea, true);
 
         searchFieldPanel.add(searchTextField, BorderLayout.CENTER);
@@ -126,7 +127,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
 
         initializeFindModel();
         matchesLabel.setFont(Fonts.regular(-2));
-        matchesLabel.setText("0 results");
+        matchesLabel.setText(txt("app.dataEditor.label.NoSearchResults"));
         matchesLabel.setForeground(Colors.getLabelInfoForeground());
 
         findModel = new DataFindModel();
@@ -209,14 +210,16 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
             if (count <= searchResult.getMatchesLimit()) {
                 if (count > 0) {
                     setRegularBackground();
-                    updateMatchesLabel(count > 1 ? count + " results" : "1 result", false);
+                    updateMatchesLabel(count > 1 ?
+                            txt("app.dataEditor.label.SearchResults", count) :
+                            txt("app.dataEditor.label.OneSearchResult"), false);
                 } else {
                     setNotFoundBackground();
-                    updateMatchesLabel("0 results", true);
+                    updateMatchesLabel(txt("app.dataEditor.label.NoSearchResults"), true);
                 }
             } else {
                 setRegularBackground();
-                updateMatchesLabel("More than " + searchResult.getMatchesLimit() + " results", false);
+                updateMatchesLabel(txt("app.dataEditor.label.MoreThanSearchResults", searchResult.getMatchesLimit()), false);
             }
         }
     }
@@ -245,7 +248,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         JTextComponent searchField = getSearchField();
         onTextChange(searchField, e -> searchFieldDocumentChanged());
 
-        DefaultActionGroup actionsGroup = new DefaultActionGroup("Search Bar", false);
+        DefaultActionGroup actionsGroup = new DefaultActionGroup(txt("app.data.action.SearchBar"), false);
         actionsGroup.add(new PrevOccurrenceAction(this, searchField, true));
         actionsGroup.add(new NextOccurrenceAction(this, searchField, true));
         actionsToolbar = Actions.createActionToolbar(actionsPanel, true, actionsGroup);
@@ -257,7 +260,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         JLabel closeLabel = new JLabel(" ", AllIcons.Actions.Close, SwingConstants.RIGHT);
         closeLabel.addMouseListener(Mouse.listener().onClick(e -> close()));
 
-        closeLabel.setToolTipText("Close search bar (Escape)");
+        closeLabel.setToolTipText(txt("app.dataEditor.tooltip.CloseSearchBar"));
         //CompatibilityUtil.setSmallerFont(searchField);
 
         searchField.registerKeyboardAction(e -> {
@@ -456,7 +459,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
                 } catch (Exception e) {
                     conditionallyLog(e);
                     setNotFoundBackground();
-                    updateMatchesLabel("Incorrect regular expression", true);
+                    updateMatchesLabel(txt("app.dataEditor.label.IncorrectRegularExpression"), true);
                     getSearchResult().clear();
                     return;
                 }
@@ -494,7 +497,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
 
     private void updateUIWithEmptyResults() {
         setRegularBackground();
-        updateMatchesLabel("0 results", false);
+        updateMatchesLabel(txt("app.dataEditor.label.NoSearchResults"), false);
 
     }
 

@@ -21,6 +21,8 @@ import com.dbn.execution.explain.result.ExplainPlanMessage;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ExplainPlanMessageNode extends MessagesTreeLeafNode<ExplainPlanMessagesFileNode, ExplainPlanMessage> {
 
     ExplainPlanMessageNode(ExplainPlanMessagesFileNode parent, ExplainPlanMessage explainPlanMessage) {
@@ -36,8 +38,8 @@ public class ExplainPlanMessageNode extends MessagesTreeLeafNode<ExplainPlanMess
     @Override
     public String toString() {
         ExplainPlanMessage explainPlanMessage = getMessage();
-        return
-            explainPlanMessage.getText() + " - Connection: " +
-            explainPlanMessage.getConnection().getName();
+        return txt("app.execution.text.ExplainPlanMessage",
+                explainPlanMessage.getText(),
+                explainPlanMessage.getConnection().getName());
     }
 }

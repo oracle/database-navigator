@@ -36,6 +36,7 @@ import java.util.List;
 
 import static com.dbn.debugger.common.breakpoint.DBBreakpointUtil.getBreakpointDesc;
 import static com.dbn.debugger.common.process.DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public abstract class DBBreakpointHandler<T extends DBDebugProcess> extends XBreakpointHandler<XLineBreakpoint<XBreakpointProperties>> implements NotificationSupport {
@@ -94,7 +95,7 @@ public abstract class DBBreakpointHandler<T extends DBDebugProcess> extends XBre
         DBDebugConsoleLogger console = getConsole();
         XDebugSession session = getSession();
         String breakpointDesc = getBreakpointDesc(breakpoint);
-        console.error("Failed to add breakpoint: " + breakpointDesc + " (" + error + ")");
+        console.error(txt("log.debugger.error.FailedAddingBreakpoint", breakpointDesc, error));
         session.updateBreakpointPresentation( breakpoint,
                 Icons.DEBUG_INVALID_BREAKPOINT,
                 "INVALID: " + error);

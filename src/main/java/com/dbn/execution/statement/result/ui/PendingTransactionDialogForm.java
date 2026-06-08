@@ -44,6 +44,8 @@ import javax.swing.JTextPane;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class PendingTransactionDialogForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel previewPanel;
@@ -57,10 +59,7 @@ public class PendingTransactionDialogForm extends DBNFormBase {
         super(parent);
         this.executionProcessor = WeakRef.of(executionProcessor);
 
-        String text =
-                "You executed this statement in a pool connection. \n" +
-                "The transactional status of this connection cannot be left inconsistent. Please choose whether to commit or rollback the changes.\n\n" +
-                "NOTE: Changes will be rolled-back if this prompt stays unattended for more than 5 minutes";
+        String text = txt("msg.execution.text.PendingTransactionPrompt");
         hintTextPane.setBackground(mainPanel.getBackground());
         hintTextPane.setText(text);
 

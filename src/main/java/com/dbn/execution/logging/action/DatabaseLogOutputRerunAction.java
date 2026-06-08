@@ -31,6 +31,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseLogOutputRerunAction extends AbstractDatabaseLoggingAction {
 
+    public DatabaseLogOutputRerunAction() {
+        super(txt("app.execution.action.DatabaseLogOutputRerunProcess"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatabaseLoggingResult loggingResult) {
         LogOutputContext context = loggingResult.getContext();

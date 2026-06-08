@@ -34,7 +34,7 @@ public class SelectAiShowIntentionAction extends SelectAiBaseIntentionAction {
 
   @Override
   protected String getActionName() {
-    return txt("app.assistant.action.GenerateSql");
+    return txt("app.assistant.intention.GenerateSql");
   }
 
   @Override

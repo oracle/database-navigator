@@ -30,6 +30,7 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -39,7 +40,7 @@ import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 
-
+@NonNls
 @Getter
 public abstract class AssistantToolBase extends ConnectionComponent implements AssistantTool{
     private AssistantToolType type;

@@ -29,6 +29,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class AutoscrollToEditorAction extends ToggleAction implements DumbAware{
 
+    public AutoscrollToEditorAction() {
+        super(txt("app.browser.action.BrowserAutoscrollToEditor"));
+    }
+
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
         Project project = Lookups.getProject(e);

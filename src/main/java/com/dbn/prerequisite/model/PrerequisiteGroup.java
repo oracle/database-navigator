@@ -44,6 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.prerequisite.event.PrerequisiteEventType.EVALUATION_FAILED;
 import static com.dbn.prerequisite.event.PrerequisiteEventType.EVALUATION_FINISHED;
 import static com.dbn.prerequisite.event.PrerequisiteEventType.EVALUATION_STARTED;
@@ -169,7 +170,7 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
 
     private void evaluatePrerequisite(Prerequisite prerequisite) {
         try {
-            setProgressDetail("Evaluating prerequisite \"" + prerequisite.getName() + "\"");
+            setProgressDetail(txt("prc.prerequisite.text.EvaluatingPrerequisite", prerequisite.getName()));
 
             // reset the prerequisite
             prerequisite.setStatusMessage(null);
@@ -189,7 +190,7 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
         } catch (Exception e) {
             prerequisite.setStatus(UNKNOWN);
             prerequisite.setStatusException(e);
-            prerequisite.setStatusMessage("Could not verify prerequisite. " + e.getMessage());
+            prerequisite.setStatusMessage(txt("msg.prerequisite.error.CouldNotVerifyPrerequisite", e));
 
             notifyEvaluationFailed(prerequisite);
         } finally {
@@ -242,7 +243,7 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
     }
 
     public TitledMessage createStatusMessage() {
-        String description = operation.getName();
+        String operation = this.operation.getName();
         if (isEvaluated()) {
             int total = size();
 
@@ -252,42 +253,38 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
 
             if (available == total) {
                 return new TitledMessage(MessageType.SUCCESS,
-                        description + " - Requirements met",
-                        "All requirements for performing the operation \"" + description + "\" are met\n");
+                        txt("msg.prerequisites.title.RequirementsMet", operation),
+                        txt("msg.prerequisites.text.RequirementsMet", operation));
             }
 
             if (unavailable == total) {
                 return new TitledMessage(MessageType.ERROR,
-                        description + " - Requirements not met",
-                        "None of the requirements for performing the operation \"" + description + "\" are met.\n" +
-                                "Please request the missing privileges from your database administrator.");
+                        txt("msg.prerequisites.title.RequirementsNotMet", operation),
+                        txt("msg.prerequisites.text.RequirementsNotMet", operation));
             }
 
             if (unknown == total) {
                 return new TitledMessage(MessageType.ERROR,
-                        description + " - Failed to verify requirements",
-                        "Could not verify any of the requirements for performing the operation \"" + description + "\".\n" +
-                                "Please check the connectivity or database access rights.");
+                        txt("msg.prerequisites.title.FailedToVerifyRequirements", operation),
+                        txt("msg.prerequisites.text.FailedToVerifyRequirements", operation));
 
             }
 
             if (available > 0) {
                 return new TitledMessage(MessageType.WARNING,
-                        description + " - Requirements partially met",
-                        "Some of the requirements for performing the operation \"" + description + "\" are not met.\n" +
-                                "Please request the missing privileges from your database administrator.");
+                        txt("msg.prerequisites.title.RequirementsPartiallyMet", operation),
+                        txt("msg.prerequisites.text.RequirementsPartiallyMet", operation));
             }
 
             return new TitledMessage(MessageType.ERROR,
-                    description + " - Failed to verify some requirements",
-                    "Some of the requirements for performing the operation \"" + description + "\" are not met or could not be verified.\n" +
-                            "Please check the connectivity or database access rights.");
+                    txt("msg.prerequisites.title.FailedToVerifySomeRequirements", operation),
+                    txt("msg.prerequisites.text.FailedToVerifySomeRequirements", operation));
 
 
         }
         return new TitledMessage(MessageType.PROCESSING,
-                description + " - Verifying requirements...",
-                "Verifying requirements for performing the operation \"" + description + "\"\n");
+                txt("msg.prerequisites.title.VerifyingRequirements", operation),
+                txt("msg.prerequisites.text.VerifyingRequirements", operation));
     }
 
     @Override

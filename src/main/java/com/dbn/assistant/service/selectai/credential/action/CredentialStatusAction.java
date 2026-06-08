@@ -33,6 +33,10 @@ import static com.dbn.nls.NlsResources.txt;
  */
 public class CredentialStatusAction extends CredentialManagementAction {
 
+    public CredentialStatusAction() {
+        super(txt("app.assistant.action.AssistantEnableDisableCredential"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         DBCredential credential = getSelectedCredential(e);

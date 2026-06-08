@@ -26,8 +26,6 @@ import com.dbn.connection.jdbc.DBNResource;
 import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.connection.jdbc.Resource;
 import com.dbn.connection.jdbc.ResourceStatus;
-import com.dbn.nls.NlsResources;
-import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -56,10 +54,11 @@ import static com.dbn.connection.jdbc.ResourceStatus.VALID;
 import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.diagnostics.Diagnostics.isDatabaseResourceDebug;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @UtilityClass
-public final class Resources implements NlsSupport {
+public final class Resources {
 
     public static boolean isClosed(ResultSet resultSet) throws SQLException {
         try {
@@ -302,7 +301,7 @@ public final class Resources implements NlsSupport {
             String connectionName = connection.getName();
             SessionId sessionId = connection.getSessionId();
             String errorMessage = e.getMessage();
-            String message = NlsResources.txt(messageKey, connectionName, sessionId, errorMessage);
+            String message = txt(messageKey, connectionName, sessionId, errorMessage);
 
             NotificationSupport.sendWarningNotification(
                     project,

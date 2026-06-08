@@ -45,7 +45,7 @@ public class ChecksumTest {
         File file = FileUtil.getFileFromClasspath(getClass(), "checksum");
         String checksum = Checksum.fromFileAttributes(file, ChecksumType.SHA_256);
 
-        Assert.assertEquals("9693cd2ab9516e799bfac9a72df6574243e732f4b35c9e904c442ff53825be4b", checksum);
+        Assert.assertEquals("f6b5bc7bde6d05995135bbcb1b2a20294f5f5f2e1688e2dff9c4db2eb08245bd", checksum);
     }
 
     @Test
@@ -55,7 +55,7 @@ public class ChecksumTest {
         File file = FileUtil.getFileFromClasspath(getClass(), "checksum");
         String checksum = Checksum.fromFileContents(file, ChecksumType.SHA_256);
 
-        Assert.assertEquals("cad835459672813b9e42aaafb81c17e8f7981a84cd0a8915bdc4201fc8706ece", checksum);
+        Assert.assertEquals("abcd15289b0c71eb444940e8b38c93b31fe2b80dc4c6839bf3ce460e3b4edbc6", checksum);
     }
 
     @Test

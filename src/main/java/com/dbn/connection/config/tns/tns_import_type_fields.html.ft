@@ -18,7 +18,7 @@
 <head><title>Basic connectivity</title></head>
 <body style="${REGULAR_FONT_STYLE}">
 Basic host / port / database connectivity<br>
-Thin JDBC URL based on Host, Port and SID / Service Name<br><br>
+Thin JDBC URL based on host, port, and SID / service name<br><br>
 
 Example:<br>
 <span style="${MONOSPACE_LARGE_FONT_STYLE}">jdbc:oracle:thin:@localhost:1521:XE</span>
@@ -26,5 +26,4 @@ Example:<br>
 <br>
 </body>
 </html>
-
 

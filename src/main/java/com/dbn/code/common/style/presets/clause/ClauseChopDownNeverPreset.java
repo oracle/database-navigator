@@ -26,9 +26,11 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ClauseChopDownNeverPreset extends ClauseAbstractPreset {
     public ClauseChopDownNeverPreset() {
-        super("do_not_chop_down", "Do not chop down");
+        super("do_not_chop_down", txt("cfg.codeStyle.const.CodeStylePreset_DO_NOT_CHOP_DOWN"));
     }
 
     @Override

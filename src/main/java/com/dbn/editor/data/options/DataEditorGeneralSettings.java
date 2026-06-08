@@ -25,6 +25,8 @@ import lombok.Getter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class DataEditorGeneralSettings extends BasicConfiguration<DataEditorSettings, DataEditorGeneralSettingsForm> {

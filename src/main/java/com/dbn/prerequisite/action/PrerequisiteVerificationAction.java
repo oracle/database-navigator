@@ -37,9 +37,13 @@ import java.util.List;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
+import static com.dbn.nls.NlsResources.txt;
 
 public class PrerequisiteVerificationAction extends ActionGroup {
 
+    public PrerequisiteVerificationAction() {
+        super(txt("app.menu.action.PrerequisiteVerification"), true);
+    }
 
     public AnAction[] getChildren(AnActionEvent e) {
         List<AnAction> actions = new ArrayList<>();
@@ -96,7 +100,7 @@ public class PrerequisiteVerificationAction extends ActionGroup {
 
             List<SelectTargetConnection> actions = convert(connections, c -> new SelectTargetConnection(c, operation));
             Popups.popupBuilder(actions, e).
-                    withTitle("Prerequisite Verification Target").
+                    withTitle(txt("app.prerequisite.title.VerificationTarget")).
                     withSpeedSearch().
                     buildAndShowCentered();
         }

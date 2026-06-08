@@ -31,6 +31,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.TableModel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EventNotificationsTable extends DBNTableWithGutter<DataChangeNotificationBundle> {
 
@@ -42,7 +43,7 @@ public class EventNotificationsTable extends DBNTableWithGutter<DataChangeNotifi
         initTableSorter();
 
 
-        setAccessibleName(this, "Data change event notifications");
+        setAccessibleName(this, txt("app.eventNotification.aria.DataChangeEventNotifications"));
     }
 
     @Override

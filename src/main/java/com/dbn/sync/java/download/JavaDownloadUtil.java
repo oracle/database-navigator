@@ -29,6 +29,7 @@ import java.io.File;
 import java.util.Set;
 
 import static com.dbn.common.options.Configs.fail;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 
 @UtilityClass
@@ -76,7 +77,7 @@ public class JavaDownloadUtil {
 
 		if (childDirectory == null) {
 			String directoryPath = parentDirectory.getName() + File.pathSeparator + directoryName;
-			fail("Could not create directory " + directoryPath);
+			fail(txt("msg.java.error.DirectoryCreationFailed", directoryPath));
 		}
 		return childDirectory;
 	}

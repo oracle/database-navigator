@@ -40,6 +40,7 @@ import static com.dbn.nls.NlsResources.txt;
 public class TimedReloadComboBoxAction extends ComboBoxAction implements DumbAware {
 
     public TimedReloadComboBoxAction() {
+        super(txt("app.sessionBrowser.action.SessionBrowserAutomaticReload"));
     }
 
     @Override

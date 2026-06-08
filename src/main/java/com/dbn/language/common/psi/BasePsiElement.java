@@ -81,6 +81,7 @@ import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
 import com.intellij.spellchecker.inspections.SpellCheckingInspection;
 import com.maddyhome.idea.copyright.actions.UpdateCopyrightAction;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -126,6 +127,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
         return null;
     }
 
+    @NonNls
     public String getElementId() {
         return elementType.getId();
     }

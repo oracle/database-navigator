@@ -19,6 +19,7 @@ import java.util.Set;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.trim;
 import static com.dbn.connection.DatabaseUrlType.EZCONNECT;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Common constants and utility functionality to support Easy Connect
@@ -67,7 +68,7 @@ public class EasyConnectParameters {
     /**
      * Error message for RETRY_DELAY.
      */
-    public static final String RETRY_DELAY_SHOULD_MATCH = "80, 80ms, 80sec, or 80min. Default is sec if unit is not specified";
+    public static final String RETRY_DELAY_SHOULD_MATCH = txt("cfg.connection.token.RetryDelayFormat");
     /**
      * Common validator pattern instance for RETRY_DELAY.
      */

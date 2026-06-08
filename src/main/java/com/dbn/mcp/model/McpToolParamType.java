@@ -1,6 +1,7 @@
 package com.dbn.mcp.model;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 @Getter
 public enum McpToolParamType {
@@ -13,7 +14,7 @@ public enum McpToolParamType {
     private final String schemaType;
     private final String schemaFormat;
 
-    McpToolParamType(String schemaType, String schemaFormat) {
+    McpToolParamType(@NonNls String schemaType, String schemaFormat) {
         this.schemaType = schemaType;
         this.schemaFormat = schemaFormat;
     }

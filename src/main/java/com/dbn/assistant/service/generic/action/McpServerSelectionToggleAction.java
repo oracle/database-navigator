@@ -23,6 +23,7 @@ import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ToggleAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
@@ -46,7 +47,7 @@ public class McpServerSelectionToggleAction extends ToggleAction implements Assi
 
         String name = mcpServer.getName();
         String endpoint = truncateWithMiddleEllipsis(mcpServer.getEndpoint(), 60);
-        String description = "<strong>" + name + "</strong><br>" + endpoint;
+        @NonNls String description = "<strong>" + name + "</strong><br>" + endpoint;
 
         presentation.setIcon(icon);
         presentation.setText(name);

@@ -25,6 +25,7 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NonNls;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -34,6 +35,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@NonNls
 public class ExplainPlanEntry extends StatefulDisposableBase {
     private DBObjectRef<?> objectRef;
     private Integer parentId;

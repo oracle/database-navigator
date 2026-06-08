@@ -63,6 +63,7 @@ import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.help.HelpTopic.TABLE_EDITORS;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel actionsPanel;

@@ -24,6 +24,8 @@ import lombok.Getter;
 import javax.swing.Icon;
 import java.util.Objects;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class SimplePresentableProperty extends DBObjectPropertyBase {
@@ -44,7 +46,7 @@ public class SimplePresentableProperty extends DBObjectPropertyBase {
     private static String getValueText(Object value) {
         if (value == null) return "";
         if (value instanceof Presentable presentable) return presentable.getName();
-        if (value instanceof Boolean bool) return bool ? "Yes" : "No";
+        if (value instanceof Boolean bool) return bool ? txt("app.objects.propertyValue.Yes") : txt("app.objects.propertyValue.No");
         return Objects.toString(value);
     }
 

@@ -42,6 +42,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class ExecuteStatementEditorAction extends ProjectAction {
 
+    public ExecuteStatementEditorAction() {
+        super(txt("app.codeEditor.action.ScriptEditorExecuteStatement"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         Editor editor = Lookups.getEditor(e);

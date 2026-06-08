@@ -36,6 +36,7 @@ import javax.swing.Icon;
 import java.util.ArrayList;
 
 import static com.dbn.common.dispose.Failsafe.nn;
+import static com.dbn.nls.NlsResources.txt;
 
 public class LoadInProgressTreeNode extends StatefulDisposableBase implements BrowserTreeNode {
     private final WeakRef<BrowserTreeNode> parent;
@@ -105,7 +106,7 @@ public class LoadInProgressTreeNode extends StatefulDisposableBase implements Br
     }
     @Override
     public String getPresentableText() {
-        return "Loading...";
+        return txt("app.shared.placeholder.Loading");
     }
 
     @Override

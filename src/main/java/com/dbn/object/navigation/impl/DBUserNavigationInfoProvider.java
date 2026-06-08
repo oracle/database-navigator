@@ -25,6 +25,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBUserNavigationInfoProvider extends DBObjectNavigationInfoProviderBase<DBUser> {
     public DBUserNavigationInfoProvider() {
         super(DBObjectType.USER);
@@ -40,6 +42,6 @@ public class DBUserNavigationInfoProvider extends DBObjectNavigationInfoProvider
         DBSchema schema = user.getSchema();
         if (schema == null) return null;
 
-        return List.of(DBObjectNavigationList.create("Schema", schema));
+        return List.of(DBObjectNavigationList.create(txt("app.objects.navigation.Schema"), schema));
     }
 }

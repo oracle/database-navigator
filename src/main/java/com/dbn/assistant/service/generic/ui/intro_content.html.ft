@@ -4,7 +4,7 @@
 <div style="${REGULAR_LARGE_FONT_STYLE}">
     <b>AI Assistant with Database Integration</b><br>
 </div>
-Get assistance with your database, workspace, and various coding tasks using natural language!<br><br>
+Get assistance with your database, workspace, and various coding tasks using natural language.<br><br>
 DB Assistant is an AI-powered software development companion that seamlessly integrates with your workspace and database.<br>
 It can help with a variety of tasks, such as providing insights into your database structure,
 analyzing database code, identifying relevant code blocks, generating and optimizing SQL and PL/SQL code,
@@ -25,7 +25,7 @@ For detailed setup guidance, refer to the Oracle® Database Navigator documentat
 <br>
 <br>
 <br>
-<b>NOTE</b><br>
+<b>Note</b><br>
 This is an experimental feature. Output accuracy may vary depending on the selected language model, your database access permissions, and other factors.
 Validate outputs carefully and report any issues to the Oracle® Database Navigator development team to help improve this feature.
 </body>

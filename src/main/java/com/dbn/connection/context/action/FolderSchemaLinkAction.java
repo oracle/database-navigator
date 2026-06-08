@@ -34,6 +34,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class FolderSchemaLinkAction extends AbstractFolderContextAction {
 
+    public FolderSchemaLinkAction() {
+        super(txt("app.fileContext.action.ConnectionContextAssociateSchema"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         VirtualFile file = Lookups.getVirtualFile(e);

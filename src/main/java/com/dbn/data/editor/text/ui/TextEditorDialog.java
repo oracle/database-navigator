@@ -33,6 +33,7 @@ import javax.swing.Action;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.common.util.Strings.toUpperCase;
+import static com.dbn.nls.NlsResources.txt;
 
 public class TextEditorDialog extends DBNDialog<TextEditorForm> {
     private final DataEditorComponent textEditorAdapter;
@@ -57,7 +58,11 @@ public class TextEditorDialog extends DBNDialog<TextEditorForm> {
         DBDataType dataType = userValueHolder.getDataType();
         String dataTypeName = dataType == null ? "OBJECT" : dataType.getName();
         DBObjectType objectType = userValueHolder.getObjectType();
-        return "Edit " + cachedUpperCase(dataTypeName) + " content (" + cachedLowerCase(objectType.getName()) + " " + toUpperCase(userValueHolder.getName()) + ")";
+        return txt(
+                "msg.dataEditor.title.EditContent",
+                cachedUpperCase(dataTypeName),
+                cachedLowerCase(objectType.getName()),
+                toUpperCase(userValueHolder.getName()));
     }
 
     public static void show(Project project, DataEditorComponent textEditorAdapter) {
@@ -67,7 +72,7 @@ public class TextEditorDialog extends DBNDialog<TextEditorForm> {
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(
                 getOKAction(),
                 getCancelAction());
@@ -90,7 +95,7 @@ public class TextEditorDialog extends DBNDialog<TextEditorForm> {
     private final DocumentListener documentListener = new DocumentListener() {
         @Override
         public void documentChanged(@NotNull DocumentEvent event) {
-            renameAction(getCancelAction(), "Cancel");
+            renameAction(getCancelAction(), txt("msg.shared.button.Cancel"));
             getOKAction().setEnabled(true);
         }
     };

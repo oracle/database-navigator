@@ -30,6 +30,7 @@ import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -112,6 +113,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         CodeStyleCaseOption dco = styleCaseSettings.getDatatypeCaseOption();
         boolean function = methodSpec.getObjectType() == DBObjectType.FUNCTION;
 
+        @NonNls
         StringBuilder buffer = new StringBuilder();
         String methodType = function ? "function " : "procedure ";
         buffer.append(kco.format(methodType));

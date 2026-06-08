@@ -56,6 +56,7 @@ import javax.swing.JPanel;
 import static com.dbn.common.options.ConfigActivity.APPLYING;
 import static com.dbn.common.options.ConfigActivity.CLONING;
 import static com.dbn.help.HelpTopic.INTRODUCTION;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)

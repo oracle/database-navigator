@@ -14,7 +14,7 @@
         </constraints>
         <properties>
           <labelFor value="56bd8"/>
-          <text value="TNS names file"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.TNSNamesFile"/>
         </properties>
       </component>
       <component id="56bd8" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="tnsNamesFileTextField">
@@ -30,7 +30,8 @@
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Filter"/>
+          <labelFor value="b50cb"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.Filter"/>
         </properties>
       </component>
       <hspacer id="5139a">
@@ -53,7 +54,7 @@
           <grid row="3" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="[error]"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.placeholder.Error"/>
         </properties>
       </component>
       <component id="b50cb" class="com.dbn.common.ui.misc.DBNFilterTextField" binding="filterTextField">

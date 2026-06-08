@@ -24,7 +24,6 @@ import com.dbn.common.latent.Latent;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.CancellableDatabaseCall;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionProperties;
 import com.dbn.connection.Resources;
@@ -63,6 +62,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.connection.ConnectionProperty.RS_TYPE_FORWARD_ONLY;
 import static com.dbn.connection.ConnectionProperty.RS_TYPE_SCROLL_INSENSITIVE;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
@@ -73,6 +73,7 @@ import static com.dbn.editor.data.model.RecordStatus.DIRTY;
 import static com.dbn.editor.data.model.RecordStatus.INSERTED;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
 import static com.dbn.editor.data.model.RecordStatus.UPDATING;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @Getter
@@ -445,7 +446,7 @@ public class DatasetEditorModel
         } catch (SQLException e) {
             conditionallyLog(e);
             set(INSERTING, false);
-            Messages.showErrorDialog(getProject(), "Could not insert record for " + dataset.getQualifiedNameWithType() + ".", e);
+            showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotInsertRecord", dataset.getQualifiedNameWithType()), e);
         }
     }
 
@@ -473,7 +474,7 @@ public class DatasetEditorModel
         } catch (SQLException e) {
             conditionallyLog(e);
             set(INSERTING, false);
-            Messages.showErrorDialog(getProject(), "Could not duplicate record in " + dataset.getQualifiedNameWithType() + ".", e);
+            showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotDuplicateRecord", dataset.getQualifiedNameWithType()), e);
         }
     }
 
