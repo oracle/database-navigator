@@ -29,6 +29,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.TableModel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class TnsNamesTable extends DBNTable<TnsNamesTableModel> {
 
@@ -39,7 +40,7 @@ public class TnsNamesTable extends DBNTable<TnsNamesTableModel> {
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
         initTableSorter();
 
-        setAccessibleName(this, "TNS Name Profiles");
+        setAccessibleName(this, txt("cfg.connections.aria.TnsNameProfiles"));
     }
 
     @Override

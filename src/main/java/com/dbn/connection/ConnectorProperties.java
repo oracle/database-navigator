@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.Properties;
 
 public class ConnectorProperties {
-    private final Map<String, String> properties = new HashMap<>();
+    private final Map<@NonNls String, @NonNls String> properties = new HashMap<>();
 
-    public void add(@NonNls String key, String value) {
+    public void add(@NonNls String key, @NonNls String value) {
         properties.put(key, value);
     }
 

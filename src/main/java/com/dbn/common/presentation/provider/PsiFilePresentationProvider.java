@@ -20,6 +20,8 @@ import com.intellij.psi.PsiFile;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class PsiFilePresentationProvider extends PresentationProviderBase<PsiFile> {
 
 
@@ -34,7 +36,7 @@ public class PsiFilePresentationProvider extends PresentationProviderBase<PsiFil
 
     @Override
     public String getTypeName(PsiFile object) {
-        return object.getFileType().getName() + " file";
+        return txt("app.shared.text.FileTypeName", object.getFileType().getName());
     }
 
     @Override

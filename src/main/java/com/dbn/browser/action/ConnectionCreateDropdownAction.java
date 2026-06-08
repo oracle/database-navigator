@@ -40,6 +40,10 @@ public class ConnectionCreateDropdownAction extends BasicActionGroup {
             new TnsNamesImportAction()
     };
 
+    public ConnectionCreateDropdownAction() {
+        super(txt("app.browser.action.BrowserNewConnection"));
+    }
+
     @NotNull
     @Override
     public AnAction[] loadChildren(AnActionEvent e) {

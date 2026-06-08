@@ -17,6 +17,7 @@
 package com.dbn.oci.util;
 
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 
 @UtilityClass
 public class OciIdentifiers {
@@ -36,7 +37,7 @@ public class OciIdentifiers {
         return isCompartmentOcid(value) || isTenancyOcid(value);
     }
 
-    private static boolean isOcid(String value, String resourceType) {
+    private static boolean isOcid(@NonNls String value, @NonNls String resourceType) {
         if (value == null) return false;
         value = value.trim();
 

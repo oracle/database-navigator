@@ -22,6 +22,7 @@ import com.dbn.common.ui.table.DBNMutableTableModel;
 import com.dbn.diagnostics.data.DiagnosticBundle;
 import com.dbn.diagnostics.data.DiagnosticEntry;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractDiagnosticsTableModel<T extends Comparable<T>> extends DBNMutableTableModel<DiagnosticEntry<T>> {
@@ -34,7 +35,7 @@ public abstract class AbstractDiagnosticsTableModel<T extends Comparable<T>> ext
     }
 
     @NotNull
-    protected abstract String[] getColumnNames();
+    protected abstract @Nls String[] getColumnNames();
 
     @NotNull
     protected abstract DiagnosticBundle<T> resolveDiagnostics();
@@ -65,7 +66,7 @@ public abstract class AbstractDiagnosticsTableModel<T extends Comparable<T>> ext
     }
 
     @Override
-    public final String getColumnName(int columnIndex) {
+    public final @Nls String getColumnName(int columnIndex) {
         return getColumnNames()[columnIndex];
     }
 

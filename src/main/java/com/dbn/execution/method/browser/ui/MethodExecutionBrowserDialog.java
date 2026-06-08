@@ -31,6 +31,8 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import java.awt.event.ActionEvent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MethodExecutionBrowserDialog extends DBNDialog<MethodExecutionBrowserForm> implements Disposable {
     private SelectAction selectAction;
     private DBObjectRef<DBMethod> methodRef;  // TODO dialog result - Disposable.nullify(...)
@@ -38,7 +40,7 @@ public class MethodExecutionBrowserDialog extends DBNDialog<MethodExecutionBrows
     private final boolean debug;
 
     public MethodExecutionBrowserDialog(Project project, ObjectTreeModel objectTreeModel, boolean debug) {
-        super(project, "Method browser", true);
+        super(project, txt("msg.execution.title.MethodBrowser"), true);
         setModal(true);
         setResizable(true);
         this.objectTreeModel = objectTreeModel;
@@ -87,7 +89,7 @@ public class MethodExecutionBrowserDialog extends DBNDialog<MethodExecutionBrows
     private class SelectAction extends AbstractAction {
 
         public SelectAction() {
-            super("Select");
+            super(txt("msg.shared.button.Select"));
         }
 
         @Override

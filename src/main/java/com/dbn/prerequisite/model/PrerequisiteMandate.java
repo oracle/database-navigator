@@ -19,6 +19,7 @@ package com.dbn.prerequisite.model;
 import com.dbn.common.util.Lists;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 
 import java.util.List;
 
@@ -31,9 +32,10 @@ import java.util.List;
 @EqualsAndHashCode
 public class PrerequisiteMandate {
     private final PrerequisiteType type;
+    @Nls
     private transient final String reason; // transient - do not include in equals and hash (prevent prerequisite duplicates with different reasons)
 
-    public PrerequisiteMandate(PrerequisiteType type, String reason) {
+    public PrerequisiteMandate(PrerequisiteType type, @Nls String reason) {
         this.type = type;
         this.reason = reason;
     }

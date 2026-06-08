@@ -26,6 +26,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @EqualsAndHashCode(callSuper = false)
 public class CodeCompletionFiltersSettings extends CompositeConfiguration<CodeCompletionSettings, CodeCompletionFiltersSettingsForm> {
     private final @Getter(lazy = true) CodeCompletionFilterSettings basicFilterSettings = new CodeCompletionFilterSettings(this, false);

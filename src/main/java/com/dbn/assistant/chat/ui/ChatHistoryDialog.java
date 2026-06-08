@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
     private final List<Chat> chats;
@@ -39,7 +41,7 @@ public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
             List<Chat> chats,
             Consumer<String> openAction,
             Consumer<List<String>> deleteAction) {
-        super(project, "Chat History", true);
+        super(project, txt("msg.assistant.title.ChatHistory"), true);
         this.chats = chats;
         this.openAction = openAction;
         this.deleteAction = deleteAction;
@@ -59,8 +61,8 @@ public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
     @Override
     @NotNull
     protected final Action [] initializeActions() {
-        renameAction(getOKAction(), "Open Chat");
-        renameAction(getCancelAction(), "Close");
+        renameAction(getOKAction(), txt("msg.assistant.button.OpenChat"));
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(
                 getOKAction(),
                 getCancelAction());
@@ -90,12 +92,12 @@ public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
         if (selectedIds.length == 0) return;
 
         String confirmMessage = selectedIds.length == 1 ?
-                "Are you sure you want to delete this chat?" :
-                "Are you sure you want to delete the " + selectedIds.length + " selected chats?";
+                txt("msg.assistant.question.DeleteChat") :
+                txt("msg.assistant.question.DeleteChats", selectedIds.length);
 
-        Messages.showQuestionDialog(
+        showQuestionDialog(
                 getProject(),
-                "Delete Chats",
+                txt("msg.assistant.title.DeleteChats"),
                 confirmMessage,
                 Messages.OPTIONS_YES_NO,
                 0,

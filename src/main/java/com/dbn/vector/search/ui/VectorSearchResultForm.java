@@ -39,6 +39,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import static com.dbn.data.sorting.SortDirection.ASCENDING;
+import static com.dbn.nls.NlsResources.txt;
 
 public class VectorSearchResultForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel mainPanel;
@@ -57,7 +58,7 @@ public class VectorSearchResultForm extends DBNFormBase implements SearchableDat
 
     private void initResultTable() {
         VectorSearchConsole searchEditor = getSearchConsole();
-        RecordViewInfo recordViewInfo = new RecordViewInfo("Search result", null);
+        RecordViewInfo recordViewInfo = new RecordViewInfo(txt("app.vector.title.SearchResult"), null);
         ConnectionHandler connection = searchEditor.getConnection();
         ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
         resultTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);

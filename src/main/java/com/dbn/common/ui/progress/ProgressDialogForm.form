@@ -59,7 +59,7 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="2" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Cancel"/>
+                  <text resource-bundle="messages/DBNResources" key="app.shared.button.Cancel"/>
                 </properties>
               </component>
               <vspacer id="d0367">
@@ -72,7 +72,7 @@
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Background"/>
+                  <text resource-bundle="messages/DBNResources" key="app.shared.button.Background"/>
                 </properties>
               </component>
             </children>

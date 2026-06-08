@@ -35,7 +35,7 @@
         </constraints>
         <properties>
           <labelFor value="c1f7d"/>
-          <text value="Chat &amp;name"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.ChatName"/>
         </properties>
       </component>
     </children>

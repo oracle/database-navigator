@@ -36,6 +36,10 @@ import static com.dbn.vfs.file.status.DBFileStatus.MODIFIED;
 
 public class SourceCodeReloadAction extends AbstractCodeEditorAction {
 
+    public SourceCodeReloadAction() {
+        super(txt("app.codeEditor.action.CodeEditorReload"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
         SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);

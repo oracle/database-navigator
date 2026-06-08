@@ -36,12 +36,13 @@ import java.util.List;
 
 import static com.dbn.connection.transaction.TransactionAction.COMMIT;
 import static com.dbn.connection.transaction.TransactionAction.ROLLBACK;
+import static com.dbn.nls.NlsResources.txt;
 
 public class PendingTransactionsDialog extends DBNDialog<PendingTransactionsForm> {
     private final TransactionAction additionalOperation;
 
     public PendingTransactionsDialog(Project project, TransactionAction additionalOperation) {
-        super(project, "Open transactions overview", true);
+        super(project, txt("msg.transactions.title.OpenTransactionsOverview"), true);
         this.additionalOperation = additionalOperation;
         setModal(false);
         setResizable(true);
@@ -70,7 +71,7 @@ public class PendingTransactionsDialog extends DBNDialog<PendingTransactionsForm
         super.doOKAction();
     }
 
-    private final AbstractAction commitAllAction = new AbstractAction("Commit all") {
+    private final AbstractAction commitAllAction = new AbstractAction(txt("msg.transactions.button.CommitAll")) {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
@@ -87,7 +88,7 @@ public class PendingTransactionsDialog extends DBNDialog<PendingTransactionsForm
         }
     };
 
-    private final AbstractAction rollbackAllAction = new AbstractAction("Rollback all") {
+    private final AbstractAction rollbackAllAction = new AbstractAction(txt("msg.transactions.button.RollbackAll")) {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
@@ -126,7 +127,7 @@ public class PendingTransactionsDialog extends DBNDialog<PendingTransactionsForm
             ConnectionManager connectionManager = ConnectionManager.getInstance(connection.getProject());
             if (!connectionManager.hasUncommittedChanges()) {
                 dispatch(() -> {
-                    renameAction(getCancelAction(), "Close");
+                    renameAction(getCancelAction(), txt("msg.shared.button.Close"));
                     commitAllAction.setEnabled(false);
                     rollbackAllAction.setEnabled(false);
                 });

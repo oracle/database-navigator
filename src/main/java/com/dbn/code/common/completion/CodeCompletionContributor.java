@@ -32,6 +32,8 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CodeCompletionContributor extends CompletionContributor {
     public static final @NonNls String DUMMY_TOKEN = "DBN_DUMMY_TOKEN";
 
@@ -54,7 +56,7 @@ public class CodeCompletionContributor extends CompletionContributor {
         if (parameters.getCompletionType() == CompletionType.BASIC && parameters.getInvocationCount() == 1) {
             Shortcut[] basicShortcuts = Keyboard.getShortcuts(IdeActions.ACTION_CODE_COMPLETION);
 
-            return "No suggestions. Press " + KeymapUtil.getShortcutsText(basicShortcuts) + " again to invoke extended completion";
+            return txt("app.codeCompletion.text.EmptyBasicCompletion", KeymapUtil.getShortcutsText(basicShortcuts));
         }
 
         return null;

@@ -60,6 +60,7 @@ import static com.dbn.common.ui.CardLayouts.getCard;
 import static com.dbn.common.ui.CardLayouts.showCard;
 import static com.dbn.common.ui.util.Borderless.markBorderless;
 import static com.dbn.common.ui.util.Lists.onSelectionChange;
+import static com.dbn.nls.NlsResources.txt;
 import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
 public class ProjectSettingsForm extends CompositeConfigurationEditorForm<ProjectSettings> {
@@ -114,7 +115,10 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
 
         Project project = getProject();
         boolean defaultProject = project != null && project.isDefault();
-        subtitleLabel.setText(defaultProject ? "Default Project Settings" : "Project Settings");
+        subtitleLabel.setText(
+                defaultProject ?
+                        txt("msg.settings.title.DefaultProjectSettings") :
+                        txt("msg.settings.title.ProjectSettings"));
 
         markBorderless(configList);
         configList.setModel(configListModel);
@@ -137,7 +141,7 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
         String configurationId = configuration.getId();
         showCard(configsPanel, configurationId);
         selectionBreadcrumbs.setCrumbs(List.of(
-                new Crumb.Impl(null, "Settings", null),
+                new Crumb.Impl(null, txt("cfg.project.title.Settings"), null),
                 new Crumb.Impl(null, configuration.getDisplayName(), null)
                 ));
 

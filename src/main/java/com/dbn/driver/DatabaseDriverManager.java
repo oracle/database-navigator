@@ -29,6 +29,7 @@ import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -129,7 +130,7 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
         URL classResource = clazz.getResource(clazz.getSimpleName() + ".class");
         if (classResource == null) return null;
 
-        String url = classResource.toString();
+        @NonNls String url = classResource.toString();
         if (!url.startsWith("jar:file:")) return null;
 
         String path = url.replaceAll("^jar:(file:.*[.]jar)!/.*", "$1");

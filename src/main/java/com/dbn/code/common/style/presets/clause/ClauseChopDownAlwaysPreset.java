@@ -22,9 +22,11 @@ import com.intellij.formatting.Wrap;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ClauseChopDownAlwaysPreset extends ClauseAbstractPreset {
     public ClauseChopDownAlwaysPreset() {
-        super("chop_down", "Chop down");
+        super("chop_down", txt("cfg.codeStyle.const.CodeStylePreset_CHOP_DOWN"));
     }
 
     @Override

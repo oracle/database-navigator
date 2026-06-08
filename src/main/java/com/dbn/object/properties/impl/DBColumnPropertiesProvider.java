@@ -24,6 +24,9 @@ import com.dbn.object.properties.SimplePresentableProperty;
 import com.dbn.object.type.DBObjectType;
 
 import java.util.List;
+import java.util.StringJoiner;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBColumnPropertiesProvider extends DBGenericObjectPropertiesProvider<DBColumn> {
     public DBColumnPropertiesProvider() {
@@ -37,18 +40,18 @@ public class DBColumnPropertiesProvider extends DBGenericObjectPropertiesProvide
         if (column.isForeignKey()) {
             DBColumn foreignKeyColumn = column.getForeignKeyColumn();
             if (foreignKeyColumn != null) {
-                properties.add(0, new DBObjectPresentableProperty("Foreign key column", foreignKeyColumn, true));
+                properties.add(0, new DBObjectPresentableProperty(txt("app.objects.property.ForeignKeyColumn"), foreignKeyColumn, true));
             }
         }
 
-        StringBuilder attributes  = new StringBuilder();
-        if (column.isIdentity()) attributes.append("IDENTITY");
-        if (column.isPrimaryKey()) attributes.append(" PK");
-        if (column.isForeignKey()) attributes.append(" FK");
-        if (!column.isPrimaryKey() && !column.isNullable()) attributes.append(" not null");
+        StringJoiner attributes = new StringJoiner(" ");
+        if (column.isIdentity()) attributes.add(txt("app.objects.propertyValue.Identity"));
+        if (column.isPrimaryKey()) attributes.add(txt("app.objects.propertyValue.PrimaryKeyShort"));
+        if (column.isForeignKey()) attributes.add(txt("app.objects.propertyValue.ForeignKeyShort"));
+        if (!column.isPrimaryKey() && !column.isNullable()) attributes.add(txt("app.objects.propertyValue.NotNull"));
 
-        if (!attributes.isEmpty()) {
-            properties.add(0, new SimplePresentableProperty("Attributes", attributes.toString().trim()));
+        if (attributes.length() > 0) {
+            properties.add(0, new SimplePresentableProperty(txt("app.objects.property.Attributes"), attributes.toString()));
         }
         properties.add(0, new DBDataTypePresentableProperty(column.getDataType()));
 

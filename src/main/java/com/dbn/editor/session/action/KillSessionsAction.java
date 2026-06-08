@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class KillSessionsAction extends AbstractSessionBrowserAction {
 
+    public KillSessionsAction() {
+        super(txt("app.sessionBrowser.action.SessionBrowserKillSessions"));
+    }
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         SessionBrowser sessionBrowser = getSessionBrowser(e);

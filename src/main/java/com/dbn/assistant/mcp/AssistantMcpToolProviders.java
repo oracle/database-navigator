@@ -37,6 +37,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 import static com.dbn.assistant.mcp.model.AssistantMcpServer.qualifiedUtilityName;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @UtilityClass
@@ -94,7 +95,7 @@ public class AssistantMcpToolProviders {
             throw e;
         } catch (Throwable t) {
             log.warn(t.getMessage(), t);
-            errorHandler.accept("Failed to initialize MCP Server \"" + serverName + "\"", t);
+            errorHandler.accept(txt("msg.assistant.error.McpServerInitializationFailed", serverName), t);
             return null;
         }
     }

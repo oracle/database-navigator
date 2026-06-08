@@ -39,7 +39,7 @@ import static com.dbn.common.cache.CacheKey.key;
 
 @NonNls
 public interface GenericMetadataLoaders {
-    CachedResultSet.Mapper<String> METHOD_COLUMNS = original ->
+    CachedResultSet.Mapper<@NonNls String> METHOD_COLUMNS = original ->
             switch (original) {
                 case "FUNCTION_CAT",
                      "PROCEDURE_CAT" -> "METHOD_CAT";

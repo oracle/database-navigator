@@ -33,9 +33,15 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @BackgroundUpdate
 public abstract class SelectDropdownAction<T extends Presentable> extends ComboBoxAction implements DumbAware {
     private transient WeakRef<T> lastSelection;
+
+    protected SelectDropdownAction(@Nullable String text) {
+        super(text);
+    }
 
     @Nullable
     protected List<T> getObjects(AnActionEvent e) {
@@ -107,7 +113,7 @@ public abstract class SelectDropdownAction<T extends Presentable> extends ComboB
 
         if (object == null) {
             if (isLoading(e)) {
-                presentation.setText("Loading...");
+                presentation.setText(txt("app.shared.action.Loading"));
                 presentation.setEnabled(false);
             } else {
                 String emptySelectionText = getEmptySelectionText(e);

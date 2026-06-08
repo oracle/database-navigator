@@ -58,6 +58,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
 public class MethodExecutionInputArgumentForm extends DBNFormBase {
@@ -169,7 +170,7 @@ public class MethodExecutionInputArgumentForm extends DBNFormBase {
         return new ListPopupValuesProvider() {
             @Override
             public String getName() {
-                return "Value History";
+                return txt("msg.execution.title.ValueHistory");
             }
 
             @Override

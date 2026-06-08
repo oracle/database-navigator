@@ -30,6 +30,8 @@ import com.dbn.connection.context.DatabaseContext;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.Label;
+import com.intellij.openapi.util.NlsContexts.Tooltip;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.AbstractButton;
@@ -59,11 +61,11 @@ public class DBNHeaderForm extends DBNFormBase {
         objectLabel.setForeground(Colors.getLabelForeground());
     }
 
-    public DBNHeaderForm(DBNForm parent, String title, Icon icon) {
+    public DBNHeaderForm(DBNForm parent, @Label String title, Icon icon) {
         this(parent, title, icon, null);
     }
 
-    public DBNHeaderForm(DBNForm parent, String title, Icon icon, Color background) {
+    public DBNHeaderForm(DBNForm parent, @Label String title, Icon icon, Color background) {
         this(parent);
         objectLabel.setText(title);
         objectLabel.setIcon(icon);
@@ -125,7 +127,7 @@ public class DBNHeaderForm extends DBNFormBase {
         mainPanel.setBackground(background);
     }
 
-    public void setTitle(String title) {
+    public void setTitle(@Label String title) {
         objectLabel.setText(title);
     }
 
@@ -138,7 +140,7 @@ public class DBNHeaderForm extends DBNFormBase {
         buttonsPanel.add(button);
     }
 
-    public void setSelector(String tooltip, ActionGroup actions) {
+    public void setSelector(@Tooltip String tooltip, ActionGroup actions) {
         DBNSelector selector = new DBNSelector(tooltip, actions);
         selector.bindComponent(objectLabel);
         selectorPanel.add(selector);

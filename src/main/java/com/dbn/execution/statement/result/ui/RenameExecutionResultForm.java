@@ -33,6 +33,7 @@ import javax.swing.JTextField;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 
 public class RenameExecutionResultForm extends DBNFormBase {
     private JPanel headerPanel;
@@ -45,7 +46,7 @@ public class RenameExecutionResultForm extends DBNFormBase {
         super(parent);
 
         DBNHeaderForm headerForm = new DBNHeaderForm(this,
-                "Execution result - " + executionResult.getName(),
+                txt("app.execution.label.ExecutionResult", executionResult.getName()),
                 executionResult.getIcon(),
                 executionResult.getConnection().getEnvironmentType().getColor());
         headerPanel.add(headerForm.getComponent());
@@ -54,7 +55,7 @@ public class RenameExecutionResultForm extends DBNFormBase {
         nameTextField.setText(resultName);
 
         if (executionResult.supportsStickyNames()) {
-            TextContent hint = plain("Use \"Sticky\" option to retain the name after the result is closed.");
+            TextContent hint = plain(txt("msg.execution.hint.RenameResult"));
             DBNHintForm hintForm = new DBNHintForm(this, hint, null, false);
             hintPanel.add(hintForm.getComponent());
 
@@ -67,7 +68,7 @@ public class RenameExecutionResultForm extends DBNFormBase {
     }
 
     protected void initValidation() {
-        addTextValidation(nameTextField, n -> !Strings.isEmpty(n), "Please specify a result name");
+        addTextValidation(nameTextField, n -> !Strings.isEmpty(n), txt("msg.execution.error.ResultNameRequired"));
     }
 
     @Nullable

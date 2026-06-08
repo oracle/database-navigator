@@ -16,10 +16,18 @@
 
 package com.dbn.event.registration.action;
 
-import com.dbn.event.registration.filter.EventRegistrationFilterType;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+
+import static com.dbn.event.registration.filter.EventRegistrationFilterType.STATUS;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EventRegistrationStatusFilterAction extends EventRegistrationFilterAction {
     public EventRegistrationStatusFilterAction() {
-        super(EventRegistrationFilterType.STATUS);
+        super(STATUS, txt("app.eventRegistration.action.EventRegistrationsStatusFilter"));
+    }
+
+    @Override
+    public void update(AnActionEvent e) {
+        e.getPresentation().setText(txt("app.eventRegistration.action.StatusFilter"));
     }
 }

@@ -25,11 +25,16 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.icon.Icons.ACTION_STOP;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Action for starting a new chat
  */
 public class ToolExecutionStopAction extends AssistantToolAction {
+    public ToolExecutionStopAction() {
+        super(txt("app.assistant.action.AssistantStopToolExecution"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
@@ -44,7 +49,7 @@ public class ToolExecutionStopAction extends AssistantToolAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setVisible(enabled);
-        presentation.setText("Stop Execution");
+        presentation.setText(txt("app.assistant.action.StopToolExecution"));
         presentation.setIcon(ACTION_STOP);
     }
 

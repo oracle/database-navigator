@@ -29,6 +29,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class MessagesWindowCloseAction extends AbstractExecutionMessagesAction {
 
+    public MessagesWindowCloseAction() {
+        super(txt("app.execution.action.MessagesClose"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull MessagesTree messagesTree) {
         ExecutionManager executionManager = ExecutionManager.getInstance(project);

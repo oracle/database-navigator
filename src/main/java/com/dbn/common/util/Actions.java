@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.util.ClientProperty.ACTION_TOOLBAR;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.openapi.actionSystem.ActionPlaces.POPUP;
 import static com.intellij.openapi.actionSystem.ActionPlaces.TOOLBAR;
 
@@ -54,7 +55,7 @@ public class Actions {
                 @Override
                 public void update(@NotNull AnActionEvent e) {
                     Presentation presentation = e.getPresentation();
-                    presentation.setText("Loading...");
+                    presentation.setText(txt("app.shared.action.Loading"));
                 }
             }};
 

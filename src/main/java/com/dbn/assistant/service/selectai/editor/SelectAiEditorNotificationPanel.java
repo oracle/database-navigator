@@ -31,6 +31,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.assistant.AssistantType.SELECT_AI;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SelectAiEditorNotificationPanel extends EditorNotificationPanel {
 
@@ -38,14 +39,14 @@ public class SelectAiEditorNotificationPanel extends EditorNotificationPanel {
         super(project, file, fileEditor, MessageType.INFO);
         setIcon(Icons.COMMON_INFO);
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
-                "Your database supports natural language interaction powered by",
-                "Oracle Select AI",
+                txt("ntf.assistant.text.SelectAiEditorNotification"),
+                txt("ntf.assistant.link.OracleSelectAi"),
                 "https://www.oracle.com/autonomous-database/select-ai/");
         setContent(hyperLinkForm);
 
-        createActionLabel("Configure", () -> configure());
-        createActionLabel("Chat", () -> chat());
-        createActionLabel("Dismiss", () -> dismiss());
+        createActionLabel(txt("app.assistant.action.Configure"), () -> configure());
+        createActionLabel(txt("app.assistant.action.Chat"), () -> chat());
+        createActionLabel(txt("app.assistant.action.Dismiss"), () -> dismiss());
     }
 
     private void configure() {

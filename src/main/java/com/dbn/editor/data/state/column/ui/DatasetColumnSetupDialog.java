@@ -27,13 +27,14 @@ import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
 import static com.dbn.editor.data.DataLoadInstruction.PRESERVE_CHANGES;
 import static com.dbn.editor.data.DataLoadInstruction.REBUILD;
 import static com.dbn.editor.data.DataLoadInstruction.USE_CURRENT_FILTER;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetColumnSetupDialog extends DBNDialog<DatasetColumnSetupForm> {
     private static final DataLoadInstructions LOAD_INSTRUCTIONS = new DataLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION, REBUILD);
     private DatasetEditor datasetEditor;
 
     public DatasetColumnSetupDialog(@NotNull DatasetEditor datasetEditor) {
-        super(datasetEditor.getProject(), "Column setup", true);
+        super(datasetEditor.getProject(), txt("msg.dataEditor.title.ColumnSetup"), true);
         this.datasetEditor = datasetEditor;
         setModal(true);
         setResizable(true);

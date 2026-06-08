@@ -24,6 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class StringListConstraintValidator extends PropertiesValidator {
 
     private final Set<String> allowedStrings = new HashSet<>();
@@ -37,10 +39,10 @@ public class StringListConstraintValidator extends PropertiesValidator {
     @Override
     public ValidationInfo validate(String keyName, Object value) {
         if (! (value instanceof String)) {
-            return new ValidationInfo(keyName + " must be a string");
+            return new ValidationInfo(txt("cfg.connection.error.ParameterValueMustBeString", keyName));
         }
         if (!allowedStrings.contains((String) value)) {
-            return new ValidationInfo(keyName + " must be one of " + allowedStrings + " but was " + value);
+            return new ValidationInfo(txt("cfg.connection.error.ParameterValueNotInList", keyName, allowedStrings, value));
         }
         return null;
     }

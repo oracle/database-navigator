@@ -41,7 +41,8 @@ import static com.dbn.nls.NlsResources.txt;
 public abstract class EventNotificationFilterAction extends ComboBoxAction implements DumbAware {
     private final EventNotificationFilterType filterType;
 
-    public EventNotificationFilterAction(EventNotificationFilterType filterType) {
+    public EventNotificationFilterAction(EventNotificationFilterType filterType, String text) {
+        super(text);
         this.filterType = filterType;
     }
 

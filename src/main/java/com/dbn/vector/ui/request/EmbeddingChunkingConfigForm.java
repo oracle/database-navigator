@@ -39,6 +39,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.util.Dialogs.whenOk;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vector.model.request.EmbeddingChunkingConfigValidator.validateMaxSize;
 import static com.dbn.vector.model.request.EmbeddingChunkingConfigValidator.validateOverlap;
 
@@ -104,7 +105,7 @@ public class EmbeddingChunkingConfigForm extends VectorToolboxFormBase implement
         if ("NONE".equals(chunkBy)) {
             EmbeddingSourceType sourceType = getToolboxForm().getEmbeddingSourceForm().getSelectedSourceType();
             if (sourceType == EmbeddingSourceType.FILE_SYSTEM) {
-                return "Chunking configuration is mandatory for contents sourced from file system";
+                return txt("msg.vector.error.ChunkingRequiredForFileSystem");
             }
         }
 
@@ -158,11 +159,15 @@ public class EmbeddingChunkingConfigForm extends VectorToolboxFormBase implement
 
     @Override
     public String getFormTitle() {
-        return "Chunk Configuration";
+        return txt("msg.vector.title.ChunkConfiguration");
     }
 
     @Override
     public String getFormTitleDetail() {
-        return getChunkBy() + " / " + getSplitBy() + " / " + maxSizeSpinner.getValue() + " / " + overlapSpinner.getValue();
+        return txt("msg.vector.text.ChunkConfigurationDetail",
+                getChunkBy(),
+                getSplitBy(),
+                maxSizeSpinner.getValue(),
+                overlapSpinner.getValue());
     }
 }

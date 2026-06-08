@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head>
-    <title>Staging table</title>
+    <title>Chunking Configuration</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -28,7 +28,7 @@
 </head>
 <body style="width: 300px">
     <h3>Chunking Configuration</h3>
-    <p>Chunking controls how larger text is segmented into smaller pieces before vector embedding</p>
+    <p>Chunking controls how larger text is segmented into smaller pieces before vector embedding.</p>
     <br>
     <p>Chunking parameters:</p>
     <ul>
@@ -39,5 +39,4 @@
     </ul>
 </body>
 </html>
-
 

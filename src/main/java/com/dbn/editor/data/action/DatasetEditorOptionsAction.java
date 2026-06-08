@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorOptionsAction extends BasicActionGroup {
 
+    public DatasetEditorOptionsAction() {
+        super(txt("app.dataEditor.action.DataEditorOptions"));
+    }
+
     @NotNull
     @Override
     public AnAction[] loadChildren(AnActionEvent e) {

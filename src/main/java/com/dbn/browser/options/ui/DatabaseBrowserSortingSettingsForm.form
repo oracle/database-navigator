@@ -6,7 +6,7 @@
       <xy x="20" y="20" width="436" height="183"/>
     </constraints>
     <properties/>
-    <border type="none" title="Sorting"/>
+    <border type="none" title-resource-bundle="messages/DBNResources" title-key="cfg.browser.title.Sorting"/>
     <children>
       <scrollpane id="8308b" class="com.intellij.ui.components.JBScrollPane" binding="sortingTypesScrollPanel">
         <constraints>

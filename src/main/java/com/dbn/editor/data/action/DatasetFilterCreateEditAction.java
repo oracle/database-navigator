@@ -36,6 +36,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class DatasetFilterCreateEditAction extends AbstractDataEditorAction {
 
+    public DatasetFilterCreateEditAction() {
+        super(txt("app.dataEditor.action.DataEditorCreateEditFilter"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         DBDataset dataset = datasetEditor.getDataset();

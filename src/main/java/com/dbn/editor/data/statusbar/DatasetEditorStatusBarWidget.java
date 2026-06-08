@@ -44,6 +44,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorStatusBarWidget extends ProjectComponentBase implements CustomStatusBarWidget {
     private static final String WIDGET_ID = DatasetEditorStatusBarWidget.class.getName();
@@ -123,10 +124,11 @@ public class DatasetEditorStatusBarWidget extends ProjectComponentBase implement
             textLabel.setText("");
             textLabel.setIcon(null);
         } else {
-            textLabel.setText(" " +
-                    "Sum " +  mathResult.getSum() + "   " +
-                    "Count " + mathResult.getCount() + "   " +
-                    "Average " + mathResult.getAverage());
+            textLabel.setText(txt(
+                    "app.dataEditor.label.SelectionMath",
+                    mathResult.getSum(),
+                    mathResult.getCount(),
+                    mathResult.getAverage()));
             textLabel.setIcon(Icons.COMMON_DATA_GRID);
         }
         UserInterface.repaint(component);

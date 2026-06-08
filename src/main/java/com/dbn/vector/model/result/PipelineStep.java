@@ -18,19 +18,19 @@ package com.dbn.vector.model.result;
 
 import lombok.Getter;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public enum PipelineStep {
   CHECK_CRC(
-          "Check for Duplicated File",
-          "Compute and look up the file checksum to detect previously uploaded files. If a match is found, " +
-                  "the file is skipped to prevent duplicates."),
+          txt("msg.vector.const.PipelineStep_CHECK_CRC"),
+          txt("msg.vector.tooltip.PipelineStep_CHECK_CRC")),
   UPLOADING_FILE(
-          "Upload to Database",
-          "Stream the file content into the document store and record file metadata."),
+          txt("msg.vector.const.PipelineStep_UPLOADING_FILE"),
+          txt("msg.vector.tooltip.PipelineStep_UPLOADING_FILE")),
   EMBED(
-          "Chunk & Embed Content",
-          "Extract text, split into chunks according to the configured chunker, request embeddings from the "+
-                  "chosen model/provider, and insert vector rows into the destination table.");
+          txt("msg.vector.const.PipelineStep_EMBED"),
+          txt("msg.vector.tooltip.PipelineStep_EMBED"));
   private final String displayName;
   private final String description;
 

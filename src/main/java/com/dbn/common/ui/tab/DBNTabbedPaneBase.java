@@ -65,6 +65,7 @@ import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static org.jetbrains.annotations.Nls.Capitalization.Title;
 
 @Getter
 @Setter
@@ -124,7 +125,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
         }
 
         popupBuilder(actions, hiddenTabsActionPanel).
-                withTitle("Hidden Tabs").
+                withTitle(txt("app.shared.title.HiddenTabs")).
                 withTitleVisible(false).
                 withSpeedSearch().
                 buildAndShow();
@@ -196,21 +197,21 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
     }
 
 
-    public void insertTab(String title, Component component, int index) {
+    public void insertTab(@Nls(capitalization = Title) String title, Component component, int index) {
         Icon icon = TAB_ICON.get(component);
         String tooltip = TAB_TOOLTIP.get(component);
         insertTab(title, icon, component, tooltip, index);
     }
 
     @Workaround // remove tab label from JBTabbedPane
-    public void insertTab(@Nls(capitalization = Nls.Capitalization.Title) String title, Icon icon, Component component, @Nls(capitalization = Nls.Capitalization.Sentence) String tip, int index) {
+    public void insertTab(@Nls(capitalization = Title) String title, Icon icon, Component component, @Nls(capitalization = Nls.Capitalization.Sentence) String tip, int index) {
         super.insertTab(normalizeTitle(title), icon, component, tip, index);
         setTabComponentAt(index, null);
         updateListeners.notify(l -> l.tabAdded(index));
     }
 
     @Override
-    public void addTab(String title, Icon icon, Component component, String tooltip) {
+    public void addTab(@Nls(capitalization = Title) String title, Icon icon, Component component, @Nls(capitalization = Nls.Capitalization.Sentence) String tooltip) {
         TAB_ICON.set(component, icon);
         TAB_TOOLTIP.set(component, tooltip);
         super.addTab(title, icon, component, tooltip);
@@ -218,19 +219,19 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
     }
 
     @Override
-    public void addTab(String title, Icon icon, Component component) {
+    public void addTab(@Nls(capitalization = Title) String title, Icon icon, Component component) {
         TAB_ICON.set(component, icon);
         super.addTab(title, icon, component);
     }
 
     @Override
-    public void addTab(String title, Component component) {
+    public void addTab(@Nls(capitalization = Title) String title, Component component) {
         Icon icon = TAB_ICON.get(component);
         String tooltip = TAB_TOOLTIP.get(component);
         super.addTab(title, icon, component, tooltip);
     }
 
-    public void addTab(String title, Component component, T content) {
+    public void addTab(@Nls(capitalization = Title) String title, Component component, T content) {
         Icon icon = TAB_ICON.get(component);
         String tooltip = TAB_TOOLTIP.get(component);
         TAB_CONTENT.set(component, content);
@@ -323,7 +324,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
         location.setLocation(location.getX() + x, location.getY() + y);
 
         ListPopup popup = popupBuilder(actionGroup, this).
-                withTitle("Tab Actions").
+                withTitle(txt("app.shared.title.TabActions")).
                 withTitleVisible(false).
                 withDisposeCallback(() -> showingPopup = false).
                 withMaxRowCount(10).

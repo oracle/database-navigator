@@ -28,6 +28,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.showQuestionDialog;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -36,6 +37,10 @@ import static com.dbn.nls.NlsResources.txt;
  * @author Dan Cioca (Oracle)
  */
 public class ChatDeleteAction extends AbstractChatBoxAction {
+    public ChatDeleteAction() {
+        super(txt("app.assistant.action.AssistantClearChat"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         boolean enabled = isEnabled(e);
@@ -65,14 +70,14 @@ public class ChatDeleteAction extends AbstractChatBoxAction {
         boolean persisted = isPersisted(e);
 
         String title = persisted ?
-                "Delete Chat" :
-                "Clear Chat";
+                txt("msg.assistant.title.DeleteChat") :
+                txt("msg.assistant.title.ClearChat");
 
         String message = persisted ?
-                "Are you sure you want to delete this chat?" :
-                "Are you sure you want to clear this chat?";
+                txt("msg.assistant.question.DeleteChat") :
+                txt("msg.assistant.question.ClearChat");
 
-        Messages.showQuestionDialog(project, title, message,
+        showQuestionDialog(project, title, message,
                 Messages.OPTIONS_YES_NO, 0,
                 option -> when(option == 0, () -> chatBox.deleteCurrentChat()));
 

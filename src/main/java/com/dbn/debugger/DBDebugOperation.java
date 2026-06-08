@@ -20,6 +20,7 @@ import com.dbn.common.thread.Threads;
 import com.dbn.database.interfaces.DatabaseInterface.Runnable;
 import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ExecutorService;
@@ -32,7 +33,7 @@ import static com.dbn.nls.NlsResources.txt;
 @UtilityClass
 public class DBDebugOperation {
 
-    public static void run(@NotNull Project project, String title, Runnable runnable) {
+    public static void run(@NotNull Project project, @Nls String name, Runnable runnable) {
         ExecutorService executorService = Threads.debugExecutor();
         executorService.submit( () -> {
             Thread currentThread = Thread.currentThread();
@@ -42,7 +43,7 @@ public class DBDebugOperation {
                 runnable.run();
             } catch (Exception e) {
                 conditionallyLog(e);
-                sendErrorNotification(project, DEBUGGER, txt("ntf.debugger.error.ErrorPerformingOperation", title, e));
+                sendErrorNotification(project, DEBUGGER, txt("ntf.debugger.error.ErrorPerformingOperation", name, e));
             } finally {
                 currentThread.setPriority(initialPriority);
             }

@@ -44,6 +44,7 @@ import java.awt.event.ComponentListener;
 import java.util.Objects;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBLanguageFileEditorToolbarForm extends DBNToolbarForm {
     private JPanel mainPanel;

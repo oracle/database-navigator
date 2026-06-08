@@ -20,6 +20,7 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBTable;
 import com.dbn.object.cache.DBObjectFilter;
 import com.dbn.object.cache.DBObjectFilterType;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.List;
 import java.util.Set;
@@ -34,8 +35,9 @@ public class EmbeddingStagingTableFilter implements DBObjectFilter<DBTable> {
         List<DBColumn> columns = table.getColumns();
         if (columns.size() < 5) return false; // no exact match expected (consider system columns)
 
-        Set<String> columnNames = columns.stream().map(c -> c.getName()).collect(Collectors.toSet());
+        @NonNls
         Set<String> expectedColumnNames = Set.of("ID", "FILE_SIZE", "FILE_HASH", "FILE_CONTENT", "METADATA");
+        Set<String> columnNames = columns.stream().map(c -> c.getName()).collect(Collectors.toSet());
         if (!columnNames.containsAll(expectedColumnNames)) return false;
 
         return true;

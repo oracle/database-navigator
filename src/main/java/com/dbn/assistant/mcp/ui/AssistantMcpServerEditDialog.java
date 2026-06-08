@@ -25,13 +25,17 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class AssistantMcpServerEditDialog extends DBNDialog<AssistantMcpServerEditForm> {
     private final AssistantMcpServer mcpServer;
     private final AssistantMcpServerEditRequest request;
 
     public AssistantMcpServerEditDialog(Project project, AssistantMcpServerEditRequest request) {
-        super(project, request.isNewMcpServer() ? "Create MCP Server Config" : "Update MCP Server Config", true);
+        super(project, request.isNewMcpServer() ?
+                txt("msg.assistant.title.CreateMcpServerConfig") :
+                txt("msg.assistant.title.UpdateMcpServerConfig"), true);
         this.request = request;
         this.mcpServer = initMcpServer();
         setDefaultSize(600, 400);
@@ -58,7 +62,9 @@ public class AssistantMcpServerEditDialog extends DBNDialog<AssistantMcpServerEd
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        String actionName = request.isNewMcpServer() ? "Create" : "Update";
+        String actionName = request.isNewMcpServer() ?
+                txt("msg.shared.button.Create") :
+                txt("msg.shared.button.Update");
         renameAction(getOKAction(), actionName);
         return actions(
                 getOKAction(),
@@ -78,4 +84,3 @@ public class AssistantMcpServerEditDialog extends DBNDialog<AssistantMcpServerEd
         super.doOKAction();
     }
 }
-

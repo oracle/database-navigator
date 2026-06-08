@@ -24,6 +24,8 @@ import com.dbn.batch.BatchTask;
 import com.dbn.common.message.MessageType;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public abstract class BatchMessengerBase<
         T extends BatchTask,
         I extends BatchInput<T>,
@@ -50,15 +52,15 @@ public abstract class BatchMessengerBase<
         int successCount = counters.successItems();
         int errorCount = counters.failedItems();
 
-        String successSegment = successCount + " out of " + queuedCount + " tasks completed";
-        String errorSegment = errorCount == 0 ? "" : ", " + errorCount + " tasks have failed";
+        String successSegment = txt("app.batch.text.TasksCompleted", successCount, queuedCount);
+        String errorSegment = errorCount == 0 ? "" : txt("app.batch.text.TasksFailed", errorCount);
 
         if (batch.isCancelled() || batch.isFinished())  {
             int cancelCount = queuedCount - counters.processedItems();
-            String cancelSegment = cancelCount == 0 ? "" : ", " + cancelCount + " tasks were cancelled";
-            return "(" + successSegment + errorSegment + cancelSegment + ")";
+            String cancelSegment = cancelCount == 0 ? "" : txt("app.batch.text.TasksCanceled", cancelCount);
+            return txt("app.batch.text.Progress", successSegment, errorSegment, cancelSegment);
         } else {
-            return "(" + successSegment + errorSegment + ")";
+            return txt("app.batch.text.Progress", successSegment, errorSegment, "");
         }
     }
 }

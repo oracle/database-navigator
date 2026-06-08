@@ -157,7 +157,7 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
     }
 
     protected String getObjectTypeName() {
-        return getObjectType().getName();
+        return getObjectType().getDisplayName();
     }
 
     protected String getObjectName() {

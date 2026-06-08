@@ -24,6 +24,7 @@ import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.provider.ProviderUrlType;
 import com.dbn.common.util.Chars;
 import lombok.Data;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,6 +79,7 @@ public class AssistantModelInput {
         return null;
     }
 
+    @NonNls
     public String getRegionId() {
         // TODO region specific OCI hosted models
         return "us-chicago-1";

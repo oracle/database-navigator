@@ -26,27 +26,29 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class PSQLColorSettingsPage extends DBLColorSettingsPage {
     public PSQLColorSettingsPage() {
-        attributeDescriptors.add(new AttributesDescriptor("Line Comment", PSQLTextAttributesKeys.LINE_COMMENT));
-        attributeDescriptors.add(new AttributesDescriptor("Block Comment", PSQLTextAttributesKeys.BLOCK_COMMENT));
-        attributeDescriptors.add(new AttributesDescriptor("String Literal", PSQLTextAttributesKeys.STRING));
-        attributeDescriptors.add(new AttributesDescriptor("Numeric Literal", PSQLTextAttributesKeys.NUMBER));
-        attributeDescriptors.add(new AttributesDescriptor("Alias", PSQLTextAttributesKeys.ALIAS));
-        attributeDescriptors.add(new AttributesDescriptor("Identifier", PSQLTextAttributesKeys.IDENTIFIER));
-        attributeDescriptors.add(new AttributesDescriptor("Keyword", PSQLTextAttributesKeys.KEYWORD));
-        attributeDescriptors.add(new AttributesDescriptor("Function", PSQLTextAttributesKeys.FUNCTION));
-        attributeDescriptors.add(new AttributesDescriptor("DataType", PSQLTextAttributesKeys.DATA_TYPE));
-        attributeDescriptors.add(new AttributesDescriptor("Parenthesis", PSQLTextAttributesKeys.PARENTHESIS));
-        attributeDescriptors.add(new AttributesDescriptor("Exception", PSQLTextAttributesKeys.EXCEPTION));
-        attributeDescriptors.add(new AttributesDescriptor("Bracket", PSQLTextAttributesKeys.BRACKET));
-        attributeDescriptors.add(new AttributesDescriptor("Operator", PSQLTextAttributesKeys.OPERATOR));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_LINE_COMMENT"), PSQLTextAttributesKeys.LINE_COMMENT));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_BLOCK_COMMENT"), PSQLTextAttributesKeys.BLOCK_COMMENT));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_STRING_LITERAL"), PSQLTextAttributesKeys.STRING));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_NUMERIC_LITERAL"), PSQLTextAttributesKeys.NUMBER));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_ALIAS"), PSQLTextAttributesKeys.ALIAS));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_IDENTIFIER"), PSQLTextAttributesKeys.IDENTIFIER));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_KEYWORD"), PSQLTextAttributesKeys.KEYWORD));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_FUNCTION"), PSQLTextAttributesKeys.FUNCTION));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_DATA_TYPE"), PSQLTextAttributesKeys.DATA_TYPE));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_PARENTHESIS"), PSQLTextAttributesKeys.PARENTHESIS));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_EXCEPTION"), PSQLTextAttributesKeys.EXCEPTION));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_BRACKET"), PSQLTextAttributesKeys.BRACKET));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_OPERATOR"), PSQLTextAttributesKeys.OPERATOR));
     }
 
     @Override
     @NotNull
     public String getDisplayName() {
-        return "PL/SQL (DBN)";
+        return txt("cfg.codeEditor.title.PlSqlColorSettings");
     }
     @Override
     @Nullable
@@ -62,6 +64,6 @@ public class PSQLColorSettingsPage extends DBLColorSettingsPage {
 
     @Override
     public String getDemoTextFileName() {
-        return "plsql_demo_text.txt";  
+        return "plsql_demo_text.txt";
     }
 }

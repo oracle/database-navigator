@@ -37,6 +37,7 @@ import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setInteger;
 import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -53,8 +54,8 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
     private final InteractiveOptionBroker<DebuggerTypeOption> debuggerType =
             new InteractiveOptionBroker<>(
                     "debugger-type",
-                    "Debugger Type",
-                    "Please select debugger type to use.",
+                    txt("msg.debugger.title.DebuggerType"),
+                    txt("msg.debugger.question.SelectDebuggerType"),
                     DBDebuggerType.JDWP.isSupported() ? DebuggerTypeOption.ASK : DebuggerTypeOption.JDBC,
                     DebuggerTypeOption.JDWP,
                     DebuggerTypeOption.JDBC,

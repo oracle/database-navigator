@@ -23,12 +23,13 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.icon.Icons.WINDOW_EXECUTION_CONSOLE;
 import static com.dbn.help.HelpTopic.EXECUTION_ENGINE;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionConsoleToolWindowFactory extends DBNToolWindowFactory {
     @Override
     protected void initialize(@NotNull ToolWindow toolWindow) {
-        toolWindow.setTitle("DB Execution Console");
-        toolWindow.setStripeTitle("DB Execution Console");
+        toolWindow.setTitle(txt("app.execution.title.DatabaseExecutionConsoleToolWindow"));
+        toolWindow.setStripeTitle(txt("app.execution.title.DatabaseExecutionConsoleToolWindow"));
         toolWindow.setIcon(WINDOW_EXECUTION_CONSOLE.get());
         toolWindow.setHelpId(EXECUTION_ENGINE.asHelpTopicId());
 

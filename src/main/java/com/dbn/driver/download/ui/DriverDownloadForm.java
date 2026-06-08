@@ -35,6 +35,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.util.FileChoosers.addSingleFolderChooser;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DriverDownloadForm extends DBNFormBase {
     private JPanel mainPanel;

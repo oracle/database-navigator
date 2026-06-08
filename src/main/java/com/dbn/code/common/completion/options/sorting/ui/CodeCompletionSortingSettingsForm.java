@@ -44,6 +44,7 @@ import java.util.List;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.UserInterface.enableSelectOnFocus;
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.nls.NlsResources.txt;
 
 public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<CodeCompletionSortingSettings> {
     private JPanel mainPanel;
@@ -61,7 +62,7 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
                 new MoveUpAction(sortingItemsList, settings),
                 new MoveDownAction(sortingItemsList, settings));
         actionPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
-        setAccessibleName(sortingItemsList, "Code completion sorting elements");
+        setAccessibleName(sortingItemsList, txt("cfg.codeEditor.aria.CodeCompletionSortingElements"));
         enableSelectOnFocus(sortingItemsList);
 
         registerComponent(mainPanel);

@@ -35,6 +35,11 @@ public class ProjectSettingsOpenAction extends ProjectAction {
     private final boolean showIcon;
 
     public ProjectSettingsOpenAction(ConfigId configId, boolean showIcon) {
+        this(configId, showIcon, null);
+    }
+
+    public ProjectSettingsOpenAction(ConfigId configId, boolean showIcon, String text) {
+        super(text);
         this.configId = configId;
         this.showIcon = showIcon;
     }

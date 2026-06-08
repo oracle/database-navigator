@@ -39,6 +39,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.help.HelpTopic.DATABASE_CONFIG;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter

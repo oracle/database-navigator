@@ -48,6 +48,7 @@ import java.util.Set;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Strings.toUpperCase;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilterSettings> {
     private JPanel mainPanel;
@@ -117,7 +118,7 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
 
     private class ObjectTypeSelector extends ValueSelector<DBObjectType> {
         ObjectTypeSelector() {
-            super(PlatformIcons.ADD_ICON, "Add Filter", null, ValueSelectorOption.HIDE_DESCRIPTION);
+            super(PlatformIcons.ADD_ICON, txt("app.objects.action.AddFilter"), null, ValueSelectorOption.HIDE_DESCRIPTION);
             addListener((oldValue, newValue) -> {
                 createFilter(newValue);
                 resetValues();

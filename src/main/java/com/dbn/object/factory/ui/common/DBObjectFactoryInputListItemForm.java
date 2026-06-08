@@ -26,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBObjectFactoryInputListItemForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel removeActionPanel;
@@ -77,7 +79,7 @@ public class DBObjectFactoryInputListItemForm extends DBNFormBase {
     }
 
     private @NotNull String getObjectTypeName() {
-        return getParentForm().getObjectType().getName();
+        return getParentForm().getObjectType().getDisplayName();
     }
 
     DBObjectFactoryInputForm getObjectDetailsPanel() {

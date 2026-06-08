@@ -44,6 +44,7 @@ import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.file.impl.FileManager;
 import com.intellij.testFramework.LightVirtualFile;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,6 +56,7 @@ import static com.dbn.common.util.Documents.onDocumentChanged;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.common.util.Editors.updateEditorScrollPane;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 
 /**
@@ -124,15 +126,15 @@ public class ChatBoxInputField extends JPanel implements Disposable {
     }
 
     @Nullable
-    private String computeReadonlyHint(ChatAvailability availability) {
+    private @Nls String computeReadonlyHint(ChatAvailability availability) {
         return switch (availability) {
             case AVAILABLE -> null;
-            case BUSY_QUERYING -> "Assistant is processing your request...";
-            case BUSY_INITIALIZING -> "Assistant is initializing...";
-            case INACTIVE_CHAT_SELECTED -> "This chat is no longer active";
-            case NO_PROFILE_AVAILABLE -> "No profiles available for this connection. Please setup profiles to continue";
-            case NO_PROFILE_SELECTED -> "No profile selected. Please select a profile to continue";
-            case DISABLED_PROFILE_SELECTED -> "The selected profile is disabled. Please select an active profile to continue";
+            case BUSY_QUERYING -> txt("app.assistant.hint.ChatReadonly_BUSY_QUERYING");
+            case BUSY_INITIALIZING -> txt("app.assistant.hint.ChatReadonly_BUSY_INITIALIZING");
+            case INACTIVE_CHAT_SELECTED -> txt("app.assistant.hint.ChatReadonly_INACTIVE_CHAT_SELECTED");
+            case NO_PROFILE_AVAILABLE -> txt("app.assistant.hint.ChatReadonly_NO_PROFILE_AVAILABLE");
+            case NO_PROFILE_SELECTED -> txt("app.assistant.hint.ChatReadonly_NO_PROFILE_SELECTED");
+            case DISABLED_PROFILE_SELECTED -> txt("app.assistant.hint.ChatReadonly_DISABLED_PROFILE_SELECTED");
             default -> null;
         };
 

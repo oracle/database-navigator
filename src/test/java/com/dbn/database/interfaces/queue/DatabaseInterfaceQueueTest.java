@@ -48,7 +48,7 @@ public class DatabaseInterfaceQueueTest {
     public void scheduleAndWait() {
         invoke(100, task -> {
             try {
-                InterfaceTaskRequest taskDefinition = InterfaceTaskRequest.create(task.priority, "test", "test", null, null, null);
+                InterfaceTaskRequest taskDefinition = InterfaceTaskRequest.create(task.priority, "Test", "Test", null, null, null);
                 queue.scheduleAndWait(taskDefinition, () -> {
                     System.out.println("Executing " + task);
                     Unsafe.silent(() -> Thread.sleep(task.time));
@@ -66,7 +66,7 @@ public class DatabaseInterfaceQueueTest {
     public void scheduleAndForget() {
         invoke(100, task -> {
             try {
-                InterfaceTaskRequest taskDefinition = InterfaceTaskRequest.create(task.priority, "test", "test", null, null, null);
+                InterfaceTaskRequest taskDefinition = InterfaceTaskRequest.create(task.priority, "Test", "Test", null, null, null);
                 queue.scheduleAndForget(taskDefinition, () -> {
                     System.out.println("Executing " + task);
                     Unsafe.silent(() -> Thread.sleep(task.time));

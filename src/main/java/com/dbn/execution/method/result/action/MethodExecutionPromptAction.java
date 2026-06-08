@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class MethodExecutionPromptAction extends AbstractMethodExecutionResultAction {
 
+    public MethodExecutionPromptAction() {
+        super(txt("app.execution.action.MethodExecutionResultOpenExecutionDialog"));
+    }
+
     @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,

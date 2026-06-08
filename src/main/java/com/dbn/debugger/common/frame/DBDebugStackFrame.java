@@ -67,6 +67,7 @@ import java.util.Map;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.common.util.Strings.toLowerCase;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES;
@@ -257,7 +258,7 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
             }
 
             component.append(frameName, REGULAR_ATTRIBUTES);
-            component.append(" (line " + (sourcePosition.getLine() + 1) + ") ", GRAY_ITALIC_ATTRIBUTES);
+            component.append(txt("app.debugger.label.SourceLine", sourcePosition.getLine() + 1), GRAY_ITALIC_ATTRIBUTES);
             component.setIcon(frameIcon);
 
         } else if (virtualFile != null){
@@ -269,9 +270,9 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
             }
             component.setIcon(frameIcon);
             component.append(virtualFile.getName(), REGULAR_ATTRIBUTES);
-            component.append(" (line " + (sourcePosition.getLine() + 1) + ") ", GRAY_ITALIC_ATTRIBUTES);
+            component.append(txt("app.debugger.label.SourceLine", sourcePosition.getLine() + 1), GRAY_ITALIC_ATTRIBUTES);
         } else if (getDebugProcess().getExecutionTarget() == ExecutionTarget.METHOD) {
-            component.append("Anonymous block (method runner)", GRAY_ATTRIBUTES);
+            component.append(txt("app.debugger.label.AnonymousMethodRunner"), GRAY_ATTRIBUTES);
             component.setIcon(Icons.FILE_SQL_DEBUG_CONSOLE);
         } else {
             component.append(XDebuggerBundle.message("invalid.frame"), ERROR_ATTRIBUTES);

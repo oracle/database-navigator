@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
  * @author Dan Cioca (Oracle)
  */
 public class CredentialsReloadAction extends CredentialManagementAction {
+    public CredentialsReloadAction() {
+        super(txt("app.assistant.action.AssistantReloadCredentials"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         CredentialManagementForm managementForm = getManagementForm(e);

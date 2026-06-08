@@ -18,6 +18,7 @@ package com.dbn.assistant.tool.execution;
 
 import dev.langchain4j.agent.tool.P;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -54,7 +55,7 @@ public class AssistantToolParameters {
         return map;
     }
 
-    private static @NotNull String getParameterName(int index) {
+    private static @NotNull @NonNls String getParameterName(int index) {
         return "arg" + index;
     }
 

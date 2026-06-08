@@ -23,21 +23,23 @@ import com.dbn.common.ui.table.DBNEntityEditableTableModel;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.options.ConfigurationException;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class AssistantMcpServersTableModel extends DBNEntityEditableTableModel<AssistantMcpServer> {
 
     AssistantMcpServersTableModel(AssistantMcpServerBundle mcpServers) {
         super(() -> mcpServers.getElements());
 
-        addColumn("Server Name", String.class, c -> c.getName(), (c, v) -> c.setName(v));
-        addColumn("Server Type", AssistantMcpServerType.class, c -> c.getType(), null);
-        addColumn("Url / Command", String.class, c -> c.getEndpoint(), null);
+        addColumn(txt("app.assistant.column.ServerName"), String.class, c -> c.getName(), (c, v) -> c.setName(v));
+        addColumn(txt("app.assistant.column.ServerType"), AssistantMcpServerType.class, c -> c.getType(), null);
+        addColumn(txt("app.assistant.column.UrlCommand"), String.class, c -> c.getEndpoint(), null);
     }
 
 
     public void validate() throws ConfigurationException {
         for (AssistantMcpServer mcpServer : getElements()) {
             if (Strings.isEmpty(mcpServer.getName())) {
-                throw new ConfigurationException("Please provide names for all mcp servers.");
+                throw new ConfigurationException(txt("cfg.assistant.error.McpServerNamesRequired"));
             }
         }
     }

@@ -51,6 +51,7 @@ import java.util.Map;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 
@@ -190,10 +191,10 @@ public class TableSelectionForm extends VectorToolboxFormBase {
                     // Show check or warning icon based on configuration status
                     if (isConfigured) {
                         setIcon(Icons.COMMON_CHECK);
-                        setToolTipText("Configured: " + getTableConfigSummary(table));
+                        setToolTipText(txt("app.vector.tooltip.TableConfigured", getTableConfigSummary(table)));
                     } else {
                         setIcon(Icons.COMMON_WARNING);
-                        setToolTipText("Not configured - click to configure columns");
+                        setToolTipText(txt("app.vector.tooltip.TableNotConfigured"));
                     }
                 }
                 return this;
@@ -246,34 +247,34 @@ public class TableSelectionForm extends VectorToolboxFormBase {
     private void updateHints() {
         // Available tables hint
         if (getSelectedSchema() == null) {
-            availableHintLabel.setText(" Select a schema to load tables");
+            availableHintLabel.setText(txt("msg.vector.hint.SelectSchemaToLoadTables"));
             availableHintLabel.setVisible(true);
         } else if (availableTablesModel.isEmpty()) {
-            availableHintLabel.setText(" No tables available (all selected or none in schema)");
+            availableHintLabel.setText(txt("msg.vector.hint.NoTablesAvailable"));
             availableHintLabel.setVisible(true);
         } else {
-            availableHintLabel.setText(" " + availableTablesModel.size() + " table(s) available");
+            availableHintLabel.setText(txt("msg.vector.hint.TablesAvailable", availableTablesModel.size()));
             availableHintLabel.setVisible(true);
         }
 
         // Selected tables hint
         if (selectedTablesModel.isEmpty()) {
-            selectedHintLabel.setText(" Use [>] to add tables here");
+            selectedHintLabel.setText(txt("msg.vector.hint.UseTransferButtonToAddTables"));
             selectedHintLabel.setVisible(true);
         } else {
             int configured = countConfiguredTables();
             int total = selectedTablesModel.size();
             if (configured == total) {
-                selectedHintLabel.setText(" ✓ All " + total + " table(s) configured");
+                selectedHintLabel.setText(txt("msg.vector.hint.AllTablesConfigured", total));
             } else {
-                selectedHintLabel.setText(" " + configured + "/" + total + " table(s) configured");
+                selectedHintLabel.setText(txt("msg.vector.hint.TablesConfigured", configured, total));
             }
             selectedHintLabel.setVisible(true);
         }
 
         // Config hint
         if (getSelectedTableForConfig() == null) {
-            configHintLabel.setText("Click a table in 'Selected Tables' to configure its columns");
+            configHintLabel.setText(txt("msg.vector.hint.ConfigureSelectedTableColumns"));
             configHintLabel.setVisible(true);
         } else {
             configHintLabel.setVisible(false);
@@ -399,7 +400,7 @@ public class TableSelectionForm extends VectorToolboxFormBase {
     private void updateConfigPanel() {
         DBTable table = getSelectedTableForConfig();
         if (table == null) {
-            selectedTableLabel.setText("(none)");
+            selectedTableLabel.setText(txt("msg.vector.label.NoSelectedTable"));
             keyColumnComboBox.setEnabled(false);
             dataColumnComboBox.setEnabled(false);
         } else {
@@ -472,8 +473,8 @@ public class TableSelectionForm extends VectorToolboxFormBase {
     private String getTableConfigSummary(DBTable table) {
         DBColumn keyCol = keyColumnSelections.get(table);
         DBColumn dataCol = dataColumnSelections.get(table);
-        if (keyCol == null || dataCol == null) return "incomplete";
-        return "ID=" + keyCol.getName() + ", Data=" + dataCol.getName();
+        if (keyCol == null || dataCol == null) return txt("app.vector.tooltip.TableConfigIncomplete");
+        return txt("app.vector.tooltip.TableConfigSummary", keyCol.getName(), dataCol.getName());
     }
 
     // ========== Public API for Dialog ==========

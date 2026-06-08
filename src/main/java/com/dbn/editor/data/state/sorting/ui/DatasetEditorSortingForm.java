@@ -42,6 +42,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DatasetEditorSortingForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel sortingInstructionsPanel;
@@ -88,7 +90,7 @@ public class DatasetEditorSortingForm extends DBNFormBase {
 
     private class ColumnSelector extends ValueSelector<DBColumn> {
         ColumnSelector() {
-            super(PlatformIcons.ADD_ICON, "Add Sorting Column...", null, ValueSelectorOption.HIDE_DESCRIPTION);
+            super(PlatformIcons.ADD_ICON, txt("app.dataEditor.action.AddSortingColumn"), null, ValueSelectorOption.HIDE_DESCRIPTION);
             addListener((oldValue, newValue) -> {
                 if (newValue != null) {
                     addSortingColumn(newValue);

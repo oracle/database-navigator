@@ -34,7 +34,9 @@ import org.jetbrains.idea.maven.project.MavenProjectBundle;
 import java.util.Set;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showAcknowledgementDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public final class McpMavenPluginSupport {
@@ -45,10 +47,9 @@ public final class McpMavenPluginSupport {
     public static void verifyMavenAvailability(@NotNull Project project) {
         if (!isMavenPluginAvailable()) {
             int option = Messages.showConfirmationDialog(project,
-                    "Maven Plugin Required",
-                    "This feature requires the JetBrains Maven plugin.\n" +
-                            "Open the plugin installer to install or enable the Maven plugin.",
-                    new String[]{"Open Plugin Installer", "Cancel"}, 0);
+                    txt("msg.mcp.title.MavenPluginRequired"),
+                    txt("msg.mcp.question.MavenPluginRequired"),
+                    options(txt("msg.mcp.button.OpenPluginInstaller"), txt("msg.shared.button.Cancel")), 0);
             if (option == 0) {
                 openMavenPluginInstaller(project);
             }
@@ -57,10 +58,9 @@ public final class McpMavenPluginSupport {
 
         if (!isMavenAvailable(project)) {
             int option = Messages.showConfirmationDialog(project,
-                    "Maven Runtime Required",
-                    "The configured Maven runtime is not available or invalid in IDE Maven settings. " +
-                            "Please verify Maven settings and try again.",
-                    new String[]{"Open Maven Settings", "Cancel"}, 0);
+                    txt("msg.mcp.title.MavenRuntimeRequired"),
+                    txt("msg.mcp.question.MavenRuntimeRequired"),
+                    options(txt("msg.mcp.button.OpenMavenSettings"), txt("msg.shared.button.Cancel")), 0);
             if (option == 0) {
                 openMavenPluginSettings(project);
             }
@@ -100,10 +100,9 @@ public final class McpMavenPluginSupport {
             ShowSettingsUtil.getInstance().showSettingsDialog(project, mavenSettingsName);
         } catch (Throwable e) {
             showAcknowledgementDialog(project,
-                    "Maven Settings Unavailable",
-                    "Cannot resolve Maven plugin settings. " +
-                            "You may need to restart " + Environment.getIdeName() + " if you recently installed the Maven plugin.",
-                    Messages.options("Restart " + Environment.getIdeName(),"Cancel"), 0, o -> when(o == 0, () -> {
+                    txt("msg.mcp.title.MavenSettingsUnavailable"),
+                    txt("msg.mcp.question.MavenSettingsUnavailable", Environment.getIdeName()),
+                    options(txt("msg.mcp.button.RestartIde", Environment.getIdeName()), txt("msg.shared.button.Cancel")), 0, o -> when(o == 0, () -> {
                         ApplicationEx app = (ApplicationEx) ApplicationManager.getApplication();
                         app.restart(true);
                     }));

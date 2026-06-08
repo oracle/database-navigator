@@ -41,6 +41,7 @@ import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -77,7 +78,7 @@ public class RegionalSettings extends BasicProjectConfiguration<GeneralProjectSe
             throw e;
         } catch (Exception e) {
             conditionallyLog(e);
-            throw new ConfigurationException(e.getMessage(), e, "Invalid configuration");
+            throw new ConfigurationException(e.getMessage(), e, txt("cfg.shared.title.InvalidConfiguration"));
         }
     }
 

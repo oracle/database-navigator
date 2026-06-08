@@ -22,6 +22,8 @@ import com.dbn.object.common.DBObject;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBObjectPresentationProvider extends PresentationProviderBase<DBObject> {
     public DBObjectPresentationProvider() {
         super(DBObject.class);
@@ -37,7 +39,7 @@ public class DBObjectPresentationProvider extends PresentationProviderBase<DBObj
         ConnectionHandler connection = object.getConnection();
 
         String connectionName = connection.getName();
-        return connectionName + " - " + getName(object);
+        return txt("app.shared.text.ContextQualifiedName", connectionName, getName(object));
     }
 
     @Override

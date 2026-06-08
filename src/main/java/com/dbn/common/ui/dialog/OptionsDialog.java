@@ -20,6 +20,9 @@ import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.Button;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
+import com.intellij.openapi.util.NlsContexts.Label;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -32,14 +35,14 @@ import java.awt.event.ActionEvent;
 @Setter
 public class OptionsDialog<O extends Presentable> extends DBNDialog<OptionsDialogForm>{
     private final O[] options;
-    private final String[] actionNames;
-    private final String optionLabel;
+    private final @Button String[] actionNames;
+    private final @Label String optionLabel;
     private Action[] actions;
     private O selectedOption;
 
     private final Listeners<OptionDialogActionListener<O>> listeners = Listeners.create(this);
 
-    protected OptionsDialog(Project project, String dialogTitle, String optionLabel, O[] options, O selectedOption, String[] actionNames) {
+    protected OptionsDialog(Project project, @DialogTitle String dialogTitle, @Label String optionLabel, O[] options, O selectedOption, @Button String[] actionNames) {
         super(project, dialogTitle, false);
         this.optionLabel = optionLabel;
         this.options = options;
@@ -73,7 +76,7 @@ public class OptionsDialog<O extends Presentable> extends DBNDialog<OptionsDialo
     }
 
     @NotNull
-    private Action createAction(String name, int index) {
+    private Action createAction(@Button String name, int index) {
         AbstractAction action = new AbstractAction(name) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -105,11 +108,11 @@ public class OptionsDialog<O extends Presentable> extends DBNDialog<OptionsDialo
 
     public static <O extends Presentable> void open(
             Project project,
-            String dialogTitle,
-            String optionLabel,
+            @DialogTitle String dialogTitle,
+            @Label String optionLabel,
             O[] options,
             O selectedOption,
-            String[] actions,
+            @Button String[] actions,
             OptionDialogActionListener<O> actionListener) {
         Dialogs.show(() -> {
             OptionsDialog<O> optionsDialog = new OptionsDialog<>(project, dialogTitle, optionLabel, options, selectedOption, actions);
@@ -119,4 +122,3 @@ public class OptionsDialog<O extends Presentable> extends DBNDialog<OptionsDialo
     }
 
 }
-

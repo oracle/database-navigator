@@ -23,10 +23,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DriverLibraryApprovalAdapter implements UserApprovalAdapter<DriverLibraryApproval> {
     private static final String[] APPROVAL_OPTIONS = Messages.options(
-            "Trust and Connect",
-            "Cancel");
+            txt("msg.shared.button.TrustAndConnect"),
+            txt("msg.shared.button.Cancel"));
 
     @Override
     public Class<DriverLibraryApproval> getApprovalClass() {
@@ -35,27 +37,21 @@ public class DriverLibraryApprovalAdapter implements UserApprovalAdapter<DriverL
 
     @Override
     public String getApprovalTitle(DriverLibraryApproval approval) {
-        return "Trust External JDBC Driver Library";
+        return txt("msg.driver.title.TrustExternalJdbcDriverLibrary");
     }
 
     @Override
     public String getApprovalMessage(DriverLibraryApproval approval) {
         DriverLibraryInfo info = approval.getLibraryInfo();
 
-        StringBuilder message = new StringBuilder();
-        message.append("Database Navigator wants to connect to the database using the following external JDBC driver library:\n");
-        message.append(info.getPath()).append("\n\n");
-        message.append("JDBC driver libraries contain Java code that will run inside the IDE process. ");
-        message.append("Only continue if you recognize this driver library and consider its source safe.\n\n");
+        String directoryInfo = "";
         if (info.isDirectory()) {
-            message.append("This location contains ")
-                    .append(info.getJarCount())
-                    .append(info.getJarCount() == 1 ? " JAR file." : " JAR files.")
-                    .append("\n");
+            String jarLabel = info.getJarCount() == 1 ?
+                    txt("msg.driver.text.JarFile") :
+                    txt("msg.driver.text.JarFiles");
+            directoryInfo = txt("msg.driver.message.TrustExternalJdbcDriverLibraryDirectory", info.getJarCount(), jarLabel) + "\n";
         }
-        message.append("Database Navigator will ask again if the library path or contents change.");
-        //message.append("SHA-256: ").append(approval.getFingerprint());
-        return message.toString();
+        return txt("msg.driver.message.TrustExternalJdbcDriverLibrary", info.getPath(), directoryInfo);
     }
 
     @Override

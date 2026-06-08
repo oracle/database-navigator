@@ -49,6 +49,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ParserDiagnosticsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -73,7 +74,7 @@ public class ParserDiagnosticsForm extends DBNFormBase {
         diagnosticsTable = new ParserDiagnosticsTable(this, new ParserDiagnosticsTableModel(null, null));
         diagnosticsTableScrollPane.setViewportView(diagnosticsTable);
 
-        detailsLabel.setText("No result selected");
+        detailsLabel.setText(txt("app.diagnostics.label.NoResultSelected"));
         stateTransitionLabel.setText("");
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.ParserDiagnostics");
@@ -104,11 +105,11 @@ public class ParserDiagnosticsForm extends DBNFormBase {
         ParserDiagnosticsTableModel tableModel = new ParserDiagnosticsTableModel(deltaResult, manager.getResultFilter());
         diagnosticsTable.setModel(tableModel);
 
-        detailsLabel.setText(deltaResult == null ? "No result selected" : deltaResult.getName());
+        detailsLabel.setText(deltaResult == null ? txt("app.diagnostics.label.NoResultSelected") : deltaResult.getName());
 
         StateTransition stateTransition = deltaResult == null ? StateTransition.UNCHANGED : deltaResult.getFilter();
         StateTransition.Category category = stateTransition.getCategory();
-        stateTransitionLabel.setText(previous == null ? current == null ? "" : "INITIAL" : stateTransition.name());
+        stateTransitionLabel.setText(previous == null ? current == null ? "" : txt("app.diagnostics.label.Initial") : stateTransition.getName());
         stateTransitionLabel.setForeground(category.getColor());
         stateTransitionLabel.setFont(category.isBold() ?
                 Fonts.regularBold() :
@@ -156,16 +157,16 @@ public class ParserDiagnosticsForm extends DBNFormBase {
             append(value.getName() + " - ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
             ParserDiagnosticsResult previous = manager.getPreviousResult(value);
             if (previous == null) {
-                append("INITIAL", SimpleTextAttributes.GRAY_ATTRIBUTES);
+                append(txt("app.diagnostics.label.Initial"), SimpleTextAttributes.GRAY_ATTRIBUTES);
             } else {
                 int previousCount = previous.getIssues().issueCount();
                 int currentCount = value.getIssues().issueCount();
                 if (previousCount < currentCount) {
-                    append("DEGRADED", StateTransition.DEGRADED.getCategory().getTextAttributes());
+                    append(StateTransition.DEGRADED.getName(), StateTransition.DEGRADED.getCategory().getTextAttributes());
                 } else if (previousCount > currentCount) {
-                    append("IMPROVED", StateTransition.IMPROVED.getCategory().getTextAttributes());
+                    append(StateTransition.IMPROVED.getName(), StateTransition.IMPROVED.getCategory().getTextAttributes());
                 } else {
-                    append("UNCHANGED", SimpleTextAttributes.GRAY_ATTRIBUTES);
+                    append(StateTransition.UNCHANGED.getName(), SimpleTextAttributes.GRAY_ATTRIBUTES);
                 }
             }
         }

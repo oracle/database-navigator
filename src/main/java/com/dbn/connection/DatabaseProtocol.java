@@ -20,6 +20,7 @@ import com.dbn.common.constant.Constant;
 import com.dbn.common.ui.Presentable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +34,7 @@ public enum DatabaseProtocol implements Presentable, Constant<DatabaseProtocol> 
     TCPS("tcps"),
     ;
 
-    private final String id;
+    private final @NonNls String id;
 
     @Override
     public @NotNull String getName() {
