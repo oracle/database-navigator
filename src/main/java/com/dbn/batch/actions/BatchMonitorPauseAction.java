@@ -22,11 +22,12 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.icons.AllIcons.Actions.Pause;
 
 public class BatchMonitorPauseAction extends AbstractBatchMonitorAction{
     public BatchMonitorPauseAction() {
-        super("Pause", null, Pause);
+        super(txt("app.batch.action.Pause"), null, Pause);
     }
 
     @Override

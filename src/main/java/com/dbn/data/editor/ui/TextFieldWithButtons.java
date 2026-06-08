@@ -25,6 +25,7 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.JBUI;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
@@ -69,7 +70,7 @@ public abstract class TextFieldWithButtons extends DBNPanelImpl implements DataE
 
     public void customizeTextField(JTextField textField) {}
 
-    public JComponent createButton(Icon icon, String name) {
+    public JComponent createButton(Icon icon, @Nls String name) {
         JButton button = new JButton(icon);
         Accessibility.setAccessibleName(button, name);
 

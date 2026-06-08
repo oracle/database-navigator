@@ -36,10 +36,11 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.Button;
+import com.intellij.openapi.util.NlsContexts.Tooltip;
 import lombok.Getter;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -325,14 +326,14 @@ public abstract class DBNFormBase
     }
 
     protected static Action createAction(
-            @NotNull @Nls String name,
+            @NotNull @Button String name,
             @NotNull Runnable runnable) {
         return createAction(name, null, runnable);
     }
 
     protected static Action createAction(
-            @NotNull @Nls String name,
-            @Nullable String description,
+            @NotNull @Button String name,
+            @Nullable @Tooltip String description,
             @NotNull Runnable runnable) {
         return new AbstractAction(name) {
             {

@@ -27,15 +27,17 @@ import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.options.ConfigurationException;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class AssistantCredentialsTableModel extends DBNEntityEditableTableModel<AssistantCredential> {
 
     AssistantCredentialsTableModel(AssistantCredentialBundle credentials) {
         super(() -> credentials.getElements());
 
-        addColumn("Credential Name", String.class, c -> c.getName(), (c, v) -> c.setName(v));
-        addColumn("LLM Provider", String.class, c -> getProviderName(c.getProviderId()), null);
-        addColumn("User", String.class, c -> c.getUser(), (c, v) -> c.setUser(v));
-        addColumn("Secret", String.class, c -> Chars.toString(c.getSecret()), (c, v) -> c.setSecret(Chars.fromString(v)));
+        addColumn(txt("app.assistant.column.CredentialName"), String.class, c -> c.getName(), (c, v) -> c.setName(v));
+        addColumn(txt("app.assistant.column.LlmProvider"), String.class, c -> getProviderName(c.getProviderId()), null);
+        addColumn(txt("app.assistant.column.User"), String.class, c -> c.getUser(), (c, v) -> c.setUser(v));
+        addColumn(txt("app.assistant.column.Secret"), String.class, c -> Chars.toString(c.getSecret()), (c, v) -> c.setSecret(Chars.fromString(v)));
     }
 
     private String getProviderName(AIProviderId providerId) {
@@ -48,7 +50,7 @@ public class AssistantCredentialsTableModel extends DBNEntityEditableTableModel<
     public void validate() throws ConfigurationException {
         for (AssistantCredential credential : getElements()) {
             if (Strings.isEmpty(credential.getName())) {
-                throw new ConfigurationException("Please provide names for all credentials.");
+                throw new ConfigurationException(txt("cfg.assistant.error.CredentialNamesRequired"));
             }
         }
     }

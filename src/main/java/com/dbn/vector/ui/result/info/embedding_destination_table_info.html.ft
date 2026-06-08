@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head>
-    <title>Staging table</title>
+    <title>Embedding Destination</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -42,5 +42,4 @@
     </ul>
 </body>
 </html>
-
 

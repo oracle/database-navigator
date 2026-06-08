@@ -31,6 +31,7 @@ import javax.swing.JTextField;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DataGridSortingSettingsForm extends ConfigurationEditorForm<DataGridSortingSettings> {
     private JPanel mainPanel;
@@ -56,7 +57,7 @@ public class DataGridSortingSettingsForm extends ConfigurationEditorForm<DataGri
     public void applyFormChanges() throws ConfigurationException {
         DataGridSortingSettings settings = getConfiguration();
         settings.setNullsFirst(getSelection(nullsPositionComboBox) == NullSortingOption.FIRST);
-        int maxSortingColumns = ConfigurationEditors.validateIntegerValue(maxSortingColumnsTextField, "Max sorting columns", true, 0, 100, "Use value 0 for unlimited number of sorting columns");
+        int maxSortingColumns = ConfigurationEditors.validateIntegerValue(maxSortingColumnsTextField, txt("cfg.data.field.MaxSortingColumns"), true, 0, 100, txt("cfg.data.hint.ZeroForUnlimitedSortingColumns"));
         settings.setMaxSortingColumns(maxSortingColumns);
     }
 

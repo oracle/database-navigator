@@ -32,7 +32,7 @@
             </constraints>
             <properties>
               <labelFor value="da2f4"/>
-              <text value="Session &amp;name"/>
+              <text resource-bundle="messages/DBNResources" key="app.sessions.label.SessionName"/>
             </properties>
           </component>
           <component id="da2f4" class="javax.swing.JTextField" binding="sessionNameTextField">

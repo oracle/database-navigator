@@ -46,6 +46,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.PlatformIcons;
 import com.intellij.util.ui.UIUtil;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.BoxLayout;
@@ -69,6 +70,7 @@ import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.isEmptyText;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasicFilter> {
     private JPanel conditionsPanel;
@@ -131,7 +133,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
 
     private class ColumnSelector extends ValueSelector<DBColumn> {
         ColumnSelector() {
-            super(PlatformIcons.ADD_ICON, "Add Condition", null, ValueSelectorOption.HIDE_DESCRIPTION);
+            super(PlatformIcons.ADD_ICON, txt("app.dataEditor.action.AddFilterCondition"), null, ValueSelectorOption.HIDE_DESCRIPTION);
             addListener((oldValue, newValue) -> addConditionPanel(newValue));
         }
 
@@ -190,6 +192,8 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         if (dataset == null) return;
 
         updateGeneratedName();
+
+        @NonNls
         StringBuilder selectStatement = new StringBuilder("select * from ");
         selectStatement.append(dataset.getSchemaName(true)).append('.');
         selectStatement.append(dataset.getName(true));

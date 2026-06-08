@@ -20,6 +20,7 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nls;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
@@ -71,8 +72,8 @@ public class ObjectsTableModel extends AbstractTableModel {
     }
 
     @Override
-    public String getColumnName(int column) {
-        return "Dataset";
+    public @Nls String getColumnName(int column) {
+        return columnNames[column];
     }
 
     @Override

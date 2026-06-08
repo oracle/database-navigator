@@ -19,11 +19,16 @@ package com.dbn.language.common.element.impl;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ElementTypeCache;
 import com.dbn.language.common.element.cache.VoidElementTypeCache;
+import org.jetbrains.annotations.NonNls;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public final class UnknownElementType extends BasicElementType{
+    private static final @NonNls String UNKNOWN_ID = "UNKNOWN";
+
     public UnknownElementType(ElementTypeBundle bundle) {
-        super(bundle, "UNKNOWN");
-        description = "Unidentified element type";
+        super(bundle, UNKNOWN_ID);
+        description = txt("msg.languageParser.text.UnidentifiedElementType");
     }
 
     @Override

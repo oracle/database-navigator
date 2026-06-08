@@ -31,6 +31,8 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 
 public class SQLConsoleEditorProvider extends BasicTextEditorProvider implements DumbAware{
 
@@ -59,7 +61,7 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider implements
     @NotNull
     public FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
         DBConsoleVirtualFile consoleFile = (DBConsoleVirtualFile) file;
-        SQLConsoleEditor editor = new SQLConsoleEditor(project, consoleFile, "SQL Console", getEditorProviderId());
+        SQLConsoleEditor editor = new SQLConsoleEditor(project, consoleFile, txt("app.codeEditor.title.SqlConsole"), getEditorProviderId());
 
         Document document = editor.getEditor().getDocument();
         document.addDocumentListener(consoleFile, editor);

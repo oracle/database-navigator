@@ -20,13 +20,29 @@ import com.dbn.common.constant.Constant;
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public enum AssistantTemperaturePreset implements Constant<AssistantTemperaturePreset>, Presentable {
-    PRECISE("Precise", "Generate responses with high accuracy and minimal creativity. Ideal for tasks that require precise and factual information.", 0.0),
-    BALANCED("Balanced", "Strike a balance between accuracy and creativity. Suitable for most tasks, providing a mix of reliability and innovation.", 0.2),
-    EXPLORATORY("Exploratory", "Encourage more creative and diverse responses. Useful for tasks that benefit from exploring different ideas and perspectives.", 0.5),
-    EXPERIMENTAL("Experimental", "Generate highly innovative and potentially unconventional responses. Ideal for tasks that require pushing the boundaries of language and creativity.", 0.9),
-    CUSTOM("Custom", "Manually adjust the temperature to fine-tune the response generation. Allows for precise control over the balance between accuracy and creativity.", 0.5);
+    PRECISE(
+        txt("app.assistant.const.AssistantTemperaturePreset_PRECISE"),
+        txt("app.assistant.hint.AssistantTemperaturePreset_PRECISE"), 0.0),
+
+    BALANCED(
+        txt("app.assistant.const.AssistantTemperaturePreset_BALANCED"),
+        txt("app.assistant.hint.AssistantTemperaturePreset_BALANCED"), 0.2),
+
+    EXPLORATORY(
+        txt("app.assistant.const.AssistantTemperaturePreset_EXPLORATORY"),
+        txt("app.assistant.hint.AssistantTemperaturePreset_EXPLORATORY"), 0.5),
+
+    EXPERIMENTAL(
+        txt("app.assistant.const.AssistantTemperaturePreset_EXPERIMENTAL"),
+        txt("app.assistant.hint.AssistantTemperaturePreset_EXPERIMENTAL"), 0.9),
+
+    CUSTOM(
+        txt("app.assistant.const.AssistantTemperaturePreset_CUSTOM"),
+        txt("app.assistant.hint.AssistantTemperaturePreset_CUSTOM"), 0.5);
 
     ;
 

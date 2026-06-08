@@ -48,6 +48,10 @@ import static com.dbn.vfs.DBConsoleType.STANDARD;
 
 @BackgroundUpdate
 public class SQLConsoleOpenAction extends ProjectPopupAction {
+    public SQLConsoleOpenAction() {
+        super(txt("app.browser.action.BrowserSqlConsole"));
+    }
+
     private static ConnectionHandler getConnection(@NotNull AnActionEvent e) {
         Project project = Lookups.getProject(e);
         if (project != null) {

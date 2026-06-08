@@ -21,6 +21,8 @@ import com.dbn.execution.compiler.CompilerMessage;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CompilerMessageNode extends MessagesTreeLeafNode<CompilerMessagesObjectNode, CompilerMessage> {
 
     CompilerMessageNode(CompilerMessagesObjectNode parent, CompilerMessage compilerMessage) {
@@ -36,6 +38,8 @@ public class CompilerMessageNode extends MessagesTreeLeafNode<CompilerMessagesOb
     @Override
     public String toString() {
         CompilerMessage compilerMessage = getMessage();
-        return "[" + compilerMessage.getType() + "] " + compilerMessage.getText();
+        return txt("app.execution.text.CompilerMessage",
+                compilerMessage.getType(),
+                compilerMessage.getText());
     }
 }

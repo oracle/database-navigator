@@ -42,6 +42,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetSortingColumnForm extends DBNFormBase {
     private JPanel actionsPanel;
@@ -80,7 +81,7 @@ public class DatasetSortingColumnForm extends DBNFormBase {
 
     private class ColumnSelector extends ValueSelector<DBColumn>{
         ColumnSelector(DBColumn selectedColumn) {
-            super(Icons.DBO_COLUMN_HIDDEN, "Select column...", selectedColumn, ValueSelectorOption.HIDE_DESCRIPTION);
+            super(Icons.DBO_COLUMN_HIDDEN, txt("app.dataEditor.action.SelectColumn"), selectedColumn, ValueSelectorOption.HIDE_DESCRIPTION);
             addListener((oldValue, newValue) -> {
                 sortingInstruction.setColumnName(newValue.getName());
                 dataTypeLabel.setText(newValue.getDataType().getQualifiedName());
@@ -112,7 +113,7 @@ public class DatasetSortingColumnForm extends DBNFormBase {
     public void setIndex(int index) {
         sortingInstruction.setIndex(index);
         indexLabel.setText(Integer.toString(index));
-        setAccessibleName(columnComboBox, "Sorting column " + index);
+        setAccessibleName(columnComboBox, txt("app.dataEditor.aria.SortingColumn", index));
     }
 
     @NotNull

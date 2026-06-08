@@ -45,7 +45,8 @@ import static com.dbn.nls.NlsResources.txt;
 public abstract class AbstractFilterComboBoxAction extends ComboBoxAction implements DumbAware {
     private final SessionBrowserFilterType filterType;
 
-    public AbstractFilterComboBoxAction(SessionBrowserFilterType filterType) {
+    public AbstractFilterComboBoxAction(SessionBrowserFilterType filterType, String text) {
+        super(text);
         this.filterType = filterType;
     }
 

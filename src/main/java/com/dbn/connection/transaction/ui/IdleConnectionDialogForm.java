@@ -27,6 +27,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import java.awt.BorderLayout;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class IdleConnectionDialogForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
@@ -37,9 +39,11 @@ public class IdleConnectionDialogForm extends DBNFormBase {
         int idleMinutes = conn.getIdleMinutes();
         int idleMinutesToDisconnect = connection.getSettings().getDetailSettings().getIdleMinutesToDisconnect();
 
-        String text = "The connection \"" + connection.getConnectionName(conn) + "\" is been idle for more than " + idleMinutes + " minutes. You have uncommitted changes on this connection. " +
-                "Please specify whether to commit or rollback the changes. You can choose to keep the connection alive for another " + idleMinutesToDisconnect + " more minutes. \n\n" +
-                "NOTE: Connection will close automatically and changes will be rolled-back if this prompt stays unattended for more than " + timeoutMinutes + " minutes.";
+        String text = txt("msg.transactions.text.IdleConnectionPrompt",
+                connection.getConnectionName(conn),
+                idleMinutes,
+                idleMinutesToDisconnect,
+                timeoutMinutes);
         hintTextPane.setBackground(mainPanel.getBackground());
         hintTextPane.setText(text);
 

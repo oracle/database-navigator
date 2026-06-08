@@ -27,6 +27,10 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractMethodExecutionResultAction extends ContextAction<MethodExecutionResult> {
 
+    protected AbstractMethodExecutionResultAction(String text) {
+        super(text);
+    }
+
     protected MethodExecutionResult getContext(@NotNull AnActionEvent e) {
         MethodExecutionResult result = e.getData(DataKeys.METHOD_EXECUTION_RESULT);
         if (result != null) return result;

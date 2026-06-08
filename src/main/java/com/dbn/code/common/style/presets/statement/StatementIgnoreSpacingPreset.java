@@ -22,9 +22,11 @@ import com.intellij.formatting.Wrap;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class StatementIgnoreSpacingPreset extends StatementAbstractPreset {
     public StatementIgnoreSpacingPreset() {
-        super("ignore_spacing", "Ignore");
+        super("ignore_spacing", txt("cfg.codeStyle.const.CodeStylePreset_IGNORE_SPACING"));
     }
 
     @Override

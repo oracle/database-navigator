@@ -74,7 +74,6 @@ The DBN shared utility layer is mostly under `com.dbn.common`. There is no obvio
 
 ## User-Facing Text And Notifications
 
-- `NlsResources.txt(...)`: primary NLS accessor. Use static import when nearby code does.
 - `Messages`: DBN message dialogs and options.
 - `Dialogs`: dialog callbacks and helper APIs.
 - `NotificationSupport` and `NotificationCategory`: notification integration.
@@ -101,4 +100,3 @@ The DBN shared utility layer is mostly under `com.dbn.common`. There is no obvio
 - Need XML persistence: `Settings`.
 - Need strings/lists/defaults: `Strings`, `Lists`, `Commons`.
 - Need UI form/dialog behavior: `DBNFormBase`, `DBNDialog`, UI util package.
-- Need user-visible text: `NlsResources.txt`.

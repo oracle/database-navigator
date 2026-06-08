@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Action;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class MessageBundleDialog extends DBNDialog<MessageBundleForm> {
@@ -50,7 +51,7 @@ public class MessageBundleDialog extends DBNDialog<MessageBundleForm> {
 
     @Override
     protected final Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return nvl(config.getActions(), actions(getCancelAction()));
     }
 }

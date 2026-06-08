@@ -58,6 +58,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,6 +82,7 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.count;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<ConnectionBundleSettings> implements ListSelectionListener {
@@ -274,6 +276,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         return connectionId;
     }
 
+    @NonNls
     private String  getUrl(OciConnectionData connectionData){
         String urlPrefix = "jdbc:oracle:thin:@tcps://";
         String connectionStringHigh = connectionData.getAllConnectionStrings().get("HIGH");

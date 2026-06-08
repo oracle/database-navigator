@@ -23,7 +23,6 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.options.setting.Settings;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.data.record.ColumnSortingType;
 import com.dbn.data.record.DatasetRecord;
 import com.dbn.data.record.navigation.RecordNavigationTarget;
@@ -65,7 +64,9 @@ import java.util.List;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
     name = DatasetEditorManager.COMPONENT_NAME,
@@ -155,7 +156,7 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
             Dialogs.show(() -> new RecordViewerDialog(getProject(), record));
         } catch (SQLException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(getProject(), "Could not load record details", e);
+            showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotLoadRecordDetails"), e);
         }
     }
 
@@ -173,7 +174,7 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
             Component component = (Component) inputEvent.getSource();
 
             ListPopup popup = popupBuilder(actions, component)
-                    .withTitle("Select Navigation Target")
+                    .withTitle(txt("msg.dataEditor.title.SelectNavigationTarget"))
                     .withMaxRowCount(10)
                     .withSpeedSearch()
                     .build();

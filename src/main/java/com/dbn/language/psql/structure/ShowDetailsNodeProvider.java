@@ -27,6 +27,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.Collections;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ShowDetailsNodeProvider implements FileStructureNodeProvider {
     @NonNls
     public static final String ID = "SHOW_DETAILS";
@@ -40,7 +42,7 @@ public class ShowDetailsNodeProvider implements FileStructureNodeProvider {
     @NotNull
     @Override
     public ActionPresentation getPresentation() {
-        return new ActionPresentationData("Show details", null, null);
+        return new ActionPresentationData(txt("app.codeEditor.action.ShowDetails"), null, null);
     }
 
     @NotNull
@@ -52,7 +54,7 @@ public class ShowDetailsNodeProvider implements FileStructureNodeProvider {
     @NotNull
     @Override
     public String getCheckBoxText() {
-        return "Show details";
+        return txt("app.codeEditor.action.ShowDetails");
     }
 
     @NotNull

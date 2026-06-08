@@ -15,7 +15,7 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="[icon]"/>
+          <text resource-bundle="messages/DBNResources" key="app.object.placeholder.Icon"/>
         </properties>
       </component>
       <component id="3e06f" class="javax.swing.JCheckBox" binding="inCheckBox" default-binding="true">
@@ -23,7 +23,7 @@
           <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="IN"/>
+          <text resource-bundle="messages/DBNResources" key="app.object.label.IN"/>
         </properties>
       </component>
       <component id="b214d" class="javax.swing.JCheckBox" binding="outCheckBox" default-binding="true">
@@ -31,7 +31,7 @@
           <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="OUT"/>
+          <text resource-bundle="messages/DBNResources" key="app.object.label.OUT"/>
         </properties>
       </component>
       <component id="b2806" class="com.intellij.ui.components.JBTextField" binding="nameTextField">

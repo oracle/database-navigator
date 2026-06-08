@@ -33,7 +33,7 @@ public class AskAgainAction extends ChatMessageAction implements AssistantAction
     public void update(@NotNull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
         presentation.setText(txt("app.assistant.action.AskAgain"));
-        presentation.setDescription(txt("app.assistant.action.AskAgainDesc"));
+        presentation.setDescription(txt("app.assistant.tooltip.AskAgain"));
         presentation.setIcon(Icons.ACTION_RETRY);
 
         presentation.setVisible(isAvailable(e));

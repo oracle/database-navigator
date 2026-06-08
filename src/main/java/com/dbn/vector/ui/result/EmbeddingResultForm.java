@@ -28,6 +28,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EmbeddingResultForm extends ExecutionResultFormBase<VectorEmbeddingExecutionResult> {
     private JPanel mainPanel;

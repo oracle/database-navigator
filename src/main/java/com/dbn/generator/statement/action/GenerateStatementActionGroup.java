@@ -28,10 +28,12 @@ import com.dbn.object.common.DBSchemaObject;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class GenerateStatementActionGroup extends DefaultActionGroup {
 
     public GenerateStatementActionGroup(DBObject object) {
-        super("Extract SQL Statement", true);
+        super(txt("app.codeGenerator.action.ExtractSqlStatement"), true);
         if (object instanceof DBColumn || object instanceof DBDataset) {
             List<DBObject> selectedObjects = DatabaseBrowserManager.getInstance(object.getProject()).getSelectedObjects();
             add(new GenerateSelectStatementAction(selectedObjects));

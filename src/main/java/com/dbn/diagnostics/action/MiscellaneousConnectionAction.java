@@ -29,6 +29,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MiscellaneousConnectionAction extends AbstractConnectionAction {
     public MiscellaneousConnectionAction(@NotNull ConnectionHandler connection) {
         super(connection);
@@ -53,6 +55,6 @@ public class MiscellaneousConnectionAction extends AbstractConnectionAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler connection) {
         presentation.setVisible(Diagnostics.isBulkActionsEnabled());
-        presentation.setText("Dev Test");
+        presentation.setText(txt("app.diagnostics.action.DevTest"));
     }
 }

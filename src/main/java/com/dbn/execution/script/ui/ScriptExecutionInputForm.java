@@ -49,6 +49,7 @@ import java.util.List;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ScriptExecutionInputForm extends DBNFormBase {
     private JPanel headerPanel;
@@ -77,8 +78,7 @@ public class ScriptExecutionInputForm extends DBNFormBase {
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
         TextContent hintText = plain(
-                "Script execution uses the Command-Line Interface executable supplied with your database client. " +
-                "Make sure it is available in the \"PATH\" environment variable or provide the path to the executable.");
+                txt("msg.execution.hint.ScriptExecutionInput"));
 
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
@@ -126,7 +126,7 @@ public class ScriptExecutionInputForm extends DBNFormBase {
     }
 
     private ValueFactory<CmdLineInterface> createCmdLineFactory(Project project) {
-        return new ValueFactory<>("New Cmd-Line Interface...") {
+        return new ValueFactory<>(txt("app.execution.action.NewCmdLineInterface")) {
             @Override
             public void createValue(Consumer<CmdLineInterface> consumer) {
                 ConnectionHandler connection = connectionComboBox.getSelectedValue();

@@ -22,6 +22,7 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Titles;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.Button;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.util.ui.UIUtil;
@@ -37,9 +38,9 @@ import java.util.List;
 
 public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
     private final Icon icon;
-    private final String title;
-    private final String message;
-    private final String[] options;
+    private final @DialogTitle String title;
+    private final @DialogMessage String message;
+    private final @Button String[] options;
     private final int defaultOptionIndex;
 
     private Action[] actions;
@@ -49,7 +50,7 @@ public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
             @Nullable Icon icon,
             @NotNull @DialogTitle String title,
             @NotNull @DialogMessage String message,
-            @NotNull String[] options,
+            @NotNull @Button String[] options,
             int defaultOptionIndex,
             @Nullable RememberOption rememberOption) {
         super(project, title, false);
@@ -113,7 +114,7 @@ public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
     }
 
     private @NotNull AbstractAction createAction(int exitCode) {
-        String actionName = UIUtil.replaceMnemonicAmpersand(options[exitCode]);
+        @Button String actionName = UIUtil.replaceMnemonicAmpersand(options[exitCode]);
         return new AbstractAction(actionName) {
             @Override
             public void actionPerformed(ActionEvent e) {

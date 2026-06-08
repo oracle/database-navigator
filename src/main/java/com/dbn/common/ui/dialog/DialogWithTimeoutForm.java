@@ -27,6 +27,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DialogWithTimeoutForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel contentPanel;
@@ -58,10 +60,10 @@ public class DialogWithTimeoutForm extends DBNFormBase {
             }
 
             if (minutes == 0) {
-                timeLeftLabel.setText(seconds + " seconds");
+                timeLeftLabel.setText(txt("app.shared.label.MoreSeconds", seconds));
                 timeLeftLabel.setForeground(JBColor.RED);
             } else {
-                timeLeftLabel.setText(minutes +":" + (seconds < 10 ? "0" :"") + seconds + " minutes");
+                timeLeftLabel.setText(txt("app.shared.label.MoreMinutes", minutes +":" + (seconds < 10 ? "0" :"") + seconds));
             }
         });
     }

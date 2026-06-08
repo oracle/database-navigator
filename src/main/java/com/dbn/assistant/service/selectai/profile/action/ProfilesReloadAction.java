@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
  * @author Dan Cioca (Oracle)
  */
 public class ProfilesReloadAction extends ProfileManagementAction {
+    public ProfilesReloadAction() {
+        super(txt("app.assistant.action.AssistantReloadProfiles"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ProfileManagementForm managementForm = getManagementForm(e);

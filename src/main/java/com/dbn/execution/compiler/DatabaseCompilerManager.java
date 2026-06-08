@@ -115,7 +115,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
     }
 
     private static CompilerResult createErrorCompilerResult(CompilerAction compilerAction, DBSchemaObject object, DBContentType contentType, Exception e) {
-        return new CompilerResult(compilerAction, object, contentType, "Could not perform compile operation. \nCause: " + e.getMessage());
+        return new CompilerResult(compilerAction, object, contentType, txt("msg.compiler.message.CompileOperationFailed", e.getMessage()));
     }
 
     public CompileType getCompileType(@Nullable DBSchemaObject object, DBContentType contentType) {
@@ -301,7 +301,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
     private void doCompileInvalidObjects(List<? extends DBSchemaObject> objects, String description, ProgressIndicator progress, CompileType compileType) {
         if (progress.isCanceled()) return;
 
-        progress.setText("Compiling invalid " + description + "...");
+        progress.setText(txt("prc.compiler.text.CompilingInvalidObjects", description));
         int count = objects.size();
         for (int i=0; i< count; i++) {
             if (progress.isCanceled() || objects.size() == 0 /* may be disposed meanwhile*/) {
@@ -318,14 +318,14 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                         if (objectStatus.isNot(contentType, DBObjectStatus.VALID)) {
                             CompilerAction compilerAction = new CompilerAction(CompilerActionSource.BULK_COMPILE, contentType);
                             doCompileObject(object, compileType, compilerAction);
-                            progress.setText("Compiling " + object.getQualifiedNameWithType());
+                            progress.setText(txt("prc.compiler.text.CompilingObject", object.getQualifiedNameWithType()));
                         }
                     }
                 } else {
                     if (objectStatus.isNot(DBObjectStatus.VALID)) {
                         CompilerAction compilerAction = new CompilerAction(CompilerActionSource.BULK_COMPILE, objectContentType);
                         doCompileObject(object, compileType, compilerAction);
-                        progress.setText("Compiling " + object.getQualifiedNameWithType());
+                        progress.setText(txt("prc.compiler.text.CompilingObject", object.getQualifiedNameWithType()));
                     }
                 }
             }
@@ -369,8 +369,8 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
     public void compileJavaClasses(ConnectionHandler connection, List<DBObjectRef<DBJavaClass>> javaClasses) {
         Project project = getProject();
         Progress.background(project, connection, true,
-                "Compiling Java Classes",
-                "Compiling java classes",
+                txt("prc.compiler.title.CompilingJavaClasses"),
+                txt("prc.compiler.text.CompilingJavaClasses"),
                 progress -> {
                     progress.setIndeterminate(false);
 
@@ -386,15 +386,18 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                         String objectName = javaClass.getObjectName(true);
                         try {
                             DatabaseInterfaceInvoker.execute(Priority.MEDIUM,
-                                    "Compiling Java Class",
-                                    "Compiling java class \"" + className + "\"", project, connection.getConnectionId(), conn -> {
+                                    txt("prc.compiler.title.CompilingJavaClass"),
+                                    txt("prc.compiler.text.CompilingJavaClass", className),
+                                    project,
+                                    connection.getConnectionId(),
+                                    conn -> {
                                         javaInterface.compileJavaClass(
                                                 schemaName,
                                                 objectName,
                                                 conn);
                                     });
                         } catch (SQLException e) {
-                            sendErrorNotification(NotificationCategory.COMPILER, "Failed to compile class \"" + className + "\": " + e.getMessage());
+                            sendErrorNotification(NotificationCategory.COMPILER, txt("ntf.compiler.error.FailedToCompileClass", className, e.getMessage()));
                         }
                         progress.setFraction(progressOf(i + 1, size));
                     }

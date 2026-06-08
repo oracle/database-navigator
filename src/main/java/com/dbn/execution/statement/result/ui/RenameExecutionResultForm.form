@@ -31,7 +31,7 @@
         </constraints>
         <properties>
           <labelFor value="da2f4"/>
-          <text value="Result &amp;name"/>
+          <text resource-bundle="messages/DBNResources" key="app.execution.label.ResultName"/>
         </properties>
       </component>
       <component id="da2f4" class="javax.swing.JTextField" binding="nameTextField">
@@ -47,7 +47,7 @@
           <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="&amp;Sticky"/>
+          <text resource-bundle="messages/DBNResources" key="app.execution.label.Sticky"/>
         </properties>
       </component>
       <grid id="bec1c" binding="hintPanel" layout-manager="BorderLayout" hgap="0" vgap="0">

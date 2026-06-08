@@ -29,6 +29,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.help.HelpTopic.CODE_EDITOR_SETTINGS;
+import static com.dbn.nls.NlsResources.txt;
 
 @EqualsAndHashCode(callSuper = false)
 public class CodeEditorSettings extends CompositeProjectConfiguration<ProjectSettings, CodeEditorSettingsForm> implements TopLevelConfig {

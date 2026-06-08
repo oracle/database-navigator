@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.table.TableModel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class VectorEmbeddingResultsTable extends DBNTableWithGutter<VectorEmbeddingResultsTableModel> {
 
@@ -38,7 +39,7 @@ public class VectorEmbeddingResultsTable extends DBNTableWithGutter<VectorEmbedd
 
         setProportionalColumnWidth(0, 20);
         setProportionalColumnWidth(getModel().getColumnCount() -1, 30); // status message
-        setAccessibleName(this, "Data change listener registrations");
+        setAccessibleName(this, txt("app.vectors.aria.VectorEmbeddingResults"));
     }
 
     @Override

@@ -28,6 +28,11 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantSettingsAction extends AbstractChatBoxAction {
+
+    public AssistantSettingsAction() {
+        super(txt("app.assistant.action.AssistantSettings"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
@@ -40,6 +45,6 @@ public class AssistantSettingsAction extends AbstractChatBoxAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.assistant.action.AssistantSettings"));
+        presentation.setText(txt("app.assistant.action.Settings"));
     }
 }

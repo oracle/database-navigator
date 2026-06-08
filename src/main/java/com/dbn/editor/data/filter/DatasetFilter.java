@@ -21,12 +21,14 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.data.sorting.SortingState;
 import com.dbn.object.DBDataset;
 import com.intellij.openapi.options.UnnamedConfigurable;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
 public interface DatasetFilter extends UnnamedConfigurable, PersistentConfiguration {
     Icon getIcon();
+    @NonNls
     @NotNull
     String getId();
     String getName();

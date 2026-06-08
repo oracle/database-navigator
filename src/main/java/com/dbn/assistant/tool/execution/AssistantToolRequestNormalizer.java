@@ -28,6 +28,7 @@ import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import lombok.SneakyThrows;
 import org.apache.xmlbeans.impl.common.Levenshtein;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Array;
@@ -278,6 +279,7 @@ public class AssistantToolRequestNormalizer {
         return argumentName;
     }
 
+    @NonNls
     private static String buildArgumentName(int index) {
         return "arg" + index;
     }

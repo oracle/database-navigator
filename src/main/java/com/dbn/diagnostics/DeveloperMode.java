@@ -17,7 +17,6 @@
 package com.dbn.diagnostics;
 
 import com.dbn.common.state.PersistentStateElement;
-import com.dbn.nls.NlsSupport;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -33,10 +32,11 @@ import static com.dbn.common.options.setting.Settings.getInteger;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.common.options.setting.Settings.setInteger;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
-public class DeveloperMode implements PersistentStateElement, NlsSupport {
+public class DeveloperMode implements PersistentStateElement {
     private volatile boolean enabled;
     private volatile Timer timer;
     private volatile long timerStart;
@@ -76,10 +76,10 @@ public class DeveloperMode implements PersistentStateElement, NlsSupport {
         if (enabled) {
             start();
             // just became active - notify activated
-            sendInfoNotification(null, DIAGNOSTICS, txt("ntf.diagnostics.warning.DeveloperModeActivatedFor", timeout));
+            sendInfoNotification(null, DIAGNOSTICS, txt("ntf.diagnostics.info.DeveloperModeActivatedFor", timeout));
         } else if (changed) {
             // not active and changed just now -> notify deactivated
-            sendInfoNotification(null, DIAGNOSTICS, txt("ntf.diagnostics.warning.DeveloperModeDeactivated"));
+            sendInfoNotification(null, DIAGNOSTICS, txt("ntf.diagnostics.info.DeveloperModeDeactivated"));
         }
     }
 

@@ -44,6 +44,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectQuickFilterConditionForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -61,7 +62,7 @@ public class ObjectQuickFilterConditionForm extends DBNFormBase {
 
         DBObjectType objectType = filter.getObjectType();
         objectNameLabel.setIcon(objectType.getIcon());
-        objectNameLabel.setText(cachedUpperCase(objectType.getName()) + " NAME");
+        objectNameLabel.setText(txt("app.objects.label.ObjectName", cachedUpperCase(objectType.getName())));
 
         patternTextField.setText(condition.getPattern());
         operatorComboBox.setValues(ConditionOperator.values());
@@ -73,7 +74,7 @@ public class ObjectQuickFilterConditionForm extends DBNFormBase {
             condition.setOperator(newValue);
         });
 
-        patternTextField.setToolTipText("<html>press <b>Up/Down</b> keys to change the operator</html>");
+        patternTextField.setToolTipText(txt("app.object.tooltip.ChangeQuickFilterOperator"));
         patternTextField.addKeyListener(ComboBoxSelectionKeyListener.create(operatorComboBox, false));
         onTextChange(patternTextField, e -> condition.setPattern(getText(patternTextField)));
 
@@ -85,10 +86,10 @@ public class ObjectQuickFilterConditionForm extends DBNFormBase {
 
     @Override
     protected void initAccessibility() {
-        setAccessibleName(operatorComboBox, "Condition operator");
-        setAccessibleName(patternTextField, "Condition value for " + objectNameLabel.getText());
-        setAccessibleDescription(patternTextField, "Press Up or Down arrow keys to change the operator");
-        attachSelectionAnnouncer(operatorComboBox, "Operator");
+        setAccessibleName(operatorComboBox, txt("app.objects.aria.ConditionOperator"));
+        setAccessibleName(patternTextField, txt("app.objects.aria.ConditionValueForObject", objectNameLabel.getText()));
+        setAccessibleDescription(patternTextField, txt("app.shared.aria.ChangeOperatorHint"));
+        attachSelectionAnnouncer(operatorComboBox, txt("app.shared.aria.Operator"));
     }
 
     @NotNull

@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionResultRerunAction extends AbstractExecutionResultAction {
 
+    public ExecutionResultRerunAction() {
+        super(txt("app.execution.action.ExecutionResultRerunStatement"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull StatementExecutionCursorResult executionResult) {
         executionResult.reload();

@@ -35,6 +35,7 @@ import java.util.Set;
 
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 
 public class CreateRenameConsoleForm extends DBNFormBase {
     private JPanel headerPanel;
@@ -52,7 +53,7 @@ public class CreateRenameConsoleForm extends DBNFormBase {
         this.consoleType = consoleType;
 
         DBNHeaderForm headerForm = console == null ?
-                new DBNHeaderForm(this, "[New " + consoleType.getName() + "]", consoleType.getIcon(), connection.getEnvironmentType().getColor()) :
+                new DBNHeaderForm(this, txt("app.connection.placeholder.NewConsole", consoleType.getName()), consoleType.getIcon(), connection.getEnvironmentType().getColor()) :
                 new DBNHeaderForm(this, console);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
@@ -74,8 +75,8 @@ public class CreateRenameConsoleForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(consoleNameTextField, n-> isNotEmpty(n), "Console name must be specified");
-        addTextValidation(consoleNameTextField, n-> isNotUsed(n), "Console name already in use");
+        addTextValidation(consoleNameTextField, n-> isNotEmpty(n), txt("msg.connection.error.ConsoleNameRequired"));
+        addTextValidation(consoleNameTextField, n-> isNotUsed(n), txt("msg.connection.error.ConsoleNameAlreadyInUse"));
     }
 
     private boolean isNotUsed(String name) {

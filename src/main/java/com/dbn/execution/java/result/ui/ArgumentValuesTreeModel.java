@@ -36,6 +36,7 @@ import java.util.List;
 
 import static com.dbn.common.util.Java.isPrimitive;
 import static com.dbn.execution.common.input.CodeBlocks.isCodeBlock;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static com.dbn.object.type.DBJavaScalarType.isScalar;
 
@@ -45,8 +46,8 @@ public class ArgumentValuesTreeModel implements TreeModel {
 
     ArgumentValuesTreeModel(DBJavaMethod method, List<ExecutionValue> inputValues, List<ExecutionValue> outputValues) {
         root = new ArgumentValuesTreeNode(null, null, method.ref(), null);
-        ArgumentValuesTreeNode inputNode = new ArgumentValuesTreeNode(root, "Input", null, null);
-        ArgumentValuesTreeNode outputNode = new ArgumentValuesTreeNode(root, "Output", null, null);
+        ArgumentValuesTreeNode inputNode = new ArgumentValuesTreeNode(root, txt("app.execution.label.Input"), null, null);
+        ArgumentValuesTreeNode outputNode = new ArgumentValuesTreeNode(root, txt("app.execution.label.Output"), null, null);
 
         createArgumentValueNodes(method, inputNode, inputValues);
         createOutputValuesNodes(method, outputNode, outputValues);
@@ -65,19 +66,20 @@ public class ArgumentValuesTreeModel implements TreeModel {
             String arrayString = Data.listToArrayString(Arrays.asList(firstThree));
             if (elements.length > 3) arrayString += "...";
 
-            ExecutionValue<String> executionValue = new ExecutionValue<>("return", ValueHolder.basic(arrayString));
-            new ArgumentValuesTreeNode(parentNode, "return", returnClassRef, executionValue);
+            String returnLabel = txt("app.execution.label.Return");
+            ExecutionValue<String> executionValue = new ExecutionValue<>(returnLabel, ValueHolder.basic(arrayString));
+            new ArgumentValuesTreeNode(parentNode, returnLabel, returnClassRef, executionValue);
             return;
         }
 
         // scalar (single value)
         if(returnClassRef == null || isScalar(returnClassRef)){
-            new ArgumentValuesTreeNode(parentNode, "return", returnClassRef, outputValues.get(0));
+            new ArgumentValuesTreeNode(parentNode, txt("app.execution.label.Return"), returnClassRef, outputValues.get(0));
             return;
         }
 
         // complex java class
-        ArgumentValuesTreeNode  argumentNode = new ArgumentValuesTreeNode(parentNode, "return", returnClassRef, null);
+        ArgumentValuesTreeNode  argumentNode = new ArgumentValuesTreeNode(parentNode, txt("app.execution.label.Return"), returnClassRef, null);
         DBJavaClass returnClass = returnClassRef.get();
         if (returnClass == null) return;
 

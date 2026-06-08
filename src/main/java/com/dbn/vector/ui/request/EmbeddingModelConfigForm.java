@@ -37,6 +37,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EmbeddingModelConfigForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
@@ -115,7 +116,7 @@ public class EmbeddingModelConfigForm extends VectorToolboxFormBase implements D
 
   @Override
   public String getFormTitle() {
-    return "Embedding Model";
+    return txt("msg.vector.title.EmbeddingModel");
   }
 
   @Override
@@ -127,7 +128,7 @@ public class EmbeddingModelConfigForm extends VectorToolboxFormBase implements D
       DBAIModel selectedModel = databaseModelConfigForm.getSelectedModel();
       if (selectedModel == null) return modelLocationName;
 
-      return modelLocationName + " - " + selectedSchema + "." + selectedModel;
+      return txt("msg.vector.text.ModelSelectionDetail", modelLocationName, selectedSchema + "." + selectedModel);
     }
 
     if (modelLocation == EmbeddingModelLocation.THIRD_PARTY_MODEL) {
@@ -135,10 +136,10 @@ public class EmbeddingModelConfigForm extends VectorToolboxFormBase implements D
       String modelName = thirdPartyModelConfigForm.getModelName();
 
       if (provider != null && Strings.isNotEmpty(modelName)) {
-        return modelLocationName + " - " + provider.getName() + " / " + modelName;
+        return txt("msg.vector.text.ModelSelectionDetail", modelLocationName, provider.getName() + " / " + modelName);
       }
 
-      if (provider != null) return modelLocationName + " - " + provider.getName();
+      if (provider != null) return txt("msg.vector.text.ModelSelectionDetail", modelLocationName, provider.getName());
     }
 
     return modelLocationName;

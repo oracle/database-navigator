@@ -42,6 +42,7 @@ import static com.dbn.common.util.Base64.decode;
 import static com.dbn.common.util.Base64.encode;
 import static com.dbn.credentials.SecretType.SSH_TUNNEL_KEY_PASSPHRASE;
 import static com.dbn.credentials.SecretType.SSH_TUNNEL_PASSWORD;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter

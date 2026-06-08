@@ -26,31 +26,33 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SQLColorSettingsPage extends DBLColorSettingsPage {
 
     public SQLColorSettingsPage() {
-        attributeDescriptors.add(new AttributesDescriptor("Line comment", SQLTextAttributesKeys.LINE_COMMENT));
-        attributeDescriptors.add(new AttributesDescriptor("Block comment", SQLTextAttributesKeys.BLOCK_COMMENT));
-        attributeDescriptors.add(new AttributesDescriptor("String", SQLTextAttributesKeys.STRING));
-        attributeDescriptors.add(new AttributesDescriptor("Number", SQLTextAttributesKeys.NUMBER));
-        attributeDescriptors.add(new AttributesDescriptor("Alias", SQLTextAttributesKeys.ALIAS));
-        attributeDescriptors.add(new AttributesDescriptor("Identifier", SQLTextAttributesKeys.IDENTIFIER));
-        attributeDescriptors.add(new AttributesDescriptor("Keyword", SQLTextAttributesKeys.KEYWORD));
-        attributeDescriptors.add(new AttributesDescriptor("Function", SQLTextAttributesKeys.FUNCTION));
-        attributeDescriptors.add(new AttributesDescriptor("Parameter", SQLTextAttributesKeys.PARAMETER));
-        attributeDescriptors.add(new AttributesDescriptor("DataType", SQLTextAttributesKeys.DATA_TYPE));
-        attributeDescriptors.add(new AttributesDescriptor("Parenthesis", SQLTextAttributesKeys.PARENTHESIS));
-        attributeDescriptors.add(new AttributesDescriptor("Bracket", SQLTextAttributesKeys.BRACKET));
-        attributeDescriptors.add(new AttributesDescriptor("Operator", SQLTextAttributesKeys.OPERATOR));
-        attributeDescriptors.add(new AttributesDescriptor("Execution variable", SQLTextAttributesKeys.VARIABLE));
-        attributeDescriptors.add(new AttributesDescriptor("Procedural block", SQLTextAttributesKeys.CHAMELEON));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_LINE_COMMENT"), SQLTextAttributesKeys.LINE_COMMENT));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_BLOCK_COMMENT"), SQLTextAttributesKeys.BLOCK_COMMENT));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_STRING"), SQLTextAttributesKeys.STRING));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_NUMBER"), SQLTextAttributesKeys.NUMBER));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_ALIAS"), SQLTextAttributesKeys.ALIAS));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_IDENTIFIER"), SQLTextAttributesKeys.IDENTIFIER));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_KEYWORD"), SQLTextAttributesKeys.KEYWORD));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_FUNCTION"), SQLTextAttributesKeys.FUNCTION));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_PARAMETER"), SQLTextAttributesKeys.PARAMETER));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_DATA_TYPE"), SQLTextAttributesKeys.DATA_TYPE));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_PARENTHESIS"), SQLTextAttributesKeys.PARENTHESIS));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_BRACKET"), SQLTextAttributesKeys.BRACKET));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_OPERATOR"), SQLTextAttributesKeys.OPERATOR));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_EXECUTION_VARIABLE"), SQLTextAttributesKeys.VARIABLE));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.codeEditor.const.TextAttribute_PROCEDURAL_BLOCK"), SQLTextAttributesKeys.CHAMELEON));
     }
 
 
     @Override
     @NotNull
     public String getDisplayName() {
-        return "SQL (DBN)";
+        return txt("cfg.codeEditor.title.SqlColorSettings");
     }
 
     @Override

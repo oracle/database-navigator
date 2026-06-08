@@ -43,6 +43,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AutoCommitLabel extends DBNPanelImpl implements Disposable {
     private interface Colors {
@@ -100,10 +101,13 @@ public class AutoCommitLabel extends DBNPanelImpl implements Disposable {
 
 
                 String sessionName = session.getName();
-                connectionLabel.setText(disconnected ? " - not connected" : " - connected");
+                connectionLabel.setText(
+                        disconnected ?
+                                txt("app.connection.label.NotConnected") :
+                                txt("app.connection.label.Connected"));
                 connectionLabel.setToolTipText(
                         disconnected ?
-                                "Not connected to " + sessionName + " database session" : "");
+                                txt("app.connection.tooltip.NotConnectedToSession", sessionName) : null);
 
                 connectionLabel.setFont(disconnected ?
                         Fonts.regular() :
@@ -112,11 +116,14 @@ public class AutoCommitLabel extends DBNPanelImpl implements Disposable {
                 autoCommitLabel.setForeground(autoCommit ?
                         com.dbn.common.color.Colors.FAILURE_COLOR :
                         com.dbn.common.color.Colors.SUCCESS_COLOR);
-                autoCommitLabel.setText(autoCommit ? "Auto-Commit ON" : "Auto-Commit OFF");
+                autoCommitLabel.setText(
+                        autoCommit ?
+                                txt("app.connection.label.AutoCommitOn") :
+                                txt("app.connection.label.AutoCommitOff"));
                 autoCommitLabel.setToolTipText(
                         autoCommit ?
-                                "Auto-Commit is enabled for connection \"" + connection + "\". Data changes will be automatically committed to the database." :
-                                "Auto-Commit is disabled for connection \"" + connection + "\". Data changes will need to be manually committed to the database.");
+                                txt("app.connection.tooltip.AutoCommitEnabled", connection) :
+                                txt("app.connection.tooltip.AutoCommitDisabled", connection));
             } else {
                 setVisible(false);
             }

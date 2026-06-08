@@ -23,6 +23,7 @@ import com.dbn.object.type.DBObjectType;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.INDEX;
 
 public class DBTableNavigationInfoProvider extends DBObjectNavigationInfoProviderBase<DBTable> {
@@ -36,7 +37,7 @@ public class DBTableNavigationInfoProvider extends DBObjectNavigationInfoProvide
         if (indexes == null) return null;
         if (indexes.isEmpty()) return null;
 
-        return List.of(DBObjectNavigationList.create("Indexes", indexes));
+        return List.of(DBObjectNavigationList.create(txt("app.objects.navigation.Indexes"), indexes));
 
     }
 }

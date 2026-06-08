@@ -24,12 +24,14 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class WrapperNamesEditorDialog extends DBNDialog<WrapperNamesEditorForm> {
     private final WrapperModel model;
 
     public WrapperNamesEditorDialog(Project project, WrapperModel model) {
-        super(project, "Wrapper Names Editor", false);
+        super(project, txt("msg.java.title.WrapperNamesEditor"), false);
         this.setModal(true);
         this.setDefaultSize(600, 480);
         this.model = model;

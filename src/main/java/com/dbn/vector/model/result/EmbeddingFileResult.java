@@ -31,6 +31,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 @Setter
 public class EmbeddingFileResult extends EmbeddingResult<EmbeddingFileSource> {
@@ -84,13 +86,13 @@ public class EmbeddingFileResult extends EmbeddingResult<EmbeddingFileSource> {
 
     @Override
     public String getStatusTooltip() {
-        if (getStatus() == TaskStatus.SKIPPED) return "File content already embedded in the given destination";
+        if (getStatus() == TaskStatus.SKIPPED) return txt("msg.vector.tooltip.FileContentAlreadyEmbedded");
         return super.getStatusTooltip();
     }
 
     @Override
     public String getStatusMessage() {
-        if (getStatus() == TaskStatus.SKIPPED) return "File content already embedded";
+        if (getStatus() == TaskStatus.SKIPPED) return txt("msg.vector.text.FileContentAlreadyEmbedded");
         return super.getStatusMessage();
     }
 

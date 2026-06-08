@@ -35,6 +35,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.list.ListProperty.EDITABLE;
 import static com.dbn.common.ui.list.ListProperty.SORTED;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DataGridAuditColumnSettingsForm extends ConfigurationEditorForm<DataGridAuditColumnSettings> {
     private JPanel mainPanel;
@@ -46,7 +47,7 @@ public class DataGridAuditColumnSettingsForm extends ConfigurationEditorForm<Dat
 
     public DataGridAuditColumnSettingsForm(DataGridAuditColumnSettings settings) {
         super(settings);
-        editableStringListForm = new EditableStringListForm(this, "Audit column names", SORTED, EDITABLE);
+        editableStringListForm = new EditableStringListForm(this, txt("cfg.data.label.AuditColumnNames"), SORTED, EDITABLE);
         JComponent listComponent = editableStringListForm.getComponent();
         columnNameListPanel.add(listComponent, BorderLayout.CENTER);
 

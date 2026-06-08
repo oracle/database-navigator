@@ -46,6 +46,7 @@ import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.thread.Progress.installThreadInterrupter;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DriverPackageMetadataDownloader {
     @SneakyThrows
@@ -82,7 +83,7 @@ public class DriverPackageMetadataDownloader {
         name = getFormattedString(name, libraries, placeholderCount, false);
         DriverPackage driverPackage = new DriverPackage(id, name, DatabaseType.resolve(databaseType), libraries);
 
-        session.setText("Downloading metadata for " + id + " ...");
+        session.setText(txt("prc.connection.text.DownloadingDriverPackageMetadata", id));
         session.countDown();
         session.updateProgress();
         return driverPackage;
@@ -147,7 +148,7 @@ public class DriverPackageMetadataDownloader {
                 return libraries; // Return all resolved dependencies
             } catch (Throwable e) {
                 e = Exceptions.rootCauseOf(e);
-                session.addErrorMessage("Failed to download library " + library.getLibraryId() + ". Cause: " + e.getMessage());
+                session.addErrorMessage(txt("msg.connection.error.FailedToDownloadLibrary", library.getLibraryId(), e.getMessage()));
                 return Collections.emptyList();
             }
 

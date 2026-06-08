@@ -54,7 +54,7 @@ public class DebugStatementIntentionAction extends EditorIntentionAction {
     @Override
     @NotNull
     public String getText() {
-        return txt("app.codeEditor.action.DebugStatement");
+        return txt("app.codeEditor.intention.DebugStatement");
     }
 
 

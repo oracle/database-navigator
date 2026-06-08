@@ -64,6 +64,6 @@ public abstract class SelectAiBaseIntentionAction extends EditorIntentionAction 
     @NotNull
     @Override
     public final String getText() {
-        return txt("app.assistant.action.SelectAI", getActionName());
+        return txt("app.assistant.intention.SelectAI", getActionName());
     }
 }

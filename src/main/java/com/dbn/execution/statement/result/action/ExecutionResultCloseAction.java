@@ -29,6 +29,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionResultCloseAction extends AbstractExecutionResultAction {
 
+    public ExecutionResultCloseAction() {
+        super(txt("app.execution.action.ExecutionResultClose"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull StatementExecutionCursorResult executionResult) {
         ExecutionManager executionManager = ExecutionManager.getInstance(project);

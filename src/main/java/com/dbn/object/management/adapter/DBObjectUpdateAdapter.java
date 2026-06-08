@@ -20,6 +20,7 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
 import org.jetbrains.annotations.Nls;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.openapi.util.NlsContexts.DialogMessage;
 import static com.intellij.openapi.util.NlsContexts.DialogTitle;
 import static com.intellij.openapi.util.NlsContexts.ProgressText;

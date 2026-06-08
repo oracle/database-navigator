@@ -26,6 +26,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class DataFindAction extends AbstractSessionBrowserAction {
 
+    public DataFindAction() {
+        super(txt("app.sessionBrowser.action.SessionBrowserFind"));
+    }
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         SessionBrowser sessionBrowser = getSessionBrowser(e);

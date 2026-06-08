@@ -43,6 +43,7 @@ import com.intellij.testFramework.LightVirtualFile;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -218,6 +219,7 @@ public final class VirtualFiles {
         return Lists.convert(files, f -> f.getPath());
     }
 
+    @NonNls
     public static String getPresentableFileSize(VirtualFile file) {
         long size = file.getLength();
         if (size < 1024) return size + " B";

@@ -19,7 +19,7 @@
         </constraints>
         <properties>
           <selected value="true"/>
-          <text value="Insert"/>
+          <text resource-bundle="messages/DBNResources" key="app.eventRegistration.label.Insert"/>
         </properties>
       </component>
       <component id="7717c" class="javax.swing.JCheckBox" binding="updateCheckBox" default-binding="true">
@@ -28,7 +28,7 @@
         </constraints>
         <properties>
           <selected value="true"/>
-          <text value="Update"/>
+          <text resource-bundle="messages/DBNResources" key="app.eventRegistration.label.Update"/>
         </properties>
       </component>
       <component id="fc5b6" class="javax.swing.JCheckBox" binding="deleteCheckBox" default-binding="true">
@@ -37,7 +37,7 @@
         </constraints>
         <properties>
           <selected value="true"/>
-          <text value="Delete"/>
+          <text resource-bundle="messages/DBNResources" key="app.eventRegistration.label.Delete"/>
         </properties>
       </component>
       <grid id="1ae7c" binding="headerPanel" layout-manager="BorderLayout" hgap="0" vgap="0">

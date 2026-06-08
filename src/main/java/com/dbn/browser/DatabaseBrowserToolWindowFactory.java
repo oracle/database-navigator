@@ -27,13 +27,14 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.icon.Icons.WINDOW_DATABASE_BROWSER;
 import static com.dbn.help.HelpTopic.DATABASE_BROWSER;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseBrowserToolWindowFactory extends DBNToolWindowFactory {
 
     @Override
     protected void initialize(@NotNull ToolWindow toolWindow) {
-        toolWindow.setTitle("DB Browser");
-        toolWindow.setStripeTitle("DB Browser");
+        toolWindow.setTitle(txt("app.browser.title.DatabaseBrowserToolWindow"));
+        toolWindow.setStripeTitle(txt("app.browser.title.DatabaseBrowserToolWindow"));
         toolWindow.setIcon(WINDOW_DATABASE_BROWSER.get());
         toolWindow.setHelpId(DATABASE_BROWSER.asHelpTopicId());
     }

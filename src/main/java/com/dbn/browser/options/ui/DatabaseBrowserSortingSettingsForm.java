@@ -46,6 +46,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<DatabaseBrowserSortingSettings> {
     private JPanel mainPanel;
@@ -61,7 +62,7 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
 
     @Override
     protected void initAccessibility() {
-        Accessibility.setAccessibleName(sortingTypeTable, "Objects sorting");
+        Accessibility.setAccessibleName(sortingTypeTable, txt("cfg.browser.aria.ObjectsSorting"));
     }
 
 
@@ -108,11 +109,11 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
                     String name = sortingType == null ? "" : sortingType.getName();
 
                     append(name, SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                    setAccessibleDescription(this, "Press space key to change the sorting type");
+                    setAccessibleDescription(this, txt("cfg.browser.aria.ChangeSortingTypeHint"));
                 }
             });
 
-            Tables.attachValueSelector(this, 1, "Sorting Type", SortingType.values());
+            Tables.attachValueSelector(this, 1, txt("cfg.browser.title.SortingType"), SortingType.values());
         }
 
         @Override
@@ -148,8 +149,8 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
         @Override
         public String getColumnName(int columnIndex) {
             return switch (columnIndex) {
-                case 0 -> "Object Type";
-                case 1 -> "Sorting Type";
+                case 0 -> txt("cfg.browser.column.ObjectType");
+                case 1 -> txt("cfg.browser.column.SortingType");
                 default -> null;
             };
         }

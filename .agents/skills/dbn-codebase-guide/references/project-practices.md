@@ -4,7 +4,7 @@
 
 - Product: Oracle© Database Navigator (DBN), a database development and management plugin for JetBrains IDEs.
 - Main code: `src/main/java/com/dbn`.
-- Main resources: `src/main/resources`, especially `META-INF/plugin.xml`, `messages/DBNResources.properties`, file templates, icons, text attributes, and language resources.
+- Main resources: `src/main/resources`, especially `META-INF/plugin.xml`, file templates, icons, text attributes, and language resources.
 - Public extension modules: `modules/dbn-api` and `modules/dbn-spi`.
 - Build: Gradle Kotlin DSL with Java 17, Kotlin plugin present, IntelliJ Platform Gradle plugin, Lombok annotation processing, JUnit 4 tests.
 - Generated or bulky parser artifacts exist in language dialect packages. Avoid hand-editing generated flex/parser output unless the task explicitly targets it.
@@ -25,7 +25,7 @@
 ## Class Style
 
 - Preserve the Oracle Apache 2.0 copyright header in Java/Kotlin/Gradle/properties files when adding new source files.
-- Use JetBrains annotations heavily: `@NotNull`, `@Nullable`, `@NonNls`, `@Nls`, and `@PropertyKey` where appropriate.
+- Use JetBrains annotations heavily, especially `@NotNull` and `@Nullable`; match adjacent code for specialized annotations.
 - Lombok is normal in this repo: `@Getter`, `@Setter`, `@Slf4j`, `@EqualsAndHashCode`, `@SneakyThrows`, and `@UtilityClass` are common. Match nearby usage.
 - Prefer early returns over deeply nested branches.
 - Prefer local DBN null/default helpers such as `nvl`, `nvln`, `coalesce`, and `Strings.isNotEmpty`.
@@ -73,7 +73,6 @@
 - Use DBN validation helpers from `DBNFormBase`/`DBNFormValidator`; do not wire ad hoc validation if the base form can handle it.
 - Use `DBNHeaderForm` for forms that need a standard connection/object header.
 - Use `com.dbn.common.icon.Icons` or existing IntelliJ icons in actions.
-- Use `txt(...)` for action text, dialog titles, messages, button labels, and units when a resource key exists or should be added.
 - Action `update(...)` should set presentation text/icon/enabled state and should avoid heavy work.
 
 ## Settings And Persistence
@@ -85,14 +84,6 @@
   - `setStringAttribute`, `setBooleanAttribute`, `setEnumAttribute`.
   - `readCdata` and `writeCdata` for text content that may need CDATA.
 - Prefer interned IDs and DBN constant converters for persistent IDs.
-
-## NLS And Messages
-
-- Resource bundle: `src/main/resources/messages/DBNResources.properties`.
-- Access text with `static com.dbn.nls.NlsResources.txt`.
-- Key families commonly start with `app.`, `cfg.`, `msg.`, or `prc.`; shared labels use `app.shared.*` and `msg.shared.*`.
-- `txt(...)` falls back to literal text for non-key strings, but new user-visible strings should still get real keys when nearby code is localized.
-- Use DBN `Messages`, `Dialogs`, and `MessageBundle` helpers for user-facing notifications/dialogs.
 
 ## IntelliJ Plugin XML
 

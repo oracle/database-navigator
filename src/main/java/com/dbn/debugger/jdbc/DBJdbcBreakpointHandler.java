@@ -107,7 +107,7 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
 
                         }
                         String breakpointDesc = getBreakpointDesc(breakpoint);
-                        console.system("Breakpoint added: " + breakpointDesc);
+                        console.system(txt("log.debugger.info.BreakpointAdded", breakpointDesc));
                     }
                 }
 
@@ -133,10 +133,10 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
                 String breakpointDesc = getBreakpointDesc(breakpoint);
                 try {
                     removeBreakpoint(temporary, breakpointId);
-                    console.system("Breakpoint removed: " + breakpointDesc);
+                    console.system(txt("log.debugger.info.BreakpointRemoved", breakpointDesc));
                 } catch (SQLException e) {
                     conditionallyLog(e);
-                    console.error("Error removing breakpoint: " + breakpointDesc + ". " + e.getMessage());
+                    console.error(txt("log.debugger.error.ErrorRemovingBreakpoint", breakpointDesc, e.getMessage()));
                     sendErrorNotification(DEBUGGER, txt("ntf.debugger.error.ErrorUnregisteringBreakpoints", e));
                 } finally {
                     setBreakpointId(breakpoint, null);
