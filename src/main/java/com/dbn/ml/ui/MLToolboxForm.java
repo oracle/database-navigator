@@ -34,12 +34,17 @@ import com.dbn.ml.ui.feature.MLFeatureForm;
 import com.dbn.ml.ui.source.MLSourceForm;
 import com.dbn.ml.ui.trainer.MLTrainerForm;
 import com.intellij.openapi.Disposable;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MLToolboxForm extends MLToolboxFormBase {
+    private static final @NonNls String ORACLE_DBMS_DATA_MINING_URL = "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmapi/DBMS_DATA_MINING.html";
+
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
@@ -140,19 +145,14 @@ public class MLToolboxForm extends MLToolboxFormBase {
     }
 
     private void initHintPanel() {
-        TextContent hintText = TextContent.plain(
-                "Machine Learning Toolbox\n\n" +
-                "Use this interface to build and train machine learning models using Oracle DBMS_DATA_MINING. " +
-                "Select your data source, choose features and a label column, " +
-                "configure the training algorithm, and train your model.\n\n" +
-                "The trained model will be stored in the database and can be evaluated and used for predictions.");
+        TextContent hintText = TextContent.plain(txt("cfg.machineLearning.hint.MLToolbox"));
         DBNHintForm hintForm = new DBNHintForm(null, hintText, null, true);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
 
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
-                "Powered by",
-                "Oracle DBMS_DATA_MINING",
-                "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmapi/DBMS_DATA_MINING.html");
+                txt("cfg.machineLearning.label.PoweredBy"),
+                txt("cfg.machineLearning.link.OracleDBMSDataMining"),
+                ORACLE_DBMS_DATA_MINING_URL);
         hintPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
     }
 

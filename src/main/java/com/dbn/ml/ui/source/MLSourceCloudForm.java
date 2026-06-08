@@ -50,6 +50,7 @@ import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
@@ -99,7 +100,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
                 .withSchemaContext(() -> getSelectedCredentialSchema())
                 .withValueLoader(() -> loadCredentials())
                 .withValuePreselector(() -> config.getCredentialName())
-                .withObjectFactory("New Credential...")
+                .withObjectFactory(txt("cfg.machineLearning.action.NewCredential"))
                 .triggerLoad();
 
         updateFieldAvailability();
@@ -141,7 +142,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
                     String text = t.getText().trim();
                     return !text.isEmpty() && text.startsWith("https://");
                 },
-                "Please enter a valid HTTPS URI");
+                txt("msg.machineLearning.error.HttpsUriRequired"));
     }
 
     private void populateCredentials() {
@@ -202,13 +203,13 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
         ConnectionHandler connection = getConnection();
 
         loadColumnsButton.setEnabled(false);
-        loadColumnsButton.setText("Loading...");
+        loadColumnsButton.setText(txt("cfg.machineLearning.button.Loading"));
 
         Background.run(() -> {
             try {
                 DatabaseInterfaceInvoker.execute(HIGH,
-                        "Loading Columns",
-                        "Reading CSV header from cloud source",
+                        txt("prc.machineLearning.title.LoadingColumns"),
+                        txt("prc.machineLearning.text.ReadingCloudCsvHeader"),
                         connection.getProject(),
                         connection.getConnectionId(),
                         conn -> {
@@ -222,7 +223,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
                                 discoveredColumns = columns;
                                 numericColumns = numeric;
                                 loadColumnsButton.setEnabled(true);
-                                loadColumnsButton.setText("Load Columns");
+                                loadColumnsButton.setText(txt("cfg.machineLearning.button.LoadColumns"));
                                 notifySourceChanged();
                             });
                         });
@@ -230,7 +231,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
                 log.error("Failed to load columns from cloud source", ex);
                 Dispatch.run(loadColumnsButton, () -> {
                     loadColumnsButton.setEnabled(true);
-                    loadColumnsButton.setText("Load Columns");
+                    loadColumnsButton.setText(txt("cfg.machineLearning.button.LoadColumns"));
                 });
             }
         });

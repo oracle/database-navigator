@@ -17,12 +17,16 @@
 package com.dbn.ml.model;
 
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.ml.backend.dbms.DBMSAlgorithmType;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nls;
 
 import java.util.List;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Result of ML training execution using Oracle DBMS_DATA_MINING.
@@ -38,7 +42,8 @@ public class MLResult {
     private DBMSEvaluationResult evaluationResult;
 
     private ConnectionHandler connection;
-    private String algorithmName;
+    private @Nls String algorithmName;
+    private DBMSAlgorithmType algorithmType;
 
     private int trainingDataSize;
     private int testingDataSize;
@@ -83,7 +88,7 @@ public class MLResult {
         if (evaluationResult != null && taskType == MLTaskType.CLASSIFICATION) {
             return evaluationResult.getConfusionMatrix();
         }
-        return "N/A";
+        return txt("app.machineLearning.placeholder.NotApplicable");
     }
 
     public double getR2Score() {
@@ -99,7 +104,7 @@ public class MLResult {
     }
 
     public String getEvaluationSummary() {
-        return evaluationResult != null ? evaluationResult.getSummaryText() : "No evaluation available";
+        return evaluationResult != null ? evaluationResult.getSummaryText() : txt("app.machineLearning.text.NoEvaluationAvailable");
     }
 
     public boolean isClassification() {

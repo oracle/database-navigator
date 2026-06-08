@@ -23,10 +23,15 @@ import com.intellij.ui.JBColor;
 import com.intellij.ui.table.JBTable;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.util.List;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class GLMDetailBuilder implements AlgorithmDetailBuilder {
 
@@ -37,9 +42,14 @@ public class GLMDetailBuilder implements AlgorithmDetailBuilder {
 
     @Override
     public void build(JPanel panel, MLModelDetails details) {
-        MLResultPanelHelper.initSection(panel, "GLM Coefficients");
+        MLResultPanelHelper.initSection(panel, txt("app.machineLearning.title.GLMCoefficients"));
 
-        String[] columns = {"Attribute", "Value", "Coefficient", "Std Error", "P-Value"};
+        String[] columns = {
+                txt("app.machineLearning.column.Attribute"),
+                txt("app.machineLearning.column.Value"),
+                txt("app.machineLearning.column.Coefficient"),
+                txt("app.machineLearning.column.StdError"),
+                txt("app.machineLearning.column.PValue")};
         List<MLModelDetails.GLMCoefficient> coefs = details.getGlmCoefficients();
         Object[][] data = new Object[coefs.size()][5];
         for (int i = 0; i < coefs.size(); i++) {

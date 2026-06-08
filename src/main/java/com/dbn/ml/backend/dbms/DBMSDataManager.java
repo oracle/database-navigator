@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Manages data preparation for DBMS_DATA_MINING backend.
  * Handles staging table creation, CSV loading, and cleanup.
@@ -105,7 +107,7 @@ public class DBMSDataManager {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileConfig.getFilePath()))) {
             // Parse header
             String headerLine = reader.readLine();
-            if (headerLine == null) throw new IllegalArgumentException("Empty CSV file");
+            if (headerLine == null) throw new IllegalArgumentException(txt("msg.machineLearning.exception.EmptyCsvFile"));
 
             String[] headers = headerLine.split(fileConfig.getDelimiter());
             result.featureIndices = findColumnIndices(headers, featureColumns);
@@ -167,8 +169,8 @@ public class DBMSDataManager {
         ConnectionHandler connection = context.getConnection();
 
         DatabaseInterfaceInvoker.execute(Priority.LOW,
-                "Cleanup",
-                "Dropping staging table",
+                txt("prc.machineLearning.title.Cleanup"),
+                txt("prc.machineLearning.text.DroppingStagingTable"),
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {
@@ -217,8 +219,8 @@ public class DBMSDataManager {
         // Execute create table
         String columnDefsStr = columnDefs.toString();
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Creating Table",
-                "Creating staging table for CSV data",
+                txt("prc.machineLearning.title.CreatingTable"),
+                txt("prc.machineLearning.text.CreatingCsvStagingTable"),
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {
@@ -240,8 +242,8 @@ public class DBMSDataManager {
         String insertSql = buildInsertSql(tableName, featureColumns, labelColumns, partitionColumns);
 
         return DatabaseInterfaceInvoker.load(Priority.HIGH,
-                "Loading Data",
-                "Loading CSV data into staging table",
+                txt("prc.machineLearning.title.LoadingData"),
+                txt("prc.machineLearning.text.LoadingCsvData"),
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {

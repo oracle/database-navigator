@@ -25,6 +25,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Action to open the ML Toolbox dialog.
  *
@@ -39,7 +41,7 @@ public class MLResultOpenToolboxAction extends AbstractMLExecutionResultAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable MLExecutionResult target) {
-        presentation.setText("Open ML Toolbox");
+        presentation.setText(txt("app.machineLearning.action.OpenMLToolbox"));
         presentation.setIcon(Icons.EXEC_RESULT_INPUT_FORM);
     }
 }

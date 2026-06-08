@@ -21,9 +21,14 @@ import com.dbn.ml.model.MLModelDetails;
 import com.dbn.ml.result.MLResultPanelHelper;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.util.List;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class NaiveBayesDetailBuilder implements AlgorithmDetailBuilder {
 
@@ -34,12 +39,15 @@ public class NaiveBayesDetailBuilder implements AlgorithmDetailBuilder {
 
     @Override
     public void build(JPanel panel, MLModelDetails details) {
-        MLResultPanelHelper.initSection(panel, "Naive Bayes Probabilities");
+        MLResultPanelHelper.initSection(panel, txt("app.machineLearning.title.NaiveBayesProbabilities"));
 
         JPanel inner = new JPanel(new GridLayout(1, details.getNbConditionals().isEmpty() ? 1 : 2, 12, 0));
 
         // Priors table
-        String[] priorCols = {"Class", "Prior Probability", "Count"};
+        String[] priorCols = {
+                txt("app.machineLearning.column.Class"),
+                txt("app.machineLearning.column.PriorProbability"),
+                txt("app.machineLearning.column.Count")};
         List<MLModelDetails.NaiveBayesPrior> priors = details.getNbPriors();
         Object[][] priorData = new Object[priors.size()][3];
         for (int i = 0; i < priors.size(); i++) {
@@ -49,7 +57,7 @@ public class NaiveBayesDetailBuilder implements AlgorithmDetailBuilder {
             priorData[i][2] = p.getCount();
         }
         JPanel priorsCard = new JPanel(new BorderLayout(4, 4));
-        JLabel priorsTitle = new JLabel("Class Priors");
+        JLabel priorsTitle = new JLabel(txt("app.machineLearning.title.ClassPriors"));
         priorsTitle.setFont(priorsTitle.getFont().deriveFont(Font.BOLD, 12f));
         priorsCard.add(priorsTitle, BorderLayout.NORTH);
         priorsCard.add(MLResultPanelHelper.wrapTable(MLResultPanelHelper.buildReadOnlyTable(priorData, priorCols)), BorderLayout.CENTER);
@@ -57,7 +65,11 @@ public class NaiveBayesDetailBuilder implements AlgorithmDetailBuilder {
 
         // Conditionals table
         if (!details.getNbConditionals().isEmpty()) {
-            String[] condCols = {"Class", "Attribute", "Value", "Cond. Probability"};
+            String[] condCols = {
+                    txt("app.machineLearning.column.Class"),
+                    txt("app.machineLearning.column.Attribute"),
+                    txt("app.machineLearning.column.Value"),
+                    txt("app.machineLearning.column.ConditionalProbability")};
             List<MLModelDetails.NaiveBayesConditional> conds = details.getNbConditionals();
             Object[][] condData = new Object[conds.size()][4];
             for (int i = 0; i < conds.size(); i++) {
@@ -68,7 +80,7 @@ public class NaiveBayesDetailBuilder implements AlgorithmDetailBuilder {
                 condData[i][3] = String.format("%.4f", c.getConditionalProbability());
             }
             JPanel condsCard = new JPanel(new BorderLayout(4, 4));
-            JLabel condsTitle = new JLabel("Top Conditional Probabilities");
+            JLabel condsTitle = new JLabel(txt("app.machineLearning.title.TopConditionalProbabilities"));
             condsTitle.setFont(condsTitle.getFont().deriveFont(Font.BOLD, 12f));
             condsCard.add(condsTitle, BorderLayout.NORTH);
             condsCard.add(MLResultPanelHelper.wrapTable(MLResultPanelHelper.buildReadOnlyTable(condData, condCols)), BorderLayout.CENTER);

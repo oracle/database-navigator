@@ -25,15 +25,14 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
-import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.ml.execution.MLPipelineExecutor;
 import com.dbn.ml.model.MLRequest;
 import com.dbn.ml.model.MLResult;
+import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.ml.result.MLExecutionResult;
 import com.dbn.ml.ui.MLToolboxDialog;
 import com.intellij.openapi.components.State;
@@ -41,6 +40,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +48,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.constantAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.common.util.Naming.nextNumberedIdentifier;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @State(
@@ -56,7 +61,7 @@ import static com.dbn.common.options.setting.Settings.*;
         storages = @Storage(DatabaseNavigator.STORAGE_FILE)
 )
 public class DatabaseMLManager extends ProjectComponentBase implements PersistentState {
-    public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseMLManager";
+    public static final @NonNls String COMPONENT_NAME = "DBNavigator.Project.DatabaseMLManager";
 
     private final Map<ConnectionId, MLRequest> requestTemplates = new ConcurrentHashMap<>();
 
@@ -86,8 +91,8 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
         } catch (Exception e) {
             Messages.showErrorDialog(
                 getProject(),
-                "ML Toolbox Error",
-                "Failed to open ML Toolbox: " + e.getMessage()
+                txt("msg.machineLearning.title.MLToolboxError"),
+                txt("msg.machineLearning.error.MLToolboxOpenFailed", e)
             );
             log.warn("Failed to open ML Toolbox", e);
         }
@@ -121,17 +126,17 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                 getProject(),
                 connection, 
                 true,
-                "Training ML Model",
-                "Training " + algorithmName + " on \"" + sourceName + "\"...",
+                txt("prc.machineLearning.title.TrainingModel"),
+                txt("prc.machineLearning.text.TrainingModel", algorithmName, sourceName),
                 progress -> {
                     try {
-                        progress.setText("Loading data...");
+                        progress.setText(txt("prc.machineLearning.text.LoadingData"));
                         MLPipelineExecutor executor = new MLPipelineExecutor();
 
-                        progress.setText("Training model...");
+                        progress.setText(txt("prc.machineLearning.text.Training"));
                         MLResult result = executor.execute(request, connection);
 
-                        progress.setText("Training complete!");
+                        progress.setText(txt("prc.machineLearning.text.TrainingComplete"));
 
                         // Show result in Execution Manager (like VectorToolbox)
                         showResultInExecutionManager(result);
@@ -141,8 +146,8 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                         String message = e.getMessage();
                         Dispatch.run(() -> Messages.showErrorDialog(
                                 getProject(),
-                                "Model Training Failed",
-                                "An error occurred during training:\n" + message
+                                txt("msg.machineLearning.title.ModelTrainingFailed"),
+                                txt("msg.machineLearning.error.ModelTrainingFailed", message)
                         ));
                     }
                 });
@@ -159,7 +164,7 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
     private void showResultInExecutionManager(MLResult result) {
         ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
         Set<String> existingNames = executionManager.getExecutionResultNames(MLExecutionResult.class);
-        String name = Naming.nextNumberedIdentifier("ML Training Result", true, () -> existingNames);
+        String name = nextNumberedIdentifier(txt("app.machineLearning.title.MLTrainingResult"), true, () -> existingNames);
         
         MLExecutionResult executionResult = new MLExecutionResult(result, name);
         executionManager.addExecutionResult(executionResult);

@@ -19,10 +19,16 @@ package com.dbn.ml.model.trainer;
 import com.dbn.common.ui.Presentable;
 import com.dbn.ml.model.MLTaskType;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.dbn.ml.model.MLTaskType.CLASSIFICATION;
+import static com.dbn.ml.model.MLTaskType.REGRESSION;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Supported ML trainer types for Oracle DBMS_DATA_MINING.
@@ -33,78 +39,77 @@ public enum MLTrainerType implements Presentable {
     // ========== CLASSIFICATION TRAINERS ==========
 
     LOGISTIC_REGRESSION(
-            "Logistic Regression",
-            "Generalized Linear Model that estimates the probability of class membership using a logistic function.",
-            MLTaskType.CLASSIFICATION
+            CLASSIFICATION,
+            txt("app.machineLearning.const.MLTrainerType_LOGISTIC_REGRESSION"),
+            txt("app.machineLearning.text.MLTrainerType_LOGISTIC_REGRESSION")
     ),
 
     SVM_CLASSIFICATION(
-            "Support Vector Machine",
-            "Finds the optimal hyperplane to separate classes. Works well for high-dimensional data and binary or multiclass problems.",
-            MLTaskType.CLASSIFICATION
+            CLASSIFICATION,
+            txt("app.machineLearning.const.MLTrainerType_SVM_CLASSIFICATION"),
+            txt("app.machineLearning.text.MLTrainerType_SVM_CLASSIFICATION")
     ),
 
     DECISION_TREE(
-            "Decision Tree",
-            "Builds a tree of binary splits on attribute values. Easy to interpret and visualize.",
-            MLTaskType.CLASSIFICATION
+            CLASSIFICATION,
+            txt("app.machineLearning.const.MLTrainerType_DECISION_TREE"),
+            txt("app.machineLearning.text.MLTrainerType_DECISION_TREE")
     ),
 
     NAIVE_BAYES(
-            "Naive Bayes",
-            "Probabilistic classifier based on Bayes theorem, assuming independence between features. Fast and effective for text and categorical data.",
-            MLTaskType.CLASSIFICATION
+            CLASSIFICATION,
+            txt("app.machineLearning.const.MLTrainerType_NAIVE_BAYES"),
+            txt("app.machineLearning.text.MLTrainerType_NAIVE_BAYES")
     ),
 
     RANDOM_FOREST(
-            "Random Forest",
-            "Ensemble of decision trees trained on random subsets of data and features. Provides variable importance ranking.",
-            MLTaskType.CLASSIFICATION
+            CLASSIFICATION,
+            txt("app.machineLearning.const.MLTrainerType_RANDOM_FOREST"),
+            txt("app.machineLearning.text.MLTrainerType_RANDOM_FOREST")
     ),
 
     NEURAL_NETWORK_CLASSIFICATION(
-            "Neural Network",
-            "Multi-layer perceptron that learns non-linear patterns through backpropagation. Suitable for complex classification problems.",
-            MLTaskType.CLASSIFICATION
+            CLASSIFICATION,
+            txt("app.machineLearning.const.MLTrainerType_NEURAL_NETWORK_CLASSIFICATION"),
+            txt("app.machineLearning.text.MLTrainerType_NEURAL_NETWORK_CLASSIFICATION")
     ),
 
     XGBOOST_CLASSIFICATION(
-            "XGBoost",
-            "Extreme Gradient Boosting — builds an ensemble of trees sequentially, each correcting errors of the previous. High accuracy on structured data.",
-            MLTaskType.CLASSIFICATION
+            CLASSIFICATION,
+            txt("app.machineLearning.const.MLTrainerType_XGBOOST_CLASSIFICATION"),
+            txt("app.machineLearning.text.MLTrainerType_XGBOOST_CLASSIFICATION")
     ),
 
     // ========== REGRESSION TRAINERS ==========
 
     LINEAR_REGRESSION(
-            "Linear Regression",
-            "Generalized Linear Model that predicts a numeric target as a linear combination of input features.",
-            MLTaskType.REGRESSION
+            REGRESSION,
+            txt("app.machineLearning.const.MLTrainerType_LINEAR_REGRESSION"),
+            txt("app.machineLearning.text.MLTrainerType_LINEAR_REGRESSION")
     ),
 
     SVM_REGRESSION(
-            "SVM Regression",
-            "Support Vector Machine using epsilon-insensitive loss to predict numeric target values.",
-            MLTaskType.REGRESSION
+            REGRESSION, txt("app.machineLearning.const.MLTrainerType_SVM_REGRESSION"),
+            txt("app.machineLearning.text.MLTrainerType_SVM_REGRESSION")
     ),
 
     NEURAL_NETWORK_REGRESSION(
-            "Neural Network Regression",
-            "Multi-layer perceptron trained to predict continuous numeric values from input features.",
-            MLTaskType.REGRESSION
+            REGRESSION,
+            txt("app.machineLearning.const.MLTrainerType_NEURAL_NETWORK_REGRESSION"),
+            txt("app.machineLearning.text.MLTrainerType_NEURAL_NETWORK_REGRESSION")
     ),
 
     XGBOOST_REGRESSION(
-            "XGBoost Regression",
-            "Extreme Gradient Boosting for numeric prediction. Combines multiple weak learners for high predictive accuracy.",
-            MLTaskType.REGRESSION
+            REGRESSION,
+            txt("app.machineLearning.const.MLTrainerType_XGBOOST_REGRESSION"),
+            txt("app.machineLearning.text.MLTrainerType_XGBOOST_REGRESSION")
     );
 
-    private final String name;
-    private final String description;
     private final MLTaskType taskType;
+    private final @Nls String name;
+    private final @Nls String description;
 
-    MLTrainerType(String name, String description, MLTaskType taskType) {
+    MLTrainerType(MLTaskType taskType, @Nls String name, @Nls String description) {
         this.name = name;
         this.description = description;
         this.taskType = taskType;
@@ -113,7 +118,7 @@ public enum MLTrainerType implements Presentable {
     /**
      * Returns the algorithm name for the DBMS backend.
      */
-    public String getDBMSAlgorithmName() {
+    public @NonNls String getDBMSAlgorithmName() {
         return switch (this) {
             case LOGISTIC_REGRESSION -> "Logistic Regression";
             case SVM_CLASSIFICATION -> "Support Vector Machine";
@@ -142,13 +147,13 @@ public enum MLTrainerType implements Presentable {
      * Returns all classification trainers.
      */
     public static List<MLTrainerType> getClassificationTrainers() {
-        return getTrainersForTask(MLTaskType.CLASSIFICATION);
+        return getTrainersForTask(CLASSIFICATION);
     }
 
     /**
      * Returns all regression trainers.
      */
     public static List<MLTrainerType> getRegressionTrainers() {
-        return getTrainersForTask(MLTaskType.REGRESSION);
+        return getTrainersForTask(REGRESSION);
     }
 }

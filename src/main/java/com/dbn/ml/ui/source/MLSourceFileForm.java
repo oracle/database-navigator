@@ -35,6 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Form for CSV file source selection.
@@ -56,8 +57,8 @@ public class MLSourceFileForm extends MLToolboxFormBase {
 
     private void initFileChooser() {
         FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
-                .withTitle("Select CSV File")
-                .withDescription("Select a CSV file for ML training data")
+                .withTitle(txt("cfg.machineLearning.title.SelectCsvFile"))
+                .withDescription(txt("cfg.machineLearning.text.SelectCsvFile"))
                 .withFileFilter(file -> {
                     String extension = file.getExtension();
                     return extension != null && (
@@ -68,8 +69,8 @@ public class MLSourceFileForm extends MLToolboxFormBase {
                 });
         
         filePathField.addBrowseFolderListener(
-                "Select CSV File",
-                "Select a CSV file containing training data",
+                txt("cfg.machineLearning.title.SelectCsvFile"),
+                txt("cfg.machineLearning.text.SelectTrainingCsvFile"),
                 null,
                 descriptor
         );
@@ -90,7 +91,7 @@ public class MLSourceFileForm extends MLToolboxFormBase {
     protected void initValidation() {
         addValidation(filePathField.getTextField(), 
                 t -> !t.getText().trim().isEmpty(), 
-                "Please select a CSV file");
+                txt("msg.machineLearning.error.CsvFileRequired"));
     }
 
     private void notifySourceChanged() {

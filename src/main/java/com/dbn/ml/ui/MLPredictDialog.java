@@ -25,6 +25,8 @@ import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Dialog for entering feature values for ad-hoc prediction.
  * Allows multiple predictions without closing the dialog.
@@ -36,7 +38,7 @@ public class MLPredictDialog extends DBNDialog<MLPredictForm> {
     private final List<String> featureColumns;
 
     public MLPredictDialog(MLResult mlResult, List<String> featureColumns) {
-        super(mlResult.getConnection().getProject(), "Ad-hoc Prediction", true);
+        super(mlResult.getConnection().getProject(), txt("msg.machineLearning.title.AdHocPrediction"), true);
         this.mlResult = mlResult;
         this.featureColumns = featureColumns;
         setModal(false);
@@ -66,7 +68,7 @@ public class MLPredictDialog extends DBNDialog<MLPredictForm> {
      */
     private class PredictAction extends AbstractAction {
         PredictAction() {
-            super("Predict");
+            super(txt("msg.machineLearning.button.Predict"));
             putValue(DEFAULT_ACTION, Boolean.TRUE);
         }
 

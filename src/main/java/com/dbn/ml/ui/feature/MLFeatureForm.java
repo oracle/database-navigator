@@ -18,7 +18,6 @@ package com.dbn.ml.ui.feature;
 
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
-import lombok.extern.slf4j.Slf4j;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -36,6 +35,7 @@ import com.dbn.object.DBTable;
 import com.intellij.openapi.Disposable;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
@@ -49,6 +49,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Form for selecting features and labels for ML training.
@@ -385,7 +386,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
 
     @Override
     public String getFormTitle() {
-        return "Features & Label";
+        return txt("cfg.machineLearning.title.FeaturesAndLabel");
     }
 
     @Override
@@ -395,7 +396,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         if (features.isEmpty() && labels.isEmpty()) {
             return null;
         }
-        String labelInfo = labels.isEmpty() ? "none" : String.join(", ", labels);
-        return features.size() + " features, labels: " + labelInfo;
+        String labelInfo = labels.isEmpty() ? txt("cfg.machineLearning.placeholder.None") : String.join(", ", labels);
+        return txt("cfg.machineLearning.text.FeatureSelectionDetail", features.size(), labelInfo);
     }
 }

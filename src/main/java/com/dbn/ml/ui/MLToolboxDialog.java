@@ -25,12 +25,14 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MLToolboxDialog extends DBNDialog<MLToolboxForm> {
     private final ConnectionRef connection;
     private final MLRequest request;
 
     public MLToolboxDialog(ConnectionHandler connection, MLRequest request) {
-        super(connection.getProject(), "ML Toolbox", true);
+        super(connection.getProject(), txt("app.machineLearning.title.MLToolbox"), true);
         this.connection = connection.ref();
         this.request = request;
 
@@ -49,8 +51,8 @@ public class MLToolboxDialog extends DBNDialog<MLToolboxForm> {
 
     @Override
     protected Action[] initializeActions() {
-        renameAction(getOKAction(), "Train Model");
-        renameAction(getCancelAction(), "Close");
+        renameAction(getOKAction(), txt("msg.machineLearning.button.TrainModel"));
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(
                 getOKAction(),
                 getResetAction(),
@@ -59,7 +61,7 @@ public class MLToolboxDialog extends DBNDialog<MLToolboxForm> {
 
     @NotNull
     private Action getResetAction() {
-        return createAction("Reset", () -> getForm().reset());
+        return createAction(txt("msg.shared.button.Reset"), () -> getForm().reset());
     }
 
     @Override

@@ -22,11 +22,13 @@ import com.dbn.ml.backend.dbms.DBMSBackend;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.backend.model.MLTrainingContext;
-import com.dbn.ml.model.MLModelDetails;
-import com.dbn.ml.model.*;
-import com.dbn.ml.model.source.MLSourceConfig;
+import com.dbn.ml.model.MLRequest;
+import com.dbn.ml.model.MLResult;
+import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLSourceNames;
+import com.dbn.ml.model.trainer.MLTrainerType;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.ArrayList;
 
@@ -65,7 +67,8 @@ public class MLPipelineExecutor {
             result.setEvaluationResult(evaluation);
 
             // Load model detail views (universal + algorithm-specific)
-            DBMSAlgorithmType algorithmType = resolveAlgorithmType(context.getAlgorithmName());
+            DBMSAlgorithmType algorithmType = resolveAlgorithmType(context.getTrainerType());
+            result.setAlgorithmType(algorithmType);
             result.setModelDetails(backend.loadModelDetails(modelHandle.getModelName(), algorithmType));
 
             result.setTrainingDataSize(context.getTrainingDataSize());
@@ -100,14 +103,8 @@ public class MLPipelineExecutor {
         }
     }
 
-    private DBMSAlgorithmType resolveAlgorithmType(String algorithmName) {
-        if (algorithmName == null) return null;
-        try {
-            return DBMSAlgorithmType.fromDisplayName(algorithmName);
-        } catch (IllegalArgumentException e) {
-            log.warn("Could not resolve algorithm type for: {}", algorithmName);
-            return null;
-        }
+    private DBMSAlgorithmType resolveAlgorithmType(MLTrainerType trainerType) {
+        return trainerType == null ? null : DBMSAlgorithmType.fromTrainerType(trainerType);
     }
 
     private MLTrainingContext buildContext(MLRequest request) {
@@ -119,6 +116,10 @@ public class MLPipelineExecutor {
 
     private String extractSourceName(MLRequest request) {
         String name = MLSourceNames.extractBaseName(request.getSourceConfig());
-        return name != null ? name : "model";
+        return name != null ? name : defaultSourceName();
+    }
+
+    private static @NonNls String defaultSourceName() {
+        return "model";
     }
 }

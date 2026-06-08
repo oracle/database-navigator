@@ -18,6 +18,10 @@ package com.dbn.ml.model;
 
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Machine Learning task types supported by the ML Toolbox.
@@ -25,13 +29,13 @@ import lombok.Getter;
 @Getter
 public enum MLTaskType implements Presentable {
     
-    CLASSIFICATION("Classification", "Predict categorical labels (e.g., Win/Lose/Draw)"),
-    REGRESSION("Regression", "Predict numeric values (e.g., goals scored)");
+    CLASSIFICATION(txt("app.machineLearning.const.MLTaskType_CLASSIFICATION"), txt("app.machineLearning.text.MLTaskType_CLASSIFICATION")),
+    REGRESSION(txt("app.machineLearning.const.MLTaskType_REGRESSION"), txt("app.machineLearning.text.MLTaskType_REGRESSION"));
     
-    private final String name;
-    private final String description;
+    private final @Nls String name;
+    private final @Nls String description;
     
-    MLTaskType(String name, String description) {
+    MLTaskType(@Nls String name, @Nls String description) {
         this.name = name;
         this.description = description;
     }
@@ -39,7 +43,7 @@ public enum MLTaskType implements Presentable {
     /**
      * Returns the Oracle metadata function name for this task type.
      */
-    public String getOracleFunction() {
+    public @NonNls String getOracleFunction() {
         return switch (this) {
             case CLASSIFICATION -> "classification";
             case REGRESSION -> "regression";

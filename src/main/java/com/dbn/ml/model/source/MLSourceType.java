@@ -18,16 +18,19 @@ package com.dbn.ml.model.source;
 
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
+
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public enum MLSourceType implements Presentable {
-    DATABASE_TABLE("Database Table"),
-    FILE_SYSTEM("File System"),
-    OBJECT_STORAGE("Object Storage");
+    DATABASE_TABLE(txt("cfg.machineLearning.const.MLSourceType_DATABASE_TABLE")),
+    FILE_SYSTEM(txt("cfg.machineLearning.const.MLSourceType_FILE_SYSTEM")),
+    OBJECT_STORAGE(txt("cfg.machineLearning.const.MLSourceType_OBJECT_STORAGE"));
 
-    private final String name;
+    private final @Nls String name;
 
-    MLSourceType(String name) {
+    MLSourceType(@Nls String name) {
         this.name = name;
     }
 }

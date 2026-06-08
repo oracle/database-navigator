@@ -13,7 +13,7 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Model &amp;Name"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.label.ModelName"/>
         </properties>
       </component>
       <component id="h2i3j" class="javax.swing.JTextField" binding="modelNameField">
@@ -34,7 +34,7 @@
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="&amp;Algorithm"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.label.Algorithm"/>
         </properties>
       </component>
       <component id="d3e4f" class="com.dbn.common.ui.misc.DBNComboBox" binding="algorithmComboBox">
@@ -68,7 +68,7 @@
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Train/Test &amp;Split"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.label.TrainTestSplit"/>
         </properties>
       </component>
       <component id="p1q2r" class="javax.swing.JSlider" binding="splitSlider">
@@ -93,7 +93,7 @@
           </grid>
         </constraints>
         <properties>
-          <text value="70% Train / 30% Test"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.placeholder.TrainTestSplit"/>
         </properties>
       </component>
       <component id="v5w6x" class="javax.swing.JCheckBox" binding="useFixedSeedCheckBox">
@@ -102,7 +102,7 @@
         </constraints>
         <properties>
           <selected value="true"/>
-          <text value="Use fixed random seed (reproducible)"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.label.UseFixedRandomSeed"/>
         </properties>
       </component>
       <component id="y7z8a" class="javax.swing.JLabel" binding="seedLabel">
@@ -110,7 +110,7 @@
           <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Random S&amp;eed"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.label.RandomSeed"/>
         </properties>
       </component>
       <component id="b9c0d" class="javax.swing.JSpinner" binding="seedSpinner">

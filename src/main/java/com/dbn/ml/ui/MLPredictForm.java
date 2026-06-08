@@ -47,6 +47,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Form for entering feature values for ad-hoc prediction.
  *
@@ -75,7 +77,7 @@ public class MLPredictForm extends DBNFormBase {
 
         ConnectionHandler connection = mlResult.getConnection();
         DBNHeaderForm headerForm = new DBNHeaderForm(this,
-                "Prediction using " + modelName,
+                txt("app.machineLearning.title.PredictionUsing", modelName),
                 Icons.DBO_AI_MODEL,
                 connection.getEnvironmentType().getColor());
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
@@ -96,7 +98,7 @@ public class MLPredictForm extends DBNFormBase {
             gbc.gridy = i;
             gbc.fill = GridBagConstraints.NONE;
             gbc.weightx = 0;
-            fieldsPanel.add(new JLabel(featureColumns.get(i) + ":"), gbc);
+            fieldsPanel.add(new JLabel(txt("app.machineLearning.label.FeatureInput", featureColumns.get(i))), gbc);
 
             // Text field
             gbc.gridx = 1;
@@ -126,7 +128,7 @@ public class MLPredictForm extends DBNFormBase {
         // Result label
         gbc.gridx = 0;
         gbc.gridy = 0;
-        resultLabel = new JLabel("Click 'Predict' to get a prediction", SwingConstants.CENTER);
+        resultLabel = new JLabel(txt("app.machineLearning.text.PredictHint"), SwingConstants.CENTER);
         resultLabel.setFont(resultLabel.getFont().deriveFont(Font.BOLD, 14f));
         resultPanel.add(resultLabel, gbc);
 
@@ -142,14 +144,14 @@ public class MLPredictForm extends DBNFormBase {
         List<String> values = getFeatureValues();
         for (int i = 0; i < values.size(); i++) {
             if (Strings.isEmpty(values.get(i))) {
-                resultLabel.setText("Please fill in all feature values");
+                resultLabel.setText(txt("msg.machineLearning.error.FeatureValuesRequired"));
                 resultLabel.setForeground(Color.RED);
                 probabilityLabel.setText("");
                 return;
             }
         }
 
-        resultLabel.setText("Predicting...");
+        resultLabel.setText(txt("app.machineLearning.text.Predicting"));
         resultLabel.setForeground(Color.GRAY);
         probabilityLabel.setText("");
 
@@ -162,8 +164,8 @@ public class MLPredictForm extends DBNFormBase {
 
         try {
             DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                    "Predicting",
-                    "Running prediction",
+                    txt("prc.machineLearning.title.Predicting"),
+                    txt("prc.machineLearning.text.RunningPrediction"),
                     project,
                     connection.getConnectionId(),
                     conn -> {
@@ -185,16 +187,16 @@ public class MLPredictForm extends DBNFormBase {
                         }
                     });
         } catch (Exception ex) {
-            updateError("Prediction failed: " + ex.getMessage());
+            updateError(txt("msg.machineLearning.error.PredictionFailed", ex));
         }
     }
 
     private void updateResult(String prediction, double probability) {
-        resultLabel.setText("Prediction: " + prediction);
+        resultLabel.setText(txt("app.machineLearning.label.Prediction", prediction));
         resultLabel.setForeground(new Color(0, 128, 0)); // Green
 
         if (probability >= 0) {
-            probabilityLabel.setText(String.format("Confidence: %.2f%%", probability * 100));
+            probabilityLabel.setText(txt("app.machineLearning.label.Confidence", String.format("%.2f", probability * 100)));
         } else {
             probabilityLabel.setText("");
         }

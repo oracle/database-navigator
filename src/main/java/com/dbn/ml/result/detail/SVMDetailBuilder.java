@@ -23,10 +23,13 @@ import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class SVMDetailBuilder implements AlgorithmDetailBuilder {
 
@@ -47,17 +50,17 @@ public class SVMDetailBuilder implements AlgorithmDetailBuilder {
     }
 
     private void buildCoefficientsPanel(JPanel panel, MLModelDetails details) {
-        MLResultPanelHelper.initSection(panel, "SVM Linear Coefficients");
+        MLResultPanelHelper.initSection(panel, txt("app.machineLearning.title.SVMLinearCoefficients"));
 
         List<MLModelDetails.SVMCoefficient> coefs = details.getSvmCoefficients();
         boolean hasCatValues = coefs.stream().anyMatch(c -> c.getAttributeValue() != null && !c.getAttributeValue().isEmpty());
         boolean hasClasses = coefs.stream().anyMatch(c -> c.getClassName() != null && !c.getClassName().isEmpty());
 
         List<String> colList = new ArrayList<>();
-        colList.add("Attribute");
-        if (hasCatValues) colList.add("Value");
-        if (hasClasses) colList.add("Class");
-        colList.add("Coefficient");
+        colList.add(txt("app.machineLearning.column.Attribute"));
+        if (hasCatValues) colList.add(txt("app.machineLearning.column.Value"));
+        if (hasClasses) colList.add(txt("app.machineLearning.column.Class"));
+        colList.add(txt("app.machineLearning.column.Coefficient"));
         String[] columns = colList.toArray(new String[0]);
 
         Object[][] data = new Object[coefs.size()][columns.length];
@@ -74,11 +77,9 @@ public class SVMDetailBuilder implements AlgorithmDetailBuilder {
     }
 
     private void buildNoCoefficientsNote(JPanel panel) {
-        MLResultPanelHelper.initSection(panel, "SVM Model Internals");
+        MLResultPanelHelper.initSection(panel, txt("app.machineLearning.title.SVMModelInternals"));
 
-        JLabel note = new JLabel("<html>Linear coefficients (DM\u0024VL) are only available for the <b>linear kernel</b>. " +
-                "Oracle SVM is using a <b>non-linear kernel</b> (e.g. Gaussian/RBF) for this model \u2014 " +
-                "coefficients are not interpretable in feature space.</html>");
+        JLabel note = new JLabel(txt("app.machineLearning.text.SVMNoLinearCoefficients"));
         note.setForeground(JBColor.gray);
         note.setFont(note.getFont().deriveFont(12f));
         note.setBorder(JBUI.Borders.emptyTop(4));

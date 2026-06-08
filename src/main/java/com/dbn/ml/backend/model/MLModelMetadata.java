@@ -18,6 +18,7 @@ package com.dbn.ml.backend.model;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class MLModelMetadata {
     private final Integer outputDimensions;
 
     /** Algorithm name */
-    private final String algorithmName;
+    private final @Nls String algorithmName;
 
     /** Training data size */
     private final Integer trainingDataSize;

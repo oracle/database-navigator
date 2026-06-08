@@ -21,9 +21,11 @@ import com.dbn.ml.model.MLModelDetails;
 import com.dbn.ml.result.MLResultPanelHelper;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.util.List;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class DecisionTreeDetailBuilder implements AlgorithmDetailBuilder {
 
@@ -34,9 +36,14 @@ public class DecisionTreeDetailBuilder implements AlgorithmDetailBuilder {
 
     @Override
     public void build(JPanel panel, MLModelDetails details) {
-        MLResultPanelHelper.initSection(panel, "Decision Tree Splits");
+        MLResultPanelHelper.initSection(panel, txt("app.machineLearning.title.DecisionTreeSplits"));
 
-        String[] columns = {"Node", "Parent", "Split Attribute", "Operator", "Value"};
+        String[] columns = {
+                txt("app.machineLearning.column.Node"),
+                txt("app.machineLearning.column.Parent"),
+                txt("app.machineLearning.column.SplitAttribute"),
+                txt("app.machineLearning.column.Operator"),
+                txt("app.machineLearning.column.Value")};
         List<MLModelDetails.TreeSplit> splits = details.getTreeSplits();
         Object[][] data = new Object[splits.size()][5];
         for (int i = 0; i < splits.size(); i++) {

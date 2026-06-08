@@ -24,6 +24,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Prediction result from an Oracle DBMS_DATA_MINING PREDICTION() query.
  *
@@ -115,10 +117,9 @@ public class DBMSPredictionResult {
 
     public String getSummaryText() {
         if (taskType == MLTaskType.CLASSIFICATION) {
-            return String.format("Predicted: %s (Confidence: %.2f%%)",
-                    predictedClass, confidence * 100);
+            return txt("app.machineLearning.text.PredictedClassSummary", predictedClass, String.format("%.2f", confidence * 100));
         } else {
-            return String.format("Predicted: %.4f", predictedValue);
+            return txt("app.machineLearning.text.PredictedValueSummary", String.format("%.4f", predictedValue));
         }
     }
 }
