@@ -32,11 +32,10 @@
     <br>
     <p>Chunking-Parameter:</p>
     <ul>
-        <li><u>Aufteilen nach</u> – Methode, die bestimmt, wie der Text in Chunks aufgeteilt wird</li>
-        <li><u>Aufteilen nach</u> – Trennzeichen oder Regel, mit der der Text vor der Größenbestimmung der Chunks getrennt wird</li>
-        <li><u>Max. Größe</u> – Maximale Anzahl von "Aufteilen nach"-Einheiten, die ein Chunk enthalten darf</li>
+        <li><u>Chunk-Einheit</u> – Einheit, nach der die Chunk-Größe gemessen wird</li>
+        <li><u>Trennregel</u> – Trennzeichen oder Regel, mit der der Text vor der Größenbestimmung der Chunks getrennt wird</li>
+        <li><u>Max. Größe</u> – Maximale Anzahl von Chunk-Einheiten, die ein Chunk enthalten darf</li>
         <li><u>Überlappung</u> – Menge an Inhalt, die aufeinanderfolgende Chunks gemeinsam nutzen, um Kontext über Grenzen hinweg zu erhalten</li>
     </ul>
 </body>
 </html>
-

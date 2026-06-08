@@ -114,7 +114,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
                 showQuestionDialog(project,
                         txt("msg.objects.title.OwnerRestriction"),
-                        txt("msg.objects.question.OwnerRestriction", objectTypeName, objectType.getListDisplayName()),
+                        txt("msg.objects.question.OwnerRestriction", objectTypeName),
                         Messages.OPTIONS_YES_CANCEL, 0,
                         option -> when(option == 0, () ->
                                 openFactoryInputDialog(

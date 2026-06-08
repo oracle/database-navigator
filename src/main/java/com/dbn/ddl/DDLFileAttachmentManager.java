@@ -489,7 +489,9 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
                 object,
                 null, null);
 
-        fileTypeDialog.setSelectButtonText(create ? "Create DDL Files" : "Find DDL Files");
+        fileTypeDialog.setSelectButtonText(create ?
+                txt("msg.ddlFiles.button.CreateDdlFiles") :
+                txt("msg.ddlFiles.button.FindDdlFiles"));
         JBList<DDLFileNameProvider> selectionList = fileTypeDialog.getForm().getSelectionList();
 
         selectionList.setCellRenderer(new DDLFileNameListCellRenderer());
@@ -511,7 +513,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
         Messages.showWarningDialog(
                 getProject(),
                 txt("msg.ddlFiles.title.NoDdlFileAssociation"),
-                txt("msg.ddlFiles.question.NoDdlFileAssociation", objectRef.getObjectType().getListName()),
+                txt("msg.ddlFiles.question.NoDdlFileAssociation", objectRef.getObjectType().getDisplayName()),
                 options(txt("msg.shared.button.OpenSettings"), txt("msg.shared.button.Cancel")), 0,
                 option -> when(option == 0, () -> {
                     ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(getProject());

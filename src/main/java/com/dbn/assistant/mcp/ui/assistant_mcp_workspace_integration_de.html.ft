@@ -1,6 +1,6 @@
 <html lang="de">
 <head>
-    <title>Tool-Freigabe</title>
+    <title>Workspace-Integration</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
