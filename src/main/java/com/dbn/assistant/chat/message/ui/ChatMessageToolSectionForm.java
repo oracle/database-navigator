@@ -166,7 +166,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         toolIconLabel.setText("");
 
         if (isInternalTool()) {
-            String wrapperContent = TextResources.get(getClass(), "tool_info_tooltip.html.ft");
+            String wrapperContent = TextResources.getLocalizable(getClass(), "tool_info_tooltip.html.ft");
             TextContent htmlContent = TextContent.html(wrapperContent);
             htmlContent.initField("TOOL_TYPE_NAME", info.getToolTypeName());
             htmlContent.initField("TOOL_TYPE_DESCRIPTION", info.getToolTypeDescription());

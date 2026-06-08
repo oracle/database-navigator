@@ -16,6 +16,8 @@ Keep localization edits narrowly scoped. Do not refactor unrelated code while re
 - Resource bundle: `src/main/resources/messages/DBNResources.properties`.
 - Access localized text with `import static com.dbn.nls.NlsResources.txt;`.
 - Code should call `txt(...)` directly. Do not introduce wrapper helpers around `NlsResources`.
+- Text templates live under `src/main/resources/textTemplates`, mirroring the Java package of the lookup class.
+- Load user-visible, localizable templates with `TextResources.getLocalizable(...)`. Load internal prompts, model instructions, generated syntax, and other non-user-visible templates with `TextResources.getInternal(...)` and mark the resource name/content `@NonNls`.
 - Prefer passing translated text into constructors/APIs. Pass keys only when the callee explicitly expects keys.
 - Use `@Nls` for localized text values and `@NonNls` for internal strings such as SQL, code, model prompts, file paths, IDs, log-only text, wire protocols, and generated syntax.
 - Do not put executable code snippets, SQL/PLSQL blocks, generated syntax, or protocol payloads in resource bundles. Keep them as `@NonNls` code constants/helpers and set UI fields from code.
@@ -96,6 +98,7 @@ When translating an entire resource bundle or a locale-specific `DBNResources_*.
 
 - Use only the unqualified base resources as the translation source of truth: `DBNResources.properties` for bundles and non-localized `.html.ft` templates for template variants. Never translate from another localized file.
 - Prefer generic language locale files for broadly applicable translations, for example `DBNResources_de.properties` and `*_de.html.ft`. Use region-qualified variants such as `_de_DE` only for regional overrides.
+- Translate only localizable text templates, currently user-visible `*.html.ft` files loaded through `TextResources.getLocalizable(...)`. Do not create locale variants for internal `*.md.ft` prompt/instruction templates loaded through `TextResources.getInternal(...)`.
 - Translate key by key from the unqualified base bundle/template. Do not translate by dictionary substitution, regex word replacement, or word-by-word fallback.
 - Use the resource key as context:
   - `label`, `column`, `field`, `placeholder`, `const`, and `token` values are usually noun phrases or compact domain terms.

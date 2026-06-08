@@ -39,7 +39,7 @@ public enum TnsImportType implements Presentable {
     @NotNull
     @SneakyThrows
     private static TextContent loadInfo(String fileName) {
-        String content = TextResources.get(TnsImportType.class, fileName);
+        String content = TextResources.getLocalizable(TnsImportType.class, fileName);
         return TextContent.html(content);
     }
 }
