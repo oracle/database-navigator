@@ -1,0 +1,26 @@
+<html lang="de">
+<head>
+    <title>Tool-Freigabe</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body>
+    Dies ist eine Übersicht aller Tools, die vom MCP-Server "${MCP_SERVER_NAME}" bereitgestellt werden.<br>
+    Verwenden Sie diese Seite, um festzulegen, auf welche Tools das Sprachmodell zugreifen kann.
+
+    <br><br>
+    Verwalten Sie den Tool-Zugriff, indem Sie einzelne Tools aktivieren oder deaktivieren.<br>
+    Der Status eines Tools bestimmt seine Sichtbarkeit für das LLM:
+    <ul>
+        <li>Tools mit dem Status "Freigegeben" werden automatisch aufgerufen.</li>
+        <li>Tools mit dem Status "Nachfragen" erfordern vor jedem Aufruf eine Bestätigung.</li>
+        <li>Tools mit dem Status "Blockiert" sind für das LLM nicht sichtbar.</li>
+    </ul>
+</body>
+</html>

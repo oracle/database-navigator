@@ -1,0 +1,21 @@
+<html lang="de">
+<head>
+    <title>Tool-Freigabe</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body>
+    <strong>Workspace-Integration über MCP-Server-Plugin</strong><br><br>
+
+    Diese Funktion verwendet das Plugin <a href="https://plugins.jetbrains.com/plugin/26071-mcp-server">JetBrains MCP Server</a>, um DB Assistant stärker in Ihren Workspace zu integrieren.
+
+    <br><br>
+    Stellen Sie sicher, dass das Plugin installiert und der Server aktiviert ist<br>
+</body>
+</html>

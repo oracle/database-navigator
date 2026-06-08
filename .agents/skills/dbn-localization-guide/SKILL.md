@@ -18,6 +18,7 @@ Keep localization edits narrowly scoped. Do not refactor unrelated code while re
 - Code should call `txt(...)` directly. Do not introduce wrapper helpers around `NlsResources`.
 - Prefer passing translated text into constructors/APIs. Pass keys only when the callee explicitly expects keys.
 - Use `@Nls` for localized text values and `@NonNls` for internal strings such as SQL, code, model prompts, file paths, IDs, log-only text, wire protocols, and generated syntax.
+- Do not put executable code snippets, SQL/PLSQL blocks, generated syntax, or protocol payloads in resource bundles. Keep them as `@NonNls` code constants/helpers and set UI fields from code.
 - Use `@PropertyKey` only for APIs that intentionally accept resource keys.
 - For `.form` files, use `resource-bundle="messages/DBNResources"` and a `key`.
 - Use DBN `Messages`, `Dialogs`, and `MessageBundle` helpers for user-facing notifications and dialogs.
@@ -59,7 +60,8 @@ Keep new keys in the associated resource group and preserve sorted order within 
 - `const`: enum/presentable constants and option names.
 - `token`: reusable sentence fragments or domain words inserted into other messages.
 - `aria`: accessibility names/descriptions.
-- `hint`, `link`, `code`, `question`, `info`, `warning`, `error`: use when the role is more specific, especially under `cfg.*` and `msg.*`.
+- `url`: localized hyperlink targets, documentation pages, API pages, and other URLs that may differ by locale.
+- `hint`, `link`, `question`, `info`, `warning`, `error`: use when the role is more specific, especially under `cfg.*` and `msg.*`.
 
 If a label is a full sentence or instruction, prefer `text` over `label`. Check boxes and radio buttons can still use `label` when they are short control captions.
 
@@ -85,7 +87,28 @@ If a label is a full sentence or instruction, prefer `text` over `label`. Check 
 - Use `MessageFormat` choice patterns for visible singular/plural text when useful.
 - Preserve mnemonics (`&`) in form labels and button text.
 - Newline and HTML values belong in the properties file with escaped `\n` or existing HTML formatting.
+- Use separate `link` and `url` keys when a localized link caption can point to a locale-specific target, for example `cfg.assistant.link.SelectAiDocs` plus `cfg.assistant.url.SelectAiDocs`.
 - Product names, provider names, SQL keywords, API literals, generated code, and model prompts are often `@NonNls`, not resource keys.
+
+## Locale Translation Workflow
+
+When translating an entire resource bundle or a locale-specific `DBNResources_*.properties` file, prioritize trustable contextual translation over broad automated coverage.
+
+- Use only the unqualified base resources as the translation source of truth: `DBNResources.properties` for bundles and non-localized `.html.ft` templates for template variants. Never translate from another localized file.
+- Prefer generic language locale files for broadly applicable translations, for example `DBNResources_de.properties` and `*_de.html.ft`. Use region-qualified variants such as `_de_DE` only for regional overrides.
+- Translate key by key from the unqualified base bundle/template. Do not translate by dictionary substitution, regex word replacement, or word-by-word fallback.
+- Use the resource key as context:
+  - `label`, `column`, `field`, `placeholder`, `const`, and `token` values are usually noun phrases or compact domain terms.
+  - `action`, `button`, `link`, and menu-like values are usually action phrases; prefer the target language's standard imperative or command style for UI controls.
+  - `title` values are concise dialog, pane, popup, or process titles; translate as headers, not explanatory sentences.
+  - `url` values are not translated as prose; choose a verified locale-specific target when available, otherwise keep the base URL.
+  - `error`, `warning`, `info`, `message`, and `question` values are full user-facing messages; translate the whole sentence or paragraph in context.
+  - `hint`, `text`, `tooltip`, and accessibility values often need natural sentence-level translation, not literal English word order.
+- Build or update a glossary before translating a large locale. Include product names, Oracle/IntelliJ terminology, DBN domain terms, object types, action verbs, and terms intentionally kept in English.
+- Preserve technical literals and placeholders exactly: `{0}`, MessageFormat choice patterns, escaped `\n`, HTML tags, mnemonics (`&`), SQL/API/class names, file names, and protocol literals.
+- Do not duplicate non-localizable code snippets into localized bundles. If a key family like `.code.` appears, inspect the caller and move the snippet to `@NonNls` code instead of translating it.
+- Leave uncertain strings untranslated or mark them for review instead of inventing fluent-looking text. Never hide uncertainty by producing hybrid target-language output.
+- For languages no maintainer can review, do not claim release-ready quality. Report the file as structurally safe and contextually translated, with any unresolved glossary or reviewer gaps called out.
 
 ## UI Writing Rules
 
@@ -129,6 +152,26 @@ Useful check:
 
 ```bash
 rg -n 'txt\("([^"]+)"' src/main/java
+```
+
+### Semantic Translation Review
+
+Run these passes when reviewing a translated bundle for meaning, not just structure. Work in small batches, inspect callers for every suspicious key, and prefer leaving a note over making an unsupported fluent-sounding guess.
+
+- Ambiguous English terms: scan for source values containing terms with multiple DBN meanings, such as `schema`, `view`, `grant`, `profile`, `credential`, `wallet`, `driver`, `statement`, `console`, `object`, `type`, `session`, and `model`. Confirm the translated value reflects the caller's domain meaning.
+- Terms intentionally kept in English: verify consistency for `Workspace`, `Dataset`, `View`, `Tool`, `Embedding`, `Chunking`, `Vector`, `Wallet`, `Select AI`, `MCP`, `LLM`, and `OCI`. Check whether each term should remain English in DB/AI UI or use a German domain term.
+- Action versus label wording: inspect keys where the same English word can be noun or verb, such as `Refresh`, `Open`, `Load`, `Create`, `Grant`, `Verify`, `Apply`, and `Compile`. Actions/buttons should read as commands; labels/titles should read as nouns or headers.
+- Database-domain collocations: check that translated terms read like database software, for example `Schema`, `View`, `Tabelle`, `Ausführungsberechtigung`, `Verbindung`, `Treiberbibliothek`, `SQL-Anweisung`, and `Datenbankobjekt`.
+- Runtime composition: for values with `{0}` or inserted fragments, inspect the final composed sentence in the caller. German grammar can break when a placeholder controls gender, number, article, or case.
+- Glossary consistency: build a small glossary from accepted choices and scan for inconsistent alternatives before changing values.
+
+Useful starting scans:
+
+```bash
+rg -n -i '\b(schema|view|grant|profile|credential|wallet|driver|statement|console|object|type|session|model)\b' src/main/resources/messages/DBNResources.properties
+rg -n -i '\b(workspace|dataset|view|tool|embedding|chunking|vector|wallet|select ai|mcp|llm|oci)\b' src/main/resources/messages/DBNResources.properties
+rg -n -i '\b(refresh|open|load|create|grant|verify|apply|compile)\b' src/main/resources/messages/DBNResources.properties
+rg -n '\{[0-9]' src/main/resources/messages/DBNResources_de.properties
 ```
 
 ### Required and Missing Wording

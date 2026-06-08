@@ -18,31 +18,85 @@ package com.dbn.common.text;
 
 import com.dbn.common.Pair;
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.Localization;
 import com.dbn.common.util.Unsafe;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @UtilityClass
 public class TextResources {
-    private final Map<Pair<Class, String>, String> RESOURCES = new ConcurrentHashMap<>();
+    private static final @NonNls String HTML_TEMPLATE_SUFFIX = ".html.ft";
+    private final Map<Pair<Class<?>, String>, String> RESOURCES = new ConcurrentHashMap<>();
 
     public static String get(Object object, @NonNls String resourceName) {
         return get(object.getClass(), resourceName);
     }
 
-    public static String get(Class clazz, @NonNls String resourceName) {
-        return RESOURCES.computeIfAbsent(Pair.of(clazz, resourceName), k -> readResource(clazz, resourceName));
+    public static String get(Class<?> clazz, @NonNls String resourceName) {
+        String cacheKey = resourceCacheKey(resourceName);
+        return RESOURCES.computeIfAbsent(Pair.of(clazz, cacheKey), k -> readResource(clazz, resourceName));
     }
 
     @NotNull
-    private static String readResource(Class clazz, @NonNls String resourceName) {
-        return Unsafe.logged("", () -> Commons.readInputStream(clazz.getResourceAsStream(resourceName)));
+    private static String readResource(Class<?> clazz, @NonNls String resourceName) {
+        return Unsafe.logged("", () -> {
+            for (String candidate : resourceCandidates(resourceName)) {
+                InputStream inputStream = clazz.getResourceAsStream(candidate);
+                if (inputStream != null) {
+                    return Commons.readInputStream(inputStream);
+                }
+            }
+            return "";
+        });
+    }
+
+    private static String resourceCacheKey(@NonNls String resourceName) {
+        if (!isLocalizedResource(resourceName)) return resourceName;
+
+        Locale locale = getLocale();
+        return locale == null ? resourceName : resourceName + "|" + locale;
+    }
+
+    private static List<String> resourceCandidates(@NonNls String resourceName) {
+        if (!isLocalizedResource(resourceName)) return List.of(resourceName);
+
+        Locale locale = getLocale();
+        if (locale == null || locale.getLanguage().isEmpty()) return List.of(resourceName);
+
+        List<String> resourceNames = new ArrayList<>(3);
+        String language = locale.getLanguage();
+        String country = locale.getCountry();
+
+        if (!country.isEmpty()) {
+            resourceNames.add(localizedResourceName(resourceName, language + "_" + country));
+        }
+        resourceNames.add(localizedResourceName(resourceName, language));
+        resourceNames.add(resourceName);
+        return resourceNames;
+    }
+
+    private static boolean isLocalizedResource(@NonNls String resourceName) {
+        return resourceName.endsWith(HTML_TEMPLATE_SUFFIX);
+    }
+
+    private static Locale getLocale() {
+        Locale locale = Localization.getLocale();
+        return locale == null ? Locale.getDefault() : locale;
+    }
+
+    private static String localizedResourceName(@NonNls String resourceName, @NonNls String localeId) {
+        int suffixIndex = resourceName.length() - HTML_TEMPLATE_SUFFIX.length();
+        return resourceName.substring(0, suffixIndex) + "_" + localeId + HTML_TEMPLATE_SUFFIX;
     }
 
 }
