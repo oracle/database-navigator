@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExplainPlanResultCollapseAllAction extends AbstractExplainPlanResultAction {
 
+    public ExplainPlanResultCollapseAllAction() {
+        super(txt("app.execution.action.ExplainPlanResultCollapseAll"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ExplainPlanResult explainPlanResult) {
         ExplainPlanResultForm resultForm = explainPlanResult.getForm();

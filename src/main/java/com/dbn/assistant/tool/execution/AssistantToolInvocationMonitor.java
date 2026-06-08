@@ -22,6 +22,7 @@ import com.dbn.assistant.mcp.model.AssistantMcpServerData;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
+import com.dbn.assistant.tool.feature.AssistantToolFeatures;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalException;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.common.EntityId;
@@ -33,6 +34,7 @@ import com.dbn.common.thread.Threads;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -41,9 +43,13 @@ import java.util.concurrent.TimeUnit;
 import static com.dbn.common.thread.ThreadProperty.BACKGROUND;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class AssistantToolInvocationMonitor extends AssistantStateExtension {
+    // TODO make configurable from assistant settings
+    private static final Duration APPROVAL_TIMEOUT = Duration.ofMinutes(1);
+
     private final AssistantTool tool;
     private final String toolName;
     private CountDownLatch approvalLatch;
@@ -80,7 +86,7 @@ public class AssistantToolInvocationMonitor extends AssistantStateExtension {
         if (approvals.isBlocked(serverId, utilityName)) throw new AssistantToolApprovalException("User has denied the execution of this tool");
         if (approvals.isBlocked(serverId)) throw new AssistantToolApprovalException("User has denied the execution of this MCP server");
 
-        awaitApproval(1, MINUTES); // TODO configuration
+        awaitApproval(getApprovalTimeout());
     }
 
     private void awaitToolApproval() {
@@ -91,7 +97,16 @@ public class AssistantToolInvocationMonitor extends AssistantStateExtension {
         if (approvals.isBlocked(tool.getType())) throw new AssistantToolApprovalException("User has denied the execution of this tool type");
         if (approvals.isBlocked(tool.getCategory())) throw new AssistantToolApprovalException("User has denied the execution of this tool category");
 
-        awaitApproval(1, MINUTES); // TODO configuration
+        awaitApproval(getApprovalTimeout()); 
+    }
+
+    private @NotNull Duration getApprovalTimeout() {
+        Duration extension = AssistantToolFeatures.getApprovalTimeoutExtension(tool.getType(), toolName);
+        return APPROVAL_TIMEOUT.plus(extension);
+    }
+
+    private void awaitApproval(Duration timeout) {
+        awaitApproval(timeout.toMillis(), MILLISECONDS);
     }
 
     private void awaitApproval(long timeout, TimeUnit unit) {

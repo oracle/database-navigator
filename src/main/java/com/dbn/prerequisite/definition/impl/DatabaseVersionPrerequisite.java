@@ -104,8 +104,8 @@ public abstract class DatabaseVersionPrerequisite extends PrerequisiteDefinition
     protected PrerequisiteAdvisor createAdvisor() {
         return context -> {
             return new PrerequisiteAdvice(
-                    "Upgrade database",
-                    "Earliest database version supporting this feature is " + majorVersion + "." + minorVersion + ".",
+                    txt("msg.prerequisite.title.UpgradeDatabase"),
+                    txt("msg.prerequisite.text.AdviceDatabaseVersion", majorVersion, minorVersion),
                     "--your database version is " + getDatabaseVersion(context));
         };
     }

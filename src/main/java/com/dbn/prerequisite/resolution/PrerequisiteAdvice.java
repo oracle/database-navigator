@@ -17,14 +17,16 @@
 package com.dbn.prerequisite.resolution;
 
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 
 @Getter
 public class PrerequisiteAdvice {
-    private final String title;
-    private final String description;
-    private final String code;
+    private final @Nls String title;
+    private final @Nls String description;
+    private final @NonNls String code;
 
-    public PrerequisiteAdvice(String title, String description, String code) {
+    public PrerequisiteAdvice(@Nls String title, @Nls String description, @NonNls String code) {
         this.title = title;
         this.description = description;
         this.code = code;

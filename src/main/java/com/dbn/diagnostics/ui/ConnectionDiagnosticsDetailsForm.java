@@ -28,12 +28,15 @@ import com.dbn.diagnostics.ui.model.ConnectivityDiagnosticsTableModel;
 import com.dbn.diagnostics.ui.model.MetadataDiagnosticsTableModel2;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTabbedPane;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionDiagnosticsDetailsForm extends DBNFormBase {
 
@@ -52,12 +55,12 @@ public class ConnectionDiagnosticsDetailsForm extends DBNFormBase {
         AbstractDiagnosticsTableModel metadataTableModel = new MetadataDiagnosticsTableModel2(connection);
         DBNTable<AbstractDiagnosticsTableModel> metadataTable = new DiagnosticsTable<>(this, metadataTableModel);
         metadataTable.getRowSorter().toggleSortOrder(0);
-        addTab(metadataTable, "Metadata Interface");
+        addTab(metadataTable, txt("app.diagnostics.title.MetadataInterface"));
 
         AbstractDiagnosticsTableModel connectivityTableModel = new ConnectivityDiagnosticsTableModel(connection);
         DBNTable<AbstractDiagnosticsTableModel> connectivityTable = new DiagnosticsTable<>(this, connectivityTableModel);
         connectivityTable.getRowSorter().toggleSortOrder(0);
-        addTab(connectivityTable, "Database Connectivity");
+        addTab(connectivityTable, txt("app.diagnostics.title.DatabaseConnectivity"));
 
 
         TabbedPanes.onSelectionChange(diagnosticsTabs, i -> {
@@ -66,7 +69,7 @@ public class ConnectionDiagnosticsDetailsForm extends DBNFormBase {
         });
    }
 
-    private void addTab(DBNTable component, String title) {
+    private void addTab(DBNTable component, @Nls String title) {
         JScrollPane scrollPane = new DBNScrollPane(component);
         diagnosticsTabs.addTab(title, scrollPane);
     }

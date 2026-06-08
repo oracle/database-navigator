@@ -39,6 +39,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
 public class CodeEditorDDLFileAction extends ProjectPopupAction {
+    public CodeEditorDDLFileAction() {
+        super(txt("app.codeEditor.action.CodeEditorDdlFiles"));
+    }
+
     @Override
     public void update(@NotNull AnActionEvent e, @NotNull Project project) {
         DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);

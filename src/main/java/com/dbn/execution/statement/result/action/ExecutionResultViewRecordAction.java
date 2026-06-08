@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionResultViewRecordAction extends AbstractExecutionResultAction {
 
+    public ExecutionResultViewRecordAction() {
+        super(txt("app.execution.action.ExecutionResultViewRecord"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull StatementExecutionCursorResult executionResult) {
         ResultSetTable resultTable = executionResult.getResultTable();

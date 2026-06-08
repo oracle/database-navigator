@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Strings.toUpperCase;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ParseBuilderErrorHandler {
     public static void updateBuilderError(Set<TokenType> expectedTokens, ParserContext context) {
@@ -44,12 +45,12 @@ public class ParseBuilderErrorHandler {
                 Set<String> tokenDescriptions = new HashSet<>(expectedTokens.size());
                 for (TokenType tokenType : expectedTokens) {
                     if (tokenType.isFunction()) {
-                        tokenDescriptions.add("function");
+                        tokenDescriptions.add(txt("msg.languageParser.token.Type_FUNCTION"));
                         continue;
                     }
                     String value = tokenType.getValue();
                     String description =
-                            tokenType.isIdentifier() ? "identifier" :
+                            tokenType.isIdentifier() ? txt("msg.languageParser.token.Type_IDENTIFIER") :
                                     Strings.isNotEmptyOrSpaces(value) ? toUpperCase(value) : tokenType.getTypeName();
 
                     tokenDescriptions.add(description);
@@ -58,18 +59,13 @@ public class ParseBuilderErrorHandler {
                 String[] tokenDesc = tokenDescriptions.toArray(new String[0]);
                 Arrays.sort(tokenDesc);
 
-                StringBuilder buffer = new StringBuilder("expected");
-                buffer.append(tokenDesc.length > 1 ? " one of the following: \n" : ": ");
-
-                for (int i=0; i<tokenDesc.length; i++) {
-                    buffer.append(tokenDesc[i]);
-                    if (i < tokenDesc.length - 1) {
-                        buffer.append("\n");
-                    }
-                }
+                String tokens = String.join("\n", tokenDesc);
+                String message = tokenDesc.length > 1 ?
+                        txt("msg.languageParser.text.ExpectedTokenOptions", tokens) :
+                        txt("msg.languageParser.text.ExpectedToken", tokens);
                 //buffer.append("\n");
-                builder.markError("Invalid or incomplete statement");
-                builder.error(buffer.toString());
+                builder.markError(txt("msg.languageParser.error.InvalidOrIncompleteStatement"));
+                builder.error(message);
             }
         }
     }
@@ -84,32 +80,53 @@ public class ParseBuilderErrorHandler {
             String message;
             switch (category) {
                 case IDENTIFIER: {
-                    message = "identifier";
+                    message = txt("msg.languageParser.token.Type_IDENTIFIER");
                     break;
                 }
                 case CHARACTER:
                 case OPERATOR: {
-                    message = category.getName() + " (e.g. " + tokenTypes
+                    message = txt("msg.languageParser.text.ExpectedCategoryExamples", getCategoryName(category), tokenTypes
                             .stream()
                             .map(tokenType -> tokenType.getId().substring(4).replace("_", " "))
                             .distinct()
                             .sorted()
-                            .collect(Collectors.joining(", ")) + ")";
+                            .collect(Collectors.joining(", ")));
                     break;
                 }
                 default: {
-                    message = category.getName() + " (e.g. " +
+                    message = txt("msg.languageParser.text.ExpectedCategoryExamplesMore", getCategoryName(category),
                             tokenTypes
                                     .stream()
                                     .map(tokenType -> toUpperCase(tokenType.getValue()))
                                     .distinct()
                                     .limit(20)
                                     .sorted()
-                                    .collect(Collectors.joining(", ")) + "...)";
+                                    .collect(Collectors.joining(", ")));
                 }
             }
             builder.markError(message);
         }
 
+    }
+
+    private static String getCategoryName(TokenTypeCategory category) {
+        return switch (category) {
+            case CHARACTER -> txt("msg.languageParser.token.Category_CHARACTER");
+            case CHAMELEON -> txt("msg.languageParser.token.Category_CHAMELEON");
+            case COMMENT -> txt("msg.languageParser.token.Category_COMMENT");
+            case DATATYPE -> txt("msg.languageParser.token.Category_DATATYPE");
+            case EXCEPTION -> txt("msg.languageParser.token.Category_EXCEPTION");
+            case FUNCTION -> txt("msg.languageParser.token.Category_FUNCTION");
+            case IDENTIFIER -> txt("msg.languageParser.token.Category_IDENTIFIER");
+            case KEYWORD -> txt("msg.languageParser.token.Category_KEYWORD");
+            case LITERAL -> txt("msg.languageParser.token.Category_LITERAL");
+            case NUMERIC -> txt("msg.languageParser.token.Category_NUMERIC");
+            case OBJECT -> txt("msg.languageParser.token.Category_OBJECT");
+            case OPERATOR -> txt("msg.languageParser.token.Category_OPERATOR");
+            case PARAMETER -> txt("msg.languageParser.token.Category_PARAMETER");
+            case VARIABLE -> txt("msg.languageParser.token.Category_VARIABLE");
+            case WHITESPACE -> txt("msg.languageParser.token.Category_WHITESPACE");
+            default -> txt("msg.languageParser.token.Category_UNKNOWN");
+        };
     }
 }

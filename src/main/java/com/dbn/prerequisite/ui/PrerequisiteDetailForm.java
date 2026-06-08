@@ -42,6 +42,8 @@ import javax.swing.JTextPane;
 import java.awt.Color;
 import java.awt.Font;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteEventListener {
 
     private JPanel mainPanel;
@@ -91,7 +93,7 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
     public void initialize() {
         statusPanel.removeAll();
         statusPanel.add(new AsyncProcessIcon("Verifying prerequisite..."));
-        statusLabel.setText("Verifying...");
+        statusLabel.setText(txt("app.prerequisite.label.Verifying"));
         //messageTextPane.setText("Verifying prerequisite");
     }
 
@@ -107,11 +109,11 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
 
         statusLabel.setToolTipText(message);
         if (exception != null) {
-            statusLabel.setText("Unknown");
+            statusLabel.setText(txt("app.shared.label.Unknown"));
         } else if (status == PrerequisiteStatus.AVAILABLE) {
-            statusLabel.setText("OK");
+            statusLabel.setText(txt("app.prerequisite.label.Ok"));
         } else if (status == PrerequisiteStatus.UNAVAILABLE) {
-            statusLabel.setText("Not OK");
+            statusLabel.setText(txt("app.prerequisite.label.NotOk"));
         }
 
         Icon icon = exception == null && status == PrerequisiteStatus.AVAILABLE ?

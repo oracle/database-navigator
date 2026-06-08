@@ -36,6 +36,8 @@ import javax.swing.Icon;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public final class ConnectionBundleBrowserTreeRoot extends StatefulDisposableBase implements BrowserTreeNode {
     private final List<ConnectionBundle> rootChildren = new ArrayList<>();
     private final ProjectRef project;
@@ -126,7 +128,7 @@ public final class ConnectionBundleBrowserTreeRoot extends StatefulDisposableBas
 
     @Override
     public String getPresentableText() {
-        return "Connection Managers";
+        return txt("app.browser.title.ConnectionManagers");
     }
 
     @Override
@@ -169,7 +171,7 @@ public final class ConnectionBundleBrowserTreeRoot extends StatefulDisposableBas
     @NotNull
     @Override
     public String getName() {
-        return Commons.nvl(getPresentableText(), "Database Objects");
+        return Commons.nvl(getPresentableText(), txt("app.browser.title.DatabaseObjects"));
     }
     
     @Override

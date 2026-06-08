@@ -17,10 +17,19 @@
 package com.dbn.editor.session.action;
 
 import com.dbn.editor.session.SessionBrowserFilterType;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class FilterStatusesComboBoxAction extends AbstractFilterComboBoxAction {
 
     public FilterStatusesComboBoxAction() {
-        super(SessionBrowserFilterType.STATUS);
+        super(SessionBrowserFilterType.STATUS, txt("app.sessionBrowser.action.SessionBrowserFilterStatuses"));
     }
+
+    @Override
+    public void update(AnActionEvent e) {
+        e.getPresentation().setText(txt("app.sessionBrowser.action.FilterStatuses"));
+    }
+
 }

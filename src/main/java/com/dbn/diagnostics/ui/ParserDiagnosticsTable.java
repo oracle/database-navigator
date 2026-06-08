@@ -40,6 +40,7 @@ import javax.swing.table.TableModel;
 import java.awt.event.MouseEvent;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ParserDiagnosticsTable extends DBNTableWithGutter<ParserDiagnosticsTableModel> {
 
@@ -56,7 +57,7 @@ public class ParserDiagnosticsTable extends DBNTableWithGutter<ParserDiagnostics
 
         setProportionalColumnWidth(0, 60);
 
-        setAccessibleName(this, "Parser Diagnostic Results");
+        setAccessibleName(this, txt("app.diagnostics.aria.ParserDiagnosticResults"));
     }
 
     @Override

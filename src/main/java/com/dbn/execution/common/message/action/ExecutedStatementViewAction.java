@@ -35,6 +35,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutedStatementViewAction extends AbstractExecutionMessagesAction {
 
+    public ExecutedStatementViewAction() {
+        super(txt("app.execution.action.MessagesViewSqlStatement"));
+    }
+
     @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,

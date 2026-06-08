@@ -50,6 +50,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 
 import static com.dbn.common.dispose.Disposer.replace;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBMethodRunConfigForm extends DBProgramRunConfigForm<DBMethodRunConfig> {
     private JPanel headerPanel;
@@ -95,7 +96,7 @@ public class DBMethodRunConfigForm extends DBProgramRunConfigForm<DBMethodRunCon
         @Override
         public void update(@NotNull AnActionEvent e, Project project) {
             Presentation presentation = e.getPresentation();
-            presentation.setText("Select Method");
+            presentation.setText(txt("app.execution.action.SelectMethod"));
             presentation.setIcon(Icons.DBO_METHOD);
         }
     }
@@ -110,7 +111,7 @@ public class DBMethodRunConfigForm extends DBProgramRunConfigForm<DBMethodRunCon
 
         @Override
         protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-            e.getPresentation().setText("Method Browser");
+            e.getPresentation().setText(txt("app.execution.action.MethodBrowser"));
         }
     }
     public class MethodHistoryOpenAction extends ProjectAction {
@@ -118,7 +119,7 @@ public class DBMethodRunConfigForm extends DBProgramRunConfigForm<DBMethodRunCon
         @Override
         protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
             Presentation presentation = e.getPresentation();
-            presentation.setText("Execution History");
+            presentation.setText(txt("app.execution.action.ExecutionHistory"));
             presentation.setIcon(Icons.METHOD_EXECUTION_HISTORY);
         }
 
@@ -151,7 +152,7 @@ public class DBMethodRunConfigForm extends DBProgramRunConfigForm<DBMethodRunCon
         methodArgumentsPanel.removeAll();
         inputForm = replace(inputForm, null);
 
-        String headerTitle = "No method selected";
+        String headerTitle = txt("cfg.execution.placeholder.NoMethodSelected");
         Icon headerIcon = null;
         Color headerBackground = Colors.getPanelBackground();
 

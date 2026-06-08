@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class RecordInsertAction extends AbstractDataEditorAction {
 
+    public RecordInsertAction() {
+        super(txt("app.dataEditor.action.DataEditorInsertRecord"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         datasetEditor.insertRecord();

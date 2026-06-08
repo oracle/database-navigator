@@ -33,6 +33,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -77,7 +78,7 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
 
     public class ViewToolStatementAction extends BasicAction {
         ViewToolStatementAction() {
-            super("View SQL Statement", null, Icons.ACTION_PREVIEW);
+            super(txt("app.mcp.action.ViewSqlStatement"), null, Icons.ACTION_PREVIEW);
         }
 
         @Override
@@ -107,7 +108,7 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
 
     public class EditToolAction extends BasicAction {
         EditToolAction() {
-            super("Edit Tool", null, Icons.ACTION_EDIT);
+            super(txt("app.mcp.action.EditTool"), null, Icons.ACTION_EDIT);
         }
 
         @Override
@@ -126,14 +127,14 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
 
     public class RemoveToolAction extends BasicAction {
         RemoveToolAction() {
-            super(txt("app.objects.action.RemoveObject", "Tool"), null, Icons.ACTION_DELETE);
+            super(txt("app.mcp.action.RemoveTool"), null, Icons.ACTION_DELETE);
         }
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             int exitCode = Messages.showConfirmationDialog(ensureProject(),
-                    "Remove Tool",
-                    "Are you sure you want to remove the tool \"" + getToolDefinition().getName() + "\"?",
+                    txt("msg.mcp.title.RemoveTool"),
+                    txt("msg.mcp.question.RemoveTool", getToolDefinition().getName()),
                     Messages.OPTIONS_YES_NO, 0);
 
             if (exitCode == 0) {

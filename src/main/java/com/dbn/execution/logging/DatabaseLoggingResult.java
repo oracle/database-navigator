@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseLoggingResult extends ExecutionResultBase<DatabaseLoggingResultForm> {
 
@@ -66,7 +67,7 @@ public class DatabaseLoggingResult extends ExecutionResultBase<DatabaseLoggingRe
             DatabaseCompatibilityInterface compatibility = connection.getCompatibilityInterface();
             String databaseLogName = compatibility.getDatabaseLogName();
 
-            return connection.getName() + " - " + Commons.nvl(databaseLogName, "Log Output");
+            return connection.getName() + " - " + Commons.nvl(databaseLogName, txt("app.logging.label.LogName_LOG_OUTPUT"));
         } else {
             return connection.getName() + " - " + sourceFile.getName();
         }

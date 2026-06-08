@@ -30,7 +30,7 @@
             </constraints>
             <properties>
               <labelFor value="bb60a"/>
-              <text value="Model &amp;location"/>
+              <text resource-bundle="messages/DBNResources" key="app.vector.label.ModelLocation"/>
             </properties>
           </component>
           <hspacer id="5c495">

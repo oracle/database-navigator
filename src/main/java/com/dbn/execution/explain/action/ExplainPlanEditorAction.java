@@ -43,6 +43,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class ExplainPlanEditorAction extends ProjectAction {
 
+    public ExplainPlanEditorAction() {
+        super(txt("app.codeEditor.action.ScriptEditorExplainPlan"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         Editor editor = Lookups.getEditor(e);

@@ -17,7 +17,6 @@
 package com.dbn.vector.ui.request.bulk;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.request.EmbeddingSourceTable;
 import org.jetbrains.annotations.NotNull;
@@ -26,12 +25,15 @@ import javax.swing.Action;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.util.Messages.showWarningDialog;
+import static com.dbn.nls.NlsResources.txt;
+
 public class TableSelectionDialog extends DBNDialog<TableSelectionForm> {
     // Store selected tables BEFORE dialog closes (components get disposed after close)
     private List<EmbeddingSourceTable> selectedTableSources = new ArrayList<>();
 
     public TableSelectionDialog(@NotNull ConnectionHandler connection) {
-        super(connection, "Add Tables", true);
+        super(connection, txt("msg.vector.title.AddTables"), true);
         setDefaultSize(650, 550);
         init();
     }
@@ -44,7 +46,7 @@ public class TableSelectionDialog extends DBNDialog<TableSelectionForm> {
 
     @Override
     protected Action[] initializeActions() {
-        renameAction(getOKAction(), "Add Selected");
+        renameAction(getOKAction(), txt("msg.vector.button.AddSelected"));
         return actions(
                 getOKAction(),
                 getCancelAction());
@@ -57,10 +59,10 @@ public class TableSelectionDialog extends DBNDialog<TableSelectionForm> {
         // Validate - all selected tables must have column config
         if (!form.isValid()) {
             List<String> missing = form.getTablesWithoutConfig();
-            Messages.showWarningDialog(
+            showWarningDialog(
                     getProject(),
-                    "Missing Configuration",
-                    "Please configure ID and Data columns for: " + String.join(", ", missing)
+                    txt("msg.vector.title.MissingConfiguration"),
+                    txt("msg.vector.message.MissingColumnConfig", String.join(", ", missing))
             );
             return;
         }

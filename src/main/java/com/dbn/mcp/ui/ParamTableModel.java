@@ -4,14 +4,26 @@ import com.dbn.mcp.model.McpToolDefinition;
 import com.dbn.mcp.model.McpToolParam;
 import com.dbn.mcp.model.McpToolParamType;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class ParamTableModel extends AbstractTableModel {
-    private static final String[] COLUMNS_WITH_TEST = {"Name", "Type", "Test Value", "Description", "Required"};
-    private static final String[] COLUMNS_SCHEMA = {"Name", "Type", "Description", "Required"};
+    private static final String[] COLUMNS_WITH_TEST = {
+            txt("app.shared.column.Name"),
+            txt("app.shared.column.Type"),
+            txt("msg.mcp.column.TestValue"),
+            txt("app.shared.column.Description"),
+            txt("app.shared.column.Required")};
+    private static final String[] COLUMNS_SCHEMA = {
+            txt("app.shared.column.Name"),
+            txt("app.shared.column.Type"),
+            txt("app.shared.column.Description"),
+            txt("app.shared.column.Required")};
 
     private final boolean includeTestValue;
     private final McpToolDefinition toolDefinition;
@@ -32,7 +44,7 @@ public class ParamTableModel extends AbstractTableModel {
     }
 
     @Override public int getColumnCount() { return includeTestValue ? COLUMNS_WITH_TEST.length : COLUMNS_SCHEMA.length; }
-    @Override public String getColumnName(int col) { return includeTestValue ? COLUMNS_WITH_TEST[col] : COLUMNS_SCHEMA[col]; }
+    @Override public @Nls String getColumnName(int col) { return includeTestValue ? COLUMNS_WITH_TEST[col] : COLUMNS_SCHEMA[col]; }
 
     @Override
     public Class<?> getColumnClass(int col) {

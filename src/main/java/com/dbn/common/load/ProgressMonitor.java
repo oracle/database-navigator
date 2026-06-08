@@ -20,6 +20,7 @@ import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.util.NlsContexts.ProgressText;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -71,11 +72,11 @@ public final class ProgressMonitor {
         progress().setFraction(fraction);
     }
 
-    public static void setProgressText(String text) {
+    public static void setProgressText(@ProgressText String text) {
         progress().setText(text);
     }
 
-    public static void setProgressDetail(String subtext) {
+    public static void setProgressDetail(@ProgressText String subtext) {
         progress().setText2(subtext);
     }
 

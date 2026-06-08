@@ -23,25 +23,26 @@ import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public enum JdbcProperty implements Property.IntBase {
-    MD_CATALOGS("Catalogs", true),
-    MD_SCHEMAS("Schemas", true),
-    MD_TABLES("Tables", true),
-    MD_VIEWS("Views", true),
-    MD_COLUMNS("Columns", true),
-    MD_PSEUDO_COLUMNS("Pseudo columns", true),
-    MD_INDEXES("Indexes", true),
-    MD_PRIMARY_KEYS("Primary Keys", true),
-    MD_IMPORTED_KEYS("Imported Keys", true),
-    MD_FUNCTIONS("Functions", true),
-    MD_FUNCTION_COLUMNS("Function columns", true),
-    MD_PROCEDURES("Procedures", true),
-    MD_PROCEDURE_COLUMNS("Procedure columns", true),
-    SQL_DATASET_ALIASING("Dataset aliasing", true),
+    MD_CATALOGS(txt("cfg.connection.const.JdbcProperty_MD_CATALOGS"), true),
+    MD_SCHEMAS(txt("cfg.connection.const.JdbcProperty_MD_SCHEMAS"), true),
+    MD_TABLES(txt("cfg.connection.const.JdbcProperty_MD_TABLES"), true),
+    MD_VIEWS(txt("cfg.connection.const.JdbcProperty_MD_VIEWS"), true),
+    MD_COLUMNS(txt("cfg.connection.const.JdbcProperty_MD_COLUMNS"), true),
+    MD_PSEUDO_COLUMNS(txt("cfg.connection.const.JdbcProperty_MD_PSEUDO_COLUMNS"), true),
+    MD_INDEXES(txt("cfg.connection.const.JdbcProperty_MD_INDEXES"), true),
+    MD_PRIMARY_KEYS(txt("cfg.connection.const.JdbcProperty_MD_PRIMARY_KEYS"), true),
+    MD_IMPORTED_KEYS(txt("cfg.connection.const.JdbcProperty_MD_IMPORTED_KEYS"), true),
+    MD_FUNCTIONS(txt("cfg.connection.const.JdbcProperty_MD_FUNCTIONS"), true),
+    MD_FUNCTION_COLUMNS(txt("cfg.connection.const.JdbcProperty_MD_FUNCTION_COLUMNS"), true),
+    MD_PROCEDURES(txt("cfg.connection.const.JdbcProperty_MD_PROCEDURES"), true),
+    MD_PROCEDURE_COLUMNS(txt("cfg.connection.const.JdbcProperty_MD_PROCEDURE_COLUMNS"), true),
+    SQL_DATASET_ALIASING(txt("cfg.connection.const.JdbcProperty_SQL_DATASET_ALIASING"), true),
 
-    CATALOG_AS_OWNER("Catalog as owner", false),
+    CATALOG_AS_OWNER(txt("cfg.connection.const.JdbcProperty_CATALOG_AS_OWNER"), false),
     ;
 
     public static final JdbcProperty[] VALUES = values();

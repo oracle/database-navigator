@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectRelationType.JSON_VIEW_TABLE;
 import static com.dbn.object.type.DBObjectType.TABLE;
 
@@ -142,8 +143,8 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
     @Override
     public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Updating source code",
-                "Updating source of " + getQualifiedNameWithType(),
+                txt("prc.object.title.UpdatingSourceCode"),
+                txt("prc.object.text.UpdatingSource", getQualifiedNameWithType()),
                 getProject(),
                 getConnectionId(),
                 getSchemaId(),

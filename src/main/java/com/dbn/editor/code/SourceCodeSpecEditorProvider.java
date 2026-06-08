@@ -27,6 +27,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SourceCodeSpecEditorProvider extends SourceCodeEditorProviderBase {
 
     @Override
@@ -60,7 +62,7 @@ public class SourceCodeSpecEditorProvider extends SourceCodeEditorProviderBase {
 
     @Override
     public String getName() {
-        return "Spec";
+        return txt("app.codeEditor.title.Spec");
     }
 
     @Override

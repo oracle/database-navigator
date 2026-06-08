@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFileExtensionSettings> {
     private JPanel mainPanel;
@@ -83,17 +84,17 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
 
         registerComponent(mainPanel);
 
-        extensionTextFields.put("View", viewTextField);
-        extensionTextFields.put("Trigger", triggerTextField);
-        extensionTextFields.put("Procedure", procedureTextField);
-        extensionTextFields.put("Function", functionTextField);
-        extensionTextFields.put("Package", packageTextField);
-        extensionTextFields.put("Package Spec", packageSpecTextField);
-        extensionTextFields.put("Package Body", packageBodyTextField);
-        extensionTextFields.put("Type", typeTextField);
-        extensionTextFields.put("Type Spec", typeSpecTextField);
-        extensionTextFields.put("Type Bpdy", typeBodyTextField);
-        extensionTextFields.put("Java Source", javaTextField);
+        extensionTextFields.put(txt("cfg.ddlFiles.field.View"), viewTextField);
+        extensionTextFields.put(txt("cfg.ddlFiles.field.Trigger"), triggerTextField);
+        extensionTextFields.put(txt("cfg.ddlFiles.field.Procedure"), procedureTextField);
+        extensionTextFields.put(txt("cfg.ddlFiles.field.Function"), functionTextField);
+        extensionTextFields.put(txt("cfg.ddlFiles.field.Package"), packageTextField);
+        extensionTextFields.put(txt("cfg.ddlFiles.field.PackageSpec"), packageSpecTextField);
+        extensionTextFields.put(txt("cfg.ddlFiles.field.PackageBody"), packageBodyTextField);
+        extensionTextFields.put(txt("cfg.ddlFiles.field.Type"), typeTextField);
+        extensionTextFields.put(txt("cfg.ddlFiles.field.TypeSpec"), typeSpecTextField);
+        extensionTextFields.put(txt("cfg.ddlFiles.field.TypeBody"), typeBodyTextField);
+        extensionTextFields.put(txt("cfg.ddlFiles.field.JavaSource"), javaTextField);
     }
 
     @NotNull
@@ -112,7 +113,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
             List<String> extensions = Strings.tokenize(extensionsText, ",");
             for (String extension : extensions) {
                 if (allExtensions.contains(extension)) {
-                    throw new ConfigurationException("Duplicate value for extension \"" + extension + "\" found.");
+                    throw new ConfigurationException(txt("cfg.ddlFiles.error.DuplicateExtension", extension));
                 }
             }
             allExtensions.addAll(extensions);

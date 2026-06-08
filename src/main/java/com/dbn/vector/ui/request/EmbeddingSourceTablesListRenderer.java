@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JList;
 
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.GRAYED_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
@@ -33,7 +34,7 @@ public class EmbeddingSourceTablesListRenderer extends ColoredListCellRenderer<E
     @Override
     protected void customize(@NotNull JList<? extends EmbeddingSourceTable> list, EmbeddingSourceTable value, int index, boolean selected, boolean hasFocus) {
         if (value == null) {
-            append("(null)", ERROR_ATTRIBUTES);
+            append(txt("app.vector.placeholder.Null"), ERROR_ATTRIBUTES);
             return;
         }
 
@@ -52,7 +53,7 @@ public class EmbeddingSourceTablesListRenderer extends ColoredListCellRenderer<E
         if (isNotEmpty(tableName)) {
             append(tableName, regularAttributes);
         } else {
-            append("(no table)", ERROR_ATTRIBUTES);
+            append(txt("app.vector.placeholder.NoTable"), ERROR_ATTRIBUTES);
         }
 
         // Column info
@@ -67,12 +68,10 @@ public class EmbeddingSourceTablesListRenderer extends ColoredListCellRenderer<E
         setIcon(Icons.DBO_TABLE);
 
         // Tooltip with full info
-        StringBuilder tooltip = new StringBuilder();
-        tooltip.append(schemaName != null ? schemaName : "?");
-        tooltip.append(".");
-        tooltip.append(tableName != null ? tableName : "?");
-        tooltip.append("\nID Column: ").append(keyColumn != null ? keyColumn : "not set");
-        tooltip.append("\nData Column: ").append(dataColumn != null ? dataColumn : "not set");
-        setToolTipText(tooltip.toString());
+        setToolTipText(txt("app.vector.tooltip.SourceTable",
+                schemaName != null ? schemaName : "?",
+                tableName != null ? tableName : "?",
+                keyColumn != null ? keyColumn : txt("app.shared.text.NotSet"),
+                dataColumn != null ? dataColumn : txt("app.shared.text.NotSet")));
     }
 }

@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseLogOutputSettingsAction extends AbstractDatabaseLoggingAction {
 
+    public DatabaseLogOutputSettingsAction() {
+        super(txt("app.execution.action.DatabaseLogOutputSettings"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatabaseLoggingResult loggingResult) {
         ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);

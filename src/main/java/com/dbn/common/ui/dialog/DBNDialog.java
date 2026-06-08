@@ -33,13 +33,14 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.help.HelpTopic;
-import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.OptionAction;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.util.NlsContexts.Button;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.openapi.util.UserDataHolder;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.wm.IdeFrame;
@@ -50,7 +51,6 @@ import com.intellij.util.ui.JBDimension;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Delegate;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -87,10 +87,11 @@ import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
-public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, NlsSupport, UserDataHolder {
+public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, UserDataHolder {
     public static final String HIDDEN = "HIDDEN";
     public static final String PARENT = "PARENT";
 
@@ -102,12 +103,12 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     private final DBNFormValidator formValidator = new DBNFormValidatorImpl(this);
     private final UserDataHolder userDataHolder = new UserDataHolderBase();
 
-    protected DBNDialog(@NotNull ConnectionHandler connection, String title, boolean canBeParent) {
+    protected DBNDialog(@NotNull ConnectionHandler connection, @DialogTitle String title, boolean canBeParent) {
         this(connection.getProject(), title, canBeParent);
         putUserData(UserDataKeys.CONNECTION_REF, ConnectionRef.of(connection));
     }
 
-    protected DBNDialog(@Nullable Project project, String title, boolean canBeParent) {
+    protected DBNDialog(@Nullable Project project, @DialogTitle String title, boolean canBeParent) {
         super(project, canBeParent);
         putUserData(PROJECT_REF, ProjectRef.of(project));
         setTitle(Titles.signed(title));
@@ -267,7 +268,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         return autoSize || Diagnostics.isDialogSizingReset() ? null : "DBNavigator." + simpleClassName(this);
     }
 
-    protected static Action createAction(@NotNull @Nls String name, @NotNull Runnable runnable) {
+    protected static Action createAction(@NotNull @Button String name, @NotNull Runnable runnable) {
         return new AbstractAction(name) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -276,7 +277,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         };
     }
 
-    protected static Action createAction(@NotNull @Nls String name, @NotNull Consumer<JButton> consumer) {
+    protected static Action createAction(@NotNull @Button String name, @NotNull Consumer<JButton> consumer) {
         return new AbstractAction(name) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -295,7 +296,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
                 .toArray(l -> new Action[l]);
     }
 
-    protected static void renameAction(@NotNull Action action, @Nls String name) {
+    protected static void renameAction(@NotNull Action action, @Button String name) {
         action.putValue(Action.NAME, name);
     }
 
@@ -386,6 +387,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     @NotNull
     @Override
     protected final Action[] createActions() {
+        initializeDefaultActionLabels();
         Action[] actions = initializeActions();
         if (getHelpId() == null) return actions;
 
@@ -393,6 +395,12 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         System.arraycopy(actions, 0, allActions, 0, actions.length);
         allActions[actions.length] = getHelpAction();
         return allActions;
+    }
+
+    private void initializeDefaultActionLabels() {
+        renameAction(getOKAction(), txt("msg.shared.button.OK"));
+        renameAction(getCancelAction(), txt("msg.shared.button.Cancel"));
+        renameAction(getHelpAction(), txt("msg.shared.button.Help"));
     }
 
     protected abstract Action[] initializeActions();

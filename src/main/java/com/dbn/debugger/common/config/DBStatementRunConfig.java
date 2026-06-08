@@ -52,6 +52,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -101,7 +102,7 @@ public class DBStatementRunConfig extends DBRunConfig<StatementExecutionInput> {
 
         if (!DatabaseFeature.DEBUGGING.isSupported(connection)){
             throw new RuntimeConfigurationError(
-                    "Debugging is not supported for " + connection.getDatabaseType().getName() +" databases.");
+                    txt("msg.debugger.error.UnsupportedDatabase", connection.getDatabaseType().getName()));
         }
 
         DebuggerTypeOption debuggerTypeOption = DebuggerTypeOption.of(connection);

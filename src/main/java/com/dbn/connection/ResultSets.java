@@ -17,7 +17,6 @@
 package com.dbn.connection;
 
 import com.dbn.common.dispose.StatefulDisposableBase;
-import com.dbn.common.exception.Exceptions;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.routine.ThrowableFunction;
 import com.dbn.database.interfaces.DatabaseInterface.Runnable;
@@ -28,7 +27,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
 public class ResultSets extends StatefulDisposableBase {
@@ -37,7 +38,7 @@ public class ResultSets extends StatefulDisposableBase {
             resultSet.insertRow();
         } catch (Throwable e) {
             conditionallyLog(e);
-            throw Exceptions.toSqlException(e, "Error inserting row");
+            throw toSqlException(e, txt("msg.data.exception.RowInsertError"));
         }
     }
 
@@ -46,7 +47,7 @@ public class ResultSets extends StatefulDisposableBase {
             resultSet.moveToInsertRow();
         } catch (Throwable e) {
             conditionallyLog(e);
-            throw Exceptions.toSqlException(e, "Error selecting insert row");
+            throw toSqlException(e, txt("msg.data.exception.RowSelectInsertError"));
         }
     }
     public static void moveToCurrentRow(ResultSet resultSet) throws SQLException {
@@ -54,7 +55,7 @@ public class ResultSets extends StatefulDisposableBase {
             resultSet.moveToCurrentRow();
         } catch (Throwable e) {
             conditionallyLog(e);
-            throw Exceptions.toSqlException(e, "Error selecting current row");
+            throw toSqlException(e, txt("msg.data.exception.RowSelectCurrentError"));
         }
     }
 
@@ -63,7 +64,7 @@ public class ResultSets extends StatefulDisposableBase {
             resultSet.deleteRow();
         } catch (Throwable e) {
             conditionallyLog(e);
-            throw Exceptions.toSqlException(e, "Error deleting row");
+            throw toSqlException(e, txt("msg.data.exception.RowDeleteError"));
         }
     }
 
@@ -73,7 +74,7 @@ public class ResultSets extends StatefulDisposableBase {
             resultSet.refreshRow();
         } catch (Throwable e) {
             conditionallyLog(e);
-            throw Exceptions.toSqlException(e, "Error refreshing row");
+            throw toSqlException(e, txt("msg.data.exception.RowRefreshError"));
         }
     }
 
@@ -82,7 +83,7 @@ public class ResultSets extends StatefulDisposableBase {
             resultSet.updateRow();
         } catch (Throwable e) {
             conditionallyLog(e);
-            throw Exceptions.toSqlException(e, "Error updating row");
+            throw toSqlException(e, txt("msg.data.exception.RowUpdateError"));
         }
     }
 
@@ -91,7 +92,7 @@ public class ResultSets extends StatefulDisposableBase {
             resultSet.absolute(row);
         } catch (Throwable e) {
             conditionallyLog(e);
-            throw Exceptions.toSqlException(e, "Error selecting row");
+            throw toSqlException(e, txt("msg.data.exception.RowSelectError"));
         }
     }
 

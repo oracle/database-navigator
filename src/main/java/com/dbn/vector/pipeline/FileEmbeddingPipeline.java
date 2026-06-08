@@ -18,6 +18,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 
 public class FileEmbeddingPipeline implements EmbeddingPipeline {
 
@@ -36,7 +38,7 @@ public class FileEmbeddingPipeline implements EmbeddingPipeline {
         for (int i = 0; i < sources.size(); i++) {
             EmbeddingFileSource source = sources.get(i);
 
-            progressIndicator.setText2(String.format("Processing file \"%s\" (%d/%d)", source.getFileName(), i + 1, sources.size()));
+            progressIndicator.setText2(txt("prc.vector.text.ProcessingFile", source.getFileName(), i + 1, sources.size()));
             EmbeddingFileResult fileResult = result.getResult(source);
             processFile(context, request, fileResult, i);
         }
@@ -60,9 +62,7 @@ public class FileEmbeddingPipeline implements EmbeddingPipeline {
 
         try {
             // ========== PHASE 1: Read File Once ==========
-            progressIndicator.setText2(
-                    String.format("Reading file \"%s\" (%d/%d)",
-                            shortenFileName, currentIndex + 1, totalFiles));
+            progressIndicator.setText2(txt("prc.vector.text.ReadingFile", shortenFileName, currentIndex + 1, totalFiles));
             try {
                 result.initSource();
             } catch (Exception e) {
@@ -70,9 +70,7 @@ public class FileEmbeddingPipeline implements EmbeddingPipeline {
                 return;
             }
 
-            progressIndicator.setText2(
-                    String.format("Checking file \"%s\" (%d/%d)",
-                            shortenFileName, currentIndex + 1, totalFiles));
+            progressIndicator.setText2(txt("prc.vector.text.CheckingFile", shortenFileName, currentIndex + 1, totalFiles));
 
             String fileStoreId = fileService.resolveFileStoreId(
                     connection,
@@ -85,20 +83,14 @@ public class FileEmbeddingPipeline implements EmbeddingPipeline {
 
             if (fileStoreId != null) {
                 // File already exists - use existing ID
-                progressIndicator.setText2(
-                        String.format("File already uploaded, using existing \"%s\" (%d/%d)",
-                                shortenFileName, currentIndex + 1, totalFiles)
-                );
+                progressIndicator.setText2(txt("prc.vector.text.UsingExistingFile", shortenFileName, currentIndex + 1, totalFiles));
 
                 result.setFileStoreId(fileStoreId);
                 result.deleteStep(PipelineStep.UPLOADING_FILE);  // Skip upload
 
             } else {
                 // New file - upload it
-                progressIndicator.setText2(
-                        String.format("Uploading file \"%s\" (%d/%d)",
-                                shortenFileName, currentIndex + 1, totalFiles)
-                );
+                progressIndicator.setText2(txt("prc.vector.text.UploadingFile", shortenFileName, currentIndex + 1, totalFiles));
 
                 fileStoreId = UUIDs.compact();
                 result.setFileStoreId(fileStoreId);
@@ -113,9 +105,7 @@ public class FileEmbeddingPipeline implements EmbeddingPipeline {
             }
 
             // Step 3: Embed file (always execute, whether file was uploaded or already existed)
-            progressIndicator.setText2(
-                    String.format("Embedding file \"%s\" (%d/%d)", shortenFileName, currentIndex + 1, totalFiles)
-            );
+            progressIndicator.setText2(txt("prc.vector.text.EmbeddingFile", shortenFileName, currentIndex + 1, totalFiles));
 
             fileService.embedFile(
                     connection,

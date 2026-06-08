@@ -36,12 +36,14 @@ import com.dbn.code.common.style.presets.statement.StatementLineBreakPreset;
 import com.dbn.code.common.style.presets.statement.StatementOneLineSpacingAtLeastPreset;
 import com.dbn.code.common.style.presets.statement.StatementOneLineSpacingPreset;
 
+import static com.dbn.nls.NlsResources.txt;
+
 class SQLCodeStyleFormattingSettings extends CodeStyleFormattingSettings {
     SQLCodeStyleFormattingSettings(DBLCodeStyleSettings parent) {
         super(parent);
 
         CodeStyleFormattingOption statementSpacing =
-                new CodeStyleFormattingOption("STATEMENT_SPACING", "Statement spacing");
+                new CodeStyleFormattingOption("STATEMENT_SPACING", txt("cfg.codeStyle.const.CodeStyleFormattingOption_STATEMENT_SPACING"));
         statementSpacing.addPreset(new StatementLineBreakPreset());
         statementSpacing.addPreset(new StatementLineBreakAtLeastPreset());
         statementSpacing.addPreset(new StatementOneLineSpacingPreset(), true);
@@ -50,7 +52,7 @@ class SQLCodeStyleFormattingSettings extends CodeStyleFormattingSettings {
         addOption(statementSpacing);
 
         CodeStyleFormattingOption clauseChopDown =
-                new CodeStyleFormattingOption("CLAUSE_CHOP_DOWN", "Clause chop down");
+                new CodeStyleFormattingOption("CLAUSE_CHOP_DOWN", txt("cfg.codeStyle.const.CodeStyleFormattingOption_CLAUSE_CHOP_DOWN"));
         clauseChopDown.addPreset(new ClauseChopDownAlwaysPreset());
         clauseChopDown.addPreset(new ClauseChopDownIfLongPreset());
         clauseChopDown.addPreset(new ClauseChopDownIfLongStatementPreset(), true);
@@ -59,7 +61,7 @@ class SQLCodeStyleFormattingSettings extends CodeStyleFormattingSettings {
         addOption(clauseChopDown);
 
         CodeStyleFormattingOption iterationsWrapOption =
-                new CodeStyleFormattingOption("ITERATION_ELEMENTS_WRAPPING", "Iteration elements wrapping");
+                new CodeStyleFormattingOption("ITERATION_ELEMENTS_WRAPPING", txt("cfg.codeStyle.const.CodeStyleFormattingOption_ITERATION_ELEMENTS_WRAPPING"));
         iterationsWrapOption.addPreset(new IterationChopDownAlwaysPreset());
         iterationsWrapOption.addPreset(new IterationChopDownIfLongPreset());
         iterationsWrapOption.addPreset(new IterationChopDownIfLongStatementPreset());

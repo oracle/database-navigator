@@ -23,6 +23,7 @@ import com.dbn.common.project.ProjectRef;
 import com.dbn.common.state.PersistentStateElement;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,6 +41,7 @@ import static com.dbn.common.options.setting.Settings.setIntegerAttribute;
 
 
 @Getter
+@Setter
 public class ParserDiagnosticsResult implements PersistentStateElement, Comparable<ParserDiagnosticsResult> {
 
     private final Map<String, IssueCounter> entries = new TreeMap<>();
@@ -89,10 +91,6 @@ public class ParserDiagnosticsResult implements PersistentStateElement, Comparab
 
     public void markSaved() {
         this.draft = false;
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
     }
 
     @NotNull

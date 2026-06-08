@@ -27,6 +27,7 @@ import javax.swing.JTextField;
 
 import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatatEditorValueListPopupSettingsForm extends ConfigurationEditorForm<DataEditorValueListPopupSettings> {
     private JTextField elementCountThresholdTextBox;
@@ -55,8 +56,8 @@ public class DatatEditorValueListPopupSettingsForm extends ConfigurationEditorFo
     public void applyFormChanges() throws ConfigurationException {
         DataEditorValueListPopupSettings settings = getConfiguration();
         settings.setShowPopupButton(showPopupButtonCheckBox.isSelected());
-        settings.setElementCountThreshold(validateIntegerValue(elementCountThresholdTextBox, "Element count threshold", true, 0, 10000, null));
-        settings.setDataLengthThreshold(validateIntegerValue(dataLengthThresholdTextBox, "Data length threshold", true, 0, 1000, null));
+        settings.setElementCountThreshold(validateIntegerValue(elementCountThresholdTextBox, txt("cfg.dataEditor.field.ElementCountThreshold"), true, 0, 10000, null));
+        settings.setDataLengthThreshold(validateIntegerValue(dataLengthThresholdTextBox, txt("cfg.dataEditor.field.DataLengthThreshold"), true, 0, 1000, null));
     }
 
     @Override

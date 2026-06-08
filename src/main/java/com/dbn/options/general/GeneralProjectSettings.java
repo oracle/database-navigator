@@ -31,6 +31,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.help.HelpTopic.GENERAL_SETTINGS;
+import static com.dbn.nls.NlsResources.txt;
 
 @EqualsAndHashCode(callSuper = false)
 public class GeneralProjectSettings extends CompositeProjectConfiguration<ProjectSettings, GeneralProjectSettingsForm> implements TopLevelConfig {

@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ParserDiagnosticsCloseAction extends AbstractParserDiagnosticsAction {
 
+    public ParserDiagnosticsCloseAction() {
+        super(txt("app.diagnostics.action.ParserDiagnosticsClose"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ParserDiagnosticsForm form) {
         DiagnosticsManager diagnosticsManager = DiagnosticsManager.getInstance(project);

@@ -28,6 +28,8 @@ import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CompileDebugDependenciesDialog extends DBNDialog<CompileDebugDependenciesForm> {
     private final DBRunConfig runConfiguration;
     private final List<DBSchemaObject> compileList;
@@ -36,7 +38,7 @@ public class CompileDebugDependenciesDialog extends DBNDialog<CompileDebugDepend
     private DBObjectRef<DBSchemaObject>[] selection;
 
     public CompileDebugDependenciesDialog(DBRunConfig runConfiguration, List<DBSchemaObject> compileList) {
-        super(runConfiguration.getProject(), "Compile object dependencies", true);
+        super(runConfiguration.getProject(), txt("msg.debugger.title.CompileObjectDependencies"), true);
         this.runConfiguration = runConfiguration;
         this.compileList = compileList;
         init();
@@ -65,7 +67,7 @@ public class CompileDebugDependenciesDialog extends DBNDialog<CompileDebugDepend
 
     private class CompileSelectedAction extends AbstractAction {
         private CompileSelectedAction() {
-            super("Compile selected");
+            super(txt("msg.compiler.button.CompileSelected"));
         }
 
         @Override
@@ -76,7 +78,7 @@ public class CompileDebugDependenciesDialog extends DBNDialog<CompileDebugDepend
 
     private class CompileAllAction extends AbstractAction {
         private CompileAllAction() {
-            super("Compile all");
+            super(txt("msg.compiler.button.CompileAll"));
         }
 
         @Override
@@ -88,7 +90,7 @@ public class CompileDebugDependenciesDialog extends DBNDialog<CompileDebugDepend
 
     private class CompileNoneAction extends AbstractAction {
         private CompileNoneAction() {
-            super("Compile none");
+            super(txt("msg.compiler.button.CompileNone"));
         }
 
         @Override

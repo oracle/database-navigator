@@ -42,6 +42,7 @@ import java.sql.SQLException;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class MethodExecutionLargeValueResultForm extends DBNFormBase implements TextContentTypeOwner {
     private JPanel actionsPanel;

@@ -57,6 +57,10 @@ import static com.dbn.object.type.DBObjectType.PROGRAM;
 @BackgroundUpdate
 public abstract class ProgramMethodLaunchAction extends ProjectPopupAction {
 
+    protected ProgramMethodLaunchAction(String text) {
+        super(text);
+    }
+
     @Override
     public final AnAction[] getChildren(AnActionEvent e) {
         Project project = e.getProject();

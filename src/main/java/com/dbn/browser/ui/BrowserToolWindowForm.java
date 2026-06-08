@@ -42,6 +42,7 @@ import java.awt.BorderLayout;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class BrowserToolWindowForm extends DBNFormBase {
     private JPanel mainPanel;

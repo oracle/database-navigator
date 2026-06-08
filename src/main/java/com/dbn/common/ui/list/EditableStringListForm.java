@@ -19,8 +19,10 @@ package com.dbn.common.ui.list;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Strings;
+import com.intellij.openapi.util.NlsContexts.Label;
 import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -39,11 +41,11 @@ public class EditableStringListForm extends DBNFormBase {
 
     private final EditableStringList stringList;
 
-    public EditableStringListForm(DBNComponent parent, String title, ListProperty ... properties) {
+    public EditableStringListForm(DBNComponent parent, @Nullable @Label String title, ListProperty ... properties) {
         this(parent, title, new ArrayList<>(), properties);
     }
 
-    public EditableStringListForm(DBNComponent parent, String title, List<String> elements, ListProperty ... properties) {
+    public EditableStringListForm(DBNComponent parent, @Nullable @Label String title, List<String> elements, ListProperty ... properties) {
         super(parent);
         titleLabel.setText(title);
         titleLabel.setVisible(Strings.isNotEmpty(title));

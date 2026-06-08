@@ -21,6 +21,7 @@ import com.dbn.common.state.PersistentStateElement;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Locale;
 
@@ -34,14 +35,14 @@ import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 @NoArgsConstructor
 public class LibraryChecksum implements PersistentStateElement {
     private ChecksumType type;
-    private String value;
-    private String url;
+    private @NonNls String value;
+    private @NonNls String url;
 
-    public LibraryChecksum(ChecksumType type, String value) {
+    public LibraryChecksum(ChecksumType type, @NonNls String value) {
         this(type, value, null);
     }
 
-    public LibraryChecksum(ChecksumType type, String value, String url) {
+    public LibraryChecksum(ChecksumType type, @NonNls String value, @NonNls String url) {
         this.type = type;
         this.value = normalize(value);
         this.url = url;

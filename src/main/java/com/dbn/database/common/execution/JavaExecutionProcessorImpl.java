@@ -53,6 +53,7 @@ import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
 import static com.dbn.common.util.Lists.sortedCopy;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
@@ -145,13 +146,13 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
         if (context.getDebuggerType() == DBDebuggerType.JDWP) return;
 
         // create java wrapper
-        setProgressDetail("Initializing java execution environment");
+        setProgressDetail(txt("prc.java.text.InitializingJavaExecutionEnvironment"));
         context.createExecutionWrappers();
 	}
 
 	private void triggerExecution(JavaExecutionContext context) throws SQLException {
 		// call java wrapper
-		setProgressDetail("Executing java method");
+		setProgressDetail(txt("prc.java.text.ExecutingJavaMethod"));
 		initCommand(context);
 		initLogging(context);
 		initTimeout(context);
@@ -167,7 +168,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	private void releaseExecutionWrappers(JavaExecutionContext context) {
 		try {
 			// drop java wrapper
-			setProgressDetail("Releasing java execution environment");
+			setProgressDetail(txt("prc.java.text.ReleasingJavaExecutionEnvironment"));
 			context.discardExecutionWrappers();
 		} catch (ProcessCanceledException e) {
 			conditionallyLog(e);

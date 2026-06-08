@@ -23,6 +23,7 @@ import com.dbn.object.type.DBObjectType;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.ROLE;
 
 public class DBPrivilegeNavigationInfoProvider extends DBObjectNavigationInfoProviderBase<DBPrivilege> {
@@ -33,10 +34,10 @@ public class DBPrivilegeNavigationInfoProvider extends DBObjectNavigationInfoPro
     @Override
     public List<DBObjectNavigationList<?>> createNavigationTargets(DBPrivilege privilege) {
         List<DBObjectNavigationList<?>> navigationLists = new LinkedList<>();
-        navigationLists.add(DBObjectNavigationList.create("User grantees", privilege.getUserGrantees()));
+        navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.UserGrantees"), privilege.getUserGrantees()));
 
         if (ROLE.isSupported(privilege)) {
-            navigationLists.add(DBObjectNavigationList.create("Role grantees", privilege.getRoleGrantees()));
+            navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.RoleGrantees"), privilege.getRoleGrantees()));
         }
         return navigationLists;
     }

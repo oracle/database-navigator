@@ -1,0 +1,64 @@
+/*
+ * Copyright 2026 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.assistant.tool.feature;
+
+import com.dbn.assistant.tool.AssistantToolType;
+import org.jetbrains.annotations.NotNull;
+
+import java.time.Duration;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class AssistantToolFeatures {
+    private static final AssistantToolFeatures INSTANCE = new AssistantToolFeatures();
+
+    private final Map<FeatureKey, List<AssistantToolFeature>> cache = new ConcurrentHashMap<>();
+
+    private AssistantToolFeatures() {}
+
+    public static List<AssistantToolFeature> get(AssistantToolType toolType, String toolName) {
+        return INSTANCE.lookup(toolType, toolName);
+    }
+
+    public static @NotNull Duration getApprovalTimeoutExtension(AssistantToolType toolType, String toolName) {
+        return INSTANCE.lookup(toolType, toolName)
+                .stream()
+                .map(AssistantToolFeature::getApprovalTimeoutExtension)
+                .filter(duration -> !duration.isNegative())
+                .max(Comparator.naturalOrder())
+                .orElse(Duration.ZERO);
+    }
+
+    private List<AssistantToolFeature> lookup(AssistantToolType toolType, String toolName) {
+        String normalizedToolName = Objects.toString(toolName, "");
+        FeatureKey key = new FeatureKey(toolType, normalizedToolName);
+        return cache.computeIfAbsent(key, this::loadFeatures);
+    }
+
+    private List<AssistantToolFeature> loadFeatures(FeatureKey key) {
+        return AssistantToolFeature.EP
+                .getExtensionList()
+                .stream()
+                .filter(feature -> feature.supports(key.toolType(), key.toolName()))
+                .toList();
+    }
+
+    private record FeatureKey(AssistantToolType toolType, String toolName) {}
+}

@@ -26,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DataEditorQualifiedEditorSettingsForm extends ConfigurationEditorForm<DataEditorQualifiedEditorSettings> {
     private JPanel mainPanel;
@@ -45,7 +46,7 @@ public class DataEditorQualifiedEditorSettingsForm extends ConfigurationEditorFo
         checkBoxList.applyChanges();
         settings.setTextLengthThreshold(validateIntegerValue(
                 textLengthThresholdTextField,
-                "Text Length Threshold", true, 0, 999999999, null));
+                txt("cfg.dataEditor.field.TextLengthThreshold"), true, 0, 999999999, null));
     }
 
     @Override

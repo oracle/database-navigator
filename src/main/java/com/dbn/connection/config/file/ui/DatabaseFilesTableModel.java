@@ -24,6 +24,8 @@ import lombok.Getter;
 
 import javax.swing.event.TableModelListener;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class DatabaseFilesTableModel extends DBNEditableTableModel {
     private DatabaseFileBundle fileBundle;
@@ -51,8 +53,8 @@ public class DatabaseFilesTableModel extends DBNEditableTableModel {
 
     @Override
     public String getColumnName(int columnIndex) {
-        return columnIndex == 0 ? "File Path" :
-               columnIndex == 1 ? "Database Name" : null;
+        return columnIndex == 0 ? txt("app.connection.column.FilePath") :
+               columnIndex == 1 ? txt("app.connection.column.DatabaseName") : null;
     }
 
     @Override

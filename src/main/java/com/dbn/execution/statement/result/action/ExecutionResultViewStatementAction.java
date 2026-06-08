@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionResultViewStatementAction extends AbstractExecutionResultAction {
 
+    public ExecutionResultViewStatementAction() {
+        super(txt("app.execution.action.ExecutionResultViewStatement"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull StatementExecutionCursorResult executionResult) {
         ExecutionStatementViewerPopup statementViewer = new ExecutionStatementViewerPopup(executionResult);

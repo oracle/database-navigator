@@ -18,6 +18,7 @@ package com.dbn.event.model;
 
 import com.dbn.common.reflection.ProxyObject;
 import com.dbn.common.reflection.ProxyObjectInfo;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,5 +31,5 @@ public interface OracleStatement extends ProxyObject, AutoCloseable {
 
     void setDatabaseChangeRegistration(DatabaseChangeRegistration registration);
 
-    ResultSet executeQuery(String sql) throws SQLException;
+    ResultSet executeQuery(@NonNls String sql) throws SQLException;
 }

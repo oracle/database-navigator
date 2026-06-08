@@ -25,6 +25,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nls;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,9 +39,9 @@ public class CodeCompletionFilterOptionBundle implements CheckedTreeNodeProvider
     private transient final CodeCompletionFilterSettings filterSettings;
 
     private final List<CodeCompletionFilterOption> options = new ArrayList<>();
-    private final String name;
+    private final @Nls String name;
 
-    public CodeCompletionFilterOptionBundle(String name, CodeCompletionFilterSettings filterSettings) {
+    public CodeCompletionFilterOptionBundle(@Nls String name, CodeCompletionFilterSettings filterSettings) {
         this.name = name;
         this.filterSettings = filterSettings;
     }

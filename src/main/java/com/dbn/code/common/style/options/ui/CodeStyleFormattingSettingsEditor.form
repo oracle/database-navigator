@@ -6,14 +6,14 @@
       <xy x="20" y="20" width="500" height="186"/>
     </constraints>
     <properties/>
-    <border type="none" title="Formatting"/>
+    <border type="none" title-resource-bundle="messages/DBNResources" title-key="cfg.codeStyle.title.Formatting"/>
     <children>
       <component id="f5783" class="javax.swing.JCheckBox" binding="enableCheckBox">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="&amp;Enable (experimental)"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.codeStyle.label.EnableExperimental"/>
         </properties>
       </component>
       <grid id="f565c" binding="settingsPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

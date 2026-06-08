@@ -26,10 +26,16 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Action for starting a new chat
  */
 public class ChatStartNewAction extends AbstractChatBoxAction {
+    public ChatStartNewAction() {
+        super(txt("app.assistant.action.AssistantNewChat"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
@@ -57,6 +63,7 @@ public class ChatStartNewAction extends AbstractChatBoxAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         boolean enabled = isEnabled(e);
 
+        e.getPresentation().setText(txt("app.assistant.action.NewChat"));
         e.getPresentation().setEnabled(enabled);
     }
 

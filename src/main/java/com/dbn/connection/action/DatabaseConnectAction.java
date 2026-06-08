@@ -47,7 +47,7 @@ public class DatabaseConnectAction extends AbstractConnectionAction {
         boolean enabled = target != null && !target.getConnectionStatus().isConnected();
 
         presentation.setText(txt("app.connection.action.Connect"));
-        presentation.setDescription(target == null ? null : txt("app.connection.action.ConnectTo", target.getName()));
+        presentation.setDescription(target == null ? null : txt("app.connection.tooltip.ConnectTo", target.getName()));
         presentation.setEnabled(enabled);
     }
 

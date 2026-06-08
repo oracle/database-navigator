@@ -42,6 +42,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public abstract class ExecutionTimeoutForm extends DBNFormBase {
     private JTextField executionTimeoutTextField;
@@ -96,9 +97,8 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
             handleChange(false);
         } catch (NumberFormatException e1) {
             conditionallyLog(e1);
-            //errorLabel.setText("Timeout must be an integer");
             hintLabel.setIcon(Icons.COMMON_ERROR);
-            hintLabel.setToolTipText("Timeout must be an integer");
+            hintLabel.setToolTipText(txt("app.execution.tooltip.TimeoutMustBeInteger"));
             hasErrors = true;
             handleChange(true);
         }
@@ -140,7 +140,7 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
         @Override
         protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
             Presentation presentation = e.getPresentation();
-            presentation.setText("Settings");
+            presentation.setText(txt("app.execution.action.Settings"));
             presentation.setIcon(Icons.ACTION_OPTIONS);
             presentation.setEnabled(!hasErrors && timeout != getSettingsTimeout());
         }

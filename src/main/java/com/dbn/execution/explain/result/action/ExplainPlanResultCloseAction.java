@@ -29,6 +29,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExplainPlanResultCloseAction extends AbstractExplainPlanResultAction {
 
+    public ExplainPlanResultCloseAction() {
+        super(txt("app.execution.action.ExplainPlanResultClose"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ExplainPlanResult explainPlanResult) {
         ExecutionManager executionManager = ExecutionManager.getInstance(project);

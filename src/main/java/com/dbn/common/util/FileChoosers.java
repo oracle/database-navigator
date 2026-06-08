@@ -26,6 +26,7 @@ import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.openapi.util.NlsContexts.Label;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -118,7 +119,7 @@ public class FileChoosers {
     }
 
     @Compatibility
-    public static FileChooserDescriptor withExtensionFilter(FileChooserDescriptor descriptor, String extension) {
+    public static FileChooserDescriptor withExtensionFilter(FileChooserDescriptor descriptor, @NonNls String extension) {
         //return descriptor.withExtensionFilter(extension);
         // TODO decommission after discontinuing support for 2023.x and 2024.2 IDE versions
         try {

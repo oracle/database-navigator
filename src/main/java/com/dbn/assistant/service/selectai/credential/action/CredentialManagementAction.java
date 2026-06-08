@@ -32,6 +32,10 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class CredentialManagementAction extends ProjectAction {
 
+    protected CredentialManagementAction(String text) {
+        super(text);
+    }
+
     @Nullable
     protected static CredentialManagementForm getManagementForm(@NotNull AnActionEvent e) {
         return e.getData(DataKeys.CREDENTIAL_MANAGEMENT_FORM);

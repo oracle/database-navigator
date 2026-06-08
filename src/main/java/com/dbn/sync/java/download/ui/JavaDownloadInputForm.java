@@ -52,6 +52,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JavaDownloadInputForm extends DBNFormBase {
     private JPanel headerPanel;
@@ -86,9 +87,9 @@ public class JavaDownloadInputForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addSelectionValidation(moduleComboBox, "Please select the target module");
-        addSelectionValidation(contentRootComboBox, "Please select the target content root");
-        addSelectionValidation(contentList, "Please select at least one resource to download");
+        addSelectionValidation(moduleComboBox, txt("msg.shared.error.SelectTargetModule"));
+        addSelectionValidation(contentRootComboBox, txt("msg.shared.error.SelectTargetContentRoot"));
+        addSelectionValidation(contentList, txt("msg.java.error.SelectResourceToDownload"));
     }
 
     private void initHeaderPanel() {
@@ -100,9 +101,7 @@ public class JavaDownloadInputForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hintText = TextContent.plain(
-                "Following java classes and resources will be downloaded to the project. " +
-                        "Please specify the target module and content root, as well as the resources to be downloaded.\n\n" +
-                        "NOTE: Already existing java classes and resources in the selected destination will be overwritten.");
+                txt("msg.java.hint.DownloadInput"));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }

@@ -111,8 +111,8 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         String connectionName = connection.getName();
         String qualifiedTableName = table.getQualifiedNameWithType();
 
-        String processTitle = "Registering Event Listener";
-        String processText = "Registering event listener for " + qualifiedTableName;
+        String processTitle = txt("prc.events.title.RegisteringEventListener");
+        String processText = txt("prc.events.text.RegisteringEventListener", qualifiedTableName);
 
         Progress.prompt(project, table, false, processTitle, processText, progress -> {
             try {
@@ -129,7 +129,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
                 notifyRegistrationListeners(connectionId, ObjectChangeAction.CREATE);
             } catch (Exception e) {
                 conditionallyLog(e);
-                sendErrorNotification(DCN, txt("ntf.events.warning.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
+                sendErrorNotification(DCN, txt("ntf.events.error.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
             }
         });
     }
@@ -212,8 +212,8 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         String connectionName = connection.getName();
         String qualifiedTableName = table.getQualifiedNameWithType();
 
-        String processTitle = "Stopping Event Listener";
-        String processText = "Stopping event listener for " + qualifiedTableName;
+        String processTitle = txt("prc.events.title.StoppingEventListener");
+        String processText = txt("prc.events.text.StoppingEventListener", qualifiedTableName);
 
         Progress.prompt(project, table, false, processTitle, processText, progress -> {
             try {
@@ -230,7 +230,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
                 notifyRegistrationListeners(connectionId, ObjectChangeAction.DELETE);
             } catch (Exception e) {
                 conditionallyLog(e);
-                sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
+                sendErrorNotification(DCN, txt("ntf.events.error.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
             }
         });
     }
@@ -239,8 +239,8 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         Project project = connection.getProject();
         String connectionName = connection.getName();
 
-        String processTitle = "Stopping Event Listener";
-        String processText = "Stopping event listener for " + tableName;
+        String processTitle = txt("prc.events.title.StoppingEventListener");
+        String processText = txt("prc.events.text.StoppingEventListener", tableName);
 
         Progress.prompt(project, connection, false, processTitle, processText, progress -> {
             try {
@@ -256,7 +256,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
                 notifyRegistrationListeners(connectionId, ObjectChangeAction.DELETE);
             } catch (Exception e) {
                 conditionallyLog(e);
-                sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", tableName, connectionName, e.getMessage()));
+                sendErrorNotification(DCN, txt("ntf.events.error.ListenerDeregistrationFailedFor", tableName, connectionName, e.getMessage()));
             }
         });
     }
@@ -271,6 +271,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
 */
 
 
+        @NonNls
         String creationStatement = "{ call DBMS_CHANGE_NOTIFICATION.deregister(?) }";
 
         PreparedStatement statement = null;
@@ -336,4 +337,3 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         states.readState(element, "registration-states");
     }
 }
-

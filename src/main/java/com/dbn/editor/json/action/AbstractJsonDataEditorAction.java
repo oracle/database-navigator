@@ -25,6 +25,10 @@ import org.jetbrains.annotations.NotNull;
 @BackgroundUpdate
 abstract class AbstractJsonDataEditorAction extends ContextAction<JsonDataEditor> {
 
+    protected AbstractJsonDataEditorAction(String text) {
+        super(text);
+    }
+
     @Override
     protected JsonDataEditor getContext(@NotNull AnActionEvent e) {
         return JsonDataEditor.get(e);

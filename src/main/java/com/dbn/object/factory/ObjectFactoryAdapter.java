@@ -17,24 +17,24 @@
 package com.dbn.object.factory;
 
 import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.nls.NlsSupport;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.extension.DBObjectExtensionPoint;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.intellij.openapi.extensions.ExtensionPointName;
+import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
 import java.util.List;
 
-public interface ObjectFactoryAdapter extends DBObjectExtensionPoint, NlsSupport {
+public interface ObjectFactoryAdapter extends DBObjectExtensionPoint {
     ExtensionPointName<ObjectFactoryAdapter> EP = ExtensionPointName.create("com.dbn.objectFactoryAdapter");
 
     DBObjectSpec createInput(DBSchema schema);
 
     DBObjectFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec input);
 
-    void validateInput(DBObjectSpec input, List<String> errors);
+    void validateInput(DBObjectSpec input, List<@Nls String> errors);
 
     void createObject(DBObjectSpec input) throws SQLException;
 }

@@ -26,7 +26,7 @@
 <div style="${REGULAR_LARGE_FONT_STYLE}">
     <b>Oracle Autonomous Database Select AI</b><br>
 </div>
-Transform how you interact with your data!<br>
+Transform how you interact with your data.<br>
 Oracle Select AI enables you to use natural language to query your Autonomous Database, generating SQL queries automatically to deliver fast and accurate insights about your business. <br>
 Powered by advanced AI models, this feature simplifies data analysis for users of all skill levels, from business analysts to developers.
 
@@ -47,7 +47,7 @@ Refer to the <a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/
 <br>
 <br>
 <br>
-<b>NOTE</b><br>
-Oracle Select AI is an experimental feature in preview. Results may vary based on query complexity or data model. Please validate outputs and report any issues to the DBN plugin development team for continuous improvement.
+<b>Note</b><br>
+Oracle Select AI is an experimental feature in preview. Results may vary based on query complexity or data model. Validate outputs and report any issues to the Oracle® Database Navigator development team for continuous improvement.
 </body>
 </html>

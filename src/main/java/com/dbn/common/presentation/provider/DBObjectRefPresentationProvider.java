@@ -22,6 +22,8 @@ import com.dbn.object.lookup.DBObjectRef;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBObjectRefPresentationProvider extends PresentationProviderBase<DBObjectRef> {
     public DBObjectRefPresentationProvider() {
         super(DBObjectRef.class);
@@ -36,8 +38,8 @@ public class DBObjectRefPresentationProvider extends PresentationProviderBase<DB
     public String getDetailedName(DBObjectRef object) {
         ConnectionHandler connection = object.getConnection();
 
-        String connectionName = connection == null ? "UNKNOWN" : connection.getName();
-        return connectionName + " - " + getName(object);
+        String connectionName = connection == null ? txt("app.shared.text.Unknown") : connection.getName();
+        return txt("app.shared.text.ContextQualifiedName", connectionName, getName(object));
     }
 
     @Override

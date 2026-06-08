@@ -61,6 +61,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 
@@ -210,7 +211,7 @@ public class ProfileManagementForm extends DBNFormBase {
 
     private void handleLoadError(Throwable e) {
         conditionallyLog(e);
-        Dispatch.run(mainPanel, () -> Messages.showErrorDialog(getProject(), "Failed to load profiles.\nCause: " + Exceptions.causeMessage(e)));
+        Dispatch.run(mainPanel, () -> Messages.showErrorDialog(getProject(), txt("msg.assistant.error.ProfileLoadFailed", Exceptions.causeMessage(e))));
         afterProfilesLoad();
     }
 

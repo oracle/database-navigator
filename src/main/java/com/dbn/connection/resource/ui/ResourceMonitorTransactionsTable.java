@@ -33,6 +33,7 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ResourceMonitorTransactionsTable extends DBNTable<ResourceMonitorTransactionsTableModel> {
 
@@ -43,7 +44,7 @@ public class ResourceMonitorTransactionsTable extends DBNTable<ResourceMonitorTr
         setCellSelectionEnabled(true);
         addMouseListener(Mouse.listener().onClick(e -> clickEvent(e)));
 
-        setAccessibleName(this, "Resource Monitor Transactions");
+        setAccessibleName(this, txt("app.connection.aria.ResourceMonitorTransactions"));
     }
 
     private void clickEvent(MouseEvent e) {
@@ -89,7 +90,12 @@ public class ResourceMonitorTransactionsTable extends DBNTable<ResourceMonitorTr
                 append(transaction.getFilePath(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
 
             } else if (column == 1) {
-                append(transaction.getChangesCount() + " uncommitted changes", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                int changesCount = transaction.getChangesCount();
+                append(txt(changesCount == 1 ?
+                                "app.connection.text.UncommittedChange" :
+                                "app.connection.text.UncommittedChanges",
+                        changesCount),
+                        SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
         }
     }

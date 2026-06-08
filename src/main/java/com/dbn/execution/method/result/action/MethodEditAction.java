@@ -29,6 +29,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class MethodEditAction extends AbstractMethodExecutionResultAction {
 
+    public MethodEditAction() {
+        super(txt("app.execution.action.MethodExecutionResultEditMethod"));
+    }
+
     @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,

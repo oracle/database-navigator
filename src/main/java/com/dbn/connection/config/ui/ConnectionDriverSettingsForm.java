@@ -25,7 +25,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Lists;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
@@ -77,11 +76,13 @@ import static com.dbn.common.ui.util.TextFields.setTextSilently;
 import static com.dbn.common.util.FileChoosers.addFileChooser;
 import static com.dbn.common.util.FileChoosers.singleFolderOrJar;
 import static com.dbn.common.util.Lists.firstElement;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.connection.DatabaseType.GENERIC;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.driver.approval.DriverLibraryApprovalUtil.approveTemporarily;
+import static com.dbn.nls.NlsResources.txt;
 
 
 public class ConnectionDriverSettingsForm extends DBNFormBase {
@@ -131,7 +132,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 txt("cfg.connection.text.LibraryDriverClasses"));
 
         onTextChange(driverLibraryTextField, e -> reloadDrivers());
-        installErrorHighlighting(driverLibraryTextField, s -> isNotEmpty(s) && !fileExists(s) ? "Invalid driver library (not a file or directory)" : null);
+        installErrorHighlighting(driverLibraryTextField, s -> isNotEmpty(s) && !fileExists(s) ? txt("cfg.connection.error.DriverLibraryNotFileOrDirectory") : null);
     }
 
     private void initDriverStatusFields() {
@@ -204,8 +205,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         downloadButton.addActionListener(e -> {
             Progress.modal(ensureProject(),
                     null, true,
-                    "Loading Drivers",
-                    "Loading driver package metadata...",
+                    txt("prc.connection.title.LoadingDrivers"),
+                    txt("prc.connection.text.LoadingDriverPackageMetadata"),
                     indicator -> showDownloadPopup()
             );
         });
@@ -218,7 +219,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             dispatch(() -> showDownloadPopup(downloadButton, driverPackages));
         } catch (Exception e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(ensureProject(), "Failed to download driver libraries metadata", e);
+            showErrorDialog(ensureProject(), txt("msg.driver.error.DriverLibrariesMetadataDownloadFailed"), e);
         }
     }
 
@@ -376,18 +377,18 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 });
         }
         actions.add(Separator.getInstance());
-        actions.add(new DumbAwareAction("Download Libraries...", null, AllIcons.Actions.Download) {
+        actions.add(new DumbAwareAction(txt("cfg.connection.action.DownloadLibraries"), null, AllIcons.Actions.Download) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
                 Project project = getProject();
                 Progress.modal(project, null, true,
-                        "Loading Drivers",
-                        "Loading driver package metadata...",
+                        txt("prc.connection.title.LoadingDrivers"),
+                        txt("prc.connection.text.LoadingDriverPackageMetadata"),
                         indicator -> initDownloadManagerDialog(indicator));
             }
         });
         popupBuilder(actions, button).
-                withTitle("Driver Libraries").
+                withTitle(txt("cfg.connection.title.DriverLibraries")).
                 withTitleVisible(false).
                 withSpeedSearch().
                 buildAndShow();

@@ -329,12 +329,14 @@ public final class WrapperStatementBuilder {
         return generateCode("DBN - OJVM SQLCleanup.sql", context);
     }
 
+    @NonNls
     public String buildSqlToJavaAssignmentLine(FieldWrapper fieldWrapper) {
         if (!fieldWrapper.isUpdatable()) return ""; // TODO will this ever happen?
 
         String fieldName = fieldWrapper.getName();
         int fieldIndex = fieldWrapper.getIndex();
 
+        @NonNls
         String valueExpression = "objArray[" + fieldIndex + "]";
 
         // Build conversion expression.

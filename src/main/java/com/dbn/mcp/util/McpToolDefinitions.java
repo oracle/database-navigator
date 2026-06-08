@@ -8,6 +8,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @UtilityClass
 public class McpToolDefinitions {
     public static String validationError(String toolName, Collection<String> siblingToolNames) {
@@ -19,7 +21,7 @@ public class McpToolDefinitions {
 
         for (String siblingToolName : siblingToolNames) {
             if (match(toolName, siblingToolName)) {
-                return "This name is already used by another tool";
+                return txt("msg.mcp.error.ToolNameAlreadyUsed");
             }
         }
 
@@ -35,7 +37,7 @@ public class McpToolDefinitions {
 
     public static String validationError(List<McpToolDefinition> tools) {
         if (tools == null || tools.isEmpty()) {
-            return "Please add at least one tool";
+            return txt("msg.mcp.error.ToolRequired");
         }
 
         Set<String> names = new LinkedHashSet<>();
@@ -45,15 +47,15 @@ public class McpToolDefinitions {
 
             String error = McpToolName.validationError(name);
             if (error != null) {
-                return "Tool #" + (i + 1) + ": " + error;
+                return txt("msg.mcp.error.ToolValidationError", i + 1, error);
             }
             String description = tool == null ? "" : tool.getDescription();
             error = McpToolDescription.validationError(description);
             if (error != null) {
-                return "Tool #" + (i + 1) + ": " + error;
+                return txt("msg.mcp.error.ToolValidationError", i + 1, error);
             }
             if (!names.add(name)) {
-                return "Tool names must be unique. Duplicate: " + name;
+                return txt("msg.mcp.error.ToolNameDuplicate", name);
             }
         }
         return null;

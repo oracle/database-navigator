@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
  */
 public class SelectAiShowSqlAction extends SelectAiBaseEditorAction {
 
+  public SelectAiShowSqlAction() {
+    super(txt("app.assistant.action.AssistantGenerateSql"));
+  }
+
   @Override
   protected PromptAction getAction() {
     return PromptAction.SHOW_SQL;

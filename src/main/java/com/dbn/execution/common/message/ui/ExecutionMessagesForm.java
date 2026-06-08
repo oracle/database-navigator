@@ -41,6 +41,7 @@ import javax.swing.tree.TreePath;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Borderless.markBorderless;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionMessagesForm extends DBNFormBase {
     private JPanel mainPanel;

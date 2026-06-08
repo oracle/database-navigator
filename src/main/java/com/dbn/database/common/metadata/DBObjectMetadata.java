@@ -16,5 +16,8 @@
 
 package com.dbn.database.common.metadata;
 
+import org.jetbrains.annotations.NonNls;
+
+@NonNls
 public interface DBObjectMetadata {
 }
