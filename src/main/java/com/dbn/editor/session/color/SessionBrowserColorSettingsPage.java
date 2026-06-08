@@ -32,16 +32,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SessionBrowserColorSettingsPage implements ColorSettingsPage {
     protected final List<AttributesDescriptor> attributeDescriptors = new ArrayList<>();
     protected final List<ColorDescriptor> colorDescriptors = new ArrayList<>();
 
     public SessionBrowserColorSettingsPage() {
-        attributeDescriptors.add(new AttributesDescriptor("Active Session",   SessionBrowserTextAttributesKeys.ACTIVE_SESSION));
-        attributeDescriptors.add(new AttributesDescriptor("Inactive Session", SessionBrowserTextAttributesKeys.INACTIVE_SESSION));
-        attributeDescriptors.add(new AttributesDescriptor("Cached Session",   SessionBrowserTextAttributesKeys.CACHED_SESSION));
-        attributeDescriptors.add(new AttributesDescriptor("Sniped Session",   SessionBrowserTextAttributesKeys.SNIPED_SESSION));
-        attributeDescriptors.add(new AttributesDescriptor("Killed Session",   SessionBrowserTextAttributesKeys.KILLED_SESSION));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.sessions.const.TextAttribute_ACTIVE_SESSION"), SessionBrowserTextAttributesKeys.ACTIVE_SESSION));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.sessions.const.TextAttribute_INACTIVE_SESSION"), SessionBrowserTextAttributesKeys.INACTIVE_SESSION));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.sessions.const.TextAttribute_CACHED_SESSION"), SessionBrowserTextAttributesKeys.CACHED_SESSION));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.sessions.const.TextAttribute_SNIPED_SESSION"), SessionBrowserTextAttributesKeys.SNIPED_SESSION));
+        attributeDescriptors.add(new AttributesDescriptor(txt("cfg.sessions.const.TextAttribute_KILLED_SESSION"), SessionBrowserTextAttributesKeys.KILLED_SESSION));
     }
 
     @Override
@@ -77,7 +79,7 @@ public class SessionBrowserColorSettingsPage implements ColorSettingsPage {
     @NotNull
     @Override
     public String getDisplayName() {
-        return "Session Browser (DBN)";
+        return txt("cfg.sessions.title.SessionBrowserColorSettings");
     }
 
     @Override

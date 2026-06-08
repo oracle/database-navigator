@@ -40,6 +40,7 @@ import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT
 import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SequenceElementTypeParser<E extends SequenceElementType> extends ElementTypeParser<E> {
     public SequenceElementTypeParser(E elementType) {
@@ -162,7 +163,7 @@ public class SequenceElementTypeParser<E extends SequenceElementType> extends El
             }
         }
         //builder.markerDone(marker, getElementBundle().getUnknownElementType());
-        marker.error("Invalid or incomplete statement");
+        marker.error(txt("msg.languageParser.error.InvalidOrIncompleteStatement"));
         return 0;
     }
 

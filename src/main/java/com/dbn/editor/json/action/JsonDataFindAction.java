@@ -28,6 +28,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class JsonDataFindAction extends AbstractJsonDataEditorAction {
 
+    public JsonDataFindAction() {
+        super(txt("app.dataEditor.action.JsonDataEditorFind"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull JsonDataEditor jsonDataEditor) {
         jsonDataEditor.showSearchHeader();

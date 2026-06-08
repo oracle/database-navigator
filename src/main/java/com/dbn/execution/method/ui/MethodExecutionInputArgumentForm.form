@@ -17,7 +17,7 @@
         </constraints>
         <properties>
           <iconTextGap value="4"/>
-          <text value="[argument]"/>
+          <text resource-bundle="messages/DBNResources" key="app.execution.placeholder.Argument"/>
         </properties>
       </component>
       <grid id="351ef" binding="inputFieldPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
@@ -34,7 +34,7 @@
         </constraints>
         <properties>
           <iconTextGap value="0"/>
-          <text value="[argument type]"/>
+          <text resource-bundle="messages/DBNResources" key="app.execution.placeholder.ArgumentType"/>
         </properties>
       </component>
       <grid id="b4e26" binding="typeAttributesPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

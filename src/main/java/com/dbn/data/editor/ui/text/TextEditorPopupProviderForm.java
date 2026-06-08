@@ -63,6 +63,7 @@ import static com.dbn.common.ui.util.UserInterface.focusNextComponent;
 import static com.dbn.common.ui.util.UserInterface.focusPreviousComponent;
 import static com.dbn.common.util.Actions.createActionToolbar;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
     private JPanel mainPanel;
@@ -184,7 +185,7 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
     @Override
     public String getName() {
-        return "Text Editor";
+        return txt("msg.dataEditor.title.TextEditor");
     }
 
     @Override

@@ -32,7 +32,7 @@ public class AssistantHelpAction extends BasicAction implements AssistantActionS
   public void update(@NotNull AnActionEvent e) {
     Presentation presentation = e.getPresentation();
     presentation.setText(txt("app.assistant.action.Help"));
-    presentation.setDescription(txt("app.assistant.action.HelpDesc"));
+    presentation.setDescription(txt("app.assistant.tooltip.Help"));
     presentation.setIcon(Icons.ACTION_HELP);
   }
   @Override

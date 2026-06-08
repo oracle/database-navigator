@@ -36,6 +36,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import static com.dbn.common.ui.table.Tables.adjustTableRowHeight;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ProfileDetailsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -124,7 +125,7 @@ public class ProfileDetailsForm extends DBNFormBase {
                             SimpleTextAttributes.REGULAR_ATTRIBUTES :
                             SimpleTextAttributes.GRAY_ATTRIBUTES);
                 } else {
-                    append("<all>", table.isEnabled() ?
+                    append(txt("app.assistant.placeholder.All"), table.isEnabled() ?
                             SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES :
                             SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES);
                 }

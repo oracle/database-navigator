@@ -25,10 +25,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ProjectSettingsActionGroup extends ActionGroup {
     private ConfigId[] configIds;
     public ProjectSettingsActionGroup(ConfigId ... configIds) {
-        super("Settings", true);
+        super(txt("app.settings.action.SettingsPlain"), true);
         this.configIds = configIds;
     }
 

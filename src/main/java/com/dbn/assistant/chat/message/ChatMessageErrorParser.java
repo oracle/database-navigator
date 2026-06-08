@@ -16,6 +16,8 @@
 
 package com.dbn.assistant.chat.message;
 
+import org.jetbrains.annotations.NonNls;
+
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -34,9 +36,10 @@ public class ChatMessageErrorParser {
         }
     }
 
-    private static Pattern urlPattern = Pattern.compile("(https?://[\\w\\-\\.]+(:\\d+)?(/[\\w\\-\\.~:/?#\\[\\]@!$&'()*+,;=]*)?)(?![\\w\\-\\./~])");
+    private static final Pattern urlPattern = Pattern.compile("(https?://[\\w\\-\\.]+(:\\d+)?(/[\\w\\-\\.~:/?#\\[\\]@!$&'()*+,;=]*)?)(?![\\w\\-\\./~])");
 
     private static String convertToHtml(Map<String, Object> map, int level) {
+        @NonNls
         StringBuilder html = new StringBuilder();
         html.append("<div>\n");
         for (Map.Entry<String, Object> entry : map.entrySet()) {
@@ -45,7 +48,7 @@ public class ChatMessageErrorParser {
             if (value instanceof String || value instanceof Number || value instanceof Boolean) {
                 String text = value.toString();
                 Matcher matcher = urlPattern.matcher(text);
-                StringBuffer buffer = new StringBuffer();
+                StringBuilder buffer = new StringBuilder();
                 while (matcher.find()) {
                     matcher.appendReplacement(buffer, "<a href=\"" + matcher.group(0) + "\">" + matcher.group(0) + "</a>");
                 }
@@ -66,6 +69,7 @@ public class ChatMessageErrorParser {
     }
 
     private static String processList(List<Object> list, int level) {
+        @NonNls
         StringBuilder htmlList = new StringBuilder();
         htmlList.append("<div>\n");
         for (Object item : list) {
@@ -76,7 +80,7 @@ public class ChatMessageErrorParser {
             } else {
                 String text = item.toString();
                 Matcher matcher = urlPattern.matcher(text);
-                StringBuffer buffer = new StringBuffer();
+                StringBuilder buffer = new StringBuilder();
                 while (matcher.find()) {
                     matcher.appendReplacement(buffer, "<a href=\"" + matcher.group(0) + "\">" + matcher.group(0) + "</a>");
                 }

@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ChatSaveForm extends DBNFormBase {
     private JPanel headerPanel;
@@ -43,14 +44,14 @@ public class ChatSaveForm extends DBNFormBase {
         warningLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
         this.headerPanel.add(warningLabel);
         this.usedNames = usedNames;
-        this.nameTextField.getEmptyText().setText("Chat name");
+        this.nameTextField.getEmptyText().setText(txt("app.assistant.placeholder.ChatName"));
 
     }
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, Strings::isNotEmpty, "Please provide a chat name");
-        addTextValidation(nameTextField, this::isNotUsed, "The chat name is already in use");
+        addTextValidation(nameTextField, Strings::isNotEmpty, txt("msg.assistant.error.ChatNameRequired"));
+        addTextValidation(nameTextField, this::isNotUsed, txt("msg.assistant.error.ChatNameAlreadyInUse"));
     }
 
     private boolean isNotUsed(String name) {

@@ -23,6 +23,8 @@ import com.dbn.object.type.DBObjectType;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBTypeAttributeNavigationInfoProvider extends DBObjectNavigationInfoProviderBase<DBTypeAttribute> {
     public DBTypeAttributeNavigationInfoProvider() {
         super(DBObjectType.TYPE_ATTRIBUTE);
@@ -33,7 +35,7 @@ public class DBTypeAttributeNavigationInfoProvider extends DBObjectNavigationInf
         DBDataType dataType = attribute.getDataType();
         if (!dataType.isDeclared()) return null;
 
-        return List.of(DBObjectNavigationList.create("Type", dataType.getDeclaredType()));
+        return List.of(DBObjectNavigationList.create(txt("app.objects.navigation.Type"), dataType.getDeclaredType()));
 
     }
 }

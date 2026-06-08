@@ -19,12 +19,14 @@ package com.dbn.database.common.debug;
 import com.intellij.execution.Executor;
 import com.intellij.execution.ExecutorRegistry;
 import com.intellij.execution.executors.DefaultDebugExecutor;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
 public class DatabaseDebugExecutor extends DefaultDebugExecutor{
 
+    @NonNls
     public static final String EXECUTOR_ID = "Database Debug";
 
     @NotNull

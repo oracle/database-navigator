@@ -24,6 +24,7 @@ import com.dbn.language.common.psi.ExecVariablePsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -61,6 +62,7 @@ public class ExecVariableElementType extends LeafElementType {
         return "variable (" + getId() + ")";
     }
 
+    @NonNls
     public String toString() {
         return "variable (" + getId() + ")";
     }

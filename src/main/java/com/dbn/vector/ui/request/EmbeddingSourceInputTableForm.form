@@ -14,7 +14,7 @@
         </constraints>
         <properties>
           <labelFor value="bcb62"/>
-          <text value="&amp;Schema"/>
+          <text resource-bundle="messages/DBNResources" key="app.vector.label.SchemaMnemonic"/>
         </properties>
       </component>
       <hspacer id="16a6f">
@@ -28,7 +28,7 @@
         </constraints>
         <properties>
           <labelFor value="80bcb"/>
-          <text value="&amp;Table"/>
+          <text resource-bundle="messages/DBNResources" key="app.vector.label.TableMnemonic"/>
         </properties>
       </component>
       <component id="f6489" class="javax.swing.JLabel" binding="keyColumnLabel">
@@ -37,7 +37,7 @@
         </constraints>
         <properties>
           <labelFor value="b9b37"/>
-          <text value="&amp;Key column"/>
+          <text resource-bundle="messages/DBNResources" key="app.vector.label.KeyColumn"/>
         </properties>
       </component>
       <component id="83ee8" class="javax.swing.JLabel" binding="dataColumnLabel">
@@ -46,7 +46,7 @@
         </constraints>
         <properties>
           <labelFor value="b0adb"/>
-          <text value="&amp;Data column"/>
+          <text resource-bundle="messages/DBNResources" key="app.vector.label.DataColumnMnemonic"/>
         </properties>
       </component>
       <component id="bcb62" class="com.dbn.object.common.ui.DBObjectSelector" binding="schemaComboBox">

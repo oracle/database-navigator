@@ -167,7 +167,7 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
         } catch (DataExportException e) {
             conditionallyLog(e);
             InteractiveMessage message =
-                    InteractiveMessage.error("Export Error", txt("msg.data.error.ExportFailure")).
+                    InteractiveMessage.error(txt("msg.data.title.ExportError"), txt("msg.data.error.ExportFailure")).
                             withException(e).
                             withOptions(Messages.OPTIONS_RETRY_CANCEL, 0).
                             withCallback(o -> when(o == 0, () -> openExportDialog(source, instructions)));

@@ -130,7 +130,7 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="All tools"/>
+                  <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.AllTools"/>
                 </properties>
               </component>
               <component id="89180" class="com.dbn.common.ui.misc.DBNToggleButton" binding="statusToggle">
@@ -140,7 +140,7 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <text value="[status]"/>
+                  <text resource-bundle="messages/DBNResources" key="cfg.assistant.placeholder.Status"/>
                 </properties>
               </component>
             </children>
@@ -156,7 +156,7 @@
                 <constraints border-constraint="Center"/>
                 <properties>
                   <enabled value="false"/>
-                  <text value="Loading tools..."/>
+                  <text resource-bundle="messages/DBNResources" key="cfg.assistant.text.LoadingTools"/>
                 </properties>
               </component>
             </children>

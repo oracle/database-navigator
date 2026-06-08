@@ -20,19 +20,26 @@ package com.dbn.object.type;
 import com.dbn.common.constant.Constant;
 import com.dbn.common.ui.Presentable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * This enum is for listing the possible ways of creating a new credential
  *
  * @author Ayoub Aarrasse (Oracle)
  */
 public enum DBCredentialType implements Constant<DBCredentialType>, Presentable {
-    PASSWORD,
-    TOKEN,
-    OCI;
+    PASSWORD(txt("app.objects.const.DBCredentialType_PASSWORD")),
+    TOKEN(txt("app.objects.const.DBCredentialType_TOKEN")),
+    OCI(txt("app.objects.const.DBCredentialType_OCI"));
 
+    private final String name;
+
+    DBCredentialType(String name) {
+        this.name = name;
+    }
 
     @Override
     public String getName() {
-        return name();
+        return name;
     }
 }

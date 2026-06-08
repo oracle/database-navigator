@@ -38,6 +38,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class DatasetFiltersSelectAction extends ComboBoxAction {
 
+    public DatasetFiltersSelectAction() {
+        super(txt("app.dataEditor.action.DataEditorSelectFilter"));
+    }
+
     @Override
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent button, @NotNull DataContext dataContext) {

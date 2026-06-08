@@ -51,6 +51,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectPropertiesForm extends DBNFormBase {
     private JPanel mainPanel;
     private JLabel objectLabel;
@@ -68,14 +70,14 @@ public class ObjectPropertiesForm extends DBNFormBase {
         super(parent);
         objectPropertiesTable = new ObjectPropertiesTable(this, new ObjectPropertiesTableModel());
         objectPropertiesScrollPane.setViewportView(objectPropertiesTable);
-        objectTypeLabel.setText("Object properties:");
-        objectLabel.setText("(no object selected)");
+        objectTypeLabel.setText(txt("app.object.label.ObjectProperties"));
+        objectLabel.setText(txt("app.object.label.NoObjectSelected"));
 
         closeLabel.setText("");
         closeLabel.setIcon(Icons.ACTION_CLOSE_SMALL);
         closeLabel.setCursor(Cursors.handCursor());
         closeLabel.addMouseListener(closeMouseListener());
-        closeLabel.setToolTipText("Hide Object Properties");
+        closeLabel.setToolTipText(txt("app.object.tooltip.HideObjectProperties"));
 
         Project project = ensureProject();
         ProjectEvents.subscribe(project, this, BrowserTreeEventListener.TOPIC, browserTreeEventListener());
@@ -149,8 +151,8 @@ public class ObjectPropertiesForm extends DBNFormBase {
 
             dispatch(() -> {
                 if (object == null) {
-                    objectTypeLabel.setText("Object properties:");
-                    objectLabel.setText("(no object selected)");
+                    objectTypeLabel.setText(txt("app.object.label.ObjectProperties"));
+                    objectLabel.setText(txt("app.object.label.NoObjectSelected"));
                     objectLabel.setIcon(null);
                     UserInterface.setBackgroundRecursive(headerPanel, EnvironmentType.DEFAULT.getColor());
                 } else {

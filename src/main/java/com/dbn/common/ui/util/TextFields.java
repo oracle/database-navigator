@@ -21,6 +21,8 @@ import com.dbn.common.routine.Consumer;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.util.NlsContexts.StatusText;
+import com.intellij.openapi.util.NlsContexts.Tooltip;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBTextField;
@@ -154,23 +156,23 @@ public class TextFields {
 
     }
 
-    public static void updateFieldError(JTextComponent textComponent, @Nullable String error) {
+    public static void updateFieldError(JTextComponent textComponent, @Nullable @Tooltip String error) {
         FIELD_ERROR.set(textComponent, error);
         textComponent.setForeground(error == null ? Colors.getTextFieldForeground() : JBColor.RED);
         textComponent.setToolTipText(error);
     }
 
-    public static void setEmptyText(JTextField textField, String emptyText) {
+    public static void setEmptyText(JTextField textField, @StatusText String emptyText) {
         if (textField instanceof JBTextField jbTextField) {
             jbTextField.getEmptyText().setText(emptyText);
         }
     }
 
-    public static void installErrorHighlighting(TextFieldWithBrowseButton textField, Function<String, String> verifier) {
+    public static void installErrorHighlighting(TextFieldWithBrowseButton textField, Function<String, @Nullable @Tooltip String> verifier) {
         installErrorHighlighting(textField.getTextField(), verifier);
     }
 
-    public static void installErrorHighlighting(JTextField textComponent, Function<String, String> verifier) {
+    public static void installErrorHighlighting(JTextField textComponent, Function<String, @Nullable @Tooltip String> verifier) {
         onTextChange(textComponent, e -> {
             String errorMessage = verifier.apply(textComponent.getText());
             updateFieldError(textComponent, errorMessage);

@@ -20,10 +20,12 @@ import com.dbn.common.constant.Constant;
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public enum OciConfigType implements Constant<OciConfigType>, Presentable {
-    FILE("File (~/.oci/config)"),
-    CUSTOM("Custom")
+    FILE(txt("cfg.oci.const.OciConfigType_FILE")),
+    CUSTOM(txt("cfg.oci.const.OciConfigType_CUSTOM"))
     ;
 
     private final String name;

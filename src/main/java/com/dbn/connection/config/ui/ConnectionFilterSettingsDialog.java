@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Action;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionFilterSettingsDialog extends DBNDialog<DBNContentWithHeaderForm> {
     private final ConnectionRef connection;
@@ -40,7 +41,7 @@ public class ConnectionFilterSettingsDialog extends DBNDialog<DBNContentWithHead
     private ConnectionFilterSettings filterSettings;
 
     public ConnectionFilterSettingsDialog(@NotNull ConnectionHandler connection) {
-        super(connection.getProject(), "Object filters", true);
+        super(connection.getProject(), txt("msg.connection.title.ObjectFilters"), true);
         this.connection = connection.ref();
         setModal(true);
         setResizable(true);

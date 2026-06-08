@@ -45,7 +45,7 @@ public class CopyContentAction extends ChatMessageAction {
     public void update(@NotNull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
         presentation.setText(txt("app.assistant.action.CopyContent"));
-        presentation.setDescription(txt("app.assistant.action.CopyContentDesc"));
+        presentation.setDescription(txt("app.assistant.tooltip.CopyContent"));
         presentation.setIcon(Icons.ACTION_COPY);
 
         presentation.setVisible(visible.get());

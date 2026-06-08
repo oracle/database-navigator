@@ -17,11 +17,10 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.nls.NlsSupport;
 
 import java.sql.SQLException;
 
-public interface DatabaseInterface extends NlsSupport {
+public interface DatabaseInterface  {
 
     DatabaseInterfaceType getInterfaceType();
 

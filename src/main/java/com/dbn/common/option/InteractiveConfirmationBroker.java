@@ -23,6 +23,9 @@ import com.dbn.common.options.setting.Settings;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.Checkbox;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -30,19 +33,26 @@ import org.jetbrains.annotations.NonNls;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.format;
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 @Setter
 public class InteractiveConfirmationBroker implements RememberOption, PersistentConfiguration{
-    private final String configName;
-    private final String title;
-    private final String message;
+    private final @NonNls String configName;
+    private final @DialogTitle String title;
+    private final @DialogMessage String message;
 
     private Icon dialogIcon = Icons.DIALOG_QUESTION;
-    private String doNotShowMessage = "Do not ask again";
+    private @Checkbox String doNotShowMessage = txt("msg.shared.option.DoNotAskAgain");
 
     protected transient boolean confirm;
 
-    public InteractiveConfirmationBroker(@NonNls String configName, String title, String message, boolean defaultKeepAsking) {
+    public InteractiveConfirmationBroker(
+            @NonNls String configName,
+            @DialogTitle String title,
+            @DialogMessage String message,
+            boolean defaultKeepAsking) {
         this.configName = configName;
         this.title = title;
         this.message = message;
@@ -54,7 +64,7 @@ public class InteractiveConfirmationBroker implements RememberOption, Persistent
         return this;
     }
 
-    public InteractiveConfirmationBroker withDoNotShowMessage(String doNotShowMessage) {
+    public InteractiveConfirmationBroker withDoNotShowMessage(@Checkbox String doNotShowMessage) {
         this.doNotShowMessage = doNotShowMessage;
         return this;
     }
@@ -87,8 +97,8 @@ public class InteractiveConfirmationBroker implements RememberOption, Persistent
     private boolean prompt(Project project, Object[] messageArgs) {
         int optionIndex = Messages.showDialog(
                 project,
-                txt(message, messageArgs),
-                txt(title),
+                format(message, messageArgs),
+                title,
                 Messages.OPTIONS_YES_NO, 0,
                 dialogIcon, this);
         return optionIndex == 0;

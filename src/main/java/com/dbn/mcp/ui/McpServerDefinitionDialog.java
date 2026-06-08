@@ -29,6 +29,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm> {
 
     private final ConnectionHandler connection;
@@ -37,7 +39,7 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
     private Action saveAsAction;
 
     public McpServerDefinitionDialog(@NotNull ConnectionHandler connection, McpServerDefinition definition) {
-        super(connection, "MCP Server Builder", true);
+        super(connection, txt("msg.mcp.title.McpServerBuilder"), true);
         this.connection = connection;
         this.definition = definition;
         setDefaultSize(600, 600);
@@ -54,17 +56,17 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
     @Override
     protected ValidationInfo doValidate() {
         if (!getForm().hasTools()) {
-            return new ValidationInfo("Please add at least one tool definition");
+            return new ValidationInfo(txt("msg.mcp.error.ToolDefinitionRequired"));
         }
         return super.doValidate();
     }
 
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Build Server");
-        renameAction(getCancelAction(), "Close");
+        renameAction(getOKAction(), txt("msg.mcp.button.BuildServer"));
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
 
-        Action saveAction = createAction("Save", () -> getForm().saveConfiguration());
-        saveAsAction = createAction("Save As...", () -> getForm().saveConfigurationAs());
+        Action saveAction = createAction(txt("msg.shared.button.Save"), () -> getForm().saveConfiguration());
+        saveAsAction = createAction(txt("msg.shared.button.SaveAs"), () -> getForm().saveConfigurationAs());
         OptionAction saveOptionAction = createCompositeAction(saveAction, saveAsAction);
 
         return actions(

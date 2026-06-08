@@ -27,6 +27,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class BrowserNavigateBackAction extends AbstractBrowserAction {
 
+    public BrowserNavigateBackAction() {
+        super(txt("app.browser.action.BrowserBack"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         DatabaseBrowserTree browserTree = getActiveBrowserTree(project);

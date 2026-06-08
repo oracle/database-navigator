@@ -31,6 +31,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExplainPlanResultViewStatementAction extends AbstractExplainPlanResultAction {
 
+    public ExplainPlanResultViewStatementAction() {
+        super(txt("app.execution.action.ExplainPlanResultViewStatement"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ExplainPlanResult explainPlanResult) {
         ExecutionStatementViewerPopup statementViewer = new ExecutionStatementViewerPopup(explainPlanResult);

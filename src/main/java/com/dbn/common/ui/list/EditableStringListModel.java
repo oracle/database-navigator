@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class EditableStringListModel extends DBNEditableTableModel {
     private final List<String> originalData;
@@ -54,7 +56,7 @@ public class EditableStringListModel extends DBNEditableTableModel {
 
     @Override
     public String getColumnName(int columnIndex) {
-        return "DATA";
+        return txt("app.shared.column.Data");
     }
 
     @Override

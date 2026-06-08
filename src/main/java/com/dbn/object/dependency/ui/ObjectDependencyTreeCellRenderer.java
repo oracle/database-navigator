@@ -30,6 +30,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectDependencyTreeCellRenderer extends DBNColoredTreeCellRenderer {
 
     public static final JBColor HIGHLIGHT_BACKGROUND = new JBColor(0xCCCCFF, 0x155221);
@@ -76,7 +78,7 @@ public class ObjectDependencyTreeCellRenderer extends DBNColoredTreeCellRenderer
             Trees.applySpeedSearchHighlighting(tree, this, true, selected);
         } else {
             setIcon(LoadInProgressIcon.INSTANCE);
-            append("Loading...", SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES);
+            append(txt("app.shared.placeholder.Loading"), SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES);
         }
     }
 

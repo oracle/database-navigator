@@ -59,18 +59,18 @@ public class ProgramMethodDebugAction extends ObjectListShowAction {
 
     @Override
     public String getTitle() {
-        return "Select method to debug";
+        return txt("app.execution.action.SelectMethodToDebug");
     }
 
     @Override
     public String getEmptyListMessage() {
         DBProgram program = (DBProgram) getSourceObject();
-        return "The " + program.getQualifiedNameWithType() + " has no methods.";
+        return txt("app.execution.action.NoMethods", program.getQualifiedNameWithType());
     }
 
      @Override
      public String getListName() {
-        return "executable elements";
+        return txt("app.execution.token.ExecutableElements");
     }
 
     @Override

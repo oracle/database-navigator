@@ -20,7 +20,6 @@ import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNForm;
-import com.dbn.common.util.Messages;
 import com.dbn.data.grid.ui.table.basic.BasicTableCellRenderer;
 import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
@@ -59,6 +58,7 @@ import java.util.EventObject;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Mouse.onMouseClick;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
 import static com.dbn.editor.data.DataLoadInstruction.PRESERVE_CHANGES;
 import static com.dbn.editor.data.DataLoadInstruction.USE_CURRENT_FILTER;
@@ -91,7 +91,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
         onMouseClick(this, BUTTON1, 2, e -> showContentEditor());
         onMouseClick(this, BUTTON3, 1, e -> selectCellAt(e.getPoint()));
 
-        setAccessibleName(this, "Json Data Editor");
+        setAccessibleName(this, txt("app.dataEditor.aria.JsonDataEditor"));
         setFocusable(true);
         setRequestFocusEnabled(true);
     }
@@ -211,9 +211,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
                 }
 
                 if (editorTableCell.isModified() && !(editorTableCell.getUserValue() instanceof ValueAdapter)) {
-                    text.append("<br>Original value: <b>");
-                    text.append(editorTableCell.getOriginalUserValue());
-                    text.append("</b>");
+                    text.append(txt("app.dataEditor.tooltip.OriginalValueLine", editorTableCell.getOriginalUserValue()));
                 }
 
                 text.append("</html>");
@@ -224,11 +222,11 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
             if (editorTableCell.isModified() && !e.isControlDown()) {
                 Object userValue = editorTableCell.getUserValue();
                 if (userValue instanceof ArrayValue) {
-                    return "ARRAY value has changed";
+                    return txt("app.dataEditor.tooltip.ArrayValueChanged");
                 } else  if (userValue instanceof LargeObjectValue largeObjectValue) {
-                    return largeObjectValue.getGenericDataType() + " content has changed";
+                    return txt("app.dataEditor.tooltip.LargeObjectContentChanged", largeObjectValue.getGenericDataType());
                 } else {
-                    return "<html>Original value: <b>" + editorTableCell.getOriginalUserValue() + "</b></html>";
+                    return txt("app.dataEditor.tooltip.OriginalValue", editorTableCell.getOriginalUserValue());
                 }
 
             }
@@ -296,7 +294,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
                             try {
                                 model.postInsertRecord(false, true, false);
                             } catch (SQLException e1) {
-                                Messages.showErrorDialog(getProject(), "Could not create row in " + jsonView.getQualifiedNameWithType() + ".", e1);
+                                showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotCreateRow", jsonView.getQualifiedNameWithType()), e1);
                             }
                         });
             }

@@ -27,11 +27,17 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @BackgroundUpdate
+@NoArgsConstructor
 public abstract class AbstractCodeEditorAction extends ProjectAction {
+
+    protected AbstractCodeEditorAction(String text) {
+        super(text);
+    }
 
     @Nullable
     protected static Editor getEditor(AnActionEvent e) {

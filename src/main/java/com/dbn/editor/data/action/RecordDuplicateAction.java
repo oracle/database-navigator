@@ -33,6 +33,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class RecordDuplicateAction extends AbstractDataEditorAction {
 
+    public RecordDuplicateAction() {
+        super(txt("app.dataEditor.action.DataEditorDuplicateRecord"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         datasetEditor.duplicateRecord();

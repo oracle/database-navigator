@@ -17,9 +17,10 @@
 package com.dbn.common.ui.table;
 
 import com.dbn.common.data.Data;
+import com.intellij.openapi.util.NlsContexts.ColumnName;
+import com.intellij.openapi.util.NlsContexts.Tooltip;
 import com.intellij.ui.SimpleTextAttributes;
 import lombok.Getter;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
@@ -43,7 +44,7 @@ public class DBNDynamicTableModel<T> extends DBNMutableTableModel<T> implements 
         this.data = new ArrayList<>(data);
     }
 
-    protected <V> ColumnSpec<V> addColumn(String name, Function<T, V> value) {
+    protected <V> ColumnSpec<V> addColumn(@ColumnName String name, Function<T, V> value) {
         ColumnSpec<V> columnSpec = new ColumnSpec<>(name, value);
         columns.add(columnSpec);
         return columnSpec;
@@ -60,7 +61,7 @@ public class DBNDynamicTableModel<T> extends DBNMutableTableModel<T> implements 
     }
 
     @Override
-    public final @Nls String getColumnName(int columnIndex) {
+    public final @ColumnName String getColumnName(int columnIndex) {
         return getColumn(columnIndex).getName();
     }
 
@@ -87,8 +88,8 @@ public class DBNDynamicTableModel<T> extends DBNMutableTableModel<T> implements 
     }
 
     @Override
-    public @Nullable String getTooltip(T rowObject, int column) {
-        Function<T, String> tooltip = getColumn(column).getTooltip();
+    public @Nullable @Tooltip String getTooltip(T rowObject, int column) {
+        Function<T, @Tooltip String> tooltip = getColumn(column).getTooltip();
         return tooltip == null ? null : tooltip.apply(rowObject);
     }
 
@@ -113,17 +114,17 @@ public class DBNDynamicTableModel<T> extends DBNMutableTableModel<T> implements 
 
     @Getter
     public class ColumnSpec<V> {
-        private final String name;
+        private final @ColumnName String name;
         private final Function<T, V> value;
         private Function<T, Icon> icon;
-        private Function<T, String> tooltip;
+        private Function<T, @Tooltip String> tooltip;
         private Function<T, SimpleTextAttributes> attributes;
-        public ColumnSpec(String name, Function<T, V> value) {
+        public ColumnSpec(@ColumnName String name, Function<T, V> value) {
             this.name = name;
             this.value = value;
         }
 
-        public ColumnSpec<V> withTooltip(Function<T, String> tooltip) {
+        public ColumnSpec<V> withTooltip(Function<T, @Tooltip String> tooltip) {
             this.tooltip = tooltip;
             return this;
         }

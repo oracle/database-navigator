@@ -28,6 +28,7 @@ import javax.swing.Icon;
 import java.util.Comparator;
 
 import static com.dbn.common.util.Strings.toUpperCase;
+import static com.dbn.nls.NlsResources.txt;
 
 public class PSQLStructureViewModelSorter implements Sorter {
 
@@ -57,12 +58,12 @@ public class PSQLStructureViewModelSorter implements Sorter {
         @Override
         @NotNull
         public String getText() {
-            return "Sort by Name";
+            return txt("app.codeEditor.action.SortByName");
         }
 
         @Override
         public String getDescription() {
-            return "Sort elements alphabetically by name";
+            return txt("app.codeEditor.tooltip.SortByName");
         }
 
         @Override

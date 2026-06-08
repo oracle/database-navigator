@@ -28,6 +28,10 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.nls.NlsResources.txt;
 
 public class JsonDataEditingLockToggleAction extends AbstractJsonDataEditorAction {
+    public JsonDataEditingLockToggleAction() {
+        super(txt("app.dataEditor.action.JsonDataEditorLockUnlockEditing"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull JsonDataEditor editor) {
         editor.toggleEditingLock();

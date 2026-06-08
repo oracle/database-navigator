@@ -56,6 +56,7 @@ import com.intellij.ui.content.Content;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -85,7 +86,7 @@ import static com.dbn.common.util.ContextLookup.getConnectionId;
         storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class DatabaseAssistantManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseAssistantManager";
-    public static final String TOOL_WINDOW_ID = "DB Assistant";
+    public static final @NonNls String TOOL_WINDOW_ID = "DB Assistant";
 
     private final Map<ConnectionId, Map<AssistantType, AssistantState>> assistantStates = new ConcurrentHashMap<>();
     private final Map<ConnectionId, AssistantType> selectedAssistantTypes = new ConcurrentHashMap<>();

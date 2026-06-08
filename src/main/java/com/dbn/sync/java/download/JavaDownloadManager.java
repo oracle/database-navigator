@@ -26,7 +26,6 @@ import com.dbn.common.state.StateCategory;
 import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
@@ -59,6 +58,8 @@ import java.util.List;
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.sync.java.download.JavaDownloadManager.COMPONENT_NAME;
 import static com.dbn.sync.java.download.JavaDownloadUtil.prepareDestinationFolders;
 
@@ -80,8 +81,8 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 		ConnectionHandler connection = sourceObject.getConnection();
 		ConnectionAction.invoke(null, true, connection, a -> {
 			Progress.prompt(getProject(), connection, true,
-					"Preparing Java Download",
-					"Loading java dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
+					txt("prc.java.title.PreparingJavaDownload"),
+					txt("prc.java.text.LoadingJavaDependencies", sourceObject.getQualifiedNameWithType()),
 					progress -> prepareDownloadDialog(sourceObject, DBObjectType.JAVA_CLASS));
 		});
 	}
@@ -90,7 +91,7 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 		ConnectionHandler connection = sourceObject.getConnection();
 		ConnectionAction.invoke(null, true, connection, a -> {
 			Progress.prompt(getProject(), connection, true,
-					"Preparing Java Resource Download",
+					txt("prc.java.title.PreparingJavaResourceDownload"),
 					null,
 					progress -> prepareDownloadDialog(sourceObject, DBObjectType.JAVA_RESOURCE));
 		});
@@ -105,17 +106,17 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 
 			Dialogs.show(() -> new JavaDownloadInputDialog(batch));
 		} catch (SQLException e) {
-			Messages.showErrorDialog(project,
-					"Error Loading Java Dependencies",
-					"Failed to load dependencies for " + sourceObject.getQualifiedNameWithType(), e);
+			showErrorDialog(project,
+					txt("msg.java.title.ErrorLoadingJavaDependencies"),
+					txt("msg.java.error.JavaDependenciesLoadFailed", sourceObject.getQualifiedNameWithType()), e);
 		}
 	}
 
 	private List<JavaDownloadTask> createDownloadTasks(DBObject sourceObject, DBObjectType objectType) throws SQLException {
 		ConnectionHandler connection = sourceObject.getConnection();
 		return DatabaseInterfaceInvoker.load(HIGH,
-				"Loading Java Dependencies",
-				"Loading java dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
+				txt("prc.java.title.LoadingJavaDependencies"),
+				txt("prc.java.text.LoadingJavaDependencies", sourceObject.getQualifiedNameWithType()),
 				connection.getProject(),
 				connection.getConnectionId(),
 				c -> createDownloadTasks(connection, sourceObject, objectType, c));
@@ -201,9 +202,9 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 			databaseBatchManager.startBatchProcess(batch);
 		} catch (Exception e) {
 			Project project = batch.getProject();
-			Messages.showErrorDialog(project,
-					"Java Download Failed",
-					"Failed to prepare destination folders", e);
+			showErrorDialog(project,
+					txt("msg.java.title.JavaDownloadFailed"),
+					txt("msg.java.error.JavaDownloadPrepareDestinationFailed"), e);
 		}
 	}
 

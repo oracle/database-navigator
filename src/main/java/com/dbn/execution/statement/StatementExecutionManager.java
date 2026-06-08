@@ -31,7 +31,6 @@ import com.dbn.common.util.Context;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.UserDataUtil;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
@@ -97,6 +96,7 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.notification.NotificationCategory.EXECUTION;
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.util.Messages.showQuestionDialog;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
@@ -109,7 +109,10 @@ import static java.util.Collections.emptyList;
 public class StatementExecutionManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.StatementExecutionManager";
 
-    private static final String[] OPTIONS_MULTIPLE_STATEMENT_EXEC = new String[]{"Execute All", "Execute All from Caret", "Cancel"};
+    private static final String[] OPTIONS_MULTIPLE_STATEMENT_EXEC = new String[]{
+            txt("msg.execution.button.ExecuteAll"),
+            txt("msg.execution.button.ExecuteAllFromCaret"),
+            txt("msg.shared.button.Cancel")};
 
     private final StatementExecutionVariables executionVariables;
     private final StatementExecutionVariableTypes executionVariableTypes;
@@ -341,10 +344,10 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
         if (executionProcessor != null) {
             executeStatement(executionProcessor, dataContext);
         } else {
-            Messages.showQuestionDialog(
+            showQuestionDialog(
                     getProject(),
-                    "Multiple statement execution",
-                    "No statement found under the caret. \nExecute all statements in the file or just the ones after the cursor?",
+                    txt("msg.execution.title.MultipleStatementExecution"),
+                    txt("msg.execution.question.MultipleStatementExecution"),
                     OPTIONS_MULTIPLE_STATEMENT_EXEC, 0,
                     (option) -> {
                         if (option == 0 || option == 1) {

@@ -27,12 +27,16 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CreateRenameSessionDialog extends DBNDialog<CreateRenameSessionForm> {
     private final ConnectionRef connection;
     private WeakRef<DatabaseSession> session;
 
     public CreateRenameSessionDialog(ConnectionHandler connection, @Nullable DatabaseSession session) {
-        super(connection.getProject(), session == null ? "Create session" : "Rename session", true);
+        super(connection.getProject(), session == null ?
+                txt("msg.sessions.title.CreateSession") :
+                txt("msg.sessions.title.RenameSession"), true);
         this.connection = connection.ref();
         this.session = WeakRef.of(session);
         setModal(true);
@@ -49,7 +53,9 @@ public class CreateRenameSessionDialog extends DBNDialog<CreateRenameSessionForm
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        String actionName = session == null ? "Create" : "Rename";
+        String actionName = session == null ?
+                txt("msg.shared.button.Create") :
+                txt("msg.shared.button.Rename");
         renameAction(getOKAction(), actionName);
 
         return actions(

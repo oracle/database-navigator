@@ -53,6 +53,7 @@ import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.connection.transaction.TransactionAction.actions;
+import static com.dbn.nls.NlsResources.txt;
 
 
 public class ResourceMonitorDetailForm extends DBNFormBase {

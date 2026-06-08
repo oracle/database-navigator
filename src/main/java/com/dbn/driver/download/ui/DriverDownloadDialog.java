@@ -28,13 +28,14 @@ import javax.swing.Action;
 import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DriverDownloadDialog extends DBNDialog<DriverDownloadForm> {
     private final DatabaseType databaseType;
     private final List<DriverPackage> driverPackages;
 
     public DriverDownloadDialog(Project project, DatabaseType databaseType, List<DriverPackage> driverPackages) {
-        super(project, "Download Libraries", true);
+        super(project, txt("msg.driver.title.DownloadLibraries"), true);
         this.databaseType = databaseType;
         this.driverPackages = driverPackages;
         setModal(true);
@@ -51,7 +52,7 @@ public class DriverDownloadDialog extends DBNDialog<DriverDownloadForm> {
     @NotNull
     @Override
     protected Action[] initializeActions() {
-        renameAction(getOKAction(), "Download");
+        renameAction(getOKAction(), txt("msg.shared.button.Download"));
         return actions(
                 getOKAction(),
                 getCancelAction());

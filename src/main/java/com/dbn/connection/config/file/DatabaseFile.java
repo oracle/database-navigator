@@ -21,6 +21,7 @@ import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Files;
 import com.dbn.common.util.Strings;
 import lombok.Data;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -36,11 +37,11 @@ public class DatabaseFile implements Cloneable<DatabaseFile> {
 
     public DatabaseFile() {}
 
-    public DatabaseFile(String path) {
+    public DatabaseFile(@NonNls String path) {
         this(path, Files.getFileName(path));
     }
 
-    public DatabaseFile(String path, String schema) {
+    public DatabaseFile(@NonNls String path, @NonNls String schema) {
         this.path = path;
         this.schema = schema;
     }

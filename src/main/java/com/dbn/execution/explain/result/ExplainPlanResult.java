@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.dispose.Disposer.replace;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -89,7 +90,7 @@ public class ExplainPlanResult extends ExecutionResultBase<ExplainPlanResultForm
         this.connection = connection.ref();
         this.currentSchema = psiFile.getSchemaId();
         this.virtualFile = psiFile.getVirtualFile();
-        this.resultName = Commons.nvl(executablePsiElement.createSubjectList(), "Explain Plan");
+        this.resultName = Commons.nvl(executablePsiElement.createSubjectList(), txt("app.execution.title.ExplainPlan"));
         this.errorMessage = errorMessage;
         this.statementText = executablePsiElement.getText();
     }

@@ -31,6 +31,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionResultResumeAction extends AbstractExecutionResultAction {
 
+    public ExecutionResultResumeAction() {
+        super(txt("app.execution.action.ExecutionResultFetchNextRecords"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull StatementExecutionCursorResult executionResult) {
         executionResult.fetchNextRecords();

@@ -36,6 +36,7 @@ import com.intellij.ui.popup.PopupFactoryImpl;
 import com.intellij.ui.popup.list.ListPopupImpl;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,11 +54,16 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
 
+@NoArgsConstructor
 public abstract class ComboBoxAction
         extends com.intellij.openapi.actionSystem.ex.ComboBoxAction
         implements BackgroundUpdateAware, DumbAware {
 
     private static WeakRef<Balloon> currentBalloon;
+
+    protected ComboBoxAction(@Nullable String text) {
+        getTemplatePresentation().setText(text);
+    }
 
     @NotNull
     @Override

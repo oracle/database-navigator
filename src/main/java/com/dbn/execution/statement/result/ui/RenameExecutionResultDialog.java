@@ -23,11 +23,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class RenameExecutionResultDialog extends DBNDialog<RenameExecutionResultForm> {
     private ExecutionResult executionResult;
 
     public RenameExecutionResultDialog(ExecutionResult executionResult) {
-        super(executionResult.getProject(), "Rename result", true);
+        super(executionResult.getProject(), txt("msg.execution.title.RenameResult"), true);
         this.executionResult = executionResult;
         setResizable(false);
         setAutoSize(true);
@@ -43,7 +45,7 @@ public class RenameExecutionResultDialog extends DBNDialog<RenameExecutionResult
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Rename");
+        renameAction(getOKAction(), txt("msg.shared.button.Rename"));
         return actions(
                 getOKAction(),
                 getCancelAction());

@@ -28,6 +28,7 @@ import com.dbn.data.sorting.SortingState;
 import com.dbn.editor.data.model.DatasetEditorModel;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBDataset;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -115,12 +116,13 @@ public class DatasetEditorTableHeaderRenderer extends DBNTableHeaderRenderer {
             if (dataGridSettings.getGeneralSettings().isColumnTooltipEnabled()) {
                 String toolTipText = "<b>" + column.getName() + "</b><br>" + column.getDataType().getQualifiedName() + "";
 
+                @NonNls
                 StringBuilder attributes  = new StringBuilder();
                 if (column.isPrimaryKey()) attributes.append("PK");
                 if (column.isForeignKey()) attributes.append(" FK");
                 if (!column.isPrimaryKey() && !column.isNullable()) attributes.append(" not null");
 
-                if (attributes.length() > 0) {
+                if (!attributes.isEmpty()) {
                     toolTipText += "<br>" + attributes + "";
                 }
 

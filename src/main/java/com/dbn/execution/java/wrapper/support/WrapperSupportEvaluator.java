@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.util.Strings.capitalize;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static com.dbn.object.type.DBJavaScalarType.isScalar;
 
@@ -106,11 +107,10 @@ public class WrapperSupportEvaluator {
                         WrapperSupportInfo supportInfo = new WrapperSupportInfo();
                         supportInfo.setSupported(false);
                         supportInfo.setNestingLevel(-1);
-                        String accessor = input ? "set" : "get";
-                        supportInfo.setUnsupportedReason(
-                                accessor + capitalize(field.getName()) + " " + (input ? "setter" : "getter")
-                                        + " method not found for "
-                                        + javaClassName + "." + capitalize(field.getName()));
+                        String fieldName = capitalize(field.getName());
+                        supportInfo.setUnsupportedReason(input ?
+                                txt("msg.java.error.WrapperSetterMethodMissing", "set" + fieldName, javaClassName, fieldName) :
+                                txt("msg.java.error.WrapperGetterMethodMissing", "get" + fieldName, javaClassName, fieldName));
 
                         data.addSupportInfo(javaClassName, supportInfo, input);
                         return supportInfo;
@@ -161,7 +161,7 @@ public class WrapperSupportEvaluator {
             WrapperSupportInfo info = new WrapperSupportInfo();
             info.setSupported(false);
             info.setNestingLevel(-1);
-            info.setUnsupportedReason("No default constructor found for class " + javaClassName);
+            info.setUnsupportedReason(txt("msg.java.error.WrapperNoDefaultConstructor", javaClassName));
             data.addSupportInfo(javaClassName, info, input);
             return info;
         }
@@ -170,7 +170,7 @@ public class WrapperSupportEvaluator {
             WrapperSupportInfo info = new WrapperSupportInfo();
             info.setSupported(false);
             info.setNestingLevel(-1);
-            info.setUnsupportedReason(javaClassName + " is not supported.");
+            info.setUnsupportedReason(txt("msg.java.error.WrapperTypeUnsupported", javaClassName));
             data.addSupportInfo(javaClassName, info, input);
             return info;
         }
@@ -190,10 +190,9 @@ public class WrapperSupportEvaluator {
         data.setNestingLevel(-1);
         int maxDepthSupported = getMaxArrayDepth(javaClass);
 
-        data.setUnsupportedReason(
-                "Array of type " + getCanonicalName(javaClass)
-                        + " with depth greater than " + maxDepthSupported + " is not supported as "
-                        + (isArgument ? "argument" : "return") + ".");
+        data.setUnsupportedReason(isArgument ?
+                txt("msg.java.error.WrapperArgumentArrayDepthUnsupported", getCanonicalName(javaClass), maxDepthSupported) :
+                txt("msg.java.error.WrapperReturnArrayDepthUnsupported", getCanonicalName(javaClass), maxDepthSupported));
         return data;
     }
 
@@ -207,10 +206,7 @@ public class WrapperSupportEvaluator {
         WrapperSupportInfo data = new WrapperSupportInfo();
         data.setSupported(false);
         data.setNestingLevel(-1);
-        data.setUnsupportedReason(
-                "Class " + getCanonicalName(javaClass) +
-                        " contains a cyclic self-reference, which is not supported for arguments or return values."
-        );
+        data.setUnsupportedReason(txt("msg.java.error.WrapperSelfReferenceUnsupported", getCanonicalName(javaClass)));
         return data;
     }
 

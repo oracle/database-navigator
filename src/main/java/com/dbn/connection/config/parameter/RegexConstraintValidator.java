@@ -6,6 +6,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Pattern;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class RegexConstraintValidator extends PropertiesValidator {
 
     private final ValidationPattern validationPattern;
@@ -39,11 +41,11 @@ public class RegexConstraintValidator extends PropertiesValidator {
     @Override
     public ValidationInfo validate(String keyName, Object value) {
         if (! (value instanceof String)) {
-            return new ValidationInfo(keyName + " must be a string");
+            return new ValidationInfo(txt("cfg.connection.error.ParameterValueMustBeString", keyName));
         }
         String message = this.validationPattern.match(value);
         if (message != null) {
-            return new ValidationInfo(keyName + " must match " + message + " but was " + value);
+            return new ValidationInfo(txt("cfg.connection.error.ParameterValueMustMatch", keyName, message, value));
         }
         return null;
     }

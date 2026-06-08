@@ -33,6 +33,7 @@ import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.oci.config.OciConfigFileUtil;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,6 +69,7 @@ import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.ui.ConnectionAuthenticationFieldsForm.FieldCategory.CACHEABLE_FIELDS;
 import static com.dbn.database.oracle.OracleCompatibilityInterface.ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
@@ -117,8 +119,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
         addSingleFileChooser(
                 getProject(), tokenConfigFileTextField,
-                "Select OCI Configuration File",
-                "Folder must contain an oci config file (usually ~/.oci/config)");
+                txt("cfg.oci.title.SelectConfigFile"),
+                txt("cfg.oci.text.ValidOciConfigFile"));
         onTextChange(tokenConfigFileTextField, e -> tokenProfileComboBox.reloadValues());
 
         initComboBox(authTypeComboBox, AuthenticationType.values());
@@ -139,8 +141,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
         addSingleFileChooser(
                 getProject(), azureClientCertificateFileTextField,
-                "Select Azure Client Certificate File",
-                "File is a certificate file in pem format");
+                txt("cfg.connection.title.SelectAzureClientCertificateFile"),
+                txt("cfg.connection.text.AzureClientCertificateFile"));
         onTextChange(azureClientCertificateFileTextField, e -> refreshAzureClientCertificateFile());
 
     }
@@ -343,7 +345,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         File certificateFile = new File(certificateFileStr);
         if (!certificateFile.isFile()) {
             TextFields.updateFieldError(textField,
-                String.format("Can't find the certificate file. %s is not a file", certificateFileStr));
+                txt("cfg.connection.error.CertificateFileNotFound", certificateFileStr));
         }
     }
 
@@ -407,14 +409,12 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         return getSelection(tokenTypeComboBox);
     }
 
-    private String checkSystemWarnings() {
+    private @Nullable @Nls String checkSystemWarnings() {
         if (!verifyInteractivePortBinding()) {
-            // TODO NLS
-            return "TCP port 8181 appears to be bound.\nThis may cause interactive OCI authentication to fail.";
+            return txt("cfg.connection.warning.OciInteractivePortBound", OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT);
         }
         if (!checkNoProxyIfAzure()) {
-            // TODO NLS
-            return "The system properties contain one or more HTTP proxy settings.\nThis may cause Azure Authentication to fail.";
+            return txt("cfg.connection.warning.AzureAuthenticationProxySettings");
         }
         return null;
     }

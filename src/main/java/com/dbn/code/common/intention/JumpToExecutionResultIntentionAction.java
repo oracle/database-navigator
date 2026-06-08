@@ -48,7 +48,7 @@ public class JumpToExecutionResultIntentionAction extends EditorIntentionAction 
     @Override
     @NotNull
     public String getText() {
-        return txt("app.codeEditor.action.NavigateToResult");
+        return txt("app.codeEditor.intention.NavigateToResult");
     }
 
 

@@ -26,6 +26,7 @@ import com.dbn.execution.statement.StatementExecutionInput;
 import com.dbn.execution.statement.StatementExecutionMessage;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.execution.statement.result.ui.StatementExecutionResultForm;
+import org.jetbrains.annotations.Nls;
 
 public interface StatementExecutionResult extends ExecutionResult<StatementExecutionResultForm> {
     StatementExecutionProcessor getExecutionProcessor();
@@ -36,8 +37,8 @@ public interface StatementExecutionResult extends ExecutionResult<StatementExecu
     StatementExecutionStatus getExecutionStatus();
 
     void setExecutionStatus(StatementExecutionStatus executionStatus);
-    void updateExecutionMessage(MessageType messageType, String message, DatabaseMessage databaseMessage);
-    void updateExecutionMessage(MessageType messageType, String message);
+    void updateExecutionMessage(MessageType messageType, @Nls String message, DatabaseMessage databaseMessage);
+    void updateExecutionMessage(MessageType messageType, @Nls String message);
     void clearExecutionMessage();
     void calculateExecDuration();
     int getExecutionDuration();

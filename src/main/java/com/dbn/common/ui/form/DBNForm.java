@@ -19,14 +19,13 @@ package com.dbn.common.ui.form;
 import com.dbn.common.action.DataProviderDelegate;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 
-public interface DBNForm extends DBNComponent, DataProviderDelegate, NlsSupport {
+public interface DBNForm extends DBNComponent, DataProviderDelegate {
 
     @Nullable
     default JComponent getPreferredFocusedComponent() {

@@ -28,6 +28,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionRemoveAction extends ConnectionSettingsAction {
 
+    public ConnectionRemoveAction() {
+        super(txt("cfg.connection.action.RemoveConnection"));
+    }
+
     @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,

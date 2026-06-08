@@ -28,6 +28,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectListFilterToggleAction extends BasicAction {
 
@@ -35,7 +36,7 @@ public class ObjectListFilterToggleAction extends BasicAction {
     private final DBObjectType objectType;
 
     public ObjectListFilterToggleAction(DBObjectList objectList) {
-        super("Toggle Filter");
+        super(txt("app.objects.action.ToggleFilter"));
         this.connectionId = objectList.getConnectionId();
         this.objectType = objectList.getObjectType();
     }
@@ -62,12 +63,10 @@ public class ObjectListFilterToggleAction extends BasicAction {
             return;
         }
 
-        boolean quickFiltersActive = filterManager.isQuickFilterFeatureActive();
-        String qualification = quickFiltersActive ? "Global " : "";
-
+        boolean global = filterManager.isQuickFilterFeatureActive();
         String text = objectFilter.isActive() ?
-                "Disable " + qualification + "Filter" :
-                "Enable " + qualification + "Filter";
+                txt(global ? "app.objects.action.DisableGlobalFilter" : "app.objects.action.DisableFilter") :
+                txt(global ? "app.objects.action.EnableGlobalFilter" : "app.objects.action.EnableFilter");
 
         presentation.setText(text);
     }

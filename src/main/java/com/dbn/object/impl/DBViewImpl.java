@@ -39,6 +39,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.EDITIONABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_OBJECT;
 
@@ -119,8 +120,8 @@ class DBViewImpl<M extends DBViewMetadata> extends DBDatasetImpl<M> implements D
     @Override
     public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Updating source code",
-                "Updating sources of " + getQualifiedNameWithType(),
+                txt("prc.object.title.UpdatingSourceCode"),
+                txt("prc.object.text.UpdatingSources", getQualifiedNameWithType()),
                 getProject(),
                 getConnectionId(),
                 getSchemaId(),

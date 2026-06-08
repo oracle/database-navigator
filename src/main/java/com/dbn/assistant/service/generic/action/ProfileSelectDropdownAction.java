@@ -54,6 +54,10 @@ import static com.dbn.nls.NlsResources.txt;
 public class ProfileSelectDropdownAction extends ComboBoxAction implements AssistantActionSupport, DumbAware {
     private transient String selectedProfileId;
 
+    public ProfileSelectDropdownAction() {
+        super(txt("app.assistant.action.AssistantSelectProfile"));
+    }
+
     @Override
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent component, DataContext dataContext) {
@@ -76,7 +80,7 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
         } else {
             // group new profiles
             actionGroup.addSeparator();
-            DefaultActionGroup newProvidersGroup = new DefaultActionGroup("New", true);
+            DefaultActionGroup newProvidersGroup = new DefaultActionGroup(txt("app.assistant.action.New"), true);
             actionGroup.add(newProvidersGroup);
             addProfileActions(newProvidersGroup, potentialProfiles);
         }

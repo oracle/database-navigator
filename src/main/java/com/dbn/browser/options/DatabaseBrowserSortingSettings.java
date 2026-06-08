@@ -37,6 +37,7 @@ import java.util.Map;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter

@@ -31,6 +31,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class VectorEmbeddingRequestVerifier {
     public static boolean verifyRequest(VectorEmbeddingRequest request, ProgressIndicator indicator) {
@@ -40,7 +41,9 @@ public class VectorEmbeddingRequestVerifier {
             //..
 
         } catch (Exception e) {
-            showErrorDialog(project, "Verification Error", "Failed to verify embedding request", e);
+            showErrorDialog(project,
+                    txt("msg.vector.title.VerificationError"),
+                    txt("msg.vector.error.EmbeddingRequestVerificationFailed"), e);
             return false;
         }
 
@@ -51,7 +54,7 @@ public class VectorEmbeddingRequestVerifier {
         Project project = request.getProject();
         ConnectionHandler connection = request.getConnection();
 
-        indicator.setText2("Verifying destination model consistency");
+        indicator.setText2(txt("prc.vector.text.VerifyingDestinationModelConsistency"));
         String modelMetadata = DatabaseInterfaceInvoker.load(Priority.MEDIUM, project, request.getConnectionId(), conn -> {
             DatabaseVectorInterface vectorInterface = connection.getVectorInterface();
             EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
@@ -71,10 +74,12 @@ public class VectorEmbeddingRequestVerifier {
         String requestModel = String.valueOf(requestModelConfig.get("model"));
 
 
-        showErrorDialog(project, "Inconsistent Model Selection",
-                "The embedding model you selected " +
-                        "does not match the one already recorded in the embedding destination table " + request.getDestinationConfig().getQualifiedTableName() + ". " +
-                        "\n\nThe requested model is \"" + requestModel + "\"\nThe model used in embedding table is \"" + destinationModel + "\"");
+        showErrorDialog(project,
+                txt("msg.vector.title.InconsistentModelSelection"),
+                txt("msg.vector.error.InconsistentModelSelection",
+                        request.getDestinationConfig().getQualifiedTableName(),
+                        requestModel,
+                        destinationModel));
         return false;
     }
 }

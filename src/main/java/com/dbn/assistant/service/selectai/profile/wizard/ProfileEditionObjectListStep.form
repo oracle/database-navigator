@@ -56,7 +56,7 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="&amp;Tables"/>
+                  <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.Tables"/>
                 </properties>
               </component>
               <component id="306cd" class="com.intellij.ui.components.JBCheckBox" binding="viewsCheckBox">
@@ -64,7 +64,7 @@
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="&amp;Views"/>
+                  <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.Views"/>
                 </properties>
               </component>
               <component id="10a56" class="com.intellij.ui.components.JBCheckBox" binding="mviewsCheckBox">
@@ -72,7 +72,7 @@
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="&amp;Materialized views"/>
+                  <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.MaterializedViews"/>
                 </properties>
               </component>
               <hspacer id="d7ed5">
@@ -141,7 +141,7 @@
                     </constraints>
                     <properties>
                       <labelFor value="3fd37"/>
-                      <text value="&amp;Available Datasets"/>
+                      <text resource-bundle="messages/DBNResources" key="cfg.assistant.title.AvailableDatasets"/>
                     </properties>
                   </component>
                 </children>
@@ -179,7 +179,7 @@
                     </constraints>
                     <properties>
                       <labelFor value="655dc"/>
-                      <text value="&amp;Profile Datasets"/>
+                      <text resource-bundle="messages/DBNResources" key="cfg.assistant.title.ProfileDatasets"/>
                     </properties>
                   </component>
                 </children>

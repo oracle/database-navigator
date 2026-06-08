@@ -16,6 +16,8 @@
 
 package com.dbn.language.common.quotes;
 
+import org.jetbrains.annotations.NonNls;
+
 import java.util.Set;
 
 import static java.util.concurrent.ConcurrentHashMap.newKeySet;
@@ -89,6 +91,7 @@ public class QuotePair {
         return escaping.unescape(unquoted, this);
     }
 
+    @NonNls
     @Override
     public String toString() {
         return "quote pair (begin=" + beginQuote + ", end=" + endQuote +')';

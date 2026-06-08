@@ -47,7 +47,7 @@ public class SelectAiProfileSetupIntentionAction extends EditorIntentionAction {
     @NotNull
     @Override
     public final String getText() {
-        return txt("app.assistant.action.SelectAIConfigureProfiles");
+        return txt("app.assistant.intention.SelectAIConfigureProfiles");
     }
 
     @Override

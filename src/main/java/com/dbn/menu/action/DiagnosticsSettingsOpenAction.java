@@ -22,7 +22,13 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DiagnosticsSettingsOpenAction extends ProjectAction {
+    public DiagnosticsSettingsOpenAction() {
+        super(txt("app.menu.action.Settings"));
+    }
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         DiagnosticsManager diagnosticsManager = DiagnosticsManager.getInstance(project);

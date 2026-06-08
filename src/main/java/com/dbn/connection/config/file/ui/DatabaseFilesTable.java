@@ -25,6 +25,7 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseFilesTable extends DBNEditableTable<DatabaseFilesTableModel> {
 
@@ -36,7 +37,7 @@ public class DatabaseFilesTable extends DBNEditableTable<DatabaseFilesTableModel
         getColumnModel().getColumn(0).setCellEditor(fileChooser);
         setFixedColumnWidth(1, 120);
 
-        setAccessibleName(this, "Database Files");
+        setAccessibleName(this, txt("cfg.connections.aria.DatabaseFiles"));
     }
 
     public void setFilePaths(DatabaseFileBundle filesBundle) {

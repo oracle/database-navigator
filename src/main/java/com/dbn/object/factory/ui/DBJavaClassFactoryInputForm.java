@@ -48,6 +48,7 @@ import static com.dbn.common.util.Java.isValidClassName;
 import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.model.DBObjectAttributeType.JAVA_CLASS_NAME;
 import static com.dbn.object.factory.model.DBObjectAttributeType.JAVA_CLASS_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.JAVA_PACKAGE_NAME;
@@ -113,7 +114,7 @@ public class DBJavaClassFactoryInputForm extends DBSchemaObjectFactoryInputForm 
         String packageName = getPackageName();
         String className = getObjectName();
         if (isEmpty(className)) {
-            className = "[new]";
+            className = txt("app.object.placeholder.New");
         }
 
         String schemaName = getSchemaName();
@@ -173,9 +174,9 @@ public class DBJavaClassFactoryInputForm extends DBSchemaObjectFactoryInputForm 
 
     @Override
     protected void initValidation() {
-        addTextValidation(packageTextField, p -> isValidPackageName(p), "Please enter a valid package name");
-        addTextValidation(nameTextField, p -> isNotEmpty(p), "Please enter a class name");
-        addTextValidation(nameTextField, p -> isValidClassName(p), "Please enter a valid class name");
+        addTextValidation(packageTextField, p -> isValidPackageName(p), txt("msg.java.error.ValidPackageName"));
+        addTextValidation(nameTextField, p -> isNotEmpty(p), txt("msg.java.error.ClassNameRequired"));
+        addTextValidation(nameTextField, p -> isValidClassName(p), txt("msg.java.error.ValidClassName"));
     }
 
     @Override

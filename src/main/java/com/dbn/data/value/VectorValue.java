@@ -34,6 +34,7 @@ import java.util.Objects;
 import static com.dbn.common.data.Data.asDoubleList;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class VectorValue extends ValueAdapter<List<Double>>{
@@ -75,7 +76,7 @@ public class VectorValue extends ValueAdapter<List<Double>>{
             preparedStatement.setObject(parameterIndex, values);
         } catch (Throwable e) {
             conditionallyLog(e);
-            throw toSqlException(e, "Could not write array value. Your JDBC driver may not support this feature");
+            throw toSqlException(e, txt("msg.data.exception.CouldNotWriteArrayValue"));
         }
 
     }
@@ -91,7 +92,7 @@ public class VectorValue extends ValueAdapter<List<Double>>{
             }
         } catch (Throwable e) {
             conditionallyLog(e);
-            throw toSqlException(e, "Could not write array value. Your JDBC driver may not support this feature");
+            throw toSqlException(e, txt("msg.data.exception.CouldNotWriteArrayValue"));
         }
     }
 

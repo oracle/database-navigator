@@ -27,7 +27,7 @@
         </constraints>
         <properties>
           <labelFor value="1ae5f"/>
-          <text value="Database &amp;type"/>
+          <text resource-bundle="messages/DBNResources" key="app.execution.label.DatabaseType"/>
         </properties>
       </component>
       <component id="1ae5f" class="com.dbn.common.ui.misc.DBNComboBox" binding="databaseTypeComboBox">
@@ -42,7 +42,7 @@
         </constraints>
         <properties>
           <labelFor value="4b704"/>
-          <text value="Client name"/>
+          <text resource-bundle="messages/DBNResources" key="app.execution.label.ClientName"/>
         </properties>
       </component>
       <component id="4b704" class="javax.swing.JTextField" binding="nameTextField" default-binding="true">
@@ -59,7 +59,7 @@
         </constraints>
         <properties>
           <labelFor value="ac241"/>
-          <text value="Client &amp;executable"/>
+          <text resource-bundle="messages/DBNResources" key="app.execution.label.ClientExecutable"/>
         </properties>
       </component>
       <component id="ac241" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="executableTextField">

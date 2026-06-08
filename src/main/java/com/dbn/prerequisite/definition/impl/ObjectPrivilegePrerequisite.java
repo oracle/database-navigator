@@ -107,8 +107,8 @@ public abstract class ObjectPrivilegePrerequisite extends PrerequisiteDefinition
             String userName = context.getUserName();
 
             return new PrerequisiteAdvice(
-                    "Request privilege",
-                    "" + privilegeName + " privilege on " + ownerName + "." + objectName + " object",
+                    txt("msg.prerequisite.title.RequestPrivilege"),
+                    txt("msg.prerequisite.text.AdviceObjectPrivilege", privilegeName, ownerName, objectName),
                     String.format("grant %s on %s.%s to %s;", privilegeName, ownerName, objectName, userName));
         };
     }

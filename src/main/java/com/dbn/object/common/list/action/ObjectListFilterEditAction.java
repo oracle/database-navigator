@@ -26,6 +26,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectListFilterEditAction extends BasicAction {
 
@@ -33,7 +34,7 @@ public class ObjectListFilterEditAction extends BasicAction {
     private final DBObjectType objectType;
 
     public ObjectListFilterEditAction(DBObjectList objectList) {
-        super("Edit Filter");
+        super(txt("app.objects.action.EditFilter"));
         this.connectionId = objectList.getConnectionId();
         this.objectType = objectList.getObjectType();
     }
@@ -54,13 +55,11 @@ public class ObjectListFilterEditAction extends BasicAction {
 
         ObjectFilterManager filterManager = ObjectFilterManager.getInstance(project);
         boolean filterAvailable = filterManager.hasObjectFilter(connectionId, objectType);
-        boolean quickFiltersActive = filterManager.isQuickFilterFeatureActive();
-
-        String qualification = quickFiltersActive ? "Global " : "";
+        boolean global = filterManager.isQuickFilterFeatureActive();
 
         String text = filterAvailable ?
-                "Edit " + qualification + "Filter..." :
-                "Create " + qualification + "Filter...";
+                txt(global ? "app.objects.action.EditGlobalFilter" : "app.objects.action.EditFilterDialog") :
+                txt(global ? "app.objects.action.CreateGlobalFilter" : "app.objects.action.CreateFilter");
 
         e.getPresentation().setText(text);
     }

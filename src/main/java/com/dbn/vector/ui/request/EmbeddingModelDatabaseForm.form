@@ -14,7 +14,7 @@
         </constraints>
         <properties>
           <labelFor value="5bd7a"/>
-          <text value="&amp;Model"/>
+          <text resource-bundle="messages/DBNResources" key="app.vector.label.Model"/>
         </properties>
       </component>
       <hspacer id="bb78">
@@ -28,7 +28,7 @@
         </constraints>
         <properties>
           <labelFor value="2b6d9"/>
-          <text value="&amp;Schema"/>
+          <text resource-bundle="messages/DBNResources" key="app.vector.label.SchemaMnemonic"/>
         </properties>
       </component>
       <component id="2b6d9" class="com.dbn.object.common.ui.DBObjectSelector" binding="schemaComboBox">
