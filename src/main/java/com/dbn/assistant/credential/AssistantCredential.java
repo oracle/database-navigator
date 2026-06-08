@@ -17,7 +17,6 @@
 package com.dbn.assistant.credential;
 
 import com.dbn.assistant.provider.AIProviderId;
-import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Chars;
@@ -28,6 +27,7 @@ import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretType;
 import com.dbn.credentials.SecretsOwner;
 import com.dbn.credentials.SecretsOwnerRegistry;
+import com.dbn.credentials.TransientSecretStore;
 import com.dbn.oci.config.OciConfig;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,7 +42,6 @@ import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
-import static com.dbn.common.options.ConfigActivity.APPLYING;
 import static com.dbn.credentials.SecretType.GENERIC_CREDENTIAL;
 
 @Getter
@@ -108,9 +107,8 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         }
 
         if (isTransientContext()) {
-            // never trust transient XML for secrets
-            // load from PasswordSafe only
-            loadSecretFromKeychain();
+            // transfer secrets outside transient config xml
+            secret = TransientSecretStore.consume(secret, getSecretOwnerId(), GENERIC_CREDENTIAL, user);
         }
     }
 
@@ -127,11 +125,8 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         }
 
         if (isTransientContext()) {
-            // apply writes to settings before queued secret updates complete
-            // store synchronously so transient read can load the latest value from PasswordSafe
-            if (ConfigMonitor.is(APPLYING)) {
-                storeSecretToKeychain();
-            }
+            // transfer secrets outside transient config xml
+            TransientSecretStore.store(secret, getSecretOwnerId(), GENERIC_CREDENTIAL, user);
         }
     }
 
@@ -158,15 +153,6 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
 
     private Secret getKeySecret() {
         return new Secret(SecretType.GENERIC_CREDENTIAL, user, secret);
-    }
-
-    void storeSecretToKeychain() {
-        DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
-        credentialManager.storeSecret(getSecretOwnerId(), getKeySecret());
-    }
-
-    void loadSecretFromKeychain() {
-        initSecrets();
     }
 
     @Override
