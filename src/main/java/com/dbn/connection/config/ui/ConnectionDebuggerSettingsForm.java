@@ -41,6 +41,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.debugger.JDWPTunnelType.NONE;
 import static com.dbn.debugger.JDWPTunnelType.SSH_REVERSE_TUNNEL;
 import static com.dbn.debugger.JDWPTunnelType.TCP_DRIVER_TUNNEL;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<ConnectionDebuggerSettings> {
     private JPanel mainPanel;
@@ -79,8 +80,8 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
 
     @Override
     protected void initAccessibility() {
-        setAccessibleName(tcpPortFromTextField, "TCP port lower range");
-        setAccessibleName(tcpPortToTextField, "TCP port upper range");
+        setAccessibleName(tcpPortFromTextField, txt("cfg.debugger.aria.TcpPortLowerRange"));
+        setAccessibleName(tcpPortToTextField, txt("cfg.debugger.aria.TcpPortUpperRange"));
     }
 
     @Override

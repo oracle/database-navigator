@@ -73,11 +73,11 @@ public enum ElementTypeAttribute implements Property.LongBase {
     private final String description;
     private final boolean specific;
 
-    ElementTypeAttribute(@NonNls String name, String description) {
+    ElementTypeAttribute(@NonNls String name, @NonNls String description) {
         this(name, description, false);
     }
 
-    ElementTypeAttribute(@NonNls String name, String description, boolean specific) {
+    ElementTypeAttribute(@NonNls String name, @NonNls String description, boolean specific) {
         this.name = name;
         this.description = description;
         this.specific = specific;

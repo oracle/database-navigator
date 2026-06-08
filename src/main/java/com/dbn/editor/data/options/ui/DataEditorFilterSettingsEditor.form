@@ -6,14 +6,14 @@
       <xy x="20" y="20" width="385" height="161"/>
     </constraints>
     <properties/>
-    <border type="none" title="Filters"/>
+    <border type="none" title-resource-bundle="messages/DBNResources" title-key="app.data.title.Filters"/>
     <children>
       <component id="63f58" class="javax.swing.JCheckBox" binding="promptFilterDialogCheckBox">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="&amp;Prompt filter dialog "/>
+          <text resource-bundle="messages/DBNResources" key="app.data.label.PromptFilterDialog"/>
         </properties>
       </component>
       <vspacer id="ccd01">
@@ -27,7 +27,7 @@
         </constraints>
         <properties>
           <labelFor value="257e6"/>
-          <text value="&amp;Default filter type"/>
+          <text resource-bundle="messages/DBNResources" key="app.data.label.DefaultFilterType"/>
         </properties>
       </component>
       <hspacer id="2a8f8">

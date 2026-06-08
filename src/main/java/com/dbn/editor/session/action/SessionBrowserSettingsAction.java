@@ -16,11 +16,22 @@
 
 package com.dbn.editor.session.action;
 
-import com.dbn.options.ConfigId;
 import com.dbn.options.action.ProjectSettingsOpenAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.ConfigId.OPERATIONS;
 
 public class SessionBrowserSettingsAction extends ProjectSettingsOpenAction {
     public SessionBrowserSettingsAction() {
-        super(ConfigId.OPERATIONS, true);
+        super(OPERATIONS, true, txt("app.sessionBrowser.action.SessionBrowserSettings"));
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        super.update(e, project);
+        e.getPresentation().setText(txt("app.sessionBrowser.action.Settings"));
     }
 }

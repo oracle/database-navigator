@@ -6,7 +6,7 @@
       <xy x="20" y="20" width="343" height="190"/>
     </constraints>
     <properties/>
-    <border type="none" title="Confirmations"/>
+    <border type="none" title-resource-bundle="messages/DBNResources" title-key="cfg.codeEditor.title.Confirmations"/>
     <children>
       <vspacer id="1c48a">
         <constraints>
@@ -23,7 +23,7 @@
           <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Confirm &quot;&amp;Save&quot; changes"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.codeEditor.label.ConfirmSaveChanges"/>
         </properties>
       </component>
       <component id="14f58" class="javax.swing.JCheckBox" binding="confirmRevertCheckBox">
@@ -31,7 +31,7 @@
           <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Confirm &quot;&amp;Revert&quot; changes"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.codeEditor.label.ConfirmRevertChanges"/>
         </properties>
       </component>
       <component id="60185" class="javax.swing.JLabel">
@@ -40,7 +40,7 @@
         </constraints>
         <properties>
           <labelFor value="977af"/>
-          <text value="Close editor with changes action"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.codeEditor.label.CloseEditorWithChangesAction"/>
         </properties>
       </component>
       <component id="977af" class="com.intellij.openapi.ui.ComboBox" binding="editorWithChangesComboBox">
@@ -54,8 +54,8 @@
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <labelFor value="977af"/>
-          <text value="Close temporary console action"/>
+          <labelFor value="aaf4d"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.codeEditor.label.CloseTemporaryConsoleAction"/>
         </properties>
       </component>
       <component id="aaf4d" class="com.intellij.openapi.ui.ComboBox" binding="temporaryConsoleComboBox">

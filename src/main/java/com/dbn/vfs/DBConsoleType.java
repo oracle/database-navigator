@@ -22,11 +22,13 @@ import lombok.Getter;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public enum DBConsoleType implements Constant<DBConsoleType> {
-    STANDARD("SQL Console", Icons.FILE_SQL_CONSOLE),
-    DEBUG("Debug Console", Icons.FILE_SQL_DEBUG_CONSOLE),
-    SEARCH("Search Console", Icons.FILE_SEARCH_CONSOLE);
+    STANDARD(txt("app.vfs.const.DBConsoleType_STANDARD"), Icons.FILE_SQL_CONSOLE),
+    DEBUG(txt("app.vfs.const.DBConsoleType_DEBUG"), Icons.FILE_SQL_DEBUG_CONSOLE),
+    SEARCH(txt("app.vfs.const.DBConsoleType_SEARCH"), Icons.FILE_SEARCH_CONSOLE);
 
     private final String name;
     private final Icon icon;

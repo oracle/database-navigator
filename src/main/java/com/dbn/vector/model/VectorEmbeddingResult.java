@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -123,20 +124,19 @@ public class VectorEmbeddingResult {
         };
 
         String title = switch (status) {
-            case SUCCESS -> "Embedding successful";
-            case PARTIAL -> "Embedding partially successful";
-            case FAILED -> "Embedding failed";
+            case SUCCESS -> txt("msg.vector.title.EmbeddingSuccessful");
+            case PARTIAL -> txt("msg.vector.title.EmbeddingPartiallySuccessful");
+            case FAILED -> txt("msg.vector.title.EmbeddingFailed");
             default -> "";
         };
 
         String message = switch (status) {
-            case SUCCESS -> "Successfully embedded contents from " + getResourcesCount() + " sources";
-            case PARTIAL -> "Embedded contents from " + getSourceSucceedCount() + " out of " + getResourcesCount() + " sources";
-            case FAILED -> "Embedding failed for all given sources";
+            case SUCCESS -> txt("msg.vector.text.EmbeddingSuccessful", getResourcesCount());
+            case PARTIAL -> txt("msg.vector.text.EmbeddingPartiallySuccessful", getSourceSucceedCount(), getResourcesCount());
+            case FAILED -> txt("msg.vector.text.EmbeddingFailed");
             default -> "";
         };
 
         return new TitledMessage(messageType, title, message);
     }
 }
-

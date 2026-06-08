@@ -44,7 +44,11 @@ Data Viewers and Editors settings control how DBN loads data, edits table and JS
 
 Data Editor settings apply to Table Editors and JSON Editors. They also influence record viewers and large-value editing opened from data grids.
 
+![Data Editor settings page](./img/settings-data-editor.png)
+
 ### General
+
+![Data Editor general settings](./img/settings-data-editor-general.png)
 
 | Setting | Default | Range | Description |
 | --- | --- | --- | --- |
@@ -59,6 +63,8 @@ Data Editor settings apply to Table Editors and JSON Editors. They also influenc
 
 The Basic Text Editor popup is used for editing larger text values outside the inline grid cell editor.
 
+![Basic text editor popup settings](./img/settings-data-editor-basic.png)
+
 | Setting | Default | Range | Description |
 | --- | --- | --- | --- |
 | `Pop up automatically` | Disabled | On or off | Opens the text editor popup automatically when configured thresholds are met. |
@@ -70,6 +76,8 @@ The Basic Text Editor popup is used for editing larger text values outside the i
 
 The Value List popup supports value selection for columns with list-like or discoverable values.
 
+![Value list popup settings](./img/settings-data-editor-value-lists.png)
+
 | Setting | Default | Range | Description |
 | --- | --- | --- | --- |
 | `Show popup button` | Enabled | On or off | Shows the value-list popup button in eligible cells. |
@@ -80,6 +88,8 @@ The Value List popup supports value selection for columns with list-like or disc
 
 Filter settings control the default behavior when creating dataset filters from a Table Editor.
 
+![Data Editor filter settings](./img/settings-data-editor-filters.png)
+
 | Setting | Default | Options | Description |
 | --- | --- | --- | --- |
 | `Prompt filter dialog` | Enabled | On or off | Opens the filter dialog when creating a new filter. |
@@ -88,6 +98,8 @@ Filter settings control the default behavior when creating dataset filters from 
 ### Qualified Text Editor
 
 Qualified Text Editor settings control syntax-aware editors for large text, LOB-like values, and structured content.
+
+![Qualified text editor settings](./img/settings-data-editor-qualified.png)
 
 | Setting | Default | Range | Description |
 | --- | --- | --- | --- |
@@ -100,6 +112,8 @@ Common available content types include `Text`, `Properties`, `XML`, `HTML`, `CSS
 
 Record Navigation controls what opens when DBN navigates from a related record or when record navigation needs a target.
 
+![Record navigation settings](./img/settings-data-editor-navigation.png)
+
 | Setting | Default | Options | Description |
 | --- | --- | --- | --- |
 | `Navigation target` | `Record Viewer` | `Table Editor`, `Record Viewer`, `Ask` | Chooses whether navigation opens the full table editor, opens a single-record viewer, or prompts each time. |
@@ -108,7 +122,11 @@ Record Navigation controls what opens when DBN navigates from a related record o
 
 Data Grid settings affect DBN grid components, including Table Editors, JSON Editors, and result viewers.
 
+![Data Grid settings page](./img/settings-data-grids.png)
+
 ### General
+
+![Data Grid general settings](./img/settings-data-grids-general.png)
 
 | Setting | Default | Description |
 | --- | --- | --- |
@@ -116,6 +134,8 @@ Data Grid settings affect DBN grid components, including Table Editors, JSON Edi
 | `Enable zooming (Ctrl+Mouse Wheel)` | Enabled | Allows grid zooming with `Ctrl+Mouse Wheel`. |
 
 ### Sorting
+
+![Data Grid sorting settings](./img/settings-data-grids-sorting.png)
 
 | Setting | Default | Range or options | Description |
 | --- | --- | --- | --- |
@@ -125,6 +145,8 @@ Data Grid settings affect DBN grid components, including Table Editors, JSON Edi
 ### Audit Columns
 
 Audit columns are columns DBN treats as operational or tracking columns, such as created-by, created-at, updated-by, or updated-at fields when configured.
+
+![Data Grid audit column settings](./img/settings-data-grids-audit-columns.png)
 
 | Setting | Default | Description |
 | --- | --- | --- |

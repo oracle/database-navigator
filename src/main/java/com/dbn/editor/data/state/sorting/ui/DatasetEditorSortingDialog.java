@@ -22,11 +22,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DatasetEditorSortingDialog extends DBNDialog<DatasetEditorSortingForm> {
     private DatasetEditor datasetEditor;
 
     public DatasetEditorSortingDialog(@NotNull DatasetEditor datasetEditor) {
-        super(datasetEditor.getProject(), "Sorting", true);
+        super(datasetEditor.getProject(), txt("msg.dataEditor.title.Sorting"), true);
         this.datasetEditor = datasetEditor;
         setModal(true);
         setResizable(true);

@@ -24,7 +24,7 @@
         </constraints>
         <properties>
           <labelFor value="1b5ec"/>
-          <text value="Source &amp;type"/>
+          <text resource-bundle="messages/DBNResources" key="app.vector.label.SourceTypeMnemonic"/>
         </properties>
       </component>
       <component id="1b5ec" class="javax.swing.JComboBox" binding="sourceComboBox">

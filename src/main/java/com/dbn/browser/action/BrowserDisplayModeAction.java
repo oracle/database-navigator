@@ -26,10 +26,16 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.browser.options.BrowserDisplayMode.SELECTOR;
+import static com.dbn.browser.options.BrowserDisplayMode.SIMPLE;
+import static com.dbn.browser.options.BrowserDisplayMode.TABBED;
+import static com.dbn.nls.NlsResources.txt;
+
 public abstract class BrowserDisplayModeAction extends ToggleAction {
     private final BrowserDisplayMode displayMode;
 
-    protected BrowserDisplayModeAction(BrowserDisplayMode displayMode) {
+    protected BrowserDisplayModeAction(BrowserDisplayMode displayMode, String text) {
+        super(text);
         this.displayMode = displayMode;
     }
 
@@ -65,19 +71,19 @@ public abstract class BrowserDisplayModeAction extends ToggleAction {
 
     public static class Simple extends BrowserDisplayModeAction {
         protected Simple() {
-            super(BrowserDisplayMode.SIMPLE);
+            super(SIMPLE, txt("app.browser.action.DisplayModeSimple"));
         }
     }
 
     public static class Tabbed extends BrowserDisplayModeAction {
         protected Tabbed() {
-            super(BrowserDisplayMode.TABBED);
+            super(TABBED, txt("app.browser.action.DisplayModeTabbed"));
         }
     }
 
     public static class Selector extends BrowserDisplayModeAction {
         protected Selector() {
-            super(BrowserDisplayMode.SELECTOR);
+            super(SELECTOR, txt("app.browser.action.DisplayModeSelector"));
         }
     }
 }

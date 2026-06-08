@@ -34,6 +34,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class FolderConnectionLinkAction extends AbstractFolderContextAction {
 
+    public FolderConnectionLinkAction() {
+        super(txt("app.fileContext.action.ConnectionContextAssociateConnection"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         VirtualFile file = Lookups.getVirtualFile(e);

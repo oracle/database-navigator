@@ -16,7 +16,7 @@
           </grid>
         </constraints>
         <properties/>
-        <border type="none" title="MCP Servers">
+        <border type="none" title-resource-bundle="messages/DBNResources" title-key="cfg.assistant.title.McpServers">
           <size top="5" left="5" bottom="5" right="5"/>
         </border>
         <children>

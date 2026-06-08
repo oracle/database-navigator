@@ -24,12 +24,13 @@ import javax.swing.table.TableCellEditor;
 import java.awt.Component;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 
 public class ArrayEditorList extends EditableStringList {
     public ArrayEditorList(ArrayEditorPopupProviderForm parent, ListProperty ... properties) {
         super(parent, properties);
-        setAccessibleName(this, "Array Editor");
+        setAccessibleName(this, txt("app.dataEditor.aria.ArrayEditor"));
     }
 
     @Override

@@ -62,11 +62,13 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import static com.dbn.common.content.DynamicContentProperty.INTERNAL;
+import static com.dbn.common.exception.Exceptions.toSqlTimeoutException;
 import static com.dbn.connection.Resources.markClosed;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.diagnostics.Diagnostics.isDatabaseAccessDebug;
 import static com.dbn.diagnostics.data.Activity.LOAD;
 import static com.dbn.diagnostics.data.Activity.QUERY;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public abstract class DynamicContentResultSetLoader<E extends DynamicContentElement, M extends DBObjectMetadata>
@@ -163,8 +165,8 @@ public abstract class DynamicContentResultSetLoader<E extends DynamicContentElem
         // TODO "computeThreadPriority" utility - handle more thread info cases
         Priority priority = content.is(INTERNAL) ? Priority.LOW : ThreadInfo.current().is(ThreadProperty.MODAL) ? Priority.HIGH : Priority.MEDIUM;
         DatabaseInterfaceInvoker.execute(priority,
-                "Loading data dictionary",
-                "Loading " + content.getContentDescription(),
+                txt("prc.database.title.LoadingDataDictionary"),
+                txt("prc.database.text.LoadingDataDictionary", content.getContentDescription()),
                 content.getProject(),
                 content.getConnectionId(),
                 conn -> loadContent(content, conn));
@@ -241,7 +243,7 @@ public abstract class DynamicContentResultSetLoader<E extends DynamicContentElem
         } catch (ProcessCanceledException e) {
             conditionallyLog(e);
             postLoadContentFailure(content, debugInfo, e);
-            throw Exceptions.toSqlTimeoutException(e, "Load process cancelled");
+            throw toSqlTimeoutException(e, txt("msg.shared.exception.LoadProcessCanceled"));
 
         } catch (SQLTimeoutException |
                  SQLFeatureNotSupportedException |

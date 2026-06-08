@@ -18,6 +18,7 @@ package com.dbn.dev.language;
 
 import com.dbn.language.common.TokenTypeCategory;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
 import java.net.URL;
@@ -153,6 +154,7 @@ public class LanguageSpecificationLexerBuilder {
         return Arrays.stream(tokenEntries).map(i -> new TokenDefinition(category, i, index.getAndIncrement())).toList();
     }
 
+    @NonNls
     private String getCategoryIdentifier(TokenTypeCategory category) {
         return category == KEYWORD ? "keywords" :
                 category == FUNCTION ? "functions" :
@@ -170,7 +172,7 @@ public class LanguageSpecificationLexerBuilder {
         return tokens.stream().map(t -> t.toParserTokenDefinition()).toList();
     }
 
-    private static List<String> replaceBlock(List<String> lines, String beginMarker, String endMarker, List<String> replacement) {
+    private static List<String> replaceBlock(List<String> lines, @NonNls String beginMarker, @NonNls String endMarker, List<String> replacement) {
         List<String> result = new ArrayList<>();
 
         boolean beginMatched = false;
@@ -229,6 +231,7 @@ public class LanguageSpecificationLexerBuilder {
             this.reserved = split.length > 1 && split[1].equals("reserved");
         }
 
+        @NonNls
         public String toParserLexerDefinition() {
             String idToken = toLexerToken();
 
@@ -242,11 +245,13 @@ public class LanguageSpecificationLexerBuilder {
             };
         }
 
+        @NonNls
         public String toLexerToken() {
             String idToken = "\"" + id.toLowerCase().replace(" ", "\"{ws}\"") + "\"";
             return idToken.replace("_n\"", "_\"{digit}+");
         }
 
+        @NonNls
         public String toParserTokenDefinition() {
             String idToken = id.replace(" ", "_");
             String identifier = switch (category) {

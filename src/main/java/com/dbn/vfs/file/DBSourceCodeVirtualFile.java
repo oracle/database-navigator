@@ -61,6 +61,7 @@ import java.sql.Timestamp;
 import static com.dbn.common.util.GuardedBlocks.createGuardedBlocks;
 import static com.dbn.common.util.GuardedBlocks.removeGuardedBlocks;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vfs.file.status.DBFileStatus.LATEST;
 import static com.dbn.vfs.file.status.DBFileStatus.MERGED;
 import static com.dbn.vfs.file.status.DBFileStatus.MODIFIED;
@@ -275,8 +276,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
         Write.run(getProject(), () -> {
             removeGuardedBlocks(document, GuardedBlockType.READONLY_DOCUMENT_SECTION);
             createGuardedBlocks(document, GuardedBlockType.READONLY_DOCUMENT_SECTION, guardedBlocks,
-                    "Changes to object TYPE and NAME are not supported in this editor.\n" +
-                    "Please move the cursor outside the " + getObjectTypeName() + " declaration to edit the code.");
+                    txt("msg.codeEditor.hint.ReadonlyObjectDeclaration", getObjectTypeName()));
         });
     }
 

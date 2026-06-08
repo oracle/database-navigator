@@ -81,7 +81,8 @@ public class FormattingDefinition {
     @NonNls
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder("");
+        @NonNls
+        StringBuilder result = new StringBuilder();
         if (wrap != null) result.append("wrap=").append(wrap).append(' ');
         if (indent != null) result.append("indent=").append(indent).append(' ');
         if (spacingBefore != null) result.append("spacingBefore=").append(spacingBefore).append(' ');

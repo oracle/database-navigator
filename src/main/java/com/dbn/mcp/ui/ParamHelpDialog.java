@@ -3,11 +3,22 @@ package com.dbn.mcp.ui;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBScrollPane;
+import org.jetbrains.annotations.NonNls;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.datatransfer.StringSelection;
 import java.util.function.Consumer;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Help dialog explaining SQL parameter syntax for MCP tool definitions.
@@ -15,6 +26,7 @@ import java.util.function.Consumer;
  */
 public class ParamHelpDialog extends DialogWrapper {
 
+    @NonNls
     private static final String DEFAULT_EXAMPLE_SQL =
             "SELECT e.name, e.salary\n" +
             "FROM employees e\n" +
@@ -43,8 +55,8 @@ public class ParamHelpDialog extends DialogWrapper {
         super(true);
         this.exampleSql = exampleSql;
         this.onInsert = onInsert;
-        setTitle("Named parameters: quick guide");
-        setOKButtonText("Close");
+        setTitle(txt("msg.mcp.title.NamedParametersQuickGuide"));
+        setOKButtonText(txt("msg.shared.button.Close"));
         init();
     }
 
@@ -60,17 +72,7 @@ public class ParamHelpDialog extends DialogWrapper {
     }
 
     private JLabel createInfoLabel() {
-        return new JLabel(
-                "<html>" +
-                        "<b>Use <code>:param</code> placeholders in your SQL.</b>" +
-                        "<ul style='margin-top:4; margin-bottom:4;'>" +
-                        "<li>Write <code>:param</code> (e.g., <code>WHERE dept_id = :dept</code>).</li>" +
-                        "<li>We detect names and list them in the Parameters table.</li>" +
-                        "<li>At build-time they become JDBC <code>?</code> in left-to-right order.</li>" +
-                        "<li>Repeated names bind the <i>same</i> value to each occurrence.</li>" +
-                        "</ul>" +
-                        "</html>"
-        );
+        return new JLabel(txt("msg.mcp.text.NamedParametersQuickGuide"));
     }
 
     private JScrollPane createExamplePanel() {
@@ -80,21 +82,21 @@ public class ParamHelpDialog extends DialogWrapper {
         example.setLineWrap(false);
 
         JScrollPane scrollPane = new JBScrollPane(example);
-        scrollPane.setBorder(BorderFactory.createTitledBorder("Example SQL"));
+        scrollPane.setBorder(BorderFactory.createTitledBorder(txt("msg.mcp.title.ExampleSql")));
         return scrollPane;
     }
 
     private JPanel createButtonPanel() {
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        JButton copyButton = new JButton("Copy example");
+        JButton copyButton = new JButton(txt("msg.mcp.button.CopyExample"));
         copyButton.addActionListener(e ->
                 CopyPasteManager.getInstance().setContents(new StringSelection(exampleSql))
         );
         buttons.add(copyButton);
 
         if (onInsert != null) {
-            JButton insertButton = new JButton("Insert into Query");
+            JButton insertButton = new JButton(txt("msg.mcp.button.InsertIntoQuery"));
             insertButton.addActionListener(e -> {
                 onInsert.accept(exampleSql);
                 close(OK_EXIT_CODE);

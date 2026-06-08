@@ -6,7 +6,7 @@
       <xy x="20" y="20" width="332" height="297"/>
     </constraints>
     <properties/>
-    <border type="none" title="Case"/>
+    <border type="none" title-resource-bundle="messages/DBNResources" title-key="cfg.codeStyle.title.Case"/>
     <children>
       <vspacer id="c1d3">
         <constraints>
@@ -28,7 +28,7 @@
         </constraints>
         <properties>
           <labelFor value="b762b"/>
-          <text value="&amp;Keywords"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.codeStyle.label.Keywords"/>
         </properties>
       </component>
       <component id="b762b" class="com.intellij.openapi.ui.ComboBox" binding="keywordCaseComboBox">
@@ -43,7 +43,7 @@
         </constraints>
         <properties>
           <labelFor value="a0569"/>
-          <text value="Built-in &amp;function"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.codeStyle.label.BuiltInFunction"/>
         </properties>
       </component>
       <component id="a0569" class="com.intellij.openapi.ui.ComboBox" binding="functionCaseComboBox">
@@ -58,7 +58,7 @@
         </constraints>
         <properties>
           <labelFor value="4011c"/>
-          <text value="&amp;Parameters"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.codeStyle.label.Parameters"/>
         </properties>
       </component>
       <component id="4011c" class="com.intellij.openapi.ui.ComboBox" binding="parameterCaseComboBox">
@@ -73,7 +73,7 @@
         </constraints>
         <properties>
           <labelFor value="9e4b7"/>
-          <text value="Built-in &amp;datatypes"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.codeStyle.label.BuiltInDatatypes"/>
         </properties>
       </component>
       <component id="9e4b7" class="com.intellij.openapi.ui.ComboBox" binding="datatypeCaseComboBox">
@@ -88,7 +88,7 @@
         </constraints>
         <properties>
           <labelFor value="4a578"/>
-          <text value="Database &amp;objects"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.codeStyle.label.DatabaseObjects"/>
         </properties>
       </component>
       <component id="4a578" class="com.intellij.openapi.ui.ComboBox" binding="objectCaseComboBox">
@@ -103,7 +103,7 @@
         </constraints>
         <properties>
           <selected value="true"/>
-          <text value="&amp;Enable case auto-format"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.codeStyle.label.EnableCaseAutoFormat"/>
         </properties>
       </component>
       <hspacer id="e89d8">

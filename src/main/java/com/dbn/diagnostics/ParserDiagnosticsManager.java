@@ -99,14 +99,14 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
             ParserDiagnosticsResult result = new ParserDiagnosticsResult(project);
 
             progress.setIndeterminate(false);
-            progress.setText("Running parser diagnostics (0 / " + files.length + " files)");
+            progress.setText(txt("prc.diagnostics.text.RunningParserDiagnosticsProgress", 0, files.length));
 
             for (int i = 0, filesLength = files.length; i < filesLength; i++) {
                 VirtualFile file = files[i];
                 String filePath = file.getPath();
 
                 progress.checkCanceled();
-                progress.setText("Running parser diagnostics (" + i + " / " + files.length + " files)");
+                progress.setText(txt("prc.diagnostics.text.RunningParserDiagnosticsProgress", i, files.length));
                 String relativeFilePath = Files.convertToRelativePath(project, filePath);
                 progress.setText2(Strings.truncateWithMiddleEllipsis(relativeFilePath, 80));
                 progress.setFraction(progressOf(i, files.length));

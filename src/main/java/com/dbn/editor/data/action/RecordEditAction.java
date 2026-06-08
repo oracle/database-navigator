@@ -31,6 +31,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class RecordEditAction extends AbstractDataEditorAction {
 
+    public RecordEditAction() {
+        super(txt("app.dataEditor.action.DataEditorEditRecord"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         datasetEditor.openRecordEditor();

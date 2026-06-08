@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.nls.NlsResources.txt;
 
 public class WrapperNamesEditorForm extends DBNFormBase {
     private final WrapperModel model;
@@ -68,9 +69,7 @@ public class WrapperNamesEditorForm extends DBNFormBase {
     private void initHintPanel() {
         int maxIdentifierLength = model.getMaxIdentifierLength();
         TextContent hintText = TextContent.plain(
-                "Some of the system generated wrapper names exceed the maximum of " + maxIdentifierLength + " characters allowed by your database. " +
-                "Please adjust the names to accommodate the maximum identifier length.\n\n" +
-                        "NOTE: all database objects matching the wrapper names below will be overwritten");
+                txt("msg.java.hint.WrapperNamesEditor", maxIdentifierLength));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }

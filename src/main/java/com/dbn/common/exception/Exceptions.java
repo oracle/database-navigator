@@ -21,6 +21,7 @@ import com.dbn.common.ui.tree.ExceptionTreeModel;
 import com.dbn.common.ui.tree.ExceptionTreeNode;
 import com.dbn.common.util.Adaptable;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,10 +44,12 @@ import java.util.concurrent.TimeoutException;
 
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Commons.nvl;
-import static com.dbn.common.util.Strings.cachedLowerCase;
+import static com.dbn.common.util.TimeUtil.presentableDuration;
+import static com.dbn.nls.NlsResources.txt;
 
 public class Exceptions {
-    public static final SQLNonTransientConnectionException DBN_NOT_CONNECTED_EXCEPTION = new SQLNonTransientConnectionException("Not connected to database");
+    public static final SQLNonTransientConnectionException DBN_NOT_CONNECTED_EXCEPTION =
+            new SQLNonTransientConnectionException(txt("msg.connection.exception.NotConnectedToDatabase"));
 
     private Exceptions() {}
 
@@ -59,7 +62,7 @@ public class Exceptions {
     }
 
     @NotNull
-    public static SQLException toSqlException(@NotNull Throwable e, String s) {
+    public static SQLException toSqlException(@NotNull Throwable e, @Nls String s) {
         if (e instanceof SQLException) return (SQLException) e;
 
         e = unwrap(e);
@@ -68,13 +71,13 @@ public class Exceptions {
     }
 
     @NotNull
-    public static SQLTimeoutException toSqlTimeoutException(@NotNull Throwable e, String s) {
+    public static SQLTimeoutException toSqlTimeoutException(@NotNull Throwable e, @Nls String s) {
         if (e instanceof SQLTimeoutException) return (SQLTimeoutException) e;
         String reason = normalizeMessage(e, s);
         return new SQLTimeoutException(reason, e);
     }
 
-    private static @NotNull String normalizeMessage(@NotNull Throwable e, String s) {
+    private static @NotNull String normalizeMessage(@NotNull Throwable e, @Nls String s) {
         // remove duplicate message content for nested exceptions propagating own message
         String message = nvl(e.getMessage(), "");
         s = s.replace(message, "");
@@ -97,12 +100,14 @@ public class Exceptions {
     }
 
     public static <T, E extends Enum> T unsupported(E enumeration) {
-        throw new UnsupportedOperationException("Unsupported " + simpleClassName(enumeration) + " " + enumeration);
+        throw new UnsupportedOperationException(
+                txt("msg.shared.exception.UnsupportedEnumeration", simpleClassName(enumeration), enumeration));
     }
 
 
     public static TimeoutException timeoutException(long time, TimeUnit timeUnit) {
-        return new TimeoutException("Operation timed out after " + time + " " + cachedLowerCase(timeUnit.name()));
+        return new TimeoutException(
+                txt("msg.shared.exception.OperationTimedOut", presentableDuration(timeUnit.toMillis(time), false)));
     }
 
     public static Throwable causeOf(Throwable e) {

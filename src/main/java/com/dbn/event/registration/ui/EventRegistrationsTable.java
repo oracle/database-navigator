@@ -31,6 +31,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.TableModel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EventRegistrationsTable extends DBNTableWithGutter<DataChangeRegistrationBundle> {
 
@@ -42,7 +43,7 @@ public class EventRegistrationsTable extends DBNTableWithGutter<DataChangeRegist
         initTableSorter();
 
 
-        setAccessibleName(this, "Data change listener registrations");
+        setAccessibleName(this, txt("app.eventRegistration.aria.DataChangeListenerRegistrations"));
     }
 
     @Override

@@ -28,6 +28,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class EventNotificationsReloadAction extends BasicAction {
 
+    public EventNotificationsReloadAction() {
+        super(txt("app.eventNotification.action.ReloadNotifications"));
+    }
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         EventNotificationsForm notificationForm = getNotificationForm(e);

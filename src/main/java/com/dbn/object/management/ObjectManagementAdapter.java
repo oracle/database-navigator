@@ -19,7 +19,6 @@ package com.dbn.object.management;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.util.Named;
-import com.dbn.nls.NlsSupport;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.type.DBObjectType;
 
@@ -36,7 +35,7 @@ import com.dbn.object.type.DBObjectType;
  *
  * @param <T> the type of the entity in question
  */
-public interface ObjectManagementAdapter<T extends Named> extends NlsSupport {
+public interface ObjectManagementAdapter<T extends Named>  {
 
     /**
      * Returns the action performed by this adapter against the entity

@@ -70,7 +70,7 @@ public class CmdLineExecutionInput {
         command.addParameter(param);
         command.addParameter(value);
     }
-    public void addKvParameter(String param, String value) {
+    public void addKvParameter(@NonNls String param, @NonNls String value) {
         if (Strings.isEmpty(value)) return;
         command.addParameter(param + "=" + value);
     }

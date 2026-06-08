@@ -36,6 +36,7 @@ import com.intellij.openapi.diagnostic.IdeaLoggingEvent;
 import com.intellij.openapi.diagnostic.SubmittedReportInfo;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Consumer;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -52,7 +53,7 @@ import static java.util.Collections.emptyList;
 
 public class JiraIssueReportBuilder implements IssueReportBuilder {
     private static final String LINE_DELIMITER = "\n__________________________________________________________________\n";
-    public static final String PLUGIN_ID_CHECKSUM = "84dd76d6695f237f4ef7f8814c0b716b66a54704a922ee74c8578d52d0e4c30c";
+    public static final @NonNls String PLUGIN_ID_CHECKSUM = "84dd76d6695f237f4ef7f8814c0b716b66a54704a922ee74c8578d52d0e4c30c";
 
     @Nullable
     @Override
@@ -172,7 +173,7 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
         description.append(getMarkupElement(MarkupElement.CODE));
     }
 
-    private static void buildAttachmentInfo(IssueReport report, StringBuilder description) {
+    private static void buildAttachmentInfo(IssueReport report, @NonNls StringBuilder description) {
         List<Attachment> attachments = getIncludedAttachments(report);
         if (attachments.isEmpty()) return;
 
@@ -220,7 +221,7 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
         return null;
     }
 
-    private static void addEnvironmentInfo(StringBuilder description, String label, String value) {
+    private static void addEnvironmentInfo(StringBuilder description, @NonNls String label, String value) {
         String bold = getMarkupElement(MarkupElement.BOLD);
         String table = getMarkupElement(MarkupElement.TABLE);
         description.append(table);
@@ -239,6 +240,7 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
         return getMarkupElement(element, null);
     }
 
+    @NonNls
     private static String getMarkupElement(MarkupElement element, String title) {
         return switch (element) {
             case BOLD -> "*";

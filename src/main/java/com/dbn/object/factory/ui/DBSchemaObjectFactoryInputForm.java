@@ -35,6 +35,7 @@ import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
+import static com.dbn.nls.NlsResources.txt;
 
 public abstract class DBSchemaObjectFactoryInputForm extends DBObjectFactoryInputForm {
 
@@ -92,12 +93,7 @@ public abstract class DBSchemaObjectFactoryInputForm extends DBObjectFactoryInpu
 
     protected final TextContent getPreserveCaseInfoText() {
         String databaseTypeName = getConnection().getDatabaseType().getName();
-        String infoText = String.format(
-                "<strong>Preserve identifier case</strong><br><br>" +
-                "Preserve identifier names exactly as typed, instead of applying the %s default identifier casing (%s) before creation.<br><br>" +
-                "Note: Identifiers that require quoting, such as reserved words or names containing non-alphanumeric characters, are preserved automatically.",
-                databaseTypeName,
-                getDefaultIdentifierCase());
+        String infoText = txt("app.object.tooltip.PreserveIdentifierCase", databaseTypeName, getDefaultIdentifierCase());
         return TextContent.tooltip(infoText, "width:200px");
     }
 

@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.connection.ConnectionId.UNKNOWN;
+import static com.dbn.nls.NlsResources.txt;
 
 public abstract class MethodExecutionHistoryTreeModel extends DBNTreeModel implements StatefulDisposable {
     protected List<MethodExecutionInput> executionInputs;
@@ -96,7 +97,7 @@ public abstract class MethodExecutionHistoryTreeModel extends DBNTreeModel imple
         @Override
         public String getName() {
             ConnectionHandler connection = getConnection();
-            return connection == null ? "[unknown]" : connection.getName();
+            return connection == null ? txt("app.shared.placeholder.Unknown") : connection.getName();
         }
 
         @Override

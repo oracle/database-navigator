@@ -31,7 +31,7 @@
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="[error]"/>
+          <text resource-bundle="messages/DBNResources" key="app.object.placeholder.Error"/>
         </properties>
       </component>
       <component id="f2133" class="javax.swing.JLabel" binding="expressionLabel">
@@ -39,7 +39,7 @@
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="[expression]"/>
+          <text resource-bundle="messages/DBNResources" key="app.object.placeholder.Expression"/>
         </properties>
       </component>
       <grid id="29695" binding="hintPanel" layout-manager="BorderLayout" hgap="0" vgap="0">

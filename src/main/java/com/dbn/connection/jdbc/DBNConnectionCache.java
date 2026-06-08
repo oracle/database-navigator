@@ -28,7 +28,6 @@ import com.dbn.connection.ConnectionStatusListener;
 import com.dbn.connection.ConnectionUtil;
 import com.dbn.connection.Resources;
 import com.dbn.connection.SessionId;
-import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -37,8 +36,9 @@ import java.sql.SQLException;
 import java.sql.SQLRecoverableException;
 
 import static com.dbn.common.notification.NotificationSupport.sendInfoNotification;
+import static com.dbn.nls.NlsResources.txt;
 
-public class DBNConnectionCache extends ObjectCacheBase<SessionId, DBNConnection, SQLException> implements NlsSupport {
+public class DBNConnectionCache extends ObjectCacheBase<SessionId, DBNConnection, SQLException>  {
     private final ConnectionRef connection;
 
     public DBNConnectionCache(ConnectionHandler connection) {

@@ -50,6 +50,7 @@ import java.awt.Color;
 
 import static com.dbn.common.file.util.VirtualFiles.getPresentablePath;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class MessagesTreeCellRenderer extends DBNColoredTreeCellRenderer {
     public static final JBColor HIGHLIGHT_BACKGROUND = new JBColor(0xE0EFFF, 0x364135);
@@ -67,18 +68,18 @@ public class MessagesTreeCellRenderer extends DBNColoredTreeCellRenderer {
             Color background = null;
             if (value instanceof StatementExecutionMessagesNode) {
                 MessagesTreeBundleNode node = (MessagesTreeBundleNode) value;
-                append("Statement Execution Messages", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-                append(" (" + node.getChildCount() + " files)", SimpleTextAttributes.GRAY_ATTRIBUTES);
+                append(txt("app.execution.label.StatementExecutionMessages"), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                append(txt("app.execution.label.FileCount", node.getChildCount()), SimpleTextAttributes.GRAY_ATTRIBUTES);
             }
             else if (value instanceof ExplainPlanMessagesNode) {
                 MessagesTreeBundleNode node = (MessagesTreeBundleNode) value;
-                append("Explain Plan Messages", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-                append(" (" + node.getChildCount() + " files)", SimpleTextAttributes.GRAY_ATTRIBUTES);
+                append(txt("app.execution.label.ExplainPlanMessages"), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                append(txt("app.execution.label.FileCount", node.getChildCount()), SimpleTextAttributes.GRAY_ATTRIBUTES);
             }
             else if (value instanceof CompilerMessagesNode) {
                 MessagesTreeBundleNode node = (MessagesTreeBundleNode) value;
-                append("Compiler Messages", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-                append(" (" + node.getChildCount() + " objects)", SimpleTextAttributes.GRAY_ATTRIBUTES);
+                append(txt("app.execution.label.CompilerMessages"), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                append(txt("app.execution.label.ObjectCount", node.getChildCount()), SimpleTextAttributes.GRAY_ATTRIBUTES);
             }
             else if (value instanceof StatementExecutionMessagesFileNode node){
                 VirtualFile file = node.getFile();
@@ -133,7 +134,7 @@ public class MessagesTreeCellRenderer extends DBNColoredTreeCellRenderer {
                 int line = message.getLine();
                 int position = message.getPosition();
                 if (line > 0 && position > 0) {
-                    append(" (line " + line + " / position " + position + ")", secondaryTextAttributes);
+                    append(txt("app.execution.label.LinePosition", line, position), secondaryTextAttributes);
                 }
                 background = regularAttributes.getBgColor();
             }
@@ -163,7 +164,7 @@ public class MessagesTreeCellRenderer extends DBNColoredTreeCellRenderer {
                 }
 
                 ConnectionHandler connection = message.getExecutionResult().getConnection();
-                append(" - Connection: " + connection.getName() + ": " + message.getExecutionResult().getExecutionDuration() + "ms", greyAttributes);
+                append(txt("app.execution.label.ConnectionDuration", connection.getName(), message.getExecutionResult().getExecutionDuration()), greyAttributes);
                 background = regularAttributes.getBgColor();
             }
             else if (value instanceof ExplainPlanMessageNode explainPlanMessageNode) {
@@ -182,7 +183,7 @@ public class MessagesTreeCellRenderer extends DBNColoredTreeCellRenderer {
                 append(message.getText(), regularAttributes);
                 ConnectionHandler connection = message.getConnection();
                 if (connection != null) {
-                    append(" - Connection: " + connection.getName(), greyAttributes);
+                    append(txt("app.execution.label.ConnectionName", connection.getName()), greyAttributes);
                 }
                 background = regularAttributes.getBgColor();
             }

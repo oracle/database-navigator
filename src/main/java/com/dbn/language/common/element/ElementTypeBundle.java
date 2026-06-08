@@ -192,7 +192,7 @@ public class ElementTypeBundle {
     }
 
 
-    public static String determineMandatoryAttribute(Element def, @NonNls String attribute, String message) throws ElementTypeDefinitionException {
+    public static String determineMandatoryAttribute(Element def, @NonNls String attribute, @NonNls String message) throws ElementTypeDefinitionException {
         String value = stringAttribute(def, attribute);
         if (value == null) {
             throw new ElementTypeDefinitionException(message + "Missing '" + attribute + "' attribute.");

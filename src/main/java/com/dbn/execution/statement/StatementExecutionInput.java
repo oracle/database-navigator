@@ -46,6 +46,7 @@ import java.util.List;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.database.DatabaseFeature.DATABASE_LOGGING;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -215,7 +216,7 @@ public class StatementExecutionInput extends LocalExecutionInput {
 
     public String getStatementDescription() {
         ExecutablePsiElement executablePsiElement = getExecutablePsiElement();
-        return executablePsiElement == null ? "SQL Statement" : executablePsiElement.getPresentableText();
+        return executablePsiElement == null ? txt("app.execution.token.SQLStatement") : executablePsiElement.getPresentableText();
     }
 
     @Override

@@ -23,6 +23,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ToggleFoldingAction extends ChatMessageAction implements AssistantActionSupport {
 
     @Override
@@ -33,7 +35,7 @@ public class ToggleFoldingAction extends ChatMessageAction implements AssistantA
         boolean folded = enabled && foldableComponent.isFolded();
 
         Presentation presentation = e.getPresentation();
-        presentation.setText(folded ? "Expand" : "Collapse");
+        presentation.setText(folded ? txt("app.assistant.action.Expand") : txt("app.assistant.action.Collapse"));
         presentation.setIcon(folded ?
                 Icons.ACTION_CONTENT_EXPAND :
                 Icons.ACTION_CONTENT_COLLAPSE);

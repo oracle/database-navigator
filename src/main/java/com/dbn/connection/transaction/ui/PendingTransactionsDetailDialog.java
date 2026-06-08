@@ -32,13 +32,14 @@ import java.util.List;
 
 import static com.dbn.connection.transaction.TransactionAction.COMMIT;
 import static com.dbn.connection.transaction.TransactionAction.ROLLBACK;
+import static com.dbn.nls.NlsResources.txt;
 
 public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactionsDetailForm> {
     private final TransactionAction additionalOperation;
     private final boolean showActions;
 
     public PendingTransactionsDetailDialog(ConnectionHandler connection, TransactionAction additionalOperation, boolean showActions) {
-        super(connection, "Open transactions", true);
+        super(connection, txt("msg.transactions.title.OpenTransactions"), true);
         this.additionalOperation = additionalOperation;
         this.showActions = showActions;
         setModal(false);
@@ -63,7 +64,7 @@ public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactio
 
     private class CommitAction extends AbstractAction {
         CommitAction() {
-            super("Commit", Icons.CONNECTION_COMMIT);
+            super(txt("msg.transactions.button.Commit"), Icons.CONNECTION_COMMIT);
         }
 
         @Override
@@ -79,7 +80,7 @@ public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactio
 
     private class RollbackAction extends AbstractAction {
         RollbackAction() {
-            super("Rollback", Icons.CONNECTION_ROLLBACK);
+            super(txt("msg.transactions.button.Rollback"), Icons.CONNECTION_ROLLBACK);
         }
 
         @Override

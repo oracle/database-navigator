@@ -24,6 +24,8 @@ import com.dbn.object.type.DBObjectType;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBConstraintPropertiesProvider extends DBGenericObjectPropertiesProvider<DBConstraint> {
     public DBConstraintPropertiesProvider() {
         super(DBObjectType.CONSTRAINT);
@@ -35,18 +37,28 @@ public class DBConstraintPropertiesProvider extends DBGenericObjectPropertiesPro
 
         switch (constraint.getConstraintType()) {
             case CHECK:
-                properties.add(0, new SimplePresentableProperty("Check condition", constraint.getCheckCondition()));
-                properties.add(0, new SimplePresentableProperty("Constraint type", "Check"));
+                properties.add(0, new SimplePresentableProperty(txt("app.objects.property.CheckCondition"), constraint.getCheckCondition()));
+                properties.add(0, new SimplePresentableProperty(txt("app.objects.property.ConstraintType"), txt("app.objects.propertyValue.ConstraintCheck")));
                 break;
-            case PRIMARY_KEY: properties.add(0, new SimplePresentableProperty("Constraint type", "Primary Key")); break;
+            case PRIMARY_KEY:
+                properties.add(0, new SimplePresentableProperty(
+                        txt("app.objects.property.ConstraintType"),
+                        txt("app.objects.propertyValue.ConstraintPrimaryKey")));
+                break;
             case FOREIGN_KEY:
                 DBConstraint foreignKeyConstraint = constraint.getForeignKeyConstraint();
                 if (foreignKeyConstraint != null) {
                     properties.add(0, new DBObjectPresentableProperty(foreignKeyConstraint));
-                    properties.add(0, new SimplePresentableProperty("Constraint type", "Foreign Key"));
+                    properties.add(0, new SimplePresentableProperty(
+                            txt("app.objects.property.ConstraintType"),
+                            txt("app.objects.propertyValue.ConstraintForeignKey")));
                 }
                 break;
-            case UNIQUE_KEY: properties.add(0, new SimplePresentableProperty("Constraint type", "Unique")); break;
+            case UNIQUE_KEY:
+                properties.add(0, new SimplePresentableProperty(
+                        txt("app.objects.property.ConstraintType"),
+                        txt("app.objects.propertyValue.ConstraintUnique")));
+                break;
         }
         return properties;
     }

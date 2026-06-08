@@ -36,6 +36,7 @@ import java.util.Objects;
 
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBStatementJdwpDebugProcess extends DBJdwpDebugProcess<StatementExecutionInput> {
     DBStatementJdwpDebugProcess(@NotNull XDebugSession session, @NotNull DebuggerSession debuggerSession, ConnectionHandler connection, DBJdwpTcpConfig tcpConfig) {
@@ -69,7 +70,7 @@ public class DBStatementJdwpDebugProcess extends DBJdwpDebugProcess<StatementExe
                 }
             } catch (Exception e) {
                 conditionallyLog(e);
-                getConsole().warning("Error evaluating suspend position '" + sourceUrl + "': " + Commons.nvl(e.getMessage(), simpleClassName(e)));
+                getConsole().warning(txt("log.debugger.error.ErrorEvaluatingSuspendPosition", sourceUrl, Commons.nvl(e.getMessage(), simpleClassName(e))));
             }
         }
 

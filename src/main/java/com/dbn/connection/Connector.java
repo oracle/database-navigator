@@ -44,6 +44,7 @@ import static com.dbn.common.exception.Exceptions.getMessage;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.diagnostics.data.Activity.CONNECT;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 class Connector {
@@ -197,7 +198,7 @@ class Connector {
             }
 
             String message = getMessage(e);
-            exception = toSqlException(e, "Connection error: " + message);
+            exception = toSqlException(e, txt("msg.connection.exception.ConnectionError", message));
 
             // if we have all the info we need, pass this on to the
             // compatibility layer to see if there is any extra additional processing necessary.

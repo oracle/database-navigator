@@ -31,6 +31,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBJavaMethodNavigationInfoProvider extends DBObjectNavigationInfoProviderBase<DBJavaMethod> {
     public DBJavaMethodNavigationInfoProvider() {
         super(DBObjectType.JAVA_METHOD);
@@ -43,10 +45,10 @@ public class DBJavaMethodNavigationInfoProvider extends DBObjectNavigationInfoPr
         if (parameterList != null) {
             if (parameterList.isLoaded()) {
                 List<DBJavaParameter> parameters = method.getParameters();
-                if (!parameters.isEmpty()) navigationLists.add(DBObjectNavigationList.create("Parameters", parameters));
+                if (!parameters.isEmpty()) navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.Parameters"), parameters));
             } else {
                 ObjectListProvider<DBJavaParameter> provider = () -> method.getParameters();
-                navigationLists.add(DBObjectNavigationList.create("Parameters", provider)); // lazy
+                navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.Parameters"), provider)); // lazy
             }
         }
 
@@ -56,13 +58,13 @@ public class DBJavaMethodNavigationInfoProvider extends DBObjectNavigationInfoPr
             if (!Java.isScalar(returnClassName) &&
                     !Java.isVoid(returnClassName)) {
                 if (returnClassRef.isLoaded()) {
-                    navigationLists.add(DBObjectNavigationList.create("Return Type", method.getReturnClass()));
+                    navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.ReturnType"), method.getReturnClass()));
                 } else {
                     ObjectListProvider<DBJavaClass> provider = () -> {
                         DBJavaClass returnClass = method.getReturnClass();
                         return returnClass == null ? Collections.emptyList() : List.of(returnClass);
                     };
-                    navigationLists.add(DBObjectNavigationList.create("Return Type", provider));
+                    navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.ReturnType"), provider));
                 }
             }
         }

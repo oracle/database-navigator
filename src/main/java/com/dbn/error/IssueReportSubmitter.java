@@ -21,7 +21,6 @@ import com.dbn.common.action.Lookups;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Strings;
-import com.dbn.nls.NlsSupport;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.openapi.diagnostic.ErrorReportSubmitter;
 import com.intellij.openapi.diagnostic.IdeaLoggingEvent;
@@ -37,11 +36,12 @@ import java.awt.Component;
 import static com.dbn.common.notification.NotificationCategory.REPORTING;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.openapi.diagnostic.SubmittedReportInfo.SubmissionStatus.FAILED;
 import static com.intellij.openapi.diagnostic.SubmittedReportInfo.SubmissionStatus.NEW_ISSUE;
 
 @Slf4j
-public abstract class IssueReportSubmitter extends ErrorReportSubmitter implements NlsSupport {
+public abstract class IssueReportSubmitter extends ErrorReportSubmitter  {
 
     @Override
     public IdeaPluginDescriptor getPluginDescriptor() {

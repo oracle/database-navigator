@@ -19,10 +19,12 @@ package com.dbn.vector.model.request;
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public enum EmbeddingModelLocation implements Presentable {
-    IN_DATABASE_MODEL("In-database model"),
-    THIRD_PARTY_MODEL("Third-party model");
+    IN_DATABASE_MODEL(txt("msg.vector.const.EmbeddingModelLocation_IN_DATABASE_MODEL")),
+    THIRD_PARTY_MODEL(txt("msg.vector.const.EmbeddingModelLocation_THIRD_PARTY_MODEL"));
     private final String name;
 
     EmbeddingModelLocation(String name) {

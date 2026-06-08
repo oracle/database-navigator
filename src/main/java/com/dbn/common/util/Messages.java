@@ -59,17 +59,16 @@ import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
-// TODO NLS
 @Slf4j
 @UtilityClass
 public class Messages {
 
-    public static final String[] OPTIONS_OK = options("OK");
-    public static final String[] OPTIONS_YES_NO = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.No"));
-    public static final String[] OPTIONS_YES_NO_CANCEL = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.No"), txt("msg.shared.button.Cancel"));
-    public static final String[] OPTIONS_YES_CANCEL = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.Cancel"));
-    public static final String[] OPTIONS_RETRY_CANCEL = options(txt("msg.shared.button.Retry"), txt("msg.shared.button.Cancel"));
-    public static final String[] OPTIONS_CONTINUE_CANCEL = options(txt("msg.shared.button.Continue"), txt("msg.shared.button.Cancel"));
+    public static final @Button String[] OPTIONS_OK = options(txt("msg.shared.button.OK"));
+    public static final @Button String[] OPTIONS_YES_NO = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.No"));
+    public static final @Button String[] OPTIONS_YES_NO_CANCEL = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.No"), txt("msg.shared.button.Cancel"));
+    public static final @Button String[] OPTIONS_YES_CANCEL = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.Cancel"));
+    public static final @Button String[] OPTIONS_RETRY_CANCEL = options(txt("msg.shared.button.Retry"), txt("msg.shared.button.Cancel"));
+    public static final @Button String[] OPTIONS_CONTINUE_CANCEL = options(txt("msg.shared.button.Continue"), txt("msg.shared.button.Cancel"));
 
     public static void showMessagesDialog(@Nullable Project project, TitledMessageBundle messages) {
         MessageBundleDialogConfig config = MessageBundleDialogConfig.create(project, messages.getTitle());
@@ -198,11 +197,11 @@ public class Messages {
         showSuccessDialog(project, title, message, OPTIONS_OK, 0, null);
     }
 
-    public static int showConfirmationDialog(@Nullable Project project, String title, String message, String[] options, int defaultOptionIndex) {
+    public static int showConfirmationDialog(@Nullable Project project, @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex) {
         return Dispatch.call(() -> showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_QUESTION, null));
     }
 
-    public static int showAcknowledgementDialog(@Nullable Project project, String title, String message, String[] options, int defaultOptionIndex,  MessageCallback callback) {
+    public static int showAcknowledgementDialog(@Nullable Project project, @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex,  MessageCallback callback) {
         return Dispatch.call(() -> {
             int option = showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_WARNING, null);
             if (callback != null) {
@@ -233,14 +232,14 @@ public class Messages {
         });
     }
 
-    public static int showDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable RememberOption rememberOption) {
+    public static int showDialog(@Nullable Project project, @DialogMessage String message, @DialogTitle String title, @Button String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable RememberOption rememberOption) {
         closeProgressDialogs();
         return Diagnostics.isNativeAlertsEnabled() ?
                 showNativeDialog(project, message, title, options, defaultOptionIndex, icon, rememberOption) :
                 showCustomDialog(project, message, title, options, defaultOptionIndex, icon, rememberOption);
     }
 
-    private static int showCustomDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable RememberOption rememberOption) {
+    private static int showCustomDialog(@Nullable Project project, @DialogMessage String message, @DialogTitle String title, @Button String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable RememberOption rememberOption) {
         DBNMessageDialog messageDialog = new DBNMessageDialog(project, icon, title, message, options, defaultOptionIndex, rememberOption);
         messageDialog.show();
         return messageDialog.getExitCode();
@@ -248,7 +247,7 @@ public class Messages {
 
     @Workaround
     @Compatibility
-    private static int showNativeDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable RememberOption rememberOption) {
+    private static int showNativeDialog(@Nullable Project project, @DialogMessage String message, @DialogTitle String title, @Button String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable RememberOption rememberOption) {
         try {
             Class<DoNotAskOption> optionClass = RememberOption.spec();
             DoNotAskOption option = RememberOption.wrap(rememberOption);
@@ -272,7 +271,7 @@ public class Messages {
         });
     }
 
-    public static @Button String[] options(String ... options) {
+    public static @Button String[] options(@Button String ... options) {
         return array(options);
     }
 

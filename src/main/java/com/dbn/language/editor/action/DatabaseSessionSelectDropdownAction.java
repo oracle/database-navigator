@@ -45,6 +45,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class DatabaseSessionSelectDropdownAction extends ComboBoxAction implements DumbAware {
 
+    public DatabaseSessionSelectDropdownAction() {
+        super(txt("app.codeEditor.action.ScriptEditorCurrentSession"));
+    }
+
     @Override
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(JComponent component, DataContext dataContext) {

@@ -20,6 +20,8 @@ import com.dbn.common.util.Safe;
 import com.dbn.execution.common.message.ui.tree.MessagesTreeLeafNode;
 import com.dbn.execution.statement.StatementExecutionMessage;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class StatementExecutionMessageNode extends MessagesTreeLeafNode<StatementExecutionMessagesFileNode, StatementExecutionMessage> {
 
     StatementExecutionMessageNode(StatementExecutionMessagesFileNode parent, StatementExecutionMessage executionMessage) {
@@ -29,10 +31,11 @@ public class StatementExecutionMessageNode extends MessagesTreeLeafNode<Statemen
     @Override
     public String toString() {
         StatementExecutionMessage executionMessage = getMessage();
-        return
-            executionMessage.getText() +
-            Safe.call(executionMessage.getDatabaseMessage(), dm -> " " + dm.getTitle(), "") + " - Connection: " +
-            executionMessage.getExecutionResult().getConnection().getName() + ": " +
-            executionMessage.getExecutionResult().getExecutionDuration() + "ms";
+        String databaseMessageTitle = Safe.call(executionMessage.getDatabaseMessage(), dm -> dm.getTitle());
+        String connectionName = executionMessage.getExecutionResult().getConnection().getName();
+        long executionDuration = executionMessage.getExecutionResult().getExecutionDuration();
+        return databaseMessageTitle == null ?
+                txt("app.execution.text.StatementExecutionMessage", executionMessage.getText(), connectionName, executionDuration) :
+                txt("app.execution.text.StatementExecutionMessageWithTitle", executionMessage.getText(), databaseMessageTitle, connectionName, executionDuration);
     }
 }

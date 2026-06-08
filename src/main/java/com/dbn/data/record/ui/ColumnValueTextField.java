@@ -76,7 +76,7 @@ class ColumnValueTextField extends JTextField {
                 setCursor(Cursors.handCursor());
                 DBColumn foreignKeyColumn = column.getForeignKeyColumn();
                 if (foreignKeyColumn != null) {
-                    setToolTipText("<html>Show referenced <b>" + foreignKeyColumn.getDataset().getQualifiedName() + "</b> record<html>");
+                    setToolTipText(txt("app.dataEditor.tooltip.ShowReferencedRecord", foreignKeyColumn.getDataset().getQualifiedName()));
                 }
             } else {
                 super.processMouseMotionEvent(e);

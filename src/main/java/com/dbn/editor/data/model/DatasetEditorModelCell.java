@@ -46,6 +46,7 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorModelCell
         extends ResultSetDataModelCell<DatasetEditorModelRow, DatasetEditorModel>

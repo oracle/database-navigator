@@ -33,6 +33,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ChatHistoryForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -68,7 +69,7 @@ public class ChatHistoryForm extends DBNFormBase {
         chatHistoryTable.adjustColumnWidths();
         updateDialogButtonState(parent);
 
-        filterTextField.getEmptyText().setText("Filter");
+        filterTextField.getEmptyText().setText(txt("app.assistant.placeholder.Filter"));
         createActionPanel();
     }
 
@@ -110,7 +111,7 @@ public class ChatHistoryForm extends DBNFormBase {
 
     private void createActionPanel(){
         ActionToolbar chatActions = Actions.createActionToolbar(chatActionsPanel, true, "DBNavigator.ActionGroup.AssistantChatHistory");
-        setAccessibleName(chatActions, "Chat History");
+        setAccessibleName(chatActions, txt("app.assistant.aria.ChatHistory"));
         this.chatActionsPanel.add(chatActions.getComponent());
     }
 

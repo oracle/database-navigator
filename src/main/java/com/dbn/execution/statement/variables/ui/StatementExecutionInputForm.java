@@ -60,6 +60,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.nls.NlsResources.txt;
 
 public class StatementExecutionInputForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -149,7 +150,7 @@ public class StatementExecutionInputForm extends DBNFormBase {
 
     @Override
     protected void initAccessibility() {
-        setAccessibleName(variablesScrollPane, "Execution variables");
+        setAccessibleName(variablesScrollPane, txt("app.execution.aria.ExecutionVariables"));
     }
 
     @Override

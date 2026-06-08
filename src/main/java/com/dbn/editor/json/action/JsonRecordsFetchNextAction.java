@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class JsonRecordsFetchNextAction extends AbstractJsonDataEditorAction {
 
+    public JsonRecordsFetchNextAction() {
+        super(txt("app.dataEditor.action.JsonDataEditorFetchNextRecords"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull JsonDataEditor jsonDataEditor) {
         DataEditorSettings settings = DataEditorSettings.getInstance(jsonDataEditor.getProject());

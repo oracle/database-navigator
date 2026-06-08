@@ -23,10 +23,10 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import java.awt.Color;
-import java.util.regex.Pattern;
 
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.oci.util.OciIdentifiers.isCompartmentScopeOcid;
 
 /**
  * InputVerifier class for OCI Compartment ID
@@ -34,8 +34,6 @@ import static com.dbn.nls.NlsResources.txt;
 public class OciCompartmentIdVerifier extends InputVerifier {
   private static final Border ERROR_BORDER = BorderFactory.createLineBorder(Color.RED, 1);
   private static final Border DEFAULT_BORDER = UIManager.getBorder("TextField.border");
-  private static final Pattern OCI_COMPARTMENT_PATTERN =
-      Pattern.compile("^ocid\\d+\\.compartment\\..+$");
 
   @Override
   public boolean verify(JComponent input) {
@@ -49,7 +47,7 @@ public class OciCompartmentIdVerifier extends InputVerifier {
       return true;
     }
 
-    boolean hasValidFormat = OCI_COMPARTMENT_PATTERN.matcher(text).matches();
+    boolean hasValidFormat = isCompartmentScopeOcid(text);
 
     if (hasValidFormat) {
       textField.setBorder(DEFAULT_BORDER);

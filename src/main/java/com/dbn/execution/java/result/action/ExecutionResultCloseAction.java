@@ -25,7 +25,13 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ExecutionResultCloseAction extends AbstractJavaExecutionResultAction {
+
+    public ExecutionResultCloseAction() {
+        super(txt("app.execution.action.JavaExecutionResultClose"));
+    }
 
     @Override
     protected void actionPerformed(
@@ -38,7 +44,7 @@ public class ExecutionResultCloseAction extends AbstractJavaExecutionResultActio
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable JavaExecutionResult target) {
-        presentation.setText("Close");
+        presentation.setText(txt("app.execution.action.Close"));
         presentation.setIcon(Icons.EXEC_RESULT_CLOSE);
     }
 }

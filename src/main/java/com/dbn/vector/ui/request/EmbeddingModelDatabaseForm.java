@@ -36,6 +36,7 @@ import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.AI_MODEL;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
@@ -66,8 +67,8 @@ public class EmbeddingModelDatabaseForm extends VectorToolboxFormBase {
 
     @Override
     protected void initValidation() {
-        addSelectionValidation(schemaComboBox, "Please select a schema");
-        addSelectionValidation(modelComboBox, "Please select or create a model");
+        addSelectionValidation(schemaComboBox, txt("msg.shared.error.SelectSchema"));
+        addSelectionValidation(modelComboBox, txt("msg.vector.error.SelectOrCreateModel"));
     }
 
     private List<DBAIModel> loadModels() {
@@ -103,7 +104,7 @@ public class EmbeddingModelDatabaseForm extends VectorToolboxFormBase {
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadModels())
                 .withValuePreselector(() -> config.getModelName())
-                .withObjectFactory("New AI Model...")
+                .withObjectFactory(txt("app.vector.action.NewAiModel"))
                 .triggerLoad();
 
         updateFieldAvailability();

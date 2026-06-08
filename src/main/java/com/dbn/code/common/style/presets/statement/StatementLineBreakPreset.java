@@ -22,9 +22,11 @@ import com.intellij.formatting.Wrap;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class StatementLineBreakPreset extends StatementAbstractPreset {
     public StatementLineBreakPreset() {
-        super("line_break", "One line break");
+        super("line_break", txt("cfg.codeStyle.const.CodeStylePreset_LINE_BREAK"));
     }
 
     @Override

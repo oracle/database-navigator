@@ -44,7 +44,7 @@
             <properties>
               <font style="1"/>
               <foreground swing-color="ArrowButton.arrowColor"/>
-              <text value="Loading notifications..."/>
+              <text resource-bundle="messages/DBNResources" key="app.eventNotification.text.LoadingNotifications"/>
             </properties>
           </component>
         </children>

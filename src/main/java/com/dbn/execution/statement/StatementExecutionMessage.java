@@ -27,6 +27,7 @@ import com.dbn.execution.statement.result.StatementExecutionResult;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nls;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 
@@ -37,7 +38,7 @@ public class StatementExecutionMessage extends ConsoleMessage {
     private final DatabaseMessage databaseMessage;
     private final ConnectionId connectionId;
 
-    public StatementExecutionMessage(StatementExecutionResult executionResult, String message, DatabaseMessage databaseMessage, MessageType messageType) {
+    public StatementExecutionMessage(StatementExecutionResult executionResult, @Nls String message, DatabaseMessage databaseMessage, MessageType messageType) {
         super(messageType, message);
         this.executionResult = executionResult;
         this.connectionId = executionResult.getConnectionId();

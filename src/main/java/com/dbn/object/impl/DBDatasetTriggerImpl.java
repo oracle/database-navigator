@@ -37,6 +37,7 @@ import java.sql.SQLException;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.util.Strings.cachedLowerCase;
+import static com.dbn.nls.NlsResources.txt;
 
 class DBDatasetTriggerImpl extends DBTriggerImpl implements DBDatasetTrigger {
     DBDatasetTriggerImpl(DBDataset dataset, DBTriggerMetadata metadata) throws SQLException {
@@ -119,8 +120,8 @@ class DBDatasetTriggerImpl extends DBTriggerImpl implements DBDatasetTrigger {
     @Override
     public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Updating source code",
-                "Updating sources of " + getQualifiedNameWithType(),
+                txt("prc.object.title.UpdatingSourceCode"),
+                txt("prc.object.text.UpdatingSources", getQualifiedNameWithType()),
                 getProject(),
                 getConnectionId(),
                 getSchemaId(),

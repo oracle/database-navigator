@@ -113,18 +113,19 @@ public abstract class NetworkAccessPrerequisite extends PrerequisiteDefinitionPr
         return context -> {
             String userName = context.getUserName();
             return new PrerequisiteAdvice(
-                    "Request privilege",
-                    "\"" + privilegeName + "\" network privilege for host \"" + hostName + "\"",
-                    String.format("BEGIN\n" +
-                            "   DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(\n" +
-                            "       host =>  '%s',\n" +
-                            "       ace  => xs$ace_type(\n" +
-                            "           privilege_list => xs$name_list('%s'),\n" +
-                            "           principal_name => '%s',\n" +
-                            "           principal_type => xs_acl.ptype_db\n" +
-                            "      )\n" +
-                            "    );\n" +
-                            "END;", hostName, privilegeName, userName));
+                    txt("msg.prerequisite.title.RequestPrivilege"),
+                    txt("msg.prerequisite.text.AdviceNetworkPrivilege", privilegeName, hostName),
+                    String.format("""
+                            BEGIN
+                               DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
+                                   host =>  '%s',
+                                   ace  => xs$ace_type(
+                                       privilege_list => xs$name_list('%s'),
+                                       principal_name => '%s',
+                                       principal_type => xs_acl.ptype_db
+                                  )
+                                );
+                            END;""", hostName, privilegeName, userName));
         };
     }
 

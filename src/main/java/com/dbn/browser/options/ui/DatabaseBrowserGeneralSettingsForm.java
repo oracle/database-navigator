@@ -37,6 +37,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseBrowserGeneralSettingsForm extends ConfigurationEditorForm<DatabaseBrowserGeneralSettings> {
     private JPanel mainPanel;
@@ -73,7 +74,7 @@ public class DatabaseBrowserGeneralSettingsForm extends ConfigurationEditorForm<
     @Override
     public void applyFormChanges() throws ConfigurationException {
         DatabaseBrowserGeneralSettings configuration = getConfiguration();
-        ConfigurationEditors.validateIntegerValue(navigationHistorySizeTextField, "Navigation history size", true, 0, 1000, "");
+        ConfigurationEditors.validateIntegerValue(navigationHistorySizeTextField, txt("cfg.browser.field.NavigationHistorySize"), true, 0, 1000, null);
 
         boolean repaintTree = configuration.isModified();
         

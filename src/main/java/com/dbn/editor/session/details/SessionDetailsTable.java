@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.table.TableCellRenderer;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SessionDetailsTable extends DBNTable<SessionDetailsTableModel> {
 
@@ -36,7 +37,7 @@ public class SessionDetailsTable extends DBNTable<SessionDetailsTableModel> {
         setDefaultRenderer(Object.class, createCellRenderer());
         setCellSelectionEnabled(true);
 
-        setAccessibleName(this, "Session Details");
+        setAccessibleName(this, txt("app.sessionBrowser.aria.SessionDetails"));
     }
 
     private TableCellRenderer createCellRenderer() {
@@ -59,4 +60,3 @@ public class SessionDetailsTable extends DBNTable<SessionDetailsTableModel> {
         };
     }
 }
-

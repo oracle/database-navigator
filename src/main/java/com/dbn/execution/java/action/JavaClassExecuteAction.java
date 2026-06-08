@@ -30,10 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JavaClassExecuteAction extends ObjectListShowAction {
 	public JavaClassExecuteAction(DBJavaClass program) {
-		super("Execute...", program);
+		super(txt("app.execution.action.Execute"), program);
 		getTemplatePresentation().setIcon(Icons.METHOD_EXECUTION_RUN);
 	}
 
@@ -55,19 +56,19 @@ public class JavaClassExecuteAction extends ObjectListShowAction {
 
 	@Override
 	public String getTitle() {
-		return "Select method to execute";
+		return txt("app.execution.action.SelectMethodToExecute");
 	}
 
 	@Override
 	public String getEmptyListMessage() {
 		DBJavaClass program = (DBJavaClass) getSourceObject();
-		return "The " + program.getQualifiedNameWithType() + " has no static methods to execute.";
+		return txt("app.execution.action.NoStaticMethodsToExecute", program.getQualifiedNameWithType());
 	}
 
 
 	@Override
 	public String getListName() {
-		return "executable elements";
+		return txt("app.execution.token.ExecutableElements");
 	}
 
 	@Override

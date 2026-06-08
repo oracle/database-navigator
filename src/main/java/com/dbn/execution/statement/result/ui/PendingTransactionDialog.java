@@ -30,6 +30,8 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class PendingTransactionDialog extends DialogWithTimeout {
     private final CommitAction commitAction;
     private final RollbackAction rollbackAction;
@@ -74,7 +76,7 @@ public class PendingTransactionDialog extends DialogWithTimeout {
 
     private class CommitAction extends AbstractAction {
         CommitAction() {
-            super("Commit", Icons.CONNECTION_COMMIT);
+            super(txt("msg.transactions.button.Commit"), Icons.CONNECTION_COMMIT);
             makeDefaultAction(this);
         }
 
@@ -97,7 +99,7 @@ public class PendingTransactionDialog extends DialogWithTimeout {
 
     private class RollbackAction extends AbstractAction {
         RollbackAction() {
-            super("Rollback", Icons.CONNECTION_ROLLBACK);
+            super(txt("msg.transactions.button.Rollback"), Icons.CONNECTION_ROLLBACK);
         }
 
         @Override

@@ -49,6 +49,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.util.containers.ContainerUtil.createConcurrentWeakKeyWeakValueMap;
 
 public class ConnectionBundle extends StatefulDisposableBase implements BrowserTreeNode {
@@ -271,7 +272,7 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
     @NotNull
     @Override
     public String getName() {
-        return Commons.nvl(getPresentableText(), "Connection Bundle");
+        return Commons.nvl(getPresentableText(), txt("app.connection.title.ConnectionBundle"));
     }
 
     @Override
@@ -361,13 +362,15 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
 
     @Override
     public String getPresentableText() {
-        return "Database connections";
+        return txt("app.connection.label.DatabaseConnections");
     }
 
     @Override
     public String getPresentableTextDetails() {
         int size = connections.size();
-        return size == 0 ? "(no connections)" : "(" + size + ')';
+        return size == 0 ?
+                txt("app.connection.label.NoConnections") :
+                txt("app.connection.label.ConnectionCount", size);
     }
 
     @Override

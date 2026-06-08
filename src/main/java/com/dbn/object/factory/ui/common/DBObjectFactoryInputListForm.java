@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.nls.NlsResources.txt;
 
 public abstract class DBObjectFactoryInputListForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -108,10 +109,10 @@ public abstract class DBObjectFactoryInputListForm extends DBNFormBase {
 
     private class DetailSelector extends ValueSelector<Presentable> {
         DetailSelector() {
-            super(PlatformIcons.ADD_ICON, "Add " + getObjectType().getName(), null, ValueSelectorOption.HIDE_DESCRIPTION);
+            super(PlatformIcons.ADD_ICON, txt("app.objects.action.AddObject", getObjectType().getDisplayName()), null, ValueSelectorOption.HIDE_DESCRIPTION);
             addListener((oldValue, newValue) -> createChildInputPanel(newValue));
 
-            setEmptyValueFactory(new ValueFactory<>("(custom type)") {
+            setEmptyValueFactory(new ValueFactory<>(txt("app.objects.action.CustomType")) {
                 @Override
                 public void createValue(Consumer<Presentable> consumer) {
                     createChildInputPanel((Presentable) null);

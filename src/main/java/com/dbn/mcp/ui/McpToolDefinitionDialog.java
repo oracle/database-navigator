@@ -11,6 +11,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
+import static com.dbn.common.util.Messages.options;
+import static com.dbn.nls.NlsResources.txt;
+
 
 public class McpToolDefinitionDialog extends DBNDialog<McpToolDefinitionForm> {
     private final ConnectionHandler connection;
@@ -21,12 +24,12 @@ public class McpToolDefinitionDialog extends DBNDialog<McpToolDefinitionForm> {
                                    @NotNull ConnectionHandler connection,
                                    @NotNull McpServerDefinition serverDefinition,
                                    @Nullable McpToolDefinition toolDefinition) {
-        super(project, toolDefinition == null ? "Create MCP Tool" : "Edit MCP Tool", true);
+        super(project, toolDefinition == null ? txt("msg.mcp.title.CreateMcpTool") : txt("msg.mcp.title.EditMcpTool"), true);
         this.connection = connection;
         this.serverDefinition = serverDefinition;
         this.toolDefinition = toolDefinition;
         setDefaultSize(800, 600);
-        renameAction(getOKAction(), toolDefinition == null ? "Add Tool" : "Save Tool");
+        renameAction(getOKAction(), toolDefinition == null ? txt("msg.mcp.button.AddTool") : txt("msg.mcp.button.SaveTool"));
         init();
     }
 
@@ -48,10 +51,9 @@ public class McpToolDefinitionDialog extends DBNDialog<McpToolDefinitionForm> {
         if (!form.isStatementVerified()) {
             int option = Messages.showConfirmationDialog(
                     getProject(),
-                    toolDefinition == null ? "Create MCP Tool" : "Edit MCP Tool",
-                    "The tool SQL statement is not yet verified.\n" +
-                            "Do you want to verify it before saving?",
-                    Messages.options("Verify Statement", "Save Tool", "Cancel"),
+                    toolDefinition == null ? txt("msg.mcp.title.CreateMcpTool") : txt("msg.mcp.title.EditMcpTool"),
+                    txt("msg.mcp.question.VerifyToolStatementBeforeSaving"),
+                    options(txt("msg.mcp.button.VerifyStatement"), txt("msg.mcp.button.SaveTool"), txt("msg.shared.button.Cancel")),
                     0);
 
             if (option == 0) {

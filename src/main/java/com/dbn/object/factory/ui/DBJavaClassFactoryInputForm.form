@@ -32,7 +32,7 @@
         </constraints>
         <properties>
           <labelFor value="a254a"/>
-          <text value="&amp;Connection"/>
+          <text resource-bundle="messages/DBNResources" key="app.object.label.ConnectionMnemonic"/>
         </properties>
       </component>
       <component id="a254a" class="com.dbn.common.ui.misc.DBNComboBox" binding="connectionComboBox">
@@ -47,7 +47,7 @@
         </constraints>
         <properties>
           <labelFor value="f9f28"/>
-          <text value="&amp;Schema"/>
+          <text resource-bundle="messages/DBNResources" key="app.object.label.SchemaMnemonic"/>
         </properties>
       </component>
       <component id="f9f28" class="com.dbn.common.ui.misc.DBNComboBox" binding="schemaComboBox">
@@ -62,7 +62,7 @@
         </constraints>
         <properties>
           <labelFor value="3618f"/>
-          <text value="Java &amp;type"/>
+          <text resource-bundle="messages/DBNResources" key="app.object.label.JavaType"/>
         </properties>
       </component>
       <component id="3618f" class="com.dbn.common.ui.misc.DBNComboBox" binding="classTypeComboBox">
@@ -79,7 +79,7 @@
         </constraints>
         <properties>
           <labelFor value="160b9"/>
-          <text value="Java &amp;package"/>
+          <text resource-bundle="messages/DBNResources" key="app.object.label.JavaPackage"/>
         </properties>
       </component>
       <component id="160b9" class="javax.swing.JTextField" binding="packageTextField">
@@ -98,7 +98,7 @@
         </constraints>
         <properties>
           <labelFor value="2603"/>
-          <text value="Java class name"/>
+          <text resource-bundle="messages/DBNResources" key="app.object.label.JavaClassName"/>
         </properties>
       </component>
       <component id="2603" class="javax.swing.JTextField" binding="nameTextField">

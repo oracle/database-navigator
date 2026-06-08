@@ -48,6 +48,10 @@ import static java.util.Collections.emptyList;
 public class ModelSelectDropdownAction extends ComboBoxAction implements AssistantActionSupport, DumbAware {
     private transient String selectedModelId;
 
+    public ModelSelectDropdownAction() {
+        super(txt("app.assistant.action.AssistantSelectModel"));
+    }
+
     @Override
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent component, @NotNull DataContext dataContext) {
@@ -55,7 +59,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
 
         DefaultActionGroup actionGroup = new DefaultActionGroup();
 
-        DefaultActionGroup moreActionGroup = new DefaultActionGroup("More...", true);
+        DefaultActionGroup moreActionGroup = new DefaultActionGroup(txt("app.assistant.action.More"), true);
         for (AIModel model : models) {
             if (model.isDeprecated()) {
                 moreActionGroup.add(new ModelSelectAction(model));

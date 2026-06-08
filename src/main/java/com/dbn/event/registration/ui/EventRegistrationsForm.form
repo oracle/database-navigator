@@ -44,7 +44,7 @@
             <properties>
               <font style="1"/>
               <foreground swing-color="ArrowButton.arrowColor"/>
-              <text value="Loading registrations..."/>
+              <text resource-bundle="messages/DBNResources" key="app.eventRegistration.text.LoadingRegistrations"/>
             </properties>
           </component>
         </children>

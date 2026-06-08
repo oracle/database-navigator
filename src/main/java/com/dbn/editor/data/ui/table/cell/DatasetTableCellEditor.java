@@ -272,7 +272,7 @@ package com.dbn.editor.data.ui.table.cell;
                             DBColumn foreignKeyColumn = column.getForeignKeyColumn();
                             if (foreignKeyColumn != null && !e.isConsumed()) {
                                 Dispatch.run(() -> {
-                                    textField.setToolTipText("<html>Show referenced <b>" + foreignKeyColumn.getDataset().getQualifiedName() + "</b> record<html>");
+                                    textField.setToolTipText(txt("app.dataEditor.tooltip.ShowReferencedRecord", foreignKeyColumn.getDataset().getQualifiedName()));
                                     textField.setCursor(Cursors.handCursor());
                                 });
                             }

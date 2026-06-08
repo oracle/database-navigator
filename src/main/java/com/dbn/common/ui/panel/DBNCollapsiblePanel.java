@@ -36,6 +36,7 @@ import java.awt.event.InputEvent;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.ClientProperty.NON_DISABLEABLE;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBNCollapsiblePanel extends DBNFormBase {
 
@@ -74,7 +75,7 @@ public class DBNCollapsiblePanel extends DBNFormBase {
     }
 
     protected void initAccessibility() {
-        setAccessibleName(togglePanel, contentForm.getFormTitle() + " " + getStateName(expanded));
+        setAccessibleName(togglePanel, txt("app.shared.aria.ToggleState", contentForm.getFormTitle(), getStateName(expanded)));
         setAccessibleDescription(togglePanel, expanded ? null : contentForm.getFormTitleDetail());
     }
 
@@ -103,8 +104,10 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         }
     }
 
-    private static String getStateName(boolean expanded) {
-        return expanded ? "expanded" : "collapsed";
+    private String getStateName(boolean expanded) {
+        return expanded ?
+                txt("app.shared.aria.Expanded") :
+                txt("app.shared.aria.Collapsed");
     }
 
     public void updateComponents() {

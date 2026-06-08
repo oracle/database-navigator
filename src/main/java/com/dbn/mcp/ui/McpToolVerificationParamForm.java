@@ -30,6 +30,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 
 public class McpToolVerificationParamForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -92,7 +93,7 @@ public class McpToolVerificationParamForm extends DBNFormBase {
             validateInput(textField);
         });
 
-        textField.setToolTipText("<html>While editing variable value, press <b>Up/Down</b> keys to change data type");
+        textField.setToolTipText(txt("app.shared.tooltip.ChangeVariableDataType"));
         Disposer.register(this, editorComponent);
     }
 
@@ -119,7 +120,7 @@ public class McpToolVerificationParamForm extends DBNFormBase {
             } catch (ParseException e) {
                 String pattern = formatter.getDateFormatPattern();
                 String sample = formatter.formatDate(new Date());
-                return "Invalid date. Expected format \"" + pattern + "\" (e.g. \"" + sample + "\")";
+                return txt("msg.shared.error.InvalidDateFormat", pattern, sample);
             }
         } else if (dataType == GenericDataType.NUMERIC) {
             try {
@@ -127,7 +128,7 @@ public class McpToolVerificationParamForm extends DBNFormBase {
             } catch (ParseException e) {
                 String pattern = formatter.getNumberFormatPattern();
                 String sample = formatter.formatNumber(123456.7890);
-                return "Invalid number. Expected format \"" + pattern + "\" (e.g. \"" + sample + "\")";
+                return txt("msg.shared.error.InvalidNumberFormat", pattern, sample);
             }
         }
         return null;
@@ -136,11 +137,11 @@ public class McpToolVerificationParamForm extends DBNFormBase {
     @Override
     protected void initAccessibility() {
         JTextField textField = editorComponent.getTextField();
-        setAccessibleName(dataTypeComboBox, "Data type");
+        setAccessibleName(dataTypeComboBox, txt("app.shared.aria.DataType"));
         setAccessibleUnit(textField, dataTypeComboBox.getSelectedValueName());
-        setAccessibleDescription(textField, "Press up or down arrow keys to change data type");
-        setAccessibleDescription(dataTypeComboBox, "Data type for " + variableNameLabel.getText() + " variable");
-        attachSelectionAnnouncer(dataTypeComboBox, "Data type");
+        setAccessibleDescription(textField, txt("app.shared.aria.ChangeDataTypeHint"));
+        setAccessibleDescription(dataTypeComboBox, txt("app.shared.aria.DataTypeForVariable", variableNameLabel.getText()));
+        attachSelectionAnnouncer(dataTypeComboBox, txt("app.shared.aria.DataType"));
     }
 
     public void saveValue() {

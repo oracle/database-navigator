@@ -41,6 +41,7 @@ import java.io.File;
 
 import static com.dbn.common.ui.util.Mouse.isMainSingleClick;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 
 public class FileBrowserTableCellEditor extends AbstractCellEditor implements TableCellEditor{
     private final JPanel mainPanel = new JPanel();
@@ -51,7 +52,7 @@ public class FileBrowserTableCellEditor extends AbstractCellEditor implements Ta
         this.fileChooserDescriptor = fileChooserDescriptor;
         textField.setBorder(Borders.TEXT_FIELD_INSETS);
 
-        DBNButton button = new DBNButton(Icons.DATA_EDITOR_BROWSE, "File Browser");
+        DBNButton button = new DBNButton(Icons.DATA_EDITOR_BROWSE, txt("app.shared.aria.FileBrowser"));
         button.setMaximumSize(new Dimension(10, -1));
         mainPanel.setBackground(UIUtil.getTableBackground());
         button.addMouseListener(Mouse.listener().onClick(e -> openFileChooser(e)));

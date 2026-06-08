@@ -121,6 +121,7 @@ public class AssistantToolProvider implements ToolProvider, AssistantComponent {
 
         ToolSpecification specification = wrapped(() -> toolSpecificationFrom(method));
 
+        @NonNls
         String description =
                 "type = " + toolSpec.type() + "\n" +
                 "category = " + toolSpec.category() + "\n" +
@@ -167,7 +168,7 @@ public class AssistantToolProvider implements ToolProvider, AssistantComponent {
 
         Map<String, JsonSchemaElement> properties = element.properties();
 
-        List<Map<String, Object>> attributes = new ArrayList<>();
+        List<Map<@NonNls String, Object>> attributes = new ArrayList<>();
         for (String attribute : properties.keySet()) {
             JsonSchemaElement property = properties.get(attribute);
 

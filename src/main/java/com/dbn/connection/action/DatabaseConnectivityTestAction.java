@@ -47,6 +47,6 @@ public class DatabaseConnectivityTestAction extends AbstractConnectionAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler target) {
         presentation.setEnabled(target != null);
         presentation.setText(txt("app.connection.action.TestConnectivity"));
-        presentation.setDescription(target == null ? null : txt("app.connection.action.TestConnectivityTo", target.getName()));
+        presentation.setDescription(target == null ? null : txt("app.connection.tooltip.TestConnectivityTo", target.getName()));
     }
 }

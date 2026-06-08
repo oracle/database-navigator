@@ -21,7 +21,7 @@
         </constraints>
         <properties>
           <labelFor value="d95a5"/>
-          <text value="&amp;Connection"/>
+          <text resource-bundle="messages/DBNResources" key="app.shared.label.Connection"/>
         </properties>
       </component>
       <component id="d95a5" class="com.dbn.common.ui.misc.DBNComboBox" binding="targetConnectionComboBox">
@@ -44,7 +44,7 @@
         </constraints>
         <properties>
           <labelFor value="b8f11"/>
-          <text value="Target &amp;schema  "/>
+          <text resource-bundle="messages/DBNResources" key="app.shared.label.TargetSchema"/>
         </properties>
       </component>
       <component id="b8f11" class="com.dbn.common.ui.misc.DBNComboBox" binding="targetSchemaComboBox">
@@ -61,7 +61,7 @@
         </constraints>
         <properties>
           <labelFor value="7241c"/>
-          <text value="Target &amp;session"/>
+          <text resource-bundle="messages/DBNResources" key="app.shared.label.TargetSession"/>
         </properties>
       </component>
       <component id="7241c" class="com.dbn.common.ui.misc.DBNComboBox" binding="targetSessionComboBox">
@@ -92,7 +92,7 @@
           <horizontalTextPosition value="4"/>
           <inheritsPopupMenu value="true"/>
           <margin top="0" left="0" bottom="0" right="0"/>
-          <text value="&amp;Commit after execution"/>
+          <text resource-bundle="messages/DBNResources" key="app.shared.label.CommitAfterExecution"/>
         </properties>
       </component>
       <component id="c5b8d" class="javax.swing.JCheckBox" binding="enableLoggingCheckBox" default-binding="true">
@@ -100,7 +100,7 @@
           <grid row="5" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Enable &amp;logging"/>
+          <text resource-bundle="messages/DBNResources" key="app.shared.label.EnableLogging"/>
         </properties>
       </component>
       <component id="7a704" class="javax.swing.JCheckBox" binding="reuseVariablesCheckBox">
@@ -108,7 +108,7 @@
           <grid row="6" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Remember execution &amp;variables"/>
+          <text resource-bundle="messages/DBNResources" key="app.shared.label.RememberExecutionVariables"/>
         </properties>
       </component>
       <hspacer id="9e6c8">

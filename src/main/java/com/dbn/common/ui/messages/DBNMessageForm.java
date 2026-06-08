@@ -49,6 +49,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
 
 import static com.dbn.common.message.MessageType.PROCESSING;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.util.ui.JBUI.emptyInsets;
 
 public class DBNMessageForm extends DBNFormBase {
@@ -60,8 +61,8 @@ public class DBNMessageForm extends DBNFormBase {
 
     private Icon icon;
     private AsyncProcessIcon processIcon;
-    private String title;
-    private String message;
+    private @DialogTitle String title;
+    private @DialogMessage String message;
 
     public DBNMessageForm(@NotNull DBNComponent parent, TitledMessage message) {
         this(parent,
@@ -99,12 +100,12 @@ public class DBNMessageForm extends DBNFormBase {
         initIcon();
     }
 
-    public void setTitle(String title) {
+    public void setTitle(@DialogTitle String title) {
         this.title = title;
         initTitle();
     }
 
-    public void setMessage(String message) {
+    public void setMessage(@DialogMessage String message) {
         this.message = message;
         initMessage();
     }
@@ -160,7 +161,7 @@ public class DBNMessageForm extends DBNFormBase {
     }
 
     protected void initAccessibility() {
-        Accessibility.setAccessibleDescription(messageTextPane, "Message");
+        Accessibility.setAccessibleDescription(messageTextPane, txt("app.shared.aria.Message"));
     }
 
     private void initDragging() {

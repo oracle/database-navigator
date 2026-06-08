@@ -29,11 +29,13 @@ import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.DBCredentialFactoryInputForm;
 import com.dbn.object.type.DBCredentialType;
 import com.dbn.object.type.DBObjectType;
+import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGH;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.CREDENTIAL_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.FINGERPRINT;
@@ -62,17 +64,18 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     @Override
-    public void validateInput(DBObjectSpec input, List<String> errors) {
+    public void validateInput(DBObjectSpec input, List<@Nls String> errors) {
     }
 
     @Override
     public void createObject(DBObjectSpec input) throws SQLException {
+        DBObjectType objectType = input.getObjectType();
         ConnectionId connectionId = input.getConnectionId();
         SchemaId schemaId = input.getSchemaId();
 
         DatabaseInterfaceInvoker.execute(HIGH,
-                "Creating " + input.getObjectType().getTitleCasedName(),
-                "Creating " + input.getObjectDescription(),
+                txt("prc.object.title.CreatingObject", objectType.getTitleCasedDisplayName()),
+                txt("prc.object.text.CreatingObjectDescription", input.getObjectDescription()),
                 input.getProject(),
                 connectionId,
                 schemaId,

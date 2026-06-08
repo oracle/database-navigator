@@ -31,6 +31,9 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.nls.NlsResources.txt;
+
 public class HideObjectTypeAction extends ProjectAction {
 
     private final DBObjectList objectList;
@@ -42,7 +45,7 @@ public class HideObjectTypeAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Hide " + objectList.getObjectType().getTitleCasedListName());
+        presentation.setText(txt("app.objects.action.HideObjectType", objectList.getObjectType().getTitleCasedListDisplayName()));
 
         boolean visible = isVisible();
         presentation.setVisible(visible);
@@ -54,14 +57,13 @@ public class HideObjectTypeAction extends ProjectAction {
         ObjectTypeFilterSettings settings = getTypeFilterSettings();
 
         DBObjectType objectType = objectList.getObjectType();
-        String listName = objectType.getTitleCasedListName();
+        String listName = objectType.getTitleCasedListDisplayName();
 
-        String title = "Hide " + listName;
-        String message = "Are you sure you want to hide the " + listName + " for the \"" + connection.getName() + "\" connection? " +
-                "(you can undo this by accessing the connection Filter settings)";
+        String title = txt("msg.objects.title.HideObjectType", listName);
+        String message = txt("msg.objects.question.HideObjectType", listName, connection.getName());
 
-        Messages.showQuestionDialog(project, title, message,
-                Messages.options("Hide " + listName, "Cancel"), 0, o ->
+        showQuestionDialog(project, title, message,
+                Messages.options(txt("msg.objects.button.HideObjectType", listName), txt("msg.shared.button.Cancel")), 0, o ->
                 Conditional.when(o == 0, () -> {
                     settings.hideObjectType(objectType);
 

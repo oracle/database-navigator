@@ -28,6 +28,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class JavaObjectDownloadAction extends AnObjectAction<DBObject> {
 
 	public JavaObjectDownloadAction(DBObject sourceObject) {
@@ -47,7 +49,7 @@ public class JavaObjectDownloadAction extends AnObjectAction<DBObject> {
 			@NotNull Project project,
 			@Nullable DBObject target) {
 
-			presentation.setText("Download To Project");
+			presentation.setText(txt("app.java.action.DownloadToProject"));
 			presentation.setIcon(Icons.ACTION_DOWNLOAD);
 			presentation.setVisible(isVisible());
 	}
