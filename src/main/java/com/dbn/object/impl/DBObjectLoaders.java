@@ -31,6 +31,7 @@ import com.dbn.database.common.metadata.def.DBColumnMetadata;
 import com.dbn.database.common.metadata.def.DBConstraintColumnMetadata;
 import com.dbn.database.common.metadata.def.DBConstraintMetadata;
 import com.dbn.database.common.metadata.def.DBCredentialMetadata;
+import com.dbn.database.common.metadata.def.DBDataSourceConfigEntryMetadata;
 import com.dbn.database.common.metadata.def.DBDatabaseLinkMetadata;
 import com.dbn.database.common.metadata.def.DBDimensionMetadata;
 import com.dbn.database.common.metadata.def.DBFunctionMetadata;
@@ -68,6 +69,7 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBConstraint;
 import com.dbn.object.DBCredential;
+import com.dbn.object.DBDataSourceConfigEntry;
 import com.dbn.object.DBDatabaseLink;
 import com.dbn.object.DBDatabaseTrigger;
 import com.dbn.object.DBDataset;
@@ -136,6 +138,7 @@ import static com.dbn.object.type.DBObjectType.CONSOLE;
 import static com.dbn.object.type.DBObjectType.CONSTRAINT;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.object.type.DBObjectType.DATABASE_TRIGGER;
+import static com.dbn.object.type.DBObjectType.DATA_SOURCE_CONFIG_ENTRY;
 import static com.dbn.object.type.DBObjectType.DATASET;
 import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
 import static com.dbn.object.type.DBObjectType.DBLINK;
@@ -220,6 +223,11 @@ public class DBObjectLoaders {
                 "CHARSETS", null, CHARSET, true, true,
                 (content, conn, mdi) -> mdi.loadCharsets(conn),
                 (content, cache, md) -> new DBCharsetImpl(content.getConnection(), md));
+
+        DynamicContentResultSetLoader.<DBDataSourceConfigEntry, DBDataSourceConfigEntryMetadata>create(
+                "DATA_SOURCE_CONFIG_ENTRIES", null, DATA_SOURCE_CONFIG_ENTRY, true, true,
+                (content, conn, mdi) -> conn.getConnectionHandler().getDataSourceConfigInterface().loadDataSourceConfigEntries(conn),
+                (content, cache, md) -> new DBDataSourceConfigEntryImpl(content.getConnection(), md));
 
         DynamicContentResultSetLoader.<DBUserRoleRelation, DBGrantedRoleMetadata>create(
                 "USER_ROLES", null, USER_ROLE, true, true,

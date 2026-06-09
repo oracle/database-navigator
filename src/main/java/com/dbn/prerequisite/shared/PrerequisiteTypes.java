@@ -45,4 +45,11 @@ public class PrerequisiteTypes {
     public static final PrerequisiteType EXECUTE_DBMS_VECTOR = PrerequisiteType.get("EXECUTE_DBMS_VECTOR");
     public static final PrerequisiteType EXECUTE_DBMS_VECTOR_CHAIN = PrerequisiteType.get("EXECUTE_DBMS_VECTOR_CHAIN");
     public static final PrerequisiteType DATABASE_VERSION_23_1 = PrerequisiteType.get("DATABASE_VERSION_23_1");
+
+    // data source configuration prerequisites
+    public static final PrerequisiteType DATABASE_VERSION_26_0 = PrerequisiteType.get("DATABASE_VERSION_26_0");
+    public static final PrerequisiteType SELECT_DATA_SOURCE_CONFIG_STORE = PrerequisiteType.get("SELECT_DATA_SOURCE_CONFIG_STORE");
+    public static final PrerequisiteType EXECUTE_DBMS_DATA_SOURCE_CONFIG = PrerequisiteType.get("EXECUTE_DBMS_DATA_SOURCE_CONFIG");
+    public static final PrerequisiteType SELECT_DATA_SOURCE_CONFIG_STORE_ALT = PrerequisiteType.get("SELECT_DATA_SOURCE_CONFIG_STORE_ALT");
+    public static final PrerequisiteType EXECUTE_DBMS_DATA_SOURCE_CONFIG_ALT = PrerequisiteType.get("EXECUTE_DBMS_DATA_SOURCE_CONFIG_ALT");
 }

@@ -58,6 +58,7 @@ public enum DatabaseFeature {
     VECTOR_EMBEDDING("Vector embedding"),
     VECTOR_SEARCH("Vector search"),
     MCP_SERVER_BUILDER("MCP server builder"),
+    DATA_SOURCE_CONFIGURATION("Data source configuration entries"),
 
     // OJVM
     JAVA_VIRTUAL_MACHINE("Embedded java virtual machine"),

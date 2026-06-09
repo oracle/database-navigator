@@ -14,29 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.connection.config.datasource.model;
+package com.dbn.object;
 
-import org.jetbrains.annotations.NotNull;
+import com.dbn.object.common.DBRootObject;
 
-public class DataSourceConfigEntry {
-    private final String key;
-    private final String lastUpdated;
-
-    public DataSourceConfigEntry(String key, String lastUpdated) {
-        this.key = key;
-        this.lastUpdated = lastUpdated;
-    }
-
-    public @NotNull String getKey() {
-        return key;
-    }
-
-    public String getLastUpdated() {
-        return lastUpdated;
-    }
-
-    @Override
-    public String toString() {
-        return key;
-    }
+public interface DBDataSourceConfigEntry extends DBRootObject {
+    String getLastUpdated();
 }

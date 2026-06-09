@@ -27,6 +27,7 @@ import com.dbn.database.common.metadata.impl.DBColumnMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBConstraintColumnMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBConstraintMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBCredentialMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBDataSourceConfigEntryMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBDatabaseLinkMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBDimensionMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBFunctionMetadataImpl;
@@ -95,6 +96,7 @@ public class DBObjectMetadataFactory {
             case CHARSET -> new DBCharsetMetadataImpl(resultSet);
             case CLUSTER -> new DBClusterMetadataImpl(resultSet);
             case CREDENTIAL -> new DBCredentialMetadataImpl(resultSet);
+            case DATA_SOURCE_CONFIG_ENTRY -> new DBDataSourceConfigEntryMetadataImpl(resultSet);
             case AI_PROFILE -> new DBAIProfileMetadataImpl(resultSet);
             case AI_MODEL -> new DBAIModelMetaDataImpl(resultSet);
             case OBJECT_PRIVILEGE -> new DBPrivilegeMetadataImpl(resultSet);

@@ -38,6 +38,10 @@ public interface DatabaseInterfacesProvider {
         return getInterfaces().getVectorInterface();
     }
 
+    default DatabaseDataSourceConfigInterface getDataSourceConfigInterface() {
+        return getInterfaces().getDataSourceConfigInterface();
+    }
+
     default DatabaseMessageParserInterface getMessageParserInterface() {
         return getInterfaces().getMessageParserInterface();
     }

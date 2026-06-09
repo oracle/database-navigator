@@ -83,6 +83,9 @@ public class ObjectListActionGroup extends DefaultActionGroup {
                 if (VECTOR_SEARCH.isSupported(connection)) {
                     add(new ConsoleCreateAction(connection, SEARCH));
                 }
+            } else if (objectType == DBObjectType.DATA_SOURCE_CONFIG_ENTRY) {
+                addSeparator();
+                add(new CreateDataSourceConfigEntryAction(objectList));
             }
         }
 

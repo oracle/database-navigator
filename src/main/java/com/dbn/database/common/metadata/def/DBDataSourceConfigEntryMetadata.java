@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package com.dbn.database.interfaces;
+package com.dbn.database.common.metadata.def;
 
-/**
- * Identifies the database interface contract implemented by a database-specific interface instance.
- */
-public enum DatabaseInterfaceType {
-    ENVIRONMENT,
-    COMPATIBILITY,
-    MESSAGE_PARSER,
-    METADATA,
-    DATA_DEFINITION,
-    EXECUTION,
-    DEBUGGER,
-    ASSISTANT,
-    VECTOR,
-    DATA_SOURCE_CONFIG,
-    JAVA
+import com.dbn.database.common.metadata.DBObjectMetadata;
+import com.dbn.database.common.security.ObjectIdentifier;
+
+import java.sql.SQLException;
+
+public interface DBDataSourceConfigEntryMetadata extends DBObjectMetadata {
+
+    @ObjectIdentifier
+    String getKey() throws SQLException;
+
+    String getLastUpdated() throws SQLException;
 }

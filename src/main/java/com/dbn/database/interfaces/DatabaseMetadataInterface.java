@@ -408,16 +408,6 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
 
     ResultSet loadAiModels(String ownerName, DBNConnection connection) throws SQLException;
 
-    ResultSet loadDataSourceConfigEntries(DBNConnection connection) throws SQLException;
-
-    ResultSet loadDataSourceConfigEntry(String key, DBNConnection connection) throws SQLException;
-
-    void insertDataSourceConfigEntry(String key, String value, DBNConnection connection) throws SQLException;
-
-    void updateDataSourceConfigEntry(String key, String value, DBNConnection connection) throws SQLException;
-
-    void deleteDataSourceConfigEntry(String key, DBNConnection connection) throws SQLException;
-
 
     /**
      * Loads the functions of the given owner<br>

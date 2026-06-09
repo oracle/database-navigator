@@ -1,0 +1,169 @@
+<!--
+  ~ Copyright 2026 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE data-dictionary [
+        <!ELEMENT data-dictionary (statement-execution-processor)*>
+        <!ELEMENT statement-execution-processor (statement)*>
+        <!ATTLIST statement-execution-processor
+                id CDATA #REQUIRED
+                timeout CDATA #IMPLIED>
+        <!ELEMENT statement (#PCDATA)>
+        <!ATTLIST statement
+                comment CDATA #IMPLIED
+                prefixes CDATA #IMPLIED>
+        ]>
+<data-dictionary>
+    <statement-execution-processor id="data-source-config-entries">
+        <statement>
+            select
+                key,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from data_source_config_store
+            order by key
+        </statement>
+        <statement>
+            select
+                key,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from sys.data_source_config_store
+            order by key
+        </statement>
+        <statement>
+            select
+                key,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from ora$config_store_user.data_source_config_store
+            order by key
+        </statement>
+        <statement>
+            select
+                key,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from sys.dscs
+            order by key
+        </statement>
+        <statement>
+            select
+                config_name as key,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from data_source_store
+            order by config_name
+        </statement>
+        <statement>
+            select
+                config_name as key,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from sys.data_source_store
+            order by config_name
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="data-source-config-entry">
+        <statement>
+            select
+                key,
+                json_serialize(value returning clob pretty) as value,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from data_source_config_store
+            where upper(key) = upper({#0})
+        </statement>
+        <statement>
+            select
+                key,
+                json_serialize(value returning clob pretty) as value,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from sys.data_source_config_store
+            where upper(key) = upper({#0})
+        </statement>
+        <statement>
+            select
+                key,
+                json_serialize(value returning clob pretty) as value,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from ora$config_store_user.data_source_config_store
+            where upper(key) = upper({#0})
+        </statement>
+        <statement>
+            select
+                key,
+                json_serialize(value returning clob pretty) as value,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from sys.dscs
+            where upper(key) = upper({#0})
+        </statement>
+        <statement>
+            select
+                config_name as key,
+                json_serialize(config_value returning clob pretty) as value,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from data_source_store
+            where upper(config_name) = upper({#0})
+        </statement>
+        <statement>
+            select
+                config_name as key,
+                json_serialize(config_value returning clob pretty) as value,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from sys.data_source_store
+            where upper(config_name) = upper({#0})
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="insert-data-source-config-entry">
+        <statement>
+            begin dbms_data_source_config.insert_config({#0}, json({#1})); end;
+        </statement>
+        <statement>
+            begin sys.dbms_data_source_config.insert_config({#0}, json({#1})); end;
+        </statement>
+        <statement>
+            begin dbms_data_source_store.insert_config({#0}, json({#1})); end;
+        </statement>
+        <statement>
+            begin sys.dbms_data_source_store.insert_config({#0}, json({#1})); end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="update-data-source-config-entry">
+        <statement>
+            begin dbms_data_source_config.update_config({#0}, json({#1})); end;
+        </statement>
+        <statement>
+            begin sys.dbms_data_source_config.update_config({#0}, json({#1})); end;
+        </statement>
+        <statement>
+            begin dbms_data_source_store.update_config({#0}, json({#1})); end;
+        </statement>
+        <statement>
+            begin sys.dbms_data_source_store.update_config({#0}, json({#1})); end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="delete-data-source-config-entry">
+        <statement>
+            begin dbms_data_source_config.delete_config({#0}); end;
+        </statement>
+        <statement>
+            begin sys.dbms_data_source_config.delete_config({#0}); end;
+        </statement>
+        <statement>
+            begin dbms_data_source_store.delete_config({#0}); end;
+        </statement>
+        <statement>
+            begin sys.dbms_data_source_store.delete_config({#0}); end;
+        </statement>
+    </statement-execution-processor>
+</data-dictionary>

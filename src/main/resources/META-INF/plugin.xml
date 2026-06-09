@@ -360,6 +360,14 @@
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.ObjectPrivilege_EXECUTE_DBMS_VECTOR_CHAIN"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.DatabaseVersion_VECTOR_SUPPORT"/>
 
+        <!--data source configuration prerequisites-->
+        <prerequisiteRequirementEvaluator implementation="com.dbn.connection.config.datasource.prerequisite.DataSourceConfigPrerequisitesEvaluator"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.DatabaseVersion_DATA_SOURCE_CONFIG"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.ObjectPrivilege_SELECT_DATA_SOURCE_CONFIG_STORE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.ObjectPrivilege_SELECT_DATA_SOURCE_CONFIG_STORE_ALT"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DATA_SOURCE_CONFIG"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DATA_SOURCE_CONFIG_ALT"/>
+
         <!--database assistant extensions-->
         <assistantAdapter implementation="com.dbn.assistant.service.selectai.SelectAiAssistantAdapter"/>
         <assistantAdapter implementation="com.dbn.assistant.service.generic.GenericAssistantAdapter"/>

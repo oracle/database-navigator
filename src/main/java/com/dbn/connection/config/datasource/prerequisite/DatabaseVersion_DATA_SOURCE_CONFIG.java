@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package com.dbn.database.interfaces;
+package com.dbn.connection.config.datasource.prerequisite;
 
-/**
- * Identifies the database interface contract implemented by a database-specific interface instance.
- */
-public enum DatabaseInterfaceType {
-    ENVIRONMENT,
-    COMPATIBILITY,
-    MESSAGE_PARSER,
-    METADATA,
-    DATA_DEFINITION,
-    EXECUTION,
-    DEBUGGER,
-    ASSISTANT,
-    VECTOR,
-    DATA_SOURCE_CONFIG,
-    JAVA
+import com.dbn.prerequisite.definition.impl.DatabaseVersionPrerequisite;
+
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.DATABASE_VERSION_26_0;
+
+public class DatabaseVersion_DATA_SOURCE_CONFIG extends DatabaseVersionPrerequisite {
+
+    public DatabaseVersion_DATA_SOURCE_CONFIG() {
+        super(DATABASE_VERSION_26_0, 26, 0);
+    }
 }
