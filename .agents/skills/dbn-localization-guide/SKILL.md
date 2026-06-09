@@ -87,7 +87,8 @@ If a label is a full sentence or instruction, prefer `text` over `label`. Check 
   - Good: `txt("prc.object.text.CreatingObjectDescription", description)`
   - Avoid: `"Creating " + description`
 - Use `MessageFormat` choice patterns for visible singular/plural text when useful.
-- Preserve mnemonics (`&`) in form labels and button text.
+- Preserve mnemonic markers (`&`) in form labels and button text when the ampersand marks a keyboard mnemonic, for example `&Name` or `Na&me`.
+- Do not treat textual ampersands as mnemonics. If the unqualified base value uses ` & ` to mean "and", replace it in the base value with `and` unless it is part of an official product name or literal. Localized values should translate the word naturally and should not gain a mnemonic marker.
 - Newline and HTML values belong in the properties file with escaped `\n` or existing HTML formatting.
 - Use separate `link` and `url` keys when a localized link caption can point to a locale-specific target, for example `cfg.assistant.link.SelectAiDocs` plus `cfg.assistant.url.SelectAiDocs`.
 - Product names, provider names, SQL keywords, API literals, generated code, and model prompts are often `@NonNls`, not resource keys.
@@ -108,10 +109,33 @@ When translating an entire resource bundle or a locale-specific `DBNResources_*.
   - `error`, `warning`, `info`, `message`, and `question` values are full user-facing messages; translate the whole sentence or paragraph in context.
   - `hint`, `text`, `tooltip`, and accessibility values often need natural sentence-level translation, not literal English word order.
 - Build or update a glossary before translating a large locale. Include product names, Oracle/IntelliJ terminology, DBN domain terms, object types, action verbs, and terms intentionally kept in English.
-- Preserve technical literals and placeholders exactly: `{0}`, MessageFormat choice patterns, escaped `\n`, HTML tags, mnemonics (`&`), SQL/API/class names, file names, and protocol literals.
+- Preserve technical literals and placeholders exactly: `{0}`, MessageFormat choice patterns, escaped `\n`, HTML tags, mnemonic markers (`&Name`, `Na&me`), SQL/API/class names, file names, and protocol literals.
 - Do not duplicate non-localizable code snippets into localized bundles. If a key family like `.code.` appears, inspect the caller and move the snippet to `@NonNls` code instead of translating it.
 - Leave uncertain strings untranslated or mark them for review instead of inventing fluent-looking text. Never hide uncertainty by producing hybrid target-language output.
 - For languages no maintainer can review, do not claim release-ready quality. Report the file as structurally safe and contextually translated, with any unresolved glossary or reviewer gaps called out.
+
+### Batch-First Translation
+
+Translate large bundles in small, isolated batches instead of sweeping the whole file.
+
+- Partition resource keys by `family.area.element`, for example `cfg.connection.label`, `msg.connection.error`, `app.vector.title`, `ntf.debugger.info`, and `prc.java.text`. This is the default batch unit for bundle translation.
+- If a `family.area.element` group is still large or semantically mixed, split it by stable key-name prefix or a contiguous block of related keys. Do not mix unrelated UI surfaces just because they are nearby in the file.
+- Before translating a batch, read the unqualified source keys and values for that batch only. Identify whether each value is a noun label, command/action, title/header, sentence, inserted fragment, enum/object type, log line, progress line, validation message, URL, or technical literal.
+- Translate the whole phrase from the source value and key context. Do not translate word by word, do not regex-replace terminology, and do not use another localized file as the source.
+- Finish and verify one batch before starting the next. If a batch fails placeholder, capitalization, stale-English, or semantic checks, fix it before translating more keys.
+- Keep progress notes by batch. When reporting results, identify the completed groups and any groups intentionally deferred for context review.
+
+### Translation Glossary
+
+Maintain a working glossary for every locale translation pass, and update it before each batch.
+
+- Include DBN product terms, Oracle/IntelliJ terms, database object names, action verbs, AI/vector terms, log/progress verbs, validation verbs, and terms intentionally kept in English.
+- Record the source term, target term, whether the English term is intentionally retained, the reason/context, and example keys. Keep the glossary compact enough to use actively while translating.
+- Use `references/translation-glossary-template.md` when a persistent or shareable glossary is useful.
+- Use the glossary to keep terminology and sentence composition stable across batches, for example the same choices for `connection`, `schema`, `statement`, `Wallet`, `embedding`, `chunking`, `source code`, `commit`, `rollback`, `grant`, and `debug session`.
+- When a term has different meanings by context, record those meanings separately instead of forcing one translation everywhere. Examples: `source` as code source, data source, event source, or source schema; `type` as a database object type, Java type, or UI category; `view` as a database view or UI view.
+- Reconcile the glossary after each batch by scanning the target locale for inconsistent synonyms and hybrid phrases.
+- If a locale will be maintained across sessions, preserve the accepted glossary in the localization skill references or another project-approved note. Otherwise, report the important glossary decisions in the final response.
 
 ## UI Writing Rules
 
@@ -126,6 +150,28 @@ When translating an entire resource bundle or a locale-specific `DBNResources_*.
 ## Verification Passes
 
 Use verification passes for broad resource-file cleanup. Keep each pass focused on one rule, and re-scan after editing.
+
+### Batch Verification Gate
+
+Run these checks for every translated batch before moving to the next batch.
+
+- Key parity: the locale bundle must have the same key set as the unqualified source bundle unless the task explicitly adds or removes keys.
+- Placeholder parity: every `{0}`, `{1}`, MessageFormat choice/plural pattern, escaped newline, HTML boundary, mnemonic marker (`&Name`, `Na&me`), and quoted technical literal must be preserved or intentionally changed with caller inspection. Do not count textual ` & ` as a mnemonic.
+- Source capitalization check: compare each translated value against the unqualified source value. For standalone roles such as `action`, `button`, `title`, `column`, `error`, `warning`, `info`, `message`, `question`, `aria`, user-facing `text`, progress, notification, and log lines, review any value where the source starts with an uppercase letter but the translation starts lowercase. Treat inserted fragments, `token`, `const`, `unit`, `placeholder`, object type names, URLs, and code-like values as exceptions only after classification.
+- Role capitalization check: independently scan translated `title`, `error`, `warning`, `info`, `question`, `message`, progress, notification, and log values for lowercase sentence starts. Fix full-sentence and standalone values; leave lowercase fragments only when they are intentionally composed into another sentence.
+- Stale-English check: compare exact source/target matches and scan for common English verbs/nouns. Classify every hit as an intentional product name/acronym/technical literal or a translation defect. Do not allow hybrid target-language values such as translated words mixed with English verbs.
+- Textual ampersand check: scan the unqualified base bundle for prose ` & `. Replace it with `and` unless it is part of an official product name or literal. Do not make localized values preserve a textual ampersand as a mnemonic marker.
+- Glossary consistency check: scan the target batch and previously translated batches for terms from the working glossary. Fix inconsistent synonyms unless context requires a separate glossary entry.
+- Semantic ambiguity check: inspect source values containing ambiguous terms for the batch, especially `schema`, `view`, `grant`, `profile`, `credential`, `wallet`, `driver`, `statement`, `console`, `object`, `type`, `session`, `model`, `source`, `commit`, and `rollback`.
+- UI role check: verify that labels/columns/constants are noun phrases, actions/buttons are commands, titles are headers, progress text describes ongoing work, validation messages are direct recovery instructions, and log lines read as complete console output.
+- Diff check: run `git diff --check` for the touched locale files after each substantial batch.
+
+Useful starting checks:
+
+```bash
+ruby -e 'loc=ARGV.fetch(0); base={}; File.readlines("src/main/resources/messages/DBNResources.properties", chomp:true).each{|l| next if l.strip.empty? || l.start_with?("#"); k,v=l.split("=",2); base[k]=v if v}; File.readlines(loc, chomp:true).each_with_index{|l,i| next if l.strip.empty? || l.start_with?("#"); k,v=l.split("=",2); next unless v && base[k]; b=base[k].sub(/^\\ /,"").sub(/^\\ - /,""); f=v.sub(/^\\ /,"").sub(/^\\ - /,""); next unless b =~ /\A[A-Z]/ && f =~ /\A[[:lower:]]/; role=k.split(".")[2] || ""; next if %w[const token unit placeholder].include?(role); puts "#{i+1}:#{k}=#{v} [base=#{base[k]}]"}' src/main/resources/messages/DBNResources_fr.properties
+ruby -e 'def load(path); h={}; File.readlines(path, chomp:true).each{|l| next if l.strip.empty? || l.start_with?("#"); k,v=l.split("=",2); h[k]=v if v}; h; end; base=load("src/main/resources/messages/DBNResources.properties"); loc=load(ARGV.fetch(0)); missing=base.keys-loc.keys; extra=loc.keys-base.keys; bad=[]; base.each{|k,bv| next unless loc[k]; bp=bv.scan(/\{[0-9]+(?:,[^{}]+)?\}/).sort; fp=loc[k].scan(/\{[0-9]+(?:,[^{}]+)?\}/).sort; bad << [k,bp,fp] if bp!=fp}; puts "missing=#{missing.size} extra=#{extra.size} placeholder_mismatches=#{bad.size}"; bad.first(20).each{|k,bp,fp| puts "#{k}: #{bp.inspect} != #{fp.inspect}"}' src/main/resources/messages/DBNResources_fr.properties
+```
 
 ### Placeholder and MessageFormat Safety
 
@@ -305,6 +351,7 @@ rg -n -i '\b(you did not|you provided|you cannot|you are not allowed|you must|yo
 ### Mnemonics and `labelFor`
 
 - Add mnemonics (`&`) to labels, buttons, check boxes, radio buttons, and other direct controls when they participate in keyboard navigation.
+- Count only actual mnemonic markers during parity checks. A practical heuristic is that `&` followed by a non-space character can be a mnemonic candidate, while ` & ` is textual prose and should normally be written as `and` in the base English value.
 - Every `JLabel` that labels a focusable input in a `.form` file should have a `labelFor` pointing to that actual input component.
 - `labelFor` targets must be non-empty and must reference an existing component id in the same `.form` file.
 - Watch for copy/paste mistakes: a label often points to a nearby name field, the first combo box, or another row's input. If the label text describes a same-row field, point `labelFor` to that field.
