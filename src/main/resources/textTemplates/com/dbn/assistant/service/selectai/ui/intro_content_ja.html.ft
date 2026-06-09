@@ -1,0 +1,53 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="ja">
+<head>
+    <title>DB Assistant - Oracle Select AI</title>
+    <style>
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+    </style>
+</head>
+<body>
+<div style="${REGULAR_LARGE_FONT_STYLE}">
+    <b>Oracle Autonomous Database Select AI</b><br>
+</div>
+データとの対話方法を変革します。<br>
+Oracle Select AIを使用すると、自然言語でAutonomous Databaseに問合せでき、SQL問合せが自動生成され、ビジネスに関する高速で正確な洞察を得られます。 <br>
+高度なAIモデルを活用するこの機能は、ビジネス・アナリストから開発者まで、あらゆるスキル・レベルのユーザーのデータ分析を簡素化します。
+
+<br>
+<br>
+<br>
+<u>開始する前に</u><br>
+(組織によってすでにプロビジョニングされている場合を除く)<br><br>
+Select AIを使用するには、次を確認してください:
+<ul>
+    <li><b>データベース権限</b> - AI駆動の問合せ生成を有効にするため、<code>DBMS_CLOUD</code>および<code>DBMS_CLOUD_AI</code>パッケージの実行権限を取得します。</li>
+    <li><b>ネットワーク・アクセス</b> - 選択したAIプロバイダのエンドポイントへの接続を許可するよう、ネットワークACLを構成します。</li>
+    <li><b>AIプロバイダ資格証明</b> - サポート対象AIプロバイダ(OpenAI、Cohere、またはOracle Cloud Infrastructure Generative AI)の有効なAPI資格証明を指定します。</li>
+    <li><b>AIプロファイル</b> - 自然言語問合せでアクセス可能なスキーマ、テーブル、ビューを定義するAIプロファイルを設定し、安全で制御されたデータ・アクセスを確保します。</li>
+</ul>
+詳細な設定手順については、<a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/select-ai.html">Oracle Select AI Documentation</a>を参照してください。
+
+<br>
+<br>
+<br>
+<b>注</b><br>
+Oracle Select AIはプレビュー中の実験的な機能です。結果は問合せの複雑さやデータ・モデルによって異なる場合があります。出力を検証し、問題があれば継続的な改善のためOracle® Database Navigator開発チームに報告してください。
+</body>
+</html>

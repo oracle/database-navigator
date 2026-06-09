@@ -1,0 +1,26 @@
+<html lang="ja">
+<head>
+    <title>ツール承認</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body>
+    MCPサーバー "${MCP_SERVER_NAME}" が提供するすべてのツールの概要です。<br>
+    言語モデルがアクセスできるツールを判断するために、このページを使用してください。
+
+    <br><br>
+    個別のツールを有効または無効にして、ツール・アクセスを管理します。<br>
+    ツールのステータスは、LLMからの可視性を決定します:
+    <ul>
+        <li>"Approved" とマークされたツールは自動的に呼び出されます。</li>
+        <li>"Prompted" とマークされたツールは、呼出しのたびに承認が必要です。</li>
+        <li>"Blocked" とマークされたツールはLLMに表示されません。</li>
+    </ul>
+</body>
+</html>
