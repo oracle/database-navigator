@@ -55,6 +55,7 @@ public class EventNotificationsForm extends DBNFormBase {
     private DBNScrollPane notificationsScrollPane;
 
     private @Getter EventNotificationsTable notificationsTable;
+    private @Getter volatile boolean loading;
 
     public EventNotificationsForm(EventMonitorDetailsForm parent, DataChangeNotificationBundle events) {
         super(parent);
@@ -112,12 +113,16 @@ public class EventNotificationsForm extends DBNFormBase {
     }
 
     public void refresh() {
-        if (isLoading()) return;
         load();
     }
 
     private void load() {
-        markLoading(true);
+        synchronized (this) {
+            if (loading) return;
+            loading = true;
+        }
+
+        updateLoadingState();
         Background.run(() -> {
             try {
                 DataChangeNotificationBundle model = notificationsTable.getModel();
@@ -125,12 +130,13 @@ public class EventNotificationsForm extends DBNFormBase {
             } catch (Exception e) {
                 // TODO show load exception (maybe as a banner??)
             } finally {
-                markLoading(false);
+                loading = false;
+                updateLoadingState();
             }
         });
     }
 
-    private void markLoading(boolean loading) {
+    private void updateLoadingState() {
         Dispatch.run(mainPanel, () -> {
             loadingIconPanel.setVisible(loading);
             loadingLabel.setVisible(loading);
@@ -148,10 +154,6 @@ public class EventNotificationsForm extends DBNFormBase {
     public Object getData(@NotNull String dataId) {
         if (DataKeys.EVENT_NOTIFICATIONS_FORM.is(dataId)) return this;
         return null;
-    }
-
-    public boolean isLoading() {
-        return notificationsTable.isLoading();
     }
 
     public void clearFilter() {
