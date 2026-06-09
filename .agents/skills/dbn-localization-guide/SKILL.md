@@ -100,7 +100,7 @@ When translating an entire resource bundle or a locale-specific `DBNResources_*.
 - Use only the unqualified base resources as the translation source of truth: `DBNResources.properties` for bundles and non-localized `.html.ft` templates for template variants. Never translate from another localized file.
 - Prefer generic language locale files for broadly applicable translations, for example `DBNResources_de.properties` and `*_de.html.ft`. Use region-qualified variants such as `_de_DE` only for regional overrides.
 - Translate only localizable text templates, currently user-visible `*.html.ft` files loaded through `TextResources.getLocalizable(...)`. Do not create locale variants for internal `*.md.ft` prompt/instruction templates loaded through `TextResources.getInternal(...)`.
-- Translate key by key from the unqualified base bundle/template. Do not translate by dictionary substitution, regex word replacement, or word-by-word fallback.
+- Within each batch, translate key by key from the unqualified base bundle/template. Do not translate by dictionary substitution, regex word replacement, or word-by-word fallback.
 - Use the resource key as context:
   - `label`, `column`, `field`, `placeholder`, `const`, and `token` values are usually noun phrases or compact domain terms.
   - `action`, `button`, `link`, and menu-like values are usually action phrases; prefer the target language's standard imperative or command style for UI controls.
@@ -108,7 +108,7 @@ When translating an entire resource bundle or a locale-specific `DBNResources_*.
   - `url` values are not translated as prose; choose a verified locale-specific target when available, otherwise keep the base URL.
   - `error`, `warning`, `info`, `message`, and `question` values are full user-facing messages; translate the whole sentence or paragraph in context.
   - `hint`, `text`, `tooltip`, and accessibility values often need natural sentence-level translation, not literal English word order.
-- Build or update a glossary before translating a large locale. Include product names, Oracle/IntelliJ terminology, DBN domain terms, object types, action verbs, and terms intentionally kept in English.
+- Use the Translation Glossary subsection for large locale work. Include product names, Oracle/IntelliJ terminology, DBN domain terms, object types, action verbs, and terms intentionally kept in English.
 - Preserve technical literals and placeholders exactly: `{0}`, MessageFormat choice patterns, escaped `\n`, HTML tags, mnemonic markers (`&Name`, `Na&me`), SQL/API/class names, file names, and protocol literals.
 - Do not duplicate non-localizable code snippets into localized bundles. If a key family like `.code.` appears, inspect the caller and move the snippet to `@NonNls` code instead of translating it.
 - Leave uncertain strings untranslated or mark them for review instead of inventing fluent-looking text. Never hide uncertainty by producing hybrid target-language output.
@@ -139,8 +139,7 @@ Maintain a working glossary for every locale translation pass, and update it bef
 
 ## UI Writing Rules
 
-- Use title capitalization for actions in buttons and menus, and for table, popup, message-box, dialog, and control-group headers.
-- Use sentence capitalization for control labels, combo/list/tree/table items, links, notification bodies, error body text, tooltips, status descriptions, instructions, inspections, intentions, quick-fixes, and editor messages.
+- Use casing from `Sentence vs. Title Case`: commands and true headers normally use title capitalization, while sentence-like labels, descriptions, tooltips, and messages normally use sentence capitalization.
 - Keep UI text short and clear: present tense, one idea per sentence, active voice, user-perspective wording, and no unnecessary generic words.
 - Use ellipsis only for actions that open input-capable dialogs, truncated text without a scrollbar, or ongoing progress text.
 - Do not end a single sentence or IDE action with a period. Use periods between multiple sentences.
@@ -156,7 +155,7 @@ Use verification passes for broad resource-file cleanup. Keep each pass focused 
 Run these checks for every translated batch before moving to the next batch.
 
 - Key parity: the locale bundle must have the same key set as the unqualified source bundle unless the task explicitly adds or removes keys.
-- Placeholder parity: every `{0}`, `{1}`, MessageFormat choice/plural pattern, escaped newline, HTML boundary, mnemonic marker (`&Name`, `Na&me`), and quoted technical literal must be preserved or intentionally changed with caller inspection. Do not count textual ` & ` as a mnemonic.
+- Placeholder and marker parity: every `{0}`, `{1}`, MessageFormat choice/plural pattern, escaped newline, HTML boundary, mnemonic marker, and quoted technical literal must be preserved or intentionally changed with caller inspection. Do not count textual ` & ` as a mnemonic.
 - Source capitalization check: compare each translated value against the unqualified source value. For standalone roles such as `action`, `button`, `title`, `column`, `error`, `warning`, `info`, `message`, `question`, `aria`, user-facing `text`, progress, notification, and log lines, review any value where the source starts with an uppercase letter but the translation starts lowercase. Treat inserted fragments, `token`, `const`, `unit`, `placeholder`, object type names, URLs, and code-like values as exceptions only after classification.
 - Role capitalization check: independently scan translated `title`, `error`, `warning`, `info`, `question`, `message`, progress, notification, and log values for lowercase sentence starts. Fix full-sentence and standalone values; leave lowercase fragments only when they are intentionally composed into another sentence.
 - Stale-English check: compare exact source/target matches and scan for common English verbs/nouns. Classify every hit as an intentional product name/acronym/technical literal or a translation defect. Do not allow hybrid target-language values such as translated words mixed with English verbs.
@@ -208,11 +207,11 @@ rg -n 'txt\("([^"]+)"' src/main/java
 Run these passes when reviewing a translated bundle for meaning, not just structure. Work in small batches, inspect callers for every suspicious key, and prefer leaving a note over making an unsupported fluent-sounding guess.
 
 - Ambiguous English terms: scan for source values containing terms with multiple DBN meanings, such as `schema`, `view`, `grant`, `profile`, `credential`, `wallet`, `driver`, `statement`, `console`, `object`, `type`, `session`, and `model`. Confirm the translated value reflects the caller's domain meaning.
-- Terms intentionally kept in English: verify consistency for `Workspace`, `Dataset`, `View`, `Tool`, `Embedding`, `Chunking`, `Vector`, `Wallet`, `Select AI`, `MCP`, `LLM`, and `OCI`. Check whether each term should remain English in DB/AI UI or use a German domain term.
+- Terms intentionally kept in English: verify consistency for `Workspace`, `Dataset`, `View`, `Tool`, `Embedding`, `Chunking`, `Vector`, `Wallet`, `Select AI`, `MCP`, `LLM`, and `OCI`. Check whether each term should remain English in DB/AI UI or use the target language's accepted domain term.
 - Action versus label wording: inspect keys where the same English word can be noun or verb, such as `Refresh`, `Open`, `Load`, `Create`, `Grant`, `Verify`, `Apply`, and `Compile`. Actions/buttons should read as commands; labels/titles should read as nouns or headers.
-- Database-domain collocations: check that translated terms read like database software, for example `Schema`, `View`, `Tabelle`, `Ausführungsberechtigung`, `Verbindung`, `Treiberbibliothek`, `SQL-Anweisung`, and `Datenbankobjekt`.
-- Runtime composition: for values with `{0}` or inserted fragments, inspect the final composed sentence in the caller. German grammar can break when a placeholder controls gender, number, article, or case.
-- Glossary consistency: build a small glossary from accepted choices and scan for inconsistent alternatives before changing values.
+- Database-domain collocations: check that translated terms read like database software, especially for source concepts such as `schema`, `view`, `table`, `execution privilege`, `database connection`, `JDBC driver`, `SQL statement`, and `database object`.
+- Runtime composition: for values with `{0}` or inserted fragments, inspect the final composed sentence in the caller. Target-language grammar can break when a placeholder controls gender, number, article, or case.
+- Glossary consistency: use the working glossary from the translation pass and scan for inconsistent alternatives before changing values. If no glossary exists yet, create a compact one from accepted choices first.
 
 Useful starting scans:
 
@@ -220,7 +219,7 @@ Useful starting scans:
 rg -n -i '\b(schema|view|grant|profile|credential|wallet|driver|statement|console|object|type|session|model)\b' src/main/resources/messages/DBNResources.properties
 rg -n -i '\b(workspace|dataset|view|tool|embedding|chunking|vector|wallet|select ai|mcp|llm|oci)\b' src/main/resources/messages/DBNResources.properties
 rg -n -i '\b(refresh|open|load|create|grant|verify|apply|compile)\b' src/main/resources/messages/DBNResources.properties
-rg -n '\{[0-9]' src/main/resources/messages/DBNResources_de.properties
+rg -n '\{[0-9]' src/main/resources/messages/DBNResources_*.properties
 ```
 
 ### Required and Missing Wording
@@ -256,7 +255,7 @@ rg -n '\.\.\.' src/main/resources/messages/DBNResources.properties
 - Use sentence capitalization for `intention`, `tooltip`, `error`, `warning`, `info`, `hint`, `message`, `text`, `label`, `link`, accessibility descriptions, editor messages, inspections, and quick-fixes.
 - Do not mechanically title-case every `.title.` key. Progress/process titles, status titles, generated task names, and sentence-like titles can intentionally use sentence capitalization.
 - Do not reuse `.action.` keys for `EditorIntentionAction#getText()` or quick-fix names just because the intention performs the same operation as an action. Add a matching `.intention.` key and keep it sentence-cased.
-- Preserve mnemonics (`&`), placeholders (`{0}`), escaped newlines (`\n`), HTML markup, keyboard names, SQL keywords, object type names, acronyms, and product/provider names.
+- Preserve mnemonic markers, placeholders (`{0}`), escaped newlines (`\n`), HTML markup, keyboard names, SQL keywords, object type names, acronyms, and product/provider names.
 - Keep acronyms fully uppercase (`AI`, `API`, `DB`, `DDL`, `IDE`, `JDBC`, `JSON`, `MCP`, `OCI`, `OCID`, `SQL`, `SSH`, `URL`, `URI`, `XML`). Use normal capitalization for ordinary words next to them, for example `MCP server`, `JSON view`, and `Java source code`.
 - Treat quoted UI labels as references to the actual visible label. If a button/action label changes from `Keep current` to `Keep Current`, update explanatory text that quotes that label.
 - Defer ambiguous items instead of forcing them. In particular, review enum/presentable constants, product names, tree-root labels, progress text, and values containing quoted section names in context.
