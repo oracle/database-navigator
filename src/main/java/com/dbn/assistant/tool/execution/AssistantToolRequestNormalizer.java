@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import static com.dbn.assistant.AssistantComponent.OBJECT_MAPPER;
+import static com.dbn.assistant.tool.AssistantToolData.isInternalTool;
 import static com.dbn.common.Reflection.updateFieldValue;
 
 /**
@@ -64,6 +65,8 @@ public class AssistantToolRequestNormalizer {
         if (request.id() == null) {
             updateFieldValue(request, "id", UUIDs.compact());
         }
+
+        if (!isInternalTool(request.name())) return;
 
         Method method = AssistantToolData.getUtilityMethod(request.name());
         if (method == null) return;
