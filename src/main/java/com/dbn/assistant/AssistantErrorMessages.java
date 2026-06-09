@@ -20,6 +20,7 @@ import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.assistant.provider.ProviderUrlType;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.URI;
@@ -32,6 +33,7 @@ import java.util.regex.Pattern;
 @UtilityClass
 public class AssistantErrorMessages {
     private static final Pattern URL_PATTERN = Pattern.compile("(?i)\\bhttps?://[^\\s<>'\"`]+");
+    @NonNls
     private static final String REDACTED_URL = "[redacted URL]";
     private static final List<TrustedApiPath> TRUSTED_API_PATHS = loadTrustedApiPaths();
 

@@ -24,6 +24,8 @@ import com.dbn.object.type.DBObjectType;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBConstraintNavigationInfoProvider extends DBObjectNavigationInfoProviderBase<DBConstraint> {
     public DBConstraintNavigationInfoProvider() {
         super(DBObjectType.CONSTRAINT);
@@ -35,12 +37,12 @@ public class DBConstraintNavigationInfoProvider extends DBObjectNavigationInfoPr
 
         List<DBColumn> columns = constraint.getColumns();
         if (!columns.isEmpty()) {
-            navigationLists.add(DBObjectNavigationList.create("Columns", columns));
+            navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.Columns"), columns));
         }
 
         DBConstraint foreignKeyConstraint = constraint.getForeignKeyConstraint();
         if (foreignKeyConstraint != null) {
-            navigationLists.add(DBObjectNavigationList.create("Foreign key constraint", foreignKeyConstraint));
+            navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.ForeignKeyConstraint"), foreignKeyConstraint));
         }
 
         return navigationLists;

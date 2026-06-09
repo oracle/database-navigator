@@ -43,6 +43,7 @@ import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
 @UtilityClass
@@ -169,7 +170,7 @@ public class SelectAiContextUtil {
         List<SelectAiProfileSelectAction> actions = convert(profiles, p -> new SelectAiProfileSelectAction(connectionId, p, defaultProfile));
 
         popupBuilder(actions, editor).
-                withTitle("Select AI Profile").
+                withTitle(txt("app.assistant.title.SelectAiProfile")).
                 withPreselectCondition(Selectable.selector()).
                 withSpeedSearch().
                 buildAndShow();

@@ -25,11 +25,12 @@ import org.jetbrains.annotations.Nullable;
 import java.time.Duration;
 
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<AssistantMcpServer> {
     private static final String[] APPROVAL_OPTIONS = Messages.options(
-            "Trust and Connect",
-            "Cancel");
+            txt("msg.shared.button.TrustAndConnect"),
+            txt("msg.shared.button.Cancel"));
 
     @Override
     public Class<AssistantMcpServer> getApprovalClass() {
@@ -38,16 +39,15 @@ public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<As
 
     @Override
     public String getApprovalTitle(AssistantMcpServer mcpServer) {
-        return "Trust MCP Server";
+        return txt("msg.assistant.title.TrustMcpServer");
     }
 
     @Override
     public String getApprovalMessage(AssistantMcpServer mcpServer) {
-        return "DB Assistant wants to connect to the \"" + mcpServer.getName() + "\" MCP server.\n\n" +
-                "Endpoint type: " + mcpServer.getType().name() + "\n" +
-                "Endpoint: " + mcpServer.getEndpoint() + "\n\n" +
-                "MCP servers can expose tools and data to DB Assistant.\n" +
-                "Only continue if you recognize this MCP server and consider it safe to use.";
+        return txt("msg.assistant.question.TrustMcpServer",
+                mcpServer.getName(),
+                mcpServer.getType().name(),
+                mcpServer.getEndpoint());
     }
 
     @Override

@@ -135,7 +135,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
             String resultName = executablePsiElement.createSubjectList();
             if (isValidResultName(resultName)) return resultName;
         }
-        return "Result " + index;
+        return txt("app.execution.text.DefaultResultName", index);
     });
 
     private static boolean isValidResultName(String resultName) {
@@ -313,7 +313,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
 
     @Override
     public void execute(@Nullable DBNConnection connection, boolean debug) throws SQLException {
-        ProgressMonitor.setProgressText("Executing " + getStatementName());
+        ProgressMonitor.setProgressText(txt("prc.execution.text.ExecutingStatement", getStatementName()));
         try {
             StatementExecutionContext context = initExecutionContext();
             context.set(EXECUTING, true);
@@ -422,7 +422,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         executionVariables.cacheVariableDataTypes(connection);
         executionVariables.verifyExecutionVariables(connection);
         if (executionVariables.hasErrors()) {
-            executionResult = createErrorExecutionResult(new DatabaseMessage("Could not bind all variables.", null));
+            executionResult = createErrorExecutionResult(new DatabaseMessage(txt("app.execution.text.StatementVariablesBindingFailed"), null));
             return false; // cancel execution
         }
         return true;
@@ -518,8 +518,8 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
                 getProject(),
                 getConnection(),
                 false,
-                txt("prc.execution.title.CancellingExecution"),
-                txt("prc.execution.text.CancellingExecution"),
+                txt("prc.execution.title.CancelingExecution"),
+                txt("prc.execution.text.CancelingExecution"),
                 progress -> Safe.run(databaseCall, call -> call.cancelSilently()));
     }
 
@@ -672,15 +672,15 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         }
 
         if (hasCompilerErrors) {
-            String message = executionInput.getStatementDescription() + " executed with warnings";
+            String message = txt("app.execution.text.StatementExecutedWithWarnings", executionInput.getStatementDescription());
             executionResult.updateExecutionMessage(MessageType.WARNING, message);
             executionResult.setExecutionStatus(StatementExecutionStatus.WARNING);
 
         } else {
-            String message = executionInput.getStatementDescription() + " executed successfully";
+            String message = txt("app.execution.text.StatementExecutedSuccessfully", executionInput.getStatementDescription());
             int updateCount = executionResult.getUpdateCount();
             if (!isDdlStatement && updateCount > -1) {
-                message = message + ": " + updateCount + (updateCount != 1 ? " rows" : " row") + " affected";
+                message = txt("app.execution.text.StatementExecutedRowsAffected", message, updateCount);
             }
             executionResult.updateExecutionMessage(MessageType.INFO, message);
             executionResult.setExecutionStatus(StatementExecutionStatus.SUCCESS);
@@ -731,7 +731,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
 
     private StatementExecutionResult createErrorExecutionResult(DatabaseMessage databaseMessage) {
         StatementExecutionResult executionResult = new StatementExecutionBasicResult(this, getResultName(), 0);
-        executionResult.updateExecutionMessage(MessageType.ERROR, "Error executing " + getStatementName() + '.', databaseMessage);
+        executionResult.updateExecutionMessage(MessageType.ERROR, txt("app.execution.text.StatementExecutionError", getStatementName()), databaseMessage);
         executionResult.setExecutionStatus(StatementExecutionStatus.ERROR);
         return executionResult;
     }
@@ -794,7 +794,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
     @Override
     public String getStatementName() {
         ExecutablePsiElement executablePsiElement = executionInput.getExecutablePsiElement();
-        return executablePsiElement == null ? "SQL statement" : executablePsiElement.getSpecificElementType().getDescription();
+        return executablePsiElement == null ? txt("app.execution.token.SqlStatement") : executablePsiElement.getSpecificElementType().getDescription();
     }
 
     public boolean canExecute() {

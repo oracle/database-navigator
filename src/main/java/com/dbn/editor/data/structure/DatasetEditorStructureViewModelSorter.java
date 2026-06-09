@@ -27,6 +27,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 import java.util.Comparator;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DatasetEditorStructureViewModelSorter implements Sorter {
 
     @Override
@@ -55,12 +57,12 @@ public class DatasetEditorStructureViewModelSorter implements Sorter {
         @Override
         @NotNull
         public String getText() {
-            return "Sort by Name";
+            return txt("app.dataEditor.action.SortByName");
         }
 
         @Override
         public String getDescription() {
-            return "Sort elements alphabetically by name";
+            return txt("app.dataEditor.tooltip.SortByName");
         }
 
         @Override

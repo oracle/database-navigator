@@ -26,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.nls.NlsResources.txt;
 
 public class MethodExecutionSettingsForm extends ConfigurationEditorForm<MethodExecutionSettings> {
     private JPanel mainPanel;
@@ -54,9 +55,9 @@ public class MethodExecutionSettingsForm extends ConfigurationEditorForm<MethodE
     @Override
     public void applyFormChanges() throws ConfigurationException {
         MethodExecutionSettings configuration = getConfiguration();
-        int executionTimeout = ConfigurationEditors.validateIntegerValue(executionTimeoutTextField, "Execution timeout", true, 0, 6000, "\nUse value 0 for no timeout");
-        int debugExecutionTimeout = ConfigurationEditors.validateIntegerValue(debugExecutionTimeoutTextField, "Debug execution timeout", true, 0, 6000, "\nUse value 0 for no timeout");
-        int parameterHistorySize = ConfigurationEditors.validateIntegerValue(parameterHistorySizeTextField, "Parameter history size", true, 0, 3000, null);
+        int executionTimeout = ConfigurationEditors.validateIntegerValue(executionTimeoutTextField, txt("cfg.execution.field.ExecutionTimeout"), true, 0, 6000, txt("cfg.shared.hint.ZeroForNoTimeout"));
+        int debugExecutionTimeout = ConfigurationEditors.validateIntegerValue(debugExecutionTimeoutTextField, txt("cfg.execution.field.DebugExecutionTimeout"), true, 0, 6000, txt("cfg.shared.hint.ZeroForNoTimeout"));
+        int parameterHistorySize = ConfigurationEditors.validateIntegerValue(parameterHistorySizeTextField, txt("cfg.execution.field.ParameterHistorySize"), true, 0, 3000, null);
         configuration.setParameterHistorySize(parameterHistorySize);
 
         configuration.setExecutionTimeout(executionTimeout);

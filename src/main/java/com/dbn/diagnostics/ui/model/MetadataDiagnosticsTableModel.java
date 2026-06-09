@@ -22,25 +22,28 @@ import com.dbn.diagnostics.DiagnosticsManager;
 import com.dbn.diagnostics.data.DiagnosticBundle;
 import com.dbn.diagnostics.data.DiagnosticEntry;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class MetadataDiagnosticsTableModel extends AbstractDiagnosticsTableModel<String> {
     private final ConnectionRef connection;
 
     private static final String[] COLUMN_NAMES = new String[] {
-            "Identifier",
-            "Invocations",
-            "Failures",
-            "Timeouts",
-            "Best Query (ms)",
-            "Best Load (ms)",
-            "Worst Query (ms)",
-            "Worst Load (ms)",
-            "Average Query (ms)",
-            "Average Load (ms)",
-            "Total Query (ms)",
-            "Total Load (ms)",
-            "Fetch Block Size"};
+            txt("app.diagnostics.column.Identifier"),
+            txt("app.diagnostics.column.Invocations"),
+            txt("app.diagnostics.column.Failures"),
+            txt("app.diagnostics.column.Timeouts"),
+            txt("app.diagnostics.column.BestQueryMillis"),
+            txt("app.diagnostics.column.BestLoadMillis"),
+            txt("app.diagnostics.column.WorstQueryMillis"),
+            txt("app.diagnostics.column.WorstLoadMillis"),
+            txt("app.diagnostics.column.AverageQueryMillis"),
+            txt("app.diagnostics.column.AverageLoadMillis"),
+            txt("app.diagnostics.column.TotalQueryMillis"),
+            txt("app.diagnostics.column.TotalLoadMillis"),
+            txt("app.diagnostics.column.FetchBlockSize")};
 
     public MetadataDiagnosticsTableModel(ConnectionHandler connection) {
         super(connection.getProject());
@@ -49,7 +52,7 @@ public class MetadataDiagnosticsTableModel extends AbstractDiagnosticsTableModel
 
     @NotNull
     @Override
-    protected String[] getColumnNames() {
+    protected @Nls String[] getColumnNames() {
         return COLUMN_NAMES;
     }
 

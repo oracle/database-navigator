@@ -32,6 +32,7 @@ import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,6 +41,7 @@ import java.util.function.Supplier;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
@@ -86,11 +88,11 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
     }
 
     @Override
-    protected String getHint() {
+    protected @Nullable @Nls String getHint() {
         int size = getModelSize();
         if (size < 10) return null;
 
-        return "Start typing to filter the " + getObjectType().getListName() + "...";
+        return txt("app.objects.hint.FilterObjectList", getObjectType().getListDisplayName());
     }
 
     public DBObjectSelector<T> withConnectionContext(Supplier<ConnectionHandler> connectionContext) {
@@ -111,7 +113,7 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
         return cast(super.withValuePreselector(o -> o.getName().equalsIgnoreCase(preselectName.get())));
     }
 
-    public DBObjectSelector<T> withObjectFactory(String actionName) {
+    public DBObjectSelector<T> withObjectFactory(@Nls String actionName) {
         return cast(super.withValueFactory(ValueFactory.create(actionName, () -> openObjectFactory(getSchema()))));
     }
 

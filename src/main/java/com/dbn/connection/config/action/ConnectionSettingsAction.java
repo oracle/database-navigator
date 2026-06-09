@@ -24,6 +24,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class ConnectionSettingsAction extends ContextAction<ConnectionBundleSettingsForm> {
+    protected ConnectionSettingsAction() {
+    }
+
+    protected ConnectionSettingsAction(String text) {
+        super(text);
+    }
+
     @Nullable
     protected ConnectionBundleSettingsForm getContext(@NotNull AnActionEvent e) {
         return e.getData((DataKeys.CONNECTION_BUNDLE_SETTINGS));

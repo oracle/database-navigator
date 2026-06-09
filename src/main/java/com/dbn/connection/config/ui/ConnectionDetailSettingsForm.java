@@ -54,6 +54,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<ConnectionDetailSettings> {
     private JPanel mainPanel;
@@ -198,11 +199,11 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         configuration.setEnableDdlFileBinding(ddlFileBindingCheckBox.isSelected());
         configuration.setEnableDatabaseLogging(databaseLoggingCheckBox.isSelected());
         configuration.setAlternativeStatementDelimiter(getText(alternativeStatementDelimiterTextField));
-        int connectivityTimeout = ConfigurationEditors.validateIntegerValue(connectivityTimeoutTextField, txt("cfg.connection.field.ConnectivityTimeout"), true, 0, 90, "");
-        int idleTimeToDisconnect = ConfigurationEditors.validateIntegerValue(idleTimeTextField, txt("cfg.connection.field.IdleTimeToDisconnect"), true, 0, 60, "");
-        int idleTimeToDisconnectPool = ConfigurationEditors.validateIntegerValue(idleTimePoolTextField, txt("cfg.connection.field.IdleTimeToDisconnectPool"), true, 1, 60, "");
-        int passwordExpiryTime = ConfigurationEditors.validateIntegerValue(passwordExpiryTextField, txt("cfg.connection.field.IdleTimeToRequestPassword"), true, 0, 60, "");
-        int maxPoolSize = ConfigurationEditors.validateIntegerValue(maxPoolSizeTextField, txt("cfg.connection.field.MaxConnectionPoolSize"), true, 3, 20, "");
+        int connectivityTimeout = ConfigurationEditors.validateIntegerValue(connectivityTimeoutTextField, txt("cfg.connection.field.ConnectivityTimeout"), true, 0, 90, null);
+        int idleTimeToDisconnect = ConfigurationEditors.validateIntegerValue(idleTimeTextField, txt("cfg.connection.field.IdleTimeToDisconnect"), true, 0, 60, null);
+        int idleTimeToDisconnectPool = ConfigurationEditors.validateIntegerValue(idleTimePoolTextField, txt("cfg.connection.field.IdleTimeToDisconnectPool"), true, 1, 60, null);
+        int passwordExpiryTime = ConfigurationEditors.validateIntegerValue(passwordExpiryTextField, txt("cfg.connection.field.IdleTimeToRequestPassword"), true, 0, 60, null);
+        int maxPoolSize = ConfigurationEditors.validateIntegerValue(maxPoolSizeTextField, txt("cfg.connection.field.MaxConnectionPoolSize"), true, 3, 20, null);
         configuration.setConnectivityTimeoutSeconds(connectivityTimeout);
         configuration.setIdleMinutesToDisconnect(idleTimeToDisconnect);
         configuration.setIdleMinutesToDisconnectPool(idleTimeToDisconnectPool);

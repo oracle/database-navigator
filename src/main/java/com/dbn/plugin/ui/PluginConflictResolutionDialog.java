@@ -20,13 +20,16 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.plugin.PluginConflictManager;
 import com.dbn.plugin.PluginConflictResolution;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class PluginConflictResolutionDialog extends DBNDialog<PluginConflictResolutionForm> {
     public PluginConflictResolutionDialog() {
-        super((Project) null, "Plugin Conflict Resolution", true);
+        super((Project) null, txt("msg.plugin.title.PluginConflictResolution"), true);
         setModal(true);
         setResizable(false);
         //setDefaultSize(700, 400);
@@ -46,14 +49,14 @@ public class PluginConflictResolutionDialog extends DBNDialog<PluginConflictReso
         return new PluginConflictResolutionForm(this);
     }
 
-    protected void renameAction(String name) {
+    protected void renameAction(@Nls String name) {
         renameAction(getOKAction(), name);
     }
 
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Continue");
+        renameAction(getOKAction(), txt("msg.shared.button.Continue"));
         return actions(getOKAction());
     }
 

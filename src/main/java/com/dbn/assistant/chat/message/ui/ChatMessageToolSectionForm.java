@@ -89,6 +89,7 @@ import static com.dbn.common.text.TextContent.asHtmlContent;
 import static com.dbn.common.ui.Layouts.horizontalBoxLayout;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.util.Messages.showConfirmationDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessageToolSection> implements DBNFoldableComponent {
     private JPanel mainPanel;

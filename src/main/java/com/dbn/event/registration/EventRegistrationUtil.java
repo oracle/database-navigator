@@ -30,6 +30,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGH;
+import static com.dbn.nls.NlsResources.txt;
 
 @UtilityClass
 public class EventRegistrationUtil {
@@ -52,8 +53,8 @@ public class EventRegistrationUtil {
         Project project = connection.getProject();
         return DatabaseInterfaceInvoker.load(
                 HIGH,
-                "Loading DCN registrations",
-                "Fetching data change notification registrations",
+                txt("prc.events.title.LoadingDcnRegistrations"),
+                txt("prc.events.text.FetchingDcnRegistrations"),
                 project,
                 connection.getConnectionId(),
                 conn -> {

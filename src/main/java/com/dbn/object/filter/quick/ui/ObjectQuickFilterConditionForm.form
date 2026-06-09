@@ -19,7 +19,7 @@
         </constraints>
         <properties>
           <labelFor value="5fbff"/>
-          <text value="OBJECT_NAME"/>
+          <text resource-bundle="messages/DBNResources" key="app.object.label.OBJECTNAME"/>
         </properties>
       </component>
       <component id="60699" class="com.dbn.common.ui.misc.DBNComboBox" binding="operatorComboBox">

@@ -18,6 +18,7 @@ package com.dbn.common.ui.tab;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.util.ui.JBInsets;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
@@ -32,6 +33,7 @@ import static com.dbn.common.ui.util.ClientProperty.FOCUS_INHERITANCE;
 import static com.dbn.common.ui.util.ClientProperty.TAB_COLOR;
 import static com.dbn.common.ui.util.ClientProperty.TAB_CONTENT;
 import static com.dbn.common.ui.util.UserInterface.hasChildComponent;
+import static org.jetbrains.annotations.Nls.Capitalization.Title;
 
 @Deprecated // TODO remove (replaced by DBNColoredTabs)
 public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
@@ -100,7 +102,7 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
         setIconAt(index, icon);
     }
 
-    public void setTabTitle(Component component, String title) {
+    public void setTabTitle(Component component, @Nls(capitalization = Title) String title) {
         int index = getTabIndex(component);
         setTitleAt(index, normalizeTitle(title));
     }

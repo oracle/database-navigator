@@ -35,6 +35,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class MethodExecuteAction extends AbstractCodeEditorAction {
 
+    public MethodExecuteAction() {
+        super(txt("app.codeEditor.action.CodeEditorExecuteMethod"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
         DBMethod method = (DBMethod) sourceCodeFile.getObject();

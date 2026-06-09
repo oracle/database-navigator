@@ -16,19 +16,32 @@
 
 package com.dbn.editor.session;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public enum SessionInterruptionType {
     DISCONNECT,
     TERMINATE;
 
     public String disconnectedAction() {
-        return this == SessionInterruptionType.TERMINATE ? "killed" : "disconnected";
+        return txt(this == TERMINATE ?
+                "msg.sessions.const.DisconnectedAction_TERMINATE" :
+                "msg.sessions.const.DisconnectedAction_DISCONNECT");
     }
 
     public String disconnectingAction() {
-        return this == SessionInterruptionType.TERMINATE ? "killing" : "disconnecting";
+        return txt(this == TERMINATE ?
+                "msg.sessions.const.DisconnectingAction_TERMINATE" :
+                "msg.sessions.const.DisconnectingAction_DISCONNECT");
     }
 
     public String taskAction(int sessionCount) {
-        return (this == SessionInterruptionType.TERMINATE ? "Killing" : "Disconnecting") + (sessionCount == 1 ? " Session" : " Sessions");
+        if (this == TERMINATE) {
+            return txt(sessionCount == 1 ?
+                    "prc.sessions.text.KillingSessionTask" :
+                    "prc.sessions.text.KillingSessionsTask");
+        }
+        return txt(sessionCount == 1 ?
+                "prc.sessions.text.DisconnectingSessionTask" :
+                "prc.sessions.text.DisconnectingSessionsTask");
     }
 }

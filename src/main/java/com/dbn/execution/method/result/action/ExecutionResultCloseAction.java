@@ -29,6 +29,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionResultCloseAction extends AbstractMethodExecutionResultAction {
 
+    public ExecutionResultCloseAction() {
+        super(txt("app.execution.action.MethodExecutionResultClose"));
+    }
+
     @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,

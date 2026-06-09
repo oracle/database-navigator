@@ -15,25 +15,24 @@
   -->
 
 <html lang="en">
-<head><title>Plugin conflict</title></head>
+<head><title>Oracle© Database Navigator plugin conflict</title></head>
 <body style="${REGULAR_FONT_STYLE}">
-PLUGIN CONFLICT<br>
+<span style="font-size: 1.1em;">Oracle© Database Navigator Plugin Conflict</span><br>
 <ul>
-    <li><b>Database Navigator</b> - third party</li>
-    <li><b>Database Tools and SQL</b> - JetBrains standard distribution</li>
+    <li><b>Oracle© Database Navigator</b> (DBN) - Oracle© database plugin</li>
+    <li><b>Database Tools and SQL</b> - JetBrains bundled plugin</li>
 </ul>
-Both <u>Database Navigator</u> (DBN) and
-the <u>Database Tools and SQL</u> plugins provide very similar database functionality.
-Having both plugins installed can lead to ambiguous and at times conflicting user experience. <u>You are advised to disable one of them.</u><br><br>
+<u>DBN</u> detected that the
+<u>Database Tools and SQL</u> plugin is also installed.
+Both plugins provide similar database functionality. Having both plugins installed can lead
+to an ambiguous and sometimes conflicting user experience.<br><br>
 
-<u>Database Navigator</u> is NOT a complementary product to, nor is it integrated with, the standard distribution database tool.
-You may not need this plugin since you already have fully-featured database support.
+<u>DBN</u> is not a complementary product to <u>Database Tools and SQL</u>,
+and the two plugins do not integrate with each other.
 
 <br><br>
-Please select one of the options below to continue.
+Choose how DBN should continue.
 <br>
 <br>
 </body>
 </html>
-
-

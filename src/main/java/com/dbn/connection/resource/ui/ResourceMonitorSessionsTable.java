@@ -31,6 +31,7 @@ import javax.swing.ListSelectionModel;
 import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 class ResourceMonitorSessionsTable extends DBNTable<ResourceMonitorSessionsTableModel> {
     ResourceMonitorSessionsTable(@NotNull DBNComponent parent, ResourceMonitorSessionsTableModel tableModel) {
@@ -40,7 +41,7 @@ class ResourceMonitorSessionsTable extends DBNTable<ResourceMonitorSessionsTable
         setCellSelectionEnabled(false);
         setRowSelectionAllowed(true);
 
-        setAccessibleName(this, "Resource Monitor Sessions");
+        setAccessibleName(this, txt("app.connection.aria.ResourceMonitorSessions"));
     }
 
 
@@ -60,10 +61,16 @@ class ResourceMonitorSessionsTable extends DBNTable<ResourceMonitorSessionsTable
                     append(session.getName(), textAttributes);
                     setIcon(session.getIcon());
                 } else if (column == 1) {
-                    append(connectionPoolSize == 0 ? "Not connected" : "Connected", textAttributes);
+                    append(txt(connectionPoolSize == 0 ?
+                                    "app.connection.label.NotConnectedStatus" :
+                                    "app.connection.label.ConnectedStatus"),
+                            textAttributes);
                 } else if (column == 2) {
                     long lastAccessTimestamp = connectionPool.getLastAccess();
-                    append(lastAccessTimestamp == 0 ? "Never" : DateFormatUtil.formatPrettyDateTime(lastAccessTimestamp), textAttributes);
+                    append(lastAccessTimestamp == 0 ?
+                                    txt("app.connection.label.Never") :
+                                    DateFormatUtil.formatPrettyDateTime(lastAccessTimestamp),
+                            textAttributes);
                 } else if (column == 3) {
                     append(connectionPoolSize + " / " + connectionPool.getPeakPoolSize(), textAttributes);
                 } else if (column == 4) {
@@ -84,7 +91,12 @@ class ResourceMonitorSessionsTable extends DBNTable<ResourceMonitorSessionsTable
                     append(session.getName(), textAttributes);
                     setIcon(session.getIcon());
                 } else if (column == 1) {
-                    append(conn == null ? "Not connected" : "Connected" + (conn.hasDataChanges() ? " - open transactions" : ""), textAttributes);
+                    append(conn == null ?
+                                    txt("app.connection.label.NotConnectedStatus") :
+                                    txt(conn.hasDataChanges() ?
+                                            "app.connection.label.ConnectedOpenTransactions" :
+                                            "app.connection.label.ConnectedStatus"),
+                            textAttributes);
                 } else if (column == 2) {
                     append(conn == null ? "" : DateFormatUtil.formatPrettyDateTime(conn.getLastAccess()), textAttributes);
                 } else if (column == 4) {

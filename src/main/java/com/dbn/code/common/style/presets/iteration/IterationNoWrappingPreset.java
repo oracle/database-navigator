@@ -25,9 +25,11 @@ import com.intellij.formatting.Wrap;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class IterationNoWrappingPreset extends IterationAbstractPreset {
     public IterationNoWrappingPreset() {
-        super("no_wrapping", "No wrapping");
+        super("no_wrapping", txt("cfg.codeStyle.const.CodeStylePreset_NO_WRAPPING"));
     }
 
     @Override

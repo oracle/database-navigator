@@ -25,6 +25,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Wrapper factory result dialog
  * Lists all the database objects that were created as part of execution wrapper factory activity
@@ -35,11 +37,11 @@ import javax.swing.Action;
 public class JavaDownloadResultDialog extends DBNDialog<JavaDownloadResultForm> {
 
     private final JavaDownloadBatch batch;
-    private final Action openAllAction = createAction("Open All", () -> openJavaEditors(false));
-    private final Action openSelectedAction = createAction("Open Selected", () -> openJavaEditors(true));
+    private final Action openAllAction = createAction(txt("msg.shared.button.OpenAll"), () -> openJavaEditors(false));
+    private final Action openSelectedAction = createAction(txt("msg.shared.button.OpenSelected"), () -> openJavaEditors(true));
 
     public JavaDownloadResultDialog(JavaDownloadBatch batch) {
-        super(batch.getProject(), "Java Download Result", false);
+        super(batch.getProject(), txt("msg.java.title.JavaDownloadResult"), false);
         //this.setDefaultSize(380, 420);
         this.setModal(false);  // non-modal: to allow opening the editors from the dialog
         this.setAutoSize(true);
@@ -52,7 +54,7 @@ public class JavaDownloadResultDialog extends DBNDialog<JavaDownloadResultForm> 
     @NotNull
     @Override
     protected Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(
                 createErrorAction(),
                 openAllAction,
@@ -65,7 +67,7 @@ public class JavaDownloadResultDialog extends DBNDialog<JavaDownloadResultForm> 
     private Action createErrorAction() {
         if (!batch.getMessages().hasErrors()) return null;
 
-        return createAction("Show Errors", () -> {
+        return createAction(txt("msg.shared.button.ShowErrors"), () -> {
             DatabaseBatchManager batchManager = DatabaseBatchManager.getInstance(getProject());
             batchManager.showErrorDialog(batch);
         });

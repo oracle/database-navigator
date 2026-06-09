@@ -39,6 +39,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.statement.variables.VariableNames.adjust;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -93,7 +94,7 @@ public class StatementExecutionVariable extends VariableValueProvider implements
                     return new java.sql.Date(date.getTime());
                 } catch (ParseException e1) {
                     conditionallyLog(e1);
-                    error = "Invalid date";
+                    error = txt("msg.execution.error.InvalidDate");
                 }
             }
             return null;
@@ -104,12 +105,12 @@ public class StatementExecutionVariable extends VariableValueProvider implements
                 return formatter.parseNumber(value);
             } catch (ParseException e) {
                 conditionallyLog(e);
-                error = "Invalid number";
+                error = txt("msg.execution.error.InvalidNumber");
             }
             return null;
         }
 
-        throw new IllegalArgumentException("Data type " + this.dataType.getName() + " not supported with execution variables.");
+        throw new IllegalArgumentException(txt("msg.execution.exception.VariableDataTypeUnsupported", this.dataType.getName()));
     }
 
     public String getPreviewValue(@NotNull ConnectionHandler connection) {

@@ -19,15 +19,16 @@ package com.dbn.debugger.common.config;
 import com.dbn.common.icon.Icons;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.debugger.jdwp.config.DBJdwpJavaRunConfigFactory;
-import com.dbn.nls.NlsResources;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class DBJavaRunConfigType extends DBRunConfigType<DBJavaRunConfigFactory> {
-    public static final String DEFAULT_RUNNER_NAME = NlsResources.txt("cfg.execution.title.JavaMethodRunnerDefault");
+    public static final String DEFAULT_RUNNER_NAME = txt("cfg.execution.title.JavaMethodRunnerDefault");
 
     private final DBJavaRunConfigFactory[] configurationFactories = new DBJavaRunConfigFactory[]{
             new DBJdwpJavaRunConfigFactory(this)};

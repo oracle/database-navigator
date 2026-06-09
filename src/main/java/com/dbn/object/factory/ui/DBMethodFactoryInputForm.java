@@ -48,6 +48,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
 
@@ -94,8 +95,9 @@ public class DBMethodFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
         DBObjectType objectType = input.getObjectType();
         nameLabel.setText(
-                objectType == DBObjectType.FUNCTION ? "Function name" :
-                objectType == DBObjectType.PROCEDURE ? "Procedure name" : "Name");
+                objectType == DBObjectType.FUNCTION ? txt("app.object.label.FunctionName") :
+                objectType == DBObjectType.PROCEDURE ? txt("app.object.label.ProcedureName") :
+                txt("app.object.label.GenericName"));
 
         DBNHeaderForm headerForm = createHeaderForm();
         headerPanel.add(headerForm.getComponent());
@@ -119,12 +121,12 @@ public class DBMethodFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
     @Override
     protected void initValidation() {
-        String objectTypeName = getObjectType().getName();
-        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), "Please enter a " + objectTypeName + " name");
-        addTextValidation(nameTextField, n -> isWord(n), "Please enter a valid " + objectTypeName + " name");
+        String objectTypeName = getObjectType().getDisplayName();
+        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ObjectNameRequired", objectTypeName));
+        addTextValidation(nameTextField, n -> isWord(n), txt("msg.objects.error.ValidObjectNameRequired", objectTypeName));
 
         if (hasReturnArgument()) {
-            addTextValidation(getReturnDataTypeEditor().getTextField(), t -> isNotEmptyOrSpaces(t), "Please enter the return argument data type");
+            addTextValidation(getReturnDataTypeEditor().getTextField(), t -> isNotEmptyOrSpaces(t), txt("msg.objects.error.ReturnArgumentDataTypeRequired"));
         }
     }
 

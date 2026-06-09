@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JList;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.GRAYED_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
@@ -32,7 +33,7 @@ public class EmbeddingSourceQueriesListRenderer extends ColoredListCellRenderer<
     @Override
     protected void customize(@NotNull JList<? extends EmbeddingSourceQuery> list, EmbeddingSourceQuery value, int index, boolean selected, boolean hasFocus) {
         if (value == null) {
-            append("(null)", ERROR_ATTRIBUTES);
+            append(txt("app.vector.placeholder.Null"), ERROR_ATTRIBUTES);
             return;
         }
 

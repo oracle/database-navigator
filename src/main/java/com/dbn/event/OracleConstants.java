@@ -16,6 +16,9 @@
 
 package com.dbn.event;
 
+import org.jetbrains.annotations.NonNls;
+
+@NonNls
 public class OracleConstants {
   public static final String DCN_NOTIFY_ROWIDS = "DCN_NOTIFY_ROWIDS";
   public static final String DCN_CLIENT_INIT_CONNECTION = "DCN_CLIENT_INIT_CONNECTION";

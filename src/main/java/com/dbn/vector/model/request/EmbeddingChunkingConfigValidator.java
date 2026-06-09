@@ -18,6 +18,8 @@ package com.dbn.vector.model.request;
 
 import lombok.experimental.UtilityClass;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @UtilityClass
 public class EmbeddingChunkingConfigValidator {
     /**
@@ -46,10 +48,7 @@ public class EmbeddingChunkingConfigValidator {
         }
 
         if (maxSize < minAllowed || maxSize > maxAllowed) {
-            return String.format(
-                    "Invalid max size %d for chunk by %s. Expected a value between %d and %d",
-                    maxSize, chunkBy, minAllowed, maxAllowed
-            );
+            return txt("msg.vector.error.InvalidChunkMaxSize", maxSize, chunkBy, minAllowed, maxAllowed);
         }
         return null;
     }
@@ -67,9 +66,7 @@ public class EmbeddingChunkingConfigValidator {
         double maxOverlap = maxSize * 0.20;
 
         if (overlap < minOverlap || overlap > maxOverlap) {
-            return String.format(
-                    "Invalid overlap %d for max size %d. Expected a value between 5%% (%.1f) and 20%% (%.1f) of max size.",
-                    overlap, maxSize, minOverlap, maxOverlap);
+            return txt("msg.vector.error.InvalidChunkOverlap", overlap, maxSize, minOverlap, maxOverlap);
         }
         return null;
     }

@@ -5,6 +5,8 @@ import lombok.experimental.UtilityClass;
 
 import java.util.regex.Pattern;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @UtilityClass
 public class McpToolName {
     private static final int MAX_LENGTH = 128;
@@ -12,16 +14,16 @@ public class McpToolName {
 
     public static String validationError(String value) {
         if (Strings.isEmptyOrSpaces(value)) {
-            return "Please enter a tool name";
+            return txt("msg.mcp.error.ToolNameRequired");
         }
         if (value.length() > MAX_LENGTH) {
-            return "Tool name is too long (max " + MAX_LENGTH + " characters)";
+            return txt("msg.mcp.error.ToolNameTooLong", MAX_LENGTH);
         }
         if (value.contains(" ")) {
-            return "No spaces are allowed in tool name";
+            return txt("msg.mcp.error.ToolNameSpacesUnsupported");
         }
         if (!VALID_NAME.matcher(value).matches()) {
-            return "Tool name can only contain letters, digits, '.', '-', and '_'";
+            return txt("msg.mcp.error.ToolNameCharactersInvalid");
         }
 
         return null;

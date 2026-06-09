@@ -47,7 +47,7 @@ public class DatabaseConnectIntentionAction extends EditorIntentionAction {
     @Override
     @NotNull
     public String getText() {
-        return txt("app.codeEditor.action.ConnectToDatabase");
+        return txt("app.codeEditor.intention.ConnectToDatabase");
     }
 
 

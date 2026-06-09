@@ -42,6 +42,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<AssistantMcpServerSettings> {
     private JPanel mainPanel;
@@ -86,7 +87,7 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
             public void update(@NotNull AnActionEvent e) {
                 Presentation presentation = e.getPresentation();
                 presentation.setIcon(Icons.ACTION_CHECK_LIST);
-                presentation.setText("Tool Approvals");
+                presentation.setText(txt("cfg.assistant.action.ToolApprovals"));
                 presentation.setEnabled(mcpServersTable.getSelectedRows().length == 1);
             }
         });

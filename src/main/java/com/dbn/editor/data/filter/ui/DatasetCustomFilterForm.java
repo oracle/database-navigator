@@ -47,6 +47,7 @@ import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 import static com.dbn.common.ui.util.ClientProperty.NO_INDENT;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.editor.code.content.GuardedBlockType.READONLY_DOCUMENT_SECTION;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCustomFilter> {
     private JPanel mainPanel;
@@ -104,7 +105,7 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
 
         document = Documents.ensureDocument(selectStatementFile);
         GuardedBlocks.createGuardedBlock(document, READONLY_DOCUMENT_SECTION, 0, conditionOffset,
-                "This predefined part of the query cannot be modified. Please add your filter conditions after the 'WHERE' keyword.");
+                txt("app.dataEditor.hint.ReadonlyFilterQueryPrefix"));
         editor = Editors.createEditor(document, project, filterFile, SQLFileType.INSTANCE);
         Editors.initEditorHighlighter(editor, SQLLanguage.INSTANCE, dataset);
 

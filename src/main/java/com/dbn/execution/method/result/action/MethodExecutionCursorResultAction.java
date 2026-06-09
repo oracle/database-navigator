@@ -28,6 +28,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class MethodExecutionCursorResultAction extends ProjectAction {
+
+    protected MethodExecutionCursorResultAction(String text) {
+        super(text);
+    }
+
     @Nullable
     ResultSetTable getResultSetTable(AnActionEvent e) {
         MethodExecutionCursorResultForm cursorResultForm = getCursorResultForm(e);

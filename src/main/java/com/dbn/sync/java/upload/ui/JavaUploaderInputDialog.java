@@ -24,12 +24,14 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
     private final JavaUploadBatch batch;
 
     public JavaUploaderInputDialog(JavaUploadBatch batch) {
-        super(batch.getProject(), "Upload Java Content", false);
+        super(batch.getProject(), txt("msg.java.title.UploadJavaContent"), false);
         this.batch = batch;
         setDefaultSize(600, 600);
         init();
@@ -58,7 +60,7 @@ public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
 
     @Override
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Upload");
+        renameAction(getOKAction(), txt("msg.shared.button.Upload"));
         return actions(
                 getOKAction(),
                 getCancelAction());

@@ -26,6 +26,7 @@ import javax.swing.tree.TreeNode;
 
 import static com.dbn.common.ui.util.Accessibility.announceEvent;
 import static com.dbn.common.ui.util.UserInterface.enableSelectOnFocus;
+import static com.dbn.nls.NlsResources.txt;
 
 public class CodeCompletionFilterTree extends CheckboxTree {
 
@@ -44,6 +45,11 @@ public class CodeCompletionFilterTree extends CheckboxTree {
 
     @Override
     protected void onNodeStateChanged(CheckedTreeNode node) {
-        announceEvent(this, node.toString() + " state changed to " + (node.isChecked() ? "checked" : "unchecked"));
+        announceEvent(this, txt(
+                "app.shared.aria.StateChanged",
+                node.toString(),
+                node.isChecked() ?
+                        txt("app.shared.aria.Checked") :
+                        txt("app.shared.aria.Unchecked")));
     }
 }

@@ -38,6 +38,10 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @BackgroundUpdate
 public class PromptSubmitAction extends AbstractChatBoxAction {
+    public PromptSubmitAction() {
+        super(txt("app.assistant.action.AssistantSubmitPrompt"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);

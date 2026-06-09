@@ -39,6 +39,7 @@ import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SessionBrowserDetailsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -63,18 +64,19 @@ public class SessionBrowserDetailsForm extends DBNFormBase {
         JComponent component = currentSqlPanel.getComponent();
         DBNTabs.initTabComponent(component, Icons.FILE_SQL_CONSOLE, null, currentSqlPanel);
 
-        detailsTabbedPane.addTab("Current Statement", component);
+        detailsTabbedPane.addTab(txt("app.sessionBrowser.title.CurrentStatement"), component);
 
         ConnectionHandler connection = getConnection();
+        String explainPlanTitle = txt("app.sessionBrowser.title.ExplainPlan");
         if (DatabaseFeature.EXPLAIN_PLAN.isSupported(connection)) {
             explainPlanPanel = new JPanel(new BorderLayout());
             //explainPlanTabInfo.setObject(currentSqlPanel);
-            detailsTabbedPane.addTab("Explain Plan", Icons.EXPLAIN_PLAN_RESULT, new JPanel());
+            detailsTabbedPane.addTab(explainPlanTitle, Icons.EXPLAIN_PLAN_RESULT, new JPanel());
         }
 
         TabbedPanes.onSelectionChange(detailsTabbedPane, i -> {
             String title = detailsTabbedPane.getTitleAt(i);
-            if (title.equals("Explain Plan")) {
+            if (title.equals(explainPlanTitle)) {
                 // TODO
             }
 

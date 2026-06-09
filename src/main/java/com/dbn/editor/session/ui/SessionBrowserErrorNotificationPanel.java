@@ -26,12 +26,14 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SessionBrowserErrorNotificationPanel extends EditorNotificationPanel{
     protected final JLabel label = new JLabel();
 
     public SessionBrowserErrorNotificationPanel(Project project, VirtualFile file, @NotNull FileEditor fileEditor, String error) {
         super(project, file, fileEditor, MessageType.ERROR);
         ConnectionHandler connection = getConnection();
-        setText("Could not load sessions for " + connection.getName() + ". Error details: " + error.replace("\n", " "));
+        setText(txt("ntf.sessions.error.CouldNotLoadSessions", connection.getName(), error.replace("\n", " ")));
     }
 }

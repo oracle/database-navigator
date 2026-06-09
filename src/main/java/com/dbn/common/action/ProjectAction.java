@@ -32,6 +32,10 @@ public abstract class ProjectAction extends BasicAction {
 
     public ProjectAction() {}
 
+    public ProjectAction(@Nullable @ActionText String text) {
+        super(text);
+    }
+
     public ProjectAction(@Nullable @ActionText String text, @Nullable @ActionDescription String description, @Nullable Icon icon) {
         super(text, description, icon);
     }

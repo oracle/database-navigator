@@ -52,6 +52,8 @@ import java.awt.Dimension;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MethodExecutionInputForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel argumentsPanel;
@@ -167,7 +169,7 @@ public class MethodExecutionInputForm extends DBNFormBase {
             Dimension minSize = new Dimension(-1, Math.min(argumentForms.size(), 10) * scrollUnitIncrement + 2);
             argumentsScrollPane.setMinimumSize(minSize);
             argumentsScrollPane.getVerticalScrollBar().setUnitIncrement(scrollUnitIncrement);
-            Accessibility.setAccessibleName(argumentsScrollPane, "Method arguments");
+            Accessibility.setAccessibleName(argumentsScrollPane, txt("app.execution.aria.MethodArguments"));
         }
 
         for (MethodExecutionInputArgumentForm argumentComponent : argumentForms){

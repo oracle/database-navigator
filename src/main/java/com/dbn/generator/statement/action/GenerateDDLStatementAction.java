@@ -65,18 +65,14 @@ public class GenerateDDLStatementAction extends GenerateStatementAction {
             DDLManager ddlManager = DDLManager.getInstance(project);
             String statement = ddlManager.extractDDL(object);
             if (Strings.isEmptyOrSpaces(statement)) {
-                String message =
-                        "Could not extract DDL statement for " + object.getQualifiedNameWithType() + ".\n" +
-                                "You may not have enough rights to perform this action. Please contact your database administrator for more details.";
+                String message = txt("msg.codeGenerator.error.CouldNotExtractDdlStatement", object.getQualifiedNameWithType());
                 result.getMessages().addErrorMessage(message);
             }
 
             result.setStatement(statement);
         } catch (SQLException e) {
             conditionallyLog(e);
-            result.getMessages().addErrorMessage(
-                    "Could not extract DDL statement for " + object.getQualifiedNameWithType() + ".\n" +
-                            "Cause: " + e.getMessage());
+            result.getMessages().addErrorMessage(txt("msg.codeGenerator.error.CouldNotExtractDdlStatementCause", object.getQualifiedNameWithType(), e));
         }
         return result;
     }

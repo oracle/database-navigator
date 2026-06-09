@@ -28,6 +28,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class CursorResultFindAction extends MethodExecutionCursorResultAction {
 
+    public CursorResultFindAction() {
+        super(txt("app.execution.action.MethodExecutionCursorResultFindData"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();

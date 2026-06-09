@@ -31,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Action for showcasing the rest of the chats
  */
@@ -66,6 +68,6 @@ public class ChatHistoryShowAllAction extends AbstractChatBoxAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Show all...");
+        presentation.setText(txt("app.assistant.action.ShowAllChats"));
     }
 }

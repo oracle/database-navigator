@@ -25,6 +25,8 @@ import com.dbn.language.common.psi.ExecutablePsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class StatementExecutionContext extends ExecutionContext<StatementExecutionInput> implements InterceptorContext {
     public StatementExecutionContext(StatementExecutionInput input) {
         super(input);
@@ -34,7 +36,7 @@ public class StatementExecutionContext extends ExecutionContext<StatementExecuti
     @Override
     public String getTargetName() {
         ExecutablePsiElement executablePsiElement = getInput().getExecutablePsiElement();
-        return Commons.nvl(executablePsiElement == null ? null : executablePsiElement.getPresentableText(), "Statement");
+        return Commons.nvl(executablePsiElement == null ? null : executablePsiElement.getPresentableText(), txt("app.execution.token.Statement"));
     }
 
     @Nullable

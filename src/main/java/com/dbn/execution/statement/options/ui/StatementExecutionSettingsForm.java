@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.nls.NlsResources.txt;
 
 public class StatementExecutionSettingsForm extends ConfigurationEditorForm<StatementExecutionSettings> {
     private JPanel mainPanel;
@@ -58,9 +59,9 @@ public class StatementExecutionSettingsForm extends ConfigurationEditorForm<Stat
     @Override
     public void applyFormChanges() throws ConfigurationException {
         StatementExecutionSettings configuration = getConfiguration();
-        configuration.setResultSetFetchBlockSize(ConfigurationEditors.validateIntegerValue(fetchBlockSizeTextField, "Fetch block size", true, 1, 10000, null));
-        int executionTimeout = ConfigurationEditors.validateIntegerValue(executionTimeoutTextField, "Execution timeout", true, 0, 6000, "\nUse value 0 for no timeout");
-        int debugExecutionTimeout = ConfigurationEditors.validateIntegerValue(debugExecutionTimeoutTextField, "Debug execution timeout", true, 0, 6000, "\nUse value 0 for no timeout");
+        configuration.setResultSetFetchBlockSize(ConfigurationEditors.validateIntegerValue(fetchBlockSizeTextField, txt("cfg.execution.field.FetchBlockSize"), true, 1, 10000, null));
+        int executionTimeout = ConfigurationEditors.validateIntegerValue(executionTimeoutTextField, txt("cfg.execution.field.ExecutionTimeout"), true, 0, 6000, txt("cfg.shared.hint.ZeroForNoTimeout"));
+        int debugExecutionTimeout = ConfigurationEditors.validateIntegerValue(debugExecutionTimeoutTextField, txt("cfg.execution.field.DebugExecutionTimeout"), true, 0, 6000, txt("cfg.shared.hint.ZeroForNoTimeout"));
 
         configuration.setFocusResult(focusResultCheckBox.isSelected());
         configuration.setPromptExecution(promptExecutionCheckBox.isSelected());

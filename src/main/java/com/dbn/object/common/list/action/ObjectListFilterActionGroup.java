@@ -23,6 +23,8 @@ import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectListFilterActionGroup extends DefaultActionGroup {
 
     public ObjectListFilterActionGroup(DBObjectList objectList) {
@@ -47,7 +49,7 @@ public class ObjectListFilterActionGroup extends DefaultActionGroup {
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        e.getPresentation().setText("Filters");
+        e.getPresentation().setText(txt("app.objects.action.Filters"));
         e.getPresentation().setPopupGroup(true);
     }
 }

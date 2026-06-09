@@ -28,6 +28,8 @@ import lombok.Getter;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class CmdLineInterfacesTableModel extends DBNEditableTableModel {
     private CmdLineInterfaceBundle bundle;
@@ -53,9 +55,9 @@ public class CmdLineInterfacesTableModel extends DBNEditableTableModel {
 
     @Override
     public String getColumnName(int columnIndex) {
-        return columnIndex == 0 ? "Database Type" :
-               columnIndex == 1 ? "Name" :
-               columnIndex == 2 ? "Executable Path" : null;
+        return columnIndex == 0 ? txt("cfg.execution.column.DatabaseType") :
+               columnIndex == 1 ? txt("app.shared.column.Name") :
+               columnIndex == 2 ? txt("cfg.execution.column.ExecutablePath") : null;
     }
 
     @Override
@@ -133,9 +135,9 @@ public class CmdLineInterfacesTableModel extends DBNEditableTableModel {
         for (CmdLineInterface cmdLineInterface : bundle.getInterfaces()) {
             String name = cmdLineInterface.getName();
             if (Strings.isEmpty(name)) {
-                throw new ConfigurationException("Please provide names for each Command-Line Interface.");
+                throw new ConfigurationException(txt("cfg.execution.error.CommandLineInterfaceNamesRequired"));
             } else if (names.contains(name)) {
-                throw new ConfigurationException("Please provide unique Command-Line Interface names.");
+                throw new ConfigurationException(txt("cfg.execution.error.CommandLineInterfaceNamesUnique"));
             } else {
                 names.add(name);
             }
@@ -143,7 +145,7 @@ public class CmdLineInterfacesTableModel extends DBNEditableTableModel {
 
         for (CmdLineInterface cmdLineInterface : bundle.getInterfaces()) {
             if (Strings.isEmpty(cmdLineInterface.getExecutablePath())) {
-                throw new ConfigurationException("Please provide executable paths for each Command-Line Interface.");
+                throw new ConfigurationException(txt("cfg.execution.error.CommandLineInterfaceExecutablePathsRequired"));
             }
         }
     }

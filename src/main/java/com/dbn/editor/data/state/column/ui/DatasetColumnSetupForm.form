@@ -26,7 +26,7 @@
         <properties>
           <labelFor value="b136c"/>
           <requestFocusEnabled value="true"/>
-          <text value="Column Position / Visibility"/>
+          <text resource-bundle="messages/DBNResources" key="app.data.label.ColumnPositionVisibility"/>
         </properties>
       </component>
       <scrollpane id="2d211" class="com.intellij.ui.components.JBScrollPane">

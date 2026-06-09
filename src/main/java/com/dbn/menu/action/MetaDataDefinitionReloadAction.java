@@ -23,7 +23,13 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MetaDataDefinitionReloadAction extends BasicAction {
+
+    public MetaDataDefinitionReloadAction() {
+        super(txt("app.menu.action.ReloadMetadataDefinitions"));
+    }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {

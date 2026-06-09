@@ -28,6 +28,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionsCopyAction extends ConnectionSettingsAction {
 
+    public ConnectionsCopyAction() {
+        super(txt("cfg.connection.action.CopyConnections"));
+    }
+
     @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,

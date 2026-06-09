@@ -42,6 +42,7 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.options.Configs.fail;
 import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -82,22 +83,22 @@ public class JavaDownloadInput extends BatchInputBase<JavaDownloadTask> {
 
     @NotNull
     public Module findModule() throws ConfigurationException {
-        if (isEmpty(moduleName)) fail("Target module not specified");
+        if (isEmpty(moduleName)) fail(txt("msg.java.error.TargetModuleMissing"));
 
         Module module = Modules.getModule(getProject(), moduleName);
-        if (module == null) fail("Target module not found");
+        if (module == null) fail(txt("msg.java.error.TargetModuleNotFound"));
 
         return nd(module);
     }
 
     @NotNull
     public VirtualFile findContentRoot(Module module) throws ConfigurationException {
-        if (isEmpty(contentRoot)) fail("Content root is not specified");
+        if (isEmpty(contentRoot)) fail(txt("msg.java.error.ContentRootMissing"));
 
         ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
         VirtualFile[] sourceRoots = moduleRootManager.getSourceRoots(true);
         VirtualFile contentRootFile = Arrays.stream(sourceRoots).filter(f -> f.getPath().equals(contentRoot)).findFirst().orElse(null);
-        if (contentRootFile == null) fail("Content root not found");
+        if (contentRootFile == null) fail(txt("msg.java.error.ContentRootNotFound"));
 
         return nd(contentRootFile);
     }
@@ -106,13 +107,13 @@ public class JavaDownloadInput extends BatchInputBase<JavaDownloadTask> {
     public PsiDirectory findContentRootDirectory(VirtualFile contentRootFile) throws ConfigurationException {
         PsiManager psiManager = PsiManager.getInstance(getProject());
         PsiDirectory contentRootDirectory = Read.call(() -> psiManager.findDirectory(contentRootFile));
-        if (contentRootDirectory == null) fail("Cannot find content root for " + contentRootFile.getPresentableUrl());
+        if (contentRootDirectory == null) fail(txt("msg.java.error.ContentRootDirectoryNotFound", contentRootFile.getPresentableUrl()));
         return contentRootDirectory;
     }
 
     public PsiDirectory findPackageDirectory(PsiDirectory directory, String packageName) throws ConfigurationException {
         if (isEmpty(packageName)) return directory;
-        if (!isValidPackageName(packageName)) fail("Package name is invalid");
+        if (!isValidPackageName(packageName)) fail(txt("msg.java.error.PackageNameInvalid"));
 
         String[] packageTokens = packageName.trim().split("\\.");
         for (String packageToken : packageTokens) {
@@ -136,4 +137,3 @@ public class JavaDownloadInput extends BatchInputBase<JavaDownloadTask> {
 
     }
 }
-

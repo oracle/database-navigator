@@ -18,14 +18,19 @@ package com.dbn.common.ui.table;
 
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.exception.OutdatedContentException;
-import com.dbn.nls.NlsSupport;
+import com.intellij.openapi.util.NlsContexts.ColumnName;
+import com.intellij.openapi.util.NlsContexts.Tooltip;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import javax.swing.table.TableModel;
 
-public interface DBNTableModel<R> extends TableModel, StatefulDisposable, NlsSupport {
+public interface DBNTableModel<R> extends TableModel, StatefulDisposable {
+    @Override
+    @ColumnName
+    String getColumnName(int columnIndex);
+
     default Object getValue(R rowObject, int column) {
         throw new UnsupportedOperationException();
     };
@@ -42,7 +47,7 @@ public interface DBNTableModel<R> extends TableModel, StatefulDisposable, NlsSup
     default Icon getIcon(R rowObject, int column) { return null; }
 
     @Nullable
-    default String getTooltip(R rowObject, int column) {
+    default @Tooltip String getTooltip(R rowObject, int column) {
         return null;
     }
 

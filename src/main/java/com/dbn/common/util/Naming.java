@@ -175,6 +175,7 @@ public class Naming {
      *         character groups.
      */
     public static String lowerCaseWords(String string) {
+        @NonNls
         String result = string
                 .replaceAll("[^a-zA-Z0-9]", " ")
                 .replaceAll("([a-z])([A-Z])", "$1 $2") // Lowercase to Uppercase

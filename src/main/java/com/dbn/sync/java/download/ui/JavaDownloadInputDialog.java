@@ -24,12 +24,14 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
     private final JavaDownloadBatch batch;
 
     public JavaDownloadInputDialog(JavaDownloadBatch batch) {
-        super(batch.getProject(), "Download Java Content", false);
+        super(batch.getProject(), txt("msg.java.title.DownloadJavaContent"), false);
         this.batch = batch;
         setDefaultSize(600, 600);
         init();
@@ -58,7 +60,7 @@ public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
 
     @Override
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Download");
+        renameAction(getOKAction(), txt("msg.shared.button.Download"));
         return actions(
                 getOKAction(),
                 getCancelAction());

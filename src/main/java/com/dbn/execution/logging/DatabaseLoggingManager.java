@@ -62,7 +62,7 @@ public class DatabaseLoggingManager extends ProjectComponentBase {
             conditionallyLog(e);
             log.warn("Error enabling database logging: {}", e.getMessage());
             String logName = getLogName(connection);
-            sendWarningNotification(LOGGING, txt("ntf.logging.error.FailedToEnableLogging", logName, e));
+            sendWarningNotification(LOGGING, txt("ntf.logging.warning.FailedToEnableLogging", logName, e));
             return false;
         }
     }
@@ -78,7 +78,7 @@ public class DatabaseLoggingManager extends ProjectComponentBase {
             conditionallyLog(e);
             log.warn("Error disabling database logging: {}", e.getMessage());
             String logName = getLogName(connection);
-            sendWarningNotification(LOGGING, txt("ntf.logging.error.FailedToDisableLogging", logName, e));
+            sendWarningNotification(LOGGING, txt("ntf.logging.warning.FailedToDisableLogging", logName, e));
         }
     }
 
@@ -90,7 +90,7 @@ public class DatabaseLoggingManager extends ProjectComponentBase {
             conditionallyLog(e);
             log.warn("Error reading database log output: {}", e.getMessage());
             String logName = getLogName(connection);
-            sendWarningNotification(LOGGING, txt("ntf.logging.error.FailedToLoadLogContent", logName, e));
+            sendWarningNotification(LOGGING, txt("ntf.logging.warning.FailedToLoadLogContent", logName, e));
         }
 
         return null;

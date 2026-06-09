@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Commons.array;
 import static com.dbn.help.HelpTopic.ASSISTANT_CONFIG;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)

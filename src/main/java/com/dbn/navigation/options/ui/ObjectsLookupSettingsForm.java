@@ -21,7 +21,6 @@ import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.list.CheckBoxList;
 import com.dbn.common.ui.util.Keyboard;
 import com.dbn.navigation.options.ObjectsLookupSettings;
-import com.dbn.nls.NlsResources;
 import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.options.ConfigurationException;
@@ -36,6 +35,7 @@ import javax.swing.border.TitledBorder;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectsLookupSettingsForm extends ConfigurationEditorForm<ObjectsLookupSettings> {
     private JPanel mainPanel;
@@ -92,8 +92,8 @@ public class ObjectsLookupSettingsForm extends ConfigurationEditorForm<ObjectsLo
     @Getter
     @AllArgsConstructor
     private enum ConnectionOption implements Presentable {
-        PROMPT(NlsResources.txt("cfg.lookup.const.ConnectionOption_PROMPT"), true),
-        RECENT(NlsResources.txt("cfg.lookup.const.ConnectionOption_RECENT"), false);
+        PROMPT(txt("cfg.lookup.const.ConnectionOption_PROMPT"), true),
+        RECENT(txt("cfg.lookup.const.ConnectionOption_RECENT"), false);
 
         private final String name;
         private final Boolean value;
@@ -102,8 +102,8 @@ public class ObjectsLookupSettingsForm extends ConfigurationEditorForm<ObjectsLo
     @Getter
     @AllArgsConstructor
     private enum BehaviorOption implements Presentable {
-        LOOKUP(NlsResources.txt("cfg.lookup.const.BehaviorOption_LOOKUP"), false),
-        LOAD(NlsResources.txt("cfg.lookup.const.BehaviorOption_LOAD"), true);
+        LOOKUP(txt("cfg.lookup.const.BehaviorOption_LOOKUP"), false),
+        LOAD(txt("cfg.lookup.const.BehaviorOption_LOAD"), true);
 
         private final String name;
         private final Boolean value;
