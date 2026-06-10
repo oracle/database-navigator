@@ -223,7 +223,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     @NotNull
     @Override
     public XDebugTabLayouter createTabLayouter() {
-        return new DBDebugTabLayouter(this, super.createTabLayouter());
+        return new DBDebugTabLayouter(super.createTabLayouter());
     }
 
     @Override
