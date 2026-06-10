@@ -23,19 +23,16 @@ import com.dbn.connection.ssh.SshAuthType;
 import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
+import com.dbn.credentials.TransientSecretStore;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.options.setting.Settings.getChars;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
-import static com.dbn.common.options.setting.Settings.setChars;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
-import static com.dbn.common.util.Base64.decode;
-import static com.dbn.common.util.Base64.encode;
 import static com.dbn.credentials.SecretType.DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE;
 import static com.dbn.credentials.SecretType.DEBUGGER_SSH_TUNNEL_PASSWORD;
 
@@ -71,10 +68,9 @@ public class ReverseSshTunnelConfiguration  extends BasicConfiguration <Connecti
         keyFile = getString(element, "key-file", keyFile);
 
         if (isTransientContext()) {
-            // only propagate password when config context is transient
-            // (avoid storing it in config xml)
-            password = decode(getChars(element, "transient-password", encode(password)));
-            keyPassphrase = decode(getChars(element, "transient-key-passphrase", encode(keyPassphrase)));
+            // transfer secrets outside transient config xml
+            password = TransientSecretStore.consume(password, getConnectionId(), DEBUGGER_SSH_TUNNEL_PASSWORD, user);
+            keyPassphrase = TransientSecretStore.consume(keyPassphrase, getConnectionId(), DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
         }
 
     }
@@ -91,10 +87,9 @@ public class ReverseSshTunnelConfiguration  extends BasicConfiguration <Connecti
         setString(element, "key-file", keyFile);
 
         if (isTransientContext()) {
-            // only propagate password when config context is transient
-            // (avoid storing it in config xml)
-            setChars(element, "transient-password", encode(password));
-            setChars(element, "transient-key-passphrase", encode(keyPassphrase));
+            // transfer secrets outside transient config xml
+            TransientSecretStore.store(password, getConnectionId(), DEBUGGER_SSH_TUNNEL_PASSWORD, user);
+            TransientSecretStore.store(keyPassphrase, getConnectionId(), DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
         }
     }
 

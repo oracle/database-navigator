@@ -16,7 +16,9 @@
 
 package com.dbn.debugger.common.process;
 
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.exception.Exceptions;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.common.thread.Dispatch;
@@ -62,8 +64,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.notification.NotificationCategory.DEBUGGER;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.debugger.DBDebugUtil.isToolwindowSplit;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.openapi.ui.DialogWrapper.OK_EXIT_CODE;
@@ -202,10 +206,8 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
 
         DBDebugProcessStarter processStarter = createProcessStarter(connection);
         try {
-            XDebuggerManager debuggerManager = XDebuggerManager.getInstance(project);
-            XDebugSession session = debuggerManager.startSession(environment, processStarter);
-
-            RunContentDescriptor descriptor = session.getRunContentDescriptor();
+            RunContentDescriptor descriptor = startSession(project, environment, processStarter);
+            if (descriptor == null) return;
 
             Executor executor = environment.getExecutor();
             // TODO check why this was conditional before (remove "always-true" condition)
@@ -216,15 +218,18 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
 
             ExecutionManager executionManager = ExecutionManager.getInstance(project);
             RunContentManager contentManager = executionManager.getContentManager();
-            contentManager.showRunContent(executor, descriptor);
+            // Split debugger shows the frontend tab itself; manually showing the returned descriptor exposes the backend mock tab.
+            if (!isToolwindowSplit()) {
+                contentManager.showRunContent(executor, descriptor);
 
-            ProcessHandler processHandler = descriptor.getProcessHandler();
-            if (processHandler == null) return;
-            if (!processHandler.isStartNotified()) processHandler.startNotify();
+                ProcessHandler processHandler = descriptor.getProcessHandler();
+                if (processHandler == null) return;
+                if (!processHandler.isStartNotified()) processHandler.startNotify();
 
-            ExecutionConsole executionConsole = descriptor.getExecutionConsole();
-            if (executionConsole instanceof ConsoleView consoleView) {
-                consoleView.attachToProcess(processHandler);
+                ExecutionConsole executionConsole = descriptor.getExecutionConsole();
+                if (executionConsole instanceof ConsoleView consoleView) {
+                    consoleView.attachToProcess(processHandler);
+                }
             }
 
         } catch (ExecutionException e) {
@@ -233,6 +238,75 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
                     txt("ntf.debugger.error.ErrorInitializingEnvironment", e));
         }
     }
+
+    @Nullable
+    @Compatibility
+    @SuppressWarnings("deprecation")
+    private RunContentDescriptor startSession(
+            Project project,
+            ExecutionEnvironment environment,
+            DBDebugProcessStarter starter) throws ExecutionException {
+
+        // Split debugger needs the builder/showTab path so XDebugger creates the real frontend descriptor.
+        return isToolwindowSplit() ?
+                startSplitSession(project, environment, starter) :
+                startLegacySession(project, environment, starter);
+    }
+
+    private static RunContentDescriptor startSplitSession(
+            Project project,
+            ExecutionEnvironment environment,
+            DBDebugProcessStarter starter) throws ExecutionException {
+
+/*            // workaround for new split-debugger api issue
+            XDebugSessionBuilder builder = debuggerManager.newSessionBuilder(processStarter);
+            builder.environment(environment);
+            builder.sessionName(environment.getRunProfile().getName());
+            builder.showTab(true);
+            RunContentDescriptor contentToReuse = environment.getContentToReuse();
+            if (contentToReuse != null) {
+                builder.contentToReuse(contentToReuse1);
+            }
+            XSessionStartedResult result = builder.startSession();
+            return result.getRunContentDescriptor();*/
+
+        Object sessionResult = null;
+        try {
+            XDebuggerManager debuggerManager = XDebuggerManager.getInstance(project);
+            Object sessionBuilder = invokeMethod(debuggerManager, "newSessionBuilder", starter);
+            invokeMethod(sessionBuilder, "environment", environment);
+            invokeMethod(sessionBuilder, "sessionName", environment.getRunProfile().getName());
+            RunContentDescriptor contentToReuse = environment.getContentToReuse();
+
+            if (contentToReuse != null) {
+                invokeMethod(sessionBuilder, "contentToReuse", contentToReuse);
+            }
+
+            invokeMethod(sessionBuilder, "showTab", true);
+            sessionResult = invokeMethod(sessionBuilder, "startSession");
+            return invokeMethod(sessionResult, "getRunContentDescriptor");
+        } catch (Throwable e) {
+            Throwable cause = Exceptions.unwrap(e);
+            if (cause instanceof ExecutionException executionException) throw executionException;
+            if (sessionResult != null) throw new ExecutionException(cause);
+
+            return startLegacySession(project, environment, starter);
+        }
+
+    }
+
+    @SuppressWarnings("deprecation")
+    @NotNull
+    private static RunContentDescriptor startLegacySession(
+            Project project,
+            ExecutionEnvironment environment,
+            DBDebugProcessStarter starter) throws ExecutionException {
+
+        XDebuggerManager debuggerManager = XDebuggerManager.getInstance(project);
+        XDebugSession session = debuggerManager.startSession(environment, starter);
+        return session.getRunContentDescriptor();
+    }
+
 /*
     public static  boolean isCloudDatabaseDefaultValue(ConnectionHandler conn)  {
         try{

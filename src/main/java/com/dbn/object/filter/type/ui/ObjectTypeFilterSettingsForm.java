@@ -70,16 +70,19 @@ public class ObjectTypeFilterSettingsForm extends ConfigurationEditorForm<Object
         boolean useMasterSettings = masterSettings != null && useMasterSettingsCheckBox.isSelected();
 
         boolean enabled = isEnabled();
+        visibleObjectsList.setEnabled(enabled);
         visibleObjectsList.setBackground(enabled ? Colors.getTextFieldBackground() : UIUtil.getComboBoxDisabledBackground());
         visibleObjectsList.setElements(useMasterSettings ?
                 masterSettings.getSettings() :
                 configuration.getSettings());
-        visibleObjectsList.setEnabled(enabled);
     }
 
     private boolean isEnabled() {
         boolean masterSettingsAvailable = getConfiguration().getMasterSettings() != null;
-        return !masterSettingsAvailable || !useMasterSettingsCheckBox.isSelected();
+        if (!masterSettingsAvailable) return true;
+        if (useMasterSettingsCheckBox.isSelected()) return false;
+
+        return true;
     }
 
 

@@ -196,6 +196,38 @@ public class QuotePairTest {
     }
 
     @Test
+    public void unquoteComposite() {
+        // Arrange
+        QuotePair simpleQuotePair = new QuotePair('"', '"');
+        QuotePair backTickPair = new QuotePair('`', '`');
+        QuotePair squareBracketPair = new QuotePair('[', ']');
+
+        // Act & Assert
+        assertEquals("HR.COUNTRIES", simpleQuotePair.unquoteComposite("\"HR\".\"COUNTRIES\""));
+        assertEquals("HR.COUNTRIES", simpleQuotePair.unquoteComposite("\"HR\".COUNTRIES"));
+        assertEquals("HR.COUNTRIES", simpleQuotePair.unquoteComposite("HR.\"COUNTRIES\""));
+        assertEquals("HR.COUNTRIES", backTickPair.unquoteComposite("`HR`.`COUNTRIES`"));
+        assertEquals("HR.COUNTRIES", squareBracketPair.unquoteComposite("[HR].[COUNTRIES]"));
+        assertEquals("HR.COUNTRIES", simpleQuotePair.unquoteComposite("HR.COUNTRIES"));
+        assertEquals("HR.ADMIN.COUNTRIES", simpleQuotePair.unquoteComposite("\"HR.ADMIN\".\"COUNTRIES\""));
+        assertEquals("HR.ADMIN.COUNTRIES", backTickPair.unquoteComposite("`HR.ADMIN`.`COUNTRIES`"));
+        assertEquals("HR.ADMIN.COUNTRIES", squareBracketPair.unquoteComposite("[HR.ADMIN].[COUNTRIES]"));
+    }
+
+    @Test
+    public void unquoteCompositeWithDatabaseEscaping() {
+        // Arrange
+        QuotePair simpleQuotePair = new QuotePair('"', '"');
+        QuotePair backTickPair = new QuotePair('`', '`');
+        QuotePair squareBracketPair = new QuotePair('[', ']');
+
+        // Act & Assert
+        assertEquals("HR\"ADMIN.COUNTRIES", simpleQuotePair.unquoteComposite("\"HR\"\"ADMIN\".\"COUNTRIES\"", DATABASE));
+        assertEquals("HR`ADMIN.COUNTRIES", backTickPair.unquoteComposite("`HR``ADMIN`.`COUNTRIES`", DATABASE));
+        assertEquals("HR]ADMIN.COUNTRIES", squareBracketPair.unquoteComposite("[HR]]ADMIN].[COUNTRIES]", DATABASE));
+    }
+
+    @Test
     public void edgeCases() {
         // Arrange
         QuotePair backTickPair = new QuotePair('`', '`');

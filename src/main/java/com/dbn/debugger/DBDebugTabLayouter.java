@@ -17,18 +17,38 @@
 package com.dbn.debugger;
 
 import com.intellij.debugger.ui.DebuggerContentInfo;
+import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.execution.ui.RunnerLayoutUi;
 import com.intellij.execution.ui.layout.LayoutViewOptions;
 import com.intellij.ui.content.Content;
+import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.ui.XDebugTabLayouter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.debugger.DBDebugUtil.isToolwindowSplit;
 
 public class DBDebugTabLayouter extends XDebugTabLayouter {
+    private final XDebugProcess debugProcess;
+    private final XDebugTabLayouter delegate;
+
+    public DBDebugTabLayouter(@NotNull XDebugProcess debugProcess) {
+        this(debugProcess, null);
+    }
+
+    public DBDebugTabLayouter(@NotNull XDebugProcess debugProcess, @Nullable XDebugTabLayouter delegate) {
+        this.debugProcess = debugProcess;
+        this.delegate = delegate;
+    }
+
     @NotNull
     @Override
     public Content registerConsoleContent(@NotNull RunnerLayoutUi ui, @NotNull ExecutionConsole console) {
-        Content consoleContent = super.registerConsoleContent(ui, console);
+        Content consoleContent = delegate == null ?
+                super.registerConsoleContent(ui, console) :
+                delegate.registerConsoleContent(ui, console);
+
         ui.getDefaults().initContentAttraction(DebuggerContentInfo.FRAME_CONTENT, LayoutViewOptions.STARTUP);
         return consoleContent;
 /*
@@ -42,4 +62,18 @@ public class DBDebugTabLayouter extends XDebugTabLayouter {
         return content;
 */
     }
+
+    @Override
+    public void registerAdditionalContent(@NotNull RunnerLayoutUi ui) {
+        // Split debugger currently forwards only additional-content layout events, not registerConsoleContent().
+        if (isToolwindowSplit()) {
+            ConsoleView console = debugProcess.getSession().getConsoleView();
+            registerConsoleContent(ui, console == null ? debugProcess.createConsole() : console);
+        }
+
+        if (delegate != null) {
+            delegate.registerAdditionalContent(ui);
+        }
+    }
+
 }

@@ -380,6 +380,10 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
             objects.add(selectedObject);
         }
 
+        if (objects.isEmpty()) {
+            objects.add(sourceObject);
+        }
+
         return objects.toArray(new DBObject[0]);
     }
 
