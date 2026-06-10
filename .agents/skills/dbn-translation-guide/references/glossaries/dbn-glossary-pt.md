@@ -12,6 +12,7 @@ Canonical terminology decisions for Portuguese DBN translation work. Keep this f
 | auto-commit | confirmação automática | No | Transaction mode notifications and settings. |
 | breakpoint | ponto de interrupção | No | Debugger progress and console output. |
 | category | categoria | No | Tool categories, filter categories. |
+| chunking | chunking | Yes | Vector text segmentation before embedding; Portuguese UI keeps chunk/chunks/chunking. |
 | cloud service credential | credencial de serviço em nuvem | No | Credential tooltips and setup text. |
 | command-line interface | interface de linha de comando | No | Execution client settings. |
 | compile | compilar | No | Code editor/compiler actions. |
@@ -24,6 +25,7 @@ Canonical terminology decisions for Portuguese DBN translation work. Keep this f
 | data dictionary | dicionário de dados | No | Oracle metadata loading progress. |
 | data grid | grade de dados | No | Data editor grid UI. |
 | data model | modelo de dados | No | AI profile metadata context. |
+| data source | origem de dados | No | Vector embedding source configuration. |
 | data type | tipo de dados | No | Generic SQL/data editor types. |
 | database link | link de banco de dados | Yes, partial | Oracle DB link object. |
 | database object | objeto de banco de dados | No | Tables, views, and related DB objects. |
@@ -32,6 +34,7 @@ Canonical terminology decisions for Portuguese DBN translation work. Keep this f
 | diagnostics | diagnóstico | No | Diagnostics tool windows and parser checks. |
 | dimension | dimensão | No | Database dimension object. |
 | distance metric | métrica de distância | No | Vector search similarity/distance. |
+| DDL file | arquivo DDL | Yes, partial | Keep DDL literal; translate file/file settings naturally. |
 | driver | driver | Yes | JDBC driver and driver libraries. |
 | editor | editor | No | Code and browser editor settings. |
 | embedding | embedding | Yes | Vector embedding table and vector search terms. |
@@ -42,6 +45,7 @@ Canonical terminology decisions for Portuguese DBN translation work. Keep this f
 | execution wrapper | wrapper de execução | Yes, partial | Generated wrappers for method execution. |
 | fetch | buscar | No | Result-set/data loading operations. |
 | fingerprint | impressão digital | No | OCI/API key fingerprint. |
+| file name pattern | padrão de nome de arquivo | No | DDL file pattern settings and validation errors. |
 | format / formatting | formato / formatação | No | Code style formatting. |
 | function | função | No | Database function object. |
 | grant | conceder privilégios | No | Database privileges. |
@@ -50,7 +54,8 @@ Canonical terminology decisions for Portuguese DBN translation work. Keep this f
 | keyword | palavra-chave | No | SQL/code keyword highlighting. |
 | language model | modelo de linguagem | No | LLM references in prose. |
 | LLM | LLM | Yes | Standard abbreviation. |
-| materialized view | visão materializada | No | Database object type. |
+| lookup | busca / procurar | No | Use `busca` as a noun and `procurar` for command-style actions. |
+| materialized view | view materializada | Yes, partial | Database object type; Portuguese DB UI keeps `view`. |
 | Maven | Maven | Yes | Build/runtime tool name. |
 | MCP | MCP | Yes | Protocol/server name. |
 | metadata | metadados | No | Dataset/profile descriptions. |
@@ -61,6 +66,7 @@ Canonical terminology decisions for Portuguese DBN translation work. Keep this f
 | ONNX | ONNX | Yes | Model format acronym. |
 | Oracle Select AI / Select AI | Oracle Select AI / Select AI | Yes | Oracle feature name. |
 | password manager | gerenciador de senhas | No | Credential storage. |
+| path separator | separador de caminho | No | File/path validation messages. |
 | prerequisite | pré-requisito | No | Setup/feature prerequisite checks. |
 | private key | chave privada | No | OCI/API authentication. |
 | profile | perfil | No | Assistant profile, OCI config profile. |
@@ -79,6 +85,7 @@ Canonical terminology decisions for Portuguese DBN translation work. Keep this f
 | secret | segredo | No | Authentication secret value. |
 | semantic search | pesquisa semântica | No | RAG/vector retrieval. |
 | service principal | Service Principal | Yes | Azure authentication term in existing bundle. |
+| source | origem | No | Data/vector sources. Use `código-fonte` only for source code. |
 | SQL statement | instrução SQL | Yes, partial | SQL command/statement UI text. |
 | SSH tunnel | túnel SSH | Yes, partial | Keep SSH literal, translate tunnel. |
 | SSL | SSL | Yes | Protocol abbreviation. |
@@ -95,7 +102,8 @@ Canonical terminology decisions for Portuguese DBN translation work. Keep this f
 | transaction rollback | reversão | No | Database transaction command. |
 | trigger | trigger | Yes | Database trigger object in existing bundle. |
 | user | usuário | No | DB/OCI user. |
-| view | visão | No | Database view. |
+| vector / vector embedding | vetor / embedding vetorial | Yes, partial | Use Portuguese `vetor/vetorial`; keep `embedding` in vector embedding feature text. |
+| view | view | Yes | Database view object in Portuguese DB terminology. |
 | Wallet | Wallet | Yes | Oracle Wallet product/configuration term. |
+| wildcard | curinga | No | DDL file name pattern validation. |
 | workspace | espaço de trabalho | No | IDE workspace. |
-
