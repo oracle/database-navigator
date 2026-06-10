@@ -98,8 +98,8 @@ public abstract class SystemPrivilegePrerequisite extends PrerequisiteDefinition
             String userName = context.getUserName();
 
             return new PrerequisiteAdvice(
-                    "Request privilege",
-                    privilegeName + " system privilege",
+                    txt("msg.prerequisite.title.RequestPrivilege"),
+                    txt("msg.prerequisite.text.AdviceSystemPrivilege", privilegeName),
                     String.format("grant %s to %s;", privilegeName, userName));
         };
     }

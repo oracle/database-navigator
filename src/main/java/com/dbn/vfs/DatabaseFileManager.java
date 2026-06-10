@@ -302,7 +302,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
             DBObject object = objectRef.get();
             if (object == null) continue;
 
-            progress.setText2(connection.getName() + " - " + objectRef.getQualifiedNameWithType());
+            progress.setText2(txt("prc.workspace.text.RestoringDatabaseEditor", connection.getName(), objectRef.getQualifiedNameWithType()));
             if (object instanceof DBConsole console) {
                 editorManager.openDatabaseConsole(console, false, false);
             } else {

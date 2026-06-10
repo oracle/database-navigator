@@ -17,11 +17,18 @@
 package com.dbn.ml.backend.dbms;
 
 import com.dbn.ml.model.MLTaskType;
+import com.dbn.ml.model.trainer.MLTrainerType;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.dbn.ml.model.MLTaskType.CLASSIFICATION;
+import static com.dbn.ml.model.MLTaskType.REGRESSION;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Oracle DBMS_DATA_MINING algorithm types.
@@ -35,93 +42,93 @@ public enum DBMSAlgorithmType {
     // ==================== Classification Algorithms ====================
 
     DECISION_TREE(
-            MLTaskType.CLASSIFICATION,
-            "Decision Tree",
             "ALGO_DECISION_TREE",
-            "Builds a tree of binary splits on attribute values"
+            CLASSIFICATION,
+            txt("app.machineLearning.const.DBMSAlgorithmType_DECISION_TREE"),
+            txt("app.machineLearning.text.DBMSAlgorithmType_DECISION_TREE")
     ),
 
     NAIVE_BAYES(
-            MLTaskType.CLASSIFICATION,
-            "Naive Bayes",
             "ALGO_NAIVE_BAYES",
-            "Probabilistic classifier based on Bayes theorem with feature independence assumption"
+            CLASSIFICATION,
+            txt("app.machineLearning.const.DBMSAlgorithmType_NAIVE_BAYES"),
+            txt("app.machineLearning.text.DBMSAlgorithmType_NAIVE_BAYES")
     ),
 
     RANDOM_FOREST(
-            MLTaskType.CLASSIFICATION,
-            "Random Forest",
             "ALGO_RANDOM_FOREST",
-            "Ensemble of decision trees trained on random subsets of data and features"
+            CLASSIFICATION,
+            txt("app.machineLearning.const.DBMSAlgorithmType_RANDOM_FOREST"),
+            txt("app.machineLearning.text.DBMSAlgorithmType_RANDOM_FOREST")
     ),
 
     SVM_CLASSIFICATION(
-            MLTaskType.CLASSIFICATION,
-            "Support Vector Machine",
             "ALGO_SUPPORT_VECTOR_MACHINES",
-            "Finds the optimal hyperplane to separate classes in high-dimensional space"
+            CLASSIFICATION,
+            txt("app.machineLearning.const.DBMSAlgorithmType_SVM_CLASSIFICATION"),
+            txt("app.machineLearning.text.DBMSAlgorithmType_SVM_CLASSIFICATION")
     ),
 
     LOGISTIC_REGRESSION(
-            MLTaskType.CLASSIFICATION,
-            "Logistic Regression",
             "ALGO_GENERALIZED_LINEAR_MODEL",
-            "Generalized Linear Model that models class membership probability"
+            CLASSIFICATION,
+            txt("app.machineLearning.const.DBMSAlgorithmType_LOGISTIC_REGRESSION"),
+            txt("app.machineLearning.text.DBMSAlgorithmType_LOGISTIC_REGRESSION")
     ),
 
     NEURAL_NETWORK_CLASSIFICATION(
-            MLTaskType.CLASSIFICATION,
-            "Neural Network",
             "ALGO_NEURAL_NETWORK",
-            "Multi-layer perceptron for non-linear classification via backpropagation"
+            CLASSIFICATION,
+            txt("app.machineLearning.const.DBMSAlgorithmType_NEURAL_NETWORK_CLASSIFICATION"),
+            txt("app.machineLearning.text.DBMSAlgorithmType_NEURAL_NETWORK_CLASSIFICATION")
     ),
 
     XGBOOST_CLASSIFICATION(
-            MLTaskType.CLASSIFICATION,
-            "XGBoost",
             "ALGO_XGBOOST",
-            "Extreme Gradient Boosting — sequential ensemble of trees with high accuracy on structured data"
+            CLASSIFICATION,
+            txt("app.machineLearning.const.DBMSAlgorithmType_XGBOOST_CLASSIFICATION"),
+            txt("app.machineLearning.text.DBMSAlgorithmType_XGBOOST_CLASSIFICATION")
     ),
 
     // ==================== Regression Algorithms ====================
 
     LINEAR_REGRESSION(
-            MLTaskType.REGRESSION,
-            "Linear Regression",
             "ALGO_GENERALIZED_LINEAR_MODEL",
-            "Generalized Linear Model for numeric target prediction"
+            REGRESSION,
+            txt("app.machineLearning.const.DBMSAlgorithmType_LINEAR_REGRESSION"),
+            txt("app.machineLearning.text.DBMSAlgorithmType_LINEAR_REGRESSION")
     ),
 
     SVM_REGRESSION(
-            MLTaskType.REGRESSION,
-            "SVM Regression",
             "ALGO_SUPPORT_VECTOR_MACHINES",
-            "Support Vector Machine using epsilon-insensitive loss for numeric prediction"
+            REGRESSION,
+            txt("app.machineLearning.const.DBMSAlgorithmType_SVM_REGRESSION"),
+            txt("app.machineLearning.text.DBMSAlgorithmType_SVM_REGRESSION")
     ),
 
     NEURAL_NETWORK_REGRESSION(
-            MLTaskType.REGRESSION,
-            "Neural Network Regression",
             "ALGO_NEURAL_NETWORK",
-            "Multi-layer perceptron trained to predict continuous numeric values"
+            REGRESSION,
+            txt("app.machineLearning.const.DBMSAlgorithmType_NEURAL_NETWORK_REGRESSION"),
+            txt("app.machineLearning.text.DBMSAlgorithmType_NEURAL_NETWORK_REGRESSION")
     ),
 
     XGBOOST_REGRESSION(
-            MLTaskType.REGRESSION,
-            "XGBoost Regression",
             "ALGO_XGBOOST",
-            "Extreme Gradient Boosting for numeric prediction with high predictive accuracy"
+            REGRESSION,
+            txt("app.machineLearning.const.DBMSAlgorithmType_XGBOOST_REGRESSION"),
+            txt("app.machineLearning.text.DBMSAlgorithmType_XGBOOST_REGRESSION")
     );
 
     private final MLTaskType taskType;
-    private final String displayName;
-    private final String oracleAlgorithmName;
-    private final String description;
+    private final @NonNls String id;
+    private final @Nls String displayName;
+    private final @Nls String description;
 
-    DBMSAlgorithmType(MLTaskType taskType, String displayName, String oracleAlgorithmName, String description) {
+    DBMSAlgorithmType(@NonNls String id, MLTaskType taskType, @Nls String displayName, @Nls String description) {
+        this.id = id;
         this.taskType = taskType;
         this.displayName = displayName;
-        this.oracleAlgorithmName = oracleAlgorithmName;
         this.description = description;
     }
 
@@ -137,22 +144,38 @@ public enum DBMSAlgorithmType {
     /**
      * Returns the Oracle mining function name for this task type.
      */
-    public static String getMiningFunction(MLTaskType taskType) {
+    public static @NonNls String getMiningFunction(MLTaskType taskType) {
         return switch (taskType) {
             case CLASSIFICATION -> "CLASSIFICATION";
             case REGRESSION -> "REGRESSION";
         };
     }
 
+    public static DBMSAlgorithmType fromTrainerType(MLTrainerType trainerType) {
+        return switch (trainerType) {
+            case LOGISTIC_REGRESSION -> LOGISTIC_REGRESSION;
+            case SVM_CLASSIFICATION -> SVM_CLASSIFICATION;
+            case DECISION_TREE -> DECISION_TREE;
+            case NAIVE_BAYES -> NAIVE_BAYES;
+            case RANDOM_FOREST -> RANDOM_FOREST;
+            case NEURAL_NETWORK_CLASSIFICATION -> NEURAL_NETWORK_CLASSIFICATION;
+            case XGBOOST_CLASSIFICATION -> XGBOOST_CLASSIFICATION;
+            case LINEAR_REGRESSION -> LINEAR_REGRESSION;
+            case SVM_REGRESSION -> SVM_REGRESSION;
+            case NEURAL_NETWORK_REGRESSION -> NEURAL_NETWORK_REGRESSION;
+            case XGBOOST_REGRESSION -> XGBOOST_REGRESSION;
+        };
+    }
+
     /**
      * Finds algorithm by display name.
      */
-    public static DBMSAlgorithmType fromDisplayName(String displayName) {
+    public static DBMSAlgorithmType fromDisplayName(@Nls String displayName) {
         for (DBMSAlgorithmType type : values()) {
             if (type.getDisplayName().equalsIgnoreCase(displayName)) {
                 return type;
             }
         }
-        throw new IllegalArgumentException("Unknown DBMS algorithm: " + displayName);
+        throw new IllegalArgumentException(txt("msg.machineLearning.exception.UnknownDBMSAlgorithm", displayName));
     }
 }

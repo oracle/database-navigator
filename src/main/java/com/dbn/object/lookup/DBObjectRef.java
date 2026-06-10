@@ -29,7 +29,6 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.connection.context.DatabaseContextBase;
-import com.dbn.nls.NlsResources;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBSynonym;
 import com.dbn.object.common.DBObject;
@@ -60,6 +59,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.ANY;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 import static com.dbn.object.type.DBObjectType.JAVA_INNER_CLASS;
@@ -369,7 +369,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     
 
     public String getQualifiedNameWithType() {
-        return NlsResources.txt("app.object.label.QualifiedNameWithType", objectType.getName(), getPath());
+        return txt("app.object.label.QualifiedNameWithType", objectType.getName(), getPath());
     }
 
     @Nullable

@@ -22,11 +22,12 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.icons.AllIcons.Actions.Resume;
 
 public class BatchMonitorResumeAction extends AbstractBatchMonitorAction{
     public BatchMonitorResumeAction() {
-        super("Resume", null, Resume);
+        super(txt("app.batch.action.Resume"), null, Resume);
     }
 
     @Override

@@ -18,6 +18,10 @@ package com.dbn.credentials;
 
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Secret type classification used to uniquely identify secret tokens stored in {@link com.intellij.ide.passwordSafe.PasswordSafe}
@@ -34,9 +38,20 @@ public enum SecretType implements Presentable {
     GENERIC_CREDENTIAL("Generic credential"),                                         // e.g. database assistant credential tokens
     ;
 
-    SecretType(String name) {
-        this.name = name;
+    SecretType(@NonNls String serviceName) {
+        this.serviceName = serviceName;
     }
 
-    private final String name;
+    private transient @Nls String name;
+    private final @NonNls String serviceName;
+
+    @Override
+    public @Nls String getName() {
+        String name = this.name;
+        if (name == null) {
+            name = txt("app.credentials.const.SecretType_" + name());
+            this.name = name;
+        }
+        return name;
+    }
 }

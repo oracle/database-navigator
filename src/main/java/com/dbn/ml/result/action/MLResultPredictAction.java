@@ -29,6 +29,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Action for ad-hoc prediction using a trained DBMS model.
  * Shows a dialog to enter feature values and displays the prediction.
@@ -43,7 +45,7 @@ public class MLResultPredictAction extends AbstractMLExecutionResultAction {
 
         List<String> featureColumns = result.getFeatureColumns();
         if (featureColumns == null || featureColumns.isEmpty()) {
-            Messages.showWarningDialog(project, "No feature columns found for this model.", "Cannot Predict");
+            Messages.showWarningDialog(project, txt("msg.machineLearning.title.CannotPredict"), txt("msg.machineLearning.error.NoFeatureColumns"));
             return;
         }
 
@@ -54,7 +56,7 @@ public class MLResultPredictAction extends AbstractMLExecutionResultAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable MLExecutionResult target) {
-        presentation.setText("Predict");
+        presentation.setText(txt("app.machineLearning.action.Predict"));
         presentation.setIcon(Icons.ACTION_EXECUTE);
 
         presentation.setVisible(target != null);

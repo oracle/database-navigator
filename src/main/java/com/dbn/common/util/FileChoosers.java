@@ -17,6 +17,7 @@
 package com.dbn.common.util;
 
 import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.compatibility.Workaround;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -25,8 +26,11 @@ import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.openapi.util.NlsContexts.Label;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.common.Reflection.invokeMethod;
 
 
 /**
@@ -36,56 +40,94 @@ import org.jetbrains.annotations.Nullable;
  */
 @UtilityClass
 public class FileChoosers {
-    @Compatibility
+    public static boolean nativeFileChoosers = true;
+
     public static FileChooserDescriptor addSingleFileChooser(
             @Nullable Project project,
             @NotNull TextFieldWithBrowseButton field,
             @Nullable @DialogTitle String title,
             @Nullable @Label String description) {
-
-        FileChooserDescriptor descriptor = singleFile();
-        field.addBrowseFolderListener(title, description, project, descriptor);
-        return descriptor;
+        return addFileChooser(project, field, singleFile(), title, description);
     }
 
-    @Compatibility
     public static FileChooserDescriptor addSingleFolderChooser(
             @Nullable Project project,
             @NotNull TextFieldWithBrowseButton field,
             @Nullable @DialogTitle String title,
             @Nullable @Label String description) {
+        return addFileChooser(project, field, singleFolder(), title, description);
+    }
 
-        FileChooserDescriptor descriptor = singleFolder();
-        field.addBrowseFolderListener(title, description, project, descriptor);
+    public static FileChooserDescriptor addFileChooser(
+            @Nullable Project project,
+            @NotNull TextFieldWithBrowseButton field,
+            @NotNull FileChooserDescriptor descriptor,
+            @Nullable @DialogTitle String title,
+            @Nullable @Label String description) {
+        descriptor = descriptor
+                .withTitle(title)
+                .withDescription(description);
+        addFileChooser(project, field, descriptor);
         return descriptor;
     }
 
+    @Compatibility
+    public static FileChooserDescriptor addFileChooser(
+            @Nullable Project project,
+            @NotNull TextFieldWithBrowseButton field,
+            @NotNull FileChooserDescriptor descriptor) {
+        //field.addBrowseFolderListener(project, descriptor);
+        field.addBrowseFolderListener(
+                descriptor.getTitle(),
+                descriptor.getDescription(),
+                project,
+                descriptor);
+        return descriptor;
+    }
+
+
     public static FileChooserDescriptor singleFile() {
-        return new FileChooserDescriptor(true, false, false, false, false, false).withShowHiddenFiles(true);
+        return adjustFileChooser(new FileChooserDescriptor(true, false, false, false, false, false).withShowHiddenFiles(true));
     }
 
     public static FileChooserDescriptor singleFolder() {
-        return new FileChooserDescriptor(false, true, false, false, false, false).withShowHiddenFiles(true);
+        return adjustFileChooser(new FileChooserDescriptor(false, true, false, false, false, false));
+    }
+
+    public static FileChooserDescriptor singleFolderOrJar() {
+        return adjustFileChooser(new FileChooserDescriptor(false, true, true, true, false, false));
     }
 
     public static FileChooserDescriptor singleFileOrFolder() {
-        return new FileChooserDescriptor(true, true, false, false, false, false).withShowHiddenFiles(true);
+        return adjustFileChooser(new FileChooserDescriptor(true, true, false, false, false, false));
     }
 
     public static FileChooserDescriptor multipleFiles() {
-        return new FileChooserDescriptor(true, true, false, false, false, true).withShowHiddenFiles(true);
+        return adjustFileChooser(new FileChooserDescriptor(true, true, false, false, false, true));
     }
 
+
+    @Deprecated
+    @Workaround // TODO plain file-filters do not narrow down the options in the native mac file-chooser
     public static Condition<? super VirtualFile> extensionFilter(String extension) {
         return (Condition<VirtualFile>) file -> Strings.equalsIgnoreCase(file.getExtension(), extension);
     }
 
-    public static Condition<? super VirtualFile> extensionFilter(String ... extensions) {
-        return (Condition<VirtualFile>) file -> {
-            for (String extension : extensions) {
-                if (Strings.equalsIgnoreCase(file.getExtension(), extension)) return true;
-            }
-            return false;
-        };
+    private static FileChooserDescriptor adjustFileChooser(FileChooserDescriptor descriptor) {
+        descriptor.setForcedToUseIdeaFileChooser(!nativeFileChoosers);
+        return descriptor;
+    }
+
+    @Compatibility
+    public static FileChooserDescriptor withExtensionFilter(FileChooserDescriptor descriptor, @NonNls String extension) {
+        //return descriptor.withExtensionFilter(extension);
+        // TODO decommission after discontinuing support for 2023.x and 2024.2 IDE versions
+        try {
+            invokeMethod(descriptor, "withExtensionFilter", extension);
+        } catch (Throwable e) {
+            descriptor.withFileFilter(extensionFilter(extension));
+        }
+
+        return descriptor;
     }
 }

@@ -20,10 +20,17 @@ import com.dbn.common.util.Titled;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.jdom.Element;
+
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.readCdata;
+import static com.dbn.common.options.setting.Settings.writeCdata;
 
 @Getter
+@NoArgsConstructor
 public class TitledMessage extends Message implements Titled {
-    private final String title;
+    private String title;
 
     public TitledMessage(
             MessageType type,
@@ -31,5 +38,23 @@ public class TitledMessage extends Message implements Titled {
             @DialogMessage String text) {
         super(type, text);
         this.title = title;
+    }
+
+    @Override
+    public void readState(Element element) {
+        if (element == null) return;
+        super.readState(element);
+
+        Element titleElement = element.getChild("title");
+        title = readCdata(titleElement);
+    }
+
+    @Override
+    public void writeState(Element element) {
+        if (element == null) return;
+        super.writeState(element);
+
+        Element titleElement = newElement(element, "title");
+        writeCdata(titleElement, title);
     }
 }

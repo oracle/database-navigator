@@ -35,6 +35,10 @@ import static com.dbn.nls.NlsResources.txt;
  * @author Dan Cioca (Oracle)
  */
 public class ProfileDefaultAction extends ProfileManagementAction {
+    public ProfileDefaultAction() {
+        super(txt("app.assistant.action.AssistantMarkAsDefault"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ProfileManagementForm managementForm = getManagementForm(e);

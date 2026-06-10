@@ -37,7 +37,7 @@
         </constraints>
         <properties>
           <horizontalTextPosition value="11"/>
-          <text value="Disable project DDL file lookup for this connection"/>
+          <text resource-bundle="messages/DBNResources" key="app.ddlFiles.label.DisableLookupForConnection"/>
         </properties>
       </component>
       <grid id="2d661" binding="hintPanel" layout-manager="BorderLayout" hgap="0" vgap="0">

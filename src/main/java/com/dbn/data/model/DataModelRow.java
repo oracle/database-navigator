@@ -18,6 +18,7 @@ package com.dbn.data.model;
 
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.dispose.UnlistedDisposable;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,10 +32,10 @@ public interface DataModelRow<
     List<C> getCells();
 
     @Nullable
-    C getCell(String columnName);
+    C getCell(@NonNls String columnName);
 
     @Nullable
-    Object getCellValue(String columnName);
+    Object getCellValue(@NonNls String columnName);
 
     @Nullable
     C getCellAtIndex(int index);

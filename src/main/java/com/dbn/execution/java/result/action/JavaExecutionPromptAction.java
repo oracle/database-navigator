@@ -28,7 +28,13 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class JavaExecutionPromptAction extends AbstractJavaExecutionResultAction {
+
+    public JavaExecutionPromptAction() {
+        super(txt("app.execution.action.JavaExecutionResultOpenExecutionDialog"));
+    }
 
     @Override
     protected void actionPerformed(
@@ -53,7 +59,7 @@ public class JavaExecutionPromptAction extends AbstractJavaExecutionResultAction
                 target.getExecutionContext().isNot(ExecutionStatus.EXECUTING);
 
         presentation.setEnabled(enabled);
-        presentation.setText("Open Execution Dialog");
+        presentation.setText(txt("app.execution.action.OpenExecutionDialog"));
         presentation.setIcon(Icons.METHOD_EXECUTION_DIALOG);
     }
 }

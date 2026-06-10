@@ -64,6 +64,8 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class VirtualConnectionHandler extends StatefulDisposableBase implements ConnectionHandler {
+    private static final @NonNls String ROOT_USER = "root";
+
     private final ConnectionId id;
     private final String name;
     private final DatabaseType databaseType;
@@ -154,12 +156,12 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
 
     @Override
     public String getQualifiedName() {
-        return "virtual " + ConnectionHandler.super.getQualifiedName();
+        return txt("app.connection.text.VirtualQualifiedName", ConnectionHandler.super.getQualifiedName());
     }
 
     @Override
     public String getDescription() {
-        return "Virtual database connection";
+        return txt("app.connection.text.VirtualDatabaseConnection");
     }
 
     @Override
@@ -220,7 +222,7 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
 
     @Override
     public String getUserName() {
-        return "root";
+        return ROOT_USER;
     }
 
     @Override

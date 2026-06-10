@@ -31,6 +31,8 @@ import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class TnsNamesImportDialog extends DBNDialog<TnsNamesImportForm> {
     private final TnsImportData importData = new TnsImportData();
@@ -40,7 +42,7 @@ public class TnsNamesImportDialog extends DBNDialog<TnsNamesImportForm> {
     private final File file;
 
     public TnsNamesImportDialog(Project project, @Nullable File file) {
-        super(project, "Import TNS names", true);
+        super(project, txt("msg.connection.title.ImportTnsNames"), true);
         this.file = file;
         setModal(true);
         init();
@@ -63,7 +65,7 @@ public class TnsNamesImportDialog extends DBNDialog<TnsNamesImportForm> {
 
     private class ImportAllAction extends AbstractAction {
         private ImportAllAction() {
-            super("Import All");
+            super(txt("msg.connection.button.ImportAll"));
         }
 
         @Override
@@ -77,7 +79,7 @@ public class TnsNamesImportDialog extends DBNDialog<TnsNamesImportForm> {
     
     private class ImportSelectedAction extends AbstractAction {
         private ImportSelectedAction() {
-            super("Import Selected");
+            super(txt("msg.connection.button.ImportSelected"));
         }
 
         @Override
@@ -93,11 +95,11 @@ public class TnsNamesImportDialog extends DBNDialog<TnsNamesImportForm> {
         TnsImportService importService = TnsImportService.getInstance();
         OptionsDialog.open(
                 getProject(),
-                "TNS Import Type",
-                "Import Type",
+                txt("msg.connection.title.TnsImportType"),
+                txt("msg.connection.label.ImportType"),
                 TnsImportType.values(),
                 importService.getImportType(),
-                new String[]{"Import"},
+                new String[]{txt("msg.connection.button.Import")},
                 (i, o) -> {
                     if (i != 0) return;
                     importData.setImportType(o);

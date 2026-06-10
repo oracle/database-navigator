@@ -22,9 +22,11 @@ import com.intellij.formatting.Wrap;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class StatementOneLineSpacingAtLeastPreset extends StatementAbstractPreset {
     public StatementOneLineSpacingAtLeastPreset() {
-        super("one_line_at_least", "One line at least");
+        super("one_line_at_least", txt("cfg.codeStyle.const.CodeStylePreset_ONE_LINE_AT_LEAST"));
     }
 
     @Override

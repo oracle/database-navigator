@@ -45,6 +45,10 @@ import static java.util.Collections.emptyList;
 @BackgroundUpdate
 public class SchemaSelectDropdownAction extends SelectDropdownAction<DBSchema> implements DumbAware {
 
+    public SchemaSelectDropdownAction() {
+        super(txt("app.codeEditor.action.ScriptEditorCurrentSchema"));
+    }
+
     @Override
     protected List<DBSchema> getObjects(DataContext dataContext) {
         Project project = getProject(dataContext);

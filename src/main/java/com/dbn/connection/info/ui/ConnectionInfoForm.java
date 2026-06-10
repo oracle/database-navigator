@@ -43,6 +43,7 @@ import java.awt.FontMetrics;
 import java.sql.SQLException;
 
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 
 @SuppressWarnings("unused")
 public class ConnectionInfoForm extends DBNFormBase {
@@ -157,7 +158,7 @@ public class ConnectionInfoForm extends DBNFormBase {
         initValueField(infoConnectionUrlLabel, infoConnectionUrlTextField, connectionInfo.getUrl());
         initValueField(infoUserNameLabel, infoUserNameTextField, connectionInfo.getUserName());
 
-        statusMessageLabel.setText("Connection successful");
+        statusMessageLabel.setText(txt("app.connection.label.ConnectionSuccessful"));
         statusMessageLabel.setIcon(Icons.COMMON_CHECK);
         errorTextPane.setText("");
         errorTextPane.setVisible(false);

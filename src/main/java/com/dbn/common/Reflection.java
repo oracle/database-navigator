@@ -16,10 +16,12 @@
 
 package com.dbn.common;
 
+import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.util.Primitives;
 import com.dbn.common.util.Unsafe;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -160,7 +162,7 @@ public class Reflection {
     }
 
     @SneakyThrows
-    public static void updateFieldValue(Object object, String fieldName, Object fieldValue) {
+    public static void updateFieldValue(Object object, @NonNls String fieldName, Object fieldValue) {
         Field field = object.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(object, fieldValue);
@@ -183,16 +185,31 @@ public class Reflection {
     }
 
     @SneakyThrows
-    public static <T> T getFieldValue(Object object, String fieldName) {
+    public static <T> T getFieldValue(Object object, @NonNls String fieldName) {
         Field field = object.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
         return cast(field.get(object));
     }
 
     @SneakyThrows
-    public static <T> T getFieldValue(String className, String fieldName) {
+    public static <T> T getFieldValue(String className, @NonNls String fieldName) {
         Field field = Class.forName(className).getDeclaredField(fieldName);
         field.setAccessible(true);
         return cast(field.get(null));
+    }
+
+    @SneakyThrows
+    public static <T extends DBNForm> void setFieldValue(Object object, @NonNls String fieldName, Object fieldValue) {
+        Field field = getDeclaredField(object.getClass(), fieldName);
+        field.setAccessible(true);
+        field.set(object, fieldValue);
+    }
+
+    public static Field getDeclaredField(Class<?> clazz, @NonNls String fieldName) {
+        try {
+            return clazz.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            return getDeclaredField(clazz.getSuperclass(), fieldName);
+        }
     }
 }

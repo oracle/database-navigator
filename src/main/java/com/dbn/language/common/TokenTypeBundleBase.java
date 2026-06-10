@@ -276,6 +276,7 @@ public abstract class TokenTypeBundleBase {
     }
 
     private boolean isRegisteredToken(Map<String, Set<String>> tokenSetIds, String tokenId) {
+        if (TokenTypeBundle.GENERIC_TOKENS.contains(tokenId)) return true;
         return Lists.anyMatch(tokenSetIds.values(), tokenIds -> tokenIds.contains(tokenId));
     }
 
@@ -283,7 +284,7 @@ public abstract class TokenTypeBundleBase {
         return tokenTypes.get(id);
     }
 
-    public TokenSet getTokenSet(String id) {
+    public TokenSet getTokenSet(@NonNls String id) {
         return tokenSets.get(id);
     }
 

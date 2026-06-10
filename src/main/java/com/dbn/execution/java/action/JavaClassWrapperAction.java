@@ -54,7 +54,7 @@ public class JavaClassWrapperAction extends AnObjectAction<DBJavaClass> {
             @NotNull Presentation presentation,
             @NotNull Project project,
             @Nullable DBJavaClass target) {
-        presentation.setText("Create Execution Wrappers...");
+        presentation.setText(txt("app.execution.action.CreateExecutionWrappers"));
     }
 
 	@Override
@@ -64,7 +64,7 @@ public class JavaClassWrapperAction extends AnObjectAction<DBJavaClass> {
 
     private void createExecutionWrappers(@NotNull AnActionEvent e, DBJavaClass javaClass) {
         Project project = javaClass.getProject();
-        String listName = "executable elements";
+        String listName = txt("app.execution.token.ExecutableElements");
         String title = txt("msg.objects.title.LoadingObjects", titleCased(listName));
         ConnectionAction.invoke(title, true, javaClass,
                 action -> Progress.prompt(project, javaClass, true,
@@ -82,9 +82,9 @@ public class JavaClassWrapperAction extends AnObjectAction<DBJavaClass> {
         Dispatch.run(dataContext, true, () -> {
 			Project project = javaClass.getProject();
             if (objects.isEmpty()) {
-				showWarningDialog(project, "Create Execution Wrappers",
-						"Cannot create execution wrappers for java class \"" + javaClass.getCanonicalName() + "\". " +
-						"No public static methods found.");
+				showWarningDialog(project,
+                        txt("msg.java.title.CreateExecutionWrappers"),
+						txt("msg.java.error.NoPublicStaticMethods", javaClass.getCanonicalName()));
             } else {
 				Dialogs.show(() -> createDialog(javaClass, objects), createDialogCallback(javaClass));
 
@@ -94,8 +94,8 @@ public class JavaClassWrapperAction extends AnObjectAction<DBJavaClass> {
 
 	private static @NotNull SelectionListDialog<DBJavaMethod> createDialog(DBJavaClass javaClass, List<DBJavaMethod> javaMethods) {
 		Project project = javaClass.getProject();
-        String title = "Create Execution Wrappers";
-        TextContent hint = TextContent.plain("This will generate all required PL/SQL objects for executing the selected methods. \n\nSelect the methods to create execution wrappers for.");
+        String title = txt("msg.java.title.CreateExecutionWrappers");
+        TextContent hint = TextContent.plain(txt("msg.java.hint.CreateExecutionWrappers"));
         return new SelectionListDialog<>(project, title, javaMethods, null, javaClass, hint, JAVA_EXECUTION_WRAPPERS);
 	}
 

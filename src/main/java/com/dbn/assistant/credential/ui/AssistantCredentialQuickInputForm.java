@@ -25,9 +25,9 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.util.Chars;
+import com.dbn.common.util.Environment;
 import com.dbn.common.util.Strings;
 import com.dbn.oci.config.ui.OciConfigForm;
-import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
 import lombok.Getter;
@@ -40,6 +40,7 @@ import javax.swing.JPanel;
 
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantCredentialQuickInputForm extends DBNFormBase {
     private JPanel hintPanel;
@@ -81,8 +82,7 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
 
     private void initHintPanel() {
         String providerName = provider.getName();
-        ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
-        String ideName = applicationInfo.getVersionName();
+        String ideName = Environment.getIdeName();
 
         boolean oci = provider.getId() == AIProviderId.OCI_GEN_AI;
         TextContent hintContent =
@@ -97,13 +97,13 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
     private void initGuideHyperlink() {
         String providerName = provider.getName();
 
-        guideHyperlink.setHyperlinkText(providerName + " API keys");
+        guideHyperlink.setHyperlinkText(txt("cfg.assistant.link.ProviderApiKeys", providerName));
         guideHyperlink.setHyperlinkTarget(provider.getUrl(ProviderUrlType.KEYS));
     }
 
     @Override
     protected void initValidation() {
-        addTextValidation(keyPasswordField, Strings::isNotEmpty, "Please provide an API key");
+        addTextValidation(keyPasswordField, Strings::isNotEmpty, txt("msg.assistant.error.ApiKeyRequired"));
     }
 
     @Override

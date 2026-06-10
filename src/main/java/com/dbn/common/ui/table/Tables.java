@@ -19,11 +19,14 @@ package com.dbn.common.ui.table;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.Presentable;
 import com.dbn.data.grid.addon.ColumnDragScrollAddon;
-import org.jetbrains.annotations.Nls;
+import com.intellij.openapi.util.NlsContexts.PopupTitle;
+import com.intellij.util.ui.UIUtil;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.TableModelEvent;
 import java.awt.Color;
 import java.awt.Component;
@@ -77,7 +80,7 @@ public class Tables {
      * @param title       the title of the value selector popup
      * @param values      an array of possible values that the user can select
      */
-    public static <T extends Presentable> void attachValueSelector(JTable table, int columnIndex, @Nls String title, T[] values) {
+    public static <T extends Presentable> void attachValueSelector(JTable table, int columnIndex, @PopupTitle String title, T[] values) {
         new TableValueSelector<>(table, columnIndex, title, values);
     }
 
@@ -182,12 +185,19 @@ public class Tables {
     public static void adjustTableRowHeight(JTable table, int padding) {
         Font font = table.getFont();
         FontRenderContext fontRenderContext = table.getFontMetrics(font).getFontRenderContext();
-        LineMetrics lineMetrics = font.getLineMetrics("ABCÄÜÖÂÇĞIİÖŞĀČḎĒËĠḤŌŠṢṬŪŽy", fontRenderContext);
+        @NonNls LineMetrics lineMetrics = font.getLineMetrics("ABCÄÜÖÂÇĞIİÖŞĀČḎĒËĠḤŌŠṢṬŪŽY", fontRenderContext);
         int fontHeight = Math.round(lineMetrics.getHeight());
         table.setRowHeight(fontHeight + (padding * 2));
     }
 
     public static void onModelChange(JTable table, Consumer<TableModelEvent> eventConsumer) {
         table.getModel().addTableModelListener(e -> eventConsumer.accept(e));
+    }
+
+    public static void enableCellSelection(JTable table) {
+        table.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        table.setSelectionBackground(UIUtil.getTableBackground());
+        table.setSelectionForeground(UIUtil.getTableForeground());
+        table.setCellSelectionEnabled(true);
     }
 }

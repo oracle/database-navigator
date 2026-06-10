@@ -94,7 +94,8 @@ public abstract class AssistantToolFactoryBase<T extends AssistantTool> implemen
                 getToolDescription(),
                 getToolType(),
                 getToolCategory(),
-                isInteractive());
+                isInteractive(),
+                false);
 
         return proxy(assistantState, tool);
     }

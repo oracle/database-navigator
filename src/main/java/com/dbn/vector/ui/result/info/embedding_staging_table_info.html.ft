@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head>
-    <title>Staging table</title>
+    <title>Staging Table</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -26,7 +26,7 @@
 
     </style>
 </head>
-<body>
+<body style="width: 300px">
     <h3>Staging Location</h3>
     <p>
         File contents are uploaded into a staging table before their contents are chunked and embedded.
@@ -38,9 +38,8 @@
         <li><code>FILE_CONTENT (BLOB)</code> – The content of the file</li>
         <li><code>FILE_SIZE</code> – The file size in bytes</li>
         <li><code>FILE_HASH</code> – Unique signature of the content</li>
-        <li><code>METADATA (JSON)</code> – Meta information about the upload in JSON format</li>
+        <li><code>METADATA (JSON)</code> – Metadata about the upload in JSON format</li>
     </ul>
 </body>
 </html>
-
 

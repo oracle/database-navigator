@@ -13,7 +13,7 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="&amp;URI"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.label.URI"/>
         </properties>
       </component>
       <component id="c9j0k" class="javax.swing.JTextField" binding="uriField">
@@ -27,7 +27,7 @@
           <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="No credential (public access)"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.label.NoCredential"/>
         </properties>
       </component>
       <component id="cl1m2" class="javax.swing.JLabel" binding="credentialSchemaLabel">
@@ -36,7 +36,7 @@
         </constraints>
         <properties>
           <labelFor value="cn3o4"/>
-          <text value="Credential &amp;schema"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.label.CredentialSchema"/>
         </properties>
       </component>
       <component id="cn3o4" class="com.dbn.object.common.ui.DBObjectSelector" binding="credentialSchemaComboBox">
@@ -51,7 +51,7 @@
         </constraints>
         <properties>
           <labelFor value="cr7s8"/>
-          <text value="&amp;Credential"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.label.Credential"/>
         </properties>
       </component>
       <component id="cr7s8" class="com.dbn.object.common.ui.DBObjectSelector" binding="credentialComboBox">
@@ -67,7 +67,7 @@
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="&amp;Delimiter"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.label.Delimiter"/>
         </properties>
       </component>
       <component id="cv1w2" class="javax.swing.JTextField" binding="delimiterField">
@@ -85,7 +85,7 @@
           <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="&amp;Has header"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.label.HasHeader"/>
         </properties>
       </component>
       <component id="cz5a6" class="javax.swing.JCheckBox" binding="hasHeaderCheckBox">
@@ -101,7 +101,7 @@
           <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Load Columns"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.button.LoadColumns"/>
         </properties>
       </component>
     </children>

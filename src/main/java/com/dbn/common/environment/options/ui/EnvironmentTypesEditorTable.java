@@ -39,6 +39,7 @@ import java.awt.event.MouseListener;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Mouse.isMainSingleClick;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EnvironmentTypesEditorTable extends DBNEditableTable<EnvironmentTypesTableModel> {
 
@@ -58,7 +59,7 @@ public class EnvironmentTypesEditorTable extends DBNEditableTable<EnvironmentTyp
         addMouseListener(createMouseListener());
         addKeyListener(createKeyListener());
 
-        setAccessibleName(this, "Environment Types");
+        setAccessibleName(this, txt("cfg.environment.aria.EnvironmentTypes"));
     }
 
     private KeyListener createKeyListener() {
@@ -102,7 +103,7 @@ public class EnvironmentTypesEditorTable extends DBNEditableTable<EnvironmentTyp
 
     private void chooseColor(int rowIndex, int columnIndex) {
         Color color = (Color) getValueAt(rowIndex, columnIndex);
-        color = Colors.chooseColor(getProject(), this, color, "Select Environment Color");
+        color = Colors.chooseColor(getProject(), this, color, txt("cfg.environment.title.SelectEnvironmentColor"));
         if (color == null) return;
 
         setValueAt(color, rowIndex, columnIndex);

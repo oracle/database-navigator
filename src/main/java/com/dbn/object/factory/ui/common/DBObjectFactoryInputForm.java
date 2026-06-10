@@ -35,12 +35,14 @@ import javax.swing.Icon;
 import javax.swing.JPanel;
 import java.awt.Color;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 @Setter
-public abstract class DBObjectFactoryInputForm<T extends DBObjectSpec> extends DBNFormBase {
-    protected T input;
+public abstract class DBObjectFactoryInputForm extends DBNFormBase {
+    protected DBObjectSpec input;
 
-    protected DBObjectFactoryInputForm(@NotNull DBNComponent parent, T input) {
+    protected DBObjectFactoryInputForm(@NotNull DBNComponent parent, DBObjectSpec input) {
         super(parent);
         this.input = input;
     }
@@ -91,7 +93,7 @@ public abstract class DBObjectFactoryInputForm<T extends DBObjectSpec> extends D
     protected String buildHeaderTitle() {
         String objectName = getObjectName();
         if (Strings.isEmpty(objectName)) {
-            objectName = "[new]";
+            objectName = txt("app.object.placeholder.New");
         }
         return getSchemaName() + "." + objectName;
     }

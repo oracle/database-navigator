@@ -18,6 +18,7 @@ package com.dbn.common.ui.form;
 
 import com.dbn.common.ui.list.CheckBoxList;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.JComboBox;
@@ -53,12 +54,12 @@ public class DBNFormValidatorSurrogate implements DBNFormValidator{
     }
 
     @Override
-    public <C extends JComponent> void addValidation(C component, Predicate<C> validator, String message) {
+    public <C extends JComponent> void addValidation(C component, Predicate<C> validator, @DialogMessage String message) {
         notSupported();
     }
 
     @Override
-    public <C extends JComponent> void addValidation(C component, Function<C, String> validator) {
+    public <C extends JComponent> void addValidation(C component, Function<C, @DialogMessage String> validator) {
         notSupported();
     }
 
@@ -68,22 +69,22 @@ public class DBNFormValidatorSurrogate implements DBNFormValidator{
     }
 
     @Override
-    public void addTextValidation(JTextComponent textField, Predicate<String> validator, String message) {
+    public void addTextValidation(JTextComponent textField, Predicate<String> validator, @DialogMessage String message) {
         notSupported();
     }
 
     @Override
-    public void addSelectionValidation(JComboBox comboBox, String message) {
+    public void addSelectionValidation(JComboBox comboBox, @DialogMessage String message) {
         notSupported();
     }
 
     @Override
-    public void addSelectionValidation(CheckBoxList checkBoxList, String message) {
+    public void addSelectionValidation(CheckBoxList checkBoxList, @DialogMessage String message) {
         notSupported();
     }
 
     @Override
-    public void addTextValidation(JTextComponent textField, Function<JTextComponent, String> validator) {
+    public void addTextValidation(JTextComponent textField, Function<JTextComponent, @DialogMessage String> validator) {
         notSupported();
     }
 

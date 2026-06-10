@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head>
-    <title>Staging table</title>
+    <title>Data Source</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -25,17 +25,16 @@
         p { margin-top:0; }
     </style>
 </head>
-<body>
+<body style="width: 300px">
     <h3>Data Source</h3>
-    <p>Data source used for generating vector embeddings. Choose where the content will be loaded from.</p>
+    <p>Data source used for generating vector embeddings. Choose where to load the content from.</p>
     <br>
     <p>Supported sources:</p>
     <ul>
-        <li><u>File system</u> – Select one or more files from your local file system</li>
-        <li><u>Database tables</u> – Specify one or more tables from your database</li>
+        <li><u>File system</u> – Select one or more files from the local file system</li>
+        <li><u>Database tables</u> – Specify one or more database tables</li>
         <li><u>SELECT statement</u> – Provide a SELECT statement that returns the text content to be embedded</li>
     </ul>
 </body>
 </html>
-
 

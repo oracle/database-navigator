@@ -49,6 +49,7 @@ import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -172,7 +173,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
             invoker.invokeModel(model, state, memoryId, prompt, responseConsumer);
 
         } catch (Throwable t) {
-            responseConsumer.acceptError(t);
+            responseConsumer.acceptError(txt("msg.assistant.error.ModelInvocationFailed"), t);
             responseConsumer.acceptCompletion();
         }
     }
@@ -187,6 +188,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         if (userPrompts.isEmpty()) return null;
 
         String prompts = Lists.toCsv(userPrompts, "\n", s -> "\"" + s + "\"");
+        @NonNls
         String titlePrompt = "Summarize the following user prompts into a concise title (3-5 words). Respond with the title only, no punctuation, quotes, or filler words:\n\n" + prompts;
 
         AssistantModelInput input = createModelInput(connectionId, context);
@@ -196,7 +198,11 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         var invoker = resolveModelInvoker(model);
 
         AtomicReference<String> title = new AtomicReference<>();
-        AssistantResponseConsumer responseConsumer = AssistantResponseAdapter.create().withMessageConsumer(m -> title.set(m));
+        AssistantResponseConsumer responseConsumer = AssistantResponseAdapter
+                .builder()
+                .messageConsumer(m -> title.set(m))
+                .build();
+
         AssistantMemoryId memoryId = AssistantMemoryId.stateless();
         invoker.invokeModel(model, state, memoryId, titlePrompt, responseConsumer);
 

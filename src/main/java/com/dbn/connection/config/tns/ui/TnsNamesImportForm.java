@@ -37,7 +37,10 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.FileChoosers.addFileChooser;
+import static com.dbn.connection.config.tns.TnsNamesParser.tnsFileChooser;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class TnsNamesImportForm extends DBNFormBase {
     private TextFieldWithBrowseButton tnsNamesFileTextField;
@@ -66,11 +69,7 @@ public class TnsNamesImportForm extends DBNFormBase {
 
         tnsNamesTable.getSelectionModel().addListSelectionListener(e -> updateSelections());
 
-        tnsNamesFileTextField.addBrowseFolderListener(
-                null,
-                null,
-                getProject(),
-                TnsNamesParser.FILE_CHOOSER_DESCRIPTOR);
+        addFileChooser(getProject(), tnsNamesFileTextField, tnsFileChooser());
 
         onTextChange(tnsNamesFileTextField, e -> updateTnsNamesTable());
         onTextChange(filterTextField, e -> filterTnsNamesTable());
@@ -113,8 +112,8 @@ public class TnsNamesImportForm extends DBNFormBase {
 
             errorLabel.setVisible(true);
             String message = e.getMessage();
-            message = Strings.isEmpty(message) ? "File may be corrupt or not a valid tnsnames.ora file." : message;
-            errorLabel.setText("Error reading file: " + message);
+            message = Strings.isEmpty(message) ? txt("msg.connection.error.TnsNamesFileInvalid") : message;
+            errorLabel.setText(txt("msg.connection.error.ErrorReadingFile", message));
         }
     }
 

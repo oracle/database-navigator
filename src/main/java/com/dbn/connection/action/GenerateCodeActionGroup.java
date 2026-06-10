@@ -25,10 +25,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class GenerateCodeActionGroup extends AbstractConnectionActionGroup {
 
     public GenerateCodeActionGroup(ConnectionHandler connection) {
-        super("Generate Code", true,  connection);
+        super(txt("app.connection.action.GenerateCode"), true,  connection);
 
         List<CodeGenerator> codeGenerators = CodeGeneratorRegistry.list();
         for (CodeGenerator codeGenerator : codeGenerators) {

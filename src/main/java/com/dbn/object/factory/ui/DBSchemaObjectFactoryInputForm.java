@@ -16,11 +16,13 @@
 
 package com.dbn.object.factory.ui;
 
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
+import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.intellij.openapi.options.ConfigurationException;
@@ -33,10 +35,11 @@ import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
+import static com.dbn.nls.NlsResources.txt;
 
-public abstract class DBSchemaObjectFactoryInputForm<T extends DBObjectSpec> extends DBObjectFactoryInputForm<T> {
+public abstract class DBSchemaObjectFactoryInputForm extends DBObjectFactoryInputForm {
 
-    public DBSchemaObjectFactoryInputForm(@NotNull DBNComponent parent, T input) {
+    public DBSchemaObjectFactoryInputForm(@NotNull DBNComponent parent, DBObjectSpec input) {
         super(parent, input);
     }
 
@@ -80,6 +83,18 @@ public abstract class DBSchemaObjectFactoryInputForm<T extends DBObjectSpec> ext
     @Override
     protected String getSchemaName() {
         return input.getSchemaName();
+    }
+
+    protected final DatabaseIdentifierCase getDefaultIdentifierCase() {
+        return getConnection().getCompatibility().getIdentifierCase();
+    }
+
+    protected abstract DatabaseIdentifierCase getSelectedIdentifierCase();
+
+    protected final TextContent getPreserveCaseInfoText() {
+        String databaseTypeName = getConnection().getDatabaseType().getName();
+        String infoText = txt("app.object.tooltip.PreserveIdentifierCase", databaseTypeName, getDefaultIdentifierCase());
+        return TextContent.tooltip(infoText, "width:200px");
     }
 
     @Override

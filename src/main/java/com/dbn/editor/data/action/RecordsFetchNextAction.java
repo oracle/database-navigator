@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class RecordsFetchNextAction extends AbstractDataEditorAction {
 
+    public RecordsFetchNextAction() {
+        super(txt("app.dataEditor.action.DataEditorFetchNextRecords"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         DataEditorSettings settings = DataEditorSettings.getInstance(datasetEditor.getProject());

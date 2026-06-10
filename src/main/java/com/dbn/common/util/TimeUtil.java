@@ -17,7 +17,7 @@
 package com.dbn.common.util;
 
 import lombok.experimental.UtilityClass;
-import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nls;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 import static com.dbn.common.util.TimeUtil.Millis.ONE_HOUR;
 import static com.dbn.common.util.TimeUtil.Millis.ONE_MINUTE;
 import static com.dbn.common.util.TimeUtil.Millis.ONE_SECOND;
+import static com.dbn.nls.NlsResources.txt;
+import static java.lang.System.currentTimeMillis;
 
 @UtilityClass
 public class TimeUtil {
@@ -50,59 +52,88 @@ public class TimeUtil {
     }
 
     public static boolean isOlderThan(long timestamp, long millis) {
-        return System.currentTimeMillis() - millis > timestamp;
+        return currentTimeMillis() - millis > timestamp;
+    }
+
+    public static boolean isOlderThan(long timestamp, Duration duration) {
+        return currentTimeMillis() - timestamp > duration.toMillis();
     }
 
     public static boolean isOlderThan(long timestamp, long duration, TimeUnit timeUnit) {
-        return System.currentTimeMillis() - timeUnit.toMillis(duration) > timestamp;
+        return currentTimeMillis() - timeUnit.toMillis(duration) > timestamp;
     }
 
     public static long millisSince(long start) {
-        return System.currentTimeMillis() - start;
+        return currentTimeMillis() - start;
     }
 
     public static long secondsSince(long start) {
         return TimeUnit.MILLISECONDS.toSeconds(millisSince(start));
     }
 
-    public static String presentableDuration(Duration duration, boolean compact) {
+    public static @Nls String presentableDuration(Duration duration, boolean compact) {
         return presentableDuration(duration.toMillis(), compact);
     }
 
-    public static String presentableDuration(long millis, boolean compact) {
+    public static @Nls String presentableDuration(long millis, boolean compact) {
         long hours = TimeUnit.MILLISECONDS.toHours(millis);
-        String separator = compact ? " " : " and ";
         if (hours > 0) {
             long minutes = TimeUnit.MILLISECONDS.toMinutes(millis - (hours * ONE_HOUR));
-            return presentableDuration(hours, "hour", compact) + (minutes > 0 ? separator + presentableDuration(minutes, "minute", compact) : "");
+            String hoursDuration = presentableDuration(hours, DurationUnit.HOUR, compact);
+            return minutes > 0 ?
+                    composeDuration(hoursDuration, presentableDuration(minutes, DurationUnit.MINUTE, compact), compact) :
+                    hoursDuration;
         }
 
         long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
         if (minutes > 0) {
             long seconds = TimeUnit.MILLISECONDS.toSeconds(millis - (minutes * ONE_MINUTE));
-            return presentableDuration(minutes, "minute", compact) + (seconds > 0 ? separator + presentableDuration(seconds, "second", compact) : "");
+            String minutesDuration = presentableDuration(minutes, DurationUnit.MINUTE, compact);
+            return seconds > 0 ?
+                    composeDuration(minutesDuration, presentableDuration(seconds, DurationUnit.SECOND, compact), compact) :
+                    minutesDuration;
         }
 
         long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
         if (seconds > 5) {
             long milliseconds = millis - (seconds * ONE_SECOND);
-            return presentableDuration(seconds, "second", compact) + (milliseconds > 0 ? separator + presentableDuration(milliseconds, "millisecond", compact) : "");
+            String secondsDuration = presentableDuration(seconds, DurationUnit.SECOND, compact);
+            return milliseconds > 0 ?
+                    composeDuration(secondsDuration, presentableDuration(milliseconds, DurationUnit.MILLISECOND, compact), compact) :
+                    secondsDuration;
         }
 
 
-        return millis + " ms";
+        return txt("app.shared.unit.Duration_MILLISECOND", millis);
     }
 
-    private static String presentableDuration(long value, @NonNls String unit, boolean compact) {
-        String unitToken = switch (unit) {
-            case "hour" -> compact ? "h" : (value > 1 ? unit + "s" : unit);
-            case "minute" -> compact ? "m" : (value > 1 ? unit + "s" : unit);
-            case "second" -> compact ? "s" : (value > 1 ? unit + "s" : unit);
-            case "millisecond" -> "ms";
-            default -> "";
+    private static @Nls String composeDuration(@Nls String firstDuration, @Nls String secondDuration, boolean compact) {
+        return compact ?
+                txt("app.shared.text.CompactDurationComposition", firstDuration, secondDuration) :
+                txt("app.shared.text.DurationComposition", firstDuration, secondDuration);
+    }
+
+    private static @Nls String presentableDuration(long value, DurationUnit unit, boolean compact) {
+        return switch (unit) {
+            case HOUR -> compact ?
+                    txt("app.shared.unit.CompactDuration_HOUR", value) :
+                    txt("app.shared.unit.Duration_HOUR", value);
+            case MINUTE -> compact ?
+                    txt("app.shared.unit.CompactDuration_MINUTE", value) :
+                    txt("app.shared.unit.Duration_MINUTE", value);
+            case SECOND -> compact ?
+                    txt("app.shared.unit.CompactDuration_SECOND", value) :
+                    txt("app.shared.unit.Duration_SECOND", value);
+            case MILLISECOND -> compact ?
+                    txt("app.shared.unit.CompactDuration_MILLISECOND", value) :
+                    txt("app.shared.unit.Duration_MILLISECOND", value);
         };
-        String valueToken = value > 1 ? Long.toString(value) : (compact ? "1" : "one");
-        String separatorToken = compact ? "" : " ";
-        return valueToken + separatorToken + unitToken;
+    }
+
+    private enum DurationUnit {
+        HOUR,
+        MINUTE,
+        SECOND,
+        MILLISECOND
     }
 }

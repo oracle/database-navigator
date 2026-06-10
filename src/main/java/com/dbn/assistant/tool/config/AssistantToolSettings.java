@@ -30,7 +30,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 
 @Getter
 public class AssistantToolSettings extends AssistantStateExtension implements PersistentStateElement {
-    private final AssistantToolApprovals approvals = new AssistantToolApprovals();
+    private final AssistantToolApprovals toolApprovals = new AssistantToolApprovals();
 
     protected AssistantToolSettings(@NotNull AssistantState assistantState) {
         super(assistantState);
@@ -45,16 +45,16 @@ public class AssistantToolSettings extends AssistantStateExtension implements Pe
         if (element == null) return;
 
         Element approvalsElement = element.getChild("approvals");
-        approvals.readState(approvalsElement);
+        toolApprovals.readState(approvalsElement);
     }
 
     @Override
     public void writeState(Element element) {
         if (element == null) return;
 
-        if (!approvals.isEmpty()) {
+        if (!toolApprovals.isEmpty()) {
             Element approvalsElement = newElement(element, "approvals");
-            approvals.writeState(approvalsElement);
+            toolApprovals.writeState(approvalsElement);
         }
     }
 }

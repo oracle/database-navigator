@@ -63,6 +63,7 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class LargeValuePreviewPopup extends DBNFormBase {
     public static final int INITIAL_MAX_SIZE = 4000;
@@ -162,17 +163,17 @@ public class LargeValuePreviewPopup extends DBNFormBase {
 
                 long contentSize = largeObjectValue.size();
                 if (initial && contentSize > INITIAL_MAX_SIZE) {
-                    contentInfoText = getNumberOfLines(text) + " lines, " + INITIAL_MAX_SIZE + " characters (partially loaded)";
+                    contentInfoText = txt("app.data.text.LargeValueInfoPartial", getNumberOfLines(text), INITIAL_MAX_SIZE);
                     loadContentVisible = true;
-                    loadContentCaption = "Load entire content";
+                    loadContentCaption = txt("app.data.action.LoadEntireContent");
                 } else {
-                    contentInfoText = getNumberOfLines(text) + " lines, " + text.length() + " characters";
+                    contentInfoText = txt("app.data.text.LargeValueInfo", getNumberOfLines(text), text.length());
                     loadContentVisible = false;
                 }
             } catch (SQLException e) {
                 conditionallyLog(e);
-                contentInfoText = "Could not load " + largeObjectValue.getDisplayValue() + " content. Cause: " + e.getMessage();
-                loadContentCaption = "Reload content";
+                contentInfoText = txt("msg.dataEditor.error.ContentLoadFailed", largeObjectValue.getDisplayValue(), e);
+                loadContentCaption = txt("app.data.action.ReloadContent");
             }
         } else if (userValue instanceof VectorValue vectorValue) {
             List<String> stringValues = vectorValue.getStringValues();
@@ -184,7 +185,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
             loadContentVisible = false;
         } else {
             text = userValue == null ? "" : userValue.toString();
-            contentInfoText = getNumberOfLines(text) + " lines, " + text.length() + " characters";
+            contentInfoText = txt("app.data.text.LargeValueInfo", getNumberOfLines(text), text.length());
             loadContentVisible = false;
         }
         int caretPosition = valueTextArea.getText().length();
@@ -305,7 +306,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
     public class WrapUnwrapContentAction extends ToggleAction {
 
         WrapUnwrapContentAction() {
-            super("Wrap/Unwrap", "", Icons.ACTION_WRAP_TEXT);
+            super(txt("app.data.action.WrapUnwrap"), "", Icons.ACTION_WRAP_TEXT);
         }
 
 
@@ -330,7 +331,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
             DatasetEditorManager dataEditorManager = getDataEditorManager(e);
             if (dataEditorManager != null) {
                 boolean isWrapped = dataEditorManager.isValuePreviewTextWrapping();
-                e.getPresentation().setText(isWrapped ? "Unwrap Content" : "Wrap Content");
+                e.getPresentation().setText(isWrapped ? txt("app.data.action.UnwrapContent") : txt("app.data.action.WrapContent"));
             }
         }
     }
@@ -338,7 +339,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
     public class PinUnpinPopupAction extends ToggleAction {
 
         public PinUnpinPopupAction() {
-            super("Pin/Unpin", "", Icons.ACTION_PIN);
+            super(txt("app.data.action.PinUnpin"), "", Icons.ACTION_PIN);
         }
 
         @Override
@@ -358,7 +359,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
         @Override
         public void update(@NotNull AnActionEvent e) {
             super.update(e);
-            e.getPresentation().setText(pinned ? "Unpin" : "Pin");
+            e.getPresentation().setText(pinned ? txt("app.data.action.Unpin") : txt("app.data.action.Pin"));
 
         }
     }

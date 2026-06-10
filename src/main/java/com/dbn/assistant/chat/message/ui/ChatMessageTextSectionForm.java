@@ -16,9 +16,11 @@
 
 package com.dbn.assistant.chat.message.ui;
 
+import com.dbn.assistant.chat.message.ChatMessageTextSection;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNForm;
 import com.intellij.lang.Language;
+import com.intellij.ui.BrowserHyperlinkListener;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -28,26 +30,28 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.util.function.Function;
 
-import static com.dbn.assistant.chat.message.ChatMessageSectionType.TEXT;
-
-public class ChatMessageTextSectionForm extends ChatMessageSectionForm {
+public class ChatMessageTextSectionForm extends ChatMessageSectionForm<ChatMessageTextSection> {
     private JTextPane messageTextPane;
     private JPanel mainPanel;
-    private TextContent content;
 
     public ChatMessageTextSectionForm(DBNForm parent, String content) {
-        this(parent, content, c -> TextContent.plain(c));
+        super(parent, null, c -> TextContent.plain(c));
+        initMessageTextPane();
+
+        updateContent(content);
+        whenSettingsChange(() -> rebuildContent());
     }
 
-    public ChatMessageTextSectionForm(DBNForm parent, String content, Function<String, TextContent> contentBuilder) {
-        super(parent, TEXT, contentBuilder);
-        this.content = createTextContent(content);
-        applyContent();
+    public ChatMessageTextSectionForm(DBNForm parent, ChatMessageTextSection section, Function<String, TextContent> contentBuilder) {
+        super(parent, section, contentBuilder);
+        initMessageTextPane();
 
-        whenSettingsChange(() -> {
-            this.content.rebuild();
-            applyContent();
-        });
+        updateContent(section.getContent());
+        whenSettingsChange(() -> rebuildContent());
+    }
+
+    private void initMessageTextPane() {
+        messageTextPane.addHyperlinkListener(BrowserHyperlinkListener.INSTANCE);
     }
 
     @Override
@@ -55,16 +59,12 @@ public class ChatMessageTextSectionForm extends ChatMessageSectionForm {
         return mainPanel;
     }
 
-    public void setContent(TextContent content) {
-        this.content = content;
-        applyContent();
-    }
-
     public void setForeground(Color foreground) {
         messageTextPane.setForeground(foreground);
     }
 
-    private void applyContent() {
+    @Override
+    protected void applyContent(TextContent content, @Nullable Language language) {
         messageTextPane.setContentType(content.getTypeId());
         messageTextPane.setText(content.getText());
 
@@ -72,10 +72,5 @@ public class ChatMessageTextSectionForm extends ChatMessageSectionForm {
         //preferredSize = Dimensions.change(preferredSize, 4, 4);
         messageTextPane.setSize(preferredSize);
         messageTextPane.revalidate();
-    }
-
-    @Override
-    protected void applyContent(TextContent content, @Nullable Language language) {
-        setContent(content);
     }
 }

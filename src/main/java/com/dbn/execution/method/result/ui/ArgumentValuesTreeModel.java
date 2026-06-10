@@ -31,14 +31,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class ArgumentValuesTreeModel implements TreeModel {
     private final ArgumentValuesTreeNode root;
 
     ArgumentValuesTreeModel(DBMethod method, List<ArgumentValue> inputArgumentValues, List<ArgumentValue> outputArgumentValues) {
         root = new ArgumentValuesTreeNode(null, method);
-        ArgumentValuesTreeNode inputNode = new ArgumentValuesTreeNode(root, "Input");
-        ArgumentValuesTreeNode outputNode = new ArgumentValuesTreeNode(root, "Output");
+        ArgumentValuesTreeNode inputNode = new ArgumentValuesTreeNode(root, txt("app.execution.label.Input"));
+        ArgumentValuesTreeNode outputNode = new ArgumentValuesTreeNode(root, txt("app.execution.label.Output"));
 
         createArgumentValueNodes(inputNode, inputArgumentValues);
         createArgumentValueNodes(outputNode, outputArgumentValues);

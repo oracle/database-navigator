@@ -27,6 +27,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ProjectSettingsExportAction extends ProjectAction {
 
+    public ProjectSettingsExportAction() {
+        super(txt("app.menu.action.ExportSettings"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);

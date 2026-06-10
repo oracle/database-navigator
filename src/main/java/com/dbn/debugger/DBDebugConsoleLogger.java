@@ -23,10 +23,12 @@ import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.openapi.util.Key;
 import com.intellij.xdebugger.XDebugSession;
+import org.jetbrains.annotations.Nls;
 
 import java.util.Date;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBDebugConsoleLogger {
     protected XDebugSession session;
@@ -35,24 +37,24 @@ public class DBDebugConsoleLogger {
         this.session = session;
     }
 
-    public void system(String text) {
+    public void system(@Nls String text) {
         log(text, MessageType.SYSTEM);
     }
 
-    public void error(String text) {
+    public void error(@Nls String text) {
         log(text, MessageType.ERROR);
     }
 
-    public void info(String text) {
+    public void info(@Nls String text) {
         log(text, MessageType.INFO);
     }
 
-    public void warning(String text) {
+    public void warning(@Nls String text) {
         log(text, MessageType.WARNING);
     }
 
 
-    private void log(String text, MessageType messageType) {
+    private void log(@Nls String text, MessageType messageType) {
         try {
             RunContentDescriptor descriptor = session.getRunContentDescriptor();
             ProcessHandler processHandler = descriptor.getProcessHandler();
@@ -63,10 +65,10 @@ public class DBDebugConsoleLogger {
             Formatter formatter = Formatter.getInstance(session.getProject());
             String date = formatter.formatDateTime(new Date());
             String prefix =
-                    messageType == MessageType.ERROR ? "ERROR: " :
-                    messageType == MessageType.WARNING ? "WARNING: " : "INFO: ";
+                    messageType == MessageType.ERROR ? txt("log.debugger.token.Error") :
+                    messageType == MessageType.WARNING ? txt("log.debugger.token.Warning") : txt("log.debugger.token.Info");
 
-            text = prefix + date + ": " + text + "\n";
+            text = txt("log.debugger.text.ConsoleEntry", prefix, date, text) + "\n";
             Key outputType =
                     messageType == MessageType.SYSTEM ? ProcessOutputTypes.SYSTEM :
                     messageType == MessageType.ERROR  ? ProcessOutputTypes.STDERR : ProcessOutputTypes.STDOUT;

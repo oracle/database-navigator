@@ -18,6 +18,8 @@ package com.dbn.ml.model.source;
 
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Shared source-name extraction logic — eliminates duplication across
  * DBMSBackend, MLPipelineExecutor, and DatabaseMLManager.
@@ -54,20 +56,20 @@ public final class MLSourceNames {
             }
             case FILE_SYSTEM: {
                 String path = config.getFileSourceConfig().getFilePath();
-                if (path == null || path.isEmpty()) return "CSV File";
+                if (path == null || path.isEmpty()) return txt("app.machineLearning.text.CsvFile");
                 int lastSep = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
                 return lastSep >= 0 ? path.substring(lastSep + 1) : path;
             }
             case OBJECT_STORAGE: {
                 String uri = config.getCloudSourceConfig().getFileUri();
-                if (uri == null || uri.isEmpty()) return "Object Storage";
+                if (uri == null || uri.isEmpty()) return txt("app.machineLearning.text.ObjectStorage");
                 int lastSlash = uri.lastIndexOf('/');
                 String objectName = lastSlash >= 0 ? uri.substring(lastSlash + 1) : uri;
                 if (objectName.length() > 30) objectName = "..." + objectName.substring(objectName.length() - 27);
                 return objectName;
             }
             default:
-                return "Unknown Source";
+                return txt("app.machineLearning.text.UnknownSource");
         }
     }
 

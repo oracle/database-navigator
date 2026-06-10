@@ -20,12 +20,15 @@ import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.mcp.AssistantMcpServerState;
 import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.ui.component.DBNDiscardableComponent;
+import com.dbn.common.ui.component.DBNFoldableComponent;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -102,7 +105,15 @@ public interface AssistantActionSupport {
         AssistantToolSettings toolSettings = getToolSettings(e);
         if (toolSettings == null) return null;
 
-        return toolSettings.getApprovals();
+        return toolSettings.getToolApprovals();
+    }
+
+    @Nullable
+    default AssistantMcpServerState getMcpServerState(@NotNull AnActionEvent e) {
+        AssistantState assistantState = getAssistantState(e);
+        if (assistantState == null) return null;
+
+        return assistantState.getMcpServerState();
     }
 
     @Nullable
@@ -148,5 +159,15 @@ public interface AssistantActionSupport {
         if (profile == null) return null;
 
         return chatContext.getModel();
+    }
+
+    @Nullable
+    default DBNFoldableComponent getFoldableComponent(@NotNull AnActionEvent e) {
+        return e.getDataContext().getData(DataKeys.FOLDABLE_COMPONENT);
+    }
+
+    @Nullable
+    default DBNDiscardableComponent getDiscardableComponent(@NotNull AnActionEvent e) {
+        return e.getDataContext().getData(DataKeys.DISCARDABLE_COMPONENT);
     }
 }

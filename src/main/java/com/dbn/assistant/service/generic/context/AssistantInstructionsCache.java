@@ -26,8 +26,10 @@ import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -100,13 +102,16 @@ public class AssistantInstructionsCache extends AssistantStateExtension implemen
         textContent.initField("DATABASE_TYPE", connection.getDatabaseType().getName());
         textContent.initField("DATABASE_NAME", connection.getName());
 
+        @NonNls
         String userInstructions = getUserInstructions();
+        if (Strings.isEmpty(userInstructions)) userInstructions = "(none)";
 
         textContent.initField("USER_INSTRUCTIONS", userInstructions);
 
         return textContent.getText();
     }
 
+    @NonNls
     private String getUserInstructions() {
         AssistantState assistantState = getAssistantState();
         String profileId = assistantState.getCurrentContext().getProfileId();

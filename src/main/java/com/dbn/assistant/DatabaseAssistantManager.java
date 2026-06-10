@@ -29,10 +29,10 @@ import com.dbn.assistant.state.AssistantStateDelegate;
 import com.dbn.assistant.state.AssistantStateListener;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.thread.Background;
+import com.dbn.common.ui.window.ToolWindows;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
@@ -50,11 +50,13 @@ import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.openapi.wm.ToolWindowAnchor;
+import com.intellij.openapi.wm.ToolWindowType;
 import com.intellij.ui.content.Content;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,6 +66,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -83,7 +86,7 @@ import static com.dbn.common.util.ContextLookup.getConnectionId;
         storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class DatabaseAssistantManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseAssistantManager";
-    public static final String TOOL_WINDOW_ID = "DB Assistant";
+    public static final @NonNls String TOOL_WINDOW_ID = "DB Assistant";
 
     private final Map<ConnectionId, Map<AssistantType, AssistantState>> assistantStates = new ConcurrentHashMap<>();
     private final Map<ConnectionId, AssistantType> selectedAssistantTypes = new ConcurrentHashMap<>();
@@ -162,8 +165,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     }
 
     public void showToolWindow(@Nullable ConnectionId connectionId, @Nullable AssistantType assistantType) {
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject());
-        ToolWindow toolWindow = Failsafe.nn(toolWindowManager.getToolWindow(TOOL_WINDOW_ID));
+        ToolWindow toolWindow = nn(ToolWindows.getToolWindow(getProject(), TOOL_WINDOW_ID));
         toolWindow.show(null);
         switchContext(connectionId, assistantType);
     }
@@ -183,6 +185,22 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     public void initializeAssistant(ConnectionId connectionId, AssistantType assistantType) {
         AssistantAdapter assistantAdapter = AssistantAdapters.get(assistantType);
         assistantAdapter.initializeAssistant(connectionId);
+    }
+
+    public boolean divertNotificationBalloon() {
+        // notification balloons overlapping with assistant input field
+
+        ToolWindow toolWindow = geToolWindow();
+        if (toolWindow == null) return false;
+        if (!toolWindow.isVisible()) return false;
+        if (toolWindow.getType() != ToolWindowType.DOCKED) return false;
+        if (toolWindow.getAnchor() != ToolWindowAnchor.RIGHT) return false;
+
+        return true;
+    }
+
+    private @Nullable ToolWindow geToolWindow() {
+        return ToolWindows.getToolWindow(getProject(), TOOL_WINDOW_ID);
     }
 
     /**
@@ -283,8 +301,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
     @Nullable
     public ToolWindow getToolWindow() {
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject());
-        return toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
+        return geToolWindow();
     }
 
     @Nullable

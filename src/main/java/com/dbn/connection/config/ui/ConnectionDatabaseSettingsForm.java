@@ -65,6 +65,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 import static java.awt.event.KeyEvent.VK_UNDEFINED;
 
 @SuppressWarnings("unused")
@@ -241,21 +242,27 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         DatabaseType databaseType = getSelectedDatabaseType();
         DriverOption driverOption = driverSettingsForm.getDriverOption();
         DatabaseUrlType urlType = Commons.nvl(urlSettingsForm.getUrlType(), DatabaseUrlType.CUSTOM);
+        String url = urlSettingsForm.getUrl();
+        DatabaseUrlPattern urlPattern = urlType == DatabaseUrlType.CUSTOM ?
+                Commons.nvl(databaseType.resolveUrlPattern(url), DatabaseUrlPattern.GENERIC) :
+                DatabaseUrlPattern.get(databaseType, urlType);
 
         configuration.setDatabaseType(databaseType);
         configuration.setName(getConnectionName());
         configuration.setDescription(getText(descriptionTextField));
         configuration.setDriverLibrary(driverSettingsForm.getDriverLibrary());
         configuration.setDriver(driverOption == null ? null : driverOption.getName());
-        configuration.setUrlPattern(DatabaseUrlPattern.get(databaseType, urlType));
+        configuration.setUrlPattern(urlPattern);
 
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
         databaseInfo.reset();
 
         databaseInfo.setUrlType(urlType);
-        databaseInfo.setUrl(urlSettingsForm.getUrl());
+        databaseInfo.setUrl(url);
 
-        if (urlType == DatabaseUrlType.EZCONNECT) {
+        if (urlType == DatabaseUrlType.CUSTOM) {
+            databaseInfo.initializeDetails(urlPattern);
+        } else if (urlType == DatabaseUrlType.EZCONNECT) {
             databaseInfo.setServerType(urlSettingsForm.getServerType());
             databaseInfo.setHost(urlSettingsForm.getHost());
             databaseInfo.setPort(urlSettingsForm.getPort());
@@ -271,7 +278,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
             DatabaseFileBundle fileBundle = urlSettingsForm.getFileBundle();
             fileBundle.validate();
             databaseInfo.setFileBundle(fileBundle);
-        } else if (urlType != DatabaseUrlType.CUSTOM){
+        } else {
             databaseInfo.setHost(urlSettingsForm.getHost());
             databaseInfo.setPort(urlSettingsForm.getPort());
             databaseInfo.setDatabase(urlSettingsForm.getDatabase());
@@ -309,7 +316,9 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
             }
         }
 
-        boolean nameChanged = !Objects.equals(getText(nameTextField), configuration.getName());
+        String oldName = configuration.getName();
+        String newName = getText(nameTextField);
+        boolean nameChanged = !Objects.equals(newName, oldName);
 
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
         boolean settingsChanged =
@@ -326,7 +335,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
             if (nameChanged) {
                 ProjectEvents.notify(project,
                         ConnectionConfigListener.TOPIC,
-                        listener -> listener.connectionNameChanged(connectionId));
+                        listener -> listener.connectionNameChanged(connectionId, oldName));
             }
 
             if (settingsChanged) {
@@ -375,4 +384,3 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         }
     }
 }
-

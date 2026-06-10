@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.setBoolean;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter

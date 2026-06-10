@@ -17,6 +17,7 @@
 package com.dbn.assistant.settings;
 
 import com.dbn.assistant.credential.AssistantCredentialSettings;
+import com.dbn.assistant.mcp.AssistantMcpServerSettings;
 import com.dbn.assistant.profile.AssistantProfileSettings;
 import com.dbn.assistant.settings.ui.AssistantSettingsForm;
 import com.dbn.common.options.CompositeProjectConfiguration;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Commons.array;
 import static com.dbn.help.HelpTopic.ASSISTANT_CONFIG;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)
@@ -41,11 +43,13 @@ public class AssistantSettings
 
   private final AssistantCredentialSettings credentialSettings;
   private final AssistantProfileSettings profileSettings;
+  private final AssistantMcpServerSettings mcpServerSettings;
 
   public AssistantSettings(ProjectSettings parent) {
     super(parent);
     this.credentialSettings = new AssistantCredentialSettings(this);
     this.profileSettings = new AssistantProfileSettings(this);
+    this.mcpServerSettings = new AssistantMcpServerSettings(this);
   }
 
   @NotNull
@@ -93,7 +97,8 @@ public class AssistantSettings
   protected Configuration[] createConfigurations() {
     return array(
             credentialSettings,
-            profileSettings);
+            profileSettings,
+            mcpServerSettings);
   }
 
   @Override

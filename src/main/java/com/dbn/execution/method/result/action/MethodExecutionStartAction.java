@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class MethodExecutionStartAction extends AbstractMethodExecutionResultAction {
 
+    public MethodExecutionStartAction() {
+        super(txt("app.execution.action.MethodExecutionResultExecuteAgain"));
+    }
+
     @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,

@@ -20,17 +20,20 @@ import lombok.Getter;
 
 @Getter
 public enum NotificationGroup {
-    DEFAULT("DBNavigator.NotificationGroup.Default"),
-    BROWSER("DBNavigator.NotificationGroup.Browser"),
-    EXECUTION("DBNavigator.NotificationGroup.Execution"),
-    ASSISTANT("DBNavigator.NotificationGroup.Assistant"),
-    DIAGNOSTICS("DBNavigator.NotificationGroup.Diagnostics"),
-    EVENTS("DBNavigator.NotificationGroup.Events");
+    DEFAULT("DBNavigator.NotificationGroup.Default", "ntf.shared.title.DBNavigator"),
+    PINNED("DBNavigator.NotificationGroup.Pinned", "ntf.shared.title.DBNavigatorPinned"),
+    BROWSER("DBNavigator.NotificationGroup.Browser", "ntf.shared.title.DBNavigatorBrowser"),
+    EXECUTION("DBNavigator.NotificationGroup.Execution", "ntf.shared.title.DBNavigatorExecution"),
+    ASSISTANT("DBNavigator.NotificationGroup.Assistant", "ntf.shared.title.DBNavigatorAssistant"),
+    DIAGNOSTICS("DBNavigator.NotificationGroup.Diagnostics", "ntf.shared.title.DBNavigatorDiagnostics"),
+    EVENTS("DBNavigator.NotificationGroup.Events", "ntf.shared.title.DBNavigatorEvents");
     ;
 
     private final String id;
+    private final String titleKey;
 
-    NotificationGroup(String id) {
+    NotificationGroup(String id, String titleKey) {
         this.id = id;
+        this.titleKey = titleKey;
     }
 }

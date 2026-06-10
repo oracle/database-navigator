@@ -35,6 +35,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -148,7 +149,7 @@ public class ObjectFilter<T extends DBObject> implements Filter<T>, PersistentCo
         return expression;
     }
 
-    private static String patchExpression(String expression, String oldBooleanIdentifier) {
+    private static String patchExpression(String expression, @NonNls String oldBooleanIdentifier) {
         return expression.replaceAll("\\b"+oldBooleanIdentifier+"\\b", "IS_" + oldBooleanIdentifier);
     }
 

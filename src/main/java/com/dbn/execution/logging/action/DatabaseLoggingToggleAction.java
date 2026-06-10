@@ -40,6 +40,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class DatabaseLoggingToggleAction extends ToggleAction implements DumbAware {
 
+    public DatabaseLoggingToggleAction() {
+        super(txt("app.codeEditor.action.ScriptEditorEnableDisableDatabaseLogging"));
+    }
+
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
         ConnectionHandler activeConnection = getConnection(e);
@@ -80,7 +84,7 @@ public class DatabaseLoggingToggleAction extends ToggleAction implements DumbAwa
                 DatabaseCompatibilityInterface compatibility = connection.getCompatibilityInterface();
                 String databaseLogName = compatibility.getDatabaseLogName();
                 if (Strings.isNotEmpty(databaseLogName)) {
-                    name = name + " (" + databaseLogName + ")";
+                    name = txt("app.execution.action.DatabaseLoggingNamed", databaseLogName);
                 }
             }
         }

@@ -29,9 +29,13 @@ import dev.langchain4j.service.AiServiceTokenStream;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.TokenStream;
 
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static com.dbn.assistant.service.generic.model.AssistantModelType.STREAMING_CHAT;
+import static com.dbn.assistant.tool.AssistantToolData.isInternalTool;
+import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.util.TimeUtil.isOlderThan;
 
 public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingChatModel> implements AssistantComponent {
     public StreamingChatModelInvoker() {
@@ -40,88 +44,106 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
 
     @Override
     public void invokeModel(StreamingChatModel model, AssistantState state, AssistantMemoryId memoryId, String prompt, AssistantResponseConsumer consumer) {
-
-        boolean stateless = memoryId.isStateless();
-
         var builder = AiServices.builder(StreamingChatModelAdapter.class);
         builder.streamingChatModel(model);
 
-        initChatMemory(builder, state, stateless);
-        initSystemMessage(builder, state);
-        initToolProvider(builder, state, stateless);
+        ModelInvocationContext context = creatInvocationContext(state, memoryId, consumer);
+        initChatMemory(builder, context);
+        initSystemMessage(builder, context);
+        initInternalToolProvider(builder, context);
+        initExternalToolProviders(builder, context);
+        initToolExecutionErrorHandler(builder, context);
 
         StreamingChatModelAdapter adapter = builder.build();
 
         TokenStream tokenStream = adapter.chat(memoryId, prompt);
-        initTokenStream(tokenStream, consumer);
+        initTokenStream(tokenStream, context);
     }
 
-    private void initTokenStream(TokenStream tokenStream, AssistantResponseConsumer consumer) {
-        StringBuilder buffer = new StringBuilder();
-        if (tokenStream instanceof AiServiceTokenStream aiTokenStream) {
-            aiTokenStream.beforeToolExecution(e -> {
-                ToolExecutionRequest request = e.request();
-                normalizeRequest(request);
-                consumer.acceptToolRequest(
-                        request.id(),
-                        request.name(),
-                        request.arguments());
-            });
+    private void initTokenStream(TokenStream tokenStream, ModelInvocationContext context) {
+        AiServiceTokenStream modelTokenStream = (AiServiceTokenStream) tokenStream;
 
-            aiTokenStream.onToolExecuted(e -> {
-                ToolExecutionRequest request = e.request();
-                consumer.acceptToolResponse(
-                        request.id(),
-                        request.name(),
-                        e.result());
-            });
+        TokenBuffer buffer = new TokenBuffer();
+        AssistantResponseConsumer consumer = context.getResponseConsumer();
 
-            aiTokenStream.onPartialResponse(t -> {
-                // avoid scroll flickering on incomplete markdown structures
-                // (buffer consecutive tokens containing formating elements)
-                Pattern pattern = Pattern.compile("[#*_`~\\[\\]()>+\\-!=|]");
-                buffer.append(t);
-                if (!pattern.matcher(t).matches()) {
-                    consumeBuffer(buffer, consumer);
-                }
-            });
+        modelTokenStream.beforeToolExecution(e -> {
+            ToolExecutionRequest request = e.request();
+            normalizeRequest(request);
+            guarded(() -> consumer.acceptToolRequest(
+                    request.id(),
+                    request.name(), request.arguments()));
+        });
 
-            aiTokenStream.onCompleteResponse(r -> {
-                consumeBuffer(buffer, consumer);
+        modelTokenStream.onToolExecuted(e -> {
+            ToolExecutionRequest request = e.request();
+            guarded(() -> consumer.acceptToolResponse(
+                    request.id(),
+                    request.name(), e.result()));
+        });
 
-                consumer.acceptMessage(r.aiMessage().text());
-                consumer.acceptCompletion();
-            });
+        modelTokenStream.onPartialResponse(t -> {
+            // avoid scroll flickering on incomplete markdown structures
+            // (buffer consecutive tokens containing formating elements)
+            Pattern pattern = Pattern.compile("[#*_`~\\[\\]()>+\\-!=|]");
+            buffer.append(t);
+            if (!pattern.matcher(t).matches()) {
+                buffer.consume(consumer, false);
+            }
+        });
 
-            aiTokenStream.onError((e) -> {
-                consumer.acceptError(e);
-                consumer.acceptCompletion();
-            });
+        modelTokenStream.onCompleteResponse(r -> {
+            buffer.consume(consumer, true);
 
-            aiTokenStream.onRetrieved(l -> {
-                return;
-            });
+            guarded(() -> consumer.acceptMessage(r.aiMessage().text()));
+            guarded(() -> consumer.acceptCompletion());
+        });
 
-            aiTokenStream.onIntermediateResponse(r -> {
-                return;
-            });
+        modelTokenStream.onError((e) -> {
+            guarded(() -> consumer.acceptError(e.getMessage(), e));
+            guarded(() -> consumer.acceptCompletion());
+        });
 
-            aiTokenStream.onPartialThinking(t -> {
-                // TODO display "thinking..." in chat box
-                return;
-            });
+        modelTokenStream.onRetrieved(l -> {
+            return;
+        });
 
-            wrapped(() -> tokenStream.start());
+        modelTokenStream.onIntermediateResponse(r -> {
+            return;
+        });
+
+        modelTokenStream.onPartialThinking(t -> {
+            // TODO display "thinking..." in chat box
+            return;
+        });
+
+        wrapped(() -> tokenStream.start());
+    }
+
+    // avoid screen flickering when time-interval between tokens is below chatbox UI refresh time
+    // (buffer tokens and release only if forced or buffer time exceeded)
+    private static class TokenBuffer {
+        private final StringBuilder buffer = new StringBuilder();
+        private long consumeTimestamp = 0;
+
+        private void consume(AssistantResponseConsumer consumer, boolean force) {
+            force = force || isOlderThan(consumeTimestamp, 50, TimeUnit.MILLISECONDS);
+            if (!force) return;
+
+            // consume and reset
+            consumeTimestamp = System.currentTimeMillis();
+            consumer.acceptToken(buffer.toString());
+            buffer.delete(0, buffer.length());
         }
-    }
 
-    private static void consumeBuffer(StringBuilder buffer, AssistantResponseConsumer consumer) {
-        consumer.acceptToken(buffer.toString());
-        buffer.delete(0, buffer.length());
+        public void append(String token) {
+            buffer.append(token);
+        }
     }
 
     @Workaround
     private static void normalizeRequest(ToolExecutionRequest request) {
+        if (!isInternalTool(request.name())) return;
+
         Unsafe.logged(() -> AssistantToolRequestNormalizer.normalize(request));
     }
 

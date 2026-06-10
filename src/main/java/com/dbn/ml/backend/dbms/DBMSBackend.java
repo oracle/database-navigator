@@ -17,26 +17,25 @@
 package com.dbn.ml.backend.dbms;
 
 import com.dbn.common.Priority;
+import com.dbn.common.cloud.CloudSourceConfig;
 import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.DatabaseMLInterface;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.backend.model.MLModelMetadata;
 import com.dbn.ml.backend.model.MLTrainingContext;
 
 import com.dbn.ml.model.MLModelDetails;
 import com.dbn.ml.model.MLTaskType;
-import com.dbn.common.cloud.CloudSourceConfig;
-import com.dbn.ml.model.source.MLSourceConfig;
 import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.ml.model.source.MLSourceType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
-import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectUtil;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -50,6 +49,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Oracle DBMS_DATA_MINING backend implementation.
@@ -101,15 +102,11 @@ public class DBMSBackend {
         String targetColumn = context.getFeatureConfig().getLabelColumns().get(0);
 
         // Step 5b: Pre-training validation
-        DBMSAlgorithmType algorithmType = DBMSAlgorithmType.fromDisplayName(context.getAlgorithmName());
+        DBMSAlgorithmType algorithmType = DBMSAlgorithmType.fromTrainerType(context.getTrainerType());
         if (context.getTaskType() == MLTaskType.CLASSIFICATION && algorithmType == DBMSAlgorithmType.LOGISTIC_REGRESSION) {
             int classCount = getDistinctClassCount(trainTableName, targetColumn);
             if (classCount > 2) {
-                throw new IllegalArgumentException(
-                        "Logistic Regression supports binary classification only. " +
-                        "Target column '" + targetColumn + "' has " + classCount + " distinct values. " +
-                        "Use Random Forest, Decision Tree, Naive Bayes, SVM, or Neural Network for multi-class problems."
-                );
+                throw new IllegalArgumentException(txt("msg.machineLearning.exception.LogisticRegressionBinaryOnly", targetColumn, classCount));
             }
         }
 
@@ -117,25 +114,21 @@ public class DBMSBackend {
         log.info("Creating model: {} using algorithm: {} on training table: {}",
                 modelName, context.getAlgorithmName(), trainTableName);
 
-        String finalModelName = modelName;
-        String finalTrainTableName = trainTableName;
-        String finalSettingsTableName = settingsTableName;
-
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Creating ML Model",
-                "Training model " + modelName,
+                txt("prc.machineLearning.title.CreatingMLModel"),
+                txt("prc.machineLearning.text.TrainingModelNamed", modelName),
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     mlInterface.createModel(
                             conn,
-                            finalModelName,
+                            modelName,
                             miningFunction,
-                            finalTrainTableName,
+                            trainTableName,
                             "CASE_ID",
                             targetColumn,
-                            finalSettingsTableName
+                            settingsTableName
                     );
                 });
 
@@ -231,7 +224,7 @@ public class DBMSBackend {
                 "Submitting " + modelName + " to Oracle Scheduler",
                 getProject(),
                 connection.getConnectionId(),
-                conn -> connection.getInterfaces().getMLInterface().submitTrainingJob(conn, jobName, jobAction));
+                conn -> connection.getInterfaces().getMachineLearningInterface().submitTrainingJob(conn, jobName, jobAction));
 
         log.info("Training job {} submitted for model: {}", jobName, modelName);
         return modelName;
@@ -241,12 +234,12 @@ public class DBMSBackend {
         log.info("Evaluating model: {} on test data", modelHandle.getModelName());
 
         return DatabaseInterfaceInvoker.load(Priority.HIGH,
-                "Evaluating Model",
-                "Computing evaluation metrics",
+                txt("prc.machineLearning.title.EvaluatingModel"),
+                txt("prc.machineLearning.text.ComputingEvaluationMetrics"),
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     if (context.getTaskType() == MLTaskType.CLASSIFICATION) {
                         return evaluateClassificationProper(mlInterface, conn, modelHandle, context);
                     } else {
@@ -259,8 +252,8 @@ public class DBMSBackend {
         log.info("Making prediction with model: {}", modelHandle.getModelName());
 
         return DatabaseInterfaceInvoker.load(Priority.HIGH,
-                "Making Prediction",
-                "Executing prediction query",
+                txt("prc.machineLearning.title.MakingPrediction"),
+                txt("prc.machineLearning.text.ExecutingPredictionQuery"),
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
@@ -283,12 +276,12 @@ public class DBMSBackend {
         log.info("Cleaning up DBMS resources");
 
         DatabaseInterfaceInvoker.execute(Priority.LOW,
-                "Cleanup",
-                "Dropping temporary tables",
+                txt("prc.machineLearning.title.Cleanup"),
+                txt("prc.machineLearning.text.Cleanup"),
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
 
                     // Drop staging table if created from CSV
                     if (context.getStagingTableName() != null && context.isShouldCleanupStagingTable()) {
@@ -344,12 +337,12 @@ public class DBMSBackend {
         log.info("Creating training table: {} ({}% of data, seed={})", trainTableName, trainPercent, seed);
 
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Splitting Data",
-                "Creating train/test split",
+                txt("prc.machineLearning.title.SplittingData"),
+                txt("prc.machineLearning.text.CreatingTrainTestSplit"),
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
 
                     // Create training table with SAMPLE SEED
                     mlInterface.createTrainingTable(conn, trainTableName, sourceTableName, trainPercent, seed);
@@ -384,7 +377,7 @@ public class DBMSBackend {
      * For binary classification, also computes ROC/AUC.
      */
     private DBMSEvaluationResult evaluateClassificationProper(
-            DatabaseMLInterface mlInterface,
+            DatabaseMachineLearningInterface mlInterface,
             DBNConnection conn,
             DBMSModelHandle modelHandle,
             MLTrainingContext context) throws SQLException {
@@ -477,7 +470,7 @@ public class DBMSBackend {
      * Evaluates regression model on test data.
      */
     private DBMSEvaluationResult evaluateRegressionProper(
-            DatabaseMLInterface mlInterface,
+            DatabaseMachineLearningInterface mlInterface,
             DBNConnection conn,
             DBMSModelHandle modelHandle,
             MLTrainingContext context) throws SQLException {
@@ -516,7 +509,7 @@ public class DBMSBackend {
 
         List<String> columns = cloudConfig.getDiscoveredColumns();
         if (columns == null || columns.isEmpty())
-            throw new IllegalStateException("No columns discovered for cloud source. Please click 'Load Columns' before training.");
+            throw new IllegalStateException(txt("msg.machineLearning.exception.CloudColumnsMissing"));
 
         java.util.Set<String> numericCols = cloudConfig.getNumericColumns();
         String columnList = columns.stream()
@@ -524,12 +517,12 @@ public class DBMSBackend {
                 .collect(java.util.stream.Collectors.joining(", "));
 
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Creating External Table",
-                "Creating external table from cloud storage",
+                txt("prc.machineLearning.title.CreatingExternalTable"),
+                txt("prc.machineLearning.text.CreatingExternalTable"),
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     mlInterface.createCloudExternalTable(
                             conn,
                             extTableName,
@@ -549,21 +542,21 @@ public class DBMSBackend {
 
     private String createSettingsTable(MLTrainingContext context, String timestamp) throws SQLException {
         String settingsTableName = "ML_SETTINGS_" + timestamp;
-        DBMSAlgorithmType algorithmType = DBMSAlgorithmType.fromDisplayName(context.getAlgorithmName());
+        DBMSAlgorithmType algorithmType = DBMSAlgorithmType.fromTrainerType(context.getTrainerType());
 
         Map<String, String> settings = settingsBuilder.buildSettings(
                 context.getTaskType(),
-                algorithmType.getOracleAlgorithmName(),
+                algorithmType.getId(),
                 context.getTrainerConfig()
         );
 
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Creating Settings",
-                "Creating model settings table",
+                txt("prc.machineLearning.title.CreatingSettings"),
+                txt("prc.machineLearning.text.CreatingModelSettingsTable"),
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     mlInterface.createSettingsTable(conn, settingsTableName);
                     for (Map.Entry<String, String> entry : settings.entrySet()) {
                         mlInterface.insertSetting(conn, settingsTableName, entry.getKey(), entry.getValue());
@@ -603,7 +596,7 @@ public class DBMSBackend {
                     connection.getConnectionId(),
                     conn -> {
                         Set<String> names = new HashSet<>();
-                        DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                        DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                         try (ResultSet rs = mlInterface.getExistingModelNames(conn)) {
                             while (rs.next()) {
                                 names.add(rs.getString("MODEL_NAME").toUpperCase());
@@ -626,7 +619,7 @@ public class DBMSBackend {
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     return mlInterface.getDistinctClassCount(conn, columnName, tableName);
                 });
     }
@@ -637,7 +630,7 @@ public class DBMSBackend {
                 connection.getConnectionId(),
                 conn -> {
                     List<String> values = new ArrayList<>();
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     try (ResultSet rs = mlInterface.getClassValues(conn, columnName, tableName)) {
                         while (rs.next()) {
                             values.add(rs.getString("CLASS_VALUE"));
@@ -647,7 +640,7 @@ public class DBMSBackend {
                 });
     }
 
-    private void dropTableSafe(DatabaseMLInterface mlInterface, DBNConnection conn, String tableName) {
+    private void dropTableSafe(DatabaseMachineLearningInterface mlInterface, DBNConnection conn, String tableName) {
         try {
             mlInterface.dropTable(conn, tableName);
             log.debug("Dropped table: {}", tableName);
@@ -881,7 +874,7 @@ public class DBMSBackend {
 
     @FunctionalInterface
     private interface ResultSetQuery {
-        ResultSet query(DatabaseMLInterface ml, DBNConnection conn) throws SQLException;
+        ResultSet query(DatabaseMachineLearningInterface ml, DBNConnection conn) throws SQLException;
     }
 
     @FunctionalInterface
@@ -890,11 +883,11 @@ public class DBMSBackend {
     }
 
     /** Runs a single model-view query; silently returns null on failure. */
-    private <T> T loadModelView(String modelName, String viewLabel, ResultSetQuery query, ResultSetMapper<T> mapper) {
+    private <T> T loadModelView(String modelName, @NonNls String viewLabel, ResultSetQuery query, ResultSetMapper<T> mapper) {
         try {
             return DatabaseInterfaceInvoker.load(Priority.LOW, getProject(),
                     connection.getConnectionId(), conn -> {
-                        DatabaseMLInterface ml = connection.getInterfaces().getMLInterface();
+                        DatabaseMachineLearningInterface ml = connection.getInterfaces().getMachineLearningInterface();
                         try (ResultSet rs = query.query(ml, conn)) {
                             return mapper.map(rs);
                         }

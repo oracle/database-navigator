@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Parent form for ML data source selection.
@@ -194,7 +195,7 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
 
     @Override
     public String getFormTitle() {
-        return "Data Source";
+        return txt("cfg.machineLearning.title.DataSource");
     }
 
     @Override
@@ -208,7 +209,7 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
                 // Show just filename, not full path
                 int lastSep = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
                 String fileName = lastSep >= 0 ? filePath.substring(lastSep + 1) : filePath;
-                return sourceTypeName + " - " + fileName;
+                return txt("app.shared.text.ContextQualifiedName", sourceTypeName, fileName);
             }
         }
 
@@ -216,7 +217,7 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
             DBSchema schema = getSelectedSchema();
             DBTable table = getSelectedTable();
             if (schema != null && table != null) {
-                return sourceTypeName + " - " + schema.getName() + "." + table.getName();
+                return txt("app.shared.text.ContextQualifiedName", sourceTypeName, schema.getName() + "." + table.getName());
             }
         }
 
@@ -228,7 +229,7 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
                 if (objectName.length() > 40) {
                     objectName = "..." + objectName.substring(objectName.length() - 37);
                 }
-                return sourceTypeName + " - " + objectName;
+                return txt("app.shared.text.ContextQualifiedName", sourceTypeName, objectName);
             }
         }
 

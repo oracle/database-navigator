@@ -18,8 +18,17 @@ package com.dbn.ml.result;
 
 import com.intellij.ui.JBColor;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * A horizontal row showing per-class precision / recall / F1 with inline progress bars.
@@ -45,14 +54,14 @@ public class MLClassRowPanel extends JPanel {
         nameLabel.setText(className);
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, 12f));
 
-        supportLabel.setText("(n=" + support + ")");
+        supportLabel.setText(txt("app.machineLearning.label.SampleCount", support));
         supportLabel.setForeground(JBColor.gray);
         supportLabel.setFont(supportLabel.getFont().deriveFont(10f));
 
         metricsPanel.setLayout(new GridLayout(1, 3, 20, 0));
-        metricsPanel.add(metricBar("P", precision));
-        metricsPanel.add(metricBar("R", recall));
-        metricsPanel.add(metricBar("F1", f1));
+        metricsPanel.add(metricBar(txt("app.machineLearning.label.PrecisionAbbreviation"), precision));
+        metricsPanel.add(metricBar(txt("app.machineLearning.label.RecallAbbreviation"), recall));
+        metricsPanel.add(metricBar(txt("app.machineLearning.label.F1"), f1));
     }
 
     private static JPanel metricBar(String label, double value) {

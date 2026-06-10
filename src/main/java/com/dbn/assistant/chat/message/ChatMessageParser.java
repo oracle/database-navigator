@@ -31,12 +31,14 @@ import org.intellij.markdown.ast.ASTNode;
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor;
 import org.intellij.markdown.html.HtmlGenerator;
 import org.intellij.markdown.parser.MarkdownParser;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Comment;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
+import org.jsoup.safety.Safelist;
 import org.jsoup.select.Elements;
 import org.jsoup.select.NodeVisitor;
 
@@ -49,9 +51,10 @@ import static org.intellij.markdown.MarkdownTokenTypes.FENCE_LANG;
 
 @UtilityClass
 public class ChatMessageParser {
+    private static final Safelist CHAT_MESSAGE_HTML_SAFELIST = createChatMessageHtmlSafelist();
 
-    public static List<ChatMessageSection> parse(String content, int offset, int[] sliceOffsets) {
-        List<ChatMessageSection> sections = new ArrayList<>();
+    public static List<ChatMessageTextSection> parse(String content, int offset, int[] sliceOffsets) {
+        List<ChatMessageTextSection> sections = new ArrayList<>();
 
         String parseContent = content.substring(offset);
         ASTNode rootNode;
@@ -94,7 +97,7 @@ public class ChatMessageParser {
         return markdownParser.buildMarkdownTreeFromString(content);
     }
 
-    private static void createTextSection(List<ChatMessageSection> sections, int offset, int[] sliceOffsets, String content) {
+    private static void createTextSection(List<ChatMessageTextSection> sections, int offset, int[] sliceOffsets, String content) {
         if (content.isEmpty()) return;
 
         for (int i = 0; i < sliceOffsets.length; i++) {
@@ -111,15 +114,15 @@ public class ChatMessageParser {
         }
     }
 
-    private static TextRange createContentRange(List<ChatMessageSection> sections, int offset, int length) {
-        ChatMessageSection previousSection = Lists.lastElement(sections);
+    private static TextRange createContentRange(List<ChatMessageTextSection> sections, int offset, int length) {
+        ChatMessageTextSection previousSection = Lists.lastElement(sections);
         int startOffset = previousSection == null ? offset : previousSection.getContentEndOffset();
         int endOffset = startOffset + length;
 
         return new TextRange(startOffset, endOffset);
     }
 
-    private static void createCodeSection(List<ChatMessageSection> sections, int offset, String content, ASTNode rootNode) {
+    private static void createCodeSection(List<ChatMessageTextSection> sections, int offset, String content, ASTNode rootNode) {
         String language = null;
         StringBuilder builder = new StringBuilder();
         for (ASTNode codeNode : rootNode.getChildren()) {
@@ -143,29 +146,48 @@ public class ChatMessageParser {
         }
     }
 
-    private void createSection(List<ChatMessageSection> sections, String content, TextRange contentRange, String language) {
-        ChatMessageSection currentSection = new ChatMessageSection(content, contentRange, language);
+    private void createSection(List<ChatMessageTextSection> sections, String content, TextRange contentRange, String language) {
+        ChatMessageTextSection currentSection = new ChatMessageTextSection(content, contentRange, language);
         currentSection.setContentRange(contentRange);
         sections.add(currentSection);
     }
 
     public static TextContent convertMarkdownToHtml(String content) {
         GFMFlavourDescriptor flavourDescriptor = new GFMFlavourDescriptor();
-        //content = content.replaceAll("<", "&lt;");
-        //content = content.replaceAll(">", "&gt;");
         ASTNode rootNode = parseMarkdownContent(content);
 
         HtmlGenerator htmlGenerator = new HtmlGenerator(content, rootNode, flavourDescriptor, false);
         HtmlGenerator.TagRenderer tagRenderer = new CustomTagTenderer((n, s, cs) -> cs, false);
         String body = htmlGenerator.generateHtml(tagRenderer);
+        body = sanitizeHtml(body);
 
         String wrapperContent = TextResources.get(ChatMessageParser.class, "chat_message_wrapper.html.ft");
         TextContent htmlContent = TextContent.html(wrapperContent);
         htmlContent.initFonts();
         htmlContent.initField("BODY_CONTENT", body);
-        htmlContent.adjustContent(t -> Unsafe.logged(t, () ->cleanupHtml(t)));
+        htmlContent.adjustContent(t -> Unsafe.logged(t, () -> cleanupHtml(t)));
 
         return htmlContent;
+    }
+
+    private static String sanitizeHtml(String html) {
+        Document.OutputSettings outputSettings = new Document.OutputSettings().prettyPrint(false);
+        return Jsoup.clean(html, "", CHAT_MESSAGE_HTML_SAFELIST, outputSettings);
+    }
+
+    private static Safelist createChatMessageHtmlSafelist() {
+        return new Safelist()
+                .addTags(
+                        "a", "b", "blockquote", "br", "code", "dd", "del", "dl", "dt", "em",
+                        "h1", "h2", "h3", "h4", "h5", "h6", "hr", "i", "li", "ol", "p", "pre",
+                        "s", "small", "span", "strike", "strong", "sub", "sup", "table", "tbody",
+                        "td", "tfoot", "th", "thead", "tr", "u", "ul")
+                .addAttributes("a", "href")
+                .addAttributes("table", "cellspacing", "cellpadding")
+                .addAttributes("td", "colspan", "rowspan")
+                .addAttributes("th", "colspan", "rowspan", "scope")
+                .addProtocols("a", "href", "http", "https")
+                .addEnforcedAttribute("a", "rel", "nofollow");
     }
 
     private static @NotNull String cleanupHtml(String html) {
@@ -200,8 +222,9 @@ public class ChatMessageParser {
             super(customizer, includeSrcPositions);
         }
 
+        @NonNls
         @Override
-        public @NotNull CharSequence openTag(@NotNull ASTNode node, @NotNull CharSequence tagName, @NotNull CharSequence[] attributes, boolean autoClose) {
+        public @NotNull CharSequence openTag(@NotNull ASTNode node, @NotNull @NonNls CharSequence tagName, @NotNull CharSequence[] attributes, boolean autoClose) {
             if (tagName.equals("table")) {
                 return "<table cellspacing='0' cellpadding='4'>";
             }

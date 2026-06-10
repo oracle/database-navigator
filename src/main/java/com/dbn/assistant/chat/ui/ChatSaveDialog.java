@@ -27,6 +27,8 @@ import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.util.Set;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class ChatSaveDialog extends DBNDialog<ChatSaveForm> {
     private final ChatInterruptionReason changedField;
@@ -34,7 +36,7 @@ public class ChatSaveDialog extends DBNDialog<ChatSaveForm> {
     private String title;
 
     public ChatSaveDialog(Project project, ChatInterruptionReason changedField, Set<String> usedTitles) {
-        super(project, "Save Chat", true);
+        super(project, txt("msg.assistant.title.SaveChat"), true);
         this.changedField = changedField;
         this.usedTitles = usedTitles;
         setModal(true);
@@ -51,7 +53,7 @@ public class ChatSaveDialog extends DBNDialog<ChatSaveForm> {
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Save");
+        renameAction(getOKAction(), txt("msg.shared.button.Save"));
         return actions(
                 getOKAction(),
                 discardAction,
@@ -62,7 +64,7 @@ public class ChatSaveDialog extends DBNDialog<ChatSaveForm> {
     public void doCancelAction() {
         close(0);
     }
-    private final Action discardAction = new AbstractAction("Discard") {
+    private final Action discardAction = new AbstractAction(txt("msg.assistant.button.Discard")) {
         @Override
         public void actionPerformed(ActionEvent e) {
             close(1);
@@ -81,4 +83,3 @@ public class ChatSaveDialog extends DBNDialog<ChatSaveForm> {
         return super.getOKAction();
     }
 }
-

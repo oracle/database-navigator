@@ -29,6 +29,7 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
@@ -42,6 +43,7 @@ import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.DatabaseFileManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,6 +54,8 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showQuestionDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.DELETE;
@@ -104,15 +108,13 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
         if (ObjectFactoryAdapters.isSupported(objectType)) {
             if (isOwnerRestricted(objectType) && !schema.isUserSchema()) {
-                String objectTypeName = objectType.getName();
+                String objectTypeName = objectType.getDisplayName();
                 ConnectionHandler connection = schema.getConnection();
                 DBSchema userSchema = connection.getUserSchema();
 
-                Messages.showQuestionDialog(project,
-                        "Owner Restriction",
-                        "The objects of type \"" + objectTypeName + "\" are owner restricted. " +
-                                "You can only create " + objectType.getListName() + " in your own schema.\n\n" +
-                                "Do you want to create the " + objectTypeName + " in your schema?",
+                showQuestionDialog(project,
+                        txt("msg.objects.title.OwnerRestriction"),
+                        txt("msg.objects.question.OwnerRestriction", objectTypeName, objectType.getListDisplayName()),
                         Messages.OPTIONS_YES_CANCEL, 0,
                         option -> when(option == 0, () ->
                                 openFactoryInputDialog(
@@ -126,9 +128,9 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
             Dialogs.show(() -> new DBObjectFactoryInputDialog(project, schema, objectType, initialInput), callback);
         } else {
-            Messages.showErrorDialog(project,
+            showErrorDialog(project,
                     txt("msg.objects.title.OperationNotSupported"),
-                    txt("msg.objects.error.ObjectCreationNotSupported", objectType.getListName()));
+                    txt("msg.objects.error.ObjectCreationNotSupported", objectType.getListDisplayName()));
         }
     }
 
@@ -143,24 +145,24 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         Project project = getProject();
 
         DBObjectType objectType = input.getObjectType();
-        ObjectFactoryAdapter<DBObjectSpec, ?> factoryAdapter = ObjectFactoryAdapters.get(objectType);
+        ObjectFactoryAdapter factoryAdapter = ObjectFactoryAdapters.get(objectType);
 
-        List<String> errors = new ArrayList<>();
+        List<@Nls String> errors = new ArrayList<>();
         factoryAdapter.validateInput(input, errors);
 
         if (errors.isEmpty()) {
             factoryAdapter.createObject(input);
         } else {
-            String objectTypeName = objectType.getName();
+            String objectTypeName = objectType.getDisplayName();
             String objectErrors = errors.stream().map(error -> " - " + error + "\n").collect(Collectors.joining());
-            Messages.showErrorDialog(project, txt("msg.objects.error.ObjectCreationError", objectTypeName, objectErrors));
+            showErrorDialog(project, txt("msg.objects.error.ObjectCreationError", objectTypeName, objectErrors));
         }
 
     }
 
     public void dropObject(DBSchemaObject object) {
         Project project = getProject();
-        Messages.showQuestionDialog(
+        showQuestionDialog(
                 project,
                 txt("msg.objects.title.DropObject"),
                 txt("msg.objects.question.DropObject", object.getQualifiedNameWithType()),
@@ -216,7 +218,8 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                             }
                         } else {
                             if(objectType == JAVA_CLASS) {
-                                dataDefinition.dropJavaClass(schemaName, objectName, conn);
+                                DatabaseJavaInterface javaInterface = object.getJavaInterface();
+                                javaInterface.dropJavaClass(schemaName, objectName, conn);
                             } else {
                                 dataDefinition.dropObject(objectTypeName, schemaName, objectName, conn);
 
@@ -227,8 +230,8 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                     });
         } catch (SQLException e) {
             conditionallyLog(e);
-            String message = "Could not drop " + object.getQualifiedNameWithType() + ".";
-            Messages.showErrorDialog(project, message, e);
+            String message = txt("msg.objects.error.CouldNotDropObject", object.getQualifiedNameWithType());
+            showErrorDialog(project, message, e);
         }
     }
 }

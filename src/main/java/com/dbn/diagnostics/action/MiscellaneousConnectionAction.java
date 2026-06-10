@@ -21,9 +21,15 @@ import com.dbn.connection.action.AbstractConnectionAction;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.updateSettings.impl.pluginsAdvertisement.PluginsAdvertiser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Set;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class MiscellaneousConnectionAction extends AbstractConnectionAction {
     public MiscellaneousConnectionAction(@NotNull ConnectionHandler connection) {
@@ -32,11 +38,23 @@ public class MiscellaneousConnectionAction extends AbstractConnectionAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ConnectionHandler connection) {
+        PluginsAdvertiser.installAndEnable(
+                project,
+                Set.of(PluginId.getId("com.intellij.mcpServer")),
+                true,
+                new Runnable() {
+                    @Override
+                    public void run() {
+
+                    }
+                }
+        );
+
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler connection) {
         presentation.setVisible(Diagnostics.isBulkActionsEnabled());
-        presentation.setText("Dev Test");
+        presentation.setText(txt("app.diagnostics.action.DevTest"));
     }
 }

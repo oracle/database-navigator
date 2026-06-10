@@ -44,6 +44,7 @@ import java.util.Set;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Borders.TEXT_FIELD_INSETS;
 import static com.dbn.common.ui.util.Mouse.isMainSingleClick;
+import static com.dbn.nls.NlsResources.txt;
 
 public class CmdLineInterfacesTable extends DBNTable<CmdLineInterfacesTableModel> {
 
@@ -60,7 +61,7 @@ public class CmdLineInterfacesTable extends DBNTable<CmdLineInterfacesTableModel
         putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         addMouseListener(createMouseListener());
 
-        setAccessibleName(this, "Command Line Interfaces");
+        setAccessibleName(this, txt("cfg.execution.aria.CommandLineInterfaces"));
     }
 
     private MouseListener createMouseListener() {

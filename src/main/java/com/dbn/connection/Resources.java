@@ -26,8 +26,6 @@ import com.dbn.connection.jdbc.DBNResource;
 import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.connection.jdbc.Resource;
 import com.dbn.connection.jdbc.ResourceStatus;
-import com.dbn.nls.NlsResources;
-import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +33,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.Reader;
+import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLRecoverableException;
@@ -43,6 +43,7 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.notification.NotificationCategory.CONNECTION;
 import static com.dbn.common.notification.NotificationCategory.TRANSACTION;
 import static com.dbn.common.util.Classes.className;
@@ -53,10 +54,11 @@ import static com.dbn.connection.jdbc.ResourceStatus.VALID;
 import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.diagnostics.Diagnostics.isDatabaseResourceDebug;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @UtilityClass
-public final class Resources implements NlsSupport {
+public final class Resources {
 
     public static boolean isClosed(ResultSet resultSet) throws SQLException {
         try {
@@ -299,7 +301,7 @@ public final class Resources implements NlsSupport {
             String connectionName = connection.getName();
             SessionId sessionId = connection.getSessionId();
             String errorMessage = e.getMessage();
-            String message = NlsResources.txt(messageKey, connectionName, sessionId, errorMessage);
+            String message = txt(messageKey, connectionName, sessionId, errorMessage);
 
             NotificationSupport.sendWarningNotification(
                     project,
@@ -360,5 +362,21 @@ public final class Resources implements NlsSupport {
 
     public static boolean isObsolete(@Nullable Resource resource) {
         return resource == null || resource.isObsolete();
+    }
+
+    public static String readClob(Clob clob) throws SQLException {
+        if (clob == null) return null;
+
+        StringBuilder builder = new StringBuilder();
+        try (Reader reader = clob.getCharacterStream()) {
+            char[] buffer = new char[4096];
+            int n;
+            while ((n = reader.read(buffer)) != -1) {
+                builder.append(buffer, 0, n);
+            }
+        } catch (Throwable e) {
+            throw toSqlException(e);
+        }
+        return builder.toString();
     }
 }

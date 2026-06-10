@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
  * @author Dan Cioca (Oracle)
  */
 public class ProfileCreateAction extends ProfileManagementAction {
+    public ProfileCreateAction() {
+        super(txt("app.assistant.action.AssistantCreateProfile"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ProfileManagementForm managementForm = getManagementForm(e);

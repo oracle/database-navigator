@@ -24,12 +24,14 @@ import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.project.DumbAware;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class FindAllAction extends DataSearchHeaderAction implements DumbAware {
     public FindAllAction(DataSearchComponent searchComponent) {
         super(searchComponent);
         getTemplatePresentation().setIcon(AllIcons.ToolbarDecorator.Export);
-        getTemplatePresentation().setDescription("Export matches to Find tool window");
-        getTemplatePresentation().setText("Find All");
+        getTemplatePresentation().setDescription(txt("app.data.tooltip.FindAll"));
+        getTemplatePresentation().setText(txt("app.data.action.FindAll"));
         registerCustomShortcutSet(ActionManager.getInstance().getAction(IdeActions.ACTION_FIND_USAGES).getShortcutSet(),
                 searchComponent.getSearchField());
     }

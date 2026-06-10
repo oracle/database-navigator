@@ -22,17 +22,20 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.interfaces.DatabaseMLInterface;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.result.MLExecutionResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JOptionPane;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Action to rename ML model in the database using DBMS_DATA_MINING.RENAME_MODEL.
@@ -40,6 +43,8 @@ import javax.swing.JOptionPane;
  * @author ayoub allali
  */
 public class MLResultRenameAction extends AbstractMLExecutionResultAction {
+    private static final @NonNls String DEFAULT_MODEL_NAME = "ML_MODEL";
+
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull MLExecutionResult executionResult) {
@@ -51,7 +56,7 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
 
         String newName = JOptionPane.showInputDialog(
                 null,
-                "Enter a new name for the model:",
+                txt("msg.machineLearning.text.EnterModelName"),
                 defaultName
         );
 
@@ -68,7 +73,7 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
         Background.run(() -> {
             try {
                 ConnectionHandler connection = modelHandle.getConnection();
-                DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
 
                 try (DBNConnection conn = connection.getMainConnection()) {
                     mlInterface.renameModel(conn, oldName, newName);
@@ -79,14 +84,14 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
                     Dispatch.run(() -> {
                         executionResult.setName(newName, true);
                         Messages.showInfoDialog(project,
-                                "Model renamed from '" + oldName + "' to '" + newName + "'",
-                                "Rename Complete");
+                                txt("msg.machineLearning.title.RenameComplete"),
+                                txt("msg.machineLearning.info.ModelRenamed", oldName, newName));
                     });
                 }
             } catch (Exception ex) {
                 Dispatch.run(() -> Messages.showErrorDialog(project,
-                        "Failed to rename model: " + ex.getMessage(),
-                        "Rename Failed"));
+                        txt("msg.machineLearning.title.RenameFailed"),
+                        txt("msg.machineLearning.error.RenameModelFailed", ex)));
             }
         });
     }
@@ -106,12 +111,12 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
         if (sourceName != null && !sourceName.isEmpty()) {
             return sourceName.toUpperCase() + "_MODEL";
         }
-        return "ML_MODEL";
+        return DEFAULT_MODEL_NAME;
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable MLExecutionResult target) {
-        presentation.setText("Rename Model");
+        presentation.setText(txt("app.machineLearning.action.RenameModel"));
         presentation.setIcon(Icons.ACTION_EDIT);
         presentation.setVisible(target != null);
         presentation.setEnabled(target != null);

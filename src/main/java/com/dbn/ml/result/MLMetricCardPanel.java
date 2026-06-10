@@ -18,9 +18,13 @@ package com.dbn.ml.result;
 
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBUI;
+import org.jetbrains.annotations.Nls;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Font;
 
 /**
  * A card-style panel that displays a single ML metric.
@@ -36,7 +40,7 @@ public class MLMetricCardPanel extends JPanel {
     private JLabel valueLabel;
     private JPanel progressBarContainer;
 
-    public MLMetricCardPanel(String name, double value, boolean isRatio) {
+    public MLMetricCardPanel(@Nls String name, double value, boolean isRatio) {
         super(new BorderLayout());
         // $$$setupUI$$$() is injected here by IntelliJ's form compiler
         add(mainPanel);

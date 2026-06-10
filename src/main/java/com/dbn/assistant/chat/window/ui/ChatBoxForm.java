@@ -73,6 +73,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Database Assistant ChatBox component
@@ -197,7 +198,7 @@ public class ChatBoxForm extends DBNFormBase {
     private void initHeaderForm() {
         ConnectionHandler connection = getConnection();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
-        headerForm.setSelector("Select Connection", createConnectionActions());
+        headerForm.setSelector(txt("app.assistant.tooltip.SelectConnection"), createConnectionActions());
         headerForm.setActions(createAssistantTypeActions());
 
         headerPanel.add(headerForm.getComponent());
@@ -434,8 +435,10 @@ public class ChatBoxForm extends DBNFormBase {
         chatMessagesPanel.add(messagesForm.getComponent());
     }
 
-    public void hideProcessingIndicators() {
-        messagesForm.hideProcessingIndicators();
+    public void hideProcessingIndicators(String chatId) {
+        if (isCurrentChat(chatId)) {
+            messagesForm.hideProcessingIndicators();
+        }
     }
 
     public ChatContext getCurrentContext() {
@@ -444,10 +447,6 @@ public class ChatBoxForm extends DBNFormBase {
 
     public Chat getCurrentChat() {
         return getAssistantState().getCurrentChat();
-    }
-
-    public Object getCurrentChatId() {
-        return getAssistantState().getCurrentChatId();
     }
 
     public void submitPrompt() {
@@ -502,8 +501,8 @@ public class ChatBoxForm extends DBNFormBase {
             if (title == null) return;
 
             title = title.trim();
-            title = title.replaceAll("\"", "");
-            title = title.replaceAll("'", "");
+            title = title.replace("\"", "");
+            title = title.replace("'", "");
             chat.setTitle(title);
         });
     }
@@ -522,20 +521,31 @@ public class ChatBoxForm extends DBNFormBase {
         if (chat == null) return; // chat already discarded by the time of message arrival
 
         chat.addMessage(message);
-        String currentChatId = state.getCurrentChatId();
-        if (Objects.equals(chatId, currentChatId)) {
+        if (isCurrentChat(chatId)) {
             // update UI only if chat is still current
             messagesForm.addMessages(List.of(message));
             updateActionToolbars();
         }
     }
 
-    public void refreshMessage(ChatMessage message) {
+    public void refreshMessage(String chatId, ChatMessage message) {
+        if (!isCurrentChat(chatId)) return;
         messagesForm.refreshMessage(message);
     }
 
-    public void refreshTools(ChatMessage message) {
+    public void refreshTools(String chatId, ChatMessage message) {
+        if (!isCurrentChat(chatId)) return;
         messagesForm.refreshTools(message);
+    }
+
+    public void refreshNotes(String chatId, ChatMessage message) {
+        if (!isCurrentChat(chatId)) return;
+        messagesForm.refreshNotes(message);
+    }
+
+    public boolean isCurrentChat(String chatId) {
+        String currentChatId = getAssistantState().getCurrentChatId();
+        return Objects.equals(currentChatId, chatId);
     }
 
 

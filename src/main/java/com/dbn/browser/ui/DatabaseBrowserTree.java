@@ -58,6 +58,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.tree.TreeUtil;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,9 +71,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
-import static com.dbn.common.util.Naming.doubleQuoted;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
@@ -352,9 +354,14 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
 
         if (pathNode instanceof DBObjectList<?> objectList) {
             return new ObjectListActionGroup(objectList);
-        } else if (pathNode instanceof DBObject object) {
-            return new ObjectActionGroup(object);
-        } else if (pathNode instanceof DBObjectBundle objectsBundle) {
+        }
+
+        if (pathNode instanceof DBObject object) {
+            DBObject[] objects = getSelectedObjects(object);
+            return new ObjectActionGroup(objects);
+        }
+
+        if (pathNode instanceof DBObjectBundle objectsBundle) {
             ConnectionHandler connection = objectsBundle.getConnection();
             return new ConnectionActionGroup(connection);
         }
@@ -362,16 +369,30 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
         return null;
     }
 
+    private DBObject[] getSelectedObjects(DBObject sourceObject) {
+        List<DBObject> objects = new ArrayList<>();
+        for (TreePath path : getSelectionModel().getSelectionPaths()) {
+            Object node = path.getLastPathComponent();
+            if (!(node instanceof DBObject selectedObject)) continue;
+            if (isNotValid(selectedObject)) continue;
+            if (selectedObject.getObjectType() != sourceObject.getObjectType()) continue;
+
+            objects.add(selectedObject);
+        }
+
+        return objects.toArray(new DBObject[0]);
+    }
+
     @Override
-    protected String getContextMenuNodeName(Object node) {
+    protected @Nls String getContextMenuNodeName(Object node) {
         if (node instanceof DBObjectList<?> objectList) {
-            return "object list " + doubleQuoted(objectList.getObjectType().getListName());
+            return txt("app.objects.token.ObjectList", objectList.getObjectType().getListName());
         } else if (node instanceof DBObject object) {
-            return object.getTypeName() + " " + doubleQuoted(object.getName());
+            return txt("app.object.token.QualifiedNameWithType", object.getTypeName(), object.getName());
 
         } else if (node instanceof DBObjectBundle objectsBundle) {
             ConnectionHandler connection = objectsBundle.getConnection();
-            return "connection " + doubleQuoted(connection.getName());
+            return txt("app.connection.token.Connection", connection.getName());
         }
 
         return super.getContextMenuNodeName(node);

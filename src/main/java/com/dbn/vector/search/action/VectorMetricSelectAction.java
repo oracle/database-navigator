@@ -24,7 +24,13 @@ import com.intellij.openapi.actionSystem.DataContext;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class VectorMetricSelectAction extends SelectDropdownAction<DBVectorDistanceMetric> implements VectorActionSupport{
+    public VectorMetricSelectAction() {
+        super(txt("app.vector.action.VectorSearchDistanceMetric"));
+    }
+
     @Override
     protected List<DBVectorDistanceMetric> getObjects(DataContext dataContext) {
         return List.of(
@@ -37,7 +43,12 @@ public class VectorMetricSelectAction extends SelectDropdownAction<DBVectorDista
 
     @Override
     protected String getDescription(AnActionEvent e) {
-        return "Vector distance metric";
+        return txt("app.vector.tooltip.VectorDistanceMetric");
+    }
+
+    @Override
+    protected String getDescription(DBVectorDistanceMetric element) {
+        return "<strong>" + element.getName() + "</strong><br><br>" + element.getDescription();
     }
 
     @Override

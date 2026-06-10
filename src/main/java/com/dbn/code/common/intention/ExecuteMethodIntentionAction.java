@@ -41,8 +41,8 @@ public class ExecuteMethodIntentionAction extends AbstractMethodExecutionIntenti
     @Override
     protected String getActionName(DBMethod method) {
         return method == null ?
-                txt("app.codeEditor.action.ExecuteMethod") :
-                txt("app.codeEditor.action.ExecuteSpecificMethod", method.getQualifiedNameWithType());
+                txt("app.codeEditor.intention.ExecuteMethod") :
+                txt("app.codeEditor.intention.ExecuteSpecificMethod", method.getQualifiedNameWithType());
     }
 
     @Override

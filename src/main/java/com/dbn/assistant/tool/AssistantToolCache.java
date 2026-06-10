@@ -23,8 +23,7 @@ import com.dbn.assistant.tool.approval.AssistantToolFilter;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.list.FilteredList;
 import dev.langchain4j.service.tool.ToolProvider;
-import dev.langchain4j.service.tool.ToolProviderRequest;
-import dev.langchain4j.service.tool.ToolProviderResult;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,9 +37,11 @@ import static com.dbn.assistant.tool.AssistantToolData.getUtilitySpec;
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_TOOL_CACHE;
 
 @Slf4j
-public class AssistantToolCache extends AssistantStateExtension implements ToolProvider {
+@Getter
+public class AssistantToolCache extends AssistantStateExtension {
     private final List<AssistantTool> tools;
     private final ToolProvider provider = new AssistantToolProvider(this);
+    private final AssistantTool externalTool;
 
     private AssistantToolCache(@NotNull AssistantState assistantState) {
         super(assistantState);
@@ -48,6 +49,7 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
 
         AssistantToolFilter filter = new AssistantToolFilter(assistantState);
         this.tools = FilteredList.stateful(filter, tools);
+        this.externalTool = new ExternalAssistantTool(getConnection(), "External tool", "External tool from user-defined MCP servers");
     }
 
     private static List<AssistantTool> initTools(AssistantState assistantState) {
@@ -74,13 +76,14 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
         return UserDataKeys.getUserDataSync(assistantState, ASSISTANT_TOOL_CACHE, () -> new AssistantToolCache(assistantState));
     }
 
-    @Nullable
+    @NotNull
     public AssistantTool getAssistantTool(String utilityName) {
         for (AssistantTool tool : getAllTools()) {
             UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
             if (utilitySpec != null) return tool;
         }
-        return null;
+
+        return externalTool;
     }
 
     @Nullable
@@ -106,10 +109,5 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
                 .map(t -> t.getCategory())
                 .distinct()
                 .toArray(AssistantToolCategory[]::new);
-    }
-
-    @Override
-    public ToolProviderResult provideTools(ToolProviderRequest request) {
-        return provider.provideTools(request);
     }
 }

@@ -31,6 +31,7 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 @Setter
 public class ChatHistoryTable extends DBNTable<ChatHistoryTableModel> {
@@ -56,7 +57,7 @@ public class ChatHistoryTable extends DBNTable<ChatHistoryTableModel> {
             }
         });
 
-        setAccessibleName(this, "Chat History");
+        setAccessibleName(this, txt("app.assistant.aria.ChatHistory"));
         setProportionalColumnWidths(65, 35);
     }
 

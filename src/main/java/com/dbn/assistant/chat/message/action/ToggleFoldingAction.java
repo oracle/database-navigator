@@ -16,24 +16,26 @@
 
 package com.dbn.assistant.chat.message.action;
 
-import com.dbn.assistant.chat.message.ui.ChatMessageForm;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.component.DBNFoldableComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class ToggleFoldingAction extends ChatMessageAction implements AssistantActionSupport {
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        ChatMessageForm messageForm = getMessageForm(e);
+        DBNFoldableComponent foldableComponent = getFoldableComponent(e);
 
-        boolean enabled = messageForm != null;
-        boolean folded = enabled && messageForm.getMessage().isFolded();
+        boolean enabled = foldableComponent != null;
+        boolean folded = enabled && foldableComponent.isFolded();
 
         Presentation presentation = e.getPresentation();
-        presentation.setText(folded ? "Expand" : "Collapse");
+        presentation.setText(folded ? txt("app.assistant.action.Expand") : txt("app.assistant.action.Collapse"));
         presentation.setIcon(folded ?
                 Icons.ACTION_CONTENT_EXPAND :
                 Icons.ACTION_CONTENT_COLLAPSE);
@@ -42,10 +44,10 @@ public class ToggleFoldingAction extends ChatMessageAction implements AssistantA
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        ChatMessageForm messageForm = getMessageForm(e);
-        if (messageForm == null) return;
+        DBNFoldableComponent foldableComponent = getFoldableComponent(e);
+        if (foldableComponent == null) return;
 
-        messageForm.toggleContentFolding();
+        foldableComponent.toggleFolding();
     }
 
 }

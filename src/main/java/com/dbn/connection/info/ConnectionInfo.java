@@ -19,6 +19,7 @@ package com.dbn.connection.info;
 import com.dbn.common.util.Unsafe;
 import com.dbn.connection.DatabaseType;
 import lombok.Value;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.DatabaseMetaData;
@@ -68,6 +69,7 @@ public class ConnectionInfo {
         return productVersion.trim();
     }
 
+    @NonNls
     public String toString() {
         return  "Product name:\t" + productName + '\n' +
                 "Product version:\t" + productVersion + '\n' +

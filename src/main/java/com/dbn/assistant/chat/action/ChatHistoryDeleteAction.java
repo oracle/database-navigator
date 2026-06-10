@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
  * Action for deleting a stored chat
  **/
 public class ChatHistoryDeleteAction extends AbstractChatBoxAction {
+    public ChatHistoryDeleteAction() {
+        super(txt("app.assistant.action.AssistantDeleteConversations"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatHistoryForm chatHistoryForm = e.getData(DataKeys.CHAT_HISTORY_FORM);
@@ -51,7 +55,7 @@ public class ChatHistoryDeleteAction extends AbstractChatBoxAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_DELETE);
-        presentation.setText(txt("app.assistant.action.DeleteSelectedChats"));
+        presentation.setText(txt("app.assistant.action.DeleteConversations"));
         presentation.setEnabled(selectedRowCount > 0);
     }
 

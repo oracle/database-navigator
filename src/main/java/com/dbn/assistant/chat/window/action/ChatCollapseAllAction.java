@@ -27,6 +27,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ChatCollapseAllAction extends AbstractChatBoxAction {
 
+    public ChatCollapseAllAction() {
+        super(txt("app.assistant.action.AssistantCollapseAll"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();

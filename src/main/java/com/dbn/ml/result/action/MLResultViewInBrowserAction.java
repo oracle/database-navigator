@@ -30,6 +30,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Action to view the ML model in the database browser.
  * Only available for DBMS models that are persisted in the database.
@@ -49,7 +51,7 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
         // Get the user schema where the model is stored
         DBSchema schema = connection.getUserSchema();
         if (schema == null) {
-            Messages.showWarningDialog(project, "Could not find user schema.", "Schema Not Found");
+            Messages.showWarningDialog(project, txt("msg.machineLearning.title.SchemaNotFound"), txt("msg.machineLearning.error.SchemaNotFound"));
             return;
         }
 
@@ -57,8 +59,8 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
         DBAIModel aiModel = findAIModel(schema, modelName);
         if (aiModel == null) {
             Messages.showWarningDialog(project,
-                    "Model '" + modelName + "' not found in database.\nIt may have been dropped or renamed.",
-                    "Model Not Found");
+                    txt("msg.machineLearning.title.ModelNotFound"),
+                    txt("msg.machineLearning.error.ModelNotFound", modelName));
             return;
         }
 
@@ -78,7 +80,7 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable MLExecutionResult target) {
-        presentation.setText("View in Database");
+        presentation.setText(txt("app.machineLearning.action.ViewInDatabase"));
         presentation.setIcon(Icons.DBO_AI_MODEL);
 
         presentation.setVisible(target != null);

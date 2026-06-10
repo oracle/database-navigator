@@ -58,6 +58,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,6 +82,7 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.count;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<ConnectionBundleSettings> implements ListSelectionListener {
@@ -274,6 +276,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         return connectionId;
     }
 
+    @NonNls
     private String  getUrl(OciConnectionData connectionData){
         String urlPrefix = "jdbc:oracle:thin:@tcps://";
         String connectionStringHigh = connectionData.getAllConnectionStrings().get("HIGH");
@@ -431,21 +434,23 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             }
         }
     }
-    public void importTnsNames(TnsImportData importData){
-        importTnsNames(importData,null);
+    public ConnectionId importTnsNames(TnsImportData importData){
+        return importTnsNames(importData,null);
     }
-    public void importTnsNames(TnsImportData importData, OciConnectionData ociConnectionData) {
+    public ConnectionId importTnsNames(TnsImportData importData, OciConnectionData ociConnectionData) {
         ConnectionBundleSettings connectionBundleSettings = getConfiguration();
         ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
         int index = connectionsList.getModel().getSize();
         List<Integer> selectedIndexes = new ArrayList<>();
 
+        ConnectionId firstConnectionId = null;
         TnsNames tnsNames = importData.getTnsNames();
         List<TnsProfile> tnsProfiles = importData.isSelectedOnly() ? tnsNames.getSelectedProfiles() : tnsNames.getProfiles();
         for (TnsProfile tnsProfile : tnsProfiles) {
             ConnectionSettings connectionSettings = getConnectionSettings(ociConnectionData, connectionBundleSettings);
             connectionBundleSettings.setModified(true);
             connectionBundleSettings.getConnections().add(connectionSettings);
+            firstConnectionId = firstConnectionId == null ? connectionSettings.getConnectionId() : firstConnectionId;
 
             ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
             DatabaseInfo databaseInfo = databaseSettings.getDatabaseInfo();
@@ -474,6 +479,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         }
 
         connectionsList.setSelectedIndices(selectedIndexes.stream().mapToInt(i -> i).toArray());
+        return firstConnectionId;
     }
 
     private static @NotNull ConnectionSettings getConnectionSettings(OciConnectionData ociConnectionData, ConnectionBundleSettings connectionBundleSettings) {

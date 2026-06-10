@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import static com.dbn.assistant.tool.AssistantToolType.SUPPORT;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.common.util.Unsafe.silent;
 
 public class AssistantToolData {
     private static final List<AssistantToolFactory> factories = AssistantToolFactories.list();
@@ -123,6 +124,10 @@ public class AssistantToolData {
         return getUtilityMethod(toolSpecification, utilityName);
     }
 
+    public static boolean isInternalTool(String utilityName) {
+        return silent(null, () -> getUtilityMethod(utilityName)) != null;
+    }
+
     @Nullable
     public static Method getUtilityMethod(Class<? extends AssistantTool> toolClass, String utilityName) {
         Method[] methods = getToolSpecification(toolClass).getDeclaredMethods();
@@ -137,6 +142,7 @@ public class AssistantToolData {
 
     public static Class getToolSpecification(Class<? extends AssistantTool> toolClass) {
         if (toolClass.isInterface() && AssistantTool.class.isAssignableFrom(toolClass)) return toolClass;
+        if (ExternalAssistantTool.class.isAssignableFrom(toolClass)) return toolClass;
 
         Class<?>[] interfaces = toolClass.getInterfaces();
         for (Class<?> spec : interfaces) {

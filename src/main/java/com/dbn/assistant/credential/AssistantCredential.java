@@ -21,6 +21,7 @@ import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Cloneable;
+import com.dbn.common.util.UUIDs;
 import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretType;
@@ -32,8 +33,6 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 import static com.dbn.common.options.setting.Settings.charsAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
@@ -51,7 +50,7 @@ import static com.dbn.credentials.SecretType.GENERIC_CREDENTIAL;
 @Getter
 @Setter
 public class AssistantCredential implements Cloneable<AssistantCredential>, PersistentConfiguration, Presentable, SecretsOwner {
-    private String id = UUID.randomUUID().toString();
+    private String id = UUIDs.regular();
     private AIProviderId providerId;
     private String name;
     private String user;
@@ -107,7 +106,7 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
 
         if (isOci()) {
             Element ociConfigElement = element.getChild("oci-config");
-            ociConfig.readConfiguration(ociConfigElement);
+            ociConfig.readState(ociConfigElement);
         }
 
         if (isTransientContext()) {
@@ -126,7 +125,7 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
 
         if (isOci()) {
             Element ociConfigElement = newElement(element, "oci-config");
-            ociConfig.writeConfiguration(ociConfigElement);
+            ociConfig.writeState(ociConfigElement);
         }
 
         if (isTransientContext()) {

@@ -45,6 +45,7 @@ import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.startsWithVowel;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static com.dbn.object.type.DBObjectType.TABLE;
 
@@ -67,6 +68,7 @@ public class DBObjectSelectionForm<T extends DBObject> extends DBNFormBase {
 
         initHeaderPanel();
         initHintPanel();
+        initObjectLabel();
 
         resetFormChanges();
     }
@@ -84,6 +86,11 @@ public class DBObjectSelectionForm<T extends DBObject> extends DBNFormBase {
             DBNHintForm hintForm = new DBNHintForm(this, hint, null, true);
             hintPanel.add(hintForm.getComponent());
         }
+    }
+
+    private void initObjectLabel() {
+        String objectTypeName = input.getObjectType().getTitleCasedDisplayName();
+        objectLabel.setText(objectTypeName);
     }
 
     public ConnectionHandler getConnection() {
@@ -156,11 +163,11 @@ public class DBObjectSelectionForm<T extends DBObject> extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addSelectionValidation(schemaComboBox, "Please select a schema");
+        addSelectionValidation(schemaComboBox, txt("msg.shared.error.SelectSchema"));
         DBObjectType objectType = input.getObjectType();
-        String objectTypeName = objectType.getTitleCasedName();
+        String objectTypeName = objectType.getTitleCasedDisplayName();
 
-        addSelectionValidation(objectComboBox, "Please select " + (startsWithVowel(objectTypeName) ? "an " : "a ") +  objectTypeName);
+        addSelectionValidation(objectComboBox, txt("msg.objects.error.SelectObject", (startsWithVowel(objectTypeName) ? "an " : "a ") +  objectTypeName));
     }
 
     private void populateColumns() {

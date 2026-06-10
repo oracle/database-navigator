@@ -16,7 +16,7 @@
 
 package com.dbn.oci.config;
 
-import com.dbn.common.options.PersistentConfiguration;
+import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
 import lombok.Data;
 import lombok.SneakyThrows;
@@ -30,7 +30,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.Unsafe.cast;
 
 @Data
-public class OciConfig implements PersistentConfiguration, Cloneable<OciConfig> {
+public class OciConfig implements PersistentStateElement, Cloneable<OciConfig> {
     private OciConfigType type = OciConfigType.FILE;
     private String userId;
     private String tenancyId;
@@ -57,7 +57,8 @@ public class OciConfig implements PersistentConfiguration, Cloneable<OciConfig> 
         }
     }
 
-    public void readConfiguration(Element element) {
+    @Override
+    public void readState(Element element) {
         if (element == null) return;
 
         type = getEnum(element, "type", type);
@@ -74,7 +75,7 @@ public class OciConfig implements PersistentConfiguration, Cloneable<OciConfig> 
     }
 
     @Override
-    public void writeConfiguration(Element element) {
+    public void writeState(Element element) {
         setEnum(element, "type", type);
 
         setString(element, "user-id", userId);

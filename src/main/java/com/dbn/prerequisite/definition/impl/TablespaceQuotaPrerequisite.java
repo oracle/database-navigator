@@ -28,6 +28,7 @@ import com.dbn.prerequisite.model.PrerequisiteType;
 import com.dbn.prerequisite.resolution.PrerequisiteAdvice;
 import com.dbn.prerequisite.resolution.PrerequisiteAdvisor;
 import com.dbn.prerequisite.resolution.PrerequisiteResolver;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,12 +83,13 @@ public abstract class TablespaceQuotaPrerequisite extends PrerequisiteDefinition
         return context -> {
             String userName = context.getUserName();
             return new PrerequisiteAdvice(
-                    "Request Quota",
-                    "System tablespace quota for user \"" + userName + "\" (100M or higher)",
+                    txt("msg.prerequisite.title.RequestQuota"),
+                    txt("msg.prerequisite.text.AdviceTablespaceQuota", userName),
                     String.format("ALTER USER %s QUOTA 100M ON SYSTEM;", userName));
         };
     }
 
+    @NonNls
     @Override
     public String toString() {
         return "System tablespace quota";

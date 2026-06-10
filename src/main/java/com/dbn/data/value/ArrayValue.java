@@ -30,6 +30,7 @@ import java.util.List;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ArrayValue extends ValueAdapter<List<String>>{
     private Array array;
@@ -91,7 +92,7 @@ public class ArrayValue extends ValueAdapter<List<String>>{
             }
         } catch (Throwable e) {
             conditionallyLog(e);
-            throw toSqlException(e, "Could not write array value. Your JDBC driver may not support this feature");
+            throw toSqlException(e, txt("msg.data.exception.CouldNotWriteArrayValue"));
         }
 
     }
@@ -109,7 +110,7 @@ public class ArrayValue extends ValueAdapter<List<String>>{
             }
         } catch (Throwable e) {
             conditionallyLog(e);
-            throw toSqlException(e, "Could not write array value. Your JDBC driver may not support this feature");
+            throw toSqlException(e, txt("msg.data.exception.CouldNotWriteArrayValue"));
         }
     }
 

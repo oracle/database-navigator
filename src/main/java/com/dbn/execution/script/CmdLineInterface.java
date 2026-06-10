@@ -16,16 +16,16 @@
 
 package com.dbn.execution.script;
 
+import com.dbn.common.approval.UserApprovable;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseType;
-import com.dbn.nls.NlsResources;
 import com.intellij.openapi.util.SystemInfo;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -36,10 +36,11 @@ import java.util.UUID;
 
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class CmdLineInterface implements Cloneable<CmdLineInterface>, PersistentConfiguration, Presentable {
+public class CmdLineInterface implements Cloneable<CmdLineInterface>, PersistentConfiguration, Presentable, UserApprovable {
     public static final String DEFAULT_ID = "DEFAULT";
 
     private DatabaseType databaseType;
@@ -48,25 +49,27 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
     private String name;
     private String description;
 
+    private transient boolean acknowledged;
+
     private interface Defaults {
         String extension = SystemInfo.isWindows ? ".exe" : "";
-        CmdLineInterface ORACLE = new CmdLineInterface(DEFAULT_ID, DatabaseType.ORACLE, "sqlplus", NlsResources.txt("app.execution.const.CmdLineInterface_ORACLE"), "sqlplus" + extension);
-        CmdLineInterface MYSQL = new CmdLineInterface(DEFAULT_ID, DatabaseType.MYSQL, "mysql", NlsResources.txt("app.execution.const.CmdLineInterface_MYSQL"), "mysql" + extension);
-        CmdLineInterface POSTGRES = new CmdLineInterface(DEFAULT_ID, DatabaseType.POSTGRES, "psql ", NlsResources.txt("app.execution.const.CmdLineInterface_POSTGRES"), "psql" + extension);
-        CmdLineInterface SQLITE = new CmdLineInterface(DEFAULT_ID, DatabaseType.SQLITE, "sqlite3 ", NlsResources.txt("app.execution.const.CmdLineInterface_SQLITE"), "sqlite3" + extension);
-        CmdLineInterface GENERIC = new CmdLineInterface(DEFAULT_ID, DatabaseType.GENERIC, "sql ", NlsResources.txt("app.execution.const.CmdLineInterface_GENERIC"), "sql" + extension);
+        CmdLineInterface ORACLE = new CmdLineInterface(DEFAULT_ID, DatabaseType.ORACLE, "sqlplus", txt("app.execution.const.CmdLineInterface_ORACLE"), "sqlplus" + extension);
+        CmdLineInterface MYSQL = new CmdLineInterface(DEFAULT_ID, DatabaseType.MYSQL, "mysql", txt("app.execution.const.CmdLineInterface_MYSQL"), "mysql" + extension);
+        CmdLineInterface POSTGRES = new CmdLineInterface(DEFAULT_ID, DatabaseType.POSTGRES, "psql ", txt("app.execution.const.CmdLineInterface_POSTGRES"), "psql" + extension);
+        CmdLineInterface SQLITE = new CmdLineInterface(DEFAULT_ID, DatabaseType.SQLITE, "sqlite3 ", txt("app.execution.const.CmdLineInterface_SQLITE"), "sqlite3" + extension);
+        CmdLineInterface GENERIC = new CmdLineInterface(DEFAULT_ID, DatabaseType.GENERIC, "sql ", txt("app.execution.const.CmdLineInterface_GENERIC"), "sql" + extension);
     }
 
     public static CmdLineInterface getDefault(@Nullable DatabaseType databaseType) {
-        if (databaseType != null) {
-            switch (databaseType) {
-                case ORACLE: return Defaults.ORACLE;
-                case MYSQL: return Defaults.MYSQL;
-                case POSTGRES: return Defaults.POSTGRES;
-                case SQLITE: return Defaults.SQLITE;
-            }
-        }
-        return Defaults.GENERIC;
+        if (databaseType == null) return Defaults.GENERIC;
+
+        return switch (databaseType) {
+            case ORACLE -> Defaults.ORACLE;
+            case MYSQL -> Defaults.MYSQL;
+            case POSTGRES -> Defaults.POSTGRES;
+            case SQLITE -> Defaults.SQLITE;
+            default -> Defaults.GENERIC;
+        };
     }
 
     public static DatabaseType resolveDatabaseType(String executableName) {
@@ -94,6 +97,7 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
         this.databaseType = databaseType;
         this.executablePath = executablePath;
         this.description = description;
+        this.acknowledged = DEFAULT_ID.equals(id);
     }
 
     @Nullable
@@ -132,7 +136,8 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
     }
 
     @Override
+    @SneakyThrows
     public CmdLineInterface clone() {
-        return new CmdLineInterface(id, databaseType, executablePath, name, description);
+        return cast(super.clone());
     }
 }

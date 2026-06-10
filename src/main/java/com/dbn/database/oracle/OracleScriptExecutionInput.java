@@ -67,13 +67,13 @@ public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
         boolean tnsConnection = databaseInfo.getUrlType() == DatabaseUrlType.TNS;
         if (tnsConnection) {
             String tnsAdmin = nvl(databaseInfo.getTnsFolder(), "");
-            tnsAdmin = normalizePath(tnsAdmin);
-
-            addEnvironmentVariable("TNS_ADMIN", tnsAdmin);
+                tnsAdmin = normalizePath(tnsAdmin);
+                addEnvironmentVariable("TNS_ADMIN", tnsAdmin);
         }
 
         String executable = cmdLineInterface.getExecutablePath();
         initCommand(executable);
+        addParameter("-L");
         addParameter(connectionParam);
     }
 
@@ -87,6 +87,7 @@ public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
 
     @Override
     protected void initConsoleCommands(String filePath, SchemaId schemaId) {
+
         if (schemaId != null) {
             addStatement("alter session set current_schema = " + schemaId + ";");
         }

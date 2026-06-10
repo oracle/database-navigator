@@ -36,13 +36,14 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class ExportScrambledSourcecodeAction extends ProjectAction {
-    public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFolder().
-            withTitle("Select Destination Directory").
-            withDescription("Select destination directory for the scrambled sources");
+
+    public ExportScrambledSourcecodeAction() {
+        super(txt("app.diagnostics.action.ScrambleProjectCode"));
+    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        VirtualFile[] virtualFiles = FileChooser.chooseFiles(FILE_CHOOSER_DESCRIPTOR, project, null);
+        VirtualFile[] virtualFiles = FileChooser.chooseFiles(codeDestinationDirectory(), project, null);
         if (virtualFiles.length == 1) {
             Progress.modal(project, null, true,
                     txt("prc.diagnostics.title.ScramblingCode"),
@@ -55,11 +56,17 @@ public class ExportScrambledSourcecodeAction extends ProjectAction {
         }
     }
 
+    private @NotNull FileChooserDescriptor codeDestinationDirectory() {
+        return FileChoosers.singleFolder().
+                withTitle(txt("msg.diagnostics.title.SelectDestinationDirectory")).
+                withDescription(txt("msg.diagnostics.text.ScrambledSourcesDestinationDirectory"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setVisible(Diagnostics.isBulkActionsEnabled());
-        presentation.setText(txt("app.diagnostics.action.ExportScrambledSourcecode"));
+        presentation.setText(txt("app.diagnostics.action.ExportScrambledSourceCode"));
     }
 
 

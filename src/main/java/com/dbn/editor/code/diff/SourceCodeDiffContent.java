@@ -17,22 +17,15 @@
 package com.dbn.editor.code.diff;
 
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 
 @Getter
 public class SourceCodeDiffContent {
-    private final String title;
+    private final @Nls String title;
     private final byte[] byteContent;
 
-    public SourceCodeDiffContent(String title, CharSequence content) {
+    public SourceCodeDiffContent(@Nls String title, CharSequence content) {
         this.title = title;
         this.byteContent = content.toString().getBytes();
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public byte[] getByteContent() {
-        return byteContent;
     }
 }

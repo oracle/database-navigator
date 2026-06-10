@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.nls.NlsResources.txt;
 
 public class CodeStyleCaseSettingsForm extends ConfigurationEditorForm<CodeStyleCaseSettings> {
     private JPanel mainPanel;
@@ -66,7 +67,7 @@ public class CodeStyleCaseSettingsForm extends ConfigurationEditorForm<CodeStyle
 
         Shortcut[] codeFormat = Keyboard.getShortcuts(IdeActions.ACTION_EDITOR_REFORMAT);
 
-        enableCheckBox.setText("Allow case auto-format (" + KeymapUtil.getShortcutsText(codeFormat) + ')');
+        enableCheckBox.setText(txt("cfg.codeStyle.label.AllowCaseAutoFormatShortcut", KeymapUtil.getShortcutsText(codeFormat)));
 
 
         registerComponent(mainPanel);

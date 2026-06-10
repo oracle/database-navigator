@@ -57,6 +57,7 @@ import static com.dbn.common.ui.util.Accessibility.attachSelectionAnnouncer;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Lists.sortedCopy;
 import static com.dbn.editor.data.filter.ConditionOperator.getConditionOperators;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
 public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<DatasetBasicFilterCondition> {
@@ -113,9 +114,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         operatorSelector.addListener(createOperatorSelectorListener());
         columnSelector.addListener(createColumnSelectorListener());
 
-        valueTextField.setToolTipText("<html>While editing value, <br> " +
-                "press <b>Up/Down</b> keys to change column or <br> " +
-                "press <b>Ctrl-Up/Ctrl-Down</b> keys to change operator</html>");
+        valueTextField.setToolTipText(txt("app.dataEditor.tooltip.ChangeBasicFilterInput"));
 
 
         Disposer.register(this, editorComponent);
@@ -157,18 +156,17 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
 
             updateNameAndPreview();
             operatorSelector.reloadValues();
-            announceEvent(columnSelector, "Selected column is " + columnSelector.getSelectedValueName());
+            announceEvent(columnSelector, txt("app.shared.aria.SelectedColumn", columnSelector.getSelectedValueName()));
         };
     }
 
     @Override
     protected void initAccessibility() {
         Accessibility.setAccessibleDescription(editorComponent.getTextField(),
-                "Press Up or Down arrow keys to change column or " +
-                "press Ctrl-Up or Ctrl-Down arrow keys to change operator");
+                txt("app.dataEditor.aria.ChangeColumnOrOperatorHint"));
 
-        attachSelectionAnnouncer(columnSelector, "Column");
-        attachSelectionAnnouncer(operatorSelector, "Operator");
+        attachSelectionAnnouncer(columnSelector, txt("app.shared.aria.Column"));
+        attachSelectionAnnouncer(operatorSelector, txt("app.shared.aria.Operator"));
     }
 
     @NotNull

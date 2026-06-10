@@ -19,7 +19,7 @@ package com.dbn.ml.backend.dbms;
 import com.dbn.common.Priority;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.DatabaseMLInterface;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLFileSourceConfig;
@@ -33,6 +33,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Manages data preparation for DBMS_DATA_MINING backend.
@@ -105,7 +107,7 @@ public class DBMSDataManager {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileConfig.getFilePath()))) {
             // Parse header
             String headerLine = reader.readLine();
-            if (headerLine == null) throw new IllegalArgumentException("Empty CSV file");
+            if (headerLine == null) throw new IllegalArgumentException(txt("msg.machineLearning.exception.EmptyCsvFile"));
 
             String[] headers = headerLine.split(fileConfig.getDelimiter());
             result.featureIndices = findColumnIndices(headers, featureColumns);
@@ -167,12 +169,12 @@ public class DBMSDataManager {
         ConnectionHandler connection = context.getConnection();
 
         DatabaseInterfaceInvoker.execute(Priority.LOW,
-                "Cleanup",
-                "Dropping staging table",
+                txt("prc.machineLearning.title.Cleanup"),
+                txt("prc.machineLearning.text.DroppingStagingTable"),
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     if (mlInterface.tableExists(conn, schemaName, tableName)) {
                         mlInterface.dropStagingTable(conn, schemaName, tableName);
                         log.info("Dropped staging table: {}.{}", schemaName, tableName);
@@ -217,12 +219,12 @@ public class DBMSDataManager {
         // Execute create table
         String columnDefsStr = columnDefs.toString();
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Creating Table",
-                "Creating staging table for CSV data",
+                txt("prc.machineLearning.title.CreatingTable"),
+                txt("prc.machineLearning.text.CreatingCsvStagingTable"),
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     mlInterface.createStagingTable(conn, schemaName, tableName, columnDefsStr);
                 });
 
@@ -240,8 +242,8 @@ public class DBMSDataManager {
         String insertSql = buildInsertSql(tableName, featureColumns, labelColumns, partitionColumns);
 
         return DatabaseInterfaceInvoker.load(Priority.HIGH,
-                "Loading Data",
-                "Loading CSV data into staging table",
+                txt("prc.machineLearning.title.LoadingData"),
+                txt("prc.machineLearning.text.LoadingCsvData"),
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {

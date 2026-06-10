@@ -18,8 +18,8 @@ package com.dbn.sync.java.upload;
 
 import com.dbn.common.Priority;
 import com.dbn.common.file.util.VirtualFiles;
-import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.object.DBJavaEntity;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -27,6 +27,8 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 import java.sql.SQLException;
+
+import static com.dbn.nls.NlsResources.txt;
 
 @UtilityClass
 public class JavaUploader {
@@ -58,13 +60,13 @@ public class JavaUploader {
 		String objectName = entity.getObjectName(true);
 		DatabaseInterfaceInvoker.execute(
 				Priority.HIGH,
-				"Uploading Java Resource",
-				"Uploading java resource " + objectName,
+				txt("prc.java.title.UploadingJavaResource"),
+				txt("prc.java.text.UploadingJavaResource", objectName),
 				batch.getProject(),
 				batch.getConnectionId(),
 				c -> {
-					DatabaseDataDefinitionInterface dataDefinitionInterface = batch.getConnection().getDataDefinitionInterface();
-					dataDefinitionInterface.updateJavaResource(schemaName, objectName, resourceBytes, c);
+					DatabaseJavaInterface javaInterface = batch.getConnection().getJavaInterface();
+					javaInterface.updateJavaResource(schemaName, objectName, resourceBytes, c);
 				});
 	}
 
@@ -74,13 +76,13 @@ public class JavaUploader {
 
 		DatabaseInterfaceInvoker.execute(
 				Priority.HIGH,
-				"Uploading Java Source",
-				"Uploading java source " + objectName,
+				txt("prc.java.title.UploadingJavaSource"),
+				txt("prc.java.text.UploadingJavaSource", objectName),
 				batch.getProject(),
 				batch.getConnectionId(),
 				c -> {
-					DatabaseDataDefinitionInterface dataDefinitionInterface = batch.getConnection().getDataDefinitionInterface();
-					dataDefinitionInterface.replaceJavaSource(schemaName, objectName, sourceContent, c);
+					DatabaseJavaInterface javaInterface = batch.getConnection().getJavaInterface();
+					javaInterface.replaceJavaSource(schemaName, objectName, sourceContent, c);
 
 				});
 	}
@@ -91,13 +93,13 @@ public class JavaUploader {
 
 		DatabaseInterfaceInvoker.execute(
 				Priority.HIGH,
-				"Uploading Java Class",
-				"Uploading java class " + objectName,
+				txt("prc.java.title.UploadingJavaClass"),
+				txt("prc.java.text.UploadingJavaClass", objectName),
 				batch.getProject(),
 				batch.getConnectionId(),
 				c -> {
-					DatabaseDataDefinitionInterface dataDefinitionInterface = batch.getConnection().getDataDefinitionInterface();
-					dataDefinitionInterface.replaceJavaClass(schemaName, objectName, classBytes, c);
+					DatabaseJavaInterface javaInterface = batch.getConnection().getJavaInterface();
+					javaInterface.replaceJavaClass(schemaName, objectName, classBytes, c);
 				});
 	}
 }

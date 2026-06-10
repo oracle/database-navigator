@@ -1,0 +1,4 @@
+interface:
+  display_name: "DBN Localization Guide"
+  short_description: "Oracle© Database Navigator (DBN) NLS keys, DBNResources, and UI text localization"
+  default_prompt: "Use $dbn-localization-guide when adding, reviewing, or renaming Oracle© Database Navigator (DBN) localization keys and user-visible strings."

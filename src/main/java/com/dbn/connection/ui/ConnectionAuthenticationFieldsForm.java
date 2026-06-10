@@ -24,29 +24,27 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.form.field.JComponentCategory;
+import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Sockets;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
+import com.dbn.oci.config.OciConfigFileUtil;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 import static com.dbn.common.text.TextContent.plain;
@@ -61,7 +59,6 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
-import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.connection.AuthenticationTokenType.ALL_AZURE_TOKEN_TYPES;
 import static com.dbn.connection.AuthenticationTokenType.AZURE_INTERACTIVE;
 import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
@@ -72,6 +69,7 @@ import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.ui.ConnectionAuthenticationFieldsForm.FieldCategory.CACHEABLE_FIELDS;
 import static com.dbn.database.oracle.OracleCompatibilityInterface.ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
@@ -82,7 +80,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     private static final boolean IS_PROXY_MAYBE_SET = checkIfHttpProxy();
     private JComboBox<AuthenticationType> authTypeComboBox;
     private JComboBox<AuthenticationTokenType> tokenTypeComboBox;
-    private JComboBox<String> tokenProfileComboBox;
+    private DBNComboBox<String> tokenProfileComboBox;
     private TextFieldWithBrowseButton tokenConfigFileTextField;
     private JTextField userTextField;
     private JPasswordField passwordField;
@@ -121,9 +119,9 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
         addSingleFileChooser(
                 getProject(), tokenConfigFileTextField,
-                "Select OCI Configuration File",
-                "Folder must contain an oci config file (usually ~/.oci/config)");
-        onTextChange(tokenConfigFileTextField, e -> refreshTokenProfileOptions());
+                txt("cfg.oci.title.SelectConfigFile"),
+                txt("cfg.oci.text.ValidOciConfigFile"));
+        onTextChange(tokenConfigFileTextField, e -> tokenProfileComboBox.reloadValues());
 
         initComboBox(authTypeComboBox, AuthenticationType.values());
         // currently supported token types
@@ -143,8 +141,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
         addSingleFileChooser(
                 getProject(), azureClientCertificateFileTextField,
-                "Select Azure Client Certificate File",
-                "File is a certificate file in pem format");
+                txt("cfg.connection.title.SelectAzureClientCertificateFile"),
+                txt("cfg.connection.text.AzureClientCertificateFile"));
         onTextChange(azureClientCertificateFileTextField, e -> refreshAzureClientCertificateFile());
 
     }
@@ -299,8 +297,23 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         azureTenantIdTextField.setText(authenticationInfo.getAzureTenantId());
         azureClientSecretPasswordField.setText(Chars.toString(authenticationInfo.getAzureClientSecret()));
 
+        tokenProfileComboBox
+                .withValueLoader(() -> loadOciConfigProfiles())
+                .withValuePreselector(p -> Objects.equals(p, authenticationInfo.getTokenProfile()))
+                .triggerLoad();
+
         updateFieldAvailability();
     }
+
+    private List<String> loadOciConfigProfiles() {
+        String configFilePath = getConfigFilePath();
+        return OciConfigFileUtil.getConfigProfileNames(configFilePath);
+    }
+
+    private String getConfigFilePath() {
+        return getText(tokenConfigFileTextField);
+    }
+
 
     public boolean settingsChanged(AuthenticationInfo authenticationInfo) {
         return  !Commons.match(authenticationInfo.getType(), getSelection(authTypeComboBox)) ||
@@ -325,25 +338,6 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                 !Commons.match(authenticationInfo.getAzureDatabaseApplicationIdUri(), getText(azureAppIdUriTextField));
     }
 
-    private void refreshTokenProfileOptions() {
-        JTextField textField = tokenConfigFileTextField.getTextField();
-        String configFilePath = getText(textField);
-        List<String> profiles = Collections.emptyList();
-        String selectedProfile = getTokenProfile();
-        try {
-            // TODO this may take time to load if file is located on a remote location - consider showing a spinner next to the profile dropdown
-            //  (is remote config a valid use case anyways?)
-            profiles = loadTokenProfiles(configFilePath);
-            TextFields.updateFieldError(textField, null);
-        } catch (Exception e) {
-            TextFields.updateFieldError(textField, e.getMessage());
-        }
-
-        selectedProfile = profiles.contains(selectedProfile) ? selectedProfile : firstElement(profiles);
-        tokenProfileComboBox.setModel(new DefaultComboBoxModel<>(profiles.toArray(new String[0])));
-        tokenProfileComboBox.setSelectedItem(selectedProfile);
-    }
-
     private void refreshAzureClientCertificateFile() {
         JTextField textField = azureClientCertificateFileTextField.getTextField();
         TextFields.updateFieldError(textField, null);
@@ -351,45 +345,9 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         File certificateFile = new File(certificateFileStr);
         if (!certificateFile.isFile()) {
             TextFields.updateFieldError(textField,
-                String.format("Can't find the certificate file. %s is not a file", certificateFileStr));
+                txt("cfg.connection.error.CertificateFileNotFound", certificateFileStr));
         }
     }
-	private List<String> loadTokenProfiles(String configFilePath) {
-        if (configFilePath == null) return Collections.emptyList();
-
-        File configFile = new File(configFilePath);
-        if (!configFile.exists()) throw new IllegalArgumentException("File does not exist");
-        if (!configFile.isFile()) throw new IllegalArgumentException("Path is expected to be a config file");
-
-		List<String> profileEntries = new ArrayList<>();
-		try (FileReader fileReader =  new FileReader(configFile);
-			    BufferedReader configReader = new BufferedReader(fileReader);)
-		{
-			String nextLine;
-			while ((nextLine = configReader.readLine()) != null) {
-				nextLine = nextLine.trim();
-                // TODO maybe use regex "\[[a-zA-Z0-9-]+\]"
-				if (nextLine.length() > 2) {  // must be '[' and  ']' plus at least on char
-					char firstChar = nextLine.charAt(0);
-					if (firstChar == '[') {
-						final int lastCharIdx = nextLine.length()-1;
-						char lastChar = nextLine.charAt(lastCharIdx);
-						if (lastChar == ']') {
-							// apparently the ConfigParser accepts everything.
-							// should we be more protective?
-							profileEntries.add(nextLine.substring(1, lastCharIdx));
-						}
-					}
-				}
-			}
-            if (profileEntries.isEmpty()) throw new IllegalArgumentException("No profile entries found in the given file");
-		}
-		catch (IOException ioe) {
-            throw new IllegalArgumentException("Failed to load config file. Cause: " + ioe.getMessage());
-		}
-
-        return profileEntries;
-	}
 
     /***********************************************************************
      *                          LOOKUP UTILITIES                           *
@@ -451,14 +409,12 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         return getSelection(tokenTypeComboBox);
     }
 
-    private String checkSystemWarnings() {
+    private @Nullable @Nls String checkSystemWarnings() {
         if (!verifyInteractivePortBinding()) {
-            // TODO NLS
-            return "TCP port 8181 appears to be bound.\nThis may cause interactive OCI authentication to fail.";
+            return txt("cfg.connection.warning.OciInteractivePortBound", OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT);
         }
         if (!checkNoProxyIfAzure()) {
-            // TODO NLS
-            return "The system properties contain one or more HTTP proxy settings.\nThis may cause Azure Authentication to fail.";
+            return txt("cfg.connection.warning.AzureAuthenticationProxySettings");
         }
         return null;
     }

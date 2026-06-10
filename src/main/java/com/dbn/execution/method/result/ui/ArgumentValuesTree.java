@@ -39,6 +39,7 @@ import java.sql.ResultSet;
 import java.util.List;
 
 import static com.dbn.common.util.Strings.cachedLowerCase;
+import static com.dbn.nls.NlsResources.txt;
 
 class ArgumentValuesTree extends DBNTree{
 
@@ -113,7 +114,7 @@ class ArgumentValuesTree extends DBNTree{
                 if (attribute == null) {
                     if (argument == null) {
                         setIcon(DBObjectType.ARGUMENT.getIcon());
-                        append("[unknown]", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                        append(txt("app.shared.placeholder.Unknown"), SimpleTextAttributes.REGULAR_ATTRIBUTES);
                         append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
                     } else{
                         setIcon(argument.getIcon());

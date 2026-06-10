@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.operation.DatabaseOperation.CREATE_JAVA_WRAPPER;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JavaMethodWrapperAction extends AnObjectAction<DBJavaMethod> {
 	public JavaMethodWrapperAction(DBJavaMethod method) {
@@ -49,6 +50,6 @@ public class JavaMethodWrapperAction extends AnObjectAction<DBJavaMethod> {
 			@NotNull Presentation presentation,
 			@NotNull Project project,
 			@Nullable DBJavaMethod target) {
-		presentation.setText("Create Execution Wrappers...");
+		presentation.setText(txt("app.execution.action.CreateExecutionWrappers"));
 	}
 }

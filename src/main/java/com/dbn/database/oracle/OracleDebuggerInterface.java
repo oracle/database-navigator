@@ -42,6 +42,7 @@ import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.common.util.Unsafe.warned;
 import static com.dbn.editor.code.content.GuardedBlockMarker.END_OFFSET_IDENTIFIER;
 import static com.dbn.editor.code.content.GuardedBlockMarker.START_OFFSET_IDENTIFIER;
+import static com.dbn.nls.NlsResources.txt;
 
 public class OracleDebuggerInterface extends DatabaseDebuggerInterfaceImpl implements DatabaseDebuggerInterface {
     public OracleDebuggerInterface(DatabaseInterfaces provider) {
@@ -187,7 +188,6 @@ public class OracleDebuggerInterface extends DatabaseDebuggerInterfaceImpl imple
     @Override
     public String getDebugConsoleTemplate(CodeStyleCaseSettings settings) {
         CodeStyleCaseOption kco = settings.getKeywordCaseOption();
-        CodeStyleCaseOption oco = settings.getObjectCaseOption();
         return START_OFFSET_IDENTIFIER +
                 kco.format("DECLARE\n") +
                 END_OFFSET_IDENTIFIER +
@@ -210,25 +210,24 @@ public class OracleDebuggerInterface extends DatabaseDebuggerInterfaceImpl imple
     @Override
     public String getRuntimeEventReason(int code) {
         return switch (code) {
-            case 0 -> "None";
-            case 2 -> "Interpreter starting";
-            case 3 -> "Stopped at a breakpoint";
-            case 6 -> "Stopped at procedure entry";
-            case 7 -> "Procedure return";
-            case 8 -> "Procedure is finished";
-            case 9 -> "Reached a new line";
-            case 10 -> "An interrupt occurred";
-            case 11 -> "An exception was raised";
-            case 15 -> "Interpreter is exiting";
-            case 16 -> "Start exception-handler";
-            case 17 -> "A timeout occurred";
-            case 20 -> "Instantiation block";
-            case 21 -> "Interpreter is aborting";
-            case 25 -> "Interpreter is exiting";
-            case 4 -> "Executing SQL";
-            case 14 -> "Watched value changed";
-            case 18 -> "An RPC started";
-            case 19 -> "Unhandled exception";
+            case 0 -> txt("msg.debugger.text.RuntimeEventReasonNone");
+            case 2 -> txt("msg.debugger.text.RuntimeEventReasonInterpreterStarting");
+            case 3 -> txt("msg.debugger.text.RuntimeEventReasonBreakpoint");
+            case 4 -> txt("msg.debugger.text.RuntimeEventReasonExecutingSql");
+            case 6 -> txt("msg.debugger.text.RuntimeEventReasonProcedureEntry");
+            case 7 -> txt("msg.debugger.text.RuntimeEventReasonProcedureReturn");
+            case 8 -> txt("msg.debugger.text.RuntimeEventReasonProcedureFinished");
+            case 9 -> txt("msg.debugger.text.RuntimeEventReasonNewLineReached");
+            case 10 -> txt("msg.debugger.text.RuntimeEventReasonInterruptOccurred");
+            case 11 -> txt("msg.debugger.text.RuntimeEventReasonExceptionRaised");
+            case 14 -> txt("msg.debugger.text.RuntimeEventReasonWatchedValueChanged");
+            case 15, 25 -> txt("msg.debugger.text.RuntimeEventReasonInterpreterExiting");
+            case 16 -> txt("msg.debugger.text.RuntimeEventReasonExceptionHandlerStart");
+            case 17 -> txt("msg.debugger.text.RuntimeEventReasonTimeoutOccurred");
+            case 18 -> txt("msg.debugger.text.RuntimeEventReasonRpcStarted");
+            case 19 -> txt("msg.debugger.text.RuntimeEventReasonUnhandledException");
+            case 20 -> txt("msg.debugger.text.RuntimeEventReasonInstantiationBlock");
+            case 21 -> txt("msg.debugger.text.RuntimeEventReasonInterpreterAborting");
             default -> null;
         };
 

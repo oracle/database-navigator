@@ -47,7 +47,7 @@ public class ExecuteScriptIntentionAction extends EditorIntentionAction  {
     @Override
     @NotNull
     public String getText() {
-        return txt("app.codeEditor.action.ExecuteSqlScript");
+        return txt("app.codeEditor.intention.ExecuteSqlScript");
     }
 
 

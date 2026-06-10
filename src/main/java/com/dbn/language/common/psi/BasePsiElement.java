@@ -39,7 +39,6 @@ import com.dbn.editor.session.ui.SessionBrowserForm;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguagePsiFile;
-import com.dbn.language.common.QuoteDefinition;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
@@ -47,6 +46,7 @@ import com.dbn.language.common.element.util.IdentifierCategory;
 import com.dbn.language.common.psi.lookup.ObjectLookupAdapter;
 import com.dbn.language.common.psi.lookup.ObjectReferenceLookupAdapter;
 import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
+import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectPsiElement;
 import com.dbn.object.common.DBSchemaObject;
@@ -81,6 +81,7 @@ import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
 import com.intellij.spellchecker.inspections.SpellCheckingInspection;
 import com.maddyhome.idea.copyright.actions.UpdateCopyrightAction;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -126,6 +127,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
         return null;
     }
 
+    @NonNls
     public String getElementId() {
         return elementType.getId();
     }

@@ -95,7 +95,7 @@ public final class Progress {
     }
 
     @SneakyThrows
-    private static void execute(ProgressIndicator indicator, ThreadProperty threadProperty, ThreadInfo invoker, String text, ProgressRunnable runnable) {
+    private static void execute(ProgressIndicator indicator, ThreadProperty threadProperty, ThreadInfo invoker, @ProgressText String text, ProgressRunnable runnable) {
         ThreadMonitor.surround(invoker, threadProperty, () -> Failsafe.guarded(() -> {
             indicator.setText(text);
             runnable.run(indicator);

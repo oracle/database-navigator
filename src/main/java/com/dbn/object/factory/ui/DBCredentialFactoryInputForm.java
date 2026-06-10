@@ -16,26 +16,36 @@
 
 package com.dbn.object.factory.ui;
 
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.database.DatabaseIdentifierCase;
+import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBCredentialType;
+import com.dbn.oci.config.OciConfig;
+import com.dbn.oci.config.OciConfigManager;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextField;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
@@ -44,7 +54,7 @@ import static com.dbn.common.ui.util.TextFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
 import static com.dbn.common.util.Strings.isNotEmpty;
-import static com.dbn.common.util.Strings.startsWith;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.model.DBObjectAttributeType.CREDENTIAL_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.FINGERPRINT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.PASSWORD;
@@ -52,28 +62,16 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.PRIVATE_KEY;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TENANCY_OCID;
 import static com.dbn.object.factory.model.DBObjectAttributeType.USER_NAME;
 import static com.dbn.object.factory.model.DBObjectAttributeType.USER_OCID;
+import static com.dbn.oci.util.OciIdentifiers.isTenancyOcid;
+import static com.dbn.oci.util.OciIdentifiers.isUserOcid;
 
-@Getter
-public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm<DBObjectSpec> {
+public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel mainPanel;
-    private JPanel headerPanel;
-    private DBNComboBox connectionComboBox;
-    private DBNComboBox schemaComboBox;
-    private JTextField nameTextField;
+    private @Getter JPanel headerPanel;
+    private @Getter DBNComboBox connectionComboBox;
+    private @Getter DBNComboBox schemaComboBox;
+    private @Getter JTextField nameTextField;
 
-    private JLabel connectionLabel;
-    private JLabel schemaLabel;
-    private JLabel credentialNameLabel;
-    private JLabel accessTokenLabel;
-    private JLabel userNameLabel;
-    private JLabel passwordLabel;
-    private JLabel userOcidLabel;
-    private JLabel tenancyOcidLabel;
-    private JLabel privateKeyLabel;
-    private JLabel fingerprintLabel;
-    private JLabel credentialTypeLabel;
-
-    private JPanel attributesPanel;
     private JPanel passwordCredentialPanel;
     private JPanel ociCredentialPanel;
     private JPanel tokenCredentialPanel;
@@ -85,6 +83,9 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
     private JPasswordField passwordCredentialPasswordField;
     private JPasswordField tokenCredentialPasswordField;
     private JComboBox<DBCredentialType> credentialTypeComboBox;
+    private JButton ociConfigFileButton;
+    private JCheckBox preserveCaseCheckBox;
+    private DBNInfoLabel preserveCaseInfoLabel;
 
 
     private final Set<String> usedCredentialNames = new HashSet<>(); // TODO
@@ -95,8 +96,37 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
         initHeaderForm();
         initContextComponents();
         initCredentialTypes();
+        initPreserveCaseFields();
 
         resetFormChanges();
+
+        onButtonClick(ociConfigFileButton, e -> openOciConfigSelector());
+    }
+
+    private void initPreserveCaseFields() {
+        preserveCaseInfoLabel.setContent(getPreserveCaseInfoText());
+    }
+
+    private void openOciConfigSelector() {
+        Project project = ensureProject();
+        OciConfigManager configManager = OciConfigManager.getInstance(project);
+        configManager.openOciConfigSelector(c -> applyOciConfiguration(c));    }
+
+    private void applyOciConfiguration(OciConfig config) {
+        setText(ociCredentialUserOcidField, config.getUserId());
+        setText(ociCredentialTenancyOcidField, config.getTenancyId());
+        setText(ociCredentialPrivateKeyField, config.getPrivateKeyFile());
+        setText(ociCredentialFingerprintField, config.getFingerprint());
+        ociCredentialUserOcidField.requestFocus();
+    }
+
+    protected void initStatePersistence() {
+        Project project = ensureProject();
+        ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
+
+        StateAttributes state = factoryManager.getState(getObjectType());
+        initPersistence(credentialTypeComboBox, state, "credential-type-selection");
+        initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
     }
 
     @Override
@@ -118,9 +148,9 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
         addTextValidation(tokenCredentialPasswordField, c -> !isToken() || isNotEmpty(c), txt("cfg.assistant.error.TokenEmpty"));
 
         addTextValidation(ociCredentialUserOcidField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.UserOcidEmpty"));
-        addTextValidation(ociCredentialUserOcidField, c -> !isOci() || startsWith(c, "ocid1.user.oc1."), txt("cfg.assistant.error.UserOcidInvalid"));
+        addTextValidation(ociCredentialUserOcidField, c -> !isOci() || isUserOcid(c), txt("cfg.assistant.error.UserOcidInvalid"));
         addTextValidation(ociCredentialTenancyOcidField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.UserTenancyOcidEmpty"));
-        addTextValidation(ociCredentialTenancyOcidField, c -> !isOci() || startsWith(c, "ocid1.tenancy.oc1."), txt("cfg.assistant.error.UserTenancyOcidInvalid"));
+        addTextValidation(ociCredentialTenancyOcidField, c -> !isOci() || isTenancyOcid(c), txt("cfg.assistant.error.UserTenancyOcidInvalid"));
         addTextValidation(ociCredentialFingerprintField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.FingerprintEmpty"));
         addTextValidation(ociCredentialPrivateKeyField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.PrivateKeyEmpty"));
     }
@@ -153,8 +183,8 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
             credentialTypeComboBox.addActionListener((e) -> updateFieldAvailability());
         }
 
-        ociCredentialUserOcidField.getEmptyText().setText("ocid1.user.oc1...");
-        ociCredentialTenancyOcidField.getEmptyText().setText("ocid1.tenancy.oc1...");
+        ociCredentialUserOcidField.getEmptyText().setText(txt("app.objects.placeholder.UserOcidExample"));
+        ociCredentialTenancyOcidField.getEmptyText().setText(txt("app.objects.placeholder.TenancyOcidExample"));
     }
 
     @Override
@@ -210,6 +240,14 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
                 input.setAttributeValue(FINGERPRINT, getText(ociCredentialFingerprintField));
             }
         }
+
+        input.setIdentifierCase(getSelectedIdentifierCase());
+    }
+
+    protected DatabaseIdentifierCase getSelectedIdentifierCase() {
+        return preserveCaseCheckBox.isSelected() ?
+                DatabaseIdentifierCase.PRESERVE :
+                getDefaultIdentifierCase();
     }
 
     @Nullable

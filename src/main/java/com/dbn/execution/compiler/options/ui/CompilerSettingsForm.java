@@ -21,7 +21,6 @@ import com.dbn.common.ui.Presentable;
 import com.dbn.execution.compiler.CompileDependenciesOption;
 import com.dbn.execution.compiler.CompileType;
 import com.dbn.execution.compiler.options.CompilerSettings;
-import com.dbn.nls.NlsResources;
 import com.intellij.openapi.options.ConfigurationException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,6 +32,7 @@ import javax.swing.JPanel;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.nls.NlsResources.txt;
 
 public class CompilerSettingsForm extends ConfigurationEditorForm<CompilerSettings> {
     private JPanel mainPanel;
@@ -94,8 +94,8 @@ public class CompilerSettingsForm extends ConfigurationEditorForm<CompilerSettin
     @Getter
     @AllArgsConstructor
     private enum ShowControlOption implements Presentable {
-        ALWAYS(NlsResources.txt("cfg.compiler.const.ShowControlOption_ALWAYS"), true),
-        WHEN_INVALID(NlsResources.txt("cfg.compiler.const.ShowControlOption_WHEN_INVALID"), false);
+        ALWAYS(txt("cfg.compiler.const.ShowControlOption_ALWAYS"), true),
+        WHEN_INVALID(txt("cfg.compiler.const.ShowControlOption_WHEN_INVALID"), false);
 
         private final String name;
         private final Boolean value;

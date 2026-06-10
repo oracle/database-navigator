@@ -36,6 +36,10 @@ import static com.dbn.vfs.file.status.DBFileStatus.LOADING;
 
 public class SourceCodeRevertAction extends AbstractCodeEditorAction {
 
+    public SourceCodeRevertAction() {
+        super(txt("app.codeEditor.action.CodeEditorRevertChanges"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
         CodeEditorConfirmationSettings confirmationSettings = CodeEditorSettings.getInstance(project).getConfirmationSettings();

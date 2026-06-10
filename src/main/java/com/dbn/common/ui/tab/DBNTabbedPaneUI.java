@@ -87,6 +87,7 @@ import static com.intellij.util.ui.JBUI.CurrentTheme.TabbedPane.TAB_HEIGHT;
  *
  * @author Dan Cioca (Oracle)
  */
+@Deprecated // TODO remove (replaced by DBNColoredTabs)
 public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
     public static final JBValue SELECTION_ARC = new JBValue.UIInteger("TabbedPane.tabSelectionArc", 0);
     public static final JBInsets EMPTY_INSETS = new JBInsets(0, 0, 0, 0);

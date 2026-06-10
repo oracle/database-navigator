@@ -26,6 +26,10 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractFolderContextAction extends ProjectAction {
 
+    protected AbstractFolderContextAction(String text) {
+        super(text);
+    }
+
     protected static FileConnectionContext getFileContext(@Nullable VirtualFile file, @NotNull Project project) {
         if (file == null || !file.isDirectory()) return null;
 

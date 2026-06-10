@@ -31,6 +31,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ProjectSettingsOpenAction extends ProjectAction {
 
+    public ProjectSettingsOpenAction() {
+        super(txt("app.menu.action.Settings"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);

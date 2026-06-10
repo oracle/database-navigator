@@ -20,11 +20,13 @@ import com.dbn.common.constant.Constant;
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public enum AssistantToolApprovalStatus implements Constant<AssistantToolApprovalStatus>, Presentable {
-    BLOCKED("Blocked"),
-    PROMPTED ("Prompted"),
-    APPROVED("Approved");
+    BLOCKED(txt("app.assistant.const.AssistantToolApprovalStatus_BLOCKED")),
+    PROMPTED(txt("app.assistant.const.AssistantToolApprovalStatus_PROMPTED")),
+    APPROVED(txt("app.assistant.const.AssistantToolApprovalStatus_APPROVED"));
 
     private final String name;
 

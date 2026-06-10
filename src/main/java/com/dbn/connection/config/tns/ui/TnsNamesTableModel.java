@@ -21,11 +21,12 @@ import com.dbn.common.ui.table.DBNReadonlyTableModel;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsProfile;
-import org.jetbrains.annotations.NonNls;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import java.util.List;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class TnsNamesTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<TnsProfile> {
     private final TnsNames tnsNames;
@@ -47,20 +48,19 @@ public class TnsNamesTableModel extends StatefulDisposableBase implements DBNRea
         return 10;
     }
 
-    @NonNls
     @Override
     public String getColumnName(int columnIndex) {
         return switch (columnIndex) {
-            case 0 -> "Name";
-            case 1 -> "Protocol";
-            case 2 -> "Host";
-            case 3 -> "Port";
-            case 4 -> "SID";
-            case 5 -> "Service Name";
-            case 6 -> "Global Name";
-            case 7 -> "Failover";
-            case 8 -> "Type";
-            case 9 -> "Method";
+            case 0 -> txt("app.shared.column.Name");
+            case 1 -> txt("app.connection.column.Protocol");
+            case 2 -> txt("app.connection.column.Host");
+            case 3 -> txt("app.connection.column.Port");
+            case 4 -> txt("app.connection.column.Sid");
+            case 5 -> txt("app.connection.column.ServiceName");
+            case 6 -> txt("app.connection.column.GlobalName");
+            case 7 -> txt("app.connection.column.Failover");
+            case 8 -> txt("app.shared.column.Type");
+            case 9 -> txt("app.connection.column.Method");
             default -> "";
         };
     }

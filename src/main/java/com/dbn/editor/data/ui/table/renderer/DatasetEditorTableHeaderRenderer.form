@@ -23,7 +23,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="[column]"/>
+              <text resource-bundle="messages/DBNResources" key="app.data.placeholder.Column"/>
             </properties>
           </component>
           <component id="d2a1b" class="javax.swing.JLabel" binding="sortingLabel">
@@ -34,7 +34,7 @@
               <font size="9" style="1"/>
               <horizontalTextPosition value="11"/>
               <iconTextGap value="2"/>
-              <text value="[sorting]"/>
+              <text resource-bundle="messages/DBNResources" key="app.data.placeholder.Sorting"/>
             </properties>
           </component>
         </children>

@@ -30,6 +30,10 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionFilterSettingsOpenAction extends ProjectAction {
+    public ConnectionFilterSettingsOpenAction() {
+        super(txt("app.browser.action.BrowserObjectFilters"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();

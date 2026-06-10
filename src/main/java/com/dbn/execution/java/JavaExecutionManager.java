@@ -17,6 +17,7 @@
 package com.dbn.execution.java;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.Priority;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Disposer;
@@ -26,7 +27,6 @@ import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -35,6 +35,8 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.common.execution.JavaExecutionProcessor;
 import com.dbn.database.interfaces.DatabaseExecutionInterface;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.ExecutionStatus;
@@ -63,7 +65,9 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
 		name = JavaExecutionManager.COMPONENT_NAME,
@@ -100,6 +104,19 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 		return executionHistory.getExecutionInput(method);
 	}
 
+	public String getJavaVersion(ConnectionId connectionId) throws SQLException {
+		ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
+		return DatabaseInterfaceInvoker.load(Priority.MEDIUM,
+				txt("prc.java.title.LoadingJavaVersion"),
+				txt("prc.java.text.LoadingDatabaseJavaVersion"),
+				getProject(),
+				connectionId,
+				c -> {
+					DatabaseMetadataInterface metadataInterface = connection.getMetadataInterface();
+					return metadataInterface.loadJavaVersion(c);
+				});
+	}
+
 	@NotNull
 	public JavaExecutionInput getExecutionInput(DBObjectRef<DBJavaMethod> methodRef) {
 		return executionHistory.getExecutionInput(methodRef, true);
@@ -123,29 +140,24 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 		Project project = executionInput.getProject();
 		DBObjectRef<DBJavaMethod> methodRef = executionInput.getMethodRef();
 
-		ConnectionAction.invoke("The Method Execution", false, executionInput,
+		ConnectionAction.invoke(txt("msg.execution.title.MethodExecution"), false, executionInput,
 				action -> Progress.prompt(project, action, true,
-						"Loading method details",
-						"Loading details of " + methodRef.getQualifiedNameWithType(),
+						txt("prc.execution.title.LoadingMethodDetails"),
+						txt("prc.execution.text.LoadingMethodDetails", methodRef.getQualifiedNameWithType()),
 						progress -> {
 							ConnectionHandler connection = action.getConnection();
 							String methodIdentifier = methodRef.getPath();
 							if (connection.isValid()) {
 								DBJavaMethod method = executionInput.getMethod();
 								if (method == null) {
-									String message = "Can not execute method " + methodIdentifier + ".\nMethod not found!";
-									Messages.showErrorDialog(project, message);
+									showErrorDialog(project, txt("msg.execution.message.MethodNotFound", methodIdentifier));
 								} else {
 									// load the arguments while in background
 									executionInput.initDatabaseElements();
 									showInputDialog(executionInput, debuggerType, callback);
 								}
 							} else {
-								String message =
-										"Can not execute method " + methodIdentifier + ".\n" +
-												"No connectivity to '" + connection.getName() + "'. " +
-												"Please check your connection settings and try again.";
-								Messages.showErrorDialog(project, message);
+								showErrorDialog(project, txt("msg.execution.message.MethodExecutionConnectivityError", methodIdentifier, connection.getName()));
 							}
 						}));
 	}
@@ -164,8 +176,8 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 
 		Project project = getProject();
 		Progress.prompt(project, selection, true,
-				"Loading data dictionary",
-				"Loading java execution history",
+				txt("prc.execution.title.LoadingDataDictionary"),
+				txt("prc.execution.text.LoadingJavaExecutionHistory"),
 				progress -> {
 					JavaExecutionInput selectedInput = Commons.nvln(selection, executionHistory.getLastSelection());
 					if (selectedInput != null) {
@@ -205,7 +217,7 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 
 		if (method == null) {
 			DBObjectRef<DBJavaMethod> methodRef = input.getMethodRef();
-			Messages.showErrorDialog(getProject(), "Could not resolve " + methodRef.getQualifiedNameWithType() + "\".");
+			showErrorDialog(getProject(), txt("msg.execution.message.CannotResolveMethod", methodRef.getQualifiedNameWithType()));
 		} else {
 			Project project = method.getProject();
 			ConnectionHandler connection = Failsafe.nn(method.getConnection());
@@ -213,8 +225,8 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 			JavaExecutionProcessor executionProcessor = executionInterface.createExecutionProcessor(method);
 
 			Progress.prompt(project, method, true,
-					"Executing method",
-					"Executing " + method.getQualifiedNameWithType(),
+					txt("prc.execution.title.ExecutingMethod"),
+					txt("prc.execution.text.ExecutingMethod", method.getQualifiedNameWithType()),
 					progress -> {
 						try {
 							executionProcessor.execute(input, DBDebuggerType.NONE);
@@ -229,10 +241,10 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 							conditionallyLog(e);
 							context.set(ExecutionStatus.EXECUTING, false);
 							if (context.isNot(ExecutionStatus.CANCELLED)) {
-								Messages.showErrorDialog(project,
-                                        "Method Execution Error",
-										"Error executing " + method.getQualifiedNameWithType() + ".\n" + e.getMessage().trim(),
-										new String[]{"Try Again", "Cancel"}, 0,
+								showErrorDialog(project,
+                                        txt("msg.execution.title.MethodExecutionError"),
+										txt("msg.execution.message.MethodExecutionError", method.getQualifiedNameWithType(), e.getMessage().trim()),
+										new String[]{txt("msg.shared.button.TryAgain"), txt("msg.shared.button.Cancel")}, 0,
 										option -> when(option == 0, () ->
 												startMethodExecution(input, DBDebuggerType.NONE)));
 							}
@@ -267,8 +279,8 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 			@Nullable Consumer<JavaExecutionInput> callback) {
 
 		Progress.prompt(getProject(), executionInput, true,
-				"Loading data dictionary",
-				"Loading executable elements",
+				txt("prc.execution.title.LoadingDataDictionary"),
+				txt("prc.execution.text.LoadingExecutableElements"),
 				progress -> {
 					Project project = getProject();
 					JavaExecutionManager executionManager = JavaExecutionManager.getInstance(project);

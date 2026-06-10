@@ -22,21 +22,24 @@ import com.dbn.diagnostics.DiagnosticsManager;
 import com.dbn.diagnostics.data.DiagnosticBundle;
 import com.dbn.diagnostics.data.DiagnosticEntry;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class MetadataDiagnosticsTableModel2 extends AbstractDiagnosticsTableModel<String> {
     private final ConnectionRef connection;
 
     private static final String[] COLUMN_NAMES = new String[]{
-            "Identifier",                  // 0
-            "Invocations",                 // 1
-            "Failures",                    // 2
-            "Timeouts",                    // 3
-            "Best (Query / Load - ms)",    // 4
-            "Worst (Query / Load - ms)",   // 5
-            "Average (Query / Load - ms)", // 6
-            "Total (Query / Load - ms)",   // 7
-            "Fetch Block Size"};           // 8
+            txt("app.diagnostics.column.Identifier"),                  // 0
+            txt("app.diagnostics.column.Invocations"),                 // 1
+            txt("app.diagnostics.column.Failures"),                    // 2
+            txt("app.diagnostics.column.Timeouts"),                    // 3
+            txt("app.diagnostics.column.BestQueryLoadMillis"),         // 4
+            txt("app.diagnostics.column.WorstQueryLoadMillis"),        // 5
+            txt("app.diagnostics.column.AverageQueryLoadMillis"),      // 6
+            txt("app.diagnostics.column.TotalQueryLoadMillis"),        // 7
+            txt("app.diagnostics.column.FetchBlockSize")};             // 8
 
     public MetadataDiagnosticsTableModel2(ConnectionHandler connection) {
         super(connection.getProject());
@@ -45,7 +48,7 @@ public class MetadataDiagnosticsTableModel2 extends AbstractDiagnosticsTableMode
 
     @NotNull
     @Override
-    protected String[] getColumnNames() {
+    protected @Nls String[] getColumnNames() {
         return COLUMN_NAMES;
     }
 

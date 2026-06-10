@@ -32,6 +32,9 @@ public class GenericDataDefinitionInterface extends DatabaseDataDefinitionInterf
 
     @Override
     public String createDDLStatement(Project project, DatabaseObjectTypeId objectTypeId, String userName, String schemaName, String objectName, DBContentType contentType, String code, String alternativeDelimiter) {
+        schemaName = quoted(schemaName);
+        objectName = quoted(objectName);
+
         return objectTypeId == DatabaseObjectTypeId.VIEW ? "create view " + objectName + " as\n" + code :
                 objectTypeId == DatabaseObjectTypeId.FUNCTION ? "create function " + objectName + " as\n" + code :
                         "create or replace\n" + code;

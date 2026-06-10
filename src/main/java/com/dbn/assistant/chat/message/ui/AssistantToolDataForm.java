@@ -33,6 +33,7 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.lang.Language;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -50,6 +51,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.util.Objects;
 
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
@@ -64,18 +66,29 @@ public class AssistantToolDataForm extends DBNFormBase {
     private DBNInfoLabel categoryInfoLabel;
     private JLabel typeLabel;
     private JLabel categoryLabel;
+    private JPanel toolInfoPanel;
+
+    private final AssistantToolInfoProvider info;
+    private final AssistantToolInvocation invocation;
 
     private EditorEx requestViewer;
     private EditorEx responseViewer;
 
     public AssistantToolDataForm(DBNComponent parent, AssistantToolInfoProvider info, AssistantToolInvocation invocation) {
         super(parent);
+        this.info = info;
+        this.invocation = invocation;
 
-        initDataHeader(info);
-        initDataViewers(invocation);
+        initDataHeader();
+        initDataViewers();
     }
 
-    private void initDataHeader(AssistantToolInfoProvider info) {
+    private void initDataHeader() {
+        if (info.isExternalTool()) {
+            toolInfoPanel.setVisible(false);
+            return;
+        }
+
         Color faded = Colors.faded(UIUtil.getLabelForeground());
         typeLabel.setForeground(faded);
         typeLabel.setFont(Fonts.regular(-1));
@@ -89,7 +102,7 @@ public class AssistantToolDataForm extends DBNFormBase {
         categoryInfoLabel.setContent(TextContent.plain(info.getToolCategoryDescription()));
     }
 
-    private void initDataViewers(AssistantToolInvocation invocation) {
+    private void initDataViewers() {
         Project project = getProject();
         String requestContent = invocation.getRequestContent();
         String responseContent = invocation.getResponseContent();
@@ -114,6 +127,16 @@ public class AssistantToolDataForm extends DBNFormBase {
             responseDataPanel.add(responseTextPane);
         }
     }
+
+    public void updateResponse() {
+        DocumentEx responseDocument = responseViewer.getDocument();
+        String responseText = responseDocument.getText();
+        String responseContent = invocation.getResponseContent();
+        if (Objects.equals(responseText, responseContent)) return;
+
+        Documents.setText(responseDocument, responseContent);
+    }
+
 
     @Override
     protected JComponent getMainComponent() {

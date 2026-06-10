@@ -26,12 +26,16 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.impl.DBCredentialImpl;
 import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.type.DBCredentialType;
+import com.dbn.oci.config.OciConfig;
+import com.dbn.oci.config.OciConfigManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextField;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -42,6 +46,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
@@ -49,13 +54,15 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
 import static com.dbn.common.util.Strings.isNotEmpty;
-import static com.dbn.common.util.Strings.startsWith;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBAttributeType.FINGERPRINT;
 import static com.dbn.object.type.DBAttributeType.PASSWORD;
 import static com.dbn.object.type.DBAttributeType.PRIVATE_KEY;
 import static com.dbn.object.type.DBAttributeType.TENANCY_OCID;
 import static com.dbn.object.type.DBAttributeType.USER_NAME;
 import static com.dbn.object.type.DBAttributeType.USER_OCID;
+import static com.dbn.oci.util.OciIdentifiers.isTenancyOcid;
+import static com.dbn.oci.util.OciIdentifiers.isUserOcid;
 
 /**
  * A dialog window for creating new AI credentials.
@@ -82,6 +89,7 @@ public class CredentialEditForm extends DBNFormBase {
     private JPanel passwordCredentialPanel;
     private JPanel tokenCredentialPanel;
     private JPanel ociCredentialPanel;
+    private JButton ociConfigFileButton;
 
     private DBCredential credential;
     private final ConnectionRef connection;
@@ -97,13 +105,28 @@ public class CredentialEditForm extends DBNFormBase {
      */
     public CredentialEditForm(CredentialEditDialog dialog, @Nullable DBCredential credential, List<DBCredentialType> credentialTypes, Set<String> usedCredentialNames) {
         super(dialog);
-        this.connection = dialog.getConnection().ref();
+        this.connection = ConnectionRef.of(dialog.getConnection());
         this.credential = credential;
         this.credentialTypes = credentialTypes == null ? List.of(DBCredentialType.values()) : credentialTypes;
         this.usedCredentialNames = usedCredentialNames;
 
         initCredentialTypeComboBox();
         initCredentialAttributeFields();
+        onButtonClick(ociConfigFileButton, e -> openOciConfigSelector());
+    }
+
+    private void openOciConfigSelector() {
+        Project project = ensureProject();
+        OciConfigManager configManager = OciConfigManager.getInstance(project);
+        configManager.openOciConfigSelector(c -> applyOciConfiguration(c));
+    }
+
+    private void applyOciConfiguration(OciConfig config) {
+        setText(ociCredentialUserOcidField, config.getUserId());
+        setText(ociCredentialTenancyOcidField, config.getTenancyId());
+        setText(ociCredentialPrivateKeyField, config.getPrivateKeyFile());
+        setText(ociCredentialFingerprintField, config.getFingerprint());
+        ociCredentialUserOcidField.requestFocus();
     }
 
     @Override
@@ -134,9 +157,9 @@ public class CredentialEditForm extends DBNFormBase {
         addTextValidation(tokenCredentialPasswordField, c -> !isToken() || isNotEmpty(c), txt("cfg.assistant.error.TokenEmpty"));
 
         addTextValidation(ociCredentialUserOcidField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.UserOcidEmpty"));
-        addTextValidation(ociCredentialUserOcidField, c -> !isOci() || startsWith(c, "ocid1.user.oc1."), txt("cfg.assistant.error.UserOcidInvalid"));
+        addTextValidation(ociCredentialUserOcidField, c -> !isOci() || isUserOcid(c), txt("cfg.assistant.error.UserOcidInvalid"));
         addTextValidation(ociCredentialTenancyOcidField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.UserTenancyOcidEmpty"));
-        addTextValidation(ociCredentialTenancyOcidField, c -> !isOci() || startsWith(c, "ocid1.tenancy.oc1."), txt("cfg.assistant.error.UserTenancyOcidInvalid"));
+        addTextValidation(ociCredentialTenancyOcidField, c -> !isOci() || isTenancyOcid(c), txt("cfg.assistant.error.UserTenancyOcidInvalid"));
         addTextValidation(ociCredentialFingerprintField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.FingerprintEmpty"));
         addTextValidation(ociCredentialPrivateKeyField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.PrivateKeyEmpty"));
     }
@@ -168,8 +191,8 @@ public class CredentialEditForm extends DBNFormBase {
             credentialTypeComboBox.addActionListener((e) -> updateFieldAvailability());
         }
 
-        ociCredentialUserOcidField.getEmptyText().setText("ocid1.user.oc1...");
-        ociCredentialTenancyOcidField.getEmptyText().setText("ocid1.tenancy.oc1...");
+        ociCredentialUserOcidField.getEmptyText().setText(txt("cfg.assistant.placeholder.UserOcidExample"));
+        ociCredentialTenancyOcidField.getEmptyText().setText(txt("cfg.assistant.placeholder.TenancyOcidExample"));
     }
 
     /**

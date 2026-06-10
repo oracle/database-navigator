@@ -23,6 +23,8 @@ import lombok.EqualsAndHashCode;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @EqualsAndHashCode(callSuper = false)
 public class ConnectionPresentableProperty extends DBObjectPropertyBase {
     private final ConnectionRef connection;
@@ -37,7 +39,7 @@ public class ConnectionPresentableProperty extends DBObjectPropertyBase {
 
     @Override
     public String getName() {
-        return "Connection";
+        return txt("app.objects.property.Connection");
     }
 
     @Override

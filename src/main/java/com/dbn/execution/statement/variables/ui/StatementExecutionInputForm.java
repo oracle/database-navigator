@@ -60,6 +60,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.nls.NlsResources.txt;
 
 public class StatementExecutionInputForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -75,7 +76,6 @@ public class StatementExecutionInputForm extends DBNFormBase {
     private StatementExecutionProcessor executionProcessor;
     private final List<StatementExecutionVariableValueForm> variableValueForms = DisposableContainers.list(this);
     private final ExecutionOptionsForm executionOptionsForm;
-    private final String statementText;
     private Document previewDocument;
     private EditorEx viewer;
 
@@ -86,7 +86,6 @@ public class StatementExecutionInputForm extends DBNFormBase {
         super(parent);
         this.executionProcessor = executionProcessor;
         StatementExecutionInput executionInput = executionProcessor.getExecutionInput();
-        this.statementText = executionInput.getExecutableStatementText();
 
         variablesPanel.setLayout(new BoxLayout(variablesPanel, BoxLayout.Y_AXIS));
 
@@ -151,7 +150,7 @@ public class StatementExecutionInputForm extends DBNFormBase {
 
     @Override
     protected void initAccessibility() {
-        setAccessibleName(variablesScrollPane, "Execution variables");
+        setAccessibleName(variablesScrollPane, txt("app.execution.aria.ExecutionVariables"));
     }
 
     @Override
@@ -194,13 +193,10 @@ public class StatementExecutionInputForm extends DBNFormBase {
         ConnectionHandler connection = Failsafe.nn(executionProcessor.getConnection());
         SchemaId currentSchema = executionProcessor.getTargetSchema();
         Project project = connection.getProject();
-        String previewText = this.statementText;
+        StatementExecutionInput executionInput = executionProcessor.getExecutionInput();
+        executionInput.resetExecutionContext();
 
-        StatementExecutionVariablesBundle executionVariables = executionProcessor.getExecutionVariables();
-        if (executionVariables != null) {
-            previewText = executionVariables.prepareStatementText(connection, this.statementText, true);
-        }
-
+        String previewText = executionInput.getPreviewStatementText();
 
         if (previewDocument == null) {
             DBLanguageDialect languageDialect = connection.getLanguageDialect(SQLLanguage.INSTANCE);

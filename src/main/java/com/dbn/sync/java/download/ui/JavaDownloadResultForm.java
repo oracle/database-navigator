@@ -39,6 +39,7 @@ import java.util.List;
 import static com.dbn.common.ui.util.Keyboard.onKeyPress;
 import static com.dbn.common.ui.util.Lists.onSelectionChange;
 import static com.dbn.common.ui.util.Mouse.onMouseClick;
+import static com.dbn.nls.NlsResources.txt;
 import static java.awt.event.MouseEvent.BUTTON1;
 
 public class JavaDownloadResultForm extends DBNFormBase {
@@ -65,8 +66,7 @@ public class JavaDownloadResultForm extends DBNFormBase {
         PsiDirectory rootDirectory = batch.getTargetRootDirectory();
         String rootDirectoryPath = Presentation.presentableName(rootDirectory);
         TextContent hintText = TextContent.plain(
-                "The following classes were created or updated in your project under \"" + rootDirectoryPath + "\"\n\n" +
-                        "(double click on the files, or press Enter to open them in the editor)");
+                txt("msg.java.hint.DownloadResult", rootDirectoryPath));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }

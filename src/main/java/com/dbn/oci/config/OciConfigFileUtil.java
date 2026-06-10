@@ -18,34 +18,53 @@ package com.dbn.oci.config;
 
 import com.dbn.common.Reflection;
 import com.dbn.common.compatibility.Workaround;
-import com.dbn.common.util.Strings;
 import com.dbn.diagnostics.Diagnostics;
 import com.oracle.bmc.ConfigFileReader;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static com.dbn.common.util.Strings.isEmpty;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 
 public class OciConfigFileUtil {
 
     @Workaround
     public static List<String> getConfigProfileNames(String configFilePath) {
-        if (Strings.isEmpty(configFilePath)) return Collections.emptyList();
+        if (isEmpty(configFilePath)) return emptyList();
 
+        var config = readConfiguration(configFilePath);
+        return new ArrayList<>(config.keySet());
+    }
+
+    @NonNls
+    public static Map<String, String> getConfigProfileValues(String configFilePath, String profileName) {
+        if (isEmpty(configFilePath)) return emptyMap();
+        if (isEmpty(profileName)) return emptyMap();
+
+        var config = readConfiguration(configFilePath);
+        var profileConfig = config.get(profileName);
+        return profileConfig == null ? emptyMap() : profileConfig;
+    }
+
+    private static Map<String, Map<String, String>> readConfiguration(String configFilePath) {
         try {
             ConfigFileReader.ConfigFile configFile = ConfigFileReader.parse(configFilePath);
 
             //configFile.accumulator.configurationsByProfile
             Object accumulator = Reflection.getFieldValue(configFile, "accumulator");
-            Map<String, ?> configurations = Reflection.getFieldValue(accumulator, "configurationsByProfile");
-            return new ArrayList<>(configurations.keySet());
-        } catch (Exception e) {
-            Diagnostics.conditionallyLog(e);
-            return Collections.emptyList();
+            return Reflection.getFieldValue(accumulator, "configurationsByProfile");
+        } catch (Throwable t) {
+            // TODO propagate exception to consumer
+            Diagnostics.conditionallyLog(t);
+            return emptyMap();
         }
-
     }
+
+
 /*
     @Experimental
     public static List<String> getRegionNames() {

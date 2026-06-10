@@ -20,7 +20,7 @@ import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.form.DBNForm;
-import com.dbn.common.ui.tab.DBNTabbedPane;
+import com.dbn.common.ui.tab.DBNColoredTabs;
 import com.dbn.common.util.Dialogs;
 import com.dbn.execution.ExecutionResult;
 import com.dbn.execution.common.result.ui.ExecutionResultForm;
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.Component;
 
-import static com.dbn.common.ui.util.ClientProperty.TAB_CONTENT;
+import static com.dbn.common.ui.util.ClientProperty.FORM;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
@@ -50,22 +50,19 @@ public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
         return executionConsoleForm.ensure();
     }
 
-    private Component getTabComponent(AnActionEvent e) {
-        DBNTabbedPane<DBNForm> tabs = getExecutionConsoleForm().getResultTabs();
-        int popupTabIndex = tabs.getPopupTabIndex();
-        if (popupTabIndex < 0) return null;
-
-        return tabs.getComponentAt(popupTabIndex);
+    private Component getPopupTabComponent() {
+        DBNColoredTabs<DBNForm> tabs = getExecutionConsoleForm().getResultTabs();
+        return tabs.getPopupTabComponent();
     }
 
     AnAction renameAction() {
         return new BasicAction(txt("app.execution.action.RenameResult")) {
             @Override
             public void update(@NotNull AnActionEvent e) {
-                Component component = getTabComponent(e);
+                Component component = getPopupTabComponent();
                 boolean visible = false;
                 if (component != null) {
-                    Object object = TAB_CONTENT.get(component);
+                    Object object = FORM.get(component);
                     if (object instanceof ExecutionResultForm<?> resultForm) {
                         visible = resultForm.getExecutionResult().isRenameable();
                     }
@@ -75,16 +72,16 @@ public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
 
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                Component component = getTabComponent(e);
+                Component component = getPopupTabComponent();
                 if (component == null) return;
 
-                Object object = TAB_CONTENT.get(component);
+                Object object = FORM.get(component);
                 if (!(object instanceof ExecutionResultForm<?> resultForm)) return;
                 if (!resultForm.getExecutionResult().isRenameable()) return;
 
                 ExecutionResult executionResult = resultForm.getExecutionResult();
                 Dialogs.show(() -> new RenameExecutionResultDialog(executionResult), (dialog, exitCode) -> {
-                    DBNTabbedPane<DBNForm> tabs = getExecutionConsoleForm().getResultTabs();
+                    DBNColoredTabs<DBNForm> tabs = getExecutionConsoleForm().getResultTabs();
                     tabs.setTabTitle(component, executionResult.getName());
                 });
             }
@@ -95,7 +92,7 @@ public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
         return new BasicAction(txt("app.shared.action.Close")) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                Component component = getTabComponent(e);
+                Component component = getPopupTabComponent();
                 if (component == null) return;
 
                 getExecutionConsoleForm().removeTab(component);
@@ -116,7 +113,7 @@ public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
         return new BasicAction(txt("app.shared.action.CloseAllButThis")) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                Component component = getTabComponent(e);
+                Component component = getPopupTabComponent();
                 if (component == null) return;
 
                 getExecutionConsoleForm().removeAllExceptTab(component);

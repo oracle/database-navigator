@@ -8,8 +8,13 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.database.DatabaseFeature.DATA_CHANGE_NOTIFICATION;
+import static com.dbn.nls.NlsResources.txt;
 
 public class MonitorDataChangeOpenAction extends ProjectAction {
+    public MonitorDataChangeOpenAction() {
+        super(txt("app.menu.action.DataEventsMonitor"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         EventNotificationManager eventNotificationManager = EventNotificationManager.getInstance(project);

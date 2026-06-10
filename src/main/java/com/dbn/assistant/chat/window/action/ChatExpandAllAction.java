@@ -27,6 +27,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ChatExpandAllAction extends AbstractChatBoxAction {
 
+    public ChatExpandAllAction() {
+        super(txt("app.assistant.action.AssistantExpandAll"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();

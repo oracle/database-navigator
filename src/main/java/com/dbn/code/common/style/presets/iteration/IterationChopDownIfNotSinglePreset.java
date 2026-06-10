@@ -25,9 +25,11 @@ import com.intellij.formatting.Wrap;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class IterationChopDownIfNotSinglePreset extends IterationAbstractPreset {
     public IterationChopDownIfNotSinglePreset() {
-        super("chop_down_if_not_single", "Chop down unless single element");
+        super("chop_down_if_not_single", txt("cfg.codeStyle.const.CodeStylePreset_CHOP_DOWN_IF_NOT_SINGLE"));
     }
 
     @Override

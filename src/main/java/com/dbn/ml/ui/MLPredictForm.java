@@ -24,7 +24,7 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.DatabaseMLInterface;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.model.MLTaskType;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -164,7 +164,7 @@ public class MLPredictForm extends DBNFormBase {
                     project,
                     connection.getConnectionId(),
                     conn -> {
-                        DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                        DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                         if (isClassification) {
                             try (ResultSet rs = mlInterface.predictWithProbability(conn, modelName, featureClause)) {
                                 if (rs.next()) {

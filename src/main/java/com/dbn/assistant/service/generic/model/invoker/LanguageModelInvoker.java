@@ -23,6 +23,7 @@ import dev.langchain4j.model.language.LanguageModel;
 import dev.langchain4j.model.output.Response;
 
 import static com.dbn.assistant.service.generic.model.AssistantModelType.LANGUAGE;
+import static com.dbn.nls.NlsResources.txt;
 
 public class LanguageModelInvoker extends AbstractModelInvoker<LanguageModel>{
     public LanguageModelInvoker() {
@@ -38,7 +39,7 @@ public class LanguageModelInvoker extends AbstractModelInvoker<LanguageModel>{
             consumer.acceptMessage(content);
             consumer.acceptCompletion();
         } catch (Throwable e) {
-            consumer.acceptError(e);
+            consumer.acceptError(txt("msg.assistant.error.ModelInvocationFailed"), e);
             consumer.acceptCompletion();
         }
 

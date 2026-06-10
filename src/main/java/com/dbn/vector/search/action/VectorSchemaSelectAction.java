@@ -29,10 +29,15 @@ import com.intellij.openapi.actionSystem.DataContext;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
 @BackgroundUpdate
 public class VectorSchemaSelectAction extends SelectDropdownAction<DBSchema> implements VectorActionSupport {
+
+    public VectorSchemaSelectAction() {
+        super(txt("app.vector.action.VectorSearchSchema"));
+    }
 
     @Override
     protected List<DBSchema> getObjects(DataContext dataContext) {
@@ -80,11 +85,11 @@ public class VectorSchemaSelectAction extends SelectDropdownAction<DBSchema> imp
 
     @Override
     protected String getEmptySelectionText(AnActionEvent e) {
-        return "Schema";
+        return txt("app.vector.action.Schema");
     }
 
     @Override
     protected String getDescription(AnActionEvent e) {
-        return "Vector table schema";
+        return txt("app.vector.tooltip.VectorTableSchema");
     }
 }

@@ -22,8 +22,10 @@ import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.feature.MLFeatureConfig;
 import com.dbn.ml.model.source.MLSourceConfig;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
+import com.dbn.ml.model.trainer.MLTrainerType;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nls;
 
 /**
  * Runtime context for ML training execution.
@@ -108,7 +110,11 @@ public class MLTrainingContext {
         return request.getTrainerConfig().getTrainerType().getTaskType();
     }
 
-    public String getAlgorithmName() {
-        return request.getTrainerConfig().getTrainerType().getName();
+    public MLTrainerType getTrainerType() {
+        return request.getTrainerConfig().getTrainerType();
+    }
+
+    public @Nls String getAlgorithmName() {
+        return getTrainerType().getName();
     }
 }

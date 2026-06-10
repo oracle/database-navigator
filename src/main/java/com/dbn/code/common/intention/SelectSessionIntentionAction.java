@@ -47,7 +47,7 @@ public class SelectSessionIntentionAction extends EditorIntentionAction  {
     @Override
     @NotNull
     public String getText() {
-        return txt("app.codeEditor.action.SetCurrentSession");
+        return txt("app.codeEditor.intention.SetCurrentSession");
     }
 
     @Override

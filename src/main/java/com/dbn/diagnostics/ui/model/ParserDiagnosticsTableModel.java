@@ -26,14 +26,26 @@ import com.dbn.diagnostics.data.ParserDiagnosticsFilter;
 import com.intellij.openapi.Disposable;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.ListModel;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ParserDiagnosticsTableModel implements DBNReadonlyTableModel<ParserDiagnosticsEntry>, DBNTableWithGutterModel<ParserDiagnosticsEntry>, Disposable {
-    public static final String[] INITIAL_COLUMNS = {"File", "Size", "Errors", "Warnings"};
-    public static final String[] DELTA_COLUMNS = {"File", "Size", "Errors (previous / current)", "Warnings (previous / current)", "Transition"};
+    public static final String[] INITIAL_COLUMNS = {
+            txt("app.shared.column.File"),
+            txt("app.diagnostics.column.Size"),
+            txt("app.diagnostics.column.Errors"),
+            txt("app.diagnostics.column.Warnings")};
+    public static final String[] DELTA_COLUMNS = {
+            txt("app.shared.column.File"),
+            txt("app.diagnostics.column.Size"),
+            txt("app.diagnostics.column.ErrorsPreviousCurrent"),
+            txt("app.diagnostics.column.WarningsPreviousCurrent"),
+            txt("app.diagnostics.column.Transition")};
 
     private final ParserDiagnosticsDeltaResult deltaResult;
     private final ListModel gutterModel = new DBNTableGutterModel<>(this);
@@ -50,7 +62,7 @@ public class ParserDiagnosticsTableModel implements DBNReadonlyTableModel<Parser
     }
 
     @NotNull
-    protected String[] getColumnNames() {
+    protected @Nls String[] getColumnNames() {
         return isInitial() ?
                 INITIAL_COLUMNS :
                 DELTA_COLUMNS;
@@ -71,7 +83,7 @@ public class ParserDiagnosticsTableModel implements DBNReadonlyTableModel<Parser
     }
 
     @Override
-    public final String getColumnName(int columnIndex) {
+    public final @Nls String getColumnName(int columnIndex) {
         return getColumnNames()[columnIndex];
     }
 
@@ -127,7 +139,7 @@ public class ParserDiagnosticsTableModel implements DBNReadonlyTableModel<Parser
                 case 1: return Long.toString(row.getFileSize());
                 case 2: return row.getOldIssues().getErrors() + " / " + row.getNewIssues().getErrors();
                 case 3: return row.getOldIssues().getWarnings() +  " / " + row.getNewIssues().getWarnings();
-                case 4: return row.getStateTransition().name();
+                case 4: return row.getStateTransition().getName();
             }
         }
         return "";

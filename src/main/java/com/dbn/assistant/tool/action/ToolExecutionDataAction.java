@@ -18,31 +18,38 @@ package com.dbn.assistant.tool.action;
 
 import com.dbn.assistant.chat.message.ui.ChatMessageToolSectionForm;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.component.DBNFoldableComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ToolExecutionDataAction extends AssistantToolAction {
+    public ToolExecutionDataAction() {
+        super(txt("app.assistant.action.AssistantToolExecutionData"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
         if (toolSectionForm == null) return;
 
-        toolSectionForm.toggleToolExecutionData();
+        toolSectionForm.toggleFolding();
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
-        if (toolSectionForm == null) return;
+        DBNFoldableComponent foldableComponent = getFoldableComponent(e);
+        if (foldableComponent == null) return;
 
 
         Presentation presentation = e.getPresentation();
-        presentation.setText("Tool Details");
-        presentation.setIcon(toolSectionForm.isShowingToolData() ?
-                Icons.ACTION_CONTENT_COLLAPSE :
-                Icons.ACTION_CONTENT_EXPAND);
+        presentation.setText(txt("app.assistant.action.ToolExecutionData"));
+        presentation.setIcon(foldableComponent.isFolded() ?
+                Icons.ACTION_CONTENT_EXPAND :
+                Icons.ACTION_CONTENT_COLLAPSE);
         presentation.setVisible(isVisible(e));
     }
 

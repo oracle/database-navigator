@@ -84,7 +84,9 @@ import static com.dbn.vfs.DBConsoleType.STANDARD;
 
 public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
-    public ObjectActionGroup(DBObject object) {
+    public ObjectActionGroup(DBObject[] objects) {
+        DBObject object = objects[0];
+
         addObjectManagementActions(object);
         addMethodActions(object);
         addProgramActions(object);

@@ -34,8 +34,8 @@ import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.editor.session.SessionStatus;
-import com.dbn.language.common.QuoteDefinition;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuoteDefinition;
+import com.dbn.language.common.quotes.QuotePair;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -64,6 +64,7 @@ import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.EXPLAIN_PLAN;
 import static com.dbn.database.DatabaseFeature.FUNCTION_OUT_ARGUMENTS;
 import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
+import static com.dbn.database.DatabaseFeature.MCP_SERVER_BUILDER;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
 import static com.dbn.database.DatabaseFeature.OBJECT_DDL_EXTRACTION;
 import static com.dbn.database.DatabaseFeature.OBJECT_DEPENDENCIES;
@@ -86,11 +87,13 @@ import static com.dbn.database.DatabaseObjectTypeId.CREDENTIAL;
 import static com.dbn.database.DatabaseObjectTypeId.JAVA_CLASS;
 import static com.dbn.database.DatabaseObjectTypeId.JAVA_RESOURCE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class OracleCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
     public static final QuoteDefinition IDENTIFIER_QUOTE_DEFINITION = new QuoteDefinition(new QuotePair('"', '"'));
 
+    @NonNls
     private interface Property {
         String SESSION_PROGRAM = "v$session.program";
 
@@ -207,6 +210,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 DATA_CHANGE_NOTIFICATION,
                 VECTOR_EMBEDDING,
                 VECTOR_SEARCH,
+                MCP_SERVER_BUILDER,
                 JAVA_VIRTUAL_MACHINE
                 //EMPTY_SCHEMA_EVALUATION // TODO disabled due to performance reasons
                 );
@@ -259,7 +263,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     }
 
     @Override
-    public Map<String, String> getImplicitConnectionProperties() {
+    public Map<String, @NonNls String> getImplicitConnectionProperties() {
         return Map.of(
                 "oracle.jdbc.jsonDefaultGetObjectType", "java.lang.String",
                 "oracle.jdbc.vectorDefaultGetObjectType", "double[]",

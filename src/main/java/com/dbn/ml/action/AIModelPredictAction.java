@@ -22,7 +22,7 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.DatabaseMLInterface;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.ui.MLPredictDialog;
 import com.dbn.object.DBAIModel;
@@ -62,7 +62,7 @@ public class AIModelPredictAction extends AnObjectAction<DBAIModel> {
                     project,
                     connection.getConnectionId(),
                     conn -> {
-                        DatabaseMLInterface ml = connection.getInterfaces().getMLInterface();
+                        DatabaseMachineLearningInterface ml = connection.getInterfaces().getMachineLearningInterface();
 
                         String function = ml.getModelFunction(conn, modelName);
                         if (function == null) {

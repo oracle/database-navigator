@@ -35,6 +35,7 @@ import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.options.setting.BooleanSetting;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.window.ToolWindows;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -57,7 +58,6 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
 import lombok.Getter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -133,8 +133,7 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
 
     @NotNull
     public ToolWindow getBrowserToolWindow() {
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject());
-        return nd(toolWindowManager.getToolWindow(TOOL_WINDOW_ID));
+        return nd(ToolWindows.getToolWindow(getProject(), TOOL_WINDOW_ID));
     }
 
     public void showBrowserToolWindow() {

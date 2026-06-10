@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.util.ClientProperty.ACTION_TOOLBAR;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.openapi.actionSystem.ActionPlaces.POPUP;
 import static com.intellij.openapi.actionSystem.ActionPlaces.TOOLBAR;
 
@@ -54,7 +55,7 @@ public class Actions {
                 @Override
                 public void update(@NotNull AnActionEvent e) {
                     Presentation presentation = e.getPresentation();
-                    presentation.setText("Loading...");
+                    presentation.setText(txt("app.shared.action.Loading"));
                 }
             }};
 
@@ -78,17 +79,22 @@ public class Actions {
 
     public static ActionToolbar createActionToolbar(@NotNull JComponent component, boolean horizontal, AnAction... actions){
         ActionManager actionManager = ActionManager.getInstance();
+        ActionGroup actionGroup = createActionGroup(actions);
+
+        ActionToolbar toolbar = actionManager.createActionToolbar(TOOLBAR, actionGroup, horizontal);
+        linkActionToolbar(component, toolbar);
+        markImportantToolbar(toolbar);
+        return toolbar;
+    }
+
+    public static ActionGroup createActionGroup(AnAction... actions) {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         for (AnAction action : actions) {
             if (action == SEPARATOR)
                 actionGroup.addSeparator(); else
                 actionGroup.add(action);
         }
-
-        ActionToolbar toolbar = actionManager.createActionToolbar(TOOLBAR, actionGroup, horizontal);
-        linkActionToolbar(component, toolbar);
-        markImportantToolbar(toolbar);
-        return toolbar;
+        return actionGroup;
     }
 
     private static void linkActionToolbar(@NotNull JComponent component, ActionToolbar toolbar) {

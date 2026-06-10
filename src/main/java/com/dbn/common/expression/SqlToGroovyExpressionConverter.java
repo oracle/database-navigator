@@ -63,11 +63,7 @@ public class SqlToGroovyExpressionConverter {
         StringBuilder result = new StringBuilder();
         while (m.find()) {
             String name = m.group(1);
-            String patchedValue = m.group(2)
-                    .replaceAll("'", "")
-                    .replaceAll("[%*]", ".*")
-                    .replaceAll("\\$", quoteReplacement("[$]"));
-            String value = "/(?i)" + patchedValue + "/";
+            String value = toRegexPattern(m.group(2));
             String transformed = String.format("!(%s ==~ %s)", name, value);
             m.appendReplacement(result, quoteReplacement(transformed));
         }
@@ -82,17 +78,52 @@ public class SqlToGroovyExpressionConverter {
         StringBuilder result = new StringBuilder();
         while (m.find()) {
             String name = m.group(1);
-            String patchedValue = m.group(2)
-                    .replaceAll("'", "")
-                    .replaceAll("[%*]", ".*")
-                    .replaceAll("\\$", quoteReplacement("[$]"));
-            String value = "/(?i)" + patchedValue + "/";
+            String value = toRegexPattern(m.group(2));
             String transformed = String.format("%s ==~ %s", name, value);
             m.appendReplacement(result, quoteReplacement(transformed));
         }
         m.appendTail(result);
         expression = result.toString();
         return expression;
+    }
+
+    private static String toRegexPattern(String quotedLikePattern) {
+        String likePattern = quotedLikePattern.replace("'", "");
+        StringBuilder regexPattern = new StringBuilder();
+
+        for (int i = 0; i < likePattern.length(); i++) {
+            char c = likePattern.charAt(i);
+            switch (c) {
+                case '%':
+                case '*':
+                    regexPattern.append(".*");
+                    break;
+                case '$':
+                    regexPattern.append("[$]");
+                    break;
+                case '/':
+                    regexPattern.append("\\/");
+                    break;
+                case '\\':
+                case '.':
+                case '^':
+                case '|':
+                case '?':
+                case '+':
+                case '(':
+                case ')':
+                case '[':
+                case ']':
+                case '{':
+                case '}':
+                    regexPattern.append('\\').append(c);
+                    break;
+                default:
+                    regexPattern.append(c);
+            }
+        }
+
+        return "/(?i)" + regexPattern + "/";
     }
 
     private static String replace_NOT_IN(String expression) {
@@ -102,7 +133,7 @@ public class SqlToGroovyExpressionConverter {
         while (m.find()) {
             String name = m.group(1);
             String values = m.group(2);
-            String transformed = String.format("![%s].contains(%s)", values, name);
+            String transformed = String.format("!(%s in [%s])", name, values);
             m.appendReplacement(result, transformed);
         }
         m.appendTail(result);
@@ -117,7 +148,7 @@ public class SqlToGroovyExpressionConverter {
         while (m.find()) {
             String name = m.group(1);
             String values = m.group(2);
-            String transformed = String.format("[%s].contains(%s)", values, name);
+            String transformed = String.format("%s in [%s]", name, values);
             m.appendReplacement(result, transformed);
         }
         m.appendTail(result);

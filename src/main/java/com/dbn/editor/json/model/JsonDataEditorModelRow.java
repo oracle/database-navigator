@@ -32,6 +32,7 @@ import java.sql.SQLException;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JsonDataEditorModelRow extends ResultSetDataModelRow<JsonDataEditorModel, JsonDataEditorModelCell> {
 
