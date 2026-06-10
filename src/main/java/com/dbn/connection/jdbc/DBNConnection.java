@@ -215,11 +215,14 @@ public class DBNConnection extends DBNConnectionBase {
 
     @Exploitable
     public DBNCallableStatement prepareCallCached(String sql) {
-        return cast(cachedStatements.computeIfAbsent(sql, s -> {
-            DBNPreparedStatement statement = prepareCall(s);
+        return cast(cachedStatements.compute(sql, (q, s) -> {
+            if (s != null && !s.isClosed()) return s;
+
+            Resources.close(s);
+            DBNPreparedStatement statement = prepareCall(q);
             statement.setCached(true);
             statement.setFetchSize(500);
-            statement.setSql(s);
+            statement.setSql(q);
             return statement;
         }));
     }

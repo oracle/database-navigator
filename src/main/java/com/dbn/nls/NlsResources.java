@@ -58,6 +58,15 @@ public class NlsResources extends DynamicBundle{
         return key;
     }
 
+    public static @Nls String txtOr(@NonNls String key, @Nls String fallback) {
+        String text = txt(key);
+        if (text == null) return fallback;
+        if (text.equals(key)) return fallback;
+        if (text.equals("!" + key + "!")) return fallback;
+
+        return text;
+    }
+
     public static @Nls String format(@Nls String text, Object... params) {
         if (params == null || params.length == 0) return text;
 

@@ -1,0 +1,54 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="ko">
+<head>
+    <title>DB Assistant - Oracle Select AI</title>
+    <style>
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+    </style>
+</head>
+<body>
+<div style="${REGULAR_LARGE_FONT_STYLE}">
+    <b>Oracle Autonomous Database Select AI</b><br>
+</div>
+데이터와 상호작용하는 방식을 바꿔 보세요.<br>
+Oracle Select AI를 사용하면 자연어로 Autonomous Database를 질의할 수 있으며, SQL 질의를 자동으로 생성하여 비즈니스에 대한 빠르고 정확한 인사이트를 제공합니다. <br>
+고급 AI 모델로 구동되는 이 기능은 비즈니스 분석가부터 개발자까지 모든 수준의 사용자를 위해 데이터 분석을 단순화합니다.
+
+<br>
+<br>
+<br>
+<u>시작하기 전에</u><br>
+(조직에서 이미 프로비저닝하지 않은 경우)<br><br>
+Select AI를 사용하려면 다음 사항을 확인하세요.
+<ul>
+    <li><b>데이터베이스 권한</b> - AI 기반 질의 생성을 활성화하려면 <code>DBMS_CLOUD</code> 및 <code>DBMS_CLOUD_AI</code> 패키지에 대한 실행 권한을 확보하세요.</li>
+    <li><b>네트워크 접근</b> - 선택한 AI 제공자의 엔드포인트에 연결할 수 있도록 네트워크 ACL을 구성하세요.</li>
+    <li><b>AI 제공자 자격 증명</b> - 지원되는 AI 제공자(OpenAI, Cohere 또는 Oracle Cloud Infrastructure Generative AI)의 유효한 API 자격 증명을 제공하세요.</li>
+    <li><b>AI 프로파일</b> - 자연어 질의에서 접근할 수 있는 스키마, 테이블 또는 뷰를 정의하도록 AI 프로파일을 설정하여 안전하고 제어된 데이터 접근을 보장하세요.</li>
+</ul>
+자세한 설정 지침은 <a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/select-ai.html">Oracle Select AI 설명서</a>를 참조하세요.
+
+<br>
+<br>
+<br>
+<b>참고</b><br>
+Oracle Select AI는 미리보기 단계의 실험적 기능입니다. 결과는 질의 복잡도 또는 데이터 모델에 따라 달라질 수 있습니다. 출력을 검증하고, 지속적인 개선을 위해 문제를 Oracle® Database Navigator 개발 팀에 보고하세요.
+</body>
+</html>
+

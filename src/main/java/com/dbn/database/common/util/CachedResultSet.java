@@ -19,7 +19,6 @@ package com.dbn.database.common.util;
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.Resources;
-import com.dbn.connection.ResultSets;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +41,8 @@ import static com.dbn.common.data.Data.asType;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.editor.data.model.ResultSetSupport.forEachRow;
+import static com.dbn.editor.data.model.ResultSetSupport.getColumnNames;
 
 @Slf4j
 public class CachedResultSet extends StatefulDisposableBase implements ResultSetStub {
@@ -73,7 +74,7 @@ public class CachedResultSet extends StatefulDisposableBase implements ResultSet
             load(source, condition);
         } else if (source != null && !Resources.isClosed(source)) {
             try {
-                List<String> columnNames = ResultSets.getColumnNames(source);
+                List<String> columnNames = getColumnNames(source);
                 this.columnNames = Lists.convert(columnNames, s -> cachedUpperCase(s.trim()));
                 load(source, condition);
             } finally {
@@ -106,7 +107,7 @@ public class CachedResultSet extends StatefulDisposableBase implements ResultSet
      * @throws SQLException propagated from original result set evaluations
      */
     private void load(@NotNull ResultSet resultSet, @Nullable ResultSetCondition condition) throws SQLException {
-        ResultSets.forEachRow(resultSet, () -> {
+        forEachRow(resultSet, () -> {
             if (condition == null || condition.evaluate(resultSet)) {
                 CachedResultSetRow row = CachedResultSetRow.create(resultSet, columnNames);
                 rows.add(row);

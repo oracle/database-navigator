@@ -380,13 +380,17 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
             objects.add(selectedObject);
         }
 
+        if (objects.isEmpty()) {
+            objects.add(sourceObject);
+        }
+
         return objects.toArray(new DBObject[0]);
     }
 
     @Override
     protected @Nls String getContextMenuNodeName(Object node) {
         if (node instanceof DBObjectList<?> objectList) {
-            return txt("app.objects.token.ObjectList", objectList.getObjectType().getListName());
+            return txt("app.objects.token.ObjectList", objectList.getObjectType().getListDisplayName());
         } else if (node instanceof DBObject object) {
             return txt("app.object.token.QualifiedNameWithType", object.getTypeName(), object.getName());
 

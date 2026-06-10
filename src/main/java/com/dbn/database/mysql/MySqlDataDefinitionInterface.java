@@ -22,7 +22,6 @@ import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.Resources;
-import com.dbn.connection.ResultSets;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
@@ -47,6 +46,7 @@ import static com.dbn.common.util.Lists.lastElement;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.editor.data.model.ResultSetSupport.getColumnNames;
 import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
@@ -122,7 +122,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
         try {
             resultSet = executeQuery(connection, "extract-ddl-statement", objectType, ownerName, objectName);
             resultSet.next();
-            List<String> columnNames = ResultSets.getColumnNames(resultSet);
+            List<String> columnNames = getColumnNames(resultSet);
             for (String columnName : columnNames) {
                 if (columnName.equalsIgnoreCase("create " + objectType)) {
                     return resultSet.getString(columnName);

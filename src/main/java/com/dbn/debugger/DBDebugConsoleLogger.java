@@ -20,13 +20,13 @@ import com.dbn.common.locale.Formatter;
 import com.dbn.common.message.MessageType;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.process.ProcessOutputTypes;
-import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.openapi.util.Key;
 import com.intellij.xdebugger.XDebugSession;
 import org.jetbrains.annotations.Nls;
 
 import java.util.Date;
 
+import static com.dbn.debugger.DBDebugUtil.isToolwindowSplit;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -56,11 +56,11 @@ public class DBDebugConsoleLogger {
 
     private void log(@Nls String text, MessageType messageType) {
         try {
-            RunContentDescriptor descriptor = session.getRunContentDescriptor();
-            ProcessHandler processHandler = descriptor.getProcessHandler();
-            if (processHandler == null) return;
-
-            if (!processHandler.isStartNotified()) processHandler.startNotify();
+            ProcessHandler processHandler = session.getDebugProcess().getProcessHandler();
+            // Split debugger starts the handler from XDebuggerManager after sessionInitialized().
+            if (!isToolwindowSplit() && !processHandler.isStartNotified()) {
+                processHandler.startNotify();
+            }
 
             Formatter formatter = Formatter.getInstance(session.getProject());
             String date = formatter.formatDateTime(new Date());

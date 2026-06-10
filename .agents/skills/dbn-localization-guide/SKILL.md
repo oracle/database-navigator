@@ -7,7 +7,7 @@ description: Oracle© Database Navigator (DBN) localization and NLS guide. Use w
 
 ## Scope
 
-Use this skill for localization-only or localization-heavy changes in DBN. Pair it with `dbn-codebase-guide` only when the task also needs broader architecture, service, UI, or persistence guidance.
+Use this skill for localization-only or localization-heavy changes in DBN. Pair it with `dbn-translation-guide` when translating or reviewing wording, maintaining locale glossaries, or checking terminology consistency. Pair it with `dbn-codebase-guide` only when the task also needs broader architecture, service, UI, or persistence guidance.
 
 Keep localization edits narrowly scoped. Do not refactor unrelated code while replacing hardcoded strings.
 
@@ -16,8 +16,11 @@ Keep localization edits narrowly scoped. Do not refactor unrelated code while re
 - Resource bundle: `src/main/resources/messages/DBNResources.properties`.
 - Access localized text with `import static com.dbn.nls.NlsResources.txt;`.
 - Code should call `txt(...)` directly. Do not introduce wrapper helpers around `NlsResources`.
+- Text templates live under `src/main/resources/textTemplates`, mirroring the Java package of the lookup class.
+- Load user-visible, localizable templates with `TextResources.getLocalizable(...)`. Load internal prompts, model instructions, generated syntax, and other non-user-visible templates with `TextResources.getInternal(...)` and mark the resource name/content `@NonNls`.
 - Prefer passing translated text into constructors/APIs. Pass keys only when the callee explicitly expects keys.
 - Use `@Nls` for localized text values and `@NonNls` for internal strings such as SQL, code, model prompts, file paths, IDs, log-only text, wire protocols, and generated syntax.
+- Do not put executable code snippets, SQL/PLSQL blocks, generated syntax, or protocol payloads in resource bundles. Keep them as `@NonNls` code constants/helpers and set UI fields from code.
 - Use `@PropertyKey` only for APIs that intentionally accept resource keys.
 - For `.form` files, use `resource-bundle="messages/DBNResources"` and a `key`.
 - Use DBN `Messages`, `Dialogs`, and `MessageBundle` helpers for user-facing notifications and dialogs.
@@ -59,7 +62,8 @@ Keep new keys in the associated resource group and preserve sorted order within 
 - `const`: enum/presentable constants and option names.
 - `token`: reusable sentence fragments or domain words inserted into other messages.
 - `aria`: accessibility names/descriptions.
-- `hint`, `link`, `code`, `question`, `info`, `warning`, `error`: use when the role is more specific, especially under `cfg.*` and `msg.*`.
+- `url`: localized hyperlink targets, documentation pages, API pages, and other URLs that may differ by locale.
+- `hint`, `link`, `question`, `info`, `warning`, `error`: use when the role is more specific, especially under `cfg.*` and `msg.*`.
 
 If a label is a full sentence or instruction, prefer `text` over `label`. Check boxes and radio buttons can still use `label` when they are short control captions.
 
@@ -83,14 +87,28 @@ If a label is a full sentence or instruction, prefer `text` over `label`. Check 
   - Good: `txt("prc.object.text.CreatingObjectDescription", description)`
   - Avoid: `"Creating " + description`
 - Use `MessageFormat` choice patterns for visible singular/plural text when useful.
-- Preserve mnemonics (`&`) in form labels and button text.
+- Preserve mnemonic markers (`&`) in form labels and button text when the ampersand marks a keyboard mnemonic, for example `&Name` or `Na&me`.
+- Do not treat textual ampersands as mnemonics. If the unqualified base value uses ` & ` to mean "and", replace it in the base value with `and` unless it is part of an official product name or literal. Localized values should translate the word naturally and should not gain a mnemonic marker.
 - Newline and HTML values belong in the properties file with escaped `\n` or existing HTML formatting.
+- Use separate `link` and `url` keys when a localized link caption can point to a locale-specific target, for example `cfg.assistant.link.SelectAiDocs` plus `cfg.assistant.url.SelectAiDocs`.
 - Product names, provider names, SQL keywords, API literals, generated code, and model prompts are often `@NonNls`, not resource keys.
+
+## Translation Handoff
+
+For translation wording, glossary decisions, batch semantics, stale-English scans, and reviewer caveats, use `dbn-translation-guide`.
+
+This localization skill still owns the DBN mechanics:
+
+- Use only the unqualified base resources as the source of truth for locale variants.
+- Prefer generic language locale files for broadly applicable translations, for example `DBNResources_de.properties` and `*_de.html.ft`. Use region-qualified variants such as `_de_DE` only for regional overrides.
+- Translate only localizable text templates, currently user-visible `*.html.ft` files loaded through `TextResources.getLocalizable(...)`. Do not create locale variants for internal `*.md.ft` prompt/instruction templates loaded through `TextResources.getInternal(...)`.
+- Preserve every resource key unless the task explicitly adds, removes, or renames keys.
+- Preserve technical literals and placeholders exactly: `{0}`, MessageFormat choice patterns, escaped `\n`, HTML tags, mnemonic markers (`&Name`, `Na&me`), SQL/API/class names, file names, and protocol literals.
+- Do not duplicate non-localizable code snippets into localized bundles. If a key family like `.code.` appears, inspect the caller and move the snippet to `@NonNls` code instead of translating it.
 
 ## UI Writing Rules
 
-- Use title capitalization for actions in buttons and menus, and for table, popup, message-box, dialog, and control-group headers.
-- Use sentence capitalization for control labels, combo/list/tree/table items, links, notification bodies, error body text, tooltips, status descriptions, instructions, inspections, intentions, quick-fixes, and editor messages.
+- Use casing from `Sentence vs. Title Case`: commands and true headers normally use title capitalization, while sentence-like labels, descriptions, tooltips, and messages normally use sentence capitalization.
 - Keep UI text short and clear: present tense, one idea per sentence, active voice, user-perspective wording, and no unnecessary generic words.
 - Use ellipsis only for actions that open input-capable dialogs, truncated text without a scrollbar, or ongoing progress text.
 - Do not end a single sentence or IDE action with a period. Use periods between multiple sentences.
@@ -100,6 +118,25 @@ If a label is a full sentence or instruction, prefer `text` over `label`. Check 
 ## Verification Passes
 
 Use verification passes for broad resource-file cleanup. Keep each pass focused on one rule, and re-scan after editing.
+
+### Batch Verification Gate
+
+Run these checks for every translated batch before moving to the next batch.
+
+- Key parity: the locale bundle must have the same key set as the unqualified source bundle unless the task explicitly adds or removes keys.
+- Placeholder and marker parity: every `{0}`, `{1}`, MessageFormat choice/plural pattern, escaped newline, HTML boundary, mnemonic marker, and quoted technical literal must be preserved or intentionally changed with caller inspection. Do not count textual ` & ` as a mnemonic.
+- Source capitalization check: compare each translated value against the unqualified source value. For standalone roles such as `action`, `button`, `title`, `column`, `error`, `warning`, `info`, `message`, `question`, `aria`, user-facing `text`, progress, notification, and log lines, review any value where the source starts with an uppercase letter but the translation starts lowercase. Treat inserted fragments, `token`, `const`, `unit`, `placeholder`, object type names, URLs, and code-like values as exceptions only after classification.
+- Role capitalization check: independently scan translated `title`, `error`, `warning`, `info`, `question`, `message`, progress, notification, and log values for lowercase sentence starts. Fix full-sentence and standalone values; leave lowercase fragments only when they are intentionally composed into another sentence.
+- Textual ampersand check: scan the unqualified base bundle for prose ` & `. Replace it with `and` unless it is part of an official product name or literal. Do not make localized values preserve a textual ampersand as a mnemonic marker.
+- Diff check: run `git diff --check` for the touched locale files after each substantial batch.
+- For stale-English, glossary consistency, semantic ambiguity, and UI role checks, use `dbn-translation-guide`.
+
+Useful starting checks:
+
+```bash
+ruby -e 'loc=ARGV.fetch(0); base={}; File.readlines("src/main/resources/messages/DBNResources.properties", chomp:true).each{|l| next if l.strip.empty? || l.start_with?("#"); k,v=l.split("=",2); base[k]=v if v}; File.readlines(loc, chomp:true).each_with_index{|l,i| next if l.strip.empty? || l.start_with?("#"); k,v=l.split("=",2); next unless v && base[k]; b=base[k].sub(/^\\ /,"").sub(/^\\ - /,""); f=v.sub(/^\\ /,"").sub(/^\\ - /,""); next unless b =~ /\A[A-Z]/ && f =~ /\A[[:lower:]]/; role=k.split(".")[2] || ""; next if %w[const token unit placeholder].include?(role); puts "#{i+1}:#{k}=#{v} [base=#{base[k]}]"}' src/main/resources/messages/DBNResources_fr.properties
+ruby -e 'def load(path); h={}; File.readlines(path, chomp:true).each{|l| next if l.strip.empty? || l.start_with?("#"); k,v=l.split("=",2); h[k]=v if v}; h; end; base=load("src/main/resources/messages/DBNResources.properties"); loc=load(ARGV.fetch(0)); missing=base.keys-loc.keys; extra=loc.keys-base.keys; bad=[]; base.each{|k,bv| next unless loc[k]; bp=bv.scan(/\{[0-9]+(?:,[^{}]+)?\}/).sort; fp=loc[k].scan(/\{[0-9]+(?:,[^{}]+)?\}/).sort; bad << [k,bp,fp] if bp!=fp}; puts "missing=#{missing.size} extra=#{extra.size} placeholder_mismatches=#{bad.size}"; bad.first(20).each{|k,bp,fp| puts "#{k}: #{bp.inspect} != #{fp.inspect}"}' src/main/resources/messages/DBNResources_fr.properties
+```
 
 ### Placeholder and MessageFormat Safety
 
@@ -164,7 +201,7 @@ rg -n '\.\.\.' src/main/resources/messages/DBNResources.properties
 - Use sentence capitalization for `intention`, `tooltip`, `error`, `warning`, `info`, `hint`, `message`, `text`, `label`, `link`, accessibility descriptions, editor messages, inspections, and quick-fixes.
 - Do not mechanically title-case every `.title.` key. Progress/process titles, status titles, generated task names, and sentence-like titles can intentionally use sentence capitalization.
 - Do not reuse `.action.` keys for `EditorIntentionAction#getText()` or quick-fix names just because the intention performs the same operation as an action. Add a matching `.intention.` key and keep it sentence-cased.
-- Preserve mnemonics (`&`), placeholders (`{0}`), escaped newlines (`\n`), HTML markup, keyboard names, SQL keywords, object type names, acronyms, and product/provider names.
+- Preserve mnemonic markers, placeholders (`{0}`), escaped newlines (`\n`), HTML markup, keyboard names, SQL keywords, object type names, acronyms, and product/provider names.
 - Keep acronyms fully uppercase (`AI`, `API`, `DB`, `DDL`, `IDE`, `JDBC`, `JSON`, `MCP`, `OCI`, `OCID`, `SQL`, `SSH`, `URL`, `URI`, `XML`). Use normal capitalization for ordinary words next to them, for example `MCP server`, `JSON view`, and `Java source code`.
 - Treat quoted UI labels as references to the actual visible label. If a button/action label changes from `Keep current` to `Keep Current`, update explanatory text that quotes that label.
 - Defer ambiguous items instead of forcing them. In particular, review enum/presentable constants, product names, tree-root labels, progress text, and values containing quoted section names in context.
@@ -259,6 +296,7 @@ rg -n -i '\b(you did not|you provided|you cannot|you are not allowed|you must|yo
 ### Mnemonics and `labelFor`
 
 - Add mnemonics (`&`) to labels, buttons, check boxes, radio buttons, and other direct controls when they participate in keyboard navigation.
+- Count only actual mnemonic markers during parity checks. A practical heuristic is that `&` followed by a non-space character can be a mnemonic candidate, while ` & ` is textual prose and should normally be written as `and` in the base English value.
 - Every `JLabel` that labels a focusable input in a `.form` file should have a `labelFor` pointing to that actual input component.
 - `labelFor` targets must be non-empty and must reference an existing component id in the same `.form` file.
 - Watch for copy/paste mistakes: a label often points to a nearby name field, the first combo box, or another row's input. If the label text describes a same-row field, point `labelFor` to that field.

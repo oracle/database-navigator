@@ -48,6 +48,7 @@ import com.dbn.event.notification.EventNotificationManager;
 import com.dbn.event.notification.model.DataChangeNotification;
 import com.dbn.event.registration.EventRegistrationListener.RegistrationEvent;
 import com.dbn.event.registration.ui.EventRegistrationInputDialog;
+import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.object.DBTable;
 import com.dbn.object.event.ObjectChangeAction;
 import com.intellij.openapi.components.State;
@@ -73,6 +74,7 @@ import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Lists.toCsv;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.event.registration.EventRegistrationManager.COMPONENT_NAME;
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 import static com.dbn.nls.NlsResources.txt;
 
 
@@ -164,6 +166,12 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
 
     private void processEvent(DatabaseChangeEvent event, ConnectionId connectionId, String tableName, long regId) {
         if (event.getRegId() != regId) return;
+
+        ConnectionHandler connection = ConnectionHandler.get(connectionId);
+        if (connection == null) return;
+
+        QuotePair identifierQuotes = connection.getCompatibility().getIdentifierQuotes();
+        tableName = identifierQuotes.unquoteComposite(tableName, DATABASE);
 
         TableChangeDescription[] tableChanges = event.getTableChangeDescription();
         for (TableChangeDescription tableChange : tableChanges) {

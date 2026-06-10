@@ -74,7 +74,7 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
     public void registerExtensions(DDLFileExtensionSettings settings) {
         FileTypeService fileTypeService = FileTypeService.getInstance();
         List<DDLFileType> fileTypes = settings.getFileTypes();
-        fileTypes.forEach(ft -> ft.getExtensions().forEach(e -> fileTypeService.associateExtension(ft.getLanguageFileType(), e)));;
+        fileTypes.forEach(ft -> ft.getNamePatterns().forEach(p -> fileTypeService.associateFileNamePattern(ft.getLanguageFileType(), p)));
     }
 
     public static DDLFileManager getInstance(@NotNull Project project) {
@@ -89,8 +89,8 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
         return getExtensionSettings().getFileType(ddlFileTypeId);
     }
 
-    DDLFileType getDDLFileTypeForExtension(String extension) {
-        return getExtensionSettings().getFileTypeForExtension(extension);
+    DDLFileType getDDLFileTypeForFileName(String fileName) {
+        return getExtensionSettings().getFileTypeForFileName(fileName);
     }
 
     String createDDLStatement(DBSourceCodeVirtualFile sourceCodeFile, DBContentType contentType) {
@@ -141,21 +141,23 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
             for (DDLFileType ddlFileType : ddlFileTypeList) {
                 DBLanguageFileType fileType = ddlFileType.getLanguageFileType();
                 List<FileNameMatcher> associations = fileTypeService.getAssociations(fileType);
-                List<String> registeredExtension = new ArrayList<>();
+                List<String> registeredPatterns = new ArrayList<>();
                 for (FileNameMatcher association : associations) {
                     if (association instanceof ExtensionFileNameMatcher extensionMatcher) {
-                        registeredExtension.add(extensionMatcher.getExtension());
+                        registeredPatterns.add(extensionMatcher.getPresentableString());
+                    } else {
+                        registeredPatterns.add(association.getPresentableString());
                     }
                 }
 
                 StringBuilder restoredAssociations = new StringBuilder();
-                for (String extension : ddlFileType.getExtensions()) {
-                    if (!registeredExtension.contains(extension)) {
-                        fileTypeService.associateExtension(fileType, extension);
+                for (String namePattern : ddlFileType.getNamePatterns()) {
+                    if (!registeredPatterns.contains(namePattern)) {
+                        fileTypeService.associateFileNamePattern(fileType, namePattern);
                         if (restoredAssociations.length() > 0) {
                             restoredAssociations.append(", ");
                         }
-                        restoredAssociations.append(extension);
+                        restoredAssociations.append(namePattern);
 
                     }
                 }

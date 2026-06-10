@@ -252,11 +252,23 @@
         <extensionPoint name="assistantToolFeature" qualifiedName="com.dbn.assistantToolFeature" interface="com.dbn.assistant.tool.feature.AssistantToolFeature" dynamic="true"/>
         <extensionPoint name="userApprovalAdapter" qualifiedName="com.dbn.userApprovalAdapter" interface="com.dbn.common.approval.UserApprovalAdapter" dynamic="true"/>
         <extensionPoint name="presentationProvider" qualifiedName="com.dbn.presentationProvider" interface="com.dbn.common.presentation.PresentationProvider" dynamic="true"/>
+        <extensionPoint name="dataExportProcessor" qualifiedName="com.dbn.dataExportProcessor" interface="com.dbn.data.export.processor.DataExportProcessor" dynamic="true"/>
 
         <extensionPoint name="prerequisiteDefinitionProvider" qualifiedName="com.dbn.prerequisiteDefinitionProvider" interface="com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider" dynamic="true"/>
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
     </extensionPoints>
     <extensions defaultExtensionNs="com.dbn">
+        <!--data export processors-->
+        <dataExportProcessor implementation="com.dbn.data.export.processor.SQLDataExportProcessor"/>
+        <dataExportProcessor implementation="com.dbn.data.export.processor.ExcelDataExportProcessor"/>
+        <dataExportProcessor implementation="com.dbn.data.export.processor.ExcelXDataExportProcessor"/>
+        <dataExportProcessor implementation="com.dbn.data.export.processor.CSVDataExportProcessor"/>
+        <dataExportProcessor implementation="com.dbn.data.export.processor.HTMLDataExportProcessor"/>
+        <dataExportProcessor implementation="com.dbn.data.export.processor.XMLDataExportProcessor"/>
+        <dataExportProcessor implementation="com.dbn.data.export.processor.JIRAMarkupDataExportProcessor"/>
+        <dataExportProcessor implementation="com.dbn.data.export.processor.MarkdownDataExportProcessor"/>
+        <dataExportProcessor implementation="com.dbn.data.export.processor.CustomDataExportProcessor"/>
+
         <!--object filters-->
         <objectFilter implementation="com.dbn.vector.model.request.EmbeddingStagingTableFilter"/>
         <objectFilter implementation="com.dbn.vector.model.request.EmbeddingDestinationTableFilter"/>

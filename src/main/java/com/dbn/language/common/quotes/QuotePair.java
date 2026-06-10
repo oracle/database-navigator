@@ -19,6 +19,7 @@ package com.dbn.language.common.quotes;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static java.util.concurrent.ConcurrentHashMap.newKeySet;
 
@@ -89,6 +90,27 @@ public class QuotePair {
 
         String unquoted = identifier.substring(beginQuote.length(), identifier.length() - endQuote.length());
         return escaping.unescape(unquoted, this);
+    }
+
+    public String unquoteComposite(String identifier) {
+        return unquoteComposite(identifier, QuoteEscaping.NONE);
+    }
+
+    public String unquoteComposite(String identifier, QuoteEscaping escaping) {
+        if (beginQuote.isEmpty() || endQuote.isEmpty()) return identifier;
+
+        String quoteBoundary = "(?<=" + Pattern.quote(endQuote) + ")\\.(?=" + Pattern.quote(beginQuote) + ")";
+        String[] nameParts = identifier.split(quoteBoundary, -1);
+        if (nameParts.length == 1) {
+            nameParts = identifier.split("\\.", -1);
+        }
+
+        StringBuilder unquoted = new StringBuilder(identifier.length());
+        for (int i = 0; i < nameParts.length; i++) {
+            if (i > 0) unquoted.append('.');
+            unquoted.append(unquote(nameParts[i], escaping));
+        }
+        return unquoted.toString();
     }
 
     @NonNls

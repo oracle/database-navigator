@@ -1,0 +1,46 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="de">
+<head>
+    <title>Staging-Speicherort</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body style="width: 300px">
+    <h3>Staging-Speicherort</h3>
+    <p>
+        Dateiinhalte werden in eine Staging-Tabelle hochgeladen, bevor ihre Inhalte gechunkt und eingebettet werden.
+        Geben Sie an, ob eine vorhandene Tabelle verwendet oder eine neue erstellt werden soll.
+    </p>
+    <br>
+    <p>Die Staging-Tabelle hat folgende Struktur:</p>
+    <ul>
+        <li><code>ID</code> – Eindeutiger Bezeichner des Dateiinhalts</li>
+        <li><code>FILE_CONTENT (BLOB)</code> – Inhalt der Datei</li>
+        <li><code>FILE_SIZE</code> – Dateigröße in Byte</li>
+        <li><code>FILE_HASH</code> – Eindeutige Signatur des Inhalts</li>
+        <li><code>METADATA (JSON)</code> – Metadaten zum Upload im JSON-Format</li>
+    </ul>
+</body>
+</html>
+
