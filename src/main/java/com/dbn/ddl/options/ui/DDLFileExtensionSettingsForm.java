@@ -61,7 +61,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
     private JLabel javaIconLabel;
     private JTextField javaTextField;
 
-    private final Map<String, JTextField> extensionTextFields = new HashMap<>();
+    private final Map<String, JTextField> fileNamePatternTextFields = new HashMap<>();
 
     public DDLFileExtensionSettingsForm(DDLFileExtensionSettings settings) {
         super(settings);
@@ -84,17 +84,17 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
 
         registerComponent(mainPanel);
 
-        extensionTextFields.put(txt("cfg.ddlFiles.field.View"), viewTextField);
-        extensionTextFields.put(txt("cfg.ddlFiles.field.Trigger"), triggerTextField);
-        extensionTextFields.put(txt("cfg.ddlFiles.field.Procedure"), procedureTextField);
-        extensionTextFields.put(txt("cfg.ddlFiles.field.Function"), functionTextField);
-        extensionTextFields.put(txt("cfg.ddlFiles.field.Package"), packageTextField);
-        extensionTextFields.put(txt("cfg.ddlFiles.field.PackageSpec"), packageSpecTextField);
-        extensionTextFields.put(txt("cfg.ddlFiles.field.PackageBody"), packageBodyTextField);
-        extensionTextFields.put(txt("cfg.ddlFiles.field.Type"), typeTextField);
-        extensionTextFields.put(txt("cfg.ddlFiles.field.TypeSpec"), typeSpecTextField);
-        extensionTextFields.put(txt("cfg.ddlFiles.field.TypeBody"), typeBodyTextField);
-        extensionTextFields.put(txt("cfg.ddlFiles.field.JavaSource"), javaTextField);
+        fileNamePatternTextFields.put(txt("cfg.ddlFiles.field.View"), viewTextField);
+        fileNamePatternTextFields.put(txt("cfg.ddlFiles.field.Trigger"), triggerTextField);
+        fileNamePatternTextFields.put(txt("cfg.ddlFiles.field.Procedure"), procedureTextField);
+        fileNamePatternTextFields.put(txt("cfg.ddlFiles.field.Function"), functionTextField);
+        fileNamePatternTextFields.put(txt("cfg.ddlFiles.field.Package"), packageTextField);
+        fileNamePatternTextFields.put(txt("cfg.ddlFiles.field.PackageSpec"), packageSpecTextField);
+        fileNamePatternTextFields.put(txt("cfg.ddlFiles.field.PackageBody"), packageBodyTextField);
+        fileNamePatternTextFields.put(txt("cfg.ddlFiles.field.Type"), typeTextField);
+        fileNamePatternTextFields.put(txt("cfg.ddlFiles.field.TypeSpec"), typeSpecTextField);
+        fileNamePatternTextFields.put(txt("cfg.ddlFiles.field.TypeBody"), typeBodyTextField);
+        fileNamePatternTextFields.put(txt("cfg.ddlFiles.field.JavaSource"), javaTextField);
     }
 
     @NotNull
@@ -104,19 +104,34 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
     }
 
     private void validateInputs() throws ConfigurationException {
-        List<String> allExtensions = new ArrayList<>();
-        for (var entry : extensionTextFields.entrySet()) {
+        List<String> allFileNamePatterns = new ArrayList<>();
+        for (var entry : fileNamePatternTextFields.entrySet()) {
             String fieldName = entry.getKey();
-            JTextField extensionTextField = entry.getValue();
+            JTextField fileNamePatternTextField = entry.getValue();
 
-            String extensionsText = ConfigurationEditors.validateStringValue(extensionTextField, fieldName, false);
-            List<String> extensions = Strings.tokenize(extensionsText, ",");
-            for (String extension : extensions) {
-                if (allExtensions.contains(extension)) {
-                    throw new ConfigurationException(txt("cfg.ddlFiles.error.DuplicateExtension", extension));
+            String patternsText = ConfigurationEditors.validateStringValue(fileNamePatternTextField, fieldName, false);
+            List<String> fileNamePatterns = Strings.tokenize(patternsText, ",");
+            for (String fileNamePattern : fileNamePatterns) {
+                validateFileNamePattern(fileNamePattern);
+                String normalizedFileNamePattern = Strings.toLowerCase(fileNamePattern);
+                if (allFileNamePatterns.contains(normalizedFileNamePattern)) {
+                    throw new ConfigurationException(txt("cfg.ddlFiles.error.DuplicateFilePattern", fileNamePattern));
                 }
+                allFileNamePatterns.add(normalizedFileNamePattern);
             }
-            allExtensions.addAll(extensions);
+        }
+    }
+
+    private static void validateFileNamePattern(String fileNamePattern) throws ConfigurationException {
+        int wildcardIndex = fileNamePattern.indexOf('*');
+        if (wildcardIndex != -1 && fileNamePattern.indexOf('*', wildcardIndex + 1) != -1) {
+            throw new ConfigurationException(txt("cfg.ddlFiles.error.MultipleWildcards", fileNamePattern));
+        }
+        if (fileNamePattern.contains("?")) {
+            throw new ConfigurationException(txt("cfg.ddlFiles.error.UnsupportedWildcard", fileNamePattern));
+        }
+        if (fileNamePattern.contains("/") || fileNamePattern.contains("\\")) {
+            throw new ConfigurationException(txt("cfg.ddlFiles.error.InvalidFileNamePattern", fileNamePattern));
         }
     }
 
@@ -145,7 +160,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
 
     private void applySetting(JTextField textField, DDLFileTypeId fileTypeId, AtomicBoolean changed) {
         DDLFileType ddlFileType = getConfiguration().getFileType(fileTypeId);
-        boolean valueChanged = ddlFileType.setExtensionsAsString(getText(textField));
+        boolean valueChanged = ddlFileType.setNamePatternsAsString(getText(textField));
         if (valueChanged) {
             changed.set(true);
         }
@@ -167,6 +182,6 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
     }
 
     private void resetSetting(JTextField textField, DDLFileTypeId fileTypeId) {
-        textField.setText(getConfiguration().getFileType(fileTypeId).getExtensionsAsString());
+        textField.setText(getConfiguration().getFileType(fileTypeId).getNamePatternsAsString());
     }
 }

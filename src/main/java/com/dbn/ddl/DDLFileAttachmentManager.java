@@ -95,6 +95,7 @@ import static com.dbn.common.util.FileChoosers.singleFolder;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Messages.options;
+import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vfs.DatabaseFileSystem.isFileOpened;
@@ -201,10 +202,10 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
         return mappings.contains(objectRef);
     }
 
-    private boolean isValidDDLFile(VirtualFile virtualFile, DBObjectRef<DBSchemaObject> objectRef) {
-        List<DDLFileType> ddlFileTypes = getDdlFileTypes(objectRef);
-        for (DDLFileType ddlFileType : ddlFileTypes) {
-            if (ddlFileType.getExtensions().contains(virtualFile.getExtension())) {
+    private boolean isValidDDLFile(VirtualFile file, DBObjectRef<DBSchemaObject> objectRef) {
+        List<DDLFileNameProvider> providers = getDDLFileNameProviders(objectRef);
+        for (DDLFileNameProvider provider : providers) {
+            if (provider.matches(file.getName())) {
                 return true;
             }
         }
@@ -340,7 +341,9 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
         if (ddlFiles == null || ddlFiles.isEmpty()) return;
 
         for (VirtualFile ddlFile : ddlFiles) {
-            DDLFileType ddlFileType = ddlFileManager.getDDLFileTypeForExtension(ddlFile.getExtension());
+            DDLFileType ddlFileType = ddlFileManager.getDDLFileTypeForFileName(ddlFile.getName());
+            if (ddlFileType == null) continue;
+
             DBContentType fileContentType = ddlFileType.getContentType();
 
             StringBuilder buffer = new StringBuilder();
@@ -440,24 +443,24 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
         List<DDLFileType> ddlFileTypes = getDdlFileTypes(object);
         if (ddlFileTypes.isEmpty()) return emptyList();
 
-        Map<String, DDLFileType> extensionMappings = new LinkedHashMap<>();
+        Map<String, DDLFileType> mappings = new LinkedHashMap<>();
         for (DDLFileType ddlFileType : ddlFileTypes) {
-            for (String extension : ddlFileType.getExtensions()) {
-                extensionMappings.put(extension, ddlFileType);
+            for (String pattern : ddlFileType.getNamePatterns()) {
+                mappings.put(pattern, ddlFileType);
             }
         }
 
-        if (extensionMappings.size() == 1) {
-            String extension = extensionMappings.keySet().iterator().next();
-            DDLFileType ddlFileType = extensionMappings.get(extension);
-            DDLFileNameProvider nameProvider = new DDLFileNameProvider(object, ddlFileType, extension);
+        if (mappings.size() == 1) {
+            String pattern = mappings.keySet().iterator().next();
+            DDLFileType ddlFileType = mappings.get(pattern);
+            DDLFileNameProvider nameProvider = new DDLFileNameProvider(object, ddlFileType, pattern);
             return singletonList(nameProvider);
         }
 
         List<DDLFileNameProvider> nameProviders = new ArrayList<>();
-        for (String extension : extensionMappings.keySet()) {
-            DDLFileType ddlFileType = extensionMappings.get(extension);
-            DDLFileNameProvider fileNameProvider = new DDLFileNameProvider(object, ddlFileType, extension);
+        for (String pattern : mappings.keySet()) {
+            DDLFileType ddlFileType = mappings.get(pattern);
+            DDLFileNameProvider fileNameProvider = new DDLFileNameProvider(object, ddlFileType, pattern);
             nameProviders.add(fileNameProvider);
         }
 
@@ -479,7 +482,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
     private DDLFileNameProvider openFileNameProvidersDialog(DBObjectRef<?> object, List<DDLFileNameProvider> providers, boolean create) {
         if (providers.size() == 1) return providers.get(0);
 
-        DDLFileNameProvider preferredProvider = first(providers, p -> Objects.equals(preferences.get(p.getObjectType()), p.getExtension()));
+        DDLFileNameProvider preferredProvider = first(providers, p -> Objects.equals(preferences.get(p.getObjectType()), p.getNamePattern()));
 
         SelectionListDialog<DDLFileNameProvider> fileTypeDialog = new SelectionListDialog<>(
                 getProject(),
@@ -503,8 +506,8 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
         DDLFileNameProvider selectedProvider = selection.get(0);
 
         DBObjectType objectType = selectedProvider.getObjectType();
-        String extension = selectedProvider.getExtension();
-        preferences.put(objectType, extension);
+        String namePattern = selectedProvider.getNamePattern();
+        preferences.put(objectType, namePattern);
 
         return selectedProvider;
     }
@@ -544,11 +547,11 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
 
         Element preferencesElement = newElement(element, "preferences");
         for (DBObjectType objectType : preferences.keySet()) {
-            String fileExtension = preferences.get(objectType);
+            String fileNamePattern = preferences.get(objectType);
 
             Element mappingElement = newElement(preferencesElement, "mapping");
             setEnumAttribute(mappingElement, "object-type", objectType);
-            setStringAttribute(mappingElement, "file-extension", fileExtension);
+            setStringAttribute(mappingElement, "file-name-pattern", fileNamePattern);
         }
 
         return element;
@@ -563,7 +566,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
 
         for (Element mappingElement : mappingElements) {
             String fileUrl = stringAttribute(mappingElement, "file-url");
-            if (Strings.isEmpty(fileUrl)) continue;
+            if (isEmpty(fileUrl)) continue;
 
             fileUrl = VirtualFiles.ensureFileUrl(fileUrl);
             DBObjectRef<DBSchemaObject> objectRef = DBObjectRef.from(mappingElement);
@@ -577,8 +580,13 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
             List<Element> preferenceElements = preferencesElement.getChildren();
             for (Element mappingElement : preferenceElements) {
                 DBObjectType objectType = enumAttribute(mappingElement, "object-type", DBObjectType.UNKNOWN);
-                String fileExtension = stringAttribute(mappingElement, "file-extension");
-                preferences.put(objectType, fileExtension);
+                String fileNamePattern = stringAttribute(mappingElement, "file-name-pattern");
+                if (isEmpty(fileNamePattern)) {
+                    String fileExtension = stringAttribute(mappingElement, "file-extension");
+                    fileNamePattern = DDLFileType.toFileNamePattern(fileExtension);
+                }
+                if (isEmpty(fileNamePattern)) continue;
+                preferences.put(objectType, fileNamePattern);
             }
         }
 
