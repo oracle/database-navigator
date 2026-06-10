@@ -23,7 +23,6 @@ import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.DBArgumentFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
-import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -49,7 +48,7 @@ public class DBArgumentFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     @Override
-    public void validateInput(DBObjectSpec argumentSpec, List<@Nls String> errors) {
+    public void validateInput(DBObjectSpec argumentSpec, List<String> errors) {
         String objectName = argumentSpec.getObjectName();
         int position = argumentSpec.getIndex();
         if (objectName.isEmpty()) {

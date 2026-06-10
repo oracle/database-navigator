@@ -31,7 +31,6 @@ import com.dbn.object.factory.ObjectFactoryAdapters;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.DBMethodFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
-import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -52,7 +51,7 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     @Override
-    public void validateInput(DBObjectSpec input, List<@Nls String> errors) {
+    public void validateInput(DBObjectSpec input, List<String> errors) {
         DBObjectType objectType = input.getObjectType();
         String objectName = input.getObjectName();
         if (objectName.isEmpty()) {
