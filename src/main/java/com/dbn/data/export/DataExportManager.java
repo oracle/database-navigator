@@ -31,6 +31,7 @@ import com.dbn.data.export.processor.ExcelDataExportProcessor;
 import com.dbn.data.export.processor.ExcelXDataExportProcessor;
 import com.dbn.data.export.processor.HTMLDataExportProcessor;
 import com.dbn.data.export.processor.JIRAMarkupDataExportProcessor;
+import com.dbn.data.export.processor.MarkdownDataExportProcessor;
 import com.dbn.data.export.processor.SQLDataExportProcessor;
 import com.dbn.data.export.processor.XMLDataExportProcessor;
 import com.dbn.data.export.ui.ExportDataDialog;
@@ -80,6 +81,7 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
             new HTMLDataExportProcessor(),
             new XMLDataExportProcessor(),
             new JIRAMarkupDataExportProcessor(),
+            new MarkdownDataExportProcessor(),
             new CustomDataExportProcessor()};
 
     public static DataExportProcessor getExportProcessor(DataExportFormat format) {

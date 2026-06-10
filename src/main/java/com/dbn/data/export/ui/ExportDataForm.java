@@ -73,6 +73,7 @@ public class ExportDataForm extends DBNFormBase {
     private JRadioButton formatHTMLRadioButton;
     private JRadioButton formatXMLRadioButton;
     private JRadioButton formatJiraRadioButton;
+    private JRadioButton formatMarkdownRadioButton;
     private JRadioButton formatExcelRadioButton;
     private JRadioButton formatExcelXRadioButton;
     private JRadioButton formatCSVRadioButton;
@@ -119,6 +120,7 @@ public class ExportDataForm extends DBNFormBase {
         formatHTMLRadioButton.addActionListener(actionListener);
         formatXMLRadioButton.addActionListener(actionListener);
         formatJiraRadioButton.addActionListener(actionListener);
+        formatMarkdownRadioButton.addActionListener(actionListener);
         formatExcelRadioButton.addActionListener(actionListener);
         formatExcelXRadioButton.addActionListener(actionListener);
         formatCSVRadioButton.addActionListener(actionListener);
@@ -147,6 +149,7 @@ public class ExportDataForm extends DBNFormBase {
         formatHTMLRadioButton.setSelected(format == DataExportFormat.HTML);
         formatXMLRadioButton.setSelected(format == DataExportFormat.XML);
         formatJiraRadioButton.setSelected(format == DataExportFormat.JIRA);
+        formatMarkdownRadioButton.setSelected(format == DataExportFormat.MARKDOWN);
         formatCSVRadioButton.setSelected(format == DataExportFormat.CSV);
         formatCustomRadioButton.setSelected(format == DataExportFormat.CUSTOM);
 
@@ -252,6 +255,7 @@ public class ExportDataForm extends DBNFormBase {
             formatHTMLRadioButton.isSelected() ? DataExportFormat.HTML :
             formatXMLRadioButton.isSelected() ? DataExportFormat.XML :
             formatJiraRadioButton.isSelected() ? DataExportFormat.JIRA :
+            formatMarkdownRadioButton.isSelected() ? DataExportFormat.MARKDOWN :
             formatExcelRadioButton.isSelected() ? DataExportFormat.EXCEL :
             formatExcelXRadioButton.isSelected() ? DataExportFormat.EXCELX :
             formatCSVRadioButton.isSelected() ? DataExportFormat.CSV :
