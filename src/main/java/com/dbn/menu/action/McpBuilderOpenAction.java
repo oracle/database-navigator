@@ -17,7 +17,6 @@
 package com.dbn.menu.action;
 
 import com.dbn.common.action.ProjectAction;
-import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.action.AbstractConnectionAction;
@@ -46,7 +45,6 @@ public class McpBuilderOpenAction extends ProjectAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText(txt("app.menu.action.OpenMcpServerBuilder"));
-        presentation.setIcon(Icons.ASSISTANT_TOOL);
         presentation.setVisible(isVisible(project));
     }
 
