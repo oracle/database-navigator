@@ -12,6 +12,7 @@ Canonical terminology decisions for Korean DBN translation work. Keep this file 
 | auto-commit | 자동 커밋 | No | Transaction mode notifications and settings. |
 | breakpoint | 중단점 | No | Debugger progress and console output. |
 | category | 범주 | No | Tool categories, filter categories. |
+| chunking | 청크 / 청크 분할 | No | Vector text segmentation before embedding; UI uses compact `청크` in labels and prose. |
 | cloud service credential | 클라우드 서비스 자격 증명 | No | Credential tooltips and setup text. |
 | command-line interface | 명령줄 인터페이스 | No | Execution client settings. |
 | compile | 컴파일 | No | Code editor/compiler actions. |
@@ -24,6 +25,7 @@ Canonical terminology decisions for Korean DBN translation work. Keep this file 
 | data dictionary | 데이터 딕셔너리 | No | Oracle metadata loading progress. |
 | data grid | 데이터 그리드 | No | Data editor grid UI. |
 | data model | 데이터 모델 | No | AI profile metadata context. |
+| data source | 데이터 소스 | No | Vector embedding source configuration. |
 | data type | 데이터 유형 | No | Generic SQL/data editor types. |
 | database link | 데이터베이스 링크 | No | Oracle DB link object. |
 | database object | 데이터베이스 객체 | No | Tables, views, and related DB objects. |
@@ -32,6 +34,7 @@ Canonical terminology decisions for Korean DBN translation work. Keep this file 
 | diagnostics | 진단 | No | Diagnostics tool windows and parser checks. |
 | dimension | 차원 | No | Database dimension object. |
 | distance metric | 거리 메트릭 | No | Vector search similarity/distance. |
+| DDL file | DDL 파일 | Yes, partial | Keep DDL literal; translate file/file settings naturally. |
 | driver | 드라이버 | No | JDBC driver and driver libraries. |
 | editor | 편집기 | No | Code and browser editor settings. |
 | embedding | 임베딩 | No | Vector embedding table and vector search terms. |
@@ -42,6 +45,7 @@ Canonical terminology decisions for Korean DBN translation work. Keep this file 
 | execution wrapper | 실행 래퍼 | No | Generated wrappers for method execution. |
 | fetch | 인출 | No | Result-set/data loading operations. |
 | fingerprint | 지문 | No | OCI/API key fingerprint. |
+| file name pattern | 파일 이름 패턴 | No | DDL file pattern settings and validation errors. |
 | format / formatting | 형식 / 형식 지정 | No | Code style formatting. |
 | function | 함수 | No | Database function object. |
 | grant | 권한 부여 | No | Database privileges. |
@@ -50,6 +54,7 @@ Canonical terminology decisions for Korean DBN translation work. Keep this file 
 | keyword | 키워드 | No | SQL/code keyword highlighting. |
 | language model | 언어 모델 | No | LLM references in prose. |
 | LLM | LLM | Yes | Standard abbreviation. |
+| lookup | 조회 | No | Object and DDL file lookup UI. |
 | materialized view | 구체화된 뷰 | No | Database object type. |
 | Maven | Maven | Yes | Build/runtime tool name. |
 | MCP | MCP | Yes | Protocol/server name. |
@@ -61,6 +66,7 @@ Canonical terminology decisions for Korean DBN translation work. Keep this file 
 | ONNX | ONNX | Yes | Model format acronym. |
 | Oracle Select AI / Select AI | Oracle Select AI / Select AI | Yes | Oracle feature name. |
 | password manager | 비밀번호 관리자 | No | Credential storage. |
+| path separator | 경로 구분자 | No | File/path validation messages. |
 | prerequisite | 필수 조건 | No | Setup/feature prerequisite checks. |
 | private key | 개인 키 | No | OCI/API authentication. |
 | profile | 프로파일 | No | Assistant profile, OCI config profile. |
@@ -79,6 +85,7 @@ Canonical terminology decisions for Korean DBN translation work. Keep this file 
 | secret | 비밀 값 | No | Authentication secret value. |
 | semantic search | 시맨틱 검색 | No | RAG/vector retrieval. |
 | service principal | 서비스 주체 | No | Azure authentication. |
+| source | 소스 | No | Data/vector sources and source code. Use `데이터 소스` for data source. |
 | SQL statement | SQL 문장 | Yes, partial | SQL command/statement UI text. |
 | SSH tunnel | SSH 터널 | Yes, partial | Keep SSH literal, translate tunnel. |
 | SSL | SSL | Yes | Protocol abbreviation. |
@@ -95,7 +102,8 @@ Canonical terminology decisions for Korean DBN translation work. Keep this file 
 | transaction rollback | 롤백 | No | Database transaction command. |
 | trigger | 트리거 | No | Database trigger object. |
 | user | 사용자 | No | DB/OCI user. |
+| vector / vector embedding | 벡터 / 벡터 임베딩 | No | Vector search and embedding feature text. |
 | view | 뷰 | No | Database view. |
 | Wallet | Wallet | Yes | Oracle Wallet product/configuration term. |
+| wildcard | 와일드카드 | No | DDL file name pattern validation. |
 | workspace | 작업공간 | No | IDE workspace. |
-
