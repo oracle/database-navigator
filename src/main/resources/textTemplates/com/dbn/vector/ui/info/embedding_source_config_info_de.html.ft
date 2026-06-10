@@ -27,7 +27,7 @@
 </head>
 <body style="width: 300px">
     <h3>Datenquelle</h3>
-    <p>Datenquelle, die zum Generieren von Vector Embeddings verwendet wird. Wählen Sie, von wo der Inhalt geladen werden soll.</p>
+    <p>Datenquelle, die zum Generieren von Vector-Embeddings verwendet wird. Wählen Sie, von wo der Inhalt geladen werden soll.</p>
     <br>
     <p>Unterstützte Quellen:</p>
     <ul>
@@ -37,4 +37,3 @@
     </ul>
 </body>
 </html>
-

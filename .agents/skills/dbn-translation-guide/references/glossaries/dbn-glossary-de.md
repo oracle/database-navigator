@@ -24,6 +24,7 @@ Canonical terminology decisions for German DBN translation work. Keep this file 
 | data dictionary | Datenwörterbuch | No | Oracle metadata loading progress. |
 | data grid | Datenraster | No | Data editor grid UI. |
 | data model | Datenmodell | No | AI profile metadata context. |
+| data source | Datenquelle | No | Vector embedding source selection. |
 | data type | Datentyp | No | Generic SQL/data editor types. |
 | database link | Datenbank-Link | Yes, partial | Oracle DB link object. |
 | database object | Datenbankobjekt | No | Tables, views, and related DB objects. |
@@ -32,6 +33,7 @@ Canonical terminology decisions for German DBN translation work. Keep this file 
 | diagnostics | Diagnose | No | Diagnostics tool windows and parser checks. |
 | dimension | Dimension | No | Database dimension object. |
 | distance metric | Distanzmetrik | No | Vector search similarity/distance. |
+| DDL file | DDL-Datei | Yes, partial | Keep DDL acronym; German compound for DDL file settings and messages. |
 | driver | Treiber | No | JDBC driver and driver libraries. |
 | editor | Editor | Yes | IDE editor term. |
 | embedding | Embedding | Yes | Vector embedding table and vector search terms. |
@@ -41,6 +43,7 @@ Canonical terminology decisions for German DBN translation work. Keep this file 
 | execution privilege | Ausführungsberechtigung | No | Database grants. |
 | execution wrapper | Ausführungs-Wrapper | Yes, partial | Generated wrappers for method execution. |
 | fetch | abrufen | No | Result-set/data loading operations. |
+| file name pattern | Dateinamensmuster | No | DDL file name pattern settings and validation. |
 | fingerprint | Fingerabdruck | No | OCI/API key fingerprint. |
 | format / formatting | Format / Formatierung | No | Code style formatting. |
 | function | Funktion | No | Database function object. |
@@ -61,6 +64,7 @@ Canonical terminology decisions for German DBN translation work. Keep this file 
 | ONNX | ONNX | Yes | Model format acronym. |
 | Oracle Select AI / Select AI | Oracle Select AI / Select AI | Yes | Oracle feature name. |
 | password manager | Passwort-Manager | Yes, partial | Credential storage. |
+| path separator | Pfadtrennzeichen | No | File/path validation errors. |
 | prerequisite | Voraussetzung | No | Setup/feature prerequisite checks. |
 | private key | Private-Key | Yes, partial | OCI/API authentication. |
 | profile | Profil | No | Assistant profile, OCI config profile. |
@@ -79,6 +83,7 @@ Canonical terminology decisions for German DBN translation work. Keep this file 
 | secret | geheimer Wert | No | Authentication secret value. |
 | semantic search | semantische Suche | No | RAG/vector retrieval. |
 | service principal | Service Principal | Yes | Azure authentication term in existing bundle. |
+| source | Quelle | No | Generic origin/source; use `Quell-` compounds for compact source query/table/file labels. |
 | SQL statement | SQL-Anweisung | Yes, partial | SQL command/statement UI text. |
 | SSH tunnel | SSH-Tunnel | Yes, partial | Keep SSH literal, translate tunnel. |
 | SSL | SSL | Yes | Protocol abbreviation. |
@@ -95,7 +100,8 @@ Canonical terminology decisions for German DBN translation work. Keep this file 
 | transaction rollback | Rollback | Yes | Database transaction command. |
 | trigger | Trigger | Yes | Database trigger object. |
 | user | Benutzer | No | DB/OCI user. |
+| vector / vector embedding | Vector / Vector-Embedding | Yes, partial | Keep Oracle/vector feature term as `Vector`; use `Vektor` only for generic mathematical vectors in prose. |
 | view | View | Yes | Database view. |
 | Wallet | Wallet | Yes | Oracle Wallet product/configuration term. |
+| wildcard | Platzhalter | No | File name pattern validation and parameter placeholders. |
 | workspace | Workspace | Yes | IDE workspace term in existing bundle. |
-

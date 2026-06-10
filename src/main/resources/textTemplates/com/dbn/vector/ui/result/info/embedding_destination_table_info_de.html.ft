@@ -29,7 +29,7 @@
 <body style="width: 300px">
     <h3>Embedding-Ziel</h3>
     <p>
-        Zieltabelle, in der die Vector Embeddings generiert wurden.<br>
+        Zieltabelle, in der die Vector-Embeddings generiert wurden.<br>
         Jede Zeile stellt einen Chunk und das zugehörige Embedding sowie Metadaten für Retrieval oder Ähnlichkeitssuche dar.
     </p>
     <br>
@@ -42,4 +42,3 @@
     </ul>
 </body>
 </html>
-

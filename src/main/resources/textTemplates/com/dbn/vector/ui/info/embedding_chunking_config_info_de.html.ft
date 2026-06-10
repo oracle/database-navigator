@@ -28,7 +28,7 @@
 </head>
 <body style="width: 300px">
     <h3>Chunking-Konfiguration</h3>
-    <p>Chunking steuert, wie größerer Text vor dem Vector Embedding in kleinere Teile segmentiert wird.</p>
+    <p>Chunking steuert, wie größerer Text vor dem Vector-Embedding in kleinere Teile segmentiert wird.</p>
     <br>
     <p>Chunking-Parameter:</p>
     <ul>
