@@ -12,6 +12,7 @@ Canonical terminology decisions for Spanish DBN translation work. Keep this file
 | auto-commit | confirmación automática | No | Transaction mode notifications and settings. |
 | breakpoint | punto de interrupción | No | Debugger progress and console output. |
 | category | categoría | No | Tool categories, filter categories. |
+| chunking | chunking | Yes | Vector text segmentation before embedding; existing Spanish UI keeps chunk/chunks/chunking. |
 | cloud service credential | credencial de servicio en la nube | No | Credential tooltips and setup text. |
 | command-line interface | interfaz de línea de comandos | No | Execution client settings. |
 | compile | compilar | No | Code editor/compiler actions. |
@@ -24,6 +25,7 @@ Canonical terminology decisions for Spanish DBN translation work. Keep this file
 | data dictionary | diccionario de datos | No | Oracle metadata loading progress. |
 | data grid | cuadrícula de datos | No | Data editor grid UI. |
 | data model | modelo de datos | No | AI profile metadata context. |
+| data source | origen de datos | No | Vector embedding source selection. |
 | data type | tipo de datos | No | Generic SQL/data editor types. |
 | database link | enlace de base de datos | No | Oracle DB link object. |
 | database object | objeto de base de datos | No | Tables, views, and related DB objects. |
@@ -32,15 +34,17 @@ Canonical terminology decisions for Spanish DBN translation work. Keep this file
 | diagnostics | diagnóstico | No | Diagnostics tool windows and parser checks. |
 | dimension | dimensión | No | Database dimension object. |
 | distance metric | métrica de distancia | No | Vector search similarity/distance. |
+| DDL file | archivo DDL | Yes, partial | Keep DDL acronym; Spanish noun phrase for DDL file settings and messages. |
 | driver | controlador | No | JDBC driver and driver libraries. |
 | editor | editor | No | Code and browser editor settings. |
-| embedding | embedding | Yes | Vector embedding table and vector search terms. |
+| embedding | embedding | Yes | Vector embedding model/table/result terms; use `embeber` for the operation when the Spanish UI describes processing data. |
 | endpoint | punto final | No | OCI endpoint IDs. |
 | event listener | listener de eventos | Yes, partial | Event notification registration. |
 | execution plan | plan de ejecución | No | SQL explain-plan actions. |
 | execution privilege | privilegio de ejecución | No | Database grants. |
 | execution wrapper | wrapper de ejecución | Yes, partial | Generated wrappers for method execution. |
 | fetch | recuperar | No | Result-set/data loading operations. |
+| file name pattern | patrón de nombre de archivo | No | DDL file name pattern settings and validation. |
 | fingerprint | huella digital | No | OCI/API key fingerprint. |
 | format / formatting | formato / formateo | No | Code style formatting. |
 | function | función | No | Database function object. |
@@ -61,6 +65,7 @@ Canonical terminology decisions for Spanish DBN translation work. Keep this file
 | ONNX | ONNX | Yes | Model format acronym. |
 | Oracle Select AI / Select AI | Oracle Select AI / Select AI | Yes | Oracle feature name. |
 | password manager | gestor de contraseñas | No | Credential storage. |
+| path separator | separador de ruta | No | File/path validation errors. |
 | prerequisite | requisito previo | No | Setup/feature prerequisite checks. |
 | private key | clave privada | No | OCI/API authentication. |
 | profile | perfil | No | Assistant profile, OCI config profile. |
@@ -79,6 +84,7 @@ Canonical terminology decisions for Spanish DBN translation work. Keep this file
 | secret | secreto | No | Authentication secret value. |
 | semantic search | búsqueda semántica | No | RAG/vector retrieval. |
 | service principal | Service Principal | Yes | Azure authentication term in existing bundle. |
+| source | origen | No | Generic origin/source; use `origen de datos` for vector data source. |
 | SQL statement | sentencia SQL | Yes, partial | SQL command/statement UI text. |
 | SSH tunnel | túnel SSH | Yes, partial | Keep SSH literal, translate tunnel. |
 | SSL | SSL | Yes | Protocol abbreviation. |
@@ -95,7 +101,8 @@ Canonical terminology decisions for Spanish DBN translation work. Keep this file
 | transaction rollback | reversión | No | Database transaction command. |
 | trigger | trigger | Yes | Database trigger object in existing bundle. |
 | user | usuario | No | DB/OCI user. |
+| vector / vector embedding | vectorial / embedding vectorial | Yes, partial | Keep embedding in English; translate vector adjectivally as `vectorial` in UI text. |
 | view | vista | No | Database view. |
 | Wallet | Wallet | Yes | Oracle Wallet product/configuration term. |
+| wildcard | comodín | No | File name pattern validation and wildcard matching. |
 | workspace | espacio de trabajo | No | IDE workspace. |
-
