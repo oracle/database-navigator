@@ -12,6 +12,7 @@ Canonical terminology decisions for French DBN translation work. Keep this file 
 | auto-commit | validation automatique | No | Transaction mode notifications and settings. |
 | breakpoint | point d’arrêt | No | Debugger progress and console output. |
 | category | catégorie | No | Tool categories, filter categories. |
+| chunking | fragmentation | No | Vector text segmentation before embedding. |
 | cloud service credential | identifiants de service cloud | No | Credential tooltips and setup text. |
 | command-line interface | interface de ligne de commande | No | Execution client settings. |
 | compile | compiler | No | Code editor/compiler actions. |
@@ -24,6 +25,7 @@ Canonical terminology decisions for French DBN translation work. Keep this file 
 | data dictionary | dictionnaire de données | No | Oracle metadata loading progress. |
 | data grid | grille de données | No | Data editor grid UI. |
 | data model | modèle de données | No | AI profile metadata context. |
+| data source | source de données | No | Vector embedding source selection. |
 | data type | type de données | No | Generic SQL/data editor types. |
 | database link | lien de base de données | No | Oracle DB link object. |
 | database object | objet de base de données | No | Tables, views, and related DB objects. |
@@ -32,15 +34,17 @@ Canonical terminology decisions for French DBN translation work. Keep this file 
 | diagnostics | diagnostics | No | Diagnostics tool windows and parser checks. |
 | dimension | dimension | No | Database dimension object. |
 | distance metric | métrique de distance | No | Vector search similarity/distance. |
+| DDL file | fichier DDL | Yes, partial | Keep DDL acronym; French noun phrase for DDL file settings and messages. |
 | driver | pilote | No | JDBC driver and driver libraries. |
 | editor | éditeur | No | Code and browser editor settings. |
-| embedding | embedding | Yes | Vector embedding table and vector search terms. |
+| embedding | plongement | No | Vector embedding model/table/result terms; use `vectoriser` for the operation when the French UI describes processing data. |
 | endpoint | point de terminaison | No | OCI endpoint IDs. |
 | event listener | écouteur d’événements | No | Event notification registration. |
 | execution plan | plan d’exécution | No | SQL explain-plan actions. |
 | execution privilege | privilège d’exécution | No | Database grants. |
 | execution wrapper | wrapper d’exécution | Yes, partial | Generated wrappers for method execution. |
 | fetch | récupérer | No | Result-set/data loading operations. |
+| file name pattern | motif de nom de fichier | No | DDL file name pattern settings and validation. |
 | fingerprint | empreinte | No | OCI/API key fingerprint. |
 | format / formatting | format / mise en forme | No | Code style formatting. |
 | function | fonction | No | Database function object. |
@@ -61,6 +65,7 @@ Canonical terminology decisions for French DBN translation work. Keep this file 
 | ONNX | ONNX | Yes | Model format acronym. |
 | Oracle Select AI / Select AI | Oracle Select AI / Select AI | Yes | Oracle feature name. |
 | password manager | gestionnaire de mots de passe | No | Credential storage. |
+| path separator | séparateur de chemin | No | File/path validation errors. |
 | prerequisite | prérequis | No | Setup/feature prerequisite checks. |
 | private key | clé privée | No | OCI/API authentication. |
 | profile | profil | No | Assistant profile, OCI config profile. |
@@ -79,10 +84,11 @@ Canonical terminology decisions for French DBN translation work. Keep this file 
 | secret | secret | No | Authentication secret value. |
 | semantic search | recherche sémantique | No | RAG/vector retrieval. |
 | service principal | principal de service | No | Azure authentication. |
+| source | source | No | Generic origin/source; use `source de données` for vector data source. |
 | SQL statement | instruction SQL | Yes, partial | SQL command/statement UI text. |
 | SSH tunnel | tunnel SSH | Yes, partial | Keep SSH literal, translate tunnel. |
 | SSL | SSL | Yes | Protocol abbreviation. |
-| staging table | table de staging | Yes, partial | Vector embedding staging table. |
+| staging table | table intermédiaire | No | Vector embedding staging table. |
 | synonym | synonyme | No | Database synonym object. |
 | table | table | No | Database table. |
 | tablespace | tablespace | Yes | Oracle tablespace quota. |
@@ -95,7 +101,8 @@ Canonical terminology decisions for French DBN translation work. Keep this file 
 | transaction rollback | annulation | No | Database transaction command. |
 | trigger | déclencheur | No | Database trigger object. |
 | user | utilisateur | No | DB/OCI user. |
+| vector / vector embedding | vectoriel / plongement vectoriel | No | Vector search and embedding terms. |
 | view | vue | No | Database view. |
 | Wallet | Wallet | Yes | Oracle Wallet product/configuration term. |
+| wildcard | caractère générique | No | File name pattern validation and parameter placeholders. |
 | workspace | espace de travail | No | IDE workspace. |
-

@@ -28,7 +28,7 @@
 </div>
 Transformez votre façon d’interagir avec vos données.<br>
 Oracle Select AI vous permet d’interroger votre Autonomous Database en langage naturel et de générer automatiquement des requêtes SQL pour obtenir rapidement des informations précises sur votre activité. <br>
-Alimentée par des modèles AI avancés, cette fonctionnalité simplifie l’analyse des données pour tous les profils, des analystes métier aux développeurs.
+Alimentée par des modèles d’IA avancés, cette fonctionnalité simplifie l’analyse des données pour tous les profils, des analystes métier aux développeurs.
 
 <br>
 <br>
@@ -37,10 +37,10 @@ Alimentée par des modèles AI avancés, cette fonctionnalité simplifie l’ana
 (sauf si ces éléments sont déjà fournis par votre organisation)<br><br>
 Avant d’utiliser Select AI, vérifiez les éléments suivants :
 <ul>
-    <li><b>Privilèges de base de données</b> - Obtenez les privilèges d’exécution sur les packages <code>DBMS_CLOUD</code> et <code>DBMS_CLOUD_AI</code> afin d’activer la génération de requêtes pilotée par l’AI.</li>
-    <li><b>Accès réseau</b> - Configurez les ACL réseau pour autoriser la connexion au point de terminaison du fournisseur AI sélectionné.</li>
-    <li><b>Identifiants du fournisseur AI</b> - Fournissez des identifiants API valides pour un fournisseur AI pris en charge (OpenAI, Cohere ou Oracle Cloud Infrastructure Generative AI).</li>
-    <li><b>Profils AI</b> - Configurez des profils AI pour définir les schémas, tables ou vues accessibles aux requêtes en langage naturel, avec un accès aux données sécurisé et maîtrisé.</li>
+    <li><b>Privilèges de base de données</b> - Obtenez les privilèges d’exécution sur les packages <code>DBMS_CLOUD</code> et <code>DBMS_CLOUD_AI</code> afin d’activer la génération de requêtes pilotée par l’IA.</li>
+    <li><b>Accès réseau</b> - Configurez les ACL réseau pour autoriser la connexion au point de terminaison du fournisseur IA sélectionné.</li>
+    <li><b>Identifiants du fournisseur IA</b> - Fournissez des identifiants API valides pour un fournisseur IA pris en charge (OpenAI, Cohere ou Oracle Cloud Infrastructure Generative AI).</li>
+    <li><b>Profils IA</b> - Configurez des profils IA pour définir les schémas, tables ou vues accessibles aux requêtes en langage naturel, avec un accès aux données sécurisé et maîtrisé.</li>
 </ul>
 Consultez la <a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/select-ai.html">documentation Oracle Select AI</a> pour des instructions détaillées de configuration.
 
