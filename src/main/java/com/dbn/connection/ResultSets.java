@@ -30,24 +30,34 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.dbn.common.data.Data.asCharacter;
+
 @UtilityClass
 public class ResultSets {
     public static Object getColumnValue(ResultSet resultSet, int columnIndex, Class<?> type) throws SQLException {
-        if (type == String.class)                           return resultSet.getString(columnIndex);
-        if (type == byte.class || type == Byte.class)       return resultSet.getByte(columnIndex);
-        if (type == short.class || type == Short.class)     return resultSet.getShort(columnIndex);
-        if (type == int.class || type == Integer.class)     return resultSet.getInt(columnIndex);
-        if (type == long.class || type == Long.class)       return resultSet.getLong(columnIndex);
-        if (type == float.class || type == Float.class)     return resultSet.getFloat(columnIndex);
-        if (type == double.class || type == Double.class)   return resultSet.getDouble(columnIndex);
-        if (type == boolean.class || type == Boolean.class) return resultSet.getBoolean(columnIndex);
-        if (type == char.class || type == Character.class)  return Data.asCharacter(resultSet.getString(columnIndex));
-        if (type == BigDecimal.class)                       return resultSet.getBigDecimal(columnIndex);
-        if (type == BigInteger.class)                       return getBigInteger(resultSet, columnIndex);
-        if (type == Number.class)                           return resultSet.getBigDecimal(columnIndex);
-        if (type == Date.class)                             return resultSet.getDate(columnIndex);
-        if (type == Time.class)                             return resultSet.getTime(columnIndex);
-        if (type == Timestamp.class)                        return resultSet.getTimestamp(columnIndex);
+        if (type == byte.class)        return resultSet.getByte(columnIndex);
+        if (type == short.class)       return resultSet.getShort(columnIndex);
+        if (type == int.class)         return resultSet.getInt(columnIndex);
+        if (type == long.class)        return resultSet.getLong(columnIndex);
+        if (type == float.class)       return resultSet.getFloat(columnIndex);
+        if (type == double.class)      return resultSet.getDouble(columnIndex);
+        if (type == boolean.class)     return resultSet.getBoolean(columnIndex);
+        if (type == char.class)        return asCharacter(resultSet.getString(columnIndex));
+        if (type == String.class)      return resultSet.getString(columnIndex);
+        if (type == Byte.class)        return resultSet.getByte(columnIndex);
+        if (type == Short.class)       return resultSet.getShort(columnIndex);
+        if (type == Integer.class)     return resultSet.getInt(columnIndex);
+        if (type == Long.class)        return resultSet.getLong(columnIndex);
+        if (type == Float.class)       return resultSet.getFloat(columnIndex);
+        if (type == Double.class)      return resultSet.getDouble(columnIndex);
+        if (type == Boolean.class)     return resultSet.getBoolean(columnIndex);
+        if (type == Character.class)   return asCharacter(resultSet.getString(columnIndex));
+        if (type == BigDecimal.class)  return resultSet.getBigDecimal(columnIndex);
+        if (type == BigInteger.class)  return getBigInteger(resultSet, columnIndex);
+        if (type == Number.class)      return resultSet.getBigDecimal(columnIndex);
+        if (type == Date.class)        return resultSet.getDate(columnIndex);
+        if (type == Time.class)        return resultSet.getTime(columnIndex);
+        if (type == Timestamp.class)   return resultSet.getTimestamp(columnIndex);
 
         return resultSet.getObject(columnIndex);
     }
@@ -91,7 +101,7 @@ public class ResultSets {
     private static boolean updateScalar(ResultSet resultSet, int columnIndex, Object value, Class<?> type) throws SQLException {
         if (type == Boolean.class)   return updateBoolean(resultSet, columnIndex, Data.asBoolean(value));
         if (type == Byte.class)      return updateByte(resultSet, columnIndex, Data.asByte(value));
-        if (type == Character.class) return updateCharacter(resultSet, columnIndex, Data.asCharacter(value));
+        if (type == Character.class) return updateCharacter(resultSet, columnIndex, asCharacter(value));
         if (type == Double.class)    return updateDouble(resultSet, columnIndex, Data.asDouble(value));
         if (type == Float.class)     return updateFloat(resultSet, columnIndex, Data.asFloat(value));
         if (type == Integer.class)   return updateInteger(resultSet, columnIndex, Data.asInteger(value));
