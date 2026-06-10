@@ -53,7 +53,7 @@ public class SourceCodeEditorToolbarForm extends DBNToolbarForm {
 
         DBSourceCodeVirtualFile sourceCodeFile = sourceCodeEditor.getVirtualFile();
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.SourceEditor");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.SourceEditor");
         setAccessibleName(actionToolbar, txt("app.codeEditor.aria.SourceCodeEditorActions"));
         this.actionsPanel.add(actionToolbar.getComponent());
         this.loadingIconPanel.add(new AsyncProcessIcon("Loading"));

@@ -85,7 +85,7 @@ public class EventNotificationsForm extends DBNFormBase {
     }
 
     private void initActionToolbar() {
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.EventNotification.Controls");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.Event.Notification");
         actionsPanel.add(actionToolbar.getComponent());
         controlPanel.setBorder(Borders.lineBorder(Colors.getTableGridColor(), 0, 0, 1, 0));
     }

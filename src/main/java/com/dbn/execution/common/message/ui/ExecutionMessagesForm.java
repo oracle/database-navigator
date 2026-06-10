@@ -59,7 +59,7 @@ public class ExecutionMessagesForm extends DBNFormBase {
         markBorderless(messagesTree);
 
         messagesScrollPane.setViewportView(messagesTree);
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.ExecutionConsoleMessages");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBN.Execution.Messages");
         setAccessibleName(actionToolbar, txt("app.execution.aria.ExecutionMessageActions"));
         actionsPanel.add(actionToolbar.getComponent());
 

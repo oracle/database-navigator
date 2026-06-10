@@ -53,7 +53,7 @@ public class SelectAiPromptActionsForm extends AssistantDetailFormBase implement
     }
 
     private void createActionPanel() {
-        ActionToolbar typeActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantChatTypes");
+        ActionToolbar typeActions = Actions.createActionToolbar(actionsPanel, true, "DBN.Assistant.Chat.Types");
         setAccessibleName(typeActions, txt("app.assistant.aria.ChatTypeActions"));
         this.actionsPanel.add(typeActions.getComponent());
     }

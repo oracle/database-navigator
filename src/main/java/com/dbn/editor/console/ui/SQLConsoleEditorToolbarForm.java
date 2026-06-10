@@ -46,7 +46,7 @@ public class SQLConsoleEditorToolbarForm extends DBNToolbarForm {
         super(fileEditor, project);
         this.mainPanel.setBorder(Borders.insetBorder(2));
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.FileEditor");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.Editor");
         setAccessibleName(actionToolbar, txt("app.codeEditor.aria.SqlConsoleEditorActions"));
         this.actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
 
