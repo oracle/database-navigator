@@ -7,7 +7,7 @@ description: Oracle© Database Navigator (DBN) localization and NLS guide. Use w
 
 ## Scope
 
-Use this skill for localization-only or localization-heavy changes in DBN. Pair it with `dbn-codebase-guide` only when the task also needs broader architecture, service, UI, or persistence guidance.
+Use this skill for localization-only or localization-heavy changes in DBN. Pair it with `dbn-translation-guide` when translating or reviewing wording, maintaining locale glossaries, or checking terminology consistency. Pair it with `dbn-codebase-guide` only when the task also needs broader architecture, service, UI, or persistence guidance.
 
 Keep localization edits narrowly scoped. Do not refactor unrelated code while replacing hardcoded strings.
 
@@ -93,49 +93,18 @@ If a label is a full sentence or instruction, prefer `text` over `label`. Check 
 - Use separate `link` and `url` keys when a localized link caption can point to a locale-specific target, for example `cfg.assistant.link.SelectAiDocs` plus `cfg.assistant.url.SelectAiDocs`.
 - Product names, provider names, SQL keywords, API literals, generated code, and model prompts are often `@NonNls`, not resource keys.
 
-## Locale Translation Workflow
+## Translation Handoff
 
-When translating an entire resource bundle or a locale-specific `DBNResources_*.properties` file, prioritize trustable contextual translation over broad automated coverage.
+For translation wording, glossary decisions, batch semantics, stale-English scans, and reviewer caveats, use `dbn-translation-guide`.
 
-- Use only the unqualified base resources as the translation source of truth: `DBNResources.properties` for bundles and non-localized `.html.ft` templates for template variants. Never translate from another localized file.
+This localization skill still owns the DBN mechanics:
+
+- Use only the unqualified base resources as the source of truth for locale variants.
 - Prefer generic language locale files for broadly applicable translations, for example `DBNResources_de.properties` and `*_de.html.ft`. Use region-qualified variants such as `_de_DE` only for regional overrides.
 - Translate only localizable text templates, currently user-visible `*.html.ft` files loaded through `TextResources.getLocalizable(...)`. Do not create locale variants for internal `*.md.ft` prompt/instruction templates loaded through `TextResources.getInternal(...)`.
-- Within each batch, translate key by key from the unqualified base bundle/template. Do not translate by dictionary substitution, regex word replacement, or word-by-word fallback.
-- Use the resource key as context:
-  - `label`, `column`, `field`, `placeholder`, `const`, and `token` values are usually noun phrases or compact domain terms.
-  - `action`, `button`, `link`, and menu-like values are usually action phrases; prefer the target language's standard imperative or command style for UI controls.
-  - `title` values are concise dialog, pane, popup, or process titles; translate as headers, not explanatory sentences.
-  - `url` values are not translated as prose; choose a verified locale-specific target when available, otherwise keep the base URL.
-  - `error`, `warning`, `info`, `message`, and `question` values are full user-facing messages; translate the whole sentence or paragraph in context.
-  - `hint`, `text`, `tooltip`, and accessibility values often need natural sentence-level translation, not literal English word order.
-- Use the Translation Glossary subsection for large locale work. Include product names, Oracle/IntelliJ terminology, DBN domain terms, object types, action verbs, and terms intentionally kept in English.
+- Preserve every resource key unless the task explicitly adds, removes, or renames keys.
 - Preserve technical literals and placeholders exactly: `{0}`, MessageFormat choice patterns, escaped `\n`, HTML tags, mnemonic markers (`&Name`, `Na&me`), SQL/API/class names, file names, and protocol literals.
 - Do not duplicate non-localizable code snippets into localized bundles. If a key family like `.code.` appears, inspect the caller and move the snippet to `@NonNls` code instead of translating it.
-- Leave uncertain strings untranslated or mark them for review instead of inventing fluent-looking text. Never hide uncertainty by producing hybrid target-language output.
-- For languages no maintainer can review, do not claim release-ready quality. Report the file as structurally safe and contextually translated, with any unresolved glossary or reviewer gaps called out.
-
-### Batch-First Translation
-
-Translate large bundles in small, isolated batches instead of sweeping the whole file.
-
-- Partition resource keys by `family.area.element`, for example `cfg.connection.label`, `msg.connection.error`, `app.vector.title`, `ntf.debugger.info`, and `prc.java.text`. This is the default batch unit for bundle translation.
-- If a `family.area.element` group is still large or semantically mixed, split it by stable key-name prefix or a contiguous block of related keys. Do not mix unrelated UI surfaces just because they are nearby in the file.
-- Before translating a batch, read the unqualified source keys and values for that batch only. Identify whether each value is a noun label, command/action, title/header, sentence, inserted fragment, enum/object type, log line, progress line, validation message, URL, or technical literal.
-- Translate the whole phrase from the source value and key context. Do not translate word by word, do not regex-replace terminology, and do not use another localized file as the source.
-- Finish and verify one batch before starting the next. If a batch fails placeholder, capitalization, stale-English, or semantic checks, fix it before translating more keys.
-- Keep progress notes by batch. When reporting results, identify the completed groups and any groups intentionally deferred for context review.
-
-### Translation Glossary
-
-Maintain a working glossary for every locale translation pass, and update it before each batch.
-
-- Include DBN product terms, Oracle/IntelliJ terms, database object names, action verbs, AI/vector terms, log/progress verbs, validation verbs, and terms intentionally kept in English.
-- Record the source term, target term, whether the English term is intentionally retained, the reason/context, and example keys. Keep the glossary compact enough to use actively while translating.
-- Use `references/translation-glossary-template.md` when a persistent or shareable glossary is useful.
-- Use the glossary to keep terminology and sentence composition stable across batches, for example the same choices for `connection`, `schema`, `statement`, `Wallet`, `embedding`, `chunking`, `source code`, `commit`, `rollback`, `grant`, and `debug session`.
-- When a term has different meanings by context, record those meanings separately instead of forcing one translation everywhere. Examples: `source` as code source, data source, event source, or source schema; `type` as a database object type, Java type, or UI category; `view` as a database view or UI view.
-- Reconcile the glossary after each batch by scanning the target locale for inconsistent synonyms and hybrid phrases.
-- If a locale will be maintained across sessions, preserve the accepted glossary in the localization skill references or another project-approved note. Otherwise, report the important glossary decisions in the final response.
 
 ## UI Writing Rules
 
@@ -158,12 +127,9 @@ Run these checks for every translated batch before moving to the next batch.
 - Placeholder and marker parity: every `{0}`, `{1}`, MessageFormat choice/plural pattern, escaped newline, HTML boundary, mnemonic marker, and quoted technical literal must be preserved or intentionally changed with caller inspection. Do not count textual ` & ` as a mnemonic.
 - Source capitalization check: compare each translated value against the unqualified source value. For standalone roles such as `action`, `button`, `title`, `column`, `error`, `warning`, `info`, `message`, `question`, `aria`, user-facing `text`, progress, notification, and log lines, review any value where the source starts with an uppercase letter but the translation starts lowercase. Treat inserted fragments, `token`, `const`, `unit`, `placeholder`, object type names, URLs, and code-like values as exceptions only after classification.
 - Role capitalization check: independently scan translated `title`, `error`, `warning`, `info`, `question`, `message`, progress, notification, and log values for lowercase sentence starts. Fix full-sentence and standalone values; leave lowercase fragments only when they are intentionally composed into another sentence.
-- Stale-English check: compare exact source/target matches and scan for common English verbs/nouns. Classify every hit as an intentional product name/acronym/technical literal or a translation defect. Do not allow hybrid target-language values such as translated words mixed with English verbs.
 - Textual ampersand check: scan the unqualified base bundle for prose ` & `. Replace it with `and` unless it is part of an official product name or literal. Do not make localized values preserve a textual ampersand as a mnemonic marker.
-- Glossary consistency check: scan the target batch and previously translated batches for terms from the working glossary. Fix inconsistent synonyms unless context requires a separate glossary entry.
-- Semantic ambiguity check: inspect source values containing ambiguous terms for the batch, especially `schema`, `view`, `grant`, `profile`, `credential`, `wallet`, `driver`, `statement`, `console`, `object`, `type`, `session`, `model`, `source`, `commit`, and `rollback`.
-- UI role check: verify that labels/columns/constants are noun phrases, actions/buttons are commands, titles are headers, progress text describes ongoing work, validation messages are direct recovery instructions, and log lines read as complete console output.
 - Diff check: run `git diff --check` for the touched locale files after each substantial batch.
+- For stale-English, glossary consistency, semantic ambiguity, and UI role checks, use `dbn-translation-guide`.
 
 Useful starting checks:
 
@@ -200,26 +166,6 @@ Useful check:
 
 ```bash
 rg -n 'txt\("([^"]+)"' src/main/java
-```
-
-### Semantic Translation Review
-
-Run these passes when reviewing a translated bundle for meaning, not just structure. Work in small batches, inspect callers for every suspicious key, and prefer leaving a note over making an unsupported fluent-sounding guess.
-
-- Ambiguous English terms: scan for source values containing terms with multiple DBN meanings, such as `schema`, `view`, `grant`, `profile`, `credential`, `wallet`, `driver`, `statement`, `console`, `object`, `type`, `session`, and `model`. Confirm the translated value reflects the caller's domain meaning.
-- Terms intentionally kept in English: verify consistency for `Workspace`, `Dataset`, `View`, `Tool`, `Embedding`, `Chunking`, `Vector`, `Wallet`, `Select AI`, `MCP`, `LLM`, and `OCI`. Check whether each term should remain English in DB/AI UI or use the target language's accepted domain term.
-- Action versus label wording: inspect keys where the same English word can be noun or verb, such as `Refresh`, `Open`, `Load`, `Create`, `Grant`, `Verify`, `Apply`, and `Compile`. Actions/buttons should read as commands; labels/titles should read as nouns or headers.
-- Database-domain collocations: check that translated terms read like database software, especially for source concepts such as `schema`, `view`, `table`, `execution privilege`, `database connection`, `JDBC driver`, `SQL statement`, and `database object`.
-- Runtime composition: for values with `{0}` or inserted fragments, inspect the final composed sentence in the caller. Target-language grammar can break when a placeholder controls gender, number, article, or case.
-- Glossary consistency: use the working glossary from the translation pass and scan for inconsistent alternatives before changing values. If no glossary exists yet, create a compact one from accepted choices first.
-
-Useful starting scans:
-
-```bash
-rg -n -i '\b(schema|view|grant|profile|credential|wallet|driver|statement|console|object|type|session|model)\b' src/main/resources/messages/DBNResources.properties
-rg -n -i '\b(workspace|dataset|view|tool|embedding|chunking|vector|wallet|select ai|mcp|llm|oci)\b' src/main/resources/messages/DBNResources.properties
-rg -n -i '\b(refresh|open|load|create|grant|verify|apply|compile)\b' src/main/resources/messages/DBNResources.properties
-rg -n '\{[0-9]' src/main/resources/messages/DBNResources_*.properties
 ```
 
 ### Required and Missing Wording

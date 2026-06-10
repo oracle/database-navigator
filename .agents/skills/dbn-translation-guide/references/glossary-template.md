@@ -1,17 +1,17 @@
 # Translation Glossary Template
 
-Use this template for locale translation passes that span more than a few related keys.
+Use this template for DBN translation passes that span more than a few related strings.
 
 ## Locale
 
 - Locale:
-- Source of truth: `src/main/resources/messages/DBNResources.properties`
+- Source of truth:
 - Maintainer/reviewer:
 - Last updated:
 
 ## Core Terms
 
-| Source term | Target term | Keep English? | Context / rule | Example keys |
+| Source term | Target term | Keep English? | Context / rule | Example keys or files |
 | --- | --- | --- | --- | --- |
 | connection |  | no | Database connection, not generic link | `app.connection.*`, `cfg.connection.*` |
 | schema |  | no | Database schema | `app.objects.const.DBObjectType_SCHEMA` |
@@ -54,7 +54,7 @@ Use this template for locale translation passes that span more than a few relate
 
 ## Intentional English / Technical Literals
 
-| Literal | Reason | Example keys |
+| Literal | Reason | Example keys or files |
 | --- | --- | --- |
 | SQL | Acronym / language |  |
 | JDBC | Acronym / API |  |
@@ -67,7 +67,7 @@ Use this template for locale translation passes that span more than a few relate
 
 ## Ambiguous Terms
 
-| Source term | Context | Target term | Example keys |
+| Source term | Context | Target term | Example keys or files |
 | --- | --- | --- | --- |
 | source | Source code |  |  |
 | source | Data source |  |  |
@@ -80,10 +80,3 @@ Use this template for locale translation passes that span more than a few relate
 | profile | AI profile |  |  |
 | profile | User/config profile |  |  |
 
-## Batch Notes
-
-| Batch | Status | Notes / unresolved questions |
-| --- | --- | --- |
-| `cfg.connection.label` |  |  |
-| `msg.connection.error` |  |  |
-| `app.vector.*` |  |  |
