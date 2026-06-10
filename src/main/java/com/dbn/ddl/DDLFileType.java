@@ -38,11 +38,13 @@ public class DDLFileType {
     private final DDLFileTypeId id;
     private final @Nls String description;
     private final DBContentType contentType;
+    private final String defaultExtension;
     private Set<String> namePatterns = new LinkedHashSet<>();
 
     public DDLFileType(DDLFileTypeId id, @Nls String description, @NonNls String extension, DBLanguageFileType languageFileType, DBContentType contentType) {
         this.id = id;
         this.description = description;
+        this.defaultExtension = extension;
         this.namePatterns.add(toFileNamePattern(extension));
         this.languageFileType = languageFileType;
         this.contentType = contentType;

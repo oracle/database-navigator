@@ -33,11 +33,13 @@ import java.util.List;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
+import static com.dbn.ddl.DDLFileType.toFileNamePattern;
 import static com.dbn.editor.DBContentType.CODE;
 import static com.dbn.editor.DBContentType.CODE_BODY;
 import static com.dbn.editor.DBContentType.CODE_SPEC;
 import static com.dbn.editor.DBContentType.CODE_SPEC_AND_BODY;
 import static com.dbn.nls.NlsResources.txt;
+import static java.util.Collections.singletonList;
 
 @Getter
 public class DDLFileExtensionSettings extends BasicProjectConfiguration<DDLFileSettings, DDLFileExtensionSettingsForm> {
@@ -101,15 +103,18 @@ public class DDLFileExtensionSettings extends BasicProjectConfiguration<DDLFileS
     public void readConfiguration(Element element) {
         for (Element child : element.getChildren()) {
             DDLFileTypeId fileTypeId = enumAttribute(child, "file-type-id", DDLFileTypeId.class);
-            String fileNamePatterns = child.getAttributeValue("file-name-patterns");
+            String namePatterns = child.getAttributeValue("file-name-patterns");
             String extensions = child.getAttributeValue("extensions");
 
             DDLFileType fileType = getFileType(fileTypeId);
             if (fileType == null) continue;
 
-            List<String> tokens = fileNamePatterns == null ?
-                    Strings.tokenize(extensions, ",").stream().map(DDLFileType::toFileNamePattern).toList() :
-                    Strings.tokenize(fileNamePatterns, ",");
+            List<String> tokens = namePatterns == null ?
+                    Strings.tokenize(extensions, ",").stream().map(e -> toFileNamePattern(e)).toList() :
+                    Strings.tokenize(namePatterns, ",");
+            if (tokens.isEmpty()) {
+                tokens = singletonList(toFileNamePattern(fileType.getDefaultExtension()));
+            }
             fileType.setNamePatterns(tokens);
         }
     }
