@@ -244,7 +244,9 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                 console.system(txt("log.debugger.info.InitializingDebugEnvironment"));
 
                 ConnectionHandler connection = getConnection();
-                SchemaId schemaId = input.getExecutionContext().getTargetSchema();
+                ExecutionContext executionContext = input.getExecutionContext();
+                executionContext.setDebuggerType(DBDebuggerType.JDWP);
+                SchemaId schemaId = executionContext.getTargetSchema();
                 targetConnection = connection.getDebugConnection(schemaId);
                 targetConnection.setAutoCommit(false);
                 targetConnection.beforeClose(() -> releaseSession(targetConnection));
