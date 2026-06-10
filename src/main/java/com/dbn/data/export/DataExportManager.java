@@ -24,16 +24,8 @@ import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.data.export.processor.CSVDataExportProcessor;
-import com.dbn.data.export.processor.CustomDataExportProcessor;
 import com.dbn.data.export.processor.DataExportProcessor;
-import com.dbn.data.export.processor.ExcelDataExportProcessor;
-import com.dbn.data.export.processor.ExcelXDataExportProcessor;
-import com.dbn.data.export.processor.HTMLDataExportProcessor;
-import com.dbn.data.export.processor.JIRAMarkupDataExportProcessor;
-import com.dbn.data.export.processor.MarkdownDataExportProcessor;
-import com.dbn.data.export.processor.SQLDataExportProcessor;
-import com.dbn.data.export.processor.XMLDataExportProcessor;
+import com.dbn.data.export.processor.DataExportProcessors;
 import com.dbn.data.export.ui.ExportDataDialog;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.intellij.openapi.components.State;
@@ -73,24 +65,9 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
         return projectService(project, DataExportManager.class);
     }
 
-    private static final DataExportProcessor[] PROCESSORS =  new DataExportProcessor[] {
-            new SQLDataExportProcessor(),
-            new ExcelDataExportProcessor(),
-            new ExcelXDataExportProcessor(),
-            new CSVDataExportProcessor(),
-            new HTMLDataExportProcessor(),
-            new XMLDataExportProcessor(),
-            new JIRAMarkupDataExportProcessor(),
-            new MarkdownDataExportProcessor(),
-            new CustomDataExportProcessor()};
-
     public static DataExportProcessor getExportProcessor(DataExportFormat format) {
-        for (DataExportProcessor exportProcessor : PROCESSORS) {
-            if (exportProcessor.getFormat() == format) {
-                return exportProcessor;
-            }
-        }
-        return null;
+        if (format == null) return null;
+        return DataExportProcessors.get(format);
     }
 
     public void exportTableContent(DataExportSource source, DataExportInstructions instructions) {
