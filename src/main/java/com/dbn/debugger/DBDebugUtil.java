@@ -27,6 +27,7 @@ import com.dbn.vfs.DatabaseFileSystem;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XSourcePosition;
 import lombok.experimental.UtilityClass;
@@ -109,5 +110,9 @@ public class DBDebugUtil {
             DBEditableObjectVirtualFile mainDatabaseFile = sourceCodeFile.getMainDatabaseFile();
             openEditor(mainDatabaseFile);
         }
+    }
+
+    public static boolean isToolwindowSplit() {
+        return Registry.is("xdebugger.toolwindow.split");
     }
 }

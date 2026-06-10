@@ -34,6 +34,7 @@ import com.dbn.connection.ssh.SshTunnelConnector;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.debugger.DBDebugOperation;
+import com.dbn.debugger.DBDebugTabLayouter;
 import com.dbn.debugger.DBDebugUtil;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.debugger.DatabaseDebuggerManager;
@@ -79,6 +80,7 @@ import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XStackFrame;
 import com.intellij.xdebugger.frame.XSuspendContext;
+import com.intellij.xdebugger.ui.XDebugTabLayouter;
 import com.sun.jdi.Location;
 import com.sun.jdi.StackFrame;
 import lombok.SneakyThrows;
@@ -216,6 +218,12 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     @Override
     public DBDebugConsoleLogger getConsole() {
         return console;
+    }
+
+    @NotNull
+    @Override
+    public XDebugTabLayouter createTabLayouter() {
+        return new DBDebugTabLayouter(this, super.createTabLayouter());
     }
 
     @Override
