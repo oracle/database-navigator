@@ -1,0 +1,32 @@
+<html lang="de">
+<head><title>DB Assistant - Chat mit öffentlichem LLM</title></head>
+<body style="${REGULAR_FONT_STYLE}">
+<div style="${REGULAR_LARGE_FONT_STYLE}">
+    <b>AI-Assistent mit Datenbankintegration</b><br>
+</div>
+Holen Sie sich Unterstützung für Ihre Datenbank, Ihren Workspace und verschiedene Programmieraufgaben in natürlicher Sprache.<br><br>
+DB Assistant ist ein AI-gestützter Begleiter für die Softwareentwicklung, der sich nahtlos in Ihren Workspace und Ihre Datenbank integriert.<br>
+Er kann bei vielen Aufgaben helfen, z. B. Einblicke in Ihre Datenbankstruktur geben,
+Datenbankcode analysieren, relevante Codeblöcke identifizieren, SQL- und PL/SQL-Code generieren und optimieren
+und Sie bei jeder anderen in Ihrem Workspace verwendeten Programmiersprache unterstützen.
+
+<br>
+<br>
+<br>
+<u>Bevor Sie beginnen</u><br><br>
+Stellen Sie vor der Verwendung von DB Assistant sicher, dass die folgenden Voraussetzungen erfüllt sind:
+<ul>
+    <li><b>Netzwerkzugriff</b> - Konfigurieren Sie Ihre Netzwerkeinstellungen, um eine sichere Kommunikation mit dem API-Endpunkt Ihres ausgewählten LLM-Anbieters zu ermöglichen (Systemeinstellungen > HTTP-Proxy).</li>
+    <li><b>API-Anmeldedaten</b> - Geben Sie Ihre API-Schlüssel für den ausgewählten LLM-Anbieter ein (z. B. OpenAI, Cohere, Anthropic oder andere unterstützte öffentliche APIs).</li>
+    <li><b>AI-Profile</b> - Erstellen Sie benutzerdefinierte AI-Profile, um das Verhalten des Sprachmodells anzupassen, z. B. das Verhältnis zwischen Objektivität und Kreativität einzustellen oder spezielle Anweisungen hinzuzufügen.</li>
+</ul>
+Ausführliche Einrichtungsanweisungen finden Sie in der Dokumentation zu Oracle® Database Navigator.
+
+<br>
+<br>
+<br>
+<b>Hinweis</b><br>
+Dies ist eine experimentelle Funktion. Die Genauigkeit der Ausgaben kann je nach ausgewähltem Sprachmodell, Ihren Datenbankzugriffsberechtigungen und anderen Faktoren variieren.
+Prüfen Sie Ausgaben sorgfältig und melden Sie Probleme an das Entwicklungsteam von Oracle® Database Navigator, um diese Funktion zu verbessern.
+</body>
+</html>

@@ -16,12 +16,14 @@
 
 package com.dbn.ddl;
 
+import com.dbn.common.util.Files;
 import com.dbn.common.util.Strings;
 import com.dbn.editor.DBContentType;
 import com.dbn.language.common.DBLanguageFileType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.Collection;
@@ -34,37 +36,54 @@ import java.util.Set;
 public class DDLFileType {
     private final DBLanguageFileType languageFileType;
     private final DDLFileTypeId id;
-    private final String description;
+    private final @Nls String description;
     private final DBContentType contentType;
-    private Set<String> extensions = new LinkedHashSet<>();
+    private Set<String> namePatterns = new LinkedHashSet<>();
 
-    public DDLFileType(DDLFileTypeId id, String description, @NonNls String extension, DBLanguageFileType languageFileType, DBContentType contentType) {
+    public DDLFileType(DDLFileTypeId id, @Nls String description, @NonNls String extension, DBLanguageFileType languageFileType, DBContentType contentType) {
         this.id = id;
         this.description = description;
-        this.extensions.add(extension);
+        this.namePatterns.add(toFileNamePattern(extension));
         this.languageFileType = languageFileType;
         this.contentType = contentType;
     }
 
-    public boolean setExtensions(Collection<String> extensions) {
-        extensions = new LinkedHashSet<>(extensions);
-        if (!extensions.containsAll(this.extensions) || !this.extensions.containsAll(extensions)) {
-            this.extensions = (Set<String>) extensions;
+    public boolean setNamePatterns(Collection<String> namePatterns) {
+        namePatterns = new LinkedHashSet<>(namePatterns);
+        if (!namePatterns.containsAll(this.namePatterns) || !this.namePatterns.containsAll(namePatterns)) {
+            this.namePatterns = (Set<String>) namePatterns;
             return true;
         }
         return false;
     }
 
-    public String getFirstExtension() {
-        return extensions.stream().findFirst().orElse(null);
+    public String getFirstNamePattern() {
+        return namePatterns.stream().findFirst().orElse(null);
     }
 
-    public String getExtensionsAsString() {
-        return Strings.concatenate(extensions, ", ");
+    public String getNamePatternsAsString() {
+        return Strings.concatenate(namePatterns, ", ");
     }
 
-    public boolean setExtensionsAsString(String extensions) {
-        return setExtensions(Strings.tokenize(extensions, ","));
+    public boolean setNamePatternsAsString(String namePatterns) {
+        return setNamePatterns(Strings.tokenize(namePatterns, ","));
     }
 
+    public boolean matchesFileName(String fileName) {
+        for (String namePattern : namePatterns) {
+            if (matchesFileName(namePattern, fileName)) return true;
+        }
+        return false;
+    }
+
+    public static boolean matchesFileName(String namePattern, String fileName) {
+        String regexPattern = Files.toRegexFileNamePattern(namePattern);
+        return fileName.matches(regexPattern);
+    }
+
+    public static String toFileNamePattern(String extension) {
+        if (Strings.isEmpty(extension)) return extension;
+        if (extension.contains("*")) return extension;
+        return "*." + extension;
+    }
 }

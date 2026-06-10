@@ -82,7 +82,7 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
     }
 
     private void initInfoLabel() {
-        String infoRawContent = TextResources.get(getClass(), "assistant_mcp_workspace_integration.html.ft");
+        String infoRawContent = TextResources.getLocalizable(getClass(), "assistant_mcp_workspace_integration.html.ft");
         TextContent infoContent = TextContent.html(infoRawContent);
         infoLabel.setContent(infoContent);
         infoLabel.setHyperlinkListener(BrowserHyperlinkListener.INSTANCE);

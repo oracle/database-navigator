@@ -141,7 +141,7 @@ public class TextContent {
     }
 
     public static TextContent html(Object object, @NonNls String resourceName) {
-        String info = TextResources.get(object, resourceName);
+        String info = TextResources.getLocalizable(object, resourceName);
         return html(info);
     }
     public static TextContent markdown(String text) {
