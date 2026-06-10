@@ -42,7 +42,7 @@ Select AIを使用するには、次を確認してください:
     <li><b>AIプロバイダ資格証明</b> - サポート対象AIプロバイダ(OpenAI、Cohere、またはOracle Cloud Infrastructure Generative AI)の有効なAPI資格証明を指定します。</li>
     <li><b>AIプロファイル</b> - 自然言語問合せでアクセス可能なスキーマ、テーブル、ビューを定義するAIプロファイルを設定し、安全で制御されたデータ・アクセスを確保します。</li>
 </ul>
-詳細な設定手順については、<a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/select-ai.html">Oracle Select AI Documentation</a>を参照してください。
+詳細な設定手順については、<a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/select-ai.html">Oracle Select AIドキュメント</a>を参照してください。
 
 <br>
 <br>

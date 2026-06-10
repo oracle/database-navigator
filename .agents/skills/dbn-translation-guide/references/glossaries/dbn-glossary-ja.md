@@ -12,6 +12,7 @@ Canonical terminology decisions for Japanese DBN translation work. Keep this fil
 | auto-commit | 自動コミット | No | Transaction mode notifications and settings. |
 | breakpoint | ブレークポイント | No | Debugger progress and console output. |
 | category | カテゴリ | No | Tool categories, filter categories. |
+| chunking | Chunking | Yes | Vector text segmentation before embedding; Japanese vector UI keeps Chunk/Chunking. |
 | cloud service credential | クラウド・サービス資格証明 | No | Credential tooltips and setup text. |
 | command-line interface | コマンドライン・インタフェース | No | Execution client settings. |
 | compile | コンパイル | No | Code editor/compiler actions. |
@@ -24,6 +25,7 @@ Canonical terminology decisions for Japanese DBN translation work. Keep this fil
 | data dictionary | データ・ディクショナリ | No | Oracle metadata loading progress. |
 | data grid | データ・グリッド | No | Data editor grid UI. |
 | data model | データ・モデル | No | AI profile metadata context. |
+| data source | データ・ソース | No | Vector embedding source configuration. |
 | data type | データ型 | No | Generic SQL/data editor types. |
 | database link | データベース・リンク | No | Oracle DB link object. |
 | database object | データベース・オブジェクト | No | Tables, views, and related DB objects. |
@@ -32,9 +34,10 @@ Canonical terminology decisions for Japanese DBN translation work. Keep this fil
 | diagnostics | 診断 | No | Diagnostics tool windows and parser checks. |
 | dimension | ディメンション | No | Database dimension object. |
 | distance metric | 距離メトリック | No | Vector search similarity/distance. |
+| DDL file | DDLファイル | Yes, partial | Keep DDL literal; translate file/file settings naturally. |
 | driver | ドライバ | No | JDBC driver and driver libraries. |
 | editor | エディタ | No | Code and browser editor settings. |
-| embedding | 埋込み | No | Vector embedding table and vector search terms. |
+| embedding | Embedding | Yes | Existing vector UI keeps Embedding/Embeddings as the feature term. |
 | endpoint | エンドポイント | No | OCI endpoint IDs. |
 | event listener | イベント・リスナー | No | Event notification registration. |
 | execution plan | 実行計画 | No | SQL explain-plan actions. |
@@ -42,6 +45,7 @@ Canonical terminology decisions for Japanese DBN translation work. Keep this fil
 | execution wrapper | 実行ラッパー | No | Generated wrappers for method execution. |
 | fetch | フェッチ | No | Result-set/data loading operations. |
 | fingerprint | フィンガープリント | No | OCI/API key fingerprint. |
+| file name pattern | ファイル名パターン | No | DDL file pattern settings and validation errors. |
 | format / formatting | 形式 / 書式設定 | No | Code style formatting. |
 | function | 関数 | No | Database function object. |
 | grant | 権限付与 | No | Database privileges. |
@@ -50,6 +54,7 @@ Canonical terminology decisions for Japanese DBN translation work. Keep this fil
 | keyword | キーワード | No | SQL/code keyword highlighting. |
 | language model | 言語モデル | No | LLM references in prose. |
 | LLM | LLM | Yes | Standard abbreviation. |
+| lookup | 検索 | No | Object and DDL file lookup UI. |
 | materialized view | マテリアライズド・ビュー | No | Database object type. |
 | Maven | Maven | Yes | Build/runtime tool name. |
 | MCP | MCP | Yes | Protocol/server name. |
@@ -61,6 +66,7 @@ Canonical terminology decisions for Japanese DBN translation work. Keep this fil
 | ONNX | ONNX | Yes | Model format acronym. |
 | Oracle Select AI / Select AI | Oracle Select AI / Select AI | Yes | Oracle feature name. |
 | password manager | パスワード・マネージャ | No | Credential storage. |
+| path separator | パス区切り文字 | No | File/path validation messages. |
 | prerequisite | 前提条件 | No | Setup/feature prerequisite checks. |
 | private key | 秘密キー | No | OCI/API authentication. |
 | profile | プロファイル | No | Assistant profile, OCI config profile. |
@@ -79,6 +85,7 @@ Canonical terminology decisions for Japanese DBN translation work. Keep this fil
 | secret | シークレット値 | No | Authentication secret value. |
 | semantic search | セマンティック検索 | No | RAG/vector retrieval. |
 | service principal | サービス・プリンシパル | No | Azure authentication. |
+| source | ソース | No | Data/vector sources and source code. Use `データ・ソース` for data source. |
 | SQL statement | SQL文 | Yes, partial | SQL command/statement UI text. |
 | SSH tunnel | SSHトンネル | Yes, partial | Keep SSH literal, translate tunnel. |
 | SSL | SSL | Yes | Protocol abbreviation. |
@@ -95,7 +102,8 @@ Canonical terminology decisions for Japanese DBN translation work. Keep this fil
 | transaction rollback | ロールバック | No | Database transaction command. |
 | trigger | トリガー | No | Database trigger object. |
 | user | ユーザー | No | DB/OCI user. |
+| vector / vector embedding | Vector / Vector embedding | Yes | Existing vector UI keeps Vector and Vector embedding; use `ベクトル` only where already established for distance/math prose. |
 | view | ビュー | No | Database view. |
 | Wallet | Wallet | Yes | Oracle Wallet product/configuration term. |
+| wildcard | ワイルドカード | No | DDL file name pattern validation. |
 | workspace | ワークスペース | No | IDE workspace. |
-
