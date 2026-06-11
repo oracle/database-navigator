@@ -140,6 +140,15 @@ public final class TransientSecretStore {
     private record Key(Object[] parts) {
             private Key(Object[] parts) {
                 this.parts = Arrays.copyOf(parts, parts.length);
+                for (int i = 0; i < this.parts.length; i++) {
+                    this.parts[i] = normalize(this.parts[i]);
+                }
+            }
+
+            private static Object normalize(Object part) {
+                if (part == null) return "";
+                if (part instanceof String string) return string.trim();
+                return part;
             }
 
             @Override
