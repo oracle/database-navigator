@@ -35,11 +35,12 @@ import static com.dbn.connection.AuthenticationType.OS_CREDENTIALS;
 import static com.dbn.connection.AuthenticationType.TOKEN;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public enum DatabaseType implements Constant<DatabaseType>, Presentable{
     ORACLE(
-            "Oracle",
+            txt("cfg.connection.const.DatabaseType_ORACLE"),
             Icons.DB_ORACLE,
             Icons.DB_ORACLE_LARGE,
             "oracle.jdbc.driver.OracleDriver",
@@ -47,7 +48,7 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
             array(DatabaseUrlPattern.ORACLE_SERVICE, DatabaseUrlPattern.ORACLE_SID, DatabaseUrlPattern.ORACLE_EZCONNECT, DatabaseUrlPattern.ORACLE_TNS, DatabaseUrlPattern.ORACLE_CONFIG, DatabaseUrlPattern.GENERIC)),
 
     MYSQL(
-            "MySQL",
+            txt("cfg.connection.const.DatabaseType_MYSQL"),
             Icons.DB_MYSQL,
             Icons.DB_MYSQL_LARGE,
             "com.mysql.cj.jdbc.Driver",
@@ -56,7 +57,7 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
             array("MARIADB", "PERCONA", "OURDELTA", "DRIZZLE", "MAXDB")),
 
     POSTGRES(
-            "PostgreSQL",
+            txt("cfg.connection.const.DatabaseType_POSTGRES"),
             Icons.DB_POSTGRESQL,
             Icons.DB_POSTGRESQL_LARGE,
             "org.postgresql.Driver",
@@ -65,7 +66,7 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
             array("REDSHIFT", "BITNINE", "NCLUSTER", "GREENPLUM", "HADOOPDB", "NETEZZA", "PARACCEL", "PGPOOL", "REDHAT", "TORODB", "TERADATA", "YUGABYTE")),
 
     SQLITE(
-            "SQLite",
+            txt("cfg.connection.const.DatabaseType_SQLITE"),
             Icons.DB_SQLITE,
             Icons.DB_SQLITE_LARGE,
             "org.sqlite.JDBC",
@@ -73,7 +74,7 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
             array(DatabaseUrlPattern.SQLITE_FILE, DatabaseUrlPattern.GENERIC)),
 
     GENERIC(
-            "Generic",
+            txt("cfg.connection.const.DatabaseType_GENERIC"),
             Icons.DB_GENERIC,
             Icons.DB_GENERIC_LARGE,
             "java.sql.Driver",
@@ -82,7 +83,7 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
 
     @Deprecated // used for fallback on existing configs TODO decommission after a few releases
     UNKNOWN(
-            "Unknown",
+            txt("cfg.connection.const.DatabaseType_UNKNOWN"),
             null,
             null,
             "java.sql.Driver",

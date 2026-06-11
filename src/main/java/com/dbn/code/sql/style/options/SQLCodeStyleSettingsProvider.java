@@ -22,6 +22,7 @@ import com.intellij.psi.codeStyle.CodeStyleConfigurable;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsProvider;
 import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,6 +39,7 @@ public class SQLCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
         return settingsProvider.getSettings();
     }
 
+    @NonNls
     @Override
     public String getConfigurableDisplayName() {
         return "SQL (DBN)";

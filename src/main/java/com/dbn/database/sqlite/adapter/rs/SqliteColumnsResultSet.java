@@ -18,6 +18,7 @@ package com.dbn.database.sqlite.adapter.rs;
 
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.sqlite.adapter.SqliteMetadataResultSetRow;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -163,6 +164,7 @@ public abstract class SqliteColumnsResultSet extends SqliteDatasetInfoResultSetS
             return datasetName + "." + columnName;
         }
 
+        @NonNls
         @Override
         public String toString() {
             return "[COLUMN] \"" + datasetName + "\".\"" + columnName + "\"";

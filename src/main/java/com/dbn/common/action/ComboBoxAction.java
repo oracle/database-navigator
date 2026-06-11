@@ -29,13 +29,14 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.BalloonBuilder;
-import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.popup.PopupFactoryImpl;
 import com.intellij.ui.popup.list.ListPopupImpl;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,11 +54,16 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
 
+@NoArgsConstructor
 public abstract class ComboBoxAction
         extends com.intellij.openapi.actionSystem.ex.ComboBoxAction
         implements BackgroundUpdateAware, DumbAware {
 
     private static WeakRef<Balloon> currentBalloon;
+
+    protected ComboBoxAction(@Nullable String text) {
+        getTemplatePresentation().setText(text);
+    }
 
     @NotNull
     @Override
@@ -74,7 +80,7 @@ public abstract class ComboBoxAction
     }
 
     @Override
-    protected JBPopup createActionPopup(DefaultActionGroup group, @NotNull DataContext context, @Nullable Runnable disposeCallback) {
+    protected ListPopup createActionPopup(DefaultActionGroup group, @NotNull DataContext context, @Nullable Runnable disposeCallback) {
         ListPopupImpl actionPopup = (ListPopupImpl) super.createActionPopup(group, context, disposeCallback);
 
         JList list = actionPopup.getList();

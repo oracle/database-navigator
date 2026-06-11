@@ -100,8 +100,8 @@ public class ExplainPlanManager extends ProjectComponentBase {
     private static ExplainPlanResult createExplainPlan(@NotNull ExecutablePsiElement executable, ConnectionHandler connection) {
         try {
             return DatabaseInterfaceInvoker.load(HIGH,
-                    "Creating explain plan",
-                    "Running explain plan for SQL statement",
+                    txt("prc.execution.title.ExtractingExplainPlan"),
+                    txt("prc.execution.text.RunningExplainPlan"),
                     connection.getProject(),
                     connection.getConnectionId(),
                     conn -> {
@@ -115,7 +115,7 @@ public class ExplainPlanManager extends ProjectComponentBase {
 
                             DatabaseCompatibilityInterface compatibility = connection.getCompatibilityInterface();
                             String explainPlanStatementPrefix = compatibility.getExplainPlanStatementPrefix();
-                            String explainPlanQuery = explainPlanStatementPrefix + "\n" + executable.prepareStatementText();
+                            String explainPlanQuery = explainPlanStatementPrefix + "\n" + executable.getExecutableStatementText();
                             statement = conn.createStatement();
                             statement.setFetchSize(500);
                             statement.execute(explainPlanQuery);

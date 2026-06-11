@@ -29,6 +29,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class MessagesTreeCollapseAction extends AbstractExecutionMessagesAction {
 
+    public MessagesTreeCollapseAction() {
+        super(txt("app.execution.action.MessagesCollapseAll"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull MessagesTree messagesTree) {
         Trees.collapseAll(messagesTree);

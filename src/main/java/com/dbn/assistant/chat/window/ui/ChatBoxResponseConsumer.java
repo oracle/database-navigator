@@ -39,6 +39,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+import static com.dbn.assistant.AssistantErrorMessages.sanitizeUrls;
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.assistant.chat.message.AuthorType.SYSTEM;
 import static com.dbn.assistant.chat.message.AuthorType.USER;
@@ -46,6 +47,7 @@ import static com.dbn.assistant.state.AssistantStatus.QUERYING;
 import static com.dbn.common.message.MessageType.ERROR;
 import static com.dbn.common.message.MessageType.NEUTRAL;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 class ChatBoxResponseConsumer implements AssistantResponseConsumer {
@@ -106,6 +108,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         AssistantAdapter assistantAdapter = chatBoxForm.getAssistantAdapter();
 
         String error = assistantAdapter.prepareError(connectionId, chatContext, e);
+        error = sanitizeUrls(error);
         ChatMessage errorMessage = createMessage(ERROR, error, SYSTEM);
         chatBoxForm.appendMessage(chatId, errorMessage);
     }
@@ -130,7 +133,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         AuthorType author = lastMessage.getAuthor();
         TitledMessage titledMessage = new TitledMessage(ERROR,
                 message,
-                exception.getMessage());
+                sanitizeUrls(exception.getMessage()));
 
         if (author == USER) {
             // agent responded directly with a tool request
@@ -212,7 +215,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
     private Chat ensureChat() {
         Chat chat = getChat();
         if (chat == null) {
-            throw new RequestCancelledException("Chat already discarded by user");
+            throw new RequestCancelledException(txt("msg.assistant.error.ChatAlreadyDiscarded"));
         }
         return chat;
     }

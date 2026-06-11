@@ -50,7 +50,7 @@ public class ExplainPlanIntentionAction extends EditorIntentionAction {
     @Override
     @NotNull
     public String getText() {
-        return txt("app.codeEditor.action.ExplainPlanForStatement");
+        return txt("app.codeEditor.intention.ExplainPlanForStatement");
     }
 
 

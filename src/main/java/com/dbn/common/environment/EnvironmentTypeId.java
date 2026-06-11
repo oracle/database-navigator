@@ -18,6 +18,7 @@ package com.dbn.common.environment;
 
 import com.dbn.common.constant.PseudoConstant;
 import com.dbn.common.constant.PseudoConstantConverter;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.UUID;
 
@@ -29,11 +30,11 @@ public final class EnvironmentTypeId extends PseudoConstant<EnvironmentTypeId> {
     public static final EnvironmentTypeId PRODUCTION =  get("production");
     public static final EnvironmentTypeId OTHER =       get("other");
 
-    public EnvironmentTypeId(String id) {
+    public EnvironmentTypeId(@NonNls String id) {
         super(id);
     }
 
-    public static EnvironmentTypeId get(String id) {
+    public static EnvironmentTypeId get(@NonNls String id) {
         return PseudoConstant.get(EnvironmentTypeId.class, id);
     }
 

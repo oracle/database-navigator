@@ -11,11 +11,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
   private final VectorEmbeddingRequest request;
 
   public VectorToolboxDialog(ConnectionHandler connection, VectorEmbeddingRequest request) {
-    super(connection, "Vector Toolbox", true);
+    super(connection, txt("msg.vector.title.VectorToolbox"), true);
     this.request = request;
 
     setDefaultSize(680, 1000);
@@ -40,8 +42,8 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
 
   @Override
   protected Action[] initializeActions() {
-    renameAction(getOKAction(), "Create Embeddings");
-    renameAction(getCancelAction(), "Close");
+    renameAction(getOKAction(), txt("msg.vector.button.CreateEmbeddings"));
+    renameAction(getCancelAction(), txt("msg.shared.button.Close"));
 
     return request.isTemplate() ?
             actions(
@@ -53,7 +55,7 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
 
   @NotNull
   private Action getResetAction() {
-    return createAction("Reset", () -> getForm().reset());
+    return createAction(txt("msg.shared.button.Reset"), () -> getForm().reset());
   }
 
   @Override
@@ -68,7 +70,9 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
   }
 
   private void verifyAndSubmit() {
-    Progress.modal(ensureProject(), request.getConnection(), true, "Verifying Request", "Verifying embedding request", i -> {
+    Progress.modal(ensureProject(), request.getConnection(), true,
+            txt("prc.vector.title.VerifyingRequest"),
+            txt("prc.vector.text.VerifyingEmbeddingRequest"), i -> {
         if (!VectorEmbeddingRequestVerifier.verifyRequest(request, i)) return;
 
         dispatch(() -> {

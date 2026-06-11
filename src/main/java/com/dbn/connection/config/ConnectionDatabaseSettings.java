@@ -67,6 +67,7 @@ import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 
 @Slf4j
@@ -308,38 +309,37 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         String connectionUrl = getConnectionUrl();
         if (Strings.isEmpty(connectionUrl)) {
             errors.add(databaseInfo.isCustomUrl() ?
-                    "Database connection url not provided" :
-                    "Database information not provided (host, port, database, file)"
+                    txt("cfg.connection.error.DatabaseConnectionUrlMissing") :
+                    txt("cfg.connection.error.DatabaseInfoMissing")
             );
         } else {
             if (!databaseInfo.isCustomUrl() && !urlPattern.isValid(connectionUrl)) {
-                errors.add("Database information incomplete or invalid (host, port, database, file)");
+                errors.add(txt("cfg.connection.error.DatabaseInfoInvalid"));
             }
         }
         validateConfigProvider(errors);
 
         if (getDriverSource() == DriverSource.EXTERNAL) {
             if (Strings.isEmpty(getDriverLibrary())) {
-                errors.add("JDBC driver library not provided");
+                errors.add(txt("cfg.connection.error.DriverLibraryMissing"));
             } else {
                 String driver = getDriver();
                 if (Strings.isEmpty(driver)) {
-                    errors.add("JDBC driver not provided");
+                    errors.add(txt("cfg.connection.error.DriverClassMissing"));
                 } else {
                     DatabaseType driverDatabaseType = DatabaseType.resolve(driver);
                     if (databaseType != DatabaseType.GENERIC && driverDatabaseType != databaseType) {
-                        errors.add("JDBC driver does not match the selected database type");
+                        errors.add(txt("cfg.connection.error.DriverDatabaseTypeMismatch"));
                     }
                 }
             }
         }
 
         if (!errors.isEmpty()) {
-            StringBuilder message = new StringBuilder("Invalid or incomplete database configuration:");
+            StringBuilder message = new StringBuilder(txt("cfg.connection.error.DatabaseConfigurationInvalid"));
             for (String error : errors) {
                 message.append("\n - ").append(error);
             }
-            // TODO NLS
             throw new ConfigurationException(message.toString());
         }
     }

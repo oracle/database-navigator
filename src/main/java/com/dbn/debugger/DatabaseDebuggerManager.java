@@ -22,7 +22,6 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.routine.Consumer;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.context.DatabaseContext;
@@ -79,7 +78,10 @@ import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
 import static com.dbn.common.notification.NotificationCategory.DEBUGGER;
 import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
+import static com.dbn.debugger.DBDebuggerType.JDBC;
+import static com.dbn.debugger.DBDebuggerType.JDWP;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -123,7 +125,7 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
     public boolean checkForbiddenOperation(ConnectionHandler connection, String message) {
         // TODO add flag on connection handler instead of this
         if (activeDebugSessions.contains(connection.ref())) {
-            Messages.showErrorDialog(getProject(), message == null ? "Operation not supported during active debug session." : message);
+            showErrorDialog(getProject(), message == null ? txt("msg.debugger.error.ActiveSessionOperationNotSupported") : message);
             return false;
         }
         return true;
@@ -137,15 +139,16 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
     }
 
     public static void verifyJdwpSupport(boolean jdbcFallback) throws RuntimeConfigurationError {
-        if (DBDebuggerType.JDWP.isSupported()) return;
+        if (JDWP.isSupported()) return;
 
         ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
         String versionName = applicationInfo.getVersionName();
         String fullVersion = applicationInfo.getFullVersion();
 
-        String message = "JDWP debugging is not supported in \"" + versionName + " " + fullVersion + "\".";
-        String messageFallbackHint = jdbcFallback ? "" : " Please use Classic debugger over JDBC instead.";
-        throw new RuntimeConfigurationError(message + messageFallbackHint);
+        String message = jdbcFallback ?
+                txt("msg.debugger.error.UnsupportedDebugger", JDWP.getName(), versionName, fullVersion) :
+                txt("msg.debugger.error.UnsupportedDebuggerUseClassicJdbc", JDWP.getName(), versionName, fullVersion);
+        throw new RuntimeConfigurationError(message);
     }
 
     public void startMethodDebugger(@NotNull DBMethod method) {
@@ -154,14 +157,14 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
             RunnerAndConfigurationSettings settings = configManager.createConfiguration(method, debuggerType);
 
             String runnerId =
-                    debuggerType == DBDebuggerType.JDBC ? DBMethodJdbcRunner.RUNNER_ID :
-                    debuggerType == DBDebuggerType.JDWP ? DBMethodJdwpRunner.RUNNER_ID : null;
+                    debuggerType == JDBC ? DBMethodJdbcRunner.RUNNER_ID :
+                    debuggerType == JDWP ? DBMethodJdwpRunner.RUNNER_ID : null;
 
             try {
                 startDebugger(runnerId, settings);
             } catch (ExecutionException e) {
                 conditionallyLog(e);
-                Messages.showErrorDialog(getProject(), "Could not start debugger for " + method.getQualifiedName() + ".", e);
+                showErrorDialog(getProject(), txt("msg.debugger.error.CouldNotStartDebuggerFor", method.getQualifiedName()), e);
             }
         });
     }
@@ -175,15 +178,15 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
             RunnerAndConfigurationSettings settings = configManager.createConfiguration(executionProcessor, debuggerType);
 
             String runnerId =
-                    debuggerType == DBDebuggerType.JDBC ? DBStatementJdbcRunner.RUNNER_ID :
-                    debuggerType == DBDebuggerType.JDWP ? DBStatementJdwpRunner.RUNNER_ID :
+                    debuggerType == JDBC ? DBStatementJdbcRunner.RUNNER_ID :
+                    debuggerType == JDWP ? DBStatementJdwpRunner.RUNNER_ID :
                                     null;
 
             try {
                 startDebugger(runnerId, settings);
             } catch (ExecutionException e) {
                 conditionallyLog(e);
-                Messages.showErrorDialog(getProject(), "Could not start statement debugger",  e);
+                showErrorDialog(getProject(), txt("msg.debugger.error.CouldNotStartStatementDebugger"),  e);
             }
         });
     }
@@ -194,13 +197,13 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
 
         startJdwpDebugger(() -> {
             ExecutionConfigManager configManager = getConfigManager();
-            RunnerAndConfigurationSettings settings = configManager.createConfiguration(method, DBDebuggerType.JDWP);
+            RunnerAndConfigurationSettings settings = configManager.createConfiguration(method, JDWP);
 
             try {
                 startDebugger(DBJavaJdwpRunner.RUNNER_ID, settings);
             } catch (ExecutionException e) {
                 conditionallyLog(e);
-                Messages.showErrorDialog(getProject(), "Could not start debugger for " + method.getQualifiedName() + ").", e);
+                showErrorDialog(getProject(), txt("msg.debugger.error.CouldNotStartDebuggerFor", method.getQualifiedName()), e);
             }
         });
     }
@@ -213,7 +216,7 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
 
         Executor executorInstance = DefaultDebugExecutor.getDebugExecutorInstance();
         if (executorInstance == null) {
-            throw new ExecutionException("Could not resolve debug executor");
+            throw new ExecutionException(txt("msg.debugger.error.CouldNotResolveDebugExecutor"));
         }
 
         Project project = getProject();
@@ -232,7 +235,7 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
                 debuggerStarter.accept(debuggerType);
             } else {
                 ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
-                Messages.showErrorDialog(
+                showErrorDialog(
                         project,
                         txt("msg.debugger.title.UnsupportedDebugger"),
                         txt("msg.debugger.error.UnsupportedDebuggerUseAlternative",
@@ -240,20 +243,20 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
                                 applicationInfo.getVersionName(),
                                 applicationInfo.getFullVersion()),
                         new String[]{
-                                txt("msg.debugger.button.UseDebugger",DBDebuggerType.JDBC.getName()),
+                                txt("msg.debugger.button.UseDebugger", JDBC.getName()),
                                 txt("msg.shared.button.Cancel")}, 0,
-                        o -> when(o == 0, () -> debuggerStarter.accept(DBDebuggerType.JDBC)));
+                        o -> when(o == 0, () -> debuggerStarter.accept(JDBC)));
             }
         });
     }
 
     private void startJdwpDebugger(@NotNull Runnable debuggerStarter) {
-        DBDebuggerType debuggerType = DBDebuggerType.JDWP;
+        DBDebuggerType debuggerType = JDWP;
         if (debuggerType.isSupported()) {
             debuggerStarter.run();
         } else {
             ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
-            Messages.showErrorDialog(
+            showErrorDialog(
                     getProject(),
                     txt("msg.debugger.title.UnsupportedDebugger"),
                     txt("msg.debugger.error.UnsupportedDebugger",
@@ -323,8 +326,8 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
 
         try {
             return DatabaseInterfaceInvoker.load(HIGHEST,
-                    "Loading metadata",
-                    "Loading debugger version",
+                    txt("prc.debugger.title.LoadingMetadata"),
+                    txt("prc.debugger.text.LoadingDebuggerVersion"),
                     connection.getProject(),
                     connection.getConnectionId(),
                     conn -> {

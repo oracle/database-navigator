@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class PendingTransactionsTable extends DBNTable<PendingTransactionsTableModel> {
     public PendingTransactionsTable(@NotNull PendingTransactionsDetailForm parent, @NotNull PendingTransactionsTableModel model) {
@@ -51,7 +52,7 @@ public class PendingTransactionsTable extends DBNTable<PendingTransactionsTableM
         setCellSelectionEnabled(true);
         addMouseListener(Mouse.listener().onClick(e -> clickEvent(e)));
 
-        setAccessibleName(this, "Pending Transactions");
+        setAccessibleName(this, txt("app.connection.aria.PendingTransactions"));
         setProportionalColumnWidths(15, 55, 30);
     }
 
@@ -120,9 +121,10 @@ public class PendingTransactionsTable extends DBNTable<PendingTransactionsTableM
 
             } else if (column == 2) {
                 int changesCount = transaction.getChangesCount();
-                append(changesCount == 1 ?
-                        changesCount + " uncommitted change" :
-                        changesCount + " uncommitted changes",
+                append(txt(changesCount == 1 ?
+                                "app.connection.text.UncommittedChange" :
+                                "app.connection.text.UncommittedChanges",
+                        changesCount),
                         SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
         }

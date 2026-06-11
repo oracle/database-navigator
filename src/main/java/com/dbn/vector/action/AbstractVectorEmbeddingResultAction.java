@@ -27,19 +27,23 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractVectorEmbeddingResultAction extends ContextAction<VectorEmbeddingExecutionResult> {
 
-  protected VectorEmbeddingExecutionResult getContext(@NotNull AnActionEvent e) {
-    VectorEmbeddingExecutionResult result = e.getData(DataKeys.EMBEDDING_EXECUTION_RESULT);
-    if (result != null) return result;
-
-    Project project = e.getProject();
-    if (project == null) return result;
-
-    ExecutionManager executionManager = ExecutionManager.getInstance(project);
-    ExecutionResult executionResult = executionManager.getSelectedExecutionResult();
-    if (executionResult instanceof VectorEmbeddingExecutionResult) {
-      return (VectorEmbeddingExecutionResult) executionResult;
+    protected AbstractVectorEmbeddingResultAction(String text) {
+        super(text);
     }
 
-    return null;
-  }
+    protected VectorEmbeddingExecutionResult getContext(@NotNull AnActionEvent e) {
+        VectorEmbeddingExecutionResult result = e.getData(DataKeys.EMBEDDING_EXECUTION_RESULT);
+        if (result != null) return result;
+
+        Project project = e.getProject();
+        if (project == null) return result;
+
+        ExecutionManager executionManager = ExecutionManager.getInstance(project);
+        ExecutionResult executionResult = executionManager.getSelectedExecutionResult();
+        if (executionResult instanceof VectorEmbeddingExecutionResult) {
+            return (VectorEmbeddingExecutionResult) executionResult;
+        }
+
+        return null;
+    }
 }

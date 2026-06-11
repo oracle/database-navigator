@@ -18,7 +18,6 @@ package com.dbn.editor.data.ui.table.listener;
 
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.util.Keyboard.Key;
-import com.dbn.common.util.Messages;
 import com.dbn.data.type.DBDataType;
 import com.dbn.editor.data.model.DatasetEditorModel;
 import com.dbn.editor.data.model.DatasetEditorModelCell;
@@ -31,9 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
 import static com.dbn.editor.data.model.RecordStatus.UPDATING;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorKeyListener extends KeyAdapter {
     private final WeakRef<DatasetEditorTable> table;
@@ -65,7 +66,7 @@ public class DatasetEditorKeyListener extends KeyAdapter {
                         }
                     } catch (SQLException e1) {
                         conditionallyLog(e1);
-                        Messages.showErrorDialog(table.getProject(), "Could not create row in " + table.getDataset().getQualifiedNameWithType() + ".", e1);
+                        showErrorDialog(table.getProject(), txt("msg.dataEditor.error.CannotCreateRow", table.getDataset().getQualifiedNameWithType()), e1);
                     }
                     e.consume();
             }

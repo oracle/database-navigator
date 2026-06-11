@@ -39,6 +39,7 @@ import java.util.List;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
+import static com.dbn.nls.NlsResources.txt;
 
 
 @Getter

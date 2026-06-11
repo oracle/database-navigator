@@ -63,16 +63,16 @@ public class ToggleDatabaseLoggingIntentionAction extends EditorIntentionAction 
             boolean loggingEnabled = connection.isLoggingEnabled();
             if (Strings.isEmpty(logName)) {
                 return loggingEnabled ?
-                        txt("app.codeEditor.action.DisableDatabaseLogging") :
-                        txt("app.codeEditor.action.EnableDatabaseLogging");
+                        txt("app.codeEditor.intention.DisableDatabaseLogging") :
+                        txt("app.codeEditor.intention.EnableDatabaseLogging");
             } else {
                 return loggingEnabled ?
-                        txt("app.codeEditor.action.DisableLogging", logName) :
-                        txt("app.codeEditor.action.EnableLogging", logName);
+                        txt("app.codeEditor.intention.DisableLogging", logName) :
+                        txt("app.codeEditor.intention.EnableLogging", logName);
             }
         }
 
-        return txt("app.codeEditor.action.ToggleDatabaseLogging");
+        return txt("app.codeEditor.intention.ToggleDatabaseLogging");
     }
 
     @Override

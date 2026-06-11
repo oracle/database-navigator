@@ -35,6 +35,10 @@ public class JsonDataReloadAction extends AbstractJsonDataEditorAction {
 
     private static final DataLoadInstructions LOAD_INSTRUCTIONS = new DataLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
 
+    public JsonDataReloadAction() {
+        super(txt("app.dataEditor.action.JsonDataEditorReload"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull JsonDataEditor jsonDataEditor) {
         jsonDataEditor.loadData(LOAD_INSTRUCTIONS);

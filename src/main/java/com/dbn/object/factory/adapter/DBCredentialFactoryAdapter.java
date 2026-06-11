@@ -34,6 +34,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGH;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.CREDENTIAL_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.FINGERPRINT;
@@ -44,7 +45,7 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.USER_NAME;
 import static com.dbn.object.factory.model.DBObjectAttributeType.USER_OCID;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 
-public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec, DBCredentialFactoryInputForm> {
+public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public DBObjectType getObjectType() {
@@ -67,12 +68,13 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter<DBObject
 
     @Override
     public void createObject(DBObjectSpec input) throws SQLException {
+        DBObjectType objectType = input.getObjectType();
         ConnectionId connectionId = input.getConnectionId();
         SchemaId schemaId = input.getSchemaId();
 
         DatabaseInterfaceInvoker.execute(HIGH,
-                "Creating " + input.getObjectType().getTitleCasedName(),
-                "Creating " + input.getObjectDescription(),
+                txt("prc.object.title.CreatingObject", objectType.getTitleCasedDisplayName()),
+                txt("prc.object.text.CreatingObjectDescription", input.getObjectDescription()),
                 input.getProject(),
                 connectionId,
                 schemaId,
@@ -83,7 +85,7 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter<DBObject
                     if (credentialType == DBCredentialType.OCI) {
                         assistantInterface.createOciCredential(
                                 conn,
-                                input.getObjectName(true),
+                                input.getAdjustedObjectName(),
                                 USER_OCID.of(input),
                                 TENANCY_OCID.of(input),
                                 PRIVATE_KEY.of(input),
@@ -91,7 +93,7 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter<DBObject
                     } else if (credentialType == DBCredentialType.PASSWORD) {
                         assistantInterface.createPwdCredential(
                                 conn,
-                                input.getObjectName(true),
+                                input.getAdjustedObjectName(),
                                 USER_NAME.of(input),
                                 Data.asString(PASSWORD.of(input))
                         );

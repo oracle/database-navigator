@@ -48,6 +48,7 @@ import com.dbn.event.notification.EventNotificationManager;
 import com.dbn.event.notification.model.DataChangeNotification;
 import com.dbn.event.registration.EventRegistrationListener.RegistrationEvent;
 import com.dbn.event.registration.ui.EventRegistrationInputDialog;
+import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.object.DBTable;
 import com.dbn.object.event.ObjectChangeAction;
 import com.intellij.openapi.components.State;
@@ -73,6 +74,7 @@ import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Lists.toCsv;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.event.registration.EventRegistrationManager.COMPONENT_NAME;
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 import static com.dbn.nls.NlsResources.txt;
 
 
@@ -111,8 +113,8 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         String connectionName = connection.getName();
         String qualifiedTableName = table.getQualifiedNameWithType();
 
-        String processTitle = "Registering Event Listener";
-        String processText = "Registering event listener for " + qualifiedTableName;
+        String processTitle = txt("prc.events.title.RegisteringEventListener");
+        String processText = txt("prc.events.text.RegisteringEventListener", qualifiedTableName);
 
         Progress.prompt(project, table, false, processTitle, processText, progress -> {
             try {
@@ -129,7 +131,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
                 notifyRegistrationListeners(connectionId, ObjectChangeAction.CREATE);
             } catch (Exception e) {
                 conditionallyLog(e);
-                sendErrorNotification(DCN, txt("ntf.events.warning.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
+                sendErrorNotification(DCN, txt("ntf.events.error.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
             }
         });
     }
@@ -164,6 +166,12 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
 
     private void processEvent(DatabaseChangeEvent event, ConnectionId connectionId, String tableName, long regId) {
         if (event.getRegId() != regId) return;
+
+        ConnectionHandler connection = ConnectionHandler.get(connectionId);
+        if (connection == null) return;
+
+        QuotePair identifierQuotes = connection.getCompatibility().getIdentifierQuotes();
+        tableName = identifierQuotes.unquoteComposite(tableName, DATABASE);
 
         TableChangeDescription[] tableChanges = event.getTableChangeDescription();
         for (TableChangeDescription tableChange : tableChanges) {
@@ -212,8 +220,8 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         String connectionName = connection.getName();
         String qualifiedTableName = table.getQualifiedNameWithType();
 
-        String processTitle = "Stopping Event Listener";
-        String processText = "Stopping event listener for " + qualifiedTableName;
+        String processTitle = txt("prc.events.title.StoppingEventListener");
+        String processText = txt("prc.events.text.StoppingEventListener", qualifiedTableName);
 
         Progress.prompt(project, table, false, processTitle, processText, progress -> {
             try {
@@ -230,7 +238,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
                 notifyRegistrationListeners(connectionId, ObjectChangeAction.DELETE);
             } catch (Exception e) {
                 conditionallyLog(e);
-                sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
+                sendErrorNotification(DCN, txt("ntf.events.error.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
             }
         });
     }
@@ -239,8 +247,8 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         Project project = connection.getProject();
         String connectionName = connection.getName();
 
-        String processTitle = "Stopping Event Listener";
-        String processText = "Stopping event listener for " + tableName;
+        String processTitle = txt("prc.events.title.StoppingEventListener");
+        String processText = txt("prc.events.text.StoppingEventListener", tableName);
 
         Progress.prompt(project, connection, false, processTitle, processText, progress -> {
             try {
@@ -256,7 +264,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
                 notifyRegistrationListeners(connectionId, ObjectChangeAction.DELETE);
             } catch (Exception e) {
                 conditionallyLog(e);
-                sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", tableName, connectionName, e.getMessage()));
+                sendErrorNotification(DCN, txt("ntf.events.error.ListenerDeregistrationFailedFor", tableName, connectionName, e.getMessage()));
             }
         });
     }
@@ -271,6 +279,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
 */
 
 
+        @NonNls
         String creationStatement = "{ call DBMS_CHANGE_NOTIFICATION.deregister(?) }";
 
         PreparedStatement statement = null;
@@ -336,4 +345,3 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         states.readState(element, "registration-states");
     }
 }
-

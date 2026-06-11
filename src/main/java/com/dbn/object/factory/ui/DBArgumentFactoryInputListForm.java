@@ -34,7 +34,7 @@ import java.util.List;
 
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 
-public class DBArgumentFactoryInputListForm extends DBObjectFactoryInputListForm<DBObjectSpec> {
+public class DBArgumentFactoryInputListForm extends DBObjectFactoryInputListForm {
 
     @Getter(lazy = true)
     private final List<Presentable> objectDetailOptions = initObjectDetailOptions();
@@ -44,7 +44,7 @@ public class DBArgumentFactoryInputListForm extends DBObjectFactoryInputListForm
     }
 
     @Override
-    protected DBObjectSpecList<DBObjectSpec> getChildInputs() {
+    protected DBObjectSpecList getChildInputs() {
         return getMethodInput().getChildren(DBObjectType.ARGUMENT);
     }
 
@@ -64,7 +64,7 @@ public class DBArgumentFactoryInputListForm extends DBObjectFactoryInputListForm
     }
 
     @Override
-    public DBObjectFactoryInputForm<DBObjectSpec> createChildInputForm(DBObjectSpec input) {
+    public DBObjectFactoryInputForm createChildInputForm(DBObjectSpec input) {
         return new DBArgumentFactoryInputForm(this, input);
     }
 

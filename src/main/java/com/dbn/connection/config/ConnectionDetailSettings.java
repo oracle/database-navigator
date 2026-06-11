@@ -41,6 +41,7 @@ import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.common.options.setting.Settings.setInteger;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.help.HelpTopic.DATABASE_CONFIG_DETAILS;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter

@@ -27,6 +27,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DDLMappedNotificationPanel extends EditorNotificationPanel {
     private final DBObjectRef<DBSchemaObject> object;
 
@@ -36,10 +38,9 @@ public class DDLMappedNotificationPanel extends EditorNotificationPanel {
 
         String objectName = object.getQualifiedNameWithType();
         String objectTypeName = object.getObjectType().getName();
-        setText("This DDL file is attached to the database " + objectName + ". " +
-                "Changes done to the " + objectTypeName + " are mirrored to this DDL file, overwriting any changes you may do to it.");
+        setText(txt("ntf.ddlFiles.warning.DdlFileAttached", objectName, objectTypeName));
 
-        createActionLabel("Detach", () -> detach());
+        createActionLabel(txt("app.ddlFiles.action.Detach"), () -> detach());
     }
 
     private void detach() {

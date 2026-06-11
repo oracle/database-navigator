@@ -43,6 +43,8 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
 		name = ObjectFilterManager.COMPONENT_NAME,
@@ -93,11 +95,13 @@ public class ObjectFilterManager extends ProjectComponentBase implements Persist
 		Project project = getProject();
 		ConnectionId connectionId = filterSettings.getConnectionId();
 		DBObjectType objectType = filter.getObjectType();
-		String listName = objectType.getTitleCasedListName();
+		String listName = objectType.getTitleCasedListDisplayName();
 
 
 		if (!filter.isActive()) {
-			Messages.showQuestionDialog(project, "Enable Filter", "The " + listName + " filter is currently disabled.\nDo you want to enable it?",
+			showQuestionDialog(project,
+                    txt("msg.objects.title.EnableFilter"),
+                    txt("msg.objects.question.EnableFilter", listName),
 					Messages.OPTIONS_YES_NO, 0, o -> when(o == 0, () -> filter.setActive(true)));
 		}
 		filterSettings.addFilter(filter);

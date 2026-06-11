@@ -17,6 +17,7 @@
 package com.dbn.common.util;
 
 import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.compatibility.Workaround;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -25,8 +26,11 @@ import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.openapi.util.NlsContexts.Label;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.common.Reflection.invokeMethod;
 
 
 /**
@@ -36,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @UtilityClass
 public class FileChoosers {
-    public static boolean nativeFileChoosers = false;
+    public static boolean nativeFileChoosers = true;
 
     public static FileChooserDescriptor addSingleFileChooser(
             @Nullable Project project,
@@ -103,21 +107,27 @@ public class FileChoosers {
     }
 
 
+    @Deprecated
+    @Workaround // TODO plain file-filters do not narrow down the options in the native mac file-chooser
     public static Condition<? super VirtualFile> extensionFilter(String extension) {
         return (Condition<VirtualFile>) file -> Strings.equalsIgnoreCase(file.getExtension(), extension);
     }
 
-    public static Condition<? super VirtualFile> extensionFilter(String ... extensions) {
-        return (Condition<VirtualFile>) file -> {
-            for (String extension : extensions) {
-                if (Strings.equalsIgnoreCase(file.getExtension(), extension)) return true;
-            }
-            return false;
-        };
-    }
-
     private static FileChooserDescriptor adjustFileChooser(FileChooserDescriptor descriptor) {
         descriptor.setForcedToUseIdeaFileChooser(!nativeFileChoosers);
+        return descriptor;
+    }
+
+    @Compatibility
+    public static FileChooserDescriptor withExtensionFilter(FileChooserDescriptor descriptor, @NonNls String extension) {
+        //return descriptor.withExtensionFilter(extension);
+        // TODO decommission after discontinuing support for 2023.x and 2024.2 IDE versions
+        try {
+            invokeMethod(descriptor, "withExtensionFilter", extension);
+        } catch (Throwable e) {
+            descriptor.withFileFilter(extensionFilter(extension));
+        }
+
         return descriptor;
     }
 }

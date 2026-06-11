@@ -17,6 +17,7 @@
 package com.dbn.database.common.util;
 
 import com.dbn.connection.Resources;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
@@ -158,6 +159,7 @@ public abstract class WrappedResultSet<T extends ResultSet> implements ResultSet
         return inner.getBinaryStream(columnIndex);
     }
 
+    @NonNls
     @Override
     public String getString(String columnLabel) throws SQLException {
         return inner.getString(columnLabel);

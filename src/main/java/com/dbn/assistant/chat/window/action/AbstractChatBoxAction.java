@@ -18,6 +18,7 @@ package com.dbn.assistant.chat.window.action;
 
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ProjectAction;
+import lombok.NoArgsConstructor;
 
 /**
  * Abstract basic implementation for actions presented in the ChatBox
@@ -26,6 +27,10 @@ import com.dbn.common.action.ProjectAction;
  * @author Dan Cioca (Oracle)
  */
 @BackgroundUpdate
+@NoArgsConstructor
 public abstract class AbstractChatBoxAction extends ProjectAction implements AssistantActionSupport {
 
+    protected AbstractChatBoxAction(String text) {
+        super(text);
+    }
 }

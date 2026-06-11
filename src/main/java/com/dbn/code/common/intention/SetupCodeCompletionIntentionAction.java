@@ -41,7 +41,7 @@ public class SetupCodeCompletionIntentionAction extends EditorIntentionAction {
     @Override
     @NotNull
     public String getText() {
-        return txt("app.codeEditor.action.SetupCodeCompletion");
+        return txt("app.codeEditor.intention.SetupCodeCompletion");
     }
 
     @Override

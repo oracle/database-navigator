@@ -18,16 +18,11 @@ package com.dbn.connection.config.parameter.ui;
 
 import com.dbn.common.properties.ui.PropertiesEditorForm;
 import com.dbn.common.properties.ui.PropertiesTableModel;
-import com.dbn.connection.config.parameter.CheckForInvalidCharactersValidator;
-import com.dbn.connection.config.parameter.RegexConstraintValidator;
 import com.dbn.connection.config.parameter.StringListConstraintValidator;
-import com.dbn.language.common.QuotePair;
 import lombok.Getter;
 
 import java.awt.Dimension;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 import static com.dbn.connection.config.EasyConnectParameters.BOOLEAN_LIKE_STRING_VALUES;
 import static com.dbn.connection.config.EasyConnectParameters.NO_DQUOTES_ALLOWED_IN_PROPERTY;

@@ -35,6 +35,13 @@ import static com.intellij.util.containers.CollectionFactory.createConcurrentWea
 public class ObjectProxies extends ObjectProxiesBase{
 	private static final Map<Class, Map<Method, Method>> methodCache = createConcurrentWeakMap();
 
+    @SneakyThrows
+    public static <T extends ProxyObject> T create(ClassLoader classLoader, Class<T> proxyClass) {
+        Class<?> delegateClass = getDelegateClass(classLoader, proxyClass);
+        Object delegate = delegateClass.getConstructor().newInstance();
+        return create(delegate, proxyClass);
+    }
+
     /**
      * Creates a wrapper proxy for the given delegate, matching the given type which routes all method calls to the delegate
      * @param delegate the object to be wrapped

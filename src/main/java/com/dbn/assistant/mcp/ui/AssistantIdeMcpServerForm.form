@@ -19,7 +19,7 @@
         </constraints>
         <properties>
           <horizontalTextPosition value="10"/>
-          <text value="[status]"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.placeholder.Status"/>
         </properties>
       </component>
       <component id="8c2e4" class="com.dbn.common.ui.link.DBNHyperlinkLabel" binding="installHyperlink">
@@ -56,7 +56,7 @@
               <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Enable IDE MCP Support"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.assistant.option.EnableIdeMcpSupport"/>
             </properties>
           </component>
           <hspacer id="7f0e1">
@@ -69,7 +69,7 @@
               <grid row="1" column="1" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Integrate DB Assistant furher with your workspace by enabling the IDE MCP Server"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.assistant.text.EnableIdeMcpSupport"/>
             </properties>
           </component>
           <component id="b8a31" class="com.dbn.common.ui.info.DBNInfoLabel" binding="infoLabel">

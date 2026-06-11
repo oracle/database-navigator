@@ -28,6 +28,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class EventNotificationClearFiltersAction extends BasicAction {
 
+    public EventNotificationClearFiltersAction() {
+        super(txt("app.eventNotification.action.ClearFilters"));
+    }
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         EventNotificationsForm notificationForm = getNotificationForm(e);

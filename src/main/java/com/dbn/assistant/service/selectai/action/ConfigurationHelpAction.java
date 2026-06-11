@@ -34,6 +34,10 @@ import static com.dbn.nls.NlsResources.txt;
  * @author Dan Cioca (Oracle)
  */
 public class ConfigurationHelpAction extends AbstractChatBoxAction {
+    public ConfigurationHelpAction() {
+        super(txt("app.assistant.action.AssistantHelp"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);

@@ -26,9 +26,9 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
+import com.dbn.common.ui.list.EditableStringListForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -44,24 +44,30 @@ import static com.dbn.assistant.mcp.model.AssistantMcpServerType.HTTP;
 import static com.dbn.assistant.mcp.model.AssistantMcpServerType.STDIO;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
+import static com.dbn.common.ui.list.ListProperty.EDITABLE;
+import static com.dbn.common.ui.list.ListProperty.SORTED;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.TextFields.isEmptyText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setEmptyText;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showSuccessDialog;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantMcpServerEditForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JBTextField nameTextField;
     private JBTextField httpUrlTextField;
-    private JBTextField commandArgumentsTextField;
     private TextFieldWithBrowseButton commandTextField;
     private DBNComboBox<AssistantMcpServerType> typeComboBox;
     private JLabel httpUrlLabel;
@@ -70,8 +76,10 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
     private DBNCommentLabel commandPreviewLabel;
     private DBNHyperlinkLabel verifyLink;
     private DBNHyperlinkLabel approvalsLink;
+    private JPanel commandArgumentsPanel;
 
 
+    private EditableStringListForm commandArgumentsList;
     private final AssistantMcpServer mcpServer;
 
     AssistantMcpServerEditForm(AssistantMcpServerEditDialog parent) {
@@ -80,18 +88,8 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
 
         initComboBox(typeComboBox, AssistantMcpServerType.values());
 
-        setEmptyText(httpUrlTextField, "http://localhost:3001/mcp-server");
-        setEmptyText(commandTextField.getTextField(), "java");
-        setEmptyText(commandArgumentsTextField, "-jar mcp-server.jar");
-
-        onTextChange(commandTextField, e -> updateCommandPreview());
-        onTextChange(commandArgumentsTextField, e -> updateCommandPreview());
-        addSingleFileChooser(getProject(), commandTextField, "Select MCP Server executable", null);
-
-        verifyLink.setHyperlinkText("Verify configuration");
-        approvalsLink.setHyperlinkText("Tool approvals");
-        onHyperlinkAccess(verifyLink, e -> verifyMcpServer());
-        onHyperlinkAccess(approvalsLink, e -> openMcpToolApprovals());
+        initEndpointFields();
+        initHyperlinkFields();
 
         resetFormChanges();
         updateCommandPreview();
@@ -101,6 +99,26 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
         onSelectionChange(typeComboBox, p -> updateFieldAvailability());
     }
 
+    private void initEndpointFields() {
+        setEmptyText(httpUrlTextField, txt("cfg.assistant.placeholder.McpServerUrlExample"));
+        onTextChange(httpUrlTextField, e -> updateFieldAvailability());
+
+        onTextChange(commandTextField, e -> updateCommandPreview());
+        //onTextChange(commandArgumentsTextField, e -> updateCommandPreview());
+        addSingleFileChooser(getProject(), commandTextField, txt("msg.mcp.title.SelectMcpServerExecutable"), null);
+
+        commandArgumentsList = new EditableStringListForm(this, null, SORTED, EDITABLE);
+        commandArgumentsList.onListChanges(e -> updateCommandPreview());
+        commandArgumentsPanel.add(commandArgumentsList.getComponent());
+    }
+
+    private void initHyperlinkFields() {
+        verifyLink.setHyperlinkText(txt("cfg.assistant.link.VerifyConfiguration"));
+        approvalsLink.setHyperlinkText(txt("cfg.assistant.link.ToolApprovals"));
+        onHyperlinkAccess(verifyLink, e -> verifyMcpServer());
+        onHyperlinkAccess(approvalsLink, e -> openMcpToolApprovals());
+    }
+
     protected void initFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
         fieldAdapter.initFieldsVisibility(() -> getSelectedServerType() == HTTP, array(httpUrlLabel, httpUrlTextField));
@@ -108,21 +126,47 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
                 commandLabel,
                 commandTextField,
                 commandArgumentsLabel,
-                commandArgumentsTextField,
+                commandArgumentsPanel,
                 commandPreviewLabel));
+
+        fieldAdapter.initFieldsAvailability(() -> hasEndpointValue(), array(verifyLink, approvalsLink));
+    }
+
+    private boolean hasEndpointValue() {
+        AssistantMcpServerType selectedServerType = getSelectedServerType();
+        if (selectedServerType == null) return false;
+
+        return switch (selectedServerType) {
+            case HTTP -> !isEmptyText(httpUrlTextField);
+            case STDIO -> !isEmptyText(commandTextField.getTextField());
+        };
     }
 
     private void updateCommandPreview() {
+        String commandPreview = buildCommandPreview();
+        commandPreviewLabel.setText(commandPreview);
+        updateFieldAvailability();
+    }
+
+    private String buildCommandPreview() {
         String command = getText(commandTextField);
-        String arguments = getText(commandArgumentsTextField);
+        String arguments = String.join(" ", getCommandArguments());
         String commandPreview;
         if (Strings.isEmptyOrSpaces(command) && Strings.isEmptyOrSpaces(arguments)) {
-            commandPreview = "[command preview]";
+            commandPreview = "";
         } else {
             commandPreview = command + " " + arguments;
         }
+        return commandPreview;
+    }
 
-        commandPreviewLabel.setText(commandPreview);
+    private List<String> getCommandArguments() {
+        return commandArgumentsList
+                .getStringValues()
+                .stream()
+                .filter(s -> isNotEmptyOrSpaces(s))
+                .map(s -> s.trim())
+                .toList();
     }
 
     private AssistantMcpServerEditRequest getRequest() {
@@ -143,8 +187,8 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
 
     private void verifyMcpServer() {
         Progress.modal(getProject(), null, true,
-                "Verifying MCP Server Configuration",
-                "Connecting to \"" + mcpServer.getName() + "\" MCP Server",
+                txt("prc.assistant.title.VerifyingMcpServerConfiguration"),
+                txt("prc.assistant.text.ConnectingToMcpServer", mcpServer.getName()),
                 p -> doVerifyMcpServer(p));
     }
 
@@ -152,8 +196,8 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
         AssistantMcpServer mcpServer = getConfigMcpServer();
         try {
             String detail = mcpServer.getType() == HTTP ?
-                    "Accessing http url \"" + mcpServer.getUrl() + "\"":
-                    "Invoking command \"" + mcpServer.getEndpoint() + "\"";
+                    txt("prc.assistant.text.AccessingMcpHttpUrl", mcpServer.getUrl()) :
+                    txt("prc.assistant.text.InvokingMcpCommand", mcpServer.getEndpoint());
             indicator.setText2(detail);
 
             // approve this endpoint for the verify call; persistent approval happens on settings Apply
@@ -164,24 +208,28 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
             if (indicator.isCanceled()) return;
 
             int count = tools.size();
-            Messages.showConfirmationDialog(getProject(), "MCP Server Config",
-                    "Successfully verified \"" + mcpServer.getName() + "\" MCP Server configuration. " +
-                            count + (count == 1 ? " tool" : " tools") + " found.", Messages.OPTIONS_OK, 0);
+            String messageKey = count == 1 ?
+                    "msg.assistant.info.McpServerConfigVerifiedOne" :
+                    "msg.assistant.info.McpServerConfigVerifiedMany";
+            showSuccessDialog(getProject(),
+                    txt("msg.assistant.title.McpServerConfig"),
+                    txt(messageKey, mcpServer.getName(), count));
         } catch (Throwable e) {
             conditionallyLog(e);
 
             if (indicator.isCanceled()) return;
-            Messages.showErrorDialog(getProject(), "MCP Server Config",
-                    "Failed to validate \"" + mcpServer.getName() + "\" MCP Server configuration.", e);
+            showErrorDialog(getProject(),
+                    txt("msg.assistant.title.McpServerConfig"),
+                    txt("msg.assistant.error.McpServerConfigValidationFailed", mcpServer.getName()), e);
         }
     }
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, n -> isNotEmpty(n), "Please provide a server name");
-        addTextValidation(nameTextField, n -> isNotUsed(n), "The server name is already in use");
-        addTextValidation(httpUrlTextField, s -> isNotEmpty(s), "Please provide the server URL");
-        addTextValidation(commandTextField.getTextField(), s -> isNotEmpty(s), "Please provide the server command executable");
+        addTextValidation(nameTextField, n -> isNotEmpty(n), txt("msg.assistant.error.McpServerNameRequired"));
+        addTextValidation(nameTextField, n -> isNotUsed(n), txt("msg.assistant.error.McpServerNameAlreadyInUse"));
+        addTextValidation(httpUrlTextField, s -> isNotEmpty(s), txt("msg.assistant.error.McpServerUrlRequired"));
+        addTextValidation(commandTextField.getTextField(), s -> isNotEmpty(s), txt("msg.assistant.error.McpServerCommandExecutableRequired"));
     }
 
     @Nullable
@@ -194,19 +242,19 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
     }
 
     public void applyFormChanges(AssistantMcpServer mcpServer) {
-        mcpServer.setName(getText(nameTextField));
-        mcpServer.setCommand(getText(commandTextField));
-        mcpServer.setCommandArguments(getText(commandArgumentsTextField));
-        mcpServer.setUrl(getText(httpUrlTextField));
         mcpServer.setType(getSelectedServerType());
+        mcpServer.setName(getText(nameTextField));
+        mcpServer.setUrl(getText(httpUrlTextField));
+        mcpServer.setCommand(getText(commandTextField));
+        mcpServer.setCommandArguments(getCommandArguments());
     }
 
     public void resetFormChanges() {
-        setText(nameTextField, mcpServer.getName());
-        setText(commandTextField, mcpServer.getCommand());
-        setText(commandArgumentsTextField, mcpServer.getCommandArguments());
-        setText(httpUrlTextField, mcpServer.getUrl());
         setSelection(typeComboBox, mcpServer.getType());
+        setText(nameTextField, mcpServer.getName());
+        setText(httpUrlTextField, mcpServer.getUrl());
+        setText(commandTextField, mcpServer.getCommand());
+        commandArgumentsList.setStringValues(mcpServer.getCommandArguments());
     }
 
     private boolean isNotUsed(String name) {

@@ -7,6 +7,9 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * A property validator that generates errors if invalid characters
  * appear in a String property. An optional preprocessor function may
@@ -39,7 +42,7 @@ public class CheckForInvalidCharactersValidator extends PropertiesValidator {
     @Override
     public ValidationInfo validate(String keyName, Object value) {
         if (!(value instanceof String)) {
-            return new ValidationInfo("Value must be a String");
+            return new ValidationInfo(txt("cfg.connection.error.PropertyValueMustBeString"));
         }
         MutableObject<String> strVal = new MutableObject<>((String)value);
         preprocessor.ifPresent(p -> {
@@ -48,7 +51,7 @@ public class CheckForInvalidCharactersValidator extends PropertiesValidator {
 
         for (Character invalidChar : invalidChars) {
             if (strVal.getValue().indexOf(invalidChar.charValue()) > -1) {
-                return new ValidationInfo("Value must not contain '"+invalidChar+"'");
+                return new ValidationInfo(txt("cfg.connection.error.PropertyValueInvalidCharacter", invalidChar));
             }
         }
         return null;

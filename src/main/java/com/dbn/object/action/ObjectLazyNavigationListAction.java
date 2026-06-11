@@ -25,13 +25,14 @@ import com.intellij.openapi.actionSystem.AnAction;
 import java.util.List;
 
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectLazyNavigationListAction extends ObjectListShowAction {
     private final DBObjectRef<DBObject> parentObject;
     private final DBObjectNavigationList<?> navigationList;
 
     public ObjectLazyNavigationListAction(DBObject parentObject, DBObjectNavigationList navigationList) {
-        super(navigationList.getName() + "...", parentObject);
+        super(txt("app.objects.action.OpenNavigationList", navigationList.getName()), parentObject);
         this.parentObject = DBObjectRef.of(parentObject);
         this.navigationList = navigationList;
     }
@@ -50,7 +51,7 @@ public class ObjectLazyNavigationListAction extends ObjectListShowAction {
 
     @Override
     public String getEmptyListMessage() {
-        return "No " + navigationList.getName() + " found";
+        return txt("msg.objects.info.NoNavigationTargetsFound", navigationList.getName());
     }
 
     @Override

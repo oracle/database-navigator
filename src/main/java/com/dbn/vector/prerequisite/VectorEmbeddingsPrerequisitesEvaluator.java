@@ -23,6 +23,7 @@ import com.dbn.prerequisite.model.PrerequisiteMandate;
 import java.util.List;
 
 import static com.dbn.common.operation.DatabaseOperation.CREATE_VECTOR_EMBEDDINGS;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_TABLE;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.DATABASE_VERSION_23_1;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_VECTOR;
@@ -37,9 +38,9 @@ public class VectorEmbeddingsPrerequisitesEvaluator extends PrerequisiteRequirem
 
     @Override
     protected void createMandates(List<PrerequisiteMandate> mandates, DatabaseOperation operation) {
-        createMandate(mandates, DATABASE_VERSION_23_1, "Support for vector embeddings requires Oracle Database 23.1 or later");
-        createMandate(mandates, CREATE_TABLE, "Allows user to create tables in own schema. This is required for creating the content staging and vector embeddings table");
-        createMandate(mandates, EXECUTE_DBMS_VECTOR, "Allows the user to execute procedures and functions of the SYS.DBMS_VECTOR package, which provides support vector operations");
-        createMandate(mandates, EXECUTE_DBMS_VECTOR_CHAIN, "Allows the user to execute procedures and functions of the CTXSYS.DBMS_VECTOR_CHAIN package, which provides support for creating and managing vector embeddings");
+        createMandate(mandates, DATABASE_VERSION_23_1, txt("msg.prerequisite.text.Reason_DATABASE_VERSION_23_1"));
+        createMandate(mandates, CREATE_TABLE, txt("msg.prerequisite.text.Reason_CREATE_TABLE"));
+        createMandate(mandates, EXECUTE_DBMS_VECTOR, txt("msg.prerequisite.text.Reason_EXECUTE_DBMS_VECTOR"));
+        createMandate(mandates, EXECUTE_DBMS_VECTOR_CHAIN, txt("msg.prerequisite.text.Reason_EXECUTE_DBMS_VECTOR_CHAIN"));
     }
 }

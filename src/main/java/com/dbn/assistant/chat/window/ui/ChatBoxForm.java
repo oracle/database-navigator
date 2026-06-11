@@ -73,6 +73,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Database Assistant ChatBox component
@@ -197,7 +198,7 @@ public class ChatBoxForm extends DBNFormBase {
     private void initHeaderForm() {
         ConnectionHandler connection = getConnection();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
-        headerForm.setSelector("Select Connection", createConnectionActions());
+        headerForm.setSelector(txt("app.assistant.tooltip.SelectConnection"), createConnectionActions());
         headerForm.setActions(createAssistantTypeActions());
 
         headerPanel.add(headerForm.getComponent());
@@ -210,7 +211,7 @@ public class ChatBoxForm extends DBNFormBase {
         this.contextActionsPanel.add(contextActionsForm.getComponent());
 
         // top right
-        ActionToolbar chatActions = Actions.createActionToolbar(chatActionsPanel, true, "DBNavigator.ActionGroup.AssistantChatActions");
+        ActionToolbar chatActions = Actions.createActionToolbar(chatActionsPanel, true, "DBN.Assistant.Chat");
         this.chatActionsPanel.add(chatActions.getComponent());
 
         // bottom left
@@ -218,7 +219,7 @@ public class ChatBoxForm extends DBNFormBase {
         this.promptActionsPanel.add(promptActionsForm.getComponent());
 
         // submit prompt actions (bottom right)
-        ActionToolbar promptSubmitActions = Actions.createActionToolbar(promptSubmitActionsPanel, true, "DBNavigator.ActionGroup.AssistantPromptSubmitActions");
+        ActionToolbar promptSubmitActions = Actions.createActionToolbar(promptSubmitActionsPanel, true, "DBN.Assistant.Prompt.Submit");
         setAccessibleName(promptSubmitActions, txt("app.assistant.aria.ChatActions"));
         this.promptSubmitActionsPanel.add(promptSubmitActions.getComponent());
 

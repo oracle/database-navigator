@@ -35,6 +35,7 @@ import java.sql.SQLException;
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.JSON_VIEW;
 import static com.dbn.object.type.DBObjectType.TRIGGER;
 import static com.dbn.object.type.DBObjectType.VIEW;
@@ -57,16 +58,16 @@ public class DDLManager extends ProjectComponentBase implements PersistentState 
 
     public String extractDDL(DBObject object) throws SQLException {
         return DatabaseInterfaceInvoker.load(HIGHEST,
-                "Extracting DDL",
-                "Extracting the DDL of " + object.getQualifiedNameWithType(),
+                txt("prc.ddlFiles.title.ExtractingDdl"),
+                txt("prc.ddlFiles.text.ExtractingDdlOf", object.getQualifiedNameWithType()),
                 getProject(),
                 object.getConnectionId(),
                 conn -> {
                     ConnectionHandler connection = object.getConnection();
                     DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
                     return dataDefinition.extractDDLStatement(
-                            object.getSchemaName(),
-                            object.getName(),
+                            object.getSchemaName(true),
+                            object.getName(true),
                             getObjectTypeName(object),
                             conn);
                 });

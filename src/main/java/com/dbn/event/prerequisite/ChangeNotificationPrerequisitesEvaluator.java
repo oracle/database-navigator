@@ -23,6 +23,7 @@ import com.dbn.prerequisite.model.PrerequisiteMandate;
 import java.util.List;
 
 import static com.dbn.common.operation.DatabaseOperation.ENABLE_CHANGE_NOTIFICATIONS;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.CHANGE_NOTIFICATION;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_CHANGE_NOTIFICATION;
 
@@ -35,7 +36,7 @@ public class ChangeNotificationPrerequisitesEvaluator extends PrerequisiteRequir
 
     @Override
     protected void createMandates(List<PrerequisiteMandate> mandates, DatabaseOperation operation) {
-        createMandate(mandates, CHANGE_NOTIFICATION, "Allows the user to receive database change notifications");
-        createMandate(mandates, EXECUTE_DBMS_CHANGE_NOTIFICATION, "Allows the user to execute procedures and functions of the SYS.DBMS_CHANGE_NOTIFICATION package, which provides ability to enable and disable database change notifications");
+        createMandate(mandates, CHANGE_NOTIFICATION, txt("msg.prerequisite.text.Reason_CHANGE_NOTIFICATION"));
+        createMandate(mandates, EXECUTE_DBMS_CHANGE_NOTIFICATION, txt("msg.prerequisite.text.Reason_EXECUTE_DBMS_CHANGE_NOTIFICATION"));
     }
 }

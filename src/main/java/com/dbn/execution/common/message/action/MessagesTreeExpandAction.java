@@ -29,6 +29,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class MessagesTreeExpandAction extends AbstractExecutionMessagesAction {
 
+    public MessagesTreeExpandAction() {
+        super(txt("app.execution.action.MessagesExpandAll"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull MessagesTree messagesTree) {
         Trees.expandAll(messagesTree);

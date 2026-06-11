@@ -32,6 +32,7 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.JBUI;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,6 +50,7 @@ import java.awt.event.MouseEvent;
 import static com.dbn.common.dispose.ComponentDisposer.removeListeners;
 import static com.dbn.common.ui.util.Keyboard.onKeyPress;
 import static com.dbn.common.ui.util.Mouse.onButtonRelease;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBNTree extends Tree implements DBNComponent {
     private WeakRef<DBNComponent> parent;
@@ -131,7 +133,7 @@ public class DBNTree extends Tree implements DBNComponent {
      * @param node the object representing the node from which the name is derived
      * @return the string representation of the node's name, as retrieved by the {@code toString()} method of the node
      */
-    protected String getContextMenuNodeName(Object node) {
+    protected @Nls String getContextMenuNodeName(Object node) {
         return node.toString();
     }
 
@@ -145,8 +147,8 @@ public class DBNTree extends Tree implements DBNComponent {
                 getProject(),
                 context,
                 true,
-                "Preparing context menu",
-                "Creating context menu for " + getContextMenuNodeName(pathNode) + "...",
+                txt("prc.common.title.PreparingContextMenu"),
+                txt("prc.common.text.CreatingContextMenu", getContextMenuNodeName(pathNode)),
                 progress -> {
                     ActionGroup contextActions = createContextActions(path);
                     if (contextActions == null) return;

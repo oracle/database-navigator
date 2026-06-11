@@ -23,10 +23,9 @@ import com.dbn.common.util.Java;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
-import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.editor.DBContentType;
-import com.dbn.nls.NlsResources;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
@@ -53,6 +52,7 @@ import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.util.Lists.filter;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
@@ -173,7 +173,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 
 	@Override
 	public String getQualifiedNameWithType() {
-		return NlsResources.txt("app.object.label.QualifiedNameWithType", JAVA_CLASS.getName(), getQualifiedName());
+		return txt("app.object.label.QualifiedNameWithType", JAVA_CLASS.getName(), getQualifiedName());
 	}
 
 	@Override
@@ -296,23 +296,23 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
 
 		DatabaseInterfaceInvoker.execute(HIGHEST,
-				"Updating source code",
-				"Updating sources of " + getQualifiedNameWithType(),
+				txt("prc.object.title.UpdatingSourceCode"),
+				txt("prc.object.text.UpdatingSources", getQualifiedNameWithType()),
 				getProject(),
 				getConnectionId(),
 				conn -> {
 					ConnectionHandler connection = getConnection();
-					DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
 					String schemaName = getSchemaName(true);
 					String name = getName(true);
 
-					dataDefinitionInterface.updateJavaSource(
+					DatabaseJavaInterface javaInterface = connection.getJavaInterface();
+					javaInterface.updateJavaSource(
 							schemaName,
 							name,
 							newCode.getBytes(),
 							conn);
 
-					dataDefinitionInterface.compileJavaClass(
+					javaInterface.compileJavaClass(
 							schemaName,
 							name,
 							conn);

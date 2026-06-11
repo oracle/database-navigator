@@ -23,6 +23,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class EmbeddingSourceQueriesForm extends VectorToolboxFormBase {
     private JPanel mainPanel;
     private JPanel queryListPanel;
@@ -44,7 +46,7 @@ public class EmbeddingSourceQueriesForm extends VectorToolboxFormBase {
         addValidation(
                 queryListForm.getQueriesList(),
                 list -> list.getModel().getSize() > 0,
-                "Please specify at least one query"
+                txt("msg.vector.error.SpecifyAtLeastOneQuery")
         );
     }
 

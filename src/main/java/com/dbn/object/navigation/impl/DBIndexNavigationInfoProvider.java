@@ -24,6 +24,8 @@ import com.dbn.object.type.DBObjectType;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBIndexNavigationInfoProvider extends DBObjectNavigationInfoProviderBase<DBIndex> {
     public DBIndexNavigationInfoProvider() {
         super(DBObjectType.INDEX);
@@ -35,9 +37,9 @@ public class DBIndexNavigationInfoProvider extends DBObjectNavigationInfoProvide
 
         List<DBColumn> columns = index.getColumns();
         if (!columns.isEmpty()) {
-            navigationLists.add(DBObjectNavigationList.create("Columns", columns));
+            navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.Columns"), columns));
         }
-        navigationLists.add(DBObjectNavigationList.create("Dataset", index.getDataset()));
+        navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.Dataset"), index.getDataset()));
 
         return navigationLists;
     }

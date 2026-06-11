@@ -25,12 +25,14 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Action;
 import java.util.Set;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CmdLineInterfaceInputDialog extends DBNDialog<CmdLineInterfaceInputForm> {
     private final CmdLineInterface cmdLineInterface;
     private final Set<String> usedNames;
 
     public CmdLineInterfaceInputDialog(Project project, @NotNull CmdLineInterface cmdLineInterface, @NotNull Set<String> usedNames) {
-        super(project, "Add command-line interface", true);
+        super(project, txt("msg.execution.title.AddCommandLineInterface"), true);
         this.cmdLineInterface = cmdLineInterface;
         this.usedNames = usedNames;
         setModal(true);
@@ -56,7 +58,7 @@ public class CmdLineInterfaceInputDialog extends DBNDialog<CmdLineInterfaceInput
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Save");
+        renameAction(getOKAction(), txt("msg.shared.button.Save"));
         return actions(
                 getOKAction(),
                 getCancelAction());

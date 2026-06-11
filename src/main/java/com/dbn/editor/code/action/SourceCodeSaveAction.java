@@ -45,6 +45,10 @@ import static com.dbn.vfs.file.status.DBFileStatus.SAVING;
 
 public class SourceCodeSaveAction extends AbstractCodeEditorAction {
 
+    public SourceCodeSaveAction() {
+        super(txt("app.codeEditor.action.SourceEditorSave"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
         DBObjectType objectType = sourceCodeFile.getObjectType();
@@ -96,7 +100,7 @@ public class SourceCodeSaveAction extends AbstractCodeEditorAction {
      */
     public static class ShortcutInterceptor extends ComplementaryShortcutInterceptor {
         public ShortcutInterceptor() {
-            super("DBNavigator.Actions.SourceEditor.Save");
+            super("DBN.SourceEditor.Save");
         }
 
         @Override

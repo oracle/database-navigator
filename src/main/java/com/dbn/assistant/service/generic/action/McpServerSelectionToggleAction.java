@@ -23,11 +23,13 @@ import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ToggleAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
 import static com.dbn.common.icon.Icons.ACTION_CHECK;
+import static com.dbn.common.util.Strings.truncateWithMiddleEllipsis;
 
 @BackgroundUpdate
 public class McpServerSelectionToggleAction extends ToggleAction implements AssistantActionSupport {
@@ -42,11 +44,13 @@ public class McpServerSelectionToggleAction extends ToggleAction implements Assi
         Presentation presentation = e.getPresentation();
 
         Icon icon = isSelected(e) ? ACTION_CHECK : null;
-        String text = mcpServer.getName();
-        String description = "<strong>" + mcpServer.getName() + "</strong><br>" + mcpServer.getEndpoint();
+
+        String name = mcpServer.getName();
+        String endpoint = truncateWithMiddleEllipsis(mcpServer.getEndpoint(), 60);
+        @NonNls String description = "<strong>" + name + "</strong><br>" + endpoint;
 
         presentation.setIcon(icon);
-        presentation.setText(text);
+        presentation.setText(name);
         presentation.setDescription(description);
     }
 

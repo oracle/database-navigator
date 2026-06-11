@@ -22,6 +22,7 @@ import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
@@ -146,6 +147,7 @@ public class WrapperStatementExecutor {
     private static void compileObjectInDebugMode(DBNConnection connection, WrapperModel model) throws SQLException {
         String schemaName = model.getSchemaName();
         DatabaseDataDefinitionInterface dataDefinitionInterface = model.getDataDefinitionInterface();
+        DatabaseJavaInterface javaInterface = model.getJavaInterface();
 
         // compile wrapper types
         for (String typeName : model.getSqlTypeNames()) {
@@ -159,6 +161,6 @@ public class WrapperStatementExecutor {
         dataDefinitionInterface.compileObject(schemaName, methodName, methodType, true, connection);
 
         // compile java wrapper
-        dataDefinitionInterface.compileJavaClass(schemaName, model.getJavaWrapperName(), connection);
+        javaInterface.compileJavaClass(schemaName, model.getJavaWrapperName(), connection);
     }
 }

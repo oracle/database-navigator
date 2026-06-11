@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionEngineSettingsAction extends AbstractExecutionMessagesAction {
 
+    public ExecutionEngineSettingsAction() {
+        super(txt("app.execution.action.MessagesSettings"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull MessagesTree messagesTree) {
         ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);

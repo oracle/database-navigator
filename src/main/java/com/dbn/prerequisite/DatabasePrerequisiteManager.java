@@ -49,7 +49,9 @@ import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.TimeUtil.isOlderThan;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.prerequisite.DatabasePrerequisiteManager.COMPONENT_NAME;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
@@ -101,8 +103,8 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
         Project project = connection.getProject();
         Progress.prompt(
                 project, connection, true,
-                "Verifying prerequisites",
-                "Verifying prerequisites for operation \"" + operation.getName() + "\"",
+                txt("prc.prerequisite.title.VerifyingPrerequisites"),
+                txt("prc.prerequisite.text.VerifyingPrerequisitesForOperation", operation.getName()),
                 indicator -> verifyOperation(connection, operation, operationRunner));
     }
 
@@ -136,7 +138,7 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
         Project project = connection.getProject();
         PrerequisiteData prerequisiteData = getPrerequisiteData(connection);
         OptionBroker<PrerequisiteOption> optionBroker = prerequisiteData.getOptionBroker(operation);
-        optionBroker.resolve(project, null,
+        optionBroker.resolve(project, array(operation.getMissingPrerequisiteMessage()),
                 option -> brokerOption(connection, operation, operationRunner, option));
     }
 

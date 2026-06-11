@@ -27,10 +27,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @BackgroundUpdate
 public class EditorSettingsOpenAction extends ProjectSettingsOpenAction {
     public EditorSettingsOpenAction() {
-        super(ConfigId.CODE_COMPLETION, true);
+        super(ConfigId.CODE_COMPLETION, true, txt("app.codeEditor.action.ScriptEditorSettings"));
     }
 
     @Override

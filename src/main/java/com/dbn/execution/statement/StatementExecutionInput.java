@@ -20,6 +20,7 @@ import com.dbn.common.latent.Latent;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
+import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.connection.session.DatabaseSession;
 import com.dbn.execution.ExecutionOption;
 import com.dbn.execution.ExecutionTarget;
@@ -39,11 +40,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.database.DatabaseFeature.DATABASE_LOGGING;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -51,11 +54,62 @@ public class StatementExecutionInput extends LocalExecutionInput {
     private StatementExecutionProcessor executionProcessor;
     private StatementExecutionVariablesBundle executionVariables;
 
-    private String originalStatementText;
-    private String executableStatementText;
+    private String rawStatementText;
+    private String statementText;
     private boolean bulkExecution = false;
 
-    private final Latent<ExecutablePsiElement> executablePsiElement = Latent.basic(() -> {
+    private final Latent<String> previewStatementText = Latent.basic(() -> initPreviewStatementText());
+    private final Latent<String> executableStatementText = Latent.basic(() -> initExecutableStatementText());
+    private final Latent<ExecutablePsiElement> executablePsiElement = Latent.basic(() -> initExecutablePsiElement());
+
+
+    public StatementExecutionInput(String rawStatementText, String statementText, StatementExecutionProcessor executionProcessor) {
+        super(executionProcessor.getProject(), ExecutionTarget.STATEMENT);
+        this.executionProcessor = executionProcessor;
+        ConnectionHandler connection = executionProcessor.getConnection();
+        SchemaId currentSchema = executionProcessor.getTargetSchema();
+        DatabaseSession targetSession = executionProcessor.getTargetSession();
+
+        this.setTargetConnection(connection);
+        this.setTargetSchemaId(currentSchema);
+        this.setTargetSession(targetSession);
+        this.rawStatementText = rawStatementText;
+        this.statementText = statementText;
+
+        if (DATABASE_LOGGING.isSupported(connection)) {
+            getOptions().set(ExecutionOption.ENABLE_LOGGING, connection.isLoggingEnabled());
+        }
+    }
+
+    public String getPreviewStatementText() {
+        return previewStatementText.get();
+    }
+
+    public String getExecutableStatementText() {
+        return executableStatementText.get();
+    }
+
+    @Nullable
+    public ExecutablePsiElement getExecutablePsiElement() {
+        return executablePsiElement.get();
+    }
+
+    private String initPreviewStatementText() {
+        if (executionVariables == null) return statementText;
+
+        ConnectionHandler connection = getConnection();
+        if (connection == null) return statementText;
+
+        return executionVariables.preparePreviewStatementText(connection, statementText);
+    }
+
+    private String initExecutableStatementText() {
+        if (executionVariables == null) return statementText;
+        return executionVariables.prepareExecutableStatementText(statementText);
+    }
+
+    @Nullable
+    private ExecutablePsiElement initExecutablePsiElement() {
         ConnectionHandler connection = getConnection();
         if (isNotValid(connection)) return null;
 
@@ -69,7 +123,7 @@ public class StatementExecutionInput extends LocalExecutionInput {
                 getProject(),
                 "preview",
                 languageDialect,
-                getOriginalStatementText(),
+                rawStatementText,
                 connection,
                 getTargetSchemaId());
         if (isNotValid(previewFile)) return null;
@@ -81,25 +135,6 @@ public class StatementExecutionInput extends LocalExecutionInput {
         }
 
         return null;
-    });
-
-
-    public StatementExecutionInput(String originalStatementText, String executableStatementText, StatementExecutionProcessor executionProcessor) {
-        super(executionProcessor.getProject(), ExecutionTarget.STATEMENT);
-        this.executionProcessor = executionProcessor;
-        ConnectionHandler connection = executionProcessor.getConnection();
-        SchemaId currentSchema = executionProcessor.getTargetSchema();
-        DatabaseSession targetSession = executionProcessor.getTargetSession();
-
-        this.setTargetConnection(connection);
-        this.setTargetSchemaId(currentSchema);
-        this.setTargetSession(targetSession);
-        this.originalStatementText = originalStatementText;
-        this.executableStatementText = executableStatementText;
-
-        if (DATABASE_LOGGING.isSupported(connection)) {
-            getOptions().set(ExecutionOption.ENABLE_LOGGING, connection.isLoggingEnabled());
-        }
     }
 
     @Override
@@ -111,18 +146,24 @@ public class StatementExecutionInput extends LocalExecutionInput {
         return executionProcessor == null ? 0 : executionProcessor.getExecutableLineNumber();
     }
 
-    public void setOriginalStatementText(String originalStatementText) {
-        this.originalStatementText = originalStatementText;
-        executablePsiElement.reset();
+    public void updateStatementText(ExecutablePsiElement executablePsiElement) {
+        this.rawStatementText = executablePsiElement.getText();
+        this.statementText = executablePsiElement.getExecutableStatementText();
+        resetExecutionContext();
     }
 
-    @Nullable
-    public ExecutablePsiElement getExecutablePsiElement() {
-        return executablePsiElement.get();
+    @Override
+    public void resetExecutionContext() {
+        super.resetExecutionContext();
+        this.previewStatementText.reset();
+        this.executableStatementText.reset();
+        this.executablePsiElement.reset();
     }
 
     public void setExecutionVariables(StatementExecutionVariablesBundle executionVariables) {
         this.executionVariables = replace(this.executionVariables, executionVariables);
+        this.previewStatementText.reset();
+        this.executableStatementText.reset();
     }
 
     public DBLanguagePsiFile createPreviewFile() {
@@ -136,7 +177,7 @@ public class StatementExecutionInput extends LocalExecutionInput {
                 getProject(),
                 "preview",
                 languageDialect,
-                executableStatementText,
+                getPreviewStatementText(),
                 connection,
                 schema);
     }
@@ -175,7 +216,7 @@ public class StatementExecutionInput extends LocalExecutionInput {
 
     public String getStatementDescription() {
         ExecutablePsiElement executablePsiElement = getExecutablePsiElement();
-        return executablePsiElement == null ? "SQL Statement" : executablePsiElement.getPresentableText();
+        return executablePsiElement == null ? txt("app.execution.token.SQLStatement") : executablePsiElement.getPresentableText();
     }
 
     @Override
@@ -194,4 +235,8 @@ public class StatementExecutionInput extends LocalExecutionInput {
         return getStatementExecutionSettings().getResultSetFetchBlockSize();
     }
 
+    public void bindExecutionVariables(ConnectionHandler connection, DBNPreparedStatement statement) throws SQLException {
+        if (executionVariables == null) return;
+        executionVariables.bindVariables(connection, statement);
+    }
 }

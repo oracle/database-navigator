@@ -1,0 +1,40 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="en">
+<head>
+    <title>Data Source</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+    </style>
+</head>
+<body style="width: 300px">
+    <h3>Data Source</h3>
+    <p>Data source used for generating vector embeddings. Choose where to load the content from.</p>
+    <br>
+    <p>Supported sources:</p>
+    <ul>
+        <li><u>File system</u> – Select one or more files from the local file system</li>
+        <li><u>Database tables</u> – Specify one or more database tables</li>
+        <li><u>SELECT statement</u> – Provide a SELECT statement that returns the text content to be embedded</li>
+    </ul>
+</body>
+</html>
+

@@ -17,7 +17,6 @@
 package com.dbn.event.registration;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ResultSets;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.event.registration.model.DataChangeRegistration;
@@ -30,6 +29,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGH;
+import static com.dbn.editor.data.model.ResultSetSupport.read;
+import static com.dbn.nls.NlsResources.txt;
 
 @UtilityClass
 public class EventRegistrationUtil {
@@ -52,14 +53,14 @@ public class EventRegistrationUtil {
         Project project = connection.getProject();
         return DatabaseInterfaceInvoker.load(
                 HIGH,
-                "Loading DCN registrations",
-                "Fetching data change notification registrations",
+                txt("prc.events.title.LoadingDcnRegistrations"),
+                txt("prc.events.text.FetchingDcnRegistrations"),
                 project,
                 connection.getConnectionId(),
                 conn -> {
                     DatabaseMetadataInterface metadataInterface = connection.getMetadataInterface();
                     ResultSet resultSet = metadataInterface.loadDataEventRegistrations(conn);
-                    return ResultSets.convert(resultSet, rs -> createRegistration(project, rs));
+                    return read(resultSet, rs -> createRegistration(project, rs));
                 }
         );
     }

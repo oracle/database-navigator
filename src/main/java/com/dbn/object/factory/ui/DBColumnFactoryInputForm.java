@@ -37,12 +37,13 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_NOT_NULL;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_PRIMARY_KEY;
 import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_NAME;
 
-public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm<DBObjectSpec> {
+public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm {
     private JPanel mainPanel;
     private JLabel iconLabel;
     private JBTextField nameTextField;
@@ -57,7 +58,7 @@ public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm<DBObjectS
         iconLabel.setText(null);
         iconLabel.setIcon(DBObjectType.COLUMN.getIcon());
 
-        nameTextField.getEmptyText().setText("Column name");
+        nameTextField.getEmptyText().setText(txt("app.objects.placeholder.ColumnName"));
         dataTypeEditor = new DataTypeEditor(getConnection());
         dataTypeEditorPanel.add(dataTypeEditor);
 
@@ -75,11 +76,11 @@ public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm<DBObjectS
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), "Please enter a column name");
-        addTextValidation(nameTextField, n -> isWord(n), "Please enter a valid column name");
-        addTextValidation(nameTextField, n -> isNotUsed(n), "Please enter a unique column name");
+        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ColumnNameRequired"));
+        addTextValidation(nameTextField, n -> isWord(n), txt("msg.objects.error.ValidColumnNameRequired"));
+        addTextValidation(nameTextField, n -> isNotUsed(n), txt("msg.objects.error.UniqueColumnNameRequired"));
 
-        addTextValidation(getTypeTextField(), t -> isNotEmptyOrSpaces(t), "Please enter the column data type");
+        addTextValidation(getTypeTextField(), t -> isNotEmptyOrSpaces(t), txt("msg.objects.error.ColumnDataTypeRequired"));
     }
 
     @Override
@@ -98,8 +99,8 @@ public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm<DBObjectS
     protected void initAccessibility() {
         JTextField typeTextField = getTypeTextField();
 
-        setAccessibleName(typeTextField, "Column type");
-        setAccessibleName(nameTextField, "Column name");
+        setAccessibleName(typeTextField, txt("app.objects.aria.ColumnType"));
+        setAccessibleName(nameTextField, txt("app.objects.aria.ColumnName"));
     }
 
     private JBTextField getTypeTextField() {

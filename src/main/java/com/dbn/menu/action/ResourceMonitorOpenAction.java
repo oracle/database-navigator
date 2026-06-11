@@ -22,7 +22,13 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ResourceMonitorOpenAction extends ProjectAction {
+
+    public ResourceMonitorOpenAction() {
+        super(txt("app.menu.action.ResourceMonitor"));
+    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {

@@ -44,17 +44,17 @@ public class ReferencingRecordsOpenAction extends ObjectListShowAction{
 
     @Override
     public String getTitle() {
-        return "Referencing datasets";
+        return txt("app.data.action.ReferencingDatasets");
     }
 
     @Override
     public String getEmptyListMessage() {
-        return "No referencing records found";
+        return txt("app.data.action.NoReferencingRecords");
     }
 
     @Override
     public String getListName() {
-        return "Referencing records";
+        return txt("app.data.token.ReferencingRecords");
     }
 
     @Override

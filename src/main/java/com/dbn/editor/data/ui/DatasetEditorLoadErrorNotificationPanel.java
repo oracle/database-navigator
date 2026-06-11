@@ -21,9 +21,11 @@ import com.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.fileEditor.FileEditor;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DatasetEditorLoadErrorNotificationPanel extends DatasetEditorNotificationPanel {
     public DatasetEditorLoadErrorNotificationPanel(DBSchemaObject object, @NotNull FileEditor fileEditor, String sourceLoadError) {
         super(object, fileEditor, MessageType.ERROR);
-        setText("Could not load data for " + object.getQualifiedNameWithType() + ". Error details: " + sourceLoadError.replace("\n", " "));
+        setText(txt("ntf.dataEditor.error.CouldNotLoadData", object.getQualifiedNameWithType(), sourceLoadError.replace("\n", " ")));
     }
 }

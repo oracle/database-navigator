@@ -17,7 +17,6 @@
 package com.dbn.editor.data.model;
 
 import com.dbn.common.util.Lists;
-import com.dbn.connection.ResultSets;
 import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.resultSet.ResultSetDataModelHeader;
 import com.dbn.editor.data.DatasetEditor;
@@ -30,11 +29,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.dbn.editor.data.model.ResultSetSupport.getColumnNames;
+
 public class DatasetEditorModelHeader extends ResultSetDataModelHeader<DatasetEditorColumnInfo> {
     DatasetEditorModelHeader(DatasetEditor datasetEditor, @Nullable ResultSet resultSet) throws SQLException {
         DBDataset dataset = datasetEditor.getDataset();
 
-        List<String> columnNames = resultSet == null ? null : ResultSets.getColumnNames(resultSet);
+        List<String> columnNames = resultSet == null ? null : getColumnNames(resultSet);
         List<DatasetColumnState> columnStates = datasetEditor.refreshColumnStates(columnNames);
 
         int index = 0;

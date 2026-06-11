@@ -34,6 +34,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.sql.SQLException;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBJavaJdwpDebugProcess extends DBJdwpDebugProcess<JavaExecutionInput> {
     DBJavaJdwpDebugProcess(@NotNull XDebugSession session, @NotNull DebuggerSession debuggerSession, ConnectionHandler connection, DBJdwpTcpConfig tcpConfig) {
         super(session, debuggerSession, connection, tcpConfig);
@@ -80,7 +82,7 @@ public class DBJavaJdwpDebugProcess extends DBJdwpDebugProcess<JavaExecutionInpu
 
     @Override
     protected void createExecutionWrappers() throws SQLException {
-        getConsole().system("Creating execution wrappers...");
+        getConsole().system(txt("log.debugger.info.CreatingExecutionWrappers"));
         JavaExecutionInput executionInput = getExecutionInput();
         if (executionInput == null) return;
 

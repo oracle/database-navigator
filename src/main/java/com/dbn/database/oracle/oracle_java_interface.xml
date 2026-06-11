@@ -1,0 +1,167 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE data-dictionary [
+        <!ELEMENT data-dictionary (statement-execution-processor)*>
+        <!ELEMENT statement-execution-processor (statement)*>
+        <!ATTLIST statement-execution-processor
+                id CDATA #REQUIRED
+                >
+        <!ELEMENT statement (#PCDATA)>
+        <!ATTLIST statement
+                comment CDATA #IMPLIED
+                prefixes CDATA #IMPLIED
+                silent-error-codes CDATA #IMPLIED>
+        ]>
+<data-dictionary>
+    <statement-execution-processor id="prepare-java-staging-table">
+        <statement silent-error-codes="955">
+            create table {0}."CREATE$JAVA$LOB$TABLE" (
+                "NAME" VARCHAR2(700) PRIMARY KEY,
+                "LOB" BLOB,
+                "LOADTIME" DATE)
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="update-java-resource">
+        <statement>
+            declare
+                v_owner_name VARCHAR2(4000) := {#0};
+                v_object_name VARCHAR2(4000) := {#1};
+                v_java_name VARCHAR2(4000) := v_owner_name || '.' || v_object_name;
+                v_lob_table VARCHAR2(4000) := v_owner_name || '."CREATE$JAVA$LOB$TABLE"';
+                v_content BLOB := {#2};
+                v_content_id VARCHAR2(128) := SYS_GUID();
+            begin
+                insert into {0}."CREATE$JAVA$LOB$TABLE" ("NAME", "LOB", "LOADTIME") VALUES (v_content_id, v_content, SYSDATE);
+
+                if v_content is null then
+                    execute immediate 'create or replace java resource named ' || v_java_name || ' using blob (select EMPTY_BLOB() from DUAL)';
+                else
+                    execute immediate 'create or replace java resource named ' || v_java_name || ' using blob "LOB" from ' || v_lob_table || ' where "NAME" = ''' || v_content_id || '''';
+                end if;
+                delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
+            exception
+                when others then
+                    delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
+                raise;
+            end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="create-java-class">
+        <statement>
+            declare
+                v_owner_name VARCHAR2(4000) := {#0};
+                v_lob_table VARCHAR2(4000) := v_owner_name || '."CREATE$JAVA$LOB$TABLE"';
+                v_content BLOB := {#2};
+                v_content_id VARCHAR2(128) := SYS_GUID();
+            begin
+                insert into {0}."CREATE$JAVA$LOB$TABLE" ("NAME", "LOB", "LOADTIME") VALUES (v_content_id, v_content, SYSDATE);
+                execute immediate 'create java class schema ' || v_owner_name || ' using blob select "LOB" from ' || v_lob_table || ' where "NAME" = ''' || v_content_id || '''';
+                delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
+            exception
+                when others then
+                    delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
+                raise;
+            end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="create-java-source">
+        <statement>
+            declare
+                v_owner_name VARCHAR2(4000) := {#0};
+                v_object_name VARCHAR2(4000) := {#1};
+                v_java_name VARCHAR2(4000) := v_owner_name || '.' || v_object_name;
+                v_lob_table VARCHAR2(4000) := v_owner_name || '."CREATE$JAVA$LOB$TABLE"';
+                v_content BLOB := {#2};
+                v_content_id VARCHAR2(128) := SYS_GUID();
+            begin
+                insert into {0}."CREATE$JAVA$LOB$TABLE" ("NAME", "LOB", "LOADTIME") VALUES (v_content_id, v_content, SYSDATE);
+                execute immediate 'create java source named ' || v_java_name || ' using blob select "LOB" from ' || v_lob_table || ' where "NAME" = ''' || v_content_id || '''';
+                delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
+            exception
+                when others then
+                    delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
+                raise;
+            end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="update-java-source">
+        <statement>
+            declare
+                v_owner_name VARCHAR2(4000) := {#0};
+                v_object_name VARCHAR2(4000) := {#1};
+                v_java_name VARCHAR2(4000) := v_owner_name || '.' || v_object_name;
+                v_lob_table VARCHAR2(4000) := v_owner_name || '."CREATE$JAVA$LOB$TABLE"';
+                v_content BLOB := {#2};
+                v_content_id VARCHAR2(128) := SYS_GUID();
+            begin
+                insert into {0}."CREATE$JAVA$LOB$TABLE" ("NAME", "LOB", "LOADTIME") VALUES (v_content_id, v_content, SYSDATE);
+                execute immediate 'create or replace java source named ' || v_java_name || ' using blob select "LOB" from ' || v_lob_table || ' where "NAME" = ''' || v_content_id || '''';
+                delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
+            exception
+                when others then
+                    delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
+                raise;
+            end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="drop-java-source">
+        <statement silent-error-codes="4043">
+            drop java source {0}.{1}
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="drop-java-class">
+        <statement silent-error-codes="4043">
+            drop java class {0}.{1}
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="set-java-compiler-option">
+        <statement>
+            begin
+                dbms_java.set_compiler_option({#0}, {#1}, {#2});
+            end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="set-java-property">
+        <statement>
+            declare
+                result varchar2(4000);
+            begin
+                result := dbms_java.set_property({#0}, {#1});
+            end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="compile-java-source">
+        <statement silent-error-codes="4043">
+            alter JAVA SOURCE {0}.{1} compile
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="compile-java-class">
+        <statement>
+            alter JAVA CLASS {0}.{1} compile
+        </statement>
+    </statement-execution-processor>
+</data-dictionary>

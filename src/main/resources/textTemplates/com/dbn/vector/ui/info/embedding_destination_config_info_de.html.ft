@@ -1,0 +1,44 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="de">
+<head>
+    <title>Embedding-Ziel</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body style="width: 300px">
+    <h3>Embedding-Ziel</h3>
+    <p>
+        Zieltabelle für die generierten Vector-Embeddings.<br>
+        Jede Zeile stellt einen Chunk und das zugehörige Embedding sowie Metadaten für Retrieval oder Ähnlichkeitssuche dar.
+    </p>
+    <br>
+    <p>Die typische Zieltabelle hat folgende Struktur:</p>
+    <ul>
+        <li><code>ID</code> – Eindeutiger Bezeichner für den Chunk-/Embedding-Datensatz</li>
+        <li><code>TEXT (CLOB)</code> – Gechunktes Textsegment, das zum Generieren des Embeddings verwendet wird</li>
+        <li><code>EMBEDDING (VECTOR)</code> – Numerische Vektordarstellung des Textes für die Ähnlichkeitssuche</li>
+        <li><code>METADATA (JSON)</code> – Informationen zur Quelle des eingebetteten Inhalts</li>
+    </ul>
+</body>
+</html>

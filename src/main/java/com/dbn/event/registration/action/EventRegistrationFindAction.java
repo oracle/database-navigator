@@ -12,6 +12,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class EventRegistrationFindAction extends BasicAction {
 
+    public EventRegistrationFindAction() {
+        super(txt("app.eventRegistration.action.EventRegistrationsFind"));
+    }
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         EventRegistrationsForm registrationsForm = getRegistrationsForm(e);
@@ -26,7 +30,7 @@ public class EventRegistrationFindAction extends BasicAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(registrationsForm != null && !registrationsForm.isLoading());
-        presentation.setText(txt("app.dataEditor.action.Find"));
+        presentation.setText(txt("app.eventRegistration.action.Find"));
         presentation.setIcon(Icons.ACTION_FIND);
     }
 }

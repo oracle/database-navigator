@@ -31,6 +31,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class PSQLDocumentationProvider implements DocumentationProvider {
 
     @Nullable
@@ -53,14 +55,14 @@ public class PSQLDocumentationProvider implements DocumentationProvider {
 
                 BasePsiElement aliasedObjectElement = PsiUtil.resolveAliasedEntityElement(identifierPsiElement);
                 if (aliasedObjectElement == null) {
-                    return "unknown alias";
+                    return txt("app.codeEditor.text.UnknownAlias");
                 }
 
                 DBObject aliasedObject = aliasedObjectElement.getUnderlyingObject();
                 if (aliasedObject == null) {
-                    return "alias of " + aliasedObjectElement.getReferenceQualifiedName();
+                    return txt("app.codeEditor.text.AliasOf", aliasedObjectElement.getReferenceQualifiedName());
                 }
-                return "alias of " + aliasedObject.getQualifiedNameWithType();
+                return txt("app.codeEditor.text.AliasOf", aliasedObject.getQualifiedNameWithType());
             }
 
             // OBJECT
@@ -71,7 +73,7 @@ public class PSQLDocumentationProvider implements DocumentationProvider {
                 if (contextPsiElement == null) {
                     contextPsiElement = identifierPsiElement.findEnclosingNamedElement();
                 }
-                return contextPsiElement == null ? objectTypeName : objectTypeName + ":\n" + contextPsiElement.getText();
+                return contextPsiElement == null ? objectTypeName : txt("app.codeEditor.text.QuickInfoDetails", objectTypeName, contextPsiElement.getText());
             }
 
             // VARIABLE
@@ -81,8 +83,8 @@ public class PSQLDocumentationProvider implements DocumentationProvider {
                     contextPsiElement = identifierPsiElement.findEnclosingNamedElement();
                 }
 
-                String prefix = identifierPsiElement.getObjectType() == DBObjectType.ANY ? "variable" : objectTypeName;
-                return contextPsiElement == null ? prefix : prefix + ":\n " + contextPsiElement.getText() ;
+                String prefix = identifierPsiElement.getObjectType() == DBObjectType.ANY ? txt("app.codeEditor.text.Variable") : objectTypeName;
+                return contextPsiElement == null ? prefix : txt("app.codeEditor.text.QuickInfoIndentedDetails", prefix, contextPsiElement.getText());
            }
         }
         return null;

@@ -59,7 +59,8 @@ dependencies {
         bundledPlugins(
             "com.intellij.java",
             "com.intellij.modules.json",
-            "com.intellij.copyright"
+            "com.intellij.copyright",
+            "org.jetbrains.idea.maven"
         )
     }
 
@@ -105,6 +106,7 @@ dependencies {
 
 
     // ********** DEPENDENCY FLAT MODEL **********
+    implementation("joda-time:joda-time:2.14.2@jar")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.21@jar")
     implementation("com.fasterxml.jackson.core:jackson-core:2.21.1@jar")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.21.1@jar")
@@ -145,7 +147,6 @@ dependencies {
     implementation("org.apache.maven.resolver:maven-resolver-named-locks:1.9.22@jar")
     implementation("org.apache.maven.resolver:maven-resolver-spi:1.9.22@jar")
     implementation("org.apache.maven.resolver:maven-resolver-util:1.9.22@jar")
-    implementation("org.apache.maven.shared:maven-invoker:3.3.0@jar")
     implementation("org.apache.maven.shared:maven-shared-utils:3.4.2@jar")
     implementation("org.apache.maven:maven-artifact:3.9.9@jar")
     implementation("org.apache.maven:maven-builder-support:3.9.9@jar")
@@ -170,8 +171,8 @@ dependencies {
     implementation("org.glassfish.jersey.core:jersey-common:2.48@jar")
     implementation("org.glassfish.jersey.inject:jersey-hk2:2.48@jar")
     implementation("org.glassfish.jersey.media:jersey-media-json-jackson:2.48@jar")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.20@jar")
-    implementation("org.projectlombok:lombok:1.18.36@jar")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.21@jar")
+    implementation("org.projectlombok:lombok:1.18.46@jar")
 
     implementation(project(":modules:dbn-api"))
     implementation(project(":modules:dbn-spi"))

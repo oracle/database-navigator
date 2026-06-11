@@ -44,6 +44,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class StatementExecutionResultForm extends ExecutionResultFormBase<StatementExecutionCursorResult> implements SearchableDataComponent {
     private JPanel mainPanel;
@@ -59,7 +60,7 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
 
     public StatementExecutionResultForm(@NotNull StatementExecutionCursorResult executionResult) {
         super(executionResult);
-        actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.StatementExecutionResult");
+        actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBN.Execution.Statement.Result");
         actionsPanel.add(actionToolbar.getComponent());
 
         recordViewInfo = new RecordViewInfo(executionResult.getName(), executionResult.getIcon());
@@ -77,7 +78,7 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
 
     @Override
     protected void initAccessibility() {
-        setAccessibleName(resultTable, "Statement execution result " + getExecutionResult().getName());
+        setAccessibleName(resultTable, txt("app.execution.aria.StatementExecutionResult", getExecutionResult().getName()));
         setAccessibleName(actionToolbar, txt("app.execution.aria.StatementExecutionResultActions"));
     }
 
@@ -116,17 +117,17 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
             String connectionName = connection.getName();
             SessionId sessionId = executionResult.getExecutionInput().getTargetSessionId();
             String connectionType =
-                    sessionId == SessionId.MAIN ? " (main)" :
-                    sessionId == SessionId.POOL ? " (pool)" : " (session)";
+                    sessionId == SessionId.MAIN ? txt("app.execution.label.MainSession") :
+                    sessionId == SessionId.POOL ? txt("app.execution.label.PoolSession") : txt("app.execution.label.Session");
             int rowCount = dataModel.getRowCount();
-            String partialResultInfo = dataModel.isResultSetExhausted() ? "" : " (partial)";
+            String partialResultInfo = dataModel.isResultSetExhausted() ? "" : txt("app.execution.label.PartialResult");
             long executeDuration = dataModel.getExecuteDuration();
             long fetchDuration = dataModel.getFetchDuration();
 
-            String executionDurationInfo = executeDuration == -1 ? "" : " - executed in " + executeDuration + " ms.";
-            String fetchDurationInfo = fetchDuration == -1 ? "" : " / fetched in " + fetchDuration + " ms.";
+            String executionDurationInfo = executeDuration == -1 ? "" : txt("app.execution.label.ExecutedMillis", executeDuration);
+            String fetchDurationInfo = fetchDuration == -1 ? "" : txt("app.execution.label.FetchedMillis", fetchDuration);
 
-            statusLabel.setText(connectionName + connectionType + ": " + rowCount + " records " + partialResultInfo + executionDurationInfo + fetchDurationInfo );
+            statusLabel.setText(txt("app.execution.label.StatementResultStatus", connectionName, connectionType, rowCount, partialResultInfo, executionDurationInfo, fetchDurationInfo));
             statusLabel.setIcon(connection.getIcon());
         });
     }

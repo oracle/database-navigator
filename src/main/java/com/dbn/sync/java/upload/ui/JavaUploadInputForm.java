@@ -44,6 +44,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
 public class JavaUploadInputForm extends DBNFormBase {
@@ -74,16 +75,14 @@ public class JavaUploadInputForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addSelectionValidation(connectionComboBox, "Please select the target connection");
-        addSelectionValidation(schemaComboBox, "Please select the target schema");
-        addSelectionValidation(contentList, "Please select at least one resource to upload");
+        addSelectionValidation(connectionComboBox, txt("msg.shared.error.SelectTargetConnection"));
+        addSelectionValidation(schemaComboBox, txt("msg.shared.error.SelectTargetSchema"));
+        addSelectionValidation(contentList, txt("msg.java.error.SelectResourceToUpload"));
     }
 
     private void initHintPanel() {
         TextContent hintText = TextContent.plain(
-                "Following java classes and resources will be uploaded to the database. " +
-                        "Please select the target connection and schema, as well as the resources to be uploaded.\n\n" +
-                        "NOTE: Already existing java classes and resources in the selected destination will be overwritten.");
+                txt("msg.java.hint.UploadInput"));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }

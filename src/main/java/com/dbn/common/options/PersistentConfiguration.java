@@ -16,7 +16,6 @@
 
 package com.dbn.common.options;
 
-import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
@@ -24,7 +23,7 @@ import org.jetbrains.annotations.NonNls;
 import static com.dbn.common.options.ConfigActivity.APPLYING;
 import static com.dbn.common.options.ConfigActivity.CLONING;
 
-public interface PersistentConfiguration extends NlsSupport {
+public interface PersistentConfiguration  {
     void readConfiguration(@NonNls Element element);
     void writeConfiguration(@NonNls Element element);
 

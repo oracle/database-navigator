@@ -37,6 +37,10 @@ import static com.dbn.common.util.Lists.convert;
 import static com.dbn.nls.NlsResources.txt;
 
 public class SessionBrowserOpenAction extends ProjectAction {
+    public SessionBrowserOpenAction() {
+        super(txt("app.menu.action.OpenSessionBrowser"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
@@ -63,7 +67,7 @@ public class SessionBrowserOpenAction extends ProjectAction {
         List<SelectConnectionAction> actions = convert(connections, c -> new SelectConnectionAction(c));
 
         popupBuilder(actions, e).
-                withTitle("Select Session Browser Connection").
+                withTitle(txt("app.sessionBrowser.title.SelectConnection")).
                 withSpeedSearch().
                 buildAndShowCentered();
     }

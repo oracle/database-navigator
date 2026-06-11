@@ -69,7 +69,7 @@
             </constraints>
             <properties>
               <autoscrolls value="false"/>
-              <text value="Run Similarity Search"/>
+              <text resource-bundle="messages/DBNResources" key="app.vector.button.RunSimilaritySearch"/>
             </properties>
           </component>
         </children>

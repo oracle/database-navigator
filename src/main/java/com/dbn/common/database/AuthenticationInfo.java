@@ -30,6 +30,7 @@ import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
 import com.dbn.credentials.SecretsOwnerRegistry;
+import com.dbn.credentials.TransientSecretStore;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -48,14 +49,10 @@ import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_CONFIG_FILE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_PROFILE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_TYPE;
-import static com.dbn.common.options.setting.Settings.getChars;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
-import static com.dbn.common.options.setting.Settings.setChars;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
-import static com.dbn.common.util.Base64.decode;
-import static com.dbn.common.util.Base64.encode;
 import static com.dbn.common.util.Commons.match;
 import static com.dbn.common.util.Commons.matchArrays;
 import static com.dbn.common.util.Strings.isNotEmpty;
@@ -250,11 +247,10 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         adjustAuthenticationType();
 
         if (isTransientContext()) {
-            // only propagate password when config context is transient
-            // (avoid storing it in config xml)
-            password = decode(getChars(element, "transient-password", encode(password)));
-            azureClientSecret = decode(getChars(element, "transient-azure-client-secret", encode(azureClientSecret)));
-            azureClientCertificatePassword = decode(getChars(element, "transient-azure-cert-password", encode(azureClientCertificatePassword)));
+            // transfer secrets outside transient config xml
+            password = TransientSecretStore.consume(password, getConnectionId(), CONNECTION_PASSWORD, user);
+            azureClientSecret = TransientSecretStore.consume(azureClientSecret, getConnectionId(), CONNECTION_AZURE_TOKEN_CLIENT_SECRET, user);
+            azureClientCertificatePassword = TransientSecretStore.consume(azureClientCertificatePassword, getConnectionId(), CONNECTION_AZURE_TOKEN_CERTIFICATE_PASSWORD, user);
         }
 
         // token auth attributes
@@ -288,11 +284,10 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         setString(element, "user", nvl(user));
 
         if (isTransientContext()) {
-            // only propagate password when config context is transient
-            // (avoid storing it in config xml)
-            setChars(element, "transient-password", encode(password));
-            setChars(element, "transient-azure-client-secret", encode(azureClientSecret));
-            setChars(element, "transient-azure-cert-password", encode(azureClientCertificatePassword));
+            // transfer secrets outside transient config xml
+            TransientSecretStore.store(password, getConnectionId(), CONNECTION_PASSWORD, user);
+            TransientSecretStore.store(azureClientSecret, getConnectionId(), CONNECTION_AZURE_TOKEN_CLIENT_SECRET, user);
+            TransientSecretStore.store(azureClientCertificatePassword, getConnectionId(), CONNECTION_AZURE_TOKEN_CERTIFICATE_PASSWORD, user);
         }
 
         setEnum(element, TOKEN_TYPE, tokenType);

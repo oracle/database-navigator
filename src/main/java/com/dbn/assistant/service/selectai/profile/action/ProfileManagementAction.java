@@ -31,6 +31,11 @@ import org.jetbrains.annotations.Nullable;
  * @author Dan Cioca (Oracle)
  */
 public abstract class ProfileManagementAction extends ProjectAction {
+
+    protected ProfileManagementAction(String text) {
+        super(text);
+    }
+
     @Nullable
     protected static ProfileManagementForm getManagementForm(@NotNull AnActionEvent e) {
         return e.getData(DataKeys.PROFILE_MANAGEMENT_FORM);

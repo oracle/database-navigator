@@ -22,11 +22,14 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.util.Files;
 import com.dbn.connection.DatabaseType;
+import com.dbn.driver.approval.DriverLibraryApprovalUtil;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -77,6 +80,7 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
 
     public DriverBundle loadDrivers(File libraryFile, boolean force) {
         try {
+            DriverLibraryApprovalUtil.ensureApproved(libraryFile);
             if (force) {
                 this.driverMetadata.remove(libraryFile);
                 DriverBundle drivers = this.drivers.remove(libraryFile);
@@ -84,6 +88,9 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
             }
             return drivers.computeIfAbsent(libraryFile, f -> new DriverBundle(f));
 
+        } catch (ProcessCanceledException e) {
+            conditionallyLog(e);
+            throw e;
         } catch (Exception e) {
             conditionallyLog(e);
             log.warn("failed to load drivers from library", e);
@@ -123,7 +130,7 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
         URL classResource = clazz.getResource(clazz.getSimpleName() + ".class");
         if (classResource == null) return null;
 
-        String url = classResource.toString();
+        @NonNls String url = classResource.toString();
         if (!url.startsWith("jar:file:")) return null;
 
         String path = url.replaceAll("^jar:(file:.*[.]jar)!/.*", "$1");

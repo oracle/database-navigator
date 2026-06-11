@@ -29,6 +29,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.help.HelpTopic.DATA_EDITOR_SETTINGS;
+import static com.dbn.nls.NlsResources.txt;
 
 @EqualsAndHashCode(callSuper = false)
 public class DataEditorSettings extends CompositeProjectConfiguration<ProjectSettings, DataEditorSettingsForm> implements TopLevelConfig {

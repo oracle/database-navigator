@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
@@ -85,13 +86,9 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
     public void readState(Element element) {
         this.name = stringAttribute(element, "name");
         this.databaseType = enumAttribute(element, "database-type", DatabaseType.class);
-        for (Element libElement : element.getChildren("library")) {
-            Library library = new Library(
-                    stringAttribute(libElement, "group-id"),
-                    stringAttribute(libElement, "artifact-id"),
-                    stringAttribute(libElement, "version")
-            );
-            library.readState(libElement);
+        for (Element libraryElement : childrenOf(element, "library")) {
+            Library library = new Library();
+            library.readState(libraryElement);
             libraries.add(library);
         }
     }
@@ -102,8 +99,8 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
         setStringAttribute(element, "name", name);
         setEnumAttribute(element, "database-type", databaseType);
         for (Library library : libraries) {
-            Element libElement = newElement(element, "library");
-            library.writeState(libElement);
+            Element libraryElement = newElement(element, "library");
+            library.writeState(libraryElement);
         }
     }
 

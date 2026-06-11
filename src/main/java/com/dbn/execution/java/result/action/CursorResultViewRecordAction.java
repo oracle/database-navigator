@@ -23,7 +23,13 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CursorResultViewRecordAction extends JavaExecutionCursorResultAction {
+
+    public CursorResultViewRecordAction() {
+        super(txt("app.execution.action.JavaExecutionCursorResultViewRecord"));
+    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
@@ -39,7 +45,7 @@ public class CursorResultViewRecordAction extends JavaExecutionCursorResultActio
         boolean enabled = resultSetTable != null && resultSetTable.getSelectedColumn() > -1;
 
         Presentation presentation = e.getPresentation();
-        presentation.setText("View Record");
+        presentation.setText(txt("app.execution.action.ViewRecord"));
         presentation.setIcon(Icons.EXEC_RESULT_VIEW_RECORD);
         presentation.setEnabled(enabled);
     }

@@ -41,6 +41,7 @@ import java.util.Set;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @Getter
@@ -73,7 +74,7 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
 
     @SneakyThrows
     private void load() {
-        ProgressMonitor.setProgressText("Loading jdbc drivers from " + getLibrary());
+        ProgressMonitor.setProgressText(txt("prc.connection.text.LoadingJdbcDrivers", getLibrary()));
         List<DriverLibrary> libraries = new ArrayList<>();
         for (URL url : getURLs()) {
             URI uri = url.toURI();

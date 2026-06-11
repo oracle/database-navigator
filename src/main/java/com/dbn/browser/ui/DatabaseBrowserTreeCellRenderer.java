@@ -40,6 +40,7 @@ import javax.swing.JTree;
 import javax.swing.tree.TreeCellRenderer;
 import java.awt.Component;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.ui.SimpleTextAttributes.GRAYED_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.GRAYED_BOLD_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
@@ -65,7 +66,7 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
         public void customizeCellRenderer(DBNTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             if (value instanceof LoadInProgressTreeNode loadInProgressTreeNode) {
                 setIcon(loadInProgressTreeNode.getIcon(0));
-                append("Loading...", GRAY_ITALIC_ATTRIBUTES);
+                append(txt("app.shared.placeholder.Loading"), GRAY_ITALIC_ATTRIBUTES);
                 return;
             }
 
@@ -76,7 +77,7 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
             boolean dirty = false;
             String displayName;
             if (treeNode instanceof ConnectionBundle) {
-                displayName = "PROJECT";
+                displayName = txt("app.browser.label.Project");
             } else {
                 displayName = treeNode.getPresentableText();
             }
@@ -137,7 +138,7 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
                         showBold ? (showGrey ? GRAYED_BOLD_ATTRIBUTES : REGULAR_BOLD_ATTRIBUTES) :
                                    (showGrey ? GRAYED_ATTRIBUTES : REGULAR_ATTRIBUTES);
 
-                if (displayName == null) displayName = "displayName null!!";
+                if (displayName == null) displayName = txt("app.browser.placeholder.DisplayNameNull");
 
                 append(displayName, textAttributes);
 

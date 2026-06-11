@@ -33,7 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Commons.coalesce;
-import static com.dbn.common.util.FileChoosers.extensionFilter;
+import static com.dbn.nls.NlsResources.txt;
 
 public class TnsNamesParser {
     private static final FileContentCache<TnsNames> cache = new FileContentCache<>() {
@@ -106,9 +106,11 @@ public class TnsNamesParser {
     }
 
     public static @NotNull FileChooserDescriptor tnsFileChooser() {
-        return FileChoosers.singleFile().
-                withTitle("Select TNS File").
-                withDescription("Select an Oracle tnsnames.ora file").
-                withFileFilter(extensionFilter("ora"));
+        FileChooserDescriptor descriptor = FileChoosers.singleFile().
+                withTitle(txt("cfg.connection.title.SelectTnsFile")).
+                withDescription(txt("cfg.connection.text.SelectTnsFile"))/*.
+                withExtensionFilter("ora")*/;
+
+        return FileChoosers.withExtensionFilter(descriptor, "ora");
     }
 }

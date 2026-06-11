@@ -27,10 +27,11 @@ import com.dbn.object.type.DBObjectType;
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 
-public class DBColumnFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec, DBColumnFactoryInputForm> {
+public class DBColumnFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public DBObjectType getObjectType() {
@@ -51,18 +52,18 @@ public class DBColumnFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec
         String objectName = columnSpec.getObjectName();
         int inputIndex = columnSpec.getIndex();
         if (objectName.isEmpty()) {
-            errors.add("column name is not specified at index " + inputIndex);
+            errors.add(txt("msg.objects.error.ColumnNameNotSpecifiedAtIndex", inputIndex));
 
         } else if (!Strings.isWord(objectName)) {
-            errors.add("invalid column name specified at index " + inputIndex + ": \"" + objectName + "\"");
+            errors.add(txt("msg.objects.error.ColumnNameInvalidAtIndex", inputIndex, objectName));
         }
 
         String dataType = DATA_TYPE.of(columnSpec);
         if (Strings.isEmptyOrSpaces(dataType)){
             if (!objectName.isEmpty()) {
-                errors.add("missing data type for column \"" + objectName + "\"");
+                errors.add(txt("msg.objects.error.ColumnDataTypeMissingForName", objectName));
             } else {
-                errors.add("missing data type for column at index " + inputIndex);
+                errors.add(txt("msg.objects.error.ColumnDataTypeMissingAtIndex", inputIndex));
             }
         }
     }

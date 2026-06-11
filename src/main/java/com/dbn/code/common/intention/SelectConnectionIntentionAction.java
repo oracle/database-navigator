@@ -49,7 +49,7 @@ public class SelectConnectionIntentionAction extends EditorIntentionAction {
     @Override
     @NotNull
     public String getText() {
-        return txt("app.codeEditor.action.SelectConnection");
+        return txt("app.codeEditor.intention.SelectConnection");
     }
 
     @Override

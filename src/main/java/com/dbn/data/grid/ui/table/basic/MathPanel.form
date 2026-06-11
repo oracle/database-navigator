@@ -15,7 +15,7 @@
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Count:"/>
+          <text resource-bundle="messages/DBNResources" key="app.data.label.Count"/>
         </properties>
       </component>
       <vspacer id="dc0d2">
@@ -28,7 +28,7 @@
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Average:"/>
+          <text resource-bundle="messages/DBNResources" key="app.data.label.Average"/>
         </properties>
       </component>
       <component id="3fa13" class="javax.swing.JLabel" binding="countLabel">
@@ -37,7 +37,7 @@
         </constraints>
         <properties>
           <font style="1"/>
-          <text value="[count]"/>
+          <text resource-bundle="messages/DBNResources" key="app.data.placeholder.Count"/>
         </properties>
       </component>
       <component id="1998" class="javax.swing.JLabel" binding="averageLabel">
@@ -46,7 +46,7 @@
         </constraints>
         <properties>
           <font style="1"/>
-          <text value="[average]"/>
+          <text resource-bundle="messages/DBNResources" key="app.data.placeholder.Average"/>
         </properties>
       </component>
       <component id="f174e" class="javax.swing.JLabel" binding="sumLabel">
@@ -55,7 +55,7 @@
         </constraints>
         <properties>
           <font style="1"/>
-          <text value="[sum]"/>
+          <text resource-bundle="messages/DBNResources" key="app.data.placeholder.Sum"/>
         </properties>
       </component>
       <component id="d054e" class="javax.swing.JLabel">
@@ -63,7 +63,7 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Sum:"/>
+          <text resource-bundle="messages/DBNResources" key="app.data.label.Sum"/>
         </properties>
       </component>
       <hspacer id="9062b">

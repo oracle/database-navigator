@@ -33,6 +33,10 @@ import static com.dbn.nls.NlsResources.txt;
  */
 public class ProfileStatusAction extends ProfileManagementAction {
 
+    public ProfileStatusAction() {
+        super(txt("app.assistant.action.AssistantEnableDisableProfile"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         DBAIProfile profile = getSelectedProfile(e);

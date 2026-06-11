@@ -40,6 +40,7 @@ import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -69,7 +70,7 @@ public class DBNTableGutter<T extends DBNTableWithGutter> extends JList implemen
 
         ApplicationEvents.subscribe(this, EditorColorsManager.TOPIC, this);
         Disposer.register(table, this);
-        setAccessibleName(this, "Table gutter");
+        setAccessibleName(this, txt("app.shared.aria.TableGutter"));
     }
 
     public void adjustCellSize() {

@@ -213,7 +213,7 @@ public abstract class ResourceStatusAdapterImpl<T extends Resource> implements R
                 conditionallyLog(e);
                 exception.set(e);
                 return nvl(terminalStatus, () -> value());
-            } catch (AbstractMethodError | NoSuchMethodError e) {
+            } catch (LinkageError e) {
                 conditionallyLog(e);
                 // not implemented (??) TODO suggest using built in drivers
                 log.warn("[DBN] Functionality not supported by jdbc driver", e);

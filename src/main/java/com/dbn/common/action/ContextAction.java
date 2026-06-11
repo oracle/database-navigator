@@ -32,6 +32,10 @@ public abstract class ContextAction<T> extends ProjectAction {
 
     public ContextAction() {}
 
+    public ContextAction(@Nullable @ActionText String text) {
+        super(text);
+    }
+
     public ContextAction(@Nullable @ActionText String text, @Nullable @ActionDescription String description, @Nullable Icon icon) {
         super(text, description, icon);
     }

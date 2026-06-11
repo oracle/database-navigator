@@ -18,7 +18,6 @@ package com.dbn.execution.statement.variables.ui;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.common.util.Messages;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.execution.statement.variables.StatementExecutionVariablesBundle;
@@ -29,6 +28,9 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.nls.NlsResources.txt;
+
 public class StatementExecutionInputsDialog extends DBNDialog<StatementExecutionInputForm> {
     private final StatementExecutionProcessor executionProcessor;
     private final ExecuteAction executeAction;
@@ -37,7 +39,9 @@ public class StatementExecutionInputsDialog extends DBNDialog<StatementExecution
     private boolean reuseVariables = false;
 
     public StatementExecutionInputsDialog(StatementExecutionProcessor executionProcessor, DBDebuggerType debuggerType, boolean bulkExecution) {
-        super(executionProcessor.getProject(), (debuggerType.isDebug() ? "Debug" : "Execute") + " statement", true);
+        super(executionProcessor.getProject(), debuggerType.isDebug() ?
+                txt("msg.execution.title.DebugStatement") :
+                txt("msg.execution.title.ExecuteStatement"), true);
         this.executionProcessor = executionProcessor;
         this.debuggerType = debuggerType;
         this.bulkExecution = bulkExecution;
@@ -63,7 +67,12 @@ public class StatementExecutionInputsDialog extends DBNDialog<StatementExecution
 
     private class ExecuteAction extends AbstractAction {
         ExecuteAction() {
-            super(debuggerType.isDebug() ? "Debug" : "Execute", debuggerType.isDebug() ? Icons.STMT_EXECUTION_DEBUG : Icons.STMT_EXECUTION_RUN);
+            super(debuggerType.isDebug() ?
+                            txt("msg.shared.button.Debug") :
+                            txt("msg.shared.button.Execute"),
+                    debuggerType.isDebug() ?
+                            Icons.STMT_EXECUTION_DEBUG :
+                            Icons.STMT_EXECUTION_RUN);
             makeDefaultAction(this);
         }
 
@@ -74,18 +83,16 @@ public class StatementExecutionInputsDialog extends DBNDialog<StatementExecution
             Project project = getProject();
             if (executionVariables != null) {
                 if (!executionVariables.isProvided()) {
-                    Messages.showErrorDialog(
+                    showErrorDialog(
                             project,
-                            "Statement execution",
-                            "You didn't specify values for all the variables. \n" +
-                                    "Please enter values for all the listed variables and try again."
+                            txt("msg.execution.title.StatementExecution"),
+                            txt("msg.execution.message.StatementVariablesMissing")
                     );
                 } else if (executionVariables.hasErrors()) {
-                    Messages.showErrorDialog(
+                    showErrorDialog(
                             project,
-                            "Statement execution",
-                            "You provided invalid/unsupported variable values. \n" +
-                                    "Please correct your input and try again."
+                            txt("msg.execution.title.StatementExecution"),
+                            txt("msg.execution.message.StatementVariablesInvalid")
                     );
                 } else {
                     doOKAction();

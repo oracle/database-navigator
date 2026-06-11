@@ -22,12 +22,13 @@ import com.intellij.openapi.wm.ToolWindow;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.icon.Icons.WINDOW_DATABASE_DIAGNOSTICS;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DiagnosticsToolWindowFactory extends DBNToolWindowFactory {
     @Override
     protected void initialize(@NotNull ToolWindow toolWindow) {
-        toolWindow.setTitle("DB Diagnostics");
-        toolWindow.setStripeTitle("DB Diagnostics");
+        toolWindow.setTitle(txt("app.diagnostics.title.DatabaseDiagnosticsToolWindow"));
+        toolWindow.setStripeTitle(txt("app.diagnostics.title.DatabaseDiagnosticsToolWindow"));
         toolWindow.setIcon(WINDOW_DATABASE_DIAGNOSTICS.get());
     }
 

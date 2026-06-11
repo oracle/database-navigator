@@ -17,30 +17,38 @@
 package com.dbn.common.option;
 
 import com.dbn.common.icon.Icons;
+import com.intellij.openapi.util.NlsContexts.Checkbox;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.Icon;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
 @Slf4j
 public abstract class OptionBrokerBase<T> implements OptionBroker<T> {
-    private final String configName;
-    private final @Nls String title;
-    private final @Nls String message;
+    private final @NonNls String configName;
+    private final @DialogTitle String title;
+    private final @DialogMessage String message;
 
     private Icon icon = Icons.DIALOG_QUESTION;
-    private String doNotShowMessage = "Do not ask again";
+    private @Checkbox String doNotShowMessage = txt("msg.shared.option.DoNotAskAgain");
 
     private final T defaultOption;
     private T selectedOption;
 
-    public OptionBrokerBase(String configName, String title, String message, T defaultOption) {
+    public OptionBrokerBase(
+            @NonNls String configName,
+            @DialogTitle String title,
+            @DialogMessage String message,
+            T defaultOption) {
         this.configName = configName;
         this.title = title;
         this.message = message;
@@ -54,7 +62,7 @@ public abstract class OptionBrokerBase<T> implements OptionBroker<T> {
     }
 
     @Override
-    public OptionBroker<T> withDoNotShowMessage(@Nls String doNotShowMessage) {
+    public OptionBroker<T> withDoNotShowMessage(@Checkbox String doNotShowMessage) {
         this.doNotShowMessage = doNotShowMessage;
         return this;
     }

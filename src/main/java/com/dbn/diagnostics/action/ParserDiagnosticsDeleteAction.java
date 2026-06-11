@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ParserDiagnosticsDeleteAction extends AbstractParserDiagnosticsAction {
 
+    public ParserDiagnosticsDeleteAction() {
+        super(txt("app.diagnostics.action.ParserDiagnosticsDelete"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ParserDiagnosticsForm form) {
         ParserDiagnosticsResult result = form.getSelectedResult();

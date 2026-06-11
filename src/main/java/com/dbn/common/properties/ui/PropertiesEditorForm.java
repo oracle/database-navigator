@@ -24,6 +24,7 @@ import com.dbn.common.util.Strings;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.ToolbarDecorator;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
@@ -92,7 +93,8 @@ public class PropertiesEditorForm extends DBNFormBase {
         });
     }
 
-    public void addValidator(PropertiesValidator validator, String key) {
+    @NonNls
+    public void addValidator(PropertiesValidator validator, @NonNls String key) {
         this.validators.put(key, validator);
     }
 

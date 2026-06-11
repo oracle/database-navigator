@@ -24,11 +24,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ScriptExecutionInputDialog extends DBNDialog<ScriptExecutionInputForm> {
     private ScriptExecutionInput executionInput;
 
     public ScriptExecutionInputDialog(Project project, ScriptExecutionInput executionInput) {
-        super(project, "Execute SQL script", true);
+        super(project, txt("msg.execution.title.ExecuteSqlScript"), true);
         this.executionInput = executionInput;
         setModal(true);
         init();
@@ -53,7 +55,7 @@ public class ScriptExecutionInputDialog extends DBNDialog<ScriptExecutionInputFo
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Execute");
+        renameAction(getOKAction(), txt("msg.shared.button.Execute"));
         return actions(
                 getOKAction(),
                 getCancelAction());

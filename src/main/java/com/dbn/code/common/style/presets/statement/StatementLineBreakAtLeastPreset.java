@@ -22,9 +22,11 @@ import com.intellij.formatting.Wrap;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class StatementLineBreakAtLeastPreset extends StatementAbstractPreset {
     public StatementLineBreakAtLeastPreset() {
-        super("one_line_break_at_least", "One line break at least");
+        super("one_line_break_at_least", txt("cfg.codeStyle.const.CodeStylePreset_ONE_LINE_BREAK_AT_LEAST"));
     }
 
     @Override

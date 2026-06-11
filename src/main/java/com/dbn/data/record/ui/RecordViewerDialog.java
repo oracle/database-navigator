@@ -28,11 +28,13 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class RecordViewerDialog extends DBNDialog<RecordViewerForm> {
     private final DatasetRecord record;
 
     public RecordViewerDialog(Project project, DatasetRecord record) {
-        super(project, "View record", true);
+        super(project, txt("msg.dataEditor.title.ViewRecord"), true);
         this.record = record; 
         setModal(false);
         setResizable(true);
@@ -53,7 +55,7 @@ public class RecordViewerDialog extends DBNDialog<RecordViewerForm> {
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(
                 new OpenInEditorAction(),
                 getCancelAction());
@@ -66,7 +68,7 @@ public class RecordViewerDialog extends DBNDialog<RecordViewerForm> {
 
     private class OpenInEditorAction extends AbstractAction {
         public OpenInEditorAction() {
-            super("Open In Editor", Icons.OBJECT_EDIT_DATA);
+            super(txt("msg.dataEditor.button.OpenInEditor"), Icons.OBJECT_EDIT_DATA);
         }
 
         @Override

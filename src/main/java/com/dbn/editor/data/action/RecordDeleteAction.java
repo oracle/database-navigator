@@ -33,6 +33,9 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class RecordDeleteAction extends AbstractDataEditorAction {
 
+    public RecordDeleteAction() {
+        super(txt("app.dataEditor.action.DataEditorDeleteRecord"));
+    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {

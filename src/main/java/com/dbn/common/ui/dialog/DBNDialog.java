@@ -33,22 +33,24 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.help.HelpTopic;
-import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.OptionAction;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.util.NlsContexts.Button;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.openapi.util.UserDataHolder;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.wm.IdeFrame;
 import com.intellij.ui.AppIcon;
+import com.intellij.ui.components.JBOptionButton;
 import com.intellij.util.Consumer;
 import com.intellij.util.ui.JBDimension;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Delegate;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -64,10 +66,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.dbn.common.action.UserDataKeys.CONNECTION_REF;
 import static com.dbn.common.action.UserDataKeys.PROJECT_REF;
@@ -76,17 +80,20 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.registerDialog;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.releaseDialog;
+import static com.dbn.common.ui.util.Buttons.installMousePressFocus;
 import static com.dbn.common.ui.util.UserInterface.findTopLeftmostFocusComponent;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
-public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, NlsSupport, UserDataHolder {
-    private static final String HIDDEN = "HIDDEN";
+public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, UserDataHolder {
+    public static final String HIDDEN = "HIDDEN";
+    public static final String PARENT = "PARENT";
 
     private F form;
     private boolean rememberSelection;
@@ -96,12 +103,12 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     private final DBNFormValidator formValidator = new DBNFormValidatorImpl(this);
     private final UserDataHolder userDataHolder = new UserDataHolderBase();
 
-    protected DBNDialog(@NotNull ConnectionHandler connection, String title, boolean canBeParent) {
+    protected DBNDialog(@NotNull ConnectionHandler connection, @DialogTitle String title, boolean canBeParent) {
         this(connection.getProject(), title, canBeParent);
         putUserData(UserDataKeys.CONNECTION_REF, ConnectionRef.of(connection));
     }
 
-    protected DBNDialog(@Nullable Project project, String title, boolean canBeParent) {
+    protected DBNDialog(@Nullable Project project, @DialogTitle String title, boolean canBeParent) {
         super(project, canBeParent);
         putUserData(PROJECT_REF, ProjectRef.of(project));
         setTitle(Titles.signed(title));
@@ -261,7 +268,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         return autoSize || Diagnostics.isDialogSizingReset() ? null : "DBNavigator." + simpleClassName(this);
     }
 
-    protected static Action createAction(@NotNull @Nls String name, @NotNull Runnable runnable) {
+    protected static Action createAction(@NotNull @Button String name, @NotNull Runnable runnable) {
         return new AbstractAction(name) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -270,7 +277,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         };
     }
 
-    protected static Action createAction(@NotNull @Nls String name, @NotNull Consumer<JButton> consumer) {
+    protected static Action createAction(@NotNull @Button String name, @NotNull Consumer<JButton> consumer) {
         return new AbstractAction(name) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -279,32 +286,73 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         };
     }
 
+    protected static OptionAction createCompositeAction(Action ... actions) {
+        return new DBNCompositeAction(actions);
+    }
+
     protected static Action[] actions(Action ... actions) {
         return Arrays.stream(actions)
                 .filter(value -> value != null)
                 .toArray(l -> new Action[l]);
     }
 
-    protected static void renameAction(@NotNull Action action, @Nls String name) {
+    protected static void renameAction(@NotNull Action action, @Button String name) {
         action.putValue(Action.NAME, name);
     }
 
     protected void showAction(@NotNull Action action) {
-        action.putValue(HIDDEN, false);
-
-        JButton button = getButton(action);
-        if (button == null) return;
-
-        button.setVisible(true);
+        makeActionVisible(action, true);
     }
 
     protected void hideAction(@NotNull Action action) {
-        action.putValue(HIDDEN, true);
+        makeActionVisible(action, false);
+    }
+
+    @Override
+    protected JButton createJButtonForAction(Action action) {
+        JButton button = super.createJButtonForAction(action);
+        if (button instanceof JBOptionButton optionButton) {
+            installMousePressFocus(optionButton);
+        }
+
+        return button;
+    }
+
+    protected void makeActionVisible(@NotNull Action action, boolean visible) {
+        OptionAction parentAction = (OptionAction) action.getValue(PARENT);
+        if (parentAction != null) {
+            makeActionOptionVisible(parentAction, action, visible);
+            return;
+        }
+
+        action.putValue(HIDDEN, !visible);
 
         JButton button = getButton(action);
         if (button == null) return;
 
-        button.setVisible(false);
+        button.setVisible(visible);
+    }
+
+    private void makeActionOptionVisible(@NotNull OptionAction action, @NotNull Action option, boolean visible) {
+        JBOptionButton button = (JBOptionButton) getButton(action);
+        if (button == null) return;
+
+        List<Action> visibleOptions = new ArrayList<>();
+        Action[] actionOptions = action.getOptions();
+        Set<Action> buttonOptions = Set.of(button.getOptions());
+        for (Action actionOption : actionOptions) {
+            if (actionOption == option) {
+                if (visible) {
+                    visibleOptions.add(actionOption);
+                }
+            } else {
+                if (buttonOptions.contains(actionOption)) {
+                    visibleOptions.add(actionOption);
+                }
+            }
+        }
+        button.setOptions(visibleOptions.toArray(new Action[0]));
+
     }
 
     protected static void makeDefaultAction(@NotNull Action action) {
@@ -339,6 +387,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     @NotNull
     @Override
     protected final Action[] createActions() {
+        initializeDefaultActionLabels();
         Action[] actions = initializeActions();
         if (getHelpId() == null) return actions;
 
@@ -346,6 +395,12 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         System.arraycopy(actions, 0, allActions, 0, actions.length);
         allActions[actions.length] = getHelpAction();
         return allActions;
+    }
+
+    private void initializeDefaultActionLabels() {
+        renameAction(getOKAction(), txt("msg.shared.button.OK"));
+        renameAction(getCancelAction(), txt("msg.shared.button.Cancel"));
+        renameAction(getHelpAction(), txt("msg.shared.button.Help"));
     }
 
     protected abstract Action[] initializeActions();

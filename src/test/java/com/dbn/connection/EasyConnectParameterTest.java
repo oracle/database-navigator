@@ -60,6 +60,7 @@ public class EasyConnectParameterTest {
         assertNotNull(validator.validate("barKey", "123  \"  sec"));
     }
 
+    @Test
     public void testEnsureToParameterString() {
         Map<String, String> params = new HashMap<>();
         LinkedHashMap<String, String> map =

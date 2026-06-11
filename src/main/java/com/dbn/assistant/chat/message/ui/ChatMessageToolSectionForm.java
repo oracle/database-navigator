@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat.message.ui;
 
+import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.message.ChatMessageToolSection;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.mcp.AssistantMcpServerSettings;
@@ -36,6 +37,9 @@ import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.assistant.tool.execution.AssistantToolInvocationMonitor;
 import com.dbn.assistant.tool.execution.AssistantToolRequest;
 import com.dbn.assistant.tool.execution.AssistantToolResponse;
+import com.dbn.assistant.tool.feature.AssistantToolFeature;
+import com.dbn.assistant.tool.feature.AssistantToolFeatureContext;
+import com.dbn.assistant.tool.feature.AssistantToolFeatures;
 import com.dbn.assistant.tool.info.AssistantToolInfoProvider;
 import com.dbn.assistant.tool.info.AssistantToolInfoProviderImpl;
 import com.dbn.common.EntityId;
@@ -78,6 +82,7 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.assistant.tool.AssistantToolData.getToolDisplayName;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.common.icon.Icons.ASSISTANT_QUESTION;
@@ -85,6 +90,7 @@ import static com.dbn.common.text.TextContent.asHtmlContent;
 import static com.dbn.common.ui.Layouts.horizontalBoxLayout;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.util.Messages.showConfirmationDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessageToolSection> implements DBNFoldableComponent {
     private JPanel mainPanel;
@@ -160,7 +166,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         toolIconLabel.setText("");
 
         if (isInternalTool()) {
-            String wrapperContent = TextResources.get(getClass(), "tool_info_tooltip.html.ft");
+            String wrapperContent = TextResources.getLocalizable(getClass(), "tool_info_tooltip.html.ft");
             TextContent htmlContent = TextContent.html(wrapperContent);
             htmlContent.initField("TOOL_TYPE_NAME", info.getToolTypeName());
             htmlContent.initField("TOOL_TYPE_DESCRIPTION", info.getToolTypeDescription());
@@ -186,10 +192,33 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     }
 
     private void initActionsPanel() {
-        ActionToolbar chatActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantToolActions");
+        ActionToolbar chatActions = Actions.createActionToolbar(actionsPanel, true, "DBN.Assistant.Tool");
         JComponent component = chatActions.getComponent();
         component.setOpaque(false);
         this.actionsPanel.add(component);
+    }
+
+    private void appendFeatureButtons() {
+        AssistantToolType toolType = getToolType();
+        AssistantToolRequest toolRequest = getToolRequest();
+        ChatContext chatContext = getChatContext();
+        AssistantState assistantState = getAssistantState();
+        String toolName = toolRequest.getToolName();
+        List<AssistantToolFeature> features = AssistantToolFeatures.get(toolType, toolName);
+        if (features.isEmpty()) return;
+
+        for (AssistantToolFeature feature : features) {
+            String buttonName = feature.getName();
+
+            JButton button = new JButton(buttonName);
+            button.addActionListener(e -> feature.execute(new AssistantToolFeatureContext(
+                    toolRequest,
+                    chatContext,
+                    assistantState,
+                    () -> allowToolInvocation(false),
+                    () -> denyToolInvocation(false))));
+            messageButtonsPanel.add(button);
+        }
     }
 
     private void initMessagePanel() {
@@ -265,6 +294,8 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
             messageButtonsPanel.add(optionLabel);
 
         }
+
+        appendFeatureButtons();
         messageButtonsPanel.setVisible(true);
     }
 
@@ -311,6 +342,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         horizontalBoxLayout(messageButtonsPanel);
         messageButtonsPanel.add(allowButton);
         messageButtonsPanel.add(denyButton);
+        appendFeatureButtons();
         //messageButtonsPanel.add(cancelButton);
     }
 
@@ -431,7 +463,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
                 txt("msg.assistant.title.DisableTool");
 
         AssistantTool tool = getTool();
-        String toolName = tool.getName();
+        String toolName = getToolDisplayName(tool);
         String categoryName = tool.getCategory().getName();
 
         String message = approval ?
@@ -552,6 +584,11 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
 
     private ChatBoxForm getChatBoxForm() {
         return ensureParentFrom(ChatBoxForm.class);
+    }
+
+    private ChatContext getChatContext() {
+        ChatMessageForm messageForm = ensureParentFrom(ChatMessageForm.class);
+        return messageForm.getMessage().getContext();
     }
 
     public ConnectionHandler getConnection() {

@@ -37,13 +37,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.thread.Progress.installThreadInterrupter;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DriverPackageMetadataDownloader {
     @SneakyThrows
@@ -80,7 +83,7 @@ public class DriverPackageMetadataDownloader {
         name = getFormattedString(name, libraries, placeholderCount, false);
         DriverPackage driverPackage = new DriverPackage(id, name, DatabaseType.resolve(databaseType), libraries);
 
-        session.setText("Downloading metadata for " + id + " ...");
+        session.setText(txt("prc.connection.text.DownloadingDriverPackageMetadata", id));
         session.countDown();
         session.updateProgress();
         return driverPackage;
@@ -136,19 +139,40 @@ public class DriverPackageMetadataDownloader {
         version = ensureVersion(groupId, artifactId, version, session);
 
         Library library = new Library(groupId, artifactId, version);
+        readChecksums(element, library);
         if (toResolve) {
             // Resolve dependencies for non-jar types
             try {
-                return DependencyParser.resolveDependencies(library, type, session); // Return all resolved dependencies
+                List<Library> libraries = DependencyParser.resolveDependencies(library, type, session);
+                copyChecksums(library, libraries);
+                return libraries; // Return all resolved dependencies
             } catch (Throwable e) {
                 e = Exceptions.rootCauseOf(e);
-                session.addErrorMessage("Failed to download library " + library.getLibraryId() + ". Cause: " + e.getMessage());
+                session.addErrorMessage(txt("msg.connection.error.FailedToDownloadLibrary", library.getLibraryId(), e.getMessage()));
                 return Collections.emptyList();
             }
 
         } else {
             // For type "jar", return a single Library
             return Collections.singletonList(library);
+        }
+    }
+
+    private void copyChecksums(Library source, List<Library> libraries) {
+        if (source.getChecksums().isEmpty()) return;
+
+        libraries.stream()
+                .filter(l -> Objects.equals(l.getGroupId(), source.getGroupId()))
+                .filter(l -> Objects.equals(l.getArtifactId(), source.getArtifactId()))
+                .filter(l -> Objects.equals(l.getVersion(), source.getVersion()))
+                .forEach(l -> l.getChecksums().addAll(source.getChecksums()));
+    }
+
+    private void readChecksums(Element element, Library library) {
+        for (Element checksumElement : childrenOf(element, "checksum")) {
+            LibraryChecksum checksum = new LibraryChecksum();
+            checksum.readState(checksumElement);
+            library.getChecksums().add(checksum);
         }
     }
 
