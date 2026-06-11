@@ -13,11 +13,11 @@ Use `dbn-localization-guide` for codebase mechanics: NLS key families, `DBNResou
 
 ## Quick Workflow
 
-1. Identify the source text and locale. Use only the unqualified source content as truth, such as `DBNResources.properties`, base `.html.ft` templates, or English docs.
+1. Identify the source text and locale. Use only the unqualified source content as truth, such as `DBNResources.properties`, base `.html.ft` templates, IntelliJ intention `description.html` files, file-template description HTML, or English docs.
 2. Load the global do-not-translate inventory from [references/do-not-translate.md](references/do-not-translate.md), then load the canonical glossary for the locale from `references/glossaries/` when one exists. Current glossaries use the `dbn-glossary-<locale>.md` pattern, for example [references/glossaries/dbn-glossary-ko.md](references/glossaries/dbn-glossary-ko.md).
 3. Translate in batches small enough to review by context, normally by feature area and UI role.
 4. Translate phrase by phrase from the source value and context, using Codex's own language knowledge plus the canonical glossary. Do not use external translation tools, dictionary substitution, regex replacement, or another localized file as the source.
-5. Preserve placeholders, markup, escaped newlines, mnemonics, code literals, SQL/API/class names, URLs, product names, and technical acronyms exactly unless the task explicitly changes them.
+5. Preserve placeholders, markup, escaped newlines, mnemonics, code literals, SQL/API/class names, URLs, product names, and technical acronyms exactly unless the task explicitly changes them. Do not translate IntelliJ intention `before.<extension>.template` / `after.<extension>.template` code examples.
 6. Update the locale glossary when a reusable term, ambiguous term, or intentional English term appears.
 7. Run structural checks supplied by the localization or document workflow, then run semantic checks from this skill.
 8. If no native reviewer is available, report the result as structurally safe and contextually translated, not release-polished.

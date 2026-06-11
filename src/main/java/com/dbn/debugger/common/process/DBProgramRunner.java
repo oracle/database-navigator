@@ -258,18 +258,19 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
             ExecutionEnvironment environment,
             DBDebugProcessStarter starter) throws ExecutionException {
 
-/*            // workaround for new split-debugger api issue
-            XDebugSessionBuilder builder = debuggerManager.newSessionBuilder(processStarter);
-            builder.environment(environment);
-            builder.sessionName(environment.getRunProfile().getName());
-            builder.showTab(true);
-            RunContentDescriptor contentToReuse = environment.getContentToReuse();
-            if (contentToReuse != null) {
-                builder.contentToReuse(contentToReuse1);
-            }
-            XSessionStartedResult result = builder.startSession();
-            return result.getRunContentDescriptor();*/
-
+/*
+        XDebuggerManager debuggerManager = XDebuggerManager.getInstance(project);
+        XDebugSessionBuilder builder = debuggerManager.newSessionBuilder(starter);
+        builder.environment(environment);
+        builder.sessionName(environment.getRunProfile().getName());
+        RunContentDescriptor contentToReuse = environment.getContentToReuse();
+        if (contentToReuse != null) {
+            builder.contentToReuse(contentToReuse);
+        }
+        builder.showTab(true);
+        XSessionStartedResult result = builder.startSession();
+        return result.getRunContentDescriptor();
+*/
         Object sessionResult = null;
         try {
             XDebuggerManager debuggerManager = XDebuggerManager.getInstance(project);

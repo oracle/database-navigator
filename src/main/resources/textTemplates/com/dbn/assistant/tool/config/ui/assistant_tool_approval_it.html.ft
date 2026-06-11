@@ -1,0 +1,26 @@
+<html lang="it">
+<head>
+    <title>Approvazione strumenti</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body>
+    Questa è una panoramica di tutti gli strumenti disponibili per Database Assistant.<br>
+    Usa questa pagina per stabilire a quali strumenti può accedere il modello linguistico.
+
+    <br><br>
+    Gestisci l'accesso agli strumenti abilitando o disabilitando intere categorie di strumenti e i singoli strumenti.<br>
+    Lo stato di uno strumento determina la sua visibilità per l'LLM:
+    <ul>
+        <li>Gli strumenti contrassegnati come "Approvato" verranno richiamati automaticamente.</li>
+        <li>Gli strumenti contrassegnati come "Con richiesta" richiederanno approvazione prima di ogni invocazione.</li>
+        <li>Gli strumenti contrassegnati come "Bloccato" non saranno visibili all'LLM.</li>
+    </ul>
+</body>
+</html>

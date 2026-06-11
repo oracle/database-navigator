@@ -18,11 +18,16 @@ package com.dbn.debugger;
 
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.message.MessageType;
+import com.dbn.common.thread.Dispatch;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.process.ProcessOutputTypes;
+import com.intellij.execution.ui.ConsoleView;
+import com.intellij.execution.ui.ConsoleViewContentType;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.xdebugger.XDebugSession;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 
@@ -56,27 +61,50 @@ public class DBDebugConsoleLogger {
 
     private void log(@Nls String text, MessageType messageType) {
         try {
-            ProcessHandler processHandler = session.getDebugProcess().getProcessHandler();
-            // Split debugger starts the handler from XDebuggerManager after sessionInitialized().
-            if (!isToolwindowSplit() && !processHandler.isStartNotified()) {
-                processHandler.startNotify();
+            String log = prepareLogEntry(text, messageType);
+            if (isToolwindowSplit()) {
+                updateSplitConsole(messageType, log);
+            } else {
+                updateLegacyConsole(messageType, log);
             }
-
-            Formatter formatter = Formatter.getInstance(session.getProject());
-            String date = formatter.formatDateTime(new Date());
-            String prefix =
-                    messageType == MessageType.ERROR ? txt("log.debugger.token.Error") :
-                    messageType == MessageType.WARNING ? txt("log.debugger.token.Warning") : txt("log.debugger.token.Info");
-
-            text = txt("log.debugger.text.ConsoleEntry", prefix, date, text) + "\n";
-            Key outputType =
-                    messageType == MessageType.SYSTEM ? ProcessOutputTypes.SYSTEM :
-                    messageType == MessageType.ERROR  ? ProcessOutputTypes.STDERR : ProcessOutputTypes.STDOUT;
-            processHandler.notifyTextAvailable(text, outputType);
-
         } catch (IllegalStateException e) {
             conditionallyLog(e);
         }
+    }
 
+    private @Nls @NotNull String prepareLogEntry(@Nls String text, MessageType messageType) {
+        Project project = session.getProject();
+        Formatter formatter = Formatter.getInstance(project);
+        String date = formatter.formatDateTime(new Date());
+        String prefix =
+                messageType == MessageType.ERROR ? txt("log.debugger.token.Error") :
+                messageType == MessageType.WARNING ? txt("log.debugger.token.Warning") :
+                        txt("log.debugger.token.Info");
+
+        text = txt("log.debugger.text.ConsoleEntry", prefix, date, text) + "\n";
+        return text;
+    }
+
+    private void updateLegacyConsole(MessageType messageType, @Nls String text) {
+        ProcessHandler processHandler = session.getDebugProcess().getProcessHandler();
+        if (!processHandler.isStartNotified()) {
+            processHandler.startNotify();
+        }
+        Key outputType =
+                messageType == MessageType.ERROR  ? ProcessOutputTypes.STDERR :
+                messageType == MessageType.SYSTEM ? ProcessOutputTypes.SYSTEM :
+                ProcessOutputTypes.STDOUT;
+        processHandler.notifyTextAvailable(text, outputType);
+    }
+
+    private void updateSplitConsole(MessageType messageType, @Nls String text) {
+        ConsoleView consoleView = session.getConsoleView();
+        if (consoleView == null) return;
+        ConsoleViewContentType contentType =
+                messageType == MessageType.ERROR ? ConsoleViewContentType.ERROR_OUTPUT :
+                messageType == MessageType.SYSTEM ? ConsoleViewContentType.SYSTEM_OUTPUT :
+                ConsoleViewContentType.NORMAL_OUTPUT;
+
+        Dispatch.run(() -> consoleView.print(text, contentType));
     }
 }

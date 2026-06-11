@@ -192,7 +192,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     }
 
     private void initActionsPanel() {
-        ActionToolbar chatActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantToolActions");
+        ActionToolbar chatActions = Actions.createActionToolbar(actionsPanel, true, "DBN.Assistant.Tool");
         JComponent component = chatActions.getComponent();
         component.setOpaque(false);
         this.actionsPanel.add(component);

@@ -136,7 +136,7 @@ public class CredentialManagementForm extends DBNFormBase {
   }
 
   private void initActionsPanel() {
-    ActionToolbar managementActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantCredentialManagement");
+    ActionToolbar managementActions = Actions.createActionToolbar(actionsPanel, true, "DBN.Assistant.Credentials");
     setAccessibleName(managementActions, txt("cfg.assistant.aria.CredentialManagementActions"));
     this.actionsPanel.add(managementActions.getComponent(), BorderLayout.CENTER);
     initializingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
