@@ -24,11 +24,13 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Data;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Date;
 
 @Data
 public class LogOutput {
+    private static final @NonNls String SYSTEM_MESSAGE_SEPARATOR = " - ";
 
     @Getter
     public enum Type {
@@ -83,7 +85,9 @@ public class LogOutput {
         if (sourceFile != null) {
             text += " / " + sourceFile.getName();
         }
-        text += message;
+        if (message != null && !message.isEmpty()) {
+            text += SYSTEM_MESSAGE_SEPARATOR + message;
+        }
 
         return new LogOutput(text, Type.SYS, true, clearBuffer);
     }

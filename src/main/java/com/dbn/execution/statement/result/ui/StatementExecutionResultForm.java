@@ -60,7 +60,7 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
 
     public StatementExecutionResultForm(@NotNull StatementExecutionCursorResult executionResult) {
         super(executionResult);
-        actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.StatementExecutionResult");
+        actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBN.Execution.Statement.Result");
         actionsPanel.add(actionToolbar.getComponent());
 
         recordViewInfo = new RecordViewInfo(executionResult.getName(), executionResult.getIcon());

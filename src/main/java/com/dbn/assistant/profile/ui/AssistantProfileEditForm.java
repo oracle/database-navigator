@@ -151,7 +151,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
     }
 
     private TextContent buildTemperatureInfo() {
-        String infoRawContent = TextResources.get(getClass(), "llm_temperature_info.html.ft");
+        String infoRawContent = TextResources.getLocalizable(getClass(), "llm_temperature_info.html.ft");
         TextContent infoContent = TextContent.html(infoRawContent);
 
         StringBuilder body = new StringBuilder();

@@ -1,0 +1,32 @@
+<html lang="pt">
+<head><title>DB Assistant - Chat LLM público</title></head>
+<body style="${REGULAR_FONT_STYLE}">
+<div style="${REGULAR_LARGE_FONT_STYLE}">
+    <b>Assistente de IA com integração de banco de dados</b><br>
+</div>
+Obtenha ajuda com seu banco de dados, workspace e várias tarefas de programação usando linguagem natural.<br><br>
+O DB Assistant é um companheiro de desenvolvimento de software com tecnologia de IA que se integra ao seu workspace e banco de dados.<br>
+Ele pode ajudar em diversas tarefas, como fornecer insights sobre a estrutura do banco de dados,
+analisar código de banco de dados, identificar blocos de código relevantes, gerar e otimizar código SQL e PL/SQL,
+e auxiliar com qualquer outra linguagem de programação usada no seu workspace.
+
+<br>
+<br>
+<br>
+<u>Antes de começar</u><br><br>
+Para começar a usar o DB Assistant, certifique-se de que os seguintes pré-requisitos sejam atendidos:
+<ul>
+    <li><b>Acesso à rede</b> - Configure suas definições de rede para permitir comunicação segura com o endpoint de API do provedor LLM escolhido (Configurações do Sistema > Proxy HTTP).</li>
+    <li><b>Credenciais de API</b> - Informe suas chaves de API para o provedor LLM selecionado (por exemplo, OpenAI, Cohere, Anthropic ou outras APIs públicas suportadas).</li>
+    <li><b>Perfis de IA</b> - Crie perfis de IA personalizados para adaptar o comportamento do modelo de linguagem, como ajustar o equilíbrio entre objetividade e criatividade ou adicionar instruções específicas.</li>
+</ul>
+Para orientações detalhadas de configuração, consulte a documentação do Oracle® Database Navigator.
+
+<br>
+<br>
+<br>
+<b>Observação</b><br>
+Este é um recurso experimental. A precisão da saída pode variar dependendo do modelo de linguagem selecionado, das permissões de acesso ao banco de dados e de outros fatores.
+Valide as saídas cuidadosamente e reporte qualquer problema à equipe de desenvolvimento do Oracle® Database Navigator para ajudar a melhorar este recurso.
+</body>
+</html>

@@ -17,7 +17,6 @@
 package com.dbn.editor.session.action;
 
 import com.dbn.editor.session.SessionBrowserFilterType;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -25,10 +24,5 @@ public class FilterHostsComboBoxAction extends AbstractFilterComboBoxAction {
 
     public FilterHostsComboBoxAction() {
         super(SessionBrowserFilterType.HOST, txt("app.sessionBrowser.action.SessionBrowserFilterHosts"));
-    }
-
-    @Override
-    public void update(AnActionEvent e) {
-        e.getPresentation().setText(txt("app.sessionBrowser.action.FilterHosts"));
     }
 }

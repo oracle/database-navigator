@@ -95,11 +95,13 @@ public class ObjectFilterManager extends ProjectComponentBase implements Persist
 		Project project = getProject();
 		ConnectionId connectionId = filterSettings.getConnectionId();
 		DBObjectType objectType = filter.getObjectType();
-		String listName = objectType.getTitleCasedListName();
+		String listName = objectType.getTitleCasedListDisplayName();
 
 
 		if (!filter.isActive()) {
-			showQuestionDialog(project, txt("msg.objects.title.EnableFilter"), txt("msg.objects.question.EnableFilter", listName),
+			showQuestionDialog(project,
+                    txt("msg.objects.title.EnableFilter"),
+                    txt("msg.objects.question.EnableFilter", listName),
 					Messages.OPTIONS_YES_NO, 0, o -> when(o == 0, () -> filter.setActive(true)));
 		}
 		filterSettings.addFilter(filter);

@@ -21,6 +21,8 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import dev.langchain4j.agent.tool.Tool;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,8 +36,14 @@ import static com.dbn.assistant.tool.AssistantToolType.SUPPORT;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.common.util.Unsafe.silent;
+import static com.dbn.nls.NlsResources.txtOr;
 
 public class AssistantToolData {
+    private static final @NonNls String TOOL_TYPE_NAME_KEY = "app.assistant.label.ToolTypeName_";
+    private static final @NonNls String TOOL_TYPE_DESCRIPTION_KEY = "app.assistant.text.ToolTypeDescription_";
+    private static final @NonNls String TOOL_UTILITY_NAME_KEY = "app.assistant.label.ToolUtilityName_";
+    private static final @NonNls String TOOL_UTILITY_DESCRIPTION_KEY = "app.assistant.text.ToolUtilityDescription_";
+
     private static final List<AssistantToolFactory> factories = AssistantToolFactories.list();
     private static final List<AssistantToolCategory> categories = categories();
     private static final Map<String, AssistantToolFactory<?>> utilityMappings = new ConcurrentHashMap<>();
@@ -174,6 +182,37 @@ public class AssistantToolData {
         AssistantToolFactory factory = typeMappings.get(toolType);
         return factory.getToolDescription();
     }
+
+    public static @Nls String getToolDisplayName(AssistantTool tool) {
+        return txtOr(TOOL_TYPE_NAME_KEY + tool.getType(), tool.getName());
+    }
+
+    public static @Nls String getToolDisplayDescription(AssistantTool tool) {
+        return txtOr(TOOL_TYPE_DESCRIPTION_KEY + tool.getType(), tool.getDescription());
+    }
+
+    public static @Nls String getToolDisplayName(AssistantToolType toolType) {
+        String toolName = getToolName(toolType);
+        return txtOr(TOOL_TYPE_NAME_KEY + toolType, toolName);
+    }
+
+    public static @Nls String getToolDisplayDescription(AssistantToolType toolType) {
+        String toolDescription = getToolDescription(toolType);
+        return txtOr(TOOL_TYPE_DESCRIPTION_KEY + toolType, toolDescription);
+    }
+
+    public static @Nls String getUtilityDisplayName(AssistantTool tool, String utilityName) {
+        UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
+        String fallback = utilitySpec == null ? utilityName : utilitySpec.name();
+        return txtOr(TOOL_UTILITY_NAME_KEY + utilityName, fallback);
+    }
+
+    public static @Nls String getUtilityDisplayDescription(AssistantTool tool, String utilityName) {
+        UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
+        String fallback = utilitySpec == null ? "" : utilitySpec.description();
+        return txtOr(TOOL_UTILITY_DESCRIPTION_KEY + utilityName, fallback);
+    }
+
 
     public static AssistantToolCategory getToolCategory(AssistantToolType toolType) {
         AssistantToolFactory factory = typeMappings.get(toolType);

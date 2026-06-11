@@ -396,7 +396,7 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
         if (isDisposed()) return "disposed";
 
         BrowserTreeNode parent = getParent();
-        String contentName = getName();
+        String contentName = nvl(objectType.getListDisplayName(), getName());
         String connectionName = getConnection().getName();
 
         if (parent instanceof DBObject object) {
@@ -520,7 +520,7 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
 
     @Override
     public String getPresentableText() {
-        return objectType.getPresentableListName();
+        return nvl(objectType.getTitleCasedListDisplayName(), objectType.getTitleCasedDisplayName());
     }
 
     @Override

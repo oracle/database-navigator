@@ -265,7 +265,7 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
 
 
     private void createActionsPanel() {
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.JavaExecutionResult");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBN.Execution.Java.Result");
         actionsPanel.add(actionToolbar.getComponent());
     }
 

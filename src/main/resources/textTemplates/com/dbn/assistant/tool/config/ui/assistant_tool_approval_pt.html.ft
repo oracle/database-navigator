@@ -1,0 +1,26 @@
+<html lang="pt">
+<head>
+    <title>Aprovação de ferramenta</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body>
+    Esta é uma visão geral de todas as ferramentas disponíveis para o Database Assistant.<br>
+    Use esta página para determinar quais ferramentas o modelo de linguagem pode acessar.
+
+    <br><br>
+    Gerencie o acesso às ferramentas habilitando ou desabilitando categorias inteiras de ferramentas, bem como ferramentas individuais.<br>
+    O status de uma ferramenta determina sua visibilidade para o LLM:
+    <ul>
+        <li>Ferramentas com status "Aprovado" serão invocadas automaticamente.</li>
+        <li>Ferramentas com status "Solicitado" exigirão aprovação antes de cada invocação.</li>
+        <li>Ferramentas com status "Bloqueado" não ficarão visíveis para o LLM.</li>
+    </ul>
+</body>
+</html>

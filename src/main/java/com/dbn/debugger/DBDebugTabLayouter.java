@@ -17,28 +17,22 @@
 package com.dbn.debugger;
 
 import com.intellij.debugger.ui.DebuggerContentInfo;
-import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.execution.ui.RunnerLayoutUi;
 import com.intellij.execution.ui.layout.LayoutViewOptions;
 import com.intellij.ui.content.Content;
-import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.ui.XDebugTabLayouter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.debugger.DBDebugUtil.isToolwindowSplit;
-
 public class DBDebugTabLayouter extends XDebugTabLayouter {
-    private final XDebugProcess debugProcess;
     private final XDebugTabLayouter delegate;
 
-    public DBDebugTabLayouter(@NotNull XDebugProcess debugProcess) {
-        this(debugProcess, null);
+    public DBDebugTabLayouter() {
+        this(null);
     }
 
-    public DBDebugTabLayouter(@NotNull XDebugProcess debugProcess, @Nullable XDebugTabLayouter delegate) {
-        this.debugProcess = debugProcess;
+    public DBDebugTabLayouter(@Nullable XDebugTabLayouter delegate) {
         this.delegate = delegate;
     }
 
@@ -65,15 +59,8 @@ public class DBDebugTabLayouter extends XDebugTabLayouter {
 
     @Override
     public void registerAdditionalContent(@NotNull RunnerLayoutUi ui) {
-        // Split debugger currently forwards only additional-content layout events, not registerConsoleContent().
-        if (isToolwindowSplit()) {
-            ConsoleView console = debugProcess.getSession().getConsoleView();
-            registerConsoleContent(ui, console == null ? debugProcess.createConsole() : console);
-        }
-
-        if (delegate != null) {
-            delegate.registerAdditionalContent(ui);
-        }
+        if (delegate == null) return;
+        delegate.registerAdditionalContent(ui);
     }
 
 }

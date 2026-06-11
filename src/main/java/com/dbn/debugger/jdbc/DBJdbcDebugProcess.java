@@ -437,7 +437,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     @NotNull
     @Override
     public XDebugTabLayouter createTabLayouter() {
-        return new DBDebugTabLayouter(this);
+        return new DBDebugTabLayouter();
     }
 
     @Override

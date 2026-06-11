@@ -263,7 +263,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     }
 
     @Override
-    public Map<String, @NonNls String> getImplicitConnectionProperties() {
+    public Map<String, String> getImplicitConnectionProperties() {
         return Map.of(
                 "oracle.jdbc.jsonDefaultGetObjectType", "java.lang.String",
                 "oracle.jdbc.vectorDefaultGetObjectType", "double[]",

@@ -168,11 +168,11 @@ public class TextFields {
         }
     }
 
-    public static void installErrorHighlighting(TextFieldWithBrowseButton textField, Function<String, @Nullable @Tooltip String> verifier) {
+    public static void installErrorHighlighting(TextFieldWithBrowseButton textField, Function<String, @Tooltip String> verifier) {
         installErrorHighlighting(textField.getTextField(), verifier);
     }
 
-    public static void installErrorHighlighting(JTextField textComponent, Function<String, @Nullable @Tooltip String> verifier) {
+    public static void installErrorHighlighting(JTextField textComponent, Function<String, @Tooltip String> verifier) {
         onTextChange(textComponent, e -> {
             String errorMessage = verifier.apply(textComponent.getText());
             updateFieldError(textComponent, errorMessage);

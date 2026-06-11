@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 @NonNls
 @UtilityClass
@@ -46,7 +47,14 @@ public final class Files {
 
 
     public static String toRegexFileNamePattern(String fileNamePattern) {
-        return "^(?i)" + fileNamePattern.replaceAll("\\*", "[a-z0-9_-]*") + "$";
+        String[] tokens = fileNamePattern.split("\\*", -1);
+        StringBuilder pattern = new StringBuilder("(?i)^");
+        for (int i = 0; i < tokens.length; i++) {
+            if (i > 0) pattern.append(".*");
+            pattern.append(Pattern.quote(tokens[i]));
+        }
+        pattern.append("$");
+        return pattern.toString();
     }
 
     public static File createFileByRelativePath(@NotNull final File absoluteBase, @NotNull final String relativeTail) {

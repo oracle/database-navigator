@@ -77,7 +77,7 @@ public class ParserDiagnosticsForm extends DBNFormBase {
         detailsLabel.setText(txt("app.diagnostics.label.NoResultSelected"));
         stateTransitionLabel.setText("");
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.ParserDiagnostics");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBN.Diagnostics.Parser");
         setAccessibleName(actionToolbar, txt("app.diagnostics.aria.ParserDiagnosticActions"));
         actionsPanel.add(actionToolbar.getComponent());
 
