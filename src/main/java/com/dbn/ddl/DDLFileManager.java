@@ -56,6 +56,7 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.notification.NotificationCategory.DDL;
+import static com.dbn.common.util.Lists.first;
 import static com.dbn.nls.NlsResources.txt;
 
 @State(
@@ -91,6 +92,12 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
 
     DDLFileType getDDLFileTypeForFileName(String fileName) {
         return getExtensionSettings().getFileTypeForFileName(fileName);
+    }
+
+    @Nullable
+    DDLFileType getDDLFileTypeForFileName(DBObjectType objectType, String fileName) {
+        List<DDLFileType> fileTypes = getDDLFileTypes(objectType);
+        return first(fileTypes, fileType -> fileType.matchesFileName(fileName));
     }
 
     String createDDLStatement(DBSourceCodeVirtualFile sourceCodeFile, DBContentType contentType) {

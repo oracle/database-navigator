@@ -340,8 +340,9 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
         List<VirtualFile> ddlFiles = databaseFile.getAttachedDDLFiles();
         if (ddlFiles == null || ddlFiles.isEmpty()) return;
 
+        DBObjectType objectType = databaseFile.getObjectType();
         for (VirtualFile ddlFile : ddlFiles) {
-            DDLFileType ddlFileType = ddlFileManager.getDDLFileTypeForFileName(ddlFile.getName());
+            DDLFileType ddlFileType = ddlFileManager.getDDLFileTypeForFileName(objectType, ddlFile.getName());
             if (ddlFileType == null) continue;
 
             DBContentType fileContentType = ddlFileType.getContentType();
