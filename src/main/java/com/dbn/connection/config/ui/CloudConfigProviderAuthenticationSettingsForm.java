@@ -76,6 +76,10 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     private JPasswordField vaultPasswordField;
     private JLabel userPassAuthPathLabel;
     private JTextField userPassAuthPathTextField;
+    private JLabel roleIdLabel;
+    private JTextField roleIdTextField;
+    private JLabel secretIdLabel;
+    private JPasswordField secretIdPasswordField;
     private CloudConfigProviderType cloudProviderType;
 
     public CloudConfigProviderAuthenticationSettingsForm(@NotNull ConnectionDatabaseSettingsForm parentComponent) {
@@ -145,7 +149,8 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                     getText(vaultAddressTextField),
                     getText(vaultNamespaceTextField),
                     getText(vaultUsernameTextField),
-                    getText(userPassAuthPathTextField));
+                    getText(userPassAuthPathTextField),
+                    getText(roleIdTextField));
             if (isHashicorpVaultTokenAuthentication()) {
                 ConfigProviderSecretStore.saveHashicorpVaultToken(getConnectionId(), vaultTokenPasswordField.getPassword());
             } else {
@@ -155,6 +160,11 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                 ConfigProviderSecretStore.saveHashicorpVaultPassword(getConnectionId(), vaultPasswordField.getPassword());
             } else {
                 ConfigProviderSecretStore.removeHashicorpVaultPassword(getConnectionId());
+            }
+            if (isHashicorpAppRoleAuthentication()) {
+                ConfigProviderSecretStore.saveHashicorpAppRoleSecretId(getConnectionId(), secretIdPasswordField.getPassword());
+            } else {
+                ConfigProviderSecretStore.removeHashicorpAppRoleSecretId(getConnectionId());
             }
         }
     }
@@ -189,10 +199,14 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                 databaseInfo.getConfigProviderInfo().getVaultUsername() : null);
         userPassAuthPathTextField.setText(isHashicorpProvider() ?
                 databaseInfo.getConfigProviderInfo().getUserPassAuthPath() : null);
+        roleIdTextField.setText(isHashicorpProvider() ?
+                databaseInfo.getConfigProviderInfo().getRoleId() : null);
         vaultTokenPasswordField.setText(isHashicorpProvider() ?
                 Chars.toString(ConfigProviderSecretStore.loadHashicorpVaultToken(getConnectionId())) : null);
         vaultPasswordField.setText(isHashicorpProvider() ?
                 Chars.toString(ConfigProviderSecretStore.loadHashicorpVaultPassword(getConnectionId())) : null);
+        secretIdPasswordField.setText(isHashicorpProvider() ?
+                Chars.toString(ConfigProviderSecretStore.loadHashicorpAppRoleSecretId(getConnectionId())) : null);
         updateFieldVisibility();
     }
 
@@ -221,7 +235,11 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                     isHashicorpUserpassAuthentication() &&
                             !Commons.matchArrays(ConfigProviderSecretStore.loadHashicorpVaultPassword(getConnectionId()), vaultPasswordField.getPassword()) ||
                     isHashicorpVaultTokenAuthentication() &&
-                            !Commons.matchArrays(ConfigProviderSecretStore.loadHashicorpVaultToken(getConnectionId()), vaultTokenPasswordField.getPassword());
+                            !Commons.matchArrays(ConfigProviderSecretStore.loadHashicorpVaultToken(getConnectionId()), vaultTokenPasswordField.getPassword()) ||
+                    isHashicorpAppRoleAuthentication() &&
+                            !Commons.match(databaseInfo.getConfigProviderInfo().getRoleId(), getText(roleIdTextField)) ||
+                    isHashicorpAppRoleAuthentication() &&
+                            !Commons.matchArrays(ConfigProviderSecretStore.loadHashicorpAppRoleSecretId(getConnectionId()), secretIdPasswordField.getPassword());
         }
         if (!isOciProvider()) return authenticationChanged;
 
@@ -240,6 +258,8 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         onTextChange(vaultUsernameTextField, e -> runnable.run());
         onTextChange(vaultPasswordField, e -> runnable.run());
         onTextChange(userPassAuthPathTextField, e -> runnable.run());
+        onTextChange(roleIdTextField, e -> runnable.run());
+        onTextChange(secretIdPasswordField, e -> runnable.run());
         profileComboBox.addActionListener(e -> runnable.run());
     }
 
@@ -265,6 +285,7 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         boolean hashicorpProvider = isHashicorpProvider();
         boolean hashicorpVaultTokenAuthentication = isHashicorpVaultTokenAuthentication();
         boolean hashicorpUserpassAuthentication = isHashicorpUserpassAuthentication();
+        boolean hashicorpAppRoleAuthentication = isHashicorpAppRoleAuthentication();
 
         authenticationLabel.setVisible(authenticationProvider);
         authenticationComboBox.setVisible(authenticationProvider);
@@ -288,6 +309,10 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         vaultPasswordField.setVisible(hashicorpUserpassAuthentication);
         userPassAuthPathLabel.setVisible(hashicorpUserpassAuthentication);
         userPassAuthPathTextField.setVisible(hashicorpUserpassAuthentication);
+        roleIdLabel.setVisible(hashicorpAppRoleAuthentication);
+        roleIdTextField.setVisible(hashicorpAppRoleAuthentication);
+        secretIdLabel.setVisible(hashicorpAppRoleAuthentication);
+        secretIdPasswordField.setVisible(hashicorpAppRoleAuthentication);
 
         if (cloudProviderType == null) return;
 
@@ -319,6 +344,11 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     private boolean isHashicorpUserpassAuthentication() {
         return isHashicorpProvider() &&
                 getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.HCP_USERPASS;
+    }
+
+    private boolean isHashicorpAppRoleAuthentication() {
+        return isHashicorpProvider() &&
+                getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.HCP_APPROLE;
     }
 
     private boolean isOciProvider() {

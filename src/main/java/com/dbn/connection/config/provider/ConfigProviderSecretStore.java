@@ -27,6 +27,7 @@ import java.util.Map;
 
 import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.HCP_VAULT_TOKEN;
 import static com.dbn.connection.config.provider.CloudConfigProviderType.HASHICORP_VAULT;
+import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_APPROLE_SECRET_ID;
 import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_VAULT_PASSWORD;
 import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_VAULT_TOKEN;
 
@@ -69,6 +70,24 @@ public class ConfigProviderSecretStore {
         DatabaseCredentialManager.getInstance().removeSecret(connectionId, secret);
     }
 
+    public static char[] loadHashicorpAppRoleSecretId(@NotNull ConnectionId connectionId) {
+        Secret secret = DatabaseCredentialManager.getInstance().loadSecret(
+                CONNECTION_HASHICORP_APPROLE_SECRET_ID,
+                connectionId,
+                null);
+        return secret.getToken();
+    }
+
+    public static void saveHashicorpAppRoleSecretId(@NotNull ConnectionId connectionId, char[] secretId) {
+        Secret secret = new Secret(CONNECTION_HASHICORP_APPROLE_SECRET_ID, null, secretId);
+        DatabaseCredentialManager.getInstance().storeSecret(connectionId, secret);
+    }
+
+    public static void removeHashicorpAppRoleSecretId(@NotNull ConnectionId connectionId) {
+        Secret secret = new Secret(CONNECTION_HASHICORP_APPROLE_SECRET_ID, null, Secret.EMPTY);
+        DatabaseCredentialManager.getInstance().removeSecret(connectionId, secret);
+    }
+
     public static void addRuntimeSecrets(
             @NotNull Map<String, String> parameters,
             @NotNull ConfigProviderInfo configProviderInfo,
@@ -83,6 +102,8 @@ public class ConfigProviderSecretStore {
                     addRuntimeSecret(parameters, "VAULT_TOKEN", loadHashicorpVaultToken(connectionId));
             case HCP_USERPASS ->
                     addRuntimeSecret(parameters, "VAULT_PASSWORD", loadHashicorpVaultPassword(connectionId));
+            case HCP_APPROLE ->
+                    addRuntimeSecret(parameters, "SECRET_ID", loadHashicorpAppRoleSecretId(connectionId));
             default -> {
             }
         }
