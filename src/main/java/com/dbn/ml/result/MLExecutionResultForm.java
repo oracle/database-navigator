@@ -36,23 +36,37 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
-import lombok.extern.slf4j.Slf4j;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Form for displaying ML model evaluation results.
@@ -99,8 +113,8 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     }
 
     private void createActionsPanel() {
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.MLExecutionResult");
-        setAccessibleName(actionToolbar, "ML Execution Result Actions");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBN.MachineLearning.Result");
+        setAccessibleName(actionToolbar, txt("app.machineLearning.aria.MLExecutionResultActions"));
         actionsPanel.add(actionToolbar.getComponent());
     }
 
@@ -109,7 +123,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
 
         // Set title with model name
         String modelName = result.getModelName();
-        titleLabel.setText(modelName != null ? modelName : "ML Training Result");
+        titleLabel.setText(modelName != null ? modelName : txt("app.machineLearning.title.MLTrainingResult"));
 
         // Task type
         String taskType = result.isClassification() ? "Classification" : "Regression";

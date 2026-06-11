@@ -35,12 +35,13 @@ import java.util.List;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
+import static com.dbn.nls.NlsResources.txt;
 
 public class MLToolboxOpenAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Open ML Toolbox...");
+        presentation.setText(txt("app.machineLearning.action.OpenMLToolboxEllipsis"));
         presentation.setIcon(Icons.DBO_AI_MODEL);
         presentation.setVisible(true);
     }
@@ -65,7 +66,7 @@ public class MLToolboxOpenAction extends ProjectAction {
         List<SelectConnectionAction> actions = convert(connections, c -> new SelectConnectionAction(c));
 
         popupBuilder(actions, e).
-                withTitle("Select ML Toolbox Connection").
+                withTitle(txt("msg.machineLearning.title.SelectToolboxConnection")).
                 withSpeedSearch().
                 buildAndShowCentered();
     }

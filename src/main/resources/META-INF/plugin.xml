@@ -550,7 +550,7 @@
             </action>
             <action class="com.dbn.menu.action.VectorToolboxOpenAction" id="DBN.MainMenu.VectorToolbox" icon="com.dbn.common.icon.Icons.VECTOR_TOOLBOX"/>
             <action class="com.dbn.menu.action.McpBuilderOpenAction" id="DBN.MainMenu.McpBuilder"/>
-            <action class="com.dbn.menu.action.MLToolboxOpenAction" text="Open ML Toolbox..." id="DBNavigator.Actions.MainMenu.OpenMLToolbox"/>
+            <action class="com.dbn.menu.action.MLToolboxOpenAction" id="DBN.MainMenu.MLToolbox"/>
             <separator/>
             <action class="com.dbn.menu.action.MethodExecutionHistoryAction" id="DBN.MainMenu.MethodExecutionHistory">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift M"/>
@@ -711,13 +711,13 @@
             <action id="DBN.Vector.Embedding.Result.Close" class="com.dbn.vector.action.VectorEmbeddingCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
             <action id="DBN.Vector.Embedding.Result.Toolbox" class="com.dbn.vector.action.VectorEmbeddingToolboxAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
         </group>
-        <group id="DBNavigator.ActionGroup.MLExecutionResult">
-            <action id="DBNavigator.Actions.MLExecutionResult.OpenToolbox" class="com.dbn.ml.result.action.MLResultOpenToolboxAction" text="ML Result - Open ML Toolbox" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
-            <action id="DBNavigator.Actions.MLExecutionResult.Predict" class="com.dbn.ml.result.action.MLResultPredictAction" text="ML Result - Predict" icon="com.dbn.common.icon.Icons.ACTION_EXECUTE"/>
-            <action id="DBNavigator.Actions.MLExecutionResult.ViewInBrowser" class="com.dbn.ml.result.action.MLResultViewInBrowserAction" text="ML Result - View in Database" icon="com.dbn.common.icon.Icons.DBO_AI_MODEL"/>
-            <action id="DBNavigator.Actions.MLExecutionResult.Rename" class="com.dbn.ml.result.action.MLResultRenameAction" text="ML Result - Rename Model" icon="com.dbn.common.icon.Icons.ACTION_EDIT"/>
+        <group id="DBN.MachineLearning.Result">
+            <action id="DBN.MachineLearning.Result.Toolbox" class="com.dbn.ml.result.action.MLResultOpenToolboxAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
+            <action id="DBN.MachineLearning.Result.Predict" class="com.dbn.ml.result.action.MLResultPredictAction" icon="com.dbn.common.icon.Icons.ACTION_EXECUTE"/>
+            <action id="DBN.MachineLearning.Result.ViewInDatabase" class="com.dbn.ml.result.action.MLResultViewInBrowserAction" icon="com.dbn.common.icon.Icons.DBO_AI_MODEL"/>
+            <action id="DBN.MachineLearning.Result.RenameModel" class="com.dbn.ml.result.action.MLResultRenameAction" icon="com.dbn.common.icon.Icons.ACTION_EDIT"/>
             <separator/>
-            <action id="DBNavigator.Actions.MLExecutionResult.Close" class="com.dbn.ml.result.action.MLResultCloseAction" text="ML Result - Close" icon="com.dbn.common.icon.Icons.EXEC_RESULT_CLOSE"/>
+            <action id="DBN.MachineLearning.Result.Close" class="com.dbn.ml.result.action.MLResultCloseAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_CLOSE"/>
         </group>
         <group id="DBN.Execution.Method.CursorResult">
             <action id="DBN.Execution.Method.CursorResult.Find" class="com.dbn.execution.method.result.action.CursorResultFindAction" icon="AllIcons.Actions.Find">
