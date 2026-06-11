@@ -34,6 +34,8 @@ import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.ServerType;
 import com.dbn.connection.config.file.DatabaseFileBundle;
+import com.dbn.connection.config.provider.ConfigProviderInfo;
+import com.dbn.connection.config.provider.ConfigProviderSecretStore;
 import com.dbn.connection.config.ui.ConnectionDatabaseSettingsForm;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverSource;
@@ -51,6 +53,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -265,7 +268,10 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             return databaseInfo.getParameters();
         }
 
-        return databaseInfo.getConfigProviderInfo().getUrlParameters(true);
+        ConfigProviderInfo configProviderInfo = databaseInfo.getConfigProviderInfo();
+        Map<String, String> parameters = new LinkedHashMap<>(configProviderInfo.getUrlParameters(true));
+        ConfigProviderSecretStore.addRuntimeSecrets(parameters, configProviderInfo, getConnectionId());
+        return parameters;
     }
 
     private boolean isConfigCloudProvider() {
