@@ -1,0 +1,45 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="ko">
+<head>
+    <title>임베딩 대상</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body style="width: 300px">
+    <h3>임베딩 대상</h3>
+    <p>
+        생성된 벡터 임베딩의 대상 테이블입니다.<br>
+        각 행은 검색 또는 유사도 검색을 위한 하나의 청크와 관련 임베딩 및 메타데이터를 나타냅니다.
+    </p>
+    <br>
+    <p>일반적인 대상 테이블은 다음 구조를 가집니다.</p>
+    <ul>
+        <li><code>ID</code> – 청크/임베딩 레코드의 고유 식별자</li>
+        <li><code>TEXT (CLOB)</code> – 임베딩 생성에 사용되는 청크된 텍스트 세그먼트</li>
+        <li><code>EMBEDDING (VECTOR)</code> – 유사도 검색을 위한 텍스트의 숫자 벡터 표현</li>
+        <li><code>METADATA (JSON)</code> – 임베딩된 콘텐츠 소스에 대한 정보</li>
+    </ul>
+</body>
+</html>
+

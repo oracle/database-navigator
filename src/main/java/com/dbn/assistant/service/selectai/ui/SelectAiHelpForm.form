@@ -96,7 +96,7 @@
               <enabled value="true"/>
               <focusable value="true"/>
               <margin top="8" left="8" bottom="8" right="8"/>
-              <text resource-bundle="messages/DBNResources" key="cfg.assistant.code.GrantExecution"/>
+              <text value=""/>
             </properties>
           </component>
           <component id="653c3" class="javax.swing.JButton" binding="copyPrivilegeButton">
@@ -154,7 +154,7 @@
               <focusable value="true"/>
               <margin top="8" left="8" bottom="8" right="8"/>
               <rows value="4"/>
-              <text resource-bundle="messages/DBNResources" key="cfg.assistant.code.AllowNetworkAccess"/>
+              <text value=""/>
             </properties>
           </component>
           <component id="42cab" class="javax.swing.JButton" binding="copyACLButton">

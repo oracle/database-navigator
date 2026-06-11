@@ -1,0 +1,45 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="ja">
+<head>
+    <title>Embedding宛先</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body style="width: 300px">
+    <h3>Embedding宛先</h3>
+    <p>
+        Vector embeddingが生成された宛先表です。<br>
+        各行は1つのChunkと、それに関連付けられたEmbeddingおよび検索または類似検索用のメタデータを表します。
+    </p>
+    <br>
+    <p>宛先表は次の構造を持ちます:</p>
+    <ul>
+        <li><code>ID</code> - Chunk/Embeddingレコードの一意識別子</li>
+        <li><code>TEXT (CLOB)</code> - Embeddingの生成に使用されるChunk化されたテキスト・セグメント</li>
+        <li><code>EMBEDDING (VECTOR)</code> - 類似検索用のテキストの数値Vector表現</li>
+        <li><code>METADATA (JSON)</code> - Embeddingされたコンテンツ・ソースに関する情報</li>
+    </ul>
+</body>
+</html>
+

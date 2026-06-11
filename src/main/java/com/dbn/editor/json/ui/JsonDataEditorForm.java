@@ -91,7 +91,7 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
             jsonDataEditorTable = new JsonDataEditorTable(this, jsonDataEditor);
             jsonDataTableScrollPane.setViewportView(jsonDataEditorTable);
 
-            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.JsonDataEditor");
+            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.JsonDataEditor");
             setAccessibleName(actionToolbar, txt("app.dataEditor.aria.JsonDataEditorActions"));
 
             actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);

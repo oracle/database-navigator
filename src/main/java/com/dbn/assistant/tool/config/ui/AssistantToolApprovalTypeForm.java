@@ -32,6 +32,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 
+import static com.dbn.assistant.tool.AssistantToolData.getToolDisplayDescription;
+import static com.dbn.assistant.tool.AssistantToolData.getToolDisplayName;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
@@ -73,7 +75,9 @@ public class AssistantToolApprovalTypeForm extends AssistantToolApprovalItemForm
 
     private void initNameLabel() {
         AssistantTool tool = getAssistantTool();
-        nameLabel.setText(tool.getName());
+        String toolName = getToolDisplayName(tool);
+
+        nameLabel.setText(toolName);
         nameLabel.setFont(Fonts.regular(1));
     }
 
@@ -85,8 +89,11 @@ public class AssistantToolApprovalTypeForm extends AssistantToolApprovalItemForm
     }
 
     private void initDescriptionPanel() {
+        AssistantTool assistantTool = getAssistantTool();
+        String toolDescription = getToolDisplayDescription(assistantTool);
+
         descriptionTextPane.setForeground(Colors.faded(UIUtil.getLabelForeground()));
-        descriptionTextPane.setText(getAssistantTool().getDescription());
+        descriptionTextPane.setText(toolDescription);
     }
 
     private AssistantToolApprovalCategoryForm getCategoryForm() {

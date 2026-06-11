@@ -16,10 +16,13 @@
 
 package com.dbn.database.common.debug;
 
+import lombok.Getter;
+
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.Types;      
 
+@Getter
 public class VariableInfo extends BasicOperationInfo {
     private String value;
 
@@ -35,8 +38,8 @@ public class VariableInfo extends BasicOperationInfo {
         error = statement.getString(2);
     }
 
-    public String getValue() {
+    @Override
+    public String toString() {
         return value;
     }
-
 }

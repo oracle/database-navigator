@@ -1,0 +1,26 @@
+<html lang="fr">
+<head>
+    <title>Approbation des outils</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body>
+    Cette page présente tous les outils disponibles pour Database Assistant.<br>
+    Utilisez-la pour déterminer les outils auxquels le modèle de langage peut accéder.
+
+    <br><br>
+    Gérez l’accès aux outils en activant ou désactivant des catégories complètes ainsi que des outils individuels.<br>
+    Le statut d’un outil détermine sa visibilité pour le LLM :
+    <ul>
+        <li>Les outils marqués comme "Approuvé" seront invoqués automatiquement.</li>
+        <li>Les outils marqués comme "Sur demande" nécessiteront une approbation avant chaque invocation.</li>
+        <li>Les outils marqués comme "Bloqué" ne seront pas visibles par le LLM.</li>
+    </ul>
+</body>
+</html>

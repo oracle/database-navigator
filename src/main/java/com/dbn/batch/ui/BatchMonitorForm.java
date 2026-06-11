@@ -93,7 +93,7 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
     }
 
     private void initProgressActions() {
-        ActionToolbar actionToolbar = createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.BatchMonitor.Controls");
+        ActionToolbar actionToolbar = createActionToolbar(actionsPanel, true, "DBN.BatchMonitor");
         actionsPanel.add(actionToolbar.getComponent());
     }
 

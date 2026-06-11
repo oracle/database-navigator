@@ -16,6 +16,7 @@
 
 package com.dbn.data.export.processor;
 
+import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
@@ -25,6 +26,7 @@ import com.dbn.data.export.DataExportInstructions;
 import com.dbn.data.export.DataExportInstructions.Scope;
 import com.dbn.data.export.DataExportModel;
 import com.dbn.data.value.ValueAdapter;
+import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
@@ -46,7 +48,9 @@ import java.util.GregorianCalendar;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
-public abstract class DataExportProcessor {
+public abstract class DataExportProcessor implements ExtensionPoint {
+    public static final ExtensionPointName<DataExportProcessor> EP = ExtensionPointName.create("com.dbn.dataExportProcessor");
+
     public abstract boolean supports(DataExportFeature feature);
 
     public abstract void performExport(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connection) throws DataExportException;

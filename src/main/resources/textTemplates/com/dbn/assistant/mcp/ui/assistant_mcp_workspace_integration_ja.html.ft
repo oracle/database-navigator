@@ -1,0 +1,21 @@
+<html lang="ja">
+<head>
+    <title>ワークスペース統合</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body>
+    <strong>MCP Server Pluginによるワークスペース統合</strong><br><br>
+
+    この機能は、<a href="https://plugins.jetbrains.com/plugin/26071-mcp-server">JetBrains MCP Server</a>プラグインを使用して、DB Assistantをワークスペースとさらに統合します。
+
+    <br><br>
+    プラグインがインストールされ、サーバーが有効になっていることを確認してください<br>
+</body>
+</html>

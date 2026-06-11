@@ -112,7 +112,7 @@ public class ObjectFilterDetailsForm extends DBNFormBase {
     @NonNls
     @SneakyThrows
     private static TextContent loadHintText() {
-        String content = TextResources.get(ObjectFilterDetailsForm.class, "object_filter_expression_guide.html.ft");
+        String content = TextResources.getLocalizable(ObjectFilterDetailsForm.class, "object_filter_expression_guide.html.ft");
         return TextContent.html(content);
     }
 
