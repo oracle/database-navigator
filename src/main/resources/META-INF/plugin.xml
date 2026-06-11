@@ -413,463 +413,463 @@
     </extensions>
 
     <actions>
-        <action class="com.dbn.execution.script.action.ExecuteScriptFileAction" id="DBN.Editor.ExecuteScriptFile" text="Execute SQL Script" icon="com.dbn.common.icon.Icons.EXECUTE_SQL_SCRIPT">
+        <action class="com.dbn.execution.script.action.ExecuteScriptFileAction" id="DBN.Editor.ExecuteScriptFile" icon="com.dbn.common.icon.Icons.EXECUTE_SQL_SCRIPT">
             <!--<add-to-group group-id="ProjectViewPopupMenu" relative-to-action="WeighingNewGroup" anchor="before"/>-->
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
-        <action id="DBN.Assistant.Editor.ExplainSQL" class="com.dbn.assistant.service.selectai.editor.action.SelectAiExplainSqlAction" text="Assistant - Generate SQL With Explanation">
+        <action id="DBN.Assistant.Editor.ExplainSQL" class="com.dbn.assistant.service.selectai.editor.action.SelectAiExplainSqlAction">
             <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="DBN.Editor.ExecuteScriptFile"/>
         </action>
-        <action id="DBN.Assistant.Editor.ShowSQL" class="com.dbn.assistant.service.selectai.editor.action.SelectAiShowSqlAction" text="Assistant - Generate SQL">
+        <action id="DBN.Assistant.Editor.ShowSQL" class="com.dbn.assistant.service.selectai.editor.action.SelectAiShowSqlAction">
             <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="DBN.Editor.ExecuteScriptFile"/>
         </action>
         <group id="DBN.Editor.Generate">
             <add-to-group group-id="GenerateGroup" anchor="last" />
-            <action id="DBN.Assistant.Generate.SQL" class="com.dbn.assistant.service.selectai.editor.action.SelectAiShowSqlAction" text="Assistant - Generate SQL"/>
-            <action id="DBN.Assistant.Generate.SQLWithExplanation" class="com.dbn.assistant.service.selectai.editor.action.SelectAiExplainSqlAction" text="Assistant - Generate and Explain SQL"/>
+            <action id="DBN.Assistant.Generate.SQL" class="com.dbn.assistant.service.selectai.editor.action.SelectAiShowSqlAction"/>
+            <action id="DBN.Assistant.Generate.SQLWithExplanation" class="com.dbn.assistant.service.selectai.editor.action.SelectAiExplainSqlAction"/>
         </group>
         <group id="DBN.ProjectView.Context">
-            <group id="DBN.ProjectView.Popup" text="DB Navigator" popup="true" keep-content="true">
-                <action id="DBN.File.ExecuteScript" class="com.dbn.execution.script.action.ExecuteScriptFileAction" text="Execute SQL Script" icon="com.dbn.common.icon.Icons.EXECUTE_SQL_SCRIPT"/>
-                <action id="DBN.Connection.Context.LinkConnection" class="com.dbn.connection.context.action.FolderConnectionLinkAction" text="Connection Context - Associate Connection" icon="com.dbn.common.icon.Icons.FOLDER_CONNECTION_ASSOCIATION"/>
-                <action id="DBN.Connection.Context.LinkSchema" class="com.dbn.connection.context.action.FolderSchemaLinkAction" text="Connection Context - Associate Schema" icon="com.dbn.common.icon.Icons.FOLDER_SCHEMA_ASSOCIATION"/>
+            <group id="DBN.ProjectView.Popup" popup="true" keep-content="true">
+                <action id="DBN.File.ExecuteScript" class="com.dbn.execution.script.action.ExecuteScriptFileAction" icon="com.dbn.common.icon.Icons.EXECUTE_SQL_SCRIPT"/>
+                <action id="DBN.Connection.Context.LinkConnection" class="com.dbn.connection.context.action.FolderConnectionLinkAction" icon="com.dbn.common.icon.Icons.FOLDER_CONNECTION_ASSOCIATION"/>
+                <action id="DBN.Connection.Context.LinkSchema" class="com.dbn.connection.context.action.FolderSchemaLinkAction" icon="com.dbn.common.icon.Icons.FOLDER_SCHEMA_ASSOCIATION"/>
                 <separator/>
-                <action id="DBN.Connection.Context.UnlinkConnection" class="com.dbn.connection.context.action.FolderConnectionUnlinkAction" text="Connection Context - Remove Connection Association"/>
+                <action id="DBN.Connection.Context.UnlinkConnection" class="com.dbn.connection.context.action.FolderConnectionUnlinkAction"/>
                 <separator/>
-                <action id="DBN.Java.Upload" class="com.dbn.sync.java.action.JavaObjectUploadAction" text="Upload" />
+                <action id="DBN.Java.Upload" class="com.dbn.sync.java.action.JavaObjectUploadAction" />
             </group>
             <add-to-group group-id="ProjectViewPopupMenu" relative-to-action="WeighingNewGroup" anchor="after"/>
         </group>
-        <group id="DBN.Connection.Settings" text="Connections Settings">
-            <group id="DBN.Connection.Settings.Create" class="com.dbn.connection.config.action.CreateConnectionDropdownAction" text="Connection Setup - Create Connection" icon="AllIcons.General.Add"/>
-            <action id="DBN.Connection.Settings.Remove" class="com.dbn.connection.config.action.ConnectionRemoveAction" text="Connection Setup - Remove Connection" icon="AllIcons.General.Remove"/>
-            <action id="DBN.Connection.Settings.MoveUp" class="com.dbn.connection.config.action.ConnectionMoveUpAction" text="Connection Setup - Move Connections Up" icon="com.dbn.common.icon.Icons.ACTION_MOVE_UP"/>
-            <action id="DBN.Connection.Settings.MoveDown" class="com.dbn.connection.config.action.ConnectionMoveDownAction" text="Connection Setup - Move Connections Down" icon="com.dbn.common.icon.Icons.ACTION_MOVE_DOWN"/>
-            <action id="DBN.Connection.Settings.Duplicate" class="com.dbn.connection.config.action.ConnectionDuplicateAction" text="Connection Setup - Duplicate Connection" icon="AllIcons.Actions.Copy"/>
-            <action id="DBN.Connection.Settings.ToggleStatus" class="com.dbn.connection.config.action.ConnectionStatusToggleAction" text="Connection Setup - Activate / Deactivate Connection" icon="com.dbn.common.icon.Icons.ACTION_CHECK_BOX"/>
+        <group id="DBN.Connection.Settings">
+            <group id="DBN.Connection.Settings.Create" class="com.dbn.connection.config.action.CreateConnectionDropdownAction" icon="AllIcons.General.Add"/>
+            <action id="DBN.Connection.Settings.Remove" class="com.dbn.connection.config.action.ConnectionRemoveAction" icon="AllIcons.General.Remove"/>
+            <action id="DBN.Connection.Settings.MoveUp" class="com.dbn.connection.config.action.ConnectionMoveUpAction" icon="com.dbn.common.icon.Icons.ACTION_MOVE_UP"/>
+            <action id="DBN.Connection.Settings.MoveDown" class="com.dbn.connection.config.action.ConnectionMoveDownAction" icon="com.dbn.common.icon.Icons.ACTION_MOVE_DOWN"/>
+            <action id="DBN.Connection.Settings.Duplicate" class="com.dbn.connection.config.action.ConnectionDuplicateAction" icon="AllIcons.Actions.Copy"/>
+            <action id="DBN.Connection.Settings.ToggleStatus" class="com.dbn.connection.config.action.ConnectionStatusToggleAction" icon="com.dbn.common.icon.Icons.ACTION_CHECK_BOX"/>
             <separator/>
-            <action id="DBN.Connection.Settings.Copy" class="com.dbn.connection.config.action.ConnectionsCopyAction" text="Connection Setup - Copy To Clipboard" icon="com.dbn.common.icon.Icons.CONNECTION_COPY"/>
-            <action id="DBN.Connection.Settings.Paste" class="com.dbn.connection.config.action.ConnectionPasteAction" text="Connection Setup - Paste From Clipboard" icon="com.dbn.common.icon.Icons.CONNECTION_PASTE"/>
+            <action id="DBN.Connection.Settings.Copy" class="com.dbn.connection.config.action.ConnectionsCopyAction" icon="com.dbn.common.icon.Icons.CONNECTION_COPY"/>
+            <action id="DBN.Connection.Settings.Paste" class="com.dbn.connection.config.action.ConnectionPasteAction" icon="com.dbn.common.icon.Icons.CONNECTION_PASTE"/>
         </group>
 
-        <group id="DBN.Editor" text="File Editor Controls">
-            <action id="DBN.Editor.DatabaseLogging" class="com.dbn.execution.logging.action.DatabaseLoggingToggleAction" text="Script Editor - Enable / Disable Database Logging" icon="com.dbn.common.icon.Icons.EXEC_LOG_OUTPUT_CONSOLE"/>
-            <action id="DBN.Editor.Connection" class="com.dbn.language.editor.action.ConnectionSelectDropdownAction" text="Script Editor - DB Connections"/>
-            <action id="DBN.Editor.Schema" class="com.dbn.language.editor.action.SchemaSelectDropdownAction" text="Script Editor - Current Schema"/>
-            <action id="DBN.Editor.Session" class="com.dbn.language.editor.action.DatabaseSessionSelectDropdownAction" text="Script Editor - Current Session"/>
-            <action id="DBN.Transaction.Commit" class="com.dbn.language.editor.action.TransactionCommitAction" text="Script Editor - Commit Transaction" icon="com.dbn.common.icon.Icons.CONNECTION_COMMIT"/>
-            <action id="DBN.Transaction.Rollback" class="com.dbn.language.editor.action.TransactionRollbackAction" text="Script Editor - Rollback Transaction" icon="com.dbn.common.icon.Icons.CONNECTION_ROLLBACK"/>
+        <group id="DBN.Editor">
+            <action id="DBN.Editor.DatabaseLogging" class="com.dbn.execution.logging.action.DatabaseLoggingToggleAction" icon="com.dbn.common.icon.Icons.EXEC_LOG_OUTPUT_CONSOLE"/>
+            <action id="DBN.Editor.Connection" class="com.dbn.language.editor.action.ConnectionSelectDropdownAction"/>
+            <action id="DBN.Editor.Schema" class="com.dbn.language.editor.action.SchemaSelectDropdownAction"/>
+            <action id="DBN.Editor.Session" class="com.dbn.language.editor.action.DatabaseSessionSelectDropdownAction"/>
+            <action id="DBN.Transaction.Commit" class="com.dbn.language.editor.action.TransactionCommitAction" icon="com.dbn.common.icon.Icons.CONNECTION_COMMIT"/>
+            <action id="DBN.Transaction.Rollback" class="com.dbn.language.editor.action.TransactionRollbackAction" icon="com.dbn.common.icon.Icons.CONNECTION_ROLLBACK"/>
             <separator/>
-            <action id="DBN.Editor.Execute" class="com.dbn.execution.statement.action.ExecuteStatementEditorAction" text="Script Editor - Execute Statement" icon="AllIcons.Actions.Execute">
+            <action id="DBN.Editor.Execute" class="com.dbn.execution.statement.action.ExecuteStatementEditorAction" icon="AllIcons.Actions.Execute">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl ENTER"/>
             </action>
-            <action id="DBN.Editor.Debug" class="com.dbn.debugger.common.action.DebugStatementEditorAction" text="Script Editor - Debug Statement" icon="AllIcons.Actions.StartDebugger"/>
-            <action id="DBN.Editor.ExplainPlan" class="com.dbn.execution.explain.action.ExplainPlanEditorAction" text="Script Editor - Explain Plan" icon="com.dbn.common.icon.Icons.STMT_EXECUTION_EXPLAIN">
+            <action id="DBN.Editor.Debug" class="com.dbn.debugger.common.action.DebugStatementEditorAction" icon="AllIcons.Actions.StartDebugger"/>
+            <action id="DBN.Editor.ExplainPlan" class="com.dbn.execution.explain.action.ExplainPlanEditorAction" icon="com.dbn.common.icon.Icons.STMT_EXECUTION_EXPLAIN">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift ENTER"/>
             </action>
             <separator/>
-            <action id="DBN.Editor.ExecuteScript" class="com.dbn.execution.script.action.ExecuteScriptEditorAction" text="Script Editor - Execute as Script" icon="com.dbn.common.icon.Icons.EXECUTE_SQL_SCRIPT"/>
+            <action id="DBN.Editor.ExecuteScript" class="com.dbn.execution.script.action.ExecuteScriptEditorAction" icon="com.dbn.common.icon.Icons.EXECUTE_SQL_SCRIPT"/>
             <separator/>
-            <group id="DBN.Editor.Options" class="com.dbn.language.editor.action.EditorOptionsAction" text="Script Editor - Local Settings" icon="AllIcons.General.GearPlain" />
-            <action id="DBN.Editor.Settings" class="com.dbn.language.editor.action.EditorSettingsOpenAction" text="Script Editor - Settings"/>
+            <group id="DBN.Editor.Options" class="com.dbn.language.editor.action.EditorOptionsAction" icon="AllIcons.General.GearPlain" />
+            <action id="DBN.Editor.Settings" class="com.dbn.language.editor.action.EditorSettingsOpenAction"/>
         </group>
-        <group id="DBN.Assistant.SelectAI.Context" text="Assistant Chat-Box Profiles">
-            <action class="com.dbn.assistant.service.selectai.action.ProfileSelectDropdownAction" text="Assistant - Select Profile" id="DBN.Assistant.SelectAI.Profile"/>
-            <action class="com.dbn.assistant.service.selectai.action.ModelSelectDropdownAction" text="Assistant - Select Model" id="DBN.Assistant.SelectAI.Model"/>
-            <action class="com.dbn.assistant.service.selectai.action.ProfilesRefreshAction" text="Assistant - Reload Profiles" id="DBN.Assistant.SelectAI.Profiles.Refresh" icon="AllIcons.Actions.Refresh"/>
-            <action class="com.dbn.assistant.service.selectai.action.ConfigurationHelpAction" text="Assistant - Help" id="DBN.Assistant.SelectAI.Help" icon="AllIcons.Actions.Help"/>
-            <action class="com.dbn.assistant.service.selectai.action.ProfilesSetupAction" text="Assistant - Profile Setup..."  icon="AllIcons.General.GearPlain" id="DBN.Assistant.SelectAI.ProfileSetup"/>
+        <group id="DBN.Assistant.SelectAI.Context">
+            <action class="com.dbn.assistant.service.selectai.action.ProfileSelectDropdownAction" id="DBN.Assistant.SelectAI.Profile"/>
+            <action class="com.dbn.assistant.service.selectai.action.ModelSelectDropdownAction" id="DBN.Assistant.SelectAI.Model"/>
+            <action class="com.dbn.assistant.service.selectai.action.ProfilesRefreshAction" id="DBN.Assistant.SelectAI.Profiles.Refresh" icon="AllIcons.Actions.Refresh"/>
+            <action class="com.dbn.assistant.service.selectai.action.ConfigurationHelpAction" id="DBN.Assistant.SelectAI.Help" icon="AllIcons.Actions.Help"/>
+            <action class="com.dbn.assistant.service.selectai.action.ProfilesSetupAction"  icon="AllIcons.General.GearPlain" id="DBN.Assistant.SelectAI.ProfileSetup"/>
         </group>
-        <group id="DBN.Assistant.Generic.Context" text="Assistant Chat-Box Profiles">
-            <action class="com.dbn.assistant.service.generic.action.ProfileSelectDropdownAction" text="Assistant - Select Profile" id="DBN.Assistant.Generic.Profile"/>
-            <action class="com.dbn.assistant.service.generic.action.ModelSelectDropdownAction" text="Assistant - Select Model" id="DBN.Assistant.Generic.Model"/>
-            <action class="com.dbn.assistant.service.generic.action.AssistantSettingsAction" text="Assistant - Settings..." icon="AllIcons.General.GearPlain" id="DBN.Assistant.Generic.Settings"/>
+        <group id="DBN.Assistant.Generic.Context">
+            <action class="com.dbn.assistant.service.generic.action.ProfileSelectDropdownAction" id="DBN.Assistant.Generic.Profile"/>
+            <action class="com.dbn.assistant.service.generic.action.ModelSelectDropdownAction" id="DBN.Assistant.Generic.Model"/>
+            <action class="com.dbn.assistant.service.generic.action.AssistantSettingsAction" icon="AllIcons.General.GearPlain" id="DBN.Assistant.Generic.Settings"/>
         </group>
-        <group id="DBN.Assistant.Chat" text="Assistant Chat Actions">
-            <action class="com.dbn.assistant.chat.window.action.ChatExpandAllAction" text="Assistant - Expand All" id="DBN.Assistant.Chat.ExpandAll" icon="AllIcons.Actions.Expandall"/>
-            <action class="com.dbn.assistant.chat.window.action.ChatCollapseAllAction" text="Assistant - Collapse All" id="DBN.Assistant.Chat.CollapseAll" icon="AllIcons.Actions.Collapseall"/>
+        <group id="DBN.Assistant.Chat">
+            <action class="com.dbn.assistant.chat.window.action.ChatExpandAllAction" id="DBN.Assistant.Chat.ExpandAll" icon="AllIcons.Actions.Expandall"/>
+            <action class="com.dbn.assistant.chat.window.action.ChatCollapseAllAction" id="DBN.Assistant.Chat.CollapseAll" icon="AllIcons.Actions.Collapseall"/>
             <separator/>
-            <action class="com.dbn.assistant.chat.window.action.ChatStartNewAction" text="Assistant - New Chat" id="DBN.Assistant.Chat.New" icon="AllIcons.General.Add"/>
-            <action class="com.dbn.assistant.chat.window.action.ChatDeleteAction" text="Assistant - Clear Chat" id="DBN.Assistant.Chat.Delete" icon="AllIcons.Actions.GC"/>
-            <group class="com.dbn.assistant.chat.window.action.ChatHistoryDropdownAction" text="Assistant - Chat History" id="DBN.Assistant.Chat.HistoryDropdown" icon="AllIcons.Vcs.History"/>
+            <action class="com.dbn.assistant.chat.window.action.ChatStartNewAction" id="DBN.Assistant.Chat.New" icon="AllIcons.General.Add"/>
+            <action class="com.dbn.assistant.chat.window.action.ChatDeleteAction" id="DBN.Assistant.Chat.Delete" icon="AllIcons.Actions.GC"/>
+            <group class="com.dbn.assistant.chat.window.action.ChatHistoryDropdownAction" id="DBN.Assistant.Chat.HistoryDropdown" icon="AllIcons.Vcs.History"/>
         </group>
-        <group id="DBN.Assistant.Chat.History" text="Chat History">
-            <action class="com.dbn.assistant.chat.action.ChatHistoryDeleteAction" text="Assistant - Delete Conversations" id="DBN.Assistant.Chat.History.Delete"/>
+        <group id="DBN.Assistant.Chat.History">
+            <action class="com.dbn.assistant.chat.action.ChatHistoryDeleteAction" id="DBN.Assistant.Chat.History.Delete"/>
         </group>
 
-        <group id="DBN.Assistant.Chat.Types" text="Assistant Chat Types">
-            <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$ShowSQL" text="Assistant - Show SQL" id="DBN.Assistant.Chat.Type.ShowSQL"/>
-            <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$ExplainSQL" text="Assistant - Explain SQL" id="DBN.Assistant.Chat.Type.ExplainSQL"/>
-            <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$Narrate" text="Assistant - Narrate" id="DBN.Assistant.Chat.Type.Narrate"/>
-            <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$Chat" text="Assistant - Chat" id="DBN.Assistant.Chat.Type.Chat"/>
+        <group id="DBN.Assistant.Chat.Types">
+            <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$ShowSQL" id="DBN.Assistant.Chat.Type.ShowSQL"/>
+            <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$ExplainSQL" id="DBN.Assistant.Chat.Type.ExplainSQL"/>
+            <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$Narrate" id="DBN.Assistant.Chat.Type.Narrate"/>
+            <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$Chat" id="DBN.Assistant.Chat.Type.Chat"/>
         </group>
-        <group id="DBN.Assistant.Prompt" text="Assistant Prompt Actions">
-            <action class="com.dbn.assistant.service.generic.action.AssistantOperatingModeAction" id="DBN.Assistant.Prompt.Mode" text="Assistant - Mode"/>
+        <group id="DBN.Assistant.Prompt">
+            <action class="com.dbn.assistant.service.generic.action.AssistantOperatingModeAction" id="DBN.Assistant.Prompt.Mode"/>
             <separator/>
-            <action class="com.dbn.assistant.service.generic.action.ToolSelectionAction" id="DBN.Assistant.Prompt.Tools" text="Assistant - Tools"/>
-            <action class="com.dbn.assistant.service.generic.action.McpServerSelectionAction" id="DBN.Assistant.Prompt.McpServers" text="Assistant - MCP Servers"/>
-            <action class="com.dbn.assistant.service.generic.action.EmbeddingTableSelectionAction" id="DBN.Assistant.Prompt.EmbeddingTable" text="Assistant - Embedding Table"/>
+            <action class="com.dbn.assistant.service.generic.action.ToolSelectionAction" id="DBN.Assistant.Prompt.Tools"/>
+            <action class="com.dbn.assistant.service.generic.action.McpServerSelectionAction" id="DBN.Assistant.Prompt.McpServers"/>
+            <action class="com.dbn.assistant.service.generic.action.EmbeddingTableSelectionAction" id="DBN.Assistant.Prompt.EmbeddingTable"/>
         </group>
-        <group id="DBN.Assistant.Prompt.Submit" text="Assistant Chat-Box Prompt">
-            <action class="com.dbn.assistant.chat.window.action.PromptSubmitAction" text="Assistant - Submit Prompt" id="DBN.Assistant.Prompt.SubmitPrompt" icon="AllIcons.Actions.Execute">
+        <group id="DBN.Assistant.Prompt.Submit">
+            <action class="com.dbn.assistant.chat.window.action.PromptSubmitAction" id="DBN.Assistant.Prompt.SubmitPrompt" icon="AllIcons.Actions.Execute">
                 <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
             </action>
         </group>
-        <group id="DBN.Assistant.Tool" text="Assistant Tool Actions">
-            <action class="com.dbn.assistant.tool.action.ToolExecutionStopAction" text="Assistant - Stop Tool Execution" id="DBN.Assistant.Tool.StopExecution" icon="AllIcons.Actions.Suspend"/>
-            <action class="com.dbn.assistant.tool.action.ToolExecutionDataAction" text="Assistant - Tool Execution Data" id="DBN.Assistant.Tool.ExecutionData"/>
-            <action class="com.dbn.assistant.tool.action.ToolApprovalSettingsAction" text="Assistant - Tool Approvals..." id="DBN.Assistant.Tool.ApprovalSettings"/>
+        <group id="DBN.Assistant.Tool">
+            <action class="com.dbn.assistant.tool.action.ToolExecutionStopAction" id="DBN.Assistant.Tool.StopExecution" icon="AllIcons.Actions.Suspend"/>
+            <action class="com.dbn.assistant.tool.action.ToolExecutionDataAction" id="DBN.Assistant.Tool.ExecutionData"/>
+            <action class="com.dbn.assistant.tool.action.ToolApprovalSettingsAction" id="DBN.Assistant.Tool.ApprovalSettings"/>
         </group>
-        <group id="DBN.Assistant.Credentials" text="Credential Management">
-            <action class="com.dbn.assistant.service.selectai.credential.action.CredentialCreateAction" text="Assistant - Create Credential" id="DBN.Assistant.Credentials.Create"/>
-            <action class="com.dbn.assistant.service.selectai.credential.action.CredentialDeleteAction" text="Assistant - Delete Credential" id="DBN.Assistant.Credentials.Delete"/>
-            <action class="com.dbn.assistant.service.selectai.credential.action.CredentialEditAction" text="Assistant - Edit Credential" id="DBN.Assistant.Credentials.Edit"/>
-            <action class="com.dbn.assistant.service.selectai.credential.action.CredentialStatusAction" text="Assistant - Enable / Disable Credential" id="DBN.Assistant.Credentials.ToggleStatus"/>
+        <group id="DBN.Assistant.Credentials">
+            <action class="com.dbn.assistant.service.selectai.credential.action.CredentialCreateAction" id="DBN.Assistant.Credentials.Create"/>
+            <action class="com.dbn.assistant.service.selectai.credential.action.CredentialDeleteAction" id="DBN.Assistant.Credentials.Delete"/>
+            <action class="com.dbn.assistant.service.selectai.credential.action.CredentialEditAction" id="DBN.Assistant.Credentials.Edit"/>
+            <action class="com.dbn.assistant.service.selectai.credential.action.CredentialStatusAction" id="DBN.Assistant.Credentials.ToggleStatus"/>
             <separator/>
-            <action class="com.dbn.assistant.service.selectai.credential.action.CredentialsReloadAction" text="Assistant - Reload Credentials" id="DBN.Assistant.Credentials.Reload"/>
+            <action class="com.dbn.assistant.service.selectai.credential.action.CredentialsReloadAction" id="DBN.Assistant.Credentials.Reload"/>
         </group>
-        <group id="DBN.Assistant.Profiles" text="Profile Management">
-            <action class="com.dbn.assistant.service.selectai.profile.action.ProfileCreateAction" text="Assistant - Create Profile" id="DBN.Assistant.Profiles.Create"/>
-            <action class="com.dbn.assistant.service.selectai.profile.action.ProfileDeleteAction" text="Assistant - Delete Profile" id="DBN.Assistant.Profiles.Delete"/>
-            <action class="com.dbn.assistant.service.selectai.profile.action.ProfileEditAction" text="Assistant - Edit Profile" id="DBN.Assistant.Profiles.Edit"/>
-            <action class="com.dbn.assistant.service.selectai.profile.action.ProfileStatusAction" text="Assistant - Enable / Disable Profile" id="DBN.Assistant.Profiles.ToggleStatus"/>
-            <action class="com.dbn.assistant.service.selectai.profile.action.ProfileDefaultAction" text="Assistant - Mark as Default" id="DBN.Assistant.Profiles.MarkDefault"/>
+        <group id="DBN.Assistant.Profiles">
+            <action class="com.dbn.assistant.service.selectai.profile.action.ProfileCreateAction" id="DBN.Assistant.Profiles.Create"/>
+            <action class="com.dbn.assistant.service.selectai.profile.action.ProfileDeleteAction" id="DBN.Assistant.Profiles.Delete"/>
+            <action class="com.dbn.assistant.service.selectai.profile.action.ProfileEditAction" id="DBN.Assistant.Profiles.Edit"/>
+            <action class="com.dbn.assistant.service.selectai.profile.action.ProfileStatusAction" id="DBN.Assistant.Profiles.ToggleStatus"/>
+            <action class="com.dbn.assistant.service.selectai.profile.action.ProfileDefaultAction" id="DBN.Assistant.Profiles.MarkDefault"/>
             <separator/>
-            <action class="com.dbn.assistant.service.selectai.profile.action.ProfilesReloadAction" text="Assistant - Reload Profiles" id="DBN.Assistant.Profiles.Reload"/>
+            <action class="com.dbn.assistant.service.selectai.profile.action.ProfilesReloadAction" id="DBN.Assistant.Profiles.Reload"/>
         </group>
 
-        <group id="DBN.MainMenu" text="_DB Navigator" popup="true">
-            <action class="com.dbn.menu.action.DatabaseBrowserOpenAction" text="Database Browser" id="DBN.MainMenu.DatabaseBrowser"/>
+        <group id="DBN.MainMenu" popup="true">
+            <action class="com.dbn.menu.action.DatabaseBrowserOpenAction" id="DBN.MainMenu.DatabaseBrowser"/>
             <separator/>
-            <action class="com.dbn.menu.action.SQLConsoleOpenAction" text="Open SQL Console..." id="DBN.MainMenu.SQLConsole" icon="com.dbn.common.icon.Icons.SQL_CONSOLE">
+            <action class="com.dbn.menu.action.SQLConsoleOpenAction" id="DBN.MainMenu.SQLConsole" icon="com.dbn.common.icon.Icons.SQL_CONSOLE">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift C"/>
             </action>
-            <action class="com.dbn.menu.action.SessionBrowserOpenAction" text="Open Session Browser..." id="DBN.MainMenu.SessionBrowser" icon="com.dbn.common.icon.Icons.SESSION_BROWSER">
+            <action class="com.dbn.menu.action.SessionBrowserOpenAction" id="DBN.MainMenu.SessionBrowser" icon="com.dbn.common.icon.Icons.SESSION_BROWSER">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift S"/>
             </action>
-            <action class="com.dbn.menu.action.VectorToolboxOpenAction" text="Open Vector Toolbox..." id="DBN.MainMenu.VectorToolbox" icon="com.dbn.common.icon.Icons.VECTOR_TOOLBOX"/>
-            <action class="com.dbn.menu.action.McpBuilderOpenAction" text="Open MCP Server Builder..." id="DBN.MainMenu.McpBuilder"/>
+            <action class="com.dbn.menu.action.VectorToolboxOpenAction" id="DBN.MainMenu.VectorToolbox" icon="com.dbn.common.icon.Icons.VECTOR_TOOLBOX"/>
+            <action class="com.dbn.menu.action.McpBuilderOpenAction" id="DBN.MainMenu.McpBuilder"/>
             <separator/>
-            <action class="com.dbn.menu.action.MethodExecutionHistoryAction" text="Method Execution History" id="DBN.MainMenu.MethodExecutionHistory">
+            <action class="com.dbn.menu.action.MethodExecutionHistoryAction" id="DBN.MainMenu.MethodExecutionHistory">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift M"/>
             </action>
-            <action class="com.dbn.menu.action.JavaExecutionHistoryAction" text="Java Execution History" id="DBN.MainMenu.JavaExecutionHistory">
+            <action class="com.dbn.menu.action.JavaExecutionHistoryAction" id="DBN.MainMenu.JavaExecutionHistory">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift J"/>
             </action>
-            <action class="com.dbn.menu.action.FileConnectionMappingsOpenAction" text="File Connection Mappings" id="DBN.MainMenu.FileConnectionMappings"/>
-            <action class="com.dbn.menu.action.ResourceMonitorOpenAction" text="Resource Monitor" id="DBN.MainMenu.ResourceMonitor"/>
-            <action id="DBN.MainMenu.EventMonitor" class="com.dbn.menu.action.MonitorDataChangeOpenAction" text="Data Events Monitor"/>
-            <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" text="Open Transactions" id="DBN.MainMenu.PendingTransactions"/>-->
-            <group class="com.dbn.prerequisite.action.PrerequisiteVerificationAction" popup="true" text="Prerequisite Verification" id="DBN.MainMenu.PrerequisiteVerification"/> />
+            <action class="com.dbn.menu.action.FileConnectionMappingsOpenAction" id="DBN.MainMenu.FileConnectionMappings"/>
+            <action class="com.dbn.menu.action.ResourceMonitorOpenAction" id="DBN.MainMenu.ResourceMonitor"/>
+            <action id="DBN.MainMenu.EventMonitor" class="com.dbn.menu.action.MonitorDataChangeOpenAction"/>
+            <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" id="DBN.MainMenu.PendingTransactions"/>-->
+            <group class="com.dbn.prerequisite.action.PrerequisiteVerificationAction" popup="true" id="DBN.MainMenu.PrerequisiteVerification"/> />
             <separator/>
-            <action id="DBN.MainMenu.Settings" class="com.dbn.menu.action.ProjectSettingsOpenAction" text="Settings"/>
-            <group id="DBN.MainMenu.DefaultSettings" text="Default Settings" popup="true">
-                <action id="DBN.MainMenu.DefaultSettings.Open" class="com.dbn.menu.action.ProjectDefaultSettingsOpenAction" text="Open Default Settings..."/>
-                <action id="DBN.MainMenu.DefaultSettings.Import" class="com.dbn.menu.action.ProjectDefaultSettingsImportAction" text="Import Settings..."/>
-                <action id="DBN.MainMenu.DefaultSettings.Export" class="com.dbn.menu.action.ProjectSettingsExportAction" text="Export Settings..."/>
+            <action id="DBN.MainMenu.Settings" class="com.dbn.menu.action.ProjectSettingsOpenAction"/>
+            <group id="DBN.MainMenu.DefaultSettings" popup="true">
+                <action id="DBN.MainMenu.DefaultSettings.Open" class="com.dbn.menu.action.ProjectDefaultSettingsOpenAction"/>
+                <action id="DBN.MainMenu.DefaultSettings.Import" class="com.dbn.menu.action.ProjectDefaultSettingsImportAction"/>
+                <action id="DBN.MainMenu.DefaultSettings.Export" class="com.dbn.menu.action.ProjectSettingsExportAction"/>
             </group>
-            <group id="DBN.MainMenu.Diagnostics" text="Diagnostics" popup="true">
-                <action id="DBN.MainMenu.Diagnostics.DeveloperMode" class="com.dbn.diagnostics.action.DeveloperModeAction" text="Developer Mode..."/>
-                <action id="DBN.MainMenu.Diagnostics.Parser" class="com.dbn.diagnostics.action.ParserDiagnosticsOpenAction" text="Parser Diagnostics..."/>
-                <action id="DBN.MainMenu.Diagnostics.Connection" class="com.dbn.menu.action.DiagnosticsMonitorOpenAction" text="Connection Diagnostics..."/>
-                <action id="DBN.MainMenu.Diagnostics.ReloadMetadataDefinitions" class="com.dbn.menu.action.MetaDataDefinitionReloadAction" text="Reload Metadata Definitions"/>
-                <action id="DBN.MainMenu.Diagnostics.ScrambleProjectCode" class="com.dbn.diagnostics.action.ExportScrambledSourcecodeAction" text="Scramble Project Code"/>
+            <group id="DBN.MainMenu.Diagnostics" popup="true">
+                <action id="DBN.MainMenu.Diagnostics.DeveloperMode" class="com.dbn.diagnostics.action.DeveloperModeAction"/>
+                <action id="DBN.MainMenu.Diagnostics.Parser" class="com.dbn.diagnostics.action.ParserDiagnosticsOpenAction"/>
+                <action id="DBN.MainMenu.Diagnostics.Connection" class="com.dbn.menu.action.DiagnosticsMonitorOpenAction"/>
+                <action id="DBN.MainMenu.Diagnostics.ReloadMetadataDefinitions" class="com.dbn.menu.action.MetaDataDefinitionReloadAction"/>
+                <action id="DBN.MainMenu.Diagnostics.ScrambleProjectCode" class="com.dbn.diagnostics.action.ExportScrambledSourcecodeAction"/>
                 <separator/>
-                <action id="DBN.MainMenu.Diagnostics.Settings" class="com.dbn.menu.action.DiagnosticsSettingsOpenAction" text="Settings..."/>
+                <action id="DBN.MainMenu.Diagnostics.Settings" class="com.dbn.menu.action.DiagnosticsSettingsOpenAction"/>
             </group>
 
 
-            <action id="DBN.MainMenu.About" class="com.dbn.menu.action.AboutPageOpenAction" text="About"/>
+            <action id="DBN.MainMenu.About" class="com.dbn.menu.action.AboutPageOpenAction"/>
             <add-to-group anchor="before" group-id="MainMenu" relative-to-action="HelpMenu"/>
         </group>
-        <group id="DBN.SourceEditor" text="Source Editor Controls">
-            <action id="DBN.SourceEditor.Save" class="com.dbn.editor.code.action.SourceCodeSaveAction" text="Source Editor - Save">
+        <group id="DBN.SourceEditor">
+            <action id="DBN.SourceEditor.Save" class="com.dbn.editor.code.action.SourceCodeSaveAction">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl S"/>
             </action>
-            <action id="DBN.CodeEditor.Rollback" class="com.dbn.editor.code.action.SourceCodeRevertAction" text="Code Editor - Revert Changes" icon="com.dbn.common.icon.Icons.CODE_EDITOR_RESET"/>
-            <action id="DBN.CodeEditor.Reload" class="com.dbn.editor.code.action.SourceCodeReloadAction" text="Code Editor - Reload" icon="com.dbn.common.icon.Icons.CODE_EDITOR_RELOAD"/>
-            <action id="DBN.CodeEditor.Compile" class="com.dbn.editor.code.action.ProgramCompileAction" text="Code Editor - Compile" icon="com.dbn.common.icon.Icons.OBJECT_COMPILE"/>
+            <action id="DBN.CodeEditor.Rollback" class="com.dbn.editor.code.action.SourceCodeRevertAction" icon="com.dbn.common.icon.Icons.CODE_EDITOR_RESET"/>
+            <action id="DBN.CodeEditor.Reload" class="com.dbn.editor.code.action.SourceCodeReloadAction" icon="com.dbn.common.icon.Icons.CODE_EDITOR_RELOAD"/>
+            <action id="DBN.CodeEditor.Compile" class="com.dbn.editor.code.action.ProgramCompileAction" icon="com.dbn.common.icon.Icons.OBJECT_COMPILE"/>
             <separator/>
-            <action id="DBN.CodeEditor.CompareWithOriginal" class="com.dbn.editor.code.action.CompareWithOriginalAction" text="Code Editor - Compare with Original" icon="com.dbn.common.icon.Icons.CODE_EDITOR_DIFF"/>
-            <action id="DBN.CodeEditor.CompareWithDatabase" class="com.dbn.editor.code.action.CompareWithDatabaseAction" text="Code Editor - Compare with Database" icon="com.dbn.common.icon.Icons.CODE_EDITOR_DIFF_DB"/>
+            <action id="DBN.CodeEditor.CompareWithOriginal" class="com.dbn.editor.code.action.CompareWithOriginalAction" icon="com.dbn.common.icon.Icons.CODE_EDITOR_DIFF"/>
+            <action id="DBN.CodeEditor.CompareWithDatabase" class="com.dbn.editor.code.action.CompareWithDatabaseAction" icon="com.dbn.common.icon.Icons.CODE_EDITOR_DIFF_DB"/>
             <separator/>
-            <action id="DBN.CodeEditor.ExecuteMethod" class="com.dbn.editor.code.action.MethodExecuteAction" text="Code Editor - Execute Method" icon="AllIcons.Actions.Execute"/>
-            <action id="DBN.CodeEditor.DebugMethod" class="com.dbn.editor.code.action.MethodDebugAction" text="Code Editor - Debug Method" icon="AllIcons.Actions.StartDebugger"/>
-            <action id="DBN.CodeEditor.ExecuteProgramMethod" class="com.dbn.editor.code.action.ProgramMethodExecuteAction" text="Code Editor - Execute Method" icon="AllIcons.Actions.Execute"/>
-            <action id="DBN.CodeEditor.DebugProgramMethod" class="com.dbn.editor.code.action.ProgramMethodDebugAction" text="Code Editor - Execute Method" icon="AllIcons.Actions.StartDebugger"/>
+            <action id="DBN.CodeEditor.ExecuteMethod" class="com.dbn.editor.code.action.MethodExecuteAction" icon="AllIcons.Actions.Execute"/>
+            <action id="DBN.CodeEditor.DebugMethod" class="com.dbn.editor.code.action.MethodDebugAction" icon="AllIcons.Actions.StartDebugger"/>
+            <action id="DBN.CodeEditor.ExecuteProgramMethod" class="com.dbn.editor.code.action.ProgramMethodExecuteAction" icon="AllIcons.Actions.Execute"/>
+            <action id="DBN.CodeEditor.DebugProgramMethod" class="com.dbn.editor.code.action.ProgramMethodDebugAction" icon="AllIcons.Actions.StartDebugger"/>
             <separator/>
-            <action id="DBN.CodeEditor.LinkDDLFile" class="com.dbn.editor.code.action.CodeEditorDDLFileAction" text="Code Editor - DDL Files" icon="com.dbn.common.icon.Icons.CODE_EDITOR_DDL_FILE"/>
+            <action id="DBN.CodeEditor.LinkDDLFile" class="com.dbn.editor.code.action.CodeEditorDDLFileAction" icon="com.dbn.common.icon.Icons.CODE_EDITOR_DDL_FILE"/>
             <separator/>
-            <action id="DBN.CodeEditor.Settings" class="com.dbn.editor.code.action.CodeEditorSettingsAction" text="Code Editor - Settings"/>
+            <action id="DBN.CodeEditor.Settings" class="com.dbn.editor.code.action.CodeEditorSettingsAction"/>
         </group>
-        <group id="DBN.SessionBrowser" text="Session Browser Controls">
-            <action id="DBN.SessionBrowser.Find" class="com.dbn.editor.session.action.DataFindAction" text="Session Browser - Find..." icon="AllIcons.Actions.Find">
+        <group id="DBN.SessionBrowser">
+            <action id="DBN.SessionBrowser.Find" class="com.dbn.editor.session.action.DataFindAction" icon="AllIcons.Actions.Find">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
             </action>
             <separator/>
-            <action id="DBN.SessionBrowser.Reload" class="com.dbn.editor.session.action.ReloadSessionsAction" text="Session Browser - Reload" icon="com.dbn.common.icon.Icons.DATA_EDITOR_RELOAD_DATA"/>
-            <action id="DBN.SessionBrowser.TimedReload" class="com.dbn.editor.session.action.TimedReloadComboBoxAction" text="Session Browser - Automatic Reload"/>
+            <action id="DBN.SessionBrowser.Reload" class="com.dbn.editor.session.action.ReloadSessionsAction" icon="com.dbn.common.icon.Icons.DATA_EDITOR_RELOAD_DATA"/>
+            <action id="DBN.SessionBrowser.TimedReload" class="com.dbn.editor.session.action.TimedReloadComboBoxAction"/>
             <separator/>
-            <action id="DBN.SessionBrowser.FilterUsers" class="com.dbn.editor.session.action.FilterUsersComboBoxAction" text="Session Browser - Filter Users"/>
-            <action id="DBN.SessionBrowser.FilterHosts" class="com.dbn.editor.session.action.FilterHostsComboBoxAction" text="Session Browser - Filter Hosts"/>
-            <action id="DBN.SessionBrowser.FilterStatuses" class="com.dbn.editor.session.action.FilterStatusesComboBoxAction" text="Session Browser - Filter Statuses"/>
-            <action id="DBN.SessionBrowser.ClearFilters" class="com.dbn.editor.session.action.ClearFiltersAction" text="Session Browser - Clear Filters" icon="com.dbn.common.icon.Icons.DATASET_FILTER_CLEAR"/>
+            <action id="DBN.SessionBrowser.FilterUsers" class="com.dbn.editor.session.action.FilterUsersComboBoxAction"/>
+            <action id="DBN.SessionBrowser.FilterHosts" class="com.dbn.editor.session.action.FilterHostsComboBoxAction"/>
+            <action id="DBN.SessionBrowser.FilterStatuses" class="com.dbn.editor.session.action.FilterStatusesComboBoxAction"/>
+            <action id="DBN.SessionBrowser.ClearFilters" class="com.dbn.editor.session.action.ClearFiltersAction" icon="com.dbn.common.icon.Icons.DATASET_FILTER_CLEAR"/>
             <separator/>
-            <action id="DBN.SessionBrowser.DisconnectSessions" class="com.dbn.editor.session.action.DisconnectSessionsAction" text="Session Browser - Disconnect Sessions" icon="com.dbn.common.icon.Icons.ACTION_DISCONNECT_SESSION"/>
-            <action id="DBN.SessionBrowser.KillSessions" class="com.dbn.editor.session.action.KillSessionsAction" text="Session Browser - Kill Sessions" icon="com.dbn.common.icon.Icons.ACTION_KILL_SESSION"/>
+            <action id="DBN.SessionBrowser.DisconnectSessions" class="com.dbn.editor.session.action.DisconnectSessionsAction" icon="com.dbn.common.icon.Icons.ACTION_DISCONNECT_SESSION"/>
+            <action id="DBN.SessionBrowser.KillSessions" class="com.dbn.editor.session.action.KillSessionsAction" icon="com.dbn.common.icon.Icons.ACTION_KILL_SESSION"/>
             <separator/>
-            <action id="DBN.SessionBrowser.Settings" class="com.dbn.editor.session.action.SessionBrowserSettingsAction" text="Session Browser - Settings"/>
+            <action id="DBN.SessionBrowser.Settings" class="com.dbn.editor.session.action.SessionBrowserSettingsAction"/>
         </group>
-        <group id="DBN.Vector.Search" text="Vector Search Controls">
-            <action id="DBN.Vector.Search.Schema" class="com.dbn.vector.search.action.VectorSchemaSelectAction" text="Vector Search - Schema"/>
-            <action id="DBN.Vector.Search.Table" class="com.dbn.vector.search.action.VectorTableSelectAction" text="Vector Search - Table"/>
-            <action id="DBN.Vector.Search.Metric" class="com.dbn.vector.search.action.VectorMetricSelectAction" text="Vector Search - Distance Metric"/>
+        <group id="DBN.Vector.Search">
+            <action id="DBN.Vector.Search.Schema" class="com.dbn.vector.search.action.VectorSchemaSelectAction"/>
+            <action id="DBN.Vector.Search.Table" class="com.dbn.vector.search.action.VectorTableSelectAction"/>
+            <action id="DBN.Vector.Search.Metric" class="com.dbn.vector.search.action.VectorMetricSelectAction"/>
             <separator/>
-            <group id="DBN.Vector.Search.Options" class="com.dbn.language.editor.action.EditorOptionsAction" text="Vector Search - Settings" icon="AllIcons.General.GearPlain" />
+            <group id="DBN.Vector.Search.Options" class="com.dbn.language.editor.action.EditorOptionsAction" icon="AllIcons.General.GearPlain" />
         </group>
-        <group id="DBN.JsonDataEditor" text="JSON Data Editor Controls">
-            <action id="DBN.JsonDataEditor.ToggleEditableStatus" class="com.dbn.editor.json.action.JsonDataEditingLockToggleAction" text="JSON Data Editor - Lock / Unlock Editing"/>
-            <action id="DBN.JsonDataEditor.ToggleContentEditorVisibility" class="com.dbn.editor.json.action.JsonDataContentEditorToggleAction" text="JSON Data Editor - Show / Hide Content Editor"/>
+        <group id="DBN.JsonDataEditor">
+            <action id="DBN.JsonDataEditor.ToggleEditableStatus" class="com.dbn.editor.json.action.JsonDataEditingLockToggleAction"/>
+            <action id="DBN.JsonDataEditor.ToggleContentEditorVisibility" class="com.dbn.editor.json.action.JsonDataContentEditorToggleAction"/>
             <separator/>
-            <action id="DBN.JsonDataEditor.Find" class="com.dbn.editor.json.action.JsonDataFindAction" text="JSON Data Editor - Find..." icon="AllIcons.Actions.Find">
+            <action id="DBN.JsonDataEditor.Find" class="com.dbn.editor.json.action.JsonDataFindAction" icon="AllIcons.Actions.Find">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
             </action>
-            <action id="DBN.JsonDataEditor.FetchNextRecords" class="com.dbn.editor.json.action.JsonRecordsFetchNextAction" text="JSON Data Editor - Fetch Next Records" icon="com.dbn.common.icon.Icons.DATA_EDITOR_FETCH_NEXT_RECORDS"/>
-            <action id="DBN.JsonDataEditor.Reload" class="com.dbn.editor.json.action.JsonDataReloadAction" text="JSON Data Editor - Reload" icon="com.dbn.common.icon.Icons.DATA_EDITOR_RELOAD_DATA"/>
+            <action id="DBN.JsonDataEditor.FetchNextRecords" class="com.dbn.editor.json.action.JsonRecordsFetchNextAction" icon="com.dbn.common.icon.Icons.DATA_EDITOR_FETCH_NEXT_RECORDS"/>
+            <action id="DBN.JsonDataEditor.Reload" class="com.dbn.editor.json.action.JsonDataReloadAction" icon="com.dbn.common.icon.Icons.DATA_EDITOR_RELOAD_DATA"/>
             <separator/>
             <reference id="DBN.Transaction.Commit"/>
             <reference id="DBN.Transaction.Rollback"/>
             <separator/>
-            <action id="DBN.JsonDataEditor.Settings" class="com.dbn.editor.json.action.JsonDataEditorOptionsAction" text="JSON Data Editor - Settings"/>
+            <action id="DBN.JsonDataEditor.Settings" class="com.dbn.editor.json.action.JsonDataEditorOptionsAction"/>
         </group>
-        <group id="DBN.DataEditor" text="Data Editor Controls">
-            <action id="DBN.DataEditor.ToggleEditableStatus" class="com.dbn.editor.data.action.DataEditingLockToggleAction" text="Data Editor - Lock / Unlock Editing"/>
+        <group id="DBN.DataEditor">
+            <action id="DBN.DataEditor.ToggleEditableStatus" class="com.dbn.editor.data.action.DataEditingLockToggleAction"/>
             <separator/>
-            <action id="DBN.DataEditor.Find" class="com.dbn.editor.data.action.DataFindAction" text="Data Editor - Find..." icon="AllIcons.Actions.Find">
+            <action id="DBN.DataEditor.Find" class="com.dbn.editor.data.action.DataFindAction" icon="AllIcons.Actions.Find">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
             </action>
-            <action id="DBN.DataEditor.EditRecord" class="com.dbn.editor.data.action.RecordEditAction" text="Data Editor - Edit Record" icon="com.dbn.common.icon.Icons.DATA_EDITOR_EDIT_RECORD"/>
-            <action id="DBN.DataEditor.FetchNextRecords" class="com.dbn.editor.data.action.RecordsFetchNextAction" text="Data Editor - Fetch Next Records" icon="com.dbn.common.icon.Icons.DATA_EDITOR_FETCH_NEXT_RECORDS"/>
-            <action id="DBN.DataEditor.Reload" class="com.dbn.editor.data.action.DataReloadAction" text="Data Editor - Reload" icon="com.dbn.common.icon.Icons.DATA_EDITOR_RELOAD_DATA"/>
-            <action id="DBN.DataEditor.SelectFilter" class="com.dbn.editor.data.action.DatasetFiltersSelectAction" text="Data Editor - Select Filter"/>
-            <action id="DBN.DataEditor.CreateEditFilter" class="com.dbn.editor.data.action.DatasetFilterCreateEditAction" text="Data Editor - Create / Edit Filter" icon="com.dbn.common.icon.Icons.DATASET_FILTER_EDIT"/>
+            <action id="DBN.DataEditor.EditRecord" class="com.dbn.editor.data.action.RecordEditAction" icon="com.dbn.common.icon.Icons.DATA_EDITOR_EDIT_RECORD"/>
+            <action id="DBN.DataEditor.FetchNextRecords" class="com.dbn.editor.data.action.RecordsFetchNextAction" icon="com.dbn.common.icon.Icons.DATA_EDITOR_FETCH_NEXT_RECORDS"/>
+            <action id="DBN.DataEditor.Reload" class="com.dbn.editor.data.action.DataReloadAction" icon="com.dbn.common.icon.Icons.DATA_EDITOR_RELOAD_DATA"/>
+            <action id="DBN.DataEditor.SelectFilter" class="com.dbn.editor.data.action.DatasetFiltersSelectAction"/>
+            <action id="DBN.DataEditor.CreateEditFilter" class="com.dbn.editor.data.action.DatasetFilterCreateEditAction" icon="com.dbn.common.icon.Icons.DATASET_FILTER_EDIT"/>
             <separator/>
-            <action id="DBN.DataEditor.DuplicateRecord" class="com.dbn.editor.data.action.RecordDuplicateAction" text="Data Editor - Duplicate Record" icon="com.dbn.common.icon.Icons.DATA_EDITOR_DUPLICATE_RECORD">
+            <action id="DBN.DataEditor.DuplicateRecord" class="com.dbn.editor.data.action.RecordDuplicateAction" icon="com.dbn.common.icon.Icons.DATA_EDITOR_DUPLICATE_RECORD">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl D"/>
             </action>
-            <action id="DBN.DataEditor.InsertRecord" class="com.dbn.editor.data.action.RecordInsertAction" text="Data Editor - Insert Record" icon="com.dbn.common.icon.Icons.DATA_EDITOR_INSERT_RECORD">
+            <action id="DBN.DataEditor.InsertRecord" class="com.dbn.editor.data.action.RecordInsertAction" icon="com.dbn.common.icon.Icons.DATA_EDITOR_INSERT_RECORD">
                 <keyboard-shortcut keymap="$default" first-keystroke="shift INSERT"/>
             </action>
-            <action id="DBN.DataEditor.DeleteRecord" class="com.dbn.editor.data.action.RecordDeleteAction" text="Data Editor - Delete Record" icon="com.dbn.common.icon.Icons.DATA_EDITOR_DELETE_RECORD">
+            <action id="DBN.DataEditor.DeleteRecord" class="com.dbn.editor.data.action.RecordDeleteAction" icon="com.dbn.common.icon.Icons.DATA_EDITOR_DELETE_RECORD">
                 <keyboard-shortcut keymap="$default" first-keystroke="shift DELETE"/>
             </action>
             <separator/>
             <reference id="DBN.Transaction.Commit"/>
             <reference id="DBN.Transaction.Rollback"/>
             <separator/>
-            <action id="DBN.DataEditor.Export" class="com.dbn.editor.data.action.DataExportAction" text="Data Editor - Export" icon="com.dbn.common.icon.Icons.DATA_EXPORT"/>
-            <action id="DBN.DataEditor.Import" class="com.dbn.editor.data.action.DataImportAction" text="Data Editor - Import" icon="com.dbn.common.icon.Icons.DATA_IMPORT"/>
+            <action id="DBN.DataEditor.Export" class="com.dbn.editor.data.action.DataExportAction" icon="com.dbn.common.icon.Icons.DATA_EXPORT"/>
+            <action id="DBN.DataEditor.Import" class="com.dbn.editor.data.action.DataImportAction" icon="com.dbn.common.icon.Icons.DATA_IMPORT"/>
             <separator/>
-            <group id="DBN.DataEditor.Options" class="com.dbn.editor.data.action.DatasetEditorOptionsAction" text="Data Editor - Options"/>
+            <group id="DBN.DataEditor.Options" class="com.dbn.editor.data.action.DatasetEditorOptionsAction"/>
         </group>
         <group id="DBN.Execution.Messages">
-            <action class="com.dbn.execution.common.message.action.MessagesWindowCloseAction" text="Messages - Close" icon="com.dbn.common.icon.Icons.EXEC_RESULT_CLOSE"/>
-            <action class="com.dbn.execution.common.message.action.ExecutedStatementViewAction" text="Messages - View SQL Statement" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_STATEMENT"/>
-            <action class="com.dbn.execution.common.message.action.MessagesTreeExpandAction" text="Messages - Expand All" icon="com.dbn.common.icon.Icons.ACTION_EXPAND_ALL"/>
-            <action class="com.dbn.execution.common.message.action.MessagesTreeCollapseAction" text="Messages - Collapse All" icon="com.dbn.common.icon.Icons.ACTION_COLLAPSE_ALL"/>
+            <action id="DBN.Execution.Messages.Close" class="com.dbn.execution.common.message.action.MessagesWindowCloseAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_CLOSE"/>
+            <action id="DBN.Execution.Messages.ViewStatement" class="com.dbn.execution.common.message.action.ExecutedStatementViewAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_STATEMENT"/>
+            <action id="DBN.Execution.Messages.ExpandAll" class="com.dbn.execution.common.message.action.MessagesTreeExpandAction" icon="com.dbn.common.icon.Icons.ACTION_EXPAND_ALL"/>
+            <action id="DBN.Execution.Messages.CollapseAll" class="com.dbn.execution.common.message.action.MessagesTreeCollapseAction" icon="com.dbn.common.icon.Icons.ACTION_COLLAPSE_ALL"/>
             <separator/>
-            <action class="com.dbn.execution.common.message.action.ExecutionEngineSettingsAction" text="Messages - Settings" icon="com.dbn.common.icon.Icons.EXEC_RESULT_OPTIONS"/>
+            <action id="DBN.Execution.Messages.Settings" class="com.dbn.execution.common.message.action.ExecutionEngineSettingsAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_OPTIONS"/>
         </group>
         <group id="DBN.Execution.Statement.Result">
-            <action id="DBN.Execution.Statement.Result.Close" class="com.dbn.execution.statement.result.action.ExecutionResultCloseAction" text="Execution Result - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
-            <action id="DBN.Execution.Statement.Result.ViewStatement" class="com.dbn.execution.statement.result.action.ExecutionResultViewStatementAction" text="Execution Result - View Statement" icon="AllIcons.Actions.Preview"/>
-            <action id="DBN.Execution.Statement.Result.ViewRecord" class="com.dbn.execution.statement.result.action.ExecutionResultViewRecordAction" text="Execution Result - View Record" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_RECORD"/>
+            <action id="DBN.Execution.Statement.Result.Close" class="com.dbn.execution.statement.result.action.ExecutionResultCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBN.Execution.Statement.Result.ViewStatement" class="com.dbn.execution.statement.result.action.ExecutionResultViewStatementAction" icon="AllIcons.Actions.Preview"/>
+            <action id="DBN.Execution.Statement.Result.ViewRecord" class="com.dbn.execution.statement.result.action.ExecutionResultViewRecordAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_RECORD"/>
             <separator/>
-            <action id="DBN.Execution.Statement.Result.OpenVariablesDialog" class="com.dbn.execution.statement.result.action.ExecutionResultVariablesDialogAction" text="Execution Result - Open Variables Dialog" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM_RERUN"/>
-            <action id="DBN.Execution.Statement.Result.FetchNextRecords" class="com.dbn.execution.statement.result.action.ExecutionResultResumeAction" text="Execution Result - Fetch Next Records" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RESUME"/>
-            <action id="DBN.Execution.Statement.Result.RerunStatement" class="com.dbn.execution.statement.result.action.ExecutionResultRerunAction" text="Execution Result - Rerun Statement" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RERUN"/>
+            <action id="DBN.Execution.Statement.Result.OpenVariablesDialog" class="com.dbn.execution.statement.result.action.ExecutionResultVariablesDialogAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM_RERUN"/>
+            <action id="DBN.Execution.Statement.Result.FetchNextRecords" class="com.dbn.execution.statement.result.action.ExecutionResultResumeAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RESUME"/>
+            <action id="DBN.Execution.Statement.Result.RerunStatement" class="com.dbn.execution.statement.result.action.ExecutionResultRerunAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RERUN"/>
             <separator/>
-            <action id="DBN.Execution.Statement.Result.Find" class="com.dbn.execution.statement.result.action.ExecutionResultFindDataAction" text="Execution Result - Find Data" icon="AllIcons.Actions.Find">
+            <action id="DBN.Execution.Statement.Result.Find" class="com.dbn.execution.statement.result.action.ExecutionResultFindDataAction" icon="AllIcons.Actions.Find">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
             </action>
-            <action id="DBN.Execution.Statement.Result.Export" class="com.dbn.execution.statement.result.action.ExecutionResultExportAction" text="Execution Result - Export Data" icon="com.dbn.common.icon.Icons.DATA_EXPORT"/>
+            <action id="DBN.Execution.Statement.Result.Export" class="com.dbn.execution.statement.result.action.ExecutionResultExportAction" icon="com.dbn.common.icon.Icons.DATA_EXPORT"/>
             <separator/>
-            <action id="DBN.Execution.Statement.Result.Settings" class="com.dbn.execution.statement.result.action.ExecutionResultSettingsAction" text="Execution Result - Settings"/>
+            <action id="DBN.Execution.Statement.Result.Settings" class="com.dbn.execution.statement.result.action.ExecutionResultSettingsAction"/>
         </group>
         <group id="DBN.Execution.Method.Result">
-            <action id="DBN.Execution.Method.Result.Close" class="com.dbn.execution.method.result.action.ExecutionResultCloseAction" text="Method Execution Result - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
-            <action id="DBN.Execution.Method.Result.EditMethod" class="com.dbn.execution.method.result.action.MethodEditAction" text="Method Execution Result - Edit Method" icon="com.dbn.common.icon.Icons.OBJECT_EDIT_SOURCE"/>
-            <action id="DBN.Execution.Method.Result.OpenExecutionDialog" class="com.dbn.execution.method.result.action.MethodExecutionPromptAction" text="Method Execution Result - Open Execution Dialog" icon="com.dbn.common.icon.Icons.METHOD_EXECUTION_DIALOG"/>
-            <action id="DBN.Execution.Method.Result.ExecuteAgain" class="com.dbn.execution.method.result.action.MethodExecutionStartAction" text="Method Execution Result - Execute Again" icon="AllIcons.Actions.Rerun"/>
-            <action id="DBN.Execution.Method.Result.StopExecution" class="com.dbn.execution.method.result.action.MethodExecutionStopAction" text="Method Execution Result - Stop Execution" icon="AllIcons.Actions.Suspend"/>
+            <action id="DBN.Execution.Method.Result.Close" class="com.dbn.execution.method.result.action.ExecutionResultCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBN.Execution.Method.Result.EditMethod" class="com.dbn.execution.method.result.action.MethodEditAction" icon="com.dbn.common.icon.Icons.OBJECT_EDIT_SOURCE"/>
+            <action id="DBN.Execution.Method.Result.OpenExecutionDialog" class="com.dbn.execution.method.result.action.MethodExecutionPromptAction" icon="com.dbn.common.icon.Icons.METHOD_EXECUTION_DIALOG"/>
+            <action id="DBN.Execution.Method.Result.ExecuteAgain" class="com.dbn.execution.method.result.action.MethodExecutionStartAction" icon="AllIcons.Actions.Rerun"/>
+            <action id="DBN.Execution.Method.Result.StopExecution" class="com.dbn.execution.method.result.action.MethodExecutionStopAction" icon="AllIcons.Actions.Suspend"/>
             <separator/>
-            <action id="DBN.Execution.Method.Result.Settings" class="com.dbn.execution.method.result.action.ExecutionEngineSettingsAction" text="Method Execution Result - Open Execution Dialog" icon="AllIcons.General.GearPlain"/>
+            <action id="DBN.Execution.Method.Result.Settings" class="com.dbn.execution.method.result.action.ExecutionEngineSettingsAction" icon="AllIcons.General.GearPlain"/>
         </group>
         <group id="DBN.Vector.Embedding.Result">
-            <action id="DBN.Vector.Embedding.Result.Close" class="com.dbn.vector.action.VectorEmbeddingCloseAction" text="Vector Embedding Result - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
-            <action id="DBN.Vector.Embedding.Result.Toolbox" class="com.dbn.vector.action.VectorEmbeddingToolboxAction" text="Vector Embedding Result - Open Vector Toolbox" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
+            <action id="DBN.Vector.Embedding.Result.Close" class="com.dbn.vector.action.VectorEmbeddingCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBN.Vector.Embedding.Result.Toolbox" class="com.dbn.vector.action.VectorEmbeddingToolboxAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
         </group>
         <group id="DBN.Execution.Method.CursorResult">
-            <action id="DBN.Execution.Method.CursorResult.Find" class="com.dbn.execution.method.result.action.CursorResultFindAction" text="Method Execution Cursor Result - Find Data" icon="AllIcons.Actions.Find">
+            <action id="DBN.Execution.Method.CursorResult.Find" class="com.dbn.execution.method.result.action.CursorResultFindAction" icon="AllIcons.Actions.Find">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
             </action>
-            <action id="DBN.Execution.Method.CursorResult.FetchNextRecords" class="com.dbn.execution.method.result.action.CursorResultFetchNextRecordsAction" text="Method Execution Cursor Result - Fetch Next Records" icon="AllIcons.Actions.Resume"/>
-            <action id="DBN.Execution.Method.CursorResult.ViewRecord" class="com.dbn.execution.method.result.action.CursorResultViewRecordAction" text="Method Execution Cursor Result - View Record" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_RECORD"/>
+            <action id="DBN.Execution.Method.CursorResult.FetchNextRecords" class="com.dbn.execution.method.result.action.CursorResultFetchNextRecordsAction" icon="AllIcons.Actions.Resume"/>
+            <action id="DBN.Execution.Method.CursorResult.ViewRecord" class="com.dbn.execution.method.result.action.CursorResultViewRecordAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_RECORD"/>
             <separator/>
-            <action id="DBN.Execution.Method.CursorResult.Export" class="com.dbn.execution.method.result.action.CursorResultExportAction" text="Method Execution Cursor Result - Export" icon="com.dbn.common.icon.Icons.DATA_EXPORT"/>
+            <action id="DBN.Execution.Method.CursorResult.Export" class="com.dbn.execution.method.result.action.CursorResultExportAction" icon="com.dbn.common.icon.Icons.DATA_EXPORT"/>
         </group>
 
         <group id="DBN.Execution.Java.Result">
-            <action id="DBN.Execution.Java.Result.Close" class="com.dbn.execution.java.result.action.ExecutionResultCloseAction" text="Java Execution Result - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
-            <action id="DBN.Execution.Java.Result.EditMethod" class="com.dbn.execution.java.result.action.JavaEditAction" text="Java Execution Result - Edit Method" icon="com.dbn.common.icon.Icons.OBJECT_EDIT_SOURCE"/>
-            <action id="DBN.Execution.Java.Result.OpenExecutionDialog" class="com.dbn.execution.java.result.action.JavaExecutionPromptAction" text="Java Execution Result - Open Execution Dialog" icon="com.dbn.common.icon.Icons.METHOD_EXECUTION_DIALOG"/>
-            <action id="DBN.Execution.Java.Result.ExecuteAgain" class="com.dbn.execution.java.result.action.JavaExecutionStartAction" text="Java Execution Result - Execute Again" icon="AllIcons.Actions.Rerun"/>
-            <action id="DBN.Execution.Java.Result.StopExecution" class="com.dbn.execution.java.result.action.JavaExecutionStopAction" text="Java Execution Result - Stop Execution" icon="AllIcons.Actions.Suspend"/>
+            <action id="DBN.Execution.Java.Result.Close" class="com.dbn.execution.java.result.action.ExecutionResultCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBN.Execution.Java.Result.EditMethod" class="com.dbn.execution.java.result.action.JavaEditAction" icon="com.dbn.common.icon.Icons.OBJECT_EDIT_SOURCE"/>
+            <action id="DBN.Execution.Java.Result.OpenExecutionDialog" class="com.dbn.execution.java.result.action.JavaExecutionPromptAction" icon="com.dbn.common.icon.Icons.METHOD_EXECUTION_DIALOG"/>
+            <action id="DBN.Execution.Java.Result.ExecuteAgain" class="com.dbn.execution.java.result.action.JavaExecutionStartAction" icon="AllIcons.Actions.Rerun"/>
+            <action id="DBN.Execution.Java.Result.StopExecution" class="com.dbn.execution.java.result.action.JavaExecutionStopAction" icon="AllIcons.Actions.Suspend"/>
             <separator/>
-            <action id="DBN.Execution.Java.Result.Settings" class="com.dbn.execution.java.result.action.ExecutionEngineSettingsAction" text="Java Execution Result - Open Execution Dialog" icon="AllIcons.General.GearPlain"/>
+            <action id="DBN.Execution.Java.Result.Settings" class="com.dbn.execution.java.result.action.ExecutionEngineSettingsAction" icon="AllIcons.General.GearPlain"/>
         </group>
         <group id="DBN.Execution.Java.CursorResult">
-            <action id="DBN.Execution.Java.CursorResult.Find" class="com.dbn.execution.java.result.action.CursorResultFindAction" text="Java Execution Cursor Result - Find Data" icon="AllIcons.Actions.Find">
+            <action id="DBN.Execution.Java.CursorResult.Find" class="com.dbn.execution.java.result.action.CursorResultFindAction" icon="AllIcons.Actions.Find">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
             </action>
-            <action id="DBN.Execution.Java.CursorResult.FetchNextRecords" class="com.dbn.execution.java.result.action.CursorResultFetchNextRecordsAction" text="Java Execution Cursor Result - Fetch Next Records" icon="AllIcons.Actions.Resume"/>
-            <action id="DBN.Execution.Java.CursorResult.ViewRecord" class="com.dbn.execution.java.result.action.CursorResultViewRecordAction" text="Java Execution Cursor Result - View Record" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_RECORD"/>
+            <action id="DBN.Execution.Java.CursorResult.FetchNextRecords" class="com.dbn.execution.java.result.action.CursorResultFetchNextRecordsAction" icon="AllIcons.Actions.Resume"/>
+            <action id="DBN.Execution.Java.CursorResult.ViewRecord" class="com.dbn.execution.java.result.action.CursorResultViewRecordAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_RECORD"/>
             <separator/>
-            <action id="DBN.Execution.Java.CursorResult.Export" class="com.dbn.execution.java.result.action.CursorResultExportAction" text="Java Execution Cursor Result - Export" icon="com.dbn.common.icon.Icons.DATA_EXPORT"/>
+            <action id="DBN.Execution.Java.CursorResult.Export" class="com.dbn.execution.java.result.action.CursorResultExportAction" icon="com.dbn.common.icon.Icons.DATA_EXPORT"/>
         </group>
 
 
         <group id="DBN.Execution.ExplainPlan.Result">
-            <action id="DBN.Execution.ExplainPlan.Result.Close" class="com.dbn.execution.explain.result.action.ExplainPlanResultCloseAction" text="Explain Plan Result - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
-            <action id="DBN.Execution.ExplainPlan.Result.ViewStatement" class="com.dbn.execution.explain.result.action.ExplainPlanResultViewStatementAction" text="Explain Plan Result - View Statement" icon="AllIcons.Actions.Preview"/>
+            <action id="DBN.Execution.ExplainPlan.Result.Close" class="com.dbn.execution.explain.result.action.ExplainPlanResultCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBN.Execution.ExplainPlan.Result.ViewStatement" class="com.dbn.execution.explain.result.action.ExplainPlanResultViewStatementAction" icon="AllIcons.Actions.Preview"/>
             <separator/>
-            <action id="DBN.Execution.ExplainPlan.Result.ExpandAll" class="com.dbn.execution.explain.result.action.ExplainPlanResultExpandAllAction" text="Explain Plan Result - Expand All"  icon="AllIcons.Actions.Expandall"/>
-            <action id="DBN.Execution.ExplainPlan.Result.CollapseAll" class="com.dbn.execution.explain.result.action.ExplainPlanResultCollapseAllAction" text="Explain Plan Result - Collapse All" icon="AllIcons.Actions.Collapseall"/>
+            <action id="DBN.Execution.ExplainPlan.Result.ExpandAll" class="com.dbn.execution.explain.result.action.ExplainPlanResultExpandAllAction"  icon="AllIcons.Actions.Expandall"/>
+            <action id="DBN.Execution.ExplainPlan.Result.CollapseAll" class="com.dbn.execution.explain.result.action.ExplainPlanResultCollapseAllAction" icon="AllIcons.Actions.Collapseall"/>
             <separator/>
-            <action id="DBN.Execution.ExplainPlan.Result.Settings" class="com.dbn.execution.explain.result.action.ExplainPlanResultSettingsAction" text="Explain Plan - Settings"/>
+            <action id="DBN.Execution.ExplainPlan.Result.Settings" class="com.dbn.execution.explain.result.action.ExplainPlanResultSettingsAction"/>
         </group>
         <group id="DBN.Execution.LogOutput">
-            <action id="DBN.Execution.LogOutput.Close" class="com.dbn.execution.logging.action.DatabaseLogOutputCloseAction" text="Database Log Output - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
-            <action id="DBN.Execution.LogOutput.RerunProcess" class="com.dbn.execution.logging.action.DatabaseLogOutputRerunAction" text="Database Log Output - Rerun Process" icon="AllIcons.Actions.Rerun"/>
-            <action id="DBN.Execution.LogOutput.KillProcess" class="com.dbn.execution.logging.action.DatabaseLogOutputKillAction" text="Database Log Output - Kill Process" icon="AllIcons.Debugger.KillProcess"/>
-            <action id="DBN.Execution.LogOutput.Settings" class="com.dbn.execution.logging.action.DatabaseLogOutputSettingsAction" text="Database Log Output - Settings"/>
+            <action id="DBN.Execution.LogOutput.Close" class="com.dbn.execution.logging.action.DatabaseLogOutputCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBN.Execution.LogOutput.RerunProcess" class="com.dbn.execution.logging.action.DatabaseLogOutputRerunAction" icon="AllIcons.Actions.Rerun"/>
+            <action id="DBN.Execution.LogOutput.KillProcess" class="com.dbn.execution.logging.action.DatabaseLogOutputKillAction" icon="AllIcons.Debugger.KillProcess"/>
+            <action id="DBN.Execution.LogOutput.Settings" class="com.dbn.execution.logging.action.DatabaseLogOutputSettingsAction"/>
         </group>
         <group id="DBN.Diagnostics.Parser">
-            <action id="DBN.Diagnostics.Parser.Close" class="com.dbn.diagnostics.action.ParserDiagnosticsCloseAction" text="Parser Diagnostics - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
-            <action id="DBN.Diagnostics.Parser.Run" class="com.dbn.diagnostics.action.ParserDiagnosticsRunAction" text="Parser Diagnostics - Run" icon="AllIcons.Actions.Execute"/>
-            <action id="DBN.Diagnostics.Parser.Save" class="com.dbn.diagnostics.action.ParserDiagnosticsSaveAction" text="Parser Diagnostics - Save" icon="com.dbn.common.icon.Icons.ACTION_SAVE"/>
-            <action id="DBN.Diagnostics.Parser.Delete" class="com.dbn.diagnostics.action.ParserDiagnosticsDeleteAction" text="Parser Diagnostics - Delete" icon="AllIcons.Actions.GC"/>
+            <action id="DBN.Diagnostics.Parser.Close" class="com.dbn.diagnostics.action.ParserDiagnosticsCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBN.Diagnostics.Parser.Run" class="com.dbn.diagnostics.action.ParserDiagnosticsRunAction" icon="AllIcons.Actions.Execute"/>
+            <action id="DBN.Diagnostics.Parser.Save" class="com.dbn.diagnostics.action.ParserDiagnosticsSaveAction" icon="com.dbn.common.icon.Icons.ACTION_SAVE"/>
+            <action id="DBN.Diagnostics.Parser.Delete" class="com.dbn.diagnostics.action.ParserDiagnosticsDeleteAction" icon="AllIcons.Actions.GC"/>
         </group>
-        <action id="DBN.Navigation.GotoDatabaseObject" class="com.dbn.navigation.action.GoToDatabaseObjectAction" text="Navigate to Database Object...">
+        <action id="DBN.Navigation.GotoDatabaseObject" class="com.dbn.navigation.action.GoToDatabaseObjectAction">
             <add-to-group group-id="GoToMenu" anchor="before" relative-to-action="GotoLine"/>
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift D"/>
         </action>
 
-        <group id="DBN.Browser" text="Browser Object Properties" >
-            <group id="DBN.Browser.NewConnection" class="com.dbn.browser.action.ConnectionCreateDropdownAction" text="Browser - New Connection"/>
+        <group id="DBN.Browser" >
+            <group id="DBN.Browser.NewConnection" class="com.dbn.browser.action.ConnectionCreateDropdownAction"/>
             <separator/>
-            <action id="DBN.Browser.NavigateBack" class="com.dbn.browser.action.BrowserNavigateBackAction" text="Browser - Back"/>
-            <action id="DBN.Browser.NavigateForward" class="com.dbn.browser.action.BrowserNavigateForwardAction" text="Browser - Forward"/>
-            <action id="DBN.Browser.ExpandTree" class="com.dbn.browser.action.BrowserTreeExpandAction" text="Browser - Expand All"  icon="AllIcons.Actions.Expandall"/>
-            <action id="DBN.Browser.CollapseTree" class="com.dbn.browser.action.BrowserTreeCollapseAction" text="Browser - Collapse All" icon="AllIcons.Actions.Collapseall"/>
+            <action id="DBN.Browser.NavigateBack" class="com.dbn.browser.action.BrowserNavigateBackAction"/>
+            <action id="DBN.Browser.NavigateForward" class="com.dbn.browser.action.BrowserNavigateForwardAction"/>
+            <action id="DBN.Browser.ExpandTree" class="com.dbn.browser.action.BrowserTreeExpandAction"  icon="AllIcons.Actions.Expandall"/>
+            <action id="DBN.Browser.CollapseTree" class="com.dbn.browser.action.BrowserTreeCollapseAction" icon="AllIcons.Actions.Collapseall"/>
             <separator/>
-            <action id="DBN.Browser.ShowObjectProperties" class="com.dbn.browser.action.ObjectPropertiesToggleAction" text="Browser - Show Object Properties"/>
-            <action id="DBN.Browser.SessionBrowser" class="com.dbn.browser.action.SessionBrowserOpenAction" text="Browser - Session Browser" icon="com.dbn.common.icon.Icons.SESSION_BROWSER"/>
-            <action id="DBN.Browser.SQLConsole" class="com.dbn.browser.action.SQLConsoleOpenAction" text="Browser - SQL Console" icon="com.dbn.common.icon.Icons.SQL_CONSOLE"/>
+            <action id="DBN.Browser.ShowObjectProperties" class="com.dbn.browser.action.ObjectPropertiesToggleAction"/>
+            <action id="DBN.Browser.SessionBrowser" class="com.dbn.browser.action.SessionBrowserOpenAction" icon="com.dbn.common.icon.Icons.SESSION_BROWSER"/>
+            <action id="DBN.Browser.SQLConsole" class="com.dbn.browser.action.SQLConsoleOpenAction" icon="com.dbn.common.icon.Icons.SQL_CONSOLE"/>
             <separator/>
-            <group id="DBN.Browser.Settings" text="Options" icon="AllIcons.General.GearPlain" popup="true">
-                <action id="DBN.Browser.AutoscrollToEditor" class="com.dbn.browser.action.AutoscrollToEditorAction" text="Browser - Autoscroll to Editor"/>
-                <action id="DBN.Browser.AutoscrollFromEditor" class="com.dbn.browser.action.AutoscrollFromEditorAction" text="Browser - Autoscroll from Editor"/>
+            <group id="DBN.Browser.Settings" icon="AllIcons.General.GearPlain" popup="true">
+                <action id="DBN.Browser.AutoscrollToEditor" class="com.dbn.browser.action.AutoscrollToEditorAction"/>
+                <action id="DBN.Browser.AutoscrollFromEditor" class="com.dbn.browser.action.AutoscrollFromEditorAction"/>
                 <separator/>
-                <action class="com.dbn.browser.action.ConnectionFilterSettingsOpenAction" text="Browser - Object Filters..." icon="com.dbn.common.icon.Icons.DATASET_FILTER"/>
+                <action id="DBN.Browser.ObjectFilters" class="com.dbn.browser.action.ConnectionFilterSettingsOpenAction" icon="com.dbn.common.icon.Icons.DATASET_FILTER"/>
                 <separator/>
-                <group id="DBN.Browser.DisplayMode" text="Display Mode" popup="true">
-                    <action id="DBN.Browser.DisplayMode.Simple" class="com.dbn.browser.action.BrowserDisplayModeAction$Simple" text="Browser - Single Tree"/>
-                    <action id="DBN.Browser.DisplayMode.Tabbed" class="com.dbn.browser.action.BrowserDisplayModeAction$Tabbed" text="Browser - Connection Tabs"/>
-                    <action id="DBN.Browser.DisplayMode.Selector" class="com.dbn.browser.action.BrowserDisplayModeAction$Selector" text="Browser - Connection Selector"/>
+                <group id="DBN.Browser.DisplayMode" popup="true">
+                    <action id="DBN.Browser.DisplayMode.Simple" class="com.dbn.browser.action.BrowserDisplayModeAction$Simple"/>
+                    <action id="DBN.Browser.DisplayMode.Tabbed" class="com.dbn.browser.action.BrowserDisplayModeAction$Tabbed"/>
+                    <action id="DBN.Browser.DisplayMode.Selector" class="com.dbn.browser.action.BrowserDisplayModeAction$Selector"/>
                 </group>
-                <action class="com.dbn.browser.action.BrowserProjectSettingsAction" text="Browser - Settings"/>
+                <action id="DBN.Browser.Settings.Open" class="com.dbn.browser.action.BrowserProjectSettingsAction"/>
             </group>
         </group>
 
-        <group id="DBN.Calendar" text="Calendar Controls">
-            <group id="DBN.Calendar.Left" text="Calendar Left Controls">
-                <action id="DBN.Calendar.PreviousYear" class="com.dbn.data.editor.ui.calendar.CalendarPreviousYearAction" text="Calendar - Previous Year">
+        <group id="DBN.Calendar">
+            <group id="DBN.Calendar.Left">
+                <action id="DBN.Calendar.PreviousYear" class="com.dbn.data.editor.ui.calendar.CalendarPreviousYearAction">
                     <keyboard-shortcut keymap="$default" first-keystroke="ctrl DOWN"/>
                 </action>
-                <action id="DBN.Calendar.PreviousMonth" class="com.dbn.data.editor.ui.calendar.CalendarPreviousMonthAction" text="Calendar - Previous Month">
+                <action id="DBN.Calendar.PreviousMonth" class="com.dbn.data.editor.ui.calendar.CalendarPreviousMonthAction">
                     <keyboard-shortcut keymap="$default" first-keystroke="ctrl LEFT"/>
                 </action>
             </group>
-            <group id="DBN.Calendar.Right" text="Calendar Right Controls">
-                <action id="DBN.Calendar.NextMonth" class="com.dbn.data.editor.ui.calendar.CalendarNextMonthAction" text="Calendar - Next Month">
+            <group id="DBN.Calendar.Right">
+                <action id="DBN.Calendar.NextMonth" class="com.dbn.data.editor.ui.calendar.CalendarNextMonthAction">
                     <keyboard-shortcut keymap="$default" first-keystroke="ctrl RIGHT"/>
                 </action>
-                <action id="DBN.Calendar.NextYear" class="com.dbn.data.editor.ui.calendar.CalendarNextYearAction" text="Calendar - Next Year">
+                <action id="DBN.Calendar.NextYear" class="com.dbn.data.editor.ui.calendar.CalendarNextYearAction">
                     <keyboard-shortcut keymap="$default" first-keystroke="ctrl UP"/>
                 </action>
             </group>
-            <group id="DBN.Calendar.Bottom" text="Calendar Bottom Controls">
-                <action id="DBN.Calendar.ResetTime" class="com.dbn.data.editor.ui.calendar.CalendarResetTimeAction" text="Calendar - Reset Time"/>
+            <group id="DBN.Calendar.Bottom">
+                <action id="DBN.Calendar.ResetTime" class="com.dbn.data.editor.ui.calendar.CalendarResetTimeAction"/>
             </group>
         </group>
-        <group id="DBN.ArrayEditor" text="Array Editor Controls">
-            <group id="DBN.ArrayEditor.Left" text="Arrays Left Controls">
-                <action id="DBN.ArrayEditor.AddRecord" class="com.dbn.data.editor.ui.array.ArrayEditorAddAction" text="Array Editor - Add Record">
+        <group id="DBN.ArrayEditor">
+            <group id="DBN.ArrayEditor.Left">
+                <action id="DBN.ArrayEditor.AddRecord" class="com.dbn.data.editor.ui.array.ArrayEditorAddAction">
                     <keyboard-shortcut keymap="$default" first-keystroke="ctrl PLUS"/>
                 </action>
-                <action id="DBN.ArrayEditor.RemoveRecord" class="com.dbn.data.editor.ui.array.ArrayEditorRemoveAction" text="Array Editor - Remove Record">
+                <action id="DBN.ArrayEditor.RemoveRecord" class="com.dbn.data.editor.ui.array.ArrayEditorRemoveAction">
                     <keyboard-shortcut keymap="$default" first-keystroke="ctrl MINUS"/>
                 </action>
             </group>
-            <group id="DBN.ArrayEditor.Right" text="Arrays Right Controls">
-                <action id="DBN.ArrayEditor.Delete" class="com.dbn.data.editor.ui.array.ArrayEditorDeleteAction" text="Array Editor - Delete">
+            <group id="DBN.ArrayEditor.Right">
+                <action id="DBN.ArrayEditor.Delete" class="com.dbn.data.editor.ui.array.ArrayEditorDeleteAction">
                     <keyboard-shortcut keymap="$default" first-keystroke="ctrl DELETE"/>
                 </action>
-                <action id="DBN.ArrayEditor.Revert" class="com.dbn.data.editor.ui.array.ArrayEditorRevertAction" text="Array Editor - Revert">
+                <action id="DBN.ArrayEditor.Revert" class="com.dbn.data.editor.ui.array.ArrayEditorRevertAction">
                     <keyboard-shortcut keymap="$default" first-keystroke="ESCAPE"/>
                 </action>
-                <action id="DBN.ArrayEditor.Accept" class="com.dbn.data.editor.ui.array.ArrayEditorAcceptAction" text="Array Editor - Accept">
+                <action id="DBN.ArrayEditor.Accept" class="com.dbn.data.editor.ui.array.ArrayEditorAcceptAction">
                     <keyboard-shortcut keymap="$default" first-keystroke="ctrl ENTER"/>
                 </action>
             </group>
         </group>
-        <group id="DBN.TextEditor" text="Text Editor Controls">
-            <action id="DBN.TextEditor.Delete" class="com.dbn.data.editor.ui.text.TextEditorDeleteAction" text="Text Editor - Delete">
+        <group id="DBN.TextEditor">
+            <action id="DBN.TextEditor.Delete" class="com.dbn.data.editor.ui.text.TextEditorDeleteAction">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl DELETE"/>
             </action>
-            <action id="DBN.TextEditor.Revert" class="com.dbn.data.editor.ui.text.TextEditorRevertAction" text="Text Editor - Revert">
+            <action id="DBN.TextEditor.Revert" class="com.dbn.data.editor.ui.text.TextEditorRevertAction">
                 <keyboard-shortcut keymap="$default" first-keystroke="ESCAPE"/>
             </action>
-            <action id="DBN.TextEditor.Accept" class="com.dbn.data.editor.ui.text.TextEditorAcceptAction" text="Text Editor - Accept">
+            <action id="DBN.TextEditor.Accept" class="com.dbn.data.editor.ui.text.TextEditorAcceptAction">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl ENTER"/>
             </action>
         </group>
-        <group id="DBN.BatchMonitor" text="Batch Monitor Controls">
-            <action id="DBN.BatchMonitor.Pause" class="com.dbn.batch.actions.BatchMonitorPauseAction" text="Batch Monitor - Pause"/>
-            <action id="DBN.BatchMonitor.Resume" class="com.dbn.batch.actions.BatchMonitorResumeAction" text="Batch Monitor - Resume"/>
-            <action id="DBN.BatchMonitor.Cancel" class="com.dbn.batch.actions.BatchMonitorStopAction" text="Batch Monitor - Stop"/>
+        <group id="DBN.BatchMonitor">
+            <action id="DBN.BatchMonitor.Pause" class="com.dbn.batch.actions.BatchMonitorPauseAction"/>
+            <action id="DBN.BatchMonitor.Resume" class="com.dbn.batch.actions.BatchMonitorResumeAction"/>
+            <action id="DBN.BatchMonitor.Cancel" class="com.dbn.batch.actions.BatchMonitorStopAction"/>
         </group>
 
-        <group id="DBN.Event.Registration" text="Database Event Registration Controls">
+        <group id="DBN.Event.Registration">
 <!--
-            <action id="DBN.Event.Registration.Find" class="com.dbn.event.registration.action.EventRegistrationFindAction" text="Event Registrations - Find..." icon="AllIcons.Actions.Find">
+            <action id="DBN.Event.Registration.Find" class="com.dbn.event.registration.action.EventRegistrationFindAction" icon="AllIcons.Actions.Find">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
             </action>
 -->
-            <action id="DBN.Event.Registration.Reload" class="com.dbn.event.registration.action.EventRegistrationReloadAction" text="Event Registrations - Reload"/>
-            <action id="DBN.Event.Registration.UserFilter" class="com.dbn.event.registration.action.EventRegistrationUserFilterAction" text="Event Registrations - User Filter"/>
-            <action id="DBN.Event.Registration.TableFilter" class="com.dbn.event.registration.action.EventRegistrationTableFilterAction" text="Event Registrations - Table Filter"/>
-            <action id="DBN.Event.Registration.StatusFilter" class="com.dbn.event.registration.action.EventRegistrationStatusFilterAction" text="Event Registrations - Status Filter"/>
-            <action id="DBN.Event.Registration.ClearFilter" class="com.dbn.event.registration.action.EventRegistrationClearFiltersAction" text="Event Registrations - Clear Filters"/>
+            <action id="DBN.Event.Registration.Reload" class="com.dbn.event.registration.action.EventRegistrationReloadAction"/>
+            <action id="DBN.Event.Registration.UserFilter" class="com.dbn.event.registration.action.EventRegistrationUserFilterAction"/>
+            <action id="DBN.Event.Registration.TableFilter" class="com.dbn.event.registration.action.EventRegistrationTableFilterAction"/>
+            <action id="DBN.Event.Registration.StatusFilter" class="com.dbn.event.registration.action.EventRegistrationStatusFilterAction"/>
+            <action id="DBN.Event.Registration.ClearFilter" class="com.dbn.event.registration.action.EventRegistrationClearFiltersAction"/>
             <separator/>
-            <action id="DBN.Event.Registration.Delete" class="com.dbn.event.registration.action.EventRegistrationDeleteAction" text="Event Registrations - Delete Registration"/>
+            <action id="DBN.Event.Registration.Delete" class="com.dbn.event.registration.action.EventRegistrationDeleteAction"/>
         </group>
-        <group id="DBN.Event.Notification" text="Database Event Notification Controls">
-            <action id="DBN.Event.Notification.Reload" class="com.dbn.event.notification.action.EventNotificationsReloadAction" text="Event Notifications - Reload"/>
-            <action id="DBN.Event.Notification.TableFilter" class="com.dbn.event.notification.action.EventNotificationTableFilterAction" text="Event Notifications - Table Filter"/>
-            <action id="DBN.Event.Notification.OperationFilter" class="com.dbn.event.notification.action.EventNotificationOperationFilterAction" text="Event Notifications - Operation Filter"/>
-            <action id="DBN.Event.Notification.ClearFilter" class="com.dbn.event.notification.action.EventNotificationClearFiltersAction" text="Event Notifications - Clear Filters"/>
+        <group id="DBN.Event.Notification">
+            <action id="DBN.Event.Notification.Reload" class="com.dbn.event.notification.action.EventNotificationsReloadAction"/>
+            <action id="DBN.Event.Notification.TableFilter" class="com.dbn.event.notification.action.EventNotificationTableFilterAction"/>
+            <action id="DBN.Event.Notification.OperationFilter" class="com.dbn.event.notification.action.EventNotificationOperationFilterAction"/>
+            <action id="DBN.Event.Notification.ClearFilter" class="com.dbn.event.notification.action.EventNotificationClearFiltersAction"/>
         </group>
     </actions>
     <projectListeners>
