@@ -1,0 +1,43 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="es">
+<head>
+    <title>Configuración de chunking</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body style="width: 300px">
+    <h3>Configuración de chunking</h3>
+    <p>El chunking controla cómo se segmenta texto grande en partes más pequeñas antes del embedding vectorial.</p>
+    <br>
+    <p>Parámetros de chunking:</p>
+    <ul>
+        <li><u>Chunk por</u> – Método que determina cómo se dividirá el texto en chunks</li>
+        <li><u>Dividir por</u> – Delimitador o regla usada para cortar el texto antes de calcular el tamaño de chunks</li>
+        <li><u>Tamaño máximo</u> – Máximo de unidades de "Chunk por" que puede contener cada chunk</li>
+        <li><u>Solapamiento</u> – Cantidad de contenido compartido entre chunks consecutivos para conservar contexto entre límites</li>
+    </ul>
+</body>
+</html>
+
+

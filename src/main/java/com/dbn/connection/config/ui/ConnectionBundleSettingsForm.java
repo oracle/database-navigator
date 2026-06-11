@@ -113,7 +113,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         connectionsList.setBorder(Borders.EMPTY_BORDER);
         makeRegular(contentSplitPane);
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.ConnectionSettings");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.Connection.Settings");
         setAccessibleName(actionToolbar, txt("cfg.connections.aria.ConnectionConfigurationActions"));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
         connectionListScrollPane.setViewportView(connectionsList);

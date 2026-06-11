@@ -17,7 +17,6 @@
 package com.dbn.editor.session.action;
 
 import com.dbn.editor.session.SessionBrowserFilterType;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -26,10 +25,4 @@ public class FilterUsersComboBoxAction extends AbstractFilterComboBoxAction {
     public FilterUsersComboBoxAction() {
         super(SessionBrowserFilterType.USER, txt("app.sessionBrowser.action.SessionBrowserFilterUsers"));
     }
-
-    @Override
-    public void update(AnActionEvent e) {
-        e.getPresentation().setText(txt("app.sessionBrowser.action.FilterUsers"));
-    }
-
 }

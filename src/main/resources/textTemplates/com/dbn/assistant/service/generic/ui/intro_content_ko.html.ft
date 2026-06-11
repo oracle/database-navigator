@@ -1,0 +1,32 @@
+<html lang="ko">
+<head><title>DB Assistant - 공개 LLM 채팅</title></head>
+<body style="${REGULAR_FONT_STYLE}">
+<div style="${REGULAR_LARGE_FONT_STYLE}">
+    <b>데이터베이스 통합 AI Assistant</b><br>
+</div>
+자연어를 사용하여 데이터베이스, 작업공간, 다양한 코딩 작업에 대한 도움을 받을 수 있습니다.<br><br>
+DB Assistant는 작업공간 및 데이터베이스와 원활하게 통합되는 AI 기반 소프트웨어 개발 동반자입니다.<br>
+데이터베이스 구조에 대한 인사이트 제공, 데이터베이스 코드 분석, 관련 코드 블록 식별, SQL 및 PL/SQL 코드 생성과 최적화,
+작업공간에서 사용하는 다른 프로그래밍 언어 지원 등 다양한 작업을 도울 수 있습니다.
+
+<br>
+<br>
+<br>
+<u>시작하기 전에</u><br><br>
+DB Assistant를 사용하려면 다음 필수 조건이 충족되어 있는지 확인하세요.
+<ul>
+    <li><b>네트워크 접근</b> - 선택한 LLM 제공자의 API 엔드포인트와 안전하게 통신할 수 있도록 네트워크 설정을 구성하세요(시스템 설정 > HTTP 프록시).</li>
+    <li><b>API 자격 증명</b> - 선택한 LLM 제공자의 API 키를 입력하세요(예: OpenAI, Cohere, Anthropic 또는 지원되는 다른 공개 API).</li>
+    <li><b>AI 프로파일</b> - 객관성과 창의성의 균형 조정 또는 특정 지침 추가 등 언어 모델의 동작을 맞춤화할 사용자 지정 AI 프로파일을 생성하세요.</li>
+</ul>
+자세한 설정 지침은 Oracle® Database Navigator 설명서를 참조하세요.
+
+<br>
+<br>
+<br>
+<b>참고</b><br>
+이 기능은 실험적 기능입니다. 출력 정확도는 선택한 언어 모델, 데이터베이스 접근 권한 및 기타 요인에 따라 달라질 수 있습니다.
+출력을 신중하게 검증하고, 이 기능 개선에 도움이 되도록 문제를 Oracle® Database Navigator 개발 팀에 보고하세요.
+</body>
+</html>
+

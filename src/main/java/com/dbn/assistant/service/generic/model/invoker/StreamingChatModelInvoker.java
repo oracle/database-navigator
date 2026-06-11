@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static com.dbn.assistant.service.generic.model.AssistantModelType.STREAMING_CHAT;
-import static com.dbn.assistant.tool.AssistantToolData.isInternalTool;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.util.TimeUtil.isOlderThan;
 
@@ -142,8 +141,6 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
 
     @Workaround
     private static void normalizeRequest(ToolExecutionRequest request) {
-        if (!isInternalTool(request.name())) return;
-
         Unsafe.logged(() -> AssistantToolRequestNormalizer.normalize(request));
     }
 

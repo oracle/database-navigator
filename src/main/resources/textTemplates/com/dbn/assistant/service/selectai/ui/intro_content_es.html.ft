@@ -1,0 +1,54 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="es">
+<head>
+    <title>DB Assistant - Oracle Select AI</title>
+    <style>
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+    </style>
+</head>
+<body>
+<div style="${REGULAR_LARGE_FONT_STYLE}">
+    <b>Oracle Autonomous Database Select AI</b><br>
+</div>
+Transforme la forma en que interactúa con sus datos.<br>
+Oracle Select AI le permite usar lenguaje natural para consultar su Autonomous Database, generando consultas SQL automáticamente para ofrecer información rápida y precisa sobre su negocio. <br>
+Impulsada por modelos avanzados de IA, esta función simplifica el análisis de datos para usuarios de todos los niveles, desde analistas de negocio hasta desarrolladores.
+
+<br>
+<br>
+<br>
+<u>Antes de empezar</u><br>
+(salvo que su organización ya lo haya provisionado)<br><br>
+Para usar Select AI, asegúrese de lo siguiente:
+<ul>
+    <li><b>Privilegios de base de datos</b> - Obtenga privilegios de ejecución para los paquetes <code>DBMS_CLOUD</code> y <code>DBMS_CLOUD_AI</code> para activar la generación de consultas impulsada por IA.</li>
+    <li><b>Acceso de red</b> - Configure ACL de red para permitir conectividad con el endpoint del proveedor de IA seleccionado.</li>
+    <li><b>Credenciales del proveedor de IA</b> - Proporcione credenciales API válidas para un proveedor de IA soportado (OpenAI, Cohere u Oracle Cloud Infrastructure Generative AI).</li>
+    <li><b>Perfiles de IA</b> - Configure perfiles de IA para definir qué esquemas, tablas o vistas son accesibles para consultas en lenguaje natural, garantizando acceso a datos seguro y controlado.</li>
+</ul>
+Consulte la <a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/select-ai.html">documentación de Oracle Select AI</a> para obtener instrucciones detalladas de configuración.
+
+<br>
+<br>
+<br>
+<b>Nota</b><br>
+Oracle Select AI es una función experimental en preview. Los resultados pueden variar según la complejidad de la consulta o el modelo de datos. Valide las salidas e informe cualquier problema al equipo de desarrollo de Oracle® Database Navigator para su mejora continua.
+</body>
+</html>
+

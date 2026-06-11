@@ -45,7 +45,7 @@ public class ExplainPlanResultForm extends ExecutionResultFormBase<ExplainPlanRe
 
     public ExplainPlanResultForm(@NotNull ExplainPlanResult explainPlanResult) {
         super(explainPlanResult);
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.ExplainPlanResult");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBN.Execution.ExplainPlan.Result");
         setAccessibleName(actionToolbar, txt("app.execution.aria.ExplainPlanResultActions"));
 
         actionsPanel.add(actionToolbar.getComponent());

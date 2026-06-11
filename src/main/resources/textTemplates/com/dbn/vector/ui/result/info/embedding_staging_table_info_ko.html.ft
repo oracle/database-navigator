@@ -1,0 +1,45 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="ko">
+<head>
+    <title>스테이징 테이블</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body style="width: 300px">
+    <h3>스테이징 위치</h3>
+    <p>
+        파일 콘텐츠는 청크되고 임베딩되기 전에 스테이징 테이블에 업로드됩니다.
+    </p>
+    <br>
+    <p>스테이징 테이블은 다음 구조를 가집니다.</p>
+    <ul>
+        <li><code>ID</code> – 파일 콘텐츠의 고유 식별자</li>
+        <li><code>FILE_CONTENT (BLOB)</code> – 파일의 콘텐츠</li>
+        <li><code>FILE_SIZE</code> – 바이트 단위 파일 크기</li>
+        <li><code>FILE_HASH</code> – 콘텐츠의 고유 서명</li>
+        <li><code>METADATA (JSON)</code> – JSON 형식의 업로드 관련 메타데이터</li>
+    </ul>
+</body>
+</html>
+

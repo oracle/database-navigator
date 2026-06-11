@@ -60,7 +60,7 @@ public class BrowserToolWindowForm extends DBNFormBase {
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
         rebuild();
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.Browser.Controls");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.Browser");
         setAccessibleName(actionToolbar, txt("app.databaseBrowser.aria.DatabaseBrowserActions"));
         actionsPanel.add(actionToolbar.getComponent());
 

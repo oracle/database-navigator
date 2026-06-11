@@ -91,8 +91,8 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
     private void initEditorToolbar() {
         if (!list.isEditable()) return;
 
-        ActionToolbar actionToolbarLeft = createActionToolbar(leftActionPanel, true, "DBNavigator.ActionGroup.Arrays.LeftControls");
-        ActionToolbar actionToolbarRight = createActionToolbar(leftActionPanel, true, "DBNavigator.ActionGroup.Arrays.RightControls");
+        ActionToolbar actionToolbarLeft = createActionToolbar(leftActionPanel, true, "DBN.ArrayEditor.Left");
+        ActionToolbar actionToolbarRight = createActionToolbar(leftActionPanel, true, "DBN.ArrayEditor.Right");
         Arrays.asList(actionToolbarLeft, actionToolbarRight).forEach(tb -> Actions.getActions(tb).forEach(a -> registerAction(a)));
 
         leftActionPanel.add(actionToolbarLeft.getComponent(), BorderLayout.WEST);
