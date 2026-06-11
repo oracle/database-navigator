@@ -56,6 +56,10 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
     private String profileKey;
     private String label;
     private String azureClientId;
+    private String vaultAddress;
+    private String vaultNamespace;
+    private String vaultUsername;
+    private String userPassAuthPath;
 
     public void reset() {
         sourceType = ConfigFileSourceType.LOCAL_FILE;
@@ -68,6 +72,10 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         profileKey = null;
         label = null;
         azureClientId = null;
+        vaultAddress = null;
+        vaultNamespace = null;
+        vaultUsername = null;
+        userPassAuthPath = null;
     }
 
     public void applyOciAuthentication(
@@ -84,6 +92,26 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
             String azureClientId) {
         this.authentication = authentication;
         this.azureClientId = isAzureProvider() ? azureClientId : null;
+    }
+
+    public void applyHashicorpAuthentication(
+            CloudConfigProviderAuthentication authentication,
+            String vaultAddress,
+            String vaultNamespace,
+            String vaultUsername,
+            String userPassAuthPath) {
+        if (isHashicorpProvider()) {
+            this.authentication = authentication;
+            this.vaultAddress = vaultAddress;
+            this.vaultNamespace = vaultNamespace;
+            this.vaultUsername = authentication == CloudConfigProviderAuthentication.HCP_USERPASS ? vaultUsername : null;
+            this.userPassAuthPath = authentication == CloudConfigProviderAuthentication.HCP_USERPASS ? userPassAuthPath : null;
+        } else {
+            this.vaultAddress = null;
+            this.vaultNamespace = null;
+            this.vaultUsername = null;
+            this.userPassAuthPath = null;
+        }
     }
 
     public void apply(
@@ -155,6 +183,10 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         return isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isAzure();
     }
 
+    private boolean isHashicorpProvider() {
+        return isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isHashicorp();
+    }
+
     public String getProviderSlug() {
         ConfigFileSourceType sourceType = Commons.nvl(this.sourceType, ConfigFileSourceType.LOCAL_FILE);
         return switch (sourceType) {
@@ -185,6 +217,26 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
             if (authentication == CloudConfigProviderAuthentication.AZURE_INTERACTIVE) {
                 if (isNotEmptyOrSpaces(azureClientId)) {
                     parameters.put("AZURE_CLIENT_ID", azureClientId.trim());
+                }
+            }
+        }
+        if (includeAuthentication &&
+                isHashicorpProvider()) {
+            if (authentication != null && authentication != CloudConfigProviderAuthentication.HCP_DEFAULT) {
+                parameters.put("authentication", authentication.getParameterValue());
+            }
+            if (isNotEmptyOrSpaces(vaultAddress)) {
+                parameters.put("VAULT_ADDR", vaultAddress.trim());
+            }
+            if (isNotEmptyOrSpaces(vaultNamespace)) {
+                parameters.put("VAULT_NAMESPACE", vaultNamespace.trim());
+            }
+            if (authentication == CloudConfigProviderAuthentication.HCP_USERPASS) {
+                if (isNotEmptyOrSpaces(vaultUsername)) {
+                    parameters.put("VAULT_USERNAME", vaultUsername.trim());
+                }
+                if (isNotEmptyOrSpaces(userPassAuthPath)) {
+                    parameters.put("USERPASS_AUTH_PATH", userPassAuthPath.trim());
                 }
             }
         }
@@ -279,6 +331,15 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
             authentication = CloudConfigProviderAuthentication.get(getParameterIgnoreCase(parameters, "AUTHENTICATION"));
             azureClientId = getParameterIgnoreCase(parameters, "AZURE_CLIENT_ID");
         }
+        if (isHashicorpProvider()) {
+            authentication = nvl(
+                    CloudConfigProviderAuthentication.get(getParameterIgnoreCase(parameters, "authentication")),
+                    CloudConfigProviderAuthentication.HCP_DEFAULT);
+            vaultAddress = getParameterIgnoreCase(parameters, "VAULT_ADDR");
+            vaultNamespace = getParameterIgnoreCase(parameters, "VAULT_NAMESPACE");
+            vaultUsername = getParameterIgnoreCase(parameters, "VAULT_USERNAME");
+            userPassAuthPath = getParameterIgnoreCase(parameters, "USERPASS_AUTH_PATH");
+        }
         if (isRegionConfig()) {
             region = getParameterIgnoreCase(parameters, cloudProviderType.getRegionParameterName());
         }
@@ -315,6 +376,12 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         applyAzureAuthentication(
                 authentication,
                 getString(element, "azure-config-provider-client-id", null));
+        applyHashicorpAuthentication(
+                authentication,
+                getString(element, "hashicorp-config-provider-vault-address", null),
+                getString(element, "hashicorp-config-provider-vault-namespace", null),
+                getString(element, "hashicorp-config-provider-vault-username", null),
+                getString(element, "hashicorp-config-provider-userpass-auth-path", null));
     }
 
     public void writeConfiguration(Element element) {
@@ -324,6 +391,10 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         setString(element, "oci-config-provider-config-file", ociConfigFile);
         setString(element, "oci-config-provider-profile", ociProfile);
         setString(element, "azure-config-provider-client-id", azureClientId);
+        setString(element, "hashicorp-config-provider-vault-address", vaultAddress);
+        setString(element, "hashicorp-config-provider-vault-namespace", vaultNamespace);
+        setString(element, "hashicorp-config-provider-vault-username", vaultUsername);
+        setString(element, "hashicorp-config-provider-userpass-auth-path", userPassAuthPath);
         setString(element, "cloud-config-provider-region", region);
         setString(element, "config-location", location);
         setString(element, "config-file-profile-key", profileKey);
@@ -343,6 +414,10 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         clone.profileKey = profileKey;
         clone.label = label;
         clone.azureClientId = azureClientId;
+        clone.vaultAddress = vaultAddress;
+        clone.vaultNamespace = vaultNamespace;
+        clone.vaultUsername = vaultUsername;
+        clone.userPassAuthPath = userPassAuthPath;
         return clone;
     }
 }
