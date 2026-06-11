@@ -1035,85 +1035,97 @@
         <intentionAction>
             <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.ExecuteScriptIntentionAction</className>
-            <category>Database/Script execution</category>
+            <categoryKey>app.codeEditor.category.ScriptExecution</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
         </intentionAction>
         <intentionAction>
             <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.ExecuteStatementIntentionAction</className>
-            <category>Database/Statement execution</category>
+            <categoryKey>app.codeEditor.category.StatementExecution</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
         </intentionAction>
         <intentionAction>
             <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.DebugStatementIntentionAction</className>
-            <category>Database/Statement execution</category>
+            <categoryKey>app.codeEditor.category.StatementExecution</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
         </intentionAction>
         <intentionAction>
             <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.ExplainPlanIntentionAction</className>
-            <category>Database/Statement execution</category>
+            <categoryKey>app.codeEditor.category.StatementExecution</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
         </intentionAction>
         <intentionAction>
             <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.JumpToExecutionResultIntentionAction</className>
-            <category>Database/Statement execution</category>
+            <categoryKey>app.codeEditor.category.StatementExecution</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
         </intentionAction>
         <intentionAction>
             <language>DBN-PSQL</language>
             <className>com.dbn.code.common.intention.ExecuteMethodIntentionAction</className>
-            <category>Database/Method execution</category>
+            <categoryKey>app.codeEditor.category.MethodExecution</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
         </intentionAction>
         <intentionAction>
             <language>DBN-PSQL</language>
             <className>com.dbn.code.common.intention.DebugMethodIntentionAction</className>
-            <category>Database/Method execution</category>
+            <categoryKey>app.codeEditor.category.MethodExecution</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
         </intentionAction>
         <intentionAction>
             <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.DatabaseConnectIntentionAction</className>
-            <category>Database/Connectivity</category>
+            <categoryKey>app.codeEditor.category.Connectivity</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
         </intentionAction>
         <intentionAction>
             <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.SelectSessionIntentionAction</className>
-            <category>Database/Connectivity</category>
+            <categoryKey>app.codeEditor.category.Connectivity</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
         </intentionAction>
         <intentionAction>
             <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.SelectSchemaIntentionAction</className>
-            <category>Database/Connectivity</category>
+            <categoryKey>app.codeEditor.category.Connectivity</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
         </intentionAction>
         <intentionAction>
             <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.SelectConnectionIntentionAction</className>
-            <category>Database/Connectivity</category>
+            <categoryKey>app.codeEditor.category.Connectivity</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
         </intentionAction>
         <intentionAction>
             <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.ToggleDatabaseLoggingIntentionAction</className>
-            <category>Database/Statement execution</category>
+            <categoryKey>app.codeEditor.category.StatementExecution</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
         </intentionAction>
         <!--<intentionAction><className>com.dbn.code.common.intention.SetupCodeCompletionIntentionAction</className><category>Database</category></intentionAction>-->
 
         <intentionAction>
             <className>com.dbn.assistant.service.selectai.editor.intention.SelectAiShowIntentionAction</className>
-            <category>Database/Assistant</category>
+            <categoryKey>app.assistant.category.Assistant</categoryKey>
         </intentionAction>
         <intentionAction>
             <className>com.dbn.assistant.service.selectai.editor.intention.SelectAiExplainIntentionAction</className>
-            <category>Database/Assistant</category>
+            <categoryKey>app.assistant.category.Assistant</categoryKey>
         </intentionAction>
         <intentionAction>
             <className>com.dbn.assistant.service.selectai.editor.intention.SelectAiProfileSwitchIntentionAction</className>
-            <category>Database/Assistant</category>
+            <categoryKey>app.assistant.category.Assistant</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
         </intentionAction>
         <intentionAction>
             <className>com.dbn.assistant.service.selectai.editor.intention.SelectAiProfileSetupIntentionAction</className>
-            <category>Database/Assistant</category>
+            <categoryKey>app.assistant.category.Assistant</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
         </intentionAction>
 
         <fileDocumentManagerListener implementation="com.dbn.connection.console.DatabaseConsoleFileInitializer"/>
 
     </extensions>
-    <helpset file="help.jar" path="/Help.hs"/>
-
 </idea-plugin>
