@@ -57,7 +57,7 @@ public class DBLanguageFileEditorToolbarForm extends DBNToolbarForm {
         super(fileEditor, project);
         this.mainPanel.setBorder(Borders.insetBorder(2));
 
-        this.actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.FileEditor");
+        this.actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.Editor");
         setAccessibleName(actionToolbar, txt("app.codeEditor.aria.CodeEditorActions"));
         this.actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
         this.actionToolbar.getComponent().addComponentListener(createResizeListener());

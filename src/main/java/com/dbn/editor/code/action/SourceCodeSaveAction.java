@@ -100,7 +100,7 @@ public class SourceCodeSaveAction extends AbstractCodeEditorAction {
      */
     public static class ShortcutInterceptor extends ComplementaryShortcutInterceptor {
         public ShortcutInterceptor() {
-            super("DBNavigator.Actions.SourceEditor.Save");
+            super("DBN.SourceEditor.Save");
         }
 
         @Override

@@ -39,7 +39,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -60,7 +59,6 @@ public class WrapperModel implements DatabaseContextBase {
 	private List<MethodWrapper> methods = new ArrayList<>();
     private List<ClassWrapper> classes = new ArrayList<>();
     private List<String> errors = new ArrayList<>();
-    private String signature;
 
     public WrapperModel(WrapperContext context) {
         this.context = context;
@@ -96,10 +94,6 @@ public class WrapperModel implements DatabaseContextBase {
 			sqlWrapperMethod = new DBObjectRef<>(schemaRef, methodType, sqlWrapperName);
 		}
 	}
-
-    public boolean matchesSignature(String signature) {
-        return Objects.equals(this.signature, signature);
-    }
 
     public WrapperModelInput getInput() {
         return context.getInput();

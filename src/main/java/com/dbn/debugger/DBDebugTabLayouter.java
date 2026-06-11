@@ -23,12 +23,26 @@ import com.intellij.execution.ui.layout.LayoutViewOptions;
 import com.intellij.ui.content.Content;
 import com.intellij.xdebugger.ui.XDebugTabLayouter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DBDebugTabLayouter extends XDebugTabLayouter {
+    private final XDebugTabLayouter delegate;
+
+    public DBDebugTabLayouter() {
+        this(null);
+    }
+
+    public DBDebugTabLayouter(@Nullable XDebugTabLayouter delegate) {
+        this.delegate = delegate;
+    }
+
     @NotNull
     @Override
     public Content registerConsoleContent(@NotNull RunnerLayoutUi ui, @NotNull ExecutionConsole console) {
-        Content consoleContent = super.registerConsoleContent(ui, console);
+        Content consoleContent = delegate == null ?
+                super.registerConsoleContent(ui, console) :
+                delegate.registerConsoleContent(ui, console);
+
         ui.getDefaults().initContentAttraction(DebuggerContentInfo.FRAME_CONTENT, LayoutViewOptions.STARTUP);
         return consoleContent;
 /*
@@ -42,4 +56,11 @@ public class DBDebugTabLayouter extends XDebugTabLayouter {
         return content;
 */
     }
+
+    @Override
+    public void registerAdditionalContent(@NotNull RunnerLayoutUi ui) {
+        if (delegate == null) return;
+        delegate.registerAdditionalContent(ui);
+    }
+
 }

@@ -94,7 +94,7 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
             datasetEditorTable = new DatasetEditorTable(this, datasetEditor);
             datasetTableScrollPane.setViewportView(datasetEditorTable);
 
-            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.DataEditor");
+            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.DataEditor");
             setAccessibleName(actionToolbar, txt("app.dataEditor.aria.DatasetEditorActions"));
 
             actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);

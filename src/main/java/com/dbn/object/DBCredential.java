@@ -28,7 +28,7 @@ public interface DBCredential extends DBSchemaObject {
 
     String getUserName();
 
-    Map<DBAttributeType, @NonNls String> getAttributes();
+    Map<DBAttributeType, String> getAttributes();
 
     void setAttribute(DBAttributeType attr, @NonNls String value);
 

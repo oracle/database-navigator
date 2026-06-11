@@ -57,6 +57,7 @@ public class EventRegistrationsForm extends DBNFormBase {
     private DBNScrollPane listenersScrollPane;
 
     private @Getter EventRegistrationsTable registrationsTable;
+    private @Getter volatile boolean loading;
 
     public EventRegistrationsForm(EventMonitorDetailsForm parent, DataChangeRegistrationBundle registrations) {
         super(parent);
@@ -86,7 +87,7 @@ public class EventRegistrationsForm extends DBNFormBase {
     }
 
     private void initActionToolbar() {
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.EventRegistration.Controls");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.Event.Registration");
         actionsPanel.add(actionToolbar.getComponent());
         controlPanel.setBorder(Borders.lineBorder(Colors.getTableGridColor(), 0, 0, 1, 0));
     }
@@ -98,12 +99,16 @@ public class EventRegistrationsForm extends DBNFormBase {
     }
 
     public void refresh() {
-        if (isLoading()) return;
         load();
     }
 
     private void load() {
-        markLoading(true);
+        synchronized (this) {
+            if (loading) return;
+            loading = true;
+        }
+
+        updateLoadingState();
         Background.run(() -> {
             try {
                 DataChangeRegistrationBundle model = registrationsTable.getModel();
@@ -111,12 +116,13 @@ public class EventRegistrationsForm extends DBNFormBase {
             } catch (Exception e) {
                 // TODO show load exception (maybe as a banner??)
             } finally {
-                markLoading(false);
+                loading = false;
+                updateLoadingState();
             }
         });
     }
 
-    private void markLoading(boolean loading) {
+    private void updateLoadingState() {
         dispatch(() -> {
             loadingIconPanel.setVisible(loading);
             loadingLabel.setVisible(loading);
@@ -149,10 +155,6 @@ public class EventRegistrationsForm extends DBNFormBase {
     public Object getData(@NotNull String dataId) {
         if (DataKeys.EVENT_REGISTRATIONS_FORM.is(dataId)) return this;
         return null;
-    }
-
-    public boolean isLoading() {
-        return registrationsTable.isLoading();
     }
 
     public void showSearchHeader(){

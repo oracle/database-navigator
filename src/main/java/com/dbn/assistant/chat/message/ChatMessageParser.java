@@ -161,7 +161,7 @@ public class ChatMessageParser {
         String body = htmlGenerator.generateHtml(tagRenderer);
         body = sanitizeHtml(body);
 
-        String wrapperContent = TextResources.get(ChatMessageParser.class, "chat_message_wrapper.html.ft");
+        String wrapperContent = TextResources.getLocalizable(ChatMessageParser.class, "chat_message_wrapper.html.ft");
         TextContent htmlContent = TextContent.html(wrapperContent);
         htmlContent.initFonts();
         htmlContent.initField("BODY_CONTENT", body);

@@ -93,7 +93,7 @@ public class ExecuteStatementEditorAction extends ProjectAction {
      */
     public static class ShortcutInterceptor extends OverridingShortcutInterceptor {
         public ShortcutInterceptor() {
-            super("DBNavigator.Actions.Execute");
+            super("DBN.Editor.Execute");
         }
 
         @Override

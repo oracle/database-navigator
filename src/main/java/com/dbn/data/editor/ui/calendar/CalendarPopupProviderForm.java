@@ -112,9 +112,9 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
             }
         });*/
 
-        ActionToolbar actionToolbarLeft = Actions.createActionToolbar(actionsLeftPanel, true, "DBNavigator.ActionGroup.Calendar.LeftControls");
-        ActionToolbar actionToolbarRight = Actions.createActionToolbar(actionsLeftPanel, true, "DBNavigator.ActionGroup.Calendar.RightControls");
-        ActionToolbar actionToolbarBottom = Actions.createActionToolbar(actionsLeftPanel, true, "DBNavigator.ActionGroup.Calendar.BottomControls");
+        ActionToolbar actionToolbarLeft = Actions.createActionToolbar(actionsLeftPanel, true, "DBN.Calendar.Left");
+        ActionToolbar actionToolbarRight = Actions.createActionToolbar(actionsLeftPanel, true, "DBN.Calendar.Right");
+        ActionToolbar actionToolbarBottom = Actions.createActionToolbar(actionsLeftPanel, true, "DBN.Calendar.Bottom");
 
         Arrays.asList(actionToolbarLeft, actionToolbarRight, actionToolbarBottom).forEach(tb -> Actions.getActions(tb).forEach(a -> registerAction(a)));
 

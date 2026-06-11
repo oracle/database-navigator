@@ -86,7 +86,7 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
         ActionToolbar leftActionToolbar = Actions.createActionToolbar(leftActionPanel, true);
         leftActionPanel.add(leftActionToolbar.getComponent(), BorderLayout.WEST);
 
-        ActionToolbar rightActionToolbar = createActionToolbar(leftActionPanel, true, "DBNavigator.ActionGroup.TextEditor.Controls");
+        ActionToolbar rightActionToolbar = createActionToolbar(leftActionPanel, true, "DBN.TextEditor");
         rightActionPanel.add(rightActionToolbar.getComponent(), BorderLayout.EAST);
 
         Arrays.asList(leftActionToolbar, rightActionToolbar).forEach(tb -> Actions.getActions(tb).forEach(a -> registerAction(a)));

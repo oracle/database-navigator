@@ -83,7 +83,7 @@ public class SelectAiContextActionsForm extends AssistantDetailFormBase implemen
     }
 
     private void createActionPanel() {
-        ActionToolbar contextActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.SelectAiContextActions");
+        ActionToolbar contextActions = Actions.createActionToolbar(actionsPanel, true, "DBN.Assistant.SelectAI.Context");
         setAccessibleName(contextActions, txt("app.assistant.aria.ChatProfileActions"));
         this.actionsPanel.add(contextActions.getComponent());
     }

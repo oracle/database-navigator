@@ -39,6 +39,7 @@ import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBJavaScalarType;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -75,6 +76,7 @@ import static com.dbn.common.data.Data.asLongPrimitive;
 import static com.dbn.common.data.Data.asShort;
 import static com.dbn.common.data.Data.asShortPrimitive;
 import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.connection.Statements.setParameterValue;
 import static com.dbn.execution.java.JavaExecutionTypeResolver.resolveInputType;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
@@ -163,19 +165,15 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 			} else {
 				@NonNls
-				String clazz = parameter.getJavaClassRef().getObjectName();
+				String objectName = parameter.getJavaClassRef().getObjectName();
 				String value = executionInput.getInputValue(parameterName);
-				if (value == null) statement.setObject(parameterIndex, null);
-				else if (clazz.equals("String")) statement.setString(parameterIndex, value);
-				else if (clazz.equals("byte")) statement.setByte(parameterIndex, Byte.parseByte(value));
-				else if (clazz.equals("short")) statement.setShort(parameterIndex, Short.parseShort(value));
-				else if (clazz.equals("int")) statement.setInt(parameterIndex, Integer.parseInt(value));
-				else if (clazz.equals("long")) statement.setLong(parameterIndex, Long.parseLong(value));
-				else if (clazz.equals("float")) statement.setFloat(parameterIndex, Float.parseFloat(value));
-				else if (clazz.equals("double")) statement.setDouble(parameterIndex, Double.parseDouble(value));
-				else if (clazz.equals("boolean")) statement.setBoolean(parameterIndex, Boolean.parseBoolean(value));
-				else statement.setObject(parameterIndex, value);
 
+				DBJavaScalarType scalarType = DBJavaScalarType.forObjectName(objectName);
+				if (scalarType != null) {
+					setParameterValue(statement, parameterIndex, value, scalarType.getType());
+				} else {
+					statement.setObject(parameterIndex, value);
+				}
 			}
 			parameterIndex++;
 		}

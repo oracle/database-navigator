@@ -168,7 +168,7 @@ public class AssistantToolProvider implements ToolProvider, AssistantComponent {
 
         Map<String, JsonSchemaElement> properties = element.properties();
 
-        List<Map<@NonNls String, Object>> attributes = new ArrayList<>();
+        List<Map<String, Object>> attributes = new ArrayList<>();
         for (String attribute : properties.keySet()) {
             JsonSchemaElement property = properties.get(attribute);
 

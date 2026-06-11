@@ -1,0 +1,44 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="pt">
+<head>
+    <title>Destino dos embeddings</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body style="width: 300px">
+    <h3>Destino dos embeddings</h3>
+    <p>
+        Tabela de destino onde os embeddings vetoriais foram gerados.<br>
+        Cada linha representa um chunk e seu embedding associado, além dos metadados para recuperação ou busca por similaridade.
+    </p>
+    <br>
+    <p>A tabela de destino tem a seguinte estrutura:</p>
+    <ul>
+        <li><code>ID</code> - Um identificador exclusivo para o registro de chunk/embedding</li>
+        <li><code>TEXT (CLOB)</code> - O segmento de texto em chunk usado para gerar o embedding</li>
+        <li><code>EMBEDDING (VECTOR)</code> - A representação vetorial numérica do texto para busca por similaridade</li>
+        <li><code>METADATA (JSON)</code> - Informações sobre a origem do conteúdo processado</li>
+    </ul>
+</body>
+</html>

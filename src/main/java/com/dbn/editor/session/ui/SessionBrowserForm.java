@@ -77,7 +77,7 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
         loadTimestampLabel.setForeground(Colors.HINT_COLOR);
         refreshLoadTimestamp();
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.SessionBrowser");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.SessionBrowser");
         setAccessibleName(actionToolbar, txt("app.sessionBrowser.aria.SessionBrowserActions"));
 
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
