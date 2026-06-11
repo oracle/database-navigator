@@ -388,7 +388,6 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         CloudConfigProviderType cloudProviderType = isCloudProviderAuthenticationVisible() ?
                 urlSettingsForm.getCloudConfigProviderType() :
                 null;
-        driverSettingsForm.setExternalLibraryRequired(cloudProviderConfig);
         authSettingsForm.setCloudProviderMode(cloudProviderType);
         authenticationPanel.setVisible(cloudProviderType != null ||
                 !cloudProviderConfig && databaseType.supportsAuthentication() && urlSettingsForm.requiresAuthentication());
