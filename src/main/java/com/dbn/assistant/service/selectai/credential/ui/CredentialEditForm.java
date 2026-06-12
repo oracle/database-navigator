@@ -19,6 +19,7 @@ package com.dbn.assistant.service.selectai.credential.ui;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.util.Chars;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBCredential;
@@ -50,6 +51,8 @@ import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.PasswordFields.getPassword;
+import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
@@ -216,11 +219,13 @@ public class CredentialEditForm extends DBNFormBase {
 
     private void initTokenCredentialFields() {
         setSelection(credentialTypeComboBox, DBCredentialType.TOKEN);
+        setPassword(tokenCredentialPasswordField, Chars.fromString(credential.getAttribute(PASSWORD)));
     }
 
     private void initPasswordCredentialFields() {
         setSelection(credentialTypeComboBox, DBCredentialType.PASSWORD);
         setText(passwordCredentialUserField, credential.getUserName());
+        setPassword(passwordCredentialPasswordField, Chars.fromString(credential.getAttribute(PASSWORD)));
     }
 
     private void initOciCredentialFields() {
@@ -264,12 +269,12 @@ public class CredentialEditForm extends DBNFormBase {
         DBCredential credential = new DBCredentialImpl(schema, credentialName, credentialType, selected);
         if (credentialType == DBCredentialType.PASSWORD) {
             credential.setAttribute(USER_NAME, getText(passwordCredentialUserField));
-            credential.setAttribute(PASSWORD, getText(passwordCredentialPasswordField));
+            credential.setAttribute(PASSWORD, getCredentialPassword(passwordCredentialPasswordField));
 
         } else if (credentialType == DBCredentialType.TOKEN) {
             // special case of credentials created for the vector framework
             credential.setAttribute(USER_NAME, "access_token");
-            credential.setAttribute(PASSWORD, getText(tokenCredentialPasswordField));
+            credential.setAttribute(PASSWORD, getCredentialPassword(tokenCredentialPasswordField));
 
         } else if (credentialType == DBCredentialType.OCI) {
             credential.setAttribute(USER_OCID, getText(ociCredentialUserOcidField));
@@ -279,6 +284,12 @@ public class CredentialEditForm extends DBNFormBase {
 
         }
         return credential;
+    }
+
+    private String getCredentialPassword(JPasswordField passwordField) {
+        String credentialPassword = credential == null ? null : credential.getAttribute(PASSWORD);
+        char[] password = getPassword(passwordField, Chars.fromString(credentialPassword));
+        return Chars.toString(password);
     }
 
     @Nullable

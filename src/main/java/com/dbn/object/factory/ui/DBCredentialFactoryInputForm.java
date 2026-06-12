@@ -49,8 +49,9 @@ import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.PasswordFields.getPassword;
+import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.getText;
-import static com.dbn.common.ui.util.TextFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
 import static com.dbn.common.util.Strings.isNotEmpty;
@@ -226,12 +227,12 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
         switch (credentialType) {
             case PASSWORD -> {
                 input.setAttributeValue(USER_NAME, getText(passwordCredentialUserField));
-                input.setAttributeValue(PASSWORD, passwordCredentialPasswordField.getPassword());
+                input.setAttributeValue(PASSWORD, getPassword(passwordCredentialPasswordField, PASSWORD.of(input)));
             }
             case TOKEN -> {
                 // special case of credentials created for the vector framework
                 input.setAttributeValue(USER_NAME, "access_token");
-                input.setAttributeValue(PASSWORD, tokenCredentialPasswordField.getPassword());
+                input.setAttributeValue(PASSWORD, getPassword(tokenCredentialPasswordField, PASSWORD.of(input)));
             }
             case OCI -> {
                 input.setAttributeValue(USER_OCID, getText(ociCredentialUserOcidField));

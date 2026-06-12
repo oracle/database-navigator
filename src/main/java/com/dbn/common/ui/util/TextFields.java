@@ -18,7 +18,6 @@ package com.dbn.common.ui.util;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.routine.Consumer;
-import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.util.NlsContexts.StatusText;
@@ -126,8 +125,14 @@ public class TextFields {
         textComponent.setText(text == null ? "" : text.trim());
     }
 
+    /**
+     * @deprecated Use {@link PasswordFields#setPassword(JPasswordField, char[])} to bind password fields,
+     * and {@link PasswordFields#getPassword(JPasswordField, char[])} or
+     * {@link PasswordFields#isPasswordChanged(JPasswordField, char[])} when applying form changes.
+     */
+    @Deprecated
     public static void setPassword(JPasswordField textComponent, char[] password) {
-        textComponent.setText(Chars.toString(password));
+        PasswordFields.setPassword(textComponent, password);
     }
 
     public static void setText(TextFieldWithBrowseButton textComponent, String text) {
