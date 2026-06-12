@@ -167,7 +167,7 @@ public final class Settings {
         }
     }
 
-    public static int integerAttribute(Element element, @NonNls String attributeName, int defaultValue) {
+    public static Integer integerAttribute(Element element, @NonNls String attributeName, Integer defaultValue) {
         try {
             String attributeValue = stringAttribute(element, attributeName);
             if (isEmpty(attributeValue)) return defaultValue;
@@ -180,7 +180,15 @@ public final class Settings {
         }
     }
 
+    public static int integerAttribute(Element element, @NonNls String attributeName, int defaultValue) {
+        return integerAttribute(element, attributeName, Integer.valueOf(defaultValue));
+    }
+
     public static long longAttribute(Element element, @NonNls String attributeName, long defaultValue) {
+        return longAttribute(element, attributeName, Long.valueOf(defaultValue));
+    }
+
+    public static Long longAttribute(Element element, @NonNls String attributeName, Long defaultValue) {
         try {
             String attributeValue = stringAttribute(element, attributeName);
             if (isEmpty(attributeValue)) return defaultValue;

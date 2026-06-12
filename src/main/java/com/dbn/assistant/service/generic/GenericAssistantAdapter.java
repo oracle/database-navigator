@@ -234,6 +234,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         AIProviderId providerId = provider.getId();
         AssistantModelInput input = AssistantModelInput.create(baseProviderId, providerId, modelName);
         input.setCredential(credential);
+        input.setMaxOutputTokens(model.getMaxOutputTokens());
 
         if (model.isFeatureSupported(TEMPERATURE)) {
             double temperature = profile.getTemperature();

@@ -25,45 +25,45 @@
             </urls>
             <models>
                 <!-- 2026 -->
-                <model id="GPT_5_5"      api-name="gpt-5.5"/>
-                <model id="GPT_5_4"      api-name="gpt-5.4"/>
-                <model id="GPT_5_4_MINI" api-name="gpt-5.4-mini"/>
-                <model id="GPT_5_4_NANO" api-name="gpt-5.4-nano"/>
+                <model id="GPT_5_5"      api-name="gpt-5.5"      max-output-tokens="128000"/>
+                <model id="GPT_5_4"      api-name="gpt-5.4"      max-output-tokens="128000"/>
+                <model id="GPT_5_4_MINI" api-name="gpt-5.4-mini" max-output-tokens="128000"/>
+                <model id="GPT_5_4_NANO" api-name="gpt-5.4-nano" max-output-tokens="128000"/>
 
                 <!-- 2025 -->
-                <model id="GPT_5_2"    api-name="gpt-5.2"/>
-                <model id="GPT_5_1"    api-name="gpt-5.1"/>
-                <model id="GPT_5"      api-name="gpt-5"/>
-                <model id="GPT_5_MINI" api-name="gpt-5-mini"/>
-                <model id="GPT_5_NANO" api-name="gpt-5-nano"/>
+                <model id="GPT_5_2"    api-name="gpt-5.2"    max-output-tokens="128000"/>
+                <model id="GPT_5_1"    api-name="gpt-5.1"    max-output-tokens="128000"/>
+                <model id="GPT_5"      api-name="gpt-5"      max-output-tokens="128000"/>
+                <model id="GPT_5_MINI" api-name="gpt-5-mini" max-output-tokens="128000"/>
+                <model id="GPT_5_NANO" api-name="gpt-5-nano" max-output-tokens="128000"/>
 
-                <model id="GPT_4_1"      api-name="gpt-4.1"/>
-                <model id="GPT_4_1_MINI" api-name="gpt-4.1-mini"/>
-                <model id="GPT_4_1_NANO" api-name="gpt-4.1-nano" status="DEPRECATED"/>
+                <model id="GPT_4_1"      api-name="gpt-4.1"      max-output-tokens="32768"/>
+                <model id="GPT_4_1_MINI" api-name="gpt-4.1-mini" max-output-tokens="32768"/>
+                <model id="GPT_4_1_NANO" api-name="gpt-4.1-nano" max-output-tokens="32768" status="DEPRECATED"/>
 
-                <model id="O3_PRO"  api-name="o3-pro"/>
-                <model id="O3"      api-name="o3"/>
-                <model id="O3_MINI" api-name="o3-mini" status="DEPRECATED"/>
-                <model id="O4_MINI" api-name="o4-mini" status="DEPRECATED"/>
+                <model id="O3_PRO"  api-name="o3-pro"  max-output-tokens="100000"/>
+                <model id="O3"      api-name="o3"      max-output-tokens="100000"/>
+                <model id="O3_MINI" api-name="o3-mini" max-output-tokens="100000" status="DEPRECATED"/>
+                <model id="O4_MINI" api-name="o4-mini" max-output-tokens="100000" status="DEPRECATED"/>
 
                 <!-- 2024 -->
-                <model id="O1_PRO"  api-name="o1-pro"  status="DEPRECATED"/>
-                <model id="O1"      api-name="o1"      status="DEPRECATED"/>
-                <model id="O1_MINI" api-name="o1-mini"/>
+                <model id="O1_PRO"  api-name="o1-pro"  max-output-tokens="100000" status="DEPRECATED"/>
+                <model id="O1"      api-name="o1"      max-output-tokens="100000" status="DEPRECATED"/>
+                <model id="O1_MINI" api-name="o1-mini" max-output-tokens="65536"/>
 
-                <model id="GPT_4O_MINI" api-name="gpt-4o-mini"/>
-                <model id="GPT_4O"      api-name="gpt-4o"/>
+                <model id="GPT_4O_MINI" api-name="gpt-4o-mini" max-output-tokens="16384"/>
+                <model id="GPT_4O"      api-name="gpt-4o"      max-output-tokens="16384"/>
 
                 <!-- 2023 -->
-                <model id="GPT_4_32K_0613" api-name="gpt-4-32k-0613" status="DISCONTINUED"/>
-                <model id="GPT_4_32K"      api-name="gpt-4-32k"      status="DISCONTINUED"/>
-                <model id="GPT_4_0613"     api-name="gpt-4-0613"     status="DEPRECATED"/>
-                <model id="GPT_4"          api-name="gpt-4"          status="DEPRECATED"/>
+                <model id="GPT_4_32K_0613" api-name="gpt-4-32k-0613" max-output-tokens="8192" status="DISCONTINUED"/>
+                <model id="GPT_4_32K"      api-name="gpt-4-32k"      max-output-tokens="8192" status="DISCONTINUED"/>
+                <model id="GPT_4_0613"     api-name="gpt-4-0613"     max-output-tokens="8192" status="DEPRECATED"/>
+                <model id="GPT_4"          api-name="gpt-4"          max-output-tokens="8192" status="DEPRECATED"/>
 
-                <model id="GPT_3_5_TURBO_16K_0613" api-name="gpt-3.5-turbo-16k-0613" status="DISCONTINUED"/>
-                <model id="GPT_3_5_TURBO_16K"      api-name="gpt-3.5-turbo-16k"      status="DISCONTINUED"/>
-                <model id="GPT_3_5_TURBO_0613"     api-name="gpt-3.5-turbo-0613"     status="DISCONTINUED"/>
-                <model id="GPT_3_5_TURBO"          api-name="gpt-3.5-turbo"          status="DEPRECATED"/>
+                <model id="GPT_3_5_TURBO_16K_0613" api-name="gpt-3.5-turbo-16k-0613" max-output-tokens="4096" status="DISCONTINUED"/>
+                <model id="GPT_3_5_TURBO_16K"      api-name="gpt-3.5-turbo-16k"      max-output-tokens="4096" status="DISCONTINUED"/>
+                <model id="GPT_3_5_TURBO_0613"     api-name="gpt-3.5-turbo-0613"     max-output-tokens="4096" status="DISCONTINUED"/>
+                <model id="GPT_3_5_TURBO"          api-name="gpt-3.5-turbo"          max-output-tokens="4096" status="DEPRECATED"/>
             </models>
         </provider>
 
@@ -73,22 +73,22 @@
                 <url type="API">https://dashboard.cohere.com/welcome/login?redirect_uri=%2Fapi-keys</url>
             </urls>
             <models>
-                <model id="COMMAND_A_PLUS_05_2026"      api-name="command-a-plus-05-2026"      short-name="command-a-plus"/>
-                <model id="COMMAND_A_REASONING_08_2025" api-name="command-a-reasoning-08-2025" short-name="command-a-reasoning"/>
-                <model id="COMMAND_A_TRANSLATE_08_2025" api-name="command-a-translate-08-2025" short-name="command-a-translate"/>
-                <model id="COMMAND_A_VISION_07_2025"    api-name="command-a-vision-07-2025"    short-name="command-a-vision"/>
-                <model id="COMMAND_A_03_2025"           api-name="command-a-03-2025"           short-name="command-a"/>
-                <model id="COMMAND_R7B_12_2024"         api-name="command-r7b-12-2024"         short-name="command-r7b"/>
+                <model id="COMMAND_A_PLUS_05_2026"      api-name="command-a-plus-05-2026"      short-name="command-a-plus"      max-output-tokens="32768"/>
+                <model id="COMMAND_A_REASONING_08_2025" api-name="command-a-reasoning-08-2025" short-name="command-a-reasoning" max-output-tokens="32768"/>
+                <model id="COMMAND_A_TRANSLATE_08_2025" api-name="command-a-translate-08-2025" short-name="command-a-translate" max-output-tokens="8192"/>
+                <model id="COMMAND_A_VISION_07_2025"    api-name="command-a-vision-07-2025"    short-name="command-a-vision"    max-output-tokens="8192"/>
+                <model id="COMMAND_A_03_2025"           api-name="command-a-03-2025"           short-name="command-a"           max-output-tokens="8192"/>
+                <model id="COMMAND_R7B_12_2024"         api-name="command-r7b-12-2024"         short-name="command-r7b"         max-output-tokens="4096"/>
 
-                <model id="COMMAND_R_PLUS_08_2024" api-name="command-r-plus-08-2024" short-name="command-r-plus-08"/>
-                <model id="COMMAND_R_08_2024"      api-name="command-r-08-2024"      short-name="command-r-08"/>
-                <model id="COMMAND_R_PLUS"         api-name="command-r-plus"         short-name="command-r-plus"    status="DEPRECATED"/>
-                <model id="COMMAND_R"              api-name="command-r"              short-name="command"           status="DEPRECATED"/>
+                <model id="COMMAND_R_PLUS_08_2024" api-name="command-r-plus-08-2024" short-name="command-r-plus-08" max-output-tokens="8192"/>
+                <model id="COMMAND_R_08_2024"      api-name="command-r-08-2024"      short-name="command-r-08"      max-output-tokens="4096"/>
+                <model id="COMMAND_R_PLUS"         api-name="command-r-plus"         short-name="command-r-plus"    max-output-tokens="4096" status="DEPRECATED"/>
+                <model id="COMMAND_R"              api-name="command-r"              short-name="command"           max-output-tokens="4096" status="DEPRECATED"/>
 
-                <model id="COMMAND_LIGHT_NIGHTLY" api-name="command-light-nightly" short-name="command-light-nightly"/>
-                <model id="COMMAND_LIGHT"         api-name="command-light"         short-name="command-light"         status="DEPRECATED"/>
-                <model id="COMMAND_NIGHTLY"       api-name="command-nightly"       short-name="command-nightly"/>
-                <model id="COMMAND"               api-name="command"               short-name="command"               status="DEPRECATED"/>
+                <model id="COMMAND_LIGHT_NIGHTLY" api-name="command-light-nightly" short-name="command-light-nightly" max-output-tokens="4096"/>
+                <model id="COMMAND_LIGHT"         api-name="command-light"         short-name="command-light"         max-output-tokens="4096" status="DEPRECATED"/>
+                <model id="COMMAND_NIGHTLY"       api-name="command-nightly"       short-name="command-nightly"       max-output-tokens="4096"/>
+                <model id="COMMAND"               api-name="command"               short-name="command"               max-output-tokens="4096" status="DEPRECATED"/>
             </models>
         </provider>
 
@@ -97,31 +97,31 @@
                 <url type="KEYS">https://cloud.oracle.com/identity/domains/my-profile</url>
             </urls>
             <models>
-                <model id="META_LLAMA_3_1_70B_INSTRUCT"                 api-name="meta.llama-3.1-70b-instruct"                 short-name="llama-3.1-instruct"     base-provider-id="META" status="DISCONTINUED"/>
-                <model id="META_LLAMA_3_1_405B_INSTRUCT"                api-name="meta.llama-3.1-405b-instruct"                short-name="llama-3.1-instruct"     base-provider-id="META" status="DEPRECATED"/>
-                <model id="META_LLAMA_3_2_11B_VISION_INSTRUCT"          api-name="meta.llama-3.2-11b-vision-instruct"          short-name="llama-3.2-vision-instr" base-provider-id="META" status="DEPRECATED"/>
-                <model id="META_LLAMA_3_2_90B_VISION_INSTRUCT"          api-name="meta.llama-3.2-90b-vision-instruct"          short-name="llama-3.2-vision-instr" base-provider-id="META" status="DEPRECATED"/>
-                <model id="META_LLAMA_3_3_70B_INSTRUCT"                 api-name="meta.llama-3.3-70b-instruct"                 short-name="llama-3.3-instruct"     base-provider-id="META"/>
-                <model id="META_LLAMA_4_MAVERICK_17B_128E_INSTRUCT_FP8" api-name="meta.llama-4-maverick-17b-128e-instruct-fp8" short-name="llama-4-maverick-instr" base-provider-id="META"/>
-                <model id="META_LLAMA_4_SCOUT_17B_16E_INSTRUCT"         api-name="meta.llama-4-scout-17b-16e-instruct"         short-name="llama-4-scout-instr"    base-provider-id="META"/>
+                <model id="META_LLAMA_3_1_70B_INSTRUCT"                 api-name="meta.llama-3.1-70b-instruct"                 short-name="llama-3.1-instruct"     max-output-tokens="8192" base-provider-id="META" status="DISCONTINUED"/>
+                <model id="META_LLAMA_3_1_405B_INSTRUCT"                api-name="meta.llama-3.1-405b-instruct"                short-name="llama-3.1-instruct"     max-output-tokens="8192" base-provider-id="META" status="DEPRECATED"/>
+                <model id="META_LLAMA_3_2_11B_VISION_INSTRUCT"          api-name="meta.llama-3.2-11b-vision-instruct"          short-name="llama-3.2-vision-instr" max-output-tokens="8192" base-provider-id="META" status="DEPRECATED"/>
+                <model id="META_LLAMA_3_2_90B_VISION_INSTRUCT"          api-name="meta.llama-3.2-90b-vision-instruct"          short-name="llama-3.2-vision-instr" max-output-tokens="8192" base-provider-id="META" status="DEPRECATED"/>
+                <model id="META_LLAMA_3_3_70B_INSTRUCT"                 api-name="meta.llama-3.3-70b-instruct"                 short-name="llama-3.3-instruct"     max-output-tokens="8192" base-provider-id="META"/>
+                <model id="META_LLAMA_4_MAVERICK_17B_128E_INSTRUCT_FP8" api-name="meta.llama-4-maverick-17b-128e-instruct-fp8" short-name="llama-4-maverick-instr" max-output-tokens="8192" base-provider-id="META"/>
+                <model id="META_LLAMA_4_SCOUT_17B_16E_INSTRUCT"         api-name="meta.llama-4-scout-17b-16e-instruct"         short-name="llama-4-scout-instr"    max-output-tokens="8192" base-provider-id="META"/>
 
-                <model id="GOOGLE_GEMINI_2_5_FLASH_LITE" api-name="google.gemini-2.5-flash-lite" short-name="gemini-2.5-flash-lite" base-provider-id="GOOGLE"/>
-                <model id="GOOGLE_GEMINI_2_5_FLASH"      api-name="google.gemini-2.5-flash"      short-name="gemini-2.5-flash"      base-provider-id="GOOGLE"/>
-                <model id="GOOGLE_GEMINI_2_5_PRO"        api-name="google.gemini-2.5-pro"        short-name="gemini-2.5-pro"        base-provider-id="GOOGLE"/>
+                <model id="GOOGLE_GEMINI_2_5_FLASH_LITE" api-name="google.gemini-2.5-flash-lite" short-name="gemini-2.5-flash-lite" max-output-tokens="65536" base-provider-id="GOOGLE"/>
+                <model id="GOOGLE_GEMINI_2_5_FLASH"      api-name="google.gemini-2.5-flash"      short-name="gemini-2.5-flash"      max-output-tokens="65536" base-provider-id="GOOGLE"/>
+                <model id="GOOGLE_GEMINI_2_5_PRO"        api-name="google.gemini-2.5-pro"        short-name="gemini-2.5-pro"        max-output-tokens="65536" base-provider-id="GOOGLE"/>
 
-                <model id="COHERE_COMMAND_R_08_2024"      api-name="cohere.command-r-08-2024"      short-name="command-r-08"        base-provider-id="COHERE" status="DEPRECATED"/>
-                <model id="COHERE_COMMAND_R_PLUS_08_2024" api-name="cohere.command-r-plus-08-2024" short-name="command-r-plus.08"   base-provider-id="COHERE" status="DEPRECATED"/>
-                <model id="COHERE_COMMAND_A_PLUS_05_2026" api-name="cohere.command-a-plus-05-2026" short-name="command-a-plus"      base-provider-id="COHERE"/>
-                <model id="COHERE_COMMAND_A_03_2025"      api-name="cohere.command-a-03-2025"      short-name="command-a-03"        base-provider-id="COHERE"/>
-                <model id="COHERE_COMMAND_LATEST"         api-name="cohere.command-latest"         short-name="command-latest"      base-provider-id="COHERE"/>
-                <model id="COHERE_COMMAND_PLUS_LATEST"    api-name="cohere.command-plus-latest"    short-name="command-plus-latest" base-provider-id="COHERE"/>
+                <model id="COHERE_COMMAND_R_08_2024"      api-name="cohere.command-r-08-2024"      short-name="command-r-08"        max-output-tokens="4096"  base-provider-id="COHERE" status="DEPRECATED"/>
+                <model id="COHERE_COMMAND_R_PLUS_08_2024" api-name="cohere.command-r-plus-08-2024" short-name="command-r-plus.08"   max-output-tokens="8192"  base-provider-id="COHERE" status="DEPRECATED"/>
+                <model id="COHERE_COMMAND_A_PLUS_05_2026" api-name="cohere.command-a-plus-05-2026" short-name="command-a-plus"      max-output-tokens="32768" base-provider-id="COHERE"/>
+                <model id="COHERE_COMMAND_A_03_2025"      api-name="cohere.command-a-03-2025"      short-name="command-a-03"        max-output-tokens="8192"  base-provider-id="COHERE"/>
+                <model id="COHERE_COMMAND_LATEST"         api-name="cohere.command-latest"         short-name="command-latest"      max-output-tokens="8192"  base-provider-id="COHERE"/>
+                <model id="COHERE_COMMAND_PLUS_LATEST"    api-name="cohere.command-plus-latest"    short-name="command-plus-latest" max-output-tokens="8192"  base-provider-id="COHERE"/>
 
-                <model id="XAI_GROK_3"           api-name="xai.grok-3"           short-name="grok-3"           base-provider-id="X_AI" status="DEPRECATED"/>
-                <model id="XAI_GROK_3_FAST"      api-name="xai.grok-3-fast"      short-name="grok-3-fast"      base-provider-id="X_AI" status="DEPRECATED"/>
-                <model id="XAI_GROK_3_MINI"      api-name="xai.grok-3-mini"      short-name="grok-3-mini"      base-provider-id="X_AI" status="DEPRECATED"/>
-                <model id="XAI_GROK_3_MINI_FAST" api-name="xai.grok-3-mini-fast" short-name="grok-3-mini-fast" base-provider-id="X_AI" status="DEPRECATED"/>
-                <model id="XAI_GROK_4"           api-name="xai.grok-4"           short-name="grok-4"           base-provider-id="X_AI" status="DEPRECATED"/>
-                <model id="XAI_GROK_CODE_FAST_1" api-name="xai.grok-code-fast-1" short-name="grok-code-fast-1" base-provider-id="X_AI" status="DEPRECATED"/>
+                <model id="XAI_GROK_3"           api-name="xai.grok-3"           short-name="grok-3"           max-output-tokens="16384" base-provider-id="X_AI" status="DEPRECATED"/>
+                <model id="XAI_GROK_3_FAST"      api-name="xai.grok-3-fast"      short-name="grok-3-fast"      max-output-tokens="16384" base-provider-id="X_AI" status="DEPRECATED"/>
+                <model id="XAI_GROK_3_MINI"      api-name="xai.grok-3-mini"      short-name="grok-3-mini"      max-output-tokens="8192"  base-provider-id="X_AI" status="DEPRECATED"/>
+                <model id="XAI_GROK_3_MINI_FAST" api-name="xai.grok-3-mini-fast" short-name="grok-3-mini-fast" max-output-tokens="8192"  base-provider-id="X_AI" status="DEPRECATED"/>
+                <model id="XAI_GROK_4"           api-name="xai.grok-4"           short-name="grok-4"           max-output-tokens="65536" base-provider-id="X_AI" status="DEPRECATED"/>
+                <model id="XAI_GROK_CODE_FAST_1" api-name="xai.grok-code-fast-1" short-name="grok-code-fast-1" max-output-tokens="16384" base-provider-id="X_AI" status="DEPRECATED"/>
             </models>
         </provider>
 
@@ -133,20 +133,20 @@
                 <url type="API">https://generativelanguage.googleapis.com/v1beta/</url>
             </urls>
             <models>
-                <model id="GEMINI_3_5_FLASH"       api-name="gemini-3.5-flash"/>
-                <model id="GEMINI_3_1_FLASH_LITE"  api-name="gemini-3.1-flash-lite"/>
-                <model id="GEMINI_3_FLASH_PREVIEW" api-name="gemini-3-flash-preview"/>
-                <model id="GEMINI_3_1_PRO_PREVIEW" api-name="gemini-3.1-pro-preview"/>
+                <model id="GEMINI_3_5_FLASH"       api-name="gemini-3.5-flash"       max-output-tokens="65536"/>
+                <model id="GEMINI_3_1_FLASH_LITE"  api-name="gemini-3.1-flash-lite"  max-output-tokens="65536"/>
+                <model id="GEMINI_3_FLASH_PREVIEW" api-name="gemini-3-flash-preview" max-output-tokens="65536"/>
+                <model id="GEMINI_3_1_PRO_PREVIEW" api-name="gemini-3.1-pro-preview" max-output-tokens="65536"/>
 
-                <model id="GEMINI_2_5_FLASH_LITE" api-name="gemini-2.5-flash-lite" status="DEPRECATED"/>
-                <model id="GEMINI_2_5_FLASH"      api-name="gemini-2.5-flash"      status="DEPRECATED"/>
-                <model id="GEMINI_2_5_PRO"        api-name="gemini-2.5-pro"        status="DEPRECATED"/>
-                <model id="GEMINI_FLASH_LATEST"   api-name="gemini-flash-latest"/>
-                <model id="GEMINI_2_0_FLASH_LITE" api-name="gemini-2.0-flash-lite" status="DISCONTINUED"/>
-                <model id="GEMINI_2_0_FLASH"      api-name="gemini-2.0-flash"      status="DISCONTINUED"/>
-                <model id="GEMINI_1_5_FLASH"      api-name="gemini-1.5-flash"      status="DISCONTINUED"/>
-                <model id="GEMINI_1_5_PRO"        api-name="gemini-1.5-pro"        status="DISCONTINUED"/>
-                <model id="GEMINI_1_0_PRO"        api-name="gemini-1.0-pro"        status="DISCONTINUED"/>
+                <model id="GEMINI_2_5_FLASH_LITE" api-name="gemini-2.5-flash-lite" max-output-tokens="65536" status="DEPRECATED"/>
+                <model id="GEMINI_2_5_FLASH"      api-name="gemini-2.5-flash"      max-output-tokens="65536" status="DEPRECATED"/>
+                <model id="GEMINI_2_5_PRO"        api-name="gemini-2.5-pro"        max-output-tokens="65536" status="DEPRECATED"/>
+                <model id="GEMINI_FLASH_LATEST"   api-name="gemini-flash-latest"   max-output-tokens="65536"/>
+                <model id="GEMINI_2_0_FLASH_LITE" api-name="gemini-2.0-flash-lite" max-output-tokens="8192"  status="DISCONTINUED"/>
+                <model id="GEMINI_2_0_FLASH"      api-name="gemini-2.0-flash"      max-output-tokens="8192"  status="DISCONTINUED"/>
+                <model id="GEMINI_1_5_FLASH"      api-name="gemini-1.5-flash"      max-output-tokens="8192"  status="DISCONTINUED"/>
+                <model id="GEMINI_1_5_PRO"        api-name="gemini-1.5-pro"        max-output-tokens="8192"  status="DISCONTINUED"/>
+                <model id="GEMINI_1_0_PRO"        api-name="gemini-1.0-pro"        max-output-tokens="8192"  status="DISCONTINUED"/>
             </models>
         </provider>
 
@@ -159,25 +159,25 @@
             </urls>
             <models>
                 <!-- 2026 -->
-                <model id="CLAUDE_FABLE_5"            api-name="claude-fable-5"            short-name="claude-fable-5"/>
-                <model id="CLAUDE_MYTHOS_5"           api-name="claude-mythos-5"           short-name="claude-mythos-5"/>
-                <model id="CLAUDE_OPUS_4_8"           api-name="claude-opus-4-8"           short-name="claude-opus-4-8"/>
-                <model id="CLAUDE_OPUS_4_6"           api-name="claude-opus-4-6"           short-name="claude-opus-4-6"/>
-                <model id="CLAUDE_SONNET_4_6"         api-name="claude-sonnet-4-6"         short-name="claude-sonnet-4-6"/>
-                <model id="CLAUDE_HAIKU_4_5_20251001" api-name="claude-haiku-4-5-20251001" short-name="claude-haiku-4-5"/>
+                <model id="CLAUDE_FABLE_5"            api-name="claude-fable-5"            short-name="claude-fable-5"    max-output-tokens="128000"/>
+                <model id="CLAUDE_MYTHOS_5"           api-name="claude-mythos-5"           short-name="claude-mythos-5"   max-output-tokens="128000"/>
+                <model id="CLAUDE_OPUS_4_8"           api-name="claude-opus-4-8"           short-name="claude-opus-4-8"   max-output-tokens="128000"/>
+                <model id="CLAUDE_OPUS_4_6"           api-name="claude-opus-4-6"           short-name="claude-opus-4-6"   max-output-tokens="128000"/>
+                <model id="CLAUDE_SONNET_4_6"         api-name="claude-sonnet-4-6"         short-name="claude-sonnet-4-6" max-output-tokens="64000"/>
+                <model id="CLAUDE_HAIKU_4_5_20251001" api-name="claude-haiku-4-5-20251001" short-name="claude-haiku-4-5"  max-output-tokens="64000"/>
 
                 <!-- 2025 -->
-                <model id="CLAUDE_OPUS_4_1_20250805"   api-name="claude-opus-4-1-20250805"   short-name="claude-opus-4-1"   status="DEPRECATED"/>
-                <model id="CLAUDE_OPUS_4_20250514"     api-name="claude-opus-4-20250514"     short-name="claude-opus-4"     status="DEPRECATED"/>
-                <model id="CLAUDE_SONNET_4_20250514"   api-name="claude-sonnet-4-20250514"   short-name="claude-sonnet-4"   status="DEPRECATED"/>
-                <model id="CLAUDE_3_7_SONNET_20250219" api-name="claude-3-7-sonnet-20250219" short-name="claude-3-7-sonnet" status="DISCONTINUED"/>
+                <model id="CLAUDE_OPUS_4_1_20250805"   api-name="claude-opus-4-1-20250805"   short-name="claude-opus-4-1"   max-output-tokens="32000" status="DEPRECATED"/>
+                <model id="CLAUDE_OPUS_4_20250514"     api-name="claude-opus-4-20250514"     short-name="claude-opus-4"     max-output-tokens="32000" status="DEPRECATED"/>
+                <model id="CLAUDE_SONNET_4_20250514"   api-name="claude-sonnet-4-20250514"   short-name="claude-sonnet-4"   max-output-tokens="64000" status="DEPRECATED"/>
+                <model id="CLAUDE_3_7_SONNET_20250219" api-name="claude-3-7-sonnet-20250219" short-name="claude-3-7-sonnet" max-output-tokens="64000" status="DISCONTINUED"/>
 
                 <!-- 2024 -->
-                <model id="CLAUDE_3_5_HAIKU_20241022"  api-name="claude-3-5-haiku-20241022"  short-name="claude-3-5-haiku"  status="DISCONTINUED"/>
-                <model id="CLAUDE_3_5_SONNET_20240620" api-name="claude-3-5-sonnet-20240620" short-name="claude-3-5-sonnet" status="DISCONTINUED"/>
-                <model id="CLAUDE_3_HAIKU_20240307"    api-name="claude-3-haiku-20240307"    short-name="claude-3-haiku"    status="DISCONTINUED"/>
-                <model id="CLAUDE_3_OPUS_20240229"     api-name="claude-3-opus-20240229"     short-name="claude-3-opus"     status="DISCONTINUED"/>
-                <model id="CLAUDE_3_SONNET_20240229"   api-name="claude-3-sonnet-20240229"   short-name="claude-3-sonnet"   status="DISCONTINUED"/>
+                <model id="CLAUDE_3_5_HAIKU_20241022"  api-name="claude-3-5-haiku-20241022"  short-name="claude-3-5-haiku"  max-output-tokens="8192" status="DISCONTINUED"/>
+                <model id="CLAUDE_3_5_SONNET_20240620" api-name="claude-3-5-sonnet-20240620" short-name="claude-3-5-sonnet" max-output-tokens="8192" status="DISCONTINUED"/>
+                <model id="CLAUDE_3_HAIKU_20240307"    api-name="claude-3-haiku-20240307"    short-name="claude-3-haiku"    max-output-tokens="4096" status="DISCONTINUED"/>
+                <model id="CLAUDE_3_OPUS_20240229"     api-name="claude-3-opus-20240229"     short-name="claude-3-opus"     max-output-tokens="4096" status="DISCONTINUED"/>
+                <model id="CLAUDE_3_SONNET_20240229"   api-name="claude-3-sonnet-20240229"   short-name="claude-3-sonnet"   max-output-tokens="4096" status="DISCONTINUED"/>
             </models>
         </provider>
 
@@ -188,9 +188,9 @@
                 <url type="API">https://router.huggingface.co/v1/</url>
             </urls>
             <models>
-                <model id="MISTRALAI_MIXTRAL_8X7B_INSTRUCT_V0_1" api-name="mistralai/Mixtral-8x7B-Instruct-v0.1"/>
-                <model id="META_LLAMA_META_LLAMA_3_70B_INSTRUCT" api-name="meta-llama/Meta-Llama-3-70B-Instruct"/>
-                <model id="QWEN_QWEN1_5_1_8B"                    api-name="Qwen/Qwen1.5-1.8B"/>
+                <model id="MISTRALAI_MIXTRAL_8X7B_INSTRUCT_V0_1" api-name="mistralai/Mixtral-8x7B-Instruct-v0.1" max-output-tokens="4096"/>
+                <model id="META_LLAMA_META_LLAMA_3_70B_INSTRUCT" api-name="meta-llama/Meta-Llama-3-70B-Instruct" max-output-tokens="8192"/>
+                <model id="QWEN_QWEN1_5_1_8B"                    api-name="Qwen/Qwen1.5-1.8B"                    max-output-tokens="2048"/>
             </models>
         </provider>
 
@@ -202,28 +202,28 @@
                 <url type="API">https://api.mistral.ai/v1/</url>
             </urls>
             <models>
-                <model id="MISTRAL_MEDIUM_2604" api-name="mistral-medium-2604" short-name="mistral-medium"/>
-                <model id="MISTRAL_SMALL_2603"  api-name="mistral-small-2603"  short-name="mistral-small"/>
-                <model id="DEVSTRAL_2512"       api-name="devstral-2512"       short-name="devstral"       status="DEPRECATED"/>
-                <model id="MISTRAL_LARGE_2512"  api-name="mistral-large-2512"  short-name="mistral-large"/>
+                <model id="MISTRAL_MEDIUM_2604" api-name="mistral-medium-2604" short-name="mistral-medium" max-output-tokens="32768"/>
+                <model id="MISTRAL_SMALL_2603"  api-name="mistral-small-2603"  short-name="mistral-small"  max-output-tokens="32768"/>
+                <model id="DEVSTRAL_2512"       api-name="devstral-2512"       short-name="devstral"       max-output-tokens="32768" status="DEPRECATED"/>
+                <model id="MISTRAL_LARGE_2512"  api-name="mistral-large-2512"  short-name="mistral-large"  max-output-tokens="32768"/>
 
                 <!-- 2025-09 -->
-                <model id="MAGISTRAL_MEDIUM_2509" api-name="magistral-medium-2509" short-name="magistral-medium" status="DEPRECATED"/>
-                <model id="MAGISTRAL_SMALL_2509"  api-name="magistral-small-2509"  short-name="magistral-small"  status="DEPRECATED"/>
+                <model id="MAGISTRAL_MEDIUM_2509" api-name="magistral-medium-2509" short-name="magistral-medium" max-output-tokens="32768" status="DEPRECATED"/>
+                <model id="MAGISTRAL_SMALL_2509"  api-name="magistral-small-2509"  short-name="magistral-small"  max-output-tokens="32768" status="DEPRECATED"/>
 
                 <!-- 2025-08 -->
-                <model id="CODESTRAL_2508"      api-name="codestral-2508"      short-name="codestral"/>
-                <model id="MISTRAL_MEDIUM_2508" api-name="mistral-medium-2508" short-name="mistral-medium" status="DEPRECATED"/>
+                <model id="CODESTRAL_2508"      api-name="codestral-2508"      short-name="codestral"      max-output-tokens="32768"/>
+                <model id="MISTRAL_MEDIUM_2508" api-name="mistral-medium-2508" short-name="mistral-medium" max-output-tokens="32768" status="DEPRECATED"/>
 
                 <!-- 2025-07 -->
-                <model id="MAGISTRAL_MEDIUM_2507" api-name="magistral-medium-2507" short-name="magistral-medium" status="DISCONTINUED"/>
-                <model id="MAGISTRAL_SMALL_2507"  api-name="magistral-small-2507"  short-name="magistral-small"  status="DISCONTINUED"/>
-                <model id="VOXTRAL_SMALL_2507"    api-name="voxtral-small-2507"    short-name="voxtral-small"/>
-                <model id="VOXTRAL_MINI_2507"     api-name="voxtral-mini-2507"     short-name="voxtral-mini"     status="DISCONTINUED"/>
+                <model id="MAGISTRAL_MEDIUM_2507" api-name="magistral-medium-2507" short-name="magistral-medium" max-output-tokens="32768" status="DISCONTINUED"/>
+                <model id="MAGISTRAL_SMALL_2507"  api-name="magistral-small-2507"  short-name="magistral-small"  max-output-tokens="32768" status="DISCONTINUED"/>
+                <model id="VOXTRAL_SMALL_2507"    api-name="voxtral-small-2507"    short-name="voxtral-small"    max-output-tokens="8192"/>
+                <model id="VOXTRAL_MINI_2507"     api-name="voxtral-mini-2507"     short-name="voxtral-mini"     max-output-tokens="8192"  status="DISCONTINUED"/>
 
                 <!-- 2025-06 -->
-                <model id="MAGISTRAL_SMALL_2506" api-name="magistral-small-2506" short-name="magistral-small" status="DISCONTINUED"/>
-                <model id="MISTRAL_SMALL_2506"   api-name="mistral-small-2506"   short-name="mistral-small"   status="DEPRECATED"/>
+                <model id="MAGISTRAL_SMALL_2506" api-name="magistral-small-2506" short-name="magistral-small" max-output-tokens="32768" status="DISCONTINUED"/>
+                <model id="MISTRAL_SMALL_2506"   api-name="mistral-small-2506"   short-name="mistral-small"   max-output-tokens="32768" status="DEPRECATED"/>
             </models>
         </provider>
 
@@ -239,20 +239,20 @@
                 <url type="API">https://api.x.ai/v1/</url>
             </urls>
             <models>
-                <model id="GROK_4_3"                     api-name="grok-4.3"                     short-name="grok-4.3"/>
-                <model id="GROK_BUILD_0_1"               api-name="grok-build-0.1"               short-name="grok-build"/>
-                <model id="GROK_4_20_0309_REASONING"     api-name="grok-4.20-0309-reasoning"     short-name="grok-4.20-reasoning"     status="DEPRECATED"/>
-                <model id="GROK_4_20_0309_NON_REASONING" api-name="grok-4.20-0309-non-reasoning" short-name="grok-4.20-non-reasoning" status="DEPRECATED"/>
+                <model id="GROK_4_3"                     api-name="grok-4.3"                     short-name="grok-4.3"                max-output-tokens="65536"/>
+                <model id="GROK_BUILD_0_1"               api-name="grok-build-0.1"               short-name="grok-build"              max-output-tokens="16384"/>
+                <model id="GROK_4_20_0309_REASONING"     api-name="grok-4.20-0309-reasoning"     short-name="grok-4.20-reasoning"     max-output-tokens="65536" status="DEPRECATED"/>
+                <model id="GROK_4_20_0309_NON_REASONING" api-name="grok-4.20-0309-non-reasoning" short-name="grok-4.20-non-reasoning" max-output-tokens="65536" status="DEPRECATED"/>
 
                 <!-- 2025 -->
-                <model id="GROK_4_1"                  api-name="grok-4.1"                  short-name="grok-4.1"                  status="DEPRECATED"/>
-                <model id="GROK_4_1_THINKING"         api-name="grok-4.1-thinking"         short-name="grok-4.1-thinking"         status="DEPRECATED"/>
-                <model id="GROK_4_1_NON_THINKING"     api-name="grok-4.1-non-thinking"     short-name="grok-4.1-non-thinking"     status="DEPRECATED"/>
-                <model id="GROK_CODE_FAST_1"          api-name="grok-code-fast-1"          short-name="grok-code-fast"            status="DEPRECATED"/>
-                <model id="GROK_4_FAST_REASONING"     api-name="grok-4-fast-reasoning"     short-name="grok-4-fast-reasoning"     status="DEPRECATED"/>
-                <model id="GROK_4_FAST_NON_REASONING" api-name="grok-4-fast-non-reasoning" short-name="grok-4-fast-non-reasoning" status="DEPRECATED"/>
-                <model id="GROK_4_0709"               api-name="grok-4-0709"               short-name="grok-4"                    status="DEPRECATED"/>
-                <model id="GROK_3_MINI"               api-name="grok-3-mini"               short-name="grok-3-mini"               status="DEPRECATED"/>
+                <model id="GROK_4_1"                  api-name="grok-4.1"                  short-name="grok-4.1"                  max-output-tokens="65536" status="DEPRECATED"/>
+                <model id="GROK_4_1_THINKING"         api-name="grok-4.1-thinking"         short-name="grok-4.1-thinking"         max-output-tokens="65536" status="DEPRECATED"/>
+                <model id="GROK_4_1_NON_THINKING"     api-name="grok-4.1-non-thinking"     short-name="grok-4.1-non-thinking"     max-output-tokens="65536" status="DEPRECATED"/>
+                <model id="GROK_CODE_FAST_1"          api-name="grok-code-fast-1"          short-name="grok-code-fast"            max-output-tokens="16384" status="DEPRECATED"/>
+                <model id="GROK_4_FAST_REASONING"     api-name="grok-4-fast-reasoning"     short-name="grok-4-fast-reasoning"     max-output-tokens="65536" status="DEPRECATED"/>
+                <model id="GROK_4_FAST_NON_REASONING" api-name="grok-4-fast-non-reasoning" short-name="grok-4-fast-non-reasoning" max-output-tokens="65536" status="DEPRECATED"/>
+                <model id="GROK_4_0709"               api-name="grok-4-0709"               short-name="grok-4"                    max-output-tokens="65536" status="DEPRECATED"/>
+                <model id="GROK_3_MINI"               api-name="grok-3-mini"               short-name="grok-3-mini"               max-output-tokens="8192"  status="DEPRECATED"/>
             </models>
         </provider>
     </provider-types>

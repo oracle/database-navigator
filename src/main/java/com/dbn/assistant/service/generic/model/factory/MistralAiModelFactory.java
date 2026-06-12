@@ -42,6 +42,7 @@ public class MistralAiModelFactory extends AbstractModelFactory {
                 .baseUrl(input.getBaseUrl())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
+                .maxTokens(input.getMaxOutputTokens())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
     }
@@ -54,6 +55,7 @@ public class MistralAiModelFactory extends AbstractModelFactory {
                 .baseUrl(input.getBaseUrl())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
+                .maxTokens(input.getMaxOutputTokens())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
     }
