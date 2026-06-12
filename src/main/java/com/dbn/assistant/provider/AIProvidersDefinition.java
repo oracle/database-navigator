@@ -25,7 +25,6 @@ import com.dbn.common.util.XmlContents;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jdom.Element;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -165,8 +164,7 @@ public class AIProvidersDefinition {
 
         String modelApiName = fallback(stringAttribute(element, "api-name"), modelTemplate, t -> t.getApiName());
         String modelShortName = fallback(stringAttribute(element, "short-name"), modelTemplate, t -> t.getShortName());
-        String modelDescription = fallback(stringAttribute(element, "description"), modelTemplate, t -> t.getDescription());
-        AIModel model = new AIModel(modelId, modelApiName, modelShortName, modelDescription, provider, baseProviderId);
+        AIModel model = new AIModel(modelId, modelApiName, modelShortName, provider, baseProviderId);
 
         // status
         AIModelStatus modelStatus = enumAttribute(element, "status", AIModelStatus.class);
@@ -182,10 +180,10 @@ public class AIProvidersDefinition {
         }
 
         // features
-        @NonNls
-        List<AIModelFeature> features = Csvs.csvToValues(stringAttribute(element, "features"), s -> AIModelFeature.get(s));
+        String featuresAttribute = fallback(stringAttribute(element, "features"), modelTemplate, t -> t.getFeaturesCsv());
+        List<AIModelFeature> features = Csvs.csvToValues(featuresAttribute, s -> AIModelFeature.get(s));
         AIModelFeatures modelFeatures = model.getFeatures();
-        if (features.isEmpty()) {
+        if (featuresAttribute == null) {
             modelFeatures.set(AIModelFeature.VALUES, true);
         } else {
             modelFeatures.set(features, true);

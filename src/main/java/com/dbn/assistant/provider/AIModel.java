@@ -18,10 +18,17 @@ package com.dbn.assistant.provider;
 
 import com.dbn.common.property.PropertyHolderBase.ShortStore;
 import com.dbn.common.ui.Presentable;
+import com.dbn.common.util.Csvs;
+import com.dbn.common.util.Lists;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.nls.NlsResources.txtOr;
 
 /**
  * AI models
@@ -30,21 +37,30 @@ import static com.dbn.common.util.Commons.nvl;
  */
 @Getter
 public final class AIModel extends ShortStore<AIModelProperty> implements Presentable {
+    private static final @NonNls String MODEL_DESCRIPTION_KEY = "app.assistant.text.Model_";
+
     private final String id;
     private final String apiName;
     private final String shortName;
-    private final String description;
     private final AIProvider provider;
     private final AIProviderId baseProviderId;
     private final AIModelFeatures features = new AIModelFeatures();
 
-    AIModel(String id, String apiName, String shortName, String description, AIProvider provider, AIProviderId baseProviderId) {
+    AIModel(String id, String apiName, String shortName, AIProvider provider, AIProviderId baseProviderId) {
         this.id = id;
         this.apiName = apiName;
         this.shortName = shortName;
-        this.description = description;
         this.provider = provider;
         this.baseProviderId = baseProviderId;
+    }
+
+    @NonNls String getFeaturesCsv() {
+        List<AIModelFeature> features = Lists.filter(List.of(AIModelFeature.VALUES), f -> isFeatureSupported(f));
+        return Csvs.valuesToCsv(features, f -> f.name());
+    }
+
+    public @Nls String getDescription() {
+        return txtOr(MODEL_DESCRIPTION_KEY + id, null);
     }
 
     @Override
