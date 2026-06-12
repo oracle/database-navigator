@@ -24,7 +24,6 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
-import com.dbn.common.util.Chars;
 import com.dbn.common.util.Environment;
 import com.dbn.common.util.Strings;
 import com.dbn.oci.config.ui.OciConfigForm;
@@ -38,6 +37,8 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.util.PasswordFields.getPassword;
+import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.nls.NlsResources.txt;
@@ -109,13 +110,13 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
     @Override
     public void resetFormChanges() {
         setText(userTextField, credential.getUser());
-        setText(keyPasswordField, Chars.toString(credential.getSecret()));
+        setPassword(keyPasswordField, credential.getSecret());
         ociConfigForm.resetFormChanges();
     }
 
     public void applyFormChanges() {
         credential.setUser(getText(userTextField));
-        credential.setSecret(keyPasswordField.getPassword());
+        credential.setSecret(getPassword(keyPasswordField, credential.getSecret()));
         ociConfigForm.applyFormChanges();
     }
 
