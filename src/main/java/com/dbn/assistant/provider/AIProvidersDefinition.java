@@ -169,11 +169,17 @@ public class AIProvidersDefinition {
         AIModel model = new AIModel(modelId, modelApiName, modelShortName, modelDescription, provider, baseProviderId);
 
         // status
+        AIModelStatus modelStatus = enumAttribute(element, "status", AIModelStatus.class);
         model.set(DEFAULT, booleanAttribute(element, "default", templateDefault));
         model.set(RECOMMENDED, booleanAttribute(element, "recommended", templateRecommended));
         model.set(EXPERIMENTAL, booleanAttribute(element, "experimental", templateExperimental));
-        model.set(DEPRECATED, booleanAttribute(element, "deprecated", templateDeprecated));
-        model.set(DISCONTINUED, booleanAttribute(element, "discontinued", templateDiscontinued));
+        if (modelStatus == null) {
+            model.set(DEPRECATED, booleanAttribute(element, "deprecated", templateDeprecated));
+            model.set(DISCONTINUED, booleanAttribute(element, "discontinued", templateDiscontinued));
+        } else {
+            model.set(DEPRECATED, modelStatus == AIModelStatus.DEPRECATED);
+            model.set(DISCONTINUED, modelStatus == AIModelStatus.DISCONTINUED);
+        }
 
         // features
         @NonNls
