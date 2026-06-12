@@ -49,7 +49,8 @@ public class OpenAiModelFactory extends AbstractModelFactory {
                 .user(input.getUser())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
-                .maxTokens(input.getMaxOutputTokens())
+                .maxTokens(input.getMaxTokens())
+                .maxCompletionTokens(input.getMaxOutputTokens())
                 .customHeaders(input.getHeaders())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
@@ -64,7 +65,8 @@ public class OpenAiModelFactory extends AbstractModelFactory {
                 .user(input.getUser())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
-                .maxTokens(input.getMaxOutputTokens())
+                .maxTokens(input.getMaxTokens())
+                .maxCompletionTokens(input.getMaxOutputTokens())
                 .customHeaders(input.getHeaders())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
@@ -95,4 +97,5 @@ public class OpenAiModelFactory extends AbstractModelFactory {
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
     }
+
 }

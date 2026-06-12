@@ -45,7 +45,6 @@ import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.integerAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Lists.convert;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
@@ -165,8 +164,9 @@ public class AIProvidersDefinition {
 
         String modelApiName = fallback(stringAttribute(element, "api-name"), modelTemplate, t -> t.getApiName());
         String modelShortName = fallback(stringAttribute(element, "short-name"), modelTemplate, t -> t.getShortName());
+        Integer maxTokens = fallback(integerAttribute(element, "max-tokens", null), modelTemplate, t -> t.getMaxTokens());
         Integer maxOutputTokens = fallback(integerAttribute(element, "max-output-tokens", null), modelTemplate, t -> t.getMaxOutputTokens());
-        AIModel model = new AIModel(modelId, modelApiName, modelShortName, maxOutputTokens, provider, baseProviderId);
+        AIModel model = new AIModel(modelId, modelApiName, modelShortName, maxTokens, maxOutputTokens, provider, baseProviderId);
 
         // status
         AIModelStatus modelStatus = enumAttribute(element, "status", AIModelStatus.class);

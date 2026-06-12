@@ -42,15 +42,17 @@ public final class AIModel extends ShortStore<AIModelProperty> implements Presen
     private final String id;
     private final String apiName;
     private final String shortName;
+    private final Integer maxTokens;
     private final Integer maxOutputTokens;
     private final AIProvider provider;
     private final AIProviderId baseProviderId;
     private final AIModelFeatures features = new AIModelFeatures();
 
-    AIModel(String id, String apiName, String shortName, Integer maxOutputTokens, AIProvider provider, AIProviderId baseProviderId) {
+    AIModel(String id, String apiName, String shortName, Integer maxTokens, Integer maxOutputTokens, AIProvider provider, AIProviderId baseProviderId) {
         this.id = id;
         this.apiName = apiName;
         this.shortName = shortName;
+        this.maxTokens = maxTokens;
         this.maxOutputTokens = maxOutputTokens;
         this.provider = provider;
         this.baseProviderId = baseProviderId;

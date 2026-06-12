@@ -58,7 +58,7 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
 
         String modelName = input.getModelName();
         Double temperature = input.getTemperature();
-        Integer maxOutputTokens = input.getMaxOutputTokens();
+        Integer maxTokens = input.getMaxTokens();
         String compartmentId = credential.getOciConfig().getCompartmentId();
         Region region = getRegion(input);
         AuthenticationDetailsProvider authProvider = createAuthProvider(credential);
@@ -67,7 +67,7 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
             return wrapped(() -> OciGenAiCohereChatModel.builder()
                     .modelName(modelName)
                     .temperature(temperature)
-                    .maxTokens(maxOutputTokens)
+                    .maxTokens(maxTokens)
                     .authProvider(authProvider)
                     .compartmentId(compartmentId)
                     .region(region)
@@ -77,7 +77,7 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
             return wrapped(() -> OciGenAiChatModel.builder()
                     .modelName(modelName)
                     .temperature(temperature)
-                    .maxTokens(maxOutputTokens)
+                    .maxTokens(maxTokens)
                     .authProvider(authProvider)
                     .compartmentId(compartmentId)
                     .region(region)
@@ -97,7 +97,7 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
 
         String modelName = input.getModelName();
         Double temperature = input.getTemperature();
-        Integer maxOutputTokens = input.getMaxOutputTokens();
+        Integer maxTokens = input.getMaxTokens();
         String compartmentId = credential.getOciConfig().getCompartmentId();
         Region region = getRegion(input);
         AuthenticationDetailsProvider authProvider = createAuthProvider(credential);
@@ -106,7 +106,7 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
             return wrapped(() -> OciGenAiCohereStreamingChatModel.builder()
                     .modelName(modelName)
                     .temperature(temperature)
-                    .maxTokens(maxOutputTokens)
+                    .maxTokens(maxTokens)
                     .authProvider(authProvider)
                     .compartmentId(compartmentId)
                     .region(region)
@@ -115,7 +115,7 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
             return wrapped(() -> OciGenAiStreamingChatModel.builder()
                     .modelName(modelName)
                     .temperature(temperature)
-                    .maxTokens(maxOutputTokens)
+                    .maxTokens(maxTokens)
                     .authProvider(authProvider)
                     .compartmentId(compartmentId)
                     .region(region)
