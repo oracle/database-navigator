@@ -26,7 +26,6 @@ import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.form.field.JComponentCategory;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.TextFields;
-import com.dbn.common.util.Chars;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Sockets;
 import com.dbn.connection.AuthenticationTokenType;
@@ -56,8 +55,12 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.PasswordFields.getPassword;
+import static com.dbn.common.ui.util.PasswordFields.isPasswordChanged;
+import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.connection.AuthenticationTokenType.ALL_AZURE_TOKEN_TYPES;
 import static com.dbn.connection.AuthenticationTokenType.AZURE_INTERACTIVE;
@@ -263,7 +266,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         // no auth type check needed here
         authenticationInfo.setType(getSelection(authTypeComboBox));
         authenticationInfo.setUser(getText(userTextField));
-        authenticationInfo.setPassword(passwordField.getPassword());
+        authenticationInfo.setPassword(getPassword(passwordField, authenticationInfo.getPassword()));
 
         authenticationInfo.setTokenType(getSelection(tokenTypeComboBox));
         authenticationInfo.setTokenProfile(getSelection(tokenProfileComboBox));
@@ -274,28 +277,28 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         authenticationInfo.setAzureClientId(getText(azureClientIdTextField));
         authenticationInfo.setAzureTenantId(getText(azureTenantIdTextField));
         authenticationInfo.setAzureClientCertificateFile(getText(azureClientCertificateFileTextField));
-        authenticationInfo.setAzureClientCertificatePassword(azureClientCertificateFilePasswordField.getPassword());
+        authenticationInfo.setAzureClientCertificatePassword(getPassword(azureClientCertificateFilePasswordField, authenticationInfo.getAzureClientCertificatePassword()));
         authenticationInfo.setAzureDatabaseApplicationIdUri(getText(azureAppIdUriTextField));
-        authenticationInfo.setAzureClientSecret(azureClientSecretPasswordField.getPassword());
+        authenticationInfo.setAzureClientSecret(getPassword(azureClientSecretPasswordField, authenticationInfo.getAzureClientSecret()));
     }
 
     public void resetFormChanges(AuthenticationInfo authenticationInfo) {
-        userTextField.setText(authenticationInfo.getUser());
-        passwordField.setText(Chars.toString(authenticationInfo.getPassword()));
+        setText(userTextField, authenticationInfo.getUser());
+        setPassword(passwordField, authenticationInfo.getPassword());
         setSelection(authTypeComboBox, authenticationInfo.getType());
 
-        tokenConfigFileTextField.setText(authenticationInfo.getTokenConfigFile());
+        setText(tokenConfigFileTextField, authenticationInfo.getTokenConfigFile());
         setSelection(tokenProfileComboBox, authenticationInfo.getTokenProfile());
         setSelection(tokenTypeComboBox, authenticationInfo.getTokenType());
-        compartmentOcidTextField.setText(authenticationInfo.getCompartmentOcid());
-        databaseOcidTextField.setText(authenticationInfo.getDatabaseOcid());
+        setText(compartmentOcidTextField, authenticationInfo.getCompartmentOcid());
+        setText(databaseOcidTextField, authenticationInfo.getDatabaseOcid());
 
-        azureAppIdUriTextField.setText(authenticationInfo.getAzureDatabaseApplicationIdUri());
-        azureClientCertificateFileTextField.setText(authenticationInfo.getAzureClientCertificateFile());
-        azureClientCertificateFilePasswordField.setText(Chars.toString(authenticationInfo.getAzureClientCertificatePassword()));
-        azureClientIdTextField.setText(authenticationInfo.getAzureClientId());
-        azureTenantIdTextField.setText(authenticationInfo.getAzureTenantId());
-        azureClientSecretPasswordField.setText(Chars.toString(authenticationInfo.getAzureClientSecret()));
+        setText(azureAppIdUriTextField, authenticationInfo.getAzureDatabaseApplicationIdUri());
+        setText(azureClientCertificateFileTextField, authenticationInfo.getAzureClientCertificateFile());
+        setPassword(azureClientCertificateFilePasswordField, authenticationInfo.getAzureClientCertificatePassword());
+        setText(azureClientIdTextField, authenticationInfo.getAzureClientId());
+        setText(azureTenantIdTextField, authenticationInfo.getAzureTenantId());
+        setPassword(azureClientSecretPasswordField, authenticationInfo.getAzureClientSecret());
 
         tokenProfileComboBox
                 .withValueLoader(() -> loadOciConfigProfiles())
@@ -320,7 +323,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
                 // basic auth
                 !Commons.match(authenticationInfo.getUser(), getText(userTextField)) ||
-                !Commons.matchArrays(authenticationInfo.getPassword(), passwordField.getPassword()) ||
+                isPasswordChanged(passwordField, authenticationInfo.getPassword()) ||
 
                 // oci token auth
                 !Commons.match(authenticationInfo.getTokenType(), getSelection(tokenTypeComboBox)) ||
@@ -333,8 +336,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                 !Commons.match(authenticationInfo.getAzureClientId(), getText(azureClientIdTextField)) ||
                 !Commons.match(authenticationInfo.getAzureTenantId(), getText(azureTenantIdTextField)) ||
                 !Commons.match(authenticationInfo.getAzureClientCertificateFile(), getText(azureClientCertificateFileTextField)) ||
-                !Commons.matchArrays(authenticationInfo.getAzureClientCertificatePassword(), azureClientCertificateFilePasswordField.getPassword()) ||
-                !Commons.matchArrays(authenticationInfo.getAzureClientSecret(), azureClientSecretPasswordField.getPassword()) ||
+                isPasswordChanged(azureClientCertificateFilePasswordField, authenticationInfo.getAzureClientCertificatePassword()) ||
+                isPasswordChanged(azureClientSecretPasswordField, authenticationInfo.getAzureClientSecret()) ||
                 !Commons.match(authenticationInfo.getAzureDatabaseApplicationIdUri(), getText(azureAppIdUriTextField));
     }
 
