@@ -14,12 +14,13 @@ Primary supported databases are Oracle, MySQL, PostgreSQL, and SQLite, with expe
 ## Quick Workflow
 
 1. Inspect nearby code first. Match the existing package, base class, nullability annotations, Lombok usage, static imports, and registration style before adding a new pattern.
-2. Prefer DBN wrappers over raw platform calls. Check `com.dbn.common.*` before using direct IntelliJ APIs for services, events, disposal, threading, dialogs, messages, settings XML, files, editors, and UI helpers.
-3. Use `Components.projectService(...)` and `Components.applicationService(...)` from `com.dbn.common.component.Components` in DBN service `getInstance` helpers, not direct `project.getService(...)` or `ApplicationManager` calls. For services registered only from optional plugin descriptors, use `Components.optionalProjectService(...)` or `Components.optionalApplicationService(...)`. Project services are historically named `*Manager`; avoid introducing interface/implementation service pairs unless the surrounding code already uses that pattern.
-4. For name, class, or package refactorings, preserve Git history by moving/renaming existing files first, then editing contents. Check `git diff --find-renames` when rename detection matters.
-5. Preserve the repository shape: Java 17, Gradle IntelliJ plugin, source under `src/main/java`, resources under `src/main/resources`, modules under `modules/dbn-api` and `modules/dbn-spi`.
-6. Keep behavior defensive around disposed project/plugin objects. Use DBN refs and failsafe utilities where adjacent code does.
-7. Validate with the narrowest useful Gradle task, normally `./gradlew test` for unit-level changes or `./gradlew build` for broader plugin/resource changes.
+2. Before changing code, clarify all open implementation points with the developer. Summarize the planned edits, including likely files/classes, behavior changes, resource or registration updates, and validation commands, then wait for confirmation before applying code changes.
+3. Prefer DBN wrappers over raw platform calls. Check `com.dbn.common.*` before using direct IntelliJ APIs for services, events, disposal, threading, dialogs, messages, settings XML, files, editors, and UI helpers.
+4. Use `Components.projectService(...)` and `Components.applicationService(...)` from `com.dbn.common.component.Components` in DBN service `getInstance` helpers, not direct `project.getService(...)` or `ApplicationManager` calls. For services registered only from optional plugin descriptors, use `Components.optionalProjectService(...)` or `Components.optionalApplicationService(...)`. Project services are historically named `*Manager`; avoid introducing interface/implementation service pairs unless the surrounding code already uses that pattern.
+5. For name, class, or package refactorings, preserve Git history by moving/renaming existing files first, then editing contents. Check `git diff --find-renames` when rename detection matters.
+6. Preserve the repository shape: Java 17, Gradle IntelliJ plugin, source under `src/main/java`, resources under `src/main/resources`, modules under `modules/dbn-api` and `modules/dbn-spi`.
+7. Keep behavior defensive around disposed project/plugin objects. Use DBN refs and failsafe utilities where adjacent code does.
+8. Validate with the narrowest useful Gradle task, normally `./gradlew test` for unit-level changes or `./gradlew build` for broader plugin/resource changes.
 
 ## References
 
