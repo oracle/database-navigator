@@ -61,6 +61,8 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
     private String vaultUsername;
     private String userPassAuthPath;
     private String roleId;
+    private String appRoleAuthPath;
+    private String githubAuthPath;
 
     public void reset() {
         sourceType = ConfigFileSourceType.LOCAL_FILE;
@@ -78,6 +80,8 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         vaultUsername = null;
         userPassAuthPath = null;
         roleId = null;
+        appRoleAuthPath = null;
+        githubAuthPath = null;
     }
 
     public void applyOciAuthentication(
@@ -102,7 +106,9 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
             String vaultNamespace,
             String vaultUsername,
             String userPassAuthPath,
-            String roleId) {
+            String roleId,
+            String appRoleAuthPath,
+            String githubAuthPath) {
         if (isHashicorpProvider()) {
             this.authentication = authentication;
             this.vaultAddress = vaultAddress;
@@ -110,12 +116,16 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
             this.vaultUsername = authentication == CloudConfigProviderAuthentication.HCP_USERPASS ? vaultUsername : null;
             this.userPassAuthPath = authentication == CloudConfigProviderAuthentication.HCP_USERPASS ? userPassAuthPath : null;
             this.roleId = authentication == CloudConfigProviderAuthentication.HCP_APPROLE ? roleId : null;
+            this.appRoleAuthPath = authentication == CloudConfigProviderAuthentication.HCP_APPROLE ? appRoleAuthPath : null;
+            this.githubAuthPath = authentication == CloudConfigProviderAuthentication.HCP_GITHUB ? githubAuthPath : null;
         } else {
             this.vaultAddress = null;
             this.vaultNamespace = null;
             this.vaultUsername = null;
             this.userPassAuthPath = null;
             this.roleId = null;
+            this.appRoleAuthPath = null;
+            this.githubAuthPath = null;
         }
     }
 
@@ -228,7 +238,7 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         if (includeAuthentication &&
                 isHashicorpProvider()) {
             if (authentication != null && authentication != CloudConfigProviderAuthentication.HCP_DEFAULT) {
-                parameters.put("authentication", authentication.getParameterValue());
+                parameters.put("AUTHENTICATION", authentication.getParameterValue().toUpperCase());
             }
             if (isNotEmptyOrSpaces(vaultAddress)) {
                 parameters.put("VAULT_ADDR", vaultAddress.trim());
@@ -247,6 +257,14 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
             if (authentication == CloudConfigProviderAuthentication.HCP_APPROLE &&
                     isNotEmptyOrSpaces(roleId)) {
                 parameters.put("ROLE_ID", roleId.trim());
+            }
+            if (authentication == CloudConfigProviderAuthentication.HCP_APPROLE &&
+                    isNotEmptyOrSpaces(appRoleAuthPath)) {
+                parameters.put("APPROLE_AUTH_PATH", appRoleAuthPath.trim());
+            }
+            if (authentication == CloudConfigProviderAuthentication.HCP_GITHUB &&
+                    isNotEmptyOrSpaces(githubAuthPath)) {
+                parameters.put("GITHUB_AUTH_PATH", githubAuthPath.trim());
             }
         }
 
@@ -349,6 +367,8 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
             vaultUsername = getParameterIgnoreCase(parameters, "VAULT_USERNAME");
             userPassAuthPath = getParameterIgnoreCase(parameters, "USERPASS_AUTH_PATH");
             roleId = getParameterIgnoreCase(parameters, "ROLE_ID");
+            appRoleAuthPath = getParameterIgnoreCase(parameters, "APPROLE_AUTH_PATH");
+            githubAuthPath = getParameterIgnoreCase(parameters, "GITHUB_AUTH_PATH");
         }
         if (isRegionConfig()) {
             region = getParameterIgnoreCase(parameters, cloudProviderType.getRegionParameterName());
@@ -392,7 +412,9 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
                 getString(element, "hashicorp-config-provider-vault-namespace", null),
                 getString(element, "hashicorp-config-provider-vault-username", null),
                 getString(element, "hashicorp-config-provider-userpass-auth-path", null),
-                getString(element, "hashicorp-config-provider-role-id", null));
+                getString(element, "hashicorp-config-provider-role-id", null),
+                getString(element, "hashicorp-config-provider-approle-auth-path", null),
+                getString(element, "hashicorp-config-provider-github-auth-path", null));
     }
 
     public void writeConfiguration(Element element) {
@@ -407,6 +429,8 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         setString(element, "hashicorp-config-provider-vault-username", vaultUsername);
         setString(element, "hashicorp-config-provider-userpass-auth-path", userPassAuthPath);
         setString(element, "hashicorp-config-provider-role-id", roleId);
+        setString(element, "hashicorp-config-provider-approle-auth-path", appRoleAuthPath);
+        setString(element, "hashicorp-config-provider-github-auth-path", githubAuthPath);
         setString(element, "cloud-config-provider-region", region);
         setString(element, "config-location", location);
         setString(element, "config-file-profile-key", profileKey);
@@ -431,6 +455,8 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         clone.vaultUsername = vaultUsername;
         clone.userPassAuthPath = userPassAuthPath;
         clone.roleId = roleId;
+        clone.appRoleAuthPath = appRoleAuthPath;
+        clone.githubAuthPath = githubAuthPath;
         return clone;
     }
 }

@@ -80,6 +80,12 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     private JTextField roleIdTextField;
     private JLabel secretIdLabel;
     private JPasswordField secretIdPasswordField;
+    private JLabel appRoleAuthPathLabel;
+    private JTextField appRoleAuthPathTextField;
+    private JLabel githubTokenLabel;
+    private JPasswordField githubTokenPasswordField;
+    private JLabel githubAuthPathLabel;
+    private JTextField githubAuthPathTextField;
     private CloudConfigProviderType cloudProviderType;
 
     public CloudConfigProviderAuthenticationSettingsForm(@NotNull ConnectionDatabaseSettingsForm parentComponent) {
@@ -150,7 +156,9 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                     getText(vaultNamespaceTextField),
                     getText(vaultUsernameTextField),
                     getText(userPassAuthPathTextField),
-                    getText(roleIdTextField));
+                    getText(roleIdTextField),
+                    getText(appRoleAuthPathTextField),
+                    getText(githubAuthPathTextField));
             if (isHashicorpVaultTokenAuthentication()) {
                 ConfigProviderSecretStore.saveHashicorpVaultToken(getConnectionId(), vaultTokenPasswordField.getPassword());
             } else {
@@ -165,6 +173,11 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                 ConfigProviderSecretStore.saveHashicorpAppRoleSecretId(getConnectionId(), secretIdPasswordField.getPassword());
             } else {
                 ConfigProviderSecretStore.removeHashicorpAppRoleSecretId(getConnectionId());
+            }
+            if (isHashicorpGithubAuthentication()) {
+                ConfigProviderSecretStore.saveHashicorpGithubToken(getConnectionId(), githubTokenPasswordField.getPassword());
+            } else {
+                ConfigProviderSecretStore.removeHashicorpGithubToken(getConnectionId());
             }
         }
     }
@@ -201,12 +214,18 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                 databaseInfo.getConfigProviderInfo().getUserPassAuthPath() : null);
         roleIdTextField.setText(isHashicorpProvider() ?
                 databaseInfo.getConfigProviderInfo().getRoleId() : null);
+        appRoleAuthPathTextField.setText(isHashicorpProvider() ?
+                databaseInfo.getConfigProviderInfo().getAppRoleAuthPath() : null);
+        githubAuthPathTextField.setText(isHashicorpProvider() ?
+                databaseInfo.getConfigProviderInfo().getGithubAuthPath() : null);
         vaultTokenPasswordField.setText(isHashicorpProvider() ?
                 Chars.toString(ConfigProviderSecretStore.loadHashicorpVaultToken(getConnectionId())) : null);
         vaultPasswordField.setText(isHashicorpProvider() ?
                 Chars.toString(ConfigProviderSecretStore.loadHashicorpVaultPassword(getConnectionId())) : null);
         secretIdPasswordField.setText(isHashicorpProvider() ?
                 Chars.toString(ConfigProviderSecretStore.loadHashicorpAppRoleSecretId(getConnectionId())) : null);
+        githubTokenPasswordField.setText(isHashicorpProvider() ?
+                Chars.toString(ConfigProviderSecretStore.loadHashicorpGithubToken(getConnectionId())) : null);
         updateFieldVisibility();
     }
 
@@ -239,7 +258,13 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                     isHashicorpAppRoleAuthentication() &&
                             !Commons.match(databaseInfo.getConfigProviderInfo().getRoleId(), getText(roleIdTextField)) ||
                     isHashicorpAppRoleAuthentication() &&
-                            !Commons.matchArrays(ConfigProviderSecretStore.loadHashicorpAppRoleSecretId(getConnectionId()), secretIdPasswordField.getPassword());
+                            !Commons.match(databaseInfo.getConfigProviderInfo().getAppRoleAuthPath(), getText(appRoleAuthPathTextField)) ||
+                    isHashicorpAppRoleAuthentication() &&
+                            !Commons.matchArrays(ConfigProviderSecretStore.loadHashicorpAppRoleSecretId(getConnectionId()), secretIdPasswordField.getPassword()) ||
+                    isHashicorpGithubAuthentication() &&
+                            !Commons.match(databaseInfo.getConfigProviderInfo().getGithubAuthPath(), getText(githubAuthPathTextField)) ||
+                    isHashicorpGithubAuthentication() &&
+                            !Commons.matchArrays(ConfigProviderSecretStore.loadHashicorpGithubToken(getConnectionId()), githubTokenPasswordField.getPassword());
         }
         if (!isOciProvider()) return authenticationChanged;
 
@@ -260,6 +285,9 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         onTextChange(userPassAuthPathTextField, e -> runnable.run());
         onTextChange(roleIdTextField, e -> runnable.run());
         onTextChange(secretIdPasswordField, e -> runnable.run());
+        onTextChange(appRoleAuthPathTextField, e -> runnable.run());
+        onTextChange(githubTokenPasswordField, e -> runnable.run());
+        onTextChange(githubAuthPathTextField, e -> runnable.run());
         profileComboBox.addActionListener(e -> runnable.run());
     }
 
@@ -286,6 +314,7 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         boolean hashicorpVaultTokenAuthentication = isHashicorpVaultTokenAuthentication();
         boolean hashicorpUserpassAuthentication = isHashicorpUserpassAuthentication();
         boolean hashicorpAppRoleAuthentication = isHashicorpAppRoleAuthentication();
+        boolean hashicorpGithubAuthentication = isHashicorpGithubAuthentication();
 
         authenticationLabel.setVisible(authenticationProvider);
         authenticationComboBox.setVisible(authenticationProvider);
@@ -313,6 +342,12 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         roleIdTextField.setVisible(hashicorpAppRoleAuthentication);
         secretIdLabel.setVisible(hashicorpAppRoleAuthentication);
         secretIdPasswordField.setVisible(hashicorpAppRoleAuthentication);
+        appRoleAuthPathLabel.setVisible(hashicorpAppRoleAuthentication);
+        appRoleAuthPathTextField.setVisible(hashicorpAppRoleAuthentication);
+        githubTokenLabel.setVisible(hashicorpGithubAuthentication);
+        githubTokenPasswordField.setVisible(hashicorpGithubAuthentication);
+        githubAuthPathLabel.setVisible(hashicorpGithubAuthentication);
+        githubAuthPathTextField.setVisible(hashicorpGithubAuthentication);
 
         if (cloudProviderType == null) return;
 
@@ -349,6 +384,11 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     private boolean isHashicorpAppRoleAuthentication() {
         return isHashicorpProvider() &&
                 getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.HCP_APPROLE;
+    }
+
+    private boolean isHashicorpGithubAuthentication() {
+        return isHashicorpProvider() &&
+                getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.HCP_GITHUB;
     }
 
     private boolean isOciProvider() {
