@@ -43,7 +43,7 @@
                 NAME as TABLE_NAME,
                 'N' as IS_TEMPORARY,
                 NULL as COMMENTS
-            from "{0}".SQLITE_MASTER
+            from {@0}.SQLITE_MASTER
             where
                 TYPE = 'table'
             order by TABLE_NAME asc
@@ -59,7 +59,7 @@
                 'N' as IS_SYSTEM_VIEW,
                 'N' as IS_EDITIONABLE,
                 NULL as COMMENTS
-            from "{0}".SQLITE_MASTER
+            from {@0}.SQLITE_MASTER
             where
                 TYPE = 'view'
             order by VIEW_NAME asc
@@ -69,7 +69,7 @@
         <statement>
             select
                 NAME as DATASET_NAME
-            from "{0}".SQLITE_MASTER
+            from {@0}.SQLITE_MASTER
             where
                 TYPE = 'table' or
                 TYPE = 'view'
@@ -79,31 +79,31 @@
 
     <statement-execution-processor id="dataset-columns">
         <statement>
-            PRAGMA "{0}".TABLE_INFO("{1}")
+            PRAGMA {@0}.TABLE_INFO({@1})
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="constraints">
         <statement>
-            PRAGMA "{0}".INDEX_LIST("{1}")
+            PRAGMA {@0}.INDEX_LIST({@1})
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="foreign-key-constraints">
         <statement>
-            PRAGMA "{0}".FOREIGN_KEY_LIST("{1}")
+            PRAGMA {@0}.FOREIGN_KEY_LIST({@1})
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="indexes">
         <statement>
-            PRAGMA "{0}".INDEX_LIST("{1}")
+            PRAGMA {@0}.INDEX_LIST({@1})
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="index-info">
         <statement>
-            PRAGMA "{0}".INDEX_XINFO("{1}")
+            PRAGMA {@0}.INDEX_XINFO({@1})
         </statement>
     </statement-execution-processor>
 
@@ -118,7 +118,7 @@
                    'N' as IS_DEBUG,
                    'Y' as IS_FOR_EACH_ROW,
                    SQL as SOURCE_CODE
-              from "{0}".SQLITE_MASTER
+              from {@0}.SQLITE_MASTER
              where TYPE = 'trigger'
                and TBL_NAME = {#1}
              order by TRIGGER_NAME asc
@@ -136,7 +136,7 @@
                    'N' as IS_DEBUG,
                    'Y' as IS_FOR_EACH_ROW,
                     SQL as SOURCE_CODE
-              from "{0}".SQLITE_MASTER
+              from {@0}.SQLITE_MASTER
              where TYPE = 'trigger'
              order by TRIGGER_NAME asc
         </statement>
@@ -145,7 +145,7 @@
     <statement-execution-processor id="view-source-code">
         <statement>
             select SQL as SOURCE_CODE
-              from "{0}".SQLITE_MASTER
+              from {@0}.SQLITE_MASTER
              where TYPE = 'view'
                and NAME = {#1}
         </statement>
@@ -153,7 +153,7 @@
     <statement-execution-processor id="dataset-trigger-source-code">
         <statement>
             select SQL as SOURCE_CODE
-              from "{0}".SQLITE_MASTER
+              from {@0}.SQLITE_MASTER
              where TYPE = 'trigger'
                and TBL_NAME = {#1}
                and NAME = {#2}
@@ -161,12 +161,12 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="drop-object-if-exists">
-        <statement>drop {0} if exists {1}.{2}</statement>
+        <statement>drop {0} if exists {@1}.{@2}</statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="load-distinct-values">
         <statement>
-            select distinct {2} from {0}.{1} where {2} is not null order by {2}
+            select distinct {@2} from {@0}.{@1} where {@2} is not null order by {@2}
         </statement>
     </statement-execution-processor>    
 
