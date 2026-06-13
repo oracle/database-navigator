@@ -25,15 +25,15 @@ import org.jdom.input.SAXBuilder;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.InputStream;
+import java.net.URL;
 
 @Slf4j
 @UtilityClass
 public final class XmlContents {
 
     public static Element fileToElement(Class clazz, @NonNls String fileName) throws Exception {
-        try (InputStream inputStream = clazz.getResourceAsStream(fileName)){
-            return streamToElement(inputStream);
-        }
+        URL url = clazz.getResource(fileName);
+        return streamToDocument(url.openStream(), url).getRootElement();
     }
 
     public static Element streamToElement(InputStream inputStream) throws Exception{
@@ -41,14 +41,20 @@ public final class XmlContents {
     }
 
     public static Document fileToDocument(Class clazz, @NonNls String fileName) throws Exception {
-        try (InputStream inputStream = clazz.getResourceAsStream(fileName)){
-            return streamToDocument(inputStream);
-        }
+        URL url = clazz.getResource(fileName);
+        return streamToDocument(url.openStream(), url);
     }
 
     public static Document streamToDocument(InputStream inputStream) throws Exception{
         SAXBuilder builder = new SAXBuilder();
         return builder.build(inputStream);
+    }
+
+    private static Document streamToDocument(InputStream inputStream, URL url) throws Exception{
+        try (inputStream) {
+            SAXBuilder builder = new SAXBuilder();
+            return builder.build(inputStream, url.toExternalForm());
+        }
     }
 
 }
