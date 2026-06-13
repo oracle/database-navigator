@@ -18,6 +18,8 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.dbn.common.util.Files.normalizePath;
+
 public class ConfigProviderMapper {
     private ConfigProviderMapper(){}
 
@@ -105,6 +107,7 @@ public class ConfigProviderMapper {
             throw new IllegalArgumentException("TNS folder is required.");
         }
 
+        tnsFolder = normalizePath(tnsFolder);
         File tnsNamesFile = Path.of(tnsFolder, "tnsnames.ora").toFile();
         if (!tnsNamesFile.isFile()) {
             throw new IllegalArgumentException("tnsnames.ora not found in folder: " + tnsFolder);
