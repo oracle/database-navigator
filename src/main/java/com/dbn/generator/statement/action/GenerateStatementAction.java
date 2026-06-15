@@ -111,7 +111,7 @@ public abstract class GenerateStatementAction extends ProjectAction implements D
     private static void pasteToEditor(final Editor editor, final StatementGeneratorResult generatorResult) {
         Command.run(
                 editor.getProject(),
-                txt("prc.codeGenerator.label.ExtractStatement"),
+                txt("app.codeGenerator.action.ExtractStatement"),
                 () -> {
                     String statement = generatorResult.getStatement();
                     PsiUtil.moveCaretOutsideExecutable(editor);

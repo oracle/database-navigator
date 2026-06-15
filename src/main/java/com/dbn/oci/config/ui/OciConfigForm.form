@@ -6,7 +6,7 @@
       <xy x="20" y="20" width="500" height="400"/>
     </constraints>
     <properties/>
-    <border type="none" title="OCI Configuration"/>
+    <border type="none" title-resource-bundle="messages/DBNResources" title-key="cfg.oci.title.OCIConfiguration"/>
     <children>
       <component id="8a910" class="javax.swing.JLabel" binding="configFileLabel">
         <constraints>
@@ -14,7 +14,7 @@
         </constraints>
         <properties>
           <labelFor value="52c67"/>
-          <text value="Config &amp;file"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.oci.label.ConfigFile"/>
         </properties>
       </component>
       <vspacer id="9a37d">
@@ -36,7 +36,7 @@
         </constraints>
         <properties>
           <labelFor value="8ddf6"/>
-          <text value="Config &amp;profile"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.oci.label.ConfigProfile"/>
         </properties>
       </component>
       <component id="8ddf6" class="com.dbn.common.ui.misc.DBNComboBox" binding="configProfileComboBox">
@@ -58,7 +58,7 @@
         </constraints>
         <properties>
           <labelFor value="a0f81"/>
-          <text value="&amp;Compartment OCID"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.oci.label.CompartmentOCID"/>
         </properties>
       </component>
       <component id="a0f81" class="com.intellij.ui.components.JBTextField" binding="compartmentIdTextField">
@@ -73,7 +73,7 @@
         </constraints>
         <properties>
           <labelFor value="c5842"/>
-          <text value="&amp;User OCID"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.oci.label.UserOCID"/>
         </properties>
       </component>
       <component id="c5842" class="com.intellij.ui.components.JBTextField" binding="userIdTextField">
@@ -88,7 +88,7 @@
         </constraints>
         <properties>
           <labelFor value="bfb5e"/>
-          <text value="&amp;Tenancy OCID"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.oci.label.TenancyOCID"/>
         </properties>
       </component>
       <component id="bfb5e" class="com.intellij.ui.components.JBTextField" binding="tenancyIdTextField">
@@ -111,7 +111,7 @@
         </constraints>
         <properties>
           <labelFor value="8e04f"/>
-          <text value="Private &amp;key file"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.oci.label.PrivateKeyFile"/>
         </properties>
       </component>
       <component id="1f519" class="javax.swing.JLabel" binding="fingerprintLabel">
@@ -119,7 +119,8 @@
           <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="&amp;Fingerprint"/>
+          <labelFor value="6bbe2"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.oci.label.Fingerprint"/>
         </properties>
       </component>
       <component id="6bbe2" class="com.intellij.ui.components.JBTextField" binding="fingerprintTextField">
@@ -133,7 +134,8 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Config &amp;type"/>
+          <labelFor value="951af"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.oci.label.ConfigType"/>
         </properties>
       </component>
       <component id="951af" class="javax.swing.JComboBox" binding="configTypeComboBox">

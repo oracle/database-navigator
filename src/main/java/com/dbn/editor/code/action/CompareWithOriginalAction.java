@@ -31,10 +31,19 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class CompareWithOriginalAction extends AbstractCodeEditorDiffAction {
 
+    public CompareWithOriginalAction() {
+        super(txt("app.codeEditor.action.CodeEditorCompareWithOriginal"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
         CharSequence referenceText = sourceCodeFile.getOriginalContent();
-        openDiffWindow(project, sourceCodeFile, referenceText.toString(), "Original version", "Local version");
+        openDiffWindow(
+                project,
+                sourceCodeFile,
+                referenceText.toString(),
+                txt("app.codeEditor.label.OriginalVersion"),
+                txt("app.codeEditor.label.LocalVersion"));
     }
 
     @Override

@@ -37,6 +37,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 import static com.dbn.common.util.Strings.trim;
+import static com.dbn.nls.NlsResources.txt;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 public class CmdLineInterfaceInputForm extends DBNFormBase {
@@ -63,8 +64,7 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hintText = TextContent.plain(
-                "Please provide a name for storing the Command-Line interface executable.\n" +
-                "Command-Line interfaces can be configured in the Execution Engine settings.");
+                txt("msg.execution.hint.CommandLineInterfaceInput"));
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
     }
@@ -86,8 +86,8 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
         String extension = OS.isWindows() ? ".exe" : "";
         addSingleFileChooser(
                 getProject(), executableTextField,
-                "Select Command-Line Client",
-                "Select Command-Line Interface executable (" + defaultClient.getExecutablePath() + extension + ")");
+                txt("cfg.execution.title.SelectCommandLineClient"),
+                txt("cfg.execution.text.SelectCommandLineClient", defaultClient.getExecutablePath() + extension));
     }
 
     private void initNameField() {
@@ -100,13 +100,13 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
     }
 
     protected void initValidation() {
-        addTextValidation(nameTextField, t -> isNotEmpty(t), "Please specify an interface name");
-        addTextValidation(nameTextField, t -> isNotUsed(t), "Interface name already in use");
+        addTextValidation(nameTextField, t -> isNotEmpty(t), txt("cfg.execution.error.InterfaceNameRequired"));
+        addTextValidation(nameTextField, t -> isNotUsed(t), txt("cfg.execution.error.InterfaceNameAlreadyInUse"));
 
         JTextField execTextField = executableTextField.getTextField();
-        addTextValidation(execTextField, t -> Strings.isNotEmpty(t), "Please specify the command-line interface executable");
-        addTextValidation(execTextField, t -> new File(t).isFile(), "File does not exist");
-        addTextValidation(execTextField, t -> isMatchingDatabaseType(t), "Executable does not match the selected database type");
+        addTextValidation(execTextField, t -> Strings.isNotEmpty(t), txt("cfg.execution.error.CommandLineExecutableRequired"));
+        addTextValidation(execTextField, t -> new File(t).isFile(), txt("msg.shared.error.FileDoesNotExist"));
+        addTextValidation(execTextField, t -> isMatchingDatabaseType(t), txt("cfg.execution.error.CommandLineExecutableDatabaseTypeMismatch"));
     }
 
     private boolean isMatchingDatabaseType(String filePath) {

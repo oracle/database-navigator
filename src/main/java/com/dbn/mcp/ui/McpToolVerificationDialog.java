@@ -8,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Action;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class McpToolVerificationDialog extends DBNDialog<McpToolVerificationForm> {
     private final ConnectionHandler connection;
     private final String statement;
@@ -16,7 +18,7 @@ public class McpToolVerificationDialog extends DBNDialog<McpToolVerificationForm
     public McpToolVerificationDialog(@NotNull ConnectionHandler connection,
                                      @NotNull String statement,
                                      @NotNull List<McpToolParam> params) {
-        super(connection, "Test SQL Query", true);
+        super(connection, txt("msg.mcp.title.TestSqlQuery"), true);
         this.connection = connection;
         this.statement = statement;
         this.params = params;
@@ -31,7 +33,7 @@ public class McpToolVerificationDialog extends DBNDialog<McpToolVerificationForm
 
     @Override
     protected Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(getCancelAction());
     }
 

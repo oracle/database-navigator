@@ -26,6 +26,10 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractSessionBrowserAction extends BasicAction {
 
+    protected AbstractSessionBrowserAction(String text) {
+        super(text);
+    }
+
     @Nullable
     public static SessionBrowser getSessionBrowser(AnActionEvent e) {
         SessionBrowser sessionBrowser = e.getData((DataKeys.SESSION_BROWSER));

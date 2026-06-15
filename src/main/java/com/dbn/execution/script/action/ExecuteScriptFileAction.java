@@ -34,6 +34,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class ExecuteScriptFileAction extends ProjectAction {
 
+    public ExecuteScriptFileAction() {
+        super(txt("app.execution.action.ExecuteSqlScript"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         VirtualFile virtualFile = Lookups.getVirtualFile(e);

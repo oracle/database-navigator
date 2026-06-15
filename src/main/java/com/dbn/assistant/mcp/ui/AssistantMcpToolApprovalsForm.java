@@ -58,6 +58,7 @@ import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.containsIgnoreCase;
+import static com.dbn.nls.NlsResources.txt;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
 public class AssistantMcpToolApprovalsForm extends DBNFormBase {
@@ -116,7 +117,7 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
     }
 
     private void initFilterField() {
-        filterTextField.getEmptyText().setText("Filter");
+        filterTextField.getEmptyText().setText(txt("app.assistant.placeholder.Filter"));
         onTextChange(filterTextField, e -> filterToolForms());
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, new AssistantMcpToolsReloadAction());
@@ -143,7 +144,7 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
     }
 
     private void initHintPanel() {
-        String hintContent = TextResources.get(AssistantMcpToolApprovalsForm.class, "assistant_mcp_tool_approval.html.ft");
+        String hintContent = TextResources.getLocalizable(AssistantMcpToolApprovalsForm.class, "assistant_mcp_tool_approval.html.ft");
         TextContent hintText = TextContent.html(hintContent);
         hintText.initField("MCP_SERVER_NAME", mcpServer.getName());
         hintText.initFonts();
@@ -156,7 +157,7 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
         HORIZONTAL_SCROLL_POLICY.set(toolsScrollPane, HORIZONTAL_SCROLLBAR_NEVER);
         Layouts.verticalBoxLayout(toolsPanel);
 
-        loadingPanel.add(new AsyncProcessIcon("Loading tools..."), BorderLayout.WEST);
+        loadingPanel.add(new AsyncProcessIcon(txt("cfg.assistant.text.LoadingTools")), BorderLayout.WEST);
         mainPanel.remove(toolsHeaderPanel);
         toolsScrollPane.setColumnHeaderView(toolsHeaderPanel);
 
@@ -178,7 +179,7 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
             return tools;
         } catch (Throwable e) {
             groupStatusPanel.setVisible(false);
-            initMessagePanel("Failed to load tools for MCP Server \"" + mcpServer.getName() + "\".\n\nCause:\n" + e.getMessage());
+            initMessagePanel(txt("msg.assistant.error.McpToolsLoadFailed", mcpServer.getName(), e.getMessage()));
             return List.of();
         } finally {
             loadingPanel.setVisible(false);

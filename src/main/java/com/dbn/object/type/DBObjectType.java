@@ -29,6 +29,7 @@ import com.dbn.ddl.DDLFileTypeId;
 import com.dbn.editor.DBContentType;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,6 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Titles.titleCased;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @Getter
@@ -181,6 +183,8 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     private final boolean generic;
 
     private DBContentType contentType = DBContentType.NONE;
+    private @Nls volatile String displayName;
+    private @Nls volatile String listDisplayName;
 
     private DBObjectType inheritedType;
     private Set<DBObjectType> inheritingTypes;
@@ -283,6 +287,34 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
 
     public String getTitleCasedListName() {
         return titleCased(listName);
+    }
+
+    public @Nls String getDisplayName() {
+        String displayName = this.displayName;
+        if (displayName == null) {
+            displayName = txt("app.objects.const.DBObjectType_" + name());
+            this.displayName = displayName;
+        }
+        return displayName;
+    }
+
+    public @Nullable @Nls String getListDisplayName() {
+        if (listName == null) return null;
+
+        String listDisplayName = this.listDisplayName;
+        if (listDisplayName == null) {
+            listDisplayName = txt("app.objects.const.DBObjectType_" + name() + "_LIST");
+            this.listDisplayName = listDisplayName;
+        }
+        return listDisplayName;
+    }
+
+    public @Nls String getTitleCasedDisplayName() {
+        return titleCased(getDisplayName());
+    }
+
+    public @Nullable @Nls String getTitleCasedListDisplayName() {
+        return titleCased(getListDisplayName());
     }
 
     public boolean isLeaf() {

@@ -17,7 +17,6 @@
 package com.dbn.menu.action;
 
 import com.dbn.common.action.ProjectAction;
-import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.action.AbstractConnectionAction;
@@ -34,14 +33,18 @@ import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.database.DatabaseFeature.MCP_SERVER_BUILDER;
+import static com.dbn.nls.NlsResources.txt;
 
 public class McpBuilderOpenAction extends ProjectAction {
+
+    public McpBuilderOpenAction() {
+        super(txt("app.menu.action.OpenMcpServerBuilder"));
+    }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Open MCP Server Builder...");
-        presentation.setIcon(Icons.ASSISTANT_TOOL);
+        presentation.setText(txt("app.menu.action.OpenMcpServerBuilder"));
         presentation.setVisible(isVisible(project));
     }
 
@@ -61,7 +64,7 @@ public class McpBuilderOpenAction extends ProjectAction {
 
         List<SelectConnectionAction> actions = convert(connections, SelectConnectionAction::new);
         popupBuilder(actions, e)
-                .withTitle("Select MCP Server Connection")
+                .withTitle(txt("msg.mcp.title.SelectMcpServerConnection"))
                 .withSpeedSearch()
                 .buildAndShowCentered();
     }

@@ -21,7 +21,7 @@
         </constraints>
         <properties>
           <labelFor value="3e80f"/>
-          <text value="&amp;Provider"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.Provider"/>
         </properties>
       </component>
       <component id="3e80f" class="javax.swing.JComboBox" binding="providerNameCombo">
@@ -38,7 +38,7 @@
         </constraints>
         <properties>
           <labelFor value="da20a"/>
-          <text value="&amp;Model"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.Model"/>
         </properties>
       </component>
       <component id="da20a" class="javax.swing.JComboBox" binding="providerModelCombo">
@@ -55,7 +55,7 @@
         </constraints>
         <properties>
           <labelFor value="f8745"/>
-          <text value="&amp;Temperature"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.Temperature"/>
         </properties>
       </component>
       <component id="f8745" class="com.intellij.ui.components.JBSlider" binding="temperatureSlider">
@@ -75,7 +75,7 @@
         </constraints>
         <properties>
           <labelFor value="da20a"/>
-          <text value="&amp;Conversational"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.Conversational"/>
         </properties>
       </component>
       <component id="2476" class="javax.swing.JCheckBox" binding="conversationCheckBox">

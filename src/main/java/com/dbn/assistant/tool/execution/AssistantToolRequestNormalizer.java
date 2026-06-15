@@ -28,6 +28,7 @@ import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import lombok.SneakyThrows;
 import org.apache.xmlbeans.impl.common.Levenshtein;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Array;
@@ -42,6 +43,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import static com.dbn.assistant.AssistantComponent.OBJECT_MAPPER;
+import static com.dbn.assistant.tool.AssistantToolData.isInternalTool;
 import static com.dbn.common.Reflection.updateFieldValue;
 
 /**
@@ -63,6 +65,8 @@ public class AssistantToolRequestNormalizer {
         if (request.id() == null) {
             updateFieldValue(request, "id", UUIDs.compact());
         }
+
+        if (!isInternalTool(request.name())) return;
 
         Method method = AssistantToolData.getUtilityMethod(request.name());
         if (method == null) return;
@@ -278,6 +282,7 @@ public class AssistantToolRequestNormalizer {
         return argumentName;
     }
 
+    @NonNls
     private static String buildArgumentName(int index) {
         return "arg" + index;
     }

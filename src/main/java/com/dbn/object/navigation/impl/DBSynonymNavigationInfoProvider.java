@@ -24,6 +24,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBSynonymNavigationInfoProvider extends DBObjectNavigationInfoProviderBase<DBSynonym> {
     public DBSynonymNavigationInfoProvider() {
         super(DBObjectType.SYNONYM);
@@ -57,6 +59,8 @@ public class DBSynonymNavigationInfoProvider extends DBObjectNavigationInfoProvi
         DBObject underlyingObject = synonym.getUnderlyingObject();
         if (underlyingObject == null) return null;
 
-        return List.of(DBObjectNavigationList.create("Underlying " + underlyingObject.getTypeName(), underlyingObject));
+        return List.of(DBObjectNavigationList.create(
+                txt("app.objects.navigation.UnderlyingObject", underlyingObject.getTypeName()),
+                underlyingObject));
     }
 }

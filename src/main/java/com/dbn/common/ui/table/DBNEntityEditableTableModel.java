@@ -19,6 +19,7 @@ package com.dbn.common.ui.table;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Lists;
+import com.intellij.openapi.util.NlsContexts.ColumnName;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
@@ -103,12 +104,12 @@ public abstract class DBNEntityEditableTableModel<T extends Cloneable<T>> extend
      */
     @Getter
     private static class ColumnDefinition<E, V> {
-        private final String name;
+        private final @ColumnName String name;
         private final Class<V> type;
         private final ValueGetter<E, V> valueGetter;
         private final ValueSetter<E, V> valueSetter;
 
-        public ColumnDefinition(String name, Class<V> type, ValueGetter<E, V> valueGetter, ValueSetter<E, V> valueSetter) {
+        public ColumnDefinition(@ColumnName String name, Class<V> type, ValueGetter<E, V> valueGetter, ValueSetter<E, V> valueSetter) {
             this.name = name;
             this.type = type;
             this.valueGetter = valueGetter;
@@ -130,7 +131,7 @@ public abstract class DBNEntityEditableTableModel<T extends Cloneable<T>> extend
      * @param valueSetter functional interface to update the value of the attribute representing the column
      * @param <V> the type of the attribute representing the column
      */
-    public final <V> void addColumn(String name, Class<V> type, ValueGetter<T, V> valueGetter, ValueSetter<T, V> valueSetter) {
+    public final <V> void addColumn(@ColumnName String name, Class<V> type, ValueGetter<T, V> valueGetter, ValueSetter<T, V> valueSetter) {
         columns.add(new ColumnDefinition<>(name, type, valueGetter, valueSetter));
     }
 
@@ -166,7 +167,7 @@ public abstract class DBNEntityEditableTableModel<T extends Cloneable<T>> extend
 
 
     @Override
-    public final String getColumnName(int columnIndex) {
+    public final @ColumnName String getColumnName(int columnIndex) {
         ColumnDefinition<?, ?> definition = getColumnDefinition(columnIndex);
         if (definition == null) return null;
 

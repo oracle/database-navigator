@@ -23,6 +23,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.EnumMap;
 import java.util.Map;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class AIAuthentication {
     public static final AIAuthentication USER_PASSWORD = new AIAuthentication()
             .withField(Field.USER, true)
@@ -60,13 +62,13 @@ public class AIAuthentication {
 
     @Getter
     public enum Field implements Presentable {
-        USER("User", false),
-        PASSWORD("Password", true),
-        TOKEN("Token", true),
-        API_KEY("API key", true),
-        OCI_CONFIG_FILE("OCI config file", false),
-        OCI_CONFIG_PROFILE("OCI config profile", false),
-        OCI_COMPARTMENT_ID("OCI compartment id", false)
+        USER(txt("cfg.assistant.const.AIAuthenticationField_USER"), false),
+        PASSWORD(txt("cfg.assistant.const.AIAuthenticationField_PASSWORD"), true),
+        TOKEN(txt("cfg.assistant.const.AIAuthenticationField_TOKEN"), true),
+        API_KEY(txt("cfg.assistant.const.AIAuthenticationField_API_KEY"), true),
+        OCI_CONFIG_FILE(txt("cfg.assistant.const.AIAuthenticationField_OCI_CONFIG_FILE"), false),
+        OCI_CONFIG_PROFILE(txt("cfg.assistant.const.AIAuthenticationField_OCI_CONFIG_PROFILE"), false),
+        OCI_COMPARTMENT_ID(txt("cfg.assistant.const.AIAuthenticationField_OCI_COMPARTMENT_ID"), false)
         ;
 
         Field(String name, boolean secret) {

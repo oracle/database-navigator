@@ -53,7 +53,7 @@ public class ExecuteStatementIntentionAction extends EditorIntentionAction {
     @Override
     @NotNull
     public String getText() {
-        return txt("app.codeEditor.action.ExecuteStatement");
+        return txt("app.codeEditor.intention.ExecuteStatement");
     }
 
 

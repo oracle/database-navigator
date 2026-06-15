@@ -39,6 +39,7 @@ import static com.dbn.data.type.GenericDataType.DATE_TIME;
 import static com.dbn.data.type.GenericDataType.LITERAL;
 import static com.dbn.data.type.GenericDataType.NUMERIC;
 import static com.dbn.data.type.GenericDataType.VECTOR;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetTableCellEditorFactory implements Disposable {
     private final Map<ColumnInfo, TableCellEditor> cache = new HashMap<>();
@@ -98,7 +99,7 @@ public class DatasetTableCellEditorFactory implements Disposable {
 
                 if (!column.isPrimaryKey() && !column.isUniqueKey() && dataLength <= valueListPopupSettings.getDataLengthThreshold()) {
                     ListPopupValuesProvider valuesProvider = ListPopupValuesProviderBase.
-                            create("Possible Values", () -> dseColumnInfo.getPossibleValues());
+                            create(txt("msg.dataEditor.title.PossibleValues"), () -> dseColumnInfo.getPossibleValues());
 
                     editorComponent.createValuesListPopup(valuesProvider, column, valueListPopupSettings.isShowPopupButton());
                 }

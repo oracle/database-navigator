@@ -30,7 +30,7 @@ public class ToolExecutionDetailsAction extends AssistantToolAction {
         ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
         if (toolSectionForm == null) return;
 
-        ActionPopupBuilder popupBuilder = Popups.popupBuilder("DBNavigator.ActionGroup.AssistantToolDetailActions", e.getDataContext());
+        ActionPopupBuilder popupBuilder = Popups.popupBuilder("DBN.Assistant.Tool.Details", e.getDataContext());
         popupBuilder.buildAndShow();
     }
 

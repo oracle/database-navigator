@@ -19,11 +19,13 @@ package com.dbn.debugger;
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public enum JDWPTunnelType implements Presentable {
-    TCP_DRIVER_TUNNEL ("TCP driver tunnel"),   // tunnel thru jdbc driver
-    SSH_REVERSE_TUNNEL("SSH reverse tunnel"),  // reverse SSH tunnel from databsae server to local
-    NONE("None");                              // no tunnel, database is expected to have dirrect access to developer workspace
+    TCP_DRIVER_TUNNEL (txt("cfg.debugger.const.JDWPTunnelType_TCP_DRIVER_TUNNEL")),   // tunnel thru jdbc driver
+    SSH_REVERSE_TUNNEL(txt("cfg.debugger.const.JDWPTunnelType_SSH_REVERSE_TUNNEL")),  // reverse SSH tunnel from databsae server to local
+    NONE(txt("cfg.debugger.const.JDWPTunnelType_NONE"));                              // no tunnel, database is expected to have dirrect access to developer workspace
 
     private final String name;
 

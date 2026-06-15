@@ -27,6 +27,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class BrowserTreeCollapseAction extends AbstractBrowserAction {
 
+    public BrowserTreeCollapseAction() {
+        super(txt("app.browser.action.BrowserCollapseAll"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();

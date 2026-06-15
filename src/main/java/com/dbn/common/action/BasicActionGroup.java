@@ -29,6 +29,10 @@ public abstract class BasicActionGroup extends DefaultActionGroup implements Bac
         setPopup(true);
     }
 
+    public BasicActionGroup(String text) {
+        super(text, true);
+    }
+
     @Override
     @NotNull
     public final AnAction[] getChildren(AnActionEvent e) {

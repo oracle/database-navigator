@@ -69,6 +69,11 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
     private String latestPredefinedText;
     private String latestClipboardText;
     private ChooseByNamePopup popup;
+
+    public GoToDatabaseObjectAction() {
+        getTemplatePresentation().setText(txt("app.navigation.action.NavigateToDatabaseObject"));
+    }
+
     @Override
     public void gotoActionPerformed(AnActionEvent event) {
 
@@ -101,7 +106,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
             if (actionGroup.getChildrenCount() > 1) {
                 removeActionLock();
                 popupBuilder(actionGroup, event).
-                        withTitle("Select Connection / Schema for Lookup").
+                        withTitle(txt("app.navigation.title.SelectLookupScope")).
                         withSpeedSearch().
                         withMaxRowCount(20).
                         withPreselectCondition(a -> {

@@ -2,12 +2,14 @@
 
 ## Summary
 
-Environment Types settings define project-level database environment classifications, their colors, and their read-only behavior. Connection settings then assign one environment type to each DBN connection.
+Environment Types settings define project-level database environment classifications, their colors, and their read-only behavior. Connection settings then assign one environment type to each DBN connection. The same General settings page also controls regional formatting and native file chooser behavior.
 
 | Setting area | Scope | Purpose |
 | --- | --- | --- |
+| Regional Settings | Project | Controls locale, number, date, and time formatting used by DBN displays. |
 | Environment Types | Project | Defines environment names, descriptions, read-only flags, and colors. |
 | Environment Applicability | Project | Controls where environment colors are displayed. |
+| Environment Options | Project | Controls native file chooser usage. |
 | Connection Details | Connection | Assigns an environment type to a connection. |
 | Editor notifications | Object/editor | Allows temporary edit mode for read-only data or code. |
 
@@ -17,12 +19,14 @@ Environment Types settings define project-level database environment classificat
 
 <!-- TOC -->
 - [Access Paths](#access-paths)
+- [Regional Settings](#regional-settings)
 - [Environment Types Table](#environment-types-table)
   - [Table Actions](#table-actions)
 - [Default Environment Types](#default-environment-types)
 - [Environment Applicability](#environment-applicability)
 - [Connection Details Setting](#connection-details-setting)
 - [Read-Only Behavior](#read-only-behavior)
+- [Environment Options](#environment-options)
 - [Validation Messages](#validation-messages)
 - [Troubleshooting](#troubleshooting)
 - [Related Documentation](#related-documentation)
@@ -30,14 +34,37 @@ Environment Types settings define project-level database environment classificat
 
 ## Access Paths
 
+- **General settings:** `DB Navigator` -> `Settings` -> `General`
+- **Regional Settings:** `DB Navigator` -> `Settings` -> `General` -> `Regional Settings`
 - **Environment Types:** `DB Navigator` -> `Settings` -> `General` -> `Environment Types`
 - **Environment Applicability:** `DB Navigator` -> `Settings` -> `General` -> `Environment Applicability`
+- **Environment Options:** `DB Navigator` -> `Settings` -> `General` -> `Environment Options`
 - **Connection environment assignment:** `DB Navigator` -> `Settings` -> `Connections` -> selected connection -> `Details` -> `Environment type`
 - **Environment settings from editor notification:** Read-only data, JSON, or source editor notification -> `Settings`
+
+![General settings page](./img/settings-general.png)
+
+## Regional Settings
+
+Regional Settings control how DBN formats numbers, dates, and times in its own UI surfaces.
+
+![Regional settings](./img/settings-general-regional.png)
+
+| Setting | Default | Description |
+| --- | --- | --- |
+| `Locale` | `System default` | Selects the locale used for DBN number, date, and time formatting. |
+| `Use preset patterns` | Enabled | Uses predefined number and date formats for the selected locale. |
+| `Number format` | `Ungrouped` | Selects the preset number format. |
+| `Date format` | `Medium` | Selects the preset date format. |
+| `Use custom patterns` | Disabled | Enables custom number, date, and time pattern fields. |
+| Custom pattern fields | Disabled until custom patterns are selected | Define number, date, and time formats manually. |
+| `Preview` | Live preview | Shows the effect of the selected regional settings before saving. |
 
 ## Environment Types Table
 
 The Environment Types table defines the available environments for the project.
+
+![Environment types and applicability settings](./img/settings-general-environments.png)
 
 - **`Name`:** Display name used in connection settings and notifications. Required.
 - **`Description`:** Optional explanation of the environment.
@@ -99,6 +126,14 @@ Read-only flags apply through the connection environment.
 | `Readonly Code` | Source code, package specs, package bodies, type specs, type bodies, and related code content | Prevents accidental source edits in Program Editors and Java/source-backed editors for objects in that environment. |
 
 When an editor is read-only because of an environment type, DBN can show a notification with `Edit mode`, `Cancel editing`, and `Settings` actions. `Edit mode` is a temporary per-object override; it does not change the environment type definition.
+
+## Environment Options
+
+Environment Options control cross-cutting General settings that are not tied to a single connection or editor.
+
+| Setting | Default | Description |
+| --- | --- | --- |
+| `Use native file choosers` | Enabled | Uses operating-system native file chooser dialogs where available. |
 
 ## Validation Messages
 

@@ -27,6 +27,8 @@ import com.dbn.options.ProjectSettings;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ProjectCodeStyleSettings extends CompositeProjectConfiguration<ProjectSettings, CodeStyleSettingsForm> {
     public ProjectCodeStyleSettings(ProjectSettings parent){
         super(parent);

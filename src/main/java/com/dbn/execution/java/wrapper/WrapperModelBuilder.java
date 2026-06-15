@@ -46,6 +46,7 @@ import static com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirectio
 import static com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirection.OUT;
 import static com.dbn.execution.java.wrapper.support.WrapperSupportEvaluator.evaluateArgumentSupport;
 import static com.dbn.execution.java.wrapper.support.WrapperSupportEvaluator.evaluateReturnArgumentSupport;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static com.dbn.object.type.DBJavaScalarType.isScalar;
@@ -350,7 +351,7 @@ public final class WrapperModelBuilder {
 
 		// Create and cache a new plain class wrapper
 		String className = getCanonicalName(javaClass);
-		setProgressDetail("Creating database wrapper for class \"" + className + "\"");
+		setProgressDetail(txt("prc.java.text.CreatingDatabaseWrapperForClass", className));
 
         WrapperModel model = context.getModel();
         ClassWrapper classWrapper = new ClassWrapper(model, javaClass, 0, direction);
@@ -389,7 +390,7 @@ public final class WrapperModelBuilder {
 		}
 
 		// Create and cache a new array class wrapper
-		setProgressDetail("Creating database wrapper for class \"" + className + "\"");
+		setProgressDetail(txt("prc.java.text.CreatingDatabaseWrapperForClass", className));
 
         WrapperModel model = context.getModel();
         ClassWrapper classWrapper = new ClassWrapper(model, javaClass, arrayDepth, direction);
@@ -435,7 +436,8 @@ public final class WrapperModelBuilder {
         if (classWrapper == null) return null;
 
         // If it was ARGUMENT-only, and now we need a RETURN, upgrade to BOTH
-        if (direction == OUT && classWrapper.getArgumentDirection() == IN) {
+        ArgumentDirection wrapperDirection = classWrapper.getArgumentDirection();
+        if (wrapperDirection != IN_OUT && wrapperDirection != direction) {
             changeAttributeDirection(context, classWrapper);
         }
         return classWrapper;

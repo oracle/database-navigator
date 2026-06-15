@@ -27,10 +27,16 @@ import com.dbn.common.action.ToggleAction;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
+import static com.dbn.assistant.service.selectai.PromptAction.CHAT;
+import static com.dbn.assistant.service.selectai.PromptAction.EXPLAIN_SQL;
+import static com.dbn.assistant.service.selectai.PromptAction.NARRATE;
+import static com.dbn.assistant.service.selectai.PromptAction.SHOW_SQL;
 import static com.dbn.assistant.service.selectai.SelectAiContextUtil.getSelectedAction;
+import static com.dbn.nls.NlsResources.txt;
 //import static com.intellij.openapi.actionSystem.ex.ActionUtil.SHOW_TEXT_IN_TOOLBAR;
 
 /**
@@ -51,6 +57,15 @@ public class PromptActionSelectAction extends ToggleAction implements AssistantA
         //getTemplatePresentation().putClientProperty(SHOW_TEXT_IN_TOOLBAR, true);
     }
 
+    PromptActionSelectAction(PromptAction action, String text) {
+        super(text, action.getDescription(), null);
+        this.action = action;
+        getTemplatePresentation().setIcon(null);
+
+        // TODO only supported in 2024.x or higher
+        //getTemplatePresentation().putClientProperty(SHOW_TEXT_IN_TOOLBAR, true);
+    }
+
     @Override
     @Compatibility
     public boolean displayTextInToolbar() {
@@ -59,25 +74,25 @@ public class PromptActionSelectAction extends ToggleAction implements AssistantA
 
     public static class ShowSQL extends PromptActionSelectAction {
         public ShowSQL() {
-            super(PromptAction.SHOW_SQL);
+            super(SHOW_SQL, txt("app.assistant.action.AssistantShowSql"));
         }
     }
 
     public static class ExplainSQL extends PromptActionSelectAction {
         public ExplainSQL() {
-            super(PromptAction.EXPLAIN_SQL);
+            super(EXPLAIN_SQL, txt("app.assistant.action.AssistantExplainSql"));
         }
     }
 
     public static class Narrate extends PromptActionSelectAction {
         public Narrate() {
-            super(PromptAction.NARRATE);
+            super(NARRATE, txt("app.assistant.action.AssistantNarrate"));
         }
     }
 
     public static class Chat extends PromptActionSelectAction {
         public Chat() {
-            super(PromptAction.CHAT);
+            super(CHAT, txt("app.assistant.action.AssistantChat"));
         }
     }
 
@@ -123,6 +138,8 @@ public class PromptActionSelectAction extends ToggleAction implements AssistantA
         super.update(e);
 
         boolean enabled = isEnabled(e);
-        e.getPresentation().setEnabled(enabled);
+        Presentation presentation = e.getPresentation();
+        presentation.setText(action.getName());
+        presentation.setEnabled(enabled);
     }
 }

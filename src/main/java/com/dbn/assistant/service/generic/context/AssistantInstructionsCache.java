@@ -29,6 +29,7 @@ import com.dbn.common.text.TextResources;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -93,14 +94,15 @@ public class AssistantInstructionsCache extends AssistantStateExtension implemen
         AssistantMode assistantMode = assistantState.getAssistantMode();
         ConnectionHandler connection = assistantState.getConnection();
 
-        String resourceName = "system_message_" + assistantMode + ".md.ft";
-        String content = TextResources.get(this, resourceName);
+        @NonNls String resourceName = "system_message_" + assistantMode + ".md.ft";
+        @NonNls String content = TextResources.getInternal(this, resourceName);
         TextContent textContent = TextContent.markdown(content);
         textContent.initField("ASSISTANT_TOOL_CATEGORIES", getToolCategories());
         textContent.initField("ASSISTANT_TOOL_TYPES", getToolTypes());
         textContent.initField("DATABASE_TYPE", connection.getDatabaseType().getName());
         textContent.initField("DATABASE_NAME", connection.getName());
 
+        @NonNls
         String userInstructions = getUserInstructions();
         if (Strings.isEmpty(userInstructions)) userInstructions = "(none)";
 
@@ -109,6 +111,7 @@ public class AssistantInstructionsCache extends AssistantStateExtension implemen
         return textContent.getText();
     }
 
+    @NonNls
     private String getUserInstructions() {
         AssistantState assistantState = getAssistantState();
         String profileId = assistantState.getCurrentContext().getProfileId();

@@ -19,10 +19,12 @@ package com.dbn.object.type;
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public enum DBAIModelSourceType implements Presentable {
-  MODEL_FILE("Model File"),
-  OBJECT_STORAGE("Object Storage");
+  MODEL_FILE(txt("app.objects.const.DBAIModelSourceType_MODEL_FILE")),
+  OBJECT_STORAGE(txt("app.objects.const.DBAIModelSourceType_OBJECT_STORAGE"));
 
   private final String name;
 

@@ -55,6 +55,7 @@ import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JsonDataEditorForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel actionsPanel;
@@ -90,7 +91,7 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
             jsonDataEditorTable = new JsonDataEditorTable(this, jsonDataEditor);
             jsonDataTableScrollPane.setViewportView(jsonDataEditorTable);
 
-            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.JsonDataEditor");
+            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.JsonDataEditor");
             setAccessibleName(actionToolbar, txt("app.dataEditor.aria.JsonDataEditorActions"));
 
             actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);

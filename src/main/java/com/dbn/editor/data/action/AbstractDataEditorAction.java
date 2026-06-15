@@ -20,10 +20,16 @@ import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ContextAction;
 import com.dbn.editor.data.DatasetEditor;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 @BackgroundUpdate
+@NoArgsConstructor
 abstract class AbstractDataEditorAction extends ContextAction<DatasetEditor> {
+
+    protected AbstractDataEditorAction(String text) {
+        super(text);
+    }
 
     @Override
     protected DatasetEditor getContext(@NotNull AnActionEvent e) {

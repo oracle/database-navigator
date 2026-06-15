@@ -20,6 +20,7 @@ import com.dbn.common.Reflection;
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.diagnostics.Diagnostics;
 import com.oracle.bmc.ConfigFileReader;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ public class OciConfigFileUtil {
         return new ArrayList<>(config.keySet());
     }
 
+    @NonNls
     public static Map<String, String> getConfigProfileValues(String configFilePath, String profileName) {
         if (isEmpty(configFilePath)) return emptyMap();
         if (isEmpty(profileName)) return emptyMap();

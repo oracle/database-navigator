@@ -29,6 +29,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionEngineSettingsAction extends ProjectAction {
 
+    public ExecutionEngineSettingsAction() {
+        super(txt("app.execution.action.MethodExecutionResultSettings"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();

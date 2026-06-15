@@ -51,7 +51,7 @@ public class SelectAiProfileSwitchIntentionAction extends EditorIntentionAction 
     @NotNull
     @Override
     public final String getText() {
-        return txt("app.assistant.action.SelectAISwitchProfile");
+        return txt("app.assistant.intention.SelectAISwitchProfile");
     }
 
     @Override

@@ -49,12 +49,13 @@ import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.PasswordFields.getPassword;
+import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.getText;
-import static com.dbn.common.ui.util.TextFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
 import static com.dbn.common.util.Strings.isNotEmpty;
-import static com.dbn.common.util.Strings.startsWith;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.model.DBObjectAttributeType.CREDENTIAL_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.FINGERPRINT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.PASSWORD;
@@ -62,6 +63,8 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.PRIVATE_KEY;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TENANCY_OCID;
 import static com.dbn.object.factory.model.DBObjectAttributeType.USER_NAME;
 import static com.dbn.object.factory.model.DBObjectAttributeType.USER_OCID;
+import static com.dbn.oci.util.OciIdentifiers.isTenancyOcid;
+import static com.dbn.oci.util.OciIdentifiers.isUserOcid;
 
 public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel mainPanel;
@@ -146,9 +149,9 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
         addTextValidation(tokenCredentialPasswordField, c -> !isToken() || isNotEmpty(c), txt("cfg.assistant.error.TokenEmpty"));
 
         addTextValidation(ociCredentialUserOcidField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.UserOcidEmpty"));
-        addTextValidation(ociCredentialUserOcidField, c -> !isOci() || startsWith(c, "ocid1.user.oc1."), txt("cfg.assistant.error.UserOcidInvalid"));
+        addTextValidation(ociCredentialUserOcidField, c -> !isOci() || isUserOcid(c), txt("cfg.assistant.error.UserOcidInvalid"));
         addTextValidation(ociCredentialTenancyOcidField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.UserTenancyOcidEmpty"));
-        addTextValidation(ociCredentialTenancyOcidField, c -> !isOci() || startsWith(c, "ocid1.tenancy.oc1."), txt("cfg.assistant.error.UserTenancyOcidInvalid"));
+        addTextValidation(ociCredentialTenancyOcidField, c -> !isOci() || isTenancyOcid(c), txt("cfg.assistant.error.UserTenancyOcidInvalid"));
         addTextValidation(ociCredentialFingerprintField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.FingerprintEmpty"));
         addTextValidation(ociCredentialPrivateKeyField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.PrivateKeyEmpty"));
     }
@@ -181,8 +184,8 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
             credentialTypeComboBox.addActionListener((e) -> updateFieldAvailability());
         }
 
-        ociCredentialUserOcidField.getEmptyText().setText("ocid1.user.oc1...");
-        ociCredentialTenancyOcidField.getEmptyText().setText("ocid1.tenancy.oc1...");
+        ociCredentialUserOcidField.getEmptyText().setText(txt("app.objects.placeholder.UserOcidExample"));
+        ociCredentialTenancyOcidField.getEmptyText().setText(txt("app.objects.placeholder.TenancyOcidExample"));
     }
 
     @Override
@@ -224,12 +227,12 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
         switch (credentialType) {
             case PASSWORD -> {
                 input.setAttributeValue(USER_NAME, getText(passwordCredentialUserField));
-                input.setAttributeValue(PASSWORD, passwordCredentialPasswordField.getPassword());
+                input.setAttributeValue(PASSWORD, getPassword(passwordCredentialPasswordField, PASSWORD.of(input)));
             }
             case TOKEN -> {
                 // special case of credentials created for the vector framework
                 input.setAttributeValue(USER_NAME, "access_token");
-                input.setAttributeValue(PASSWORD, tokenCredentialPasswordField.getPassword());
+                input.setAttributeValue(PASSWORD, getPassword(tokenCredentialPasswordField, PASSWORD.of(input)));
             }
             case OCI -> {
                 input.setAttributeValue(USER_OCID, getText(ociCredentialUserOcidField));

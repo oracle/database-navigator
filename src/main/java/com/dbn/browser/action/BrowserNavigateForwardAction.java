@@ -26,6 +26,11 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.nls.NlsResources.txt;
 
 public class BrowserNavigateForwardAction extends AbstractBrowserAction {
+
+    public BrowserNavigateForwardAction() {
+        super(txt("app.browser.action.BrowserForward"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         DatabaseBrowserTree browserTree = getActiveBrowserTree(project);

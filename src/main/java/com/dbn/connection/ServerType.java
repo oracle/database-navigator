@@ -25,18 +25,22 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 @AllArgsConstructor
 public enum ServerType implements Presentable, Constant<ServerType> {
-    DEFAULT,
-    DEDICATED,
-    SHARED,
-    POOLED,
+    DEFAULT(txt("cfg.connection.const.ServerType_DEFAULT")),
+    DEDICATED(txt("cfg.connection.const.ServerType_DEDICATED")),
+    SHARED(txt("cfg.connection.const.ServerType_SHARED")),
+    POOLED(txt("cfg.connection.const.ServerType_POOLED")),
     ;
+
+    private final String name;
 
     @Override
     public @NotNull String getName() {
-        return name();
+        return name;
     }
 
     @Nullable

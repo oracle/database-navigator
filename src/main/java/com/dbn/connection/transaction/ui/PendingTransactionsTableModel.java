@@ -31,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class PendingTransactionsTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel {
     private final ConnectionRef connection;
     private final List<DBNConnection> connections;
@@ -76,9 +78,9 @@ public class PendingTransactionsTableModel extends StatefulDisposableBase implem
     @Override
     public String getColumnName(int columnIndex) {
         return
-            columnIndex == 0 ? "Session" :
-            columnIndex == 1 ? "Source" :
-            columnIndex == 2 ? "Details" : null ;
+            columnIndex == 0 ? txt("app.shared.column.Session") :
+            columnIndex == 1 ? txt("app.shared.column.Source") :
+            columnIndex == 2 ? txt("app.shared.column.Details") : null ;
     }
 
     @Override

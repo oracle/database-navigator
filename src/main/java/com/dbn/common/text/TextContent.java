@@ -110,7 +110,7 @@ public class TextContent {
         replaceFields("TABLE_GRID_COLOR", "#" + toHex(UIUtil.getLabelDisabledForeground()));
     }
 
-    private void replaceFields(String identifier, String replacement) {
+    private void replaceFields(@NonNls String identifier, @NonNls String replacement) {
         replacement = Matcher.quoteReplacement(replacement);
         text = text.replaceAll("\\$\\{" + identifier + "}", replacement);
     }
@@ -131,7 +131,8 @@ public class TextContent {
         return new TextContent(text, MimeType.TEXT_HTML);
     }
 
-    public static TextContent tooltip(String bodyContent, String bodyStyle) {
+    public static TextContent tooltip(String bodyContent, @NonNls String bodyStyle) {
+        @NonNls
         TextContent content = html("<html><body style='${HTML_BODY_STYLE}; ${REGULAR_FONT_STYLE}'>${HTML_BODY_CONTENT}</body></html>");
         content.initField("HTML_BODY_STYLE", bodyStyle);
         content.initField("HTML_BODY_CONTENT", bodyContent);
@@ -140,7 +141,7 @@ public class TextContent {
     }
 
     public static TextContent html(Object object, @NonNls String resourceName) {
-        String info = TextResources.get(object, resourceName);
+        String info = TextResources.getLocalizable(object, resourceName);
         return html(info);
     }
     public static TextContent markdown(String text) {

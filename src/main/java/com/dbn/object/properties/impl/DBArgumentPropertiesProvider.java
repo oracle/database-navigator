@@ -25,6 +25,8 @@ import com.dbn.object.type.DBObjectType;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBArgumentPropertiesProvider extends DBGenericObjectPropertiesProvider<DBArgument> {
     public DBArgumentPropertiesProvider() {
         super(DBObjectType.ARGUMENT);
@@ -36,7 +38,13 @@ public class DBArgumentPropertiesProvider extends DBGenericObjectPropertiesProvi
 
         DBDataType dataType = argument.getDataType();
         properties.add(0, new DBDataTypePresentableProperty(dataType));
-        properties.add(0, new SimplePresentableProperty("Argument type", argument.isInput() && argument.isOutput() ? "IN / OUT" : argument.isInput() ? "IN" : "OUT"));
+        properties.add(0, new SimplePresentableProperty(txt("app.objects.property.ArgumentType"), getArgumentType(argument)));
         return properties;
+    }
+
+    private static String getArgumentType(DBArgument argument) {
+        return argument.isInput() && argument.isOutput() ? txt("app.objects.propertyValue.ArgumentInOut") :
+                argument.isInput() ? txt("app.objects.propertyValue.ArgumentIn") :
+                txt("app.objects.propertyValue.ArgumentOut");
     }
 }

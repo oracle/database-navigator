@@ -49,6 +49,7 @@ import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.content.DynamicContentProperty.DEPENDENCY;
 import static com.dbn.common.content.DynamicContentProperty.INTERNAL;
 import static com.dbn.common.util.Commons.nvln;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
@@ -172,10 +173,10 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
         return loadReferencingSchemas(this);
     }
 
-    private static List<DBSchema> loadReferencingSchemas(DBSchemaObject object) throws SQLException {
+    private List<DBSchema> loadReferencingSchemas(DBSchemaObject object) throws SQLException {
         return DatabaseInterfaceInvoker.load(HIGHEST,
-                "Loading data dictionary",
-                "Loading schema references for " + object.getQualifiedNameWithType(),
+                txt("prc.database.title.LoadingDataDictionary"),
+                txt("prc.database.text.LoadingSchemaReferencesFor", object.getQualifiedNameWithType()),
                 object.getProject(),
                 object.getConnectionId(),
                 conn -> {
@@ -207,8 +208,8 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
     @Override
     public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Updating source code",
-                "Updating sources of " + getQualifiedNameWithType(),
+                txt("prc.object.title.UpdatingSourceCode"),
+                txt("prc.object.text.UpdatingSources", getQualifiedNameWithType()),
                 getProject(),
                 getConnectionId(),
                 getSchemaId(),

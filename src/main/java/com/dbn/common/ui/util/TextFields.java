@@ -18,9 +18,10 @@ package com.dbn.common.ui.util;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.routine.Consumer;
-import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.util.NlsContexts.StatusText;
+import com.intellij.openapi.util.NlsContexts.Tooltip;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBTextField;
@@ -124,8 +125,14 @@ public class TextFields {
         textComponent.setText(text == null ? "" : text.trim());
     }
 
+    /**
+     * @deprecated Use {@link PasswordFields#setPassword(JPasswordField, char[])} to bind password fields,
+     * and {@link PasswordFields#getPassword(JPasswordField, char[])} or
+     * {@link PasswordFields#isPasswordChanged(JPasswordField, char[])} when applying form changes.
+     */
+    @Deprecated
     public static void setPassword(JPasswordField textComponent, char[] password) {
-        textComponent.setText(Chars.toString(password));
+        PasswordFields.setPassword(textComponent, password);
     }
 
     public static void setText(TextFieldWithBrowseButton textComponent, String text) {
@@ -154,23 +161,23 @@ public class TextFields {
 
     }
 
-    public static void updateFieldError(JTextComponent textComponent, @Nullable String error) {
+    public static void updateFieldError(JTextComponent textComponent, @Nullable @Tooltip String error) {
         FIELD_ERROR.set(textComponent, error);
         textComponent.setForeground(error == null ? Colors.getTextFieldForeground() : JBColor.RED);
         textComponent.setToolTipText(error);
     }
 
-    public static void setEmptyText(JTextField textField, String emptyText) {
+    public static void setEmptyText(JTextField textField, @StatusText String emptyText) {
         if (textField instanceof JBTextField jbTextField) {
             jbTextField.getEmptyText().setText(emptyText);
         }
     }
 
-    public static void installErrorHighlighting(TextFieldWithBrowseButton textField, Function<String, String> verifier) {
+    public static void installErrorHighlighting(TextFieldWithBrowseButton textField, Function<String, @Tooltip String> verifier) {
         installErrorHighlighting(textField.getTextField(), verifier);
     }
 
-    public static void installErrorHighlighting(JTextField textComponent, Function<String, String> verifier) {
+    public static void installErrorHighlighting(JTextField textComponent, Function<String, @Tooltip String> verifier) {
         onTextChange(textComponent, e -> {
             String errorMessage = verifier.apply(textComponent.getText());
             updateFieldError(textComponent, errorMessage);

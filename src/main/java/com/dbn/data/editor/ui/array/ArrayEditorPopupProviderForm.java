@@ -58,6 +58,7 @@ import java.util.List;
 import static com.dbn.common.util.Actions.createActionToolbar;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
 public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
@@ -90,8 +91,8 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
     private void initEditorToolbar() {
         if (!list.isEditable()) return;
 
-        ActionToolbar actionToolbarLeft = createActionToolbar(leftActionPanel, true, "DBNavigator.ActionGroup.Arrays.LeftControls");
-        ActionToolbar actionToolbarRight = createActionToolbar(leftActionPanel, true, "DBNavigator.ActionGroup.Arrays.RightControls");
+        ActionToolbar actionToolbarLeft = createActionToolbar(leftActionPanel, true, "DBN.ArrayEditor.Left");
+        ActionToolbar actionToolbarRight = createActionToolbar(leftActionPanel, true, "DBN.ArrayEditor.Right");
         Arrays.asList(actionToolbarLeft, actionToolbarRight).forEach(tb -> Actions.getActions(tb).forEach(a -> registerAction(a)));
 
         leftActionPanel.add(actionToolbarLeft.getComponent(), BorderLayout.WEST);
@@ -181,7 +182,7 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
     @Override
     public String getName() {
-        return "Array Editor";
+        return txt("msg.dataEditor.title.ArrayEditor");
     }
 
     @Override

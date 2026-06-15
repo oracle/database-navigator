@@ -62,7 +62,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
@@ -134,7 +136,7 @@ public class CredentialManagementForm extends DBNFormBase {
   }
 
   private void initActionsPanel() {
-    ActionToolbar managementActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantCredentialManagement");
+    ActionToolbar managementActions = Actions.createActionToolbar(actionsPanel, true, "DBN.Assistant.Credentials");
     setAccessibleName(managementActions, txt("cfg.assistant.aria.CredentialManagementActions"));
     this.actionsPanel.add(managementActions.getComponent(), BorderLayout.CENTER);
     initializingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
@@ -253,7 +255,7 @@ public class CredentialManagementForm extends DBNFormBase {
 
   private void handleLoadError(Throwable e) {
     conditionallyLog(e);
-    Dispatch.run(mainPane, () -> Messages.showErrorDialog(getProject(), "Failed to load credentials.\nCause: " + Exceptions.causeMessage(e)));
+    Dispatch.run(mainPane, () -> showErrorDialog(getProject(), txt("msg.assistant.error.CredentialLoadFailed", Exceptions.causeMessage(e))));
     afterLoad();
   }
 

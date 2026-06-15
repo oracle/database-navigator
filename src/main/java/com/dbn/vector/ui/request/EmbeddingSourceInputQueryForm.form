@@ -38,7 +38,7 @@
             </constraints>
             <properties>
               <autoscrolls value="false"/>
-              <text value="Verify Query"/>
+              <text resource-bundle="messages/DBNResources" key="app.vector.button.VerifyQuery"/>
             </properties>
           </component>
           <hspacer id="629fd">

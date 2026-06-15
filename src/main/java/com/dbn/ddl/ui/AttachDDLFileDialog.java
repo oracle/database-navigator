@@ -33,6 +33,7 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     private final DBObjectRef<DBSchemaObject> object;
@@ -40,7 +41,7 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     private final List<VirtualFileInfo> fileInfos;
 
     public AttachDDLFileDialog(List<VirtualFileInfo> fileInfos, @NotNull DBSchemaObject object, boolean showLookupOption) {
-        super(object.getProject(), "Attach DDL file", true);
+        super(object.getProject(), txt("msg.ddlFiles.title.AttachDdlFile"), true);
         this.fileInfos = fileInfos;
         this.object = DBObjectRef.of(object);
         this.showLookupOption = showLookupOption;
@@ -54,9 +55,9 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
         DBSchemaObject object = getObject();
         String typeName = object.getTypeName();
         TextContent hintText = plain(
-                "Following DDL files were found matching the name of the " + object.getQualifiedNameWithType() + ".\n" +
-                        "NOTE: Attached DDL files will become readonly and their content will change automatically when the " + typeName + " is edited.\n\n" +
-                        "Select the files to attach to this " + typeName + ".");
+                txt("msg.ddlFiles.hint.AttachDdlFiles",
+                        object.getQualifiedNameWithType(),
+                        typeName));
         return new SelectDDLFileForm(this, object, fileInfos, hintText, showLookupOption);
     }
 
@@ -68,7 +69,7 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Attach Selected");
+        renameAction(getOKAction(), txt("msg.ddlFiles.button.AttachSelected"));
         return actions(
                 getOKAction(),
                 new SelectAllAction(),
@@ -83,7 +84,7 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
 
     private class SelectAllAction extends AbstractAction {
         private SelectAllAction() {
-            super("Attach all");
+            super(txt("msg.ddlFiles.button.AttachAll"));
         }
 
         @Override
@@ -95,7 +96,7 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
 
     private class SelectNoneAction extends AbstractAction {
         private SelectNoneAction() {
-            super("Attach none");
+            super(txt("msg.ddlFiles.button.AttachNone"));
         }
 
         @Override

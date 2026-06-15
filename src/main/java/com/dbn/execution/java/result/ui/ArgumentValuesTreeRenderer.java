@@ -33,6 +33,7 @@ import java.util.Objects;
 
 import static com.dbn.execution.common.input.CodeBlocks.extractCodeBlock;
 import static com.dbn.execution.java.wrapper.WrapperStatementBuilder.arrayBrackets;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
@@ -80,7 +81,7 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
         if (userValue instanceof ExecutionValue fieldValue) {
             String stringValue = Objects.toString(fieldValue.getValue());
             if (CodeBlocks.isCodeBlock(stringValue)) {
-                append(" = [CODE]", REGULAR_ATTRIBUTES);
+                append(" = " + txt("app.execution.placeholder.Code"), REGULAR_ATTRIBUTES);
                 String content = extractCodeBlock(stringValue);
                 setToolTipText("<html><pre>" + content + "</pre></html>");
             } else {

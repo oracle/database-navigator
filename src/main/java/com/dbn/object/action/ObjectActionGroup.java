@@ -199,7 +199,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         addActionGroup(new GenerateStatementActionGroup(object));
 
         ActionManager actionManager = ActionManager.getInstance();
-        ActionGroup actionGroup = (ActionGroup) actionManager.getAction("DBNavigator.ActionGroup.ExtractJavaCode");
+        ActionGroup actionGroup = (ActionGroup) actionManager.getAction("DBN.Java.ExtractCode");
         // TODO...
     }
 

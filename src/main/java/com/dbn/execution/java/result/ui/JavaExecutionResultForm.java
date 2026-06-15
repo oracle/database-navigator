@@ -63,6 +63,7 @@ import java.util.Objects;
 
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecutionResult> {
     private JPanel mainPanel;
@@ -139,7 +140,7 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
     private void addLoggingConsoleTab(JavaExecutionResult executionResult) {
         ConnectionHandler connection = executionResult.getConnection();
         DatabaseCompatibilityInterface compatibility = connection.getCompatibilityInterface();
-        String logConsoleName = nvl(compatibility.getDatabaseLogName(), "Output");
+        String logConsoleName = nvl(compatibility.getDatabaseLogName(), txt("app.logging.label.LogName_OUTPUT"));
 
         DatabaseLoggingResultConsole console = new DatabaseLoggingResultConsole(connection, logConsoleName, true);
         console.setBorder(Borders.lineBorder(JBColor.border(), 0, 0, 1, 0));
@@ -148,13 +149,13 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         console.writeToConsole(context,
                 LogOutput.createSysOutput(context,
                         executionResult.getExecutionContext().getExecutionTimestamp(),
-                        " - Method execution started", true));
+                        txt("log.execution.info.MethodExecutionStarted"), true));
 
         String logOutput = executionResult.getLogOutput();
         if (Strings.isNotEmptyOrSpaces(logOutput)) {
             console.writeToConsole(context, LogOutput.createStdOutput(logOutput));
         }
-        console.writeToConsole(context, LogOutput.createSysOutput(context, " - Method execution finished\n\n", false));
+        console.writeToConsole(context, LogOutput.createSysOutput(context, txt("log.execution.info.MethodExecutionFinished"), false));
         Disposer.register(this, console);
 
         outputTabs.addTab(console.getTitle(), Icons.EXEC_LOG_OUTPUT_CONSOLE, console.getComponent());
@@ -252,19 +253,19 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         JavaExecutionResult executionResult = getExecutionResult();
         SessionId sessionId = executionResult.getExecutionInput().getTargetSessionId();
         String connectionType =
-                sessionId == SessionId.MAIN ? " (main)" :
-                sessionId == SessionId.POOL ? " (pool)" : " (session)";
+                sessionId == SessionId.MAIN ? txt("app.execution.label.MainSession") :
+                sessionId == SessionId.POOL ? txt("app.execution.label.PoolSession") : txt("app.execution.label.Session");
         ConnectionHandler connection = executionResult.getConnection();
         connectionLabel.setIcon(connection.getIcon());
         connectionLabel.setText(connection.getName() + connectionType);
 
-        durationLabel.setText(": " + executionResult.getExecutionDuration() + " ms");
+        durationLabel.setText(txt("app.execution.label.DurationMillis", executionResult.getExecutionDuration()));
     }
 
 
 
     private void createActionsPanel() {
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.JavaExecutionResult");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBN.Execution.Java.Result");
         actionsPanel.add(actionToolbar.getComponent());
     }
 

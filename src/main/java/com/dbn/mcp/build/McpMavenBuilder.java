@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.dbn.mcp.build.McpJavaVersionManager.resolveJavaVersion;
+import static com.dbn.nls.NlsResources.txt;
 
 public final class McpMavenBuilder {
     private static final String POM_TEMPLATE = "DBN - MCP Server POM.xml";
@@ -156,7 +157,7 @@ public final class McpMavenBuilder {
     private static void runMaven(Project project, Path dir, ProgressIndicator indicator, Consumer<String> outputHandler) throws IOException {
         McpMavenBuildManager mavenManager = McpMavenBuildManager.getInstance(project);
         if (mavenManager == null) {
-            throw new IOException("Maven service is not available. Please enable the Maven plugin.");
+            throw new IOException(txt("msg.mcp.exception.MavenServiceUnavailable"));
         }
         mavenManager.runBuild(dir, indicator, outputHandler);
     }
@@ -165,7 +166,7 @@ public final class McpMavenBuilder {
         Path jar;
         try (var stream = Files.list(proj.resolve("target"))) {
             jar = stream.filter(p -> p.toString().endsWith(".jar") && !p.toString().contains("original"))
-                    .findFirst().orElseThrow(() -> new IOException("JAR not found"));
+                    .findFirst().orElseThrow(() -> new IOException(txt("msg.mcp.exception.JarNotFound")));
         }
         Files.createDirectories(out);
         Path dest = out.resolve(jar.getFileName());

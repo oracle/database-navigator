@@ -37,6 +37,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 import static java.awt.event.MouseEvent.BUTTON1;
 
 /**
@@ -105,9 +106,9 @@ public class CredentialPickerForm extends DBNFormBase {
   }
 
   private static class CredentialPickerTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<AssistantCredential> {
-    private final String NAME = "Credential Name";
-    private final String USERNAME = "User Name";
-    private final String KEY = "Secret";
+    private final String NAME = txt("app.assistant.column.CredentialName");
+    private final String USERNAME = txt("app.assistant.column.UserName");
+    private final String KEY = txt("app.assistant.column.Secret");
     private final AssistantCredentialBundle credentials;
     private final String[] columnNames = {NAME, USERNAME, KEY};
 

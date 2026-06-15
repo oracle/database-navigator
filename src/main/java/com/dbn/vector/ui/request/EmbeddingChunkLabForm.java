@@ -25,7 +25,6 @@ import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.jdbc.DBNResultSet;
@@ -55,6 +54,8 @@ import static com.dbn.common.ui.util.Buttons.onButtonClickAsync;
 import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.common.util.Editors.updateEditorScrollPane;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EmbeddingChunkLabForm extends DBNFormBase {
 
@@ -86,15 +87,14 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent textContent = TextContent.plain(
-                "Use this tool to experiment with different chunking settings before applying them in embedding and retrieval workflows. " +
-                        "Adjust the parameters, preview the resulting chunks, and fine-tune the configuration that works best for your data.");
+                txt("msg.vector.hint.ChunkLab"));
         DBNHintForm hintForm = new DBNHintForm(this, textContent, null, true);
         hintPanel.add(hintForm.getComponent());
     }
 
     private void initOutputPanel() {
         ConnectionHandler connection = getConnection();
-        RecordViewInfo recordViewInfo = new RecordViewInfo("Chunk data", null);
+        RecordViewInfo recordViewInfo = new RecordViewInfo(txt("app.vector.title.ChunkData"), null);
         ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
         chunkDataTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
         outputScrollPane.setViewportView(chunkDataTable);
@@ -112,7 +112,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
         inputEditor = Editors.createEditor(document, project, virtualFile, fileType);
         inputEditor.setEmbeddedIntoDialogWrapper(false);
         inputEditor.getContentComponent().setFocusTraversalKeysEnabled(false);
-        inputEditor.setPlaceholder("Enter your sample text for chunking here");
+        inputEditor.setPlaceholder(txt("app.vector.placeholder.ChunkSampleText"));
         inputEditor.setBorder(null);
         inputEditor.getComponent().setBorder(null);
 
@@ -164,7 +164,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
             dataModel.fetchNextRecords(1000, false);
             return dataModel;
         } catch (Exception e) {
-            Messages.showErrorDialog(project, "Failed to chunk data", e);
+            showErrorDialog(project, txt("msg.vector.error.DataChunkFailed"), e);
             return new ResultSetDataModel(connection);
         } finally {
             stopActivityNotifier();

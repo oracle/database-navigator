@@ -16,17 +16,18 @@
 
 package com.dbn.common.message;
 
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.Getter;
 
 @Getter
 public class TitledMessageCollector extends MessageCollector implements TitledMessageBundle {
-    private final String title;
+    private final @DialogTitle String title;
 
-    public TitledMessageCollector(String title) {
+    public TitledMessageCollector(@DialogTitle String title) {
         this.title = title;
     }
 
-    public TitledMessageCollector(String title, boolean async) {
+    public TitledMessageCollector(@DialogTitle String title, boolean async) {
         super(async);
         this.title = title;
     }

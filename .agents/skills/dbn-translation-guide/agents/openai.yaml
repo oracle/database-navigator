@@ -1,0 +1,5 @@
+interface:
+  display_name: "DBN Translation Guide"
+  short_description: "Oracle© Database Navigator (DBN) translation workflow and locale glossaries"
+  default_prompt: "Use $dbn-translation-guide when translating or reviewing Oracle© Database Navigator (DBN) text and maintaining locale glossaries."
+

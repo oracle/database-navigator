@@ -1,0 +1,26 @@
+<html lang="ko">
+<head>
+    <title>도구 승인</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body>
+    Database Assistant에서 사용할 수 있는 모든 도구의 개요입니다.<br>
+    이 페이지를 사용하여 언어 모델이 접근할 수 있는 도구를 결정하세요.
+
+    <br><br>
+    전체 도구 범주와 개별 도구를 활성화하거나 비활성화하여 도구 접근을 관리하세요.<br>
+    도구의 상태는 LLM에 대한 표시 여부를 결정합니다.
+    <ul>
+        <li>"승인됨"으로 표시된 도구는 자동으로 호출됩니다.</li>
+        <li>"요청됨"으로 표시된 도구는 호출할 때마다 승인이 필요합니다.</li>
+        <li>"차단됨"으로 표시된 도구는 LLM에 표시되지 않습니다.</li>
+    </ul>
+</body>
+</html>

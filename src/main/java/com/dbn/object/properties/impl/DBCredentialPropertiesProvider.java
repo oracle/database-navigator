@@ -23,6 +23,8 @@ import com.dbn.object.type.DBObjectType;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBCredentialPropertiesProvider extends DBGenericObjectPropertiesProvider<DBCredential> {
     public DBCredentialPropertiesProvider() {
         super(DBObjectType.CREDENTIAL);
@@ -31,9 +33,9 @@ public class DBCredentialPropertiesProvider extends DBGenericObjectPropertiesPro
     @Override
     public List<DBObjectProperty> getProperties(DBCredential credential) {
         List<DBObjectProperty> properties = super.getProperties(credential);
-        properties.add(0, new SimplePresentableProperty("Credential type", credential.getType()));
-        properties.add(1, new SimplePresentableProperty("User name", credential.getUserName()));
-        properties.add(2, new SimplePresentableProperty("Enabled", credential.isEnabled()));
+        properties.add(0, new SimplePresentableProperty(txt("app.objects.property.CredentialType"), credential.getType()));
+        properties.add(1, new SimplePresentableProperty(txt("app.objects.property.UserName"), credential.getUserName()));
+        properties.add(2, new SimplePresentableProperty(txt("app.objects.property.Enabled"), credential.isEnabled()));
         return properties;
     }
 }

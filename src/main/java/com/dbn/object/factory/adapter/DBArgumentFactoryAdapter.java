@@ -27,6 +27,7 @@ import com.dbn.object.type.DBObjectType;
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
 
@@ -51,18 +52,18 @@ public class DBArgumentFactoryAdapter implements ObjectFactoryAdapter {
         String objectName = argumentSpec.getObjectName();
         int position = argumentSpec.getIndex();
         if (objectName.isEmpty()) {
-            errors.add("argument name is not specified at index " + position);
+            errors.add(txt("msg.objects.error.ArgumentNameNotSpecifiedAtIndex", position));
 
         } else if (!Strings.isWord(objectName)) {
-            errors.add("invalid argument name specified at index " + position + ": \"" + objectName + "\"");
+            errors.add(txt("msg.objects.error.ArgumentNameInvalidAtIndex", position, objectName));
         }
 
         String dataType = DATA_TYPE.of(argumentSpec);
         if (Strings.isEmptyOrSpaces(dataType)){
             if (objectName.length() > 0) {
-                errors.add("missing data type for argument \"" + objectName + "\"");
+                errors.add(txt("msg.objects.error.ArgumentDataTypeMissingForName", objectName));
             } else {
-                errors.add("missing data type for argument at index " + position);
+                errors.add(txt("msg.objects.error.ArgumentDataTypeMissingAtIndex", position));
             }
         }
     }

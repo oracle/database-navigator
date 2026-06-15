@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
@@ -51,13 +52,15 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public void validateInput(DBObjectSpec input, List<String> errors) {
+        DBObjectType objectType = input.getObjectType();
         String objectName = input.getObjectName();
         if (objectName.isEmpty()) {
-            String hint = input.getParent() == null ? "" : " at index " + input.getIndex();
-            errors.add(input.getObjectType().getName() + " name is not specified" + hint);
+            errors.add(input.getParent() == null ?
+                    txt("msg.objects.error.ObjectNameNotSpecified", objectType.getDisplayName()) :
+                    txt("msg.objects.error.ObjectNameNotSpecifiedAtIndex", objectType.getDisplayName(), input.getIndex()));
 
         } else if (!Strings.isWord(objectName)) {
-            errors.add("invalid " + input.getObjectType().getName() + " name specified" + ": \"" + objectName + "\"");
+            errors.add(txt("msg.objects.error.ObjectNameInvalid", objectType.getDisplayName(), objectName));
         }
 
 
@@ -65,7 +68,7 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter {
         if (returnArgument != null) {
             String dataType = DATA_TYPE.of(returnArgument);
             if (Strings.isEmpty(dataType)){
-                errors.add("missing data type for return argument");
+                errors.add(txt("msg.objects.error.ReturnArgumentDataTypeMissing"));
             }
         }
 
@@ -77,8 +80,9 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter {
             if (Strings.isEmptyOrSpaces(argumentName)) continue; // already covered by field validator
 
             if (argumentNames.contains(argumentName)) {
-                String hint = input.getParent() == null ? "" : " for " + input.getObjectType().getName() + " \"" + objectName + "\"";
-                errors.add("duplicate argument name \"" + argumentName + "\"" + hint);
+                errors.add(input.getParent() == null ?
+                        txt("msg.objects.error.DuplicateArgumentName", argumentName) :
+                        txt("msg.objects.error.DuplicateArgumentNameForObject", argumentName, objectType.getDisplayName(), objectName));
             }
             argumentNames.add(argumentName);
         }
@@ -94,8 +98,8 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter {
         SchemaId schemaId = schema.getSchemaId();
 
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Creating " + input.getObjectType().getTitleCasedName(),
-                "Creating " + input.getObjectDescription(),
+                txt("prc.object.title.CreatingObject", objectType.getTitleCasedDisplayName()),
+                txt("prc.object.text.CreatingObjectDescription", input.getObjectDescription()),
                 schema.getProject(),
                 connectionId,
                 schemaId,

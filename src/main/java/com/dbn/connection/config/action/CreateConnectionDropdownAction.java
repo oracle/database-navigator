@@ -40,6 +40,10 @@ public class CreateConnectionDropdownAction extends BasicActionGroup {
             new TnsNamesImportAction()
     };
 
+    public CreateConnectionDropdownAction() {
+        super(txt("cfg.connection.action.CreateConnection"));
+    }
+
     @NotNull
     @Override
     public AnAction[] loadChildren(AnActionEvent e) {

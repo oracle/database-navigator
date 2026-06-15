@@ -31,6 +31,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class CompareWithDatabaseAction extends AbstractCodeEditorDiffAction {
 
+    public CompareWithDatabaseAction() {
+        super(txt("app.codeEditor.action.CodeEditorCompareWithDatabase"));
+    }
+
     @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,

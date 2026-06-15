@@ -48,6 +48,7 @@ import static com.dbn.common.ui.list.ListProperty.INDEXED;
 import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButtons {
     private final JPanel buttonsPanel;
@@ -141,11 +142,10 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
         String providerName = popupProvider.getName();
         JComponent button = createButton(buttonIcon, providerName);
 
-        String toolTipText = "Open " + providerName;
         String keyShortcutDescription = popupProvider.getKeyShortcutDescription();
-        if (keyShortcutDescription != null) {
-            toolTipText += " (" + keyShortcutDescription + ')';
-        }
+        String toolTipText = keyShortcutDescription == null ?
+                txt("app.data.tooltip.OpenPopup", providerName) :
+                txt("app.data.tooltip.OpenPopupWithShortcut", providerName, keyShortcutDescription);
         button.setToolTipText(toolTipText);
         addButtonListener(popupProvider, button);
 

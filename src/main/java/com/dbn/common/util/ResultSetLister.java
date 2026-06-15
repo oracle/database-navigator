@@ -17,6 +17,7 @@
 package com.dbn.common.util;
 
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -28,7 +29,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 public class ResultSetLister {
 
     public static String list(String name, ResultSet resultSet) {
-        StringBuilder buffer = new StringBuilder(name);
+        @NonNls StringBuilder buffer = new StringBuilder(name);
         try {
             buffer.append("\n--------------------------------\n");
             if (resultSet == null) {

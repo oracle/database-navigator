@@ -26,6 +26,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DBTypeNavigationInfoProvider extends DBObjectNavigationInfoProviderBase<DBType> {
     public DBTypeNavigationInfoProvider() {
         super(DBObjectType.TYPE);
@@ -49,18 +51,18 @@ public class DBTypeNavigationInfoProvider extends DBObjectNavigationInfoProvider
 
         DBType superType = type.getSuperType();
         if (superType != null) {
-            navigationLists.add(DBObjectNavigationList.create("Super Type", superType));
+            navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.SuperType"), superType));
         }
         List<DBObject> types = type.getChildObjects(DBObjectType.TYPE_TYPE);
         if (!types.isEmpty()) {
-            navigationLists.add(DBObjectNavigationList.create("Sub Types", types));
+            navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.SubTypes"), types));
         }
         if (type.isCollection()) {
             DBDataType dataType = type.getCollectionElementType();
             if (dataType != null && dataType.isDeclared()) {
                 DBType collectionElementType = dataType.getDeclaredType();
                 if (collectionElementType != null) {
-                    navigationLists.add(DBObjectNavigationList.create("Collection element type", collectionElementType));
+                    navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.CollectionElementType"), collectionElementType));
                 }
             }
         }

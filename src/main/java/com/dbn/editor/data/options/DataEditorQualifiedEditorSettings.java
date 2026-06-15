@@ -41,6 +41,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setIntegerAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter

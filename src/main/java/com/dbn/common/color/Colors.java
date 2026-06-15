@@ -28,6 +28,7 @@ import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.ui.ColorChooserService;
 import com.intellij.ui.ColorUtil;
 import com.intellij.ui.Gray;
@@ -307,7 +308,7 @@ public final class Colors {
      * @return the chosen color if the dialog selection is confirmed, or the initial color if canceled
      */
     @Compatibility
-    public static Color chooseColor(Project project, JComponent parent, Color initialColor, String caption) {
+    public static Color chooseColor(Project project, JComponent parent, Color initialColor, @DialogTitle String caption) {
         ColorChooserService colorChooserService = ColorChooserService.getInstance();
         return colorChooserService.showDialog(project, parent, caption, initialColor, false, Collections.emptyList(), false);
     }

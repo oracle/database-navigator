@@ -25,12 +25,14 @@ import lombok.Setter;
 
 import javax.swing.Icon;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
 public class DBDataTypePresentableProperty extends DBObjectPropertyBase {
     private final DBDataType dataType;
-    private String name = "Data type";
+    private String name = txt("app.objects.property.DataType");
 
     public DBDataTypePresentableProperty(String name, DBDataType dataType) {
         this.name = name;

@@ -23,7 +23,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.treetable.TreeTableModel;
 import lombok.Getter;
-import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nls;
 
 import javax.swing.JTree;
 import javax.swing.event.TreeModelListener;
@@ -31,6 +31,8 @@ import javax.swing.tree.TreePath;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.function.Function;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExplainPlanTreeTableModel implements TreeTableModel, Disposable {
     private final ExplainPlanResult result;
@@ -42,7 +44,7 @@ public class ExplainPlanTreeTableModel implements TreeTableModel, Disposable {
     }
 
     private final Column[] COLUMNS = new Column[]{
-            Column.create("OPERATION", TreeTableModel.class, false, entry -> {
+            Column.create(txt("app.execution.column.Operation"), TreeTableModel.class, false, entry -> {
                 String options = entry.getOperationOptions();
                 return this; /*entry.getOperation() + (StringUtil.isEmpty(options) ? "" : "(" + options + ")");*/
             }),
@@ -51,14 +53,14 @@ public class ExplainPlanTreeTableModel implements TreeTableModel, Disposable {
             Column.create("DEPTH", BigDecimal.class, false, entry -> entry.getDepth()),
             Column.create("POSITION", BigDecimal.class, false, entry -> entry.getPosition()),
 */
-            Column.create("COST", BigDecimal.class, false, entry -> entry.getCost()),
-            Column.create("CARDINALITY", BigDecimal.class, false, entry -> entry.getCardinality()),
-            Column.create("BYTES", BigDecimal.class, false, entry -> entry.getBytes()),
-            Column.create("CPU_COST", BigDecimal.class, false, entry -> entry.getCpuCost()),
-            Column.create("IO_COST", BigDecimal.class, false, entry -> entry.getIoCost()),
-            Column.create("ACCESS_PREDICATES", String.class, true, entry -> entry.getAccessPredicates()),
-            Column.create("FILTER_PREDICATES", String.class, true, entry -> entry.getFilterPredicates()),
-            Column.create("PROJECTION", String.class, true, entry -> entry.getProjection()),
+            Column.create(txt("app.execution.column.Cost"), BigDecimal.class, false, entry -> entry.getCost()),
+            Column.create(txt("app.execution.column.Cardinality"), BigDecimal.class, false, entry -> entry.getCardinality()),
+            Column.create(txt("app.execution.column.Bytes"), BigDecimal.class, false, entry -> entry.getBytes()),
+            Column.create(txt("app.execution.column.CpuCost"), BigDecimal.class, false, entry -> entry.getCpuCost()),
+            Column.create(txt("app.execution.column.IoCost"), BigDecimal.class, false, entry -> entry.getIoCost()),
+            Column.create(txt("app.execution.column.AccessPredicates"), String.class, true, entry -> entry.getAccessPredicates()),
+            Column.create(txt("app.execution.column.FilterPredicates"), String.class, true, entry -> entry.getFilterPredicates()),
+            Column.create(txt("app.execution.column.Projection"), String.class, true, entry -> entry.getProjection()),
     };
 
     public Project getProject() {
@@ -75,7 +77,7 @@ public class ExplainPlanTreeTableModel implements TreeTableModel, Disposable {
     }
 
     @Override
-    public String getColumnName(int column) {
+    public @Nls String getColumnName(int column) {
         return COLUMNS[column].getName();
     }
 
@@ -145,16 +147,16 @@ public class ExplainPlanTreeTableModel implements TreeTableModel, Disposable {
 
     @Getter
     private static abstract class Column {
-        private final String name;
+        private final @Nls String name;
         private final Class<?> clazz;
         private boolean large;
 
-        public Column(String name, Class<?> clazz) {
+        public Column(@Nls String name, Class<?> clazz) {
             this.name = name;
             this.clazz = clazz;
         }
 
-        public Column(String name, Class<?> clazz, boolean large) {
+        public Column(@Nls String name, Class<?> clazz, boolean large) {
             this.name = name;
             this.clazz = clazz;
             this.large = large;
@@ -162,7 +164,7 @@ public class ExplainPlanTreeTableModel implements TreeTableModel, Disposable {
 
         public abstract Object getValue(ExplainPlanEntry entry);
 
-        public static Column create(@NonNls String name, Class<?> clazz, boolean large, Function<ExplainPlanEntry, Object> valueProvider) {
+        public static Column create(@Nls String name, Class<?> clazz, boolean large, Function<ExplainPlanEntry, Object> valueProvider) {
             return new Column(name, clazz, large) {
                 @Override
                 public Object getValue(ExplainPlanEntry entry) {

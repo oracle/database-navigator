@@ -121,6 +121,7 @@ public class AssistantToolProvider implements ToolProvider, AssistantComponent {
 
         ToolSpecification specification = wrapped(() -> toolSpecificationFrom(method));
 
+        @NonNls
         String description =
                 "type = " + toolSpec.type() + "\n" +
                 "category = " + toolSpec.category() + "\n" +

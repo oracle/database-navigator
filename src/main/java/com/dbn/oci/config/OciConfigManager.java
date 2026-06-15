@@ -29,6 +29,7 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +57,7 @@ public class OciConfigManager extends ProjectComponentBase implements Persistent
     }
 
     @NotNull
-    public StateAttributes getState(String category) {
+    public StateAttributes getState(@NonNls String category) {
         StateCategory stateCategory = StateCategory.get(category);
         return states.ensureAttributes(stateCategory);
     }

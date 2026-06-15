@@ -25,12 +25,14 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class OciConfigSelectionDialog extends DBNDialog<OciConfigSelectionForm> {
     private final OciConfig config = new OciConfig();
 
     public OciConfigSelectionDialog(Project project) {
-        super(project, "Select OCI Config", false);
+        super(project, txt("msg.oci.title.SelectOciConfig"), false);
 
         init();
     }
@@ -41,7 +43,7 @@ public class OciConfigSelectionDialog extends DBNDialog<OciConfigSelectionForm> 
 
     @Override
     protected Action[] initializeActions() {
-        renameAction(getOKAction(), "Select");
+    renameAction(getOKAction(), txt("msg.shared.button.Select"));
         return actions(
                 getOKAction(),
                 getCancelAction());

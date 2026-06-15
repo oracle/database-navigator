@@ -47,7 +47,7 @@ public class SelectSchemaIntentionAction extends EditorIntentionAction  {
     @Override
     @NotNull
     public String getText() {
-        return txt("app.codeEditor.action.SetCurrentSchema");
+        return txt("app.codeEditor.intention.SetCurrentSchema");
     }
 
     @Override

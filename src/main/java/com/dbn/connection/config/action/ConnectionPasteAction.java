@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class ConnectionPasteAction extends ConnectionSettingsAction {
 
+    public ConnectionPasteAction() {
+        super(txt("cfg.connection.action.PasteConnections"));
+    }
+
     @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,

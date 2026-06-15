@@ -17,9 +17,17 @@
 package com.dbn.event.notification.action;
 
 import com.dbn.event.notification.filter.EventNotificationFilterType;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class EventNotificationTableFilterAction extends EventNotificationFilterAction {
     public EventNotificationTableFilterAction() {
-        super(EventNotificationFilterType.TABLE);
+        super(EventNotificationFilterType.TABLE, txt("app.eventNotification.action.EventNotificationsTableFilter"));
+    }
+
+    @Override
+    public void update(AnActionEvent e) {
+        e.getPresentation().setText(txt("app.eventNotification.action.TableFilter"));
     }
 }

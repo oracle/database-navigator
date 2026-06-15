@@ -33,6 +33,10 @@ import static com.dbn.nls.NlsResources.txt;
  * @author Dan Cioca (Oracle)
  */
 public class ProfileDeleteAction extends ProfileManagementAction {
+    public ProfileDeleteAction() {
+        super(txt("app.assistant.action.AssistantDeleteProfile"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ProfileManagementForm managementForm = getManagementForm(e);

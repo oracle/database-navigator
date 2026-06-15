@@ -16,7 +16,6 @@
 
 package com.dbn.ddl.options.ui;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
 import com.dbn.common.util.Strings;
@@ -31,13 +30,32 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.dbn.common.icon.Icons.DBO_FUNCTION;
+import static com.dbn.common.icon.Icons.DBO_JAVA_CLASS;
+import static com.dbn.common.icon.Icons.DBO_PACKAGE;
+import static com.dbn.common.icon.Icons.DBO_PROCEDURE;
+import static com.dbn.common.icon.Icons.DBO_TRIGGER;
+import static com.dbn.common.icon.Icons.DBO_TYPE;
+import static com.dbn.common.icon.Icons.DBO_VIEW;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.ddl.DDLFileTypeId.FUNCTION;
+import static com.dbn.ddl.DDLFileTypeId.JAVA_SOURCE;
+import static com.dbn.ddl.DDLFileTypeId.PACKAGE;
+import static com.dbn.ddl.DDLFileTypeId.PACKAGE_BODY;
+import static com.dbn.ddl.DDLFileTypeId.PACKAGE_SPEC;
+import static com.dbn.ddl.DDLFileTypeId.PROCEDURE;
+import static com.dbn.ddl.DDLFileTypeId.TRIGGER;
+import static com.dbn.ddl.DDLFileTypeId.TYPE;
+import static com.dbn.ddl.DDLFileTypeId.TYPE_BODY;
+import static com.dbn.ddl.DDLFileTypeId.TYPE_SPEC;
+import static com.dbn.ddl.DDLFileTypeId.VIEW;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFileExtensionSettings> {
     private JPanel mainPanel;
@@ -60,7 +78,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
     private JLabel javaIconLabel;
     private JTextField javaTextField;
 
-    private final Map<String, JTextField> extensionTextFields = new HashMap<>();
+    private final Map<DDLFileTypeId, JTextField> fileNamePatternTextFields = new LinkedHashMap<>();
 
     public DDLFileExtensionSettingsForm(DDLFileExtensionSettings settings) {
         super(settings);
@@ -73,27 +91,27 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
         typeIconLabel.setText(null);
         javaIconLabel.setText(null);
 
-        viewIconLabel.setIcon(Icons.DBO_VIEW);
-        triggerIconLabel.setIcon(Icons.DBO_TRIGGER);
-        procedureIconLabel.setIcon(Icons.DBO_PROCEDURE);
-        functionIconLabel.setIcon(Icons.DBO_FUNCTION);
-        packageIconLabel.setIcon(Icons.DBO_PACKAGE);
-        typeIconLabel.setIcon(Icons.DBO_TYPE);
-        javaIconLabel.setIcon(Icons.DBO_JAVA_CLASS);
+        viewIconLabel.setIcon(DBO_VIEW);
+        triggerIconLabel.setIcon(DBO_TRIGGER);
+        procedureIconLabel.setIcon(DBO_PROCEDURE);
+        functionIconLabel.setIcon(DBO_FUNCTION);
+        packageIconLabel.setIcon(DBO_PACKAGE);
+        typeIconLabel.setIcon(DBO_TYPE);
+        javaIconLabel.setIcon(DBO_JAVA_CLASS);
 
         registerComponent(mainPanel);
 
-        extensionTextFields.put("View", viewTextField);
-        extensionTextFields.put("Trigger", triggerTextField);
-        extensionTextFields.put("Procedure", procedureTextField);
-        extensionTextFields.put("Function", functionTextField);
-        extensionTextFields.put("Package", packageTextField);
-        extensionTextFields.put("Package Spec", packageSpecTextField);
-        extensionTextFields.put("Package Body", packageBodyTextField);
-        extensionTextFields.put("Type", typeTextField);
-        extensionTextFields.put("Type Spec", typeSpecTextField);
-        extensionTextFields.put("Type Bpdy", typeBodyTextField);
-        extensionTextFields.put("Java Source", javaTextField);
+        fileNamePatternTextFields.put(VIEW, viewTextField);
+        fileNamePatternTextFields.put(TRIGGER, triggerTextField);
+        fileNamePatternTextFields.put(PROCEDURE, procedureTextField);
+        fileNamePatternTextFields.put(FUNCTION, functionTextField);
+        fileNamePatternTextFields.put(PACKAGE, packageTextField);
+        fileNamePatternTextFields.put(PACKAGE_SPEC, packageSpecTextField);
+        fileNamePatternTextFields.put(PACKAGE_BODY, packageBodyTextField);
+        fileNamePatternTextFields.put(TYPE, typeTextField);
+        fileNamePatternTextFields.put(TYPE_SPEC, typeSpecTextField);
+        fileNamePatternTextFields.put(TYPE_BODY, typeBodyTextField);
+        fileNamePatternTextFields.put(JAVA_SOURCE, javaTextField);
     }
 
     @NotNull
@@ -103,19 +121,66 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
     }
 
     private void validateInputs() throws ConfigurationException {
-        List<String> allExtensions = new ArrayList<>();
-        for (var entry : extensionTextFields.entrySet()) {
-            String fieldName = entry.getKey();
-            JTextField extensionTextField = entry.getValue();
+        Map<String, Map<String, DDLFileTypeId>> patternScopes = new HashMap<>();
+        for (var entry : fileNamePatternTextFields.entrySet()) {
+            DDLFileTypeId fileTypeId = entry.getKey();
+            String fieldName = getFieldName(fileTypeId);
+            JTextField fileNamePatternTextField = entry.getValue();
 
-            String extensionsText = ConfigurationEditors.validateStringValue(extensionTextField, fieldName, false);
-            List<String> extensions = Strings.tokenize(extensionsText, ",");
-            for (String extension : extensions) {
-                if (allExtensions.contains(extension)) {
-                    throw new ConfigurationException("Duplicate value for extension \"" + extension + "\" found.");
+            String patternsText = ConfigurationEditors.validateStringValue(fileNamePatternTextField, fieldName, false);
+            List<String> fileNamePatterns = Strings.tokenize(patternsText, ",");
+            for (String fileNamePattern : fileNamePatterns) {
+                validateFileNamePattern(fileNamePattern);
+                String normalizedFileNamePattern = Strings.toLowerCase(fileNamePattern);
+                Map<String, DDLFileTypeId> scopes = patternScopes.computeIfAbsent(normalizedFileNamePattern, p -> new HashMap<>());
+                String scope = getConflictScope(fileTypeId);
+                DDLFileTypeId existingFileTypeId = scopes.get(scope);
+                if (existingFileTypeId != null && existingFileTypeId != fileTypeId) {
+                    throw new ConfigurationException(txt("cfg.ddlFiles.error.DuplicateFilePattern", fileNamePattern, getFieldName(existingFileTypeId), fieldName));
                 }
+                scopes.put(scope, fileTypeId);
             }
-            allExtensions.addAll(extensions);
+        }
+    }
+
+    private static String getConflictScope(DDLFileTypeId fileTypeId) {
+        return switch (fileTypeId) {
+            case PACKAGE,
+                 PACKAGE_SPEC,
+                 PACKAGE_BODY -> PACKAGE.name();
+            case TYPE,
+                 TYPE_SPEC,
+                 TYPE_BODY -> TYPE.name();
+            default -> fileTypeId.name();
+        };
+    }
+
+    private static String getFieldName(DDLFileTypeId fileTypeId) {
+        return switch (fileTypeId) {
+            case VIEW -> txt("cfg.ddlFiles.const.DDLFileType_VIEW");
+            case TRIGGER -> txt("cfg.ddlFiles.const.DDLFileType_TRIGGER");
+            case PROCEDURE -> txt("cfg.ddlFiles.const.DDLFileType_PROCEDURE");
+            case FUNCTION -> txt("cfg.ddlFiles.const.DDLFileType_FUNCTION");
+            case PACKAGE -> txt("cfg.ddlFiles.const.DDLFileType_PACKAGE");
+            case PACKAGE_SPEC -> txt("cfg.ddlFiles.const.DDLFileType_PACKAGE_SPEC");
+            case PACKAGE_BODY -> txt("cfg.ddlFiles.const.DDLFileType_PACKAGE_BODY");
+            case TYPE -> txt("cfg.ddlFiles.const.DDLFileType_TYPE");
+            case TYPE_SPEC -> txt("cfg.ddlFiles.const.DDLFileType_TYPE_SPEC");
+            case TYPE_BODY -> txt("cfg.ddlFiles.const.DDLFileType_TYPE_BODY");
+            case JAVA_SOURCE -> txt("cfg.ddlFiles.const.DDLFileType_JAVA_SOURCE");
+        };
+    }
+
+    private static void validateFileNamePattern(String fileNamePattern) throws ConfigurationException {
+        int wildcardIndex = fileNamePattern.indexOf('*');
+        if (wildcardIndex != -1 && fileNamePattern.indexOf('*', wildcardIndex + 1) != -1) {
+            throw new ConfigurationException(txt("cfg.ddlFiles.error.MultipleWildcards", fileNamePattern));
+        }
+        if (fileNamePattern.contains("?")) {
+            throw new ConfigurationException(txt("cfg.ddlFiles.error.UnsupportedWildcard", fileNamePattern));
+        }
+        if (fileNamePattern.contains("/") || fileNamePattern.contains("\\")) {
+            throw new ConfigurationException(txt("cfg.ddlFiles.error.InvalidFileNamePattern", fileNamePattern));
         }
     }
 
@@ -123,17 +188,17 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
     public void applyFormChanges() throws ConfigurationException {
         validateInputs();
         AtomicBoolean changed = new AtomicBoolean(false);
-        applySetting(viewTextField, DDLFileTypeId.VIEW, changed);
-        applySetting(triggerTextField, DDLFileTypeId.TRIGGER, changed);
-        applySetting(procedureTextField, DDLFileTypeId.PROCEDURE, changed);
-        applySetting(functionTextField, DDLFileTypeId.FUNCTION, changed);
-        applySetting(packageTextField, DDLFileTypeId.PACKAGE, changed);
-        applySetting(packageSpecTextField, DDLFileTypeId.PACKAGE_SPEC, changed);
-        applySetting(packageBodyTextField, DDLFileTypeId.PACKAGE_BODY, changed);
-        applySetting(typeTextField, DDLFileTypeId.TYPE, changed);
-        applySetting(typeSpecTextField, DDLFileTypeId.TYPE_SPEC, changed);
-        applySetting(typeBodyTextField, DDLFileTypeId.TYPE_BODY, changed);
-        applySetting(javaTextField, DDLFileTypeId.JAVA_SOURCE, changed);
+        applySetting(viewTextField, VIEW, changed);
+        applySetting(triggerTextField, TRIGGER, changed);
+        applySetting(procedureTextField, PROCEDURE, changed);
+        applySetting(functionTextField, FUNCTION, changed);
+        applySetting(packageTextField, PACKAGE, changed);
+        applySetting(packageSpecTextField, PACKAGE_SPEC, changed);
+        applySetting(packageBodyTextField, PACKAGE_BODY, changed);
+        applySetting(typeTextField, TYPE, changed);
+        applySetting(typeSpecTextField, TYPE_SPEC, changed);
+        applySetting(typeBodyTextField, TYPE_BODY, changed);
+        applySetting(javaTextField, JAVA_SOURCE, changed);
 
         if (changed.get()) {
             Project project = getConfiguration().getProject();
@@ -144,7 +209,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
 
     private void applySetting(JTextField textField, DDLFileTypeId fileTypeId, AtomicBoolean changed) {
         DDLFileType ddlFileType = getConfiguration().getFileType(fileTypeId);
-        boolean valueChanged = ddlFileType.setExtensionsAsString(getText(textField));
+        boolean valueChanged = ddlFileType.setNamePatternsAsString(getText(textField));
         if (valueChanged) {
             changed.set(true);
         }
@@ -152,20 +217,20 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
 
     @Override
     public void resetFormChanges() {
-        resetSetting(viewTextField, DDLFileTypeId.VIEW);
-        resetSetting(triggerTextField, DDLFileTypeId.TRIGGER);
-        resetSetting(procedureTextField, DDLFileTypeId.PROCEDURE);
-        resetSetting(functionTextField, DDLFileTypeId.FUNCTION);
-        resetSetting(packageTextField, DDLFileTypeId.PACKAGE);
-        resetSetting(packageSpecTextField, DDLFileTypeId.PACKAGE_SPEC);
-        resetSetting(packageBodyTextField, DDLFileTypeId.PACKAGE_BODY);
-        resetSetting(typeTextField, DDLFileTypeId.TYPE);
-        resetSetting(typeSpecTextField, DDLFileTypeId.TYPE_SPEC);
-        resetSetting(typeBodyTextField, DDLFileTypeId.TYPE_BODY);
-        resetSetting(javaTextField, DDLFileTypeId.JAVA_SOURCE);
+        resetSetting(viewTextField, VIEW);
+        resetSetting(triggerTextField, TRIGGER);
+        resetSetting(procedureTextField, PROCEDURE);
+        resetSetting(functionTextField, FUNCTION);
+        resetSetting(packageTextField, PACKAGE);
+        resetSetting(packageSpecTextField, PACKAGE_SPEC);
+        resetSetting(packageBodyTextField, PACKAGE_BODY);
+        resetSetting(typeTextField, TYPE);
+        resetSetting(typeSpecTextField, TYPE_SPEC);
+        resetSetting(typeBodyTextField, TYPE_BODY);
+        resetSetting(javaTextField, JAVA_SOURCE);
     }
 
     private void resetSetting(JTextField textField, DDLFileTypeId fileTypeId) {
-        textField.setText(getConfiguration().getFileType(fileTypeId).getExtensionsAsString());
+        textField.setText(getConfiguration().getFileType(fileTypeId).getNamePatternsAsString());
     }
 }

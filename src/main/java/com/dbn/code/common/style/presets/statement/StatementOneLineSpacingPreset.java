@@ -22,9 +22,11 @@ import com.intellij.formatting.Wrap;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class StatementOneLineSpacingPreset extends StatementAbstractPreset {
     public StatementOneLineSpacingPreset() {
-        super("one_line", "One line");
+        super("one_line", txt("cfg.codeStyle.const.CodeStylePreset_ONE_LINE"));
     }
 
     @Override

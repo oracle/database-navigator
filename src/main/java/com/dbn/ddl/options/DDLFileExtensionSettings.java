@@ -33,26 +33,29 @@ import java.util.List;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
+import static com.dbn.ddl.DDLFileType.toFileNamePattern;
 import static com.dbn.editor.DBContentType.CODE;
 import static com.dbn.editor.DBContentType.CODE_BODY;
 import static com.dbn.editor.DBContentType.CODE_SPEC;
 import static com.dbn.editor.DBContentType.CODE_SPEC_AND_BODY;
+import static com.dbn.nls.NlsResources.txt;
+import static java.util.Collections.singletonList;
 
 @Getter
 public class DDLFileExtensionSettings extends BasicProjectConfiguration<DDLFileSettings, DDLFileExtensionSettingsForm> {
 
     private final List<DDLFileType> fileTypes = Arrays.asList(
-            new DDLFileType(DDLFileTypeId.VIEW, "DDL File - View", "vw", SQLFileType.INSTANCE, CODE),
-            new DDLFileType(DDLFileTypeId.TRIGGER, "DDL File - Trigger", "trg", PSQLFileType.INSTANCE, CODE),
-            new DDLFileType(DDLFileTypeId.PROCEDURE, "DDL File - Procedure", "prc", PSQLFileType.INSTANCE, CODE),
-            new DDLFileType(DDLFileTypeId.FUNCTION, "DDL File - Function", "fnc", PSQLFileType.INSTANCE, CODE),
-            new DDLFileType(DDLFileTypeId.PACKAGE, "DDL File - Package", "pkg", PSQLFileType.INSTANCE, CODE_SPEC_AND_BODY),
-            new DDLFileType(DDLFileTypeId.PACKAGE_SPEC, "DDL File - Package Spec", "pks", PSQLFileType.INSTANCE, CODE_SPEC),
-            new DDLFileType(DDLFileTypeId.PACKAGE_BODY, "DDL File - Package Body", "pkb", PSQLFileType.INSTANCE, CODE_BODY),
-            new DDLFileType(DDLFileTypeId.TYPE, "DDL File - Type", "tpe", PSQLFileType.INSTANCE, CODE_SPEC_AND_BODY),
-            new DDLFileType(DDLFileTypeId.TYPE_SPEC, "DDL File - Type Spec", "tps", PSQLFileType.INSTANCE, CODE_SPEC),
-            new DDLFileType(DDLFileTypeId.TYPE_BODY, "DDL File - Type Body", "tpb", PSQLFileType.INSTANCE, CODE_BODY),
-            new DDLFileType(DDLFileTypeId.JAVA_SOURCE, "DDL File - Java Source", "sql", SQLFileType.INSTANCE, CODE)
+            new DDLFileType(DDLFileTypeId.VIEW, txt("app.ddlFiles.const.DDLFileType_VIEW"), "vw", SQLFileType.INSTANCE, CODE),
+            new DDLFileType(DDLFileTypeId.TRIGGER, txt("app.ddlFiles.const.DDLFileType_TRIGGER"), "trg", PSQLFileType.INSTANCE, CODE),
+            new DDLFileType(DDLFileTypeId.PROCEDURE, txt("app.ddlFiles.const.DDLFileType_PROCEDURE"), "prc", PSQLFileType.INSTANCE, CODE),
+            new DDLFileType(DDLFileTypeId.FUNCTION, txt("app.ddlFiles.const.DDLFileType_FUNCTION"), "fnc", PSQLFileType.INSTANCE, CODE),
+            new DDLFileType(DDLFileTypeId.PACKAGE, txt("app.ddlFiles.const.DDLFileType_PACKAGE"), "pkg", PSQLFileType.INSTANCE, CODE_SPEC_AND_BODY),
+            new DDLFileType(DDLFileTypeId.PACKAGE_SPEC, txt("app.ddlFiles.const.DDLFileType_PACKAGE_SPEC"), "pks", PSQLFileType.INSTANCE, CODE_SPEC),
+            new DDLFileType(DDLFileTypeId.PACKAGE_BODY, txt("app.ddlFiles.const.DDLFileType_PACKAGE_BODY"), "pkb", PSQLFileType.INSTANCE, CODE_BODY),
+            new DDLFileType(DDLFileTypeId.TYPE, txt("app.ddlFiles.const.DDLFileType_TYPE"), "tpe", PSQLFileType.INSTANCE, CODE_SPEC_AND_BODY),
+            new DDLFileType(DDLFileTypeId.TYPE_SPEC, txt("app.ddlFiles.const.DDLFileType_TYPE_SPEC"), "tps", PSQLFileType.INSTANCE, CODE_SPEC),
+            new DDLFileType(DDLFileTypeId.TYPE_BODY, txt("app.ddlFiles.const.DDLFileType_TYPE_BODY"), "tpb", PSQLFileType.INSTANCE, CODE_BODY),
+            new DDLFileType(DDLFileTypeId.JAVA_SOURCE, txt("app.ddlFiles.const.DDLFileType_JAVA_SOURCE"), "sql", SQLFileType.INSTANCE, CODE)
     );
 
     DDLFileExtensionSettings(DDLFileSettings parent) {
@@ -61,7 +64,7 @@ public class DDLFileExtensionSettings extends BasicProjectConfiguration<DDLFileS
 
     @Override
     public String getDisplayName() {
-        return txt("cfg.ddlFiles.title.DdlFileExtensionSettings");
+        return txt("cfg.ddlFiles.title.DdlFileNamePatternSettings");
     }
 
     public DDLFileType getFileType(DDLFileTypeId fileTypeId) {
@@ -73,9 +76,9 @@ public class DDLFileExtensionSettings extends BasicProjectConfiguration<DDLFileS
         return null;
     }
 
-    public DDLFileType getFileTypeForExtension(String extension) {
+    public DDLFileType getFileTypeForFileName(String fileName) {
         for (DDLFileType fileType : fileTypes) {
-            if (fileType.getExtensions().contains(extension)) {
+            if (fileType.matchesFileName(fileName)) {
                 return fileType;
             }
         }
@@ -100,11 +103,19 @@ public class DDLFileExtensionSettings extends BasicProjectConfiguration<DDLFileS
     public void readConfiguration(Element element) {
         for (Element child : element.getChildren()) {
             DDLFileTypeId fileTypeId = enumAttribute(child, "file-type-id", DDLFileTypeId.class);
+            String namePatterns = child.getAttributeValue("file-name-patterns");
             String extensions = child.getAttributeValue("extensions");
 
             DDLFileType fileType = getFileType(fileTypeId);
-            List<String> tokens = Strings.tokenize(extensions, ",");
-            fileType.setExtensions(tokens);
+            if (fileType == null) continue;
+
+            List<String> tokens = namePatterns == null ?
+                    Strings.tokenize(extensions, ",").stream().map(e -> toFileNamePattern(e)).toList() :
+                    Strings.tokenize(namePatterns, ",");
+            if (tokens.isEmpty()) {
+                tokens = singletonList(toFileNamePattern(fileType.getDefaultExtension()));
+            }
+            fileType.setNamePatterns(tokens);
         }
     }
 
@@ -113,8 +124,8 @@ public class DDLFileExtensionSettings extends BasicProjectConfiguration<DDLFileS
         for (DDLFileType fileType : fileTypes) {
             Element fileTypeElement = newElement(element, "mapping");
             setEnumAttribute(fileTypeElement, "file-type-id", fileType.getId());
-            String extensions = Strings.concatenate(fileType.getExtensions(), ",");
-            fileTypeElement.setAttribute("extensions", extensions);
+            String fileNamePatterns = Strings.concatenate(fileType.getNamePatterns(), ",");
+            fileTypeElement.setAttribute("file-name-patterns", fileNamePatterns);
         }
     }
 }

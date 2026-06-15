@@ -12,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import static com.dbn.nls.NlsResources.txt;
+
 final class DBFileAccessProvider extends WritingAccessProvider {
     private final ProjectRef project;
 
@@ -27,6 +29,6 @@ final class DBFileAccessProvider extends WritingAccessProvider {
 
     @Override
     public @NotNull @Nls(capitalization = Nls.Capitalization.Sentence) String getReadOnlyMessage() {
-        return "This content is readonly";
+        return txt("app.vfs.message.ReadonlyContent");
     }
 }

@@ -32,6 +32,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ParserDiagnosticsRunAction extends AbstractParserDiagnosticsAction {
 
+    public ParserDiagnosticsRunAction() {
+        super(txt("app.diagnostics.action.ParserDiagnosticsRun"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ParserDiagnosticsForm form) {
         Progress.prompt(project, null, true,

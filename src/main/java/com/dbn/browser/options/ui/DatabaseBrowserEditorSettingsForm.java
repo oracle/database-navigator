@@ -44,6 +44,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<DatabaseBrowserEditorSettings> {
     private JPanel mainPanel;
@@ -60,7 +61,7 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
 
     @Override
     protected void initAccessibility() {
-        Accessibility.setAccessibleName(editorTypeTable, "Default editor types");
+        Accessibility.setAccessibleName(editorTypeTable, txt("cfg.browser.aria.DefaultEditorTypes"));
     }
 
     @Override
@@ -104,11 +105,11 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
                     DefaultEditorType editorType = (DefaultEditorType) value;
 
                     append(editorType.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                    setAccessibleDescription(this, "Press space key to change the default editor type");
+                    setAccessibleDescription(this, txt("cfg.browser.aria.ChangeDefaultEditorTypeHint"));
                 }
             });
 
-            Tables.attachValueSelector(this, 1, "Editor Type", DefaultEditorType.values());
+            Tables.attachValueSelector(this, 1, txt("cfg.browser.title.EditorType"), DefaultEditorType.values());
         }
 
         @Override
@@ -144,8 +145,8 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
         @Override
         public String getColumnName(int columnIndex) {
             return switch (columnIndex) {
-                case 0 -> "Object Type";
-                case 1 -> "Default Editor";
+                case 0 -> txt("cfg.browser.column.ObjectType");
+                case 1 -> txt("cfg.browser.column.DefaultEditor");
                 default -> null;
             };
         }

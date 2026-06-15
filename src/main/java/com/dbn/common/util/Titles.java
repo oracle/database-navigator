@@ -19,6 +19,8 @@ package com.dbn.common.util;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.connection.session.DatabaseSession;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
+import com.intellij.openapi.util.NlsContexts.ProgressTitle;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -37,12 +39,12 @@ public final class Titles {
     public static final String PRODUCT_NAME = "DB Navigator";
     public static final String TITLE_PREFIX = PRODUCT_NAME + " - ";
 
-    public static String signed(String title) {
+    public static @DialogTitle String signed(@DialogTitle String title) {
         if (title.startsWith(TITLE_PREFIX)) return title;
         return TITLE_PREFIX + title;
     }
 
-    public static String suffixed(String title, @Nullable DatabaseContext databaseContext) {
+    public static @ProgressTitle String suffixed(@ProgressTitle String title, @Nullable DatabaseContext databaseContext) {
         if (databaseContext == null) return title;
 
         ConnectionHandler connection = silent(null, () -> databaseContext.getConnection());
@@ -56,7 +58,7 @@ public final class Titles {
         return title + " (" + session + ")";
     }
 
-    public static String prefixed(String title, @Nullable DatabaseContext databaseContext) {
+    public static @DialogTitle String prefixed(@DialogTitle String title, @Nullable DatabaseContext databaseContext) {
         if (databaseContext == null) return title;
 
         ConnectionHandler connection = databaseContext.getConnection();

@@ -1,0 +1,40 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="ko">
+<head>
+    <title>데이터 소스</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+    </style>
+</head>
+<body style="width: 300px">
+    <h3>데이터 소스</h3>
+    <p>벡터 임베딩 생성에 사용되는 데이터 소스입니다. 콘텐츠를 로드할 위치를 선택하세요.</p>
+    <br>
+    <p>지원되는 소스:</p>
+    <ul>
+        <li><u>파일 시스템</u> – 로컬 파일 시스템에서 하나 이상의 파일 선택</li>
+        <li><u>데이터베이스 테이블</u> – 하나 이상의 데이터베이스 테이블 지정</li>
+        <li><u>SELECT 문장</u> – 임베딩할 텍스트 콘텐츠를 반환하는 SELECT 문장 제공</li>
+    </ul>
+</body>
+</html>
+

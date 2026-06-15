@@ -27,6 +27,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class GenericAssistantContextActionsForm extends AssistantDetailFormBase implements AssistantContextActionsForm {
@@ -45,7 +46,7 @@ public class GenericAssistantContextActionsForm extends AssistantDetailFormBase 
     }
 
     private void createActionPanel() {
-        ActionToolbar contextActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.GenericAssistantContextActions");
+        ActionToolbar contextActions = Actions.createActionToolbar(actionsPanel, true, "DBN.Assistant.Generic.Context");
         setAccessibleName(contextActions, txt("app.assistant.aria.ChatProfileActions"));
         this.actionsPanel.add(contextActions.getComponent());
     }

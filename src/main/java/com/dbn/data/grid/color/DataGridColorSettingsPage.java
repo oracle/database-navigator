@@ -85,7 +85,7 @@ public class DataGridColorSettingsPage implements ColorSettingsPage {
     @NotNull
     @Override
     public String getDisplayName() {
-        return "Data Grid (DBN)";
+        return txt("cfg.dataEditor.title.DataGridColorSettings");
     }
 
     @Override

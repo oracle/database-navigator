@@ -47,6 +47,7 @@ import java.util.EventObject;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.ClientProperty.DATA_TYPE_RELEVANT;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SessionBrowserTable extends ResultSetTable<SessionBrowserModel> {
     private final WeakRef<SessionBrowser> sessionBrowser;
@@ -65,7 +66,7 @@ public class SessionBrowserTable extends ResultSetTable<SessionBrowserModel> {
         ActionUtil.registerDataProvider(this, dataProvider, false);
         ActionUtil.registerDataProvider(getTableHeader(), dataProvider, false);
 */
-        setAccessibleName(this, "Session Browser");
+        setAccessibleName(this, txt("app.sessionBrowser.aria.SessionBrowser"));
 
         // addons
         installMathAddon();
