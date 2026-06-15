@@ -20,8 +20,10 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ParametersTest {
 
@@ -154,5 +156,28 @@ public class ParametersTest {
 
         // Assert
         assertEquals("?key1=value1", result);
+    }
+
+    @Test
+    public void testSanitizeParameters() {
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("key1", "value1");
+        parameters.put("key2", "\"quoted value\"");
+        parameters.put("key3", "\"not allowed quoted value\"");
+        parameters.put("key4&injected=true", "value4");
+        parameters.put("key5", "value5&injected=true");
+        parameters.put("unknown", "value");
+
+        Map<String, String> result = Parameters.sanitizeParameters(
+                parameters,
+                Set.of("key1", "key2", "key3", "key4", "key5"),
+                Set.of("key2"));
+
+        assertEquals("value1", result.get("key1"));
+        assertEquals("\"quoted value\"", result.get("key2"));
+        assertNull(result.get("key3"));
+        assertNull(result.get("key4&injected=true"));
+        assertNull(result.get("key5"));
+        assertNull(result.get("unknown"));
     }
 }

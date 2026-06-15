@@ -18,10 +18,15 @@ package com.dbn.common.util;
 
 import lombok.experimental.UtilityClass;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.common.util.Strings.trim;
+import static java.util.Collections.emptySet;
 
 /**
  * Utility class providing methods for working with HTTP-like query parameters.
@@ -32,6 +37,9 @@ import static com.dbn.common.util.Strings.isEmpty;
  */
 @UtilityClass
 public class Parameters {
+
+    private static final Set<Character> PARAMETER_NAME_DELIMITERS = Set.of('?', '&', '=', '"', ' ', '\t', '\r', '\n');
+    private static final Set<Character> PARAMETER_VALUE_DELIMITERS = Set.of('?', '&');
 
     /**
      * Converts a map of key-value pairs into a query parameter string.
@@ -56,6 +64,57 @@ public class Parameters {
         }
 
         return builder.toString();
+    }
+
+    /**
+     * Returns a sanitized copy of parameters, excluding unknown parameter names and
+     * key/value pairs that can introduce additional URL query tokens.
+     */
+    public static Map<String, String> sanitizeParameters(
+            Map<String, String> parameters,
+            Collection<String> allowedParameterNames,
+            Collection<String> quotedParameterNames) {
+        Map<String, String> sanitizedParameters = new LinkedHashMap<>();
+        if (parameters == null) return sanitizedParameters;
+        if (allowedParameterNames == null) return sanitizedParameters;
+
+        Collection<String> quoteAllowedParameterNames = quotedParameterNames == null ? emptySet() : quotedParameterNames;
+
+        parameters.forEach((key, value) -> {
+            String parameterName = trim(key);
+            String parameterValue = trim(value);
+            if (!isValidParameterName(parameterName, allowedParameterNames)) return;
+            if (!isValidParameterValue(parameterName, parameterValue, quoteAllowedParameterNames)) return;
+
+            sanitizedParameters.put(parameterName, parameterValue);
+        });
+        return sanitizedParameters;
+    }
+
+    private static boolean isValidParameterName(String name, Collection<String> allowedParameterNames) {
+        if (isEmpty(name)) return false;
+        if (!allowedParameterNames.contains(name)) return false;
+        if (containsAny(name, PARAMETER_NAME_DELIMITERS)) return false;
+
+        return true;
+    }
+
+    private static boolean isValidParameterValue(String name, String value, Collection<String> quotedParameterNames) {
+        if (isEmpty(value)) return false;
+        if (containsAny(value, PARAMETER_VALUE_DELIMITERS)) return false;
+        if (!value.contains("\"")) return true;
+
+        return quotedParameterNames.contains(name) &&
+                value.startsWith("\"") &&
+                value.endsWith("\"") &&
+                value.indexOf('"', 1) == value.length() - 1;
+    }
+
+    private static boolean containsAny(String value, Set<Character> characters) {
+        for (Character character : characters) {
+            if (value.indexOf(character) > -1) return true;
+        }
+        return false;
     }
 
     /**
