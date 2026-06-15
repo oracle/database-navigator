@@ -26,7 +26,6 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
-import com.dbn.ml.backend.dbms.DBMSAlgorithmType;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.model.MLResult;
@@ -73,10 +72,14 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     private com.intellij.ui.SimpleColoredComponent metricsSummary;
     private DBNScrollPane contentScrollPane;
     private JPanel contentPanel;
+    private JPanel alertsPanel;
     private JPanel metricsCardsPanel;
     private JPanel confusionMatrixPanel;
     private JPanel perClassPanel;
     private JPanel modelDetailsPanel;
+    private JPanel variableImportancePanel;
+    private JPanel algorithmDetailsPanel;
+    private JPanel modelInsightsPanel;
     private JPanel modelViewsPanel;
 
     // Data
@@ -94,8 +97,16 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         initializeConfusionMatrix();
         initializePerClassMetrics();
         initializeModelDetails();
+        hideDetailedModelPanels();
         initializeModelViews();
         createActionsPanel();
+    }
+
+    private void hideDetailedModelPanels() {
+        alertsPanel.setVisible(false);
+        variableImportancePanel.setVisible(false);
+        algorithmDetailsPanel.setVisible(false);
+        modelInsightsPanel.setVisible(false);
     }
 
     private void createActionsPanel() {
@@ -347,84 +358,52 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
 
         ConnectionHandler connection = modelHandle.getConnection();
         Project project = connection.getProject();
+        List<String> modelViews = loadModelViewNames(connection, modelName);
+        if (modelViews.isEmpty()) {
+            JLabel emptyLabel = new JLabel("No model detail views found yet. Refresh the connection and try again.");
+            emptyLabel.setForeground(JBColor.gray);
+            linksPanel.add(emptyLabel);
+        } else {
+            for (String viewName : modelViews) {
+                JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
+                row.setOpaque(false);
 
-        for (String[] entry : getModelViewEntries()) {
-            String viewName = "DM$V" + entry[0] + modelName;
-            String description = entry[1];
+                DBNHyperlinkLabel link = new DBNHyperlinkLabel();
+                link.setIcon(Icons.DBO_VIEW);
+                link.setHyperlinkText(viewName);
+                link.addHyperlinkListener(e -> openView(project, connection, viewName));
 
-            JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
-            row.setOpaque(false);
-
-            DBNHyperlinkLabel link = new DBNHyperlinkLabel();
-            link.setIcon(Icons.DBO_VIEW);
-            link.setHyperlinkText(viewName);
-            link.addHyperlinkListener(e -> openView(project, connection, viewName));
-
-            JLabel desc = new JLabel("— " + description);
-            desc.setForeground(JBColor.gray);
-            desc.setFont(desc.getFont().deriveFont(11f));
-
-            row.add(link);
-            row.add(desc);
-            linksPanel.add(row);
+                row.add(link);
+                linksPanel.add(row);
+            }
         }
 
         modelViewsPanel.add(linksPanel, BorderLayout.CENTER);
     }
 
-    private List<String[]> getModelViewEntries() {
-        // Universal views — created for every model, all algorithms
-        List<String[]> views = new ArrayList<>();
-        views.add(new String[]{"G", "Global Statistics"});
-        views.add(new String[]{"S", "Computed Settings"});
-        views.add(new String[]{"W", "Build Alerts"});
+    private List<String> loadModelViewNames(ConnectionHandler connection, String modelName) {
+        DBSchema schema = connection.getUserSchema();
+        if (schema == null || modelName == null || modelName.isBlank()) return List.of();
 
-        // Classification adds target class distribution
-        if (result.isClassification()) {
-            views.add(new String[]{"T", "Target Map"});
-        }
+        String normalizedModelName = modelName.toUpperCase();
+        List<String> names = new ArrayList<>();
 
-        // Algorithm-specific views
-        DBMSAlgorithmType algorithmType = null;
-        try { algorithmType = DBMSAlgorithmType.fromDisplayName(result.getAlgorithmName()); }
-        catch (Exception e) { log.debug("Failed to resolve algorithm type for '{}'", result.getAlgorithmName(), e); }
+        try {
+            for (DBView view : schema.getViews()) {
+                String viewName = view.getName();
+                if (viewName == null) continue;
 
-        if (algorithmType != null) {
-            switch (algorithmType) {
-                case RANDOM_FOREST ->
-                        // ADP has no effect on Random Forest — no DM$VN
-                        views.add(new String[]{"A", "Variable Importance"});
-                case DECISION_TREE -> {
-                    // ADP has no effect on Decision Tree — no DM$VN
-                    views.add(new String[]{"P", "Node Split Hierarchy"});
-                    views.add(new String[]{"I", "Node Statistics"});
+                String normalizedViewName = viewName.toUpperCase();
+                if (normalizedViewName.startsWith("DM$V") && normalizedViewName.endsWith(normalizedModelName)) {
+                    names.add(viewName);
                 }
-                case LOGISTIC_REGRESSION, LINEAR_REGRESSION -> {
-                    views.add(new String[]{"N", "Normalization & Missing Value Handling"});
-                    views.add(new String[]{"D", "GLM Coefficients"});
-                    views.add(new String[]{"A", "Row Diagnostics"});
-                }
-                case SVM_CLASSIFICATION, SVM_REGRESSION -> {
-                    views.add(new String[]{"N", "Normalization & Missing Value Handling"});
-                    views.add(new String[]{"L", "SVM Linear Coefficients"});
-                }
-                case NAIVE_BAYES -> {
-                    // ADP bins Naive Bayes data — DM$VB is present
-                    views.add(new String[]{"B", "Binning Boundaries"});
-                    views.add(new String[]{"P", "Class Priors"});
-                    views.add(new String[]{"V", "Conditional Probabilities"});
-                }
-                case NEURAL_NETWORK_CLASSIFICATION, NEURAL_NETWORK_REGRESSION -> {
-                    views.add(new String[]{"N", "Normalization & Missing Value Handling"});
-                    views.add(new String[]{"A", "Neuron Weights"});
-                }
-                case XGBOOST_CLASSIFICATION, XGBOOST_REGRESSION ->
-                        // ADP has no effect on XGBoost — no DM$VN
-                        views.add(new String[]{"I", "Attribute Importance"});
-                default -> {}
             }
+            names.sort(String.CASE_INSENSITIVE_ORDER);
+        } catch (Exception e) {
+            log.debug("Failed to load model detail views for model '{}'", modelName, e);
         }
-        return views;
+
+        return names;
     }
 
     private void openView(Project project, ConnectionHandler connection, String viewName) {

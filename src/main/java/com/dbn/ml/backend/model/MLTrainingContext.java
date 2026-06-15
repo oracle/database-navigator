@@ -53,6 +53,12 @@ public class MLTrainingContext {
     /** Training start timestamp */
     private long trainingStartTime;
 
+    /** Scheduler job name for async training submissions. */
+    private String schedulerJobName;
+
+    /** Target model name generated for async training submissions. */
+    private String modelName;
+
     // ==================== DBMS-Specific State ====================
 
     /** Schema name for staging table (DBMS backend only) */

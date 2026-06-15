@@ -226,8 +226,75 @@ public class DBMSBackend {
                 connection.getConnectionId(),
                 conn -> connection.getInterfaces().getMachineLearningInterface().submitTrainingJob(conn, jobName, jobAction));
 
+        context.setSchedulerJobName(jobName);
+        context.setModelName(modelName);
+
         log.info("Training job {} submitted for model: {}", jobName, modelName);
         return modelName;
+    }
+
+    public String getSchedulerJobState(String jobName) throws SQLException {
+        return DatabaseInterfaceInvoker.load(Priority.LOW,
+                getProject(),
+                connection.getConnectionId(),
+                conn -> connection.getInterfaces().getMachineLearningInterface().getSchedulerJobState(conn, jobName));
+    }
+
+    public String getSchedulerJobRunStatus(String jobName) throws SQLException {
+        return DatabaseInterfaceInvoker.load(Priority.LOW,
+                getProject(),
+                connection.getConnectionId(),
+                conn -> connection.getInterfaces().getMachineLearningInterface().getSchedulerJobRunStatus(conn, jobName));
+    }
+
+    public void dropSchedulerJob(String jobName) throws SQLException {
+        DatabaseInterfaceInvoker.execute(Priority.LOW,
+                getProject(),
+                connection.getConnectionId(),
+                conn -> connection.getInterfaces().getMachineLearningInterface().dropSchedulerJob(conn, jobName));
+    }
+
+    public DBMSModelHandle loadModelHandle(MLTrainingContext context, String modelName) throws SQLException {
+        String trainTableName = context.getTrainTableName();
+        String testTableName = context.getTestTableName();
+        String settingsTableName = context.getSettingsTableName();
+
+        if (trainTableName == null || testTableName == null || settingsTableName == null) {
+            throw new IllegalStateException("Training context is missing async table references");
+        }
+
+        Integer classCount = null;
+        Integer outputDimensions = null;
+        List<String> classValues = null;
+
+        if (context.getTaskType() == MLTaskType.CLASSIFICATION) {
+            String targetColumn = context.getFeatureConfig().getLabelColumns().get(0);
+            classValues = getClassValues(trainTableName, targetColumn);
+            classCount = classValues != null ? classValues.size() : 0;
+        } else {
+            outputDimensions = 1;
+        }
+
+        MLModelMetadata metadata = MLModelMetadata.builder()
+                .featureNames(context.getFeatureConfig().getFeatureColumns())
+                .labelNames(context.getFeatureConfig().getLabelColumns())
+                .algorithmName(context.getAlgorithmName())
+                .classCount(classCount)
+                .outputDimensions(outputDimensions)
+                .build();
+
+        DBMSModelHandle modelHandle = new DBMSModelHandle(
+                modelName,
+                connection,
+                context.getTaskType(),
+                metadata,
+                trainTableName,
+                settingsTableName
+        );
+
+        modelHandle.setTestTableName(testTableName);
+        modelHandle.setClassValues(classValues);
+        return modelHandle;
     }
 
     public DBMSEvaluationResult evaluate(DBMSModelHandle modelHandle, MLTrainingContext context) throws Exception {

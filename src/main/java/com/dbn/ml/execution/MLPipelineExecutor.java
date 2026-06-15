@@ -21,18 +21,16 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.DBView;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.ml.backend.dbms.DBMSAlgorithmType;
 import com.dbn.ml.backend.dbms.DBMSBackend;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.backend.model.MLTrainingContext;
-import com.dbn.ml.model.MLModelDetails;
 import com.dbn.ml.model.*;
-import com.dbn.ml.model.source.MLSourceConfig;
 import com.dbn.ml.model.source.MLSourceNames;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Executes ML training pipeline using Oracle DBMS_DATA_MINING.
@@ -53,54 +51,11 @@ public class MLPipelineExecutor {
     public MLResult execute(MLRequest request, ConnectionHandler connectionHandler) throws Exception {
         MLTrainingContext context = buildContext(request);
         DBMSBackend backend = new DBMSBackend(connectionHandler);
-
-        MLResult result = new MLResult();
-        result.setTaskType(context.getTaskType());
-        result.setConnection(context.getConnection());
-        result.setAlgorithmName(context.getAlgorithmName());
-
         long startTime = System.currentTimeMillis();
 
         try {
             DBMSModelHandle modelHandle = backend.train(context);
-            result.setModelHandle(modelHandle);
-          System.out.println("bug12");
-            // Oracle creates DM$V* views when a model is trained — reload schema views so they appear in the browser
-            DBSchema schema = connectionHandler.getUserSchema();
-            if (schema != null) {
-                DBObjectList<DBView> viewList = schema.getChildObjectList(DBObjectType.VIEW);
-                if (viewList != null) viewList.reloadInBackground();
-            }
-
-            DBMSEvaluationResult evaluation = backend.evaluate(modelHandle, context);
-            result.setEvaluationResult(evaluation);
-
-            // Load model detail views (universal + algorithm-specific)
-            DBMSAlgorithmType algorithmType = resolveAlgorithmType(context.getAlgorithmName());
-            result.setModelDetails(backend.loadModelDetails(modelHandle.getModelName(), algorithmType));
-
-            result.setTrainingDataSize(context.getTrainingDataSize());
-            result.setTestingDataSize(context.getTestingDataSize());
-            result.setFeatureCount(request.getFeatureConfig().getFeatureColumns().size());
-
-            if (context.getTaskType() == MLTaskType.CLASSIFICATION) {
-                result.setClassCount(modelHandle.getMetadata().getClassCount());
-            } else {
-                result.setOutputDimensions(modelHandle.getMetadata().getOutputDimensions());
-            }
-
-            result.setFeatureColumns(new ArrayList<>(request.getFeatureConfig().getFeatureColumns()));
-
-            if (context.getTaskType() == MLTaskType.CLASSIFICATION) {
-                result.setLabelColumn(request.getFeatureConfig().getLabelColumn());
-            } else {
-                result.setLabelColumns(new ArrayList<>(request.getFeatureConfig().getLabelColumns()));
-            }
-
-            result.setSourceName(extractSourceName(request));
-            result.setTrainingTimeMs(System.currentTimeMillis() - startTime);
-
-            return result;
+            return buildResult(request, connectionHandler, context, backend, modelHandle, startTime);
 
         } finally {
             try {
@@ -119,20 +74,94 @@ public class MLPipelineExecutor {
      * Prepares training data and submits CREATE_MODEL as an Oracle Scheduler job.
      * Returns the model name. Training continues on the DB server — client can disconnect.
      */
-    public String submitAsync(MLRequest request, ConnectionHandler connectionHandler) throws Exception {
+    public MLTrainingJobSubmission submitAsync(MLRequest request, ConnectionHandler connectionHandler) throws Exception {
         MLTrainingContext context = buildContext(request);
         DBMSBackend backend = new DBMSBackend(connectionHandler);
-        return backend.submitAsync(context);
+        String modelName = backend.submitAsync(context);
+        String jobName = Objects.requireNonNullElse(context.getSchedulerJobName(), "");
+        return new MLTrainingJobSubmission(modelName, jobName, context);
     }
 
-    private DBMSAlgorithmType resolveAlgorithmType(String algorithmName) {
-        if (algorithmName == null) return null;
+    public MLResult completeAsync(MLTrainingJobSubmission submission, ConnectionHandler connectionHandler) throws Exception {
+        MLTrainingContext context = submission.getContext();
+        DBMSBackend backend = new DBMSBackend(connectionHandler);
+
+        long startTime = context.getTrainingStartTime() > 0
+                ? context.getTrainingStartTime()
+                : System.currentTimeMillis();
+
         try {
-            return DBMSAlgorithmType.fromDisplayName(algorithmName);
-        } catch (IllegalArgumentException e) {
-            log.warn("Could not resolve algorithm type for: {}", algorithmName);
-            return null;
+            DBMSModelHandle modelHandle = backend.loadModelHandle(context, submission.getModelName());
+            return buildResult(context.getRequest(), connectionHandler, context, backend, modelHandle, startTime);
+        } finally {
+            try {
+                backend.cleanup(context);
+            } catch (Exception e) {
+                log.warn("Failed to cleanup backend resources", e);
+            }
         }
+    }
+
+    public String getSchedulerJobState(ConnectionHandler connectionHandler, String jobName) throws Exception {
+        DBMSBackend backend = new DBMSBackend(connectionHandler);
+        return backend.getSchedulerJobState(jobName);
+    }
+
+    public String getSchedulerJobRunStatus(ConnectionHandler connectionHandler, String jobName) throws Exception {
+        DBMSBackend backend = new DBMSBackend(connectionHandler);
+        return backend.getSchedulerJobRunStatus(jobName);
+    }
+
+    public void dropSchedulerJob(ConnectionHandler connectionHandler, String jobName) throws Exception {
+        DBMSBackend backend = new DBMSBackend(connectionHandler);
+        backend.dropSchedulerJob(jobName);
+    }
+
+    private MLResult buildResult(
+            MLRequest request,
+            ConnectionHandler connectionHandler,
+            MLTrainingContext context,
+            DBMSBackend backend,
+            DBMSModelHandle modelHandle,
+            long startTime) throws Exception {
+
+        MLResult result = new MLResult();
+        result.setTaskType(context.getTaskType());
+        result.setConnection(context.getConnection());
+        result.setAlgorithmName(context.getAlgorithmName());
+        result.setModelHandle(modelHandle);
+
+        // Oracle creates DM$V* views when a model is trained - reload schema views so they appear in the browser.
+        DBSchema schema = connectionHandler.getUserSchema();
+        if (schema != null) {
+            DBObjectList<DBView> viewList = schema.getChildObjectList(DBObjectType.VIEW);
+            if (viewList != null) viewList.reloadInBackground();
+        }
+
+        DBMSEvaluationResult evaluation = backend.evaluate(modelHandle, context);
+        result.setEvaluationResult(evaluation);
+
+        result.setTrainingDataSize(context.getTrainingDataSize());
+        result.setTestingDataSize(context.getTestingDataSize());
+        result.setFeatureCount(request.getFeatureConfig().getFeatureColumns().size());
+
+        if (context.getTaskType() == MLTaskType.CLASSIFICATION) {
+            result.setClassCount(modelHandle.getMetadata().getClassCount());
+        } else {
+            result.setOutputDimensions(modelHandle.getMetadata().getOutputDimensions());
+        }
+
+        result.setFeatureColumns(new ArrayList<>(request.getFeatureConfig().getFeatureColumns()));
+
+        if (context.getTaskType() == MLTaskType.CLASSIFICATION) {
+            result.setLabelColumn(request.getFeatureConfig().getLabelColumn());
+        } else {
+            result.setLabelColumns(new ArrayList<>(request.getFeatureConfig().getLabelColumns()));
+        }
+
+        result.setSourceName(extractSourceName(request));
+        result.setTrainingTimeMs(System.currentTimeMillis() - startTime);
+        return result;
     }
 
     private MLTrainingContext buildContext(MLRequest request) {
