@@ -163,26 +163,9 @@ public class EasyConnectParameters {
     public static Map<String, String> ensureParametersIfEasyConnect(Map<String,String> parameters, DatabaseProtocol protocol, DatabaseUrlType urlType, boolean escapeQuotes) {
         Map<String, String> copyOfParameters = new HashMap<>(parameters);
         if (urlType == EZCONNECT) {
-            return ensureQuoted(excludeInvalidInTCP(copyOfParameters, protocol), escapeQuotes);
+            return ensureQuoted(sanitizeParameters(copyOfParameters, protocol), escapeQuotes);
         }
         return copyOfParameters;
-    }
-
-    /**
-     * Removes TCPS-only parameters when the protocol is not TCPS.
-     *
-     * @param parameters parameter values to modify
-     * @param protocol database protocol controlling whether TCPS-only parameters are retained
-     * @return the supplied parameter map with invalid-for-protocol entries removed
-     */
-    public static Map<String, String> excludeInvalidInTCP(Map<String, String> parameters, DatabaseProtocol protocol) {
-        TCPS_ONLY_PARAMETER_NAMES.forEach(key -> {
-            if (protocol != DatabaseProtocol.TCPS) {
-                parameters.remove(key);
-            }
-        });
-
-        return parameters;
     }
 
     /**
