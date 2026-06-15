@@ -30,7 +30,6 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -40,6 +39,9 @@ import java.sql.Time;
 import java.sql.Timestamp;
 
 import static com.dbn.common.util.Unsafe.silent;
+import static com.dbn.connection.ResultSets.getColumnValue;
+import static com.dbn.connection.ResultSets.updateColumnValue;
+import static com.dbn.connection.Statements.setParameterValue;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -92,21 +94,7 @@ public class DBNativeDataType extends StatefulDisposableBase implements DynamicC
                 return parseAdapter.parse(stringValue);
             }
 
-            return
-                    clazz == String.class ? resultSet.getString(columnIndex) :
-                    clazz == Byte.class ? resultSet.getByte(columnIndex) :
-                    clazz == Short.class ? resultSet.getShort(columnIndex) :
-                    clazz == Integer.class ? resultSet.getInt(columnIndex) :
-                    clazz == Long.class ? resultSet.getLong(columnIndex) :
-                    clazz == Float.class ? resultSet.getFloat(columnIndex) :
-                    clazz == Double.class ? resultSet.getDouble(columnIndex) :
-                    clazz == BigDecimal.class ? resultSet.getBigDecimal(columnIndex) :
-                    clazz == Date.class ? resultSet.getDate(columnIndex) :
-                    clazz == Time.class ? resultSet.getTime(columnIndex) :
-                    clazz == Timestamp.class ? resultSet.getTimestamp(columnIndex) :
-                    clazz == Boolean.class ? resultSet.getBoolean(columnIndex) :
-                    //clazz == Array.class ? resultSet.getArray(columnIndex) :
-                            resultSet.getObject(columnIndex);
+            return getColumnValue(resultSet, columnIndex, clazz);
         } catch (Throwable e) {
             conditionallyLog(e);
             return silent(null, () -> resolveConversionFailure(resultSet, columnIndex, clazz, e));
@@ -167,27 +155,11 @@ public class DBNativeDataType extends StatefulDisposableBase implements DynamicC
         if (genericDataType == GenericDataType.ARRAY) return;
 
         if (value == null) {
-            resultSet.updateObject(columnIndex, null);
+            updateColumnValue(resultSet, columnIndex, null);
         } else {
             Class clazz = definition.getTypeClass();
-            if (value.getClass().isAssignableFrom(clazz)) {
-                if(clazz == String.class) resultSet.updateString(columnIndex, (String) value); else
-                if(clazz == Byte.class) resultSet.updateByte(columnIndex, (Byte) value); else
-                if(clazz == Short.class) resultSet.updateShort(columnIndex, (Short) value); else
-                if(clazz == Integer.class) resultSet.updateInt(columnIndex, (Integer) value); else
-                if(clazz == Long.class) resultSet.updateLong(columnIndex, (Long) value); else
-                if(clazz == Float.class) resultSet.updateFloat(columnIndex, (Float) value); else
-                if(clazz == Double.class) resultSet.updateDouble(columnIndex, (Double) value); else
-                if(clazz == BigDecimal.class) resultSet.updateBigDecimal(columnIndex, (BigDecimal) value); else
-                if(clazz == Date.class) resultSet.updateDate(columnIndex, (Date) value); else
-                if(clazz == Time.class) resultSet.updateTime(columnIndex, (Time) value); else
-                if(clazz == Timestamp.class) resultSet.updateTimestamp(columnIndex, (Timestamp) value); else
-                if(clazz == Boolean.class) resultSet.updateBoolean(columnIndex, (Boolean) value); else
-                //if(clazz == Array.class) resultSet.updateArray(columnIndex, (Array) value); else
-                        resultSet.updateObject(columnIndex, value);
-            } else {
-                throw new SQLException("Can not convert \"" + value + "\" into " + definition.getName());
-            }
+            Object typedValue = convertValue(value, clazz);
+            updateColumnValue(resultSet, columnIndex, typedValue, clazz);
         }
     }
 
@@ -219,27 +191,25 @@ public class DBNativeDataType extends StatefulDisposableBase implements DynamicC
         }
 
         if (value == null) {
-            statement.setObject(parameterIndex, null);
+            setParameterValue(statement, parameterIndex, null);
         } else {
             Class clazz = definition.getTypeClass();
-            if (value.getClass().isAssignableFrom(clazz)) {
-                if(clazz == String.class) statement.setString(parameterIndex, (String) value); else
-                if(clazz == Byte.class) statement.setByte(parameterIndex, (Byte) value); else
-                if(clazz == Short.class) statement.setShort(parameterIndex, (Short) value); else
-                if(clazz == Integer.class) statement.setInt(parameterIndex, (Integer) value); else
-                if(clazz == Long.class) statement.setLong(parameterIndex, (Long) value); else
-                if(clazz == Float.class) statement.setFloat(parameterIndex, (Float) value); else
-                if(clazz == Double.class) statement.setDouble(parameterIndex, (Double) value); else
-                if(clazz == BigDecimal.class) statement.setBigDecimal(parameterIndex, (BigDecimal) value); else
-                if(clazz == Date.class) statement.setDate(parameterIndex, (Date) value); else
-                if(clazz == Time.class) statement.setTime(parameterIndex, (Time) value); else
-                if(clazz == Timestamp.class) statement.setTimestamp(parameterIndex, (Timestamp) value); else
-                if(clazz == Boolean.class) statement.setBoolean(parameterIndex, (Boolean) value); else
-                        statement.setObject(parameterIndex, value);
-            } else {
-                throw new SQLException("Can not convert \"" + value + "\" into " + definition.getName());
-            }
+            Object typedValue = convertValue(value, clazz);
+            setParameterValue(statement, parameterIndex, typedValue, clazz);
         }
+    }
+
+    private Object convertValue(Object value, Class clazz) throws SQLException {
+        if (clazz.isAssignableFrom(value.getClass())) return value;
+
+        try {
+            Object convertedValue = definition.convert(value);
+            if (convertedValue == null || clazz.isAssignableFrom(convertedValue.getClass())) return convertedValue;
+        } catch (Throwable e) {
+            throw new SQLException("Can not convert \"" + value + "\" into " + definition.getName(), e);
+        }
+
+        throw new SQLException("Can not convert \"" + value + "\" into " + definition.getName());
     }
 
     public int getSqlType(){

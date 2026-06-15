@@ -1,0 +1,39 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="es">
+<head><title>Conflicto del plugin Oracle© Database Navigator</title></head>
+<body style="${REGULAR_FONT_STYLE}">
+<span style="font-size: 1.1em;">Conflicto del plugin Oracle© Database Navigator</span><br>
+<ul>
+    <li><b>Oracle© Database Navigator</b> (DBN) - plugin de base de datos Oracle©</li>
+    <li><b>Database Tools and SQL</b> - plugin incluido con JetBrains</li>
+</ul>
+<u>DBN</u> detectó que el plugin
+<u>Database Tools and SQL</u> también está instalado.
+Ambos plugins proporcionan funcionalidad de base de datos similar. Tener ambos plugins instalados puede generar
+una experiencia de usuario ambigua y a veces conflictiva.<br><br>
+
+<u>DBN</u> no es un producto complementario de <u>Database Tools and SQL</u>,
+y los dos plugins no se integran entre sí.
+
+<br><br>
+Elija cómo debe continuar DBN.
+<br>
+<br>
+</body>
+</html>
+

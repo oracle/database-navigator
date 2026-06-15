@@ -29,6 +29,7 @@ import com.intellij.xdebugger.frame.XValueNode;
 import com.intellij.xdebugger.frame.XValuePlace;
 import com.intellij.xdebugger.frame.presentation.XNumericValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XStringValuePresentation;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
@@ -59,11 +60,9 @@ public class DBJdbcDebuggerEvaluator extends DBDebuggerEvaluator<DBJdbcDebugStac
             DBNConnection conn = debugProcess.getDebuggerConnection();
             DatabaseDebuggerInterface debuggerInterface = debugProcess.getDebuggerInterface();
 
-            VariableInfo variableInfo = debuggerInterface.getVariableInfo(dbVariableName, frameIndex, conn);
-            if (variableInfo.getError() != null && frameIndex > 0) {
-                // TODO why is the variable lookup not following the "one based" frame indexing?
-                variableInfo = debuggerInterface.getVariableInfo(dbVariableName, frameIndex - 1, conn);
-            }
+            DBJdbcDebugStackFrame frame = getFrame();
+            VariableInfo variableInfo = frame.getVariableInfo(dbVariableName,
+                    n -> loadVariableInfo(n, debuggerInterface, frameIndex, conn));
 
             String value = variableInfo.getValue();
             String type = variableInfo.getError();
@@ -85,6 +84,16 @@ public class DBJdbcDebuggerEvaluator extends DBDebuggerEvaluator<DBJdbcDebugStac
         } finally {
             updateValuePresentation(debugValue, node);
         }
+    }
+
+    @SneakyThrows
+    private static VariableInfo loadVariableInfo(String variableName, DatabaseDebuggerInterface debuggerInterface, int frameIndex, DBNConnection conn) {
+        VariableInfo variableInfo = debuggerInterface.getVariableInfo(variableName, frameIndex, conn);
+        if (variableInfo.getError() != null && frameIndex > 0) {
+            // TODO why is the variable lookup not following the "one based" frame indexing?
+            variableInfo = loadVariableInfo(variableName, debuggerInterface, frameIndex - 1, conn);
+        }
+        return variableInfo;
     }
 
     private static void updateValuePresentation(@NotNull DBJdbcDebugValue debugValue, @NotNull XValueNode node) {

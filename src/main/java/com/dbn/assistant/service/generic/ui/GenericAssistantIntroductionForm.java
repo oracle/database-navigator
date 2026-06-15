@@ -77,7 +77,7 @@ public class GenericAssistantIntroductionForm extends AssistantDetailFormBase im
 
     @SneakyThrows
     private TextContent loadIntroContent() {
-        String content = TextResources.get(this, "intro_content.html.ft");
+        String content = TextResources.getLocalizable(this, "intro_content.html.ft");
         return TextContent.html(content);
     }
 

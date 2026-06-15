@@ -156,7 +156,7 @@
                       </hspacer>
                     </children>
                   </grid>
-                  <grid id="b8556" binding="formatPanel" layout-manager="GridLayoutManager" row-count="10" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                  <grid id="b8556" binding="formatPanel" layout-manager="GridLayoutManager" row-count="11" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="4" left="4" bottom="4" right="4"/>
                     <constraints>
                       <grid row="0" column="1" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -166,7 +166,7 @@
                     <children>
                       <vspacer id="17e52">
                         <constraints>
-                          <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                          <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                         </constraints>
                       </vspacer>
                       <component id="7cfb8" class="javax.swing.JRadioButton" binding="formatSQLRadioButton">
@@ -175,7 +175,7 @@
                         </constraints>
                         <properties>
                           <margin top="0" left="0" bottom="0" right="0"/>
-                          <text resource-bundle="messages/DBNResources" key="app.data.label.SQLScriptInsertStatements"/>
+                          <text resource-bundle="messages/DBNResources" key="app.data.label.ExportFormat_SQL"/>
                         </properties>
                       </component>
                       <component id="9d2fc" class="javax.swing.JRadioButton" binding="formatHTMLRadioButton">
@@ -184,7 +184,7 @@
                         </constraints>
                         <properties>
                           <margin top="0" left="0" bottom="0" right="0"/>
-                          <text resource-bundle="messages/DBNResources" key="app.data.label.HTML"/>
+                          <text resource-bundle="messages/DBNResources" key="app.data.label.ExportFormat_HTML"/>
                         </properties>
                       </component>
                       <component id="37f79" class="javax.swing.JRadioButton" binding="formatXMLRadioButton">
@@ -193,58 +193,58 @@
                         </constraints>
                         <properties>
                           <margin top="0" left="0" bottom="0" right="0"/>
-                          <text resource-bundle="messages/DBNResources" key="app.data.label.XML"/>
+                          <text resource-bundle="messages/DBNResources" key="app.data.label.ExportFormat_XML"/>
                         </properties>
                       </component>
-                      <component id="f6316" class="javax.swing.JRadioButton" binding="formatJiraRadioButton">
+                      <component id="f6317" class="javax.swing.JRadioButton" binding="formatMarkdownRadioButton">
                         <constraints>
                           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties>
                           <margin top="0" left="0" bottom="0" right="0"/>
-                          <text resource-bundle="messages/DBNResources" key="app.data.label.JIRAMarkup"/>
+                          <text resource-bundle="messages/DBNResources" key="app.data.label.ExportFormat_MARKDOWN"/>
                         </properties>
                       </component>
                       <component id="e4493" class="javax.swing.JRadioButton" binding="formatExcelRadioButton">
-                        <constraints>
-                          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <margin top="0" left="0" bottom="0" right="0"/>
-                          <text resource-bundle="messages/DBNResources" key="app.data.label.MicrosoftExcel"/>
-                        </properties>
-                      </component>
-                      <component id="8d63c" class="javax.swing.JRadioButton" binding="formatExcelXRadioButton">
                         <constraints>
                           <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties>
                           <margin top="0" left="0" bottom="0" right="0"/>
-                          <text resource-bundle="messages/DBNResources" key="app.data.label.MicrosoftExcel2007Xlsx"/>
+                          <text resource-bundle="messages/DBNResources" key="app.data.label.ExportFormat_EXCEL"/>
                         </properties>
                       </component>
-                      <component id="7fbcf" class="javax.swing.JRadioButton" binding="formatCSVRadioButton">
+                      <component id="8d63c" class="javax.swing.JRadioButton" binding="formatExcelXRadioButton">
                         <constraints>
                           <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties>
                           <margin top="0" left="0" bottom="0" right="0"/>
-                          <text resource-bundle="messages/DBNResources" key="app.data.label.CommaSeparatedValues"/>
+                          <text resource-bundle="messages/DBNResources" key="app.data.label.ExportFormat_EXCELX"/>
                         </properties>
                       </component>
-                      <component id="5cb26" class="javax.swing.JRadioButton" binding="formatCustomRadioButton">
+                      <component id="7fbcf" class="javax.swing.JRadioButton" binding="formatCSVRadioButton">
                         <constraints>
                           <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties>
                           <margin top="0" left="0" bottom="0" right="0"/>
-                          <text resource-bundle="messages/DBNResources" key="app.data.label.Custom"/>
+                          <text resource-bundle="messages/DBNResources" key="app.data.label.ExportFormat_CSV"/>
+                        </properties>
+                      </component>
+                      <component id="5cb26" class="javax.swing.JRadioButton" binding="formatCustomRadioButton">
+                        <constraints>
+                          <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <margin top="0" left="0" bottom="0" right="0"/>
+                          <text resource-bundle="messages/DBNResources" key="app.data.label.ExportFormat_CUSTOM"/>
                         </properties>
                       </component>
                       <grid id="1e86e" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                         <margin top="0" left="0" bottom="0" right="0"/>
                         <constraints>
-                          <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                          <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties/>
                         <border type="none"/>
@@ -286,6 +286,15 @@
                           </hspacer>
                         </children>
                       </grid>
+                      <component id="f6316" class="javax.swing.JRadioButton" binding="formatJiraRadioButton">
+                        <constraints>
+                          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <margin top="0" left="0" bottom="0" right="0"/>
+                          <text resource-bundle="messages/DBNResources" key="app.data.label.ExportFormat_JIRA"/>
+                        </properties>
+                      </component>
                     </children>
                   </grid>
                   <grid id="e78d" binding="destinationPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -412,6 +421,7 @@
       <member id="8d63c"/>
       <member id="7fbcf"/>
       <member id="5cb26"/>
+      <member id="f6317"/>
     </group>
     <group name="scopeButtonGroup">
       <member id="ac713"/>

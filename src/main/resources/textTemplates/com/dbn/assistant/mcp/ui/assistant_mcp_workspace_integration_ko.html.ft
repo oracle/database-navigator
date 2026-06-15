@@ -1,0 +1,22 @@
+<html lang="ko">
+<head>
+    <title>작업공간 통합</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body>
+    <strong>MCP Server 플러그인을 통한 작업공간 통합</strong><br><br>
+
+    이 기능은 <a href="https://plugins.jetbrains.com/plugin/26071-mcp-server">JetBrains MCP Server</a> 플러그인을 사용하여 DB Assistant를 작업공간과 더 긴밀하게 통합합니다.
+
+    <br><br>
+    플러그인이 설치되어 있고 서버가 활성화되어 있는지 확인하세요<br>
+</body>
+</html>
+

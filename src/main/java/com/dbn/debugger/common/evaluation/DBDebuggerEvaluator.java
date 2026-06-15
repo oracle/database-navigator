@@ -31,9 +31,11 @@ import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
 import com.intellij.xdebugger.frame.XValueNode;
 import com.intellij.xdebugger.frame.XValuePlace;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@Getter
 public abstract class DBDebuggerEvaluator<F extends DBDebugStackFrame<? extends DBDebugProcess, V>, V extends DBDebugValue> extends XDebuggerEvaluator {
     private final F frame;
 

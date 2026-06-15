@@ -209,7 +209,7 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
 
 
     private void createActionsPanel() {
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.MethodExecutionResult");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBN.Execution.Method.Result");
         setAccessibleName(actionToolbar, txt("app.execution.aria.MethodExecutionResultActions"));
         actionsPanel.add(actionToolbar.getComponent());
     }

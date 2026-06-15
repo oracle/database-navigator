@@ -1,0 +1,45 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="es">
+<head>
+    <title>Tabla de staging</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body style="width: 300px">
+    <h3>Ubicación de staging</h3>
+    <p>
+        El contenido de archivos se sube a una tabla de staging antes de generar chunks y embeddings.
+    </p>
+    <br>
+    <p>La tabla de staging tiene la siguiente estructura:</p>
+    <ul>
+        <li><code>ID</code> – Identificador único del contenido del archivo</li>
+        <li><code>FILE_CONTENT (BLOB)</code> – Contenido del archivo</li>
+        <li><code>FILE_SIZE</code> – Tamaño del archivo en bytes</li>
+        <li><code>FILE_HASH</code> – Firma única del contenido</li>
+        <li><code>METADATA (JSON)</code> – Metadatos sobre la subida en formato JSON</li>
+    </ul>
+</body>
+</html>
+

@@ -88,7 +88,7 @@ public class VectorSearchForm extends DBNFormBase {
     }
 
     private void initActionToolbar() {
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.VectorSearchConsole");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.Vector.Search");
         setAccessibleName(actionToolbar, txt("app.vectors.aria.VectorSearchActions"));
 
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);

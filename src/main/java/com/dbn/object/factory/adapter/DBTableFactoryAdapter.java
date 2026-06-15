@@ -30,7 +30,6 @@ import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
 import com.dbn.object.factory.ui.DBTableFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
-import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -59,7 +58,7 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     @Override
-    public void validateInput(DBObjectSpec tableSpec, List<@Nls String> errors) {
+    public void validateInput(DBObjectSpec tableSpec, List<String> errors) {
         String objectName = tableSpec.getObjectName();
         DBObjectType objectType = tableSpec.getObjectType();
 

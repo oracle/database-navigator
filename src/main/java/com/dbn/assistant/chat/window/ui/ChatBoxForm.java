@@ -211,7 +211,7 @@ public class ChatBoxForm extends DBNFormBase {
         this.contextActionsPanel.add(contextActionsForm.getComponent());
 
         // top right
-        ActionToolbar chatActions = Actions.createActionToolbar(chatActionsPanel, true, "DBNavigator.ActionGroup.AssistantChatActions");
+        ActionToolbar chatActions = Actions.createActionToolbar(chatActionsPanel, true, "DBN.Assistant.Chat");
         this.chatActionsPanel.add(chatActions.getComponent());
 
         // bottom left
@@ -219,7 +219,7 @@ public class ChatBoxForm extends DBNFormBase {
         this.promptActionsPanel.add(promptActionsForm.getComponent());
 
         // submit prompt actions (bottom right)
-        ActionToolbar promptSubmitActions = Actions.createActionToolbar(promptSubmitActionsPanel, true, "DBNavigator.ActionGroup.AssistantPromptSubmitActions");
+        ActionToolbar promptSubmitActions = Actions.createActionToolbar(promptSubmitActionsPanel, true, "DBN.Assistant.Prompt.Submit");
         setAccessibleName(promptSubmitActions, txt("app.assistant.aria.ChatActions"));
         this.promptSubmitActionsPanel.add(promptSubmitActions.getComponent());
 

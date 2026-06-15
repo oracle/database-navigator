@@ -1,0 +1,32 @@
+<html lang="fr">
+<head><title>DB Assistant - Public LLM Chat</title></head>
+<body style="${REGULAR_FONT_STYLE}">
+<div style="${REGULAR_LARGE_FONT_STYLE}">
+    <b>Assistant IA avec intégration de base de données</b><br>
+</div>
+Obtenez de l’aide en langage naturel pour votre base de données, votre espace de travail et diverses tâches de développement.<br><br>
+DB Assistant est un compagnon de développement logiciel alimenté par l’IA, intégré à votre espace de travail et à votre base de données.<br>
+Il peut vous aider dans de nombreuses tâches, par exemple comprendre la structure de votre base de données,
+analyser du code de base de données, identifier des blocs de code pertinents, générer et optimiser du code SQL et PL/SQL,
+et vous assister avec les autres langages de programmation utilisés dans votre espace de travail.
+
+<br>
+<br>
+<br>
+<u>Avant de commencer</u><br><br>
+Avant d’utiliser DB Assistant, vérifiez les prérequis suivants :
+<ul>
+    <li><b>Accès réseau</b> - Configurez vos paramètres réseau pour permettre une communication sécurisée avec le point de terminaison API du fournisseur LLM choisi (Paramètres système > Proxy HTTP).</li>
+    <li><b>Identifiants API</b> - Saisissez les clés API du fournisseur LLM sélectionné (par exemple OpenAI, Cohere, Anthropic ou une autre API publique prise en charge).</li>
+    <li><b>Profils IA</b> - Créez des profils IA personnalisés pour adapter le comportement du modèle de langage, par exemple en ajustant l’équilibre entre objectivité et créativité ou en ajoutant des instructions spécifiques.</li>
+</ul>
+Pour des instructions détaillées de configuration, consultez la documentation Oracle® Database Navigator.
+
+<br>
+<br>
+<br>
+<b>Remarque</b><br>
+Il s’agit d’une fonctionnalité expérimentale. La précision des résultats peut varier selon le modèle de langage sélectionné, vos droits d’accès à la base de données et d’autres facteurs.
+Vérifiez soigneusement les résultats et signalez tout problème à l’équipe de développement Oracle® Database Navigator afin d’aider à améliorer cette fonctionnalité.
+</body>
+</html>

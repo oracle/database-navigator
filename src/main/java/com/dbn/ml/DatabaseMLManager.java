@@ -53,7 +53,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.constantAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @State(
@@ -93,8 +97,8 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
         } catch (Exception e) {
             Messages.showErrorDialog(
                 getProject(),
-                "ML Toolbox Error",
-                "Failed to open ML Toolbox: " + e.getMessage()
+                txt("msg.machineLearning.title.MLToolboxError"),
+                txt("msg.machineLearning.error.MLToolboxOpenFailed", e.getMessage())
             );
             log.warn("Failed to open ML Toolbox", e);
         }
@@ -281,7 +285,7 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
     private void showResultInExecutionManager(MLResult result) {
         ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
         Set<String> existingNames = executionManager.getExecutionResultNames(MLExecutionResult.class);
-        String name = Naming.nextNumberedIdentifier("ML Training Result", true, () -> existingNames);
+        String name = Naming.nextNumberedIdentifier(txt("app.machineLearning.title.MLTrainingResult"), true, () -> existingNames);
         MLExecutionResult executionResult = new MLExecutionResult(result, name);
         executionManager.addExecutionResult(executionResult);
     }

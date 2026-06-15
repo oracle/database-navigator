@@ -28,7 +28,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
-import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.dbn.oci.config.ui.OciConfigForm;
 import com.intellij.ui.components.JBPasswordField;
@@ -49,6 +48,8 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.PasswordFields.getPassword;
+import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
@@ -187,7 +188,7 @@ public class AssistantCredentialEditForm extends DBNFormBase {
     public void applyFormChanges() {
         credential.setName(getText(nameTextField));
         credential.setUser(getText(userTextField));
-        credential.setSecret(secretTextField.getPassword());
+        credential.setSecret(getPassword(secretTextField, credential.getSecret()));
         ociConfigForm.applyFormChanges();
 
         AIProvider provider = getSelectedProvider();
@@ -197,7 +198,7 @@ public class AssistantCredentialEditForm extends DBNFormBase {
     public void resetFormChanges() {
         setText(nameTextField, credential.getName());
         setText(userTextField, credential.getUser());
-        setText(secretTextField, Chars.toString(credential.getSecret()));
+        setPassword(secretTextField, credential.getSecret());
         ociConfigForm.resetFormChanges();
 
         AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, credential.getProviderId());

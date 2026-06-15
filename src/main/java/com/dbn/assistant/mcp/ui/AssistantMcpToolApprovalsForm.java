@@ -144,7 +144,7 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
     }
 
     private void initHintPanel() {
-        String hintContent = TextResources.get(AssistantMcpToolApprovalsForm.class, "assistant_mcp_tool_approval.html.ft");
+        String hintContent = TextResources.getLocalizable(AssistantMcpToolApprovalsForm.class, "assistant_mcp_tool_approval.html.ft");
         TextContent hintText = TextContent.html(hintContent);
         hintText.initField("MCP_SERVER_NAME", mcpServer.getName());
         hintText.initFonts();

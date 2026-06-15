@@ -1,0 +1,42 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="ja">
+<head>
+    <title>Chunking構成</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body style="width: 300px">
+    <h3>Chunking構成</h3>
+    <p>Chunkingは、Vector embeddingの前に、大きなテキストを小さな断片に分割する方法を制御します。</p>
+    <br>
+    <p>Chunkingパラメータ:</p>
+    <ul>
+        <li><u>Chunk by</u> - テキストをChunkに分割する方法を決定する方式</li>
+        <li><u>Split by</u> - Chunkサイズ調整の前にテキストを分割する区切り文字またはルール</li>
+        <li><u>Max size</u> - 各Chunkに含めることができる最大の "Chunk by" 単位数</li>
+        <li><u>Overlap</u> - 境界をまたいでコンテキストを保持するため、連続するChunk間で共有するコンテンツ量</li>
+    </ul>
+</body>
+</html>
+

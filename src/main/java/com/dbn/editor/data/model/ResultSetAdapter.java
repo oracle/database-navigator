@@ -19,7 +19,6 @@ package com.dbn.editor.data.model;
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ResultSets;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.data.type.DBDataType;
 import com.dbn.data.value.ValueAdapter;
@@ -33,7 +32,7 @@ import java.sql.SQLException;
 
 @Getter
 @Setter
-public abstract class ResultSetAdapter<T extends ResultSetDataModel> extends ResultSets implements StatefulDisposable {
+public abstract class ResultSetAdapter<T extends ResultSetDataModel> extends ResultSetSupport implements StatefulDisposable {
     private final boolean useSavePoints;
     private boolean insertMode;
     private final WeakRef<T> model;
