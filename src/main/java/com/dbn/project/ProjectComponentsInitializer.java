@@ -48,6 +48,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.state.StateEncryption.requestUnencryptedStateApproval;
 
 /**
  * TODO SERVICES
@@ -109,5 +110,7 @@ public class ProjectComponentsInitializer extends ProjectComponentBase implement
         DatabasePrerequisiteManager.getInstance(project);
         EventNotificationManager.getInstance(project);
         initialized = true;
+
+        requestUnencryptedStateApproval();
     }
 }

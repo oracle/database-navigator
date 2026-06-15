@@ -27,6 +27,7 @@ import com.dbn.language.common.psi.ExecVariablePsiElement;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.ParseException;
@@ -35,7 +36,9 @@ import java.util.StringTokenizer;
 
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.readSensitiveData;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.options.setting.Settings.writeSensitiveData;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.statement.variables.VariableNames.adjust;
@@ -44,6 +47,8 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 @Setter
 public class StatementExecutionVariable extends VariableValueProvider implements Comparable<StatementExecutionVariable>, PersistentStateElement {
+    private static final @NonNls String DATA_FLAVOR = "execution.statement.variable";
+
     private int offset;
     private String name;
     private GenericDataType dataType;
@@ -170,7 +175,10 @@ public class StatementExecutionVariable extends VariableValueProvider implements
         if (dataType == null) enumAttribute(element, "dataType", GenericDataType.class);
 
         for (Element child : element.getChildren()) {
-            valueHistory.add(child.getText());
+            String value = readSensitiveData(child, DATA_FLAVOR);
+            if (value == null) continue;
+
+            valueHistory.add(value);
         }
 
         // TODO cleanup - attribute values backward compatibility;
@@ -193,7 +201,7 @@ public class StatementExecutionVariable extends VariableValueProvider implements
             if (Strings.isEmpty(value)) continue;
 
             Element valueElement = newElement(element, "value");
-            valueElement.addContent(value);
+            writeSensitiveData(valueElement, DATA_FLAVOR, value);
         }
     }
 

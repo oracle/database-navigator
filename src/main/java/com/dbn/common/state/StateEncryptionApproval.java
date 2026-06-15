@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-/**
- * User approval infrastructure for operations that require an explicit
- * user decision before they may proceed.
- * <p>
- * Domain objects mark themselves as {@link com.dbn.common.approval.UserApprovable}
- * or {@link com.dbn.common.approval.ProjectUserApprovable} and provide approval metadata through a registered
- * {@link com.dbn.common.approval.UserApprovalAdapter}. The
- * {@link com.dbn.common.approval.UserApprovalManager} owns the persisted and
- * temporary approval keys.
- */
-package com.dbn.common.approval;
+package com.dbn.common.state;
+
+import com.dbn.common.approval.UserApprovable;
+
+public final class StateEncryptionApproval implements UserApprovable {
+    static final StateEncryptionApproval INSTANCE = new StateEncryptionApproval();
+
+    private StateEncryptionApproval() {}
+
+    @Override
+    public boolean isAcknowledged() {
+        return false;
+    }
+}

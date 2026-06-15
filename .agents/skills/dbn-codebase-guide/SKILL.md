@@ -54,3 +54,4 @@ Use this map as a source-discovery starting point. Package roots are not exhaust
 - For localization/NLS work, use `dbn-localization-guide`.
 - Do not hold strong references to long-lived project, connection, object, or UI objects when nearby code uses `ProjectRef`, `ConnectionRef`, `DBObjectRef`, or `WeakRef`.
 - Do not use raw background, dispatch, progress, or write-action APIs without checking DBN wrappers first.
+- When intentionally handling an exception silently, still call `Diagnostics.conditionallyLog(exception)` unless nearby code clearly uses a different DBN diagnostic helper.

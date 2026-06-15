@@ -19,28 +19,32 @@ package com.dbn.execution.common.input;
 import com.dbn.common.list.MostRecentStack;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
-import com.dbn.common.util.Strings;
 import com.dbn.execution.ExecutionInputMode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.readCdata;
+import static com.dbn.common.options.setting.Settings.readSensitiveData;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.options.setting.Settings.writeCdata;
+import static com.dbn.common.options.setting.Settings.writeSensitiveData;
+import static com.dbn.common.util.Strings.isEmpty;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class ExecutionVariable implements PersistentStateElement, Cloneable<ExecutionVariable>, ValueHolder<String> {
+    private static final @NonNls String VALUE_DATA_FLAVOR = "execution.variable.value";
+    private static final @NonNls String EXPRESSION_DATA_FLAVOR = "execution.variable.expression";
+
     private String path;
     private ExecutionInputMode mode = ExecutionInputMode.FIELDS;
     private MostRecentStack<String> valueHistory = new MostRecentStack<>();
@@ -100,15 +104,15 @@ public class ExecutionVariable implements PersistentStateElement, Cloneable<Exec
         List<String> expressions = new ArrayList<>();
 
         for (Element valueElement : element.getChildren("value")) {
-            String value = readCdata(valueElement);
-            if (Strings.isNotEmpty(value)) {
+            String value = readSensitiveData(valueElement, VALUE_DATA_FLAVOR);
+            if (value != null) {
                 values.add(value);
             }
         }
 
         for (Element exprElement : element.getChildren("expression")) {
-            String expr = readCdata(exprElement);
-            if (Strings.isNotEmpty(expr)) {
+            String expr = readSensitiveData(exprElement, EXPRESSION_DATA_FLAVOR);
+            if (expr != null) {
                 expressions.add(expr);
             }
         }
@@ -122,12 +126,16 @@ public class ExecutionVariable implements PersistentStateElement, Cloneable<Exec
         setStringAttribute(element, "path", path);
         setEnumAttribute(element, "mode", mode);
         for (String value : valueHistory) {
+            if (isEmpty(value)) continue;
+
             Element valueElement = newElement(element, "value");
-            writeCdata(valueElement, value, true);
+            writeSensitiveData(valueElement, VALUE_DATA_FLAVOR, value);
         }
         for (String expr : expressionHistory) {
+            if (isEmpty(expr)) continue;
+
             Element exprElement = newElement(element, "expression");
-            writeCdata(exprElement, expr, true);
+            writeSensitiveData(exprElement, EXPRESSION_DATA_FLAVOR, expr);
         }
     }
 

@@ -66,6 +66,11 @@
 - When background work updates UI, run the compute phase in `Background`/`Progress`, then update UI through `Dispatch`.
 - Always consider cancellation and disposed projects before doing expensive database or UI work.
 
+## Exceptions And Diagnostics
+
+- When an exception is intentionally handled without user-visible reporting, still call `Diagnostics.conditionallyLog(exception)` unless adjacent code uses a more specific DBN diagnostic helper.
+- Keep cancellation handling quiet for users, but preserve diagnostic logging for troubleshooting.
+
 ## UI Forms, Dialogs, And Actions
 
 - Use `DBNDialog<F extends DBNForm>` for modal dialogs and implement `createForm()` plus `initializeActions()`.

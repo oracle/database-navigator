@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-/**
- * User approval infrastructure for operations that require an explicit
- * user decision before they may proceed.
- * <p>
- * Domain objects mark themselves as {@link com.dbn.common.approval.UserApprovable}
- * or {@link com.dbn.common.approval.ProjectUserApprovable} and provide approval metadata through a registered
- * {@link com.dbn.common.approval.UserApprovalAdapter}. The
- * {@link com.dbn.common.approval.UserApprovalManager} owns the persisted and
- * temporary approval keys.
- */
 package com.dbn.common.approval;
+
+import com.dbn.common.project.ProjectRef;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
+
+public abstract class ProjectUserApprovable implements UserApprovable {
+    private final ProjectRef project;
+
+    protected ProjectUserApprovable(@NotNull Project project) {
+        this.project = ProjectRef.of(project);
+    }
+
+    @NotNull
+    public Project getProject() {
+        return project.ensure();
+    }
+}

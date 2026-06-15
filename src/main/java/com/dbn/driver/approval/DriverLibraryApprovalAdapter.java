@@ -67,7 +67,7 @@ public class DriverLibraryApprovalAdapter implements UserApprovalAdapter<DriverL
 
     @Override
     @Nullable
-    public Duration getRejectionCooldown(DriverLibraryApproval approvable) {
+    public Duration getRejectionCooldown(DriverLibraryApproval approvable, int option) {
         return Duration.ofSeconds(10);
     }
 }

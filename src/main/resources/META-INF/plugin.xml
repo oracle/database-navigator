@@ -337,6 +337,7 @@
 
         <!--user approval adapters-->
         <userApprovalAdapter implementation="com.dbn.assistant.mcp.AssistantMcpServerApprovalAdapter"/>
+        <userApprovalAdapter implementation="com.dbn.common.state.StateEncryptionApprovalAdapter"/>
         <userApprovalAdapter implementation="com.dbn.execution.script.CmdLineInterfaceApprovalAdapter"/>
         <userApprovalAdapter implementation="com.dbn.driver.approval.DriverLibraryApprovalAdapter"/>
 

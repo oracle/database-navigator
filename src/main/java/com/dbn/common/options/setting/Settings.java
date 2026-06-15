@@ -19,6 +19,9 @@ package com.dbn.common.options.setting;
 import com.dbn.common.constant.Constant;
 import com.dbn.common.constant.PseudoConstant;
 import com.dbn.common.data.Data;
+import com.dbn.common.state.StateEncryption;
+import com.dbn.common.state.StateEncryption.StoredValue;
+import com.dbn.common.state.StateEncryptionCache;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
@@ -273,6 +276,24 @@ public final class Settings {
         return builder.toString();
     }
 
+    @Nullable
+    public static String readSensitiveData(Element element, @NonNls String dataFlavor) {
+        return readSensitiveData(element, dataFlavor, null);
+    }
+
+    @Nullable
+    public static String readSensitiveData(Element element, @NonNls String dataFlavor, @Nullable StateEncryptionCache cache) {
+        String content = readCdata(element);
+        if (isEmpty(content)) return null;
+
+        boolean encrypted = booleanAttribute(element, "encrypted", false);
+        if (!encrypted) return content;
+
+        return cache == null ?
+                StateEncryption.decrypt(dataFlavor, content) :
+                cache.decrypt(dataFlavor, content);
+    }
+
     public static void writeCdata(Element element, @NonNls String content) {
         if (content == null) return;
         element.setContent(new CDATA(content));
@@ -285,6 +306,29 @@ public final class Settings {
         } else {
             element.setText(content);
         }
+    }
+
+    public static void writeSensitiveData(Element element, @NonNls String dataFlavor, @NonNls String content) {
+        writeSensitiveData(element, dataFlavor, content, null);
+    }
+
+    public static void writeSensitiveData(Element element, @NonNls String dataFlavor, @NonNls String content, @Nullable StateEncryptionCache cache) {
+        if (isEmpty(content)) {
+            setBooleanAttribute(element, "encrypted", false);
+            writeCdata(element, content, true);
+            return;
+        }
+
+        StoredValue storedValue = cache == null ?
+                StateEncryption.encrypt(dataFlavor, content) :
+                cache.encrypt(dataFlavor, content);
+
+        if (!storedValue.encrypted()) {
+            StateEncryption.requestUnencryptedStateApproval();
+        }
+
+        setBooleanAttribute(element, "encrypted", storedValue.encrypted());
+        writeCdata(element, storedValue.value(), true);
     }
 
     public static void setInteger(Element parent, @NonNls String childName, int value) {

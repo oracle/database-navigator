@@ -66,7 +66,7 @@ public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<As
 
     @Override
     @Nullable
-    public Duration getRejectionCooldown(AssistantMcpServer approvable) {
+    public Duration getRejectionCooldown(AssistantMcpServer approvable, int option) {
         return Duration.ofSeconds(10);
     }
 }
