@@ -17,19 +17,12 @@
 package com.dbn.connection.config.datasource.prerequisite;
 
 import com.dbn.prerequisite.definition.impl.ObjectPrivilegePrerequisite;
-import com.dbn.prerequisite.model.PrerequisiteType;
 
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_DATA_SOURCE_CONFIG;
-import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_DATA_SOURCE_CONFIG_ALT;
 
 public class ObjectPrivilege_EXECUTE_DBMS_DATA_SOURCE_CONFIG extends ObjectPrivilegePrerequisite {
 
     public ObjectPrivilege_EXECUTE_DBMS_DATA_SOURCE_CONFIG() {
         super(EXECUTE_DBMS_DATA_SOURCE_CONFIG, "EXECUTE", "SYS", "DBMS_DATA_SOURCE_CONFIG");
-    }
-
-    @Override
-    public PrerequisiteType getAlternativeType() {
-        return EXECUTE_DBMS_DATA_SOURCE_CONFIG_ALT;
     }
 }

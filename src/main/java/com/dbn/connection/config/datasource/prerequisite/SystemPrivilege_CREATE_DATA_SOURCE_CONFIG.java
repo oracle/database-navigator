@@ -16,13 +16,20 @@
 
 package com.dbn.connection.config.datasource.prerequisite;
 
-import com.dbn.prerequisite.definition.impl.ObjectPrivilegePrerequisite;
+import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
+import com.dbn.prerequisite.model.PrerequisiteType;
 
-import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_DATA_SOURCE_CONFIG_ALT;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_ANY_DATA_SOURCE_CONFIG;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_DATA_SOURCE_CONFIG;
 
-public class ObjectPrivilege_EXECUTE_DBMS_DATA_SOURCE_CONFIG_ALT extends ObjectPrivilegePrerequisite {
+public class SystemPrivilege_CREATE_DATA_SOURCE_CONFIG extends SystemPrivilegePrerequisite {
 
-    public ObjectPrivilege_EXECUTE_DBMS_DATA_SOURCE_CONFIG_ALT() {
-        super(EXECUTE_DBMS_DATA_SOURCE_CONFIG_ALT, "EXECUTE", "ORA$CONFIG_STORE_USER", "DBMS_DATA_SOURCE_CONFIG");
+    public SystemPrivilege_CREATE_DATA_SOURCE_CONFIG() {
+        super(CREATE_DATA_SOURCE_CONFIG, "CREATE DATA SOURCE CONFIG");
+    }
+
+    @Override
+    public PrerequisiteType getAlternativeType() {
+        return CREATE_ANY_DATA_SOURCE_CONFIG;
     }
 }

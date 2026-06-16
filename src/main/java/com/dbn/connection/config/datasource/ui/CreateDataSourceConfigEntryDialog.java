@@ -49,7 +49,11 @@ public class CreateDataSourceConfigEntryDialog extends DBNDialog<CreateDataSourc
 
     @Override
     protected void doOKAction() {
-        if (!getForm().createEntry()) return;
-        super.doOKAction();
+        getForm().createEntry(super::doOKAction);
+    }
+
+    void setActionsEnabled(boolean enabled) {
+        getOKAction().setEnabled(enabled);
+        getCancelAction().setEnabled(enabled);
     }
 }

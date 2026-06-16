@@ -16,6 +16,7 @@
 
 package com.dbn.connection.config.datasource.ui;
 
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -26,7 +27,6 @@ import com.dbn.common.util.Editors;
 import com.dbn.common.util.Json;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.config.datasource.model.DataSourceConfigRecord;
 import com.dbn.connection.config.datasource.service.DataSourceConfigStoreService;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
@@ -138,29 +138,51 @@ public class CreateDataSourceConfigEntryForm extends DBNFormBase {
         setStatus("Specify a key and JSON payload, then click Create.");
     }
 
-    boolean createEntry() {
+    void createEntry(Runnable onSuccess) {
+        CreateEntryInput input = readAndValidateInput();
+        if (input == null) return;
+
+        CreateDataSourceConfigEntryDialog dialog = ensureParentComponent();
+        dialog.setActionsEnabled(false);
+        setStatus("Creating '" + input.key() + "'...");
+
+        Dispatch.async(
+                mainPanel,
+                () -> createEntryInBackground(input),
+                result -> applyCreateResult(result, onSuccess));
+    }
+
+    private @Nullable CreateEntryInput readAndValidateInput() {
         String key = keyTextField.getText().trim();
         String value = readEditorText().trim();
 
-        if (!validateKey(key)) return false;
-        if (!validateJson(value)) return false;
+        if (!validateKey(key)) return null;
+        if (!validateJson(value)) return null;
+        return new CreateEntryInput(key, value);
+    }
 
+    private @NotNull CreateEntryResult createEntryInBackground(@NotNull CreateEntryInput input) {
         try {
-            if (entryExists(key)) {
-                Messages.showWarningDialog(getProject(), "Validation", "A configuration entry with key '" + key + "' already exists.");
-                return false;
-            }
-
-            setStatus("Creating '" + key + "'...");
-            service.insertRecord(connection, key, value);
-            reloadEntryList();
-            setStatus("Created '" + key + "'.");
-            return true;
+            service.insertRecord(connection, input.key(), input.value());
+            return CreateEntryResult.created(input.key());
         } catch (SQLException e) {
-            Messages.showErrorDialog(getProject(), "Failed to create configuration entry", e);
-            setStatus("Creation failed.");
-            return false;
+            return CreateEntryResult.failure(input.key(), e);
         }
+    }
+
+    private void applyCreateResult(@NotNull CreateEntryResult result, @NotNull Runnable onSuccess) {
+        CreateDataSourceConfigEntryDialog dialog = ensureParentComponent();
+        dialog.setActionsEnabled(true);
+
+        if (result.created()) {
+            reloadEntryList();
+            setStatus("Created '" + result.key() + "'.");
+            onSuccess.run();
+            return;
+        }
+
+        Messages.showErrorDialog(getProject(), "Failed to create configuration entry", result.exception());
+        setStatus("Creation failed.");
     }
 
     private boolean validateKey(@NotNull String key) {
@@ -197,11 +219,6 @@ public class CreateDataSourceConfigEntryForm extends DBNFormBase {
         }
     }
 
-    private boolean entryExists(@NotNull String key) throws SQLException {
-        DataSourceConfigRecord existing = service.loadRecord(connection, key);
-        return existing != null;
-    }
-
     private void reloadEntryList() {
         DBObjectList<?> objectList = connection.getObjectBundle().getObjectList(DBObjectType.DATA_SOURCE_CONFIG_ENTRY);
         if (objectList != null) {
@@ -228,5 +245,17 @@ public class CreateDataSourceConfigEntryForm extends DBNFormBase {
         Editors.releaseEditor(jsonEditor);
         jsonEditor = null;
         super.disposeInner();
+    }
+
+    private record CreateEntryInput(String key, String value) {}
+
+    private record CreateEntryResult(String key, @Nullable Exception exception, boolean created) {
+        private static @NotNull CreateEntryResult created(@NotNull String key) {
+            return new CreateEntryResult(key, null, true);
+        }
+
+        private static @NotNull CreateEntryResult failure(@NotNull String key, @NotNull Exception exception) {
+            return new CreateEntryResult(key, exception, false);
+        }
     }
 }

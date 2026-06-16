@@ -17,19 +17,12 @@
 package com.dbn.connection.config.datasource.prerequisite;
 
 import com.dbn.prerequisite.definition.impl.ObjectPrivilegePrerequisite;
-import com.dbn.prerequisite.model.PrerequisiteType;
 
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.SELECT_DATA_SOURCE_CONFIG_STORE;
-import static com.dbn.prerequisite.shared.PrerequisiteTypes.SELECT_DATA_SOURCE_CONFIG_STORE_ALT;
 
 public class ObjectPrivilege_SELECT_DATA_SOURCE_CONFIG_STORE extends ObjectPrivilegePrerequisite {
 
     public ObjectPrivilege_SELECT_DATA_SOURCE_CONFIG_STORE() {
         super(SELECT_DATA_SOURCE_CONFIG_STORE, "SELECT", "SYS", "DATA_SOURCE_CONFIG_STORE");
-    }
-
-    @Override
-    public PrerequisiteType getAlternativeType() {
-        return SELECT_DATA_SOURCE_CONFIG_STORE_ALT;
     }
 }
