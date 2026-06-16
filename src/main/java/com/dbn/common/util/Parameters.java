@@ -39,7 +39,7 @@ import static java.util.Collections.emptySet;
 public class Parameters {
 
     private static final Set<Character> PARAMETER_NAME_DELIMITERS = Set.of('?', '&', '=', '"', ' ', '\t', '\r', '\n');
-    private static final Set<Character> PARAMETER_VALUE_DELIMITERS = Set.of('?', '&');
+    private static final Set<Character> PARAMETER_VALUE_DELIMITERS = Set.of('?', '&', '=', '\r', '\n');
 
     /**
      * Converts a map of key-value pairs into a query parameter string.

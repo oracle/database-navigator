@@ -166,11 +166,14 @@ public class ParametersTest {
         parameters.put("key3", "\"not allowed quoted value\"");
         parameters.put("key4&injected=true", "value4");
         parameters.put("key5", "value5&injected=true");
+        parameters.put("key6", "value6=injected");
+        parameters.put("key7", "value7\rinjected");
+        parameters.put("key8", "value8\ninjected");
         parameters.put("unknown", "value");
 
         Map<String, String> result = Parameters.sanitizeParameters(
                 parameters,
-                Set.of("key1", "key2", "key3", "key4", "key5"),
+                Set.of("key1", "key2", "key3", "key4", "key5", "key6", "key7", "key8"),
                 Set.of("key2"));
 
         assertEquals("value1", result.get("key1"));
@@ -178,6 +181,9 @@ public class ParametersTest {
         assertNull(result.get("key3"));
         assertNull(result.get("key4&injected=true"));
         assertNull(result.get("key5"));
+        assertNull(result.get("key6"));
+        assertNull(result.get("key7"));
+        assertNull(result.get("key8"));
         assertNull(result.get("unknown"));
     }
 }
