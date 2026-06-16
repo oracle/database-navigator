@@ -40,6 +40,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.common.component.PersistentStateContext.getEncryptionCache;
+import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.Strings.containsOneOf;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
@@ -277,21 +279,22 @@ public final class Settings {
     }
 
     @NotNull
-    public static String readSensitiveData(Element element, @NonNls String dataFlavor) {
-        return readSensitiveData(element, dataFlavor, null);
+    public static String readSensitiveData(Element element, @NonNls String encScope) {
+        return readSensitiveData(element, encScope, null);
     }
 
     @NotNull
-    public static String readSensitiveData(Element element, @NonNls String dataFlavor, @Nullable StateEncryptionCache cache) {
+    public static String readSensitiveData(Element element, @NonNls String encScope, @Nullable StateEncryptionCache encCache) {
         String content = readCdata(element);
         if (isEmpty(content)) return "";
 
         boolean encrypted = booleanAttribute(element, "encrypted", false);
         if (!encrypted) return content;
 
-        String value = cache == null ?
-                StateEncryption.decrypt(dataFlavor, content) :
-                cache.decrypt(dataFlavor, content);
+        encCache = nvln(encCache, () -> getEncryptionCache());
+        String value = encCache == null ?
+                StateEncryption.decrypt(encScope, content) :
+                encCache.decrypt(encScope, content);
         return Commons.nvl(value, "");
     }
 
@@ -309,20 +312,21 @@ public final class Settings {
         }
     }
 
-    public static void writeSensitiveData(Element element, @NonNls String dataFlavor, @NonNls String content) {
-        writeSensitiveData(element, dataFlavor, content, null);
+    public static void writeSensitiveData(Element element, @NonNls String content, @NonNls String encScope) {
+        writeSensitiveData(element, content, encScope, null);
     }
 
-    public static void writeSensitiveData(Element element, @NonNls String dataFlavor, @NonNls String content, @Nullable StateEncryptionCache cache) {
+    public static void writeSensitiveData(Element element, @NonNls String content, @NonNls String encScope, @Nullable StateEncryptionCache encCache) {
         if (isEmpty(content)) {
             setBooleanAttribute(element, "encrypted", false);
             writeCdata(element, content, true);
             return;
         }
 
-        StoredValue storedValue = cache == null ?
-                StateEncryption.encrypt(dataFlavor, content) :
-                cache.encrypt(dataFlavor, content);
+        encCache = nvln(encCache, () -> getEncryptionCache());
+        StoredValue storedValue = encCache == null ?
+                StateEncryption.encrypt(encScope, content) :
+                encCache.encrypt(encScope, content);
 
         if (!storedValue.encrypted()) {
             StateEncryption.requestUnencryptedStateApproval();

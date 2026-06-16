@@ -58,7 +58,7 @@ public class StateEncryption {
     private static volatile boolean encryptionEnabled = true;
     private static SecretKey encryptionKey;
 
-    public static StoredValue encrypt(@NonNls String dataFlavor, @Nullable String value) {
+    public static StoredValue encrypt(@NonNls String encryptionScope, @Nullable String value) {
         if (Strings.isEmpty(value)) return new StoredValue(value, false);
         if (!shouldEncrypt()) return new StoredValue(value, false);
 
@@ -68,7 +68,7 @@ public class StateEncryption {
 
             Cipher cipher = Cipher.getInstance(CIPHER);
             cipher.init(Cipher.ENCRYPT_MODE, getEncryptionKey(), new GCMParameterSpec(TAG_SIZE, iv));
-            cipher.updateAAD(aad(dataFlavor));
+            cipher.updateAAD(aad(encryptionScope));
 
             byte[] encrypted = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
             return new StoredValue(PREFIX + encode(iv) + ":" + encode(encrypted), true);
@@ -79,7 +79,7 @@ public class StateEncryption {
     }
 
     @Nullable
-    public static String decrypt(@NonNls String dataFlavor, @Nullable String value) {
+    public static String decrypt(@NonNls String encryptionScope, @Nullable String value) {
         if (Strings.isEmpty(value)) return value;
 
         try {
@@ -92,7 +92,7 @@ public class StateEncryption {
             byte[] iv = decode(payload.substring(0, separator));
             byte[] encryptedValue = decode(payload.substring(separator + 1));
 
-            return decrypt(iv, encryptedValue, aad(dataFlavor));
+            return decrypt(iv, encryptedValue, aad(encryptionScope));
         } catch (Exception e) {
             log.warn("Failed to decrypt persistent state value", e);
             return null;
@@ -185,8 +185,8 @@ public class StateEncryption {
         return "DB Navigator - " + STATE_ENCRYPTION_KEY.getServiceName() + ": " + KEY_USER + "@" + owner;
     }
 
-    private static byte[] aad(@NonNls String dataFlavor) {
-        return ("state:" + dataFlavor).getBytes(StandardCharsets.UTF_8);
+    private static byte[] aad(@NonNls String encryptionScope) {
+        return ("state:" + encryptionScope).getBytes(StandardCharsets.UTF_8);
     }
 
     @NonNls
