@@ -6,7 +6,7 @@
 - Main code: `src/main/java/com/dbn`.
 - Main resources: `src/main/resources`, especially `META-INF/plugin.xml`, file templates, icons, text attributes, and language resources.
 - Public extension modules: `modules/dbn-api` and `modules/dbn-spi`.
-- Build: Gradle Kotlin DSL with Java 17, Kotlin plugin present, IntelliJ Platform Gradle plugin, Lombok annotation processing, JUnit 4 tests.
+- For repository shape, build tooling, and validation command choices, use `dbn-development-guide`.
 - Generated or bulky parser artifacts exist in language dialect packages. Avoid hand-editing generated flex/parser output unless the task explicitly targets it.
 
 ## File And Package Naming
@@ -96,10 +96,3 @@
 - Extension points use DBN package-specific names: object providers, factories, management adapters, prerequisites, assistant adapters/tools, etc.
 - Action IDs use `DBNavigator.Actions...` and action groups use `DBNavigator.ActionGroup...`.
 - Prefer existing icon constants in XML when possible.
-
-## Validation Commands
-
-- Unit tests: `./gradlew test`.
-- Full build and plugin resource validation: `./gradlew build`.
-- Run IDE manually when UI/plugin behavior needs inspection: `./gradlew runIde`.
-- Build can download dependencies or use local repositories. If network or sandbox restrictions fail, report that clearly.

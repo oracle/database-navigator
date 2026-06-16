@@ -276,22 +276,23 @@ public final class Settings {
         return builder.toString();
     }
 
-    @Nullable
+    @NotNull
     public static String readSensitiveData(Element element, @NonNls String dataFlavor) {
         return readSensitiveData(element, dataFlavor, null);
     }
 
-    @Nullable
+    @NotNull
     public static String readSensitiveData(Element element, @NonNls String dataFlavor, @Nullable StateEncryptionCache cache) {
         String content = readCdata(element);
-        if (isEmpty(content)) return null;
+        if (isEmpty(content)) return "";
 
         boolean encrypted = booleanAttribute(element, "encrypted", false);
         if (!encrypted) return content;
 
-        return cache == null ?
+        String value = cache == null ?
                 StateEncryption.decrypt(dataFlavor, content) :
                 cache.decrypt(dataFlavor, content);
+        return Commons.nvl(value, "");
     }
 
     public static void writeCdata(Element element, @NonNls String content) {
