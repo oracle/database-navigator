@@ -59,7 +59,7 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
     private String key;
     private String url;
     private String command;
-    private List<String> commandArguments;
+    private List<String> commandArguments = new ArrayList<>();
 
     private transient boolean acknowledged;
 
@@ -83,8 +83,12 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
 
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add(command);
-        tokens.addAll(commandArguments);
+        tokens.addAll(getCommandArguments());
         return tokens;
+    }
+
+    public List<String> getCommandArguments() {
+        return commandArguments == null ? emptyList() : commandArguments;
     }
 
     private static synchronized String registerKey(String serverKey) {
@@ -148,7 +152,7 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
         setStringAttribute(element, "url", url);
         setStringAttribute(element, "command", command);
 
-        for (String commandArgument : commandArguments) {
+        for (String commandArgument : getCommandArguments()) {
             Element argumentElement = newElement(element, "command-argument");
             argumentElement.setText(commandArgument);
         }
@@ -157,7 +161,9 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
     @Override
     @SneakyThrows
     public AssistantMcpServer clone() {
-        return cast(super.clone());
+        AssistantMcpServer clone = cast(super.clone());
+        clone.commandArguments = new ArrayList<>(getCommandArguments());
+        return clone;
     }
 
     public boolean isIdeMcpServer() {

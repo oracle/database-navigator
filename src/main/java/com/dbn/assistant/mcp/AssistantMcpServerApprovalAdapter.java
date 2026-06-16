@@ -61,7 +61,24 @@ public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<As
     }
 
     private String getEndpointFingerprint(AssistantMcpServer mcpServer) {
-        return Checksum.fromStringContent(mcpServer.getType().name() + ":" + mcpServer.getEndpoint(), SHA_256);
+        String content = buildFingerprintContent(mcpServer);
+        return Checksum.fromStringContent(content, SHA_256);
+    }
+
+    private String buildFingerprintContent(AssistantMcpServer mcpServer) {
+        StringBuilder builder = new StringBuilder();
+        appendFingerprintToken(builder, mcpServer.getType().name());
+
+        switch (mcpServer.getType()) {
+            case HTTP -> appendFingerprintToken(builder, mcpServer.getUrl());
+            case STDIO -> mcpServer.getCommandTokens().forEach(t -> appendFingerprintToken(builder, t));
+        }
+        return builder.toString();
+    }
+
+    private static void appendFingerprintToken(StringBuilder builder, String token) {
+        if (token == null) token = "";
+        builder.append(token.length()).append(':').append(token);
     }
 
     @Override
