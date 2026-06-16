@@ -229,6 +229,7 @@
         <projectService serviceImplementation="com.dbn.object.dependency.ObjectDependencyManager"/>
         <projectService serviceImplementation="com.dbn.object.status.ObjectStatusManager"/>
         <projectService serviceImplementation="com.dbn.options.ProjectSettingsManager"/>
+        <projectService serviceImplementation="com.dbn.options.ProjectWorkspaceSettingsManager"/>
         <projectService serviceImplementation="com.dbn.prerequisite.DatabasePrerequisiteManager"/>
         <projectService serviceImplementation="com.dbn.vfs.DatabaseFileManager"/>
         <projectService serviceImplementation="com.dbn.connection.session.DatabaseSessionManager"/>

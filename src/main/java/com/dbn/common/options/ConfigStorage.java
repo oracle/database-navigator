@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,14 @@ package com.dbn.common.options;
 import com.dbn.common.property.Property;
 
 /**
- * Type of activity the configuration tree is performing.
- * It is stored in a thread local context using {@link ConfigMonitor} utility
- *
- * @author Dan Cioca (Oracle)
+ * Type of storage the configuration tree is currently reading from or writing to.
+ * It is stored in a thread local context using {@link ConfigMonitor}.
  */
-public enum ConfigActivity implements Property.IntBase {
-    INITIALIZING,  // Loading persisted configuration into live settings
-    TRANSFERRING,  // Copying configuration values between objects without applying storage filtering
-    CLONING,       // Creating an in-memory clone of a configuration tree
-    APPLYING,      // Applying settings editor values to the live configuration
-    RESETTING;     // Resetting settings editor values from the live configuration
+public enum ConfigStorage implements Property.IntBase {
+    PROJECT,
+    WORKSPACE;
 
-    public static final ConfigActivity[] VALUES = values();
+    public static final ConfigStorage[] VALUES = values();
 
     private final IntMasks masks = new IntMasks(this);
 
@@ -39,7 +34,4 @@ public enum ConfigActivity implements Property.IntBase {
     public IntMasks masks() {
         return masks;
     }
-
-
-
 }
