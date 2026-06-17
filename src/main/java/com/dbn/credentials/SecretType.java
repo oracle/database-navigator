@@ -34,8 +34,9 @@ public enum SecretType implements Presentable {
     SSH_TUNNEL_PASSWORD("SSH tunnel password"),                                       // password for SSH tunnels
     SSH_TUNNEL_KEY_PASSPHRASE("SSH tunnel key passphrase"),                           // key passphrases for SSH tunnels
     DEBUGGER_SSH_TUNNEL_PASSWORD("Debugger SSH tunnel password"),                     // password for debugger SSH reverse tunnels
-    DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE("Debugger SSH tunnel key passphrase"),         // key passphrases for debugger SSH reverse tunnelsGENERIC_CREDENTIAL("Generic credential")                                          // e.g. database assistant credential tokens
+    DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE("Debugger SSH tunnel key passphrase"),         // key passphrases for debugger SSH reverse tunnels
     GENERIC_CREDENTIAL("Generic credential"),                                         // e.g. database assistant credential tokens
+    STATE_ENCRYPTION_KEY("State encryption key"),                                     // key used to encrypt persistent state values
     ;
 
     SecretType(@NonNls String serviceName) {

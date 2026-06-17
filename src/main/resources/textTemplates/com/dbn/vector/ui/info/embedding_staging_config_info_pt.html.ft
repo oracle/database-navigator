@@ -1,0 +1,46 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="pt">
+<head>
+    <title>Local de staging</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body style="width: 300px">
+    <h3>Local de staging</h3>
+    <p>
+        O conteúdo dos arquivos é enviado para uma tabela de staging antes que seu conteúdo passe por chunking e embedding.
+        Especifique se deseja usar uma tabela existente ou criar uma nova.
+    </p>
+    <br>
+    <p>A tabela de staging tem a seguinte estrutura:</p>
+    <ul>
+        <li><code>ID</code> - O identificador exclusivo do conteúdo do arquivo</li>
+        <li><code>FILE_CONTENT (BLOB)</code> - O conteúdo do arquivo</li>
+        <li><code>FILE_SIZE</code> - O tamanho do arquivo em bytes</li>
+        <li><code>FILE_HASH</code> - Assinatura exclusiva do conteúdo</li>
+        <li><code>METADATA (JSON)</code> - Metadados sobre o upload em formato JSON</li>
+    </ul>
+</body>
+</html>
+

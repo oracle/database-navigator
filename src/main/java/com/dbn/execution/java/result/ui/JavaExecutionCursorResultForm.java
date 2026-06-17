@@ -67,7 +67,7 @@ public class JavaExecutionCursorResultForm extends DBNFormBase implements Search
         resultTable.installRecordViewerAddon();
         resultTable.installValuePopupAddon();
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.MethodExecutionCursorResult");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.Execution.Method.CursorResult");
         actionsPanel.add(actionToolbar.getComponent());
         DataProviders.register(actionToolbar.getComponent(), this);
     }

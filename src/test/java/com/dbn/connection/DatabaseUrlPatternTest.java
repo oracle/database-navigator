@@ -20,9 +20,20 @@ import org.jetbrains.annotations.NonNls;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 
-import static com.dbn.connection.DatabaseUrlPattern.*;
+import static com.dbn.connection.DatabaseUrlPattern.MYSQL_DB;
+import static com.dbn.connection.DatabaseUrlPattern.ORACLE_EZCONNECT;
+import static com.dbn.connection.DatabaseUrlPattern.ORACLE_LDAP;
+import static com.dbn.connection.DatabaseUrlPattern.ORACLE_LDAPS;
+import static com.dbn.connection.DatabaseUrlPattern.ORACLE_SERVICE;
+import static com.dbn.connection.DatabaseUrlPattern.ORACLE_SID;
+import static com.dbn.connection.DatabaseUrlPattern.ORACLE_TNS;
+import static com.dbn.connection.DatabaseUrlPattern.POSTGRES_DB;
+import static com.dbn.connection.DatabaseUrlPattern.REDSHIFT_DB;
+import static com.dbn.connection.DatabaseUrlPattern.SQLITE_FILE;
 
 public class DatabaseUrlPatternTest {
 
@@ -102,6 +113,27 @@ public class DatabaseUrlPatternTest {
                 "jdbc:sqlite:/test/sqlite databases/sqlite.db",
                 "jdbc:sqlite:/Test1/dbs/sqlite");
 
+    }
+
+    @Test
+    public void testEasyConnectBuildUrlSanitizesInjectedParameters() {
+        Map<String, String> parameters = new LinkedHashMap<>();
+        parameters.put("WALLET_LOCATION", "/tmp/wallet&SSL_SERVER_DN_MATCH=OFF");
+        parameters.put("SDU", "11");
+
+        String url = ORACLE_EZCONNECT.buildUrl(
+                null,
+                "host123",
+                "1522",
+                "SRV",
+                null,
+                null,
+                null,
+                DatabaseProtocol.TCPS,
+                null,
+                parameters);
+
+        Assert.assertEquals("jdbc:oracle:thin:@tcps://host123:1522/SRV?SDU=11", url);
     }
 
     private static void test(DatabaseUrlPattern pattern, @NonNls String ... urls) {

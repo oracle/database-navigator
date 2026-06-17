@@ -39,6 +39,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.assistant.tool.AssistantToolData.getToolDisplayDescription;
+import static com.dbn.assistant.tool.AssistantToolData.getToolDisplayName;
+import static com.dbn.assistant.tool.AssistantToolData.getUtilityDisplayDescription;
+import static com.dbn.assistant.tool.AssistantToolData.getUtilityDisplayName;
 import static com.dbn.assistant.tool.AssistantToolData.getUtilitySpec;
 
 public class AssistantToolInfoProviderImpl extends AssistantStateExtension implements AssistantToolInfoProvider {
@@ -58,8 +62,7 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
             if (mcpServer != null) return mcpServer.unqualifiedUtilityName(utilityName);
         } else {
             AssistantTool tool = getTool();
-            UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
-            if (utilitySpec != null) return utilitySpec.name();
+            return getUtilityDisplayName(tool, utilityName);
         }
 
         return utilityName;
@@ -73,10 +76,7 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
             return "";
         } else {
             AssistantTool tool = getTool();
-            UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
-            if (utilitySpec == null) return "";
-
-            return utilitySpec.description();
+            return getUtilityDisplayDescription(tool, utilityName);
         }
     }
 
@@ -129,12 +129,12 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
 
     @Override
     public String getToolTypeName() {
-        return getTool().getName();
+        return getToolDisplayName(getTool());
     }
 
     @Override
     public String getToolTypeDescription() {
-        return getTool().getDescription();
+        return getToolDisplayDescription(getTool());
     }
 
     @Override

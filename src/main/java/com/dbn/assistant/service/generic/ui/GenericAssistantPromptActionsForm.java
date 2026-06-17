@@ -45,7 +45,7 @@ public class GenericAssistantPromptActionsForm extends AssistantDetailFormBase i
     }
 
     private void createActionPanel() {
-        ActionToolbar typeActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantPromptActions");
+        ActionToolbar typeActions = Actions.createActionToolbar(actionsPanel, true, "DBN.Assistant.Prompt");
         setAccessibleName(typeActions, txt("app.assistant.aria.PromptActions"));
         this.actionsPanel.add(typeActions.getComponent());
     }

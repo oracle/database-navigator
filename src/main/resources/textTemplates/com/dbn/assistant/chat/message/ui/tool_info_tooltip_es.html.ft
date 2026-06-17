@@ -1,0 +1,13 @@
+<html lang="es">
+<body style="width:300px; ${REGULAR_FONT_STYLE}">
+<b>Información de herramienta</b><br><br>
+
+<b><span style="font-size:small;">Tipo de herramienta</span><br></b>
+<u>${TOOL_TYPE_NAME}</u><br>
+<span>${TOOL_TYPE_DESCRIPTION}</span><br><br>
+
+<b><span style="font-size:small;">Categoría de herramienta</span><br></b>
+<u>${TOOL_CATEGORY_NAME}</u><br>
+<span>${TOOL_CATEGORY_DESCRIPTION}</span>
+</body>
+</html>

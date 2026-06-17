@@ -22,6 +22,7 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.thread.Write;
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.Strings;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.language.psql.PSQLFileType;
 import com.dbn.language.sql.SQLFileType;
@@ -89,8 +90,12 @@ public class FileTypeService extends ApplicationComponentBase implements Persist
     }
 
     public final void associateExtension(@NotNull DBLanguageFileType fileType, @NotNull String extension) {
+        associateFileNamePattern(fileType, "*." + extension);
+    }
+
+    public final void associateFileNamePattern(@NotNull DBLanguageFileType fileType, @NotNull String fileNamePattern) {
         try {
-            FileType currentFileType = getCurrentFileType(extension);
+            FileType currentFileType = getCurrentFileType(fileNamePattern);
             if (currentFileType == fileType) return;
 
             if (!Commons.isOneOf(currentFileType,
@@ -98,13 +103,14 @@ public class FileTypeService extends ApplicationComponentBase implements Persist
                     SQLFileType.INSTANCE,
                     PSQLFileType.INSTANCE)) {
 
-                originalFileAssociations.put(extension, currentFileType.getName());
+                originalFileAssociations.put(fileNamePattern, currentFileType.getName());
             }
 
-            dissociate(currentFileType, extension);
-            associate(fileType, extension);
+            FileNameMatcher matcher = FileTypeManager.parseFromString(fileNamePattern);
+            dissociate(currentFileType, matcher);
+            associate(fileType, matcher);
         } catch (Throwable e) {
-            log.error("Failed to associate file type {} for extension {}", fileType, extension, e);
+            log.error("Failed to associate file type {} for file name pattern {}", fileType, fileNamePattern, e);
         }
     }
 
@@ -133,13 +139,14 @@ public class FileTypeService extends ApplicationComponentBase implements Persist
     private void captureFileAssociations(DBLanguageFileType fileType) {
         String[] extensions = fileType.getSupportedExtensions();
         for (String extension : extensions) {
-            FileType currentFileType = getCurrentFileType(extension);
+            String fileNamePattern = "*." + extension;
+            FileType currentFileType = getCurrentFileType(fileNamePattern);
             if (Commons.isOneOf(currentFileType,
                     UnknownFileType.INSTANCE,
                     SQLFileType.INSTANCE,
                     PSQLFileType.INSTANCE)) continue;
 
-            originalFileAssociations.put(extension, currentFileType.getName());
+            originalFileAssociations.put(fileNamePattern, currentFileType.getName());
         }
     }
 
@@ -154,36 +161,43 @@ public class FileTypeService extends ApplicationComponentBase implements Persist
 
     public void restoreFileAssociations() {
         withSilentContext(() -> {
-            for (String fileExtension : originalFileAssociations.keySet()) {
-                String fileTypeName = originalFileAssociations.get(fileExtension);
+            for (String fileNamePattern : originalFileAssociations.keySet()) {
+                String fileTypeName = originalFileAssociations.get(fileNamePattern);
                 FileType fileType = getFileType(fileTypeName);
                 if (fileType == null) continue;
 
-                associate(fileType, fileExtension);
+                associate(fileType, FileTypeManager.parseFromString(fileNamePattern));
             }
 
             FileType originalSqlFileType = getFileType("SQL");
             if (originalSqlFileType != null) {
-                if (getCurrentFileType("sql") instanceof DBLanguageFileType) associate(originalSqlFileType, "sql");
-                if (getCurrentFileType("ddl") instanceof DBLanguageFileType) associate(originalSqlFileType, "ddl");
+                if (getCurrentFileType("*.sql") instanceof DBLanguageFileType) associate(originalSqlFileType, FileTypeManager.parseFromString("*.sql"));
+                if (getCurrentFileType("*.ddl") instanceof DBLanguageFileType) associate(originalSqlFileType, FileTypeManager.parseFromString("*.ddl"));
             }
         });
     }
 
-    private void associate(FileType fileType, @NonNls String extension) {
-        FileType currentFileType = getCurrentFileType(extension);
+    private void associate(FileType fileType, @NonNls FileNameMatcher matcher) {
+        FileType currentFileType = getCurrentFileType(matcher.getPresentableString());
         if (currentFileType == fileType) return;
 
-        Write.run(() -> withSilentContext(() -> FileTypeManager.getInstance().associateExtension(fileType, extension)));
+        Write.run(() -> withSilentContext(() -> FileTypeManager.getInstance().associate(fileType, matcher)));
     }
 
-    private void dissociate(FileType fileType, @NonNls String fileExtension) {
-        Write.run(() -> withSilentContext(() -> FileTypeManager.getInstance().removeAssociatedExtension(fileType, fileExtension)));
+    private void dissociate(FileType fileType, @NonNls FileNameMatcher matcher) {
+        Write.run(() -> withSilentContext(() -> FileTypeManager.getInstance().removeAssociation(fileType, matcher)));
     }
 
     @NotNull
-    public FileType getCurrentFileType(@NonNls String extension) {
-        return silent(UnknownFileType.INSTANCE, extension, e -> FileTypeManager.getInstance().getFileTypeByExtension(e));
+    public FileType getCurrentFileType(@NonNls String fileNamePattern) {
+        return silent(UnknownFileType.INSTANCE, fileNamePattern, p -> {
+            if (p.startsWith("*.") && p.indexOf('*', 1) < 0 && p.indexOf('.', 2) < 0) {
+                return FileTypeManager.getInstance().getFileTypeByExtension(p.substring(2));
+            }
+
+            String fileName = p.contains("*") ? p.replace("*", "dbn") : p;
+            return FileTypeManager.getInstance().getFileTypeByFileName(fileName);
+        });
     }
 
     @Override
@@ -191,10 +205,10 @@ public class FileTypeService extends ApplicationComponentBase implements Persist
         Element element = newStateElement();
         Element mappingsElement = newElement(element, "original-file-types");
 
-        for (String fileExtension : originalFileAssociations.keySet()) {
-            String fileType = originalFileAssociations.get(fileExtension);
+        for (String fileNamePattern : originalFileAssociations.keySet()) {
+            String fileType = originalFileAssociations.get(fileNamePattern);
             Element mappingElement = newElement(mappingsElement, "mapping");
-            mappingElement.setAttribute("file-extension", fileExtension);
+            mappingElement.setAttribute("file-name-pattern", fileNamePattern);
             mappingElement.setAttribute("file-type", fileType);
         }
         return element;
@@ -206,9 +220,14 @@ public class FileTypeService extends ApplicationComponentBase implements Persist
         if (mappingsElement == null) return;
 
         for (Element mappingElement : mappingsElement.getChildren()) {
-            String fileExtension = stringAttribute(mappingElement, "file-extension");
+            String fileNamePattern = stringAttribute(mappingElement, "file-name-pattern");
+            if (Strings.isEmpty(fileNamePattern)) {
+                String fileExtension = stringAttribute(mappingElement, "file-extension");
+                fileNamePattern = fileExtension == null ? null : "*." + fileExtension;
+            }
             String fileType = stringAttribute(mappingElement, "file-type");
-            originalFileAssociations.put(fileExtension, fileType);
+            if (Strings.isEmpty(fileNamePattern)) continue;
+            originalFileAssociations.put(fileNamePattern, fileType);
         }
     }
 

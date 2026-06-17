@@ -26,10 +26,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.URL;
 import java.net.UnknownHostException;
+
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 
 /**
  * Utility methods for TCP sockets and http
@@ -105,6 +108,41 @@ public class Sockets {
      */
     public static InetAddress getLocalHost() throws UnknownHostException {
         return InetAddress.getByName("localhost");
+    }
+
+    public static boolean isLoopbackHost(@NonNls String hostName) throws UnknownHostException {
+        if (isEmptyOrSpaces(hostName)) return false;
+
+        InetAddress[] addresses = InetAddress.getAllByName(hostName);
+        for (InetAddress address : addresses) {
+            if (address.isLoopbackAddress()) return true;
+        }
+        return false;
+    }
+
+    public static boolean isLocalNetworkHost(@NonNls String hostName) throws UnknownHostException {
+        if (isEmptyOrSpaces(hostName)) return false;
+
+        InetAddress[] addresses = InetAddress.getAllByName(hostName);
+        for (InetAddress address : addresses) {
+            if (!isLocalNetworkAddress(address)) return false;
+        }
+        return addresses.length > 0;
+    }
+
+    public static boolean isLocalNetworkAddress(InetAddress address) {
+        return address.isAnyLocalAddress() ||
+               address.isLoopbackAddress() ||
+               address.isLinkLocalAddress() ||
+               address.isSiteLocalAddress() ||
+               isUniqueLocalAddress(address);
+    }
+
+    private static boolean isUniqueLocalAddress(InetAddress address) {
+        if (!(address instanceof Inet6Address)) return false;
+
+        byte[] bytes = address.getAddress();
+        return (bytes[0] & 0xfe) == 0xfc;
     }
 
     /**

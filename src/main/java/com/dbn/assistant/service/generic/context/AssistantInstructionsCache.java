@@ -94,8 +94,8 @@ public class AssistantInstructionsCache extends AssistantStateExtension implemen
         AssistantMode assistantMode = assistantState.getAssistantMode();
         ConnectionHandler connection = assistantState.getConnection();
 
-        String resourceName = "system_message_" + assistantMode + ".md.ft";
-        String content = TextResources.get(this, resourceName);
+        @NonNls String resourceName = "system_message_" + assistantMode + ".md.ft";
+        @NonNls String content = TextResources.getInternal(this, resourceName);
         TextContent textContent = TextContent.markdown(content);
         textContent.initField("ASSISTANT_TOOL_CATEGORIES", getToolCategories());
         textContent.initField("ASSISTANT_TOOL_TYPES", getToolTypes());

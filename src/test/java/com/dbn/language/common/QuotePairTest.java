@@ -149,7 +149,8 @@ public class QuotePairTest {
         assertEquals("\"a\"\"b\"", simpleQuotePair.quote("a\"b", DATABASE));
         assertEquals("`a``b`", backTickPair.quote("a`b", DATABASE));
         assertEquals("[a]]b]", squareBracketPair.quote("a]b", DATABASE));
-        assertEquals("\"a\"\"b\"", simpleQuotePair.quote("\"a\"\"b\"", DATABASE));
+        assertEquals("\"\"\"a\"\"\"\"b\"\"\"", simpleQuotePair.quote("\"a\"\"b\"", DATABASE));
+        assertEquals("\"\"\"x\"\"; drop table t; --\"", simpleQuotePair.quote("\"x\"; drop table t; --", DATABASE));
     }
 
     @Test
@@ -193,6 +194,38 @@ public class QuotePairTest {
         assertEquals("a`b", backTickPair.unquote("`a``b`", DATABASE));
         assertEquals("a]b", squareBracketPair.unquote("[a]]b]", DATABASE));
         assertEquals("a]b", squareBracketPair.unquote("a]b", DATABASE));
+    }
+
+    @Test
+    public void unquoteComposite() {
+        // Arrange
+        QuotePair simpleQuotePair = new QuotePair('"', '"');
+        QuotePair backTickPair = new QuotePair('`', '`');
+        QuotePair squareBracketPair = new QuotePair('[', ']');
+
+        // Act & Assert
+        assertEquals("HR.COUNTRIES", simpleQuotePair.unquoteComposite("\"HR\".\"COUNTRIES\""));
+        assertEquals("HR.COUNTRIES", simpleQuotePair.unquoteComposite("\"HR\".COUNTRIES"));
+        assertEquals("HR.COUNTRIES", simpleQuotePair.unquoteComposite("HR.\"COUNTRIES\""));
+        assertEquals("HR.COUNTRIES", backTickPair.unquoteComposite("`HR`.`COUNTRIES`"));
+        assertEquals("HR.COUNTRIES", squareBracketPair.unquoteComposite("[HR].[COUNTRIES]"));
+        assertEquals("HR.COUNTRIES", simpleQuotePair.unquoteComposite("HR.COUNTRIES"));
+        assertEquals("HR.ADMIN.COUNTRIES", simpleQuotePair.unquoteComposite("\"HR.ADMIN\".\"COUNTRIES\""));
+        assertEquals("HR.ADMIN.COUNTRIES", backTickPair.unquoteComposite("`HR.ADMIN`.`COUNTRIES`"));
+        assertEquals("HR.ADMIN.COUNTRIES", squareBracketPair.unquoteComposite("[HR.ADMIN].[COUNTRIES]"));
+    }
+
+    @Test
+    public void unquoteCompositeWithDatabaseEscaping() {
+        // Arrange
+        QuotePair simpleQuotePair = new QuotePair('"', '"');
+        QuotePair backTickPair = new QuotePair('`', '`');
+        QuotePair squareBracketPair = new QuotePair('[', ']');
+
+        // Act & Assert
+        assertEquals("HR\"ADMIN.COUNTRIES", simpleQuotePair.unquoteComposite("\"HR\"\"ADMIN\".\"COUNTRIES\"", DATABASE));
+        assertEquals("HR`ADMIN.COUNTRIES", backTickPair.unquoteComposite("`HR``ADMIN`.`COUNTRIES`", DATABASE));
+        assertEquals("HR]ADMIN.COUNTRIES", squareBracketPair.unquoteComposite("[HR]]ADMIN].[COUNTRIES]", DATABASE));
     }
 
     @Test

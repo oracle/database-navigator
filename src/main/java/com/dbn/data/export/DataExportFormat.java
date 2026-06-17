@@ -23,6 +23,7 @@ public enum DataExportFormat {
     HTML,
     XML,
     JIRA,
+    MARKDOWN,
     CSV,
     CUSTOM
 }

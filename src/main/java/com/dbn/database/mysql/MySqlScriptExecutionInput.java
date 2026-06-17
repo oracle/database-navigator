@@ -19,6 +19,7 @@ package com.dbn.database.mysql;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.connection.AuthenticationType;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseScriptExecutionInput;
 import com.dbn.execution.script.CmdLineInterface;
@@ -27,13 +28,12 @@ import org.jetbrains.annotations.Nullable;
 
 public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInput {
     public MySqlScriptExecutionInput(
+            @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
             @NotNull String filePath,
             @NotNull String content,
-            @Nullable SchemaId schemaId,
-            @NotNull DatabaseInfo databaseInfo,
-            @NotNull AuthenticationInfo authenticationInfo) {
-        super(cmdLineInterface, filePath, content, schemaId, databaseInfo, authenticationInfo);
+            @Nullable SchemaId schemaId) {
+        super(connection, cmdLineInterface, filePath, content, schemaId);
     }
 
     @Override
@@ -58,9 +58,9 @@ public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInpu
     }
 
     @Override
-    protected void initConsoleCommands(String filePath, SchemaId schemaId) {
+    protected void initConsoleCommands(String filePath, SchemaId schemaId, ConnectionHandler connection) {
         if (schemaId != null) {
-            addStatement("use " + schemaId + ";");
+            addStatement("use " + getQuotedSchemaId(schemaId, connection) + ";");
         }
         filePath = filePath.replace("\\", "/"); // mysql does not seem to understand backslash path even on windows ()
         addStatement("source " + filePath + ";");

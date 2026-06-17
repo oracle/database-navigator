@@ -1,0 +1,41 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="fr">
+<head>
+    <title>Configuration de fragmentation</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body style="width: 300px">
+    <h3>Configuration de fragmentation</h3>
+    <p>La fragmentation contrôle la manière dont les textes longs sont segmentés en fragments plus petits avant le plongement vectoriel.</p>
+    <br>
+    <p>Paramètres de fragmentation :</p>
+    <ul>
+        <li><u>Fragmenter par</u> – méthode qui détermine comment le texte sera divisé en fragments</li>
+        <li><u>Découper par</u> – délimiteur ou règle utilisée pour découper le texte avant le dimensionnement des fragments</li>
+        <li><u>Taille max.</u> – nombre maximal d’unités "Fragmenter par" que chaque fragment peut contenir</li>
+        <li><u>Recouvrement</u> – quantité de contenu partagée entre deux fragments consécutifs afin de conserver le contexte entre les limites</li>
+    </ul>
+</body>
+</html>

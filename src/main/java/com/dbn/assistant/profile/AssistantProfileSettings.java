@@ -19,6 +19,7 @@ package com.dbn.assistant.profile;
 import com.dbn.assistant.profile.ui.AssistantProfilesSettingsForm;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.options.BasicProjectConfiguration;
+import com.dbn.common.options.WorkspaceConfig;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +30,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 
 @Getter
 @Setter
+@WorkspaceConfig
 @EqualsAndHashCode(callSuper = false)
 public class AssistantProfileSettings
         extends BasicProjectConfiguration<AssistantSettings, AssistantProfilesSettingsForm> {
@@ -53,10 +55,10 @@ public class AssistantProfileSettings
 
     @Override
     public void readConfiguration(Element element) {
+        profiles.clear();
         Element profilesElement = element.getChild("profiles");
         if (profilesElement == null) return;
 
-        profiles.clear();
         for (Element profileElement : profilesElement.getChildren()) {
             DeclaredAssistantProfile profile = new DeclaredAssistantProfile();
             profile.readConfiguration(profileElement);

@@ -16,8 +16,7 @@
 
 package com.dbn.database.oracle;
 
-import com.dbn.common.database.AuthenticationInfo;
-import com.dbn.common.database.DatabaseInfo;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.CmdLineExecutionInput;
 import com.dbn.database.common.execution.JavaExecutionProcessor;
@@ -58,20 +57,18 @@ public final class OracleExecutionInterface implements DatabaseExecutionInterfac
 
     @Override
     public CmdLineExecutionInput createScriptExecutionInput(
+            @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
             @NotNull String filePath,
             @NotNull String content,
-            @Nullable SchemaId schemaId,
-            @NotNull DatabaseInfo databaseInfo,
-            @NotNull AuthenticationInfo authenticationInfo) {
+            @Nullable SchemaId schemaId) {
 
         return new OracleScriptExecutionInput(
+                connection,
                 cmdLineInterface,
                 filePath,
                 content,
-                schemaId,
-                databaseInfo,
-                authenticationInfo);
+                schemaId);
     }
 
 

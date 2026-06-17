@@ -1,0 +1,21 @@
+<html lang="fr">
+<head>
+    <title>Intégration à l’espace de travail</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body>
+    <strong>Intégration à l’espace de travail via le plugin serveur MCP</strong><br><br>
+
+    Cette fonctionnalité utilise le plugin <a href="https://plugins.jetbrains.com/plugin/26071-mcp-server">JetBrains MCP Server</a> pour mieux intégrer DB Assistant à votre espace de travail.
+
+    <br><br>
+    Vérifiez que le plugin est installé et que le serveur est activé<br>
+</body>
+</html>

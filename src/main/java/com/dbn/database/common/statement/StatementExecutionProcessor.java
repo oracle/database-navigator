@@ -141,14 +141,14 @@ public class StatementExecutionProcessor {
 
         return StatementExecutor.execute(context,
                 () -> {
-                    String statementText = definition.prepareStatementText(arguments);
+                    DBNConnection connection = context.getConnection();
+                    String statementText = definition.prepareStatementText(connection, arguments);
                     if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
 
                     DBNPreparedStatement statement = null;
                     ResultSet resultSet = null;
                     try {
                         activityTrace.init();
-                        DBNConnection connection = context.getConnection();
                         statement = definition.prepareStatement(connection, arguments);
                         context.setStatement(statement);
 
@@ -216,10 +216,10 @@ public class StatementExecutionProcessor {
 
         return StatementExecutor.execute(context,
                 () -> {
-                    String statementText = definition.prepareStatementText(arguments);
+                    DBNConnection connection = context.getConnection();
+                    String statementText = definition.prepareStatementText(connection, arguments);
                     if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
 
-                    DBNConnection connection = context.getConnection();
                     DBNCallableStatement statement = null;
                     try {
                         statement = definition.prepareCall(connection, arguments);
@@ -275,7 +275,7 @@ public class StatementExecutionProcessor {
         return StatementExecutor.execute(context,
                 () -> {
                     DBNConnection connection = context.getConnection();
-                    String statementText = definition.prepareStatementText(arguments);
+                    String statementText = definition.prepareStatementText(connection, arguments);
                     if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
 
                     DBNPreparedStatement statement = null;
@@ -317,10 +317,10 @@ public class StatementExecutionProcessor {
             Object... arguments) throws SQLException {
         return StatementExecutor.execute(context,
                 () -> {
-                    String statementText = definition.prepareStatementText(arguments);
+                    DBNConnection connection = context.getConnection();
+                    String statementText = definition.prepareStatementText(connection, arguments);
                     if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
 
-                    DBNConnection connection = context.getConnection();
                     DBNStatement statement = connection.createStatement();
                     context.setStatement(statement);
                     try {

@@ -27,6 +27,7 @@ import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.intellij.ui.HyperlinkLabel;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +43,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.util.List;
+import java.util.Locale;
 
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.nls.NlsResources.txt;
@@ -56,6 +58,21 @@ import static com.dbn.nls.NlsResources.txt;
  * @author Dan Cioca (Oracle)
  */
 public class SelectAiHelpForm extends DBNFormBase {
+  private static final @NonNls String GRANT_EXECUTION_CODE =
+      "grant execute on DBMS_CLOUD to %s; \n" +
+      "grant execute on DBMS_CLOUD_AI to %s;";
+  private static final @NonNls String ALLOW_NETWORK_ACCESS_CODE =
+          """
+                  BEGIN
+                    DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
+                  \thost =>  '%s',77
+                  \tace  => xs$ace_type(
+                  \t  privilege_list => xs$name_list('http'),
+                  \t  principal_name => '%s',
+                  \t  principal_type => xs_acl.ptype_db
+                  \t)
+                    );
+                  END;""";
 
   private JPanel mainPanel;
   private JLabel intro;
@@ -69,7 +86,6 @@ public class SelectAiHelpForm extends DBNFormBase {
   private JButton copyPrivilegeButton;
   private JPanel headerPanel;
   private HyperlinkLabel docuLink;
-  private final String SELECT_AI_DOCS = "https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/sql-generation-ai-autonomous.html";
 
   private final ConnectionRef connection;
 
@@ -104,25 +120,33 @@ public class SelectAiHelpForm extends DBNFormBase {
     ComboBoxes.initComboBox(providerComboBox, providers);
 
     docuLink.setHyperlinkText(txt("cfg.assistant.link.SelectAiDocs"));
-    docuLink.setHyperlinkTarget(SELECT_AI_DOCS);
+    docuLink.setHyperlinkTarget(txt("cfg.assistant.url.SelectAiDocs"));
 
     Color background = Colors.lafBrighter(Colors.getEditorBackground(), 5);
 
     String userName = getConnection().getUserName();
     grantTextField.setText(txt("cfg.assistant.text.GrantExecution", userName));
-    grantTextArea.setText(txt("cfg.assistant.code.GrantExecution", userName));
+    grantTextArea.setText(grantExecutionCode(userName));
     grantTextArea.setBackground(background);
 
     networkAllow.setText(txt("cfg.assistant.text.AllowNetworkAccess"));
-    aclTextArea.setText(txt("cfg.assistant.code.AllowNetworkAccess", getAccessPoint(), userName));
+    aclTextArea.setText(allowNetworkAccessCode(userName));
     aclTextArea.setBackground(background);
 
-    providerComboBox.addActionListener(e -> aclTextArea.setText(txt("cfg.assistant.code.AllowNetworkAccess", getAccessPoint(), userName)));
+    providerComboBox.addActionListener(e -> aclTextArea.setText(allowNetworkAccessCode(userName)));
 
     copyPrivilegeButton.addActionListener(e -> copyTextToClipboard(getText(grantTextArea)));
     copyACLButton.addActionListener(e -> copyTextToClipboard(getText(aclTextArea)));
 
     applyACLButton.addActionListener(e -> grantNetworkAccess());
+  }
+
+  private static String grantExecutionCode(String userName) {
+    return String.format(Locale.ROOT, GRANT_EXECUTION_CODE, userName, userName);
+  }
+
+  private String allowNetworkAccessCode(String userName) {
+    return String.format(Locale.ROOT, ALLOW_NETWORK_ACCESS_CODE, getAccessPoint(), userName);
   }
 
   private void grantNetworkAccess() {

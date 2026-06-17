@@ -46,7 +46,7 @@ public class GenericAssistantContextActionsForm extends AssistantDetailFormBase 
     }
 
     private void createActionPanel() {
-        ActionToolbar contextActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.GenericAssistantContextActions");
+        ActionToolbar contextActions = Actions.createActionToolbar(actionsPanel, true, "DBN.Assistant.Generic.Context");
         setAccessibleName(contextActions, txt("app.assistant.aria.ChatProfileActions"));
         this.actionsPanel.add(contextActions.getComponent());
     }

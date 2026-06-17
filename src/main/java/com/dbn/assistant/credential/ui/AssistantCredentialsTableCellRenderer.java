@@ -21,6 +21,8 @@ import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.ui.util.PasswordFields.getPasswordPlaceholder;
+
 public class AssistantCredentialsTableCellRenderer extends DBNColoredTableCellRenderer {
     public static final int SECRET_COLUMN = 3;
 
@@ -33,8 +35,9 @@ public class AssistantCredentialsTableCellRenderer extends DBNColoredTableCellRe
         if (stringValue.isEmpty()) return;
 
         if (column == SECRET_COLUMN) {
-            value = "*".repeat(20);
+            append(getPasswordPlaceholder(stringValue.length()));
+        } else {
+            append(stringValue);
         }
-        append(value.toString());
     }
 }

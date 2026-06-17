@@ -131,7 +131,7 @@ public class ProfileManagementForm extends DBNFormBase {
     }
 
     private void initActionsPanel() {
-        ActionToolbar managementActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantProfileManagement");
+        ActionToolbar managementActions = Actions.createActionToolbar(actionsPanel, true, "DBN.Assistant.Profiles");
         setAccessibleName(managementActions, txt("cfg.assistant.aria.ProfileManagementActions"));
         this.actionsPanel.add(managementActions.getComponent(), BorderLayout.CENTER);
         initializingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);

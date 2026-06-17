@@ -436,7 +436,8 @@ public final class WrapperModelBuilder {
         if (classWrapper == null) return null;
 
         // If it was ARGUMENT-only, and now we need a RETURN, upgrade to BOTH
-        if (direction == OUT && classWrapper.getArgumentDirection() == IN) {
+        ArgumentDirection wrapperDirection = classWrapper.getArgumentDirection();
+        if (wrapperDirection != IN_OUT && wrapperDirection != direction) {
             changeAttributeDirection(context, classWrapper);
         }
         return classWrapper;
