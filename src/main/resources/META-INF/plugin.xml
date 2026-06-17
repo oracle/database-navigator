@@ -230,6 +230,7 @@
         <projectService serviceImplementation="com.dbn.object.dependency.ObjectDependencyManager"/>
         <projectService serviceImplementation="com.dbn.object.status.ObjectStatusManager"/>
         <projectService serviceImplementation="com.dbn.options.ProjectSettingsManager"/>
+        <projectService serviceImplementation="com.dbn.options.ProjectWorkspaceSettingsManager"/>
         <projectService serviceImplementation="com.dbn.prerequisite.DatabasePrerequisiteManager"/>
         <projectService serviceImplementation="com.dbn.vfs.DatabaseFileManager"/>
         <projectService serviceImplementation="com.dbn.connection.session.DatabaseSessionManager"/>
@@ -338,6 +339,7 @@
 
         <!--user approval adapters-->
         <userApprovalAdapter implementation="com.dbn.assistant.mcp.AssistantMcpServerApprovalAdapter"/>
+        <userApprovalAdapter implementation="com.dbn.common.state.StateEncryptionApprovalAdapter"/>
         <userApprovalAdapter implementation="com.dbn.execution.script.CmdLineInterfaceApprovalAdapter"/>
         <userApprovalAdapter implementation="com.dbn.driver.approval.DriverLibraryApprovalAdapter"/>
 
@@ -394,7 +396,6 @@
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.StreamingChatModelInvoker"/>
 
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.UserPromptsTool$Factory" />
-        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ConnectionInfoTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.DatabaseMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SchemaMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.TableMetadataTool$Factory" />

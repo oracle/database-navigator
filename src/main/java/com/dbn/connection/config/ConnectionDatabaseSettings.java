@@ -67,6 +67,7 @@ import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
+import static com.dbn.connection.config.EasyConnectParameters.sanitizeParameters;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 
@@ -416,6 +417,9 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                     String value = stringAttribute(paramElement, "value");
                     parameters.put(key, value);
                 }
+            }
+            if (urlType == DatabaseUrlType.EZCONNECT) {
+                parameters = sanitizeParameters(parameters, databaseInfo.getProtocol());
             }
             databaseInfo.setParameters(parameters);
 

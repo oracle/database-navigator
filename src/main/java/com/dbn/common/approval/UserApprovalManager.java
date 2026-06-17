@@ -20,7 +20,6 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.util.Messages;
-import com.dbn.common.util.TimeUtil;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.progress.ProcessCanceledException;
@@ -28,7 +27,6 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +39,6 @@ import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
-import static com.dbn.common.options.setting.Settings.setStringAttribute;
-import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Commons.NOT_NULL;
 
 /**
@@ -59,10 +55,7 @@ import static com.dbn.common.util.Commons.NOT_NULL;
 public class UserApprovalManager extends ApplicationComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Application.UserApprovalManager";
 
-    private final Set<String> approvals = ConcurrentHashMap.newKeySet();
-    private final Set<String> temporaryApprovals = ConcurrentHashMap.newKeySet();
-    private final Set<String> pendingApprovals = ConcurrentHashMap.newKeySet();
-    private final Map<String, Long> rejections = new ConcurrentHashMap<>();
+    private final Map<String, UserApprovalData> approvalData = new ConcurrentHashMap<>();
 
     public UserApprovalManager() {
         super(COMPONENT_NAME);
@@ -80,50 +73,74 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
      */
     public <T extends UserApprovable> void ensureApproved(T approvable) {
         UserApprovalAdapter<T> adapter = UserApprovalAdapters.get(approvable);
-        String approvalKey = adapter.getApprovalKey(approvable);
 
+        String approvalKey = getApprovalKey(approvable);
+        String approvalSignature = adapter.getApprovalSignature(approvable);
+        updateApprovalSignature(approvalKey, approvalSignature);
+
+        UserApprovalData data = getApprovalData(approvalKey);
         // check and discard temporary approval
-        if (temporaryApprovals.contains(approvalKey)) {
-            temporaryApprovals.remove(approvalKey);
-            return;
-        }
+        if (data.consumeTemporary()) return;
 
         // check persistent approval
-        if (approvals.contains(approvalKey)) return;
+        if (data.isApproved()) return;
 
         // check for recent rejections
-        Duration rejectionCooldown = adapter.getRejectionCooldown(approvable);
-        if (rejectionCooldown != null) {
-            Long rejectionTimestamp = rejections.get(approvalKey);
-            if (rejectionTimestamp != null && !TimeUtil.isOlderThan(rejectionTimestamp, rejectionCooldown)) {
-                throw new UserApprovalCancelledException();
-            }
+        if (data.isRejected()) {
+            throw new UserApprovalCancelledException();
         }
 
-        if (pendingApprovals.contains(approvalKey)) {
+        if (data.isPending()) {
             throw new ProcessCanceledException();
         }
 
-        obtainUserApproval(approvable, approvalKey);
+        obtainUserApproval(approvable, approvalKey, data);
     }
 
-    private <T extends UserApprovable> void obtainUserApproval(T approvable, String approvalKey) {
+    private <T extends UserApprovable> void obtainUserApproval(T approvable, String approvalKey, UserApprovalData data) {
         UserApprovalAdapter<T> adapter = UserApprovalAdapters.get(approvable);
-        pendingApprovals.add(approvalKey);
+        data.setPending(true);
         int option = Messages.showAcknowledgementDialog(
                 null,
                 adapter.getApprovalTitle(approvable),
                 adapter.getApprovalMessage(approvable),
                 adapter.getApprovalOptions(approvable),
-                1, o -> pendingApprovals.remove(approvalKey));
+                1, o -> data.setPending(false));
 
         if (option != 0) {
-            rejections.put(approvalKey, System.currentTimeMillis());
+            adapter.processApprovalOption(approvable, option);
+            data.reject(adapter.getRejectionCooldown(approvable, option));
             throw new UserApprovalCancelledException();
         }
 
-        approvals.add(approvalKey);
-        rejections.remove(approvalKey);
+        data.setApproved(true);
+        data.clearRejection();
+    }
+
+    public <T extends UserApprovable> void updateApprovalSignature(T approvable) {
+        UserApprovalAdapter<T> adapter = UserApprovalAdapters.get(approvable);
+        updateApprovalSignature(getApprovalKey(approvable), adapter.getApprovalSignature(approvable));
+    }
+
+    private void updateApprovalSignature(String approvalKey, @Nullable String approvalSignature) {
+        if (approvalSignature == null) return;
+
+        UserApprovalData data = getApprovalData(approvalKey);
+        if (data.updateSignatureRequiresApprovalClear(approvalSignature)) {
+            clearApproval(approvalKey, data);
+        }
+    }
+
+    private void clearApproval(String approvalKey) {
+        UserApprovalData data = approvalData.get(approvalKey);
+        if (data == null) return;
+
+        clearApproval(approvalKey, data);
+    }
+
+    private void clearApproval(String approvalKey, UserApprovalData data) {
+        data.clearApproval();
+        removeApprovalDataIfEmpty(approvalKey, data);
     }
 
     /**
@@ -131,12 +148,19 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
      */
     public void approve(UserApprovable approvable) {
         String approvalKey = getApprovalKey(approvable);
-        approvals.add(approvalKey);
+        String approvalSignature = getApprovalSignature(approvable);
+        updateApprovalSignature(approvalKey, approvalSignature);
+        getApprovalData(approvalKey).setApproved(true);
     }
 
     public <T extends UserApprovable> void revoke(T approvable) {
         String approvalKey = getApprovalKey(approvable);
-        approvals.remove(approvalKey);
+        UserApprovalData data = approvalData.get(approvalKey);
+        if (data == null) return;
+
+        data.clearApproval();
+        data.setSignature(null);
+        removeApprovalDataIfEmpty(approvalKey, data);
     }
 
     /**
@@ -144,13 +168,16 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
      */
     public <T extends UserApprovable> void approveTemporarily(T approvable) {
         String approvalKey = getApprovalKey(approvable);
-        temporaryApprovals.add(approvalKey);
+        String approvalSignature = getApprovalSignature(approvable);
+        updateApprovalSignature(approvalKey, approvalSignature);
+        getApprovalData(approvalKey).setTemporary(true);
     }
 
     public <T extends UserApprovable> void updateApprovals(List<T> oldApprovables, List<T> newApprovables) {
         Set<String> oldKeys = oldApprovables.stream().filter(NOT_NULL).map(a -> getApprovalKey(a)).collect(Collectors.toSet());
         Set<String> newKeys = newApprovables.stream().filter(NOT_NULL).map(a -> getApprovalKey(a)).collect(Collectors.toSet());
         Set<String> acknowledgedKeys = newApprovables.stream().filter(NOT_NULL).filter(a -> a.isAcknowledged()).map(a -> getApprovalKey(a)).collect(Collectors.toSet());
+        newApprovables.stream().filter(NOT_NULL).forEach(a -> updateApprovalSignature(a));
 
         // identify removed approvables
         Set<String> removedKeys = new HashSet<>(oldKeys);
@@ -160,14 +187,12 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         Set<String> addedKeys = new HashSet<>(newKeys);
         addedKeys.removeAll(oldKeys);
 
-        // cleanup temporary keys
-        temporaryApprovals.removeAll(oldKeys);
-        temporaryApprovals.removeAll(newKeys);
+        oldKeys.forEach(this::clearTemporaryApproval);
+        newKeys.forEach(this::clearTemporaryApproval);
+        removedKeys.forEach(this::removeApproval);
 
-        // cleanup and update approvals
-        approvals.removeAll(removedKeys);
-        approvals.addAll(addedKeys);
-        approvals.addAll(acknowledgedKeys);
+        addedKeys.forEach(k -> getApprovalData(k).setApproved(true));
+        acknowledgedKeys.forEach(k -> getApprovalData(k).setApproved(true));
     }
 
     /**
@@ -177,28 +202,62 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         return UserApprovalAdapters.getApprovalKey(approvable);
     }
 
+    private static <T extends UserApprovable> @Nullable String getApprovalSignature(T approvable) {
+        return UserApprovalAdapters.getApprovalSignature(approvable);
+    }
+
+    private UserApprovalData getApprovalData(String approvalKey) {
+        return approvalData.computeIfAbsent(approvalKey, UserApprovalData::new);
+    }
+
+    private void clearTemporaryApproval(String approvalKey) {
+        UserApprovalData data = approvalData.get(approvalKey);
+        if (data == null) return;
+
+        data.setTemporary(false);
+        removeApprovalDataIfEmpty(approvalKey, data);
+    }
+
+    private void removeApproval(String approvalKey) {
+        UserApprovalData data = approvalData.get(approvalKey);
+        if (data == null) return;
+
+        data.setApproved(false);
+        data.setSignature(null);
+        removeApprovalDataIfEmpty(approvalKey, data);
+    }
+
+    private void removeApprovalDataIfEmpty(String approvalKey, UserApprovalData data) {
+        synchronized (data) {
+            if (data.isEmpty()) {
+                approvalData.remove(approvalKey, data);
+            }
+        }
+    }
+
     @Nullable
     @Override
     public Element getComponentState() {
         Element element = newStateElement();
-        if (!approvals.isEmpty()) {
-            Element approvalsElement = newElement(element, "approvals");
-            for (String approval : approvals) {
-                Element approvalElement = newElement(approvalsElement, "approval");
-                setStringAttribute(approvalElement, "key", approval);
-            }
+        Element approvalsElement = newElement(element, "approvals");
+        for (Map.Entry<String, UserApprovalData> entry : approvalData.entrySet()) {
+            UserApprovalData data = entry.getValue();
+            if (!data.isPersistent()) continue;
+
+            Element approvalElement = newElement(approvalsElement, "approval");
+            data.writeState(approvalElement);
         }
         return element;
     }
 
     @Override
     public void loadComponentState(@NotNull Element element) {
-        approvals.clear();
+        approvalData.clear();
 
         Element approvalsElement = element.getChild("approvals");
         for (Element approvalElement : childrenOf(approvalsElement, "approval")) {
-            String key = stringAttribute(approvalElement, "key");
-            if (key != null) approvals.add(key);
+            UserApprovalData data = new UserApprovalData(approvalElement);
+            approvalData.put(data.getKey(), data);
         }
     }
 }

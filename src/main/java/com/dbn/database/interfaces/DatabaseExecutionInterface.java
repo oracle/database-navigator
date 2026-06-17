@@ -16,8 +16,7 @@
 
 package com.dbn.database.interfaces;
 
-import com.dbn.common.database.AuthenticationInfo;
-import com.dbn.common.database.DatabaseInfo;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.CmdLineExecutionInput;
 import com.dbn.database.common.execution.JavaExecutionProcessor;
@@ -46,10 +45,9 @@ public interface DatabaseExecutionInterface extends DatabaseInterface {
     JavaExecutionProcessor createDebugExecutionProcessor(DBJavaMethod method);
 
     CmdLineExecutionInput createScriptExecutionInput(
+            @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
             @NotNull String filePath,
             String content,
-            @Nullable SchemaId schemaId,
-            @NotNull DatabaseInfo databaseInfo,
-            @NotNull AuthenticationInfo authenticationInfo);
+            @Nullable SchemaId schemaId);
 }

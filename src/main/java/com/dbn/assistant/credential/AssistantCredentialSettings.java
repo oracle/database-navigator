@@ -19,6 +19,7 @@ package com.dbn.assistant.credential;
 import com.dbn.assistant.credential.ui.AssistantCredentialsSettingsForm;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.options.BasicProjectConfiguration;
+import com.dbn.common.options.WorkspaceConfig;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,6 +33,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 
 @Getter
 @Setter
+@WorkspaceConfig
 @EqualsAndHashCode(callSuper = false)
 public class AssistantCredentialSettings
         extends BasicProjectConfiguration<AssistantSettings, AssistantCredentialsSettingsForm> {
@@ -60,17 +62,17 @@ public class AssistantCredentialSettings
 
     @Override
     public void readConfiguration(Element element) {
+        List<AssistantCredential> credentials = new ArrayList<>();
         Element credentialsElement = element.getChild("credentials");
         if (credentialsElement != null) {
-            List<AssistantCredential> credentials = new ArrayList<>();
             for (Element credentialElement : credentialsElement.getChildren()) {
                 AssistantCredential credential = new AssistantCredential();
                 credential.readConfiguration(credentialElement);
                 credentials.add(credential);
             }
-
-            this.credentials.setCredentials(credentials);
         }
+
+        this.credentials.setCredentials(credentials);
     }
 
     @Override

@@ -14,17 +14,7 @@
   ~ limitations under the License.
   -->
 
-<!DOCTYPE data-dictionary [
-        <!ELEMENT data-dictionary (statement-execution-processor)*>
-        <!ELEMENT statement-execution-processor (statement)*>
-        <!ATTLIST statement-execution-processor
-                id CDATA #REQUIRED
-                timeout CDATA #IMPLIED>
-        <!ELEMENT statement (#PCDATA)>
-        <!ATTLIST statement
-                comment CDATA #IMPLIED
-                prefixes CDATA #IMPLIED>
-        ]>
+<!DOCTYPE data-dictionary SYSTEM "../statement-interface.dtd">
 <data-dictionary>
     <statement-execution-processor id="perform-similarity-search" timeout="60">
         <statement>
@@ -32,7 +22,7 @@
                 PARAMS_QUERY as (
                     select
                         json(json_query(METADATA, '$.embedding_config')) as embedding_config
-                    from {0}.{1} where rownum = 1
+                    from {@0}.{@1} where rownum = 1
                 ),
                 PROMPT_QUERY as (
                     select
@@ -45,7 +35,7 @@
             select
                 vector_distance(t.EMBEDDING, q.QUERY_VECTOR, {3}) as DISTANCE,
                 to_char(t.TEXT) as CONTENT
-            from {0}.{1} t
+            from {@0}.{@1} t
             cross join PROMPT_QUERY q
             where t.EMBEDDING is not null
             order by DISTANCE
@@ -85,7 +75,7 @@
 
     <statement-execution-processor id="create-file-store-entry">
         <statement>
-            insert into {0}.{1}(
+            insert into {@0}.{@1}(
                 ID,
                 FILE_CONTENT,
                 METADATA,
@@ -103,13 +93,13 @@
     <statement-execution-processor id="load-destination-model-metadata">
         <statement>
             select json_query(t.METADATA, '$.embedding_config' returning varchar2) AS embedding_config_json
-            from {0}.{1} t where rownum = 1
+            from {@0}.{@1} t where rownum = 1
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="load-file-store-metadata">
         <statement>
-            select ID, METADATA from {0}.{1} where FILE_HASH = {#2} and FILE_SIZE = {#3} and ROWNUM = 1
+            select ID, METADATA from {@0}.{@1} where FILE_HASH = {#2} and FILE_SIZE = {#3} and ROWNUM = 1
         </statement>
     </statement-execution-processor>
 
@@ -118,7 +108,7 @@
             select case
                 when exists (
                     select 1
-                    from {0}.{1}
+                    from {@0}.{@1}
                     where json_value(METADATA, '$.embedding_source.source_id') = {#2})
                 then 'Y'
                 else 'N'
@@ -128,14 +118,14 @@
 
     <statement-execution-processor id="upload_file_store_content" timeout="120000">
         <statement>
-            UPDATE {0}.{1}
+            UPDATE {@0}.{@1}
             SET file_content = {#2}
             WHERE id = {#3}
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="embed-table-content" timeout="120000">
         <statement>
-            insert into {0}.{1} (ID, TEXT, EMBEDDING, METADATA)
+            insert into {@0}.{@1} (ID, TEXT, EMBEDDING, METADATA)
                 select
                     sys_guid(),
                     json_value(t.COLUMN_VALUE, '$.embed_data' returning clob),
@@ -144,28 +134,28 @@
                         {#8},
                         json_object(
                             key 'embedding_id' value json_value(t.COLUMN_VALUE, '$.embed_id' returning varchar2(50)),
-                            key 'embedding_source' value json_object('source_id' VALUE src.{4})
+                            key 'embedding_source' value json_object('source_id' VALUE src.{@4})
                         ) returning varchar2
                     )
                 from (
-                    select * from {2}.{3} s
+                    select * from {@2}.{@3} s
                     where not exists (
-                        select 1 from {0}.{1} t
-                        where json_value(t.METADATA, '$.embedding_source.source_id') = to_char(s.{4})
+                        select 1 from {@0}.{@1} t
+                        where json_value(t.METADATA, '$.embedding_source.source_id') = to_char(s.{@4})
                     )
                     fetch first {9} rows only
                 ) src,
                 table(
                         DBMS_VECTOR.UTL_TO_EMBEDDINGS(
                                 DATA   => DBMS_VECTOR.UTL_TO_CHUNKS(
-                                                DATA   => src.{5},
+                                                DATA   => src.{@5},
                                                 PARAMS => json({#6})),
                                 PARAMS => json({#7}))) t
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="embed-table-content-raw" timeout="120000">
         <statement>
-            insert into {0}.{1} (ID, TEXT, EMBEDDING, METADATA)
+            insert into {@0}.{@1} (ID, TEXT, EMBEDDING, METADATA)
                 select
                     sys_guid(),
                     json_value(t.COLUMN_VALUE, '$.embed_data' returning clob),
@@ -174,27 +164,27 @@
                         {#7},
                         json_object(
                             key 'embedding_id' value json_value(t.COLUMN_VALUE, '$.embed_id' returning varchar2(50)),
-                            key 'embedding_source' value json_object('source_id' VALUE src.{4})
+                            key 'embedding_source' value json_object('source_id' VALUE src.{@4})
                         ) returning varchar2
                     )
                 from (
-                    select * from {2}.{3} s
+                    select * from {@2}.{@3} s
                     where not exists (
-                        select 1 from {0}.{1} t
-                        where json_value(t.METADATA, '$.embedding_source.source_id') = to_char(s.{4})
+                        select 1 from {@0}.{@1} t
+                        where json_value(t.METADATA, '$.embedding_source.source_id') = to_char(s.{@4})
                     )
                     fetch first {8} rows only
                 ) src,
                 table(
                         DBMS_VECTOR.UTL_TO_EMBEDDINGS(
-                                DATA   => src.{5},
+                                DATA   => src.{@5},
                                 PARAMS => json({#6}))) t
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="embed-query-content" timeout="120000">
         <statement>
-            insert into {0}.{1} (ID, TEXT, EMBEDDING, METADATA)
+            insert into {@0}.{@1} (ID, TEXT, EMBEDDING, METADATA)
                 select
                     sys_guid(),
                     json_value(t.COLUMN_VALUE, '$.embed_data' returning clob),
@@ -209,7 +199,7 @@
                 from (
                     select TEXT from ({2}) s
                     where not exists (
-                        select 1 from {0}.{1} t
+                        select 1 from {@0}.{@1} t
                         where json_value(t.METADATA, '$.embedding_source.source_hash') = rawtohex(standard_hash(s.TEXT, 'SHA256'))
                     )
                     fetch first {6} rows only
@@ -224,7 +214,7 @@
     </statement-execution-processor>
     <statement-execution-processor id="embed-query-content-raw" timeout="120000">
         <statement>
-            insert into {0}.{1} (ID, TEXT, EMBEDDING, METADATA)
+            insert into {@0}.{@1} (ID, TEXT, EMBEDDING, METADATA)
                 select
                     sys_guid(),
                     json_value(t.COLUMN_VALUE, '$.embed_data' returning clob),
@@ -239,7 +229,7 @@
                 from (
                     select TEXT from ({2}) s
                     where not exists (
-                        select 1 from {0}.{1} t
+                        select 1 from {@0}.{@1} t
                         where json_value(t.METADATA, '$.embedding_source.source_hash') = rawtohex(standard_hash(s.TEXT, 'SHA256'))
                     )
                     fetch first {5} rows only
@@ -253,7 +243,7 @@
 
     <statement-execution-processor id="embed-file-content" timeout="120000">
         <statement>
-            insert into {0}.{1} (ID, TEXT, EMBEDDING, METADATA)
+            insert into {@0}.{@1} (ID, TEXT, EMBEDDING, METADATA)
                 select
                     SYS_GUID(),
                     jt.EMBED_DATA,
@@ -268,9 +258,9 @@
                     DBMS_VECTOR.UTL_TO_EMBEDDINGS(
                         DATA   => DBMS_VECTOR.UTL_TO_CHUNKS(
                                         DATA   => DBMS_VECTOR_CHAIN.UTL_TO_TEXT(
-                                                        DATA   => (select FILE_CONTENT from {2}.{3} where ID = {#4}
+                                                        DATA   => (select FILE_CONTENT from {@2}.{@3} where ID = {#4}
                                                                    and not exists (
-                                                                        select 1 from {0}.{1} tgt
+                                                                        select 1 from {@0}.{@1} tgt
                                                                         where json_value(tgt.METADATA, '$.embedding_source.source_id') = {#4})),
                                                         PARAMS => json(json_object('plaintext' value true))),
                                         PARAMS => json({#5})),

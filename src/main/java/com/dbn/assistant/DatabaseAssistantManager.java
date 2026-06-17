@@ -31,6 +31,7 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
+import com.dbn.common.state.StateEncryptionCache;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.window.ToolWindows;
 import com.dbn.connection.ConnectionHandler;
@@ -91,6 +92,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     private final Map<ConnectionId, Map<AssistantType, AssistantState>> assistantStates = new ConcurrentHashMap<>();
     private final Map<ConnectionId, AssistantType> selectedAssistantTypes = new ConcurrentHashMap<>();
     private final AssistantSelectionState selectionState = new AssistantSelectionState();
+    private final StateEncryptionCache encryptionCache = new StateEncryptionCache();
 
     private DatabaseAssistantManager(Project project) {
         super(project, COMPONENT_NAME);

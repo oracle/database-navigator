@@ -37,6 +37,7 @@ import com.dbn.execution.compiler.DatabaseCompilerManager;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.object.common.loader.DatabaseLoaderManager;
 import com.dbn.options.ProjectSettingsProvider;
+import com.dbn.options.ProjectWorkspaceSettingsManager;
 import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.dbn.vfs.DBVirtualFile;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -48,6 +49,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.state.StateEncryption.requestUnencryptedStateApproval;
 
 /**
  * TODO SERVICES
@@ -92,6 +94,9 @@ public class ProjectComponentsInitializer extends ProjectComponentBase implement
 
     public void initializeComponents() {
         Project project = getProject();
+
+        ProjectWorkspaceSettingsManager.getInstance(project);
+
         DatabaseConsoleManager.getInstance(project);
         DatabaseEditorStateManager.getInstance(project);
         SourceCodeManager.getInstance(project);
@@ -109,5 +114,7 @@ public class ProjectComponentsInitializer extends ProjectComponentBase implement
         DatabasePrerequisiteManager.getInstance(project);
         EventNotificationManager.getInstance(project);
         initialized = true;
+
+        requestUnencryptedStateApproval();
     }
 }
