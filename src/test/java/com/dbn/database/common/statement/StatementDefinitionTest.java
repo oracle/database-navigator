@@ -106,6 +106,24 @@ public class StatementDefinitionTest {
                 statementText);
     }
 
+    @Test
+    public void prepareStatementTextQuotesJavaDdlIdentifierPlaceholders() throws SQLException {
+        StatementDefinition definition = new StatementDefinition(
+                "alter JAVA SOURCE {@0}.{@1} compile",
+                null,
+                null,
+                0.0);
+
+        String statementText = definition.prepareStatementText(
+                StatementDefinitionTest::enquoteSqliteIdentifier,
+                "owner\";--",
+                "source name");
+
+        assertEquals(
+                "alter JAVA SOURCE \"owner\"\";--\".\"source name\" compile",
+                statementText);
+    }
+
     private static String enquoteSqliteIdentifier(String identifier) {
         if (SQLITE_QUOTE_DEFINITION.isQuoted(identifier)) return identifier;
         return SQLITE_QUOTES.quote(identifier, DATABASE);
