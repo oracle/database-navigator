@@ -105,6 +105,35 @@ public class PackageChecksumData {
         return invalidChecksums.isEmpty();
     }
 
+    public boolean verifyStrongChecksums(File packageDir) {
+        invalidChecksums.clear();
+        if (checksums.isEmpty()) return false;
+
+        File[] libraryFiles = packageDir.listFiles(file -> file.isFile() && file.getName().endsWith(".jar"));
+        if (libraryFiles == null || libraryFiles.length == 0) return false;
+
+        for (File libraryFile : libraryFiles) {
+            String libraryId = getLibraryId(libraryFile);
+            LibraryChecksum checksum = checksums.get(libraryId);
+            if (checksum == null || !checksum.isStrong()) {
+                invalidChecksums.add(libraryFile);
+                continue;
+            }
+
+            ChecksumType type = checksum.getType();
+            String actualChecksum = Checksum.fromFileContent(libraryFile, type);
+            if (!Checksum.verifyChecksum(checksum.getValue(), actualChecksum, type)) {
+                invalidChecksums.add(libraryFile);
+            }
+        }
+        return invalidChecksums.isEmpty();
+    }
+
+    private static String getLibraryId(File libraryFile) {
+        String name = libraryFile.getName();
+        return name.endsWith(".jar") ? name.substring(0, name.length() - 4) : name;
+    }
+
     private void readChecksum(String[] values) {
         if (values.length < 2) return;
 

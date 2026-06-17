@@ -121,4 +121,44 @@ public class PackageChecksumDataTest {
 
         Assert.assertFalse(checksumData.verifyChecksums(packageDir));
     }
+
+    @Test
+    public void verifyStrongChecksumsAcceptsEveryJarWithStrongChecksum() throws Exception {
+        File packageDir = temporaryFolder.newFolder("package");
+        File artifact = new File(packageDir, "driver-1.0.jar");
+        java.nio.file.Files.writeString(artifact.toPath(), "artifact-content");
+
+        PackageChecksumData checksumData = new PackageChecksumData("test-package", temporaryFolder.newFile("test-package.txt"));
+        checksumData.addChecksum("driver-1.0", SHA_256, Checksum.fromFileContent(artifact, SHA_256));
+
+        Assert.assertTrue(checksumData.verifyStrongChecksums(packageDir));
+    }
+
+    @Test
+    public void verifyStrongChecksumsRejectsWeakChecksum() throws Exception {
+        File packageDir = temporaryFolder.newFolder("package");
+        File artifact = new File(packageDir, "driver-1.0.jar");
+        java.nio.file.Files.writeString(artifact.toPath(), "artifact-content");
+
+        PackageChecksumData checksumData = new PackageChecksumData("test-package", temporaryFolder.newFile("test-package.txt"));
+        checksumData.addChecksum("driver-1.0", SHA_1, Checksum.fromFileContent(artifact, SHA_1));
+
+        Assert.assertFalse(checksumData.verifyStrongChecksums(packageDir));
+        Assert.assertTrue(checksumData.getInvalidChecksums().contains(artifact));
+    }
+
+    @Test
+    public void verifyStrongChecksumsRejectsJarWithoutChecksum() throws Exception {
+        File packageDir = temporaryFolder.newFolder("package");
+        File artifact = new File(packageDir, "driver-1.0.jar");
+        File extraArtifact = new File(packageDir, "extra-1.0.jar");
+        java.nio.file.Files.writeString(artifact.toPath(), "artifact-content");
+        java.nio.file.Files.writeString(extraArtifact.toPath(), "extra-artifact-content");
+
+        PackageChecksumData checksumData = new PackageChecksumData("test-package", temporaryFolder.newFile("test-package.txt"));
+        checksumData.addChecksum("driver-1.0", SHA_256, Checksum.fromFileContent(artifact, SHA_256));
+
+        Assert.assertFalse(checksumData.verifyStrongChecksums(packageDir));
+        Assert.assertTrue(checksumData.getInvalidChecksums().contains(extraArtifact));
+    }
 }

@@ -50,26 +50,30 @@ import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
 import org.eclipse.aether.spi.connector.transport.GetTask;
 import org.eclipse.aether.spi.connector.transport.PeekTask;
 import org.eclipse.aether.spi.connector.transport.PutTask;
+import org.eclipse.aether.spi.connector.transport.TransportListener;
 import org.eclipse.aether.spi.connector.transport.Transporter;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.spi.localrepo.LocalRepositoryManagerFactory;
 import org.eclipse.aether.transfer.NoTransporterException;
 import org.xml.sax.InputSource;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.util.Lists.convert;
+import static java.nio.file.Files.createTempDirectory;
 import static java.util.Collections.emptyList;
 
 @Slf4j
 public class DependencyParser {
-    private static final String CENTRAL_URL = "https://repo1.maven.org/maven2/";
+    private static final int TRANSFER_BUFFER_SIZE = 8192;
     private static final Map<String, Pair<List<LibraryDeveloper>, List<LibraryLicense>>> metadataMap = new HashMap<>();
 
     public static List<Library> resolveDependencies(Library library, String type, DownloadSession downloadSession) throws Exception {
@@ -105,7 +109,7 @@ public class DependencyParser {
                 RepositoryPolicy.UPDATE_POLICY_ALWAYS,
                 RepositoryPolicy.CHECKSUM_POLICY_FAIL);
 
-        return new RemoteRepository.Builder("central", "default", CENTRAL_URL)
+        return new RemoteRepository.Builder("central", "default", MavenRepositories.CENTRAL_URL)
                 .setPolicy(repositoryPolicy)
                 .build();
     }
@@ -154,6 +158,7 @@ public class DependencyParser {
             try {
                 String downloadUrl = buildFullUrl(peekTask.getLocation().toString());
                 Downloads.downloadAtomically(null, downloadUrl, tempFile);
+                verifyDownloadedFile(tempFile, downloadUrl);
             } finally {
                 FileUtil.delete(tempFile);
             }
@@ -173,10 +178,33 @@ public class DependencyParser {
             if (downloadSession.isCanceled()) return;
 
             Downloads.downloadAtomically(null, fullUrl, targetFile);
+            verifyDownloadedFile(targetFile, fullUrl);
+            notifyTransferListener(task, targetFile);
+        }
+
+        private static void notifyTransferListener(GetTask task, File file) throws Exception {
+            TransportListener listener = task.getListener();
+            listener.transportStarted(0, file.length());
+
+            try (FileInputStream fileInputStream = new FileInputStream(file);
+                 BufferedInputStream inputStream = new BufferedInputStream(fileInputStream)) {
+                byte[] buffer = new byte[TRANSFER_BUFFER_SIZE];
+                int length;
+                while ((length = inputStream.read(buffer)) != -1) {
+                    listener.transportProgressed(ByteBuffer.wrap(buffer, 0, length));
+                }
+            }
+        }
+
+        private static void verifyDownloadedFile(File file, String downloadUrl) throws IOException {
+            if (file.exists() && file.length() > 0) return;
+
+            FileUtil.delete(file);
+            throw new IOException("Downloaded empty Maven artifact: " + downloadUrl);
         }
 
         private static String buildFullUrl(String relativePath) {
-            return CENTRAL_URL.endsWith("/") ? CENTRAL_URL + relativePath : CENTRAL_URL + "/" + relativePath;
+            return MavenRepositories.CENTRAL_URL + "/" + relativePath;
         }
 
         private static boolean isNotFound(Throwable throwable) {
@@ -221,9 +249,8 @@ public class DependencyParser {
     }
 
     private static RepositorySystemSession newRepositorySystemSession(RepositorySystem system) throws IOException {
-        String tempDirectory = FileUtil.getTempDirectory();
-        File localRepository = new File(tempDirectory, "dbn-local-repo");
-        FileUtil.createDirectory(localRepository);
+        File localRepository = createTempDirectory("dbn-local-repo-").toFile();
+        localRepository.deleteOnExit();
 
         DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
         LocalRepository localRepo = new LocalRepository(localRepository);

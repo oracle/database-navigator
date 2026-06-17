@@ -26,9 +26,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -57,6 +59,7 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
     private DatabaseType databaseType;
     private List<Library> libraries = new ArrayList<>();
     private boolean obsolete;
+    private boolean latest;
 
     public DriverPackage(String id, String name, DatabaseType databaseType, List<Library> libraries) {
         this.id = id;
@@ -86,6 +89,7 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
     public void readState(Element element) {
         this.name = stringAttribute(element, "name");
         this.databaseType = enumAttribute(element, "database-type", DatabaseType.class);
+        this.latest = booleanAttribute(element, "latest", false);
         for (Element libraryElement : childrenOf(element, "library")) {
             Library library = new Library();
             library.readState(libraryElement);
@@ -98,6 +102,7 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
         setStringAttribute(element, "id", id);
         setStringAttribute(element, "name", name);
         setEnumAttribute(element, "database-type", databaseType);
+        if (latest) setBooleanAttribute(element, "latest", true);
         for (Library library : libraries) {
             Element libraryElement = newElement(element, "library");
             library.writeState(libraryElement);

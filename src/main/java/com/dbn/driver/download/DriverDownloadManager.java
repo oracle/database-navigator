@@ -185,11 +185,11 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
    }
 
     public List<DriverPackage> getDownloadedDriverPackages(DatabaseType databaseType) {
-        return driverPackageMetadata.getDriverPackages(p -> p.matches(databaseType) && isPackageDownloaded(p));
+        return driverPackageMetadata.getDriverPackages(databaseType, p -> isPackageDownloaded(p));
     }
 
     public List<DriverPackage> getDriverPackages(DatabaseType databaseType) {
-        return driverPackageMetadata.getDriverPackages(p -> p.matches(databaseType) && (!p.isObsolete() || isPackageDownloaded(p)));
+        return driverPackageMetadata.getDriverPackages(databaseType, p -> !p.isObsolete() || isPackageDownloaded(p));
     }
 
     public void openDownloadDialog(Project project, DatabaseType databaseType, Consumer<String> successCallback) {

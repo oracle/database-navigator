@@ -33,12 +33,10 @@ import static com.dbn.nls.NlsResources.txt;
 @Slf4j
 public class MavenArtifactDownloader {
 
-    private static final String MAVEN_REPO_URL = "https://repo.maven.apache.org/maven2";
-
     public static void downloadArtifact(DownloadSession session, String packageId, Library library) {
         String libraryId = library.getLibraryId();
         String artifactPath = library.getArtefactPath();
-        String artifactUrl = MAVEN_REPO_URL + "/" + artifactPath;
+        String artifactUrl = MavenRepositories.CENTRAL_URL + "/" + artifactPath;
 
         try {
             DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
