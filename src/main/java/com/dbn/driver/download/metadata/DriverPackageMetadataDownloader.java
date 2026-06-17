@@ -20,7 +20,6 @@ import com.dbn.common.download.Downloads;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.XmlContents;
 import com.dbn.connection.DatabaseType;
-import com.dbn.driver.download.DependencyParser;
 import com.dbn.driver.download.DownloadSession;
 import com.dbn.driver.download.MavenRepositories;
 import lombok.SneakyThrows;
@@ -49,6 +48,7 @@ import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.thread.Progress.installThreadInterrupter;
+import static com.dbn.driver.download.DependencyParser.resolveDependencies;
 import static com.dbn.driver.download.metadata.LibraryRole.DRIVER;
 import static com.dbn.driver.download.metadata.LibraryRole.EXTENSION;
 import static com.dbn.nls.NlsResources.txt;
@@ -215,14 +215,15 @@ public class DriverPackageMetadataDownloader {
     }
 
     private ResolvedLibrary createLatestLibrary(Element element, String groupId, String artifactId, String type, DownloadSession session) throws Exception {
-        List<String> availableVersions = fetchAvailableVersions(groupId, artifactId, session).stream()
+        List<String> versions = session.versions(groupId, artifactId, () -> fetchAvailableVersions(groupId, artifactId, session));
+        List<String> recentVersions = versions.stream()
                 .sorted(Comparator.comparing(ComparableVersion::new).reversed())
                 .limit(MAX_LATEST_VERSION_ATTEMPTS)
                 .toList();
 
         Throwable lastFailure = null;
-        String latestVersion = availableVersions.get(0);
-        for (String version : availableVersions) {
+        String latestVersion = recentVersions.get(0);
+        for (String version : recentVersions) {
             Library library = createLibrary(element, groupId, artifactId, version);
             LibraryResolution resolution = resolveLibraryDependencies(library, type, session);
             if (resolution.isResolved()) {
@@ -243,7 +244,7 @@ public class DriverPackageMetadataDownloader {
 
     private LibraryResolution resolveLibraryDependencies(Library library, String type, DownloadSession session) {
         try {
-            List<Library> libraries = DependencyParser.resolveDependencies(library, type, session);
+            List<Library> libraries = session.libraries(library, type, () -> resolveDependencies(library, type, session));
             if (libraries.isEmpty()) {
                 Throwable failure = new IllegalStateException("No dependencies resolved for " + library.getLibraryId());
                 log.warn(failure.getMessage());
@@ -361,7 +362,8 @@ public class DriverPackageMetadataDownloader {
                 .orElseThrow(() -> new Exception("No matching version found for pattern: " + wildcardVersion));
     }
 
-    private  List<String> fetchAvailableVersions(String groupId, String artifactId, DownloadSession session) throws Exception {
+    @SneakyThrows
+    private  List<String> fetchAvailableVersions(String groupId, String artifactId, DownloadSession session) {
         // URL for Maven metadata
         String url = MavenRepositories.CENTRAL_URL + "/" + groupId.replace('.', '/') + "/" + artifactId + "/maven-metadata.xml";
         // Temporary file to store the downloaded content

@@ -22,6 +22,7 @@ import com.dbn.driver.download.metadata.Library;
 import com.dbn.driver.download.metadata.LibraryDeveloper;
 import com.dbn.driver.download.metadata.LibraryLicense;
 import com.intellij.openapi.util.io.FileUtil;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -76,7 +77,8 @@ public class DependencyParser {
     private static final int TRANSFER_BUFFER_SIZE = 8192;
     private static final Map<String, Pair<List<LibraryDeveloper>, List<LibraryLicense>>> metadataMap = new HashMap<>();
 
-    public static List<Library> resolveDependencies(Library library, String type, DownloadSession downloadSession) throws Exception {
+    @SneakyThrows
+    public static List<Library> resolveDependencies(Library library, String type, DownloadSession downloadSession) {
         List<Library> libraries = new ArrayList<>();
 
         RepositorySystem repositorySystem = newRepositorySystem();
