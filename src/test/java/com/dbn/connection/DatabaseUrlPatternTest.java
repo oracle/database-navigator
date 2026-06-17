@@ -131,7 +131,9 @@ public class DatabaseUrlPatternTest {
                 null,
                 DatabaseProtocol.TCPS,
                 null,
-                parameters);
+                parameters,
+                null,
+                null);
 
         Assert.assertEquals("jdbc:oracle:thin:@tcps://host123:1522/SRV?SDU=11", url);
     }
