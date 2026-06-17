@@ -207,8 +207,7 @@ public class DriverPackageMetadataDownloader {
             return createLatestLibrary(element, groupId, artifactId, type, session);
         }
 
-        // Resolve dynamic version declarations like "latest" or wildcard patterns.
-        version = ensureVersion(groupId, artifactId, version, session);
+        version = ensureVersion(groupId, artifactId, version);
 
         Library library = createLibrary(element, groupId, artifactId, version);
         return new ResolvedLibrary(Collections.singletonList(library), getDriverRoleLibrary(library), getExtensionRoleLibrary(library));
@@ -327,39 +326,14 @@ public class DriverPackageMetadataDownloader {
         }
     }
 
-    private  String ensureVersion(String groupId, String artifactId, String currentVersion, DownloadSession session) throws Exception{
-        if (currentVersion != null && isValidVersion(currentVersion)) {
-            return currentVersion;
-        }
+    private  String ensureVersion(String groupId, String artifactId, String currentVersion) throws Exception{
+        if (currentVersion != null && isValidVersion(currentVersion)) return currentVersion;
 
         if (currentVersion == null) {
             throw new Exception("Missing version declaration for " + groupId + ":" + artifactId);
         }
 
-        // Fetch all available versions
-        List<String> availableVersions = fetchAvailableVersions(groupId, artifactId, session);
-        if (currentVersion.contains("*")) {
-            return resolveWildcardVersion(currentVersion, availableVersions);
-        } else if (LATEST_VERSION.equalsIgnoreCase(currentVersion)) {
-            return fetchLatestVersion(availableVersions);
-        }
-
         throw new Exception("Unsupported version declaration: " + currentVersion);
-    }
-
-    private  String fetchLatestVersion(List<String> availableVersions) throws Exception {
-        return availableVersions.stream()
-                .max(Comparator.comparing(ComparableVersion::new))
-                .orElseThrow(() -> new Exception("No versions found."));
-    }
-
-    private  String resolveWildcardVersion(String wildcardVersion, List<String> availableVersions) throws Exception {
-        // Convert wildcard version to regex
-        String regex = wildcardVersion.replace("*", ".*");
-        return availableVersions.stream()
-                .filter(v -> v.matches(regex))
-                .max(Comparator.comparing(ComparableVersion::new)) // Get the latest matching version
-                .orElseThrow(() -> new Exception("No matching version found for pattern: " + wildcardVersion));
     }
 
     @SneakyThrows
