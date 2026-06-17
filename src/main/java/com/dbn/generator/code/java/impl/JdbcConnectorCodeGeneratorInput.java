@@ -18,9 +18,14 @@ package com.dbn.generator.code.java.impl;
 
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.java.JavaCodeGeneratorInput;
-import com.intellij.openapi.ui.ValidationInfo;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class JdbcConnectorCodeGeneratorInput extends JavaCodeGeneratorInput {
+    private boolean embedSensitiveValues;
+
     protected JdbcConnectorCodeGeneratorInput(DatabaseContext databaseContext) {
         super(databaseContext);
     }

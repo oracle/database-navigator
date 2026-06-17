@@ -17,6 +17,7 @@
 package com.dbn.common.approval;
 
 import com.dbn.common.extension.ExtensionPointCache;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Unsafe.cast;
 
@@ -41,7 +42,17 @@ public class UserApprovalAdapters extends ExtensionPointCache<Class<? extends Us
      */
     public static String getApprovalKey(UserApprovable approval) {
         UserApprovalAdapter<UserApprovable> adapter = get(approval);
-        return adapter.getApprovalKey(approval);
+        String approvalKey = adapter.getApprovalKey(approval);
+        if (approval instanceof ProjectUserApprovable projectApproval) {
+            return approvalKey + ":project:" + projectApproval.getProject().getLocationHash();
+        }
+        return approvalKey;
+    }
+
+    @Nullable
+    public static String getApprovalSignature(UserApprovable approval) {
+        UserApprovalAdapter<UserApprovable> adapter = get(approval);
+        return adapter.getApprovalSignature(approval);
     }
 
     @Override

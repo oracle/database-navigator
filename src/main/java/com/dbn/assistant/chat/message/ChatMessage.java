@@ -50,13 +50,13 @@ import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.longAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.readCdata;
+import static com.dbn.common.options.setting.Settings.readSensitiveData;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setLongAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.options.setting.Settings.writeCdata;
+import static com.dbn.common.options.setting.Settings.writeSensitiveData;
 import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Lists.last;
 import static com.dbn.common.util.Lists.lastElement;
@@ -65,6 +65,8 @@ import static com.dbn.common.util.Lists.removeLast;
 @Getter
 @Setter
 public class ChatMessage implements PersistentStateElement {
+    private static final @NonNls String CHAT_CONTENT_ENC_SCOPE = "assistant.chat.message.content";
+
     /**
      * Unique identifier of the chat message to establish causality relations and chaining of messages
      */
@@ -268,7 +270,7 @@ public class ChatMessage implements PersistentStateElement {
         folded = booleanAttribute(element, "folded", folded);
 
         Element contentElement = element.getChild("content");
-        content = readCdata(contentElement);
+        content = readSensitiveData(contentElement, CHAT_CONTENT_ENC_SCOPE);
 
         Element contextElement = element.getChild("context");
         context = new ChatContextImpl(assistantType);
@@ -301,7 +303,7 @@ public class ChatMessage implements PersistentStateElement {
         setBooleanAttribute(element, "folded", folded);
 
         Element contentElement = newElement(element,"content");
-        writeCdata(contentElement, content);
+        writeSensitiveData(contentElement, content, CHAT_CONTENT_ENC_SCOPE);
 
         Element contextElement = newElement(element,"context");
         context.writeState(contextElement);

@@ -14,18 +14,7 @@
   ~ limitations under the License.
   -->
 
-<!DOCTYPE data-dictionary [
-        <!ELEMENT data-dictionary (statement-execution-processor)*>
-        <!ELEMENT statement-execution-processor (statement)*>
-        <!ATTLIST statement-execution-processor
-                id CDATA #REQUIRED
-                timeout CDATA #IMPLIED>
-        <!ELEMENT statement (#PCDATA)>
-        <!ATTLIST statement
-                comment CDATA #IMPLIED
-                prefixes CDATA #IMPLIED
-                since-version CDATA #IMPLIED>
-        ]>
+<!DOCTYPE data-dictionary SYSTEM "../statement-interface.dtd">
 <data-dictionary>
     <statement-execution-processor id="users">
         <statement>

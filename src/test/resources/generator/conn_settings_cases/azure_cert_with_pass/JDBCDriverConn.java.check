@@ -101,7 +101,7 @@ public class JdbcConnectorAzureCertWithPass  {
         properties.put(PROP_AZURE_TOKEN_TENANT_ID, "aaaaaaaa-bbbbbbbb-cccccccc-ddd");
         properties.put(PROP_AZURE_TOKEN_DATABASE_ID_URI, "https://mydev.onmicrosoft.com/xxxxxxx-yyyyyyyy-zzzzz");
         properties.put(PROP_AZURE_TOKEN_CLIENT_SECRET_FILE, "/path/to/my2.pem");
-              String certificatePassword = System.getProperty(PROP_AZURE_TOKEN_CLIENT_SECRET_FILE_PASSWORD);
+              String certificatePassword = readSecret();
               properties.put(PROP_AZURE_TOKEN_CLIENT_SECRET_FILE_PASSWORD, certificatePassword);
 
         // PROPERTIES
@@ -117,9 +117,6 @@ public class JdbcConnectorAzureCertWithPass  {
     }
 
     public static void main(String[] args) {
-        // init secret
-        readSecret();
-
         JdbcConnectorAzureCertWithPass connector = new JdbcConnectorAzureCertWithPass();
         try (Connection connection = connector.connect()) {
             connection.isValid(10);
@@ -133,13 +130,13 @@ public class JdbcConnectorAzureCertWithPass  {
     /**
      * Load secret from system environment
      */
-    private static void readSecret() {
+    private static String readSecret() {
         String secret = System.getenv("AZURE_TOKEN_CLIENT_SECRET_FILE_PASSWORD");
         if (secret == null) {
             String errorMessage = "Your connection is using Azure Service Principal with protected certificate authentication," +
                                     "you must set the value on the AZURE_TOKEN_CLIENT_SECRET_FILE_PASSWORD environment variable to decrypt the certificate file.";
             throw new AssertionError(errorMessage);
         }
-        System.setProperty(PROP_AZURE_TOKEN_CLIENT_SECRET_FILE_PASSWORD, secret);
+        return secret;
     }
 }

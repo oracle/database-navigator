@@ -25,7 +25,6 @@ import com.dbn.common.util.XmlContents;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jdom.Element;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -44,6 +43,7 @@ import static com.dbn.assistant.provider.AIModelProperty.RECOMMENDED;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.integerAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Lists.convert;
@@ -165,21 +165,28 @@ public class AIProvidersDefinition {
 
         String modelApiName = fallback(stringAttribute(element, "api-name"), modelTemplate, t -> t.getApiName());
         String modelShortName = fallback(stringAttribute(element, "short-name"), modelTemplate, t -> t.getShortName());
-        String modelDescription = fallback(stringAttribute(element, "description"), modelTemplate, t -> t.getDescription());
-        AIModel model = new AIModel(modelId, modelApiName, modelShortName, modelDescription, provider, baseProviderId);
+        Integer maxTokens = fallback(integerAttribute(element, "max-tokens", null), modelTemplate, t -> t.getMaxTokens());
+        Integer maxOutputTokens = fallback(integerAttribute(element, "max-output-tokens", null), modelTemplate, t -> t.getMaxOutputTokens());
+        AIModel model = new AIModel(modelId, modelApiName, modelShortName, maxTokens, maxOutputTokens, provider, baseProviderId);
 
         // status
+        AIModelStatus modelStatus = enumAttribute(element, "status", AIModelStatus.class);
         model.set(DEFAULT, booleanAttribute(element, "default", templateDefault));
         model.set(RECOMMENDED, booleanAttribute(element, "recommended", templateRecommended));
         model.set(EXPERIMENTAL, booleanAttribute(element, "experimental", templateExperimental));
-        model.set(DEPRECATED, booleanAttribute(element, "deprecated", templateDeprecated));
-        model.set(DISCONTINUED, booleanAttribute(element, "discontinued", templateDiscontinued));
+        if (modelStatus == null) {
+            model.set(DEPRECATED, booleanAttribute(element, "deprecated", templateDeprecated));
+            model.set(DISCONTINUED, booleanAttribute(element, "discontinued", templateDiscontinued));
+        } else {
+            model.set(DEPRECATED, modelStatus == AIModelStatus.DEPRECATED);
+            model.set(DISCONTINUED, modelStatus == AIModelStatus.DISCONTINUED);
+        }
 
         // features
-        @NonNls
-        List<AIModelFeature> features = Csvs.csvToValues(stringAttribute(element, "features"), s -> AIModelFeature.get(s));
+        String featuresAttribute = fallback(stringAttribute(element, "features"), modelTemplate, t -> t.getFeaturesCsv());
+        List<AIModelFeature> features = Csvs.csvToValues(featuresAttribute, s -> AIModelFeature.get(s));
         AIModelFeatures modelFeatures = model.getFeatures();
-        if (features.isEmpty()) {
+        if (featuresAttribute == null) {
             modelFeatures.set(AIModelFeature.VALUES, true);
         } else {
             modelFeatures.set(features, true);

@@ -42,6 +42,7 @@ public class AnthropicModelFactory extends AbstractModelFactory {
                 .baseUrl(input.getBaseUrl())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
+                .maxTokens(input.getMaxTokens())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
     }
@@ -54,6 +55,7 @@ public class AnthropicModelFactory extends AbstractModelFactory {
                 .baseUrl(input.getBaseUrl())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
+                .maxTokens(input.getMaxTokens())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
     }

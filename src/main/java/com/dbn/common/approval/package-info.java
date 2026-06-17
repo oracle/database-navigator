@@ -19,7 +19,7 @@
  * user decision before they may proceed.
  * <p>
  * Domain objects mark themselves as {@link com.dbn.common.approval.UserApprovable}
- * and provide approval metadata through a registered
+ * or {@link com.dbn.common.approval.ProjectUserApprovable} and provide approval metadata through a registered
  * {@link com.dbn.common.approval.UserApprovalAdapter}. The
  * {@link com.dbn.common.approval.UserApprovalManager} owns the persisted and
  * temporary approval keys.

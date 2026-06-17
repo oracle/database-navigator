@@ -43,6 +43,7 @@ public class OllamaModelFactory extends AbstractModelFactory {
                 .modelName(input.getModelName())
                 .baseUrl(input.getBaseUrl())
                 .temperature(input.getTemperature())
+                .numPredict(input.getMaxTokens())
                 .customHeaders(input.getHeaders())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
@@ -55,6 +56,7 @@ public class OllamaModelFactory extends AbstractModelFactory {
                 .modelName(input.getModelName())
                 .baseUrl(input.getBaseUrl())
                 .temperature(input.getTemperature())
+                .numPredict(input.getMaxTokens())
                 .customHeaders(input.getHeaders())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
@@ -67,6 +69,7 @@ public class OllamaModelFactory extends AbstractModelFactory {
                 .modelName(input.getModelName())
                 .baseUrl(input.getBaseUrl())
                 .temperature(input.getTemperature())
+                .numPredict(input.getMaxTokens())
                 .customHeaders(input.getHeaders())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
