@@ -20,6 +20,7 @@ import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.AuthenticationType;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseScriptExecutionInput;
@@ -41,13 +42,12 @@ public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
     public static final String SQLPLUS_CONNECT_PATTERN_EZCONNECT = "[USER]@[HOST]:[PORT]/[DATABASE]"; // TODO
 
     public OracleScriptExecutionInput(
+            @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
             @NotNull String filePath,
             @NotNull String content,
-            @Nullable SchemaId schemaId,
-            @NotNull DatabaseInfo databaseInfo,
-            @NotNull AuthenticationInfo authenticationInfo) {
-        super(cmdLineInterface, filePath, adjustContent(content), schemaId, databaseInfo, authenticationInfo);
+            @Nullable SchemaId schemaId) {
+        super(connection, cmdLineInterface, filePath, adjustContent(content), schemaId);
     }
 
     private static String adjustContent(String content) {
@@ -86,10 +86,10 @@ public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
     }
 
     @Override
-    protected void initConsoleCommands(String filePath, SchemaId schemaId) {
+    protected void initConsoleCommands(String filePath, SchemaId schemaId, ConnectionHandler connection) {
 
         if (schemaId != null) {
-            addStatement("alter session set current_schema = " + schemaId + ";");
+            addStatement("alter session set current_schema = " + getQuotedSchemaId(schemaId, connection) + ";");
         }
 
         addStatement("set echo on;");

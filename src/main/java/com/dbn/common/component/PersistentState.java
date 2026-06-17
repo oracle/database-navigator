@@ -16,7 +16,7 @@
 
 package com.dbn.common.component;
 
-import com.dbn.common.project.ProjectContext;
+import com.dbn.common.state.StateEncryptionCache;
 import com.dbn.common.thread.ThreadPropertyGate;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.project.Project;
@@ -34,17 +34,28 @@ public interface PersistentState extends PersistentStateComponent<Element> {
         return null;
     }
 
+    @Nullable
+    default StateEncryptionCache getEncryptionCache() {
+        return null;
+    }
+
     @Override
     @Nullable
     @ThreadPropertyGate(COMPONENT_STATE)
     default Element getState() {
-        return ProjectContext.surround(getProject(), () -> warned(null, () -> getComponentState()));
+        return PersistentStateContext.surround(
+                getProject(),
+                getEncryptionCache(),
+                () -> warned(null, () -> getComponentState()));
     }
 
     @Override
     @ThreadPropertyGate(COMPONENT_STATE)
     default void loadState(@NotNull Element state) {
-        ProjectContext.surround(getProject(), () -> warned(() -> loadComponentState(state)));
+        PersistentStateContext.surround(
+                getProject(),
+                getEncryptionCache(),
+                () -> warned(() -> loadComponentState(state)));
     }
 
     @NonNls

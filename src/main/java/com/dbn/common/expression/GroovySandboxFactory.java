@@ -28,12 +28,14 @@ import org.codehaus.groovy.ast.expr.NotExpression;
 import org.codehaus.groovy.ast.expr.VariableExpression;
 import org.codehaus.groovy.ast.stmt.BlockStatement;
 import org.codehaus.groovy.ast.stmt.ExpressionStatement;
+import org.codehaus.groovy.ast.stmt.Statement;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.SecureASTCustomizer;
 import org.codehaus.groovy.syntax.Types;
 
 import java.util.List;
 
+import static com.dbn.common.util.Lists.firstElement;
 import static java.util.Collections.emptyList;
 
 @UtilityClass
@@ -59,6 +61,8 @@ public final class GroovySandboxFactory {
         secure.setAllowedStatements(List.of(
                 BlockStatement.class,
                 ExpressionStatement.class));
+
+        secure.addStatementCheckers(statement -> isSingleExpression(statement));
 
         // Allowed expression types
         secure.setAllowedExpressions(List.of(
@@ -93,5 +97,14 @@ public final class GroovySandboxFactory {
 
         config.addCompilationCustomizers(secure);
         return new GroovyShell(binding, config);
+    }
+
+    private static boolean isSingleExpression(Statement statement) {
+        if (statement instanceof BlockStatement blockStatement) {
+            List<Statement> statements = blockStatement.getStatements();
+            if (statements.size() != 1) return false;
+            return firstElement(statements) instanceof ExpressionStatement;
+        }
+        return statement instanceof ExpressionStatement;
     }
 }

@@ -40,9 +40,13 @@ import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Commons.nvl;
 
 public class AssistantToolApprovals implements PersistentStateElement, Signed {
+    private static final String RETIRED_CONNECTION_INFO_CATEGORY = "CONFIG_INFO_PROVIDER";
+    private static final String RETIRED_CONNECTION_INFO_TYPE = "CONNECTION_INFO";
+
     private final Map<AssistantToolType, AssistantToolApprovalStatus> types = new ConcurrentHashMap<>();
     private final Map<AssistantToolCategory, AssistantToolApprovalStatus> categories = new ConcurrentHashMap<>();
 
@@ -137,6 +141,9 @@ public class AssistantToolApprovals implements PersistentStateElement, Signed {
         Element categoriesElement = element.getChild("categories");
         List<Element> categoryElements = childrenOf(categoriesElement);
         for (Element categoryElement : categoryElements) {
+            String id = stringAttribute(categoryElement, "id");
+            if (RETIRED_CONNECTION_INFO_CATEGORY.equals(id)) continue;
+
             AssistantToolCategory toolCategory = enumAttribute(categoryElement, "id", AssistantToolCategory.class);
             if (toolCategory == null) continue; // ignore renamed tool categories
 
@@ -147,6 +154,9 @@ public class AssistantToolApprovals implements PersistentStateElement, Signed {
         Element typesElement = element.getChild("types");
         List<Element> typeElements = childrenOf(typesElement);
         for (Element typeElement : typeElements) {
+            String id = stringAttribute(typeElement, "id");
+            if (RETIRED_CONNECTION_INFO_TYPE.equals(id)) continue;
+
             AssistantToolType toolType = enumAttribute(typeElement, "id", AssistantToolType.class);
             if (toolType == null) continue; // ignore renamed tool types
 

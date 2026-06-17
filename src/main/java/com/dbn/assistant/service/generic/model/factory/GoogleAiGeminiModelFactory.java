@@ -42,6 +42,9 @@ public class GoogleAiGeminiModelFactory extends AbstractModelFactory {
                 .modelName(input.getModelName())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
+                .maxOutputTokens(input.getMaxOutputTokens())
+                .returnThinking(true)
+                .sendThinking(true)
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
     }
@@ -53,6 +56,9 @@ public class GoogleAiGeminiModelFactory extends AbstractModelFactory {
                 .modelName(input.getModelName())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
+                .maxOutputTokens(input.getMaxOutputTokens())
+                .returnThinking(true)
+                .sendThinking(true)
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
     }

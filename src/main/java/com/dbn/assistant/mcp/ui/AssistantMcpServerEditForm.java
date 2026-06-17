@@ -45,7 +45,6 @@ import static com.dbn.assistant.mcp.model.AssistantMcpServerType.STDIO;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.list.ListProperty.EDITABLE;
-import static com.dbn.common.ui.list.ListProperty.SORTED;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
@@ -107,7 +106,7 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
         //onTextChange(commandArgumentsTextField, e -> updateCommandPreview());
         addSingleFileChooser(getProject(), commandTextField, txt("msg.mcp.title.SelectMcpServerExecutable"), null);
 
-        commandArgumentsList = new EditableStringListForm(this, null, SORTED, EDITABLE);
+        commandArgumentsList = new EditableStringListForm(this, null, EDITABLE);
         commandArgumentsList.onListChanges(e -> updateCommandPreview());
         commandArgumentsPanel.add(commandArgumentsList.getComponent());
     }

@@ -25,10 +25,11 @@ import com.dbn.common.property.Property;
  * @author Dan Cioca (Oracle)
  */
 public enum ConfigActivity implements Property.IntBase {
-    INITIALIZING,
-    CLONING,
-    APPLYING,
-    RESETTING;
+    INITIALIZING,  // Loading persisted configuration into live settings
+    TRANSFERRING,  // Copying configuration values between objects without applying storage filtering
+    CLONING,       // Creating an in-memory clone of a configuration tree
+    APPLYING,      // Applying settings editor values to the live configuration
+    RESETTING;     // Resetting settings editor values from the live configuration
 
     public static final ConfigActivity[] VALUES = values();
 

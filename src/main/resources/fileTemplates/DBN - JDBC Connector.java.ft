@@ -56,14 +56,6 @@ public class ${CLASS_NAME}  {
     }
 
     public static void main(String[] args) {
-        #if (${AUTH_TYPE} == 'USER_PASSWORD'||
-                (${AUTH_TYPE} == 'TOKEN' &&
-                   ((${AUTH_TOKEN_TYPE} == 'AZURE_SERVICE_PRINCIPAL_CERT' && ${AZURE_TOKEN_CLIENT_SECRET_FILE_PASSWORD}) ||
-                        (${AUTH_TOKEN_TYPE} == 'AZURE_SERVICE_PRINCIPAL_SECRET' ))))
-        // init secret
-        readSecret();
-        #end
-
         ${CLASS_NAME} connector = new ${CLASS_NAME}();
         try (Connection connection = connector.connect()) {
             connection.isValid(10);

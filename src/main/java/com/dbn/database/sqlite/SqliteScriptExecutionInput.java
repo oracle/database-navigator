@@ -18,6 +18,7 @@ package com.dbn.database.sqlite;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseScriptExecutionInput;
 import com.dbn.execution.script.CmdLineInterface;
@@ -28,13 +29,12 @@ import static com.dbn.common.util.Naming.doubleQuoted;
 
 public final class SqliteScriptExecutionInput extends DatabaseScriptExecutionInput {
     public SqliteScriptExecutionInput(
+            @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
             @NotNull String filePath,
             @NotNull String content,
-            @Nullable SchemaId schemaId,
-            @NotNull DatabaseInfo databaseInfo,
-            @NotNull AuthenticationInfo authenticationInfo) {
-        super(cmdLineInterface, filePath, content, schemaId, databaseInfo, authenticationInfo);
+            @Nullable SchemaId schemaId) {
+        super(connection, cmdLineInterface, filePath, content, schemaId);
     }
 
     @Override
@@ -51,7 +51,7 @@ public final class SqliteScriptExecutionInput extends DatabaseScriptExecutionInp
     }
 
     @Override
-    protected void initConsoleCommands(String filePath, SchemaId schemaId) {
+    protected void initConsoleCommands(String filePath, SchemaId schemaId, ConnectionHandler connection) {
         addStatement(".read " + doubleQuoted(filePath));
         addStatement(".exit");
     }

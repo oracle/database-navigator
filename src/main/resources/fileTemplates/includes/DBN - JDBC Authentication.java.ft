@@ -3,7 +3,7 @@
 #elseif (${AUTH_TYPE} == 'USER_PASSWORD')
     // user-name and password authentication
     String userName = #if (${USER_NAME})"${USER_NAME}";#else null; // TODO please specify User Name#end
-    String password = System.getProperty(JDBC_DB_PASSWORD);
+    String password = readSecret();
     properties.put(PROP_USER, userName);
     properties.put(PROP_PASSWORD, password);
 #elseif (${AUTH_TYPE} == 'USER')
@@ -55,11 +55,11 @@
         #if (${AUTH_TOKEN_TYPE} == 'AZURE_SERVICE_PRINCIPAL_CERT')
         properties.put(PROP_AZURE_TOKEN_CLIENT_SECRET_FILE, "${AZURE_TOKEN_CLIENT_SECRET_FILE}");
            #if (${AZURE_TOKEN_CLIENT_SECRET_FILE_PASSWORD})
-              String certificatePassword = System.getProperty(PROP_AZURE_TOKEN_CLIENT_SECRET_FILE_PASSWORD);
+              String certificatePassword = readSecret();
               properties.put(PROP_AZURE_TOKEN_CLIENT_SECRET_FILE_PASSWORD, certificatePassword);
            #end
         #elseif (${AUTH_TOKEN_TYPE} == 'AZURE_SERVICE_PRINCIPAL_SECRET')
-             String secretToken = System.getProperty(PROP_AZURE_TOKEN_CLIENT_SECRET_TOKEN);
+             String secretToken = readSecret();
              properties.put(PROP_AZURE_TOKEN_CLIENT_SECRET_TOKEN, secretToken);
         #end
     #elseif (${AUTH_TOKEN_TYPE} == 'AZURE_INTERACTIVE')

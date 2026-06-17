@@ -86,7 +86,7 @@ public class CmdLineInterfaceApprovalAdapter implements UserApprovalAdapter<CmdL
 
     @Override
     @Nullable
-    public Duration getRejectionCooldown(CmdLineInterface approvable) {
+    public Duration getRejectionCooldown(CmdLineInterface approvable, int option) {
         return null; // do not remember rejections
     }
 }

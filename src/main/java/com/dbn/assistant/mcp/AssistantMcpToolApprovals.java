@@ -112,6 +112,8 @@ public class AssistantMcpToolApprovals implements PersistentStateElement, Signed
 
     @Override
     public void readState(Element element) {
+        servers.clear();
+        tools.clear();
         if (element == null) return;
 
         Element serversElement = element.getChild("servers");
