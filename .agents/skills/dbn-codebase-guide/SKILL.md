@@ -1,6 +1,6 @@
 ---
 name: dbn-codebase-guide
-description: Oracle© Database Navigator (DBN) project coding guide. Use when Codex is changing, reviewing, explaining, or planning Java/Kotlin/Gradle/XML code in this repository, especially IntelliJ plugin services, DBN managers, actions, UI forms/dialogs, settings persistence, database object models, connection/session code, language/parser code, or when the user asks about DBN naming patterns, common practices, or shared/shard utilities. For localization/NLS-only work, use dbn-localization-guide instead.
+description: Oracle© Database Navigator (DBN) project coding guide. Use when Codex is changing, reviewing, explaining, or planning Java/Kotlin/Gradle/XML code in this repository, especially IntelliJ plugin services, DBN managers, actions, UI forms/dialogs, settings persistence, database object models, connection/session code, language/parser code, or when the user asks about DBN naming patterns, common practices, or shared/shard utilities. For BugDB, build/test triggers, repository mechanics, or validation workflow, use dbn-development-guide. For localization/NLS-only work, use dbn-localization-guide instead.
 ---
 
 # DBN Codebase Guide
@@ -14,16 +14,14 @@ Primary supported databases are Oracle, MySQL, PostgreSQL, and SQLite, with expe
 ## Quick Workflow
 
 1. Inspect nearby code first. Match the existing package, base class, nullability annotations, Lombok usage, static imports, and registration style before adding a new pattern.
-2. Prefer DBN wrappers over raw platform calls. Check `com.dbn.common.*` before using direct IntelliJ APIs for services, events, disposal, threading, dialogs, messages, settings XML, files, editors, and UI helpers.
-3. Use `Components.projectService(...)` and `Components.applicationService(...)` from `com.dbn.common.component.Components` in DBN service `getInstance` helpers, not direct `project.getService(...)` or `ApplicationManager` calls. For services registered only from optional plugin descriptors, use `Components.optionalProjectService(...)` or `Components.optionalApplicationService(...)`. Project services are historically named `*Manager`; avoid introducing interface/implementation service pairs unless the surrounding code already uses that pattern.
-4. For name, class, or package refactorings, preserve Git history by moving/renaming existing files first, then editing contents. Check `git diff --find-renames` when rename detection matters.
-5. Preserve the repository shape: Java 17, Gradle IntelliJ plugin, source under `src/main/java`, resources under `src/main/resources`, modules under `modules/dbn-api` and `modules/dbn-spi`.
-6. Keep behavior defensive around disposed project/plugin objects. Use DBN refs and failsafe utilities where adjacent code does.
-7. Validate with the narrowest useful Gradle task, normally `./gradlew test` for unit-level changes or `./gradlew build` for broader plugin/resource changes.
+2. For development workflow, BugDB handling, repository mechanics, build/test triggers, and validation handoff, use `dbn-development-guide`.
+3. Prefer DBN wrappers over raw platform calls. Check `com.dbn.common.*` before using direct IntelliJ APIs for services, events, disposal, threading, dialogs, messages, settings XML, files, editors, and UI helpers.
+4. Use `Components.projectService(...)` and `Components.applicationService(...)` from `com.dbn.common.component.Components` in DBN service `getInstance` helpers, not direct `project.getService(...)` or `ApplicationManager` calls. For services registered only from optional plugin descriptors, use `Components.optionalProjectService(...)` or `Components.optionalApplicationService(...)`. Project services are historically named `*Manager`; avoid introducing interface/implementation service pairs unless the surrounding code already uses that pattern.
+5. Keep behavior defensive around disposed project/plugin objects. Use DBN refs and failsafe utilities where adjacent code does.
 
 ## References
 
-Read [references/project-practices.md](references/project-practices.md) when making or reviewing code changes. It covers package layout, naming conventions, services, actions, UI forms/dialogs, settings, extension registration, and validation.
+Read [references/project-practices.md](references/project-practices.md) when making or reviewing code changes. It covers package layout, naming conventions, services, actions, UI forms/dialogs, settings, and extension registration.
 
 Read [references/shared-utilities.md](references/shared-utilities.md) when choosing helper APIs. It maps common needs to DBN utility classes and explains the "shared/shard utilities" layer. If the user says "shard utilities", treat it as DBN shared utilities unless the codebase contains a task-specific shard concept.
 
@@ -53,3 +51,4 @@ Use this map as a source-discovery starting point. Package roots are not exhaust
 - For localization/NLS work, use `dbn-localization-guide`.
 - Do not hold strong references to long-lived project, connection, object, or UI objects when nearby code uses `ProjectRef`, `ConnectionRef`, `DBObjectRef`, or `WeakRef`.
 - Do not use raw background, dispatch, progress, or write-action APIs without checking DBN wrappers first.
+- When intentionally handling an exception silently, still call `Diagnostics.conditionallyLog(exception)` unless nearby code clearly uses a different DBN diagnostic helper.

@@ -149,7 +149,8 @@ public class QuotePairTest {
         assertEquals("\"a\"\"b\"", simpleQuotePair.quote("a\"b", DATABASE));
         assertEquals("`a``b`", backTickPair.quote("a`b", DATABASE));
         assertEquals("[a]]b]", squareBracketPair.quote("a]b", DATABASE));
-        assertEquals("\"a\"\"b\"", simpleQuotePair.quote("\"a\"\"b\"", DATABASE));
+        assertEquals("\"\"\"a\"\"\"\"b\"\"\"", simpleQuotePair.quote("\"a\"\"b\"", DATABASE));
+        assertEquals("\"\"\"x\"\"; drop table t; --\"", simpleQuotePair.quote("\"x\"; drop table t; --", DATABASE));
     }
 
     @Test

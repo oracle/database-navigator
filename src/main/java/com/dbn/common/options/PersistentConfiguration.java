@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NonNls;
 
 import static com.dbn.common.options.ConfigActivity.APPLYING;
 import static com.dbn.common.options.ConfigActivity.CLONING;
+import static com.dbn.common.options.ConfigActivity.TRANSFERRING;
 
 public interface PersistentConfiguration  {
     void readConfiguration(@NonNls Element element);
@@ -30,9 +31,14 @@ public interface PersistentConfiguration  {
     default void validate() throws ConfigurationException {};
 
     default void applyTo(PersistentConfiguration configuration) {
-        @NonNls Element element = new Element("configuration");
-        writeConfiguration(element);
-        configuration.readConfiguration(element);
+        try {
+            ConfigMonitor.set(TRANSFERRING, true);
+            @NonNls Element element = new Element("configuration");
+            writeConfiguration(element);
+            configuration.readConfiguration(element);
+        } finally {
+            ConfigMonitor.set(TRANSFERRING, false);
+        }
     }
 
     default boolean isTransientContext() {

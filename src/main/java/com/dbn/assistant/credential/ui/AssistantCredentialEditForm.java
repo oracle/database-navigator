@@ -28,6 +28,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.util.Labels;
 import com.dbn.common.util.Strings;
 import com.dbn.oci.config.ui.OciConfigForm;
 import com.intellij.ui.components.JBPasswordField;
@@ -155,7 +156,7 @@ public class AssistantCredentialEditForm extends DBNFormBase {
 
         AIAuthentication authentication = getAuthentication();
         Field secretField = authentication.getSecretField();
-        secretLabel.setText(secretField.getName());
+        Labels.setText(secretLabel, getSecretFieldLabel(secretField));
 
         AIProvider provider = getSelectedProvider();
         boolean infoAvailable = provider != null && secretField == API_KEY;
@@ -165,6 +166,15 @@ public class AssistantCredentialEditForm extends DBNFormBase {
             guideHyperlink.setHyperlinkText(txt("cfg.assistant.link.ProviderApiKeys", providerName));
             guideHyperlink.setHyperlinkTarget(provider.getUrl(ProviderUrlType.KEYS));
         }
+    }
+
+    private static String getSecretFieldLabel(Field secretField) {
+        return switch (secretField) {
+            case API_KEY -> txt("cfg.assistant.label.ApiKey");
+            case PASSWORD -> txt("cfg.assistant.label.Password");
+            case TOKEN -> txt("cfg.assistant.label.AccessToken");
+            default -> secretField.getName();
+        };
     }
 
     private AIAuthentication getAuthentication() {

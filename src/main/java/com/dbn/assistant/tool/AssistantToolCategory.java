@@ -31,10 +31,6 @@ public enum AssistantToolCategory implements Constant<AssistantToolCategory> {
             txt("app.assistant.const.AssistantToolCategory_USER_INTERACTION"),
             txt("app.assistant.hint.AssistantToolCategory_USER_INTERACTION")),
 
-    CONFIG_INFO_PROVIDER(
-            txt("app.assistant.const.AssistantToolCategory_CONFIG_INFO_PROVIDER"),
-            txt("app.assistant.hint.AssistantToolCategory_CONFIG_INFO_PROVIDER")),
-
     METADATA_PROVIDER(
             txt("app.assistant.const.AssistantToolCategory_METADATA_PROVIDER"),
             txt("app.assistant.hint.AssistantToolCategory_METADATA_PROVIDER")),

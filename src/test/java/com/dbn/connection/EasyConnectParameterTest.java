@@ -61,6 +61,103 @@ public class EasyConnectParameterTest {
     }
 
     @Test
+    public void testSanitizeParametersKeepsSupportedSafeEntries() {
+        Map<String, String> params = new HashMap<>();
+        params.put("WALLET_LOCATION", "/Users/foo/wallet");
+        params.put("SSL_SERVER_DN_MATCH", "yes");
+        params.put("SSL_SERVER_CERT_DN", "\"CN=adwc.example.com, O=Oracle Corporation\"");
+        params.put("UNKNOWN", "value");
+        params.put("HTTPS_PROXY&SSL_SERVER_DN_MATCH", "OFF");
+
+        Map<String, String> sanitizedParams =
+                EasyConnectParameters.sanitizeParameters(params, DatabaseProtocol.TCPS);
+
+        assertEquals("/Users/foo/wallet", sanitizedParams.get("WALLET_LOCATION"));
+        assertEquals("yes", sanitizedParams.get("SSL_SERVER_DN_MATCH"));
+        assertEquals("\"CN=adwc.example.com, O=Oracle Corporation\"", sanitizedParams.get("SSL_SERVER_CERT_DN"));
+        assertNull(sanitizedParams.get("UNKNOWN"));
+        assertNull(sanitizedParams.get("HTTPS_PROXY&SSL_SERVER_DN_MATCH"));
+    }
+
+    @Test
+    public void testSanitizeParametersRemovesTcpsOnlyEntriesForTcp() {
+        Map<String, String> params = new HashMap<>();
+        params.put("WALLET_LOCATION", "/Users/foo/wallet");
+        params.put("SSL_SERVER_DN_MATCH", "yes");
+        params.put("SSL_SERVER_CERT_DN", "\"CN=adwc.example.com, O=Oracle Corporation\"");
+
+        Map<String, String> sanitizedParams =
+                EasyConnectParameters.sanitizeParameters(params, DatabaseProtocol.TCP);
+
+        assertEquals("/Users/foo/wallet", sanitizedParams.get("WALLET_LOCATION"));
+        assertNull(sanitizedParams.get("SSL_SERVER_DN_MATCH"));
+        assertNull(sanitizedParams.get("SSL_SERVER_CERT_DN"));
+    }
+
+    @Test
+    public void testSanitizeParametersRejectsDelimiterInjection() {
+        Map<String, String> params = new HashMap<>();
+        params.put("WALLET_LOCATION", "/Users/foo/wallet&SSL_SERVER_DN_MATCH=OFF");
+        params.put("HTTPS_PROXY", "proxy.example.com?SSL_SERVER_DN_MATCH=OFF");
+        params.put("HTTPS_PROXY_PORT", "443=SSL_SERVER_DN_MATCH");
+        params.put("SSL_SERVER_CERT_DN", "CN=adwc.example.com\rSSL_SERVER_DN_MATCH=OFF");
+        params.put("RETRY_DELAY", "10ms\nSSL_SERVER_DN_MATCH=OFF");
+        params.put("RETRY_COUNT=SSL_SERVER_DN_MATCH", "OFF");
+
+        Map<String, String> sanitizedParams =
+                EasyConnectParameters.sanitizeParameters(params, DatabaseProtocol.TCPS);
+
+        assertNull(sanitizedParams.get("WALLET_LOCATION"));
+        assertNull(sanitizedParams.get("HTTPS_PROXY"));
+        assertNull(sanitizedParams.get("HTTPS_PROXY_PORT"));
+        assertNull(sanitizedParams.get("SSL_SERVER_CERT_DN"));
+        assertNull(sanitizedParams.get("RETRY_DELAY"));
+        assertNull(sanitizedParams.get("RETRY_COUNT=SSL_SERVER_DN_MATCH"));
+    }
+
+    @Test
+    public void testSanitizeParametersRejectsQuotedDelimiterInjection() {
+        Map<String, String> params = new HashMap<>();
+        params.put("SSL_SERVER_CERT_DN", "\"CN=adwc.example.com&SSL_SERVER_DN_MATCH=OFF\"");
+        params.put("WALLET_LOCATION", "\"/Users/foo/wallet?SSL_SERVER_DN_MATCH=OFF\"");
+
+        Map<String, String> sanitizedParams =
+                EasyConnectParameters.sanitizeParameters(params, DatabaseProtocol.TCPS);
+
+        assertNull(sanitizedParams.get("SSL_SERVER_CERT_DN"));
+        assertNull(sanitizedParams.get("WALLET_LOCATION"));
+    }
+
+    @Test
+    public void testSanitizeParametersRejectsUnsafeQuotes() {
+        Map<String, String> params = new HashMap<>();
+        params.put("WALLET_LOCATION", "\"/Users/foo/wallet\"");
+        params.put("SSL_SERVER_CERT_DN", "\"CN=adwc.example.com, O=Oracle Corporation\"");
+        params.put("HTTPS_PROXY", "\"proxy.example.com\"");
+        params.put("SSL_SERVER_DN_MATCH", "\"yes\"");
+
+        Map<String, String> sanitizedParams =
+                EasyConnectParameters.sanitizeParameters(params, DatabaseProtocol.TCPS);
+
+        assertEquals("\"/Users/foo/wallet\"", sanitizedParams.get("WALLET_LOCATION"));
+        assertEquals("\"CN=adwc.example.com, O=Oracle Corporation\"", sanitizedParams.get("SSL_SERVER_CERT_DN"));
+        assertNull(sanitizedParams.get("HTTPS_PROXY"));
+        assertNull(sanitizedParams.get("SSL_SERVER_DN_MATCH"));
+    }
+
+    @Test
+    public void testEnsureParametersIfEasyConnectQuotesUnquotedDistinguishedName() {
+        Map<String, String> params = new HashMap<>();
+        params.put("SSL_SERVER_CERT_DN", "CN=adwc.uscom-east-1.oraclecloud.com, O=Oracle Corporation");
+
+        Map<String, String> quotedParams = EasyConnectParameters.ensureParametersIfEasyConnect(
+                params, DatabaseProtocol.TCPS, DatabaseUrlType.EZCONNECT, false);
+
+        assertEquals("\"CN=adwc.uscom-east-1.oraclecloud.com, O=Oracle Corporation\"",
+                quotedParams.get("SSL_SERVER_CERT_DN"));
+    }
+
+    @Test
     public void testEnsureToParameterString() {
         Map<String, String> params = new HashMap<>();
         LinkedHashMap<String, String> map =

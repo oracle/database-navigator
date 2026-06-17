@@ -134,7 +134,11 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
         if (!sslSettings.isActive()) return;
 
         super.initConnectorSslConnection(properties, settings);
+        properties.add("sslMode", "VERIFY_IDENTITY");
+
+        // Legacy Connector/J SSL properties retained for older user-provided drivers.
         properties.add("useSSL", "true");
         properties.add("requireSSL", "true");
+        properties.add("verifyServerCertificate", "true");
     }
 }

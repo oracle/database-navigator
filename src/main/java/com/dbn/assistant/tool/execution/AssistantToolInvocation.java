@@ -24,6 +24,7 @@ import com.dbn.common.state.PersistentStateElement;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
@@ -31,16 +32,18 @@ import java.lang.reflect.Method;
 import static com.dbn.assistant.tool.AssistantToolData.isInteractiveTool;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.readCdata;
+import static com.dbn.common.options.setting.Settings.readSensitiveData;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.options.setting.Settings.writeCdata;
+import static com.dbn.common.options.setting.Settings.writeSensitiveData;
 import static com.dbn.common.util.Commons.nvl;
 
 @Getter
 @Setter
 public class AssistantToolInvocation implements PersistentStateElement {
+    private static final @NonNls String TOOL_ARGUMENTS_ENC_SCOPE = "assistant.tool.arguments";
+    private static final @NonNls String TOOL_RESPONSE_ENC_SCOPE = "assistant.tool.response";
     private static final ThreadLocal<AssistantToolInvocation> CURRENT = new ThreadLocal<>();
 
     private AssistantToolRequest request;
@@ -107,11 +110,11 @@ public class AssistantToolInvocation implements PersistentStateElement {
         status = enumAttribute(element, "tool-status", status);
 
         Element argumentsElement = element.getChild("tool-arguments");
-        request.setToolArguments(readCdata(argumentsElement));
+        request.setToolArguments(readSensitiveData(argumentsElement, TOOL_ARGUMENTS_ENC_SCOPE));
 
         Element responseElement = element.getChild("tool-response");
         if (responseElement != null) {
-            String toolResponse = readCdata(responseElement);
+            String toolResponse = readSensitiveData(responseElement, TOOL_RESPONSE_ENC_SCOPE);
             response = new AssistantToolResponse(toolResponse);
         }
     }
@@ -124,11 +127,11 @@ public class AssistantToolInvocation implements PersistentStateElement {
         setEnumAttribute(element, "tool-status", status);
 
         Element contentElement = newElement(element,"tool-arguments");
-        writeCdata(contentElement, request.getToolArguments());
+        writeSensitiveData(contentElement, request.getToolArguments(), TOOL_ARGUMENTS_ENC_SCOPE);
 
         if (response != null) {
             Element resposeElement = newElement(element,"tool-response");
-            writeCdata(resposeElement, response.getContent());
+            writeSensitiveData(resposeElement, response.getContent(), TOOL_RESPONSE_ENC_SCOPE);
         }
     }
 

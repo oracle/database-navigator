@@ -120,6 +120,13 @@ public class GroovyExpressionEvaluatorTest {
     }
 
     @Test
+    public void evaluateBooleanExpression_FAILS_CLOSED() {
+        assertBooleanExpression("System.exit(0)", false, "COLUMN_NAME", "TEST1");
+        assertBooleanExpression("UNKNOWN_COLUMN = 'TEST1'", false, "COLUMN_NAME", "TEST1");
+        assertBooleanExpression("COLUMN_NAME", false, "COLUMN_NAME", "TEST1");
+    }
+
+    @Test
     public void verifyExpression_EXPECTED_BOOLEAN() {
         ExpressionEvaluatorContext context = context("COLUMN_NAME", "TEST1");
         Assert.assertTrue(expressionEvaluator.verifyExpression("COLUMN_NAME = 'TEST1'", context, Boolean.class));
@@ -147,6 +154,9 @@ public class GroovyExpressionEvaluatorTest {
         assertInvalidExpression("COLUMN_SIZE += 1");
         assertInvalidExpression("[1] * 3");
         assertInvalidExpression("COLUMN_NAME + COLUMN_NAME");
+        assertInvalidExpression("COLUMN_NAME = 'TEST1'; true");
+        assertInvalidExpression("false; COLUMN_NAME = 'TEST1'");
+        assertInvalidExpression("COLUMN_SIZE > 1; COLUMN_NAME = 'TEST1'");
     }
 
     @Test
