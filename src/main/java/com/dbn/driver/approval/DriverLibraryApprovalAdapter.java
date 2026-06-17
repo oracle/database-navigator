@@ -51,7 +51,7 @@ public class DriverLibraryApprovalAdapter implements UserApprovalAdapter<DriverL
                     txt("msg.driver.text.JarFiles");
             directoryInfo = txt("msg.driver.message.TrustExternalJdbcDriverLibraryDirectory", info.getJarCount(), jarLabel) + "\n";
         }
-        return txt("msg.driver.message.TrustExternalJdbcDriverLibrary", info.getPath(), directoryInfo);
+        return txt("msg.driver.message.TrustExternalJdbcDriverLibrary", info.getPath(), directoryInfo, approval.getFingerprint());
     }
 
     @Override
