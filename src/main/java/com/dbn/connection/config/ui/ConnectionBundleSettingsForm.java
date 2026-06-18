@@ -35,6 +35,7 @@ import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.config.ConnectionConfigExport;
+import com.dbn.connection.config.ConnectionConfigImportPreview;
 import com.dbn.connection.config.ConnectionConfigListCellRenderer;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
@@ -77,6 +78,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.makeRegular;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Lists.anyMatch;
 import static com.dbn.common.util.Lists.count;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -386,12 +388,10 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             Element rootElement = ConnectionConfigExport.readClipboardElement();
             if (rootElement == null) return;
 
-            boolean configurationsFound = false;
             List<Element> configElements = rootElement.getChildren();
             ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
-            int index = connectionsList.getModel().getSize();
-            List<Integer> selectedIndices = new ArrayList<>();
             ConnectionBundleSettings configuration = getConfiguration();
+            List<ConnectionSettings> importedConnections = new ArrayList<>();
             for (Element configElement : configElements) {
                 ConnectionSettings clone = new ConnectionSettings(configuration);
                 clone.readConfiguration(configElement);
@@ -399,35 +399,52 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
                 clone.generateNewId();
 
                 ConnectionDatabaseSettings databaseSettings = clone.getDatabaseSettings();
-                String name = databaseSettings.getName();
-                while (model.getConnectionConfig(name) != null) {
-                    name = Naming.nextNumberedIdentifier(name, true);
-                }
-                databaseSettings.setName(name);
-                model.add(index, clone);
-                selectedIndices.add(index);
-                configuration.setModified(true);
-                index++;
-                configurationsFound = true;
+                databaseSettings.setName(ensureUniqueName(databaseSettings.getName(), model, importedConnections));
+                importedConnections.add(clone);
             }
 
-            if (configurationsFound) {
-                int[] indices = selectedIndices.stream().mapToInt(i -> i).toArray();
-                connectionsList.setSelectedIndices(indices);
-            }
-
-            if (!configurationsFound) {
+            if (importedConnections.isEmpty()) {
                 Messages.showWarningDialog(
                         getProject(),
                         txt("msg.connection.title.ImportFailed"),
                         txt("msg.connection.warning.ImportFailedEmpty"));
+                return;
             }
+
+            if (!ConnectionConfigImportPreview.confirm(getProject(), importedConnections)) return;
+
+            int index = connectionsList.getModel().getSize();
+            List<Integer> selectedIndices = new ArrayList<>();
+            for (ConnectionSettings connection : importedConnections) {
+                model.add(index, connection);
+                selectedIndices.add(index);
+                configuration.setModified(true);
+                index++;
+            }
+
+            int[] indices = selectedIndices.stream().mapToInt(i -> i).toArray();
+            connectionsList.setSelectedIndices(indices);
 
         } catch (Exception e) {
             conditionallyLog(e);
             Messages.showErrorDialog(getProject(),
                     txt("msg.connection.title.ImportFailed"),
                     txt("msg.connection.error.ImportFailedUnparseable"), e);
+        }
+    }
+
+    private static String ensureUniqueName(
+            String name,
+            ConnectionListModel model,
+            List<ConnectionSettings> importedConnections) {
+        while (true) {
+            String candidateName = name;
+            boolean nameAlreadyUsed =
+                    model.getConnectionConfig(candidateName) != null ||
+                    anyMatch(importedConnections, connection -> Commons.match(connection.getDatabaseSettings().getName(), candidateName));
+            if (!nameAlreadyUsed) return candidateName;
+
+            name = Naming.nextNumberedIdentifier(candidateName, true);
         }
     }
 
