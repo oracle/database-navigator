@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.util.JdbcUrls.redactSensitiveParameters;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showAcknowledgementDialog;
 import static com.dbn.common.util.Parameters.toParameterString;
@@ -145,7 +146,7 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
 
         ConnectionDatabaseSettings databaseSettings = settings.getDatabaseSettings();
         addProperty(properties, "DATABASE_TYPE", databaseSettings.getDatabaseType());
-        addProperty(properties, "JDBC_URL", databaseSettings.getConnectionUrlRedactedForExport());
+        addProperty(properties, "JDBC_URL", redactSensitiveParameters(databaseSettings.getConnectionUrl()));
         addProperty(properties, "JDBC_DRIVER", databaseSettings.getDriver());
         addProperty(properties, "JDBC_URL_PATTERN", databaseSettings.getUrlPattern().getUrlTemplate());
 

@@ -5,7 +5,6 @@ import com.dbn.common.exception.Exceptions;
 import com.dbn.common.template.TemplateUtilities;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.JdbcUrls;
 import com.dbn.common.util.Json;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
@@ -48,6 +47,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.util.JdbcUrls.redactSensitiveParameters;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -228,10 +228,10 @@ public class McpBuildTask {
         DatabaseUrlType urlType = info.getUrlType();
 
         if (urlType == DatabaseUrlType.TNS) {
-            return JdbcUrls.redactSensitiveParameters(resolveTnsDescriptorUrl(info));
+            return redactSensitiveParameters(resolveTnsDescriptorUrl(info));
         }
 
-        return databaseSettings.getConnectionUrlRedactedForExport();
+        return redactSensitiveParameters(databaseSettings.getConnectionUrl());
     }
 
     private String resolveTnsDescriptorUrl(DatabaseInfo info) {

@@ -22,7 +22,6 @@ import com.dbn.common.options.BasicConfiguration;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Files;
-import com.dbn.common.util.JdbcUrls;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
@@ -186,10 +185,6 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         return databaseInfo.isCustomUrl() ?
                 databaseInfo.getUrl() :
                 urlPattern.buildUrl(databaseInfo);
-    }
-
-    public String getConnectionUrlRedactedForExport() {
-        return JdbcUrls.redactSensitiveParameters(getConnectionUrl());
     }
 
     public String getConnectionUrl(String host, String port) {
