@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.connection.config.ConnectionConfigExport.isConnectionConfig;
 import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
@@ -54,7 +55,7 @@ public class ConnectionPasteAction extends ConnectionSettingsAction {
 
         @NonNls
         String clipboardString = Clipboard.getStringContent();
-        boolean enabled = clipboardString != null && clipboardString.contains("connection-configurations");
+        boolean enabled = isConnectionConfig(clipboardString);
 
         presentation.setEnabled(enabled);
         presentation.setText(txt("app.connection.action.PasteFromClipboard"));

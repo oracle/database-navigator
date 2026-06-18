@@ -36,6 +36,7 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.ConnectionBundleSettings;
+import com.dbn.connection.config.ConnectionConfigExport;
 import com.dbn.connection.config.ConnectionConfigListCellRenderer;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
@@ -86,7 +87,6 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<ConnectionBundleSettings> implements ListSelectionListener {
-
     private JPanel mainPanel;
     private JPanel actionsPanel;
     private JPanel connectionSetupPanel;
@@ -361,7 +361,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         List<ConnectionSettings> configurations = connectionsList.getSelectedValuesList();
         Project project = getProject();
         try {
-            Element rootElement = newElement("connection-configurations");
+            Element rootElement = ConnectionConfigExport.createConnectionConfigElement();
             for (ConnectionSettings configuration : configurations) {
                 Element configElement = newElement(rootElement, "config");
                 configuration.writeConfiguration(configElement);
@@ -386,54 +386,63 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
 
     public void pasteConnectionsFromClipboard() {
         String clipboardData = Clipboard.getStringContent();
-        if (clipboardData != null) {
-            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(clipboardData.getBytes())) {
-                Element rootElement = XmlContents.streamToElement(inputStream);
-                boolean configurationsFound = false;
-                List<Element> configElements = rootElement.getChildren();
-                ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
-                int index = connectionsList.getModel().getSize();
-                List<Integer> selectedIndices = new ArrayList<>();
-                ConnectionBundleSettings configuration = getConfiguration();
-                for (Element configElement : configElements) {
-                    ConnectionSettings clone = new ConnectionSettings(configuration);
-                    clone.readConfiguration(configElement);
-                    clone.setNew(true);
-                    clone.generateNewId();
+        if (clipboardData == null) return;
 
-                    ConnectionDatabaseSettings databaseSettings = clone.getDatabaseSettings();
-                    String name = databaseSettings.getName();
-                    while (model.getConnectionConfig(name) != null) {
-                        name = Naming.nextNumberedIdentifier(name, true);
-                    }
-                    databaseSettings.setName(name);
-                    model.add(index, clone);
-                    selectedIndices.add(index);
-                    configuration.setModified(true);
-                    index++;
-                    configurationsFound = true;
-                }
-
-                if (configurationsFound) {
-                    int[] indices = selectedIndices.stream().mapToInt(i -> i).toArray();
-                    connectionsList.setSelectedIndices(indices);
-                }
-
-                if (!configurationsFound) {
-                    Messages.showWarningDialog(
-                            getProject(),
-                            txt("msg.connection.title.ImportFailed"),
-                            txt("msg.connection.warning.ImportFailedEmpty"));
-                }
-
-            } catch (Exception e) {
-                conditionallyLog(e);
-                Messages.showErrorDialog(getProject(),
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(clipboardData.getBytes())) {
+            Element rootElement = XmlContents.streamToElement(inputStream);
+                if (!ConnectionConfigExport.isConnectionConfig(rootElement)) {
+                Messages.showWarningDialog(
+                        getProject(),
                         txt("msg.connection.title.ImportFailed"),
-                        txt("msg.connection.error.ImportFailedUnparseable"), e);
+                        txt("msg.connection.error.ImportFailedUnparseable"));
+                return;
             }
+
+            boolean configurationsFound = false;
+            List<Element> configElements = rootElement.getChildren();
+            ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
+            int index = connectionsList.getModel().getSize();
+            List<Integer> selectedIndices = new ArrayList<>();
+            ConnectionBundleSettings configuration = getConfiguration();
+            for (Element configElement : configElements) {
+                ConnectionSettings clone = new ConnectionSettings(configuration);
+                clone.readConfiguration(configElement);
+                clone.setNew(true);
+                clone.generateNewId();
+
+                ConnectionDatabaseSettings databaseSettings = clone.getDatabaseSettings();
+                String name = databaseSettings.getName();
+                while (model.getConnectionConfig(name) != null) {
+                    name = Naming.nextNumberedIdentifier(name, true);
+                }
+                databaseSettings.setName(name);
+                model.add(index, clone);
+                selectedIndices.add(index);
+                configuration.setModified(true);
+                index++;
+                configurationsFound = true;
+            }
+
+            if (configurationsFound) {
+                int[] indices = selectedIndices.stream().mapToInt(i -> i).toArray();
+                connectionsList.setSelectedIndices(indices);
+            }
+
+            if (!configurationsFound) {
+                Messages.showWarningDialog(
+                        getProject(),
+                        txt("msg.connection.title.ImportFailed"),
+                        txt("msg.connection.warning.ImportFailedEmpty"));
+            }
+
+        } catch (Exception e) {
+            conditionallyLog(e);
+            Messages.showErrorDialog(getProject(),
+                    txt("msg.connection.title.ImportFailed"),
+                    txt("msg.connection.error.ImportFailedUnparseable"), e);
         }
     }
+
     public ConnectionId importTnsNames(TnsImportData importData){
         return importTnsNames(importData,null);
     }
