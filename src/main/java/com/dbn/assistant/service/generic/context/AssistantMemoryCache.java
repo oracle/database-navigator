@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.assistant.chat.message.AuthorType.USER;
+import static com.dbn.assistant.tool.AssistantToolContents.prepareToolResponseContent;
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_MEMORY_CACHE;
 import static com.dbn.common.util.Lists.getPreviousElement;
 import static com.dbn.common.util.Strings.isNotEmpty;
@@ -157,7 +158,7 @@ public class AssistantMemoryCache extends AssistantStateExtension implements Cha
                             AiMessage agentMessage = AiMessage.from(sectionContent, singletonList(executionRequest));
                             chatMemory.add(agentMessage);
 
-                            String toolResponseContent = toolSection.getResponseContent();
+                            String toolResponseContent = prepareToolResponseContent(toolSection.getResponseContent());
                             ToolExecutionResultMessage toolResultMessage = toolExecutionResultMessage(toolRequestId, toolName, toolResponseContent);
                             chatMemory.add(toolResultMessage);
                         } else if (isNotEmpty(sectionContent)) {

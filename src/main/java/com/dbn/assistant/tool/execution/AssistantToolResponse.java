@@ -21,6 +21,7 @@ import com.dbn.common.state.ProtectedContent;
 import lombok.NoArgsConstructor;
 import org.jdom.Element;
 
+import static com.dbn.assistant.tool.AssistantToolContents.prepareToolResponseContent;
 import static com.dbn.common.state.StateEncryptionScopes.ASSISTANT_TOOL_RESPONSE;
 
 @NoArgsConstructor
@@ -36,7 +37,7 @@ public class AssistantToolResponse implements PersistentStateElement {
     }
 
     public void setContent(String content) {
-        this.content.set(content);
+        this.content.set(prepareToolResponseContent(content));
     }
 
     @Override
