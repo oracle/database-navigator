@@ -37,13 +37,14 @@ import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.options.setting.Settings.writeSensitiveData;
 import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.common.util.Strings.isNotEmpty;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class ExecutionVariable implements PersistentStateElement, Cloneable<ExecutionVariable>, ValueHolder<String> {
-    private static final @NonNls String VALUE_DATA_FLAVOR = "execution.variable.value";
-    private static final @NonNls String EXPRESSION_DATA_FLAVOR = "execution.variable.expression";
+    private static final @NonNls String EXECUTION_VALUE_ENC_SCOPE = "execution.variable.value";
+    private static final @NonNls String EXECUTION_EXPRESSION_ENC_SCOPE = "execution.variable.expression";
 
     private String path;
     private ExecutionInputMode mode = ExecutionInputMode.FIELDS;
@@ -104,15 +105,15 @@ public class ExecutionVariable implements PersistentStateElement, Cloneable<Exec
         List<String> expressions = new ArrayList<>();
 
         for (Element valueElement : element.getChildren("value")) {
-            String value = readSensitiveData(valueElement, VALUE_DATA_FLAVOR);
-            if (value != null) {
+            String value = readSensitiveData(valueElement, EXECUTION_VALUE_ENC_SCOPE);
+            if (isNotEmpty(value)) {
                 values.add(value);
             }
         }
 
         for (Element exprElement : element.getChildren("expression")) {
-            String expr = readSensitiveData(exprElement, EXPRESSION_DATA_FLAVOR);
-            if (expr != null) {
+            String expr = readSensitiveData(exprElement, EXECUTION_EXPRESSION_ENC_SCOPE);
+            if (isNotEmpty(expr)) {
                 expressions.add(expr);
             }
         }
@@ -129,13 +130,13 @@ public class ExecutionVariable implements PersistentStateElement, Cloneable<Exec
             if (isEmpty(value)) continue;
 
             Element valueElement = newElement(element, "value");
-            writeSensitiveData(valueElement, VALUE_DATA_FLAVOR, value);
+            writeSensitiveData(valueElement, value, EXECUTION_VALUE_ENC_SCOPE);
         }
         for (String expr : expressionHistory) {
             if (isEmpty(expr)) continue;
 
             Element exprElement = newElement(element, "expression");
-            writeSensitiveData(exprElement, EXPRESSION_DATA_FLAVOR, expr);
+            writeSensitiveData(exprElement, expr, EXECUTION_EXPRESSION_ENC_SCOPE);
         }
     }
 

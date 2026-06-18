@@ -164,20 +164,34 @@ public class ParametersTest {
         parameters.put("key1", "value1");
         parameters.put("key2", "\"quoted value\"");
         parameters.put("key3", "\"not allowed quoted value\"");
+        parameters.put("key4", "CN=adwc.example.com, O=Oracle Corporation");
+        parameters.put("key9", "\"CN=adwc.example.com, O=Oracle Corporation\"");
+        parameters.put("key10", "\"CN=adwc.example.com&injected=true\"");
+        parameters.put("key11", "\"CN=\"bad\", O=Oracle Corporation\"");
         parameters.put("key4&injected=true", "value4");
         parameters.put("key5", "value5&injected=true");
+        parameters.put("key6", "value6=injected");
+        parameters.put("key7", "value7\rinjected");
+        parameters.put("key8", "value8\ninjected");
         parameters.put("unknown", "value");
 
         Map<String, String> result = Parameters.sanitizeParameters(
                 parameters,
-                Set.of("key1", "key2", "key3", "key4", "key5"),
-                Set.of("key2"));
+                Set.of("key1", "key2", "key3", "key4", "key5", "key6", "key7", "key8", "key9", "key10", "key11"),
+                Set.of("key2", "key4", "key9", "key10", "key11"));
 
         assertEquals("value1", result.get("key1"));
         assertEquals("\"quoted value\"", result.get("key2"));
         assertNull(result.get("key3"));
+        assertEquals("CN=adwc.example.com, O=Oracle Corporation", result.get("key4"));
+        assertEquals("\"CN=adwc.example.com, O=Oracle Corporation\"", result.get("key9"));
+        assertNull(result.get("key10"));
+        assertNull(result.get("key11"));
         assertNull(result.get("key4&injected=true"));
         assertNull(result.get("key5"));
+        assertNull(result.get("key6"));
+        assertNull(result.get("key7"));
+        assertNull(result.get("key8"));
         assertNull(result.get("unknown"));
     }
 }

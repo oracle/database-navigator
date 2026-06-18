@@ -17,14 +17,19 @@
 package com.dbn.assistant.mcp;
 
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
+import com.dbn.assistant.mcp.model.AssistantMcpServerType;
 import com.dbn.common.approval.UserApprovalAdapter;
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.util.Messages;
+import com.dbn.common.util.Sockets;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.URI;
+import java.net.UnknownHostException;
 import java.time.Duration;
 
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
+import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<AssistantMcpServer> {
@@ -47,7 +52,8 @@ public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<As
         return txt("msg.assistant.question.TrustMcpServer",
                 mcpServer.getName(),
                 mcpServer.getType().name(),
-                mcpServer.getEndpoint());
+                mcpServer.getEndpoint(),
+                getEndpointWarning(mcpServer));
     }
 
     @Override
@@ -61,7 +67,40 @@ public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<As
     }
 
     private String getEndpointFingerprint(AssistantMcpServer mcpServer) {
-        return Checksum.fromStringContent(mcpServer.getType().name() + ":" + mcpServer.getEndpoint(), SHA_256);
+        String content = buildFingerprintContent(mcpServer);
+        return Checksum.fromStringContent(content, SHA_256);
+    }
+
+    private String buildFingerprintContent(AssistantMcpServer mcpServer) {
+        StringBuilder builder = new StringBuilder();
+        appendFingerprintToken(builder, mcpServer.getType().name());
+
+        switch (mcpServer.getType()) {
+            case HTTP -> appendFingerprintToken(builder, mcpServer.getUrl());
+            case STDIO -> mcpServer.getCommandTokens().forEach(t -> appendFingerprintToken(builder, t));
+        }
+        return builder.toString();
+    }
+
+    private static void appendFingerprintToken(StringBuilder builder, String token) {
+        if (token == null) token = "";
+        builder.append(token.length()).append(':').append(token);
+    }
+
+    private static String getEndpointWarning(AssistantMcpServer mcpServer) {
+        if (mcpServer.getType() != AssistantMcpServerType.HTTP) return "";
+        if (isEmpty(mcpServer.getUrl())) return "";
+
+        try {
+            URI uri = URI.create(mcpServer.getUrl());
+            String host = uri.getHost();
+            if (isEmpty(host)) return "";
+
+            return Sockets.isLocalNetworkHost(host) ?
+                    txt("msg.assistant.warning.McpServerLocalNetworkEndpoint") : "";
+        } catch (IllegalArgumentException | UnknownHostException e) {
+            return "";
+        }
     }
 
     @Override

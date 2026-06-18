@@ -98,7 +98,7 @@ public class JdbcConnectorAzureSecret  {
         properties.put(PROP_AZURE_TOKEN_CLIENT_ID, "xxxxxxxxx-yyyyyyyyy-zzzzzz-bbbb");
         properties.put(PROP_AZURE_TOKEN_TENANT_ID, "aaaaaaaaa-bbbbbbbbbb-cccccc-dddd");
         properties.put(PROP_AZURE_TOKEN_DATABASE_ID_URI, "https://mydev.onmicrosoft.com/qqqqqqqq-rrrrrrr-ssss-ttt");
-             String secretToken = System.getProperty(PROP_AZURE_TOKEN_CLIENT_SECRET_TOKEN);
+             String secretToken = readSecret();
              properties.put(PROP_AZURE_TOKEN_CLIENT_SECRET_TOKEN, secretToken);
 
         // PROPERTIES
@@ -114,9 +114,6 @@ public class JdbcConnectorAzureSecret  {
     }
 
     public static void main(String[] args) {
-        // init secret
-        readSecret();
-
         JdbcConnectorAzureSecret connector = new JdbcConnectorAzureSecret();
         try (Connection connection = connector.connect()) {
             connection.isValid(10);
@@ -130,13 +127,13 @@ public class JdbcConnectorAzureSecret  {
     /**
      * Load secret from system environment
      */
-    private static void readSecret() {
+    private static String readSecret() {
         String secret = System.getenv("AZURE_TOKEN_CLIENT_SECRET_TOKEN");
         if (secret == null) {
             String errorMessage = "Your connection is using Azure Service Principal with secret token authentication," +
                                     "you must set the value on the AZURE_TOKEN_CLIENT_SECRET_TOKEN environment variable to pass the secret token.";
             throw new AssertionError(errorMessage);
         }
-        System.setProperty(PROP_AZURE_TOKEN_CLIENT_SECRET_TOKEN, secret);
+        return secret;
     }
 }

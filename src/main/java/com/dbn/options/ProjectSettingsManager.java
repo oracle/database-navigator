@@ -17,14 +17,12 @@
 package com.dbn.options;
 
 import com.dbn.DatabaseNavigator;
-import com.dbn.assistant.credential.AssistantCredentialSettings;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.browser.options.DatabaseBrowserSettings;
 import com.dbn.code.common.completion.options.CodeCompletionSettings;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.project.Projects;
@@ -36,9 +34,6 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.config.ConnectionConfigType;
-import com.dbn.connection.config.ConnectionSettings;
-import com.dbn.connection.config.ConnectionSshTunnelSettings;
-import com.dbn.connection.config.ReverseSshTunnelConfiguration;
 import com.dbn.connection.config.tns.TnsImportData;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.data.grid.options.DataGridSettings;
@@ -65,6 +60,7 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.credentials.Secrets.initialize;
 import static com.dbn.nls.NlsResources.txt;
 
 @State(
@@ -168,37 +164,6 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData, connectionData), callback);
     }
 
-    @Override
-    public void initializeComponent() {
-        restoreKeychainSecrets();
-    }
-
-    /**
-     * Restores authentication passwords from the IDE keychain
-     * (to be used once on component initialization)
-     */
-    private void restoreKeychainSecrets() {
-        ConnectionBundleSettings connectionSettings = getConnectionSettings();
-        for (ConnectionSettings connection : connectionSettings.getConnections()) {
-            // CONNECTION PASSWORDS
-            AuthenticationInfo authenticationInfo = connection.getDatabaseSettings().getAuthenticationInfo();
-            authenticationInfo.initSecrets();
-
-            // SSH TUNNEL PASSWORDS
-            ConnectionSshTunnelSettings sshTunnelSettings = connection.getSshTunnelSettings();
-            sshTunnelSettings.initSecrets();
-
-            // DEBUGGER REVERSE SSH TUNNEL PASSWORDS
-            ReverseSshTunnelConfiguration reverseTunnelSettings = connection.getDebuggerSettings().getReverseSshTunnelConfig();
-            reverseTunnelSettings.initSecrets();
-        }
-
-        // LOCAL CREDENTIALS
-        AssistantSettings assistantSettings = getAssistantSettings();
-        AssistantCredentialSettings credentialSettings = assistantSettings.getCredentialSettings();
-        credentialSettings.getCredentials().initSecrets();
-    }
-
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
@@ -217,6 +182,7 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
             ConfigMonitor.set(INITIALIZING, true);
             projectSettings.readConfiguration(element);
             markSettingsLoaded();
+            initialize();
         } finally {
             ConfigMonitor.set(INITIALIZING, false);
         }

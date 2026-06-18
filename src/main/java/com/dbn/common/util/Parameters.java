@@ -39,7 +39,8 @@ import static java.util.Collections.emptySet;
 public class Parameters {
 
     private static final Set<Character> PARAMETER_NAME_DELIMITERS = Set.of('?', '&', '=', '"', ' ', '\t', '\r', '\n');
-    private static final Set<Character> PARAMETER_VALUE_DELIMITERS = Set.of('?', '&');
+    private static final Set<Character> PARAMETER_VALUE_DELIMITERS = Set.of('?', '&', '=', '\r', '\n');
+    private static final Set<Character> QUOTED_PARAMETER_VALUE_DELIMITERS = Set.of('?', '&', '\r', '\n');
 
     /**
      * Converts a map of key-value pairs into a query parameter string.
@@ -101,10 +102,14 @@ public class Parameters {
 
     private static boolean isValidParameterValue(String name, String value, Collection<String> quotedParameterNames) {
         if (isEmpty(value)) return false;
-        if (containsAny(value, PARAMETER_VALUE_DELIMITERS)) return false;
-        if (!value.contains("\"")) return true;
+        boolean quoteAllowed = quotedParameterNames.contains(name);
+        Set<Character> delimiters = quoteAllowed ? QUOTED_PARAMETER_VALUE_DELIMITERS : PARAMETER_VALUE_DELIMITERS;
+        if (!value.contains("\"")) return !containsAny(value, delimiters);
 
-        return quotedParameterNames.contains(name) &&
+        if (!quoteAllowed) return false;
+        if (containsAny(value, delimiters)) return false;
+
+        return
                 value.startsWith("\"") &&
                 value.endsWith("\"") &&
                 value.indexOf('"', 1) == value.length() - 1;

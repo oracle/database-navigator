@@ -33,12 +33,6 @@ public interface SecretsOwner {
     Secret[] getSecrets();
 
     /**
-     * Utility for initializing the secrets from PasswordStore
-     * (will be invoked once on settings-component initialization)
-     */
-    void initSecrets();
-
-    /**
      * Utility for updating the secrets in PasswordStore via {@link DatabaseCredentialManager}
      * (will be invoked when settings are saved)
      * @param oldSecrets the old secrets to be discarded when new secrets are saved

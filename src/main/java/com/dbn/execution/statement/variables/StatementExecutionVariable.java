@@ -47,7 +47,7 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 @Setter
 public class StatementExecutionVariable extends VariableValueProvider implements Comparable<StatementExecutionVariable>, PersistentStateElement {
-    private static final @NonNls String DATA_FLAVOR = "execution.statement.variable";
+    private static final @NonNls String STATEMENT_VARIABLE_ENC_SCOPE = "execution.statement.variable";
 
     private int offset;
     private String name;
@@ -175,7 +175,7 @@ public class StatementExecutionVariable extends VariableValueProvider implements
         if (dataType == null) enumAttribute(element, "dataType", GenericDataType.class);
 
         for (Element child : element.getChildren()) {
-            String value = readSensitiveData(child, DATA_FLAVOR);
+            String value = readSensitiveData(child, STATEMENT_VARIABLE_ENC_SCOPE);
             if (value == null) continue;
 
             valueHistory.add(value);
@@ -201,7 +201,7 @@ public class StatementExecutionVariable extends VariableValueProvider implements
             if (Strings.isEmpty(value)) continue;
 
             Element valueElement = newElement(element, "value");
-            writeSensitiveData(valueElement, DATA_FLAVOR, value);
+            writeSensitiveData(valueElement, value, STATEMENT_VARIABLE_ENC_SCOPE);
         }
     }
 

@@ -27,19 +27,19 @@ import java.util.concurrent.ConcurrentMap;
 public final class StateEncryptionCache {
     private final ConcurrentMap<Key, Object> values = new ConcurrentHashMap<>();
 
-    public StoredValue encrypt(@NonNls String dataFlavor, @Nullable String value) {
+    public StoredValue encrypt(@NonNls String encryptionScope, @Nullable String value) {
         if (Strings.isEmpty(value)) return new StoredValue(value, false);
 
-        Key key = new Key(Operation.ENCRYPT, dataFlavor, value, StateEncryption.shouldEncrypt());
-        return (StoredValue) values.computeIfAbsent(key, k -> StateEncryption.encrypt(dataFlavor, value));
+        Key key = new Key(Operation.ENCRYPT, encryptionScope, value, StateEncryption.shouldEncrypt());
+        return (StoredValue) values.computeIfAbsent(key, k -> StateEncryption.encrypt(encryptionScope, value));
     }
 
     @Nullable
-    public String decrypt(@NonNls String dataFlavor, @Nullable String value) {
+    public String decrypt(@NonNls String encryptionScope, @Nullable String value) {
         if (Strings.isEmpty(value)) return value;
 
-        Key key = new Key(Operation.DECRYPT, dataFlavor, value, true);
-        return (String) values.computeIfAbsent(key, k -> StateEncryption.decrypt(dataFlavor, value));
+        Key key = new Key(Operation.DECRYPT, encryptionScope, value, true);
+        return (String) values.computeIfAbsent(key, k -> StateEncryption.decrypt(encryptionScope, value));
     }
 
     public void clear() {
@@ -51,5 +51,5 @@ public final class StateEncryptionCache {
         DECRYPT
     }
 
-    private record Key(Operation operation, @NonNls String dataFlavor, @Nullable String value, boolean encrypted) {}
+    private record Key(Operation operation, @NonNls String encryptionScope, @Nullable String value, boolean encrypted) {}
 }

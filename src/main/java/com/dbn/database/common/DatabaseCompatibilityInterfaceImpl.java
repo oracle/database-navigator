@@ -150,6 +150,8 @@ public abstract class DatabaseCompatibilityInterfaceImpl implements DatabaseComp
         ConnectionSslSettings sslSettings = settings.getSslSettings();
         if (!sslSettings.isActive()) return;
 
+        // Generic JDBC drivers do not share a portable hostname verification property.
+        // Database-specific compatibility layers must set the strict driver SSL mode.
         SslConnectionManager connectionManager = SslConnectionManager.getInstance();
         connectionManager.ensureSslConnection(settings);
     }
