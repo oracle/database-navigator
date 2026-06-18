@@ -16,6 +16,7 @@
 
 package com.dbn.connection.config;
 
+import com.dbn.common.clipboard.Clipboard;
 import com.dbn.common.util.XmlContents;
 import lombok.experimental.UtilityClass;
 import org.jdom.Element;
@@ -41,14 +42,25 @@ public class ConnectionConfigExport {
         return rootElement;
     }
 
-    public static boolean isConnectionConfig(@Nullable String clipboardData) {
-        if (clipboardData == null) return false;
+    public static boolean isConnectionConfig() {
+        return readClipboardElement() != null;
+    }
+
+    @Nullable
+    public static Element readClipboardElement() {
+        Element rootElement = loadClipboardElement();
+        return isConnectionConfig(rootElement) ? rootElement : null;
+    }
+
+    @Nullable
+    private static Element loadClipboardElement() {
+        String clipboardData = Clipboard.getStringContent();
+        if (clipboardData == null) return null;
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(clipboardData.getBytes())) {
-            Element rootElement = XmlContents.streamToElement(inputStream);
-            return isConnectionConfig(rootElement);
+            return XmlContents.streamToElement(inputStream);
         } catch (Exception e) {
-            return false;
+            return null;
         }
     }
 

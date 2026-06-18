@@ -17,7 +17,6 @@
 package com.dbn.connection.config.ui;
 
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.clipboard.Clipboard;
 import com.dbn.common.color.Colors;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.dispose.DisposableContainers;
@@ -30,7 +29,6 @@ import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Naming;
-import com.dbn.common.util.XmlContents;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.DatabaseUrlPattern;
@@ -71,7 +69,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
 import java.awt.datatransfer.StringSelection;
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -385,18 +382,9 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
     }
 
     public void pasteConnectionsFromClipboard() {
-        String clipboardData = Clipboard.getStringContent();
-        if (clipboardData == null) return;
-
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(clipboardData.getBytes())) {
-            Element rootElement = XmlContents.streamToElement(inputStream);
-                if (!ConnectionConfigExport.isConnectionConfig(rootElement)) {
-                Messages.showWarningDialog(
-                        getProject(),
-                        txt("msg.connection.title.ImportFailed"),
-                        txt("msg.connection.error.ImportFailedUnparseable"));
-                return;
-            }
+        try {
+            Element rootElement = ConnectionConfigExport.readClipboardElement();
+            if (rootElement == null) return;
 
             boolean configurationsFound = false;
             List<Element> configElements = rootElement.getChildren();
