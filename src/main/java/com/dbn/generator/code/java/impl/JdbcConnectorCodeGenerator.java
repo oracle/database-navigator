@@ -145,7 +145,7 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
 
         ConnectionDatabaseSettings databaseSettings = settings.getDatabaseSettings();
         addProperty(properties, "DATABASE_TYPE", databaseSettings.getDatabaseType());
-        addProperty(properties, "JDBC_URL", databaseSettings.getConnectionUrl());
+        addProperty(properties, "JDBC_URL", databaseSettings.getConnectionUrlRedactedForExport());
         addProperty(properties, "JDBC_DRIVER", databaseSettings.getDriver());
         addProperty(properties, "JDBC_URL_PATTERN", databaseSettings.getUrlPattern().getUrlTemplate());
 
