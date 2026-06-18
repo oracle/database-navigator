@@ -38,6 +38,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.applicationService;
@@ -140,6 +141,9 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
 
     public void setDownloadPath(String packageId, String path) {
         DriverPackageStatus packageStatus = ensurePackageStatus(packageId);
+        if (!Objects.equals(packageStatus.getDownloadPath(), path)) {
+            cleanupPackage(packageId);
+        }
         packageStatus.setDownloadPath(path);
     }
 
@@ -174,7 +178,20 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         DriverPackageStatus status = getPackageStatus(driverPackage.getId());
         if (status == null) return false;
 
-        return status.isComplete(driverPackage.getLibraries().size());
+        return status.isComplete(driverPackage.getLibraries().size()) && hasVerifiedChecksumManifest(driverPackage, status);
+    }
+
+    private boolean hasVerifiedChecksumManifest(DriverPackage driverPackage, DriverPackageStatus status) {
+        String downloadPath = status.getDownloadPath();
+        if (downloadPath == null) return false;
+
+        PackageChecksumData checksumData = getChecksumData(driverPackage.getId());
+        if (!checksumData.fileExists()) return false;
+
+        checksumData.readChecksums();
+        File packageDir = new File(downloadPath);
+        List<String> libraryIds = driverPackage.getLibraryIds();
+        return checksumData.verifyChecksums(packageDir, libraryIds);
     }
 
     public void cleanupPackage(String packageId) {

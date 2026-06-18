@@ -34,6 +34,7 @@ import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Lists.convert;
 
 /**
  * DriverPackage represents a set of Maven libraries required for a specific database driver.
@@ -70,6 +71,10 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
 
     public DriverPackage(String id) {
         this.id = id;
+    }
+
+    public List<String> getLibraryIds() {
+        return convert(libraries, l -> l.getLibraryId());
     }
 
     public boolean matches(DatabaseType databaseType) {

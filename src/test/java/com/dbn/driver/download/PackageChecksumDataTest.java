@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.util.List;
 
 import static com.dbn.common.checksum.ChecksumType.SHA_1;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
@@ -40,7 +41,7 @@ public class PackageChecksumDataTest {
         PackageChecksumData checksumData = new PackageChecksumData("test-package", temporaryFolder.newFile("test-package.txt"));
         checksumData.addChecksum("driver-1.0", SHA_256, Checksum.fromFileContent(artifact, SHA_256));
 
-        Assert.assertTrue(checksumData.verifyChecksums(packageDir));
+        Assert.assertTrue(checksumData.verifyChecksums(packageDir, List.of("driver-1.0")));
     }
 
     @Test
@@ -52,7 +53,7 @@ public class PackageChecksumDataTest {
         PackageChecksumData checksumData = new PackageChecksumData("test-package", temporaryFolder.newFile("test-package.txt"));
         checksumData.addChecksum("driver-1.0", SHA_1, Checksum.fromFileContent(artifact, SHA_1));
 
-        Assert.assertTrue(checksumData.verifyChecksums(packageDir));
+        Assert.assertTrue(checksumData.verifyChecksums(packageDir, List.of("driver-1.0")));
     }
 
     @Test
@@ -64,7 +65,7 @@ public class PackageChecksumDataTest {
         PackageChecksumData checksumData = new PackageChecksumData("test-package", temporaryFolder.newFile("test-package.txt"));
         checksumData.addChecksum("driver-1.0", SHA_1, "0000000000000000000000000000000000000000");
 
-        Assert.assertFalse(checksumData.verifyChecksums(packageDir));
+        Assert.assertFalse(checksumData.verifyChecksums(packageDir, List.of("driver-1.0")));
         Assert.assertTrue(checksumData.getInvalidChecksums().contains(artifact));
     }
 
@@ -79,7 +80,7 @@ public class PackageChecksumDataTest {
         PackageChecksumData checksumData = new PackageChecksumData("test-package", checksumFile);
         checksumData.readChecksums();
 
-        Assert.assertTrue(checksumData.verifyChecksums(packageDir));
+        Assert.assertTrue(checksumData.verifyChecksums(packageDir, List.of("driver-1.0")));
     }
 
     @Test
@@ -96,7 +97,7 @@ public class PackageChecksumDataTest {
         PackageChecksumData reloadedChecksumData = new PackageChecksumData("test-package", checksumFile);
         reloadedChecksumData.readChecksums();
 
-        Assert.assertTrue(reloadedChecksumData.verifyChecksums(packageDir));
+        Assert.assertTrue(reloadedChecksumData.verifyChecksums(packageDir, List.of("driver-1.0")));
     }
 
     @Test
@@ -110,7 +111,7 @@ public class PackageChecksumDataTest {
         PackageChecksumData checksumData = new PackageChecksumData("test-package", checksumFile);
         checksumData.readChecksums();
 
-        Assert.assertFalse(checksumData.verifyChecksums(packageDir));
+        Assert.assertFalse(checksumData.verifyChecksums(packageDir, List.of("driver-1.0")));
         Assert.assertTrue(checksumData.getInvalidChecksums().contains(artifact));
     }
 
@@ -119,7 +120,34 @@ public class PackageChecksumDataTest {
         File packageDir = temporaryFolder.newFolder("package");
         PackageChecksumData checksumData = new PackageChecksumData("test-package", temporaryFolder.newFile("test-package.txt"));
 
-        Assert.assertFalse(checksumData.verifyChecksums(packageDir));
+        Assert.assertFalse(checksumData.verifyChecksums(packageDir, List.of("driver-1.0")));
+    }
+
+    @Test
+    public void verifyChecksumsAcceptsExpectedJarWithSha1Checksum() throws Exception {
+        File packageDir = temporaryFolder.newFolder("package");
+        File artifact = new File(packageDir, "driver-1.0.jar");
+        java.nio.file.Files.writeString(artifact.toPath(), "artifact-content");
+
+        PackageChecksumData checksumData = new PackageChecksumData("test-package", temporaryFolder.newFile("test-package.txt"));
+        checksumData.addChecksum("driver-1.0", SHA_1, Checksum.fromFileContent(artifact, SHA_1));
+
+        Assert.assertTrue(checksumData.verifyChecksums(packageDir, List.of("driver-1.0")));
+    }
+
+    @Test
+    public void verifyChecksumsRejectsUnexpectedJar() throws Exception {
+        File packageDir = temporaryFolder.newFolder("package");
+        File artifact = new File(packageDir, "driver-1.0.jar");
+        File extraArtifact = new File(packageDir, "extra-1.0.jar");
+        java.nio.file.Files.writeString(artifact.toPath(), "artifact-content");
+        java.nio.file.Files.writeString(extraArtifact.toPath(), "extra-artifact-content");
+
+        PackageChecksumData checksumData = new PackageChecksumData("test-package", temporaryFolder.newFile("test-package.txt"));
+        checksumData.addChecksum("driver-1.0", SHA_1, Checksum.fromFileContent(artifact, SHA_1));
+
+        Assert.assertFalse(checksumData.verifyChecksums(packageDir, List.of("driver-1.0")));
+        Assert.assertTrue(checksumData.getInvalidChecksums().contains(extraArtifact));
     }
 
     @Test

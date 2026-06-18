@@ -24,12 +24,15 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.driver.download.DriverDownloadManager.getDriverPackageChecksumsLocation;
@@ -84,14 +87,41 @@ public class PackageChecksumData {
         FileUtil.writeToFile(file, builder.toString());
     }
 
-    public boolean verifyChecksums(File packageDir) {
-        invalidChecksums.clear();
-        if (checksums.isEmpty()) return false;
+    /**
+     * Verifies the expected package libraries against the recorded checksums.
+     * Allows legacy weak checksums, but rejects missing or unexpected jars.
+     */
+    public boolean verifyChecksums(File packageDir, Collection<String> libraryIds) {
+        return verifyChecksums(packageDir, libraryIds, c -> c.getType() != null, true);
+    }
 
-        for (String libraryId : checksums.keySet()) {
-            LibraryChecksum checksum = checksums.get(libraryId);
+    /**
+     * Verifies every jar in the package directory has a strong recorded checksum.
+     * Used before treating downloaded jars as managed driver libraries.
+     */
+    public boolean verifyStrongChecksums(File packageDir) {
+        File[] libraryFiles = packageDir.listFiles(file -> file.isFile() && file.getName().endsWith(".jar"));
+        if (libraryFiles == null || libraryFiles.length == 0) return false;
+
+        List<String> libraryIds = Arrays.stream(libraryFiles)
+                .map(PackageChecksumData::getLibraryId)
+                .toList();
+        return verifyChecksums(packageDir, libraryIds, LibraryChecksum::isStrong, false);
+    }
+
+    private boolean verifyChecksums(
+            File packageDir,
+            Collection<String> libraryIds,
+            Predicate<LibraryChecksum> checksumPolicy,
+            boolean rejectUnexpectedJars) {
+        invalidChecksums.clear();
+        if (checksums.isEmpty() || libraryIds.isEmpty()) return false;
+
+        Set<String> expectedLibraryIds = new HashSet<>(libraryIds);
+        for (String libraryId : libraryIds) {
             File libraryFile = new File(packageDir, libraryId + ".jar");
-            if (!libraryFile.exists() || checksum.getType() == null) {
+            LibraryChecksum checksum = checksums.get(libraryId);
+            if (!libraryFile.exists() || checksum == null || !checksumPolicy.test(checksum)) {
                 invalidChecksums.add(libraryFile);
                 continue;
             }
@@ -101,32 +131,24 @@ public class PackageChecksumData {
             if (!Checksum.verifyChecksum(checksum.getValue(), actualChecksum, type)) {
                 invalidChecksums.add(libraryFile);
             }
+        }
+
+        if (rejectUnexpectedJars) {
+            rejectUnexpectedJars(packageDir, expectedLibraryIds);
         }
         return invalidChecksums.isEmpty();
     }
 
-    public boolean verifyStrongChecksums(File packageDir) {
-        invalidChecksums.clear();
-        if (checksums.isEmpty()) return false;
-
+    private void rejectUnexpectedJars(File packageDir, Set<String> expectedLibraryIds) {
         File[] libraryFiles = packageDir.listFiles(file -> file.isFile() && file.getName().endsWith(".jar"));
-        if (libraryFiles == null || libraryFiles.length == 0) return false;
+        if (libraryFiles == null) return;
 
         for (File libraryFile : libraryFiles) {
             String libraryId = getLibraryId(libraryFile);
-            LibraryChecksum checksum = checksums.get(libraryId);
-            if (checksum == null || !checksum.isStrong()) {
-                invalidChecksums.add(libraryFile);
-                continue;
-            }
-
-            ChecksumType type = checksum.getType();
-            String actualChecksum = Checksum.fromFileContent(libraryFile, type);
-            if (!Checksum.verifyChecksum(checksum.getValue(), actualChecksum, type)) {
+            if (!expectedLibraryIds.contains(libraryId)) {
                 invalidChecksums.add(libraryFile);
             }
         }
-        return invalidChecksums.isEmpty();
     }
 
     private static String getLibraryId(File libraryFile) {
