@@ -21,6 +21,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.util.Borders;
@@ -74,6 +75,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.common.options.ConfigStorage.CLIPBOARD;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.makeRegular;
@@ -360,6 +362,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         List<ConnectionSettings> configurations = connectionsList.getSelectedValuesList();
         Project project = getProject();
         try {
+            ConfigMonitor.set(CLIPBOARD, true);
             Element rootElement = ConnectionConfigExport.createConnectionConfigElement();
             for (ConnectionSettings configuration : configurations) {
                 Element configElement = newElement(rootElement, "config");
@@ -380,6 +383,8 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             Messages.showErrorDialog(project,
                     txt("msg.connection.title.ExportFailed"),
                     txt("msg.connection.error.ExportFailed"), e);
+        } finally {
+            ConfigMonitor.set(CLIPBOARD, false);
         }
     }
 

@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.common.options.ConfigMonitor.isClipboardStorage;
 import static com.dbn.common.util.Strings.containsOneOf;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
@@ -300,6 +301,11 @@ public final class Settings {
     public static void setString(Element parent, @NonNls String childName, @NonNls String value) {
         Element element = newElement(parent, childName);
         element.setAttribute("value", value == null ? "" : value);
+    }
+
+    public static void setSensitiveString(Element parent, @NonNls String childName, @NonNls String value) {
+        if (isClipboardStorage()) return;
+        setString(parent, childName, value);
     }
 
     public static void setDouble(Element parent, @NonNls String childName, double value) {

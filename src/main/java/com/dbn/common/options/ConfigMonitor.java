@@ -59,6 +59,14 @@ public final class ConfigMonitor {
         return propertyHolder.is(storage);
     }
 
+    public static boolean isClipboardStorage() {
+        return is(ConfigStorage.CLIPBOARD);
+    }
+
+    public static boolean isWorkspaceStorage() {
+        return is(ConfigStorage.WORKSPACE);
+    }
+
     public static void set(ConfigStorage storage, boolean value) {
         PropertyHolderBase<ConfigStorage> propertyHolder = STORAGES.get();
         if (propertyHolder == null && !value) return; // nothing to change
