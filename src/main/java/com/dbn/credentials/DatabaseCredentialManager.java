@@ -94,6 +94,11 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
     }
 
     public void storeSecret(@NotNull Object ownerId, @NotNull Secret secret) {
+        if (!secret.isLoaded()) {
+            log.info("Skipped unloaded secret {}", secret.safePresentation());
+            return;
+        }
+
         try {
             SecretType type = secret.getType();
             String user = secret.getUser();

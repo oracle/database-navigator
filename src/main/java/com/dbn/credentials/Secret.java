@@ -16,10 +16,15 @@
 
 package com.dbn.credentials;
 
+import com.dbn.common.thread.Background;
 import com.dbn.common.util.Chars;
-import lombok.Data;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Supplier;
 
 import static com.dbn.common.util.Commons.nvl;
 import static java.util.Arrays.copyOf;
@@ -30,31 +35,129 @@ import static java.util.Arrays.copyOf;
  *
  * @author Dan Cioca (Oracle)
  */
-@Data
 public final class Secret {
     public static final char[] EMPTY = new char[0];
 
-    private final SecretType type;
-    private final String user;
-    private final char[] token;
+    private final @Getter SecretType type;
+    private final Supplier<?> ownerId;
+    private final Supplier<String> user;
+    private char[] token;
+    private volatile @Getter boolean loaded;
+    private boolean loading;
 
     public Secret(SecretType type, String user, String token) {
         this(type, user, toChars(token));
     }
 
     public Secret(SecretType type, String user, char[] token) {
+        this(type, null, () -> user, token, true);
+    }
+
+    public Secret(SecretType type, Supplier<?> ownerId, Supplier<String> user) {
+        this(type, ownerId, user, EMPTY, false);
+    }
+
+    private Secret(SecretType type, Supplier<?> ownerId, Supplier<String> user, char[] token, boolean loaded) {
         this.type = type;
-        this.user = nvl(user, "");
+        this.ownerId = ownerId;
+        this.user = user;
         this.token = token == null ? EMPTY : copyOf(token, token.length);
+        this.loaded = loaded;
+        Secrets.register(this);
     }
 
-    @Nullable
-    public String getStringToken() {
-        return isEmpty() ? null : new String(token);
+    @NotNull
+    public String getUser() {
+        return nvl(user == null ? null : user.get(), "");
     }
 
-    public boolean isEmpty() {
-        return Chars.isEmpty(token);
+    @NotNull
+    public char[] getToken() {
+        loadIfAllowed();
+        synchronized (this) {
+            return copyOf(token, token.length);
+        }
+    }
+
+    public synchronized void setToken(@Nullable char[] token) {
+        this.token = token == null ? EMPTY : copyOf(token, token.length);
+        loaded = true;
+    }
+
+    public void setToken(@Nullable Secret secret) {
+        Secrets.transfer(this, secret);
+    }
+
+    @NotNull
+    public synchronized Secret snapshot() {
+        return new Secret(type, null, this::getUser, token, loaded);
+    }
+
+    public synchronized void ensureLoaded() {
+        if (loaded) return;
+        if (ownerId == null) {
+            loaded = true;
+            return;
+        }
+
+        Secret secret = DatabaseCredentialManager.getInstance().loadSecret(type, ownerId.get(), getUser());
+        setToken(secret.getToken());
+    }
+
+    private void loadIfAllowed() {
+        if (loaded) return;
+
+        Application application = ApplicationManager.getApplication();
+        if (application != null && application.isDispatchThread()) {
+            queueLoad();
+            return;
+        }
+
+        ensureLoaded();
+    }
+
+    private void queueLoad() {
+        synchronized (this) {
+            if (loaded || loading) return;
+            if (ownerId == null) {
+                loaded = true;
+                return;
+            }
+            loading = true;
+        }
+
+        Background.run(() -> {
+            try {
+                ensureLoaded();
+            } finally {
+                synchronized (this) {
+                    loading = false;
+                }
+            }
+        });
+    }
+
+    synchronized boolean isPersistent() {
+        return ownerId != null;
+    }
+
+    void copyState(@NotNull Secret secret) {
+        char[] token;
+        boolean loaded;
+        synchronized (secret) {
+            token = copyOf(secret.token, secret.token.length);
+            loaded = secret.loaded;
+        }
+
+        synchronized (this) {
+            this.token = token;
+            this.loaded = loaded;
+            this.loading = false;
+        }
+    }
+
+    public boolean isProvided() {
+        return Chars.isNotEmpty(getToken());
     }
 
     @NotNull
@@ -64,7 +167,7 @@ public final class Secret {
 
     public String safePresentation() {
         // secret representation with length of token only
-        return type + ":" + (isEmpty() ? "0" : token.length);
+        return type + ":" + (loaded ? token.length : "unloaded");
     }
 
     @Override
