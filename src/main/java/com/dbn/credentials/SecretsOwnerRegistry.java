@@ -127,9 +127,5 @@ public class SecretsOwnerRegistry {
             return new Secret[0];
         }
 
-        @Override
-        public void initSecrets() {
-
-        }
     };
 }

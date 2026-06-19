@@ -20,18 +20,22 @@ import com.dbn.common.message.MessageBundle;
 import com.dbn.common.message.MessageCollector;
 import com.dbn.common.progress.ProgressIndicatorDelegate;
 import com.dbn.common.routine.ThrowableCallable;
+import com.dbn.driver.download.metadata.Library;
 import com.intellij.openapi.progress.ProgressIndicator;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.Delegate;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.common.thread.Progress.progressOf;
+import static com.dbn.common.util.Lists.convert;
 
 @Getter
 public class DownloadSession extends ProgressIndicatorDelegate {
@@ -45,6 +49,8 @@ public class DownloadSession extends ProgressIndicatorDelegate {
     private CountDownLatch countDownLatch;
 
     private final List<String> downloadedArtifacts = new CopyOnWriteArrayList<>();
+    private final Map<String, List<String>> versions = new ConcurrentHashMap<>();
+    private final Map<String, List<Library>> libraries = new ConcurrentHashMap<>();
 
     public DownloadSession(ProgressIndicator progressIndicator) {
         super(progressIndicator);
@@ -114,6 +120,28 @@ public class DownloadSession extends ProgressIndicatorDelegate {
 
     public void addDownloadedArtifacts(String artifactId) {
         downloadedArtifacts.add(artifactId);
+    }
+
+    public List<String> versions(String groupId, String artifactId, ThrowableCallable<List<String>, RuntimeException> loader) {
+        String key = groupId + ":" + artifactId;
+        return versions.computeIfAbsent(key, k -> loader.call());
+    }
+
+    public <E extends Throwable> List<Library> libraries(Library library, String type, ThrowableCallable<List<Library>, RuntimeException> loader) {
+        String key =
+                library.getGroupId() + ":" +
+                library.getArtifactId() + ":" +
+                library.getVersion() + ":" + type;
+
+        List<Library> libraries = this.libraries.computeIfAbsent(key, k -> loader.call());
+        return convert(libraries, l -> copyLibrary(l));
+    }
+
+    private Library copyLibrary(Library library) {
+        Library copy = new Library(library.getGroupId(), library.getArtifactId(), library.getVersion(), library.getDevelopers(), library.getLicenses());
+        copy.setRole(library.getRole());
+        copy.getChecksums().addAll(library.getChecksums());
+        return copy;
     }
 
     public static DownloadSession current() {
