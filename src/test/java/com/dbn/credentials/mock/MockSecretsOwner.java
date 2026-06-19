@@ -11,8 +11,4 @@ public class MockSecretsOwner implements SecretsOwner {
     private Object secretOwnerId;
     private String secretOwnerName;
     private Secret[] secrets;
-
-    @Override
-    public void initSecrets() {}
 }
-

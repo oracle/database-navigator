@@ -26,6 +26,7 @@ import com.dbn.assistant.tool.execution.AssistantToolResponse;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.state.ProtectedContent;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.common.util.UUIDs;
 import com.dbn.language.sql.SQLLanguage;
@@ -35,7 +36,6 @@ import com.intellij.openapi.util.text.StringUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -50,13 +50,12 @@ import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.longAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.readCdata;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setLongAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.options.setting.Settings.writeCdata;
+import static com.dbn.common.state.StateEncryptionScopes.ASSISTANT_CHAT_MESSAGE_CONTENT;
 import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Lists.last;
 import static com.dbn.common.util.Lists.lastElement;
@@ -68,14 +67,14 @@ public class ChatMessage implements PersistentStateElement {
     /**
      * Unique identifier of the chat message to establish causality relations and chaining of messages
      */
-    protected String id = UUIDs.regular();
+    private String id = UUIDs.regular();
 
     private final AssistantType assistantType;
-    protected MessageType type = MessageType.NEUTRAL;
-    protected AuthorType author;
-    protected @NonNls String content;
-    protected ChatContext context;
-    protected boolean folded;
+    private MessageType type = MessageType.NEUTRAL;
+    private AuthorType author;
+    private final ProtectedContent content = new ProtectedContent(ASSISTANT_CHAT_MESSAGE_CONTENT);
+    private ChatContext context;
+    private boolean folded;
     private long timestamp = System.currentTimeMillis();
 
     private List<ChatMessageTextSection> sections;
@@ -99,9 +98,18 @@ public class ChatMessage implements PersistentStateElement {
     public ChatMessage(AssistantType assistantType, MessageType type, String content, AuthorType author, ChatContext context) {
         this.assistantType = assistantType;
         this.type = type;
-        this.content = removeCodeBlockIndents(content);
         this.author = author;
         this.context = context;
+        setContent(removeCodeBlockIndents(content));
+    }
+
+    @NotNull
+    public String getContent() {
+        return content.get();
+    }
+
+    public void setContent(String content) {
+        this.content.set(content);
     }
 
     @NotNull
@@ -119,6 +127,7 @@ public class ChatMessage implements PersistentStateElement {
     }
 
     public void appendToken(String token) {
+        String content = getContent();
         int lastInsertOffset = getLastInsertOffset();
         int currentOffset = content.length();
 
@@ -126,6 +135,7 @@ public class ChatMessage implements PersistentStateElement {
         if (token.contains("```")) {
             content = removeCodeBlockIndents(content);
         }
+        setContent(content);
 
         if (sections == null) {
             sections = buildSections();
@@ -187,6 +197,7 @@ public class ChatMessage implements PersistentStateElement {
      * @return a list of {@link ChatMessageTextSection} with the different sections
      */
     private List<ChatMessageTextSection> buildSections(int offset) {
+        String content = getContent();
         int contentLength = content.length();
         if (isSqlCodeContent()) {
             // output is expected to be SQL code based on the author, action and content
@@ -204,13 +215,14 @@ public class ChatMessage implements PersistentStateElement {
     }
 
     private boolean hasCodeSections() {
-        return content.contains("```");
+        return getContent().contains("```");
     }
 
     private boolean isSelectStatement() {
         // TODO move to AssistantAdapter (quick workaround for Select AI context)
         if (getAssistantType() != AssistantType.SELECT_AI) return false;
 
+        String content = getContent();
         return
             StringUtil.startsWithIgnoreCase(content, "select") ||
             StringUtil.startsWithIgnoreCase(content, "with");
@@ -231,7 +243,7 @@ public class ChatMessage implements PersistentStateElement {
             return SQLChatMessageConverter.INSTANCE.convert(this);
             //.. TODO more languages if functionality is integrated in non-SQL editors
         }
-        return content;
+        return getContent();
     }
 
     public boolean isOlderThan(long duration, TimeUnit unit) {
@@ -239,7 +251,7 @@ public class ChatMessage implements PersistentStateElement {
     }
 
     public void appendToolRequest(AssistantToolInvocation toolInvocation) {
-        ChatMessageToolSection toolSection = new ChatMessageToolSection(content.length(), toolInvocation);
+        ChatMessageToolSection toolSection = new ChatMessageToolSection(getContent().length(), toolInvocation);
         toolSections.add(toolSection);
     }
 
@@ -268,7 +280,7 @@ public class ChatMessage implements PersistentStateElement {
         folded = booleanAttribute(element, "folded", folded);
 
         Element contentElement = element.getChild("content");
-        content = readCdata(contentElement);
+        content.readState(contentElement);
 
         Element contextElement = element.getChild("context");
         context = new ChatContextImpl(assistantType);
@@ -301,7 +313,7 @@ public class ChatMessage implements PersistentStateElement {
         setBooleanAttribute(element, "folded", folded);
 
         Element contentElement = newElement(element,"content");
-        writeCdata(contentElement, content);
+        content.writeState(contentElement);
 
         Element contextElement = newElement(element,"context");
         context.writeState(contextElement);

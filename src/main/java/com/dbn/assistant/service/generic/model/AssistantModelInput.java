@@ -36,6 +36,8 @@ public class AssistantModelInput {
     private final String modelName;
     private String baseUrl;
     private Double temperature;
+    private Integer maxTokens;
+    private Integer maxOutputTokens;
     private AssistantCredential credential;
     private Map<String, String> headers = new HashMap<>();
     private Map<Attribute, String> attributes = new HashMap<>();

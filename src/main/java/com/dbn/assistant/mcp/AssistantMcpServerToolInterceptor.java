@@ -38,8 +38,12 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 
+import static com.dbn.assistant.tool.AssistantToolContents.getMaxToolResponseLength;
+import static com.dbn.assistant.tool.AssistantToolContents.isToolResponseContentOversized;
+import static com.dbn.assistant.tool.AssistantToolContents.prepareToolResponseContent;
 import static com.dbn.assistant.tool.event.AssistantToolStatus.CANCELLED;
 import static com.dbn.assistant.tool.event.AssistantToolStatus.COMPLETED;
 import static com.dbn.assistant.tool.event.AssistantToolStatus.EXECUTING;
@@ -66,10 +70,10 @@ public class AssistantMcpServerToolInterceptor extends AssistantStateExtension {
         AssistantToolInvocation invocation = AssistantToolInvocation.current();
         if (invocation == null) return null;
 
-        ToolExecutionRequest enhancedRequest = enhanceRequestContext(request);
-
         Project project = getProject();
         try {
+            validateRequestContext(request);
+
             // initiate request
             handleEvent(project, invocation, REQUESTED, null);
 
@@ -79,7 +83,13 @@ public class AssistantMcpServerToolInterceptor extends AssistantStateExtension {
 
             // start execution
             handleEvent(project, invocation, EXECUTING, null);
-            String result = monitor.executeTool(() -> executor.execute(enhancedRequest, memoryId));
+            String result = monitor.executeTool(() -> executor.execute(request, memoryId));
+            if (isToolResponseContentOversized(result)) {
+                throw new IllegalStateException(
+                        "Tool result exceeded the maximum allowed size of " + getMaxToolResponseLength() +
+                                " characters. Retry with a narrower request, more specific filters, or a smaller result limit.");
+            }
+            result = prepareToolResponseContent(result);
 
             // confirm execution
             handleEvent(project, invocation, COMPLETED, null);
@@ -98,43 +108,32 @@ public class AssistantMcpServerToolInterceptor extends AssistantStateExtension {
     }
 
     /**
-     * Enhances the provided {@link ToolExecutionRequest} by updating its context with additional information
-     * derived from the current project and associated MCP server configuration.
+     * Validates the provided {@link ToolExecutionRequest} against the current project context.
      *
-     * @param request the original {@link ToolExecutionRequest} to be enhanced.
-     * @return a new {@link ToolExecutionRequest} instance with updated context, or the original request
-     *         if no enhancements are applicable.
+     * @param request the original {@link ToolExecutionRequest} to validate.
      */
-    private ToolExecutionRequest enhanceRequestContext(ToolExecutionRequest request) {
+    private void validateRequestContext(ToolExecutionRequest request) {
         Project project = getProject();
 
         AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
         AssistantMcpServerBundle mcpServers = assistantSettings.getMcpServerSettings().getMcpServers();
         AssistantMcpServer mcpServer = mcpServers.resolveMcpServer(request.name());
-        if (mcpServer == null) return request;
-        if (!mcpServer.isIdeMcpServer()) return request;
+        if (mcpServer == null) return;
+        if (!mcpServer.isIdeMcpServer()) return;
 
         String argumentsString = request.arguments();
         Map<String, Object> arguments = Json.readAsMap(argumentsString);
 
         // check if project path argument is required
         Object projectPathArgument = arguments.get("projectPath");
-        if (projectPathArgument == null) return request;
+        if (projectPathArgument == null) return;
 
         // check if project path argument is matching the current project path
         String projectPath = project.getBasePath();
-        if (projectPathArgument.toString().equals(projectPath)) return request;
+        if (Objects.equals(projectPathArgument.toString(), projectPath)) return;
 
-        arguments.put("projectPath", projectPath);
-        argumentsString = Json.writeAsString(arguments);
-
-        request = ToolExecutionRequest
-                .builder()
-                .id(request.id())
-                .name(request.name())
-                .arguments(argumentsString)
-                .build();
-        return request;
+        throw new AssistantToolApprovalException(
+                "IDE MCP request projectPath does not match the current project path");
     }
 
     public static void handleEvent(Project project, AssistantToolInvocation invocation, AssistantToolStatus status, Throwable exception) {

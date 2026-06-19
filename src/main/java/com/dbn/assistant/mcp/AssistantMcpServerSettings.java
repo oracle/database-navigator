@@ -23,6 +23,7 @@ import com.dbn.assistant.mcp.ui.AssistantMcpServersSettingsForm;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.EntityId;
 import com.dbn.common.options.BasicProjectConfiguration;
+import com.dbn.common.options.WorkspaceStorage;
 import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -42,6 +43,7 @@ import static com.dbn.common.options.setting.Settings.setBoolean;
 
 @Getter
 @Setter
+@WorkspaceStorage
 @EqualsAndHashCode(callSuper = false)
 public class AssistantMcpServerSettings
         extends BasicProjectConfiguration<AssistantSettings, AssistantMcpServersSettingsForm> {

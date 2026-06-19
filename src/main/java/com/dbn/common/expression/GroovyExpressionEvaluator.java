@@ -55,7 +55,7 @@ public class GroovyExpressionEvaluator implements ExpressionEvaluator{
     @Override
     public boolean evaluateBooleanExpression(@NonNls String expression, ExpressionEvaluatorContext context) {
         Object result = evaluateExpression(expression, context);
-        return result == null || Objects.equals(result, Boolean.TRUE);
+        return Objects.equals(result, Boolean.TRUE);
     }
 
     @SneakyThrows

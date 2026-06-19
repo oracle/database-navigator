@@ -58,4 +58,8 @@ public interface Configuration<P extends Configuration, E extends ConfigurationE
     Project resolveProject();
 
     HelpTopic getConfigHelpTopic();
+
+    default boolean isWorkspaceStorage() {
+        return getClass().getAnnotation(WorkspaceStorage.class) != null;
+    }
 }

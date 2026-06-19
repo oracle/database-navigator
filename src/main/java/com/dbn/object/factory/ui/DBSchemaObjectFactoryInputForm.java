@@ -94,7 +94,7 @@ public abstract class DBSchemaObjectFactoryInputForm extends DBObjectFactoryInpu
     protected final TextContent getPreserveCaseInfoText() {
         String databaseTypeName = getConnection().getDatabaseType().getName();
         String infoText = txt("app.object.tooltip.PreserveIdentifierCase", databaseTypeName, getDefaultIdentifierCase());
-        return TextContent.tooltip(infoText, "width:200px");
+        return TextContent.htmlTooltip(infoText, "width:200px");
     }
 
     @Override

@@ -106,6 +106,6 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
         if (!sslSettings.isActive()) return;
 
         super.initConnectorSslConnection(properties, settings);
-        properties.add("ssl", "true");
+        properties.add("sslmode", "verify-full");
     }
 }

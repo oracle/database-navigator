@@ -42,14 +42,27 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.util.JdbcUrls.redactSensitiveParameters;
+import static com.dbn.common.util.Messages.options;
+import static com.dbn.common.util.Messages.showAcknowledgementDialog;
 import static com.dbn.common.util.Parameters.toParameterString;
+import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.nls.NlsResources.txt;
 
 public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorCodeGeneratorInput, JdbcConnectorCodeGeneratorResult> {
+    private static final @NonNls String PLACEHOLDER_USER_NAME = "<user-name>";
+    private static final @NonNls String PLACEHOLDER_TOKEN_CONFIG_FILE = "<oci-token-config-file>";
+    private static final @NonNls String PLACEHOLDER_TOKEN_PROFILE = "<oci-token-profile>";
+    private static final @NonNls String PLACEHOLDER_OCI_COMPARTMENT = "<oci-compartment-ocid>";
+    private static final @NonNls String PLACEHOLDER_OCI_DATABASE = "<oci-database-ocid>";
+
     public JdbcConnectorCodeGenerator(CodeGeneratorType type) {
         super(type);
     }
@@ -67,6 +80,18 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
     @Override
     public JdbcConnectorCodeGeneratorInput createInput(DatabaseContext databaseContext) {
         return new JdbcConnectorCodeGeneratorInput(databaseContext);
+    }
+
+    @Override
+    public boolean prepareDestination(JdbcConnectorCodeGeneratorInput input) {
+        boolean destinationPrepared = super.prepareDestination(input);
+        if (!destinationPrepared) return false;
+
+        Boolean embedSensitiveValues = promptSensitiveValueHandling(input);
+        if (embedSensitiveValues == null) return false;
+
+        input.setEmbedSensitiveValues(embedSensitiveValues);
+        return true;
     }
 
     @Nullable
@@ -96,7 +121,7 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
 
         Properties properties = new Properties();
         addInputProperties(input, properties);
-        addConnectionProperties(context, properties);
+        addConnectionProperties(input, context, properties);
         return properties;
     }
 
@@ -115,13 +140,13 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         addProperty(properties, "PACKAGE_NAME", input.getPackageName());
     }
 
-    private static void addConnectionProperties(DatabaseContext context, Properties properties) {
+    private static void addConnectionProperties(JdbcConnectorCodeGeneratorInput input, DatabaseContext context, Properties properties) {
         ConnectionHandler connection = context.ensureConnection();
         ConnectionSettings settings = connection.getSettings();
 
         ConnectionDatabaseSettings databaseSettings = settings.getDatabaseSettings();
         addProperty(properties, "DATABASE_TYPE", databaseSettings.getDatabaseType());
-        addProperty(properties, "JDBC_URL", databaseSettings.getConnectionUrl());
+        addProperty(properties, "JDBC_URL", redactSensitiveParameters(databaseSettings.getConnectionUrl()));
         addProperty(properties, "JDBC_DRIVER", databaseSettings.getDriver());
         addProperty(properties, "JDBC_URL_PATTERN", databaseSettings.getUrlPattern().getUrlTemplate());
 
@@ -149,13 +174,13 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         addProperty(properties, "AUTH_TOKEN_TYPE", authTokenType);
         addProperty(properties, "AUTH_TOKEN_TYPE_NAME", authTokenType == null ? null : authTokenType.getName());
 
-        addProperty(properties, "USER_NAME", authenticationInfo.getUser());
+        addSensitiveProperty(properties, "USER_NAME", authenticationInfo.getUser(), PLACEHOLDER_USER_NAME, input.isEmbedSensitiveValues());
         // TODO add toggle in the input form, allowing the user to decide whether passwords are allowed to be propagated to the generated code
         //addProperty(properties, "PASSWORD", authenticationInfo.getPassword());
-        addProperty(properties, "TOKEN_CONFIG_FILE", authenticationInfo.getTokenConfigFile());
-        addProperty(properties, "TOKEN_PROFILE", authenticationInfo.getTokenProfile());
-        addProperty(properties, "OCI_COMPARTMENT", authenticationInfo.getCompartmentOcid());
-        addProperty(properties, "OCI_DATABASE", authenticationInfo.getDatabaseOcid());
+        addSensitiveProperty(properties, "TOKEN_CONFIG_FILE", authenticationInfo.getTokenConfigFile(), PLACEHOLDER_TOKEN_CONFIG_FILE, input.isEmbedSensitiveValues());
+        addSensitiveProperty(properties, "TOKEN_PROFILE", authenticationInfo.getTokenProfile(), PLACEHOLDER_TOKEN_PROFILE, input.isEmbedSensitiveValues());
+        addSensitiveProperty(properties, "OCI_COMPARTMENT", authenticationInfo.getCompartmentOcid(), PLACEHOLDER_OCI_COMPARTMENT, input.isEmbedSensitiveValues());
+        addSensitiveProperty(properties, "OCI_DATABASE", authenticationInfo.getDatabaseOcid(), PLACEHOLDER_OCI_DATABASE, input.isEmbedSensitiveValues());
 
         // add AZURE token properties
         addProperty(properties, "AZURE_TOKEN_CLIENT_ID", authenticationInfo.getAzureClientId());
@@ -176,6 +201,56 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
                 .map(e -> e.getKey() + "=" + e.getValue())
                 .collect(Collectors.joining(","));
         addProperty(properties, "PROPERTIES", propsCsv);
+    }
+
+    @Nullable
+    private static Boolean promptSensitiveValueHandling(JdbcConnectorCodeGeneratorInput input) {
+        AuthenticationInfo authenticationInfo = getAuthenticationInfo(input);
+        List<String> sensitiveValueNames = getSensitiveValueNames(authenticationInfo);
+        if (sensitiveValueNames.isEmpty()) return false;
+
+        Project project = input.getProject();
+        String valueList = sensitiveValueNames.stream().map(value -> " - " + value).collect(Collectors.joining("\n"));
+
+        int option = showAcknowledgementDialog(project,
+                txt("msg.codeGenerator.title.JdbcConnectorSensitiveValues"),
+                txt("msg.codeGenerator.question.JdbcConnectorSensitiveValues", valueList),
+                options(
+                        txt("msg.codeGenerator.button.UsePlaceholders"),
+                        txt("msg.codeGenerator.button.EmbedActualValues"),
+                        txt("msg.shared.button.Cancel")), 0, null);
+
+        return switch (option) {
+            case 0 -> false;
+            case 1 -> true;
+            default -> null;
+        };
+    }
+
+    private static AuthenticationInfo getAuthenticationInfo(JdbcConnectorCodeGeneratorInput input) {
+        ConnectionHandler connection = input.getDatabaseContext().ensureConnection();
+        ConnectionSettings settings = connection.getSettings();
+        ConnectionDatabaseSettings databaseSettings = settings.getDatabaseSettings();
+        return databaseSettings.getAuthenticationInfo();
+    }
+
+    private static List<String> getSensitiveValueNames(AuthenticationInfo authenticationInfo) {
+        List<String> valueNames = new ArrayList<>();
+        addSensitiveValueName(valueNames, authenticationInfo.getUser(), "USER_NAME");
+        addSensitiveValueName(valueNames, authenticationInfo.getTokenConfigFile(), "TOKEN_CONFIG_FILE");
+        addSensitiveValueName(valueNames, authenticationInfo.getTokenProfile(), "TOKEN_PROFILE");
+        addSensitiveValueName(valueNames, authenticationInfo.getCompartmentOcid(), "OCI_COMPARTMENT");
+        addSensitiveValueName(valueNames, authenticationInfo.getDatabaseOcid(), "OCI_DATABASE");
+        return valueNames;
+    }
+
+    private static void addSensitiveValueName(List<String> valueNames, @Nullable String value, @NonNls String name) {
+        if (isNotEmpty(value)) valueNames.add(name);
+    }
+
+    private static void addSensitiveProperty(Properties properties, @NonNls String key, @Nullable String value, @NonNls String placeholder, boolean embedValue) {
+        if (isEmpty(value)) return;
+        addProperty(properties, key, embedValue ? value : placeholder);
     }
 
     private static void addProperty(Properties properties, @NonNls String key, Object value) {

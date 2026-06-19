@@ -18,6 +18,7 @@ package com.dbn.database;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.execution.script.CmdLineInterface;
 import org.jetbrains.annotations.NotNull;
@@ -25,17 +26,18 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class DatabaseScriptExecutionInput extends CmdLineExecutionInput{
     public DatabaseScriptExecutionInput(
+            @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
             @NotNull String filePath,
             @NotNull String content,
-            @Nullable SchemaId schemaId,
-            @NotNull DatabaseInfo databaseInfo,
-            @NotNull AuthenticationInfo authenticationInfo) {
+            @Nullable SchemaId schemaId) {
         super(content);
 
+        DatabaseInfo databaseInfo = connection.getDatabaseInfo();
+        AuthenticationInfo authenticationInfo = connection.getAuthenticationInfo();
         initExecutable(cmdLineInterface, databaseInfo, authenticationInfo);
         initAuthentication(authenticationInfo);
-        initConsoleCommands(filePath, schemaId);
+        initConsoleCommands(filePath, schemaId, connection);
     }
 
     protected abstract void initExecutable(
@@ -45,5 +47,9 @@ public abstract class DatabaseScriptExecutionInput extends CmdLineExecutionInput
 
     protected abstract void initAuthentication(AuthenticationInfo authenticationInfo);
 
-    protected abstract void initConsoleCommands(String filePath, SchemaId schemaId);
+    protected abstract void initConsoleCommands(String filePath, SchemaId schemaId, ConnectionHandler connection);
+
+    protected static String getQuotedSchemaId(SchemaId schemaId, ConnectionHandler connection) {
+        return connection.getIdentifierCache().getQuotedIdentifier(schemaId.id());
+    }
 }

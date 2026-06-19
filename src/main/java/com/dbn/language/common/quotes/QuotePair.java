@@ -76,7 +76,8 @@ public class QuotePair {
     }
 
     public String quote(String identifier, QuoteEscaping escaping) {
-        if (isQuoted(identifier)) return identifier;
+        // Database identifiers may arrive already quote-wrapped; still escape them as raw names.
+        if (escaping == QuoteEscaping.NONE && isQuoted(identifier)) return identifier;
 
         return beginQuote + escaping.escape(identifier, this) + endQuote;
     }

@@ -56,13 +56,32 @@ public interface UserApprovalAdapter<T extends UserApprovable> extends Extension
     @NonNls
     String getApprovalKey(T approvable);
 
+    /**
+     * Returns a signature for the external conditions that make this approval valid.
+     * <p>
+     * When the signature changes, any persisted approval for the same key is invalidated.
+     */
+    @Nullable
+    @NonNls
+    default String getApprovalSignature(T approvable) {
+        return null;
+    }
+
+    /**
+     * Returns the dialog options. Option index {@code 0} is the approval action;
+     * all other options are treated as cancellation/rejection after
+     * {@link #processApprovalOption(UserApprovable, int)} is invoked.
+     */
     @Nls
     String[] getApprovalOptions(T approvable);
 
+    default void processApprovalOption(T approvable, int option) {
+    }
+
     /**
      * Returns how long to suppress repeat approval prompts after
-     * the user rejects this approvable.
+     * the user selects the given non-approval option.
      */
     @Nullable
-    Duration getRejectionCooldown(T approvable);
+    Duration getRejectionCooldown(T approvable, int option);
 }

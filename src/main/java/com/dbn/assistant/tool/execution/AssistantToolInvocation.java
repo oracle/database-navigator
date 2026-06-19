@@ -30,12 +30,9 @@ import java.lang.reflect.Method;
 
 import static com.dbn.assistant.tool.AssistantToolData.isInteractiveTool;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
-import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.readCdata;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.options.setting.Settings.writeCdata;
 import static com.dbn.common.util.Commons.nvl;
 
 @Getter
@@ -100,35 +97,25 @@ public class AssistantToolInvocation implements PersistentStateElement {
     @Override
     public void readState(Element element) {
         request = new AssistantToolRequest();
-
-        request.setRequestId(stringAttribute(element, "request-id"));
-        request.setToolName(stringAttribute(element, "tool-name"));
+        request.readState(element);
         option = stringAttribute(element, "tool-option");
         status = enumAttribute(element, "tool-status", status);
 
-        Element argumentsElement = element.getChild("tool-arguments");
-        request.setToolArguments(readCdata(argumentsElement));
-
         Element responseElement = element.getChild("tool-response");
         if (responseElement != null) {
-            String toolResponse = readCdata(responseElement);
-            response = new AssistantToolResponse(toolResponse);
+            response = new AssistantToolResponse();
+            response.readState(responseElement);
         }
     }
 
     @Override
     public void writeState(Element element) {
-        setStringAttribute(element, "request-id", request.getRequestId());
-        setStringAttribute(element, "tool-name", request.getToolName());
+        request.writeState(element);
         setStringAttribute(element, "tool-option", option);
         setEnumAttribute(element, "tool-status", status);
 
-        Element contentElement = newElement(element,"tool-arguments");
-        writeCdata(contentElement, request.getToolArguments());
-
         if (response != null) {
-            Element resposeElement = newElement(element,"tool-response");
-            writeCdata(resposeElement, response.getContent());
+            response.writeState(element, "tool-response");
         }
     }
 

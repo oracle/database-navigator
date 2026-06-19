@@ -141,13 +141,19 @@ public class DBNMessageForm extends DBNFormBase {
 
     private void initMessage() {
         messageTextPane.setCaret(new HiddenCaret());
+        messageTextPane.setContentType(isHtmlMessage(message) ? "text/html" : "text/plain");
         messageTextPane.setText(message);
+        messageTextPane.setCaretPosition(0);
         messageTextPane.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
                 messageTextPane.setCaretPosition(0);
             }
         });
+    }
+
+    private static boolean isHtmlMessage(@Nullable String message) {
+        return message != null && message.trim().startsWith("<html>");
     }
 
     void initRememberOption(@Nullable JCheckBox checkBox) {
