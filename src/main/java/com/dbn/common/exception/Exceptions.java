@@ -146,7 +146,7 @@ public class Exceptions {
             messages.append("\n\n");
             previous[0] = message;
         }, e);
-        return messages.toString();
+        return messages.toString().trim();
     }
 
     private static String getMessage(Throwable e, boolean localized) {

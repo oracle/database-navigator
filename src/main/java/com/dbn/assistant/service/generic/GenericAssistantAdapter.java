@@ -44,7 +44,6 @@ import com.dbn.assistant.service.generic.ui.GenericAssistantContextActionsForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantIntroductionForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantPromptActionsForm;
 import com.dbn.assistant.state.AssistantState;
-import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -58,6 +57,8 @@ import static com.dbn.assistant.credential.AssistantCredentialLookup.getCredenti
 import static com.dbn.assistant.profile.AssistantProfileLookup.getProfile;
 import static com.dbn.assistant.profile.AssistantProfileUtil.verifyAssistantProfile;
 import static com.dbn.assistant.provider.AIModelFeature.TEMPERATURE;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessages;
+import static com.dbn.common.exception.Exceptions.rootCauseOf;
 import static com.dbn.nls.NlsResources.txt;
 
 public class GenericAssistantAdapter extends AssistantAdapterBase {
@@ -137,9 +138,10 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
 
     @Override
     public String prepareError(ConnectionId connectionId, ChatContext chatContext, Throwable e) {
-        e = Exceptions.rootCauseOf(e);
-        String errorMessage = Exceptions.getLocalizedMessages(e);
-        return txt("msg.assistant.error.AssistantInvocationFailure", getAssistantType().getName(), errorMessage);
+        e = rootCauseOf(e);
+        String errorMessage = getLocalizedMessages(e);
+        String message = txt("msg.assistant.error.AssistantInvocationFailure", getAssistantType().getName());
+        return txt("msg.shared.error.ErrorDetails", message, errorMessage);
     }
 
     @Override

@@ -25,9 +25,10 @@ import com.dbn.assistant.adapter.ui.AssistantPromptActionsForm;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.common.exception.Exceptions;
 import com.dbn.connection.ConnectionId;
 
+import static com.dbn.common.exception.Exceptions.getLocalizedMessages;
+import static com.dbn.common.exception.Exceptions.rootCauseOf;
 import static com.dbn.nls.NlsResources.txt;
 
 public class CustomAssistantAdapter extends AssistantAdapterBase {
@@ -94,9 +95,10 @@ public class CustomAssistantAdapter extends AssistantAdapterBase {
 
     @Override
     public String prepareError(ConnectionId connectionId, ChatContext chatContext, Throwable e) {
-        e = Exceptions.rootCauseOf(e);
-        String errorMessage = Exceptions.getLocalizedMessages(e);
-        return txt("msg.assistant.error.AssistantInvocationFailure", getAssistantType().getName(), errorMessage);
+        e = rootCauseOf(e);
+        String errorMessage = getLocalizedMessages(e);
+        String message = txt("msg.assistant.error.AssistantInvocationFailure", getAssistantType().getName());
+        return txt("msg.shared.error.ErrorDetails", message, errorMessage);
     }
 
     @Override
