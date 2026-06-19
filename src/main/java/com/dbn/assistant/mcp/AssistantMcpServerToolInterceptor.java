@@ -41,6 +41,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CancellationException;
 
+import static com.dbn.assistant.tool.AssistantToolContents.getMaxToolResponseLength;
+import static com.dbn.assistant.tool.AssistantToolContents.isToolResponseContentOversized;
+import static com.dbn.assistant.tool.AssistantToolContents.prepareToolResponseContent;
 import static com.dbn.assistant.tool.event.AssistantToolStatus.CANCELLED;
 import static com.dbn.assistant.tool.event.AssistantToolStatus.COMPLETED;
 import static com.dbn.assistant.tool.event.AssistantToolStatus.EXECUTING;
@@ -81,6 +84,12 @@ public class AssistantMcpServerToolInterceptor extends AssistantStateExtension {
             // start execution
             handleEvent(project, invocation, EXECUTING, null);
             String result = monitor.executeTool(() -> executor.execute(request, memoryId));
+            if (isToolResponseContentOversized(result)) {
+                throw new IllegalStateException(
+                        "Tool result exceeded the maximum allowed size of " + getMaxToolResponseLength() +
+                                " characters. Retry with a narrower request, more specific filters, or a smaller result limit.");
+            }
+            result = prepareToolResponseContent(result);
 
             // confirm execution
             handleEvent(project, invocation, COMPLETED, null);

@@ -20,10 +20,11 @@ import com.dbn.common.download.Downloads;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.XmlContents;
 import com.dbn.connection.DatabaseType;
-import com.dbn.driver.download.DependencyParser;
 import com.dbn.driver.download.DownloadSession;
-import com.intellij.openapi.progress.ProgressIndicator;
+import com.dbn.driver.download.MavenRepositories;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.jdom.Element;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -38,27 +39,40 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.thread.Progress.installThreadInterrupter;
+import static com.dbn.driver.download.DependencyParser.resolveDependencies;
+import static com.dbn.driver.download.metadata.LibraryRole.DRIVER;
+import static com.dbn.driver.download.metadata.LibraryRole.EXTENSION;
 import static com.dbn.nls.NlsResources.txt;
 
+@Slf4j
 public class DriverPackageMetadataDownloader {
+    private static final String LATEST_VERSION = "latest";
+    private static final int MAX_LATEST_VERSION_ATTEMPTS = 3;
+
     @SneakyThrows
-    public Map<String, DriverPackage> createDriverPackages(DownloadSession session) {
+    public Map<String, DriverPackage> createDriverPackages(DownloadSession session, DatabaseType databaseType) {
         Element element = XmlContents.fileToElement(getClass(), "driver-packages.xml");
-        List<Element> packageElements = element.getChildren("driver-package");
+        List<Element> packageElements = element
+                .getChildren("driver-package")
+                .stream()
+                .filter(e -> DatabaseType.resolve(stringAttribute(e, "database-type")) == databaseType)
+                .toList();
         session.withDownloadSize(packageElements.size());
 
         List<DriverPackage> driverPackages = packageElements.parallelStream()
                 .map(e -> createDriverPackage(e, session))
                 .filter(p -> p != null)
                 .toList();
+        driverPackages = removeDuplicatePinnedPackages(driverPackages);
         return driverPackages.stream().collect(Collectors.toMap(p -> p.getId(), p -> p));
     }
 
@@ -68,20 +82,31 @@ public class DriverPackageMetadataDownloader {
         String id = stringAttribute(element, "id");
         String name = stringAttribute(element, "name");
         String databaseType = stringAttribute(element, "database-type");
+        boolean latestPackage = isLatestPackage(element);
 
-        // Collect libraries from each child "library" element
-        List<Library> libraries = element.getChildren("library").parallelStream()
-                .flatMap(libElement -> createLibrary(libElement, session).stream()) // Flatten lists of libraries
+        // Resolve every declared library first; dynamic entries may expand to multiple artifacts.
+        List<ResolvedLibrary> resolvedLibraries = element
+                .getChildren("library")
+                .parallelStream()
+                .map(e -> resolveLibrary(e, session))
+                .toList();
+        if (resolvedLibraries.stream().anyMatch(l -> l.libraries().isEmpty())) return null;
+
+        List<Library> libraries = resolvedLibraries
+                .stream()
+                .flatMap(l -> l.libraries().stream())
                 .collect(Collectors.toList());
+
         int placeholderCount = countPlaceholders(id);
         if (libraries.isEmpty()) return null;
 
-        id = getFormattedString(id, libraries, placeholderCount, true);
+        id = getFormattedString(id, libraries, resolvedLibraries, placeholderCount, true);
         // Pattern to find %s occurrences
         placeholderCount = countPlaceholders(name);
 
-        name = getFormattedString(name, libraries, placeholderCount, false);
+        name = getFormattedString(name, libraries, resolvedLibraries, placeholderCount, false);
         DriverPackage driverPackage = new DriverPackage(id, name, DatabaseType.resolve(databaseType), libraries);
+        driverPackage.setLatest(latestPackage);
 
         session.setText(txt("prc.connection.text.DownloadingDriverPackageMetadata", id));
         session.countDown();
@@ -89,25 +114,68 @@ public class DriverPackageMetadataDownloader {
         return driverPackage;
     }
 
-    private String getFormattedString(String s, List<Library> libraries, int placeholderCount, boolean abridged) {
-        if (placeholderCount == 1) {
-             s = String.format(s, libraries.get(0).getVersion());
-        } else if (placeholderCount == 2) {
-            // Get the first matching "ojdbc[8|11|17]" library
-            Library ojdbcLibrary = libraries.stream()
-                    .filter(lib -> lib.getArtifactId().matches("ojdbc(8|11|17)"))
-                    .findFirst()
-                    .orElse(null);
+    private boolean isLatestPackage(Element element) {
+        return element.getChildren("library").stream()
+                .anyMatch(e -> isLatestVersion(stringAttribute(e, "version")));
+    }
 
-            // Use the first available library for the second %s
-            Library firstLibrary = libraries.get(0);
-            if (ojdbcLibrary != null) {
-                String ojdbcVersion = abridged?shortenVersion(ojdbcLibrary.getVersion()):ojdbcLibrary.getVersion();
-                String extensionVersion = firstLibrary.getVersion();
-                s = String.format(s, ojdbcVersion, extensionVersion);
-            }
+    private List<DriverPackage> removeDuplicatePinnedPackages(List<DriverPackage> driverPackages) {
+        Set<DriverVersionKey> latestDriverVersions = driverPackages.stream()
+                .filter(DriverPackage::isLatest)
+                .map(this::getDriverVersionKey)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        if (latestDriverVersions.isEmpty()) return driverPackages;
+
+        return driverPackages.stream()
+                .filter(p -> p.isLatest() || !latestDriverVersions.contains(getDriverVersionKey(p)))
+                .toList();
+    }
+
+    private DriverVersionKey getDriverVersionKey(DriverPackage driverPackage) {
+        return driverPackage.getLibraries().stream()
+                .filter(l -> l.getRole() == DRIVER)
+                .findFirst()
+                .map(l -> new DriverVersionKey(driverPackage.getDatabaseType(), l.getGroupId(), l.getArtifactId(), l.getVersion()))
+                .orElse(null);
+    }
+
+    private String getFormattedString(String s, List<Library> libraries, List<ResolvedLibrary> resolvedLibraries, int placeholderCount, boolean abridged) {
+        if (placeholderCount == 1) {
+            Library driverLibrary = getDriverLibrary(libraries, resolvedLibraries);
+            String version = abridged ? shortenVersion(driverLibrary.getVersion()) : driverLibrary.getVersion();
+            s = String.format(s, version);
+        } else if (placeholderCount == 2) {
+            Library driverLibrary = getDriverLibrary(libraries, resolvedLibraries);
+            Library extensionLibrary = getExtensionLibrary(libraries, resolvedLibraries);
+            String driverVersion = abridged ? shortenVersion(driverLibrary.getVersion()) : driverLibrary.getVersion();
+            String extensionVersion = extensionLibrary.getVersion();
+            s = String.format(s, driverVersion, extensionVersion);
         }
         return s;
+    }
+
+    private Library getDriverLibrary(List<Library> libraries, List<ResolvedLibrary> resolvedLibraries) {
+        return resolvedLibraries.stream()
+                .map(ResolvedLibrary::driverLibrary)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .or(() -> libraries.stream()
+                        .filter(l -> l.getRole() == DRIVER)
+                        .findFirst())
+                .orElse(libraries.get(0));
+    }
+
+    private Library getExtensionLibrary(List<Library> libraries, List<ResolvedLibrary> resolvedLibraries) {
+        return resolvedLibraries.stream()
+                .map(ResolvedLibrary::extensionLibrary)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .or(() -> libraries.stream()
+                        .filter(l -> l.getRole() == EXTENSION)
+                        .findFirst())
+                .orElse(getDriverLibrary(libraries, resolvedLibraries));
     }
 
     private  int countPlaceholders(String str) {
@@ -126,37 +194,119 @@ public class DriverPackageMetadataDownloader {
         return String.join(".", java.util.Arrays.copyOfRange(splitVersion, 0, 3));
     }
     @SneakyThrows
-    private  List<Library> createLibrary(Element element, DownloadSession session) {
+    private  ResolvedLibrary resolveLibrary(Element element, DownloadSession session) {
         installThreadInterrupter(session);
 
         String groupId = stringAttribute(element, "group-id");
         String artifactId = stringAttribute(element, "artifact-id");
         String version = stringAttribute(element, "version");
-        boolean toResolve = booleanAttribute(element, "toResolve", false);
         String type = stringAttribute(element, "type");
         if (type == null) type = "jar";
-        // Resolve the version if not explicitly provided
-        version = ensureVersion(groupId, artifactId, version, session);
 
-        Library library = new Library(groupId, artifactId, version);
-        readChecksums(element, library);
-        if (toResolve) {
-            // Resolve dependencies for non-jar types
-            try {
-                List<Library> libraries = DependencyParser.resolveDependencies(library, type, session);
-                copyChecksums(library, libraries);
-                return libraries; // Return all resolved dependencies
-            } catch (Throwable e) {
-                e = Exceptions.rootCauseOf(e);
-                session.addErrorMessage(txt("msg.connection.error.FailedToDownloadLibrary", library.getLibraryId(), e.getMessage()));
-                return Collections.emptyList();
+        if (isLatestVersion(version)) {
+            return createLatestLibrary(element, groupId, artifactId, type, session);
+        }
+
+        version = ensureVersion(groupId, artifactId, version);
+
+        Library library = createLibrary(element, groupId, artifactId, version);
+        return new ResolvedLibrary(Collections.singletonList(library), getDriverRoleLibrary(library), getExtensionRoleLibrary(library));
+    }
+
+    private ResolvedLibrary createLatestLibrary(Element element, String groupId, String artifactId, String type, DownloadSession session) throws Exception {
+        List<String> versions = session.versions(groupId, artifactId, () -> fetchAvailableVersions(groupId, artifactId, session));
+        List<String> recentVersions = versions.stream()
+                .sorted(Comparator.comparing(ComparableVersion::new).reversed())
+                .limit(MAX_LATEST_VERSION_ATTEMPTS)
+                .toList();
+
+        Throwable lastFailure = null;
+        String latestVersion = recentVersions.get(0);
+        for (String version : recentVersions) {
+            Library library = createLibrary(element, groupId, artifactId, version);
+            LibraryResolution resolution = resolveLibraryDependencies(library, type, session);
+            if (resolution.isResolved()) {
+                if (!Objects.equals(version, latestVersion)) {
+                    log.warn("Resolved driver library '{}' using fallback version '{}' after latest version '{}' failed",
+                            groupId + ":" + artifactId, version, latestVersion);
+                }
+                return new ResolvedLibrary(resolution.libraries(), getDriverRoleLibrary(library), getExtensionRoleLibrary(library));
+            }
+            lastFailure = resolution.failure();
+        }
+
+        String libraryId = groupId + ":" + artifactId + ":" + LATEST_VERSION;
+        String message = lastFailure == null ? "No versions found" : lastFailure.getMessage();
+        session.addErrorMessage(txt("msg.connection.error.FailedToDownloadLibrary", libraryId, message));
+        return new ResolvedLibrary(Collections.emptyList(), null, null);
+    }
+
+    private LibraryResolution resolveLibraryDependencies(Library library, String type, DownloadSession session) {
+        try {
+            List<Library> libraries = session.libraries(library, type, () -> resolveDependencies(library, type, session));
+            if (libraries.isEmpty()) {
+                Throwable failure = new IllegalStateException("No dependencies resolved for " + library.getLibraryId());
+                log.warn(failure.getMessage());
+                return LibraryResolution.failed(failure);
             }
 
-        } else {
-            // For type "jar", return a single Library
-            return Collections.singletonList(library);
+            copyChecksums(library, libraries);
+            copyRole(library, libraries);
+            return LibraryResolution.resolved(libraries);
+        } catch (Throwable e) {
+            Throwable failure = Exceptions.rootCauseOf(e);
+            log.warn("Failed to resolve driver library '{}'", library.getLibraryId(), failure);
+            return LibraryResolution.failed(failure);
         }
     }
+
+    private Library createLibrary(Element element, String groupId, String artifactId, String version) {
+        Library library = new Library(groupId, artifactId, version);
+        library.setRole(enumAttribute(element, "role", LibraryRole.class));
+        readChecksums(element, library);
+        return library;
+    }
+
+    private Library getDriverRoleLibrary(Library library) {
+        return library.getRole() == DRIVER ? library : null;
+    }
+
+    private Library getExtensionRoleLibrary(Library library) {
+        return library.getRole() == EXTENSION ? library : null;
+    }
+
+    private void copyRole(Library source, List<Library> libraries) {
+        LibraryRole role = source.getRole();
+        if (role == null) return;
+
+        libraries.stream()
+                .filter(l -> Objects.equals(l.getGroupId(), source.getGroupId()))
+                .filter(l -> Objects.equals(l.getArtifactId(), source.getArtifactId()))
+                .filter(l -> Objects.equals(l.getVersion(), source.getVersion()))
+                .forEach(l -> l.setRole(role));
+    }
+
+    private boolean isLatestVersion(String version) {
+        return LATEST_VERSION.equalsIgnoreCase(version);
+    }
+
+    private record LibraryResolution(List<Library> libraries, Throwable failure) {
+        static LibraryResolution resolved(List<Library> libraries) {
+            return new LibraryResolution(libraries, null);
+        }
+
+        static LibraryResolution failed(Throwable failure) {
+            return new LibraryResolution(Collections.emptyList(), failure);
+        }
+
+        boolean isResolved() {
+            return !libraries.isEmpty();
+        }
+    }
+
+    private record ResolvedLibrary(List<Library> libraries, Library driverLibrary, Library extensionLibrary) {}
+
+    private record DriverVersionKey(DatabaseType databaseType, String groupId, String artifactId, String version) {}
 
     private void copyChecksums(Library source, List<Library> libraries) {
         if (source.getChecksums().isEmpty()) return;
@@ -176,38 +326,20 @@ public class DriverPackageMetadataDownloader {
         }
     }
 
-    private  String ensureVersion(String groupId, String artifactId, String currentVersion, DownloadSession session) throws Exception{
-        if (currentVersion != null && isValidVersion(currentVersion)) {
-            return currentVersion;
+    private  String ensureVersion(String groupId, String artifactId, String currentVersion) throws Exception{
+        if (currentVersion != null && isValidVersion(currentVersion)) return currentVersion;
+
+        if (currentVersion == null) {
+            throw new Exception("Missing version declaration for " + groupId + ":" + artifactId);
         }
 
-        // Fetch all available versions
-        List<String> availableVersions = fetchAvailableVersions(groupId, artifactId, session);
-        if (currentVersion != null && currentVersion.contains("*")) {
-            return resolveWildcardVersion(currentVersion, availableVersions);
-        } else {
-            return fetchLatestVersion(availableVersions);
-        }
+        throw new Exception("Unsupported version declaration: " + currentVersion);
     }
 
-    private  String fetchLatestVersion(List<String> availableVersions) throws Exception {
-        return availableVersions.stream()
-                .max(Comparator.naturalOrder())
-                .orElseThrow(() -> new Exception("No versions found."));
-    }
-
-    private  String resolveWildcardVersion(String wildcardVersion, List<String> availableVersions) throws Exception {
-        // Convert wildcard version to regex
-        String regex = wildcardVersion.replace("*", ".*");
-        return availableVersions.stream()
-                .filter(v -> v.matches(regex))
-                .max(Comparator.naturalOrder()) // Get the latest matching version
-                .orElseThrow(() -> new Exception("No matching version found for pattern: " + wildcardVersion));
-    }
-
-    private  List<String> fetchAvailableVersions(String groupId, String artifactId, ProgressIndicator indicator) throws Exception {
+    @SneakyThrows
+    private  List<String> fetchAvailableVersions(String groupId, String artifactId, DownloadSession session) {
         // URL for Maven metadata
-        String url = "https://repo1.maven.org/maven2/"+groupId.replace('.', '/')+"/"+artifactId+"/maven-metadata.xml";
+        String url = MavenRepositories.CENTRAL_URL + "/" + groupId.replace('.', '/') + "/" + artifactId + "/maven-metadata.xml";
         // Temporary file to store the downloaded content
         File tempFile = File.createTempFile("maven-metadata", ".xml");
         tempFile.deleteOnExit();

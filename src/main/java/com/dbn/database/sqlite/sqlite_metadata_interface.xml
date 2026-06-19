@@ -159,7 +159,9 @@
 
     <statement-execution-processor id="load-distinct-values">
         <statement>
-            select distinct {@2} from {@0}.{@1} where {@2} is not null order by {@2}
+            select VALUE from (
+                select distinct {@2} as VALUE from {@0}.{@1} where {@2} is not null limit {3}
+            ) VALUE_LIST order by VALUE
         </statement>
     </statement-execution-processor>    
 

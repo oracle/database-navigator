@@ -18,11 +18,14 @@ package com.dbn.driver.approval;
 
 import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.util.Files;
+import com.dbn.driver.download.PackageChecksumData;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+
+import static com.dbn.driver.download.DriverDownloadManager.getDriverPackageChecksumsLocation;
 
 @UtilityClass
 public class DriverLibraryApprovalUtil {
@@ -64,7 +67,7 @@ public class DriverLibraryApprovalUtil {
         if (isBundledDriverLibrary(deploymentRoot, library)) return true;
 
         File driverPackages = new File(deploymentRoot, "driver-packages").getCanonicalFile();
-        return isSameOrChild(driverPackages, library);
+        return isVerifiedDriverPackageLibrary(driverPackages, library);
     }
 
     private boolean isBundledDriverLibrary(File deploymentRoot, File library) throws Exception {
@@ -74,6 +77,35 @@ public class DriverLibraryApprovalUtil {
             current = current.getParentFile();
         }
         return false;
+    }
+
+    private boolean isVerifiedDriverPackageLibrary(File driverPackages, File library) throws Exception {
+        if (!isSameOrChild(driverPackages, library)) return false;
+
+        File checksumRoot = new File(getDriverPackageChecksumsLocation()).getCanonicalFile();
+        if (isSameOrChild(checksumRoot, library)) return false;
+
+        File packageRoot = resolvePackageRoot(driverPackages, library);
+        if (packageRoot == null || !packageRoot.isDirectory()) return false;
+
+        PackageChecksumData checksumData = new PackageChecksumData(packageRoot.getName());
+        if (!checksumData.fileExists()) return false;
+
+        checksumData.readChecksums();
+        return checksumData.verifyStrongChecksums(packageRoot);
+    }
+
+    @Nullable
+    private File resolvePackageRoot(File driverPackages, File library) throws Exception {
+        File current = library.isDirectory() ? library : library.getParentFile();
+        while (current != null && !current.equals(driverPackages)) {
+            File parent = current.getParentFile();
+            if (parent != null && parent.getCanonicalFile().equals(driverPackages)) {
+                return current.getCanonicalFile();
+            }
+            current = parent;
+        }
+        return null;
     }
 
     private boolean isSameOrChild(File ancestor, File file) throws Exception {

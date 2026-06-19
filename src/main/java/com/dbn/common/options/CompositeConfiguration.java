@@ -25,7 +25,6 @@ import lombok.Getter;
 import org.jdom.Element;
 
 import static com.dbn.common.options.ConfigActivity.TRANSFERRING;
-import static com.dbn.common.options.ConfigStorage.WORKSPACE;
 
 @EqualsAndHashCode(callSuper = false)
 public abstract class CompositeConfiguration<P extends Configuration, E extends CompositeConfigurationEditorForm>
@@ -104,7 +103,7 @@ public abstract class CompositeConfiguration<P extends Configuration, E extends 
         if (configuration instanceof CompositeConfiguration compositeConfiguration) {
             return compositeConfiguration.hasAcceptedConfigurations();
         }
-        return configuration.isWorkspaceConfig() == ConfigMonitor.is(WORKSPACE);
+        return configuration.isWorkspaceStorage() == ConfigMonitor.isWorkspaceStorage();
     }
 
     private boolean hasAcceptedConfigurations() {

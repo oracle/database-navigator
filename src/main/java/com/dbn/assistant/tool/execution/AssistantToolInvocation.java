@@ -24,26 +24,20 @@ import com.dbn.common.state.PersistentStateElement;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 
 import static com.dbn.assistant.tool.AssistantToolData.isInteractiveTool;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
-import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.readSensitiveData;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.options.setting.Settings.writeSensitiveData;
 import static com.dbn.common.util.Commons.nvl;
 
 @Getter
 @Setter
 public class AssistantToolInvocation implements PersistentStateElement {
-    private static final @NonNls String TOOL_ARGUMENTS_ENC_SCOPE = "assistant.tool.arguments";
-    private static final @NonNls String TOOL_RESPONSE_ENC_SCOPE = "assistant.tool.response";
     private static final ThreadLocal<AssistantToolInvocation> CURRENT = new ThreadLocal<>();
 
     private AssistantToolRequest request;
@@ -103,35 +97,25 @@ public class AssistantToolInvocation implements PersistentStateElement {
     @Override
     public void readState(Element element) {
         request = new AssistantToolRequest();
-
-        request.setRequestId(stringAttribute(element, "request-id"));
-        request.setToolName(stringAttribute(element, "tool-name"));
+        request.readState(element);
         option = stringAttribute(element, "tool-option");
         status = enumAttribute(element, "tool-status", status);
 
-        Element argumentsElement = element.getChild("tool-arguments");
-        request.setToolArguments(readSensitiveData(argumentsElement, TOOL_ARGUMENTS_ENC_SCOPE));
-
         Element responseElement = element.getChild("tool-response");
         if (responseElement != null) {
-            String toolResponse = readSensitiveData(responseElement, TOOL_RESPONSE_ENC_SCOPE);
-            response = new AssistantToolResponse(toolResponse);
+            response = new AssistantToolResponse();
+            response.readState(responseElement);
         }
     }
 
     @Override
     public void writeState(Element element) {
-        setStringAttribute(element, "request-id", request.getRequestId());
-        setStringAttribute(element, "tool-name", request.getToolName());
+        request.writeState(element);
         setStringAttribute(element, "tool-option", option);
         setEnumAttribute(element, "tool-status", status);
 
-        Element contentElement = newElement(element,"tool-arguments");
-        writeSensitiveData(contentElement, request.getToolArguments(), TOOL_ARGUMENTS_ENC_SCOPE);
-
         if (response != null) {
-            Element resposeElement = newElement(element,"tool-response");
-            writeSensitiveData(resposeElement, response.getContent(), TOOL_RESPONSE_ENC_SCOPE);
+            response.writeState(element, "tool-response");
         }
     }
 

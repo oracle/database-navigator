@@ -34,7 +34,12 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
         return DatabaseInterfaceType.METADATA;
     }
 
-    ResultSet getDistinctValues(String ownerName, String datasetName, String columnName, DBNConnection connection) throws SQLException;
+    /**
+     * Loads distinct values for the given dataset column, capped at the requested count.
+     * Column names of the returned ResultSet
+     *  <li> VALUE (char)
+     */
+    ResultSet getDistinctValues(String ownerName, String datasetName, String columnName, int maxValues, DBNConnection connection) throws SQLException;
 
     /**
      * Load all database users
@@ -163,8 +168,30 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      */
     ResultSet loadJavaClasses(String ownerName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the java resources of the given owner<br>
+     * Column names of the returned ResultSet
+     *  <li> OBJECT_NAME (char)
+     *  <li> IS_VALID (Y/N)
+     */
     ResultSet loadJavaResources(String ownerName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the java primitive types<br>
+     * Column names of the returned ResultSet
+     *  <li> OBJECT_NAME (char)
+     *  <li> OBJECT_KIND (char)
+     *  <li> ACCESSIBILITY (char)
+     *  <li> OUTER_CLASS_NAME (char)
+     *  <li> IS_FINAL (Y/N)
+     *  <li> IS_ABSTRACT (Y/N)
+     *  <li> IS_INNER (Y/N)
+     *  <li> IS_STATIC (Y/N)
+     *  <li> IS_DEBUG (Y/N)
+     *  <li> IS_VALID (Y/N)
+     *  <li> IS_SOURCE (Y/N)
+     *  <li> IS_PRIMITIVE (Y/N)
+     */
     ResultSet loadJavaPrimitives(String ownerName, DBNConnection connection) throws SQLException;
 
     /**
@@ -174,6 +201,26 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      */
     ResultSet loadMaterializedViews(String ownerName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the JSON views of the given owner<br>
+     * Column names of the returned ResultSet
+     *  <li> VIEW_NAME (char)
+     *  <li> VIEW_TYPE_OWNER (char)
+     *  <li> VIEW_TYPE (char)
+     *  <li> COMMENTS (char)
+     *  <li> ROOT_TABLE_OWNER (char)
+     *  <li> ROOT_TABLE_NAME (char)
+     *  <li> JSON_COLUMN_NAME (char)
+     *  <li> IS_SYSTEM_VIEW (Y/N)
+     *  <li> IS_EDITIONABLE (Y/N)
+     *  <li> IS_VALID (Y/N)
+     *  <li> IS_READONLY (Y/N)
+     *  <li> IS_INSERT_ALLOWED (Y/N)
+     *  <li> IS_UPDATE_ALLOWED (Y/N)
+     *  <li> IS_DELETE_ALLOWED (Y/N)
+     *  <li> JSON_SCHEMA (char)
+     *  <li> KEY_ATTRIBUTE_NAMES (char)
+     */
     ResultSet loadJsonViews(String ownerName, DBNConnection connection) throws SQLException;
 
     /**
@@ -322,8 +369,21 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
     ResultSet loadAllNestedTables(String ownerName, DBNConnection connection) throws SQLException;
 
 
+    /**
+     * Loads the table relations of the given JSON view<br>
+     * Column names of the returned ResultSet
+     *  <li> TABLE_OWNER (char)
+     *  <li> TABLE_NAME (char)
+     */
     ResultSet loadJsonViewTableRelations(@NotNull String ownerName, String jsonViewName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads all JSON view table relations of the given owner<br>
+     * Column names of the returned ResultSet
+     *  <li> VIEW_NAME (char)
+     *  <li> TABLE_OWNER (char)
+     *  <li> TABLE_NAME (char)
+     */
     ResultSet loadAllJsonViewTableRelations(@NotNull String ownerName, DBNConnection connection) throws SQLException;
 
     /**
@@ -406,6 +466,18 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      */
     ResultSet loadAiProfiles(String ownerName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the AI models of the given owner
+     * Column names of the returned ResultSet
+     *  <li> MODEL_NAME (char)
+     *  <li> MINING_FUNCTION (char)
+     *  <li> ALGORITHM (char)
+     *  <li> ALGORITHM_TYPE (char)
+     *  <li> MODEL_SIZE (number)
+     *  <li> PARTITIONED (Y/N)
+     *  <li> EXTERNAL_DATA (Y/N)
+     *  <li> INMEMORY (Y/N)
+     */
     ResultSet loadAiModels(String ownerName, DBNConnection connection) throws SQLException;
 
     ResultSet loadDataSourceConfigEntries(DBNConnection connection) throws SQLException;
@@ -512,24 +584,138 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      */
     ResultSet loadAllPackageTypes(String ownerName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the inner java classes of the given class<br>
+     * Column names of the returned ResultSet
+     *  <li> OBJECT_NAME (char)
+     *  <li> OBJECT_KIND (char)
+     *  <li> ACCESSIBILITY (char)
+     *  <li> OUTER_CLASS_NAME (char)
+     *  <li> IS_FINAL (Y/N)
+     *  <li> IS_ABSTRACT (Y/N)
+     *  <li> IS_INNER (Y/N)
+     *  <li> IS_STATIC (Y/N)
+     *  <li> IS_DEBUG (Y/N)
+     *  <li> IS_VALID (Y/N)
+     *  <li> IS_SOURCE (Y/N)
+     *  <li> IS_PRIMITIVE (Y/N)
+     */
     ResultSet loadJavaInnerClasses(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads all inner java classes of the given owner<br>
+     * Column names of the returned ResultSet
+     *  <li> OBJECT_NAME (char)
+     *  <li> OBJECT_KIND (char)
+     *  <li> ACCESSIBILITY (char)
+     *  <li> OUTER_CLASS_NAME (char)
+     *  <li> IS_FINAL (Y/N)
+     *  <li> IS_ABSTRACT (Y/N)
+     *  <li> IS_INNER (Y/N)
+     *  <li> IS_STATIC (Y/N)
+     *  <li> IS_DEBUG (Y/N)
+     *  <li> IS_VALID (Y/N)
+     *  <li> IS_SOURCE (Y/N)
+     *  <li> IS_PRIMITIVE (Y/N)
+     */
     ResultSet loadAllJavaInnerClasses(String ownerName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the java fields of the given class<br>
+     * Column names of the returned ResultSet
+     *  <li> OWNER_CLASS_NAME (char)
+     *  <li> FIELD_INDEX (number)
+     *  <li> FIELD_NAME (char)
+     *  <li> ACCESSIBILITY (char)
+     *  <li> IS_FINAL (Y/N)
+     *  <li> IS_STATIC (Y/N)
+     *  <li> ARRAY_DEPTH (number)
+     *  <li> FIELD_CLASS_NAME (char)
+     */
     ResultSet loadJavaFields(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads all java fields of the given owner<br>
+     * Column names of the returned ResultSet
+     *  <li> OWNER_CLASS_NAME (char)
+     *  <li> FIELD_INDEX (number)
+     *  <li> FIELD_NAME (char)
+     *  <li> ACCESSIBILITY (char)
+     *  <li> IS_FINAL (Y/N)
+     *  <li> IS_STATIC (Y/N)
+     *  <li> ARRAY_DEPTH (number)
+     *  <li> FIELD_CLASS_NAME (char)
+     */
     ResultSet loadAllJavaFields(String ownerName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the java methods of the given class<br>
+     * Column names of the returned ResultSet
+     *  <li> OWNER_CLASS_NAME (char)
+     *  <li> METHOD_NAME (char)
+     *  <li> METHOD_INDEX (number)
+     *  <li> ACCESSIBILITY (char)
+     *  <li> ARRAY_DEPTH (number)
+     *  <li> RETURN_CLASS_NAME (char)
+     *  <li> IS_STATIC (Y/N)
+     *  <li> IS_FINAL (Y/N)
+     *  <li> IS_ABSTRACT (Y/N)
+     *  <li> METHOD_SIGNATURE (char)
+     */
     ResultSet loadJavaMethods(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads all java methods of the given owner<br>
+     * Column names of the returned ResultSet
+     *  <li> OWNER_CLASS_NAME (char)
+     *  <li> METHOD_NAME (char)
+     *  <li> METHOD_INDEX (number)
+     *  <li> ACCESSIBILITY (char)
+     *  <li> ARRAY_DEPTH (number)
+     *  <li> RETURN_CLASS_NAME (char)
+     *  <li> IS_STATIC (Y/N)
+     *  <li> IS_FINAL (Y/N)
+     *  <li> IS_ABSTRACT (Y/N)
+     *  <li> METHOD_SIGNATURE (char)
+     */
     ResultSet loadAllJavaMethods(String ownerName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the java parameters of the given method<br>
+     * Column names of the returned ResultSet
+     *  <li> CLASS_NAME (char)
+     *  <li> METHOD_NAME (char)
+     *  <li> METHOD_INDEX (number)
+     *  <li> ARGUMENT_POSITION (number)
+     *  <li> ARRAY_DEPTH (number)
+     *  <li> ARGUMENT_CLASS_NAME (char)
+     */
     ResultSet loadJavaParameters(String ownerName, String objectName, String methodName, int methodIndex, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads all java parameters of the given owner<br>
+     * Column names of the returned ResultSet
+     *  <li> CLASS_NAME (char)
+     *  <li> METHOD_NAME (char)
+     *  <li> METHOD_INDEX (number)
+     *  <li> ARGUMENT_POSITION (number)
+     *  <li> ARRAY_DEPTH (number)
+     *  <li> ARGUMENT_CLASS_NAME (char)
+     */
     ResultSet loadAllJavaParameters(String ownerName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the java class dependencies of the given class<br>
+     * Column names of the returned ResultSet
+     *  <li> OBJECT_OWNER (char)
+     *  <li> OBJECT_NAME (char)
+     *  <li> HAS_SOURCE (Y/N)
+     */
     ResultSet loadJavaClassDependencies(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the database java version
+     */
     String loadJavaVersion(DBNConnection connection) throws SQLException;
 
 
@@ -570,6 +756,13 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      */
     ResultSet loadAllTypeAttributes(String ownerName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the type attributes of the given program type<br>
+     * Column names of the returned ResultSet
+     *  <li> ATTRIBUTE_NAME (char)
+     *  <li> ATTRIBUTE_TYPE_OWNER (char)
+     *  <li> ATTRIBUTE_TYPE_NAME (char)
+     */
     ResultSet loadProgramTypeAttributes(String ownerName, String programName, String typeName, DBNConnection connection) throws SQLException;
 
     /**
@@ -670,6 +863,11 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      */
     ResultSet loadReferencedObjects(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the referencing schemas for the given object (schemas containing objects depending on it)
+     * Column names of the returned ResultSet
+     *  <li> OBJECT_OWNER (char)
+     */
     ResultSet loadReferencingSchemas(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
     /**
@@ -681,6 +879,9 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
     ResultSet loadReferencingObjects(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
 
+    /**
+     * Sets the current schema for the given connection.
+     */
     void setCurrentSchema(String schemaName, DBNConnection connection) throws SQLException;
 
     /**
@@ -690,10 +891,25 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      */
     ResultSet loadViewSourceCode(String ownerName, String viewName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the source code (select statement) for the given materialized view;
+     * ResultSet should contain only one column (name is not relevant).
+     * Materialized view source-code may be split on more than one line.
+     */
     ResultSet loadMaterializedViewSourceCode(String ownerName, String viewName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the source code for the given database trigger;
+     * ResultSet should contain only one column (name is not relevant).
+     * Trigger source-code may be split on more than one line.
+     */
     ResultSet loadDatabaseTriggerSourceCode(String ownerName, String triggerName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the source code for the given dataset trigger;
+     * ResultSet should contain only one column (name is not relevant).
+     * Trigger source-code may be split on more than one line.
+     */
     ResultSet loadDatasetTriggerSourceCode(String tableOwner, String tableName, String ownerName, String triggerName, DBNConnection connection) throws SQLException;
 
     /**
@@ -703,10 +919,21 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      */
     ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the source code for the given overloaded object;
+     * ResultSet should contain only one column (name is not relevant).
+     * Object source-code may be split on more than one line.
+     */
     ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, short overload, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the source code for the given java resource.
+     */
     String loadJavaResourceSourceCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the binary code for the given java class.
+     */
     byte[] loadJavaBinaryCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
     /**
@@ -734,49 +961,124 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      */
     ResultSet loadCompileObjectErrors(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the change timestamp for the given object.
+     * ResultSet should contain only one column (name is not relevant).
+     */
     ResultSet loadObjectChangeTimestamp(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
 
+    /**
+     * Enables the given trigger.
+     */
     void enableTrigger(String ownerName, String triggerName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Disables the given trigger.
+     */
     void disableTrigger(String ownerName, String triggerName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Enables the given constraint.
+     */
     void enableConstraint(String ownerName, String tableName, String constraintName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Disables the given constraint.
+     */
     void disableConstraint(String ownerName, String tableName, String constraintName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads data event registrations.
+     */
     ResultSet loadDataEventRegistrations(DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads database sessions.
+     */
     ResultSet loadSessions(DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the current SQL for the given session.
+     */
     ResultSet loadSessionCurrentSql(Object sessionId, DBNConnection connection) throws SQLException;
 
+    /**
+     * Terminates the given database session.
+     */
     void terminateSession(Object sessionId, Object serialNumber, boolean immediate, DBNConnection connection) throws SQLException;
 
+    /**
+     * Disconnects the given database session.
+     */
     void disconnectSession(Object sessionId, Object serialNumber, boolean postTransaction, boolean immediate, DBNConnection connection) throws SQLException;
 
+    /**
+     * Loads the current explain plan data.
+     */
     ResultSet loadExplainPlan(DBNConnection connection) throws SQLException;
 
+    /**
+     * Clears the current explain plan data.
+     */
     void clearExplainPlanData(DBNConnection connection) throws SQLException;
 
+    /**
+     * Enables database log output collection.
+     */
     void enableLogger(DBNConnection connection) throws SQLException;
+
+    /**
+     * Disables database log output collection.
+     */
     void disableLogger(DBNConnection connection) throws SQLException;
+
+    /**
+     * Reads collected database log output.
+     */
     String readLoggerOutput(DBNConnection connection) throws SQLException;
 
+    /**
+     * Checks if the given connection is valid.
+     */
     boolean isValid(DBNConnection connection);
 
+    /**
+     * Loads the current database session user.
+     */
     String loadSessionUser(DBNConnection connection) throws SQLException;
 
+    /**
+     * Creates a database date literal for the given date.
+     */
     String createDateString(Date date);
 
+    /**
+     * Checks if the given connection has pending transactions.
+     */
     boolean hasPendingTransactions(@NotNull DBNConnection connection);
 
+    /**
+     * Checks if the current user has the given system privilege.
+     */
     boolean hasSystemPrivilege(String privilegeName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Checks if the current user has the given object privilege.
+     */
     boolean hasObjectPrivilege(String privilegeName, String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Checks if the current user has tablespace quota.
+     */
     boolean hasTablespaceQuota(DBNConnection connection) throws SQLException;
 
+    /**
+     * Checks if the given user has the given network privilege.
+     */
     boolean hasNetworkPrivilege(String userName, String hostName, String privilegeName, DBNConnection connection) throws SQLException;
 
+    /**
+     * Grants the given network privilege to the given user.
+     */
     void grantNetworkPrivilege(String userName, String hostName, String privilegeName, DBNConnection connection) throws SQLException;
 }

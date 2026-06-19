@@ -19,9 +19,6 @@ package com.dbn.common.options.setting;
 import com.dbn.common.constant.Constant;
 import com.dbn.common.constant.PseudoConstant;
 import com.dbn.common.data.Data;
-import com.dbn.common.state.StateEncryption;
-import com.dbn.common.state.StateEncryption.StoredValue;
-import com.dbn.common.state.StateEncryptionCache;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
@@ -40,8 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-import static com.dbn.common.component.PersistentStateContext.getEncryptionCache;
-import static com.dbn.common.util.Commons.nvln;
+import static com.dbn.common.options.ConfigMonitor.isClipboardStorage;
 import static com.dbn.common.util.Strings.containsOneOf;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
@@ -278,26 +274,6 @@ public final class Settings {
         return builder.toString();
     }
 
-    @NotNull
-    public static String readSensitiveData(Element element, @NonNls String encScope) {
-        return readSensitiveData(element, encScope, null);
-    }
-
-    @NotNull
-    public static String readSensitiveData(Element element, @NonNls String encScope, @Nullable StateEncryptionCache encCache) {
-        String content = readCdata(element);
-        if (isEmpty(content)) return "";
-
-        boolean encrypted = booleanAttribute(element, "encrypted", false);
-        if (!encrypted) return content;
-
-        encCache = nvln(encCache, () -> getEncryptionCache());
-        String value = encCache == null ?
-                StateEncryption.decrypt(encScope, content) :
-                encCache.decrypt(encScope, content);
-        return Commons.nvl(value, "");
-    }
-
     public static void writeCdata(Element element, @NonNls String content) {
         if (content == null) return;
         element.setContent(new CDATA(content));
@@ -310,30 +286,6 @@ public final class Settings {
         } else {
             element.setText(content);
         }
-    }
-
-    public static void writeSensitiveData(Element element, @NonNls String content, @NonNls String encScope) {
-        writeSensitiveData(element, content, encScope, null);
-    }
-
-    public static void writeSensitiveData(Element element, @NonNls String content, @NonNls String encScope, @Nullable StateEncryptionCache encCache) {
-        if (isEmpty(content)) {
-            setBooleanAttribute(element, "encrypted", false);
-            writeCdata(element, content, true);
-            return;
-        }
-
-        encCache = nvln(encCache, () -> getEncryptionCache());
-        StoredValue storedValue = encCache == null ?
-                StateEncryption.encrypt(encScope, content) :
-                encCache.encrypt(encScope, content);
-
-        if (!storedValue.encrypted()) {
-            StateEncryption.requestUnencryptedStateApproval();
-        }
-
-        setBooleanAttribute(element, "encrypted", storedValue.encrypted());
-        writeCdata(element, storedValue.value(), true);
     }
 
     public static void setInteger(Element parent, @NonNls String childName, int value) {
@@ -349,6 +301,11 @@ public final class Settings {
     public static void setString(Element parent, @NonNls String childName, @NonNls String value) {
         Element element = newElement(parent, childName);
         element.setAttribute("value", value == null ? "" : value);
+    }
+
+    public static void setSensitiveString(Element parent, @NonNls String childName, @NonNls String value) {
+        if (isClipboardStorage()) return;
+        setString(parent, childName, value);
     }
 
     public static void setDouble(Element parent, @NonNls String childName, double value) {

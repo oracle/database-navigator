@@ -18,6 +18,7 @@ package com.dbn.project;
 
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.state.StateEncryption;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.debugger.ExecutionConfigManager;
 import com.dbn.plugin.PluginConflictManager;
@@ -39,6 +40,11 @@ public class ProjectStartupActivity implements StartupActivity/*, ProjectActivit
         removeRunConfigurations(project);
         reopenDatabaseEditors(project);
         initializeDatabaseAssistant(project);
+        initializeStateEncryption();
+    }
+
+    private static void initializeStateEncryption() {
+        StateEncryption.initialize();
     }
 
     private static void evaluatePluginStatus(Project project) {

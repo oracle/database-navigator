@@ -24,7 +24,8 @@ import com.dbn.common.property.Property;
  */
 public enum ConfigStorage implements Property.IntBase {
     PROJECT,
-    WORKSPACE;
+    WORKSPACE,
+    CLIPBOARD;
 
     public static final ConfigStorage[] VALUES = values();
 

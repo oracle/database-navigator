@@ -114,6 +114,10 @@ public class StateEncryption {
         return encryptionKey;
     }
 
+    public static void initialize() {
+        Background.run(() -> getEncryptionKey());
+    }
+
     private static byte[] loadKey() {
         CredentialAttributes attributes = createKeyAttributes();
         byte[] key = loadKey(attributes);

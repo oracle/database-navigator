@@ -17,16 +17,15 @@
 package com.dbn.connection.config.action;
 
 import com.dbn.common.action.BackgroundUpdate;
-import com.dbn.common.clipboard.Clipboard;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.connection.config.ConnectionConfigExport.isConnectionConfig;
 import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
@@ -52,9 +51,7 @@ public class ConnectionPasteAction extends ConnectionSettingsAction {
             @NotNull Project project,
             @Nullable ConnectionBundleSettingsForm target) {
 
-        @NonNls
-        String clipboardString = Clipboard.getStringContent();
-        boolean enabled = clipboardString != null && clipboardString.contains("connection-configurations");
+        boolean enabled = isConnectionConfig();
 
         presentation.setEnabled(enabled);
         presentation.setText(txt("app.connection.action.PasteFromClipboard"));

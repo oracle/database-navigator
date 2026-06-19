@@ -40,8 +40,8 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
-    public ResultSet getDistinctValues(String ownerName, String datasetName, String columnName, DBNConnection connection) throws SQLException {
-        return executeQuery(connection, "load-distinct-values", ownerName, datasetName, columnName);
+    public ResultSet getDistinctValues(String ownerName, String datasetName, String columnName, int maxValues, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "load-distinct-values", ownerName, datasetName, columnName, maxValues);
     }
 
     @Override
