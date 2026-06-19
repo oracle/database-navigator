@@ -143,6 +143,7 @@ public class DriverPackageMetadata implements PersistentStateElement {
         File packageDir = new File(downloadPath);
         PackageChecksumData checksumData = downloadManager.getChecksumData(packageId);
         List<String> libraryIds = driverPackage.getLibraryIds();
+        downloadManager.reconcilePackageStatus(driverPackage);
 
         // If no checksum file exists, all libraries are set to NEW
         if (checksumData.fileExists()) {

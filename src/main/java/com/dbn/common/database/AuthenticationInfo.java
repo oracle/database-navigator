@@ -50,6 +50,7 @@ import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_TYPE;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setEnum;
+import static com.dbn.common.options.setting.Settings.setSensitiveString;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.util.Commons.match;
 import static com.dbn.common.util.Strings.isNotEmpty;
@@ -285,7 +286,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         }
 
         setEnum(element, TOKEN_TYPE, tokenType);
-        setString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
+        setSensitiveString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
         setString(element, TOKEN_PROFILE, tokenProfile);
         setString(element, ADB_COMPARTMENT_OCID, compartmentOcid);
         setString(element, ADB_DATABASE_OCID, databaseOcid);
@@ -293,7 +294,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         setString(element, AZURE_TOKEN_DATABASE_ID_URI, azureDatabaseApplicationIdUri);
         setString(element, AZURE_TOKEN_TENANT_ID, azureTenantId);
         setString(element, AZURE_TOKEN_CLIENT_ID, azureClientId);
-        setString(element, AZURE_TOKEN_CLIENT_CERTIFICATE_FILE, azureClientCertificateFile);
+        setSensitiveString(element, AZURE_TOKEN_CLIENT_CERTIFICATE_FILE, azureClientCertificateFile);
     }
 
     @Override

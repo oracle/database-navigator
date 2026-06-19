@@ -23,15 +23,12 @@ import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.driver.download.metadata.Library;
 import com.intellij.openapi.progress.ProgressIndicator;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import lombok.experimental.Delegate;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.common.thread.Progress.progressOf;
@@ -46,7 +43,6 @@ public class DownloadSession extends ProgressIndicatorDelegate {
     private int downloadSize;
     private String downloadPath;
     private AtomicInteger outstandingSize;
-    private CountDownLatch countDownLatch;
 
     private final List<String> downloadedArtifacts = new CopyOnWriteArrayList<>();
     private final Map<String, List<String>> versions = new ConcurrentHashMap<>();
@@ -69,17 +65,8 @@ public class DownloadSession extends ProgressIndicatorDelegate {
         return this;
     }
 
-    public DownloadSession withLatchControl() {
-        if (downloadSize == 0) throw new IllegalStateException("Download size must be set before latch control is enabled");
-        this.countDownLatch = new CountDownLatch(downloadSize);
-        return this;
-    }
-
     public void countDown() {
         outstandingSize.decrementAndGet();
-        if (countDownLatch != null) {
-            countDownLatch.countDown();
-        }
     }
 
     public void updateProgress() {
@@ -103,11 +90,6 @@ public class DownloadSession extends ProgressIndicatorDelegate {
 
     public boolean isComplete() {
         return outstandingSize.get() == 0;
-    }
-
-    @SneakyThrows
-    public boolean awaitCompletion() {
-        return countDownLatch.await(500, TimeUnit.MILLISECONDS);
     }
 
     public double getProgress() {

@@ -54,6 +54,7 @@ import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.exception.Exceptions.getLocalizedMessages;
 import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
@@ -179,7 +180,8 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
             return tools;
         } catch (Throwable e) {
             groupStatusPanel.setVisible(false);
-            initMessagePanel(txt("msg.assistant.error.McpToolsLoadFailed", mcpServer.getName(), e.getMessage()));
+            String message = txt("msg.assistant.error.McpToolsLoadFailed", mcpServer.getName());
+            initMessagePanel(txt("msg.shared.error.ErrorDetails", message, getLocalizedMessages(e)));
             return List.of();
         } finally {
             loadingPanel.setVisible(false);

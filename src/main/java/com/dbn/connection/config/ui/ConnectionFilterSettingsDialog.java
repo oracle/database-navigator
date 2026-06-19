@@ -21,7 +21,6 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNContentWithHeaderForm;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.config.ConnectionFilterSettings;
@@ -32,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -91,7 +92,7 @@ public class ConnectionFilterSettingsDialog extends DBNDialog<DBNContentWithHead
             super.doOKAction();
         } catch (ConfigurationException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(getProject(), txt("cfg.connection.title.InvalidConfiguration"), e.getMessage());
+            showErrorDialog(getProject(), txt("cfg.connection.title.InvalidConfiguration"), getLocalizedMessage(e));
         }
 
     }

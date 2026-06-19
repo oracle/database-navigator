@@ -30,12 +30,13 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.options.ConfigMonitor.isClipboardStorage;
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.common.options.setting.Settings.setEnum;
-import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.common.options.setting.Settings.setSensitiveString;
 import static com.dbn.credentials.SecretType.SSH_TUNNEL_KEY_PASSPHRASE;
 import static com.dbn.credentials.SecretType.SSH_TUNNEL_PASSWORD;
 import static com.dbn.nls.NlsResources.txt;
@@ -97,12 +98,12 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
 
     @Override
     public void writeConfiguration(Element element) {
-        setBoolean(element, "active", active);
-        setString(element, "proxy-host", host);
-        setString(element, "proxy-port", port);
-        setString(element, "proxy-user", user);
+        setBoolean(element, "active", !isClipboardStorage() && active);
+        setSensitiveString(element, "proxy-host", host);
+        setSensitiveString(element, "proxy-port", port);
+        setSensitiveString(element, "proxy-user", user);
         setEnum(element, "auth-type", authType);
-        setString(element, "key-file", keyFile);
+        setSensitiveString(element, "key-file", keyFile);
 
         if (isTransientContext()) {
             // transfer secrets outside transient config xml

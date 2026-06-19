@@ -19,7 +19,8 @@ This skill owns workflow rules, BugDB handling, validation command selection, re
 4. Treat broad or architectural changes as a separate approval boundary even after a smaller fix was discussed. Stop and ask before changing transport/download mechanisms, class loading, persistence/state shape, threading/concurrency, security approval flow, external process/network behavior, plugin descriptors, Gradle/build configuration, or shared infrastructure. Present the minimal alternative first, then wait for explicit confirmation.
 5. Do not run build, compile, test, Gradle, or IDE validation commands unless the developer explicitly asks. After edits, identify the narrow local validation command the developer should run in their workspace instead.
 6. Preserve repository shape: Java 17, Gradle Kotlin DSL, IntelliJ Platform Gradle plugin, Lombok annotation processing, JUnit 4 tests, source under `src/main/java`, resources under `src/main/resources`, and public extension modules under `modules/dbn-api` and `modules/dbn-spi`.
-7. Avoid hand-editing generated or bulky parser artifacts in language dialect packages unless the task explicitly targets generated parser output.
+7. Before adding migration or cleanup logic to persistent state methods, ask the developer whether the feature/state has shipped and whether old persisted data must be supported. New or unreleased state should usually stay mirrored and migration-free.
+8. Avoid hand-editing generated or bulky parser artifacts in language dialect packages unless the task explicitly targets generated parser output.
 
 ## BugDB Workflow
 
