@@ -114,5 +114,10 @@ public class DriverPackageStatus implements PersistentStateElement {
             setEnumAttribute(element, "download-status", this.downloadStatus);
             setLongAttribute(element, "download-timestamp", this.downloadTimestamp);
         }
+
+        @Override
+        public String toString() {
+            return libraryId + " " + downloadStatus;
+        }
     }
 }
