@@ -72,11 +72,13 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
     public static final byte[] HANDSHAKE_SIGNATURE = "JDWP-Handshake".getBytes(StandardCharsets.UTF_8);
     private String jdwpHostPort = null;
     private NSTunnelConnectionProxy debugConnection = null;
-    private final ByteBuffer readBuffer = ByteBuffer.allocate(320000);
-    private final ByteBuffer writeBuffer = ByteBuffer.allocate(320000);
+    private final ByteBuffer readBuffer = ByteBuffer.allocate(JdwpPacketReader.BUFFER_SIZE);
+    private final ByteBuffer writeBuffer = ByteBuffer.allocate(JdwpPacketReader.BUFFER_SIZE);
+    private final JdwpPacketReader packetReader;
 
     DBJdwpCloudProcessStarter(ConnectionHandler connection) {
         super(connection);
+        packetReader = new JdwpPacketReader(readBuffer, () -> debugConnection, this::closeDebugConnection);
     }
 
     void connect() throws ExecutionException {
@@ -283,33 +285,7 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
     // read just one packet at each time called
     // and buffer the rest
     byte[] readPackets() throws IOException {
-        if (readBuffer.position() > 0) {
-            // the buffer contains incomplete packet
-            int packetLength = readBuffer.getInt(0);
-            while(readBuffer.position() < packetLength) {
-                debugConnection.read(readBuffer);
-            }
-
-            readBuffer.flip();
-            byte[] packet = new byte[packetLength];
-            readBuffer.get(packet);
-
-            if (readBuffer.hasRemaining()) {
-                byte[] extra = new byte[readBuffer.limit() - readBuffer.position()];
-                readBuffer.get(extra);
-                readBuffer.clear();
-                readBuffer.put(extra);
-            } else {
-                readBuffer.clear();
-            }
-
-            return packet;
-        }
-
-        readBuffer.clear();
-        debugConnection.read(readBuffer);
-        return readPackets();
-
+        return packetReader.readPacket();
     }
 
 

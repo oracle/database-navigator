@@ -28,7 +28,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
@@ -51,6 +53,7 @@ public class Library implements PersistentStateElement {
     private String groupId;
     private String artifactId;
     private String version;
+    private LibraryRole role;
     private List<LibraryDeveloper> developers = new ArrayList<>();
     private List<LibraryLicense> licenses = new ArrayList<>();
     private List<LibraryChecksum> checksums = new ArrayList<>();
@@ -100,6 +103,10 @@ public class Library implements PersistentStateElement {
         return artifactId + "-" + version + ".jar";
     }
 
+    public void setRole(LibraryRole role) {
+        this.role = role;
+    }
+
     @Override
     public String toString() {
         return String.format("Library [groupId=%s, artifactId=%s, version=%s, developers=%s, licenses=%s]",
@@ -115,6 +122,7 @@ public class Library implements PersistentStateElement {
         this.groupId = stringAttribute(element, "group-id");
         this.artifactId = stringAttribute(element, "artifact-id");
         this.version = stringAttribute(element, "version");
+        this.role = enumAttribute(element, "role", LibraryRole.class);
 
         this.developers = new ArrayList<>();
         for (Element developerElement : childrenOf(element, "developer")) {
@@ -143,6 +151,7 @@ public class Library implements PersistentStateElement {
         setStringAttribute(element, "group-id", groupId);
         setStringAttribute(element, "artifact-id", artifactId);
         setStringAttribute(element, "version", version);
+        setEnumAttribute(element, "role", role);
 
         for (LibraryDeveloper developer : this.developers) {
             Element developerElement = newElement(element, "developer");

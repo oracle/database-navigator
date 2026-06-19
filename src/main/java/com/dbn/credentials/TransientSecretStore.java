@@ -18,7 +18,6 @@ package com.dbn.credentials;
 
 import com.dbn.common.util.Chars;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -38,8 +37,8 @@ import static java.lang.System.currentTimeMillis;
  * and user name. The XML/configuration object continues to carry only non-secret
  * configuration data while the secret value is temporarily available from this store.
  * <p>
- * Entries expire after thirty seconds and are single-use: {@link #consume(char[], Object...)}
- * removes the entry before returning it. This class must not be used for persistent storage or
+ * Entries expire after thirty seconds and are single-use: {@link #consume(Secret, Object...)}
+ * removes the entry before applying it. This class must not be used for persistent storage or
  * cross-restart transfer.
  */
 public final class TransientSecretStore {
@@ -55,11 +54,13 @@ public final class TransientSecretStore {
      * @param secret the secret to store, copied into an internal array
      * @param keyParts stable non-secret values that uniquely identify the transient secret
      */
-    public static void store(char[] secret, @NotNull Object ... keyParts) {
+    public static void store(@NotNull Secret secret, @NotNull Object ... keyParts) {
+        if (!secret.isLoaded()) return;
+
         cleanupExpired();
 
         Key key = new Key(keyParts);
-        Entry entry = new Entry(secret, currentTimeMillis() + TIMEOUT);
+        Entry entry = new Entry(secret.getToken(), currentTimeMillis() + TIMEOUT);
         Entry oldEntry = DATA.put(key, entry);
         if (oldEntry != null) oldEntry.clear();
 
@@ -69,18 +70,17 @@ public final class TransientSecretStore {
     /**
      * Reads and removes the secret for the supplied key parts.
      *
-     * @param defaultSecret fallback returned when the key is missing or expired
-     * @param keyParts the same stable non-secret values used for {@link #store(char[], Object...)}
-     * @return the stored secret, or {@code defaultSecret} when unavailable
+     * @param secret the target secret to update when a stored token is found
+     * @param keyParts the same stable non-secret values used for {@link #store(Secret, Object...)}
      */
-    public static char[] consume(@Nullable char[] defaultSecret, @NotNull Object ... keyParts) {
+    public static void consume(@NotNull Secret secret, @NotNull Object ... keyParts) {
         Key key = new Key(keyParts);
         Entry entry = DATA.remove(key);
-        if (entry == null) return defaultSecret;
+        if (entry == null) return;
 
         try {
-            if (entry.isExpired()) return defaultSecret;
-            return entry.secret();
+            if (entry.isExpired()) return;
+            secret.setToken(entry.secret());
         } finally {
             entry.clear();
         }

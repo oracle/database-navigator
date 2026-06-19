@@ -27,8 +27,10 @@ import static java.util.regex.Pattern.CASE_INSENSITIVE;
 @NonNls
 @UtilityClass
 public class AssistantToolContents {
-    private static final int MAX_CONTENT_LENGTH = 8192;
+    private static final int MAX_UNTRUSTED_CONTENT_LENGTH = 8192;
+    private static final int MAX_TOOL_RESPONSE_LENGTH = 65536;
     private static final String CONTENT_TRUNCATED_SUFFIX = "\n[Content truncated]";
+    private static final String TOOL_RESPONSE_TRUNCATED_SUFFIX = "\n[Tool response truncated]";
     private static final String UNTRUSTED_CONTENT_BEGIN = "[BEGIN UNTRUSTED DATABASE CONTENT]";
     private static final String UNTRUSTED_CONTENT_END = "[END UNTRUSTED DATABASE CONTENT]";
     private static final String EMBEDDED_CONTENT_BEGIN = "[EMBEDDED BEGIN UNTRUSTED DATABASE CONTENT]";
@@ -37,21 +39,40 @@ public class AssistantToolContents {
     private static final Pattern UNTRUSTED_CONTENT_END_PATTERN = Pattern.compile("\\[\\s*END\\s+UNTRUSTED\\s+DATABASE\\s+CONTENT\\s*\\]", CASE_INSENSITIVE);
 
     public static String prepareUntrustedDatabaseContent(String content) {
-        content = normalizeContent(content);
+        content = normalizeUntrustedContent(content);
         content = escapeContentDelimiters(content);
         content = wrapUntrustedContent(content);
 
         return content;
     }
 
-    private static String normalizeContent(String content) {
+    public static String prepareToolResponseContent(String content) {
+        return normalizeContent(content, MAX_TOOL_RESPONSE_LENGTH, TOOL_RESPONSE_TRUNCATED_SUFFIX);
+    }
+
+    public static boolean isToolResponseContentOversized(String content) {
+        if (content == null) return false;
+
+        String normalized = stripUnsupportedControlCharacters(content);
+        return normalized.length() > MAX_TOOL_RESPONSE_LENGTH;
+    }
+
+    public static int getMaxToolResponseLength() {
+        return MAX_TOOL_RESPONSE_LENGTH;
+    }
+
+    private static String normalizeUntrustedContent(String content) {
+        return normalizeContent(content, MAX_UNTRUSTED_CONTENT_LENGTH, CONTENT_TRUNCATED_SUFFIX);
+    }
+
+    private static String normalizeContent(String content, int maxLength, String truncatedSuffix) {
         if (content == null) return "";
 
         String normalized = stripUnsupportedControlCharacters(content);
-        if (normalized.length() <= MAX_CONTENT_LENGTH) return normalized;
+        if (normalized.length() <= maxLength) return normalized;
 
-        int length = MAX_CONTENT_LENGTH - CONTENT_TRUNCATED_SUFFIX.length();
-        return normalized.substring(0, length) + CONTENT_TRUNCATED_SUFFIX;
+        int length = maxLength - truncatedSuffix.length();
+        return normalized.substring(0, length) + truncatedSuffix;
     }
 
     private static String stripUnsupportedControlCharacters(String content) {
