@@ -120,7 +120,8 @@ public class SelectAiInitializationForm extends DBNFormBase implements Assistant
             unsupportedPanel.setVisible(true);
         } else if (availability == UNCERTAIN) {
             reinitializePanel.setVisible(true);
-            String messageContent = txt("msg.assistant.error.DatabaseAssistantInitializationFailed", availabilityInfo.getMessage());
+            String errorMessage = txt("msg.assistant.error.DatabaseAssistantInitializationFailed");
+            String messageContent = txt("msg.shared.error.ErrorDetails", errorMessage, availabilityInfo.getMessage());
             TextContent message = TextContent.plain(messageContent);
             DBNHintForm messageForm = new DBNHintForm(this, message, MessageType.ERROR, true);
             messagePanel.add(messageForm.getComponent());

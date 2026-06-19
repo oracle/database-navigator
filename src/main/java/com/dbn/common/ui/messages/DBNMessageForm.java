@@ -21,6 +21,7 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.text.HiddenCaret;
 import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Borders;
@@ -49,13 +50,18 @@ import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
 
 import static com.dbn.common.message.MessageType.PROCESSING;
+import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.util.ui.JBUI.emptyInsets;
 
 public class DBNMessageForm extends DBNFormBase {
+    private static final String MESSAGE_DETAILS_MARKER = "\u2063";
+
     private JPanel mainPanel;
     private JLabel titleLabel;
     private JTextPane messageTextPane;
+    private JTextPane detailsTextPane;
+    private DBNHyperlinkLabel detailsToggle;
     private JPanel rememberOptionPanel;
     private JPanel iconPanel;
 
@@ -63,6 +69,8 @@ public class DBNMessageForm extends DBNFormBase {
     private AsyncProcessIcon processIcon;
     private @DialogTitle String title;
     private @DialogMessage String message;
+    private @DialogMessage String collapsedMessage;
+    private @DialogMessage String expandedMessage;
 
     public DBNMessageForm(@NotNull DBNComponent parent, TitledMessage message) {
         this(parent,
@@ -78,6 +86,7 @@ public class DBNMessageForm extends DBNFormBase {
 
         initIcon();
         initTitle();
+        initDetailsToggle();
         initMessage();
         initDragging();
     }
@@ -140,16 +149,78 @@ public class DBNMessageForm extends DBNFormBase {
     }
 
     private void initMessage() {
-        messageTextPane.setCaret(new HiddenCaret());
-        messageTextPane.setContentType(isHtmlMessage(message) ? "text/html" : "text/plain");
-        messageTextPane.setText(message);
-        messageTextPane.setCaretPosition(0);
-        messageTextPane.addFocusListener(new FocusAdapter() {
+        boolean htmlMessage = isHtmlMessage(message);
+        initTextPane(messageTextPane, htmlMessage);
+        initTextPane(detailsTextPane, htmlMessage);
+
+        initExpandableMessage(htmlMessage);
+        updateMessageText();
+        initCaretReset(messageTextPane);
+        initCaretReset(detailsTextPane);
+    }
+
+    private void initTextPane(JTextPane textPane, boolean htmlMessage) {
+        textPane.setCaret(new HiddenCaret());
+        textPane.setContentType(htmlMessage ? "text/html" : "text/plain");
+    }
+
+    private void initCaretReset(JTextPane textPane) {
+        textPane.setCaretPosition(0);
+        textPane.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                messageTextPane.setCaretPosition(0);
+                textPane.setCaretPosition(0);
             }
         });
+    }
+
+    private void initDetailsToggle() {
+        onHyperlinkAccess(detailsToggle, e -> {
+            detailsTextPane.setVisible(true);
+            detailsTextPane.setCaretPosition(0);
+            detailsToggle.setVisible(false);
+        });
+    }
+
+    private void initExpandableMessage(boolean htmlMessage) {
+        expandedMessage = normalizeLineBreaks(message);
+        collapsedMessage = expandedMessage;
+
+        if (htmlMessage || expandedMessage == null) {
+            detailsToggle.setVisible(false);
+            return;
+        }
+
+        int detailsMarkerIndex = expandedMessage.indexOf(MESSAGE_DETAILS_MARKER);
+        if (detailsMarkerIndex == -1) {
+            detailsToggle.setVisible(false);
+            return;
+        }
+
+        expandedMessage = expandedMessage.replace(MESSAGE_DETAILS_MARKER, "");
+        int detailsBreakIndex = expandedMessage.indexOf("\n\n", detailsMarkerIndex + 1);
+        if (detailsBreakIndex == -1) {
+            collapsedMessage = expandedMessage;
+            detailsToggle.setVisible(false);
+            return;
+        }
+
+        collapsedMessage = expandedMessage.substring(0, detailsBreakIndex).trim();
+        expandedMessage = "\n" + expandedMessage.substring(detailsBreakIndex).trim();
+        detailsToggle.setVisible(true);
+    }
+
+    private void updateMessageText() {
+        messageTextPane.setText(collapsedMessage);
+        messageTextPane.setCaretPosition(0);
+        detailsTextPane.setText(expandedMessage);
+        detailsTextPane.setCaretPosition(0);
+        detailsTextPane.setVisible(false);
+        detailsToggle.setHyperlinkText(txt("app.shared.link.ShowMore"));
+    }
+
+    private static @Nullable String normalizeLineBreaks(@Nullable String message) {
+        return message == null ? null : message.replace("\r\n", "\n").replace('\r', '\n');
     }
 
     private static boolean isHtmlMessage(@Nullable String message) {

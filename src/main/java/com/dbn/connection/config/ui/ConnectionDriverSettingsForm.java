@@ -237,8 +237,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 driverComboBox,
                 downloadButton));
 
-        fieldAdapter.initFieldsVisibility(() -> loadingDrivers && isExternalDriver(), array(loadingDriversPanel));
-        fieldAdapter.initFieldsVisibility(() -> !loadingDrivers && isExternalDriver(), array(reloadDriversLink));
+        fieldAdapter.initFieldsVisibility(() -> loadingDrivers && isExternalDriver(), array(loadingDriversPanel, driverErrorLabel));
+        fieldAdapter.initFieldsVisibility(() -> !loadingDrivers && isExternalDriver(), array(reloadDriversLink, driverErrorLabel));
         fieldAdapter.initFieldsAvailability(() -> !loadingDrivers, array(driverComboBox));
     }
 

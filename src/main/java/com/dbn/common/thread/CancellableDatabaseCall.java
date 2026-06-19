@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.dbn.common.exception.Exceptions.unwrap;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -172,7 +173,7 @@ public abstract class CancellableDatabaseCall<T> implements Callable<T> {
 
         } catch (ExecutionException e) {
             conditionallyLog(e);
-            Throwable cause = Exceptions.causeOf(e);
+            Throwable cause = unwrap(e);
             if (cause instanceof SQLTimeoutException) {
                 handleTimeout();
             } else {

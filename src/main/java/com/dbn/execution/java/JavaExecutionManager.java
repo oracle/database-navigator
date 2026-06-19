@@ -63,6 +63,7 @@ import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.showErrorDialog;
@@ -241,10 +242,10 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 							conditionallyLog(e);
 							context.set(ExecutionStatus.EXECUTING, false);
 							if (context.isNot(ExecutionStatus.CANCELLED)) {
-								showErrorDialog(project,
+									showErrorDialog(project,
                                         txt("msg.execution.title.MethodExecutionError"),
-										txt("msg.execution.message.MethodExecutionError", method.getQualifiedNameWithType(), e.getMessage().trim()),
-										new String[]{txt("msg.shared.button.TryAgain"), txt("msg.shared.button.Cancel")}, 0,
+											txt("msg.execution.message.MethodExecutionError", method.getQualifiedNameWithType(), getLocalizedMessage(e).trim()),
+											new String[]{txt("msg.shared.button.TryAgain"), txt("msg.shared.button.Cancel")}, 0,
 										option -> when(option == 0, () ->
 												startMethodExecution(input, DBDebuggerType.NONE)));
 							}
