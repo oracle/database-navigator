@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.driver.download.DriverDownloadManager.getDriverPackageChecksumsLocation;
@@ -63,6 +64,27 @@ public class PackageChecksumData {
 
     public boolean hasInvalidChecksums() {
         return !invalidChecksums.isEmpty();
+    }
+
+    public boolean retainChecksums(File packageDir, Collection<String> libraryIds) {
+        Set<String> expectedLibraryIds = new HashSet<>(libraryIds);
+        Set<String> obsoleteLibraryIds = checksums.keySet().stream()
+                .filter(libraryId -> !expectedLibraryIds.contains(libraryId))
+                .collect(Collectors.toSet());
+        if (obsoleteLibraryIds.isEmpty()) return false;
+
+        boolean changed = false;
+        for (String libraryId : obsoleteLibraryIds) {
+            File libraryFile = new File(packageDir, libraryId + ".jar");
+            if (libraryFile.exists() && FileUtil.delete(libraryFile)) {
+                changed = true;
+            }
+            if (!libraryFile.exists()) {
+                checksums.remove(libraryId);
+                changed = true;
+            }
+        }
+        return changed;
     }
 
     @SneakyThrows
