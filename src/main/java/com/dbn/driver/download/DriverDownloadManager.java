@@ -178,7 +178,29 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         DriverPackageStatus status = getPackageStatus(driverPackage.getId());
         if (status == null) return false;
 
-        return status.isComplete(driverPackage.getLibraries().size()) && hasVerifiedChecksumManifest(driverPackage, status);
+        List<String> libraryIds = driverPackage.getLibraryIds();
+        reconcilePackageStatus(driverPackage);
+        return status.isComplete(libraryIds) && hasVerifiedChecksumManifest(driverPackage, status);
+    }
+
+    public void reconcilePackageStatus(DriverPackage driverPackage) {
+        DriverPackageStatus status = getPackageStatus(driverPackage.getId());
+        if (status == null) return;
+
+        List<String> libraryIds = driverPackage.getLibraryIds();
+        status.retainLibraryStatuses(libraryIds);
+
+        String downloadPath = status.getDownloadPath();
+        if (downloadPath == null) return;
+
+        PackageChecksumData checksumData = getChecksumData(driverPackage.getId());
+        if (!checksumData.fileExists()) return;
+
+        checksumData.readChecksums();
+        File packageDir = new File(downloadPath);
+        if (checksumData.retainChecksums(packageDir, libraryIds)) {
+            checksumData.writeChecksums();
+        }
     }
 
     private boolean hasVerifiedChecksumManifest(DriverPackage driverPackage, DriverPackageStatus status) {
