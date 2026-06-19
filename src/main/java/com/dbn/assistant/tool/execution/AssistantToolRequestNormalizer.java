@@ -44,6 +44,7 @@ import java.util.TreeMap;
 
 import static com.dbn.assistant.AssistantComponent.OBJECT_MAPPER;
 import static com.dbn.assistant.tool.AssistantToolData.isInternalTool;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.isOversized;
 import static com.dbn.common.Reflection.updateFieldValue;
 
 /**
@@ -75,6 +76,8 @@ public class AssistantToolRequestNormalizer {
         if (argTypes.length == 0) return;
 
         String arguments = request.arguments();
+        if (isOversized(arguments)) return;
+
         arguments = normalize(arguments, method);
         updateFieldValue(request, "arguments", arguments);
     }

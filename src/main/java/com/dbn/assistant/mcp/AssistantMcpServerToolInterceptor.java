@@ -72,6 +72,7 @@ public class AssistantMcpServerToolInterceptor extends AssistantStateExtension {
 
         Project project = getProject();
         try {
+            invocation.getRequest().assertExecutable();
             validateRequestContext(request);
 
             // initiate request

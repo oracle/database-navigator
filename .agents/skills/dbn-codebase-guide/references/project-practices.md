@@ -83,6 +83,7 @@
 ## Settings And Persistence
 
 - Use local configuration base classes such as `BasicProjectConfiguration`, `CompositeProjectConfiguration`, and `ConfigurationEditorForm`.
+- Keep `PersistentStateElement.readState` / `writeState` and `PersistentState.getState` / `loadState` mirrored, clean, and free of custom normalization or migration logic by default.
 - Read/write XML with `com.dbn.common.options.setting.Settings` helpers:
   - `newElement`, `newStateElement`, `childrenOf`.
   - `stringAttribute`, `booleanAttribute`, `enumAttribute`, `connectionIdAttribute`.
