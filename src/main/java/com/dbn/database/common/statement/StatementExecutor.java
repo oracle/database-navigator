@@ -30,9 +30,9 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.dbn.common.exception.Exceptions.causeOf;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.exception.Exceptions.toSqlTimeoutException;
+import static com.dbn.common.exception.Exceptions.unwrap;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -60,7 +60,7 @@ public final class StatementExecutor {
             conditionallyLog(e);
             context.log("QUERY", true, false, millisSince(start));
             Resources.close(context.getStatement());
-            Throwable cause = causeOf(e);
+            Throwable cause = unwrap(e);
             throw toSqlException(cause, txt("msg.execution.exception.RequestProcessingError", cause.getMessage()));
 
         } catch (Throwable e) {

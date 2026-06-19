@@ -87,6 +87,8 @@ import java.util.stream.Collectors;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
+import static com.dbn.common.exception.Exceptions.getMessages;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showErrorDialog;
@@ -400,7 +402,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                 txt("msg.connection.title.ConnectionError"),
                 e == null ?
                     txt("msg.connection.error.ConnectionErrorUnknown", connectionName) :
-                    txt("msg.connection.error.ConnectionError", connectionName, e.getLocalizedMessage()));
+                    txt("msg.connection.error.ConnectionError", connectionName, getMessages(e)));
     }
 
     void showSuccessfulConnectionMessage(Project project, String connectionName) {
@@ -414,7 +416,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
         showErrorDialog(
                 project,
                 txt("msg.connection.title.InvalidConfiguration"),
-                e.getLocalizedMessage());
+                getLocalizedMessage(e));
     }
 
     public static void showConnectionInfoDialog(ConnectionHandler connection) {

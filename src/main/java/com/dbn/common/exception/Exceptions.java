@@ -113,8 +113,45 @@ public class Exceptions {
         return e;
     }
 
-    public static String causeMessage(Throwable e) {
-        return causeOf(e).getMessage();
+    public static String getMessage(Throwable e) {
+        return getMessage(unwrap(e), false);
+    }
+
+    public static String getLocalizedMessage(Throwable e) {
+        return getMessage(unwrap(e), true);
+    }
+
+    @NotNull
+    public static String getMessages(Throwable e) {
+        return getMessages(e, false);
+    }
+
+    @NotNull
+    public static String getLocalizedMessages(Throwable e) {
+        return getMessages(e, true);
+    }
+
+    @NotNull
+    private static String getMessages(Throwable e, boolean localized) {
+        e = unwrap(e);
+        StringBuilder messages = new StringBuilder();
+        Set<String> visited = new HashSet<>();
+        String[] previous = new String[1];
+        accept(t -> {
+            String message = getMessage(t, localized);
+            if (!visited.add(message)) return;
+            if (previous[0] != null && previous[0].contains(message)) return;
+
+            messages.append(message);
+            messages.append("\n\n");
+            previous[0] = message;
+        }, e);
+        return messages.toString();
+    }
+
+    private static String getMessage(Throwable e, boolean localized) {
+        if (localized) return nvl(e.getLocalizedMessage(), simpleClassName(e));
+        return nvl(e.getMessage(), simpleClassName(e));
     }
 
     public static void illegalState(@NonNls String message) {
@@ -133,10 +170,6 @@ public class Exceptions {
             visitor.visit(t);
             t = t.getCause();
         }
-    }
-
-    public static String getMessage(Throwable e) {
-        return nvl(e.getMessage(), simpleClassName(e));
     }
 
     public static Throwable unwrap(Throwable throwable) {

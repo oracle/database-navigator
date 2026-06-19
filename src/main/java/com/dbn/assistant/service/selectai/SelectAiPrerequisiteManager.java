@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.nls.NlsResources.txt;
@@ -68,7 +69,7 @@ public class SelectAiPrerequisiteManager extends ProjectComponentBase implements
                 showInfoDialog(project, txt("msg.assistant.title.AccessGranted"), txt("msg.assistant.info.NetworkAccessGranted", host, user));
             } catch (Throwable e) {
                 Diagnostics.conditionallyLog(e);
-                showErrorDialog(project, txt("msg.assistant.title.AccessGrantFailed"), txt("msg.assistant.error.NetworkAccessGrantFailed", host, user, e.getMessage()));
+                showErrorDialog(project, txt("msg.assistant.title.AccessGrantFailed"), txt("msg.assistant.error.NetworkAccessGrantFailed", host, user, getLocalizedMessage(e)));
             }
         });
     }
@@ -86,7 +87,7 @@ public class SelectAiPrerequisiteManager extends ProjectComponentBase implements
                 showInfoDialog(project, txt("msg.assistant.title.PrivilegesGranted"), txt("msg.assistant.info.ExecutionPrivilegesGranted", user));
             } catch (Throwable e) {
                 Diagnostics.conditionallyLog(e);
-                showErrorDialog(project, txt("msg.assistant.title.PrivilegesGrantFailed"), txt("msg.assistant.error.ExecutionPrivilegesGrantFailed", user, e.getMessage()));
+                showErrorDialog(project, txt("msg.assistant.title.PrivilegesGrantFailed"), txt("msg.assistant.error.ExecutionPrivilegesGrantFailed", user, getLocalizedMessage(e)));
             }
         });
     }

@@ -138,7 +138,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
     @Override
     public String prepareError(ConnectionId connectionId, ChatContext chatContext, Throwable e) {
         e = Exceptions.rootCauseOf(e);
-        String errorMessage = Exceptions.getMessage(e);
+        String errorMessage = Exceptions.getLocalizedMessages(e);
         return txt("msg.assistant.error.AssistantInvocationFailure", getAssistantType().getName(), errorMessage);
     }
 

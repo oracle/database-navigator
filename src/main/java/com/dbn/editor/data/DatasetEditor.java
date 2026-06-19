@@ -24,7 +24,6 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionStatusListener;
@@ -76,6 +75,8 @@ import java.sql.SQLRecoverableException;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.database.DatabaseFeature.DATA_CHANGE_NOTIFICATION;
 import static com.dbn.editor.DBContentType.DATA;
 import static com.dbn.editor.data.DataEditorStatus.CONNECTED;
@@ -282,7 +283,7 @@ public class DatasetEditor extends DataEditorBase<DBDataset> {
                                 txt("msg.dataEditor.error.DataLoadTimeout", datasetName) :
                                 txt("msg.dataEditor.error.DataLoadFailed", datasetName, e.getMessage());
 
-                        Messages.showErrorDialog(project, message);
+                        showErrorDialog(project, message);
                     }
                 } else {
                     String message = timeoutException ?
@@ -296,7 +297,7 @@ public class DatasetEditor extends DataEditorBase<DBDataset> {
                             txt("msg.dataEditor.button.IgnoreFilter"),
                             txt("msg.shared.button.Cancel")};
 
-                    Messages.showErrorDialog(project, txt("msg.shared.title.Error"), message, options, 0,
+                    showErrorDialog(project, txt("msg.shared.title.Error"), message, options, 0,
                             (option) -> {
                                 DataLoadInstructions instructions = DataLoadInstructions.clone(instr);
                                 instructions.setDeliberateAction(true);
@@ -319,7 +320,7 @@ public class DatasetEditor extends DataEditorBase<DBDataset> {
                             });
                 }
             } else {
-                Messages.showErrorDialog(project,  txt("msg.dataEditor.error.DataLoadCannotConnect", datasetName, e.getMessage()));
+                showErrorDialog(project,  txt("msg.dataEditor.error.DataLoadCannotConnect", datasetName, getLocalizedMessage(e)));
             }
         });
     }
@@ -474,7 +475,7 @@ public class DatasetEditor extends DataEditorBase<DBDataset> {
                         model.postInsertRecord(true, false, true);
                     } catch (SQLException e1) {
                         Diagnostics.conditionallyLog(e1);
-                        Messages.showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotCreateRow",getDataset().getQualifiedNameWithType()), e1);
+                        showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotCreateRow",getDataset().getQualifiedNameWithType()), e1);
                         model.cancelInsert(true);
                     }
                 }
