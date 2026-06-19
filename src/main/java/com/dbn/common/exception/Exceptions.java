@@ -27,12 +27,14 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.sql.SQLException;
 import java.sql.SQLNonTransientConnectionException;
 import java.sql.SQLTimeoutException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Commons.nvl;
@@ -138,7 +140,7 @@ public class Exceptions {
         Set<String> visited = new HashSet<>();
         String[] previous = new String[1];
         accept(t -> {
-            String message = getMessage(t, localized);
+            String message = normalizeMessage(getMessage(t, localized));
             if (!visited.add(message)) return;
             if (previous[0] != null && previous[0].contains(message)) return;
 
@@ -152,6 +154,13 @@ public class Exceptions {
     private static String getMessage(Throwable e, boolean localized) {
         if (localized) return nvl(e.getLocalizedMessage(), simpleClassName(e));
         return nvl(e.getMessage(), simpleClassName(e));
+    }
+
+    private static String normalizeMessage(String message) {
+        return Arrays.stream(message.replace("\r\n", "\n").replace('\r', '\n').split("\n"))
+                .map(String::trim)
+                .filter(line -> !line.isEmpty())
+                .collect(Collectors.joining("\n"));
     }
 
     public static void illegalState(@NonNls String message) {
