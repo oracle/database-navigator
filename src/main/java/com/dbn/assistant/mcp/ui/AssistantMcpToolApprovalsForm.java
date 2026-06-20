@@ -54,6 +54,7 @@ import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.common.exception.Exceptions.getLocalizedMessages;
 import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
 import static com.dbn.common.ui.util.TextFields.getText;
@@ -107,7 +108,12 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
 
     public void setApprovalStatus(AssistantToolApprovalStatus status) {
         AssistantMcpToolApprovals approvals = getToolApprovals();
-        approvals.setStatus(mcpServer.getId(), status);
+        if (status == APPROVED) {
+            List<String> toolNames = toolForms.stream().map(f -> f.getToolInfo().getName()).toList();
+            approvals.setStatus(mcpServer.getId(), toolNames, status);
+        } else {
+            approvals.setStatus(mcpServer.getId(), status);
+        }
 
         refreshState();
         updateActionToolbars();

@@ -22,6 +22,8 @@ import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.mcp.AssistantMcpServerSettings;
 import com.dbn.assistant.mcp.AssistantMcpToolApprovals;
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
+import com.dbn.assistant.mcp.model.AssistantMcpServerData;
+import com.dbn.assistant.mcp.model.AssistantMcpToolInfo;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantTool;
@@ -451,11 +453,22 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         }
 
         if (option == 1) {
+            if (approval) {
+                approveKnownMcpTools(toolApprovals, serverId);
+                return true;
+            }
+
             toolApprovals.setStatus(serverId, status);
             return true;
         }
 
         return false;    }
+
+    private void approveKnownMcpTools(AssistantMcpToolApprovals toolApprovals, EntityId serverId) {
+        AssistantMcpServerData mcpServerData = AssistantMcpServerData.get(ensureProject());
+        List<String> toolNames = mcpServerData.getTools(serverId).stream().map(AssistantMcpToolInfo::getName).toList();
+        toolApprovals.setStatus(serverId, toolNames, APPROVED);
+    }
 
     private boolean confirmInternal(boolean approval) {
         String title = approval ?

@@ -67,12 +67,24 @@ public class AssistantMcpToolApprovals implements PersistentStateElement, Signed
         updateSignature();
     }
 
-    public boolean isApproved(EntityId serverId, String toolName) {
-        AssistantToolApprovalStatus toolStatus = getStatus(serverId, toolName);
-        if (toolStatus == APPROVED) return true;
+    public void setStatus(EntityId serverId, List<String> toolNames, AssistantToolApprovalStatus status) {
+        if (status == APPROVED) {
+            servers.put(serverId, status);
+        } else {
+            servers.remove(serverId);
+        }
 
-        AssistantToolApprovalStatus serverStatus = servers.get(serverId);
-        if (serverStatus == APPROVED) return true;
+        Map<String, AssistantToolApprovalStatus> approvals = tools.computeIfAbsent(serverId, k -> new ConcurrentHashMap<>());
+        for (String toolName : toolNames) {
+            approvals.put(toolName, status);
+        }
+        updateSignature();
+    }
+
+    public boolean isApproved(EntityId serverId, String toolName) {
+        Map<String, AssistantToolApprovalStatus> approvals = tools.get(serverId);
+        AssistantToolApprovalStatus toolStatus = approvals == null ? null : approvals.get(toolName);
+        if (toolStatus == APPROVED) return true;
 
         return false;
     }
@@ -90,6 +102,9 @@ public class AssistantMcpToolApprovals implements PersistentStateElement, Signed
         AssistantToolApprovalStatus approvalStatus = approvals == null ? null : approvals.get(toolName);
         if (approvalStatus == null) {
             approvalStatus = servers.get(serverId);
+            if (approvalStatus == APPROVED) {
+                approvalStatus = PROMPTED;
+            }
         }
 
         return approvalStatus == null ? PROMPTED : approvalStatus;

@@ -63,6 +63,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.isEmptyText;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.FileChoosers.addSingleFolderChooser;
+import static com.dbn.data.export.DataExportFiles.sanitizeFileName;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ExportDataForm extends DBNFormBase {
@@ -357,7 +358,7 @@ public class ExportDataForm extends DBNFormBase {
         String fileNameBase = sourceObject == null ? instructions.getBaseName() : sourceObject.getObjectName();
         if (fileNameBase != null && processor != null) {
             String fileName = fileNameBase + "." + processor.getFileExtension();
-            fileNameTextField.setText(fileName);
+            fileNameTextField.setText(sanitizeFileName(fileName));
         }
     }
 }

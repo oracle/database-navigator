@@ -19,6 +19,7 @@ package com.dbn.common.ui.messages;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
@@ -29,8 +30,10 @@ import com.dbn.common.ui.util.Fonts;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
+import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.MouseDragHelper;
 import com.intellij.util.ui.AsyncProcessIcon;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,14 +51,18 @@ import java.awt.Window;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.dbn.common.message.MessageType.PROCESSING;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.nls.NlsResources.txt;
+import static com.intellij.openapi.util.text.StringUtil.escapeXmlEntities;
 import static com.intellij.util.ui.JBUI.emptyInsets;
 
 public class DBNMessageForm extends DBNFormBase {
     private static final String MESSAGE_DETAILS_MARKER = "\u2063";
+    private static final @NonNls Pattern URL_PATTERN = Pattern.compile("https?://\\S+");
 
     private JPanel mainPanel;
     private JLabel titleLabel;
@@ -175,6 +182,8 @@ public class DBNMessageForm extends DBNFormBase {
     }
 
     private void initDetailsToggle() {
+        messageTextPane.addHyperlinkListener(BrowserHyperlinkListener.INSTANCE);
+        detailsTextPane.addHyperlinkListener(BrowserHyperlinkListener.INSTANCE);
         onHyperlinkAccess(detailsToggle, e -> {
             detailsTextPane.setVisible(true);
             detailsTextPane.setCaretPosition(0);
@@ -206,17 +215,56 @@ public class DBNMessageForm extends DBNFormBase {
         }
 
         collapsedMessage = expandedMessage.substring(0, detailsBreakIndex).trim();
-        expandedMessage = "\n" + expandedMessage.substring(detailsBreakIndex).trim();
+        expandedMessage = expandedMessage.substring(detailsBreakIndex).trim();
         detailsToggle.setVisible(true);
     }
 
     private void updateMessageText() {
-        messageTextPane.setText(collapsedMessage);
+        TextContent messageContent = createDetailsContent(collapsedMessage);
+        messageTextPane.setContentType(messageContent.getTypeId());
+        messageTextPane.setText(messageContent.getText());
         messageTextPane.setCaretPosition(0);
-        detailsTextPane.setText(expandedMessage);
+
+        TextContent detailsContent = createDetailsContent(expandedMessage);
+        detailsTextPane.setContentType(detailsContent.getTypeId());
+        detailsTextPane.setText(detailsContent.getText());
         detailsTextPane.setCaretPosition(0);
         detailsTextPane.setVisible(false);
         detailsToggle.setHyperlinkText(txt("app.shared.link.ShowMore"));
+    }
+
+    private static TextContent createDetailsContent(String message) {
+        return URL_PATTERN.matcher(message).find() ?
+                TextContent.htmlMessage(linkify(message)) :
+                TextContent.plain(message);
+    }
+
+    private static String linkify(String message) {
+        StringBuilder builder = new StringBuilder();
+        Matcher matcher = URL_PATTERN.matcher(message);
+        int lastIndex = 0;
+        while (matcher.find()) {
+            builder.append(toHtml(message.substring(lastIndex, matcher.start())));
+
+            String url = trimUrl(matcher.group());
+            builder.append("<a href=\"").append(toHtml(url)).append("\">").append(toHtml(url)).append("</a>");
+            builder.append(toHtml(matcher.group().substring(url.length())));
+
+            lastIndex = matcher.end();
+        }
+        builder.append(toHtml(message.substring(lastIndex)));
+        return builder.toString();
+    }
+
+    private static String trimUrl(String url) {
+        while (url.endsWith(".") || url.endsWith(",") || url.endsWith(";") || url.endsWith(":")) {
+            url = url.substring(0, url.length() - 1);
+        }
+        return url;
+    }
+
+    private static String toHtml(String message) {
+        return escapeXmlEntities(message).replace("\n", "<br>");
     }
 
     private static @Nullable String normalizeLineBreaks(@Nullable String message) {

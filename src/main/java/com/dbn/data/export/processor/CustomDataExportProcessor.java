@@ -24,6 +24,8 @@ import com.dbn.data.export.DataExportFormat;
 import com.dbn.data.export.DataExportInstructions;
 import com.dbn.data.export.DataExportModel;
 
+import static com.dbn.common.util.Spreadsheets.isSpreadsheetFormulaRisk;
+
 public class CustomDataExportProcessor extends DataExportProcessor{
     @Override
     public DataExportFormat getFormat() {
@@ -59,85 +61,74 @@ public class CustomDataExportProcessor extends DataExportProcessor{
     private void createHeader(DataExportModel model, DataExportInstructions instructions, StringBuilder buffer) throws DataExportException {
         if (!instructions.isCreateHeader()) return;
 
-        String beginQuote = instructions.getBeginQuote();
-        String endQuote = instructions.getEndQuote();
         for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++){
             String columnName = getColumnName(model, instructions, columnIndex);
             String separator = instructions.getValueSeparator();
-            boolean containsSeparator = columnName.contains(separator);
-            boolean quote =
-                    instructions.isQuoteAllValues() || (
-                    instructions.isQuoteValuesContainingSeparator() && containsSeparator);
-
-            if (containsSeparator && !quote) {
-                throw new DataExportException(
-                        "Can not create columns header with the given separator.\n" +
-                                "Column " + columnName + " already contains the separator '" + separator + "'. \n" +
-                                "Please consider quoting.");
-            }
-
             if (columnIndex > 0) {
                 buffer.append(separator);
             }
-
-            if (quote) {
-                if(columnName.contains(beginQuote) || columnName.contains(endQuote)) {
-                    throw new DataExportException(
-                            "Can not quote columns header.\n" +
-                            "Column " + columnName + " contains quotes.");
-                }
-                buffer.append(beginQuote);
-                buffer.append(columnName);
-                buffer.append(endQuote);
-            } else {
-                buffer.append(columnName);
-            }
+            appendField(buffer, columnName, instructions);
         }
         buffer.append('\n');
     }
 
     private void createContent(DataExportModel model, DataExportInstructions instructions, Formatter formatter, StringBuilder buffer) throws DataExportException {
-        String beginQuote = instructions.getBeginQuote();
-        String endQuote = instructions.getEndQuote();
-
         for (int r = 0; r < model.getRowCount(); r++) {
             for (int c = 0; c < model.getColumnCount(); c++) {
                 ProgressMonitor.checkCancelled();
-                String columnName = getColumnName(model, instructions, c);
                 Object object = model.getValue(r, c);
                 String value = formatValue(formatter, object);
                 String separator = instructions.getValueSeparator();
-
-                boolean containsSeparator = value.contains(separator);
-                boolean quote =
-                        instructions.isQuoteAllValues() || (
-                        instructions.isQuoteValuesContainingSeparator() && containsSeparator);
-
-                if (containsSeparator && !quote) {
-                    throw new DataExportException(
-                            "Can not create row " + (r + 1) + " with the given separator.\n" +
-                                    "Value for column " + columnName + " already contains the separator '" + separator + "'. \n" +
-                                    "Please consider quoting.");
-                }
-
                 if (c > 0) {
                     buffer.append(separator);
                 }
-
-                if (quote) {
-                    if (value.contains(beginQuote) || value.contains(endQuote)) {
-                        throw new DataExportException(
-                                "Can not quote value of " + columnName + " at row " + (r + 1) + ".\n" +
-                                "Value contains quotes itself.");
-                    }
-                    buffer.append(beginQuote);
-                    buffer.append(value);
-                    buffer.append(endQuote);
-                } else {
-                    buffer.append(value);
-                }
+                appendField(buffer, value, instructions);
             }
             buffer.append('\n');
+        }
+    }
+
+    static void appendField(StringBuilder buffer, String value, DataExportInstructions instructions) {
+        String beginQuote = instructions.getBeginQuote();
+        String endQuote = instructions.getEndQuote();
+        String separator = instructions.getValueSeparator();
+        boolean hasBeginQuote = beginQuote != null && !beginQuote.isEmpty();
+        boolean hasEndQuote = endQuote != null && !endQuote.isEmpty();
+        boolean formulaRisk = isSpreadsheetFormulaRisk(value);
+        boolean quote =
+                instructions.isQuoteAllValues() ||
+                formulaRisk ||
+                (hasBeginQuote && value.contains(beginQuote)) ||
+                (hasEndQuote && value.contains(endQuote)) ||
+                value.contains("\r") ||
+                value.contains("\n") ||
+                (instructions.isQuoteValuesContainingSeparator() && value.contains(separator)) ||
+                value.contains(separator);
+
+        if (!quote) {
+            buffer.append(value);
+            return;
+        }
+
+        buffer.append(beginQuote);
+        if (formulaRisk) {
+            buffer.append('\'');
+        }
+        appendEscaped(buffer, value, beginQuote, endQuote);
+        buffer.append(endQuote);
+    }
+
+    private static void appendEscaped(StringBuilder buffer, String value, String beginQuote, String endQuote) {
+        for (int i = 0; i < value.length(); i++) {
+            if (beginQuote != null && !beginQuote.isEmpty() && value.startsWith(beginQuote, i)) {
+                buffer.append(beginQuote).append(beginQuote);
+                i += beginQuote.length() - 1;
+            } else if (endQuote != null && !endQuote.isEmpty() && !endQuote.equals(beginQuote) && value.startsWith(endQuote, i)) {
+                buffer.append(endQuote).append(endQuote);
+                i += endQuote.length() - 1;
+            } else {
+                buffer.append(value.charAt(i));
+            }
         }
     }
 
