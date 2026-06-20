@@ -134,7 +134,13 @@ public class CustomDataExportProcessor extends DataExportProcessor{
         if (value.isEmpty()) return false;
 
         char firstChar = value.charAt(0);
-        return firstChar == '=' || firstChar == '+' || firstChar == '-' || firstChar == '@';
+        if (firstChar == '=') return true;
+        if (firstChar == '+') return true;
+        if (firstChar == '-') return true;
+        if (firstChar == '@') return true;
+        if (firstChar == '\t') return true;
+        if (firstChar == '\r') return true;
+        return false;
     }
 
 }

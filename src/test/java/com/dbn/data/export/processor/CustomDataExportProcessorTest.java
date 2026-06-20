@@ -96,6 +96,24 @@ public class CustomDataExportProcessorTest {
     }
 
     @Test
+    public void appendFieldNeutralizesTabFormulaPrefix() {
+        DataExportInstructions instructions = instructions();
+
+        String exported = exportField("\t=HYPERLINK(\"http://example.invalid\",\"x\")", instructions);
+
+        assertEquals("\"'\t=HYPERLINK(\"\"http://example.invalid\"\",\"\"x\"\")\"", exported);
+    }
+
+    @Test
+    public void appendFieldNeutralizesCarriageReturnFormulaPrefix() {
+        DataExportInstructions instructions = instructions();
+
+        String exported = exportField("\r=HYPERLINK(\"http://example.invalid\",\"x\")", instructions);
+
+        assertEquals("\"'\r=HYPERLINK(\"\"http://example.invalid\"\",\"\"x\"\")\"", exported);
+    }
+
+    @Test
     public void appendFieldPreservesBenignAlias() {
         DataExportInstructions instructions = instructions();
 
