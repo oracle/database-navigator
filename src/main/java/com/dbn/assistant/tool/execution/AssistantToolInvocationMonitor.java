@@ -22,15 +22,16 @@ import com.dbn.assistant.mcp.model.AssistantMcpServerData;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
-import com.dbn.assistant.tool.feature.AssistantToolFeatures;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalException;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
+import com.dbn.assistant.tool.feature.AssistantToolFeatures;
 import com.dbn.common.EntityId;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.common.thread.ThreadInfo;
 import com.dbn.common.thread.ThreadMonitor;
 import com.dbn.common.thread.Threads;
+import com.dbn.common.thread.Timeout;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
@@ -131,10 +132,12 @@ public class AssistantToolInvocationMonitor extends AssistantStateExtension {
         try {
             ExecutorService executorService = Threads.assistantToolExecutor();
             promise = executorService.submit(() -> ThreadMonitor.surround(invoker, BACKGROUND, callable));
-            return cast(promise.get(1, MINUTES)); // TODO tool timeout configuration
+            return cast(Timeout.waitFor(promise, 1, MINUTES)); // TODO tool timeout configuration
         } catch (Throwable e) {
             conditionallyLog(e);
             throw Exceptions.unwrap(e);
+        } finally {
+            promise = null;
         }
     }
 
