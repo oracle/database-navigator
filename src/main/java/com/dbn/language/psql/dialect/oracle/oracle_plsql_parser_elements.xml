@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE element-defs SYSTEM "../../../common/definition/language-parser-elements.dtd">
 <element-defs language="ORACLE-PLSQL" version="10.1">
     <element-def attributes="ROOT" description="PLSQL block" icon="FILE_BLOCK_PSQL" id="plsql_block" language="PSQL">
         <iteration id="00000">
