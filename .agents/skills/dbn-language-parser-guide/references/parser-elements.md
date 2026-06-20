@@ -6,6 +6,12 @@ DBN parser XML files are declarative grammar trees. `element-defs` is the dialec
 
 The XML is also semantic. Identifier nodes do more than match text: they create PSI elements that support object resolution, aliases, variables, references, rename behavior, structure view, and executable statement metadata.
 
+## Specification References
+
+- SQL-92 / ISO/IEC 9075:1992 draft text: `https://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt`
+
+The public link above is an online draft copy, not the official ISO publication. Use it as a convenient grammar reference, and prefer exact specification term names when creating ISO92 parser element ids.
+
 ## DBN Dev Tooling
 
 Language parser tooling lives in `modules/dbn-dev/src/main/java/com/dbn/dev/language`.
@@ -18,6 +24,14 @@ Language parser tooling lives in `modules/dbn-dev/src/main/java/com/dbn/dev/lang
 Source token lists live under `modules/dbn-dev/src/main/resources/language/<database>/`, for example `oracle_sql_keywords.txt` or `postgres_sql_datatypes.txt`. Generated parser token files live beside the dialect parser XMLs as `*_parser_tokens.xml`.
 
 When grammar work needs a new token, check this module and the relevant token registry/source list first. New token keys must be registered in the appropriate registry, such as `db_sql_keywords` and sibling keyword/function/datatype/parameter registries, before parser element XML references them. Do not invent a `type-id` that is absent from the dialect token XMLs unless the corresponding token-generation work is also part of the change.
+
+`*_parser_tokens.xml` and `*_parser.flex` are mixed files: some surrounding content is hand-written, while marker-delimited token/lexer blocks are filled by `dbn-dev` tooling. Do not edit tooling-managed marker blocks directly. Change the dbn-dev token registry/source list or lexer input, then let the developer run the tooling to refresh those blocks. Generated flex lexer Java files are pure generated outputs and should not be edited directly.
+
+Keep token registry files sorted and de-duplicated. Empty registry files are valid and should produce no marker-block entries. If a tooling run emits empty generated tokens such as `PRM_` or `EX_`, or empty lexer rules such as `"" {return tt.ptt(0);}`, fix the dbn-dev registry loading/generation logic and ask the developer to rerun the tooling rather than editing the generated marker blocks by hand.
+
+Treat `dbn-dev` language tooling execution as a developer task for now. Do not run builds or tooling from `modules/dbn-dev` unless the developer explicitly asks for it; inspect and edit source/registry files only.
+
+ISO92 is modeled as `DatabaseType.ISO92` for language tooling even though it is not a real connection database. Keep it excluded from public connection support arrays such as `SUPPORTED` and `NATIVELY_SUPPORTED`, like other non-offered enum values. Its registry path is `modules/dbn-dev/src/main/resources/language/iso92`, and the generated SQL files use the `iso92_sql_*` prefix.
 
 ## Token Id Patterns
 
@@ -37,7 +51,9 @@ Other token families are usually maintained in shared or dialect parser token XM
 - `OPR_*`: operator tokens, such as `OPR_NOT_EQUAL`
 - Generic lexical tokens: `IDENTIFIER`, `VARIABLE`, `STRING`, `NUMBER`, `INTEGER`, `LINE_COMMENT`, `BLOCK_COMMENT`, `WHITE_SPACE`
 
-Always verify a token id in the relevant `*_parser_tokens.xml` or `db_language_common_tokens.xml` before using it in `type-id`, `separator`, `begin-token`, `end-token`, or compact `tokens="..."` attributes.
+Always verify a token id in the relevant `*_parser_tokens.xml` or `db_language_common_tokens.xml` before using it in `type-id`, `separator`, `begin-token`, `end-token`, or compact `tokens="..."` attributes. If a generated-family token is missing, add it to the dbn-dev registry/input, not directly to the tooling-managed marker block in parser token XML.
+
+When a word can be interpreted in more than one token role, register it in the most common or lexer-practical generated family and qualify local grammar usage with `flavor`. For example, if `INTERVAL` is defined as `DT_INTERVAL` because it is most often a datatype token, a grammar position that treats it as a keyword can use `<token type-id="DT_INTERVAL" flavor="keyword" />`. Do not duplicate the same word in multiple generated registries only to change the local role: the lexer can match each word only once, so duplicate generated rules clash instead of creating context-sensitive token categories.
 
 ## Generated Element Ids
 
@@ -80,7 +96,31 @@ Do not create local next-number ids such as `id="05647"` for new elements by han
 - `branch`: declares a parser branch flag when this element matches.
 - `optional-wrapping`: optional paired delimiters around the element, usually `PARENTHESES`.
 - `virtual-object`: DB object type represented by this element.
+- `custom="true"`: marks an intentional helper definition, usually a repetitive grammar structure defined once and reused from multiple locations rather than a direct SQL specification term.
 - `formatting-*`: formatter behavior for PSI generated from this grammar.
+
+## Element Naming and Descriptions
+
+Top-level `element-def id` values should be lowercase underscored versions of the SQL specification term or local grammar concept:
+
+- `query specification` -> `query_specification`
+- `select statement` -> `select_statement`
+- `group by clause` -> `group_by_clause`
+- `value expression primary` -> `value_expression_primary`
+
+Descriptions should be human-readable versions of the id/specification term. When the description contains actual SQL keywords from that grammar block, write those keywords uppercase:
+
+- `select_statement`: `SELECT statement`
+- `group_by_clause`: `GROUP BY clause`
+- `order_by_clause`: `ORDER BY clause`
+- `query_specification`: `Query specification`
+- `value_expression`: `Value expression`
+
+Do not invent camelCase, dash-case, or abbreviated ids for specification terms. Prefer the standard term normalized to lowercase underscore.
+
+Helper elements marked `custom="true"` may use local grammar names instead of exact specification terms, especially when they capture a repeated parser structure. Still keep names lowercase underscored and descriptions clear.
+
+Statement structures that qualify as clauses should carry `attributes="CLAUSE"`, for example `from_clause`, `where_clause`, `group_by_clause`, and `having_clause`. This is intended for formatting behavior even if not all formatting logic currently consumes it.
 
 ## Composition Elements
 
@@ -213,7 +253,7 @@ These constraints come from the runtime element loaders, not only the DTD:
 - `qualified-identifier`: one or more `variant` children.
 - `variant`: token/identifier leaf children such as `token`, `object-def`, `object-ref`, `alias-def`, `alias-ref`, `variable-ref`.
 - `sequence`: zero or more children, matched in order.
-- `one-of`: two or more alternatives in practice. The runtime warns for a single child and throws for no children.
+- `one-of`: one or more alternatives. Prefer two or more for a finished local choice, but a single-child `one-of` is acceptable when it intentionally reserves an alternatives slot, such as a statement list that will gain more statement kinds later. The runtime throws for no children.
 - `element-def`: zero or more grammar children, but useful named definitions normally contain at least one child.
 
 ## Semantic Identifier Nodes
@@ -311,12 +351,13 @@ The shared DTD should describe the real parser XML surface, not an idealized XML
 ## Review Checklist
 
 - Does the new grammar construct exist in another dialect with a reusable pattern?
+- Do new `element-def` ids use lowercase underscored specification names and human-readable descriptions with SQL keywords uppercased?
 - Are alternatives ordered or marked `ambiguous` where their first tokens overlap?
 - Is a repeated multi-token construct wrapped as a single child `sequence` inside `iteration`?
 - Are semantic identifiers used where resolution/rename/structure behavior matters?
 - Did the change avoid adding new deprecated `exit="true"` branch workarounds?
 - Did new parser elements omit manual generated ids so the reindexing tool can assign them?
-- Were new or changed token ids registered in the appropriate token registry/source list and verified against generated parser token XMLs?
+- Were new or changed generated-family token ids registered in the appropriate dbn-dev token registry/source list, with parser token/flex marker blocks left to the tooling?
 - Does the shared DTD include any new attribute/tag/template?
 - Do edited XML files keep the relative DOCTYPE?
 - Did `xmllint --noout --valid` pass for edited files?
