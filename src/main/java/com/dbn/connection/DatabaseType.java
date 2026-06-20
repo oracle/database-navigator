@@ -80,6 +80,14 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
             array(NONE, USER, USER_PASSWORD, OS_CREDENTIALS),
             array(DatabaseUrlPattern.GENERIC)),
 
+    ISO92(
+            txt("cfg.connection.const.DatabaseType_ISO92"),
+            Icons.DB_GENERIC,
+            Icons.DB_GENERIC_LARGE,
+            "java.sql.Driver",
+            array(NONE),
+            array(DatabaseUrlPattern.GENERIC)),
+
     @Deprecated // used for fallback on existing configs TODO decommission after a few releases
     UNKNOWN(
             txt("cfg.connection.const.DatabaseType_UNKNOWN"),
