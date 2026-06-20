@@ -732,7 +732,7 @@
         <one-of id="00027">
             <element ref-id="parameter_specification" />
             <element ref-id="variable_specification" />
-            <token id="00029" type-id="KW_CURRENT_USER" />
+            <token id="00029" flavor="keyword" type-id="FN_CURRENT_USER" />
             <token id="00032" type-id="KW_VALUE" />
         </one-of>
     </element-def>

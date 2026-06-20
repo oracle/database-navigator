@@ -28,7 +28,7 @@ public class LanguageSpecificationBuilder {
     private static final Scanner SCANNER = new Scanner(System.in);
     private static final LanguageSpecificationBuilderInput input = new LanguageSpecificationBuilderInput();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         input.setDatabase(selectOption("database", LanguageSpecificationBuilderInput.DATABASE_OPTIONS));
         input.setLanguage(selectOption("language", LanguageSpecificationBuilderInput.LANGUAGE_OPTIONS));
 
@@ -41,6 +41,9 @@ public class LanguageSpecificationBuilder {
         } else if (operation == Operation.PARSER_DEFINITION) {
             LanguageSpecificationParserBuilder parserBuilder = new LanguageSpecificationParserBuilder(input);
             parserBuilder.build();
+        } else if (operation == Operation.LEXER_CLASS) {
+            LanguageSpecificationLexerClassBuilder lexerBuilder = new LanguageSpecificationLexerClassBuilder(input);
+            lexerBuilder.build();
         }
     }
 

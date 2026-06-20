@@ -19,7 +19,9 @@ Language parser tooling lives in `modules/dbn-dev/src/main/java/com/dbn/dev/lang
 - `LanguageSpecificationBuilder` is the interactive entry point.
 - `LanguageSpecificationBuilderInput` maps database/language choices to dialect paths and file prefixes.
 - `LanguageSpecificationLexerBuilder` updates parser lexer sections, parser token XMLs, and highlighter lexer sections from source token lists.
+- `LanguageSpecificationLexerClassBuilder` is invoked through `LanguageSpecificationBuilder` operation `LEXER_CLASS` to run JFlex and generate lexer classes from `.flex` files.
 - `LanguageSpecificationParserBuilder` instantiates parser bundles with `ElementTypeBundle.Builder.rebuilding = true`; it is the parser-definition rebuilding hook.
+- Shared builder configuration is loaded from `modules/dbn-dev/language-builder.properties`, with JVM `-D` properties taking precedence. Commit only `language-builder.properties.example`; keep the real local file ignored.
 
 Source token lists live under `modules/dbn-dev/src/main/resources/language/<database>/`, for example `oracle_sql_keywords.txt` or `postgres_sql_datatypes.txt`. Generated parser token files live beside the dialect parser XMLs as `*_parser_tokens.xml`.
 

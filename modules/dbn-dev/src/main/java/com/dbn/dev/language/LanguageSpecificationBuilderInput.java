@@ -24,9 +24,11 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import static com.dbn.connection.DatabaseType.ISO92;
 import static com.dbn.connection.DatabaseType.MYSQL;
@@ -36,12 +38,15 @@ import static com.dbn.connection.DatabaseType.SQLITE;
 
 @NonNls
 public class LanguageSpecificationBuilderInput {
+    private static final String CONFIG_FILE_PATH = "modules/dbn-dev/language-builder.properties";
+
     public DatabaseType database;
     public DBLanguage language;
 
     public String databaseId; // database path & file identifier
     public String languagePid; // language path identifier
     public String languageFid; // language file identifier
+    private final Properties properties = new Properties();
 
     public static final Map<String, DatabaseType> DATABASE_OPTIONS = new LinkedHashMap<>();
     public static final Map<String, DBLanguage> LANGUAGE_OPTIONS = new LinkedHashMap<>();
@@ -58,6 +63,11 @@ public class LanguageSpecificationBuilderInput {
 
         OPERATION_OPTIONS.put("l", Operation.LEXER_DEFINITION);
         OPERATION_OPTIONS.put("p", Operation.PARSER_DEFINITION);
+        OPERATION_OPTIONS.put("c", Operation.LEXER_CLASS);
+    }
+
+    public LanguageSpecificationBuilderInput() {
+        loadProperties();
     }
 
     public void setDatabase(DatabaseType database) {
@@ -100,8 +110,34 @@ public class LanguageSpecificationBuilderInput {
         return Paths.get("").toAbsolutePath().toFile();
     }
 
+    public String getRequiredProperty(String name) {
+        String value = System.getProperty(name);
+        if (value == null || value.isBlank()) {
+            value = properties.getProperty(name);
+        }
+
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Missing required configuration property: " + name +
+                    " (provide -D" + name + "=<path> or set it in " + CONFIG_FILE_PATH + ")");
+        }
+        return value;
+    }
+
+    private void loadProperties() {
+        File configFile = new File(getProjectPath(), CONFIG_FILE_PATH);
+        if (!configFile.exists()) return;
+
+        try (FileInputStream inputStream = new FileInputStream(configFile)) {
+            properties.load(inputStream);
+            System.out.println("Loaded configuration: " + configFile.getAbsolutePath());
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not load configuration: " + configFile.getAbsolutePath(), e);
+        }
+    }
+
     public enum Operation {
         LEXER_DEFINITION,
-        PARSER_DEFINITION
+        PARSER_DEFINITION,
+        LEXER_CLASS
     }
 }
