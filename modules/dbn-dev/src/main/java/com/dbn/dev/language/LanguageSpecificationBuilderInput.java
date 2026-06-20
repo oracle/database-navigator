@@ -28,6 +28,12 @@ import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.dbn.connection.DatabaseType.ISO92;
+import static com.dbn.connection.DatabaseType.MYSQL;
+import static com.dbn.connection.DatabaseType.ORACLE;
+import static com.dbn.connection.DatabaseType.POSTGRES;
+import static com.dbn.connection.DatabaseType.SQLITE;
+
 @NonNls
 public class LanguageSpecificationBuilderInput {
     public DatabaseType database;
@@ -41,10 +47,11 @@ public class LanguageSpecificationBuilderInput {
     public static final Map<String, DBLanguage> LANGUAGE_OPTIONS = new LinkedHashMap<>();
     public static final Map<String, Operation> OPERATION_OPTIONS = new LinkedHashMap<>();
     static {
-        DATABASE_OPTIONS.put("o", DatabaseType.ORACLE);
-        DATABASE_OPTIONS.put("m", DatabaseType.MYSQL);
-        DATABASE_OPTIONS.put("p", DatabaseType.POSTGRES);
-        DATABASE_OPTIONS.put("l", DatabaseType.SQLITE);
+        DATABASE_OPTIONS.put("o", ORACLE);
+        DATABASE_OPTIONS.put("m", MYSQL);
+        DATABASE_OPTIONS.put("p", POSTGRES);
+        DATABASE_OPTIONS.put("l", SQLITE);
+        DATABASE_OPTIONS.put("i", ISO92);
 
         LANGUAGE_OPTIONS.put("s", SQLLanguage.INSTANCE);
         LANGUAGE_OPTIONS.put("p", PSQLLanguage.INSTANCE);

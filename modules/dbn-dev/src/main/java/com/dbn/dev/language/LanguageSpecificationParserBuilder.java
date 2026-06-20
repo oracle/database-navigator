@@ -27,6 +27,7 @@ import com.dbn.language.psql.dialect.PSQLLanguageDialect;
 import com.dbn.language.psql.dialect.oracle.OraclePLSQLParser;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.language.sql.dialect.SQLLanguageDialect;
+import com.dbn.language.sql.dialect.iso92.Iso92SQLParser;
 import com.dbn.language.sql.dialect.mysql.MysqlSQLParser;
 import com.dbn.language.sql.dialect.oracle.OracleSQLParser;
 import com.dbn.language.sql.dialect.postgres.PostgresSQLParser;
@@ -36,10 +37,12 @@ import lombok.SneakyThrows;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.dbn.connection.DatabaseType.ISO92;
 import static com.dbn.connection.DatabaseType.MYSQL;
 import static com.dbn.connection.DatabaseType.ORACLE;
 import static com.dbn.connection.DatabaseType.POSTGRES;
 import static com.dbn.connection.DatabaseType.SQLITE;
+import static com.dbn.language.common.DBLanguageDialectIdentifier.ISO92_SQL;
 import static com.dbn.language.common.DBLanguageDialectIdentifier.MYSQL_SQL;
 import static com.dbn.language.common.DBLanguageDialectIdentifier.ORACLE_PLSQL;
 import static com.dbn.language.common.DBLanguageDialectIdentifier.ORACLE_SQL;
@@ -63,6 +66,7 @@ public class LanguageSpecificationParserBuilder {
         PARSERS.put(MYSQL, of(sql, MysqlSQLParser.class));
         PARSERS.put(POSTGRES, of(sql, PostgresSQLParser.class));
         PARSERS.put(SQLITE, of(sql, SqliteSQLParser.class));
+        PARSERS.put(ISO92, of(sql, Iso92SQLParser.class));
 
         DIALECTS.put(ORACLE, of(
                 sql, ORACLE_SQL,
@@ -71,6 +75,7 @@ public class LanguageSpecificationParserBuilder {
         DIALECTS.put(MYSQL, of(sql, MYSQL_SQL));
         DIALECTS.put(POSTGRES, of(sql, POSTGRES_SQL));
         DIALECTS.put(SQLITE, of(sql, SQLITE_SQL));
+        DIALECTS.put(ISO92, of(sql, ISO92_SQL));
     }
 
     public LanguageSpecificationParserBuilder(LanguageSpecificationBuilderInput input) {
@@ -80,6 +85,9 @@ public class LanguageSpecificationParserBuilder {
     @SneakyThrows
     public void build() {
         var parsers = PARSERS.get(input.database);
+        if (parsers == null || !parsers.containsKey(input.language)) {
+            throw new IllegalArgumentException("Unsupported parser definition: " + input.databaseId + " " + input.language);
+        }
         var parser = parsers.get(input.language);
 
         var dialects = DIALECTS.get(input.database);

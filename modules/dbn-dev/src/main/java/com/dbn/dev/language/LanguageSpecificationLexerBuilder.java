@@ -151,7 +151,11 @@ public class LanguageSpecificationLexerBuilder {
         String tokens = Files.readString(Path.of(fileUrl.getPath()));
         String[] tokenEntries = tokens.split("\n");
         AtomicInteger index = new AtomicInteger(0);
-        return Arrays.stream(tokenEntries).map(i -> new TokenDefinition(category, i, index.getAndIncrement())).toList();
+        return Arrays.stream(tokenEntries).
+                map(String::trim).
+                filter(s -> !s.isEmpty()).
+                map(i -> new TokenDefinition(category, i, index.getAndIncrement())).
+                toList();
     }
 
     @NonNls

@@ -37,7 +37,7 @@
         virtual-object CDATA #IMPLIED>
 <!ELEMENT token (#PCDATA)>
 <!ATTLIST token
-        id CDATA #REQUIRED
+        id CDATA #IMPLIED
         type-id CDATA #REQUIRED
         text CDATA #IMPLIED
         version CDATA #IMPLIED
@@ -51,7 +51,7 @@
         formatting-spacing-before CDATA #IMPLIED>
 <!ELEMENT wrapper (token|element|sequence|one-of|iteration|wrapper|qualified-identifier|object-ref|variable-ref|alias-ref)*>
 <!ATTLIST wrapper
-        id CDATA #REQUIRED
+        id CDATA #IMPLIED
         version CDATA #IMPLIED
         optional (true | false) #IMPLIED
         exit (true | false) #IMPLIED
@@ -79,7 +79,7 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT sequence (#PCDATA|token|element|sequence|iteration|one-of|wrapper|qualified-identifier|object-def|object-ref|alias-def|alias-ref|variable-def|variable-ref)*>
 <!ATTLIST sequence
-        id CDATA #REQUIRED
+        id CDATA #IMPLIED
         attributes CDATA #IMPLIED
         tokens CDATA #IMPLIED
         optional (true | false) #IMPLIED
@@ -96,7 +96,7 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT iteration (token|element|sequence|one-of|wrapper|qualified-identifier|object-def|object-ref|variable-ref|alias-ref|alias-def)*>
 <!ATTLIST iteration
-        id CDATA #REQUIRED
+        id CDATA #IMPLIED
         separator CDATA #IMPLIED
         optional (true | false) #IMPLIED
         version CDATA #IMPLIED
@@ -113,7 +113,7 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT one-of (token|element|sequence|iteration|one-of|wrapper|qualified-identifier|object-ref|object-def|alias-ref|alias-def|variable-ref|variable-def|exec-variable)*>
 <!ATTLIST one-of
-        id CDATA #REQUIRED
+        id CDATA #IMPLIED
         attributes CDATA #IMPLIED
         tokens CDATA #IMPLIED
         optional (true | false) #IMPLIED
@@ -132,14 +132,14 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT qualified-identifier (variant)*>
 <!ATTLIST qualified-identifier
-        id CDATA #REQUIRED
+        id CDATA #IMPLIED
         separator CDATA #IMPLIED
         optional (true | false) #IMPLIED
         original-name CDATA #IMPLIED>
 <!ELEMENT variant (token|object-def|object-ref|variable-ref|alias-ref|alias-def)*>
 <!ELEMENT object-def (#PCDATA)>
 <!ATTLIST object-def
-        id CDATA #REQUIRED
+        id CDATA #IMPLIED
         type CDATA #REQUIRED
         attributes CDATA #IMPLIED
         optional (true | false) #IMPLIED
@@ -147,7 +147,7 @@
         underlying-object-resolver CDATA #IMPLIED>
 <!ELEMENT object-ref (#PCDATA)>
 <!ATTLIST object-ref
-        id CDATA #REQUIRED
+        id CDATA #IMPLIED
         type CDATA #REQUIRED
         attributes CDATA #IMPLIED
         optional (true | false) #IMPLIED
@@ -156,14 +156,14 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT alias-def (#PCDATA)>
 <!ATTLIST alias-def
-        id CDATA #REQUIRED
+        id CDATA #IMPLIED
         type CDATA #REQUIRED
         attributes CDATA #IMPLIED
         optional (true | false) #IMPLIED
         original-name CDATA #IMPLIED>
 <!ELEMENT alias-ref (#PCDATA)>
 <!ATTLIST alias-ref
-        id CDATA #REQUIRED
+        id CDATA #IMPLIED
         type CDATA #REQUIRED
         optional (true | false) #IMPLIED
         referenceable (true | false) #IMPLIED
@@ -171,7 +171,7 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT variable-ref (#PCDATA)>
 <!ATTLIST variable-ref
-        id CDATA #REQUIRED
+        id CDATA #IMPLIED
         type CDATA #REQUIRED
         optional (true | false) #IMPLIED
         attributes CDATA #IMPLIED
@@ -179,10 +179,10 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT exec-variable (#PCDATA)>
 <!ATTLIST exec-variable
-        id CDATA #REQUIRED>
+        id CDATA #IMPLIED>
 <!ELEMENT variable-def (#PCDATA)>
 <!ATTLIST variable-def
-        id CDATA #REQUIRED
+        id CDATA #IMPLIED
         type CDATA #REQUIRED
         attributes CDATA #IMPLIED
         optional (true | false) #IMPLIED
@@ -190,7 +190,7 @@
         underlying-object-resolver CDATA #IMPLIED>
 <!ELEMENT block (element)*>
 <!ATTLIST block
-        id CDATA #REQUIRED
+        id CDATA #IMPLIED
         formatting-indent (NORMAL | CONTINUE | NONE | ABSOLUTE_NONE) #IMPLIED
         formatting-wrap (NORMAL | ALWAYS | IF_LONG ) #IMPLIED
         formatting-spacing-before (NO_SPACE | ONE_SPACE | ONE_LINE) #IMPLIED
