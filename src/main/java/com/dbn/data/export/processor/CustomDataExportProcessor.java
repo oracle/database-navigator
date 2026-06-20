@@ -24,6 +24,8 @@ import com.dbn.data.export.DataExportFormat;
 import com.dbn.data.export.DataExportInstructions;
 import com.dbn.data.export.DataExportModel;
 
+import static com.dbn.common.util.Spreadsheets.isSpreadsheetFormulaRisk;
+
 public class CustomDataExportProcessor extends DataExportProcessor{
     @Override
     public DataExportFormat getFormat() {
@@ -92,7 +94,7 @@ public class CustomDataExportProcessor extends DataExportProcessor{
         String separator = instructions.getValueSeparator();
         boolean hasBeginQuote = beginQuote != null && !beginQuote.isEmpty();
         boolean hasEndQuote = endQuote != null && !endQuote.isEmpty();
-        boolean formulaRisk = isFormulaRisk(value);
+        boolean formulaRisk = isSpreadsheetFormulaRisk(value);
         boolean quote =
                 instructions.isQuoteAllValues() ||
                 formulaRisk ||
@@ -128,19 +130,6 @@ public class CustomDataExportProcessor extends DataExportProcessor{
                 buffer.append(value.charAt(i));
             }
         }
-    }
-
-    private static boolean isFormulaRisk(String value) {
-        if (value.isEmpty()) return false;
-
-        char firstChar = value.charAt(0);
-        if (firstChar == '=') return true;
-        if (firstChar == '+') return true;
-        if (firstChar == '-') return true;
-        if (firstChar == '@') return true;
-        if (firstChar == '\t') return true;
-        if (firstChar == '\r') return true;
-        return false;
     }
 
 }
