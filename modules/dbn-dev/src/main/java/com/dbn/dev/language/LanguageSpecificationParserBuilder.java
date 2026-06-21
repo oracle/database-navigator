@@ -33,7 +33,13 @@ import com.dbn.language.sql.dialect.oracle.OracleSQLParser;
 import com.dbn.language.sql.dialect.postgres.PostgresSQLParser;
 import com.dbn.language.sql.dialect.sqlite.SqliteSQLParser;
 import lombok.SneakyThrows;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -93,12 +99,41 @@ public class LanguageSpecificationParserBuilder {
         var dialects = DIALECTS.get(input.database);
         var dialect = dialects.get(input.language);
 
-        ElementTypeBundle.Builder.rebuilding = true;
-        DBLanguageDialect languageDialect = input.language.getLanguageDialect(dialect);
-        var constructor = parser.getConstructor(getDialectClass());
-        DBLanguageParser languageParser = constructor.newInstance(languageDialect);
-        ElementTypeBundle elementTypes = languageParser.getElementTypes();
-        // TODO write element-type-definition if marked dirty
+        try {
+            ElementTypeBundle.Builder.rebuilding = true;
+            DBLanguageDialect languageDialect = input.language.getLanguageDialect(dialect);
+            var constructor = parser.getConstructor(getDialectClass());
+            DBLanguageParser languageParser = constructor.newInstance(languageDialect);
+            File file = getParserElementsFile();
+            SAXBuilder builder = new SAXBuilder();
+            new ElementTypeBundle(languageDialect, languageParser.getTokenTypes(), builder.build(file), this::writeElementTypeDefinition);
+        } finally {
+            ElementTypeBundle.Builder.rebuilding = false;
+        }
+    }
+
+    @SneakyThrows
+    private File getParserElementsFile() {
+        File file = input.getParserElementsFile();
+        if (!file.exists()) {
+            throw new IllegalArgumentException("Parser elements definition does not exist: " + file.getAbsolutePath());
+        }
+        return file;
+    }
+
+    @SneakyThrows
+    private void writeElementTypeDefinition(ElementTypeBundle.Builder builder) {
+        if (!builder.isDirty()) {
+            System.out.println("Parser elements definition is up to date");
+            return;
+        }
+
+        File file = getParserElementsFile();
+        Path filePath = file.toPath();
+
+        System.out.println("Writing " + filePath);
+        XMLOutputter outputter = new XMLOutputter();
+        Files.writeString(filePath, outputter.outputString(builder.getDocument()), StandardCharsets.UTF_8);
     }
 
     private Class<? extends DBLanguageDialect> getDialectClass() {
