@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @NonNls
-public class LanguageSpecificationLexerClassBuilder {
+public class LanguageSpecificationLexerClassBuilder implements LanguageSpecificationArtifactBuilder {
     private static final String JFLEX_JAVA_PROPERTY = "jflexJava";             // e.g. /Applications/IntelliJ IDEA 26.1.app/Contents/jbr/Contents/Home/bin/java
     private static final String JFLEX_JAR_PROPERTY = "jflexJar";               // e.g. /Users/dcioca/Resources/libraries/jflex-1.9.1/jflex-1.9.1.jar
     private static final String JFLEX_SKELETON_PROPERTY = "jflexSkeleton";     // e.g. /Users/dcioca/Resources/libraries/jflex-1.9.1/idea-flex.skeleton
@@ -34,6 +34,7 @@ public class LanguageSpecificationLexerClassBuilder {
         this.input = input;
     }
 
+    @Override
     public void build() throws Exception {
         runJFlex(input.getParserLexerFile());
         runJFlex(input.getHighlighterLexerFile());

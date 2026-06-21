@@ -39,7 +39,7 @@ import static com.dbn.language.common.TokenTypeCategory.KEYWORD;
 import static com.dbn.language.common.TokenTypeCategory.PARAMETER;
 import static java.util.Collections.emptyList;
 
-public class LanguageSpecificationLexerBuilder {
+public class LanguageSpecificationLexerBuilder implements LanguageSpecificationArtifactBuilder {
     private final LanguageSpecificationBuilderInput input;
     private final Map<TokenTypeCategory, List<TokenDefinition>> tokenDefinitions = new HashMap<>();
 
@@ -47,6 +47,7 @@ public class LanguageSpecificationLexerBuilder {
         this.input = input;
     }
 
+    @Override
     public void build() {
         updateParserLexerDefinition();
         updateParserTokensDefinition();

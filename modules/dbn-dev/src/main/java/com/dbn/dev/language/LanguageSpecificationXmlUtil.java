@@ -60,6 +60,22 @@ final class LanguageSpecificationXmlUtil {
         return builder.toString();
     }
 
+    static String outputPrettyString(Document document) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n");
+        appendDocumentComments(builder, document);
+        for (Content content : document.getContent()) {
+            if (content instanceof Comment) continue;
+
+            appendPrettyContent(builder, content, 0);
+            builder.append('\n');
+            if (content instanceof DocType) {
+                builder.append('\n');
+            }
+        }
+        return builder.toString();
+    }
+
     private static void appendDocumentComments(StringBuilder builder, Document document) {
         for (Content content : document.getContent()) {
             if (content instanceof Comment comment) {
@@ -112,6 +128,66 @@ final class LanguageSpecificationXmlUtil {
             } catch (SAXException e) {
                 prologComments.add(comment);
             }
+        }
+    }
+
+    private static void appendPrettyContent(StringBuilder builder, Content content, int level) {
+        if (content instanceof Element element) {
+            appendPrettyElement(builder, element, level);
+        } else {
+            indent(builder, level);
+            appendContent(builder, content);
+        }
+    }
+
+    private static void appendPrettyElement(StringBuilder builder, Element element, int level) {
+        indent(builder, level);
+        builder.append('<').append(element.getQualifiedName());
+        List<Attribute> attributes = element.getAttributes();
+        for (Attribute attribute : attributes) {
+            builder
+                    .append(' ')
+                    .append(attribute.getQualifiedName())
+                    .append("=\"")
+                    .append(escapeAttribute(attribute.getValue()))
+                    .append('"');
+        }
+
+        if (element.getContentSize() == 0) {
+            builder.append(" />");
+            return;
+        }
+
+        if (isInlineContent(element)) {
+            builder.append('>');
+            for (Content content : element.getContent()) {
+                appendContent(builder, content);
+            }
+            builder.append("</").append(element.getQualifiedName()).append('>');
+            return;
+        }
+
+        builder.append(">\n");
+        for (Content content : element.getContent()) {
+            appendPrettyContent(builder, content, level + 1);
+            builder.append('\n');
+        }
+        indent(builder, level);
+        builder.append("</").append(element.getQualifiedName()).append('>');
+    }
+
+    private static boolean isInlineContent(Element element) {
+        for (Content content : element.getContent()) {
+            if (content instanceof Element || content instanceof Comment) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void indent(StringBuilder builder, int level) {
+        for (int i = 0; i < level; i++) {
+            builder.append("    ");
         }
     }
 

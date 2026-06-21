@@ -71,6 +71,7 @@ public class LanguageSpecificationBuilderInput {
         LEXER_ACTION_OPTIONS.put("c", Action.BUILD_CLASS);
 
         PARSER_ACTION_OPTIONS.put("d", Action.UPDATE_DEFINITION);
+        PARSER_ACTION_OPTIONS.put("e", Action.BUILD_EXTENSION);
     }
 
     public LanguageSpecificationBuilderInput() {
@@ -98,6 +99,10 @@ public class LanguageSpecificationBuilderInput {
 
     public File getParserElementsFile() {
         return new File(getProjectPath(), getDefinitionFilePath() + getDefinitionFilePrefix() + "_parser_elements.xml");
+    }
+
+    public File getParserElementsExtensionFile() {
+        return new File(getProjectPath(), getDefinitionFilePath() + getDefinitionFilePrefix() + "_parser_elements_ext.xml");
     }
 
     public File getHighlighterLexerBaseFile() {
@@ -167,7 +172,8 @@ public class LanguageSpecificationBuilderInput {
 
     public enum Action {
         UPDATE_DEFINITION,
-        BUILD_CLASS;
+        BUILD_CLASS,
+        BUILD_EXTENSION;
 
         @Override
         public String toString() {

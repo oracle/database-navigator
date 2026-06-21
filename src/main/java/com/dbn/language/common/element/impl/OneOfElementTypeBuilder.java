@@ -38,6 +38,8 @@ import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGAT
 import static java.util.stream.Collectors.toCollection;
 
 public class OneOfElementTypeBuilder {
+    public static boolean legacyAmbiguousPathRebuildEnabled = true; // disabled by dev tooling that needs the raw tree
+
     private final OneOfElementType subject;
 
     private OneOfElementTypeBuilder(OneOfElementType subject) {
@@ -50,6 +52,7 @@ public class OneOfElementTypeBuilder {
     }
 
     private void rebuildAmbiguousPaths() {
+        if (!legacyAmbiguousPathRebuildEnabled) return;
         if (subject.basic) return; // all elements are distinct tokens
         if (!subject.ambiguous && !Builder.rebuilding) return;
 
