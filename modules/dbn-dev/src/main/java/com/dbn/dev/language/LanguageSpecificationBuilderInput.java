@@ -62,8 +62,8 @@ public class LanguageSpecificationBuilderInput {
         LANGUAGE_OPTIONS.put("p", PSQLLanguage.INSTANCE);
 
         OPERATION_OPTIONS.put("l", Operation.LEXER_DEFINITION);
-        OPERATION_OPTIONS.put("p", Operation.PARSER_DEFINITION);
         OPERATION_OPTIONS.put("c", Operation.LEXER_CLASS);
+        OPERATION_OPTIONS.put("p", Operation.PARSER_DEFINITION);
     }
 
     public LanguageSpecificationBuilderInput() {
@@ -141,7 +141,7 @@ public class LanguageSpecificationBuilderInput {
 
     public enum Operation {
         LEXER_DEFINITION,
-        PARSER_DEFINITION,
-        LEXER_CLASS
+        LEXER_CLASS,
+        PARSER_DEFINITION
     }
 }
