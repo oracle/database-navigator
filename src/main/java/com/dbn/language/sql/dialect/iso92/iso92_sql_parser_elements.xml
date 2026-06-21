@@ -17,10 +17,13 @@
   -->
 
 <element-defs language="ISO92-SQL" version="SQL 92">
-    <element-def attributes="ROOT, STRUCTURE" description="SQL block" id="sql_block" language="SQL">
+    <element-def attributes="ROOT, STRUCTURE" custom="true" description="SQL block" id="sql_block" language="SQL">
         <iteration id="00000">
             <one-of attributes="STATEMENT" id="00001">
                 <element ref-id="query_specification" />
+                <element ref-id="delete_statement" />
+                <element ref-id="insert_statement" />
+                <element ref-id="update_statement" />
             </one-of>
         </iteration>
     </element-def>
@@ -32,6 +35,70 @@
         <element ref-id="select_list" />
         <element ref-id="table_expression" />
     </element-def>
+
+    <!-- ========= insert ========= -->
+    <element-def attributes="EXECUTABLE, DATA_MANIPULATION, TRANSACTIONAL, STRUCTURE" description="INSERT statement" id="insert_statement">
+        <token type-id="KW_INSERT" />
+        <token type-id="KW_INTO" />
+        <element ref-id="table_name" />
+        <wrapper optional="true" template="PARENTHESES">
+            <iteration separator="CHR_COMMA">
+                <object-ref type="COLUMN" />
+            </iteration>
+        </wrapper>
+        <one-of ambiguous="true">
+            <element ref-id="insert_values_clause" />
+            <element ref-id="query_specification" />
+        </one-of>
+    </element-def>
+    <element-def attributes="CLAUSE" custom="true" description="INSERT VALUES clause" id="insert_values_clause">
+        <token type-id="KW_VALUES" />
+        <wrapper template="PARENTHESES">
+            <iteration separator="CHR_COMMA">
+                <element ref-id="insert_value" />
+            </iteration>
+        </wrapper>
+    </element-def>
+    <element-def custom="true" description="INSERT value" id="insert_value">
+        <one-of ambiguous="true">
+            <token type-id="KW_DEFAULT" />
+            <element ref-id="value_expression" />
+        </one-of>
+    </element-def>
+
+    <!-- ========= update ========= -->
+    <element-def attributes="EXECUTABLE, DATA_MANIPULATION, TRANSACTIONAL, STRUCTURE" description="UPDATE statement" id="update_statement">
+        <token type-id="KW_UPDATE" />
+        <element ref-id="table_name" />
+        <element ref-id="set_clause" />
+        <element optional="true" ref-id="where_clause" />
+    </element-def>
+    <element-def attributes="CLAUSE" custom="true" description="SET clause" id="set_clause">
+        <token type-id="KW_SET" />
+        <iteration separator="CHR_COMMA">
+            <element ref-id="set_clause_item" />
+        </iteration>
+    </element-def>
+    <element-def custom="true" description="SET clause item" id="set_clause_item">
+        <object-ref type="COLUMN" />
+        <token type-id="CHR_EQUAL" />
+        <element ref-id="update_source" />
+    </element-def>
+    <element-def description="UPDATE source" id="update_source">
+        <one-of ambiguous="true">
+            <token type-id="KW_DEFAULT" />
+            <element ref-id="value_expression" />
+        </one-of>
+    </element-def>
+
+    <!-- ========= delete ========= -->
+    <element-def attributes="EXECUTABLE, DATA_MANIPULATION, TRANSACTIONAL, STRUCTURE" description="DELETE statement" id="delete_statement">
+        <token type-id="KW_DELETE" />
+        <token type-id="KW_FROM" />
+        <element ref-id="table_name" />
+        <element optional="true" ref-id="where_clause" />
+    </element-def>
+
     <element-def description="Set quantifier" id="set_quantifier">
         <one-of id="00003">
             <token id="00004" type-id="KW_DISTINCT" />
@@ -761,7 +828,7 @@
         <element ref-id="embedded_variable_name" />
     </element-def>
 
-    <element-def description="Unknown identifier" id="custom_undefined">
+    <element-def custom="true" description="Unknown identifier" id="custom_undefined">
         <token id="00272" type-id="IDENTIFIER" />
     </element-def>
 </element-defs>
