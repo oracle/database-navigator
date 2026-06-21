@@ -27,4 +27,5 @@
 <!ELEMENT token (token)*>
 <!ATTLIST token
         type-id CDATA #REQUIRED
+        token-ids CDATA #IMPLIED
         candidate-ids CDATA #IMPLIED>
