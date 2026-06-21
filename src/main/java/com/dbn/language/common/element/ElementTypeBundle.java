@@ -18,7 +18,6 @@ package com.dbn.language.common.element;
 
 import com.dbn.common.index.IndexRegistry;
 import com.dbn.common.util.Measured;
-import com.dbn.common.util.Unsafe;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.TokenTypeBundle;
@@ -39,17 +38,13 @@ import com.dbn.language.common.element.impl.WrapperElementType;
 import com.dbn.language.common.element.util.ElementTypeDefinition;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.object.type.DBObjectType;
-import com.intellij.openapi.ide.CopyPasteManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 import org.jetbrains.annotations.NonNls;
 
-import java.awt.datatransfer.StringSelection;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -134,14 +129,14 @@ public class ElementTypeBundle {
             loadElementExtensions();
             initializeRootElements();
 
-            if (builder.dirty) {
+/*            if (builder.dirty) {
                 Unsafe.warned(() -> {
-/*
+*//*
                     ByteArrayOutputStream stringWriter = new ByteArrayOutputStream();
                     JDOMUtil.write(definitionDocument, stringWriter);
 
                     String data = stringWriter.toString();
-*/
+*//*
                     StringWriter stringWriter = new StringWriter();
                     new XMLOutputter().output(definitionDocument, stringWriter);
 
@@ -153,7 +148,7 @@ public class ElementTypeBundle {
                     CopyPasteManager copyPasteManager = CopyPasteManager.getInstance();
                     copyPasteManager.setContents(new StringSelection(data));
                 });
-            }
+            }*/
             if (builderCallback != null) {
                 builderCallback.accept(builder);
             }

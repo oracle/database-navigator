@@ -1885,33 +1885,34 @@
             </sequence>
             <sequence id="00651">
                 <one-of id="00652">
-                    <token type-id="DT_CHAR_VARYING" id="00653" />
-                    <token type-id="DT_CHARACTER_VARYING" id="00654" />
-                    <sequence id="00655">
-                        <token type-id="DT_CHAR" id="00656" />
-                        <token type-id="KW_VARYING" id="00657" />
+                    <sequence id="00653">
+                        <token type-id="DT_CHAR" id="00654" />
+                        <token flavor="datatype" type-id="KW_VARYING" id="00655" />
                     </sequence>
-                    <sequence id="00658">
-                        <token type-id="DT_CHARACTER" id="00659" />
-                        <token type-id="KW_VARYING" id="00660" />
+                    <sequence id="00656">
+                        <token type-id="DT_CHARACTER" id="00657" />
+                        <token flavor="datatype" type-id="KW_VARYING" id="00658" />
                     </sequence>
-                    <token type-id="DT_VARCHAR" id="00661" />
+                    <token type-id="DT_VARCHAR" id="00659" />
                 </one-of>
                 <element optional="true" ref-id="length" />
             </sequence>
-            <sequence id="00662">
-                <token type-id="KW_NATIONAL" id="00663" />
-                <one-of id="00664">
-                    <token type-id="DT_CHAR" id="00665" />
-                    <token type-id="DT_CHARACTER" id="00666" />
+            <sequence id="00660">
+                <token type-id="KW_NATIONAL" id="00661" />
+                <one-of id="00662">
+                    <sequence id="00663">
+                        <one-of id="00664">
+                            <token type-id="DT_CHAR" id="00665" />
+                            <token type-id="DT_CHARACTER" id="00666" />
+                        </one-of>
+                        <token flavor="datatype" optional="true" type-id="KW_VARYING" id="00667" />
+                    </sequence>
                 </one-of>
-                <sequence optional="true" id="00667">
-                    <token type-id="KW_VARYING" id="00668" />
-                </sequence>
                 <element optional="true" ref-id="length" />
             </sequence>
-            <sequence id="00669">
-                <token type-id="DT_NATIONAL_VARCHAR" id="00670" />
+            <sequence id="00668">
+                <token type-id="KW_NATIONAL" id="00669" />
+                <token type-id="DT_VARCHAR" id="00670" />
                 <element optional="true" ref-id="length" />
             </sequence>
         </one-of>
@@ -1924,10 +1925,9 @@
             </sequence>
             <sequence id="00674">
                 <one-of id="00675">
-                    <token type-id="DT_BIT_VARYING" id="00676" />
-                    <sequence id="00677">
-                        <token type-id="DT_BIT" id="00678" />
-                        <token type-id="KW_VARYING" id="00679" />
+                    <sequence id="00676">
+                        <token type-id="DT_BIT" id="00677" />
+                        <token flavor="datatype" type-id="KW_VARYING" id="00678" />
                     </sequence>
                 </one-of>
                 <element optional="true" ref-id="length" />
@@ -1935,37 +1935,36 @@
         </one-of>
     </element-def>
     <element-def description="Numeric type" id="numeric_type">
-        <one-of id="00680">
-            <sequence id="00681">
-                <one-of id="00682">
-                    <token type-id="DT_NUMERIC" id="00683" />
-                    <token type-id="DT_DECIMAL" id="00684" />
-                    <token type-id="DT_DEC" id="00685" />
+        <one-of id="00679">
+            <sequence id="00680">
+                <one-of id="00681">
+                    <token type-id="DT_NUMERIC" id="00682" />
+                    <token type-id="DT_DECIMAL" id="00683" />
+                    <token type-id="DT_DEC" id="00684" />
                 </one-of>
                 <element optional="true" ref-id="precision_scale" />
             </sequence>
-            <token type-id="DT_INTEGER" id="00686" />
-            <token type-id="DT_INT" id="00687" />
-            <token type-id="DT_SMALLINT" id="00688" />
-            <sequence id="00689">
-                <token type-id="DT_FLOAT" id="00690" />
+            <token type-id="DT_INTEGER" id="00685" />
+            <token type-id="DT_INT" id="00686" />
+            <token type-id="DT_SMALLINT" id="00687" />
+            <sequence id="00688">
+                <token type-id="DT_FLOAT" id="00689" />
                 <element optional="true" ref-id="precision" />
             </sequence>
-            <token type-id="DT_REAL" id="00691" />
-            <token type-id="DT_DOUBLE_PRECISION" id="00692" />
-            <sequence id="00693">
-                <token type-id="DT_DOUBLE" id="00694" />
-                <token type-id="KW_PRECISION" optional="true" id="00695" />
+            <token type-id="DT_REAL" id="00690" />
+            <sequence id="00691">
+                <token type-id="DT_DOUBLE" id="00692" />
+                <token flavor="datatype" type-id="KW_PRECISION" optional="true" id="00693" />
             </sequence>
         </one-of>
     </element-def>
     <element-def description="Datetime type" id="datetime_type">
-        <one-of id="00696">
-            <token type-id="DT_DATE" id="00697" />
-            <sequence id="00698">
-                <one-of id="00699">
-                    <token type-id="DT_TIME" id="00700" />
-                    <token type-id="DT_TIMESTAMP" id="00701" />
+        <one-of id="00694">
+            <token type-id="DT_DATE" id="00695" />
+            <sequence id="00696">
+                <one-of id="00697">
+                    <token type-id="DT_TIME" id="00698" />
+                    <token type-id="DT_TIMESTAMP" id="00699" />
                 </one-of>
                 <element optional="true" ref-id="time_precision" />
                 <element optional="true" ref-id="time_zone_specifier" />
@@ -1973,120 +1972,120 @@
         </one-of>
     </element-def>
     <element-def description="Interval type" id="interval_type">
-        <token type-id="DT_INTERVAL" id="00702" />
+        <token type-id="DT_INTERVAL" id="00700" />
         <element optional="true" ref-id="interval_qualifier" />
     </element-def>
     <element-def description="Length" id="length">
+        <wrapper template="PARENTHESES" id="00701">
+            <token type-id="INTEGER" id="00702" />
+        </wrapper>
+    </element-def>
+    <element-def description="Precision" id="precision">
         <wrapper template="PARENTHESES" id="00703">
             <token type-id="INTEGER" id="00704" />
         </wrapper>
     </element-def>
-    <element-def description="Precision" id="precision">
-        <wrapper template="PARENTHESES" id="00705">
-            <token type-id="INTEGER" id="00706" />
-        </wrapper>
-    </element-def>
     <element-def description="Precision and scale" id="precision_scale">
-        <wrapper template="PARENTHESES" id="00707">
-            <sequence id="00708">
-                <token type-id="INTEGER" id="00709" />
-                <sequence optional="true" id="00710">
-                    <token type-id="CHR_COMMA" id="00711" />
-                    <token type-id="INTEGER" id="00712" />
+        <wrapper template="PARENTHESES" id="00705">
+            <sequence id="00706">
+                <token type-id="INTEGER" id="00707" />
+                <sequence optional="true" id="00708">
+                    <token type-id="CHR_COMMA" id="00709" />
+                    <token type-id="INTEGER" id="00710" />
                 </sequence>
             </sequence>
         </wrapper>
     </element-def>
     <element-def description="Time precision" id="time_precision">
-        <wrapper template="PARENTHESES" id="00713">
-            <token type-id="INTEGER" id="00714" />
+        <wrapper template="PARENTHESES" id="00711">
+            <token type-id="INTEGER" id="00712" />
         </wrapper>
     </element-def>
     <element-def description="Time zone specifier" id="time_zone_specifier">
-        <one-of id="00715">
-            <sequence id="00716">
-                <token type-id="KW_WITH" id="00717" />
-                <token type-id="DT_TIME" id="00718" />
-                <token type-id="KW_ZONE" id="00719" />
+        <one-of id="00713">
+            <sequence id="00714">
+                <token type-id="KW_WITH" id="00715" />
+                <token type-id="DT_TIME" id="00716" />
+                <token type-id="KW_ZONE" id="00717" />
             </sequence>
-            <sequence id="00720">
-                <token type-id="KW_WITHOUT" id="00721" />
-                <token type-id="DT_TIME" id="00722" />
-                <token type-id="KW_ZONE" id="00723" />
+            <sequence id="00718">
+                <token type-id="KW_WITHOUT" id="00719" />
+                <token type-id="DT_TIME" id="00720" />
+                <token type-id="KW_ZONE" id="00721" />
             </sequence>
         </one-of>
     </element-def>
     <element-def description="Interval qualifier" id="interval_qualifier">
-        <one-of id="00724">
-            <sequence id="00725">
-                <token type-id="DT_YEAR" id="00726" />
+        <one-of id="00722">
+            <sequence id="00723">
+                <token type-id="KW_YEAR" id="00724" />
                 <element optional="true" ref-id="leading_field_precision" />
-                <sequence optional="true" id="00727">
-                    <token type-id="KW_TO" id="00728" />
-                    <token type-id="KW_MONTH" id="00729" />
+                <sequence optional="true" id="00725">
+                    <token type-id="KW_TO" id="00726" />
+                    <token type-id="KW_MONTH" id="00727" />
                 </sequence>
             </sequence>
-            <token type-id="KW_MONTH" id="00730" />
-            <sequence id="00731">
-                <token type-id="KW_DAY" id="00732" />
+            <token type-id="KW_MONTH" id="00728" />
+            <sequence id="00729">
+                <token type-id="KW_DAY" id="00730" />
                 <element optional="true" ref-id="leading_field_precision" />
-                <sequence optional="true" id="00733">
-                    <token type-id="KW_TO" id="00734" />
+                <sequence optional="true" id="00731">
+                    <token type-id="KW_TO" id="00732" />
                     <element ref-id="time_interval_field" />
                 </sequence>
             </sequence>
-            <sequence id="00735">
-                <token type-id="KW_HOUR" id="00736" />
+            <sequence id="00733">
+                <token type-id="KW_HOUR" id="00734" />
                 <element optional="true" ref-id="leading_field_precision" />
-                <sequence optional="true" id="00737">
-                    <token type-id="KW_TO" id="00738" />
+                <sequence optional="true" id="00735">
+                    <token type-id="KW_TO" id="00736" />
                     <element ref-id="time_interval_field" />
                 </sequence>
             </sequence>
-            <sequence id="00739">
-                <token type-id="KW_MINUTE" id="00740" />
+            <sequence id="00737">
+                <token type-id="KW_MINUTE" id="00738" />
                 <element optional="true" ref-id="leading_field_precision" />
-                <sequence optional="true" id="00741">
-                    <token type-id="KW_TO" id="00742" />
-                    <token type-id="KW_SECOND" id="00743" />
+                <sequence optional="true" id="00739">
+                    <token type-id="KW_TO" id="00740" />
+                    <token type-id="KW_SECOND" id="00741" />
                     <element optional="true" ref-id="fractional_seconds_precision" />
                 </sequence>
             </sequence>
-            <sequence id="00744">
-                <token type-id="KW_SECOND" id="00745" />
+            <sequence id="00742">
+                <token type-id="KW_SECOND" id="00743" />
                 <element optional="true" ref-id="leading_field_precision" />
             </sequence>
         </one-of>
     </element-def>
     <element-def description="Time interval field" id="time_interval_field">
-        <one-of id="00746">
-            <token type-id="KW_HOUR" id="00747" />
-            <token type-id="KW_MINUTE" id="00748" />
-            <sequence id="00749">
-                <token type-id="KW_SECOND" id="00750" />
+        <one-of id="00744">
+            <token type-id="KW_HOUR" id="00745" />
+            <token type-id="KW_MINUTE" id="00746" />
+            <sequence id="00747">
+                <token type-id="KW_SECOND" id="00748" />
                 <element optional="true" ref-id="fractional_seconds_precision" />
             </sequence>
         </one-of>
     </element-def>
     <element-def description="Leading field precision" id="leading_field_precision">
+        <wrapper template="PARENTHESES" id="00749">
+            <token type-id="INTEGER" id="00750" />
+        </wrapper>
+    </element-def>
+    <element-def description="Fractional seconds precision" id="fractional_seconds_precision">
         <wrapper template="PARENTHESES" id="00751">
             <token type-id="INTEGER" id="00752" />
         </wrapper>
     </element-def>
-    <element-def description="Fractional seconds precision" id="fractional_seconds_precision">
-        <wrapper template="PARENTHESES" id="00753">
-            <token type-id="INTEGER" id="00754" />
-        </wrapper>
-    </element-def>
     <element-def description="General value specification" id="general_value_specification">
-        <one-of id="00755">
+        <one-of id="00753">
             <element ref-id="parameter_specification" />
             <element ref-id="variable_specification" />
-            <token id="00756" flavor="keyword" type-id="FN_CURRENT_USER" />
-            <token flavor="keyword" type-id="FN_SESSION_USER" id="00757" />
-            <token flavor="keyword" type-id="FN_SYSTEM_USER" id="00758" />
-            <token flavor="keyword" type-id="FN_USER" id="00759" />
-            <token id="00760" type-id="KW_VALUE" />
+            <token id="00754" flavor="keyword" type-id="FN_CURRENT_USER" />
+            <token flavor="keyword" type-id="FN_SESSION_USER" id="00755" />
+            <token flavor="keyword" type-id="FN_SYSTEM_USER" id="00756" />
+            <token flavor="keyword" type-id="FN_USER" id="00757" />
+            <token id="00758" type-id="KW_VALUE" />
         </one-of>
     </element-def>
     <element-def description="Parameter specification" id="parameter_specification">
@@ -2094,11 +2093,11 @@
         <element optional="true" ref-id="indicator_parameter" />
     </element-def>
     <element-def description="Parameter name" id="parameter_name">
-        <token id="00761" type-id="CHR_COLON" />
-        <token id="00762" original-name="identifier" type-id="IDENTIFIER" />
+        <token id="00759" type-id="CHR_COLON" />
+        <token id="00760" original-name="identifier" type-id="IDENTIFIER" />
     </element-def>
     <element-def description="Indicator parameter" id="indicator_parameter">
-        <token id="00763" optional="true" type-id="KW_INDICATOR" />
+        <token id="00761" optional="true" type-id="KW_INDICATOR" />
         <element ref-id="parameter_name" />
     </element-def>
     <element-def description="Variable specification" id="variable_specification">
@@ -2106,15 +2105,15 @@
         <element optional="true" ref-id="indicator_variable" />
     </element-def>
     <element-def description="Embedded variable name" id="embedded_variable_name">
-        <token id="00764" type-id="CHR_COLON" />
-        <token id="00765" original-name="host_identifier" type-id="IDENTIFIER" />
+        <token id="00762" type-id="CHR_COLON" />
+        <token id="00763" original-name="host_identifier" type-id="IDENTIFIER" />
     </element-def>
     <element-def description="Indicator variable" id="indicator_variable">
-        <token id="00766" optional="true" type-id="KW_INDICATOR" />
+        <token id="00764" optional="true" type-id="KW_INDICATOR" />
         <element ref-id="embedded_variable_name" />
     </element-def>
 
     <element-def custom="true" description="Unknown identifier" id="custom_undefined">
-        <token id="00767" type-id="IDENTIFIER" />
+        <token id="00765" type-id="IDENTIFIER" />
     </element-def>
 </element-defs>

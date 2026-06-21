@@ -52,7 +52,7 @@
         <token type-id="KW_ALLOCATE" token-ids="00128" candidate-ids="dynamic_sql_statement" />
         <token type-id="KW_DEALLOCATE" token-ids="00129, 00131" candidate-ids="dynamic_sql_statement" />
         <token type-id="KW_CONNECT" token-ids="00147" candidate-ids="connection_statement" />
-        <token type-id="IDENTIFIER" token-ids="00163" candidate-ids="connection_statement" />
+        <token type-id="KW_DISCONNECT" token-ids="00163" candidate-ids="connection_statement" />
     </one-of-extension>
     <one-of-extension id="00035" depth="3">
         <token type-id="KW_VALUES" token-ids="00036, 00022">
@@ -66,12 +66,12 @@
                 <token type-id="KW_NULL" token-ids="00610" candidate-ids="insert_values_clause, query_expression" />
                 <token type-id="KW_TRUE" token-ids="00611" candidate-ids="insert_values_clause, query_expression" />
                 <token type-id="KW_FALSE" token-ids="00612" candidate-ids="insert_values_clause, query_expression" />
-                <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="insert_values_clause, query_expression" />
-                <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="insert_values_clause, query_expression" />
-                <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="insert_values_clause, query_expression" />
-                <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="insert_values_clause, query_expression" />
-                <token type-id="FN_USER" token-ids="00759" candidate-ids="insert_values_clause, query_expression" />
-                <token type-id="KW_VALUE" token-ids="00760" candidate-ids="insert_values_clause, query_expression" />
+                <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="insert_values_clause, query_expression" />
+                <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="insert_values_clause, query_expression" />
+                <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="insert_values_clause, query_expression" />
+                <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="insert_values_clause, query_expression" />
+                <token type-id="FN_USER" token-ids="00757" candidate-ids="insert_values_clause, query_expression" />
+                <token type-id="KW_VALUE" token-ids="00758" candidate-ids="insert_values_clause, query_expression" />
                 <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="insert_values_clause, query_expression" />
                 <token type-id="FN_AVG" token-ids="00618" candidate-ids="insert_values_clause, query_expression" />
                 <token type-id="FN_COUNT" token-ids="00619" candidate-ids="insert_values_clause, query_expression" />
@@ -92,12 +92,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="query_expression" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="query_expression" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="query_expression" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="query_expression" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="query_expression" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="query_expression" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="query_expression" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="query_expression" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="query_expression" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="query_expression" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="query_expression" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="query_expression" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="query_expression" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="query_expression" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="query_expression" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="query_expression" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="query_expression" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="query_expression" />
@@ -112,16 +112,16 @@
         <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00020.b" candidate-ids="query_expression" />
     </one-of-extension>
     <one-of-extension id="00105" depth="2">
-        <token type-id="CHR_COLON" token-ids="00761, 00764">
-            <token type-id="IDENTIFIER" token-ids="00762, 00765" candidate-ids="parameter_specification, variable_specification" />
+        <token type-id="CHR_COLON" token-ids="00759, 00762">
+            <token type-id="IDENTIFIER" token-ids="00760, 00763" candidate-ids="parameter_specification, variable_specification" />
         </token>
     </one-of-extension>
     <one-of-extension id="00106" depth="3">
         <token type-id="NUMBER" token-ids="00107" candidate-ids="00107" />
-        <token type-id="CHR_COLON" token-ids="00761, 00764">
-            <token type-id="IDENTIFIER" token-ids="00762, 00765">
-                <token type-id="KW_INDICATOR" token-ids="00763, 00766" candidate-ids="parameter_specification, variable_specification" />
-                <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="parameter_specification, variable_specification" />
+        <token type-id="CHR_COLON" token-ids="00759, 00762">
+            <token type-id="IDENTIFIER" token-ids="00760, 00763">
+                <token type-id="KW_INDICATOR" token-ids="00761, 00764" candidate-ids="parameter_specification, variable_specification" />
+                <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="parameter_specification, variable_specification" />
             </token>
         </token>
     </one-of-extension>
@@ -142,16 +142,16 @@
     </one-of-extension>
     <one-of-extension id="00115" depth="3">
         <token type-id="STRING" token-ids="00116" candidate-ids="00116" />
-        <token type-id="CHR_COLON" token-ids="00764, 00761">
-            <token type-id="IDENTIFIER" token-ids="00765, 00762">
-                <token type-id="KW_INDICATOR" token-ids="00766, 00763" candidate-ids="variable_specification, parameter_specification" />
-                <token type-id="CHR_COLON" token-ids="00764, 00761" candidate-ids="variable_specification, parameter_specification" />
+        <token type-id="CHR_COLON" token-ids="00762, 00759">
+            <token type-id="IDENTIFIER" token-ids="00763, 00760">
+                <token type-id="KW_INDICATOR" token-ids="00764, 00761" candidate-ids="variable_specification, parameter_specification" />
+                <token type-id="CHR_COLON" token-ids="00762, 00759" candidate-ids="variable_specification, parameter_specification" />
             </token>
         </token>
     </one-of-extension>
     <one-of-extension id="00122" depth="2">
-        <token type-id="CHR_COLON" token-ids="00761, 00764">
-            <token type-id="IDENTIFIER" token-ids="00762, 00765" candidate-ids="target_specification, value_expression" />
+        <token type-id="CHR_COLON" token-ids="00759, 00762">
+            <token type-id="IDENTIFIER" token-ids="00760, 00763" candidate-ids="target_specification, value_expression" />
         </token>
         <token type-id="CHR_PLUS" token-ids="00472" candidate-ids="value_expression" />
         <token type-id="CHR_MINUS" token-ids="00473" candidate-ids="value_expression" />
@@ -161,11 +161,11 @@
         <token type-id="KW_NULL" token-ids="00610" candidate-ids="value_expression" />
         <token type-id="KW_TRUE" token-ids="00611" candidate-ids="value_expression" />
         <token type-id="KW_FALSE" token-ids="00612" candidate-ids="value_expression" />
-        <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="value_expression" />
-        <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="value_expression" />
-        <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="value_expression" />
-        <token type-id="FN_USER" token-ids="00759" candidate-ids="value_expression" />
-        <token type-id="KW_VALUE" token-ids="00760" candidate-ids="value_expression" />
+        <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="value_expression" />
+        <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="value_expression" />
+        <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="value_expression" />
+        <token type-id="FN_USER" token-ids="00757" candidate-ids="value_expression" />
+        <token type-id="KW_VALUE" token-ids="00758" candidate-ids="value_expression" />
         <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="value_expression" />
         <token type-id="FN_AVG" token-ids="00618" candidate-ids="value_expression" />
         <token type-id="FN_COUNT" token-ids="00619" candidate-ids="value_expression" />
@@ -185,12 +185,12 @@
         <token type-id="KW_NULL" token-ids="00610" candidate-ids="session_characteristic_value" />
         <token type-id="KW_TRUE" token-ids="00611" candidate-ids="session_characteristic_value" />
         <token type-id="KW_FALSE" token-ids="00612" candidate-ids="session_characteristic_value" />
-        <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="session_characteristic_value" />
-        <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="session_characteristic_value" />
-        <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="session_characteristic_value" />
-        <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="session_characteristic_value" />
-        <token type-id="FN_USER" token-ids="00759" candidate-ids="session_characteristic_value" />
-        <token type-id="KW_VALUE" token-ids="00760" candidate-ids="session_characteristic_value" />
+        <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="session_characteristic_value" />
+        <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="session_characteristic_value" />
+        <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="session_characteristic_value" />
+        <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="session_characteristic_value" />
+        <token type-id="FN_USER" token-ids="00757" candidate-ids="session_characteristic_value" />
+        <token type-id="KW_VALUE" token-ids="00758" candidate-ids="session_characteristic_value" />
         <token type-id="IDENTIFIER" token-ids="00623, 00158">
             <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00624.b" candidate-ids="session_characteristic_value" />
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="session_characteristic_value" />
@@ -231,12 +231,12 @@
         <token type-id="STRING" token-ids="00609, 00593" candidate-ids="value_expression" />
         <token type-id="KW_TRUE" token-ids="00611" candidate-ids="value_expression" />
         <token type-id="KW_FALSE" token-ids="00612" candidate-ids="value_expression" />
-        <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="value_expression" />
-        <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="value_expression" />
-        <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="value_expression" />
-        <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="value_expression" />
-        <token type-id="FN_USER" token-ids="00759" candidate-ids="value_expression" />
-        <token type-id="KW_VALUE" token-ids="00760" candidate-ids="value_expression" />
+        <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="value_expression" />
+        <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="value_expression" />
+        <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="value_expression" />
+        <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="value_expression" />
+        <token type-id="FN_USER" token-ids="00757" candidate-ids="value_expression" />
+        <token type-id="KW_VALUE" token-ids="00758" candidate-ids="value_expression" />
         <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="value_expression" />
         <token type-id="FN_AVG" token-ids="00618" candidate-ids="value_expression" />
         <token type-id="FN_COUNT" token-ids="00619" candidate-ids="value_expression" />
@@ -325,12 +325,12 @@
         <token type-id="KW_NULL" token-ids="00610" candidate-ids="session_characteristic_value" />
         <token type-id="KW_TRUE" token-ids="00611" candidate-ids="session_characteristic_value" />
         <token type-id="KW_FALSE" token-ids="00612" candidate-ids="session_characteristic_value" />
-        <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="session_characteristic_value" />
-        <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="session_characteristic_value" />
-        <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="session_characteristic_value" />
-        <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="session_characteristic_value" />
-        <token type-id="FN_USER" token-ids="00759" candidate-ids="session_characteristic_value" />
-        <token type-id="KW_VALUE" token-ids="00760" candidate-ids="session_characteristic_value" />
+        <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="session_characteristic_value" />
+        <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="session_characteristic_value" />
+        <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="session_characteristic_value" />
+        <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="session_characteristic_value" />
+        <token type-id="FN_USER" token-ids="00757" candidate-ids="session_characteristic_value" />
+        <token type-id="KW_VALUE" token-ids="00758" candidate-ids="session_characteristic_value" />
         <token type-id="FN_AVG" token-ids="00618" candidate-ids="session_characteristic_value" />
         <token type-id="FN_COUNT" token-ids="00619" candidate-ids="session_characteristic_value" />
         <token type-id="FN_MAX" token-ids="00620" candidate-ids="session_characteristic_value" />
@@ -355,10 +355,10 @@
         <token type-id="KW_NULL" token-ids="00610" candidate-ids="value_expression" />
         <token type-id="KW_TRUE" token-ids="00611" candidate-ids="value_expression" />
         <token type-id="KW_FALSE" token-ids="00612" candidate-ids="value_expression" />
-        <token type-id="CHR_COLON" token-ids="00761, 00764">
-            <token type-id="IDENTIFIER" token-ids="00762, 00765">
-                <token type-id="KW_INDICATOR" token-ids="00763, 00766" candidate-ids="value_expression, parameter_specification, variable_specification" />
-                <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="value_expression, parameter_specification, variable_specification" />
+        <token type-id="CHR_COLON" token-ids="00759, 00762">
+            <token type-id="IDENTIFIER" token-ids="00760, 00763">
+                <token type-id="KW_INDICATOR" token-ids="00761, 00764" candidate-ids="value_expression, parameter_specification, variable_specification" />
+                <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="value_expression, parameter_specification, variable_specification" />
                 <token type-id="CHR_STAR" token-ids="00469" candidate-ids="value_expression" />
                 <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="value_expression" />
                 <token type-id="CHR_PLUS" token-ids="00464" candidate-ids="value_expression" />
@@ -366,11 +366,11 @@
                 <token type-id="OPR_CONCATENATION" token-ids="00590" candidate-ids="value_expression" />
             </token>
         </token>
-        <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="value_expression" />
-        <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="value_expression" />
-        <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="value_expression" />
-        <token type-id="FN_USER" token-ids="00759" candidate-ids="value_expression" />
-        <token type-id="KW_VALUE" token-ids="00760" candidate-ids="value_expression" />
+        <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="value_expression" />
+        <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="value_expression" />
+        <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="value_expression" />
+        <token type-id="FN_USER" token-ids="00757" candidate-ids="value_expression" />
+        <token type-id="KW_VALUE" token-ids="00758" candidate-ids="value_expression" />
         <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="value_expression" />
         <token type-id="FN_AVG" token-ids="00618" candidate-ids="value_expression" />
         <token type-id="FN_COUNT" token-ids="00619" candidate-ids="value_expression" />
@@ -390,12 +390,12 @@
         <token type-id="KW_NULL" token-ids="00610" candidate-ids="derived_column" />
         <token type-id="KW_TRUE" token-ids="00611" candidate-ids="derived_column" />
         <token type-id="KW_FALSE" token-ids="00612" candidate-ids="derived_column" />
-        <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="derived_column" />
-        <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="derived_column" />
-        <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="derived_column" />
-        <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="derived_column" />
-        <token type-id="FN_USER" token-ids="00759" candidate-ids="derived_column" />
-        <token type-id="KW_VALUE" token-ids="00760" candidate-ids="derived_column" />
+        <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="derived_column" />
+        <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="derived_column" />
+        <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="derived_column" />
+        <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="derived_column" />
+        <token type-id="FN_USER" token-ids="00757" candidate-ids="derived_column" />
+        <token type-id="KW_VALUE" token-ids="00758" candidate-ids="derived_column" />
         <token type-id="IDENTIFIER" token-ids="00623">
             <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00624.b" candidate-ids="derived_column" />
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="derived_column" />
@@ -456,38 +456,38 @@
             <token type-id="CHR_PLUS" token-ids="00464" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_MINUS" token-ids="00465" candidate-ids="numeric_value_expression" />
         </token>
-        <token type-id="CHR_COLON" token-ids="00761, 00764">
-            <token type-id="IDENTIFIER" token-ids="00762, 00765" candidate-ids="numeric_value_expression, string_value_expression, datetime_value_expression, interval_value_expression" />
+        <token type-id="CHR_COLON" token-ids="00759, 00762">
+            <token type-id="IDENTIFIER" token-ids="00760, 00763" candidate-ids="numeric_value_expression, string_value_expression, datetime_value_expression, interval_value_expression" />
         </token>
-        <token type-id="FN_CURRENT_USER" token-ids="00756">
+        <token type-id="FN_CURRENT_USER" token-ids="00754">
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_PLUS" token-ids="00464" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_MINUS" token-ids="00465" candidate-ids="numeric_value_expression" />
             <token type-id="OPR_CONCATENATION" token-ids="00590" candidate-ids="string_value_expression" />
         </token>
-        <token type-id="FN_SESSION_USER" token-ids="00757">
+        <token type-id="FN_SESSION_USER" token-ids="00755">
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_PLUS" token-ids="00464" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_MINUS" token-ids="00465" candidate-ids="numeric_value_expression" />
             <token type-id="OPR_CONCATENATION" token-ids="00590" candidate-ids="string_value_expression" />
         </token>
-        <token type-id="FN_SYSTEM_USER" token-ids="00758">
+        <token type-id="FN_SYSTEM_USER" token-ids="00756">
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_PLUS" token-ids="00464" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_MINUS" token-ids="00465" candidate-ids="numeric_value_expression" />
             <token type-id="OPR_CONCATENATION" token-ids="00590" candidate-ids="string_value_expression" />
         </token>
-        <token type-id="FN_USER" token-ids="00759">
+        <token type-id="FN_USER" token-ids="00757">
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_PLUS" token-ids="00464" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_MINUS" token-ids="00465" candidate-ids="numeric_value_expression" />
             <token type-id="OPR_CONCATENATION" token-ids="00590" candidate-ids="string_value_expression" />
         </token>
-        <token type-id="KW_VALUE" token-ids="00760">
+        <token type-id="KW_VALUE" token-ids="00758">
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_PLUS" token-ids="00464" candidate-ids="numeric_value_expression" />
@@ -528,12 +528,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="00524, 00525" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="00524, 00525" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="00524, 00525" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="00524, 00525" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="00524, 00525" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="00524, 00525" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="00524, 00525" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="00524, 00525" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="00524, 00525" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="00524, 00525" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="00524, 00525" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="00524, 00525" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="00524, 00525" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="00524, 00525" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="00524, 00525" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="00524, 00525" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="00524, 00525" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="00524, 00525" />
@@ -551,12 +551,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="00524, 00525" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="00524, 00525" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="00524, 00525" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="00524, 00525" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="00524, 00525" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="00524, 00525" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="00524, 00525" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="00524, 00525" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="00524, 00525" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="00524, 00525" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="00524, 00525" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="00524, 00525" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="00524, 00525" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="00524, 00525" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="00524, 00525" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="00524, 00525" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="00524, 00525" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="00524, 00525" />
@@ -677,10 +677,10 @@
             <token type-id="KW_MATCH" token-ids="00572" candidate-ids="00524, 00525" />
             <token type-id="KW_OVERLAPS" token-ids="00578" candidate-ids="00524, 00525" />
         </token>
-        <token type-id="CHR_COLON" token-ids="00761, 00764">
-            <token type-id="IDENTIFIER" token-ids="00762, 00765" candidate-ids="00524, 00525" />
+        <token type-id="CHR_COLON" token-ids="00759, 00762">
+            <token type-id="IDENTIFIER" token-ids="00760, 00763" candidate-ids="00524, 00525" />
         </token>
-        <token type-id="FN_CURRENT_USER" token-ids="00756">
+        <token type-id="FN_CURRENT_USER" token-ids="00754">
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="00524, 00525" />
             <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="00524, 00525" />
             <token type-id="CHR_PLUS" token-ids="00464" candidate-ids="00524, 00525" />
@@ -700,7 +700,7 @@
             <token type-id="KW_OVERLAPS" token-ids="00578" candidate-ids="00524, 00525" />
             <token type-id="KW_LIKE" token-ids="00551" candidate-ids="00525" />
         </token>
-        <token type-id="FN_SESSION_USER" token-ids="00757">
+        <token type-id="FN_SESSION_USER" token-ids="00755">
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="00524, 00525" />
             <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="00524, 00525" />
             <token type-id="CHR_PLUS" token-ids="00464" candidate-ids="00524, 00525" />
@@ -720,7 +720,7 @@
             <token type-id="KW_OVERLAPS" token-ids="00578" candidate-ids="00524, 00525" />
             <token type-id="KW_LIKE" token-ids="00551" candidate-ids="00525" />
         </token>
-        <token type-id="FN_SYSTEM_USER" token-ids="00758">
+        <token type-id="FN_SYSTEM_USER" token-ids="00756">
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="00524, 00525" />
             <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="00524, 00525" />
             <token type-id="CHR_PLUS" token-ids="00464" candidate-ids="00524, 00525" />
@@ -740,7 +740,7 @@
             <token type-id="KW_OVERLAPS" token-ids="00578" candidate-ids="00524, 00525" />
             <token type-id="KW_LIKE" token-ids="00551" candidate-ids="00525" />
         </token>
-        <token type-id="FN_USER" token-ids="00759">
+        <token type-id="FN_USER" token-ids="00757">
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="00524, 00525" />
             <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="00524, 00525" />
             <token type-id="CHR_PLUS" token-ids="00464" candidate-ids="00524, 00525" />
@@ -760,7 +760,7 @@
             <token type-id="KW_OVERLAPS" token-ids="00578" candidate-ids="00524, 00525" />
             <token type-id="KW_LIKE" token-ids="00551" candidate-ids="00525" />
         </token>
-        <token type-id="KW_VALUE" token-ids="00760">
+        <token type-id="KW_VALUE" token-ids="00758">
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="00524, 00525" />
             <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="00524, 00525" />
             <token type-id="CHR_PLUS" token-ids="00464" candidate-ids="00524, 00525" />
@@ -828,12 +828,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="00524, 00525" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="00524, 00525" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="00524, 00525" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="00524, 00525" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="00524, 00525" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="00524, 00525" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="00524, 00525" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="00524, 00525" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="00524, 00525" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="00524, 00525" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="00524, 00525" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="00524, 00525" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="00524, 00525" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="00524, 00525" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="00524, 00525" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="00524, 00525" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="00524, 00525" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="00524, 00525" />
@@ -855,12 +855,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="00524, 00525" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="00524, 00525" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="00524, 00525" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="00524, 00525" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="00524, 00525" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="00524, 00525" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="00524, 00525" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="00524, 00525" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="00524, 00525" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="00524, 00525" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="00524, 00525" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="00524, 00525" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="00524, 00525" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="00524, 00525" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="00524, 00525" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="00524, 00525" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="00524, 00525" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="00524, 00525" />
@@ -887,12 +887,12 @@
         <token type-id="KW_NULL" token-ids="00610" candidate-ids="predicate" />
         <token type-id="KW_TRUE" token-ids="00611" candidate-ids="predicate" />
         <token type-id="KW_FALSE" token-ids="00612" candidate-ids="predicate" />
-        <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="predicate" />
-        <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="predicate" />
-        <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="predicate" />
-        <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="predicate" />
-        <token type-id="FN_USER" token-ids="00759" candidate-ids="predicate" />
-        <token type-id="KW_VALUE" token-ids="00760" candidate-ids="predicate" />
+        <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="predicate" />
+        <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="predicate" />
+        <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="predicate" />
+        <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="predicate" />
+        <token type-id="FN_USER" token-ids="00757" candidate-ids="predicate" />
+        <token type-id="KW_VALUE" token-ids="00758" candidate-ids="predicate" />
         <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="predicate" />
         <token type-id="FN_AVG" token-ids="00618" candidate-ids="predicate" />
         <token type-id="FN_COUNT" token-ids="00619" candidate-ids="predicate" />
@@ -911,12 +911,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="predicate, 00534" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="predicate, 00534" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="predicate, 00534" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="predicate, 00534" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="predicate, 00534" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="predicate, 00534" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="predicate, 00534" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="predicate, 00534" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="predicate, 00534" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="predicate, 00534" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="predicate, 00534" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="predicate, 00534" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="predicate, 00534" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="predicate, 00534" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="predicate, 00534" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="predicate, 00534" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="predicate, 00534" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="predicate, 00534" />
@@ -967,12 +967,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -995,12 +995,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1023,12 +1023,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1051,12 +1051,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1079,12 +1079,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1107,12 +1107,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1157,12 +1157,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1185,12 +1185,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1213,12 +1213,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1241,12 +1241,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1269,12 +1269,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1297,12 +1297,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1347,12 +1347,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1375,12 +1375,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1403,12 +1403,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1431,12 +1431,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1459,12 +1459,12 @@
                     <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate" />
                     <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate" />
                     <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate" />
-                    <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate" />
-                    <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate" />
-                    <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate" />
                     <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate" />
                     <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate" />
                     <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate" />
@@ -1482,12 +1482,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
@@ -1505,12 +1505,12 @@
         <token type-id="KW_NULL" token-ids="00610" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
         <token type-id="KW_TRUE" token-ids="00611" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
         <token type-id="KW_FALSE" token-ids="00612" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
-        <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
-        <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
-        <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
-        <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
-        <token type-id="FN_USER" token-ids="00759" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
-        <token type-id="KW_VALUE" token-ids="00760" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+        <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+        <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+        <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+        <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+        <token type-id="FN_USER" token-ids="00757" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+        <token type-id="KW_VALUE" token-ids="00758" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
         <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
         <token type-id="FN_AVG" token-ids="00618" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
         <token type-id="FN_COUNT" token-ids="00619" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
@@ -1547,12 +1547,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate_tail" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate_tail" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate_tail" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate_tail" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate_tail" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate_tail" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate_tail" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate_tail" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate_tail" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate_tail" />
@@ -1575,12 +1575,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate_tail" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate_tail" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate_tail" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate_tail" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate_tail" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate_tail" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate_tail" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate_tail" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate_tail" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate_tail" />
@@ -1603,12 +1603,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate_tail" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate_tail" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate_tail" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate_tail" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate_tail" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate_tail" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate_tail" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate_tail" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate_tail" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate_tail" />
@@ -1631,12 +1631,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate_tail" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate_tail" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate_tail" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate_tail" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate_tail" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate_tail" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate_tail" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate_tail" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate_tail" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate_tail" />
@@ -1659,12 +1659,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate_tail" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate_tail" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate_tail" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate_tail" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate_tail" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate_tail" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate_tail" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate_tail" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate_tail" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate_tail" />
@@ -1687,12 +1687,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="comparison_predicate_tail" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="comparison_predicate_tail" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="comparison_predicate_tail" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="comparison_predicate_tail" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="comparison_predicate_tail" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="comparison_predicate_tail" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="comparison_predicate_tail" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="comparison_predicate_tail" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="comparison_predicate_tail" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="comparison_predicate_tail" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="comparison_predicate_tail" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="comparison_predicate_tail" />
@@ -1724,12 +1724,12 @@
         <token type-id="KW_NULL" token-ids="00610" candidate-ids="value_expression" />
         <token type-id="KW_TRUE" token-ids="00611" candidate-ids="value_expression" />
         <token type-id="KW_FALSE" token-ids="00612" candidate-ids="value_expression" />
-        <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="value_expression" />
-        <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="value_expression" />
-        <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="value_expression" />
-        <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="value_expression" />
-        <token type-id="FN_USER" token-ids="00759" candidate-ids="value_expression" />
-        <token type-id="KW_VALUE" token-ids="00760" candidate-ids="value_expression" />
+        <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="value_expression" />
+        <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="value_expression" />
+        <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="value_expression" />
+        <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="value_expression" />
+        <token type-id="FN_USER" token-ids="00757" candidate-ids="value_expression" />
+        <token type-id="KW_VALUE" token-ids="00758" candidate-ids="value_expression" />
         <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="value_expression" />
         <token type-id="FN_AVG" token-ids="00618" candidate-ids="value_expression" />
         <token type-id="FN_COUNT" token-ids="00619" candidate-ids="value_expression" />
@@ -1748,12 +1748,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="value_expression, 00545" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="value_expression, 00545" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="value_expression, 00545" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="value_expression, 00545" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="value_expression, 00545" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="value_expression, 00545" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="value_expression, 00545" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="value_expression, 00545" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="value_expression, 00545" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="value_expression, 00545" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="value_expression, 00545" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="value_expression, 00545" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="value_expression, 00545" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="value_expression, 00545" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="value_expression, 00545" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="value_expression, 00545" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="value_expression, 00545" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="value_expression, 00545" />
@@ -1779,12 +1779,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="00560" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="00560" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="00560" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="00560" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="00560" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="00560" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="00560" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="00560" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="00560" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="00560" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="00560" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="00560" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="00560" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="00560" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="00560" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="00560" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="00560" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="00560" />
@@ -1802,12 +1802,12 @@
         <token type-id="KW_NULL" token-ids="00610" candidate-ids="value_expression_primary" />
         <token type-id="KW_TRUE" token-ids="00611" candidate-ids="value_expression_primary" />
         <token type-id="KW_FALSE" token-ids="00612" candidate-ids="value_expression_primary" />
-        <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="value_expression_primary" />
-        <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="value_expression_primary" />
-        <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="value_expression_primary" />
-        <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="value_expression_primary" />
-        <token type-id="FN_USER" token-ids="00759" candidate-ids="value_expression_primary" />
-        <token type-id="KW_VALUE" token-ids="00760" candidate-ids="value_expression_primary" />
+        <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="value_expression_primary" />
+        <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="value_expression_primary" />
+        <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="value_expression_primary" />
+        <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="value_expression_primary" />
+        <token type-id="FN_USER" token-ids="00757" candidate-ids="value_expression_primary" />
+        <token type-id="KW_VALUE" token-ids="00758" candidate-ids="value_expression_primary" />
         <token type-id="IDENTIFIER" token-ids="00623">
             <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00624.b" candidate-ids="numeric_value_function" />
         </token>
@@ -1827,12 +1827,12 @@
         <token type-id="KW_NULL" token-ids="00610" candidate-ids="unsigned_value_specification" />
         <token type-id="KW_TRUE" token-ids="00611" candidate-ids="unsigned_value_specification" />
         <token type-id="KW_FALSE" token-ids="00612" candidate-ids="unsigned_value_specification" />
-        <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="unsigned_value_specification" />
-        <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="unsigned_value_specification" />
-        <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="unsigned_value_specification" />
-        <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="unsigned_value_specification" />
-        <token type-id="FN_USER" token-ids="00759" candidate-ids="unsigned_value_specification" />
-        <token type-id="KW_VALUE" token-ids="00760" candidate-ids="unsigned_value_specification" />
+        <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="unsigned_value_specification" />
+        <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="unsigned_value_specification" />
+        <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="unsigned_value_specification" />
+        <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="unsigned_value_specification" />
+        <token type-id="FN_USER" token-ids="00757" candidate-ids="unsigned_value_specification" />
+        <token type-id="KW_VALUE" token-ids="00758" candidate-ids="unsigned_value_specification" />
         <token type-id="IDENTIFIER" candidate-ids="column_reference" />
         <token type-id="FN_AVG" token-ids="00618" candidate-ids="set_function_specification" />
         <token type-id="FN_COUNT" token-ids="00619" candidate-ids="set_function_specification" />
@@ -1854,12 +1854,12 @@
                 <token type-id="KW_NULL" token-ids="00610" candidate-ids="00600" />
                 <token type-id="KW_TRUE" token-ids="00611" candidate-ids="00600" />
                 <token type-id="KW_FALSE" token-ids="00612" candidate-ids="00600" />
-                <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="00600" />
-                <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="00600" />
-                <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="00600" />
-                <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="00600" />
-                <token type-id="FN_USER" token-ids="00759" candidate-ids="00600" />
-                <token type-id="KW_VALUE" token-ids="00760" candidate-ids="00600" />
+                <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="00600" />
+                <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="00600" />
+                <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="00600" />
+                <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="00600" />
+                <token type-id="FN_USER" token-ids="00757" candidate-ids="00600" />
+                <token type-id="KW_VALUE" token-ids="00758" candidate-ids="00600" />
                 <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="00600" />
                 <token type-id="FN_AVG" token-ids="00618" candidate-ids="00600" />
                 <token type-id="FN_COUNT" token-ids="00619" candidate-ids="00600" />
@@ -1877,12 +1877,12 @@
             <token type-id="KW_NULL" token-ids="00610" candidate-ids="00600" />
             <token type-id="KW_TRUE" token-ids="00611" candidate-ids="00600" />
             <token type-id="KW_FALSE" token-ids="00612" candidate-ids="00600" />
-            <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="00600" />
-            <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="00600" />
-            <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="00600" />
-            <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="00600" />
-            <token type-id="FN_USER" token-ids="00759" candidate-ids="00600" />
-            <token type-id="KW_VALUE" token-ids="00760" candidate-ids="00600" />
+            <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="00600" />
+            <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="00600" />
+            <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="00600" />
+            <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="00600" />
+            <token type-id="FN_USER" token-ids="00757" candidate-ids="00600" />
+            <token type-id="KW_VALUE" token-ids="00758" candidate-ids="00600" />
             <token type-id="IDENTIFIER" token-ids="00623" candidate-ids="00600" />
             <token type-id="FN_AVG" token-ids="00618" candidate-ids="00600" />
             <token type-id="FN_COUNT" token-ids="00619" candidate-ids="00600" />
@@ -1896,38 +1896,38 @@
         <token type-id="KW_CAST" token-ids="00637" candidate-ids="cast_specification" />
     </one-of-extension>
     <one-of-extension id="00646" depth="2">
-        <token type-id="DT_CHAR" token-ids="00649, 00656">
-            <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00703.b" candidate-ids="00647" />
-            <token type-id="KW_VARYING" token-ids="00657" candidate-ids="00651" />
+        <token type-id="DT_CHAR" token-ids="00649, 00654">
+            <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00701.b" candidate-ids="00647" />
+            <token type-id="KW_VARYING" token-ids="00655" candidate-ids="00651" />
         </token>
-        <token type-id="DT_CHARACTER" token-ids="00650, 00659">
-            <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00703.b" candidate-ids="00647" />
-            <token type-id="KW_VARYING" token-ids="00660" candidate-ids="00651" />
+        <token type-id="DT_CHARACTER" token-ids="00650, 00657">
+            <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00701.b" candidate-ids="00647" />
+            <token type-id="KW_VARYING" token-ids="00658" candidate-ids="00651" />
         </token>
-        <token type-id="DT_CHAR_VARYING" token-ids="00653" candidate-ids="00651" />
-        <token type-id="DT_CHARACTER_VARYING" token-ids="00654" candidate-ids="00651" />
-        <token type-id="DT_VARCHAR" token-ids="00661" candidate-ids="00651" />
-        <token type-id="KW_NATIONAL" token-ids="00663" candidate-ids="00662" />
-        <token type-id="DT_NATIONAL_VARCHAR" token-ids="00670" candidate-ids="00669" />
+        <token type-id="DT_VARCHAR" token-ids="00659" candidate-ids="00651" />
+        <token type-id="KW_NATIONAL" token-ids="00661, 00669">
+            <token type-id="DT_CHAR" token-ids="00665" candidate-ids="00660" />
+            <token type-id="DT_CHARACTER" token-ids="00666" candidate-ids="00660" />
+            <token type-id="DT_VARCHAR" token-ids="00670" candidate-ids="00668" />
+        </token>
     </one-of-extension>
     <one-of-extension id="00671" depth="2">
-        <token type-id="DT_BIT" token-ids="00673, 00678">
-            <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00703.b" candidate-ids="00672" />
-            <token type-id="KW_VARYING" token-ids="00679" candidate-ids="00674" />
+        <token type-id="DT_BIT" token-ids="00673, 00677">
+            <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00701.b" candidate-ids="00672" />
+            <token type-id="KW_VARYING" token-ids="00678" candidate-ids="00674" />
         </token>
-        <token type-id="DT_BIT_VARYING" token-ids="00676" candidate-ids="00674" />
     </one-of-extension>
-    <one-of-extension id="00755" depth="3">
-        <token type-id="CHR_COLON" token-ids="00761, 00764">
-            <token type-id="IDENTIFIER" token-ids="00762, 00765">
-                <token type-id="KW_INDICATOR" token-ids="00763, 00766" candidate-ids="parameter_specification, variable_specification" />
-                <token type-id="CHR_COLON" token-ids="00761, 00764" candidate-ids="parameter_specification, variable_specification" />
+    <one-of-extension id="00753" depth="3">
+        <token type-id="CHR_COLON" token-ids="00759, 00762">
+            <token type-id="IDENTIFIER" token-ids="00760, 00763">
+                <token type-id="KW_INDICATOR" token-ids="00761, 00764" candidate-ids="parameter_specification, variable_specification" />
+                <token type-id="CHR_COLON" token-ids="00759, 00762" candidate-ids="parameter_specification, variable_specification" />
             </token>
         </token>
-        <token type-id="FN_CURRENT_USER" token-ids="00756" candidate-ids="00756" />
-        <token type-id="FN_SESSION_USER" token-ids="00757" candidate-ids="00757" />
-        <token type-id="FN_SYSTEM_USER" token-ids="00758" candidate-ids="00758" />
-        <token type-id="FN_USER" token-ids="00759" candidate-ids="00759" />
-        <token type-id="KW_VALUE" token-ids="00760" candidate-ids="00760" />
+        <token type-id="FN_CURRENT_USER" token-ids="00754" candidate-ids="00754" />
+        <token type-id="FN_SESSION_USER" token-ids="00755" candidate-ids="00755" />
+        <token type-id="FN_SYSTEM_USER" token-ids="00756" candidate-ids="00756" />
+        <token type-id="FN_USER" token-ids="00757" candidate-ids="00757" />
+        <token type-id="KW_VALUE" token-ids="00758" candidate-ids="00758" />
     </one-of-extension>
 </parser-element-extensions>
