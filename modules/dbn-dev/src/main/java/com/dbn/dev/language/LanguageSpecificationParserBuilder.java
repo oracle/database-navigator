@@ -59,6 +59,6 @@ public class LanguageSpecificationParserBuilder implements LanguageSpecification
         Path filePath = file.toPath();
 
         System.out.println("Writing " + filePath);
-        Files.writeString(filePath, outputString(builder.getDocument()), StandardCharsets.UTF_8);
+        Files.writeString(filePath, outputString(builder.getDefinitionDocument()), StandardCharsets.UTF_8);
     }
 }

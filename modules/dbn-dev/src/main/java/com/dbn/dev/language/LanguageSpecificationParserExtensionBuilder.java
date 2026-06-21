@@ -92,13 +92,13 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             prefixCacheHits = 0;
             prefixCache = new IdentityHashMap<>();
 
-            Document sourceDocument = builder.getDocument();
-            Element sourceRoot = sourceDocument.getRootElement();
-            List<Element> elementDefs = sourceRoot.getChildren("element-def");
+            Document definitionDocument = builder.getDefinitionDocument();
+            Element definitionRoot = definitionDocument.getRootElement();
+            List<Element> elementDefs = definitionRoot.getChildren("element-def");
             System.out.println("Building parser extension definition for " + elementDefs.size() + " named elements");
 
             Element extensionRoot = new Element("parser-element-extensions");
-            extensionRoot.setAttribute("language", sourceRoot.getAttributeValue("language"));
+            extensionRoot.setAttribute("language", definitionRoot.getAttributeValue("language"));
             extensionRoot.setAttribute("source", input.getParserElementsFile().getName());
 
             for (Element elementDef : elementDefs) {
@@ -126,7 +126,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
             Document extensionDocument = new Document(extensionRoot);
             extensionDocument.addContent(0, new DocType("parser-element-extensions", EXT_DTD_PATH));
-            copyCopyright(sourceDocument, extensionDocument);
+            copyCopyright(definitionDocument, extensionDocument);
 
             File extensionFile = input.getParserElementsExtensionFile();
             System.out.println("Writing " + extensionFile.toPath());

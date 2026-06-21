@@ -21,6 +21,10 @@ import com.dbn.language.psql.dialect.PSQLLanguageDialect;
 
 public class OraclePLSQLParser extends PSQLParser {
     public OraclePLSQLParser(PSQLLanguageDialect languageDialect) {
-        super(languageDialect, "oracle_plsql_parser_tokens.xml", "oracle_plsql_parser_elements.xml", "plsql_block");
+        super(languageDialect,
+                "oracle_plsql_parser_tokens.xml",
+                "oracle_plsql_parser_elements.xml",
+                "oracle_plsql_parser_elements_ext.xml",
+                "plsql_block");
     }
 }

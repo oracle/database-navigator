@@ -37,7 +37,16 @@ import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGAT
 import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_SEQUENCE;
 import static java.util.stream.Collectors.toCollection;
 
+/**
+ * Legacy one-of tree rewrite support. Trie-based parser extensions supersede this path.
+ */
+@Deprecated(forRemoval = true)
+@SuppressWarnings("removal")
 public class OneOfElementTypeBuilder {
+    /**
+     * Legacy switch used by parser tooling while trie extension generation still needs the raw tree.
+     */
+    @Deprecated(forRemoval = true)
     public static boolean legacyAmbiguousPathRebuildEnabled = true; // disabled by dev tooling that needs the raw tree
 
     private final OneOfElementType subject;
@@ -46,6 +55,7 @@ public class OneOfElementTypeBuilder {
         this.subject = subject;
     }
 
+    @Deprecated(forRemoval = true)
     public static void rebuildAmbiguousPaths(OneOfElementType subject) {
         OneOfElementTypeBuilder builder = new OneOfElementTypeBuilder(subject);
         builder.rebuildAmbiguousPaths();

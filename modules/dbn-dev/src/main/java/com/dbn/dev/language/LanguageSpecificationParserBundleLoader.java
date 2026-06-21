@@ -90,11 +90,17 @@ class LanguageSpecificationParserBundleLoader {
     }
 
     @SneakyThrows
+    @SuppressWarnings("removal")
     ElementTypeBundle load(Consumer<ElementTypeBundle.Builder> builderCallback) {
         return load(builderCallback, true, true);
     }
 
+    /**
+     * Legacy ambiguous-path toggle. Trie-based parser extensions supersede this path.
+     */
+    @Deprecated(forRemoval = true)
     @SneakyThrows
+    @SuppressWarnings("removal")
     ElementTypeBundle load(BiConsumer<ElementTypeBundle, ElementTypeBundle.Builder> builderCallback, boolean rebuilding, boolean legacyAmbiguousPathRebuildEnabled) {
         AtomicReference<ElementTypeBundle.Builder> builder = new AtomicReference<>();
         ElementTypeBundle bundle = load(builder::set, rebuilding, legacyAmbiguousPathRebuildEnabled);
@@ -102,7 +108,12 @@ class LanguageSpecificationParserBundleLoader {
         return bundle;
     }
 
+    /**
+     * Legacy ambiguous-path toggle. Trie-based parser extensions supersede this path.
+     */
+    @Deprecated(forRemoval = true)
     @SneakyThrows
+    @SuppressWarnings("removal")
     ElementTypeBundle load(Consumer<ElementTypeBundle.Builder> builderCallback, boolean rebuilding, boolean legacyAmbiguousPathRebuildEnabled) {
         var parsers = PARSERS.get(input.database);
         if (parsers == null || !parsers.containsKey(input.language)) {
@@ -124,7 +135,7 @@ class LanguageSpecificationParserBundleLoader {
             File file = getParserElementsFile();
             SAXBuilder builder = createSaxBuilder();
             System.out.println("Building element type bundle: " + languageDialect.getID());
-            return new ElementTypeBundle(languageDialect, languageParser.getTokenTypes(), builder.build(file), builderCallback);
+            return new ElementTypeBundle(languageDialect, languageParser.getTokenTypes(), builder.build(file), null, builderCallback);
         } finally {
             System.out.println("Element type bundle loading finished");
             ElementTypeBundle.Builder.rebuilding = previousRebuilding;

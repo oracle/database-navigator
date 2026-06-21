@@ -37,32 +37,40 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 public abstract class DBLanguageParser implements PsiParser {
     public final DBLanguageDialect languageDialect;
     private final String defaultParseRootId;
-    private final String tokenTypesFile;
-    private final String elementTypesFile;
+    private final String tokenDefinitionFile;
+    private final String elementDefinitionFile;
+    private final String elementExtensionFile;
 
     private final @Getter(lazy = true) TokenTypeBundle tokenTypes = loadTokenTypes();
     private final @Getter(lazy = true) ElementTypeBundle elementTypes = loadElementTypes();
 
-    public DBLanguageParser(DBLanguageDialect languageDialect, @NonNls String tokenTypesFile, @NonNls String elementTypesFile, @NonNls String defaultParseRootId) {
+    public DBLanguageParser(
+            DBLanguageDialect languageDialect,
+            @NonNls String tokenDefinitionFile,
+            @NonNls String elementDefinitionFile,
+            @NonNls String elementExtensionFile,
+            @NonNls String defaultParseRootId) {
         this.languageDialect = languageDialect;
         this.defaultParseRootId = defaultParseRootId;
-        this.tokenTypesFile = tokenTypesFile;
-        this.elementTypesFile = elementTypesFile;
+        this.tokenDefinitionFile = tokenDefinitionFile;
+        this.elementDefinitionFile = elementDefinitionFile;
+        this.elementExtensionFile = elementExtensionFile;
     }
 
     @SneakyThrows
-    private Document loadDefinition(String tokenTypesFile) {
-        return XmlContents.fileToDocument(getResourceLookupClass(), tokenTypesFile);
+    private Document loadDefinition(String definitionFile) {
+        return XmlContents.fileToDocument(getResourceLookupClass(), definitionFile);
     }
 
     private TokenTypeBundle loadTokenTypes() {
-        Document document = loadDefinition(tokenTypesFile);
+        Document document = loadDefinition(tokenDefinitionFile);
         return new TokenTypeBundle(languageDialect, document);
     }
 
     private ElementTypeBundle loadElementTypes() {
-        Document document = loadDefinition(elementTypesFile);
-        return new ElementTypeBundle(languageDialect, getTokenTypes(), document);
+        Document definitionDocument = loadDefinition(elementDefinitionFile);
+        Document extensionDocument = loadDefinition(elementExtensionFile);
+        return new ElementTypeBundle(languageDialect, getTokenTypes(), definitionDocument, extensionDocument, null);
     }
 
 

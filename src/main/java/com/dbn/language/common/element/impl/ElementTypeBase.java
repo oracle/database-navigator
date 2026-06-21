@@ -233,6 +233,11 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         scopeIsolation = is(SCOPE_ISOLATION);
     }
 
+    public void loadExtension(Element def) {
+        log.warn("DBN - [{}] unsupported element extension (element = {}, type = {})",
+                getLanguageDialect().getID(), getId(), def.getName());
+    }
+
     @Override
     public boolean is(ElementTypeAttribute attribute) {
         return attributes != null && attributes.is(attribute);

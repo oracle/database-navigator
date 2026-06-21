@@ -83,14 +83,17 @@ public class ElementTypeBundle {
     @Setter
     public static class Builder {
         public static boolean rebuilding; // set globally by the dev tools
-        private final Document document;
+        private final Document definitionDocument;
+        private final Document extensionDocument;
         private boolean dirty;
         private final Set<LeafElementType> leafElementTypes = new LinkedHashSet<>();
         private final Set<ElementTypeBase> rootElementTypes = new LinkedHashSet<>();
+        private final Map<String, ElementTypeBase> elementTypes = new HashMap<>();
         private final Map<ElementTypeBase, Element> elementDefinitions = new HashMap<>();
 
-        private Builder(Document document) {
-            this.document = document;
+        private Builder(Document definitionDocument, Document extensionDocument) {
+            this.definitionDocument = definitionDocument;
+            this.extensionDocument = extensionDocument;
         }
 
         public Element getDefinition(ElementTypeBase elementType) {
@@ -108,40 +111,37 @@ public class ElementTypeBundle {
     }
 
 
-    public ElementTypeBundle(DBLanguageDialect languageDialect, TokenTypeBundle tokenTypeBundle, Document document) {
-        this(languageDialect, tokenTypeBundle, document, null);
-    }
-
-    public ElementTypeBundle(DBLanguageDialect languageDialect, TokenTypeBundle tokenTypeBundle, Document document, Consumer<Builder> builderCallback) {
+    public ElementTypeBundle(DBLanguageDialect languageDialect, TokenTypeBundle tokenTypeBundle, Document definitionDocument, Document extensionDocument, Consumer<Builder> builderCallback) {
         this.languageDialect = languageDialect;
         this.tokenTypeBundle = tokenTypeBundle;
-        this.builder = new Builder(document);
+        this.builder = new Builder(definitionDocument, extensionDocument);
 
         this.unknownElementType = new UnknownElementType(this);
-        Measured.run("building element-type bundle for " + languageDialect.getID(), () -> build(document, builderCallback));
+        Measured.run("building element-type bundle for " + languageDialect.getID(), () -> build(definitionDocument, builderCallback));
     }
 
-    private void build(Document document, Consumer<Builder> builderCallback) {
+    private void build(Document definitionDocument, Consumer<Builder> builderCallback) {
         try {
-            Element root = document.getRootElement();
+            Element root = definitionDocument.getRootElement();
             for (Element child : root.getChildren()) {
                 createNamedElementType(child);
             }
 
             notifyMissingDefinitions();
             registerLeafElements();
+            loadElementExtensions();
             initializeRootElements();
 
             if (builder.dirty) {
                 Unsafe.warned(() -> {
 /*
                     ByteArrayOutputStream stringWriter = new ByteArrayOutputStream();
-                    JDOMUtil.write(document, stringWriter);
+                    JDOMUtil.write(definitionDocument, stringWriter);
 
                     String data = stringWriter.toString();
 */
                     StringWriter stringWriter = new StringWriter();
-                    new XMLOutputter().output(document, stringWriter);
+                    new XMLOutputter().output(definitionDocument, stringWriter);
 
                     String data = stringWriter.getBuffer().toString();
                     log.info("LANGUAGE_DEFINITION\n" +
@@ -160,6 +160,24 @@ public class ElementTypeBundle {
         } catch (Exception e) {
             conditionallyLog(e);
             log.error("[DBN] Failed to build element-type bundle for {}", languageDialect.getID(), e);
+        }
+    }
+
+    private void loadElementExtensions() {
+        Document extensionDocument = builder.getExtensionDocument();
+        if (extensionDocument == null) return;
+
+        Element root = extensionDocument.getRootElement();
+        for (Element child : root.getChildren()) {
+            String id = stringAttribute(child, "id");
+            ElementTypeBase elementType = builder.elementTypes.get(id);
+            if (elementType == null) {
+                log.warn("DBN - [{}] unresolved element extension (element = {}, type = {})",
+                        languageDialect.getID(), id, child.getName());
+                continue;
+            }
+
+            elementType.loadExtension(child);
         }
     }
 
@@ -299,6 +317,7 @@ public class ElementTypeBundle {
     }
 
     private void registerElementType(ElementTypeBase elementType) {
+        builder.elementTypes.put(elementType.getId(), elementType);
         if (elementType.is(ROOT)) {
             builder.rootElementTypes.add(elementType);
         }
