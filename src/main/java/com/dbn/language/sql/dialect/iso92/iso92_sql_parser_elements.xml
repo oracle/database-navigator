@@ -18,11 +18,12 @@
 <element-defs language="ISO92-SQL" version="SQL 92">
     <element-def attributes="ROOT, STRUCTURE" custom="true" description="SQL block" id="sql_block" language="SQL">
         <iteration id="00000">
-            <one-of attributes="STATEMENT" id="00001">
+            <one-of attributes="STATEMENT" id="00001" ambiguous="true">
                 <element ref-id="query_specification" />
                 <element ref-id="delete_statement" />
                 <element ref-id="insert_statement" />
                 <element ref-id="update_statement" />
+                <element ref-id="create_statement" />
             </one-of>
         </iteration>
     </element-def>
@@ -98,27 +99,287 @@
         <element optional="true" ref-id="where_clause" />
     </element-def>
 
+    <!-- ========= create ========= -->
+    <element-def attributes="DATA_DEFINITION, STRUCTURE" custom="true" description="CREATE statement" id="create_statement">
+        <one-of ambiguous="true" id="00023">
+            <element ref-id="create_table_statement" />
+            <element ref-id="create_view_statement" />
+            <element ref-id="create_domain_statement" />
+            <element ref-id="create_schema_statement" />
+            <element ref-id="create_assertion_statement" />
+        </one-of>
+    </element-def>
+
+    <!-- ========= create table ========= -->
+    <element-def attributes="DATA_DEFINITION, STRUCTURE" description="CREATE TABLE statement" id="create_table_statement">
+        <token type-id="KW_CREATE" id="00024" />
+        <token type-id="KW_TABLE" id="00025" />
+        <element ref-id="table_definition_name" />
+        <element ref-id="table_element_list" />
+    </element-def>
+    <element-def description="Table definition name" id="table_definition_name">
+        <qualified-identifier separator="CHR_DOT" id="00026">
+            <variant>
+                <object-ref optional="true" type="SCHEMA" id="00027" />
+                <object-def attributes="SUBJECT" type="TABLE" id="00028" />
+            </variant>
+        </qualified-identifier>
+    </element-def>
+    <element-def attributes="CLAUSE" description="Table element list" id="table_element_list">
+        <wrapper template="PARENTHESES" id="00029">
+            <iteration separator="CHR_COMMA" id="00030">
+                <element ref-id="table_element" />
+            </iteration>
+        </wrapper>
+    </element-def>
+    <element-def description="Table element" id="table_element">
+        <one-of id="00031">
+            <element ref-id="column_definition" />
+            <element ref-id="table_constraint_definition" />
+        </one-of>
+    </element-def>
+    <element-def description="Column definition" id="column_definition">
+        <object-def type="COLUMN" id="00032" />
+        <element ref-id="data_type" />
+        <iteration optional="true" id="00033">
+            <element ref-id="column_constraint_definition" />
+        </iteration>
+    </element-def>
+    <element-def description="Column constraint definition" id="column_constraint_definition">
+        <sequence optional="true" id="00034">
+            <token type-id="KW_CONSTRAINT" id="00035" />
+            <object-def type="CONSTRAINT" id="00036" />
+        </sequence>
+        <element ref-id="column_constraint" />
+    </element-def>
+    <element-def description="Column constraint" id="column_constraint">
+        <one-of id="00037">
+            <sequence id="00038">
+                <token type-id="KW_NOT" id="00039" />
+                <token type-id="KW_NULL" id="00040" />
+            </sequence>
+            <token type-id="KW_NULL" id="00041" />
+            <sequence id="00042">
+                <token type-id="KW_DEFAULT" id="00043" />
+                <element ref-id="default_clause_value" />
+            </sequence>
+            <element ref-id="column_unique_constraint" />
+            <element ref-id="references_specification" />
+            <sequence id="00044">
+                <token type-id="KW_CHECK" id="00045" />
+                <wrapper template="PARENTHESES" id="00046">
+                    <element ref-id="search_condition" />
+                </wrapper>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="Column unique constraint" id="column_unique_constraint">
+        <one-of id="00047">
+            <token type-id="KW_UNIQUE" id="00048" />
+            <sequence id="00049">
+                <token type-id="KW_PRIMARY" id="00050" />
+                <token type-id="KW_KEY" id="00051" />
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="Default clause value" id="default_clause_value">
+        <one-of ambiguous="true" id="00052">
+            <token type-id="KW_NULL" id="00053" />
+            <element ref-id="value_expression" />
+        </one-of>
+    </element-def>
+    <element-def description="Table constraint definition" id="table_constraint_definition">
+        <sequence optional="true" id="00054">
+            <token type-id="KW_CONSTRAINT" id="00055" />
+            <object-def type="CONSTRAINT" id="00056" />
+        </sequence>
+        <element ref-id="table_constraint" />
+    </element-def>
+    <element-def description="Table constraint" id="table_constraint">
+        <one-of id="00057">
+            <sequence id="00058">
+                <element ref-id="table_unique_constraint" />
+                <wrapper template="PARENTHESES" id="00059">
+                    <iteration separator="CHR_COMMA" id="00060">
+                        <object-ref type="COLUMN" id="00061" />
+                    </iteration>
+                </wrapper>
+            </sequence>
+            <element ref-id="referential_constraint" />
+            <sequence id="00062">
+                <token type-id="KW_CHECK" id="00063" />
+                <wrapper template="PARENTHESES" id="00064">
+                    <element ref-id="search_condition" />
+                </wrapper>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="Table unique constraint" id="table_unique_constraint">
+        <one-of id="00065">
+            <token type-id="KW_UNIQUE" id="00066" />
+            <sequence id="00067">
+                <token type-id="KW_PRIMARY" id="00068" />
+                <token type-id="KW_KEY" id="00069" />
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="Referential constraint" id="referential_constraint">
+        <token type-id="KW_FOREIGN" id="00070" />
+        <token type-id="KW_KEY" id="00071" />
+        <wrapper template="PARENTHESES" id="00072">
+            <iteration separator="CHR_COMMA" id="00073">
+                <object-ref type="COLUMN" id="00074" />
+            </iteration>
+        </wrapper>
+        <element ref-id="references_specification" />
+    </element-def>
+    <element-def description="References specification" id="references_specification">
+        <token type-id="KW_REFERENCES" id="00075" />
+        <element ref-id="table_name" />
+        <wrapper optional="true" template="PARENTHESES" id="00076">
+            <iteration separator="CHR_COMMA" id="00077">
+                <object-ref type="COLUMN" id="00078" />
+            </iteration>
+        </wrapper>
+    </element-def>
+
+    <!-- ========= create view ========= -->
+    <element-def attributes="DATA_DEFINITION, STRUCTURE" description="CREATE VIEW statement" id="create_view_statement">
+        <token type-id="KW_CREATE" id="00079" />
+        <token type-id="KW_VIEW" id="00080" />
+        <element ref-id="view_definition_name" />
+        <wrapper optional="true" template="PARENTHESES" id="00081">
+            <iteration separator="CHR_COMMA" id="00082">
+                <object-def type="COLUMN" id="00083" />
+            </iteration>
+        </wrapper>
+        <token type-id="KW_AS" id="00084" />
+        <element ref-id="query_specification" />
+        <element optional="true" ref-id="view_check_option" />
+    </element-def>
+    <element-def description="View definition name" id="view_definition_name">
+        <qualified-identifier separator="CHR_DOT" id="00085">
+            <variant>
+                <object-ref optional="true" type="SCHEMA" id="00086" />
+                <object-def attributes="SUBJECT" type="VIEW" id="00087" />
+            </variant>
+        </qualified-identifier>
+    </element-def>
+    <element-def attributes="CLAUSE" description="VIEW CHECK OPTION clause" id="view_check_option">
+        <token type-id="KW_WITH" id="00088" />
+        <one-of optional="true" id="00089">
+            <token type-id="KW_CASCADED" id="00090" />
+            <token type-id="KW_LOCAL" id="00091" />
+        </one-of>
+        <token type-id="KW_CHECK" id="00092" />
+        <token type-id="KW_OPTION" id="00093" />
+    </element-def>
+
+    <!-- ========= create domain ========= -->
+    <element-def attributes="DATA_DEFINITION, STRUCTURE" description="CREATE DOMAIN statement" id="create_domain_statement">
+        <token type-id="KW_CREATE" id="00094" />
+        <token type-id="KW_DOMAIN" id="00095" />
+        <element ref-id="domain_definition_name" />
+        <token optional="true" type-id="KW_AS" id="00096" />
+        <element ref-id="data_type" />
+        <iteration optional="true" id="00097">
+            <element ref-id="domain_constraint_definition" />
+        </iteration>
+    </element-def>
+    <element-def description="Domain definition name" id="domain_definition_name">
+        <qualified-identifier separator="CHR_DOT" id="00098">
+            <variant>
+                <object-ref optional="true" type="SCHEMA" id="00099" />
+                <object-def attributes="SUBJECT" type="DOMAIN" id="00100" />
+            </variant>
+        </qualified-identifier>
+    </element-def>
+    <element-def description="Domain constraint definition" id="domain_constraint_definition">
+        <one-of id="00101">
+            <sequence id="00102">
+                <token type-id="KW_DEFAULT" id="00103" />
+                <element ref-id="default_clause_value" />
+            </sequence>
+            <sequence id="00104">
+                <sequence optional="true" id="00105">
+                    <token type-id="KW_CONSTRAINT" id="00106" />
+                    <object-def type="CONSTRAINT" id="00107" />
+                </sequence>
+                <token type-id="KW_CHECK" id="00108" />
+                <wrapper template="PARENTHESES" id="00109">
+                    <element ref-id="search_condition" />
+                </wrapper>
+            </sequence>
+        </one-of>
+    </element-def>
+
+    <!-- ========= create schema ========= -->
+    <element-def attributes="DATA_DEFINITION, STRUCTURE" description="CREATE SCHEMA statement" id="create_schema_statement">
+        <token type-id="KW_CREATE" id="00110" />
+        <token type-id="KW_SCHEMA" id="00111" />
+        <one-of id="00112">
+            <element ref-id="schema_authorization_clause" />
+            <sequence id="00113">
+                <object-def attributes="SUBJECT" type="SCHEMA" id="00114" />
+                <element optional="true" ref-id="schema_authorization_clause" />
+            </sequence>
+        </one-of>
+        <iteration optional="true" id="00115">
+            <element ref-id="schema_element" />
+        </iteration>
+    </element-def>
+    <element-def attributes="CLAUSE" description="Schema authorization clause" id="schema_authorization_clause">
+        <token type-id="KW_AUTHORIZATION" id="00116" />
+        <element ref-id="authorization_identifier" />
+    </element-def>
+    <element-def description="Authorization identifier" id="authorization_identifier">
+        <one-of id="00117">
+            <object-ref type="USER" id="00118" />
+            <token flavor="keyword" type-id="FN_CURRENT_USER" id="00119" />
+            <token flavor="keyword" type-id="FN_SESSION_USER" id="00120" />
+        </one-of>
+    </element-def>
+    <element-def attributes="CLAUSE" description="Schema element" id="schema_element">
+        <one-of ambiguous="true" id="00121">
+            <element ref-id="create_table_statement" />
+            <element ref-id="create_view_statement" />
+            <element ref-id="create_domain_statement" />
+            <element ref-id="create_assertion_statement" />
+        </one-of>
+    </element-def>
+
+    <!-- ========= create assertion ========= -->
+    <element-def attributes="DATA_DEFINITION, STRUCTURE" description="CREATE ASSERTION statement" id="create_assertion_statement">
+        <token type-id="KW_CREATE" id="00122" />
+        <token type-id="KW_ASSERTION" id="00123" />
+        <object-def attributes="SUBJECT" original-name="assertion_name" type="CONSTRAINT" id="00124" />
+        <token type-id="KW_CHECK" id="00125" />
+        <wrapper template="PARENTHESES" id="00126">
+            <element ref-id="search_condition" />
+        </wrapper>
+    </element-def>
+
     <element-def description="Set quantifier" id="set_quantifier">
-        <one-of id="00023">
-            <token id="00024" type-id="KW_DISTINCT" />
-            <token id="00025" type-id="KW_ALL" />
+        <one-of id="00127">
+            <token id="00128" type-id="KW_DISTINCT" />
+            <token id="00129" type-id="KW_ALL" />
         </one-of>
     </element-def>
     <element-def description="Select list" id="select_list">
-        <one-of id="00026" ambiguous="true">
-            <token id="00027" original-name="asterisk" type-id="CHR_STAR" />
-            <iteration id="00028" separator="CHR_COMMA">
+        <one-of id="00130" ambiguous="true">
+            <token id="00131" original-name="asterisk" type-id="CHR_STAR" />
+            <iteration id="00132" separator="CHR_COMMA">
                 <element ref-id="select_sublist" />
             </iteration>
         </one-of>
     </element-def>
     <element-def description="Select sublist" id="select_sublist">
-        <one-of id="00029" ambiguous="true">
+        <one-of id="00133" ambiguous="true">
             <element ref-id="derived_column" />
-            <sequence id="00030">
+            <sequence id="00134">
                 <element ref-id="qualifier" />
                 <element ref-id="period" />
-                <token id="00031" original-name="asterisk" type-id="CHR_STAR" />
+                <token id="00135" original-name="asterisk" type-id="CHR_STAR" />
             </sequence>
         </one-of>
     </element-def>
@@ -127,11 +388,11 @@
         <element optional="true" ref-id="as_clause" />
     </element-def>
     <element-def description="AS clause" id="as_clause">
-        <token id="00032" optional="true" type-id="KW_AS" />
-        <alias-def id="00033" original-name="column_name" type="COLUMN" />
+        <token id="00136" optional="true" type-id="KW_AS" />
+        <alias-def id="00137" original-name="column_name" type="COLUMN" />
     </element-def>
     <element-def description="Value expression" id="value_expression">
-        <one-of id="00034" ambiguous="true">
+        <one-of id="00138" ambiguous="true">
             <element ref-id="numeric_value_expression" />
             <element ref-id="string_value_expression" />
             <element ref-id="datetime_value_expression" />
@@ -140,11 +401,11 @@
     </element-def>
     <element-def description="Numeric value expression" id="numeric_value_expression">
         <element ref-id="term" />
-        <iteration optional="true" id="00035">
-            <sequence id="00036">
-                <one-of id="00037">
-                    <token type-id="CHR_PLUS" id="00038" />
-                    <token type-id="CHR_MINUS" id="00039" />
+        <iteration optional="true" id="00139">
+            <sequence id="00140">
+                <one-of id="00141">
+                    <token type-id="CHR_PLUS" id="00142" />
+                    <token type-id="CHR_MINUS" id="00143" />
                 </one-of>
                 <element ref-id="term" />
             </sequence>
@@ -152,20 +413,20 @@
     </element-def>
     <element-def description="Term" id="term">
         <element ref-id="factor" />
-        <iteration optional="true" id="00040">
-            <sequence id="00041">
-                <one-of id="00042">
-                    <token original-name="asterisk" type-id="CHR_STAR" id="00043" />
-                    <token original-name="solidus" type-id="CHR_SLASH" id="00044" />
+        <iteration optional="true" id="00144">
+            <sequence id="00145">
+                <one-of id="00146">
+                    <token original-name="asterisk" type-id="CHR_STAR" id="00147" />
+                    <token original-name="solidus" type-id="CHR_SLASH" id="00148" />
                 </one-of>
                 <element ref-id="factor" />
             </sequence>
         </iteration>
     </element-def>
     <element-def description="Sign" id="sign">
-        <one-of id="00045">
-            <token type-id="CHR_PLUS" id="00046" />
-            <token type-id="CHR_MINUS" id="00047" />
+        <one-of id="00149">
+            <token type-id="CHR_PLUS" id="00150" />
+            <token type-id="CHR_MINUS" id="00151" />
         </one-of>
     </element-def>
     <element-def description="Table expression" id="table_expression">
@@ -175,48 +436,48 @@
         <element optional="true" ref-id="having_clause" />
     </element-def>
     <element-def attributes="CLAUSE" description="FROM clause" id="from_clause">
-        <token type-id="KW_FROM" id="00048" />
-        <iteration separator="CHR_COMMA" id="00049">
+        <token type-id="KW_FROM" id="00152" />
+        <iteration separator="CHR_COMMA" id="00153">
             <element ref-id="table_reference" />
         </iteration>
     </element-def>
     <element-def description="Table reference" id="table_reference">
-        <one-of id="00050" ambiguous="true">
+        <one-of id="00154" ambiguous="true">
             <element ref-id="table_name" />
             <element ref-id="derived_table" />
         </one-of>
         <element optional="true" ref-id="correlation_specification" />
     </element-def>
     <element-def description="Table name" id="table_name">
-        <qualified-identifier separator="CHR_DOT" id="00051">
+        <qualified-identifier separator="CHR_DOT" id="00155">
             <variant>
-                <object-ref optional="true" type="SCHEMA" id="00052" />
-                <object-ref attributes="SUBJECT" type="TABLE" id="00053" />
+                <object-ref optional="true" type="SCHEMA" id="00156" />
+                <object-ref attributes="SUBJECT" type="TABLE" id="00157" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="Derived table" id="derived_table">
-        <wrapper template="PARENTHESES" id="00054">
+        <wrapper template="PARENTHESES" id="00158">
             <element ref-id="query_specification" />
         </wrapper>
     </element-def>
     <element-def description="Correlation specification" id="correlation_specification">
-        <token optional="true" type-id="KW_AS" id="00055" />
-        <alias-def type="DATASET" id="00056" />
-        <wrapper optional="true" template="PARENTHESES" id="00057">
-            <iteration separator="CHR_COMMA" id="00058">
-                <alias-def original-name="column_name" type="COLUMN" id="00059" />
+        <token optional="true" type-id="KW_AS" id="00159" />
+        <alias-def type="DATASET" id="00160" />
+        <wrapper optional="true" template="PARENTHESES" id="00161">
+            <iteration separator="CHR_COMMA" id="00162">
+                <alias-def original-name="column_name" type="COLUMN" id="00163" />
             </iteration>
         </wrapper>
     </element-def>
     <element-def attributes="CLAUSE" description="WHERE clause" id="where_clause">
-        <token type-id="KW_WHERE" id="00060" />
+        <token type-id="KW_WHERE" id="00164" />
         <element ref-id="search_condition" />
     </element-def>
     <element-def attributes="CLAUSE" description="GROUP BY clause" id="group_by_clause">
-        <token type-id="KW_GROUP" id="00061" />
-        <token type-id="KW_BY" id="00062" />
-        <iteration separator="CHR_COMMA" id="00063">
+        <token type-id="KW_GROUP" id="00165" />
+        <token type-id="KW_BY" id="00166" />
+        <iteration separator="CHR_COMMA" id="00167">
             <element ref-id="grouping_column_reference" />
         </iteration>
     </element-def>
@@ -224,56 +485,56 @@
         <element ref-id="column_reference" />
     </element-def>
     <element-def attributes="CLAUSE" description="HAVING clause" id="having_clause">
-        <token type-id="KW_HAVING" id="00064" />
+        <token type-id="KW_HAVING" id="00168" />
         <element ref-id="search_condition" />
     </element-def>
     <element-def description="Search condition" id="search_condition">
         <element ref-id="boolean_term" />
-        <iteration optional="true" id="00065">
-            <sequence id="00066">
-                <token type-id="KW_OR" id="00067" />
+        <iteration optional="true" id="00169">
+            <sequence id="00170">
+                <token type-id="KW_OR" id="00171" />
                 <element ref-id="boolean_term" />
             </sequence>
         </iteration>
     </element-def>
     <element-def description="Boolean term" id="boolean_term">
         <element ref-id="boolean_factor" />
-        <iteration optional="true" id="00068">
-            <sequence id="00069">
-                <token type-id="KW_AND" id="00070" />
+        <iteration optional="true" id="00172">
+            <sequence id="00173">
+                <token type-id="KW_AND" id="00174" />
                 <element ref-id="boolean_factor" />
             </sequence>
         </iteration>
     </element-def>
     <element-def description="Boolean factor" id="boolean_factor">
-        <token optional="true" type-id="KW_NOT" id="00071" />
+        <token optional="true" type-id="KW_NOT" id="00175" />
         <element ref-id="boolean_test" />
     </element-def>
     <element-def description="Boolean test" id="boolean_test">
         <element ref-id="boolean_primary" />
-        <sequence optional="true" id="00072">
-            <token type-id="KW_IS" id="00073" />
-            <token optional="true" type-id="KW_NOT" id="00074" />
+        <sequence optional="true" id="00176">
+            <token type-id="KW_IS" id="00177" />
+            <token optional="true" type-id="KW_NOT" id="00178" />
             <element ref-id="truth_value" />
         </sequence>
     </element-def>
     <element-def description="Truth value" id="truth_value">
-        <one-of id="00075">
-            <token type-id="KW_TRUE" id="00076" />
-            <token type-id="KW_FALSE" id="00077" />
-            <token type-id="KW_UNKNOWN" id="00078" />
+        <one-of id="00179">
+            <token type-id="KW_TRUE" id="00180" />
+            <token type-id="KW_FALSE" id="00181" />
+            <token type-id="KW_UNKNOWN" id="00182" />
         </one-of>
     </element-def>
     <element-def description="Boolean primary" id="boolean_primary">
-        <one-of id="00079" ambiguous="true">
+        <one-of id="00183" ambiguous="true">
             <element ref-id="predicate" />
-            <wrapper template="PARENTHESES" id="00080">
+            <wrapper template="PARENTHESES" id="00184">
                 <element ref-id="search_condition" />
             </wrapper>
         </one-of>
     </element-def>
     <element-def description="Predicate" id="predicate">
-        <one-of id="00081" ambiguous="true">
+        <one-of id="00185" ambiguous="true">
             <element ref-id="comparison_predicate" />
             <element ref-id="null_predicate" />
             <element ref-id="like_predicate" />
@@ -292,20 +553,20 @@
         <element ref-id="row_value_constructor" />
     </element-def>
     <element-def description="Comparison operator" id="comparison_operator">
-        <one-of id="00082">
-            <token type-id="CHR_EQUAL" id="00083" />
-            <token type-id="CHR_LESS" id="00084" />
-            <token type-id="CHR_GREATER" id="00085" />
-            <token type-id="OPR_LESS_EQUAL" id="00086" />
-            <token type-id="OPR_GREATER_EQUAL" id="00087" />
-            <token type-id="OPR_LESS_GREATER" id="00088" />
+        <one-of id="00186">
+            <token type-id="CHR_EQUAL" id="00187" />
+            <token type-id="CHR_LESS" id="00188" />
+            <token type-id="CHR_GREATER" id="00189" />
+            <token type-id="OPR_LESS_EQUAL" id="00190" />
+            <token type-id="OPR_GREATER_EQUAL" id="00191" />
+            <token type-id="OPR_LESS_GREATER" id="00192" />
         </one-of>
     </element-def>
     <element-def description="Row value constructor" id="row_value_constructor">
-        <one-of id="00089" ambiguous="true">
+        <one-of id="00193" ambiguous="true">
             <element ref-id="value_expression" />
-            <wrapper template="PARENTHESES" id="00090">
-                <iteration separator="CHR_COMMA" id="00091">
+            <wrapper template="PARENTHESES" id="00194">
+                <iteration separator="CHR_COMMA" id="00195">
                     <element ref-id="value_expression" />
                 </iteration>
             </wrapper>
@@ -313,17 +574,17 @@
     </element-def>
     <element-def description="NULL predicate" id="null_predicate">
         <element ref-id="row_value_constructor" />
-        <token type-id="KW_IS" id="00092" />
-        <token optional="true" type-id="KW_NOT" id="00093" />
-        <token type-id="KW_NULL" id="00094" />
+        <token type-id="KW_IS" id="00196" />
+        <token optional="true" type-id="KW_NOT" id="00197" />
+        <token type-id="KW_NULL" id="00198" />
     </element-def>
     <element-def description="LIKE predicate" id="like_predicate">
         <element ref-id="match_value" />
-        <token optional="true" type-id="KW_NOT" id="00095" />
-        <token type-id="KW_LIKE" id="00096" />
+        <token optional="true" type-id="KW_NOT" id="00199" />
+        <token type-id="KW_LIKE" id="00200" />
         <element ref-id="pattern" />
-        <sequence optional="true" id="00097">
-            <token type-id="KW_ESCAPE" id="00098" />
+        <sequence optional="true" id="00201">
+            <token type-id="KW_ESCAPE" id="00202" />
             <element ref-id="escape_character" />
         </sequence>
     </element-def>
@@ -338,27 +599,27 @@
     </element-def>
     <element-def description="BETWEEN predicate" id="between_predicate">
         <element ref-id="row_value_constructor" />
-        <token optional="true" type-id="KW_NOT" id="00099" />
-        <token type-id="KW_BETWEEN" id="00100" />
+        <token optional="true" type-id="KW_NOT" id="00203" />
+        <token type-id="KW_BETWEEN" id="00204" />
         <element ref-id="row_value_constructor" />
-        <token type-id="KW_AND" id="00101" />
+        <token type-id="KW_AND" id="00205" />
         <element ref-id="row_value_constructor" />
     </element-def>
     <element-def description="IN predicate" id="in_predicate">
         <element ref-id="row_value_constructor" />
-        <token optional="true" type-id="KW_NOT" id="00102" />
-        <token type-id="KW_IN" id="00103" />
-        <one-of id="00104" ambiguous="true">
+        <token optional="true" type-id="KW_NOT" id="00206" />
+        <token type-id="KW_IN" id="00207" />
+        <one-of id="00208" ambiguous="true">
             <element ref-id="table_subquery" />
-            <wrapper template="PARENTHESES" id="00105">
-                <iteration separator="CHR_COMMA" id="00106">
+            <wrapper template="PARENTHESES" id="00209">
+                <iteration separator="CHR_COMMA" id="00210">
                     <element ref-id="value_expression" />
                 </iteration>
             </wrapper>
         </one-of>
     </element-def>
     <element-def description="EXISTS predicate" id="exists_predicate">
-        <token type-id="KW_EXISTS" id="00107" />
+        <token type-id="KW_EXISTS" id="00211" />
         <element ref-id="table_subquery" />
     </element-def>
     <element-def description="Quantified comparison predicate" id="quantified_comparison_predicate">
@@ -368,61 +629,61 @@
         <element ref-id="table_subquery" />
     </element-def>
     <element-def description="Quantifier" id="quantifier">
-        <one-of id="00108">
-            <token type-id="KW_ALL" id="00109" />
-            <token type-id="KW_SOME" id="00110" />
-            <token type-id="KW_ANY" id="00111" />
+        <one-of id="00212">
+            <token type-id="KW_ALL" id="00213" />
+            <token type-id="KW_SOME" id="00214" />
+            <token type-id="KW_ANY" id="00215" />
         </one-of>
     </element-def>
     <element-def description="UNIQUE predicate" id="unique_predicate">
-        <token type-id="KW_UNIQUE" id="00112" />
+        <token type-id="KW_UNIQUE" id="00216" />
         <element ref-id="table_subquery" />
     </element-def>
     <element-def description="MATCH predicate" id="match_predicate">
         <element ref-id="row_value_constructor" />
-        <token type-id="KW_MATCH" id="00113" />
+        <token type-id="KW_MATCH" id="00217" />
         <element optional="true" ref-id="unique_specification" />
         <element optional="true" ref-id="match_type" />
         <element ref-id="table_subquery" />
     </element-def>
     <element-def description="Unique specification" id="unique_specification">
-        <token type-id="KW_UNIQUE" id="00114" />
+        <token type-id="KW_UNIQUE" id="00218" />
     </element-def>
     <element-def description="Match type" id="match_type">
-        <one-of id="00115">
-            <token type-id="KW_SIMPLE" id="00116" />
-            <token type-id="KW_PARTIAL" id="00117" />
-            <token type-id="KW_FULL" id="00118" />
+        <one-of id="00219">
+            <token type-id="KW_SIMPLE" id="00220" />
+            <token type-id="KW_PARTIAL" id="00221" />
+            <token type-id="KW_FULL" id="00222" />
         </one-of>
     </element-def>
     <element-def description="OVERLAPS predicate" id="overlaps_predicate">
         <element ref-id="row_value_constructor" />
-        <token type-id="KW_OVERLAPS" id="00119" />
+        <token type-id="KW_OVERLAPS" id="00223" />
         <element ref-id="row_value_constructor" />
     </element-def>
     <element-def description="Table subquery" id="table_subquery">
-        <wrapper template="PARENTHESES" id="00120">
+        <wrapper template="PARENTHESES" id="00224">
             <element ref-id="query_specification" />
         </wrapper>
     </element-def>
     <element-def description="Qualifier" id="qualifier">
-        <one-of id="00121" ambiguous="true">
-            <object-ref type="DATASET" id="00122" />
-            <alias-ref type="DATASET" id="00123" />
+        <one-of id="00225" ambiguous="true">
+            <object-ref type="DATASET" id="00226" />
+            <alias-ref type="DATASET" id="00227" />
         </one-of>
     </element-def>
     <element-def description="Period" id="period">
-        <token type-id="CHR_DOT" id="00124" />
+        <token type-id="CHR_DOT" id="00228" />
     </element-def>
     <element-def description="Column reference" id="column_reference">
-        <qualified-identifier separator="CHR_DOT" id="00125">
+        <qualified-identifier separator="CHR_DOT" id="00229">
             <variant>
-                <object-ref optional="true" type="DATASET" id="00126" />
-                <object-ref type="COLUMN" id="00127" />
+                <object-ref optional="true" type="DATASET" id="00230" />
+                <object-ref type="COLUMN" id="00231" />
             </variant>
             <variant>
-                <alias-ref optional="true" type="DATASET" id="00128" />
-                <object-ref type="COLUMN" id="00129" />
+                <alias-ref optional="true" type="DATASET" id="00232" />
+                <object-ref type="COLUMN" id="00233" />
             </variant>
         </qualified-identifier>
     </element-def>
@@ -431,45 +692,45 @@
     </element-def>
     <element-def description="Character value expression" id="character_value_expression">
         <element ref-id="character_factor" />
-        <iteration optional="true" id="00130">
-            <sequence id="00131">
-                <token type-id="OPR_CONCATENATION" id="00132" />
+        <iteration optional="true" id="00234">
+            <sequence id="00235">
+                <token type-id="OPR_CONCATENATION" id="00236" />
                 <element ref-id="character_factor" />
             </sequence>
         </iteration>
     </element-def>
     <element-def description="Character factor" id="character_factor">
-        <one-of id="00133" ambiguous="true">
+        <one-of id="00237" ambiguous="true">
             <element ref-id="character_primary" />
             <element ref-id="column_reference" />
         </one-of>
     </element-def>
     <element-def description="Character primary" id="character_primary">
-        <one-of id="00134" ambiguous="true">
-            <token type-id="STRING" id="00135" />
+        <one-of id="00238" ambiguous="true">
+            <token type-id="STRING" id="00239" />
             <element ref-id="general_value_specification" />
         </one-of>
     </element-def>
     <element-def description="Datetime value expression" id="datetime_value_expression">
-        <one-of id="00136" ambiguous="true">
+        <one-of id="00240" ambiguous="true">
             <element ref-id="datetime_primary" />
             <element ref-id="column_reference" />
         </one-of>
     </element-def>
     <element-def description="Datetime primary" id="datetime_primary">
-        <one-of id="00137" ambiguous="true">
+        <one-of id="00241" ambiguous="true">
             <element ref-id="general_value_specification" />
             <element ref-id="unsigned_literal" />
         </one-of>
     </element-def>
     <element-def description="Interval value expression" id="interval_value_expression">
-        <one-of id="00138" ambiguous="true">
+        <one-of id="00242" ambiguous="true">
             <element ref-id="interval_primary" />
             <element ref-id="column_reference" />
         </one-of>
     </element-def>
     <element-def description="Interval primary" id="interval_primary">
-        <one-of id="00139" ambiguous="true">
+        <one-of id="00243" ambiguous="true">
             <element ref-id="general_value_specification" />
             <element ref-id="unsigned_literal" />
         </one-of>
@@ -479,50 +740,50 @@
         <element ref-id="numeric_primary" />
     </element-def>
     <element-def description="Numeric primary" id="numeric_primary">
-        <one-of id="00140" ambiguous="true">
+        <one-of id="00244" ambiguous="true">
             <element ref-id="value_expression_primary" />
             <element ref-id="numeric_value_function" />
         </one-of>
     </element-def>
     <element-def description="Value expression primary" id="value_expression_primary">
-        <one-of id="00141" ambiguous="true">
+        <one-of id="00245" ambiguous="true">
             <element ref-id="unsigned_value_specification" />
             <element ref-id="column_reference" />
             <element ref-id="set_function_specification" />
             <element ref-id="scalar_subquery" />
             <element ref-id="case_expression" />
-            <sequence id="00142">
-                <token id="00143" type-id="CHR_LEFT_PARENTHESIS" />
+            <sequence id="00246">
+                <token id="00247" type-id="CHR_LEFT_PARENTHESIS" />
                 <element ref-id="value_expression" />
-                <token id="00144" type-id="CHR_RIGHT_PARENTHESIS" />
+                <token id="00248" type-id="CHR_RIGHT_PARENTHESIS" />
             </sequence>
             <element ref-id="cast_specification" />
         </one-of>
     </element-def>
     <element-def description="Unsigned value specification" id="unsigned_value_specification">
-        <one-of id="00145" ambiguous="true">
+        <one-of id="00249" ambiguous="true">
             <element ref-id="unsigned_literal" />
             <element ref-id="general_value_specification" />
         </one-of>
     </element-def>
     <element-def description="Unsigned literal" id="unsigned_literal">
-        <one-of id="00146">
+        <one-of id="00250">
             <element ref-id="unsigned_numeric_literal" />
             <element ref-id="general_literal" />
         </one-of>
     </element-def>
     <element-def description="Unsigned numeric literal" id="unsigned_numeric_literal">
-        <one-of id="00147">
-            <token type-id="NUMBER" id="00148" />
-            <token type-id="INTEGER" id="00149" />
+        <one-of id="00251">
+            <token type-id="NUMBER" id="00252" />
+            <token type-id="INTEGER" id="00253" />
         </one-of>
     </element-def>
     <element-def description="General literal" id="general_literal">
-        <one-of id="00150">
-            <token type-id="STRING" id="00151" />
-            <token type-id="KW_NULL" id="00152" />
-            <token type-id="KW_TRUE" id="00153" />
-            <token type-id="KW_FALSE" id="00154" />
+        <one-of id="00254">
+            <token type-id="STRING" id="00255" />
+            <token type-id="KW_NULL" id="00256" />
+            <token type-id="KW_TRUE" id="00257" />
+            <token type-id="KW_FALSE" id="00258" />
         </one-of>
     </element-def>
     <element-def description="Numeric value function" id="numeric_value_function">
@@ -530,10 +791,10 @@
     </element-def>
     <element-def description="Set function specification" id="set_function_specification">
         <element ref-id="set_function_type" />
-        <wrapper template="PARENTHESES" id="00155">
-            <one-of id="00156" ambiguous="true">
-                <token type-id="CHR_STAR" id="00157" />
-                <sequence id="00158">
+        <wrapper template="PARENTHESES" id="00259">
+            <one-of id="00260" ambiguous="true">
+                <token type-id="CHR_STAR" id="00261" />
+                <sequence id="00262">
                     <element optional="true" ref-id="set_quantifier" />
                     <element ref-id="value_expression" />
                 </sequence>
@@ -541,18 +802,18 @@
         </wrapper>
     </element-def>
     <element-def description="Set function type" id="set_function_type">
-        <one-of id="00159">
-            <token type-id="FN_AVG" id="00160" />
-            <token type-id="FN_COUNT" id="00161" />
-            <token type-id="FN_MAX" id="00162" />
-            <token type-id="FN_MIN" id="00163" />
-            <token type-id="FN_SUM" id="00164" />
+        <one-of id="00263">
+            <token type-id="FN_AVG" id="00264" />
+            <token type-id="FN_COUNT" id="00265" />
+            <token type-id="FN_MAX" id="00266" />
+            <token type-id="FN_MIN" id="00267" />
+            <token type-id="FN_SUM" id="00268" />
         </one-of>
     </element-def>
     <element-def description="Routine invocation" id="routine_invocation">
-        <token type-id="IDENTIFIER" original-name="routine_name" id="00165" />
-        <wrapper template="PARENTHESES" id="00166">
-            <iteration optional="true" separator="CHR_COMMA" id="00167">
+        <token type-id="IDENTIFIER" original-name="routine_name" id="00269" />
+        <wrapper template="PARENTHESES" id="00270">
+            <iteration optional="true" separator="CHR_COMMA" id="00271">
                 <element ref-id="value_expression" />
             </iteration>
         </wrapper>
@@ -561,38 +822,38 @@
         <element ref-id="table_subquery" />
     </element-def>
     <element-def description="Case expression" id="case_expression">
-        <token type-id="KW_CASE" id="00168" />
-        <one-of id="00169" ambiguous="true">
+        <token type-id="KW_CASE" id="00272" />
+        <one-of id="00273" ambiguous="true">
             <element ref-id="simple_case" />
             <element ref-id="searched_case" />
         </one-of>
-        <sequence optional="true" id="00170">
-            <token type-id="KW_ELSE" id="00171" />
+        <sequence optional="true" id="00274">
+            <token type-id="KW_ELSE" id="00275" />
             <element ref-id="result" />
         </sequence>
-        <token type-id="KW_END" id="00172" />
+        <token type-id="KW_END" id="00276" />
     </element-def>
     <element-def description="Simple case" id="simple_case">
         <element ref-id="case_operand" />
-        <iteration id="00173">
+        <iteration id="00277">
             <element ref-id="simple_when_clause" />
         </iteration>
     </element-def>
     <element-def description="Searched case" id="searched_case">
-        <iteration id="00174">
+        <iteration id="00278">
             <element ref-id="searched_when_clause" />
         </iteration>
     </element-def>
     <element-def description="Simple when clause" id="simple_when_clause">
-        <token type-id="KW_WHEN" id="00175" />
+        <token type-id="KW_WHEN" id="00279" />
         <element ref-id="when_operand" />
-        <token type-id="KW_THEN" id="00176" />
+        <token type-id="KW_THEN" id="00280" />
         <element ref-id="result" />
     </element-def>
     <element-def description="Searched when clause" id="searched_when_clause">
-        <token type-id="KW_WHEN" id="00177" />
+        <token type-id="KW_WHEN" id="00281" />
         <element ref-id="search_condition" />
-        <token type-id="KW_THEN" id="00178" />
+        <token type-id="KW_THEN" id="00282" />
         <element ref-id="result" />
     </element-def>
     <element-def description="Case operand" id="case_operand">
@@ -605,11 +866,11 @@
         <element ref-id="value_expression" />
     </element-def>
     <element-def description="CAST specification" id="cast_specification">
-        <token type-id="KW_CAST" id="00179" />
-        <wrapper template="PARENTHESES" id="00180">
-            <sequence id="00181">
+        <token type-id="KW_CAST" id="00283" />
+        <wrapper template="PARENTHESES" id="00284">
+            <sequence id="00285">
                 <element ref-id="cast_operand" />
-                <token type-id="KW_AS" id="00182" />
+                <token type-id="KW_AS" id="00286" />
                 <element ref-id="cast_target" />
             </sequence>
         </wrapper>
@@ -618,21 +879,21 @@
         <element ref-id="value_expression" />
     </element-def>
     <element-def description="Cast target" id="cast_target">
-        <one-of id="00183" ambiguous="true">
+        <one-of id="00287" ambiguous="true">
             <element ref-id="domain_name" />
             <element ref-id="data_type" />
         </one-of>
     </element-def>
     <element-def description="Domain name" id="domain_name">
-        <qualified-identifier separator="CHR_DOT" id="00184">
+        <qualified-identifier separator="CHR_DOT" id="00288">
             <variant>
-                <object-ref optional="true" type="SCHEMA" id="00185" />
-                <object-ref type="DOMAIN" id="00186" />
+                <object-ref optional="true" type="SCHEMA" id="00289" />
+                <object-ref type="DOMAIN" id="00290" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="Data type" id="data_type">
-        <one-of id="00187" ambiguous="true">
+        <one-of id="00291" ambiguous="true">
             <element ref-id="character_string_type" />
             <element ref-id="bit_string_type" />
             <element ref-id="numeric_type" />
@@ -641,59 +902,59 @@
         </one-of>
     </element-def>
     <element-def description="Character string type" id="character_string_type">
-        <one-of id="00188" ambiguous="true">
-            <sequence id="00189">
-                <one-of id="00190">
-                    <token type-id="DT_CHAR" id="00191" />
-                    <token type-id="DT_CHARACTER" id="00192" />
+        <one-of id="00292" ambiguous="true">
+            <sequence id="00293">
+                <one-of id="00294">
+                    <token type-id="DT_CHAR" id="00295" />
+                    <token type-id="DT_CHARACTER" id="00296" />
                 </one-of>
                 <element optional="true" ref-id="length" />
             </sequence>
-            <sequence id="00193">
-                <one-of id="00194">
-                    <token type-id="DT_CHAR_VARYING" id="00195" />
-                    <token type-id="DT_CHARACTER_VARYING" id="00196" />
-                    <sequence id="00197">
-                        <token type-id="DT_CHAR" id="00198" />
-                        <token type-id="KW_VARYING" id="00199" />
+            <sequence id="00297">
+                <one-of id="00298">
+                    <token type-id="DT_CHAR_VARYING" id="00299" />
+                    <token type-id="DT_CHARACTER_VARYING" id="00300" />
+                    <sequence id="00301">
+                        <token type-id="DT_CHAR" id="00302" />
+                        <token type-id="KW_VARYING" id="00303" />
                     </sequence>
-                    <sequence id="00200">
-                        <token type-id="DT_CHARACTER" id="00201" />
-                        <token type-id="KW_VARYING" id="00202" />
+                    <sequence id="00304">
+                        <token type-id="DT_CHARACTER" id="00305" />
+                        <token type-id="KW_VARYING" id="00306" />
                     </sequence>
-                    <token type-id="DT_VARCHAR" id="00203" />
+                    <token type-id="DT_VARCHAR" id="00307" />
                 </one-of>
                 <element optional="true" ref-id="length" />
             </sequence>
-            <sequence id="00204">
-                <token type-id="KW_NATIONAL" id="00205" />
-                <one-of id="00206">
-                    <token type-id="DT_CHAR" id="00207" />
-                    <token type-id="DT_CHARACTER" id="00208" />
+            <sequence id="00308">
+                <token type-id="KW_NATIONAL" id="00309" />
+                <one-of id="00310">
+                    <token type-id="DT_CHAR" id="00311" />
+                    <token type-id="DT_CHARACTER" id="00312" />
                 </one-of>
-                <sequence optional="true" id="00209">
-                    <token type-id="KW_VARYING" id="00210" />
+                <sequence optional="true" id="00313">
+                    <token type-id="KW_VARYING" id="00314" />
                 </sequence>
                 <element optional="true" ref-id="length" />
             </sequence>
-            <sequence id="00211">
-                <token type-id="DT_NATIONAL_VARCHAR" id="00212" />
+            <sequence id="00315">
+                <token type-id="DT_NATIONAL_VARCHAR" id="00316" />
                 <element optional="true" ref-id="length" />
             </sequence>
         </one-of>
     </element-def>
     <element-def description="Bit string type" id="bit_string_type">
-        <one-of id="00213" ambiguous="true">
-            <sequence id="00214">
-                <token type-id="DT_BIT" id="00215" />
+        <one-of id="00317" ambiguous="true">
+            <sequence id="00318">
+                <token type-id="DT_BIT" id="00319" />
                 <element optional="true" ref-id="length" />
             </sequence>
-            <sequence id="00216">
-                <one-of id="00217">
-                    <token type-id="DT_BIT_VARYING" id="00218" />
-                    <sequence id="00219">
-                        <token type-id="DT_BIT" id="00220" />
-                        <token type-id="KW_VARYING" id="00221" />
+            <sequence id="00320">
+                <one-of id="00321">
+                    <token type-id="DT_BIT_VARYING" id="00322" />
+                    <sequence id="00323">
+                        <token type-id="DT_BIT" id="00324" />
+                        <token type-id="KW_VARYING" id="00325" />
                     </sequence>
                 </one-of>
                 <element optional="true" ref-id="length" />
@@ -701,37 +962,37 @@
         </one-of>
     </element-def>
     <element-def description="Numeric type" id="numeric_type">
-        <one-of id="00222">
-            <sequence id="00223">
-                <one-of id="00224">
-                    <token type-id="DT_NUMERIC" id="00225" />
-                    <token type-id="DT_DECIMAL" id="00226" />
-                    <token type-id="DT_DEC" id="00227" />
+        <one-of id="00326">
+            <sequence id="00327">
+                <one-of id="00328">
+                    <token type-id="DT_NUMERIC" id="00329" />
+                    <token type-id="DT_DECIMAL" id="00330" />
+                    <token type-id="DT_DEC" id="00331" />
                 </one-of>
                 <element optional="true" ref-id="precision_scale" />
             </sequence>
-            <token type-id="DT_INTEGER" id="00228" />
-            <token type-id="DT_INT" id="00229" />
-            <token type-id="DT_SMALLINT" id="00230" />
-            <sequence id="00231">
-                <token type-id="DT_FLOAT" id="00232" />
+            <token type-id="DT_INTEGER" id="00332" />
+            <token type-id="DT_INT" id="00333" />
+            <token type-id="DT_SMALLINT" id="00334" />
+            <sequence id="00335">
+                <token type-id="DT_FLOAT" id="00336" />
                 <element optional="true" ref-id="precision" />
             </sequence>
-            <token type-id="DT_REAL" id="00233" />
-            <token type-id="DT_DOUBLE_PRECISION" id="00234" />
-            <sequence id="00235">
-                <token type-id="DT_DOUBLE" id="00236" />
-                <token type-id="KW_PRECISION" optional="true" id="00237" />
+            <token type-id="DT_REAL" id="00337" />
+            <token type-id="DT_DOUBLE_PRECISION" id="00338" />
+            <sequence id="00339">
+                <token type-id="DT_DOUBLE" id="00340" />
+                <token type-id="KW_PRECISION" optional="true" id="00341" />
             </sequence>
         </one-of>
     </element-def>
     <element-def description="Datetime type" id="datetime_type">
-        <one-of id="00238">
-            <token type-id="DT_DATE" id="00239" />
-            <sequence id="00240">
-                <one-of id="00241">
-                    <token type-id="DT_TIME" id="00242" />
-                    <token type-id="DT_TIMESTAMP" id="00243" />
+        <one-of id="00342">
+            <token type-id="DT_DATE" id="00343" />
+            <sequence id="00344">
+                <one-of id="00345">
+                    <token type-id="DT_TIME" id="00346" />
+                    <token type-id="DT_TIMESTAMP" id="00347" />
                 </one-of>
                 <element optional="true" ref-id="time_precision" />
                 <element optional="true" ref-id="time_zone_specifier" />
@@ -739,120 +1000,120 @@
         </one-of>
     </element-def>
     <element-def description="Interval type" id="interval_type">
-        <token type-id="DT_INTERVAL" id="00244" />
+        <token type-id="DT_INTERVAL" id="00348" />
         <element optional="true" ref-id="interval_qualifier" />
     </element-def>
     <element-def description="Length" id="length">
-        <wrapper template="PARENTHESES" id="00245">
-            <token type-id="INTEGER" id="00246" />
+        <wrapper template="PARENTHESES" id="00349">
+            <token type-id="INTEGER" id="00350" />
         </wrapper>
     </element-def>
     <element-def description="Precision" id="precision">
-        <wrapper template="PARENTHESES" id="00247">
-            <token type-id="INTEGER" id="00248" />
+        <wrapper template="PARENTHESES" id="00351">
+            <token type-id="INTEGER" id="00352" />
         </wrapper>
     </element-def>
     <element-def description="Precision and scale" id="precision_scale">
-        <wrapper template="PARENTHESES" id="00249">
-            <sequence id="00250">
-                <token type-id="INTEGER" id="00251" />
-                <sequence optional="true" id="00252">
-                    <token type-id="CHR_COMMA" id="00253" />
-                    <token type-id="INTEGER" id="00254" />
+        <wrapper template="PARENTHESES" id="00353">
+            <sequence id="00354">
+                <token type-id="INTEGER" id="00355" />
+                <sequence optional="true" id="00356">
+                    <token type-id="CHR_COMMA" id="00357" />
+                    <token type-id="INTEGER" id="00358" />
                 </sequence>
             </sequence>
         </wrapper>
     </element-def>
     <element-def description="Time precision" id="time_precision">
-        <wrapper template="PARENTHESES" id="00255">
-            <token type-id="INTEGER" id="00256" />
+        <wrapper template="PARENTHESES" id="00359">
+            <token type-id="INTEGER" id="00360" />
         </wrapper>
     </element-def>
     <element-def description="Time zone specifier" id="time_zone_specifier">
-        <one-of id="00257">
-            <sequence id="00258">
-                <token type-id="KW_WITH" id="00259" />
-                <token type-id="DT_TIME" id="00260" />
-                <token type-id="KW_ZONE" id="00261" />
+        <one-of id="00361">
+            <sequence id="00362">
+                <token type-id="KW_WITH" id="00363" />
+                <token type-id="DT_TIME" id="00364" />
+                <token type-id="KW_ZONE" id="00365" />
             </sequence>
-            <sequence id="00262">
-                <token type-id="KW_WITHOUT" id="00263" />
-                <token type-id="DT_TIME" id="00264" />
-                <token type-id="KW_ZONE" id="00265" />
+            <sequence id="00366">
+                <token type-id="KW_WITHOUT" id="00367" />
+                <token type-id="DT_TIME" id="00368" />
+                <token type-id="KW_ZONE" id="00369" />
             </sequence>
         </one-of>
     </element-def>
     <element-def description="Interval qualifier" id="interval_qualifier">
-        <one-of id="00266">
-            <sequence id="00267">
-                <token type-id="DT_YEAR" id="00268" />
+        <one-of id="00370">
+            <sequence id="00371">
+                <token type-id="DT_YEAR" id="00372" />
                 <element optional="true" ref-id="leading_field_precision" />
-                <sequence optional="true" id="00269">
-                    <token type-id="KW_TO" id="00270" />
-                    <token type-id="KW_MONTH" id="00271" />
+                <sequence optional="true" id="00373">
+                    <token type-id="KW_TO" id="00374" />
+                    <token type-id="KW_MONTH" id="00375" />
                 </sequence>
             </sequence>
-            <token type-id="KW_MONTH" id="00272" />
-            <sequence id="00273">
-                <token type-id="KW_DAY" id="00274" />
+            <token type-id="KW_MONTH" id="00376" />
+            <sequence id="00377">
+                <token type-id="KW_DAY" id="00378" />
                 <element optional="true" ref-id="leading_field_precision" />
-                <sequence optional="true" id="00275">
-                    <token type-id="KW_TO" id="00276" />
+                <sequence optional="true" id="00379">
+                    <token type-id="KW_TO" id="00380" />
                     <element ref-id="time_interval_field" />
                 </sequence>
             </sequence>
-            <sequence id="00277">
-                <token type-id="KW_HOUR" id="00278" />
+            <sequence id="00381">
+                <token type-id="KW_HOUR" id="00382" />
                 <element optional="true" ref-id="leading_field_precision" />
-                <sequence optional="true" id="00279">
-                    <token type-id="KW_TO" id="00280" />
+                <sequence optional="true" id="00383">
+                    <token type-id="KW_TO" id="00384" />
                     <element ref-id="time_interval_field" />
                 </sequence>
             </sequence>
-            <sequence id="00281">
-                <token type-id="KW_MINUTE" id="00282" />
+            <sequence id="00385">
+                <token type-id="KW_MINUTE" id="00386" />
                 <element optional="true" ref-id="leading_field_precision" />
-                <sequence optional="true" id="00283">
-                    <token type-id="KW_TO" id="00284" />
-                    <token type-id="KW_SECOND" id="00285" />
+                <sequence optional="true" id="00387">
+                    <token type-id="KW_TO" id="00388" />
+                    <token type-id="KW_SECOND" id="00389" />
                     <element optional="true" ref-id="fractional_seconds_precision" />
                 </sequence>
             </sequence>
-            <sequence id="00286">
-                <token type-id="KW_SECOND" id="00287" />
+            <sequence id="00390">
+                <token type-id="KW_SECOND" id="00391" />
                 <element optional="true" ref-id="leading_field_precision" />
             </sequence>
         </one-of>
     </element-def>
     <element-def description="Time interval field" id="time_interval_field">
-        <one-of id="00288">
-            <token type-id="KW_HOUR" id="00289" />
-            <token type-id="KW_MINUTE" id="00290" />
-            <sequence id="00291">
-                <token type-id="KW_SECOND" id="00292" />
+        <one-of id="00392">
+            <token type-id="KW_HOUR" id="00393" />
+            <token type-id="KW_MINUTE" id="00394" />
+            <sequence id="00395">
+                <token type-id="KW_SECOND" id="00396" />
                 <element optional="true" ref-id="fractional_seconds_precision" />
             </sequence>
         </one-of>
     </element-def>
     <element-def description="Leading field precision" id="leading_field_precision">
-        <wrapper template="PARENTHESES" id="00293">
-            <token type-id="INTEGER" id="00294" />
+        <wrapper template="PARENTHESES" id="00397">
+            <token type-id="INTEGER" id="00398" />
         </wrapper>
     </element-def>
     <element-def description="Fractional seconds precision" id="fractional_seconds_precision">
-        <wrapper template="PARENTHESES" id="00295">
-            <token type-id="INTEGER" id="00296" />
+        <wrapper template="PARENTHESES" id="00399">
+            <token type-id="INTEGER" id="00400" />
         </wrapper>
     </element-def>
     <element-def description="General value specification" id="general_value_specification">
-        <one-of id="00297" ambiguous="true">
+        <one-of id="00401" ambiguous="true">
             <element ref-id="parameter_specification" />
             <element ref-id="variable_specification" />
-            <token id="00298" flavor="keyword" type-id="FN_CURRENT_USER" />
-            <token flavor="keyword" type-id="FN_SESSION_USER" id="00299" />
-            <token flavor="keyword" type-id="FN_SYSTEM_USER" id="00300" />
-            <token flavor="keyword" type-id="FN_USER" id="00301" />
-            <token id="00302" type-id="KW_VALUE" />
+            <token id="00402" flavor="keyword" type-id="FN_CURRENT_USER" />
+            <token flavor="keyword" type-id="FN_SESSION_USER" id="00403" />
+            <token flavor="keyword" type-id="FN_SYSTEM_USER" id="00404" />
+            <token flavor="keyword" type-id="FN_USER" id="00405" />
+            <token id="00406" type-id="KW_VALUE" />
         </one-of>
     </element-def>
     <element-def description="Parameter specification" id="parameter_specification">
@@ -860,11 +1121,11 @@
         <element optional="true" ref-id="indicator_parameter" />
     </element-def>
     <element-def description="Parameter name" id="parameter_name">
-        <token id="00303" type-id="CHR_COLON" />
-        <token id="00304" original-name="identifier" type-id="IDENTIFIER" />
+        <token id="00407" type-id="CHR_COLON" />
+        <token id="00408" original-name="identifier" type-id="IDENTIFIER" />
     </element-def>
     <element-def description="Indicator parameter" id="indicator_parameter">
-        <token id="00305" optional="true" type-id="KW_INDICATOR" />
+        <token id="00409" optional="true" type-id="KW_INDICATOR" />
         <element ref-id="parameter_name" />
     </element-def>
     <element-def description="Variable specification" id="variable_specification">
@@ -872,15 +1133,15 @@
         <element optional="true" ref-id="indicator_variable" />
     </element-def>
     <element-def description="Embedded variable name" id="embedded_variable_name">
-        <token id="00306" type-id="CHR_COLON" />
-        <token id="00307" original-name="host_identifier" type-id="IDENTIFIER" />
+        <token id="00410" type-id="CHR_COLON" />
+        <token id="00411" original-name="host_identifier" type-id="IDENTIFIER" />
     </element-def>
     <element-def description="Indicator variable" id="indicator_variable">
-        <token id="00308" optional="true" type-id="KW_INDICATOR" />
+        <token id="00412" optional="true" type-id="KW_INDICATOR" />
         <element ref-id="embedded_variable_name" />
     </element-def>
 
     <element-def custom="true" description="Unknown identifier" id="custom_undefined">
-        <token id="00309" type-id="IDENTIFIER" />
+        <token id="00413" type-id="IDENTIFIER" />
     </element-def>
 </element-defs>
