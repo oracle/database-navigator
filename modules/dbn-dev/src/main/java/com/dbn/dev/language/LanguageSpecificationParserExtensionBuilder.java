@@ -22,6 +22,7 @@ import com.dbn.language.common.element.impl.ElementTypeRef;
 import com.dbn.language.common.element.impl.ExecVariableElementType;
 import com.dbn.language.common.element.impl.IdentifierElementType;
 import com.dbn.language.common.element.impl.IterationElementType;
+import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.NamedElementType;
 import com.dbn.language.common.element.impl.OneOfElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierElementType;
@@ -340,7 +341,9 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             PrefixMatch result;
             if (elementType instanceof TokenElementType tokenElementType) {
                 result = matchToken(tokenElementType.tokenType.getId(), tokenElementType.getId(), prefix, offset);
-            } else if (elementType instanceof IdentifierElementType || elementType instanceof QualifiedIdentifierElementType) {
+            } else if (elementType instanceof QualifiedIdentifierElementType qualifiedIdentifierElementType) {
+                result = resolveQualifiedIdentifierPrefix(qualifiedIdentifierElementType, prefix, offset);
+            } else if (elementType instanceof IdentifierElementType) {
                 result = matchToken(elementType.bundle.getTokenTypeBundle().getIdentifier().getId(), null, prefix, offset);
             } else if (elementType instanceof ExecVariableElementType) {
                 result = matchToken(elementType.bundle.getTokenTypeBundle().getVariable().getId(), null, prefix, offset);
@@ -474,6 +477,57 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         }
 
         return result;
+    }
+
+    private PrefixMatch resolveQualifiedIdentifierPrefix(
+            QualifiedIdentifierElementType qualifiedIdentifierElementType,
+            List<String> prefix,
+            int offset) {
+        PrefixMatch result = new PrefixMatch();
+        for (LeafElementType[] variant : qualifiedIdentifierElementType.variants) {
+            result.add(resolveLeafTokenSequencePrefix(qualifiedIdentifierElementType, variant, prefix, offset));
+        }
+        return result;
+    }
+
+    private PrefixMatch resolveLeafTokenSequencePrefix(
+            QualifiedIdentifierElementType qualifiedIdentifierElementType,
+            LeafElementType[] leafs,
+            List<String> prefix,
+            int offset) {
+        PrefixMatch result = new PrefixMatch();
+        Set<Integer> activeOffsets = new LinkedHashSet<>();
+        activeOffsets.add(offset);
+
+        for (int i = 0; i < leafs.length; i++) {
+            LeafElementType leaf = leafs[i];
+            activeOffsets = resolveTokenPrefix(leaf.tokenType.getId(), null, prefix, activeOffsets, result);
+            if (activeOffsets.isEmpty()) break;
+
+            if (i < leafs.length - 1) {
+                TokenElementType separatorToken = qualifiedIdentifierElementType.separatorToken;
+                activeOffsets = resolveTokenPrefix(separatorToken.tokenType.getId(), separatorToken.getId(), prefix, activeOffsets, result);
+                if (activeOffsets.isEmpty()) break;
+            }
+        }
+
+        result.completedOffsets.addAll(activeOffsets);
+        return result;
+    }
+
+    private static Set<Integer> resolveTokenPrefix(
+            String token,
+            String tokenId,
+            List<String> prefix,
+            Set<Integer> activeOffsets,
+            PrefixMatch result) {
+        Set<Integer> nextOffsets = new LinkedHashSet<>();
+        for (int activeOffset : activeOffsets) {
+            PrefixMatch tokenMatch = matchToken(token, tokenId, prefix, activeOffset);
+            result.addNextTokens(tokenMatch);
+            nextOffsets.addAll(tokenMatch.completedOffsets);
+        }
+        return nextOffsets;
     }
 
     private static PrefixMatch matchToken(String token, String tokenId, List<String> prefix, int offset) {

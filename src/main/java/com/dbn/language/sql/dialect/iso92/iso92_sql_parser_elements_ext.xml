@@ -192,6 +192,7 @@
         <token type-id="FN_USER" token-ids="00757" candidate-ids="session_characteristic_value" />
         <token type-id="KW_VALUE" token-ids="00758" candidate-ids="session_characteristic_value" />
         <token type-id="IDENTIFIER" token-ids="00623, 00158">
+            <token type-id="CHR_DOT" token-ids="00583.s" candidate-ids="session_characteristic_value" />
             <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00624.b" candidate-ids="session_characteristic_value" />
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="session_characteristic_value" />
             <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="session_characteristic_value" />
@@ -310,6 +311,7 @@
     </one-of-extension>
     <one-of-extension id="00394" depth="2">
         <token type-id="IDENTIFIER" token-ids="00623">
+            <token type-id="CHR_DOT" token-ids="00583.s" candidate-ids="session_characteristic_value" />
             <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00624.b" candidate-ids="session_characteristic_value" />
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="session_characteristic_value" />
             <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="session_characteristic_value" />
@@ -397,6 +399,7 @@
         <token type-id="FN_USER" token-ids="00757" candidate-ids="derived_column" />
         <token type-id="KW_VALUE" token-ids="00758" candidate-ids="derived_column" />
         <token type-id="IDENTIFIER" token-ids="00623">
+            <token type-id="CHR_DOT" token-ids="00583.s, 00456" candidate-ids="derived_column, 00455" />
             <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00624.b" candidate-ids="derived_column" />
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="derived_column" />
             <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="derived_column" />
@@ -405,7 +408,6 @@
             <token type-id="OPR_CONCATENATION" token-ids="00590" candidate-ids="derived_column" />
             <token type-id="KW_AS" token-ids="00458" candidate-ids="derived_column" />
             <token type-id="IDENTIFIER" candidate-ids="derived_column" />
-            <token type-id="CHR_DOT" token-ids="00456" candidate-ids="00455" />
         </token>
         <token type-id="FN_AVG" token-ids="00618" candidate-ids="derived_column" />
         <token type-id="FN_COUNT" token-ids="00619" candidate-ids="derived_column" />
@@ -495,6 +497,7 @@
             <token type-id="OPR_CONCATENATION" token-ids="00590" candidate-ids="string_value_expression" />
         </token>
         <token type-id="IDENTIFIER" token-ids="00623">
+            <token type-id="CHR_DOT" token-ids="00583.s" candidate-ids="numeric_value_expression, string_value_expression, datetime_value_expression, interval_value_expression" />
             <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00624.b" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="numeric_value_expression" />
             <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="numeric_value_expression" />
@@ -781,6 +784,7 @@
             <token type-id="KW_LIKE" token-ids="00551" candidate-ids="00525" />
         </token>
         <token type-id="IDENTIFIER" token-ids="00623">
+            <token type-id="CHR_DOT" token-ids="00583.s" candidate-ids="00524, 00525" />
             <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00624.b" candidate-ids="00524, 00525" />
             <token type-id="CHR_STAR" token-ids="00469" candidate-ids="00524, 00525" />
             <token type-id="CHR_SLASH" token-ids="00470" candidate-ids="00524, 00525" />
@@ -1809,6 +1813,7 @@
         <token type-id="FN_USER" token-ids="00757" candidate-ids="value_expression_primary" />
         <token type-id="KW_VALUE" token-ids="00758" candidate-ids="value_expression_primary" />
         <token type-id="IDENTIFIER" token-ids="00623">
+            <token type-id="CHR_DOT" token-ids="00583.s" candidate-ids="value_expression_primary" />
             <token type-id="CHR_LEFT_PARENTHESIS" token-ids="00624.b" candidate-ids="numeric_value_function" />
         </token>
         <token type-id="FN_AVG" token-ids="00618" candidate-ids="value_expression_primary" />
