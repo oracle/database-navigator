@@ -16,6 +16,7 @@
 
 package com.dbn.dev.language;
 
+import com.dbn.dev.language.LanguageSpecificationBuilderInput.Area;
 import com.dbn.dev.language.LanguageSpecificationBuilderInput.Operation;
 import org.jetbrains.annotations.NonNls;
 
@@ -32,18 +33,20 @@ public class LanguageSpecificationBuilder {
         input.setDatabase(selectOption("database", LanguageSpecificationBuilderInput.DATABASE_OPTIONS));
         input.setLanguage(selectOption("language", LanguageSpecificationBuilderInput.LANGUAGE_OPTIONS));
 
+        Area area = selectOption("area", LanguageSpecificationBuilderInput.AREA_OPTIONS);
+        Operation operation = selectOption("operation", area.getOperationOptions());
 
-        Operation operation = selectOption("operation", LanguageSpecificationBuilderInput.OPERATION_OPTIONS);
-
-        if (operation == Operation.LEXER_DEFINITION) {
+        if (area == Area.LEXER && operation == Operation.DEFINITION) {
             LanguageSpecificationLexerBuilder lexerBuilder = new LanguageSpecificationLexerBuilder(input);
             lexerBuilder.build();
-        } else if (operation == Operation.PARSER_DEFINITION) {
+        } else if (area == Area.PARSER && operation == Operation.DEFINITION) {
             LanguageSpecificationParserBuilder parserBuilder = new LanguageSpecificationParserBuilder(input);
             parserBuilder.build();
-        } else if (operation == Operation.LEXER_CLASS) {
+        } else if (area == Area.LEXER && operation == Operation.CLASS) {
             LanguageSpecificationLexerClassBuilder lexerBuilder = new LanguageSpecificationLexerClassBuilder(input);
             lexerBuilder.build();
+        } else {
+            throw new IllegalArgumentException("Unsupported operation: " + area + " " + operation);
         }
     }
 

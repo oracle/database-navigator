@@ -50,7 +50,9 @@ public class LanguageSpecificationBuilderInput {
 
     public static final Map<String, DatabaseType> DATABASE_OPTIONS = new LinkedHashMap<>();
     public static final Map<String, DBLanguage> LANGUAGE_OPTIONS = new LinkedHashMap<>();
-    public static final Map<String, Operation> OPERATION_OPTIONS = new LinkedHashMap<>();
+    public static final Map<String, Area> AREA_OPTIONS = new LinkedHashMap<>();
+    public static final Map<String, Operation> LEXER_OPERATION_OPTIONS = new LinkedHashMap<>();
+    public static final Map<String, Operation> PARSER_OPERATION_OPTIONS = new LinkedHashMap<>();
     static {
         DATABASE_OPTIONS.put("o", ORACLE);
         DATABASE_OPTIONS.put("m", MYSQL);
@@ -61,9 +63,13 @@ public class LanguageSpecificationBuilderInput {
         LANGUAGE_OPTIONS.put("s", SQLLanguage.INSTANCE);
         LANGUAGE_OPTIONS.put("p", PSQLLanguage.INSTANCE);
 
-        OPERATION_OPTIONS.put("l", Operation.LEXER_DEFINITION);
-        OPERATION_OPTIONS.put("c", Operation.LEXER_CLASS);
-        OPERATION_OPTIONS.put("p", Operation.PARSER_DEFINITION);
+        AREA_OPTIONS.put("l", Area.LEXER);
+        AREA_OPTIONS.put("p", Area.PARSER);
+
+        LEXER_OPERATION_OPTIONS.put("d", Operation.DEFINITION);
+        LEXER_OPERATION_OPTIONS.put("c", Operation.CLASS);
+
+        PARSER_OPERATION_OPTIONS.put("d", Operation.DEFINITION);
     }
 
     public LanguageSpecificationBuilderInput() {
@@ -142,9 +148,27 @@ public class LanguageSpecificationBuilderInput {
         }
     }
 
+    public enum Area {
+        LEXER,
+        PARSER;
+
+        public Map<String, Operation> getOperationOptions() {
+            return this == LEXER ? LEXER_OPERATION_OPTIONS : PARSER_OPERATION_OPTIONS;
+        }
+
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        }
+    }
+
     public enum Operation {
-        LEXER_DEFINITION,
-        LEXER_CLASS,
-        PARSER_DEFINITION
+        DEFINITION,
+        CLASS;
+
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        }
     }
 }
