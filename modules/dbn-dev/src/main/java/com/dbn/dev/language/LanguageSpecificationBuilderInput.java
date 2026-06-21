@@ -50,9 +50,9 @@ public class LanguageSpecificationBuilderInput {
 
     public static final Map<String, DatabaseType> DATABASE_OPTIONS = new LinkedHashMap<>();
     public static final Map<String, DBLanguage> LANGUAGE_OPTIONS = new LinkedHashMap<>();
-    public static final Map<String, Area> AREA_OPTIONS = new LinkedHashMap<>();
-    public static final Map<String, Operation> LEXER_OPERATION_OPTIONS = new LinkedHashMap<>();
-    public static final Map<String, Operation> PARSER_OPERATION_OPTIONS = new LinkedHashMap<>();
+    public static final Map<String, Artifact> ARTIFACT_OPTIONS = new LinkedHashMap<>();
+    public static final Map<String, Action> LEXER_ACTION_OPTIONS = new LinkedHashMap<>();
+    public static final Map<String, Action> PARSER_ACTION_OPTIONS = new LinkedHashMap<>();
     static {
         DATABASE_OPTIONS.put("o", ORACLE);
         DATABASE_OPTIONS.put("m", MYSQL);
@@ -63,13 +63,14 @@ public class LanguageSpecificationBuilderInput {
         LANGUAGE_OPTIONS.put("s", SQLLanguage.INSTANCE);
         LANGUAGE_OPTIONS.put("p", PSQLLanguage.INSTANCE);
 
-        AREA_OPTIONS.put("l", Area.LEXER);
-        AREA_OPTIONS.put("p", Area.PARSER);
+        ARTIFACT_OPTIONS.put("l", Artifact.LEXER);
+        ARTIFACT_OPTIONS.put("p", Artifact.PARSER);
+        ARTIFACT_OPTIONS.put("a", Artifact.ALL);
 
-        LEXER_OPERATION_OPTIONS.put("d", Operation.DEFINITION);
-        LEXER_OPERATION_OPTIONS.put("c", Operation.CLASS);
+        LEXER_ACTION_OPTIONS.put("d", Action.UPDATE_DEFINITION);
+        LEXER_ACTION_OPTIONS.put("c", Action.BUILD_CLASS);
 
-        PARSER_OPERATION_OPTIONS.put("d", Operation.DEFINITION);
+        PARSER_ACTION_OPTIONS.put("d", Action.UPDATE_DEFINITION);
     }
 
     public LanguageSpecificationBuilderInput() {
@@ -148,12 +149,14 @@ public class LanguageSpecificationBuilderInput {
         }
     }
 
-    public enum Area {
+    public enum Artifact {
         LEXER,
-        PARSER;
+        PARSER,
+        ALL;
 
-        public Map<String, Operation> getOperationOptions() {
-            return this == LEXER ? LEXER_OPERATION_OPTIONS : PARSER_OPERATION_OPTIONS;
+        public Map<String, Action> getActionOptions() {
+            if (this == ALL) return Map.of();
+            return this == LEXER ? LEXER_ACTION_OPTIONS : PARSER_ACTION_OPTIONS;
         }
 
         @Override
@@ -162,13 +165,13 @@ public class LanguageSpecificationBuilderInput {
         }
     }
 
-    public enum Operation {
-        DEFINITION,
-        CLASS;
+    public enum Action {
+        UPDATE_DEFINITION,
+        BUILD_CLASS;
 
         @Override
         public String toString() {
-            return name().toLowerCase();
+            return name().toLowerCase().replace('_', ' ');
         }
     }
 }

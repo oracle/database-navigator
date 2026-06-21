@@ -16,8 +16,8 @@
 
 package com.dbn.dev.language;
 
-import com.dbn.dev.language.LanguageSpecificationBuilderInput.Area;
-import com.dbn.dev.language.LanguageSpecificationBuilderInput.Operation;
+import com.dbn.dev.language.LanguageSpecificationBuilderInput.Action;
+import com.dbn.dev.language.LanguageSpecificationBuilderInput.Artifact;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.Map;
@@ -33,21 +33,44 @@ public class LanguageSpecificationBuilder {
         input.setDatabase(selectOption("database", LanguageSpecificationBuilderInput.DATABASE_OPTIONS));
         input.setLanguage(selectOption("language", LanguageSpecificationBuilderInput.LANGUAGE_OPTIONS));
 
-        Area area = selectOption("area", LanguageSpecificationBuilderInput.AREA_OPTIONS);
-        Operation operation = selectOption("operation", area.getOperationOptions());
-
-        if (area == Area.LEXER && operation == Operation.DEFINITION) {
-            LanguageSpecificationLexerBuilder lexerBuilder = new LanguageSpecificationLexerBuilder(input);
-            lexerBuilder.build();
-        } else if (area == Area.PARSER && operation == Operation.DEFINITION) {
-            LanguageSpecificationParserBuilder parserBuilder = new LanguageSpecificationParserBuilder(input);
-            parserBuilder.build();
-        } else if (area == Area.LEXER && operation == Operation.CLASS) {
-            LanguageSpecificationLexerClassBuilder lexerBuilder = new LanguageSpecificationLexerClassBuilder(input);
-            lexerBuilder.build();
-        } else {
-            throw new IllegalArgumentException("Unsupported operation: " + area + " " + operation);
+        Artifact artifact = selectOption("artifact", LanguageSpecificationBuilderInput.ARTIFACT_OPTIONS);
+        if (artifact == Artifact.ALL) {
+            runAll();
+            return;
         }
+
+        Action action = selectOption("action", artifact.getActionOptions());
+
+        if (artifact == Artifact.LEXER && action == Action.UPDATE_DEFINITION) {
+            buildLexerDefinition();
+        } else if (artifact == Artifact.PARSER && action == Action.UPDATE_DEFINITION) {
+            buildParserDefinition();
+        } else if (artifact == Artifact.LEXER && action == Action.BUILD_CLASS) {
+            buildLexerClass();
+        } else {
+            throw new IllegalArgumentException("Unsupported action: " + artifact + " " + action);
+        }
+    }
+
+    private static void runAll() throws Exception {
+        buildLexerDefinition();
+        buildLexerClass();
+        buildParserDefinition();
+    }
+
+    private static void buildLexerDefinition() {
+        LanguageSpecificationLexerBuilder lexerBuilder = new LanguageSpecificationLexerBuilder(input);
+        lexerBuilder.build();
+    }
+
+    private static void buildLexerClass() throws Exception {
+        LanguageSpecificationLexerClassBuilder lexerBuilder = new LanguageSpecificationLexerClassBuilder(input);
+        lexerBuilder.build();
+    }
+
+    private static void buildParserDefinition() {
+        LanguageSpecificationParserBuilder parserBuilder = new LanguageSpecificationParserBuilder(input);
+        parserBuilder.build();
     }
 
     private static <T> T selectOption(String name, Map<String, T> options) {
