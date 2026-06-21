@@ -1,0 +1,1072 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2026 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<!DOCTYPE parser-element-extensions SYSTEM "../../../common/definition/language-parser-elements-ext.dtd">
+
+<parser-element-extensions language="ISO92-SQL" source="iso92_sql_parser_elements.xml">
+    <one-of-extension id="00023">
+        <token type-id="KW_CREATE">
+            <token type-id="KW_TABLE" candidate-ids="create_table_statement" />
+            <token type-id="KW_VIEW" candidate-ids="create_view_statement" />
+            <token type-id="KW_DOMAIN" candidate-ids="create_domain_statement" />
+            <token type-id="KW_SCHEMA" candidate-ids="create_schema_statement" />
+            <token type-id="KW_ASSERTION" candidate-ids="create_assertion_statement" />
+        </token>
+    </one-of-extension>
+    <one-of-extension id="00052">
+        <token type-id="KW_NULL">
+            <token type-id="CHR_STAR" candidate-ids="value_expression" />
+            <token type-id="CHR_SLASH" candidate-ids="value_expression" />
+            <token type-id="CHR_PLUS" candidate-ids="value_expression" />
+            <token type-id="CHR_MINUS" candidate-ids="value_expression" />
+        </token>
+        <token type-id="CHR_PLUS" candidate-ids="value_expression" />
+        <token type-id="CHR_MINUS" candidate-ids="value_expression" />
+        <token type-id="NUMBER" candidate-ids="value_expression" />
+        <token type-id="INTEGER" candidate-ids="value_expression" />
+        <token type-id="STRING" candidate-ids="value_expression" />
+        <token type-id="KW_TRUE" candidate-ids="value_expression" />
+        <token type-id="KW_FALSE" candidate-ids="value_expression" />
+        <token type-id="CHR_COLON" candidate-ids="value_expression" />
+        <token type-id="FN_CURRENT_USER" candidate-ids="value_expression" />
+        <token type-id="FN_SESSION_USER" candidate-ids="value_expression" />
+        <token type-id="FN_SYSTEM_USER" candidate-ids="value_expression" />
+        <token type-id="FN_USER" candidate-ids="value_expression" />
+        <token type-id="KW_VALUE" candidate-ids="value_expression" />
+        <token type-id="IDENTIFIER" candidate-ids="value_expression" />
+        <token type-id="FN_AVG" candidate-ids="value_expression" />
+        <token type-id="FN_COUNT" candidate-ids="value_expression" />
+        <token type-id="FN_MAX" candidate-ids="value_expression" />
+        <token type-id="FN_MIN" candidate-ids="value_expression" />
+        <token type-id="FN_SUM" candidate-ids="value_expression" />
+        <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="value_expression" />
+        <token type-id="KW_CASE" candidate-ids="value_expression" />
+        <token type-id="KW_CAST" candidate-ids="value_expression" />
+    </one-of-extension>
+    <one-of-extension id="00121">
+        <token type-id="KW_CREATE">
+            <token type-id="KW_TABLE" candidate-ids="create_table_statement" />
+            <token type-id="KW_VIEW" candidate-ids="create_view_statement" />
+            <token type-id="KW_DOMAIN" candidate-ids="create_domain_statement" />
+            <token type-id="KW_ASSERTION" candidate-ids="create_assertion_statement" />
+        </token>
+    </one-of-extension>
+    <one-of-extension id="00127">
+        <token type-id="KW_DROP">
+            <token type-id="KW_TABLE" candidate-ids="drop_table_statement" />
+            <token type-id="KW_VIEW" candidate-ids="drop_view_statement" />
+            <token type-id="KW_DOMAIN" candidate-ids="drop_domain_statement" />
+            <token type-id="KW_SCHEMA" candidate-ids="drop_schema_statement" />
+            <token type-id="KW_ASSERTION" candidate-ids="drop_assertion_statement" />
+        </token>
+    </one-of-extension>
+    <one-of-extension id="00146">
+        <token type-id="KW_ALTER">
+            <token type-id="KW_TABLE" candidate-ids="alter_table_statement" />
+            <token type-id="KW_DOMAIN" candidate-ids="alter_domain_statement" />
+        </token>
+    </one-of-extension>
+    <one-of-extension id="00149">
+        <token type-id="KW_ADD">
+            <token type-id="KW_COLUMN" candidate-ids="00150" />
+            <token type-id="IDENTIFIER" candidate-ids="00150" />
+            <token type-id="KW_CONSTRAINT" candidate-ids="00157" />
+            <token type-id="KW_UNIQUE" candidate-ids="00157" />
+            <token type-id="KW_PRIMARY" candidate-ids="00157" />
+            <token type-id="KW_FOREIGN" candidate-ids="00157" />
+            <token type-id="KW_CHECK" candidate-ids="00157" />
+        </token>
+        <token type-id="KW_DROP">
+            <token type-id="KW_COLUMN" candidate-ids="00153" />
+            <token type-id="IDENTIFIER" candidate-ids="00153" />
+            <token type-id="KW_CONSTRAINT" candidate-ids="00159" />
+        </token>
+    </one-of-extension>
+    <one-of-extension id="00165">
+        <token type-id="KW_SET" candidate-ids="00166" />
+        <token type-id="KW_DROP">
+            <token type-id="KW_DEFAULT" candidate-ids="00169" />
+            <token type-id="KW_CONSTRAINT" candidate-ids="00174" />
+        </token>
+        <token type-id="KW_ADD" candidate-ids="00172" />
+    </one-of-extension>
+    <one-of-extension id="00189">
+        <token type-id="CHR_PLUS" candidate-ids="derived_column" />
+        <token type-id="CHR_MINUS" candidate-ids="derived_column" />
+        <token type-id="NUMBER" candidate-ids="derived_column" />
+        <token type-id="INTEGER" candidate-ids="derived_column" />
+        <token type-id="STRING" candidate-ids="derived_column" />
+        <token type-id="KW_NULL" candidate-ids="derived_column" />
+        <token type-id="KW_TRUE" candidate-ids="derived_column" />
+        <token type-id="KW_FALSE" candidate-ids="derived_column" />
+        <token type-id="CHR_COLON" candidate-ids="derived_column" />
+        <token type-id="FN_CURRENT_USER" candidate-ids="derived_column" />
+        <token type-id="FN_SESSION_USER" candidate-ids="derived_column" />
+        <token type-id="FN_SYSTEM_USER" candidate-ids="derived_column" />
+        <token type-id="FN_USER" candidate-ids="derived_column" />
+        <token type-id="KW_VALUE" candidate-ids="derived_column" />
+        <token type-id="IDENTIFIER">
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="derived_column" />
+            <token type-id="CHR_STAR" candidate-ids="derived_column" />
+            <token type-id="CHR_SLASH" candidate-ids="derived_column" />
+            <token type-id="CHR_PLUS" candidate-ids="derived_column" />
+            <token type-id="CHR_MINUS" candidate-ids="derived_column" />
+            <token type-id="OPR_CONCATENATION" candidate-ids="derived_column" />
+            <token type-id="KW_AS" candidate-ids="derived_column" />
+            <token type-id="IDENTIFIER" candidate-ids="derived_column" />
+            <token type-id="CHR_DOT" candidate-ids="00190" />
+        </token>
+        <token type-id="FN_AVG" candidate-ids="derived_column" />
+        <token type-id="FN_COUNT" candidate-ids="derived_column" />
+        <token type-id="FN_MAX" candidate-ids="derived_column" />
+        <token type-id="FN_MIN" candidate-ids="derived_column" />
+        <token type-id="FN_SUM" candidate-ids="derived_column" />
+        <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="derived_column" />
+        <token type-id="KW_CASE" candidate-ids="derived_column" />
+        <token type-id="KW_CAST" candidate-ids="derived_column" />
+    </one-of-extension>
+    <one-of-extension id="00194">
+        <token type-id="CHR_PLUS" candidate-ids="numeric_value_expression" />
+        <token type-id="CHR_MINUS" candidate-ids="numeric_value_expression" />
+        <token type-id="NUMBER">
+            <token type-id="CHR_STAR" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_SLASH" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_PLUS" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_MINUS" candidate-ids="numeric_value_expression" />
+        </token>
+        <token type-id="INTEGER">
+            <token type-id="CHR_STAR" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_SLASH" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_PLUS" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_MINUS" candidate-ids="numeric_value_expression" />
+        </token>
+        <token type-id="STRING">
+            <token type-id="CHR_STAR" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_SLASH" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_PLUS" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_MINUS" candidate-ids="numeric_value_expression" />
+            <token type-id="OPR_CONCATENATION" candidate-ids="string_value_expression" />
+        </token>
+        <token type-id="KW_NULL">
+            <token type-id="CHR_STAR" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_SLASH" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_PLUS" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_MINUS" candidate-ids="numeric_value_expression" />
+        </token>
+        <token type-id="KW_TRUE">
+            <token type-id="CHR_STAR" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_SLASH" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_PLUS" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_MINUS" candidate-ids="numeric_value_expression" />
+        </token>
+        <token type-id="KW_FALSE">
+            <token type-id="CHR_STAR" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_SLASH" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_PLUS" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_MINUS" candidate-ids="numeric_value_expression" />
+        </token>
+        <token type-id="CHR_COLON">
+            <token type-id="IDENTIFIER" candidate-ids="numeric_value_expression, string_value_expression, datetime_value_expression, interval_value_expression" />
+        </token>
+        <token type-id="FN_CURRENT_USER">
+            <token type-id="CHR_STAR" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_SLASH" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_PLUS" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_MINUS" candidate-ids="numeric_value_expression" />
+            <token type-id="OPR_CONCATENATION" candidate-ids="string_value_expression" />
+        </token>
+        <token type-id="FN_SESSION_USER">
+            <token type-id="CHR_STAR" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_SLASH" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_PLUS" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_MINUS" candidate-ids="numeric_value_expression" />
+            <token type-id="OPR_CONCATENATION" candidate-ids="string_value_expression" />
+        </token>
+        <token type-id="FN_SYSTEM_USER">
+            <token type-id="CHR_STAR" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_SLASH" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_PLUS" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_MINUS" candidate-ids="numeric_value_expression" />
+            <token type-id="OPR_CONCATENATION" candidate-ids="string_value_expression" />
+        </token>
+        <token type-id="FN_USER">
+            <token type-id="CHR_STAR" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_SLASH" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_PLUS" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_MINUS" candidate-ids="numeric_value_expression" />
+            <token type-id="OPR_CONCATENATION" candidate-ids="string_value_expression" />
+        </token>
+        <token type-id="KW_VALUE">
+            <token type-id="CHR_STAR" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_SLASH" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_PLUS" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_MINUS" candidate-ids="numeric_value_expression" />
+            <token type-id="OPR_CONCATENATION" candidate-ids="string_value_expression" />
+        </token>
+        <token type-id="IDENTIFIER">
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_STAR" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_SLASH" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_PLUS" candidate-ids="numeric_value_expression" />
+            <token type-id="CHR_MINUS" candidate-ids="numeric_value_expression" />
+            <token type-id="OPR_CONCATENATION" candidate-ids="string_value_expression" />
+        </token>
+        <token type-id="FN_AVG" candidate-ids="numeric_value_expression" />
+        <token type-id="FN_COUNT" candidate-ids="numeric_value_expression" />
+        <token type-id="FN_MAX" candidate-ids="numeric_value_expression" />
+        <token type-id="FN_MIN" candidate-ids="numeric_value_expression" />
+        <token type-id="FN_SUM" candidate-ids="numeric_value_expression" />
+        <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="numeric_value_expression" />
+        <token type-id="KW_CASE" candidate-ids="numeric_value_expression" />
+        <token type-id="KW_CAST" candidate-ids="numeric_value_expression" />
+    </one-of-extension>
+    <one-of-extension id="00239">
+        <token type-id="CHR_PLUS" candidate-ids="predicate" />
+        <token type-id="CHR_MINUS" candidate-ids="predicate" />
+        <token type-id="NUMBER" candidate-ids="predicate" />
+        <token type-id="INTEGER" candidate-ids="predicate" />
+        <token type-id="STRING" candidate-ids="predicate" />
+        <token type-id="KW_NULL" candidate-ids="predicate" />
+        <token type-id="KW_TRUE" candidate-ids="predicate" />
+        <token type-id="KW_FALSE" candidate-ids="predicate" />
+        <token type-id="CHR_COLON" candidate-ids="predicate" />
+        <token type-id="FN_CURRENT_USER" candidate-ids="predicate" />
+        <token type-id="FN_SESSION_USER" candidate-ids="predicate" />
+        <token type-id="FN_SYSTEM_USER" candidate-ids="predicate" />
+        <token type-id="FN_USER" candidate-ids="predicate" />
+        <token type-id="KW_VALUE" candidate-ids="predicate" />
+        <token type-id="IDENTIFIER" candidate-ids="predicate" />
+        <token type-id="FN_AVG" candidate-ids="predicate" />
+        <token type-id="FN_COUNT" candidate-ids="predicate" />
+        <token type-id="FN_MAX" candidate-ids="predicate" />
+        <token type-id="FN_MIN" candidate-ids="predicate" />
+        <token type-id="FN_SUM" candidate-ids="predicate" />
+        <token type-id="CHR_LEFT_PARENTHESIS">
+            <token type-id="KW_SELECT" candidate-ids="predicate" />
+            <token type-id="CHR_PLUS" candidate-ids="predicate, 00240" />
+            <token type-id="CHR_MINUS" candidate-ids="predicate, 00240" />
+            <token type-id="NUMBER" candidate-ids="predicate, 00240" />
+            <token type-id="INTEGER" candidate-ids="predicate, 00240" />
+            <token type-id="STRING" candidate-ids="predicate, 00240" />
+            <token type-id="KW_NULL" candidate-ids="predicate, 00240" />
+            <token type-id="KW_TRUE" candidate-ids="predicate, 00240" />
+            <token type-id="KW_FALSE" candidate-ids="predicate, 00240" />
+            <token type-id="CHR_COLON" candidate-ids="predicate, 00240" />
+            <token type-id="FN_CURRENT_USER" candidate-ids="predicate, 00240" />
+            <token type-id="FN_SESSION_USER" candidate-ids="predicate, 00240" />
+            <token type-id="FN_SYSTEM_USER" candidate-ids="predicate, 00240" />
+            <token type-id="FN_USER" candidate-ids="predicate, 00240" />
+            <token type-id="KW_VALUE" candidate-ids="predicate, 00240" />
+            <token type-id="IDENTIFIER" candidate-ids="predicate, 00240" />
+            <token type-id="FN_AVG" candidate-ids="predicate, 00240" />
+            <token type-id="FN_COUNT" candidate-ids="predicate, 00240" />
+            <token type-id="FN_MAX" candidate-ids="predicate, 00240" />
+            <token type-id="FN_MIN" candidate-ids="predicate, 00240" />
+            <token type-id="FN_SUM" candidate-ids="predicate, 00240" />
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="predicate, 00240" />
+            <token type-id="KW_CASE" candidate-ids="predicate, 00240" />
+            <token type-id="KW_CAST" candidate-ids="predicate, 00240" />
+            <token type-id="KW_NOT" candidate-ids="00240" />
+            <token type-id="KW_EXISTS" candidate-ids="00240" />
+            <token type-id="KW_UNIQUE" candidate-ids="00240" />
+        </token>
+        <token type-id="KW_CASE" candidate-ids="predicate" />
+        <token type-id="KW_CAST" candidate-ids="predicate" />
+        <token type-id="KW_EXISTS" candidate-ids="predicate" />
+        <token type-id="KW_UNIQUE" candidate-ids="predicate" />
+    </one-of-extension>
+    <one-of-extension id="00241">
+        <token type-id="CHR_PLUS">
+            <token type-id="NUMBER">
+                <token type-id="CHR_STAR" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+                <token type-id="CHR_SLASH" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+                <token type-id="CHR_PLUS" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+                <token type-id="CHR_MINUS" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+                <token type-id="CHR_EQUAL">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="CHR_LESS">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="CHR_GREATER">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="OPR_LESS_EQUAL">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="OPR_GREATER_EQUAL">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="OPR_LESS_GREATER">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="KW_IS" candidate-ids="null_predicate" />
+                <token type-id="KW_NOT">
+                    <token type-id="KW_BETWEEN" candidate-ids="between_predicate" />
+                    <token type-id="KW_IN" candidate-ids="in_predicate" />
+                </token>
+                <token type-id="KW_BETWEEN" candidate-ids="between_predicate" />
+                <token type-id="KW_IN" candidate-ids="in_predicate" />
+                <token type-id="KW_MATCH" candidate-ids="match_predicate" />
+                <token type-id="KW_OVERLAPS" candidate-ids="overlaps_predicate" />
+            </token>
+            <token type-id="INTEGER">
+                <token type-id="CHR_STAR" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+                <token type-id="CHR_SLASH" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+                <token type-id="CHR_PLUS" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+                <token type-id="CHR_MINUS" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+                <token type-id="CHR_EQUAL">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="CHR_LESS">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="CHR_GREATER">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="OPR_LESS_EQUAL">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="OPR_GREATER_EQUAL">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="OPR_LESS_GREATER">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="KW_IS" candidate-ids="null_predicate" />
+                <token type-id="KW_NOT">
+                    <token type-id="KW_BETWEEN" candidate-ids="between_predicate" />
+                    <token type-id="KW_IN" candidate-ids="in_predicate" />
+                </token>
+                <token type-id="KW_BETWEEN" candidate-ids="between_predicate" />
+                <token type-id="KW_IN" candidate-ids="in_predicate" />
+                <token type-id="KW_MATCH" candidate-ids="match_predicate" />
+                <token type-id="KW_OVERLAPS" candidate-ids="overlaps_predicate" />
+            </token>
+            <token type-id="STRING">
+                <token type-id="CHR_STAR" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+                <token type-id="CHR_SLASH" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+                <token type-id="CHR_PLUS" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+                <token type-id="CHR_MINUS" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+                <token type-id="CHR_EQUAL">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="CHR_LESS">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="CHR_GREATER">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="OPR_LESS_EQUAL">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="OPR_GREATER_EQUAL">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="OPR_LESS_GREATER">
+                    <token type-id="CHR_PLUS" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_MINUS" candidate-ids="comparison_predicate" />
+                    <token type-id="NUMBER" candidate-ids="comparison_predicate" />
+                    <token type-id="INTEGER" candidate-ids="comparison_predicate" />
+                    <token type-id="STRING" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_NULL" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_TRUE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_FALSE" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_COLON" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_USER" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_VALUE" candidate-ids="comparison_predicate" />
+                    <token type-id="IDENTIFIER" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_AVG" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_COUNT" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MAX" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_MIN" candidate-ids="comparison_predicate" />
+                    <token type-id="FN_SUM" candidate-ids="comparison_predicate" />
+                    <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CASE" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_CAST" candidate-ids="comparison_predicate" />
+                    <token type-id="KW_ALL" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_SOME" candidate-ids="quantified_comparison_predicate" />
+                    <token type-id="KW_ANY" candidate-ids="quantified_comparison_predicate" />
+                </token>
+                <token type-id="KW_IS" candidate-ids="null_predicate" />
+                <token type-id="KW_NOT" candidate-ids="between_predicate, in_predicate" />
+                <token type-id="KW_BETWEEN" candidate-ids="between_predicate" />
+                <token type-id="KW_IN" candidate-ids="in_predicate" />
+                <token type-id="KW_MATCH" candidate-ids="match_predicate" />
+                <token type-id="KW_OVERLAPS" candidate-ids="overlaps_predicate" />
+            </token>
+            <token type-id="KW_NULL" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="KW_TRUE" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="KW_FALSE" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="CHR_COLON" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="FN_USER" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="KW_VALUE" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="IDENTIFIER" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="FN_AVG" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="FN_COUNT" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="FN_MAX" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="FN_MIN" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="FN_SUM" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="KW_CASE" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+            <token type-id="KW_CAST" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        </token>
+        <token type-id="CHR_MINUS" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="NUMBER" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="INTEGER" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="STRING" candidate-ids="comparison_predicate, null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="KW_NULL" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="KW_TRUE" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="KW_FALSE" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="CHR_COLON" candidate-ids="comparison_predicate, null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="FN_CURRENT_USER" candidate-ids="comparison_predicate, null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="FN_SESSION_USER" candidate-ids="comparison_predicate, null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="FN_SYSTEM_USER" candidate-ids="comparison_predicate, null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="FN_USER" candidate-ids="comparison_predicate, null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="KW_VALUE" candidate-ids="comparison_predicate, null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="IDENTIFIER" candidate-ids="comparison_predicate, null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="FN_AVG" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="FN_COUNT" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="FN_MAX" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="FN_MIN" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="FN_SUM" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="KW_CASE" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="KW_CAST" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
+        <token type-id="KW_EXISTS" candidate-ids="exists_predicate" />
+        <token type-id="KW_UNIQUE" candidate-ids="unique_predicate" />
+    </one-of-extension>
+    <one-of-extension id="00249">
+        <token type-id="CHR_PLUS" candidate-ids="value_expression" />
+        <token type-id="CHR_MINUS" candidate-ids="value_expression" />
+        <token type-id="NUMBER" candidate-ids="value_expression" />
+        <token type-id="INTEGER" candidate-ids="value_expression" />
+        <token type-id="STRING" candidate-ids="value_expression" />
+        <token type-id="KW_NULL" candidate-ids="value_expression" />
+        <token type-id="KW_TRUE" candidate-ids="value_expression" />
+        <token type-id="KW_FALSE" candidate-ids="value_expression" />
+        <token type-id="CHR_COLON" candidate-ids="value_expression" />
+        <token type-id="FN_CURRENT_USER" candidate-ids="value_expression" />
+        <token type-id="FN_SESSION_USER" candidate-ids="value_expression" />
+        <token type-id="FN_SYSTEM_USER" candidate-ids="value_expression" />
+        <token type-id="FN_USER" candidate-ids="value_expression" />
+        <token type-id="KW_VALUE" candidate-ids="value_expression" />
+        <token type-id="IDENTIFIER" candidate-ids="value_expression" />
+        <token type-id="FN_AVG" candidate-ids="value_expression" />
+        <token type-id="FN_COUNT" candidate-ids="value_expression" />
+        <token type-id="FN_MAX" candidate-ids="value_expression" />
+        <token type-id="FN_MIN" candidate-ids="value_expression" />
+        <token type-id="FN_SUM" candidate-ids="value_expression" />
+        <token type-id="CHR_LEFT_PARENTHESIS">
+            <token type-id="KW_SELECT" candidate-ids="value_expression" />
+            <token type-id="CHR_PLUS" candidate-ids="value_expression, 00250" />
+            <token type-id="CHR_MINUS" candidate-ids="value_expression, 00250" />
+            <token type-id="NUMBER" candidate-ids="value_expression, 00250" />
+            <token type-id="INTEGER" candidate-ids="value_expression, 00250" />
+            <token type-id="STRING" candidate-ids="value_expression, 00250" />
+            <token type-id="KW_NULL" candidate-ids="value_expression, 00250" />
+            <token type-id="KW_TRUE" candidate-ids="value_expression, 00250" />
+            <token type-id="KW_FALSE" candidate-ids="value_expression, 00250" />
+            <token type-id="CHR_COLON" candidate-ids="value_expression, 00250" />
+            <token type-id="FN_CURRENT_USER" candidate-ids="value_expression, 00250" />
+            <token type-id="FN_SESSION_USER" candidate-ids="value_expression, 00250" />
+            <token type-id="FN_SYSTEM_USER" candidate-ids="value_expression, 00250" />
+            <token type-id="FN_USER" candidate-ids="value_expression, 00250" />
+            <token type-id="KW_VALUE" candidate-ids="value_expression, 00250" />
+            <token type-id="IDENTIFIER" candidate-ids="value_expression, 00250" />
+            <token type-id="FN_AVG" candidate-ids="value_expression, 00250" />
+            <token type-id="FN_COUNT" candidate-ids="value_expression, 00250" />
+            <token type-id="FN_MAX" candidate-ids="value_expression, 00250" />
+            <token type-id="FN_MIN" candidate-ids="value_expression, 00250" />
+            <token type-id="FN_SUM" candidate-ids="value_expression, 00250" />
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="value_expression, 00250" />
+            <token type-id="KW_CASE" candidate-ids="value_expression, 00250" />
+            <token type-id="KW_CAST" candidate-ids="value_expression, 00250" />
+        </token>
+        <token type-id="KW_CASE" candidate-ids="value_expression" />
+        <token type-id="KW_CAST" candidate-ids="value_expression" />
+    </one-of-extension>
+    <one-of-extension id="00264">
+        <token type-id="CHR_LEFT_PARENTHESIS">
+            <token type-id="KW_SELECT" candidate-ids="table_subquery" />
+            <token type-id="CHR_PLUS" candidate-ids="00265" />
+            <token type-id="CHR_MINUS" candidate-ids="00265" />
+            <token type-id="NUMBER" candidate-ids="00265" />
+            <token type-id="INTEGER" candidate-ids="00265" />
+            <token type-id="STRING" candidate-ids="00265" />
+            <token type-id="KW_NULL" candidate-ids="00265" />
+            <token type-id="KW_TRUE" candidate-ids="00265" />
+            <token type-id="KW_FALSE" candidate-ids="00265" />
+            <token type-id="CHR_COLON" candidate-ids="00265" />
+            <token type-id="FN_CURRENT_USER" candidate-ids="00265" />
+            <token type-id="FN_SESSION_USER" candidate-ids="00265" />
+            <token type-id="FN_SYSTEM_USER" candidate-ids="00265" />
+            <token type-id="FN_USER" candidate-ids="00265" />
+            <token type-id="KW_VALUE" candidate-ids="00265" />
+            <token type-id="IDENTIFIER" candidate-ids="00265" />
+            <token type-id="FN_AVG" candidate-ids="00265" />
+            <token type-id="FN_COUNT" candidate-ids="00265" />
+            <token type-id="FN_MAX" candidate-ids="00265" />
+            <token type-id="FN_MIN" candidate-ids="00265" />
+            <token type-id="FN_SUM" candidate-ids="00265" />
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="00265" />
+            <token type-id="KW_CASE" candidate-ids="00265" />
+            <token type-id="KW_CAST" candidate-ids="00265" />
+        </token>
+    </one-of-extension>
+    <one-of-extension id="00281">
+        <token type-id="IDENTIFIER" candidate-ids="00282, 00283" />
+    </one-of-extension>
+    <one-of-extension id="00300">
+        <token type-id="NUMBER" candidate-ids="value_expression_primary" />
+        <token type-id="INTEGER" candidate-ids="value_expression_primary" />
+        <token type-id="STRING" candidate-ids="value_expression_primary" />
+        <token type-id="KW_NULL" candidate-ids="value_expression_primary" />
+        <token type-id="KW_TRUE" candidate-ids="value_expression_primary" />
+        <token type-id="KW_FALSE" candidate-ids="value_expression_primary" />
+        <token type-id="CHR_COLON" candidate-ids="value_expression_primary" />
+        <token type-id="FN_CURRENT_USER" candidate-ids="value_expression_primary" />
+        <token type-id="FN_SESSION_USER" candidate-ids="value_expression_primary" />
+        <token type-id="FN_SYSTEM_USER" candidate-ids="value_expression_primary" />
+        <token type-id="FN_USER" candidate-ids="value_expression_primary" />
+        <token type-id="KW_VALUE" candidate-ids="value_expression_primary" />
+        <token type-id="IDENTIFIER">
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="numeric_value_function" />
+        </token>
+        <token type-id="FN_AVG" candidate-ids="value_expression_primary" />
+        <token type-id="FN_COUNT" candidate-ids="value_expression_primary" />
+        <token type-id="FN_MAX" candidate-ids="value_expression_primary" />
+        <token type-id="FN_MIN" candidate-ids="value_expression_primary" />
+        <token type-id="FN_SUM" candidate-ids="value_expression_primary" />
+        <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="value_expression_primary" />
+        <token type-id="KW_CASE" candidate-ids="value_expression_primary" />
+        <token type-id="KW_CAST" candidate-ids="value_expression_primary" />
+    </one-of-extension>
+    <one-of-extension id="00301">
+        <token type-id="NUMBER" candidate-ids="unsigned_value_specification" />
+        <token type-id="INTEGER" candidate-ids="unsigned_value_specification" />
+        <token type-id="STRING" candidate-ids="unsigned_value_specification" />
+        <token type-id="KW_NULL" candidate-ids="unsigned_value_specification" />
+        <token type-id="KW_TRUE" candidate-ids="unsigned_value_specification" />
+        <token type-id="KW_FALSE" candidate-ids="unsigned_value_specification" />
+        <token type-id="CHR_COLON" candidate-ids="unsigned_value_specification" />
+        <token type-id="FN_CURRENT_USER" candidate-ids="unsigned_value_specification" />
+        <token type-id="FN_SESSION_USER" candidate-ids="unsigned_value_specification" />
+        <token type-id="FN_SYSTEM_USER" candidate-ids="unsigned_value_specification" />
+        <token type-id="FN_USER" candidate-ids="unsigned_value_specification" />
+        <token type-id="KW_VALUE" candidate-ids="unsigned_value_specification" />
+        <token type-id="IDENTIFIER" candidate-ids="column_reference" />
+        <token type-id="FN_AVG" candidate-ids="set_function_specification" />
+        <token type-id="FN_COUNT" candidate-ids="set_function_specification" />
+        <token type-id="FN_MAX" candidate-ids="set_function_specification" />
+        <token type-id="FN_MIN" candidate-ids="set_function_specification" />
+        <token type-id="FN_SUM" candidate-ids="set_function_specification" />
+        <token type-id="CHR_LEFT_PARENTHESIS">
+            <token type-id="KW_SELECT" candidate-ids="scalar_subquery" />
+            <token type-id="CHR_PLUS" candidate-ids="00302" />
+            <token type-id="CHR_MINUS" candidate-ids="00302" />
+            <token type-id="NUMBER" candidate-ids="00302" />
+            <token type-id="INTEGER" candidate-ids="00302" />
+            <token type-id="STRING" candidate-ids="00302" />
+            <token type-id="KW_NULL" candidate-ids="00302" />
+            <token type-id="KW_TRUE" candidate-ids="00302" />
+            <token type-id="KW_FALSE" candidate-ids="00302" />
+            <token type-id="CHR_COLON" candidate-ids="00302" />
+            <token type-id="FN_CURRENT_USER" candidate-ids="00302" />
+            <token type-id="FN_SESSION_USER" candidate-ids="00302" />
+            <token type-id="FN_SYSTEM_USER" candidate-ids="00302" />
+            <token type-id="FN_USER" candidate-ids="00302" />
+            <token type-id="KW_VALUE" candidate-ids="00302" />
+            <token type-id="IDENTIFIER" candidate-ids="00302" />
+            <token type-id="FN_AVG" candidate-ids="00302" />
+            <token type-id="FN_COUNT" candidate-ids="00302" />
+            <token type-id="FN_MAX" candidate-ids="00302" />
+            <token type-id="FN_MIN" candidate-ids="00302" />
+            <token type-id="FN_SUM" candidate-ids="00302" />
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="00302" />
+            <token type-id="KW_CASE" candidate-ids="00302" />
+            <token type-id="KW_CAST" candidate-ids="00302" />
+        </token>
+        <token type-id="KW_CASE" candidate-ids="case_expression" />
+        <token type-id="KW_CAST" candidate-ids="cast_specification" />
+    </one-of-extension>
+    <one-of-extension id="00348">
+        <token type-id="DT_CHAR">
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="00349" />
+            <token type-id="KW_VARYING" candidate-ids="00353" />
+        </token>
+        <token type-id="DT_CHARACTER">
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="00349" />
+            <token type-id="KW_VARYING" candidate-ids="00353" />
+        </token>
+        <token type-id="DT_CHAR_VARYING" candidate-ids="00353" />
+        <token type-id="DT_CHARACTER_VARYING" candidate-ids="00353" />
+        <token type-id="DT_VARCHAR" candidate-ids="00353" />
+        <token type-id="KW_NATIONAL" candidate-ids="00364" />
+        <token type-id="DT_NATIONAL_VARCHAR" candidate-ids="00371" />
+    </one-of-extension>
+    <one-of-extension id="00373">
+        <token type-id="DT_BIT">
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="00374" />
+            <token type-id="KW_VARYING" candidate-ids="00376" />
+        </token>
+        <token type-id="DT_BIT_VARYING" candidate-ids="00376" />
+    </one-of-extension>
+    <one-of-extension id="00457">
+        <token type-id="CHR_COLON">
+            <token type-id="IDENTIFIER">
+                <token type-id="KW_INDICATOR" candidate-ids="parameter_specification, variable_specification" />
+                <token type-id="CHR_COLON" candidate-ids="parameter_specification, variable_specification" />
+            </token>
+        </token>
+        <token type-id="FN_CURRENT_USER" candidate-ids="00458" />
+        <token type-id="FN_SESSION_USER" candidate-ids="00459" />
+        <token type-id="FN_SYSTEM_USER" candidate-ids="00460" />
+        <token type-id="FN_USER" candidate-ids="00461" />
+        <token type-id="KW_VALUE" candidate-ids="00462" />
+    </one-of-extension>
+</parser-element-extensions>
