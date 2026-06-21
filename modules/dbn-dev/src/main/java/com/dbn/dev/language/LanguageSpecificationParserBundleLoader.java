@@ -34,7 +34,7 @@ import com.dbn.language.sql.dialect.oracle.OracleSQLParser;
 import com.dbn.language.sql.dialect.postgres.PostgresSQLParser;
 import com.dbn.language.sql.dialect.sqlite.SqliteSQLParser;
 import lombok.SneakyThrows;
-import org.jdom.input.SAXBuilder;
+import org.jdom.Document;
 
 import java.io.File;
 import java.util.HashMap;
@@ -48,7 +48,7 @@ import static com.dbn.connection.DatabaseType.MYSQL;
 import static com.dbn.connection.DatabaseType.ORACLE;
 import static com.dbn.connection.DatabaseType.POSTGRES;
 import static com.dbn.connection.DatabaseType.SQLITE;
-import static com.dbn.dev.language.LanguageSpecificationXmlUtil.createSaxBuilder;
+import static com.dbn.dev.language.LanguageSpecificationXmlUtil.fileToDocument;
 import static com.dbn.language.common.DBLanguageDialectIdentifier.ISO92_SQL;
 import static com.dbn.language.common.DBLanguageDialectIdentifier.MYSQL_SQL;
 import static com.dbn.language.common.DBLanguageDialectIdentifier.ORACLE_PLSQL;
@@ -132,10 +132,13 @@ class LanguageSpecificationParserBundleLoader {
             DBLanguageDialect languageDialect = input.language.getLanguageDialect(dialect);
             var constructor = parser.getConstructor(getDialectClass());
             DBLanguageParser languageParser = constructor.newInstance(languageDialect);
-            File file = getParserElementsFile();
-            SAXBuilder builder = createSaxBuilder();
+            File definitionFile = getParserElementsFile();
+            File extensionFile = input.getParserElementsExtensionFile();
+
+            Document definitionDocument = fileToDocument(definitionFile);
+            Document extensionDocument = fileToDocument(extensionFile);
             System.out.println("Building element type bundle: " + languageDialect.getID());
-            return new ElementTypeBundle(languageDialect, languageParser.getTokenTypes(), builder.build(file), null, builderCallback);
+            return new ElementTypeBundle(languageDialect, languageParser.getTokenTypes(), definitionDocument, extensionDocument, builderCallback);
         } finally {
             System.out.println("Element type bundle loading finished");
             ElementTypeBundle.Builder.rebuilding = previousRebuilding;

@@ -32,6 +32,7 @@ import org.jdom.input.sax.SAXHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +44,12 @@ final class LanguageSpecificationXmlUtil {
         SAXBuilder builder = new SAXBuilder();
         builder.setSAXHandlerFactory(CommentPreservingSaxHandler::new);
         return builder;
+    }
+
+    static Document fileToDocument(File file) throws Exception {
+        if (!file.exists()) return null;
+
+        return createSaxBuilder().build(file);
     }
 
     static String outputString(Document document) {

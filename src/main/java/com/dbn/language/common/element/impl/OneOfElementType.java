@@ -131,7 +131,7 @@ public class OneOfElementType extends ElementTypeBase {
                 this.children[i] = new ElementTypeRef(elementType, false, version, branchChecks);
             }
             sortable = getBooleanAttribute(def, "sortable");
-            ambiguous = getBooleanAttribute(def, "ambiguous");
+            loadLegacyAmbiguousAttribute(def);
         }
 
         if (children == null || children.length == 0) {
@@ -139,6 +139,19 @@ public class OneOfElementType extends ElementTypeBase {
             throw new ElementTypeDefinitionException("[" + getLanguageDialect().getID() + "] Invalid one-of definition (id=" + getId() + "). Element should contain at least 2 elements.");
         }
         linkElements(children);
+    }
+
+    private void loadLegacyAmbiguousAttribute(Element def) {
+        if (bundle.isExtensionsAvailable()) {
+            ambiguous = false;
+            if (ElementTypeBundle.Builder.rebuilding && stringAttribute(def, "ambiguous") != null) {
+                def.removeAttribute("ambiguous");
+                bundle.getBuilder().setDirty(true);
+            }
+            return;
+        }
+
+        ambiguous = getBooleanAttribute(def, "ambiguous");
     }
 
     @Override
@@ -227,8 +240,6 @@ public class OneOfElementType extends ElementTypeBase {
     @Deprecated(forRemoval = true)
     @SuppressWarnings("removal")
     private void rebuildLegacyAmbiguousPaths() {
-        if (extension != null) return;
-
         OneOfElementTypeBuilder.rebuildAmbiguousPaths(this);
     }
 }

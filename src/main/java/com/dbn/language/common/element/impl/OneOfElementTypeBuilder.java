@@ -57,6 +57,8 @@ public class OneOfElementTypeBuilder {
 
     @Deprecated(forRemoval = true)
     public static void rebuildAmbiguousPaths(OneOfElementType subject) {
+        if (subject.bundle.isExtensionsAvailable()) return;
+
         OneOfElementTypeBuilder builder = new OneOfElementTypeBuilder(subject);
         builder.rebuildAmbiguousPaths();
     }
