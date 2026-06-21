@@ -34,7 +34,6 @@ import com.dbn.language.sql.dialect.postgres.PostgresSQLParser;
 import com.dbn.language.sql.dialect.sqlite.SqliteSQLParser;
 import lombok.SneakyThrows;
 import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -48,6 +47,8 @@ import static com.dbn.connection.DatabaseType.MYSQL;
 import static com.dbn.connection.DatabaseType.ORACLE;
 import static com.dbn.connection.DatabaseType.POSTGRES;
 import static com.dbn.connection.DatabaseType.SQLITE;
+import static com.dbn.dev.language.LanguageSpecificationXmlUtil.createSaxBuilder;
+import static com.dbn.dev.language.LanguageSpecificationXmlUtil.outputString;
 import static com.dbn.language.common.DBLanguageDialectIdentifier.ISO92_SQL;
 import static com.dbn.language.common.DBLanguageDialectIdentifier.MYSQL_SQL;
 import static com.dbn.language.common.DBLanguageDialectIdentifier.ORACLE_PLSQL;
@@ -105,7 +106,7 @@ public class LanguageSpecificationParserBuilder {
             var constructor = parser.getConstructor(getDialectClass());
             DBLanguageParser languageParser = constructor.newInstance(languageDialect);
             File file = getParserElementsFile();
-            SAXBuilder builder = new SAXBuilder();
+            SAXBuilder builder = createSaxBuilder();
             new ElementTypeBundle(languageDialect, languageParser.getTokenTypes(), builder.build(file), this::writeElementTypeDefinition);
         } finally {
             ElementTypeBundle.Builder.rebuilding = false;
@@ -132,8 +133,7 @@ public class LanguageSpecificationParserBuilder {
         Path filePath = file.toPath();
 
         System.out.println("Writing " + filePath);
-        XMLOutputter outputter = new XMLOutputter();
-        Files.writeString(filePath, outputter.outputString(builder.getDocument()), StandardCharsets.UTF_8);
+        Files.writeString(filePath, outputString(builder.getDocument()), StandardCharsets.UTF_8);
     }
 
     private Class<? extends DBLanguageDialect> getDialectClass() {

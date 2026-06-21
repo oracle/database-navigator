@@ -93,13 +93,16 @@ public class LanguageSpecificationBuilderInput {
         return new File(getProjectPath(), getDefinitionFilePath() + getDefinitionFilePrefix() + "_parser_elements.xml");
     }
 
-    public File getHighlighterLexerFile() {
+    public File getHighlighterLexerBaseFile() {
         String commonLexerPath = "src/main/java/com/dbn/language/common/lexer/";
         File file = new File(getProjectPath(), commonLexerPath + "shared_elements_" + databaseId + "_" + languageFid + ".flext");
         if (file.exists()) return file;
 
-        file = new File(getProjectPath(), getDefinitionFilePath() + getDefinitionFilePrefix() + "_highlighter.flex");
-        return file;
+        return getHighlighterLexerFile();
+    }
+
+    public File getHighlighterLexerFile() {
+        return new File(getProjectPath(), getDefinitionFilePath() + getDefinitionFilePrefix() + "_highlighter.flex");
     }
 
     public String getDefinitionFilePath() {

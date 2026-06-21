@@ -91,7 +91,7 @@ public class LanguageSpecificationLexerBuilder {
 
     @SneakyThrows
     private void updateHighlighterLexerDefinition() {
-        File file = input.getHighlighterLexerFile();
+        File file = input.getHighlighterLexerBaseFile();
         Path filePath = file.toPath();
 
         System.out.println("Reading " + filePath);

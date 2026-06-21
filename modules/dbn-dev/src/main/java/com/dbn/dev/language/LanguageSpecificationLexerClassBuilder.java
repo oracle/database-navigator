@@ -19,16 +19,11 @@ package com.dbn.dev.language;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 @NonNls
 public class LanguageSpecificationLexerClassBuilder {
-    private static final Scanner SCANNER = new Scanner(System.in);
-
     private static final String JFLEX_JAVA_PROPERTY = "jflexJava";             // e.g. /Applications/IntelliJ IDEA 26.1.app/Contents/jbr/Contents/Home/bin/java
     private static final String JFLEX_JAR_PROPERTY = "jflexJar";               // e.g. /Users/dcioca/Resources/libraries/jflex-1.9.1/jflex-1.9.1.jar
     private static final String JFLEX_SKELETON_PROPERTY = "jflexSkeleton";     // e.g. /Users/dcioca/Resources/libraries/jflex-1.9.1/idea-flex.skeleton
@@ -40,10 +35,8 @@ public class LanguageSpecificationLexerClassBuilder {
     }
 
     public void build() throws Exception {
-        LexerDefinition lexerDefinition = selectOption("lexer definition", LexerDefinition.OPTIONS);
-        File flexFile = lexerDefinition.getFlexFile(input);
-
-        runJFlex(flexFile);
+        runJFlex(input.getParserLexerFile());
+        runJFlex(input.getHighlighterLexerFile());
     }
 
     private void runJFlex(File flexFile) throws Exception {
@@ -85,64 +78,4 @@ public class LanguageSpecificationLexerClassBuilder {
         return value.contains(" ") ? "\"" + value + "\"" : value;
     }
 
-    private static <T> T selectOption(String name, Map<String, T> options) {
-        System.out.println("_______________________________________");
-        System.out.print("Select " + name + " (x to exit)\n" + presentableOptions(options) + "\n");
-        String s = SCANNER.next();
-
-        T option = options.get(s.toLowerCase());
-        if (option != null) {
-            System.out.println("Selected " + name + ": " + option);
-            return option;
-        }
-
-        if (s.equalsIgnoreCase("x")) {
-            System.out.println("Bye bye!");
-            System.exit(0);
-            return null;
-        }
-
-        System.out.println("Invalid option: " + s);
-        return selectOption(name, options);
-    }
-
-    private static String presentableOptions(Map<String, ?> options) {
-        return options.keySet().stream().map(k -> k + " " + options.get(k)).collect(Collectors.joining("\n"));
-    }
-
-    private enum LexerDefinition {
-        PARSER("parser") {
-            @Override
-            File getFlexFile(LanguageSpecificationBuilderInput input) {
-                return input.getParserLexerFile();
-            }
-        },
-        HIGHLIGHTER("highlighter") {
-            @Override
-            File getFlexFile(LanguageSpecificationBuilderInput input) {
-                return new File(
-                        input.getProjectPath(),
-                        input.getDefinitionFilePath() + input.getDefinitionFilePrefix() + "_highlighter.flex");
-            }
-        };
-
-        private static final Map<String, LexerDefinition> OPTIONS = new LinkedHashMap<>();
-        static {
-            OPTIONS.put("p", PARSER);
-            OPTIONS.put("h", HIGHLIGHTER);
-        }
-
-        private final String name;
-
-        LexerDefinition(String name) {
-            this.name = name;
-        }
-
-        abstract File getFlexFile(LanguageSpecificationBuilderInput input);
-
-        @Override
-        public String toString() {
-            return name;
-        }
-    }
 }
