@@ -21,7 +21,8 @@
 
 <!ELEMENT one-of-extension (token)*>
 <!ATTLIST one-of-extension
-        id CDATA #REQUIRED>
+        id CDATA #REQUIRED
+        depth CDATA #REQUIRED>
 
 <!ELEMENT token (token)*>
 <!ATTLIST token

@@ -17,7 +17,7 @@
 <!DOCTYPE parser-element-extensions SYSTEM "../../../common/definition/language-parser-elements-ext.dtd">
 
 <parser-element-extensions language="ISO92-SQL" source="iso92_sql_parser_elements.xml">
-    <one-of-extension id="00023">
+    <one-of-extension id="00023" depth="2">
         <token type-id="KW_CREATE">
             <token type-id="KW_TABLE" candidate-ids="create_table_statement" />
             <token type-id="KW_VIEW" candidate-ids="create_view_statement" />
@@ -26,7 +26,7 @@
             <token type-id="KW_ASSERTION" candidate-ids="create_assertion_statement" />
         </token>
     </one-of-extension>
-    <one-of-extension id="00052">
+    <one-of-extension id="00052" depth="2">
         <token type-id="KW_NULL">
             <token type-id="CHR_STAR" candidate-ids="value_expression" />
             <token type-id="CHR_SLASH" candidate-ids="value_expression" />
@@ -56,7 +56,7 @@
         <token type-id="KW_CASE" candidate-ids="value_expression" />
         <token type-id="KW_CAST" candidate-ids="value_expression" />
     </one-of-extension>
-    <one-of-extension id="00121">
+    <one-of-extension id="00121" depth="2">
         <token type-id="KW_CREATE">
             <token type-id="KW_TABLE" candidate-ids="create_table_statement" />
             <token type-id="KW_VIEW" candidate-ids="create_view_statement" />
@@ -64,7 +64,7 @@
             <token type-id="KW_ASSERTION" candidate-ids="create_assertion_statement" />
         </token>
     </one-of-extension>
-    <one-of-extension id="00127">
+    <one-of-extension id="00127" depth="2">
         <token type-id="KW_DROP">
             <token type-id="KW_TABLE" candidate-ids="drop_table_statement" />
             <token type-id="KW_VIEW" candidate-ids="drop_view_statement" />
@@ -73,13 +73,13 @@
             <token type-id="KW_ASSERTION" candidate-ids="drop_assertion_statement" />
         </token>
     </one-of-extension>
-    <one-of-extension id="00146">
+    <one-of-extension id="00146" depth="2">
         <token type-id="KW_ALTER">
             <token type-id="KW_TABLE" candidate-ids="alter_table_statement" />
             <token type-id="KW_DOMAIN" candidate-ids="alter_domain_statement" />
         </token>
     </one-of-extension>
-    <one-of-extension id="00149">
+    <one-of-extension id="00149" depth="2">
         <token type-id="KW_ADD">
             <token type-id="KW_COLUMN" candidate-ids="00150" />
             <token type-id="IDENTIFIER" candidate-ids="00150" />
@@ -95,7 +95,7 @@
             <token type-id="KW_CONSTRAINT" candidate-ids="00159" />
         </token>
     </one-of-extension>
-    <one-of-extension id="00165">
+    <one-of-extension id="00165" depth="2">
         <token type-id="KW_SET" candidate-ids="00166" />
         <token type-id="KW_DROP">
             <token type-id="KW_DEFAULT" candidate-ids="00169" />
@@ -103,7 +103,7 @@
         </token>
         <token type-id="KW_ADD" candidate-ids="00172" />
     </one-of-extension>
-    <one-of-extension id="00189">
+    <one-of-extension id="00228" depth="2">
         <token type-id="CHR_PLUS" candidate-ids="derived_column" />
         <token type-id="CHR_MINUS" candidate-ids="derived_column" />
         <token type-id="NUMBER" candidate-ids="derived_column" />
@@ -127,7 +127,7 @@
             <token type-id="OPR_CONCATENATION" candidate-ids="derived_column" />
             <token type-id="KW_AS" candidate-ids="derived_column" />
             <token type-id="IDENTIFIER" candidate-ids="derived_column" />
-            <token type-id="CHR_DOT" candidate-ids="00190" />
+            <token type-id="CHR_DOT" candidate-ids="00229" />
         </token>
         <token type-id="FN_AVG" candidate-ids="derived_column" />
         <token type-id="FN_COUNT" candidate-ids="derived_column" />
@@ -138,7 +138,7 @@
         <token type-id="KW_CASE" candidate-ids="derived_column" />
         <token type-id="KW_CAST" candidate-ids="derived_column" />
     </one-of-extension>
-    <one-of-extension id="00194">
+    <one-of-extension id="00234" depth="2">
         <token type-id="CHR_PLUS" candidate-ids="numeric_value_expression" />
         <token type-id="CHR_MINUS" candidate-ids="numeric_value_expression" />
         <token type-id="NUMBER">
@@ -233,7 +233,7 @@
         <token type-id="KW_CASE" candidate-ids="numeric_value_expression" />
         <token type-id="KW_CAST" candidate-ids="numeric_value_expression" />
     </one-of-extension>
-    <one-of-extension id="00239">
+    <one-of-extension id="00279" depth="2">
         <token type-id="CHR_PLUS" candidate-ids="predicate" />
         <token type-id="CHR_MINUS" candidate-ids="predicate" />
         <token type-id="NUMBER" candidate-ids="predicate" />
@@ -256,39 +256,39 @@
         <token type-id="FN_SUM" candidate-ids="predicate" />
         <token type-id="CHR_LEFT_PARENTHESIS">
             <token type-id="KW_SELECT" candidate-ids="predicate" />
-            <token type-id="CHR_PLUS" candidate-ids="predicate, 00240" />
-            <token type-id="CHR_MINUS" candidate-ids="predicate, 00240" />
-            <token type-id="NUMBER" candidate-ids="predicate, 00240" />
-            <token type-id="INTEGER" candidate-ids="predicate, 00240" />
-            <token type-id="STRING" candidate-ids="predicate, 00240" />
-            <token type-id="KW_NULL" candidate-ids="predicate, 00240" />
-            <token type-id="KW_TRUE" candidate-ids="predicate, 00240" />
-            <token type-id="KW_FALSE" candidate-ids="predicate, 00240" />
-            <token type-id="CHR_COLON" candidate-ids="predicate, 00240" />
-            <token type-id="FN_CURRENT_USER" candidate-ids="predicate, 00240" />
-            <token type-id="FN_SESSION_USER" candidate-ids="predicate, 00240" />
-            <token type-id="FN_SYSTEM_USER" candidate-ids="predicate, 00240" />
-            <token type-id="FN_USER" candidate-ids="predicate, 00240" />
-            <token type-id="KW_VALUE" candidate-ids="predicate, 00240" />
-            <token type-id="IDENTIFIER" candidate-ids="predicate, 00240" />
-            <token type-id="FN_AVG" candidate-ids="predicate, 00240" />
-            <token type-id="FN_COUNT" candidate-ids="predicate, 00240" />
-            <token type-id="FN_MAX" candidate-ids="predicate, 00240" />
-            <token type-id="FN_MIN" candidate-ids="predicate, 00240" />
-            <token type-id="FN_SUM" candidate-ids="predicate, 00240" />
-            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="predicate, 00240" />
-            <token type-id="KW_CASE" candidate-ids="predicate, 00240" />
-            <token type-id="KW_CAST" candidate-ids="predicate, 00240" />
-            <token type-id="KW_NOT" candidate-ids="00240" />
-            <token type-id="KW_EXISTS" candidate-ids="00240" />
-            <token type-id="KW_UNIQUE" candidate-ids="00240" />
+            <token type-id="CHR_PLUS" candidate-ids="predicate, 00280" />
+            <token type-id="CHR_MINUS" candidate-ids="predicate, 00280" />
+            <token type-id="NUMBER" candidate-ids="predicate, 00280" />
+            <token type-id="INTEGER" candidate-ids="predicate, 00280" />
+            <token type-id="STRING" candidate-ids="predicate, 00280" />
+            <token type-id="KW_NULL" candidate-ids="predicate, 00280" />
+            <token type-id="KW_TRUE" candidate-ids="predicate, 00280" />
+            <token type-id="KW_FALSE" candidate-ids="predicate, 00280" />
+            <token type-id="CHR_COLON" candidate-ids="predicate, 00280" />
+            <token type-id="FN_CURRENT_USER" candidate-ids="predicate, 00280" />
+            <token type-id="FN_SESSION_USER" candidate-ids="predicate, 00280" />
+            <token type-id="FN_SYSTEM_USER" candidate-ids="predicate, 00280" />
+            <token type-id="FN_USER" candidate-ids="predicate, 00280" />
+            <token type-id="KW_VALUE" candidate-ids="predicate, 00280" />
+            <token type-id="IDENTIFIER" candidate-ids="predicate, 00280" />
+            <token type-id="FN_AVG" candidate-ids="predicate, 00280" />
+            <token type-id="FN_COUNT" candidate-ids="predicate, 00280" />
+            <token type-id="FN_MAX" candidate-ids="predicate, 00280" />
+            <token type-id="FN_MIN" candidate-ids="predicate, 00280" />
+            <token type-id="FN_SUM" candidate-ids="predicate, 00280" />
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="predicate, 00280" />
+            <token type-id="KW_CASE" candidate-ids="predicate, 00280" />
+            <token type-id="KW_CAST" candidate-ids="predicate, 00280" />
+            <token type-id="KW_NOT" candidate-ids="00280" />
+            <token type-id="KW_EXISTS" candidate-ids="00280" />
+            <token type-id="KW_UNIQUE" candidate-ids="00280" />
         </token>
         <token type-id="KW_CASE" candidate-ids="predicate" />
         <token type-id="KW_CAST" candidate-ids="predicate" />
         <token type-id="KW_EXISTS" candidate-ids="predicate" />
         <token type-id="KW_UNIQUE" candidate-ids="predicate" />
     </one-of-extension>
-    <one-of-extension id="00241">
+    <one-of-extension id="00281" depth="4">
         <token type-id="CHR_PLUS">
             <token type-id="NUMBER">
                 <token type-id="CHR_STAR" candidate-ids="comparison_predicate, null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, match_predicate, overlaps_predicate" />
@@ -880,7 +880,7 @@
         <token type-id="KW_EXISTS" candidate-ids="exists_predicate" />
         <token type-id="KW_UNIQUE" candidate-ids="unique_predicate" />
     </one-of-extension>
-    <one-of-extension id="00249">
+    <one-of-extension id="00289" depth="2">
         <token type-id="CHR_PLUS" candidate-ids="value_expression" />
         <token type-id="CHR_MINUS" candidate-ids="value_expression" />
         <token type-id="NUMBER" candidate-ids="value_expression" />
@@ -903,65 +903,62 @@
         <token type-id="FN_SUM" candidate-ids="value_expression" />
         <token type-id="CHR_LEFT_PARENTHESIS">
             <token type-id="KW_SELECT" candidate-ids="value_expression" />
-            <token type-id="CHR_PLUS" candidate-ids="value_expression, 00250" />
-            <token type-id="CHR_MINUS" candidate-ids="value_expression, 00250" />
-            <token type-id="NUMBER" candidate-ids="value_expression, 00250" />
-            <token type-id="INTEGER" candidate-ids="value_expression, 00250" />
-            <token type-id="STRING" candidate-ids="value_expression, 00250" />
-            <token type-id="KW_NULL" candidate-ids="value_expression, 00250" />
-            <token type-id="KW_TRUE" candidate-ids="value_expression, 00250" />
-            <token type-id="KW_FALSE" candidate-ids="value_expression, 00250" />
-            <token type-id="CHR_COLON" candidate-ids="value_expression, 00250" />
-            <token type-id="FN_CURRENT_USER" candidate-ids="value_expression, 00250" />
-            <token type-id="FN_SESSION_USER" candidate-ids="value_expression, 00250" />
-            <token type-id="FN_SYSTEM_USER" candidate-ids="value_expression, 00250" />
-            <token type-id="FN_USER" candidate-ids="value_expression, 00250" />
-            <token type-id="KW_VALUE" candidate-ids="value_expression, 00250" />
-            <token type-id="IDENTIFIER" candidate-ids="value_expression, 00250" />
-            <token type-id="FN_AVG" candidate-ids="value_expression, 00250" />
-            <token type-id="FN_COUNT" candidate-ids="value_expression, 00250" />
-            <token type-id="FN_MAX" candidate-ids="value_expression, 00250" />
-            <token type-id="FN_MIN" candidate-ids="value_expression, 00250" />
-            <token type-id="FN_SUM" candidate-ids="value_expression, 00250" />
-            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="value_expression, 00250" />
-            <token type-id="KW_CASE" candidate-ids="value_expression, 00250" />
-            <token type-id="KW_CAST" candidate-ids="value_expression, 00250" />
+            <token type-id="CHR_PLUS" candidate-ids="value_expression, 00290" />
+            <token type-id="CHR_MINUS" candidate-ids="value_expression, 00290" />
+            <token type-id="NUMBER" candidate-ids="value_expression, 00290" />
+            <token type-id="INTEGER" candidate-ids="value_expression, 00290" />
+            <token type-id="STRING" candidate-ids="value_expression, 00290" />
+            <token type-id="KW_NULL" candidate-ids="value_expression, 00290" />
+            <token type-id="KW_TRUE" candidate-ids="value_expression, 00290" />
+            <token type-id="KW_FALSE" candidate-ids="value_expression, 00290" />
+            <token type-id="CHR_COLON" candidate-ids="value_expression, 00290" />
+            <token type-id="FN_CURRENT_USER" candidate-ids="value_expression, 00290" />
+            <token type-id="FN_SESSION_USER" candidate-ids="value_expression, 00290" />
+            <token type-id="FN_SYSTEM_USER" candidate-ids="value_expression, 00290" />
+            <token type-id="FN_USER" candidate-ids="value_expression, 00290" />
+            <token type-id="KW_VALUE" candidate-ids="value_expression, 00290" />
+            <token type-id="IDENTIFIER" candidate-ids="value_expression, 00290" />
+            <token type-id="FN_AVG" candidate-ids="value_expression, 00290" />
+            <token type-id="FN_COUNT" candidate-ids="value_expression, 00290" />
+            <token type-id="FN_MAX" candidate-ids="value_expression, 00290" />
+            <token type-id="FN_MIN" candidate-ids="value_expression, 00290" />
+            <token type-id="FN_SUM" candidate-ids="value_expression, 00290" />
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="value_expression, 00290" />
+            <token type-id="KW_CASE" candidate-ids="value_expression, 00290" />
+            <token type-id="KW_CAST" candidate-ids="value_expression, 00290" />
         </token>
         <token type-id="KW_CASE" candidate-ids="value_expression" />
         <token type-id="KW_CAST" candidate-ids="value_expression" />
     </one-of-extension>
-    <one-of-extension id="00264">
+    <one-of-extension id="00304" depth="2">
         <token type-id="CHR_LEFT_PARENTHESIS">
             <token type-id="KW_SELECT" candidate-ids="table_subquery" />
-            <token type-id="CHR_PLUS" candidate-ids="00265" />
-            <token type-id="CHR_MINUS" candidate-ids="00265" />
-            <token type-id="NUMBER" candidate-ids="00265" />
-            <token type-id="INTEGER" candidate-ids="00265" />
-            <token type-id="STRING" candidate-ids="00265" />
-            <token type-id="KW_NULL" candidate-ids="00265" />
-            <token type-id="KW_TRUE" candidate-ids="00265" />
-            <token type-id="KW_FALSE" candidate-ids="00265" />
-            <token type-id="CHR_COLON" candidate-ids="00265" />
-            <token type-id="FN_CURRENT_USER" candidate-ids="00265" />
-            <token type-id="FN_SESSION_USER" candidate-ids="00265" />
-            <token type-id="FN_SYSTEM_USER" candidate-ids="00265" />
-            <token type-id="FN_USER" candidate-ids="00265" />
-            <token type-id="KW_VALUE" candidate-ids="00265" />
-            <token type-id="IDENTIFIER" candidate-ids="00265" />
-            <token type-id="FN_AVG" candidate-ids="00265" />
-            <token type-id="FN_COUNT" candidate-ids="00265" />
-            <token type-id="FN_MAX" candidate-ids="00265" />
-            <token type-id="FN_MIN" candidate-ids="00265" />
-            <token type-id="FN_SUM" candidate-ids="00265" />
-            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="00265" />
-            <token type-id="KW_CASE" candidate-ids="00265" />
-            <token type-id="KW_CAST" candidate-ids="00265" />
+            <token type-id="CHR_PLUS" candidate-ids="00305" />
+            <token type-id="CHR_MINUS" candidate-ids="00305" />
+            <token type-id="NUMBER" candidate-ids="00305" />
+            <token type-id="INTEGER" candidate-ids="00305" />
+            <token type-id="STRING" candidate-ids="00305" />
+            <token type-id="KW_NULL" candidate-ids="00305" />
+            <token type-id="KW_TRUE" candidate-ids="00305" />
+            <token type-id="KW_FALSE" candidate-ids="00305" />
+            <token type-id="CHR_COLON" candidate-ids="00305" />
+            <token type-id="FN_CURRENT_USER" candidate-ids="00305" />
+            <token type-id="FN_SESSION_USER" candidate-ids="00305" />
+            <token type-id="FN_SYSTEM_USER" candidate-ids="00305" />
+            <token type-id="FN_USER" candidate-ids="00305" />
+            <token type-id="KW_VALUE" candidate-ids="00305" />
+            <token type-id="IDENTIFIER" candidate-ids="00305" />
+            <token type-id="FN_AVG" candidate-ids="00305" />
+            <token type-id="FN_COUNT" candidate-ids="00305" />
+            <token type-id="FN_MAX" candidate-ids="00305" />
+            <token type-id="FN_MIN" candidate-ids="00305" />
+            <token type-id="FN_SUM" candidate-ids="00305" />
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="00305" />
+            <token type-id="KW_CASE" candidate-ids="00305" />
+            <token type-id="KW_CAST" candidate-ids="00305" />
         </token>
     </one-of-extension>
-    <one-of-extension id="00281">
-        <token type-id="IDENTIFIER" candidate-ids="00282, 00283" />
-    </one-of-extension>
-    <one-of-extension id="00300">
+    <one-of-extension id="00339" depth="2">
         <token type-id="NUMBER" candidate-ids="value_expression_primary" />
         <token type-id="INTEGER" candidate-ids="value_expression_primary" />
         <token type-id="STRING" candidate-ids="value_expression_primary" />
@@ -986,7 +983,7 @@
         <token type-id="KW_CASE" candidate-ids="value_expression_primary" />
         <token type-id="KW_CAST" candidate-ids="value_expression_primary" />
     </one-of-extension>
-    <one-of-extension id="00301">
+    <one-of-extension id="00340" depth="2">
         <token type-id="NUMBER" candidate-ids="unsigned_value_specification" />
         <token type-id="INTEGER" candidate-ids="unsigned_value_specification" />
         <token type-id="STRING" candidate-ids="unsigned_value_specification" />
@@ -1007,66 +1004,66 @@
         <token type-id="FN_SUM" candidate-ids="set_function_specification" />
         <token type-id="CHR_LEFT_PARENTHESIS">
             <token type-id="KW_SELECT" candidate-ids="scalar_subquery" />
-            <token type-id="CHR_PLUS" candidate-ids="00302" />
-            <token type-id="CHR_MINUS" candidate-ids="00302" />
-            <token type-id="NUMBER" candidate-ids="00302" />
-            <token type-id="INTEGER" candidate-ids="00302" />
-            <token type-id="STRING" candidate-ids="00302" />
-            <token type-id="KW_NULL" candidate-ids="00302" />
-            <token type-id="KW_TRUE" candidate-ids="00302" />
-            <token type-id="KW_FALSE" candidate-ids="00302" />
-            <token type-id="CHR_COLON" candidate-ids="00302" />
-            <token type-id="FN_CURRENT_USER" candidate-ids="00302" />
-            <token type-id="FN_SESSION_USER" candidate-ids="00302" />
-            <token type-id="FN_SYSTEM_USER" candidate-ids="00302" />
-            <token type-id="FN_USER" candidate-ids="00302" />
-            <token type-id="KW_VALUE" candidate-ids="00302" />
-            <token type-id="IDENTIFIER" candidate-ids="00302" />
-            <token type-id="FN_AVG" candidate-ids="00302" />
-            <token type-id="FN_COUNT" candidate-ids="00302" />
-            <token type-id="FN_MAX" candidate-ids="00302" />
-            <token type-id="FN_MIN" candidate-ids="00302" />
-            <token type-id="FN_SUM" candidate-ids="00302" />
-            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="00302" />
-            <token type-id="KW_CASE" candidate-ids="00302" />
-            <token type-id="KW_CAST" candidate-ids="00302" />
+            <token type-id="CHR_PLUS" candidate-ids="00341" />
+            <token type-id="CHR_MINUS" candidate-ids="00341" />
+            <token type-id="NUMBER" candidate-ids="00341" />
+            <token type-id="INTEGER" candidate-ids="00341" />
+            <token type-id="STRING" candidate-ids="00341" />
+            <token type-id="KW_NULL" candidate-ids="00341" />
+            <token type-id="KW_TRUE" candidate-ids="00341" />
+            <token type-id="KW_FALSE" candidate-ids="00341" />
+            <token type-id="CHR_COLON" candidate-ids="00341" />
+            <token type-id="FN_CURRENT_USER" candidate-ids="00341" />
+            <token type-id="FN_SESSION_USER" candidate-ids="00341" />
+            <token type-id="FN_SYSTEM_USER" candidate-ids="00341" />
+            <token type-id="FN_USER" candidate-ids="00341" />
+            <token type-id="KW_VALUE" candidate-ids="00341" />
+            <token type-id="IDENTIFIER" candidate-ids="00341" />
+            <token type-id="FN_AVG" candidate-ids="00341" />
+            <token type-id="FN_COUNT" candidate-ids="00341" />
+            <token type-id="FN_MAX" candidate-ids="00341" />
+            <token type-id="FN_MIN" candidate-ids="00341" />
+            <token type-id="FN_SUM" candidate-ids="00341" />
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="00341" />
+            <token type-id="KW_CASE" candidate-ids="00341" />
+            <token type-id="KW_CAST" candidate-ids="00341" />
         </token>
         <token type-id="KW_CASE" candidate-ids="case_expression" />
         <token type-id="KW_CAST" candidate-ids="cast_specification" />
     </one-of-extension>
-    <one-of-extension id="00348">
+    <one-of-extension id="00387" depth="2">
         <token type-id="DT_CHAR">
-            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="00349" />
-            <token type-id="KW_VARYING" candidate-ids="00353" />
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="00388" />
+            <token type-id="KW_VARYING" candidate-ids="00392" />
         </token>
         <token type-id="DT_CHARACTER">
-            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="00349" />
-            <token type-id="KW_VARYING" candidate-ids="00353" />
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="00388" />
+            <token type-id="KW_VARYING" candidate-ids="00392" />
         </token>
-        <token type-id="DT_CHAR_VARYING" candidate-ids="00353" />
-        <token type-id="DT_CHARACTER_VARYING" candidate-ids="00353" />
-        <token type-id="DT_VARCHAR" candidate-ids="00353" />
-        <token type-id="KW_NATIONAL" candidate-ids="00364" />
-        <token type-id="DT_NATIONAL_VARCHAR" candidate-ids="00371" />
+        <token type-id="DT_CHAR_VARYING" candidate-ids="00392" />
+        <token type-id="DT_CHARACTER_VARYING" candidate-ids="00392" />
+        <token type-id="DT_VARCHAR" candidate-ids="00392" />
+        <token type-id="KW_NATIONAL" candidate-ids="00403" />
+        <token type-id="DT_NATIONAL_VARCHAR" candidate-ids="00410" />
     </one-of-extension>
-    <one-of-extension id="00373">
+    <one-of-extension id="00412" depth="2">
         <token type-id="DT_BIT">
-            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="00374" />
-            <token type-id="KW_VARYING" candidate-ids="00376" />
+            <token type-id="CHR_LEFT_PARENTHESIS" candidate-ids="00413" />
+            <token type-id="KW_VARYING" candidate-ids="00415" />
         </token>
-        <token type-id="DT_BIT_VARYING" candidate-ids="00376" />
+        <token type-id="DT_BIT_VARYING" candidate-ids="00415" />
     </one-of-extension>
-    <one-of-extension id="00457">
+    <one-of-extension id="00496" depth="3">
         <token type-id="CHR_COLON">
             <token type-id="IDENTIFIER">
                 <token type-id="KW_INDICATOR" candidate-ids="parameter_specification, variable_specification" />
                 <token type-id="CHR_COLON" candidate-ids="parameter_specification, variable_specification" />
             </token>
         </token>
-        <token type-id="FN_CURRENT_USER" candidate-ids="00458" />
-        <token type-id="FN_SESSION_USER" candidate-ids="00459" />
-        <token type-id="FN_SYSTEM_USER" candidate-ids="00460" />
-        <token type-id="FN_USER" candidate-ids="00461" />
-        <token type-id="KW_VALUE" candidate-ids="00462" />
+        <token type-id="FN_CURRENT_USER" candidate-ids="00497" />
+        <token type-id="FN_SESSION_USER" candidate-ids="00498" />
+        <token type-id="FN_SYSTEM_USER" candidate-ids="00499" />
+        <token type-id="FN_USER" candidate-ids="00500" />
+        <token type-id="KW_VALUE" candidate-ids="00501" />
     </one-of-extension>
 </parser-element-extensions>

@@ -137,6 +137,8 @@
         optional (true | false) #IMPLIED
         original-name CDATA #IMPLIED>
 <!ELEMENT variant (token|object-def|object-ref|variable-ref|alias-ref|alias-def)*>
+<!ATTLIST variant
+        original-name CDATA #IMPLIED>
 <!ELEMENT object-def (#PCDATA)>
 <!ATTLIST object-def
         id CDATA #IMPLIED
