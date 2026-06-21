@@ -4034,7 +4034,7 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 542: break;
           case 51:
-            { return tt.ktt(215);
+            { return tt.ktt(214);
             }
           // fall through
           case 543: break;
@@ -4519,17 +4519,17 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 639: break;
           case 148:
-            { return tt.ktt(221);
+            { return tt.ktt(220);
             }
           // fall through
           case 640: break;
           case 149:
-            { return tt.ktt(223);
+            { return tt.ktt(222);
             }
           // fall through
           case 641: break;
           case 150:
-            { return tt.ktt(224);
+            { return tt.ktt(223);
             }
           // fall through
           case 642: break;
@@ -4544,7 +4544,7 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 644: break;
           case 153:
-            { return tt.ktt(237);
+            { return tt.ktt(236);
             }
           // fall through
           case 645: break;
@@ -4554,27 +4554,27 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 646: break;
           case 155:
-            { return tt.ktt(238);
+            { return tt.ktt(237);
             }
           // fall through
           case 647: break;
           case 156:
-            { return tt.ktt(241);
+            { return tt.ktt(240);
             }
           // fall through
           case 648: break;
           case 157:
-            { return tt.ktt(243);
+            { return tt.ktt(242);
             }
           // fall through
           case 649: break;
           case 158:
-            { return tt.ktt(245);
+            { return tt.ktt(244);
             }
           // fall through
           case 650: break;
           case 159:
-            { return tt.ktt(246);
+            { return tt.ktt(245);
             }
           // fall through
           case 651: break;
@@ -4824,7 +4824,7 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 700: break;
           case 209:
-            { return tt.ktt(225);
+            { return tt.ktt(224);
             }
           // fall through
           case 701: break;
@@ -4834,32 +4834,32 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 702: break;
           case 211:
-            { return tt.ktt(231);
+            { return tt.ktt(230);
             }
           // fall through
           case 703: break;
           case 212:
-            { return tt.ktt(232);
+            { return tt.ktt(231);
             }
           // fall through
           case 704: break;
           case 213:
-            { return tt.ktt(233);
+            { return tt.ktt(232);
             }
           // fall through
           case 705: break;
           case 214:
-            { return tt.ktt(239);
+            { return tt.ktt(238);
             }
           // fall through
           case 706: break;
           case 215:
-            { return tt.ktt(240);
+            { return tt.ktt(239);
             }
           // fall through
           case 707: break;
           case 216:
-            { return tt.ktt(244);
+            { return tt.ktt(243);
             }
           // fall through
           case 708: break;
@@ -5074,17 +5074,17 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 750: break;
           case 259:
-            { return tt.ktt(226);
+            { return tt.ktt(225);
             }
           // fall through
           case 751: break;
           case 260:
-            { return tt.ktt(230);
+            { return tt.ktt(229);
             }
           // fall through
           case 752: break;
           case 261:
-            { return tt.ktt(234);
+            { return tt.ktt(233);
             }
           // fall through
           case 753: break;
@@ -5314,17 +5314,17 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 798: break;
           case 307:
-            { return tt.ktt(220);
+            { return tt.ktt(219);
             }
           // fall through
           case 799: break;
           case 308:
-            { return tt.ktt(228);
+            { return tt.ktt(227);
             }
           // fall through
           case 800: break;
           case 309:
-            { return tt.ktt(229);
+            { return tt.ktt(228);
             }
           // fall through
           case 801: break;
@@ -5334,7 +5334,7 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 802: break;
           case 311:
-            { return tt.ktt(236);
+            { return tt.ktt(235);
             }
           // fall through
           case 803: break;
@@ -5354,7 +5354,7 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 806: break;
           case 315:
-            { return tt.ktt(242);
+            { return tt.ktt(241);
             }
           // fall through
           case 807: break;
@@ -5534,12 +5534,12 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 842: break;
           case 351:
-            { return tt.ktt(216);
+            { return tt.ktt(215);
             }
           // fall through
           case 843: break;
           case 352:
-            { return tt.ktt(222);
+            { return tt.ktt(221);
             }
           // fall through
           case 844: break;
@@ -5719,7 +5719,7 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 879: break;
           case 388:
-            { return tt.ktt(218);
+            { return tt.ktt(217);
             }
           // fall through
           case 880: break;
@@ -5979,17 +5979,17 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 931: break;
           case 440:
-            { return tt.ktt(217);
+            { return tt.ktt(216);
             }
           // fall through
           case 932: break;
           case 441:
-            { return tt.ktt(219);
+            { return tt.ktt(218);
             }
           // fall through
           case 933: break;
           case 442:
-            { return tt.ktt(227);
+            { return tt.ktt(226);
             }
           // fall through
           case 934: break;
@@ -6064,7 +6064,7 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 948: break;
           case 457:
-            { return tt.ktt(235);
+            { return tt.ktt(234);
             }
           // fall through
           case 949: break;
@@ -6104,7 +6104,7 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 956: break;
           case 465:
-            { return tt.ktt(213);
+            { return tt.ktt(212);
             }
           // fall through
           case 957: break;
@@ -6164,7 +6164,7 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 968: break;
           case 477:
-            { return tt.ktt(214);
+            { return tt.ktt(213);
             }
           // fall through
           case 969: break;
