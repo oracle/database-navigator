@@ -202,12 +202,15 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         extension.setAttribute("id", oneOfElementType.getId());
         TrieBuildContext context = new TrieBuildContext();
         boolean added = writeTokenNodes(extension, List.of(), candidates, true, context);
+        if (!added) return null;
+
+        extension.setAttribute("depth", Integer.toString(context.maxDepth));
         if (context.pruned) {
             prunedOneOfs++;
             System.out.println("Pruned token trie: " + contextElementId + "/" + oneOfElementType.getId() +
                     " nodes=" + context.tokenNodes);
         }
-        return added ? extension : null;
+        return extension;
     }
 
     private boolean writeTokenNodes(
@@ -240,7 +243,8 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             if (!includeUnambiguous && !ambiguous) continue;
 
             Element element = new Element("token");
-            boolean withinNodeBudget = context.registerTokenNode();
+            int depth = prefix.size() + 1;
+            boolean withinNodeBudget = context.registerTokenNode(depth);
             element.setAttribute("type-id", token);
             if (!ambiguous) {
                 writeCandidateIdsAttribute(element, tokenCandidates);
@@ -568,6 +572,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
     private static class TrieBuildContext {
         private final Map<CandidateSetKey, Integer> candidateSetVisits = new LinkedHashMap<>();
         private int tokenNodes;
+        private int maxDepth;
         private boolean pruned;
 
         private void enter(CandidateSetKey candidateSetKey) {
@@ -583,8 +588,9 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             }
         }
 
-        private boolean registerTokenNode() {
+        private boolean registerTokenNode(int depth) {
             tokenNodes++;
+            maxDepth = Math.max(maxDepth, depth);
             return tokenNodes <= MAX_TRIE_NODES_PER_ONE_OF;
         }
 
