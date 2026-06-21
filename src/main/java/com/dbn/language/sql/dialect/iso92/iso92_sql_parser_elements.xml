@@ -262,7 +262,7 @@
         <one-of id="00055">
             <token type-id="KW_TRUE" id="00056" />
             <token type-id="KW_FALSE" id="00057" />
-            <token type-id="KW_NULL" original-name="unknown" id="00058" />
+            <token type-id="KW_UNKNOWN" id="00058" />
         </one-of>
     </element-def>
     <element-def description="Boolean primary" id="boolean_primary">
@@ -281,6 +281,10 @@
             <element ref-id="between_predicate" />
             <element ref-id="in_predicate" />
             <element ref-id="exists_predicate" />
+            <element ref-id="quantified_comparison_predicate" />
+            <element ref-id="unique_predicate" />
+            <element ref-id="match_predicate" />
+            <element ref-id="overlaps_predicate" />
         </one-of>
     </element-def>
     <element-def description="Comparison predicate" id="comparison_predicate">
@@ -319,11 +323,18 @@
         <token optional="true" type-id="KW_NOT" id="00075" />
         <token type-id="KW_LIKE" id="00076" />
         <element ref-id="pattern" />
+        <sequence optional="true">
+            <token type-id="KW_ESCAPE" />
+            <element ref-id="escape_character" />
+        </sequence>
     </element-def>
     <element-def description="Match value" id="match_value">
         <element ref-id="character_value_expression" />
     </element-def>
     <element-def description="Pattern" id="pattern">
+        <element ref-id="character_value_expression" />
+    </element-def>
+    <element-def description="Escape character" id="escape_character">
         <element ref-id="character_value_expression" />
     </element-def>
     <element-def description="BETWEEN predicate" id="between_predicate">
@@ -350,6 +361,45 @@
     <element-def description="EXISTS predicate" id="exists_predicate">
         <token type-id="KW_EXISTS" id="00085" />
         <element ref-id="table_subquery" />
+    </element-def>
+    <element-def description="Quantified comparison predicate" id="quantified_comparison_predicate">
+        <element ref-id="row_value_constructor" />
+        <element ref-id="comparison_operator" />
+        <element ref-id="quantifier" />
+        <element ref-id="table_subquery" />
+    </element-def>
+    <element-def description="Quantifier" id="quantifier">
+        <one-of>
+            <token type-id="KW_ALL" />
+            <token type-id="KW_SOME" />
+            <token type-id="KW_ANY" />
+        </one-of>
+    </element-def>
+    <element-def description="UNIQUE predicate" id="unique_predicate">
+        <token type-id="KW_UNIQUE" />
+        <element ref-id="table_subquery" />
+    </element-def>
+    <element-def description="MATCH predicate" id="match_predicate">
+        <element ref-id="row_value_constructor" />
+        <token type-id="KW_MATCH" />
+        <element optional="true" ref-id="unique_specification" />
+        <element optional="true" ref-id="match_type" />
+        <element ref-id="table_subquery" />
+    </element-def>
+    <element-def description="Unique specification" id="unique_specification">
+        <token type-id="KW_UNIQUE" />
+    </element-def>
+    <element-def description="Match type" id="match_type">
+        <one-of>
+            <token type-id="KW_SIMPLE" />
+            <token type-id="KW_PARTIAL" />
+            <token type-id="KW_FULL" />
+        </one-of>
+    </element-def>
+    <element-def description="OVERLAPS predicate" id="overlaps_predicate">
+        <element ref-id="row_value_constructor" />
+        <token type-id="KW_OVERLAPS" />
+        <element ref-id="row_value_constructor" />
     </element-def>
     <element-def description="Table subquery" id="table_subquery">
         <wrapper template="PARENTHESES" id="00086">
@@ -800,6 +850,9 @@
             <element ref-id="parameter_specification" />
             <element ref-id="variable_specification" />
             <token id="00264" flavor="keyword" type-id="FN_CURRENT_USER" />
+            <token flavor="keyword" type-id="FN_SESSION_USER" />
+            <token flavor="keyword" type-id="FN_SYSTEM_USER" />
+            <token flavor="keyword" type-id="FN_USER" />
             <token id="00265" type-id="KW_VALUE" />
         </one-of>
     </element-def>
