@@ -51,10 +51,7 @@ public class DriverLibraryApproval implements UserApprovable {
         for (File file : files) {
             buffer.append(file.getName())
                     .append(':')
-                    // Avoid content hashing here: external driver approval may run on large
-                    // user-supplied driver sets, and this fingerprint is only a lightweight
-                    // change detector, not a cryptographic provenance claim.
-                    .append(Checksum.fromFileAttributes(file, SHA_256))
+                    .append(Checksum.fromFileContent(file, SHA_256))
                     .append('\n');
         }
         return Checksum.fromStringContent(buffer.toString(), SHA_256);
