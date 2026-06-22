@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setBoolean;
@@ -39,6 +40,7 @@ import static com.dbn.common.state.StateEncryptionScopes.CONNECTION_GENERIC_PROP
 @Setter
 @EqualsAndHashCode(callSuper = false)
 public class ConnectionPropertiesSettings extends BasicProjectConfiguration<ConnectionSettings, ConnectionPropertiesSettingsForm> {
+    private static final int MAX_PROPERTY_COUNT = 512;
     private Map<String, String> properties = new HashMap<>();
     private boolean enableAutoCommit = false;
 
@@ -67,24 +69,26 @@ public class ConnectionPropertiesSettings extends BasicProjectConfiguration<Conn
     *********************************************************/
     @Override
     public void readConfiguration(Element element) {
-        enableAutoCommit = getBoolean(element, "auto-commit", enableAutoCommit);
+        Map<String, String> properties = new HashMap<>();
         Element propertiesElement = element.getChild("properties");
-        if (propertiesElement != null) {
-            for (Element propertyElement : propertiesElement.getChildren("property")) {
-                String key = stringAttribute(propertyElement, "key");
-                if (key == null) continue;
+        for (Element propertyElement : childrenOf(propertiesElement, "property", MAX_PROPERTY_COUNT)) {
+            String key = stringAttribute(propertyElement, "key");
+            if (key == null) continue;
 
-                ProtectedContent value = new ProtectedContent(CONNECTION_GENERIC_PROPERTY);
-                Element valueElement = propertyElement.getChild("value");
-                if (valueElement == null) {
-                    // Legacy settings stored property values as plaintext attributes.
-                    value.set(stringAttribute(propertyElement, "value"));
-                } else {
-                    value.readState(valueElement);
-                }
-                properties.put(key, value.get());
+            ProtectedContent value = new ProtectedContent(CONNECTION_GENERIC_PROPERTY);
+            Element valueElement = propertyElement.getChild("value");
+            if (valueElement == null) {
+                // Legacy settings stored property values as plaintext attributes.
+                value.set(stringAttribute(propertyElement, "value"));
+            } else {
+                value.readState(valueElement);
             }
+            properties.put(key, value.get());
         }
+
+        this.properties = properties;
+        this.enableAutoCommit = getBoolean(element, "auto-commit", enableAutoCommit);
+
         getParent().getDatabaseSettings().updateSignature();
     }
 
