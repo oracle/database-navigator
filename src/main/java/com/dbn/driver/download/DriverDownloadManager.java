@@ -232,6 +232,10 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         return driverPackageMetadata.getDriverPackages(databaseType, p -> !p.isObsolete() || isPackageDownloaded(p));
     }
 
+    public boolean isDriverPackageMetadataOutdated(DatabaseType databaseType) {
+        return driverPackageMetadata.isOutdated(databaseType);
+    }
+
     public DriverPackage resolveDriverPackageDetails(DriverPackage driverPackage, DownloadSession session) {
         return driverPackageMetadata.resolveDriverPackageDetails(driverPackage, session);
     }

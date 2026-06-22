@@ -119,7 +119,6 @@ public class DriverDownloadForm extends DBNFormBase {
         updatePackageActions(false);
         if (driverPackage.isDetailsResolving()) return;
 
-        driverPackage.setDetailsResolving(true);
         Background.run(() -> {
             resolvePackageDetails(driverPackage);
             Dispatch.run(mainPanel, () -> {
@@ -143,7 +142,6 @@ public class DriverDownloadForm extends DBNFormBase {
                 if (driverPackage.isDetailsAvailable()) continue;
                 if (driverPackage.isDetailsResolving()) continue;
 
-                driverPackage.setDetailsResolving(true);
                 resolvePackageDetails(driverPackage);
                 Dispatch.run(mainPanel, () -> {
                     if (getSelection(libraryPackageComboBox) == driverPackage) {
@@ -156,11 +154,7 @@ public class DriverDownloadForm extends DBNFormBase {
     }
 
     private void resolvePackageDetails(DriverPackage driverPackage) {
-        try {
-            DriverDownloadManager.getInstance().resolveDriverPackageDetails(driverPackage, downloadSession);
-        } finally {
-            driverPackage.setDetailsResolving(false);
-        }
+        DriverDownloadManager.getInstance().resolveDriverPackageDetails(driverPackage, downloadSession);
     }
 
     private void updatePackageActions(boolean enabled) {

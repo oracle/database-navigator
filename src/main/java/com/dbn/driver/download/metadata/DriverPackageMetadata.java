@@ -105,13 +105,13 @@ public class DriverPackageMetadata implements PersistentStateElement {
                 .collect(Collectors.toList());
     }
 
-    public synchronized DriverPackage resolveDriverPackageDetails(DriverPackage driverPackage, DownloadSession session) {
+    public DriverPackage resolveDriverPackageDetails(DriverPackage driverPackage, DownloadSession session) {
         if (driverPackage == null) return null;
 
         String originalId = driverPackage.getId();
         DriverPackageMetadataDownloader downloader = new DriverPackageMetadataDownloader();
         DriverPackage resolvedPackage = downloader.resolveDriverPackageDetails(driverPackage, session);
-        if (resolvedPackage != null && !originalId.equals(resolvedPackage.getId())) {
+        if (resolvedPackage != null && resolvedPackage.isDetailsAvailable() && !originalId.equals(resolvedPackage.getId())) {
             driverPackages.remove(originalId);
             driverPackages.put(resolvedPackage.getId(), resolvedPackage);
         }

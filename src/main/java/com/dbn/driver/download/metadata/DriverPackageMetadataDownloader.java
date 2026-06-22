@@ -126,14 +126,14 @@ public class DriverPackageMetadataDownloader {
         return driverPackage;
     }
 
-    public synchronized DriverPackage resolveDriverPackageDetails(DriverPackage driverPackage, DownloadSession session) {
+    public DriverPackage resolveDriverPackageDetails(DriverPackage driverPackage, DownloadSession session) {
         if (driverPackage.isDetailsAvailable()) return driverPackage;
         if (!driverPackage.hasSourceMetadata()) {
-            driverPackage.setDetailsResolved(true);
+            driverPackage.markDetailsResolved();
             return driverPackage;
         }
+        if (!driverPackage.tryStartDetailsResolution()) return driverPackage;
 
-        driverPackage.setDetailsResolving(true);
         try {
             List<ResolvedLibrary> resolvedLibraries = driverPackage
                     .getSourceLibraryElements()
@@ -156,13 +156,12 @@ public class DriverPackageMetadataDownloader {
             placeholderCount = countPlaceholders(name);
             name = getFormattedString(name, libraries, resolvedLibraries, placeholderCount, false);
 
-            driverPackage.setId(id);
-            driverPackage.setName(name);
-            driverPackage.setLibraries(libraries);
-            driverPackage.setDetailsResolved(true);
+            driverPackage.completeDetailsResolution(id, name, libraries);
             return driverPackage;
         } finally {
-            driverPackage.setDetailsResolving(false);
+            if (!driverPackage.isDetailsAvailable()) {
+                driverPackage.finishDetailsResolution();
+            }
         }
     }
 

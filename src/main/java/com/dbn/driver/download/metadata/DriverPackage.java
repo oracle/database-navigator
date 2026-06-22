@@ -103,6 +103,30 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
         return !sourceLibraryElements.isEmpty();
     }
 
+    public synchronized boolean tryStartDetailsResolution() {
+        if (detailsResolved) return false;
+        if (detailsResolving) return false;
+
+        detailsResolving = true;
+        return true;
+    }
+
+    public synchronized void finishDetailsResolution() {
+        detailsResolving = false;
+    }
+
+    public synchronized void markDetailsResolved() {
+        detailsResolved = true;
+        detailsResolving = false;
+    }
+
+    public synchronized void completeDetailsResolution(String id, String name, List<Library> libraries) {
+        this.id = id;
+        this.name = name;
+        this.libraries = libraries;
+        markDetailsResolved();
+    }
+
     @Override
     public void readState(Element element) {
         this.name = stringAttribute(element, "name");

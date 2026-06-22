@@ -19,6 +19,7 @@ package com.dbn.connection.config.ui;
 import com.dbn.common.Result;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Threads;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -37,7 +38,6 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Separator;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -203,12 +203,17 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
     private void initDriverDownloadFields() {
         downloadButton.addActionListener(e -> {
-            Progress.modal(ensureProject(),
-                    null, true,
-                    txt("prc.connection.title.LoadingDrivers"),
-                    txt("prc.connection.text.LoadingDriverPackageMetadata"),
-                    indicator -> showDownloadPopup()
-            );
+            DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+            if (downloadManager.isDriverPackageMetadataOutdated(getDatabaseType())) {
+                Progress.modal(ensureProject(),
+                        null, true,
+                        txt("prc.connection.title.LoadingDrivers"),
+                        txt("prc.connection.text.LoadingDriverPackageMetadata"),
+                        indicator -> showDownloadPopup()
+                );
+            } else {
+                Background.run(() -> showDownloadPopup());
+            }
         });
     }
 
@@ -380,11 +385,16 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         actions.add(new DumbAwareAction(txt("cfg.connection.action.DownloadLibraries"), null, AllIcons.Actions.Download) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
-                Project project = getProject();
-                Progress.modal(project, null, true,
-                        txt("prc.connection.title.LoadingDrivers"),
-                        txt("prc.connection.text.LoadingDriverPackageMetadata"),
-                        indicator -> initDownloadManagerDialog(indicator));
+                DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+                if (downloadManager.isDriverPackageMetadataOutdated(getDatabaseType())) {
+                    Project project = getProject();
+                    Progress.modal(project, null, true,
+                            txt("prc.connection.title.LoadingDrivers"),
+                            txt("prc.connection.text.LoadingDriverPackageMetadata"),
+                            indicator -> initDownloadManagerDialog());
+                } else {
+                    Background.run(() -> initDownloadManagerDialog());
+                }
             }
         });
         popupBuilder(actions, button).
@@ -402,10 +412,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         return downloadManager.getDownloadPath(driverPackage.getId());
     }
 
-    private void initDownloadManagerDialog(ProgressIndicator indicator) {
-        indicator.setIndeterminate(false);
-        indicator.setFraction(0.0);
-
+    private void initDownloadManagerDialog() {
         Project project = ensureProject();
         DatabaseType databaseType = getDatabaseType();
 
