@@ -105,6 +105,19 @@ public class DriverPackageMetadata implements PersistentStateElement {
                 .collect(Collectors.toList());
     }
 
+    public synchronized DriverPackage resolveDriverPackageDetails(DriverPackage driverPackage, DownloadSession session) {
+        if (driverPackage == null) return null;
+
+        String originalId = driverPackage.getId();
+        DriverPackageMetadataDownloader downloader = new DriverPackageMetadataDownloader();
+        DriverPackage resolvedPackage = downloader.resolveDriverPackageDetails(driverPackage, session);
+        if (resolvedPackage != null && !originalId.equals(resolvedPackage.getId())) {
+            driverPackages.remove(originalId);
+            driverPackages.put(resolvedPackage.getId(), resolvedPackage);
+        }
+        return resolvedPackage;
+    }
+
 
     @NotNull
     public DriverPackage ensureDriverPackage(String packageId) {
@@ -133,6 +146,8 @@ public class DriverPackageMetadata implements PersistentStateElement {
     }
 
     private void verifyDriverPackage(DriverPackage driverPackage) {
+        if (!driverPackage.isDetailsAvailable()) return;
+
         DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
         String packageId = driverPackage.getId();
         String downloadPath = downloadManager.getDownloadPath(packageId);

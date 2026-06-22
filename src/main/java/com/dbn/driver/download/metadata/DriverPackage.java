@@ -61,6 +61,11 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
     private List<Library> libraries = new ArrayList<>();
     private boolean obsolete;
     private boolean latest;
+    private transient volatile boolean detailsResolved = true;
+    private transient volatile boolean detailsResolving;
+    private transient String sourceId;
+    private transient String sourceName;
+    private transient List<Element> sourceLibraryElements = new ArrayList<>();
 
     public DriverPackage(String id, String name, DatabaseType databaseType, List<Library> libraries) {
         this.id = id;
@@ -88,6 +93,14 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
 
     public int size() {
         return libraries.size();
+    }
+
+    public boolean isDetailsAvailable() {
+        return detailsResolved;
+    }
+
+    public boolean hasSourceMetadata() {
+        return !sourceLibraryElements.isEmpty();
     }
 
     @Override

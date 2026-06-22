@@ -174,6 +174,7 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
 
     public boolean isPackageDownloaded(DriverPackage driverPackage) {
         if (driverPackage == null) return false;
+        if (!driverPackage.isDetailsAvailable()) return false;
 
         DriverPackageStatus status = getPackageStatus(driverPackage.getId());
         if (status == null) return false;
@@ -229,6 +230,10 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
 
     public List<DriverPackage> getDriverPackages(DatabaseType databaseType) {
         return driverPackageMetadata.getDriverPackages(databaseType, p -> !p.isObsolete() || isPackageDownloaded(p));
+    }
+
+    public DriverPackage resolveDriverPackageDetails(DriverPackage driverPackage, DownloadSession session) {
+        return driverPackageMetadata.resolveDriverPackageDetails(driverPackage, session);
     }
 
     public void openDownloadDialog(Project project, DatabaseType databaseType, Consumer<String> successCallback) {

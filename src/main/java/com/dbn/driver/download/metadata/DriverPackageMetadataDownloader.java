@@ -91,11 +91,10 @@ public class DriverPackageMetadataDownloader {
         String databaseType = stringAttribute(element, "database-type");
         boolean latestPackage = isLatestPackage(element);
 
-        // Resolve every declared library first; dynamic entries may expand to multiple artifacts.
         List<ResolvedLibrary> resolvedLibraries = element
                 .getChildren("library")
                 .parallelStream()
-                .map(e -> resolveLibrary(e, session))
+                .map(e -> resolveLibraryMetadata(e, session))
                 .toList();
         if (resolvedLibraries.stream().anyMatch(l -> l.libraries().isEmpty())) return null;
 
@@ -114,11 +113,57 @@ public class DriverPackageMetadataDownloader {
         name = getFormattedString(name, libraries, resolvedLibraries, placeholderCount, false);
         DriverPackage driverPackage = new DriverPackage(id, name, DatabaseType.resolve(databaseType), libraries);
         driverPackage.setLatest(latestPackage);
+        if (latestPackage) {
+            driverPackage.setDetailsResolved(false);
+            driverPackage.setSourceId(stringAttribute(element, "id"));
+            driverPackage.setSourceName(stringAttribute(element, "name"));
+            driverPackage.setSourceLibraryElements(new ArrayList<>(element.getChildren("library")));
+        }
 
         session.setText(txt("prc.connection.text.DownloadingDriverPackageMetadata", id));
         session.countDown();
         session.updateProgress();
         return driverPackage;
+    }
+
+    public synchronized DriverPackage resolveDriverPackageDetails(DriverPackage driverPackage, DownloadSession session) {
+        if (driverPackage.isDetailsAvailable()) return driverPackage;
+        if (!driverPackage.hasSourceMetadata()) {
+            driverPackage.setDetailsResolved(true);
+            return driverPackage;
+        }
+
+        driverPackage.setDetailsResolving(true);
+        try {
+            List<ResolvedLibrary> resolvedLibraries = driverPackage
+                    .getSourceLibraryElements()
+                    .parallelStream()
+                    .map(e -> resolveLibrary(e, session))
+                    .toList();
+            if (resolvedLibraries.stream().anyMatch(l -> l.libraries().isEmpty())) return driverPackage;
+
+            List<Library> libraries = resolvedLibraries
+                    .stream()
+                    .flatMap(l -> l.libraries().stream())
+                    .collect(Collectors.toList());
+            if (libraries.isEmpty()) return driverPackage;
+
+            String id = driverPackage.getSourceId();
+            int placeholderCount = countPlaceholders(id);
+            id = getFormattedString(id, libraries, resolvedLibraries, placeholderCount, true);
+
+            String name = driverPackage.getSourceName();
+            placeholderCount = countPlaceholders(name);
+            name = getFormattedString(name, libraries, resolvedLibraries, placeholderCount, false);
+
+            driverPackage.setId(id);
+            driverPackage.setName(name);
+            driverPackage.setLibraries(libraries);
+            driverPackage.setDetailsResolved(true);
+            return driverPackage;
+        } finally {
+            driverPackage.setDetailsResolving(false);
+        }
     }
 
     private boolean isLatestPackage(Element element) {
@@ -138,6 +183,32 @@ public class DriverPackageMetadataDownloader {
         return driverPackages.stream()
                 .filter(p -> p.isLatest() || !latestDriverVersions.contains(getDriverVersionKey(p)))
                 .toList();
+    }
+
+    @SneakyThrows
+    private ResolvedLibrary resolveLibraryMetadata(Element element, DownloadSession session) {
+        installThreadInterrupter(session);
+
+        String groupId = stringAttribute(element, "group-id");
+        String artifactId = stringAttribute(element, "artifact-id");
+        String version = stringAttribute(element, "version");
+
+        if (isLatestVersion(version)) {
+            version = fetchLatestVersion(groupId, artifactId, session);
+        } else {
+            version = ensureVersion(groupId, artifactId, version);
+        }
+
+        Library library = createLibrary(element, groupId, artifactId, version);
+        return new ResolvedLibrary(Collections.singletonList(library), getDriverRoleLibrary(library), getExtensionRoleLibrary(library));
+    }
+
+    private String fetchLatestVersion(String groupId, String artifactId, DownloadSession session) throws Exception {
+        return session
+                .versions(groupId, artifactId, () -> fetchAvailableVersions(groupId, artifactId, session))
+                .stream()
+                .max(Comparator.comparing(ComparableVersion::new))
+                .orElseThrow(() -> new Exception("No versions found for " + groupId + ":" + artifactId));
     }
 
     private DriverVersionKey getDriverVersionKey(DriverPackage driverPackage) {
