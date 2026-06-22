@@ -47,6 +47,7 @@ When the developer does ask to run validation, run the narrowest useful command 
 ## Git And Refactoring Hygiene
 
 - For name, class, or package refactorings, preserve Git history by moving or renaming existing files first, then editing contents.
+- After renaming files, ensure Git recognizes the changes as renames rather than unrelated delete/add pairs; stage the scoped rename set when appropriate and verify with `git diff --find-renames --summary` or `git diff --cached --find-renames --summary`.
 - Check `git diff --find-renames` when rename detection matters.
 - Never revert unrelated user changes. Work with dirty files if they affect the task, and ignore unrelated dirty files.
 - Keep edits localized to the ownership boundary implied by the request.
