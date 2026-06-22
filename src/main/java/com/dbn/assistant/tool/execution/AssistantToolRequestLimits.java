@@ -25,6 +25,10 @@ import static com.dbn.common.util.Commons.nvl;
 public class AssistantToolRequestLimits {
     public static final int MAX_TOOL_REQUEST_ARGUMENT_LENGTH = 64 * 1024;
     public static final int MAX_TOOL_REQUEST_PREVIEW_LENGTH = 16 * 1024;
+    public static final int MAX_TOOL_REQUEST_ARGUMENT_COUNT = 16;
+    public static final int MAX_FUZZY_ARGUMENT_NAME_LENGTH = 256;
+    public static final int MAX_FUZZY_ARGUMENT_TEXT_LENGTH = 512;
+    public static final int MAX_SIMPLIFIED_ARGUMENT_NAME_LENGTH = 128;
 
     private static final String TRUNCATED_SUFFIX = "\n[Tool request arguments truncated: original length %d characters]";
 

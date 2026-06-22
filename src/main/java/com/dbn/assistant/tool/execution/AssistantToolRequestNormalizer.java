@@ -44,6 +44,10 @@ import java.util.TreeMap;
 
 import static com.dbn.assistant.AssistantComponent.OBJECT_MAPPER;
 import static com.dbn.assistant.tool.AssistantToolData.isInternalTool;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_FUZZY_ARGUMENT_NAME_LENGTH;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_FUZZY_ARGUMENT_TEXT_LENGTH;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_SIMPLIFIED_ARGUMENT_NAME_LENGTH;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_TOOL_REQUEST_ARGUMENT_COUNT;
 import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.isOversized;
 import static com.dbn.common.Reflection.updateFieldValue;
 
@@ -133,7 +137,7 @@ public class AssistantToolRequestNormalizer {
         // handle "hallucinated" arguments not matching the "arg#" format
         List<String> args = new ArrayList<>(arguments.keySet());
         Class<?>[] params = method.getParameterTypes();
-        int count = Math.min(args.size(), params.length);
+        int count = Math.min(Math.min(args.size(), params.length), MAX_TOOL_REQUEST_ARGUMENT_COUNT);
 
         Map<String, Object> normalizedArgs = new LinkedHashMap<>();
         // add arguments that match the "arg#" format
@@ -241,6 +245,9 @@ public class AssistantToolRequestNormalizer {
     }
 
     private static String mostProbableArgumentName(Method method, String argumentName) {
+        String argName = simplifyArgumentName(argumentName, MAX_FUZZY_ARGUMENT_NAME_LENGTH);
+        if (Strings.isEmpty(argName)) return argumentName;
+
         int index = -1;
         double maxSimilarity = 0;
 
@@ -249,8 +256,9 @@ public class AssistantToolRequestNormalizer {
             P annotation = annotations[i];
             if (annotation == null) continue;
 
-            String paramName = simplifyArgumentName(annotation.value());
-            String argName = simplifyArgumentName(argumentName);
+            String paramName = simplifyArgumentName(annotation.value(), MAX_FUZZY_ARGUMENT_TEXT_LENGTH);
+            if (Strings.isEmpty(paramName)) continue;
+
             if (paramName.contains(argName) && argName.length() > 10) {
                 // most common use-case (argument name is "hallucinated" from the parameter description)
                 index = i;
@@ -259,6 +267,8 @@ public class AssistantToolRequestNormalizer {
 
             // use Longest Common Subsequence (LCS) to find the most similar argument name
             int maxLength = Math.max(paramName.length(), argName.length());
+            if (maxLength == 0) continue;
+
             double distance = Levenshtein.distance(paramName, argName);
             double similarity = 1 - distance / maxLength;
             if (similarity > maxSimilarity) {
@@ -272,8 +282,23 @@ public class AssistantToolRequestNormalizer {
         return buildArgumentName(index);
     }
 
-    private static String simplifyArgumentName(String argumentName) {
-        return argumentName.toLowerCase().replaceAll("[^a-zA-Z]", "");
+    private static String simplifyArgumentName(String argumentName, int maxRawLength) {
+        if (argumentName == null || argumentName.length() > maxRawLength) return null;
+
+        StringBuilder builder = new StringBuilder(Math.min(argumentName.length(), MAX_SIMPLIFIED_ARGUMENT_NAME_LENGTH));
+        for (int i = 0; i < argumentName.length(); i++) {
+            char c = argumentName.charAt(i);
+            if (c >= 'A' && c <= 'Z') {
+                builder.append((char) (c + ('a' - 'A')));
+            } else if (c >= 'a' && c <= 'z') {
+                builder.append(c);
+            } else {
+                continue;
+            }
+
+            if (builder.length() > MAX_SIMPLIFIED_ARGUMENT_NAME_LENGTH) return null;
+        }
+        return builder.toString();
     }
 
     private static String buildArgumentName(Set<String> argNames) {

@@ -67,16 +67,17 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
-public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
+public abstract class DBJdwpTunnelProcessStarter extends DBJdwpProcessStarter{
 
     public static final byte[] HANDSHAKE_SIGNATURE = "JDWP-Handshake".getBytes(StandardCharsets.UTF_8);
+    private static final Object CONNECTOR_PATCH_LOCK = new Object();
     private String jdwpHostPort = null;
     private NSTunnelConnectionProxy debugConnection = null;
     private final ByteBuffer readBuffer = ByteBuffer.allocate(JdwpPacketReader.BUFFER_SIZE);
     private final ByteBuffer writeBuffer = ByteBuffer.allocate(JdwpPacketReader.BUFFER_SIZE);
     private final JdwpPacketReader packetReader;
 
-    DBJdwpCloudProcessStarter(ConnectionHandler connection) {
+    DBJdwpTunnelProcessStarter(ConnectionHandler connection) {
         super(connection);
         packetReader = new JdwpPacketReader(readBuffer, () -> debugConnection, this::closeDebugConnection);
     }
@@ -92,15 +93,15 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
         try {
             Driver driver = ConnectionUtil.resolveDriver(databaseSettings);
             if (driver == null) {
-                throw new IOException(txt("msg.debugger.error.CloudNsDriverNotFound"));
+                throw new IOException(txt("msg.debugger.error.JdwpTunnelNsDriverNotFound"));
             }
             ClassLoader classLoader = driver.getClass().getClassLoader();
             if (classLoader == null) {
-                throw new IOException(txt("msg.debugger.error.CloudNsClassLoaderNotResolved"));
+                throw new IOException(txt("msg.debugger.error.JdwpTunnelNsClassLoaderNotResolved"));
             }
             debugConnection = NSTunnelConnectionInitializer.newInstance(classLoader, URL, props);
             if (debugConnection == null) {
-                throw new IOException(txt("msg.debugger.error.CloudNsTunnelingObjectNotLoaded"));
+                throw new IOException(txt("msg.debugger.error.JdwpTunnelNsTunnelingObjectNotLoaded"));
             }
 
             jdwpHostPort = debugConnection.tunnelAddress();
@@ -137,15 +138,14 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
 
 
     /**
-     * cloud database start's implementation : use attach connector . and using reflection to override
-     * the behavior of attach connector to use the NSTunnelConnection instead of establish new connection
-     * between debugger and database
+     * JDWP tunnel implementation: use the attach connector and reflection to override the attach
+     * behavior to use the NSTunnelConnection instead of establishing a new connection between
+     * debugger and database.
      * @param session session to be passed to {@link XDebugProcess#XDebugProcess} constructor
      */
     @NotNull
     @Override
     public XDebugProcess start(@NotNull XDebugSession session) throws ExecutionException {
-        initConnector();
         connect();
 
         Executor executor = DefaultDebugExecutor.getDebugExecutorInstance();
@@ -166,7 +166,12 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
 
         DebugEnvironment debugEnvironment = new DefaultDebugEnvironment(environment, state, remoteConnection, true);
         DebuggerManagerEx debuggerManagerEx = DebuggerManagerEx.getInstanceEx(project);
-        DebuggerSession debuggerSession = debuggerManagerEx.attachVirtualMachine(debugEnvironment);
+        DebuggerSession debuggerSession;
+        synchronized (CONNECTOR_PATCH_LOCK) {
+            try (ConnectorPatch connectorPatch = patchConnector()) {
+                debuggerSession = debuggerManagerEx.attachVirtualMachine(debugEnvironment);
+            }
+        }
         assertNotNull(debuggerSession, txt("msg.debugger.error.CouldNotInitializeJdwpListener"));
 
 
@@ -184,7 +189,7 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
         return input.substring(portStartIndex);
     }
 
-    private void initConnector() throws ExecutionException {
+    private ConnectorPatch patchConnector() throws ExecutionException {
         VirtualMachineManager vmManager = getVirtualMachineManager();
         List<AttachingConnector> connectors = vmManager.attachingConnectors();
 
@@ -195,7 +200,7 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
         if (connector == null) throw new ExecutionException(txt("msg.debugger.error.FailedToInitializeSocketConnector"));
 
         TransportService transportService = createTransportService();
-        patchConnector(connector, transportService);
+        return patchConnector(connector, transportService);
     }
 
     private static VirtualMachineManager getVirtualMachineManager() throws ExecutionException {
@@ -212,19 +217,45 @@ public abstract class DBJdwpCloudProcessStarter extends DBJdwpProcessStarter{
         }
     }
 
-    private static void patchConnector(AttachingConnector connector, TransportService transportService) throws ExecutionException {
+    private static ConnectorPatch patchConnector(AttachingConnector connector, TransportService transportService) throws ExecutionException {
         try {
-            Class<?> connectorClass = Commons.coalesce(
-                    () -> Classes.classForName("com.jetbrains.jdi.GenericAttachingConnector"),
-                    () -> Classes.classForName("com.sun.tools.jdi.GenericAttachingConnector"));
-
-            if (connectorClass == null) throw new IllegalStateException("JDI components not accessible");
-
-            Field declaredField = connectorClass.getDeclaredField("transportService");
-            declaredField.setAccessible(true);
-            declaredField.set(connector, transportService);
+            Field field = getTransportServiceField();
+            TransportService originalTransportService = cast(field.get(connector));
+            field.set(connector, transportService);
+            return new ConnectorPatch(connector, field, originalTransportService, transportService);
         } catch (Throwable e) {
             throw new ExecutionException(txt("msg.debugger.error.FailedToInitializeTransportService"), e);
+        }
+    }
+
+    private static Field getTransportServiceField() throws NoSuchFieldException {
+        Class<?> connectorClass = Commons.coalesce(
+                () -> Classes.classForName("com.jetbrains.jdi.GenericAttachingConnector"),
+                () -> Classes.classForName("com.sun.tools.jdi.GenericAttachingConnector"));
+
+        if (connectorClass == null) throw new IllegalStateException("JDI components not accessible");
+
+        Field field = connectorClass.getDeclaredField("transportService");
+        field.setAccessible(true);
+        return field;
+    }
+
+    private record ConnectorPatch(
+            AttachingConnector connector,
+            Field transportServiceField,
+            TransportService originalTransportService,
+            TransportService patchedTransportService) implements AutoCloseable {
+
+        @Override
+        public void close() throws ExecutionException {
+            try {
+                TransportService currentTransportService = cast(transportServiceField.get(connector));
+                if (currentTransportService == patchedTransportService) {
+                    transportServiceField.set(connector, originalTransportService);
+                }
+            } catch (Throwable e) {
+                throw new ExecutionException(txt("msg.debugger.error.FailedToInitializeTransportService"), e);
+            }
         }
     }
 

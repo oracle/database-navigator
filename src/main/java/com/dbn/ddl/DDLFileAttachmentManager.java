@@ -121,7 +121,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
             VirtualFile file = VirtualFiles.findFileByUrl(url);
             if (file == null) return false;
 
-            return isValidDDLFile(file, o);
+            return isTrustedDDLFile(file, o);
         });
 
         mappings.addEventHandler((FileMappingEvent<DBObjectRef<DBSchemaObject>> e) -> {
@@ -210,6 +210,18 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
             }
         }
         return false;
+    }
+
+    private boolean isTrustedDDLFile(@NotNull VirtualFile file, DBObjectRef<DBSchemaObject> objectRef) {
+        if (!file.isInLocalFileSystem()) return false;
+        if (!isProjectContentFile(file)) return false;
+
+        return isValidDDLFile(file, objectRef);
+    }
+
+    private boolean isProjectContentFile(@NotNull VirtualFile file) {
+        ProjectRootManager rootManager = ProjectRootManager.getInstance(getProject());
+        return rootManager.getFileIndex().isInContent(file);
     }
 
     public void showFileAttachDialog(DBSchemaObject object, List<VirtualFileInfo> fileInfos, boolean showLookupOption, DialogCallback<AttachDDLFileDialog> callback) {
@@ -342,6 +354,9 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
 
         DBObjectType objectType = databaseFile.getObjectType();
         for (VirtualFile ddlFile : ddlFiles) {
+            DBObjectRef<DBSchemaObject> objectRef = mappings.get(ddlFile.getUrl());
+            if (objectRef == null || !isTrustedDDLFile(ddlFile, objectRef)) continue;
+
             DDLFileType ddlFileType = ddlFileManager.getDDLFileTypeForFileName(objectType, ddlFile.getName());
             if (ddlFileType == null) continue;
 
@@ -572,6 +587,9 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
             fileUrl = VirtualFiles.ensureFileUrl(fileUrl);
             DBObjectRef<DBSchemaObject> objectRef = DBObjectRef.from(mappingElement);
             if (objectRef == null) continue;
+
+            VirtualFile file = VirtualFiles.findFileByUrl(fileUrl);
+            if (file == null || !isTrustedDDLFile(file, objectRef)) continue;
 
             mappings.put(fileUrl, objectRef);
         }
