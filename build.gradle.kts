@@ -233,10 +233,12 @@ sourceSets {
         resources {
             srcDir("src/main/java")
             include("**/*.xml")
+            include("**/*.dtd")
         }
         resources {
             include(
                 "**/*.ft",
+                "**/*.dtd",
                 "**/*.png",
                 "**/*.jpg",
                 "**/*.txt",

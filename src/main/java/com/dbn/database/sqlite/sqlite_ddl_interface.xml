@@ -14,16 +14,7 @@
   ~ limitations under the License.
   -->
 
-<!DOCTYPE data-dictionary [
-        <!ELEMENT data-dictionary (statement-execution-processor)*>
-        <!ELEMENT statement-execution-processor (statement)*>
-        <!ATTLIST statement-execution-processor
-                id CDATA #REQUIRED>
-        <!ELEMENT statement (#PCDATA)>
-        <!ATTLIST statement
-                comment CDATA #IMPLIED
-                variants CDATA #IMPLIED>
-        ]>
+<!DOCTYPE data-dictionary SYSTEM "../statement-interface.dtd">
 <data-dictionary>
     <statement-execution-processor id="create-view">
         <statement>create view [{0}] as {1}</statement>

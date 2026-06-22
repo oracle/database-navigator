@@ -11,6 +11,8 @@ Use this skill for localization-only or localization-heavy changes in DBN. Pair 
 
 Keep localization edits narrowly scoped. Do not refactor unrelated code while replacing hardcoded strings.
 
+Before changing Java, XML, `.form`, or resource files, inspect enough context to identify open points, then clarify them with the developer. Highlight the planned edits, including keys, files, callers, visible wording changes, and validation commands, and wait for confirmation before applying changes.
+
 ## Resource Access
 
 - Resource bundle: `src/main/resources/messages/DBNResources.properties`.

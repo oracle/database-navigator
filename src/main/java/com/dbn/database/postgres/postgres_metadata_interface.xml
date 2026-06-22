@@ -14,14 +14,7 @@
   ~ limitations under the License.
   -->
 
-<!DOCTYPE data-dictionary [
-        <!ELEMENT data-dictionary (statement-execution-processor)*>
-        <!ELEMENT statement-execution-processor (statement)*>
-        <!ATTLIST statement-execution-processor
-                id CDATA #REQUIRED
-                timeout CDATA #IMPLIED>
-        <!ELEMENT statement (#PCDATA)>
-        ]>
+<!DOCTYPE data-dictionary SYSTEM "../statement-interface.dtd">
 <data-dictionary>
     <statement-execution-processor id="schemas">
         <statement>
@@ -804,7 +797,9 @@
 
     <statement-execution-processor id="load-distinct-values">
         <statement>
-            select distinct {2} from {0}.{1} where {2} is not null order by {2}
+            select VALUE from (
+                select distinct {2} as VALUE from {0}.{1} where {2} is not null limit {3}
+            ) VALUE_LIST order by VALUE
         </statement>
     </statement-execution-processor>    
 

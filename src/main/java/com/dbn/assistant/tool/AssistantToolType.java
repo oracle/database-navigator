@@ -31,10 +31,6 @@ public enum AssistantToolType implements Constant<AssistantToolType> {
     // DATA_PROVIDER
     SEMANTIC_SEARCH,
 
-    // CONFIG_INFO_PROVIDER
-    CONNECTION_INFO,
-
-
     // METADATA_PROVIDER
     DATABASE_METADATA,
     SCHEMA_METADATA,
@@ -61,7 +57,6 @@ public enum AssistantToolType implements Constant<AssistantToolType> {
             // code development
             AssistantMode.DEVELOPMENT, Set.of(
                 USER_PROMPTS,
-                CONNECTION_INFO,
                 DATABASE_METADATA,
                 SCHEMA_METADATA,
                 TABLE_METADATA,

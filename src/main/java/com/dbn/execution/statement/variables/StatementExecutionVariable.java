@@ -16,9 +16,10 @@
 
 package com.dbn.execution.statement.variables;
 
-import com.dbn.common.list.MostRecentStack;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.state.ProtectedContent;
+import com.dbn.common.state.ProtectedContents;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.type.GenericDataType;
@@ -31,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.ParseException;
 import java.util.Date;
-import java.util.StringTokenizer;
+import java.util.List;
 
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -47,7 +48,7 @@ public class StatementExecutionVariable extends VariableValueProvider implements
     private int offset;
     private String name;
     private GenericDataType dataType;
-    private MostRecentStack<String> valueHistory = new MostRecentStack<>();
+    private final ProtectedContents valueHistory = ProtectedContents.statementExecutionVariableValues();
     private VariableValueProvider previewValueProvider;
 
     private transient String error;
@@ -57,7 +58,7 @@ public class StatementExecutionVariable extends VariableValueProvider implements
     public StatementExecutionVariable(StatementExecutionVariable source) {
         this.dataType = source.dataType;
         this.name = source.name;
-        this.valueHistory = new MostRecentStack<>(source.getValueHistory());
+        valueHistory.copyFrom(source.valueHistory);
     }
 
     public StatementExecutionVariable(ExecVariablePsiElement variablePsiElement) {
@@ -67,7 +68,9 @@ public class StatementExecutionVariable extends VariableValueProvider implements
 
     @Override
     public String getValue() {
-        return previewValueProvider == null ? valueHistory.get() : previewValueProvider.getValue();
+        return  previewValueProvider == null ?
+                valueHistory.getValue() :
+                previewValueProvider.getValue();
     }
 
     public GenericDataType getDataType() {
@@ -141,11 +144,11 @@ public class StatementExecutionVariable extends VariableValueProvider implements
     }
 
     public void setValue(String value) {
-        valueHistory.stack(value);
+        valueHistory.setValue(value);
     }
 
-    public Iterable<String> getValueHistory() {
-        return valueHistory;
+    public List<String> getValueHistory() {
+        return valueHistory.values();
     }
 
     @NotNull
@@ -154,7 +157,7 @@ public class StatementExecutionVariable extends VariableValueProvider implements
     }
 
     public boolean isProvided() {
-        return valueHistory.get() != null;
+        return !valueHistory.isEmpty();
     }
 
     @Override
@@ -168,20 +171,12 @@ public class StatementExecutionVariable extends VariableValueProvider implements
         dataType = enumAttribute(element, "data-type", GenericDataType.class);
         // TODO cleanup - attribute rename backward compatibility;
         if (dataType == null) enumAttribute(element, "dataType", GenericDataType.class);
+        valueHistory.clear();
 
         for (Element child : element.getChildren()) {
-            valueHistory.add(child.getText());
-        }
-
-        // TODO cleanup - attribute values backward compatibility;
-        String variableValues = element.getAttributeValue("values");
-        if (variableValues != null) {
-            StringTokenizer valuesTokenizer = new StringTokenizer(variableValues, ",");
-            while (valuesTokenizer.hasMoreTokens()) {
-                String value = valuesTokenizer.nextToken().trim();
-                if (Strings.isEmpty(value)) continue;
-                valueHistory.add(value);
-            }
+            ProtectedContent value = valueHistory.newContent();
+            value.readState(child);
+            valueHistory.add(value);
         }
     }
 
@@ -189,11 +184,11 @@ public class StatementExecutionVariable extends VariableValueProvider implements
     public void writeState(Element element) {
         element.setAttribute("name", name);
         element.setAttribute("data-type", dataType.name());
-        for (String value : valueHistory) {
-            if (Strings.isEmpty(value)) continue;
+        for (var value : valueHistory) {
+            if (value.isEmpty()) continue;
 
             Element valueElement = newElement(element, "value");
-            valueElement.addContent(value);
+            value.writeState(valueElement);
         }
     }
 

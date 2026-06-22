@@ -44,10 +44,12 @@ import static com.dbn.nls.NlsResources.txt;
 public class AssistantMcpToolProviders {
 
     private static McpTransport createMcpTransport(AssistantMcpServer mcpServer) {
+        AssistantMcpServerVerifier.verify(mcpServer);
+
+        AssistantMcpServerType type = mcpServer.getType();
         UserApprovalManager approvalManager = UserApprovalManager.getInstance();
         approvalManager.ensureApproved(mcpServer);
 
-        AssistantMcpServerType type = mcpServer.getType();
         return switch (type) {
             case HTTP -> createHttpMcpTransport(mcpServer);
             case STDIO -> createStdioMcpTransport(mcpServer);

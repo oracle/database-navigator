@@ -59,10 +59,12 @@ import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setDouble;
 import static com.dbn.common.options.setting.Settings.setEnum;
+import static com.dbn.common.options.setting.Settings.setSensitiveString;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
+import static com.dbn.connection.config.EasyConnectParameters.sanitizeParameters;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
@@ -333,6 +335,9 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                     parameters.put(key, value);
                 }
             }
+            if (urlType == DatabaseUrlType.EZCONNECT) {
+                parameters = sanitizeParameters(parameters, databaseInfo.getProtocol());
+            }
             databaseInfo.setParameters(parameters);
 
             urlPattern = DatabaseUrlPattern.get(databaseType, urlType);
@@ -387,7 +392,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             setString(element, "host", nvl(databaseInfo.getHost()));
             setString(element, "port", nvl(databaseInfo.getPort()));
             setString(element, "database", nvl(databaseInfo.getDatabase()));
-            setString(element, "tns-folder", nvl(databaseInfo.getTnsFolder()));
+            setSensitiveString(element, "tns-folder", nvl(databaseInfo.getTnsFolder()));
             setString(element, "tns-profile", nvl(databaseInfo.getTnsProfile()));
             setEnum(element, "server-type", databaseInfo.getServerType());
             setEnum(element, "protocol", databaseInfo.getProtocol());

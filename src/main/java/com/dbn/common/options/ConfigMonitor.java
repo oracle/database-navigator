@@ -31,6 +31,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 public final class ConfigMonitor {
     private static final ThreadLocal<List<SettingsChangeNotifier>> CHANGE_NOTIFIERS = new ThreadLocal<>();
     private static final ThreadLocal<PropertyHolderBase<ConfigActivity>> ACTIVITIES = new ThreadLocal<>();
+    private static final ThreadLocal<PropertyHolderBase<ConfigStorage>> STORAGES = new ThreadLocal<>();
 
     public static boolean isCloning() {
         return is(ConfigActivity.CLONING);
@@ -50,6 +51,30 @@ public final class ConfigMonitor {
             ACTIVITIES.set(propertyHolder);
         }
         propertyHolder.set(activity, value);
+    }
+
+    public static boolean is(ConfigStorage storage) {
+        PropertyHolderBase<ConfigStorage> propertyHolder = STORAGES.get();
+        if (propertyHolder == null) return false; // no property set yet
+        return propertyHolder.is(storage);
+    }
+
+    public static boolean isClipboardStorage() {
+        return is(ConfigStorage.CLIPBOARD);
+    }
+
+    public static boolean isWorkspaceStorage() {
+        return is(ConfigStorage.WORKSPACE);
+    }
+
+    public static void set(ConfigStorage storage, boolean value) {
+        PropertyHolderBase<ConfigStorage> propertyHolder = STORAGES.get();
+        if (propertyHolder == null && !value) return; // nothing to change
+        if (propertyHolder == null) {
+            propertyHolder = new ConfigurationStorageState();
+            STORAGES.set(propertyHolder);
+        }
+        propertyHolder.set(storage, value);
     }
 
     public static void registerChangeNotifier(SettingsChangeNotifier notifier) {
@@ -80,6 +105,13 @@ public final class ConfigMonitor {
         @Override
         protected ConfigActivity[] properties() {
             return ConfigActivity.VALUES;
+        }
+    }
+
+    private static class ConfigurationStorageState extends PropertyHolderBase.IntStore<ConfigStorage> {
+        @Override
+        protected ConfigStorage[] properties() {
+            return ConfigStorage.VALUES;
         }
     }
 }

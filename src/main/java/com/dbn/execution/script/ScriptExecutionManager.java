@@ -205,12 +205,11 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     tempScriptFile.set(temporaryScriptFile);
 
                     DatabaseExecutionInterface executionInterface = connection.getInterfaces().getExecutionInterface();
-                    CmdLineExecutionInput executionInput = executionInterface.createScriptExecutionInput(cmdLineInterface,
+                    CmdLineExecutionInput executionInput = executionInterface.createScriptExecutionInput(connection,
+                            cmdLineInterface,
                             temporaryScriptFile.getPath(),
                             content,
-                            schemaId,
-                            connection.getDatabaseInfo(),
-                            connection.getAuthenticationInfo());
+                            schemaId);
 
                     FileUtil.writeToFile(temporaryScriptFile, executionInput.getTextContent());
                     if (!temporaryScriptFile.isFile() || !temporaryScriptFile.exists()) {

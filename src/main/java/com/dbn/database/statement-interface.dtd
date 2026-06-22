@@ -1,0 +1,25 @@
+<!ELEMENT data-dictionary (statement-execution-processor)*>
+<!ELEMENT statement-execution-processor (statement)*>
+<!--
+  Statement execution processor attributes:
+  - id: unique identifier used by database interface implementations to look up and execute the statement.
+  - timeout: optional statement timeout in seconds; defaults are applied by StatementExecutionProcessor when omitted.
+-->
+<!ATTLIST statement-execution-processor
+          id CDATA #REQUIRED
+          timeout CDATA #IMPLIED>
+<!ELEMENT statement (#PCDATA)>
+<!--
+  Statement attributes:
+  - comment: optional human-readable note for statement variants.
+  - variants: optional database/version variant marker retained for statement definition metadata.
+  - prefixes: optional comma-separated prefix list; one StatementDefinition is created for each prefix.
+  - silent-error-codes: optional comma-separated database error codes that should be ignored for this statement.
+  - since-version: optional minimum database version required for this statement definition.
+-->
+<!ATTLIST statement
+          comment CDATA #IMPLIED
+          variants CDATA #IMPLIED
+          prefixes CDATA #IMPLIED
+          silent-error-codes CDATA #IMPLIED
+          since-version CDATA #IMPLIED>
