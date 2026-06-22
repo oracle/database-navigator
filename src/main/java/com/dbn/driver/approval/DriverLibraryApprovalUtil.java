@@ -41,16 +41,6 @@ public class DriverLibraryApprovalUtil {
     }
 
     @SneakyThrows
-    public static void approveTemporarily(File libraryFile) {
-        DriverLibraryApproval approval = createApproval(libraryFile);
-        if (approval == null) return;
-
-        UserApprovalManager approvalManager = UserApprovalManager.getInstance();
-        approvalManager.approveTemporarily(approval);
-
-    }
-
-    @SneakyThrows
     public static void ensureApproved(File libraryFile) {
         DriverLibraryApproval approval = createApproval(libraryFile);
         if (approval == null) return;

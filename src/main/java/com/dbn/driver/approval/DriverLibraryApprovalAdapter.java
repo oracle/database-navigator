@@ -27,7 +27,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class DriverLibraryApprovalAdapter implements UserApprovalAdapter<DriverLibraryApproval> {
     private static final String[] APPROVAL_OPTIONS = Messages.options(
-            txt("msg.shared.button.TrustAndConnect"),
+            txt("msg.driver.button.TrustAndLoadDriver"),
             txt("msg.shared.button.Cancel"));
 
     @Override
