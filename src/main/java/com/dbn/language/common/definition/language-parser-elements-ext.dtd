@@ -19,13 +19,12 @@
         language CDATA #REQUIRED
         source CDATA #REQUIRED>
 
-<!ELEMENT one-of-extension (token)*>
+<!ELEMENT one-of-extension (node)*>
 <!ATTLIST one-of-extension
         id CDATA #REQUIRED
         depth CDATA #REQUIRED>
 
-<!ELEMENT token (token)*>
-<!ATTLIST token
-        type-id CDATA #REQUIRED
-        token-ids CDATA #IMPLIED
+<!ELEMENT node (node)*>
+<!ATTLIST node
+        token-type-ids CDATA #REQUIRED
         candidate-ids CDATA #IMPLIED>

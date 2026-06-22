@@ -16,6 +16,7 @@
 
 package com.dbn.dev.language;
 
+import com.dbn.common.util.Lists;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.ElementTypeRef;
@@ -50,9 +51,11 @@ import static com.dbn.dev.language.LanguageSpecificationXmlUtil.outputPrettyStri
 
 public class LanguageSpecificationParserExtensionBuilder implements LanguageSpecificationArtifactBuilder {
     private static final int MAX_LOOKAHEAD_DEPTH = 8;
-    private static final int MAX_TRIE_NODES_PER_ONE_OF = 500;
     private static final int MAX_REPEATED_CANDIDATE_SET = 2;
     private static final String EXT_DTD_PATH = "../../../common/definition/language-parser-elements-ext.dtd";
+    private static final String ATTR_TOKEN_TYPE_IDS = "token-type-ids";
+    private static final String ATTR_CANDIDATE_IDS = "candidate-ids";
+    private static final String TAG_NODE = "node";
     private static final int ELEMENT_LOG_INTERVAL = 25;
     private static final int ONE_OF_LOG_INTERVAL = 50;
     private static final int PREFIX_LOG_INTERVAL = 100000;
@@ -201,7 +204,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
         Element extension = new Element("one-of-extension");
         extension.setAttribute("id", oneOfElementType.getId());
-        TrieBuildContext context = new TrieBuildContext();
+        TrieBuildContext context = new TrieBuildContext(contextElementId, oneOfElementType.getId());
         boolean added = writeTokenNodes(extension, List.of(), candidates, true, context);
         if (!added) return null;
 
@@ -236,27 +239,25 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             boolean includeUnambiguous,
             TrieBuildContext context) {
         Map<String, TokenCandidates> candidatesByToken = groupCandidatesByNextToken(prefix, candidates);
-        boolean added = false;
+        List<Element> elements = new ArrayList<>();
         for (Map.Entry<String, TokenCandidates> entry : candidatesByToken.entrySet()) {
             String token = entry.getKey();
             TokenCandidates tokenCandidates = entry.getValue();
             boolean ambiguous = tokenCandidates.size() > 1;
             if (!includeUnambiguous && !ambiguous) continue;
 
-            Element element = new Element("token");
+            Element element = new Element(TAG_NODE);
             int depth = prefix.size() + 1;
-            boolean withinNodeBudget = context.registerTokenNode(depth);
-            element.setAttribute("type-id", token);
-            writeTokenIdsAttribute(element, tokenCandidates);
+            context.registerTokenNode(depth);
+            element.setAttribute(ATTR_TOKEN_TYPE_IDS, token);
             if (!ambiguous) {
                 writeCandidateIdsAttribute(element, tokenCandidates);
             } else {
                 List<String> nextPrefix = append(prefix, token);
                 CandidateSetKey tokenCandidateSetKey = CandidateSetKey.from(tokenCandidates.candidates());
-                boolean shouldExpand =
-                        withinNodeBudget &&
-                        nextPrefix.size() < MAX_LOOKAHEAD_DEPTH &&
-                        !context.isRepeated(tokenCandidateSetKey);
+                context.assertLookAheadDepth(nextPrefix, tokenCandidateSetKey);
+
+                boolean shouldExpand = !context.isRepeated(tokenCandidateSetKey);
 
                 if (!shouldExpand) {
                     context.pruned = true;
@@ -267,10 +268,13 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
                     writeCandidateIdsAttribute(element, tokenCandidates);
                 }
             }
-            parent.addContent(element);
-            added = true;
+            elements.add(element);
         }
-        return added;
+
+        for (Element element : compactTokenNodes(elements)) {
+            parent.addContent(element);
+        }
+        return !elements.isEmpty();
     }
 
     private boolean hasAmbiguousToken(List<String> prefix, List<Candidate> candidates) {
@@ -288,7 +292,6 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             for (String token : match.nextTokens) {
                 TokenCandidates tokenCandidates = candidatesByToken.computeIfAbsent(token, k -> new TokenCandidates());
                 tokenCandidates.addCandidate(candidate);
-                tokenCandidates.addTokenIds(match.nextTokenIds.get(token));
             }
         }
         return candidatesByToken;
@@ -340,13 +343,13 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         try {
             PrefixMatch result;
             if (elementType instanceof TokenElementType tokenElementType) {
-                result = matchToken(tokenElementType.tokenType.getId(), tokenElementType.getId(), prefix, offset);
+                result = matchToken(tokenElementType.tokenType.getId(), prefix, offset);
             } else if (elementType instanceof QualifiedIdentifierElementType qualifiedIdentifierElementType) {
                 result = resolveQualifiedIdentifierPrefix(qualifiedIdentifierElementType, prefix, offset);
             } else if (elementType instanceof IdentifierElementType) {
-                result = matchToken(elementType.bundle.getTokenTypeBundle().getIdentifier().getId(), null, prefix, offset);
+                result = matchToken(elementType.bundle.getTokenTypeBundle().getIdentifier().getId(), prefix, offset);
             } else if (elementType instanceof ExecVariableElementType) {
-                result = matchToken(elementType.bundle.getTokenTypeBundle().getVariable().getId(), null, prefix, offset);
+                result = matchToken(elementType.bundle.getTokenTypeBundle().getVariable().getId(), prefix, offset);
             } else if (elementType instanceof SequenceElementType sequenceElementType) {
                 result = resolveSequencePrefix(sequenceElementType.children, prefix, offset, visitingElements);
             } else if (elementType instanceof OneOfElementType oneOfElementType) {
@@ -433,7 +436,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
                 }
 
                 for (TokenElementType separatorToken : iterationElementType.separatorTokens) {
-                    PrefixMatch separatorMatch = matchToken(separatorToken.tokenType.getId(), separatorToken.getId(), prefix, activeState.offset);
+                    PrefixMatch separatorMatch = matchToken(separatorToken.tokenType.getId(), prefix, activeState.offset);
                     result.addNextTokens(separatorMatch);
                     for (int separatorOffset : separatorMatch.completedOffsets) {
                         PrefixMatch nextMatch = resolvePrefix(iterationElementType.iteratedElement, prefix, separatorOffset, visitingElements);
@@ -457,7 +460,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             Set<PrefixVisit> visitingElements) {
         PrefixMatch result = new PrefixMatch();
         TokenElementType beginTokenElement = wrapperElementType.getBeginTokenElement();
-        PrefixMatch beginMatch = matchToken(beginTokenElement.tokenType.getId(), beginTokenElement.getId(), prefix, offset);
+        PrefixMatch beginMatch = matchToken(beginTokenElement.tokenType.getId(), prefix, offset);
         result.addNextTokens(beginMatch);
 
         Set<Integer> wrappedOffsets = new LinkedHashSet<>();
@@ -472,7 +475,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
         for (int wrappedOffset : wrappedOffsets) {
             TokenElementType endTokenElement = wrapperElementType.getEndTokenElement();
-            PrefixMatch endMatch = matchToken(endTokenElement.tokenType.getId(), endTokenElement.getId(), prefix, wrappedOffset);
+            PrefixMatch endMatch = matchToken(endTokenElement.tokenType.getId(), prefix, wrappedOffset);
             result.add(endMatch);
         }
 
@@ -501,12 +504,12 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
         for (int i = 0; i < leafs.length; i++) {
             LeafElementType leaf = leafs[i];
-            activeOffsets = resolveTokenPrefix(leaf.tokenType.getId(), null, prefix, activeOffsets, result);
+            activeOffsets = resolveTokenPrefix(leaf.tokenType.getId(), prefix, activeOffsets, result);
             if (activeOffsets.isEmpty()) break;
 
             if (i < leafs.length - 1) {
                 TokenElementType separatorToken = qualifiedIdentifierElementType.separatorToken;
-                activeOffsets = resolveTokenPrefix(separatorToken.tokenType.getId(), separatorToken.getId(), prefix, activeOffsets, result);
+                activeOffsets = resolveTokenPrefix(separatorToken.tokenType.getId(), prefix, activeOffsets, result);
                 if (activeOffsets.isEmpty()) break;
             }
         }
@@ -517,23 +520,22 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
     private static Set<Integer> resolveTokenPrefix(
             String token,
-            String tokenId,
             List<String> prefix,
             Set<Integer> activeOffsets,
             PrefixMatch result) {
         Set<Integer> nextOffsets = new LinkedHashSet<>();
         for (int activeOffset : activeOffsets) {
-            PrefixMatch tokenMatch = matchToken(token, tokenId, prefix, activeOffset);
+            PrefixMatch tokenMatch = matchToken(token, prefix, activeOffset);
             result.addNextTokens(tokenMatch);
             nextOffsets.addAll(tokenMatch.completedOffsets);
         }
         return nextOffsets;
     }
 
-    private static PrefixMatch matchToken(String token, String tokenId, List<String> prefix, int offset) {
+    private static PrefixMatch matchToken(String token, List<String> prefix, int offset) {
         if (offset > prefix.size()) return PrefixMatch.empty();
         if (offset == prefix.size()) {
-            return PrefixMatch.next(token, tokenId);
+            return PrefixMatch.next(token);
         }
 
         return token.equals(prefix.get(offset)) ?
@@ -571,20 +573,72 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             candidateIds.add(candidate.candidateId);
         }
         if (!candidateIds.isEmpty()) {
-            element.setAttribute("candidate-ids", String.join(", ", candidateIds));
+            element.setAttribute(ATTR_CANDIDATE_IDS, String.join(", ", candidateIds));
         }
     }
 
-    private static void writeTokenIdsAttribute(Element element, TokenCandidates tokenCandidates) {
-        Set<String> tokenIds = tokenCandidates.tokenIds;
-        if (!tokenIds.isEmpty()) {
-            element.setAttribute("token-ids", String.join(", ", tokenIds));
+    private static List<Element> compactTokenNodes(List<Element> elements) {
+        if (elements.size() < 2) return elements;
+
+        Map<String, List<Element>> elementsBySignature = new LinkedHashMap<>();
+        for (Element element : elements) {
+            elementsBySignature.computeIfAbsent(tokenContentSignature(element), k -> new ArrayList<>()).add(element);
         }
+
+        List<Element> compacted = new ArrayList<>(elementsBySignature.size());
+        for (List<Element> group : elementsBySignature.values()) {
+            compacted.add(group.size() == 1 ? group.get(0) : mergeTokenNodes(group));
+        }
+        return compacted;
+    }
+
+    private static Element mergeTokenNodes(List<Element> elements) {
+        Element result = elements.get(0);
+        Set<String> tokenTypeIds = new LinkedHashSet<>();
+
+        for (Element element : elements) {
+            tokenTypeIds.addAll(tokenTypeIds(element));
+        }
+
+        result.setAttribute(ATTR_TOKEN_TYPE_IDS, String.join(", ", tokenTypeIds));
+        return result;
+    }
+
+    private static String tokenContentSignature(Element element) {
+        StringBuilder signature = new StringBuilder();
+        signature.append("candidate-ids=").append(attributeValue(element, ATTR_CANDIDATE_IDS));
+        for (Element child : element.getChildren(TAG_NODE)) {
+            signature.append("|child=").append(tokenFullSignature(child));
+        }
+        return signature.toString();
+    }
+
+    private static String tokenFullSignature(Element element) {
+        StringBuilder signature = new StringBuilder();
+        signature.append("token-type-ids=").append(String.join(",", tokenTypeIds(element)));
+        signature.append(";candidate-ids=").append(attributeValue(element, ATTR_CANDIDATE_IDS));
+        for (Element child : element.getChildren(TAG_NODE)) {
+            signature.append("|child=").append(tokenFullSignature(child));
+        }
+        return signature.toString();
+    }
+
+    private static List<String> tokenTypeIds(Element element) {
+        return csvAttribute(element, ATTR_TOKEN_TYPE_IDS);
+    }
+
+    private static List<String> csvAttribute(Element element, String name) {
+        String value = element.getAttributeValue(name);
+        return value == null ? List.of() : Lists.fromCsv(value);
+    }
+
+    private static String attributeValue(Element element, String name) {
+        String value = element.getAttributeValue(name);
+        return value == null ? "" : value;
     }
 
     private static class PrefixMatch {
         private final Set<String> nextTokens = new LinkedHashSet<>();
-        private final Map<String, Set<String>> nextTokenIds = new LinkedHashMap<>();
         private final Set<Integer> completedOffsets = new LinkedHashSet<>();
         private boolean incomplete;
 
@@ -595,9 +649,6 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
         private void addNextTokens(PrefixMatch match) {
             nextTokens.addAll(match.nextTokens);
-            for (Map.Entry<String, Set<String>> entry : match.nextTokenIds.entrySet()) {
-                nextTokenIds.computeIfAbsent(entry.getKey(), k -> new LinkedHashSet<>()).addAll(entry.getValue());
-            }
             incomplete = incomplete || match.incomplete;
         }
 
@@ -611,12 +662,9 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             return match;
         }
 
-        private static PrefixMatch next(String token, String tokenId) {
+        private static PrefixMatch next(String token) {
             PrefixMatch match = new PrefixMatch();
             match.nextTokens.add(token);
-            if (tokenId != null) {
-                match.nextTokenIds.computeIfAbsent(token, k -> new LinkedHashSet<>()).add(tokenId);
-            }
             return match;
         }
 
@@ -639,16 +687,9 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
     private static class TokenCandidates implements Iterable<Candidate> {
         private final Map<String, Candidate> candidates = new LinkedHashMap<>();
-        private final Set<String> tokenIds = new LinkedHashSet<>();
 
         private void addCandidate(Candidate candidate) {
             candidates.put(candidate.key(), candidate);
-        }
-
-        private void addTokenIds(Set<String> tokenIds) {
-            if (tokenIds != null) {
-                this.tokenIds.addAll(tokenIds);
-            }
         }
 
         private int size() {
@@ -667,9 +708,16 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
     private static class TrieBuildContext {
         private final Map<CandidateSetKey, Integer> candidateSetVisits = new LinkedHashMap<>();
+        private final String contextElementId;
+        private final String oneOfId;
         private int tokenNodes;
         private int maxDepth;
         private boolean pruned;
+
+        private TrieBuildContext(String contextElementId, String oneOfId) {
+            this.contextElementId = contextElementId;
+            this.oneOfId = oneOfId;
+        }
 
         private void enter(CandidateSetKey candidateSetKey) {
             candidateSetVisits.merge(candidateSetKey, 1, Integer::sum);
@@ -684,10 +732,18 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             }
         }
 
-        private boolean registerTokenNode(int depth) {
+        private void registerTokenNode(int depth) {
             tokenNodes++;
             maxDepth = Math.max(maxDepth, depth);
-            return tokenNodes <= MAX_TRIE_NODES_PER_ONE_OF;
+        }
+
+        private void assertLookAheadDepth(List<String> prefix, CandidateSetKey candidateSetKey) {
+            if (prefix.size() < MAX_LOOKAHEAD_DEPTH) return;
+
+            throw new IllegalStateException("Maximum parser extension look-ahead depth reached (" +
+                    MAX_LOOKAHEAD_DEPTH + ") for " + contextElementId + "/" + oneOfId +
+                    " prefix=" + prefix +
+                    " candidates=" + candidateSetKey.keys());
         }
 
         private boolean isRepeated(CandidateSetKey candidateSetKey) {

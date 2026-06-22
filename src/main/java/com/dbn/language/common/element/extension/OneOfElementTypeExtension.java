@@ -28,13 +28,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 
 @Slf4j
 public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfElementType> {
     private static final ElementTypeRef[] EMPTY_CANDIDATES = new ElementTypeRef[0];
+    private static final String TAG_NODE = "node";
 
     public final ElementTypeRef[] defaultCandidates;
     public final Map<String, TokenNode> tokens;
@@ -84,13 +84,15 @@ public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfEle
     }
 
     private Map<String, TokenNode> loadTokens(Element definition) {
-        List<Element> tokenElements = definition.getChildren("token");
+        List<Element> tokenElements = definition.getChildren(TAG_NODE);
         if (tokenElements.isEmpty()) return Map.of();
 
         Map<String, TokenNode> tokens = new LinkedHashMap<>();
         for (Element tokenElement : tokenElements) {
             TokenNode tokenNode = new TokenNode(tokenElement);
-            tokens.put(tokenNode.typeId, tokenNode);
+            for (String tokenTypeId : tokenNode.tokenTypeIds) {
+                tokens.put(tokenTypeId, tokenNode);
+            }
         }
         return unmodifiableMap(tokens);
     }
@@ -109,15 +111,13 @@ public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfEle
     }
 
     public class TokenNode {
-        public final String typeId;
-        public final List<String> tokenIds;
+        public final List<String> tokenTypeIds;
         public final List<String> candidateIds;
         public final ElementTypeRef[] candidates;
         public final Map<String, TokenNode> tokens;
 
         private TokenNode(Element definition) {
-            this.typeId = stringAttribute(definition, "type-id");
-            this.tokenIds = unmodifiableList(csvAttribute(definition, "token-ids"));
+            this.tokenTypeIds = unmodifiableList(csvAttribute(definition, "token-type-ids"));
             this.candidateIds = unmodifiableList(csvAttribute(definition, "candidate-ids"));
             this.candidates = loadCandidates(candidateIds);
             this.tokens = loadTokens(definition);
