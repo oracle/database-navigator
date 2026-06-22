@@ -23,17 +23,23 @@ import com.dbn.connection.ssh.SshAuthType;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
 import com.dbn.credentials.TransientSecretStore;
+import com.intellij.openapi.options.ConfigurationException;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setSensitiveString;
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.credentials.SecretType.DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE;
 import static com.dbn.credentials.SecretType.DEBUGGER_SSH_TUNNEL_PASSWORD;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -139,4 +145,32 @@ public class ReverseSshTunnelConfiguration  extends BasicConfiguration <Connecti
         this.keyPassphrase.setToken(keyPassphrase);
     }
 
+    public void validateBindHost() throws ConfigurationException {
+        validateBindHost(bindHost);
+    }
+
+    public static void validateBindHost(String bindHost) throws ConfigurationException {
+        if (isEmptyOrSpaces(bindHost)) {
+            throw bindHostException(bindHost);
+        }
+
+        try {
+            InetAddress[] addresses = InetAddress.getAllByName(bindHost);
+            if (addresses.length > 0) {
+                for (InetAddress address : addresses) {
+                    if (!address.isLoopbackAddress()) {
+                        throw bindHostException(bindHost);
+                    }
+                }
+                return;
+            }
+        } catch (UnknownHostException ignored) {}
+
+        throw bindHostException(bindHost);
+    }
+
+    private static ConfigurationException bindHostException(String bindHost) {
+        return new ConfigurationException(
+                txt("cfg.connection.error.ReverseSshTunnelBindHostNotLoopback", bindHost));
+    }
 }
