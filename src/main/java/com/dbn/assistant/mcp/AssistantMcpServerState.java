@@ -18,6 +18,8 @@ package com.dbn.assistant.mcp;
 
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.mcp.model.AssistantMcpServerBundle;
+import com.dbn.assistant.mcp.model.AssistantMcpServerData;
+import com.dbn.assistant.mcp.model.AssistantMcpToolInfo;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
@@ -44,6 +46,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 import static com.dbn.assistant.mcp.ide.IdeMcpServerManager.isConflictingIdeTool;
+import static com.dbn.assistant.mcp.model.AssistantMcpServerData.createToolInfo;
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_MCP_SERVER_STATE;
 import static com.dbn.common.action.UserDataKeys.getUserDataSync;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
@@ -151,8 +154,12 @@ public class AssistantMcpServerState extends AssistantStateExtension implements 
             if (isConflictingIdeTool(toolName)) return false;
         }
 
+        AssistantMcpServerData mcpServerData = AssistantMcpServerData.get(project);
+        AssistantMcpToolInfo toolInfo = createToolInfo(mcpServer, specification);
+        mcpServerData.updateTool(toolInfo);
+
         AssistantMcpToolApprovals toolApprovals = serverSettings.getMcpToolApprovals();
-        if (toolApprovals.isBlocked(serverId, toolName)) return false;
+        if (toolApprovals.isBlocked(serverId, toolInfo)) return false;
 
         return true;
     }

@@ -109,8 +109,8 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
     public void setApprovalStatus(AssistantToolApprovalStatus status) {
         AssistantMcpToolApprovals approvals = getToolApprovals();
         if (status == APPROVED) {
-            List<String> toolNames = toolForms.stream().map(f -> f.getToolInfo().getName()).toList();
-            approvals.setStatus(mcpServer.getId(), toolNames, status);
+            List<AssistantMcpToolInfo> toolInfos = toolForms.stream().map(f -> f.getToolInfo()).toList();
+            approvals.setStatus(mcpServer.getId(), toolInfos, status);
         } else {
             approvals.setStatus(mcpServer.getId(), status);
         }

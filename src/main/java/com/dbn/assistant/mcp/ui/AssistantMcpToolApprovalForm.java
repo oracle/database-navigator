@@ -81,12 +81,12 @@ public class AssistantMcpToolApprovalForm extends DBNFormBase {
     }
 
     private AssistantToolApprovalStatus getApprovalStatus() {
-        return getToolApprovals().getStatus(toolInfo.getServerId(), toolInfo.getName());
+        return getToolApprovals().getStatus(toolInfo.getServerId(), toolInfo);
     }
 
     public void setApprovalStatus(AssistantToolApprovalStatus status) {
         AssistantMcpToolApprovals approvals = getToolApprovals();
-        approvals.setStatus(toolInfo.getServerId(), toolInfo.getName(), status);
+        approvals.setStatus(toolInfo.getServerId(), toolInfo, status);
 
         refreshState();
         updateActionToolbars();

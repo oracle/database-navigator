@@ -27,6 +27,7 @@ import lombok.Setter;
 public class AssistantMcpToolInfo {
     private EntityId serverId;
     private String name;
+    private String signature;
     private String description;
     private String instruction;
 }

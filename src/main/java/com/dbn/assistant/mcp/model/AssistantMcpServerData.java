@@ -19,6 +19,7 @@ package com.dbn.assistant.mcp.model;
 import com.dbn.assistant.mcp.AssistantMcpServerSettings;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.EntityId;
+import com.dbn.common.checksum.Checksum;
 import com.dbn.common.component.ProjectUnit;
 import com.dbn.common.state.PersistentStateElement;
 import com.intellij.openapi.project.Project;
@@ -38,12 +39,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 import static com.dbn.assistant.mcp.AssistantMcpToolProviders.createToolProvider;
 import static com.dbn.assistant.mcp.ide.IdeMcpServerManager.isConflictingIdeTool;
+import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.exception.Exceptions.sneakyThrow;
 import static dev.langchain4j.data.message.UserMessage.userMessage;
 import static java.util.Collections.emptyList;
@@ -77,6 +80,16 @@ public class AssistantMcpServerData extends ProjectUnit implements PersistentSta
 
     public List<AssistantMcpToolInfo> getTools(EntityId serverId) {
         return tools.computeIfAbsent(serverId, id -> loadTools(id));
+    }
+
+     public void updateTool(AssistantMcpToolInfo toolInfo) {
+        EntityId serverId = toolInfo.getServerId();
+        List<AssistantMcpToolInfo> toolInfos = tools.getOrDefault(serverId, emptyList());
+        List<AssistantMcpToolInfo> updatedToolInfos = new ArrayList<>(toolInfos);
+        updatedToolInfos.removeIf(t -> t.getName().equals(toolInfo.getName()));
+        updatedToolInfos.add(toolInfo);
+        updatedToolInfos.sort(Comparator.comparing(AssistantMcpToolInfo::getName));
+        tools.put(serverId, updatedToolInfos);
     }
 
     public List<AssistantMcpToolInfo> loadTools(EntityId serverId) {
@@ -118,19 +131,30 @@ public class AssistantMcpServerData extends ProjectUnit implements PersistentSta
         return toolInfos;
     }
 
-    private static AssistantMcpToolInfo createToolInfo(AssistantMcpServer mcpServer, ToolSpecification specification) {
+    public static AssistantMcpToolInfo createToolInfo(AssistantMcpServer mcpServer, ToolSpecification specification) {
         String toolName = specification.name();
         String toolDescription = specification.description().replaceAll("(?m)^[ \t]+(?=\\S)", "").trim();
 
         String name = mcpServer.unqualifiedUtilityName(toolName);
         String description = toolDescription.split("\n *\n")[0];
         String instruction = toolDescription;
+        String signature = createToolSignature(specification);
+
         return AssistantMcpToolInfo.builder()
             .serverId(mcpServer.getId())
             .name(name)
+            .signature(signature)
             .description(description)
             .instruction(instruction)
             .build();
+    }
+
+    private static String createToolSignature(ToolSpecification specification) {
+        String contract = String.join("\n",
+                Objects.toString(specification.name(), ""),
+                Objects.toString(specification.description(), ""),
+                Objects.toString(specification.parameters(), ""));
+        return Checksum.fromStringContent(contract, SHA_256);
     }
 
 
