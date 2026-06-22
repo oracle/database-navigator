@@ -257,7 +257,9 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                 SchemaId schemaId = executionContext.getTargetSchema();
                 targetConnection = connection.getDebugConnection(schemaId);
                 targetConnection.setAutoCommit(false);
-                targetConnection.beforeClose(() -> releaseSession(targetConnection));
+
+                DBNConnection debugConnection = targetConnection;
+                targetConnection.beforeClose(() -> releaseSession(debugConnection));
 
                 initializeLocalJdwpSession();
 
@@ -486,6 +488,8 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     }
 
     private void releaseSession(DBNConnection targetConnection) {
+        if (targetConnection == null) return;
+
         try {
             console.system(txt("log.debugger.info.ReleasingDebugSession"));
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
