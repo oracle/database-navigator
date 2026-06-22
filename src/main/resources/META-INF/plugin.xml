@@ -323,6 +323,7 @@
         <!--object management adapters-->
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBCredentialManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBDataSourceConfigEntryManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBAIProfileManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBAIModelManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBTriggerManagementAdapter"/>
@@ -380,7 +381,6 @@
         <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.DatabaseVersion_DATA_SOURCE_CONFIG"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.SystemPrivilege_CREATE_DATA_SOURCE_CONFIG"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.SystemPrivilege_CREATE_ANY_DATA_SOURCE_CONFIG"/>
-        <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.ObjectPrivilege_SELECT_DATA_SOURCE_CONFIG_STORE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DATA_SOURCE_CONFIG"/>
 
         <!--database assistant extensions-->

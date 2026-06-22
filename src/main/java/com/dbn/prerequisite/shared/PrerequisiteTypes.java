@@ -50,6 +50,5 @@ public class PrerequisiteTypes {
     public static final PrerequisiteType DATABASE_VERSION_26_0 = PrerequisiteType.get("DATABASE_VERSION_26_0");
     public static final PrerequisiteType CREATE_DATA_SOURCE_CONFIG = PrerequisiteType.get("CREATE_DATA_SOURCE_CONFIG");
     public static final PrerequisiteType CREATE_ANY_DATA_SOURCE_CONFIG = PrerequisiteType.get("CREATE_ANY_DATA_SOURCE_CONFIG");
-    public static final PrerequisiteType SELECT_DATA_SOURCE_CONFIG_STORE = PrerequisiteType.get("SELECT_DATA_SOURCE_CONFIG_STORE");
     public static final PrerequisiteType EXECUTE_DBMS_DATA_SOURCE_CONFIG = PrerequisiteType.get("EXECUTE_DBMS_DATA_SOURCE_CONFIG");
 }

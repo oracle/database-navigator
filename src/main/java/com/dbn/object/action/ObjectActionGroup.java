@@ -34,6 +34,7 @@ import com.dbn.execution.method.action.ProgramMethodExecuteAction;
 import com.dbn.generator.statement.action.GenerateStatementActionGroup;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
+import com.dbn.object.DBDataSourceConfigEntry;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaResource;
@@ -140,6 +141,8 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
                 //add(new TestAction(object));
             }
+        } else if (object instanceof DBDataSourceConfigEntry configEntry) {
+            add(new DataSourceConfigEntryDropAction(configEntry));
         }
     }
 

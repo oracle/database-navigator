@@ -24,7 +24,7 @@ import java.sql.SQLException;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.DATA_SOURCE_CONFIG;
 
 /**
- * Provides database-specific operations for DATA_SOURCE_CONFIG_STORE entries.
+ * Provides database-specific operations for data source configuration entries.
  */
 public interface DatabaseDataSourceConfigInterface extends DatabaseInterface {
     @Override

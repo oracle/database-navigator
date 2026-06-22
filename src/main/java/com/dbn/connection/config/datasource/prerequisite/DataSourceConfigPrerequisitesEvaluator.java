@@ -26,7 +26,6 @@ import static com.dbn.common.operation.DatabaseOperation.MANAGE_DATA_SOURCE_CONF
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_DATA_SOURCE_CONFIG;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.DATABASE_VERSION_26_0;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_DATA_SOURCE_CONFIG;
-import static com.dbn.prerequisite.shared.PrerequisiteTypes.SELECT_DATA_SOURCE_CONFIG_STORE;
 
 public class DataSourceConfigPrerequisitesEvaluator extends PrerequisiteRequirementEvaluatorBase {
 
@@ -39,7 +38,6 @@ public class DataSourceConfigPrerequisitesEvaluator extends PrerequisiteRequirem
     protected void createMandates(List<PrerequisiteMandate> mandates, DatabaseOperation operation) {
         createMandate(mandates, DATABASE_VERSION_26_0, "Configuration entries require Oracle Database 26.0 or later");
         createMandate(mandates, CREATE_DATA_SOURCE_CONFIG, "Allows the user to create configuration entries in the current schema");
-        createMandate(mandates, SELECT_DATA_SOURCE_CONFIG_STORE, "Allows the user to list and read configuration entries from SYS.DATA_SOURCE_CONFIG_STORE");
         createMandate(mandates, EXECUTE_DBMS_DATA_SOURCE_CONFIG, "Allows the user to create, update, and delete configuration entries through SYS.DBMS_DATA_SOURCE_CONFIG");
     }
 }
