@@ -18,6 +18,7 @@ package com.dbn.driver.approval;
 
 import com.dbn.common.approval.UserApprovable;
 import com.dbn.common.checksum.Checksum;
+import com.dbn.common.util.Measured;
 import com.dbn.driver.DriverLibraryInfo;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,7 +44,7 @@ public class DriverLibraryApproval implements UserApprovable {
         this.library = library.getCanonicalFile();
         this.libraryInfo = new DriverLibraryInfo(library);
 
-        this.fingerprint = sha256(libraryInfo.getJars());
+        this.fingerprint = Measured.call("calculating checksum for library " + library, () -> sha256(libraryInfo.getJars()));
     }
 
     private static String sha256(List<File> files) {
