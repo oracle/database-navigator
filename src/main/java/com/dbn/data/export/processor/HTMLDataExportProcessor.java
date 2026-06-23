@@ -101,7 +101,7 @@ public class HTMLDataExportProcessor extends DataExportProcessor{
                 ProgressMonitor.checkCancelled();
                 GenericDataType genericDataType = model.getGenericDataType(columnIndex);
                 Object object = model.getValue(rowIndex, columnIndex);
-                String value = formatValue(formatter, object);
+                String value = formatValue(formatter, model, object);
                 value = value.replaceAll("<", "&lt;");
                 value = value.replaceAll(">", "&gt;");
 

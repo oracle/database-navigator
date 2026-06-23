@@ -94,7 +94,7 @@ public class XMLDataExportProcessor extends DataExportProcessor{
                         GenericDataType.BLOB)) {
 
                     Object object = model.getValue(rowIndex, columnIndex);
-                    value = formatValue(formatter, object);
+                    value = formatValue(formatter, model, object);
                 }
 
                 if (value == null) value = "";

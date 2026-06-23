@@ -77,7 +77,7 @@ public class CustomDataExportProcessor extends DataExportProcessor{
             for (int c = 0; c < model.getColumnCount(); c++) {
                 ProgressMonitor.checkCancelled();
                 Object object = model.getValue(r, c);
-                String value = formatValue(formatter, object);
+                String value = formatValue(formatter, model, object);
                 String separator = instructions.getValueSeparator();
                 if (c > 0) {
                     buffer.append(separator);

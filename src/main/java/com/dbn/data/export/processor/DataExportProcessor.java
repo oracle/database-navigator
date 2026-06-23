@@ -25,6 +25,7 @@ import com.dbn.data.export.DataExportFormat;
 import com.dbn.data.export.DataExportInstructions;
 import com.dbn.data.export.DataExportInstructions.Scope;
 import com.dbn.data.export.DataExportModel;
+import com.dbn.data.value.LargeObjectValue;
 import com.dbn.data.value.ValueAdapter;
 import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.openapi.ide.CopyPasteManager;
@@ -45,11 +46,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public abstract class DataExportProcessor implements ExtensionPoint {
     public static final ExtensionPointName<DataExportProcessor> EP = ExtensionPointName.create("com.dbn.dataExportProcessor");
+    static final int MAX_EXPORT_CELL_LENGTH = 1024 * 1024;
 
     public abstract boolean supports(DataExportFeature feature);
 
@@ -131,7 +135,7 @@ public abstract class DataExportProcessor implements ExtensionPoint {
             calendar.get(Calendar.MILLISECOND) != 0;
     }
 
-    protected static String formatValue(Formatter formatter, Object value) throws DataExportException {
+    protected static String formatValue(Formatter formatter, DataExportModel model, Object value) throws DataExportException {
         if (value != null) {
             if (value instanceof Number number) {
                 return formatter.formatNumber(number);
@@ -139,6 +143,8 @@ public abstract class DataExportProcessor implements ExtensionPoint {
                 return hasTimeComponent(date) ?
                         formatter.formatDateTime(date) :
                         formatter.formatDate(date);
+            } else if (value instanceof LargeObjectValue largeObjectValue) {
+                return exportLargeObjectValue(model, largeObjectValue);
             } else if (value instanceof ValueAdapter valueAdapter){
                 try {
                     return Commons.nvl(valueAdapter.export(), "");
@@ -151,6 +157,30 @@ public abstract class DataExportProcessor implements ExtensionPoint {
             }
         }
         return "";
+    }
+
+    private static String exportLargeObjectValue(DataExportModel model, LargeObjectValue value) throws DataExportException {
+        try {
+            long size = value.size();
+            boolean truncated = size > MAX_EXPORT_CELL_LENGTH;
+
+            String exportValue = nvl(value.read(MAX_EXPORT_CELL_LENGTH), "");
+            if (exportValue.length() > MAX_EXPORT_CELL_LENGTH) {
+                exportValue = exportValue.substring(0, MAX_EXPORT_CELL_LENGTH);
+                truncated = true;
+            }
+
+            if (truncated && model != null) {
+                model.addWarning(txt("msg.dataExport.warning.TruncatedCellValue", MAX_EXPORT_CELL_LENGTH));
+            }
+
+            return exportValue;
+        } catch (SQLException e) {
+            conditionallyLog(e);
+            throw new DataExportException("Failed to export " + value.getGenericDataType() + " cell. Cause: "  + e.getMessage());
+        } finally {
+            value.release();
+        }
     }
 
     protected String getColumnName(DataExportModel model, DataExportInstructions instructions, int columnIndex) {

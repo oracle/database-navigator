@@ -154,7 +154,7 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
                     cellStyleCache.getDatetimeStyle() :
                     cellStyleCache.getDateStyle());
         } else {
-            String stringValue = formatValue(formatter, value);
+            String stringValue = formatValue(formatter, model, value);
             if (stringValue.length() > 32767) {
                 stringValue = stringValue.substring(0, 32767);
                 model.addWarning("Some values exceed the maximum cell limit of 32767 characters and were truncated during export");
