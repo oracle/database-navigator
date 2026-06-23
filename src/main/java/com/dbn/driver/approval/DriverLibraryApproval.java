@@ -17,27 +17,26 @@
 package com.dbn.driver.approval;
 
 import com.dbn.common.approval.UserApprovable;
+import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.util.Measured;
 import com.dbn.driver.DriverLibraryInfo;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
+import static com.dbn.common.approval.UserApprovalAction.DRIVER_LIBRARY_LOAD;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
 
 @Getter
-@Setter
 public class DriverLibraryApproval implements UserApprovable {
     private final File library;
 
     private final DriverLibraryInfo libraryInfo;
     private final String fingerprint;
-
-    private boolean acknowledged;
 
     @SneakyThrows
     public DriverLibraryApproval(File library) {
@@ -45,6 +44,11 @@ public class DriverLibraryApproval implements UserApprovable {
         this.libraryInfo = new DriverLibraryInfo(library);
 
         this.fingerprint = Measured.call("calculating checksum for library " + library, () -> sha256(libraryInfo.getJars()));
+    }
+
+    @Override
+    public Set<UserApprovalAction> getApprovalActions() {
+        return Set.of(DRIVER_LIBRARY_LOAD);
     }
 
     private static String sha256(List<File> files) {

@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
+import static com.dbn.common.approval.UserApprovalAction.DRIVER_LIBRARY_LOAD;
 import static com.dbn.driver.download.DriverDownloadManager.getDriverPackageChecksumsLocation;
 
 @UtilityClass
@@ -46,7 +47,7 @@ public class DriverLibraryApprovalUtil {
         if (approval == null) return;
 
         UserApprovalManager approvalManager = UserApprovalManager.getInstance();
-        approvalManager.ensureApproved(approval);
+        approvalManager.ensureApproved(DRIVER_LIBRARY_LOAD, approval);
     }
 
     private boolean isManagedDriverLibrary(File libraryFile) throws Exception {

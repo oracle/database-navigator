@@ -16,6 +16,7 @@
 
 package com.dbn.connection.config;
 
+import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.options.BasicProjectConfiguration;
 import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.thread.ThreadLocalFlag;
@@ -37,6 +38,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.approval.UserApprovalAction.CONNECTION_WORKSPACE_RESTORE;
+import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.help.HelpTopic.DATABASE_CONFIG;
@@ -151,6 +154,11 @@ public class ConnectionBundleSettings extends BasicProjectConfiguration<ProjectS
             ConnectionManager connectionManager = ConnectionManager.getInstance(project);
             ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
             connectionBundle.applySettings(this);
+            if (ConfigMonitor.is(INITIALIZING)) {
+                // avoid prompting for every restored connection before the approval action is acknowledged.
+                UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+                approvalManager.waiveInitialApprovals(project, CONNECTION_WORKSPACE_RESTORE, connectionBundle.getRealConnections());
+            }
         }
     }
 

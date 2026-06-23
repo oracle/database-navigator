@@ -42,6 +42,7 @@ import java.util.List;
 
 import static com.dbn.assistant.mcp.model.AssistantMcpServerType.HTTP;
 import static com.dbn.assistant.mcp.model.AssistantMcpServerType.STDIO;
+import static com.dbn.common.approval.UserApprovalAction.MCP_SERVER_ACCESS;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.list.ListProperty.EDITABLE;
@@ -201,7 +202,7 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
 
             // approve this endpoint for the verify call; persistent approval happens on settings Apply
             UserApprovalManager approvalManager = UserApprovalManager.getInstance();
-            approvalManager.approveTemporarily(mcpServer);
+            approvalManager.approveTemporarily(MCP_SERVER_ACCESS, mcpServer);
 
             AssistantMcpToolMetadata metadata = AssistantMcpServerData.loadToolMetadata(mcpServer);
             if (indicator.isCanceled()) return;

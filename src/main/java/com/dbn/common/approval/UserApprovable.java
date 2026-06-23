@@ -16,6 +16,8 @@
 
 package com.dbn.common.approval;
 
+import java.util.Set;
+
 /**
  * Marker for domain objects that require user approval before use.
  * <p>
@@ -24,5 +26,5 @@ package com.dbn.common.approval;
  * the domain object itself.
  */
 public interface UserApprovable {
-    boolean isAcknowledged();
+    Set<UserApprovalAction> getApprovalActions();
 }

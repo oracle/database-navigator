@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
+import static com.dbn.common.approval.UserApprovalAction.MCP_SERVER_ACCESS;
 import static com.dbn.common.exception.Exceptions.getLocalizedMessages;
 import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
 import static com.dbn.common.ui.util.TextFields.getText;
@@ -256,7 +257,7 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
 
     public void reloadTools() {
         UserApprovalManager approvalManager = UserApprovalManager.getInstance();
-        approvalManager.approveTemporarily(mcpServer);
+        approvalManager.approveTemporarily(MCP_SERVER_ACCESS, mcpServer);
 
         Dispatch.async(mainPanel, () -> loadToolMetadata(),
                 metadata -> initToolForms(metadata));

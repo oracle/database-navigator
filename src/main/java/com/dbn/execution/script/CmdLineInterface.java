@@ -17,6 +17,7 @@
 package com.dbn.execution.script;
 
 import com.dbn.common.approval.UserApprovable;
+import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
@@ -32,8 +33,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+import java.util.Set;
 import java.util.UUID;
 
+import static com.dbn.common.approval.UserApprovalAction.COMMAND_LINE_EXECUTION;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Unsafe.cast;
@@ -48,8 +51,6 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
     private String id;
     private String name;
     private String description;
-
-    private transient boolean acknowledged;
 
     private interface Defaults {
         String extension = SystemInfo.isWindows ? ".exe" : "";
@@ -97,7 +98,15 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
         this.databaseType = databaseType;
         this.executablePath = executablePath;
         this.description = description;
-        this.acknowledged = DEFAULT_ID.equals(id);
+    }
+
+    public boolean isDefault() {
+        return DEFAULT_ID.equals(id);
+    }
+
+    @Override
+    public Set<UserApprovalAction> getApprovalActions() {
+        return Set.of(COMMAND_LINE_EXECUTION);
     }
 
     @Nullable

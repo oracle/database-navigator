@@ -37,6 +37,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 import static com.dbn.assistant.mcp.model.AssistantMcpServer.qualifiedUtilityName;
+import static com.dbn.common.approval.UserApprovalAction.MCP_SERVER_ACCESS;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
@@ -48,7 +49,7 @@ public class AssistantMcpToolProviders {
 
         AssistantMcpServerType type = mcpServer.getType();
         UserApprovalManager approvalManager = UserApprovalManager.getInstance();
-        approvalManager.ensureApproved(mcpServer);
+        approvalManager.ensureApproved(MCP_SERVER_ACCESS, mcpServer);
 
         return switch (type) {
             case HTTP -> createHttpMcpTransport(mcpServer);
