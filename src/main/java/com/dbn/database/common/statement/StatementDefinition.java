@@ -130,6 +130,17 @@ public class StatementDefinition {
         return prepareStatementText(identifier -> enquoteIdentifier(connection, identifier), arguments);
     }
 
+    String prepareStatementLogText() {
+        String statementText = this.statementText;
+        for (Integer placeholderIndex : placeholderIndices) {
+            statementText = statementText.replaceAll("\\{" + placeholderIndex + "}", "<value>");
+        }
+        for (Integer identifierIndex : identifierIndices) {
+            statementText = statementText.replaceAll("\\{@" + identifierIndex + "}", "<identifier>");
+        }
+        return statementText;
+    }
+
     String prepareStatementText(@NotNull ThrowableFunction<String, String, SQLException> identifierQuoter, Object... arguments) throws SQLException {
         String statementText = this.statementText;
         for (Integer placeholderIndex : placeholderIndices) {
