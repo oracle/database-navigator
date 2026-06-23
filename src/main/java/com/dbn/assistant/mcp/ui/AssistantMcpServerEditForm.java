@@ -19,7 +19,7 @@ package com.dbn.assistant.mcp.ui;
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.mcp.model.AssistantMcpServerData;
 import com.dbn.assistant.mcp.model.AssistantMcpServerType;
-import com.dbn.assistant.mcp.model.AssistantMcpToolInfo;
+import com.dbn.assistant.mcp.model.AssistantMcpToolMetadata;
 import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -203,10 +203,10 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
             UserApprovalManager approvalManager = UserApprovalManager.getInstance();
             approvalManager.approveTemporarily(mcpServer);
 
-            List<AssistantMcpToolInfo> tools = AssistantMcpServerData.loadTools(mcpServer);
+            AssistantMcpToolMetadata metadata = AssistantMcpServerData.loadToolMetadata(mcpServer);
             if (indicator.isCanceled()) return;
 
-            int count = tools.size();
+            int count = metadata.getTools().size();
             String messageKey = count == 1 ?
                     "msg.assistant.info.McpServerConfigVerifiedOne" :
                     "msg.assistant.info.McpServerConfigVerifiedMany";

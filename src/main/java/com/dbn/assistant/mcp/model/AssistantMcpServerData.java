@@ -19,13 +19,13 @@ package com.dbn.assistant.mcp.model;
 import com.dbn.assistant.mcp.AssistantMcpServerSettings;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.EntityId;
-import com.dbn.common.checksum.Checksum;
 import com.dbn.common.component.ProjectUnit;
 import com.dbn.common.state.PersistentStateElement;
 import com.intellij.openapi.project.Project;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.invocation.InvocationContext;
 import dev.langchain4j.mcp.client.McpClient;
+import dev.langchain4j.service.tool.AiServiceTool;
 import dev.langchain4j.service.tool.ToolExecutor;
 import dev.langchain4j.service.tool.ToolProvider;
 import dev.langchain4j.service.tool.ToolProviderRequest;
@@ -39,14 +39,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 import static com.dbn.assistant.mcp.AssistantMcpToolProviders.createToolProvider;
 import static com.dbn.assistant.mcp.ide.IdeMcpServerManager.isConflictingIdeTool;
-import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.exception.Exceptions.sneakyThrow;
 import static dev.langchain4j.data.message.UserMessage.userMessage;
 import static java.util.Collections.emptyList;
@@ -82,7 +80,7 @@ public class AssistantMcpServerData extends ProjectUnit implements PersistentSta
         return tools.computeIfAbsent(serverId, id -> loadTools(id));
     }
 
-     public void updateTool(AssistantMcpToolInfo toolInfo) {
+    public void updateTool(AssistantMcpToolInfo toolInfo) {
         EntityId serverId = toolInfo.getServerId();
         List<AssistantMcpToolInfo> toolInfos = tools.getOrDefault(serverId, emptyList());
         List<AssistantMcpToolInfo> updatedToolInfos = new ArrayList<>(toolInfos);
@@ -99,13 +97,17 @@ public class AssistantMcpServerData extends ProjectUnit implements PersistentSta
     }
 
     public static List<AssistantMcpToolInfo> loadTools(AssistantMcpServer mcpServer) {
-        if (mcpServer == null) return emptyList();
+        return loadToolMetadata(mcpServer).getTools();
+    }
+
+    public static AssistantMcpToolMetadata loadToolMetadata(AssistantMcpServer mcpServer) {
+        if (mcpServer == null) return new AssistantMcpToolMetadata();
 
         BiPredicate<McpClient, ToolSpecification> filter = (m, e) -> true; // no filter
         Function<ToolExecutor, ToolExecutor> executor = e -> e; // no executor override
 
         ToolProvider provider = createToolProvider(mcpServer, (m, e) -> sneakyThrow(e), filter, executor);
-        if (provider == null) return emptyList();
+        if (provider == null) return new AssistantMcpToolMetadata();
 
         InvocationContext context = InvocationContext.builder().build();
         ToolProviderRequest request = ToolProviderRequest
@@ -116,47 +118,26 @@ public class AssistantMcpServerData extends ProjectUnit implements PersistentSta
 
         ToolProviderResult result = provider.provideTools(request);
 
-        ArrayList<AssistantMcpToolInfo> toolInfos = new ArrayList<>();
-        List<ToolSpecification> specifications = result.tools().keySet().stream().sorted(Comparator.comparing(t -> t.name())).toList();
-        for (ToolSpecification specification : specifications) {
+        AssistantMcpToolMetadata metadata = new AssistantMcpToolMetadata();
+
+        for (AiServiceTool tool : result.aiServiceTools()) {
+            ToolSpecification specification = tool.toolSpecification();
             if (mcpServer.isIdeMcpServer()) {
                 // filter out database related tools for IDE MCP server
                 String utilityName = mcpServer.unqualifiedUtilityName(specification.name());
                 if (isConflictingIdeTool(utilityName)) continue;
             }
 
-            AssistantMcpToolInfo toolInfo = createToolInfo(mcpServer, specification);
-            toolInfos.add(toolInfo);
+            metadata.addTool(specification, () -> createToolInfo(mcpServer, specification));
         }
-        return toolInfos;
+
+        metadata.sortTools();
+        return metadata;
     }
 
     public static AssistantMcpToolInfo createToolInfo(AssistantMcpServer mcpServer, ToolSpecification specification) {
-        String toolName = specification.name();
-        String toolDescription = specification.description().replaceAll("(?m)^[ \t]+(?=\\S)", "").trim();
-
-        String name = mcpServer.unqualifiedUtilityName(toolName);
-        String description = toolDescription.split("\n *\n")[0];
-        String instruction = toolDescription;
-        String signature = createToolSignature(specification);
-
-        return AssistantMcpToolInfo.builder()
-            .serverId(mcpServer.getId())
-            .name(name)
-            .signature(signature)
-            .description(description)
-            .instruction(instruction)
-            .build();
+        return AssistantMcpToolMetadataGuard.createToolInfo(mcpServer, specification);
     }
-
-    private static String createToolSignature(ToolSpecification specification) {
-        String contract = String.join("\n",
-                Objects.toString(specification.name(), ""),
-                Objects.toString(specification.description(), ""),
-                Objects.toString(specification.parameters(), ""));
-        return Checksum.fromStringContent(contract, SHA_256);
-    }
-
 
     @Override
     public void readState(Element element) {

@@ -30,4 +30,5 @@ public class AssistantMcpToolInfo {
     private String signature;
     private String description;
     private String instruction;
+    private boolean truncated;
 }
