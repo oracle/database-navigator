@@ -30,7 +30,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Driver;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -41,7 +40,11 @@ import java.util.Set;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.driver.DriverLibraryScanner.getLoadableJars;
+import static com.dbn.driver.DriverLibraryScanner.validateClassEntryCount;
+import static com.dbn.driver.DriverLibraryScanner.validateScanTime;
 import static com.dbn.nls.NlsResources.txt;
+import static com.intellij.openapi.progress.ProgressManager.checkCanceled;
 
 @Slf4j
 @Getter
@@ -105,7 +108,13 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
                     getKnownDriverClassNames(),
                     library.getClassNames());
 
+            long startedAt = System.currentTimeMillis();
+            int classEntryCount = 0;
             for (String className : classNames) {
+                checkCanceled();
+                validateScanTime(startedAt);
+                validateClassEntryCount(++classEntryCount);
+
                 try {
                     Class<?> clazz = loadClass(className);
                     if (Driver.class.isAssignableFrom(clazz)) {
@@ -166,7 +175,7 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
             }
             if (clazz == null) return super.loadClass(name, resolve);
 
-            loadedClasses.put(clazz.getName().intern(), clazz);
+            loadedClasses.put(clazz.getName(), clazz);
             return clazz;
         }
     }
@@ -183,17 +192,12 @@ class DriverClassLoaderImpl extends URLClassLoader implements DriverClassLoader 
 
     @SneakyThrows
     private static URL[] getUrls(File library) {
-        if (library.isDirectory()) {
-            File[] files = library.listFiles();
-            if (files == null || files.length == 0) throw new IOException("No files found at location");
-            return Arrays.
-                    stream(files).
-                    filter(file -> file.getName().endsWith(".jar")).
-                    map(file -> getFileUrl(file)).
-                    toArray(URL[]::new);
-        } else {
-            return new URL[]{getFileUrl(library)};
-        }
+        List<File> jars = getLoadableJars(library);
+        if (jars.isEmpty()) throw new IOException("No files found at location");
+
+        return jars.stream().
+                map(file -> getFileUrl(file)).
+                toArray(URL[]::new);
     }
 
     @SneakyThrows

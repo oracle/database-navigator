@@ -38,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.dbn.common.approval.UserApprovalAction.STATE_ENCRYPTION_CHANGE;
 import static com.dbn.credentials.SecretType.STATE_ENCRYPTION_KEY;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -224,17 +225,15 @@ public class StateEncryption {
         });
     }
 
-    public static boolean ensureUnencryptedStateApproved() {
-        if (!encryptionEnabled) return true;
-        if (shouldEncrypt()) return true;
+    public static void ensureUnencryptedStateApproved() {
+        if (!encryptionEnabled) return;
+        if (shouldEncrypt()) return;
 
         try {
             UserApprovalManager approvalManager = UserApprovalManager.getInstance();
-            approvalManager.ensureApproved(StateEncryptionApproval.INSTANCE);
-            return true;
+            approvalManager.ensureApproved(STATE_ENCRYPTION_CHANGE, StateEncryptionApproval.INSTANCE);
         } catch (ProcessCanceledException e) {
             conditionallyLog(e);
-            return false;
         }
     }
 

@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-/**
- * User approval infrastructure for operations that require an explicit
- * user decision before they may proceed.
- * <p>
- * Domain objects mark themselves as {@link com.dbn.common.approval.UserApprovable}
- * or {@link com.dbn.common.approval.ProjectUserApprovable} and declare the approval actions
- * they support. Action metadata is provided through a registered {@link com.dbn.common.approval.UserApprovalAdapter}.
- * The
- * {@link com.dbn.common.approval.UserApprovalManager} owns the persisted and
- * temporary approval keys.
- */
 package com.dbn.common.approval;
+
+public enum UserApprovalAction {
+    CONNECTION_WORKSPACE_RESTORE,
+    COMMAND_LINE_EXECUTION,
+    DRIVER_LIBRARY_LOAD,
+    MCP_SERVER_ACCESS,
+    STATE_ENCRYPTION_CHANGE
+}

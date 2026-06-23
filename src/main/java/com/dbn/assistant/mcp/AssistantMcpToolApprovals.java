@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.mcp;
 
+import com.dbn.assistant.mcp.model.AssistantMcpToolInfo;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.common.EntityId;
 import com.dbn.common.sign.Signed;
@@ -25,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,7 +44,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 public class AssistantMcpToolApprovals implements PersistentStateElement, Signed {
     private final Map<EntityId, AssistantToolApprovalStatus> servers = new ConcurrentHashMap<>();
-    private final Map<EntityId, Map<String, AssistantToolApprovalStatus>> tools = new ConcurrentHashMap<>();
+    private final Map<EntityId, Map<String, ToolApproval>> tools = new ConcurrentHashMap<>();
 
     private final AtomicInteger signature = new AtomicInteger(0);
 
@@ -55,9 +57,9 @@ public class AssistantMcpToolApprovals implements PersistentStateElement, Signed
         return signature.get();
     }
 
-    public void setStatus(EntityId serverId, String toolName, AssistantToolApprovalStatus status) {
-        Map<String, AssistantToolApprovalStatus> approvals = tools.computeIfAbsent(serverId, k -> new ConcurrentHashMap<>());
-        approvals.put(toolName, status);
+    public void setStatus(EntityId serverId, AssistantMcpToolInfo toolInfo, AssistantToolApprovalStatus status) {
+        Map<String, ToolApproval> approvals = tools.computeIfAbsent(serverId, k -> new ConcurrentHashMap<>());
+        approvals.put(toolInfo.getName(), new ToolApproval(status, toolInfo.getSignature()));
         updateSignature();
     }
 
@@ -67,47 +69,53 @@ public class AssistantMcpToolApprovals implements PersistentStateElement, Signed
         updateSignature();
     }
 
-    public void setStatus(EntityId serverId, List<String> toolNames, AssistantToolApprovalStatus status) {
+    public void setStatus(EntityId serverId, List<AssistantMcpToolInfo> toolInfos, AssistantToolApprovalStatus status) {
         if (status == APPROVED) {
             servers.put(serverId, status);
         } else {
             servers.remove(serverId);
         }
 
-        Map<String, AssistantToolApprovalStatus> approvals = tools.computeIfAbsent(serverId, k -> new ConcurrentHashMap<>());
-        for (String toolName : toolNames) {
-            approvals.put(toolName, status);
+        Map<String, ToolApproval> approvals = tools.computeIfAbsent(serverId, k -> new ConcurrentHashMap<>());
+        for (AssistantMcpToolInfo toolInfo : toolInfos) {
+            ToolApproval approval = new ToolApproval(status, toolInfo.getSignature());
+            approvals.put(toolInfo.getName(), approval);
         }
         updateSignature();
     }
 
-    public boolean isApproved(EntityId serverId, String toolName) {
-        Map<String, AssistantToolApprovalStatus> approvals = tools.get(serverId);
-        AssistantToolApprovalStatus toolStatus = approvals == null ? null : approvals.get(toolName);
-        if (toolStatus == APPROVED) return true;
+    @NotNull
+    public AssistantToolApprovalStatus getStatus(EntityId serverId, AssistantMcpToolInfo toolInfo) {
+        Map<String, ToolApproval> approvals = tools.get(serverId);
+        ToolApproval toolApproval = approvals == null ? null : approvals.get(toolInfo.getName());
+        if (toolApproval == null) {
+            AssistantToolApprovalStatus serverStatus = servers.get(serverId);
+            if (serverStatus == APPROVED) return PROMPTED;
+            if (serverStatus != null) return serverStatus;
 
-        return false;
+            return PROMPTED;
+        }
+
+        if (toolApproval.status() == APPROVED && !Objects.equals(toolInfo.getSignature(), toolApproval.signature())) return PROMPTED;
+        return toolApproval.status();
     }
 
-    public boolean isBlocked(EntityId serverId, String toolName) {
-        AssistantToolApprovalStatus toolStatus = getStatus(serverId, toolName);
+    public boolean isApproved(EntityId serverId, AssistantMcpToolInfo toolInfo) {
+        Map<String, ToolApproval> approvals = tools.get(serverId);
+        if (approvals == null) return false;
+
+        ToolApproval toolApproval = approvals.get(toolInfo.getName());
+        if (toolApproval == null) return false;
+        if (toolApproval.status() != APPROVED) return false;
+
+        return Objects.equals(toolInfo.getSignature(), toolApproval.signature());
+    }
+
+    public boolean isBlocked(EntityId serverId, AssistantMcpToolInfo toolInfo) {
+        AssistantToolApprovalStatus toolStatus = getStatus(serverId, toolInfo);
         if (toolStatus == BLOCKED) return true;
 
         return isBlocked(serverId);
-    }
-
-    @NotNull
-    public AssistantToolApprovalStatus getStatus(EntityId serverId, String toolName) {
-        Map<String, AssistantToolApprovalStatus> approvals = tools.get(serverId);
-        AssistantToolApprovalStatus approvalStatus = approvals == null ? null : approvals.get(toolName);
-        if (approvalStatus == null) {
-            approvalStatus = servers.get(serverId);
-            if (approvalStatus == APPROVED) {
-                approvalStatus = PROMPTED;
-            }
-        }
-
-        return approvalStatus == null ? PROMPTED : approvalStatus;
     }
 
     @NotNull
@@ -144,9 +152,10 @@ public class AssistantMcpToolApprovals implements PersistentStateElement, Signed
         for (Element toolElement : toolElements) {
             EntityId serverId = constantAttribute(toolElement , "server-id", EntityId.class);
             String toolName = stringAttribute(toolElement , "tool-name");
+            String signature = stringAttribute(toolElement , "signature");
             AssistantToolApprovalStatus approvalStatus = enumAttribute(toolElement, "status", AssistantToolApprovalStatus.class);
-            Map<String, AssistantToolApprovalStatus> toolApprovals = tools.computeIfAbsent(serverId, k -> new ConcurrentHashMap<>());
-            toolApprovals.put(toolName, approvalStatus);
+            Map<String, ToolApproval> toolApprovals = tools.computeIfAbsent(serverId, k -> new ConcurrentHashMap<>());
+            toolApprovals.put(toolName, new ToolApproval(approvalStatus, signature));
         }
     }
 
@@ -168,16 +177,19 @@ public class AssistantMcpToolApprovals implements PersistentStateElement, Signed
         if (!tools.isEmpty()) {
             Element toolsElement = newElement(element, "tools");
             for (EntityId entityId : tools.keySet()) {
-                Map<String, AssistantToolApprovalStatus> toolApprovals = tools.get(entityId);
+                Map<String, ToolApproval> toolApprovals = tools.get(entityId);
                 for (String toolName : toolApprovals.keySet()) {
-                    AssistantToolApprovalStatus approvalStatus = toolApprovals.get(toolName);
+                    ToolApproval approval = toolApprovals.get(toolName);
 
                     Element toolElement = newElement(toolsElement, "tool");
                     setConstantAttribute(toolElement, "server-id", entityId);
                     setStringAttribute(toolElement, "tool-name", toolName);
-                    setEnumAttribute(toolElement, "status", approvalStatus);
+                    setStringAttribute(toolElement, "signature", approval.signature());
+                    setEnumAttribute(toolElement, "status", approval.status());
                 }
             }
         }
     }
+
+    private record ToolApproval(AssistantToolApprovalStatus status, String signature) {}
 }
