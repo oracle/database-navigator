@@ -23,11 +23,15 @@ import lombok.Setter;
 import org.jdom.Element;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Lists.anyMatch;
+import static com.dbn.common.util.Lists.convert;
+import static com.dbn.common.util.Lists.filter;
 
 @Setter
 @Getter
@@ -60,10 +64,24 @@ public class EmbeddingSourceFiles extends EmbeddingSourceList<EmbeddingFileSourc
     }
 
     public void setFilePaths(List<String> filePaths) {
+        setFilePaths(filePaths, path -> false);
+    }
+
+    public void setFilePaths(List<String> filePaths, Predicate<String> uploadAuthorization) {
         clear();
-        filePaths
-            .stream()
-            .map(path -> new EmbeddingFileSource(path))
-            .forEach(e -> addElement(e));
+        List<EmbeddingFileSource> sources = convert(filePaths, p -> new EmbeddingFileSource(p, uploadAuthorization.test(p)));
+        addElements(sources);
+    }
+
+    public boolean hasUnauthorizedFileSources() {
+        return anyMatch(getElements(), s -> !s.isUploadAuthorized());
+    }
+
+    public List<EmbeddingFileSource> getUnauthorizedFileSources() {
+        return filter(getElements(), s -> !s.isUploadAuthorized());
+    }
+
+    public void authorizeFileUploads() {
+        getUnauthorizedFileSources().forEach(EmbeddingFileSource::authorizeUpload);
     }
 }
