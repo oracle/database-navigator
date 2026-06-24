@@ -36,9 +36,12 @@ import java.util.TreeMap;
 import static com.dbn.common.approval.UserApprovalAction.CONNECTION_WORKSPACE_RESTORE;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.common.util.Strings.truncateWithMiddleEllipsis;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionHandlerApprovalAdapter implements UserApprovalAdapter<ConnectionHandlerImpl> {
+    private static final int TARGET_MAX_LENGTH = 60;
     private static final String[] APPROVAL_OPTIONS = Messages.options(
             txt("msg.shared.button.TrustAndConnect"),
             txt("msg.shared.button.Cancel"));
@@ -95,9 +98,10 @@ public class ConnectionHandlerApprovalAdapter implements UserApprovalAdapter<Con
     }
 
     private static String getConnectionTarget(ConnectionDatabaseSettings databaseSettings) {
-        DatabaseInfo databaseInfo = databaseSettings.getDatabaseInfo();
-        if (databaseInfo.isCustomUrl()) return databaseSettings.getConnectionUrl();
+        String connectionUrl = databaseSettings.getConnectionUrl();
+        if (isNotEmpty(connectionUrl)) return truncateWithMiddleEllipsis(connectionUrl, TARGET_MAX_LENGTH);
 
+        DatabaseInfo databaseInfo = databaseSettings.getDatabaseInfo();
         String host = nvl(databaseInfo.getHost(), "");
         String port = nvl(databaseInfo.getPort(), "");
         return port.isEmpty() ? host : host + ":" + port;

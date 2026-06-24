@@ -14,13 +14,21 @@ This skill owns workflow rules, BugDB handling, validation command selection, re
 ## Workflow Rules
 
 1. Inspect nearby code first. Match the existing package, base class, nullability annotations, Lombok usage, static imports, registration style, and validation style before adding a new pattern.
-2. Before changing code, clarify all open implementation points with the developer. Summarize the planned edits, including likely files/classes, behavior changes, resource or registration updates, and validation commands, then wait for confirmation before applying code changes.
+2. Before changing code, clarify material open implementation points with the developer. For straightforward localized fixes, proceed after inspecting nearby code. For ambiguous, broad, risky, or user-visible changes, summarize the planned edits and wait for confirmation before applying code changes.
 3. Challenge the developer when a request seems out of touch with the codebase, overbroad for the problem, risky, poorly named, architecturally awkward, or when a clearly better local alternative exists. Be direct but concise: name the concern, propose the better alternative, and wait for confirmation before implementing the challenged direction.
 4. Treat broad or architectural changes as a separate approval boundary even after a smaller fix was discussed. Stop and ask before changing transport/download mechanisms, class loading, reflection or classpath-adaptive API calls, persistence/state shape, threading/concurrency, security approval flow, external process/network behavior, plugin descriptors, Gradle/build configuration, or shared infrastructure. Present the minimal alternative first, then wait for explicit confirmation.
-5. Do not run build, compile, test, Gradle, or IDE validation commands unless the developer explicitly asks. After edits, identify the narrow local validation command the developer should run in their workspace instead.
+5. Do not run build, compile, test, Gradle, or IDE validation commands unless the developer explicitly asks. Do not spend tokens on test-run logs by default. After edits, ask the developer to run the narrow local validation command in their workspace instead.
 6. Preserve repository shape: Java 17, Gradle Kotlin DSL, IntelliJ Platform Gradle plugin, Lombok annotation processing, JUnit 4 tests, source under `src/main/java`, resources under `src/main/resources`, and public extension modules under `modules/dbn-api` and `modules/dbn-spi`.
 7. Before adding migration or cleanup logic to persistent state methods, ask the developer whether the feature/state has shipped and whether old persisted data must be supported. New or unreleased state should usually stay mirrored and migration-free.
 8. Avoid hand-editing generated or bulky parser artifacts in language dialect packages unless the task explicitly targets generated parser output.
+
+## Token Budget Guardrails
+
+- Warn the developer before token-expensive work such as broad repository audits, whole-project scanner report analysis, full diffs, large log review, subagent/forward testing, large generated reports, or repo-wide consistency scans.
+- Ask for confirmation before doing token-expensive work unless the developer explicitly requested that exact operation.
+- Prefer targeted checks on touched files and nearby callers. Use `rg` counts, `git diff --stat`, and short excerpts instead of dumping full command output.
+- For scanner/security/problem reports, extract the root cause, affected files, fix strategy, and validation ask. Do not restate the full report unless the developer explicitly requests it.
+- When a broad audit or noisy validation is useful but not required to edit safely, ask the developer to run it locally and share only failures or relevant excerpts.
 
 ## BugDB Workflow
 
@@ -31,7 +39,7 @@ This skill owns workflow rules, BugDB handling, validation command selection, re
 
 ## Validation Triggers
 
-Do not execute these commands unless the developer explicitly asks. Use them to choose the correct handoff command after edits.
+Do not execute these commands unless the developer explicitly asks. Use them to choose the correct command to ask the developer to run after edits.
 
 | Change type | Validation to ask for |
 | --- | --- |
@@ -42,7 +50,7 @@ Do not execute these commands unless the developer explicitly asks. Use them to 
 | Rename/refactor where Git history matters | `git diff --find-renames` |
 | Whitespace or patch hygiene after text/resource edits | `git diff --check` |
 
-When the developer does ask to run validation, run the narrowest useful command first. Report the exact command, outcome, and any unrelated pre-existing blockers.
+When the developer does ask to run validation, run the narrowest useful command first. Report only the exact command, outcome, and any unrelated pre-existing blockers.
 
 ## Git And Refactoring Hygiene
 
@@ -55,5 +63,6 @@ When the developer does ask to run validation, run the narrowest useful command 
 ## Final Handoff
 
 - State whether build/test/Gradle/IDE validation was run. If it was not run because the developer did not ask, say so directly.
-- Suggest the narrow validation command from the trigger table.
+- Ask the developer to run the narrow validation command from the trigger table.
 - Mention BugDB links, thread-title status, or rename-detection checks only when they are relevant to the completed work.
+- Keep handoffs concise. For long scanner/security/problem reports, summarize the root cause, changed files, and validation ask; do not reproduce the full report unless the developer explicitly requests it.

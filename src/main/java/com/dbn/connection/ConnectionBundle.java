@@ -242,10 +242,6 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
         return connections.getBase();
     }
 
-    public List<ConnectionHandler> getRealConnections() {
-        return getConnections(c -> !c.isVirtual());
-    }
-
     public int size() {
         return connections.size();
     }
