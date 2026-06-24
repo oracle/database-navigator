@@ -19,6 +19,7 @@ package com.dbn.assistant.tool.execution;
 import com.dbn.assistant.mcp.AssistantMcpToolApprovals;
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.mcp.model.AssistantMcpServerData;
+import com.dbn.assistant.mcp.model.AssistantMcpToolInfo;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
@@ -36,12 +37,14 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.thread.ThreadProperty.BACKGROUND;
+import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -83,8 +86,12 @@ public class AssistantToolInvocationMonitor extends AssistantStateExtension {
         EntityId serverId = mcpServer.getId();
         String utilityName = mcpServer.unqualifiedUtilityName(toolName);
 
-        if (approvals.isApproved(serverId, utilityName)) return;
-        if (approvals.isBlocked(serverId, utilityName)) throw new AssistantToolApprovalException("User has denied the execution of this tool");
+        List<AssistantMcpToolInfo> tools = mcpServerData.getTools(serverId);
+        AssistantMcpToolInfo toolInfo = first(tools, t -> t.getName().equals(utilityName));
+        if (toolInfo == null) throw new AssistantToolApprovalException("Can't resolve MCP tool approval details for tool name \"" + toolName + "\"");
+
+        if (approvals.isApproved(serverId, toolInfo)) return;
+        if (approvals.isBlocked(serverId, toolInfo)) throw new AssistantToolApprovalException("User has denied the execution of this tool");
         if (approvals.isBlocked(serverId)) throw new AssistantToolApprovalException("User has denied the execution of this MCP server");
 
         awaitApproval(getApprovalTimeout());

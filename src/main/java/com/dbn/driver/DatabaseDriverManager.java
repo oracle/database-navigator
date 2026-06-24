@@ -80,13 +80,12 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
 
     public DriverBundle loadDrivers(File libraryFile, boolean force) {
         try {
-            DriverLibraryApprovalUtil.ensureApproved(libraryFile);
             if (force) {
                 this.driverMetadata.remove(libraryFile);
                 DriverBundle drivers = this.drivers.remove(libraryFile);
                 Disposer.dispose(drivers);
             }
-            return drivers.computeIfAbsent(libraryFile, f -> new DriverBundle(f));
+            return drivers.computeIfAbsent(libraryFile, this::createDriverBundle);
 
         } catch (ProcessCanceledException e) {
             conditionallyLog(e);
@@ -96,6 +95,11 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
             log.warn("failed to load drivers from library", e);
             throw e;
         }
+    }
+
+    private DriverBundle createDriverBundle(File libraryFile) {
+        DriverLibraryApprovalUtil.ensureApproved(libraryFile);
+        return new DriverBundle(libraryFile);
     }
 
     @Nullable

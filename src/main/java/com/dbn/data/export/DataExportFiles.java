@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 
 import static com.dbn.common.util.Files.normalizePath;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
+import static com.dbn.nls.NlsResources.txt;
 
 @UtilityClass
 public class DataExportFiles {
@@ -35,7 +36,7 @@ public class DataExportFiles {
         Path filePath = basePath.resolve(normalizedFileName).normalize();
 
         if (!filePath.startsWith(basePath)) {
-            throw new DataExportException("Invalid export file path. The file name resolves outside the selected location.");
+            throw new DataExportException(txt("msg.dataExport.error.InvalidFilePath"));
         }
         return containedFile(basePath, filePath);
     }
@@ -48,12 +49,12 @@ public class DataExportFiles {
     }
 
     private static String normalizeFileName(String fileName) throws DataExportException {
-        if (isEmptyOrSpaces(fileName)) throw new DataExportException("Invalid export file name.");
+        if (isEmptyOrSpaces(fileName)) throw new DataExportException(txt("msg.dataExport.error.InvalidExportFileName"));
 
         String normalizedFileName = normalizePath(fileName.trim());
         Path filePath = toPath(normalizedFileName);
         if (filePath.isAbsolute() || filePath.getNameCount() != 1 || ".".equals(normalizedFileName) || "..".equals(normalizedFileName)) {
-            throw new DataExportException("Invalid export file name.");
+            throw new DataExportException(txt("msg.dataExport.error.InvalidExportFileName"));
         }
         return normalizedFileName;
     }
@@ -62,7 +63,7 @@ public class DataExportFiles {
         try {
             return Paths.get(path);
         } catch (InvalidPathException e) {
-            throw new DataExportException("Invalid export file path.");
+            throw new DataExportException(txt("msg.dataExport.error.InvalidExportFilePath"));
         }
     }
 
@@ -71,11 +72,11 @@ public class DataExportFiles {
             Path canonicalBasePath = basePath.toFile().getCanonicalFile().toPath();
             File canonicalFile = filePath.toFile().getCanonicalFile();
             if (!canonicalFile.toPath().startsWith(canonicalBasePath)) {
-                throw new DataExportException("Invalid export file path. The file name resolves outside the selected location.");
+                throw new DataExportException(txt("msg.dataExport.error.InvalidFilePath"));
             }
             return canonicalFile;
         } catch (IOException e) {
-            throw new DataExportException("Invalid export file path.");
+            throw new DataExportException(txt("msg.dataExport.error.InvalidExportFilePath"));
         }
     }
 }

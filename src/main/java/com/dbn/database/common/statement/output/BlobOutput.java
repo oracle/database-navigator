@@ -17,9 +17,9 @@
 package com.dbn.database.common.statement.output;
 
 import com.dbn.common.exception.Exceptions;
-import com.dbn.database.common.statement.CallableStatementOutputBase;
 import lombok.Getter;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -27,8 +27,18 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 @Getter
-public class BlobOutput extends CallableStatementOutputBase {
+public class BlobOutput extends OutputContent {
+    private static final String CONTENT_NAME = "BLOB content";
+
     private byte[] value;
+
+    public BlobOutput() {
+        this(CONTENT_NAME, MAX_LENGTH);
+    }
+
+    public BlobOutput(String contentName, int maxLength) {
+        super(contentName, maxLength);
+    }
 
     @Override
     public void registerParameters(CallableStatement statement) throws SQLException {
@@ -38,10 +48,26 @@ public class BlobOutput extends CallableStatementOutputBase {
     @Override
     public void read(CallableStatement statement) throws SQLException {
         Blob blob = statement.getBlob(shifted(1));
+        if (blob == null) {
+            value = new byte[0];
+            return;
+        }
+        checkLength(blob.length());
         try (InputStream binaryStream = blob.getBinaryStream()) {
-            value = binaryStream.readAllBytes();
+            value = read(binaryStream);
         } catch (Exception e) {
             throw Exceptions.toSqlException(e);
         }
+    }
+
+    private byte[] read(InputStream inputStream) throws Exception {
+        byte[] buffer = new byte[8192];
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(getInitialBufferSize(buffer.length));
+        int length;
+        while ((length = inputStream.read(buffer)) != -1) {
+            checkLength((long) outputStream.size() + length);
+            outputStream.write(buffer, 0, length);
+        }
+        return outputStream.toByteArray();
     }
 }

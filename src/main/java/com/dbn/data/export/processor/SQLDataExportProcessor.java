@@ -70,7 +70,7 @@ public class SQLDataExportProcessor extends DataExportProcessor{
         DatabaseIdentifierCache identifierCache = connection.getIdentifierCache();
         String tableName = identifierCache.getQuotedIdentifier(model.getTableName());
 
-        StringBuilder buffer = new StringBuilder();
+        DataExportBuffer buffer = new DataExportBuffer();
         for (int rowIndex=0; rowIndex < model.getRowCount(); rowIndex++) {
             buffer.append(kco.format("insert into "));
             buffer.append(tableName);
