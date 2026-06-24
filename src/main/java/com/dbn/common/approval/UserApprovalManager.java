@@ -71,10 +71,10 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
      *
      * @throws UserApprovalCancelledException if the user cancels the approval prompt
      */
-    public <T extends UserApprovable> void ensureApproved(T approvable) {
-        UserApprovalAdapter<T> adapter = UserApprovalAdapters.get(approvable);
+    public <T extends UserApprovable> void ensureApproved(UserApprovalAction action, T approvable) {
+        UserApprovalAdapter<T> adapter = UserApprovalAdapters.get(action, approvable);
 
-        String approvalKey = getApprovalKey(approvable);
+        String approvalKey = getApprovalKey(action, approvable);
         String approvalSignature = adapter.getApprovalSignature(approvable);
         updateApprovalSignature(approvalKey, approvalSignature);
 
@@ -94,11 +94,11 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
             throw new ProcessCanceledException();
         }
 
-        obtainUserApproval(approvable, approvalKey, data);
+        obtainUserApproval(action, approvable, data);
     }
 
-    private <T extends UserApprovable> void obtainUserApproval(T approvable, String approvalKey, UserApprovalData data) {
-        UserApprovalAdapter<T> adapter = UserApprovalAdapters.get(approvable);
+    private <T extends UserApprovable> void obtainUserApproval(UserApprovalAction action, T approvable, UserApprovalData data) {
+        UserApprovalAdapter<T> adapter = UserApprovalAdapters.get(action, approvable);
         data.setPending(true);
         int option = Messages.showAcknowledgementDialog(
                 null,
@@ -117,9 +117,9 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         data.clearRejection();
     }
 
-    public <T extends UserApprovable> void updateApprovalSignature(T approvable) {
-        UserApprovalAdapter<T> adapter = UserApprovalAdapters.get(approvable);
-        updateApprovalSignature(getApprovalKey(approvable), adapter.getApprovalSignature(approvable));
+    public <T extends UserApprovable> void updateApprovalSignature(UserApprovalAction action, T approvable) {
+        UserApprovalAdapter<T> adapter = UserApprovalAdapters.get(action, approvable);
+        updateApprovalSignature(getApprovalKey(action, approvable), adapter.getApprovalSignature(approvable));
     }
 
     private void updateApprovalSignature(String approvalKey, @Nullable String approvalSignature) {
@@ -146,15 +146,15 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
     /**
      * Persistently approves the supplied object.
      */
-    public void approve(UserApprovable approvable) {
-        String approvalKey = getApprovalKey(approvable);
-        String approvalSignature = getApprovalSignature(approvable);
+    public void approve(UserApprovalAction action, UserApprovable approvable) {
+        String approvalKey = getApprovalKey(action, approvable);
+        String approvalSignature = getApprovalSignature(action, approvable);
         updateApprovalSignature(approvalKey, approvalSignature);
         getApprovalData(approvalKey).setApproved(true);
     }
 
-    public <T extends UserApprovable> void revoke(T approvable) {
-        String approvalKey = getApprovalKey(approvable);
+    public <T extends UserApprovable> void revoke(UserApprovalAction action, T approvable) {
+        String approvalKey = getApprovalKey(action, approvable);
         UserApprovalData data = approvalData.get(approvalKey);
         if (data == null) return;
 
@@ -166,18 +166,22 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
     /**
      * Approves the supplied object for the next approval check only.
      */
-    public <T extends UserApprovable> void approveTemporarily(T approvable) {
-        String approvalKey = getApprovalKey(approvable);
-        String approvalSignature = getApprovalSignature(approvable);
+    public <T extends UserApprovable> void approveTemporarily(UserApprovalAction action, T approvable) {
+        String approvalKey = getApprovalKey(action, approvable);
+        String approvalSignature = getApprovalSignature(action, approvable);
         updateApprovalSignature(approvalKey, approvalSignature);
         getApprovalData(approvalKey).setTemporary(true);
     }
 
-    public <T extends UserApprovable> void updateApprovals(List<T> oldApprovables, List<T> newApprovables) {
-        Set<String> oldKeys = oldApprovables.stream().filter(NOT_NULL).map(a -> getApprovalKey(a)).collect(Collectors.toSet());
-        Set<String> newKeys = newApprovables.stream().filter(NOT_NULL).map(a -> getApprovalKey(a)).collect(Collectors.toSet());
-        Set<String> acknowledgedKeys = newApprovables.stream().filter(NOT_NULL).filter(a -> a.isAcknowledged()).map(a -> getApprovalKey(a)).collect(Collectors.toSet());
-        newApprovables.stream().filter(NOT_NULL).forEach(a -> updateApprovalSignature(a));
+    public <T extends UserApprovable> void updateApprovals(UserApprovalAction action, List<T> oldApprovables, List<T> newApprovables) {
+        updateApprovals(action, oldApprovables, newApprovables, List.of());
+    }
+
+    public <T extends UserApprovable> void updateApprovals(UserApprovalAction action, List<T> oldApprovables, List<T> newApprovables, List<T> acknowledgedApprovables) {
+        Set<String> oldKeys = oldApprovables.stream().filter(NOT_NULL).map(a -> getApprovalKey(action, a)).collect(Collectors.toSet());
+        Set<String> newKeys = newApprovables.stream().filter(NOT_NULL).map(a -> getApprovalKey(action, a)).collect(Collectors.toSet());
+        Set<String> acknowledgedKeys = acknowledgedApprovables.stream().filter(NOT_NULL).map(a -> getApprovalKey(action, a)).collect(Collectors.toSet());
+        newApprovables.stream().filter(NOT_NULL).forEach(a -> updateApprovalSignature(action, a));
 
         // identify removed approvables
         Set<String> removedKeys = new HashSet<>(oldKeys);
@@ -198,12 +202,12 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
     /**
      * Resolves the stable approval key for the supplied object.
      */
-    private <T extends UserApprovable> String getApprovalKey(T approvable) {
-        return UserApprovalAdapters.getApprovalKey(approvable);
+    private <T extends UserApprovable> String getApprovalKey(UserApprovalAction action, T approvable) {
+        return UserApprovalAdapters.getApprovalKey(action, approvable);
     }
 
-    private static <T extends UserApprovable> @Nullable String getApprovalSignature(T approvable) {
-        return UserApprovalAdapters.getApprovalSignature(approvable);
+    private static <T extends UserApprovable> @Nullable String getApprovalSignature(UserApprovalAction action, T approvable) {
+        return UserApprovalAdapters.getApprovalSignature(action, approvable);
     }
 
     private UserApprovalData getApprovalData(String approvalKey) {

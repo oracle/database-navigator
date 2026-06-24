@@ -28,6 +28,7 @@ import com.dbn.connection.ConnectionExceptionInfo;
 import com.dbn.connection.ConnectionType;
 import com.dbn.connection.ConnectorProperties;
 import com.dbn.connection.SessionId;
+import com.dbn.connection.config.ConnectionDebuggerSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
@@ -92,6 +93,8 @@ import static com.dbn.nls.NlsResources.txt;
 @Slf4j
 public class OracleCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
     public static final QuoteDefinition IDENTIFIER_QUOTE_DEFINITION = new QuoteDefinition(new QuotePair('"', '"'));
+    private static final int MIN_JDWP_PORT = 1024;
+    private static final int MAX_JDWP_PORT = 65535;
 
     @NonNls
     private interface Property {
@@ -319,13 +322,37 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
 
     @Override
     public void initConnectorDebugger(ConnectorProperties properties, ConnectionSettings settings) {
-        Map<String, String> configProperties = settings.getPropertiesSettings().getProperties();
-
-        // i check if we have got jdwpHostPort if yes i get a connection using CONNECTION_PROPERTY_THIN_DEBUG_JDWP property
-        // TODO jdwpHostPort may remain resident if this stage is not reached for any reason... (maybe add transient properties container to settings)
-        String jdwpHostPort = configProperties.remove("jdwpHostPort");
-        if (Strings.isNotEmpty(jdwpHostPort)) {
+        ConnectionDebuggerSettings debuggerSettings = settings.getDebuggerSettings();
+        String jdwpHostPort = debuggerSettings.consumeJdwpHostPort();
+        if (Strings.isNotEmpty(jdwpHostPort) && isValidJdwpHostPort(jdwpHostPort)) {
             properties.add(Property.ORACLE_JDBC_DEBUG_JDWP, jdwpHostPort);
+        }
+    }
+
+    /**
+     * Accepts only transient JDWP tunnel endpoints on the local host before forwarding them to the Oracle JDBC driver.
+     * Supports both {@code host=127.0.0.1;port=5005} and {@code 127.0.0.1:5005} formats.
+     */
+    static boolean isValidJdwpHostPort(String jdwpHostPort) {
+        if (Strings.isEmpty(jdwpHostPort)) return false;
+
+        int portSeparatorIndex = jdwpHostPort.indexOf(";port=");
+        int hostPortSeparatorIndex = portSeparatorIndex > -1 ? portSeparatorIndex : jdwpHostPort.lastIndexOf(':');
+        if (hostPortSeparatorIndex < 1) return false;
+        if (portSeparatorIndex > -1 && !jdwpHostPort.startsWith("host=")) return false;
+
+        String host = portSeparatorIndex > -1 ?
+                jdwpHostPort.substring(5, portSeparatorIndex) :
+                jdwpHostPort.substring(0, hostPortSeparatorIndex);
+        if (!host.equals("127.0.0.1") && !host.equals("localhost")) return false;
+
+        String portString = jdwpHostPort.substring(hostPortSeparatorIndex + (portSeparatorIndex > -1 ? 6 : 1));
+        try {
+            int port = Integer.parseInt(portString);
+            return port >= MIN_JDWP_PORT && port <= MAX_JDWP_PORT;
+        } catch (NumberFormatException e) {
+            conditionallyLog(e);
+            return false;
         }
     }
 

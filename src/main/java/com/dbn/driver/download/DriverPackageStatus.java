@@ -26,7 +26,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.longAttribute;
@@ -58,8 +60,15 @@ public class DriverPackageStatus implements PersistentStateElement {
         return libraryStatuses.computeIfAbsent(libraryId, n-> new LibraryStatus(libraryId));
     }
 
-    public boolean isComplete(int packageCount){
-        return libraryStatuses.size() == packageCount && libraryStatuses.values().stream().allMatch(s -> s.downloadStatus.equals(DownloadStatus.DONE));
+    public boolean isComplete(Collection<String> libraryIds){
+        return libraryIds.stream()
+                .map(libraryStatuses::get)
+                .allMatch(s -> s != null && s.downloadStatus.equals(DownloadStatus.DONE));
+    }
+
+    public void retainLibraryStatuses(Collection<String> libraryIds) {
+        Set<String> expectedLibraryIds = libraryIds.stream().collect(Collectors.toSet());
+        libraryStatuses.keySet().removeIf(libraryId -> !expectedLibraryIds.contains(libraryId));
     }
 
     public void addLibraryStatus(Element element){
@@ -113,6 +122,11 @@ public class DriverPackageStatus implements PersistentStateElement {
             setStringAttribute(element, "id", this.libraryId);
             setEnumAttribute(element, "download-status", this.downloadStatus);
             setLongAttribute(element, "download-timestamp", this.downloadTimestamp);
+        }
+
+        @Override
+        public String toString() {
+            return libraryId + " " + downloadStatus;
         }
     }
 }

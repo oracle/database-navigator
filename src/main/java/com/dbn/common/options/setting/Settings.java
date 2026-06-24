@@ -395,6 +395,25 @@ public final class Settings {
     }
 
     /**
+     * Retrieves named child elements, returning an empty list when the supplied cardinality limit is exceeded.
+     *
+     * @param element the parent {@code Element} from which to retrieve child elements; may be {@code null}
+     * @param name the name of the child elements to retrieve
+     * @param maxCount the maximum accepted number of matching child elements
+     * @return a list of child {@code Element} objects matching the specified name if the given element is not null,
+     *         or an empty list if the given element is null
+     */
+    @NotNull
+    public static List<Element> childrenOf(@Nullable Element element, String name, int maxCount) {
+        List<Element> children = childrenOf(element, name);
+        if (children.size() > maxCount) {
+            log.warn("Ignoring excessive <{}> elements: count {} exceeds maximum {}", name, children.size(), maxCount);
+            return Collections.emptyList();
+        }
+        return children;
+    }
+
+    /**
      * Determines if the given string value needs to be wrapped in CDATA to ensure
      * proper handling within XML.
      *

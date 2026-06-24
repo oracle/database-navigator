@@ -90,7 +90,12 @@ public class VirtualFileListForm extends DBNFormBase {
     }
 
     public void setFiles(List<VirtualFile> files) {
+        fileList.resetUserSelectedPaths();
         VirtualFileListModel model = fileList.getModel();
         model.reset(files);
+    }
+
+    public boolean isUserSelectedPath(String path) {
+        return fileList.isUserSelectedPath(path);
     }
 }

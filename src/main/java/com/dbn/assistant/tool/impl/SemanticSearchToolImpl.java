@@ -60,10 +60,10 @@ public class SemanticSearchToolImpl extends AssistantToolBase implements Semanti
 
             String schemaName = embeddingTable.getSchemaName();
             String tableName = embeddingTable.getObjectName();
-            maxResults = clampSearchResultCount(maxResults);
+            maxResults = normalizeSearchResultCount(maxResults);
             resultSet = vectorManager.performSimilaritySearch(connection, schemaName, tableName, query, COSINE, maxResults);
 
-            while (resultSet.next()) {
+            while (searchResults.size() < maxResults && resultSet.next()) {
                 SemanticSearchResult searchResult = new SemanticSearchResult();
                 searchResult.setContent(prepareUntrustedDatabaseContent(resultSet.getString("CONTENT")));
                 searchResult.setScore(resultSet.getDouble("DISTANCE"));
@@ -77,7 +77,7 @@ public class SemanticSearchToolImpl extends AssistantToolBase implements Semanti
         return searchResults;
     }
 
-    private static int clampSearchResultCount(int maxResults) {
+    static int normalizeSearchResultCount(int maxResults) {
         return Math.min(Math.max(maxResults, MIN_SEARCH_RESULTS), MAX_SEARCH_RESULTS);
     }
 }

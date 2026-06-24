@@ -18,22 +18,27 @@ package com.dbn.connection.config;
 
 import com.dbn.common.options.BasicConfiguration;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ssh.SshAuthType;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
 import com.dbn.credentials.TransientSecretStore;
+import com.intellij.openapi.options.ConfigurationException;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setSensitiveString;
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.credentials.SecretType.DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE;
 import static com.dbn.credentials.SecretType.DEBUGGER_SSH_TUNNEL_PASSWORD;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -44,8 +49,8 @@ public class ReverseSshTunnelConfiguration  extends BasicConfiguration <Connecti
     private SshAuthType authType = SshAuthType.PASSWORD;
     private String user;
     private String keyFile;
-    private final Secret keyPassphrase = new Secret(DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, this::getConnectionId, () -> keyFile);
-    private final Secret password = new Secret(DEBUGGER_SSH_TUNNEL_PASSWORD, this::getConnectionId, () -> user);
+    private final Secret keyPassphrase = new Secret(DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, () -> getSecretOwnerId(), () -> keyFile);
+    private final Secret password = new Secret(DEBUGGER_SSH_TUNNEL_PASSWORD, () -> getSecretOwnerId(), () -> user);
     private String bindHost = "127.0.0.1";
     private String bindPort = "0";
 
@@ -68,8 +73,8 @@ public class ReverseSshTunnelConfiguration  extends BasicConfiguration <Connecti
 
         if (isTransientContext()) {
             // transfer secrets outside transient config xml
-            TransientSecretStore.consume(password, getConnectionId(), DEBUGGER_SSH_TUNNEL_PASSWORD, user);
-            TransientSecretStore.consume(keyPassphrase, getConnectionId(), DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
+            TransientSecretStore.consume(password, getSecretOwnerId(), DEBUGGER_SSH_TUNNEL_PASSWORD, user);
+            TransientSecretStore.consume(keyPassphrase, getSecretOwnerId(), DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
         }
 
     }
@@ -87,8 +92,8 @@ public class ReverseSshTunnelConfiguration  extends BasicConfiguration <Connecti
 
         if (isTransientContext()) {
             // transfer secrets outside transient config xml
-            TransientSecretStore.store(password, getConnectionId(), DEBUGGER_SSH_TUNNEL_PASSWORD, user);
-            TransientSecretStore.store(keyPassphrase, getConnectionId(), DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
+            TransientSecretStore.store(password, getSecretOwnerId(), DEBUGGER_SSH_TUNNEL_PASSWORD, user);
+            TransientSecretStore.store(keyPassphrase, getSecretOwnerId(), DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
         }
     }
 
@@ -100,27 +105,22 @@ public class ReverseSshTunnelConfiguration  extends BasicConfiguration <Connecti
         return ensureParent().ensureParent();
     }
 
-    private ConnectionId getConnectionId() {
-        return getConnectionSettings().getConnectionId();
-    }
-
     @Override
     public @NotNull Object getSecretOwnerId() {
-        return getConnectionId();
+        return getConnectionSettings().getSecretOwnerId();
     }
 
     @NotNull
     @Override
     public String getSecretOwnerName() {
-        ConnectionSettings connectionSettings = getConnectionSettings();
-        return connectionSettings.getDatabaseSettings().getName();
+        return getConnectionSettings().getSecretOwnerName();
     }
 
     @Override
     public Secret[] getSecrets() {
         return new Secret[] {
-                password.snapshot(),
-                keyPassphrase.snapshot()};
+                password,
+                keyPassphrase};
     }
 
     public char[] getPassword() {
@@ -139,4 +139,32 @@ public class ReverseSshTunnelConfiguration  extends BasicConfiguration <Connecti
         this.keyPassphrase.setToken(keyPassphrase);
     }
 
+    public void validateBindHost() throws ConfigurationException {
+        validateBindHost(bindHost);
+    }
+
+    public static void validateBindHost(String bindHost) throws ConfigurationException {
+        if (isEmptyOrSpaces(bindHost)) {
+            throw bindHostException(bindHost);
+        }
+
+        try {
+            InetAddress[] addresses = InetAddress.getAllByName(bindHost);
+            if (addresses.length > 0) {
+                for (InetAddress address : addresses) {
+                    if (!address.isLoopbackAddress()) {
+                        throw bindHostException(bindHost);
+                    }
+                }
+                return;
+            }
+        } catch (UnknownHostException ignored) {}
+
+        throw bindHostException(bindHost);
+    }
+
+    private static ConfigurationException bindHostException(String bindHost) {
+        return new ConfigurationException(
+                txt("cfg.connection.error.ReverseSshTunnelBindHostNotLoopback", bindHost));
+    }
 }

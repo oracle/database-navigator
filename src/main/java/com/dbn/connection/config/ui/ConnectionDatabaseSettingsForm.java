@@ -286,7 +286,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
         // create snapshot of earlier authentication
         AuthenticationInfo authenticationInfo = configuration.getAuthenticationInfo();
-        Secret[] oldSecrets = authenticationInfo.getSecrets();
+        Secret[] oldSecrets = authenticationInfo.snapshotSecrets();
 
         // apply changes and create snapshot of new authentication
         authSettingsForm.applyFormChanges(authenticationInfo);

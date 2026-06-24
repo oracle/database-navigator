@@ -18,6 +18,7 @@ package com.dbn.assistant.mcp;
 
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.mcp.model.AssistantMcpServerType;
+import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.approval.UserApprovalAdapter;
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.util.Messages;
@@ -28,6 +29,7 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.time.Duration;
 
+import static com.dbn.common.approval.UserApprovalAction.MCP_SERVER_ACCESS;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.nls.NlsResources.txt;
@@ -40,6 +42,11 @@ public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<As
     @Override
     public Class<AssistantMcpServer> getApprovalClass() {
         return AssistantMcpServer.class;
+    }
+
+    @Override
+    public UserApprovalAction getApprovalAction() {
+        return MCP_SERVER_ACCESS;
     }
 
     @Override

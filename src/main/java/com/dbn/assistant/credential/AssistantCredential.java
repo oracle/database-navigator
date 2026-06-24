@@ -23,7 +23,6 @@ import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.UUIDs;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
-import com.dbn.credentials.SecretsOwnerRegistry;
 import com.dbn.credentials.TransientSecretStore;
 import com.dbn.oci.config.OciConfig;
 import lombok.Getter;
@@ -50,10 +49,6 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
     private String user;
     private OciConfig ociConfig = new OciConfig();
     private final Secret secret = new Secret(GENERIC_CREDENTIAL, () -> getSecretOwnerId(), () -> user);
-
-    public AssistantCredential() {
-        SecretsOwnerRegistry.register(this);
-    }
 
     public void updateFrom(AssistantCredential credential) {
         this.user = credential.user;
@@ -145,7 +140,7 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
 
     @Override
     public @NotNull Secret[] getSecrets() {
-        return new Secret[]{secret.snapshot()};
+        return new Secret[]{secret};
     }
 
     public char[] getSecret() {

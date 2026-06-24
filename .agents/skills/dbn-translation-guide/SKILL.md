@@ -19,7 +19,7 @@ Use `dbn-localization-guide` for codebase mechanics: NLS key families, `DBNResou
 4. Translate phrase by phrase from the source value and context, using Codex's own language knowledge plus the canonical glossary. Do not use external translation tools, dictionary substitution, regex replacement, or another localized file as the source.
 5. Preserve placeholders, markup, escaped newlines, mnemonics, code literals, SQL/API/class names, URLs, product names, and technical acronyms exactly unless the task explicitly changes them. Do not translate IntelliJ intention `before.<extension>.template` / `after.<extension>.template` code examples.
 6. Update the locale glossary when a reusable term, ambiguous term, or intentional English term appears.
-7. Run structural checks supplied by the localization or document workflow, then run semantic checks from this skill.
+7. Run structural checks supplied by the localization or document workflow, then run semantic checks from this skill. Keep checks scoped to touched locale files and related templates unless the developer explicitly asks for a broad scan.
 8. If no native reviewer is available, report the result as structurally safe and contextually translated, not release-polished.
 
 ## Role-Aware Translation
@@ -51,10 +51,10 @@ Use [references/glossary-template.md](references/glossary-template.md) when star
 
 ## Semantic Checks
 
-Run these after each substantial batch:
+Run these after each substantial batch. Warn the developer and ask for confirmation before token-expensive cross-locale, whole-bundle, or whole-template-tree scans.
 
-- **Glossary consistency:** scan for inconsistent translations of accepted terms and for hybrid English/Korean wording that is not intentional.
-- **Cross-file consistency:** compare terminology across the locale resource bundle and localized `*.html.ft` templates so labels, messages, notifications, and longer help text use the same accepted terms unless context requires an exception.
+- **Glossary consistency:** scan touched locale files for inconsistent translations of accepted terms and for hybrid English/Korean wording that is not intentional.
+- **Cross-file consistency:** compare terminology across the touched locale resource bundle entries and related localized `*.html.ft` templates so labels, messages, notifications, and longer help text use the same accepted terms unless context requires an exception.
 - **Ambiguous terms:** inspect source values containing `schema`, `view`, `grant`, `profile`, `credential`, `wallet`, `driver`, `statement`, `console`, `object`, `type`, `session`, `model`, and `source`.
 - **Action versus noun:** review terms like `Refresh`, `Open`, `Load`, `Create`, `Grant`, `Verify`, `Apply`, `Compile`, `Commit`, and `Rollback` by UI role.
 - **Database collocations:** check that terms read like database software, especially `schema`, `table`, `view`, `execution privilege`, `database connection`, `JDBC driver`, `SQL statement`, `result set`, and `database object`.
@@ -63,12 +63,12 @@ Run these after each substantial batch:
 
 ## Cross-File Consistency Checks
 
-- Check the locale bundle and localized templates together, for example `DBNResources_<locale>.properties` and matching `*_<locale>.html.ft` files.
+- Check the touched locale bundle entries and related localized templates together, for example `DBNResources_<locale>.properties` and matching `*_<locale>.html.ft` files.
 - Verify accepted glossary terms are used consistently across short UI labels, action text, messages, notifications, progress text, and longer HTML help content.
 - Compare protected terms from [references/do-not-translate.md](references/do-not-translate.md) across all translated files and preserve exact spelling, casing, punctuation, and code formatting.
 - Review allowed differences by UI role before changing them. Compact labels, command-style actions, and explanatory paragraphs may need different grammar while still using the same domain terminology.
 - Record intentional cross-file exceptions in the locale glossary with the source term, context, target wording, and example files.
-- Include stale-English scans over both resource bundles and localized templates before marking a language batch complete.
+- For stale-English scans over resource bundles and localized templates, default to touched files. Ask the developer before running broad scans, or ask the developer to run them locally and share only relevant failures.
 
 ## Useful Scans
 

@@ -20,11 +20,18 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 
 import java.io.File;
-import java.util.Collections;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import static com.dbn.driver.DriverLibraryScanner.validateClassEntryCount;
+import static com.dbn.driver.DriverLibraryScanner.validateClassName;
+import static com.dbn.driver.DriverLibraryScanner.validateEntryCount;
+import static com.dbn.driver.DriverLibraryScanner.validateJarSize;
+import static com.dbn.driver.DriverLibraryScanner.validateScanTime;
+import static com.intellij.openapi.progress.ProgressManager.checkCanceled;
 
 @Getter
 public class DriverLibrary {
@@ -34,17 +41,33 @@ public class DriverLibrary {
     @SneakyThrows
     public DriverLibrary(File jar) {
         this.jar = jar;
-        try (JarFile jarFile = new JarFile(jar)) {
-            List<String> classNames = Collections.list(jarFile.entries())
-                    .stream()
-                    .map(e -> e.getName())
-                    .filter(n -> n.endsWith(".class"))
-                    .map(n -> n.replaceAll("/", "."))
-                    .map(n -> n.substring(0, n.length() - 6))
-                    .map(n -> n.intern())
-                    .toList();
+        validateJarSize(jar);
 
-            this.classNames.addAll(classNames);
+        try (JarFile jarFile = new JarFile(jar)) {
+            long startedAt = System.currentTimeMillis();
+            int entryCount = 0;
+            int classEntryCount = 0;
+            int totalClassNameBytes = 0;
+
+            var entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                checkCanceled();
+                validateScanTime(startedAt);
+                validateEntryCount(++entryCount);
+
+                JarEntry entry = entries.nextElement();
+                if (entry.isDirectory()) continue;
+
+                String name = entry.getName();
+                if (!name.endsWith(".class")) continue;
+
+                validateClassEntryCount(++classEntryCount);
+
+                String className = name.replace('/', '.').substring(0, name.length() - 6);
+                totalClassNameBytes += className.getBytes(StandardCharsets.UTF_8).length;
+                validateClassName(className, totalClassNameBytes);
+                this.classNames.add(className);
+            }
         }
     }
 }

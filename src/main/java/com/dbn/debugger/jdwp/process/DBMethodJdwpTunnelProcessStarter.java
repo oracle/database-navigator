@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2024 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@ import com.intellij.debugger.impl.DebuggerSession;
 import com.intellij.xdebugger.XDebugSession;
 import org.jetbrains.annotations.NotNull;
 
-public class DBJavaJdwpCloudProcessStarter extends DBJdwpCloudProcessStarter {
-    DBJavaJdwpCloudProcessStarter(ConnectionHandler connection) {
+public class DBMethodJdwpTunnelProcessStarter extends DBJdwpTunnelProcessStarter {
+    DBMethodJdwpTunnelProcessStarter(ConnectionHandler connection) {
         super(connection);
     }
 
     @Override
     protected DBJdwpDebugProcess createDebugProcess(@NotNull XDebugSession session, DebuggerSession debuggerSession, DBJdwpTcpConfig tcpConfig) {
-        return new DBJavaJdwpDebugProcess(session, debuggerSession, getConnection(), tcpConfig);
+        return new DBMethodJdwpDebugProcess(session, debuggerSession, getConnection(), tcpConfig);
     }
 }

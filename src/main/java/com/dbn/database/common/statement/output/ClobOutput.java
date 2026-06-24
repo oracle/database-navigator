@@ -17,7 +17,6 @@
 package com.dbn.database.common.statement.output;
 
 import com.dbn.common.exception.Exceptions;
-import com.dbn.database.common.statement.CallableStatementOutputBase;
 import lombok.Getter;
 
 import java.io.BufferedReader;
@@ -33,8 +32,18 @@ import java.sql.Types;
  * @author Dan Cioca (Oracle)
  */
 @Getter
-public class ClobOutput extends CallableStatementOutputBase {
+public class ClobOutput extends OutputContent {
+  private static final String CONTENT_NAME = "CLOB content";
+
   private String value;
+
+  public ClobOutput() {
+    this(CONTENT_NAME, MAX_LENGTH);
+  }
+
+  public ClobOutput(String contentName, int maxLength) {
+    super(contentName, maxLength);
+  }
 
   @Override
   public void registerParameters(CallableStatement statement) throws SQLException {
@@ -49,10 +58,12 @@ public class ClobOutput extends CallableStatementOutputBase {
 
   private String read(Clob clob) throws SQLException {
       if (clob == null) return "";
+      checkLength(clob.length());
       StringBuilder builder = new StringBuilder();
       try (BufferedReader reader = new BufferedReader(clob.getCharacterStream())){
           String line;
           while ((line = reader.readLine()) != null) {
+            checkLength((long) builder.length() + line.length() + 1);
             builder.append(line);
             builder.append("\n");
           }
