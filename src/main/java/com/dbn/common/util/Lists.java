@@ -36,7 +36,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.dbn.common.util.Commons.nvl;
 import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
 
@@ -73,18 +72,14 @@ public class Lists {
     public static <T> List<T> filter(@NotNull List<T> list, @Nullable Filter<T> filter) {
         if (filter == null) return list;
         if (list.isEmpty()) return list;
-        if (filter.acceptsAll(list)) return list;
 
-        List<T> result = null;
+        List<T> result = new ArrayList<>();
         for (T element : list) {
             if (filter.accepts(element)) {
-                if (result == null) {
-                    result = new ArrayList<>();
-                }
                 result.add(element);
             }
         }
-        return nvl(result, emptyList());
+        return result.isEmpty() ? emptyList() : result;
     }
 
     @NotNull

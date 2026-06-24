@@ -16,7 +16,6 @@
 
 package com.dbn.credentials;
 
-import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.thread.Background;
 import com.dbn.common.util.Chars;
@@ -32,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.util.Commons.match;
@@ -148,13 +148,10 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
 
     @NonNls
     @NotNull
-    @Compatibility
     protected static CredentialAttributes createAttributes(SecretType secretType, Object ownerId, String user) {
+        String ownerName = Objects.toString(ownerId);
+
         String serviceTypeName = secretType.getServiceName();
-        String ownerName = SecretsOwnerRegistry.getOwnerName(ownerId);
-        // JDBC-4636: a secret with no user will come in empty when saving and null when
-        // loading.  Make sure both scenarios have a consistent user name and resulting
-        // serviceName
         String userName = Strings.isEmptyOrSpaces(user) ? "default" : user;
 
         String serviceName = String.format(
@@ -169,4 +166,5 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
     private boolean isMemoryStorage() {
         return PasswordSafe.getInstance().isMemoryOnly();
     }
+
 }
