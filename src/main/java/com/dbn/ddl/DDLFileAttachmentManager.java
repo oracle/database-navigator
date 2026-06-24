@@ -29,6 +29,7 @@ import com.dbn.common.file.util.VirtualFiles;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.thread.Read;
 import com.dbn.common.thread.Write;
 import com.dbn.common.ui.dialog.SelectionListDialog;
 import com.dbn.common.util.Dialogs;
@@ -221,7 +222,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
 
     private boolean isProjectContentFile(@NotNull VirtualFile file) {
         ProjectRootManager rootManager = ProjectRootManager.getInstance(getProject());
-        return rootManager.getFileIndex().isInContent(file);
+        return Read.call(() -> rootManager.getFileIndex().isInContent(file));
     }
 
     public void showFileAttachDialog(DBSchemaObject object, List<VirtualFileInfo> fileInfos, boolean showLookupOption, DialogCallback<AttachDDLFileDialog> callback) {
