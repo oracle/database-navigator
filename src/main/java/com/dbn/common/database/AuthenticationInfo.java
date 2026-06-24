@@ -25,10 +25,10 @@ import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.Secrets;
 import com.dbn.credentials.SecretsOwner;
-import com.dbn.credentials.SecretsOwnerRegistry;
 import com.dbn.credentials.TransientSecretStore;
 import lombok.Getter;
 import lombok.Setter;
@@ -54,6 +54,7 @@ import static com.dbn.common.options.setting.Settings.setSensitiveString;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.util.Commons.match;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.common.util.Strings.nvle;
 import static com.dbn.connection.AuthenticationType.OS_CREDENTIALS;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
@@ -82,7 +83,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
 
     private AuthenticationType type = USER_PASSWORD;
     private String user;
-    private final Secret password = new Secret(CONNECTION_PASSWORD, () -> getConnectionId(), () -> user);
+    private final Secret password = new Secret(CONNECTION_PASSWORD, () -> getSecretOwnerId(), () -> user);
 
     // token auth
     private AuthenticationTokenType tokenType;
@@ -98,13 +99,12 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     private String azureClientId;
     private String azureTenantId;
     private String azureClientCertificateFile;
-    private final Secret azureClientCertificatePassword = new Secret(CONNECTION_AZURE_TOKEN_CERTIFICATE_PASSWORD, () -> getConnectionId(), () -> user);
-    private final Secret azureClientSecret = new Secret(CONNECTION_AZURE_TOKEN_CLIENT_SECRET, () -> getConnectionId(), () -> user);
+    private final Secret azureClientCertificatePassword = new Secret(CONNECTION_AZURE_TOKEN_CERTIFICATE_PASSWORD, () -> getSecretOwnerId(), () -> user);
+    private final Secret azureClientSecret = new Secret(CONNECTION_AZURE_TOKEN_CLIENT_SECRET, () -> getSecretOwnerId(), () -> user);
 
     public AuthenticationInfo(ConnectionDatabaseSettings parent, boolean temporary) {
         super(parent);
         this.temporary = temporary;
-        SecretsOwnerRegistry.register(this);
     }
 
     public ConnectionId getConnectionId() {
@@ -244,9 +244,9 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
 
         if (isTransientContext()) {
             // transfer secrets outside transient config xml
-            TransientSecretStore.consume(password, getConnectionId(), CONNECTION_PASSWORD, user);
-            TransientSecretStore.consume(azureClientSecret, getConnectionId(), CONNECTION_AZURE_TOKEN_CLIENT_SECRET, user);
-            TransientSecretStore.consume(azureClientCertificatePassword, getConnectionId(), CONNECTION_AZURE_TOKEN_CERTIFICATE_PASSWORD, user);
+            TransientSecretStore.consume(password, getSecretOwnerId(), CONNECTION_PASSWORD, user);
+            TransientSecretStore.consume(azureClientSecret, getSecretOwnerId(), CONNECTION_AZURE_TOKEN_CLIENT_SECRET, user);
+            TransientSecretStore.consume(azureClientCertificatePassword, getSecretOwnerId(), CONNECTION_AZURE_TOKEN_CERTIFICATE_PASSWORD, user);
         }
 
         // token auth attributes
@@ -277,13 +277,13 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     @Override
     public void writeConfiguration(Element element) {
         setEnum(element, "type", type);
-        setString(element, "user", nvl(user));
+        setString(element, "user", nvle(user));
 
         if (isTransientContext()) {
             // transfer secrets outside transient config xml
-            TransientSecretStore.store(password, getConnectionId(), CONNECTION_PASSWORD, user);
-            TransientSecretStore.store(azureClientSecret, getConnectionId(), CONNECTION_AZURE_TOKEN_CLIENT_SECRET, user);
-            TransientSecretStore.store(azureClientCertificatePassword, getConnectionId(), CONNECTION_AZURE_TOKEN_CERTIFICATE_PASSWORD, user);
+            TransientSecretStore.store(password, getSecretOwnerId(), CONNECTION_PASSWORD, user);
+            TransientSecretStore.store(azureClientSecret, getSecretOwnerId(), CONNECTION_AZURE_TOKEN_CLIENT_SECRET, user);
+            TransientSecretStore.store(azureClientCertificatePassword, getSecretOwnerId(), CONNECTION_AZURE_TOKEN_CERTIFICATE_PASSWORD, user);
         }
 
         setEnum(element, TOKEN_TYPE, tokenType);
@@ -372,20 +372,24 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     @NotNull
     @Override
     public Object getSecretOwnerId() {
-        return getConnectionId();
+        return getConnectionSettings().getSecretOwnerId();
     }
 
     @Override
     public String getSecretOwnerName() {
-        return ensureParent().getName();
+        return getConnectionSettings().getSecretOwnerName();
+    }
+
+    private @NotNull ConnectionSettings getConnectionSettings() {
+        return ensureParent().ensureParent();
     }
 
     @Override
     public Secret[] getSecrets() {
         return new Secret[] {
-                password.snapshot(),
-                azureClientSecret.snapshot(),
-                azureClientCertificatePassword.snapshot()};
+                password,
+                azureClientSecret,
+                azureClientCertificatePassword};
     }
 
     public char[] getPassword() {

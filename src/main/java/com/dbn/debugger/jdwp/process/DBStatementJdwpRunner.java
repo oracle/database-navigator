@@ -46,7 +46,7 @@ public class DBStatementJdwpRunner extends DBProgramRunner<StatementExecutionInp
     protected DBDebugProcessStarter createProcessStarter(ConnectionHandler connection) {
         ConnectionDebuggerSettings debuggerSettings = connection.getSettings().getDebuggerSettings();
         if (connection.isCloudDatabase() || debuggerSettings.getJdwpTunnelType() == JDWPTunnelType.TCP_DRIVER_TUNNEL) {
-            return new DBStatementJdwpCloudProcessStarter(connection);
+            return new DBStatementJdwpTunnelProcessStarter(connection);
         }
         return new DBStatementJdwpLocalProcessStarter(connection);
     }

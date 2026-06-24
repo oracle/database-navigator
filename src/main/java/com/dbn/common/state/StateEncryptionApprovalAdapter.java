@@ -16,6 +16,7 @@
 
 package com.dbn.common.state;
 
+import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.approval.UserApprovalAdapter;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 
+import static com.dbn.common.approval.UserApprovalAction.STATE_ENCRYPTION_CHANGE;
 import static com.dbn.common.state.StateEncryption.isMemoryPasswordSafe;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -42,6 +44,11 @@ public class StateEncryptionApprovalAdapter implements UserApprovalAdapter<State
     @Override
     public Class<StateEncryptionApproval> getApprovalClass() {
         return StateEncryptionApproval.class;
+    }
+
+    @Override
+    public UserApprovalAction getApprovalAction() {
+        return STATE_ENCRYPTION_CHANGE;
     }
 
     @Override

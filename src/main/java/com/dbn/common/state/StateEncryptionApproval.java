@@ -17,6 +17,11 @@
 package com.dbn.common.state;
 
 import com.dbn.common.approval.UserApprovable;
+import com.dbn.common.approval.UserApprovalAction;
+
+import java.util.Set;
+
+import static com.dbn.common.approval.UserApprovalAction.STATE_ENCRYPTION_CHANGE;
 
 public final class StateEncryptionApproval implements UserApprovable {
     static final StateEncryptionApproval INSTANCE = new StateEncryptionApproval();
@@ -24,7 +29,7 @@ public final class StateEncryptionApproval implements UserApprovable {
     private StateEncryptionApproval() {}
 
     @Override
-    public boolean isAcknowledged() {
-        return false;
+    public Set<UserApprovalAction> getApprovalActions() {
+        return Set.of(STATE_ENCRYPTION_CHANGE);
     }
 }

@@ -17,6 +17,7 @@
 package com.dbn.editor;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.file.VirtualFileInfo;
@@ -66,6 +67,7 @@ import java.util.List;
 
 import static com.dbn.browser.DatabaseBrowserUtils.markSkipBrowserAutoscroll;
 import static com.dbn.browser.DatabaseBrowserUtils.unmarkSkipBrowserAutoscroll;
+import static com.dbn.common.approval.UserApprovalAction.CONNECTION_WORKSPACE_RESTORE;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.allValid;
 import static com.dbn.common.dispose.Checks.isNotValid;
@@ -124,6 +126,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
     @ThreadPropertyGate(EDITOR_LOAD)
     public void connectAndOpenEditor(@NotNull DBObject object, @Nullable EditorProviderId editorProviderId, boolean scrollBrowser, boolean focusEditor) {
         if (!isEditable(object)) return;
+        approveWorkspaceRestore(object);
 
         ConnectionAction.invoke(txt("msg.editor.title.OpeningObjectEditor"), false, object, action -> {
             Project project = getProject();
@@ -136,6 +139,17 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
                 Background.run(() -> openEditor(object, editorProviderId, scrollBrowser, false));
             }
         });
+    }
+
+    private static void approveWorkspaceRestore(@NotNull DBObject object) {
+        approveWorkspaceRestore(object.getConnection());
+    }
+
+    private static void approveWorkspaceRestore(@NotNull ConnectionHandler connection) {
+        if (connection.isVirtual()) return;
+
+        UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+        approvalManager.approve(CONNECTION_WORKSPACE_RESTORE, connection);
     }
 
     public void openEditor(@NotNull DBObject object, @Nullable EditorProviderId editorProviderId, boolean scrollBrowser, boolean focusEditor) {
@@ -360,17 +374,19 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
     }
 
 
-    public void openDatabaseConsole(DBConsole console, boolean scrollBrowser, boolean focusEditor) {
+    public void openDatabaseConsole(DBConsole console, boolean deliberate) {
         ConnectionHandler connection = console.getConnection();
+        if (deliberate) approveWorkspaceRestore(connection);
+
         Project project = connection.getProject();
 
-        NavigationInstructions editorInstructions = NavigationInstructions.create().with(OPEN).with(SCROLL, focusEditor).with(FOCUS, focusEditor);
-        NavigationInstructions browserInstructions = NavigationInstructions.create().with(SCROLL, scrollBrowser);
+        NavigationInstructions editorInstructions = NavigationInstructions.create().with(OPEN).with(SCROLL, deliberate).with(FOCUS, deliberate);
+        NavigationInstructions browserInstructions = NavigationInstructions.create().with(SCROLL, false);
         DBFileOpenHandle handle = DBFileOpenHandle.create(console).
                 withEditorInstructions(editorInstructions).
                 withBrowserInstructions(browserInstructions);
 
-        invokeFileOpen(handle, () -> Editors.openFileEditor(project, console.getVirtualFile(), focusEditor));
+        invokeFileOpen(handle, () -> Editors.openFileEditor(project, console.getVirtualFile(), deliberate));
     }
 
     public void closeEditor(DBSchemaObject object) {

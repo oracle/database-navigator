@@ -23,8 +23,6 @@ import org.jdom.Element;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.getEnum;
@@ -52,13 +50,7 @@ public class DataExportInstructions implements PersistentStateElement, Cloneable
     private Charset charset = Charset.defaultCharset();
 
     public File getFile() throws DataExportException {
-        Path basePath = Paths.get(fileLocation).toAbsolutePath().normalize();
-        Path filePath = basePath.resolve(fileName).normalize();
-
-        if (!filePath.startsWith(basePath)) {
-            throw new DataExportException("Invalid export file path. The file name resolves outside the selected location.");
-        }
-        return filePath.toFile();
+        return DataExportFiles.getFile(fileLocation, fileName);
     }
 
     public enum Scope{

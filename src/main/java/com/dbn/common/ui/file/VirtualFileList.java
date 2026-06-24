@@ -21,9 +21,15 @@ import com.dbn.common.util.FileChoosers;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.vfs.VirtualFile;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import static com.dbn.common.util.Lists.forEach;
 
 public class VirtualFileList extends MutableObjectList<VirtualFile> {
+    private final Set<String> userSelectedPaths = new HashSet<>();
+
     public VirtualFileList(List<VirtualFile> files) {
         super(new VirtualFileListModel(files));
         setCellRenderer(new VirtualFileListCellRenderer());
@@ -32,10 +38,13 @@ public class VirtualFileList extends MutableObjectList<VirtualFile> {
 
     public void insertRows() {
         FileChooser.chooseFiles(FileChoosers.multipleFiles(), null, /* parent= */ null,
-                (List<VirtualFile> selected) -> {
-                    VirtualFileListModel model = getModel();
-                    model.addAll(selected);
-                });
+                (List<VirtualFile> selected) -> addFiles(selected));
+    }
+
+    private void addFiles(List<VirtualFile> selected) {
+        VirtualFileListModel model = getModel();
+        model.addAll(selected);
+        forEach(selected, s -> userSelectedPaths.add(s.getPath()));
     }
 
     public VirtualFileListModel getModel() {
@@ -45,6 +54,13 @@ public class VirtualFileList extends MutableObjectList<VirtualFile> {
     public List<VirtualFile> getFiles() {
         return getElements();
     }
-}
 
+    public boolean isUserSelectedPath(String path) {
+        return userSelectedPaths.contains(path);
+    }
+
+    public void resetUserSelectedPaths() {
+        userSelectedPaths.clear();
+    }
+}
 

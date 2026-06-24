@@ -1,12 +1,5 @@
 #if (${PROPERTIES} && ${PROPERTIES} != '')
-    #set($csvProps = "${PROPERTIES}")
-    #set($props = $csvProps.split(","))
-    #foreach($prop in $props)
-        #set($tokens = $prop.split("="))
-        #set($key = $tokens[0])
-        #set($value = $tokens[1])
-        properties.put("$key", "$value");
-    #end
+${PROPERTIES}
 #else
     // custom properties (e.g. properties.put("charset", "UTF-8");)
 #end

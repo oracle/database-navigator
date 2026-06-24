@@ -27,6 +27,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import static com.dbn.assistant.http.AssistantHttpClient.MAX_ERROR_RESPONSE_LENGTH;
 import static dev.langchain4j.http.client.HttpMethod.GET;
 
 public class AssistantHttpClientTest {
@@ -74,6 +75,43 @@ public class AssistantHttpClientTest {
         Assert.assertFalse(message.contains("fragment"));
     }
 
+    @Test
+    public void httpErrorBodiesAreTruncated() {
+        String error = "x".repeat(MAX_ERROR_RESPONSE_LENGTH + 1);
+        AssistantHttpClient client = new AssistantHttpClient(request ->
+                new ErrorConnection(500, "Internal Server Error", error));
+        HttpRequest request = HttpRequest.builder()
+                .method(GET)
+                .url("https://assistant.example.com")
+                .build();
+
+        RuntimeException exception = Assert.assertThrows(RuntimeException.class, () -> client.execute(request));
+
+        Throwable cause = exception.getCause();
+        Assert.assertNotNull(cause);
+        String message = cause.getMessage();
+        Assert.assertTrue(message.contains("HTTP 500: Internal Server Error"));
+        Assert.assertTrue(message.contains("[Error response body truncated]"));
+        Assert.assertFalse(message.contains("x".repeat(MAX_ERROR_RESPONSE_LENGTH + 1)));
+    }
+
+    @Test
+    public void httpErrorsAllowMissingErrorStream() {
+        AssistantHttpClient client = new AssistantHttpClient(request ->
+                new ErrorConnection(502, "Bad Gateway", null));
+        HttpRequest request = HttpRequest.builder()
+                .method(GET)
+                .url("https://assistant.example.com")
+                .build();
+
+        RuntimeException exception = Assert.assertThrows(RuntimeException.class, () -> client.execute(request));
+
+        Throwable cause = exception.getCause();
+        Assert.assertNotNull(cause);
+        String message = cause.getMessage();
+        Assert.assertEquals("HTTP 502: Bad Gateway (Request URL: https://assistant.example.com)", message);
+    }
+
     private static class ErrorConnection extends HttpURLConnection {
         private final int responseCode;
         private final String responseMessage;
@@ -98,6 +136,7 @@ public class AssistantHttpClientTest {
 
         @Override
         public InputStream getErrorStream() {
+            if (error == null) return null;
             return new ByteArrayInputStream(error.getBytes(StandardCharsets.UTF_8));
         }
 

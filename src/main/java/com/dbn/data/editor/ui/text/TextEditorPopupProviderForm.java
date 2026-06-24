@@ -150,7 +150,7 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
                     text = Commons.nvl(largeObjectValue.read(), "");
                 } catch (SQLException e) {
                     conditionallyLog(e);
-                    Messages.showErrorDialog(getProject(), e.getLocalizedMessage(), e);
+                    Messages.showErrorDialog(getProject(), null, txt("msg.dataEditor.error.ContentLoadError", "text"), e);
                     return null;
                 }
             }

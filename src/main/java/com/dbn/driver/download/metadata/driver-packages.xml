@@ -276,9 +276,6 @@
 
     <driver-package database-type="Oracle" id="oracle-%s" name="Oracle %s">
         <library artifact-id="ojdbc8-production" group-id="com.oracle.database.jdbc" version="latest" role="DRIVER" type="pom"/>
-        <library artifact-id="connector-api" group-id="javax.resource" version="1.5"/>
-        <library artifact-id="javax.json-api" group-id="javax.json" version="1.1.4"/>
-        <library artifact-id="servlet-api" group-id="javax.servlet" version="2.5"/>
     </driver-package>
 
     <driver-package database-type="Oracle" id="ojdbc-%s-azure-%s" name="Oracle %s + Azure auth %s">

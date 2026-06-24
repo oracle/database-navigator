@@ -74,6 +74,10 @@ public class FileProcessingService {
         StepResult step = result.startStep(PipelineStep.UPLOADING_FILE);
 
         try {
+            if (!result.getSource().isUploadAuthorized()) {
+                throw new SecurityException("File source upload was not authorized in the current session");
+            }
+
             // Extract metadata from FileContent and connection
             String fileMetadata = buildFileMetadata(connection, result);
             result.setMetadata(fileMetadata);

@@ -44,7 +44,7 @@ public class DBMethodJdwpRunner extends DBProgramRunner<MethodExecutionInput> {
     @Override
     protected DBDebugProcessStarter createProcessStarter(ConnectionHandler connection) {
         if(connection.isCloudDatabase() || connection.getSettings().getDebuggerSettings().getJdwpTunnelType() == JDWPTunnelType.TCP_DRIVER_TUNNEL){
-            return new DBMethodJdwpCloudProcessStarter(connection);
+            return new DBMethodJdwpTunnelProcessStarter(connection);
         }
         return new DBMethodJdwpLocalProcessStarter(connection);
     }

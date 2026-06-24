@@ -87,6 +87,7 @@ import java.util.stream.Collectors;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showErrorDialog;
@@ -270,6 +271,8 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
     }
 
     private void attemptConfigConnection(ConnectionSettings connectionSettings, AuthenticationInfo authentication, boolean showMessageDialog) {
+        if (authentication == null) return;
+
         Project project = connectionSettings.getProject();
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         String connectionName = databaseSettings.getName();
@@ -305,23 +308,26 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
 
         try {
             databaseSettings.validate();
-            ensureAuthenticationProvided(databaseSettings, (authenticationInfo) ->
-                    Progress.modal(project, null, true,
-                            txt("prc.connection.title.ConnectingToDatabase"),
-                            txt("prc.connection.text.ConnectingToDatabase", connectionName),
-                            progress -> {
-                                try {
-                                    DBNConnection connection = ConnectionUtil.connect(connectionSettings, null, authenticationInfo, SessionId.TEST, false);
-                                    ConnectionInfo connectionInfo = new ConnectionInfo(connection.getMetaData());
-                                    Resources.close(connection);
-                                    showConnectionInfoDialog(project, connectionInfo, connectionName, environmentType);
-                                } catch (ProcessCanceledException e) {
-                                    conditionallyLog(e);
-                                } catch (Exception e) {
-                                    conditionallyLog(e);
-                                    showErrorConnectionMessage(project, connectionName, e);
-                                }
-                            }));
+            ensureAuthenticationProvided(databaseSettings, (authenticationInfo) -> {
+                if (authenticationInfo == null) return;
+
+                Progress.modal(project, null, true,
+                        txt("prc.connection.title.ConnectingToDatabase"),
+                        txt("prc.connection.text.ConnectingToDatabase", connectionName),
+                        progress -> {
+                            try {
+                                DBNConnection connection = ConnectionUtil.connect(connectionSettings, null, authenticationInfo, SessionId.TEST, false);
+                                ConnectionInfo connectionInfo = new ConnectionInfo(connection.getMetaData());
+                                Resources.close(connection);
+                                showConnectionInfoDialog(project, connectionInfo, connectionName, environmentType);
+                            } catch (ProcessCanceledException e) {
+                                conditionallyLog(e);
+                            } catch (Exception e) {
+                                conditionallyLog(e);
+                                showErrorConnectionMessage(project, connectionName, e);
+                            }
+                        });
+            });
 
         } catch (ConfigurationException e) {
             conditionallyLog(e);
@@ -395,12 +401,11 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
     }
 
     public void showErrorConnectionMessage(Project project, String connectionName, @Nullable Throwable e) {
-        showErrorDialog(
-                project,
-                txt("msg.connection.title.ConnectionError"),
-                e == null ?
-                    txt("msg.connection.error.ConnectionErrorUnknown", connectionName) :
-                    txt("msg.connection.error.ConnectionError", connectionName, e.getLocalizedMessage()));
+        String message = e == null ?
+                txt("msg.connection.error.ConnectionErrorUnknown", connectionName) :
+                txt("msg.connection.error.ConnectionError", connectionName);
+
+        showErrorDialog(project, txt("msg.connection.title.ConnectionError"), message, e);
     }
 
     void showSuccessfulConnectionMessage(Project project, String connectionName) {
@@ -414,7 +419,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
         showErrorDialog(
                 project,
                 txt("msg.connection.title.InvalidConfiguration"),
-                e.getLocalizedMessage());
+                getLocalizedMessage(e));
     }
 
     public static void showConnectionInfoDialog(ConnectionHandler connection) {
@@ -457,7 +462,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
 
                         if (dialog.isRememberCredentials()) {
                             // create snapshot of previous authentication secrets
-                            Secret[] oldSecrets = storedAuthenticationInfo.getSecrets();
+                            Secret[] oldSecrets = storedAuthenticationInfo.snapshotSecrets();
 
                             storedAuthenticationInfo.updateWith(newAuthenticationInfo);
                             storedAuthenticationInfo.updateSecrets(oldSecrets);
