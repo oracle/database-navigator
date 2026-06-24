@@ -118,7 +118,7 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
         } catch (Throwable e) {
             conditionallyLog(e);
             log.warn("Failed to export data", e);
-            throw new DataExportException("Failed to export data. Cause: " + e.getMessage());
+            throw new DataExportException(txt("msg.dataExport.error.ExportDataFailed", e.getMessage()));
         } finally {
             if (workbook instanceof SXSSFWorkbook sxssfWorkbook) {
                 sxssfWorkbook.dispose();
@@ -177,7 +177,7 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
         } catch (Throwable e) {
             conditionallyLog(e);
             log.warn("Failed to export data", e);
-            throw new DataExportException("Failed to create export file.\nCause: " + e.getMessage());
+            throw new DataExportException(txt("msg.dataExport.error.CreateExportFileFailed", e.getMessage()));
         }
     }
 

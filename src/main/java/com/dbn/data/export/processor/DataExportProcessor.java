@@ -73,7 +73,7 @@ public abstract class DataExportProcessor implements ExtensionPoint {
             int rows = model.getRowCount();
             boolean selectionScope = instructions.getScope() == Scope.SELECTION;
             if ((cols == 0 || rows == 0) && selectionScope) {
-                throw new DataExportException("No content selected for export. Uncheck the Scope \"Selection\" if you want to export the entire content.");
+                throw new DataExportException(txt("msg.dataExport.error.NoContentSelected"));
             }
             String fileName = adjustFileName(instructions.getFileName());
             instructions.setFileName(fileName);
@@ -105,7 +105,7 @@ public abstract class DataExportProcessor implements ExtensionPoint {
             Files.writeString(filePath,content, charset);
         } catch (IOException e) {
             log.warn("Failed to create export file", e);
-            throw new DataExportException("Failed to create export file.\nCause: " + e.getMessage());
+            throw new DataExportException(txt("msg.dataExport.error.CreateExportFileFailed", e.getMessage()));
         }
     }
 
@@ -150,7 +150,7 @@ public abstract class DataExportProcessor implements ExtensionPoint {
                     return Commons.nvl(valueAdapter.export(), "");
                 } catch (SQLException e) {
                     conditionallyLog(e);
-                    throw new DataExportException("Failed to export " + valueAdapter.getGenericDataType() + " cell. Cause: "  + e.getMessage());
+                    throw new DataExportException(txt("msg.dataExport.error.ExportCellFailed", valueAdapter.getGenericDataType(), e.getMessage()));
                 }
             } else {
                 return value.toString();
@@ -177,7 +177,7 @@ public abstract class DataExportProcessor implements ExtensionPoint {
             return exportValue;
         } catch (SQLException e) {
             conditionallyLog(e);
-            throw new DataExportException("Failed to export " + value.getGenericDataType() + " cell. Cause: "  + e.getMessage());
+            throw new DataExportException(txt("msg.dataExport.error.ExportCellFailed", value.getGenericDataType(), e.getMessage()));
         } finally {
             value.release();
         }
