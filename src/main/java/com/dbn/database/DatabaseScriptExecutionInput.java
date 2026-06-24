@@ -21,19 +21,36 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.execution.script.ScriptCredentialDelivery;
+import com.dbn.execution.script.ScriptExecutionOptions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class DatabaseScriptExecutionInput extends CmdLineExecutionInput{
+    private final DatabaseInfo databaseInfo;
+    private final ScriptExecutionOptions options;
+
     public DatabaseScriptExecutionInput(
             @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
             @NotNull String filePath,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
+        this(connection, cmdLineInterface, filePath, content, schemaId, null);
+    }
+
+    public DatabaseScriptExecutionInput(
+            @NotNull ConnectionHandler connection,
+            @NotNull CmdLineInterface cmdLineInterface,
+            @NotNull String filePath,
+            @NotNull String content,
+            @Nullable SchemaId schemaId,
+            @Nullable ScriptExecutionOptions options) {
         super(content);
+        this.options = options;
 
         DatabaseInfo databaseInfo = connection.getDatabaseInfo();
+        this.databaseInfo = databaseInfo;
         AuthenticationInfo authenticationInfo = connection.getAuthenticationInfo();
         initExecutable(cmdLineInterface, databaseInfo, authenticationInfo);
         initAuthentication(authenticationInfo);
@@ -48,6 +65,18 @@ public abstract class DatabaseScriptExecutionInput extends CmdLineExecutionInput
     protected abstract void initAuthentication(AuthenticationInfo authenticationInfo);
 
     protected abstract void initConsoleCommands(String filePath, SchemaId schemaId, ConnectionHandler connection);
+
+    protected @Nullable ScriptExecutionOptions getOptions() {
+        return options;
+    }
+
+    protected @NotNull DatabaseInfo getDatabaseInfo() {
+        return databaseInfo;
+    }
+
+    protected ScriptCredentialDelivery getCredentialDelivery() {
+        return options == null ? ScriptCredentialDelivery.ENVIRONMENT : options.credentialDelivery();
+    }
 
     protected static String getQuotedSchemaId(SchemaId schemaId, ConnectionHandler connection) {
         return connection.getIdentifierCache().getQuotedIdentifier(schemaId.id());
