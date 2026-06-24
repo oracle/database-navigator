@@ -21,6 +21,7 @@ import com.dbn.common.options.Configuration;
 import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.util.Cloneable;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionSecretOwnerId;
 import com.dbn.connection.DatabaseInterfacesBundle;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ui.ConnectionSettingsForm;
@@ -129,6 +130,16 @@ public class ConnectionSettings extends CompositeProjectConfiguration<Connection
         DatabaseType databaseType = getDatabaseSettings().getDatabaseType();
         DatabaseInterfaces interfaces = DatabaseInterfacesBundle.get(databaseType);
         return interfaces.getLanguageDialect(language);
+    }
+
+    @NotNull
+    public Object getSecretOwnerId() {
+        return ConnectionSecretOwnerId.create(getProject(), getConnectionId(), getSecretOwnerName());
+    }
+
+    @NotNull
+    public String getSecretOwnerName() {
+        return getDatabaseSettings().getName();
     }
 
     @Override

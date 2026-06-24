@@ -18,7 +18,6 @@ package com.dbn.connection.config;
 
 import com.dbn.common.options.BasicConfiguration;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ssh.SshAuthType;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
@@ -50,8 +49,8 @@ public class ReverseSshTunnelConfiguration  extends BasicConfiguration <Connecti
     private SshAuthType authType = SshAuthType.PASSWORD;
     private String user;
     private String keyFile;
-    private final Secret keyPassphrase = new Secret(DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, this::getConnectionId, () -> keyFile);
-    private final Secret password = new Secret(DEBUGGER_SSH_TUNNEL_PASSWORD, this::getConnectionId, () -> user);
+    private final Secret keyPassphrase = new Secret(DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, () -> getSecretOwnerId(), () -> keyFile);
+    private final Secret password = new Secret(DEBUGGER_SSH_TUNNEL_PASSWORD, () -> getSecretOwnerId(), () -> user);
     private String bindHost = "127.0.0.1";
     private String bindPort = "0";
 
@@ -74,8 +73,8 @@ public class ReverseSshTunnelConfiguration  extends BasicConfiguration <Connecti
 
         if (isTransientContext()) {
             // transfer secrets outside transient config xml
-            TransientSecretStore.consume(password, getConnectionId(), DEBUGGER_SSH_TUNNEL_PASSWORD, user);
-            TransientSecretStore.consume(keyPassphrase, getConnectionId(), DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
+            TransientSecretStore.consume(password, getSecretOwnerId(), DEBUGGER_SSH_TUNNEL_PASSWORD, user);
+            TransientSecretStore.consume(keyPassphrase, getSecretOwnerId(), DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
         }
 
     }
@@ -93,8 +92,8 @@ public class ReverseSshTunnelConfiguration  extends BasicConfiguration <Connecti
 
         if (isTransientContext()) {
             // transfer secrets outside transient config xml
-            TransientSecretStore.store(password, getConnectionId(), DEBUGGER_SSH_TUNNEL_PASSWORD, user);
-            TransientSecretStore.store(keyPassphrase, getConnectionId(), DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
+            TransientSecretStore.store(password, getSecretOwnerId(), DEBUGGER_SSH_TUNNEL_PASSWORD, user);
+            TransientSecretStore.store(keyPassphrase, getSecretOwnerId(), DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
         }
     }
 
@@ -106,27 +105,22 @@ public class ReverseSshTunnelConfiguration  extends BasicConfiguration <Connecti
         return ensureParent().ensureParent();
     }
 
-    private ConnectionId getConnectionId() {
-        return getConnectionSettings().getConnectionId();
-    }
-
     @Override
     public @NotNull Object getSecretOwnerId() {
-        return getConnectionId();
+        return getConnectionSettings().getSecretOwnerId();
     }
 
     @NotNull
     @Override
     public String getSecretOwnerName() {
-        ConnectionSettings connectionSettings = getConnectionSettings();
-        return connectionSettings.getDatabaseSettings().getName();
+        return getConnectionSettings().getSecretOwnerName();
     }
 
     @Override
     public Secret[] getSecrets() {
         return new Secret[] {
-                password.snapshot(),
-                keyPassphrase.snapshot()};
+                password,
+                keyPassphrase};
     }
 
     public char[] getPassword() {

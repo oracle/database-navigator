@@ -126,8 +126,8 @@ public class AssistantCredentialsSettingsForm extends ConfigurationEditorForm<As
         configuration.setCredentials(new AssistantCredentialBundle(getProject(), credentials));
 
         for (AssistantCredential credential : credentials) {
-            AssistantCredential olsCredential = oldCredentials.remove(credential.getSecretOwnerId());
-            Secret[] oldSecrets = olsCredential == null ? null : olsCredential.getSecrets();
+            AssistantCredential oldCredential = oldCredentials.remove(credential.getSecretOwnerId());
+            Secret[] oldSecrets = oldCredential == null ? null : oldCredential.snapshotSecrets();
             credential.updateSecrets(oldSecrets);
         }
 

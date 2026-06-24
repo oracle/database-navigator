@@ -84,7 +84,7 @@ public class ReverseSshTunnelConfigForm extends ConfigurationEditorForm<ReverseS
 
     public void applyFormChanges(ReverseSshTunnelConfiguration configuration) throws ConfigurationException {
         // snapshot old secret before form changes are applied
-        Secret[] oldSecrets = configuration.getSecrets();
+        Secret[] oldSecrets = configuration.snapshotSecrets();
 
         String bindHost = getText(bindHostTextField);
         ReverseSshTunnelConfiguration.validateBindHost(bindHost);
