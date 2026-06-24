@@ -448,7 +448,10 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         AssistantMcpToolApprovals toolApprovals = getMcpToolApprovals();
         AssistantToolApprovalStatus status = approval ? APPROVED : BLOCKED;
         if (option == 0) {
-            toolApprovals.setStatus(serverId, utilityName, status);
+            AssistantMcpToolInfo toolInfo = resolveMcpToolInfo(serverId, utilityName);
+            if (toolInfo == null) return false;
+
+            toolApprovals.setStatus(serverId, toolInfo, status);
             return true;
         }
 
@@ -466,8 +469,16 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
 
     private void approveKnownMcpTools(AssistantMcpToolApprovals toolApprovals, EntityId serverId) {
         AssistantMcpServerData mcpServerData = AssistantMcpServerData.get(ensureProject());
-        List<String> toolNames = mcpServerData.getTools(serverId).stream().map(AssistantMcpToolInfo::getName).toList();
-        toolApprovals.setStatus(serverId, toolNames, APPROVED);
+        List<AssistantMcpToolInfo> toolInfos = mcpServerData.getTools(serverId);
+        toolApprovals.setStatus(serverId, toolInfos, APPROVED);
+    }
+
+    private @Nullable AssistantMcpToolInfo resolveMcpToolInfo(EntityId serverId, String utilityName) {
+        AssistantMcpServerData mcpServerData = AssistantMcpServerData.get(ensureProject());
+        return mcpServerData.getTools(serverId).stream()
+                .filter(t -> t.getName().equals(utilityName))
+                .findFirst()
+                .orElse(null);
     }
 
     private boolean confirmInternal(boolean approval) {
@@ -526,7 +537,8 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
             EntityId serverId = info.getToolServerId();
 
             AssistantMcpToolApprovals approvals = getMcpToolApprovals();
-            return approvals.isApproved(serverId, utilityName);
+            AssistantMcpToolInfo toolInfo = resolveMcpToolInfo(serverId, utilityName);
+            return toolInfo != null && approvals.isApproved(serverId, toolInfo);
         } else {
             AssistantTool tool = getTool();
             AssistantToolApprovals approvals = getToolApprovals();

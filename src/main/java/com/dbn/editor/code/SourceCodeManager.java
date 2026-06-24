@@ -117,6 +117,9 @@ import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.common.util.Naming.unquote;
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
+import static com.dbn.database.common.DatabaseContentLimits.checkJavaBinaryLength;
+import static com.dbn.database.common.DatabaseContentLimits.checkSourceLineCount;
+import static com.dbn.database.common.DatabaseContentLimits.checkSourceTextLength;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vfs.file.status.DBFileStatus.LOADING;
@@ -360,26 +363,31 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                     conn);
 
             StringBuilder buffer = new StringBuilder();
+            long lineCount = 0;
             while (resultSet != null && resultSet.next()) {
+                checkSourceLineCount(++lineCount);
                 String codeLine = resultSet.getString("SOURCE_CODE");
                 codeLine = normalizeLine(codeLine);
+                checkSourceTextLength((long) buffer.length() + codeLine.length());
                 buffer.append(codeLine);
             }
 
-            if (buffer.length() == 0 && object.getObjectType() == DBObjectType.JAVA_CLASS) {
+            if (buffer.isEmpty() && object.getObjectType() == DBObjectType.JAVA_CLASS) {
                 CharSequence code = loadJavaDecompiledCode(object, conn, metadata);
+                checkSourceTextLength(code.length());
                 buffer.append(code);
                 writable = false;
             }
 
-            if (buffer.length() == 0 && object.getObjectType() == DBObjectType.JAVA_RESOURCE) {
+            if (buffer.isEmpty() && object.getObjectType() == DBObjectType.JAVA_RESOURCE) {
                 String code = loadJavaResourceCode(object, conn, metadata);
+                checkSourceTextLength(code.length());
                 buffer.append(code);
                 writable = true;
                 optionalContent = true; // If the resource file is empty, dont throw the exception.
             }
 
-            if (buffer.length() == 0 && !optionalContent) {
+            if (buffer.isEmpty() && !optionalContent) {
                 throw new SQLException("Source lookup returned empty");
             }
             return new SourceCodeContent(buffer.toString(), writable);
@@ -394,6 +402,8 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
             String schemaName = object.getSchemaName();
             String objectName = object.getName();
             byte[] bytes = metadata.loadJavaBinaryCode(schemaName, objectName, conn);
+            if (bytes == null) return "";
+            checkJavaBinaryLength(bytes.length);
 
             tempFile = FileUtil.createTempFile(objectName, ".class");
             Files.write(tempFile.toPath(), bytes);

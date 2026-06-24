@@ -16,6 +16,7 @@
 
 package com.dbn.data.export.processor;
 
+import com.dbn.data.export.DataExportException;
 import com.dbn.data.export.DataExportInstructions;
 import org.junit.Test;
 
@@ -174,8 +175,12 @@ public class CustomDataExportProcessorTest {
     }
 
     private static String exportField(String value, DataExportInstructions instructions) {
-        StringBuilder buffer = new StringBuilder();
-        CustomDataExportProcessor.appendField(buffer, value, instructions);
-        return buffer.toString();
+        try {
+            DataExportBuffer buffer = new DataExportBuffer();
+            CustomDataExportProcessor.appendField(buffer, value, instructions);
+            return buffer.toString();
+        } catch (DataExportException e) {
+            throw new AssertionError(e);
+        }
     }
 }

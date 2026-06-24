@@ -104,6 +104,12 @@ public final class Secret {
         setToken(secret.getToken());
     }
 
+    public synchronized void reload() {
+        loaded = false;
+        loading = false;
+        ensureLoaded();
+    }
+
     private void loadIfAllowed() {
         if (loaded) return;
 

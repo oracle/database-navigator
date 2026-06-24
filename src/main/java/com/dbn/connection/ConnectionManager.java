@@ -271,6 +271,8 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
     }
 
     private void attemptConfigConnection(ConnectionSettings connectionSettings, AuthenticationInfo authentication, boolean showMessageDialog) {
+        if (authentication == null) return;
+
         Project project = connectionSettings.getProject();
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         String connectionName = databaseSettings.getName();
@@ -306,23 +308,26 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
 
         try {
             databaseSettings.validate();
-            ensureAuthenticationProvided(databaseSettings, (authenticationInfo) ->
-                    Progress.modal(project, null, true,
-                            txt("prc.connection.title.ConnectingToDatabase"),
-                            txt("prc.connection.text.ConnectingToDatabase", connectionName),
-                            progress -> {
-                                try {
-                                    DBNConnection connection = ConnectionUtil.connect(connectionSettings, null, authenticationInfo, SessionId.TEST, false);
-                                    ConnectionInfo connectionInfo = new ConnectionInfo(connection.getMetaData());
-                                    Resources.close(connection);
-                                    showConnectionInfoDialog(project, connectionInfo, connectionName, environmentType);
-                                } catch (ProcessCanceledException e) {
-                                    conditionallyLog(e);
-                                } catch (Exception e) {
-                                    conditionallyLog(e);
-                                    showErrorConnectionMessage(project, connectionName, e);
-                                }
-                            }));
+            ensureAuthenticationProvided(databaseSettings, (authenticationInfo) -> {
+                if (authenticationInfo == null) return;
+
+                Progress.modal(project, null, true,
+                        txt("prc.connection.title.ConnectingToDatabase"),
+                        txt("prc.connection.text.ConnectingToDatabase", connectionName),
+                        progress -> {
+                            try {
+                                DBNConnection connection = ConnectionUtil.connect(connectionSettings, null, authenticationInfo, SessionId.TEST, false);
+                                ConnectionInfo connectionInfo = new ConnectionInfo(connection.getMetaData());
+                                Resources.close(connection);
+                                showConnectionInfoDialog(project, connectionInfo, connectionName, environmentType);
+                            } catch (ProcessCanceledException e) {
+                                conditionallyLog(e);
+                            } catch (Exception e) {
+                                conditionallyLog(e);
+                                showErrorConnectionMessage(project, connectionName, e);
+                            }
+                        });
+            });
 
         } catch (ConfigurationException e) {
             conditionallyLog(e);
@@ -457,7 +462,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
 
                         if (dialog.isRememberCredentials()) {
                             // create snapshot of previous authentication secrets
-                            Secret[] oldSecrets = storedAuthenticationInfo.getSecrets();
+                            Secret[] oldSecrets = storedAuthenticationInfo.snapshotSecrets();
 
                             storedAuthenticationInfo.updateWith(newAuthenticationInfo);
                             storedAuthenticationInfo.updateSecrets(oldSecrets);

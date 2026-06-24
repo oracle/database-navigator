@@ -38,9 +38,9 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CancellationException;
 
+import static com.dbn.assistant.mcp.AssistantMcpServerToolVerifier.validateIdeMcpArguments;
 import static com.dbn.assistant.tool.AssistantToolContents.getMaxToolResponseLength;
 import static com.dbn.assistant.tool.AssistantToolContents.isToolResponseContentOversized;
 import static com.dbn.assistant.tool.AssistantToolContents.prepareToolResponseContent;
@@ -124,17 +124,7 @@ public class AssistantMcpServerToolInterceptor extends AssistantStateExtension {
 
         String argumentsString = request.arguments();
         Map<String, Object> arguments = Json.readAsMap(argumentsString);
-
-        // check if project path argument is required
-        Object projectPathArgument = arguments.get("projectPath");
-        if (projectPathArgument == null) return;
-
-        // check if project path argument is matching the current project path
-        String projectPath = project.getBasePath();
-        if (Objects.equals(projectPathArgument.toString(), projectPath)) return;
-
-        throw new AssistantToolApprovalException(
-                "IDE MCP request projectPath does not match the current project path");
+        validateIdeMcpArguments(arguments, project.getBasePath());
     }
 
     public static void handleEvent(Project project, AssistantToolInvocation invocation, AssistantToolStatus status, Throwable exception) {

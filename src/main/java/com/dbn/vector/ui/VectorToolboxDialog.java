@@ -6,11 +6,17 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.help.HelpTopic;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
+import com.dbn.vector.model.request.EmbeddingFileSource;
+import com.dbn.vector.model.request.EmbeddingSourceFiles;
+import com.dbn.vector.model.request.EmbeddingSourceType;
 import com.dbn.vector.service.VectorEmbeddingRequestVerifier;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
+import java.util.List;
 
+import static com.dbn.common.util.Messages.options;
+import static com.dbn.common.util.Messages.showConfirmationDialog;
 import static com.dbn.nls.NlsResources.txt;
 
 public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
@@ -66,7 +72,34 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
       form.saveRequestTemplate(true);
     }
 
+    if (!confirmRestoredFileUploads()) return;
+
     verifyAndSubmit();
+  }
+
+  private boolean confirmRestoredFileUploads() {
+    if (request.getSourceConfig().getSourceType() != EmbeddingSourceType.FILE_SYSTEM) return true;
+
+    EmbeddingSourceFiles sourceFiles = request.getSourceConfig().getSourceFiles();
+    List<EmbeddingFileSource> unauthorizedSources = sourceFiles.getUnauthorizedFileSources();
+    if (unauthorizedSources.isEmpty()) return true;
+
+    List<String> filePaths = unauthorizedSources.stream()
+            .map(EmbeddingFileSource::getFilePath)
+            .toList();
+    String formattedFilePaths = " - " + String.join("\n - ", filePaths);
+
+    int option = showConfirmationDialog(
+            getProject(),
+            txt("msg.vector.title.ConfirmRestoredFileUpload"),
+            txt("msg.vector.question.ConfirmRestoredFileUpload", formattedFilePaths),
+            options(txt("msg.vector.button.UploadFiles"), txt("msg.shared.button.Cancel")),
+            0);
+
+    if (option != 0) return false;
+
+    sourceFiles.authorizeFileUploads();
+    return true;
   }
 
   private void verifyAndSubmit() {

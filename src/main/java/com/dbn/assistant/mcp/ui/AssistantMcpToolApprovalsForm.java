@@ -21,6 +21,7 @@ import com.dbn.assistant.mcp.action.AssistantMcpToolsReloadAction;
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.mcp.model.AssistantMcpServerData;
 import com.dbn.assistant.mcp.model.AssistantMcpToolInfo;
+import com.dbn.assistant.mcp.model.AssistantMcpToolMetadata;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalUtil;
@@ -55,6 +56,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
+import static com.dbn.common.approval.UserApprovalAction.MCP_SERVER_ACCESS;
 import static com.dbn.common.exception.Exceptions.getLocalizedMessages;
 import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
 import static com.dbn.common.ui.util.TextFields.getText;
@@ -109,8 +111,8 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
     public void setApprovalStatus(AssistantToolApprovalStatus status) {
         AssistantMcpToolApprovals approvals = getToolApprovals();
         if (status == APPROVED) {
-            List<String> toolNames = toolForms.stream().map(f -> f.getToolInfo().getName()).toList();
-            approvals.setStatus(mcpServer.getId(), toolNames, status);
+            List<AssistantMcpToolInfo> toolInfos = toolForms.stream().map(f -> f.getToolInfo()).toList();
+            approvals.setStatus(mcpServer.getId(), toolInfos, status);
         } else {
             approvals.setStatus(mcpServer.getId(), status);
         }
@@ -168,12 +170,12 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
         mainPanel.remove(toolsHeaderPanel);
         toolsScrollPane.setColumnHeaderView(toolsHeaderPanel);
 
-        Dispatch.async(mainPanel, () -> loadTools(),
-                tools -> initToolForms(tools));
+        Dispatch.async(mainPanel, () -> loadToolMetadata(),
+                metadata -> initToolForms(metadata));
 
     }
 
-    private List<AssistantMcpToolInfo> loadTools() {
+    private AssistantMcpToolMetadata loadToolMetadata() {
         loadingPanel.setVisible(true);
         actionsPanel.setVisible(false);
         groupStatusPanel.setVisible(false);
@@ -181,14 +183,14 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
 
         try {
             Threads.sleep(1000);  // "reload" action appears to do nothing when tools are loading within few milliseconds
-            List<AssistantMcpToolInfo> tools = AssistantMcpServerData.loadTools(mcpServer);
+            AssistantMcpToolMetadata metadata = AssistantMcpServerData.loadToolMetadata(mcpServer);
             groupStatusPanel.setVisible(true);
-            return tools;
+            return metadata;
         } catch (Throwable e) {
             groupStatusPanel.setVisible(false);
             String message = txt("msg.assistant.error.McpToolsLoadFailed", mcpServer.getName());
             initMessagePanel(txt("msg.shared.error.ErrorDetails", message, getLocalizedMessages(e)));
-            return List.of();
+            return new AssistantMcpToolMetadata();
         } finally {
             loadingPanel.setVisible(false);
             actionsPanel.setVisible(true);
@@ -205,13 +207,14 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
         messageTextPane.setForeground(error == null ? null : UIUtil.getErrorForeground());
     }
 
-    private void initToolForms(List<AssistantMcpToolInfo> tools) {
+    private void initToolForms(AssistantMcpToolMetadata metadata) {
         List<AssistantMcpToolApprovalForm> toolForms = new ArrayList<>(this.toolForms);
         this.toolsPanel.removeAll();
         this.toolForms.clear();
 
         Disposer.disposeCollection(toolForms);
 
+        List<AssistantMcpToolInfo> tools = metadata.getTools();
         for (AssistantMcpToolInfo toolInfo : tools) {
             AssistantMcpToolApprovalForm approvalForm = new AssistantMcpToolApprovalForm(this, toolInfo);
             this.toolForms.add(approvalForm);
@@ -219,8 +222,19 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
             updateToolVisibility(approvalForm);
         }
 
+        initMetadataWarning(metadata);
         updateActionToolbars();
         filterToolForms();
+    }
+
+    private void initMetadataWarning(AssistantMcpToolMetadata metadata) {
+        if (!metadata.isTruncated()) return;
+
+        initMessagePanel(txt("msg.assistant.warning.McpToolMetadataTruncated",
+                mcpServer.getName(),
+                metadata.getToolCount(),
+                metadata.getAvailable(),
+                metadata.getSkipped()));
     }
 
     @Override
@@ -243,9 +257,9 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
 
     public void reloadTools() {
         UserApprovalManager approvalManager = UserApprovalManager.getInstance();
-        approvalManager.approveTemporarily(mcpServer);
+        approvalManager.approveTemporarily(MCP_SERVER_ACCESS, mcpServer);
 
-        Dispatch.async(mainPanel, () -> loadTools(),
-                tools -> initToolForms(tools));
+        Dispatch.async(mainPanel, () -> loadToolMetadata(),
+                metadata -> initToolForms(metadata));
     }
 }
