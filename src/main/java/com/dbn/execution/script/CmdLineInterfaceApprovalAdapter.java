@@ -16,6 +16,7 @@
 
 package com.dbn.execution.script;
 
+import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.approval.UserApprovalAdapter;
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.util.Messages;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.time.Duration;
 
+import static com.dbn.common.approval.UserApprovalAction.COMMAND_LINE_EXECUTION;
 import static com.dbn.common.checksum.Checksum.fromFileAttributes;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.util.Executables.resolveExecutableFile;
@@ -37,6 +39,11 @@ public class CmdLineInterfaceApprovalAdapter implements UserApprovalAdapter<CmdL
     @Override
     public Class<CmdLineInterface> getApprovalClass() {
         return CmdLineInterface.class;
+    }
+
+    @Override
+    public UserApprovalAction getApprovalAction() {
+        return COMMAND_LINE_EXECUTION;
     }
 
     @Override

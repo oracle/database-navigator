@@ -48,6 +48,7 @@ import static com.dbn.common.exception.Exceptions.rootCauseOf;
 import static com.dbn.connection.ssh.SshAuthType.KEY_PAIR;
 import static com.dbn.connection.ssh.SshConnections.toSshdSocketAddress;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static java.util.Arrays.copyOf;
 
 @Slf4j
 @Getter
@@ -161,26 +162,49 @@ public class SshTunnelConnector {
         if (config.getAuthType() == KEY_PAIR) {
             initKeyPairAuth();
         } else {
-            String proxyPassword = Chars.toString(config.getProxyPassword());
-            session.addPasswordIdentity(proxyPassword);
+            initPasswordAuth();
         }
 
-        session.auth().verify(10, TimeUnit.SECONDS);
         log.info("SSH Tunnel Connection - authentication succeeded");
     }
 
-    private void initKeyPairAuth() throws Exception{
-        String keyFile = config.getKeyFile();
-        String keyPassphrase = Chars.toString(Commons.nvl(config.getKeyPassphrase(), Chars.EMPTY_ARRAY));
+    private void initPasswordAuth() throws Exception {
+        char[] proxyPassword = copySecret(config.getProxyPassword());
+        String passwordIdentity = Chars.toString(proxyPassword);
+        try {
+            session.addPasswordIdentity(passwordIdentity);
+            authenticateSession();
+        } finally {
+            session.removePasswordIdentity(passwordIdentity);
+            Chars.clear(proxyPassword);
+        }
+    }
 
+    private void initKeyPairAuth() throws Exception {
+        char[] keyPassphrase = copySecret(config.getKeyPassphrase());
+
+        String keyFile = config.getKeyFile();
         File privateKeyFile = new File(keyFile);
         try (InputStream keyFileStream = new FileInputStream(privateKeyFile)) {
             NamedResource namedResource = NamedResource.ofName(privateKeyFile.getName());
-            FilePasswordProvider passwordProvider = (sessionContext, resourceKey, retryIndex) -> keyPassphrase;
+            FilePasswordProvider passwordProvider =
+                    (sessionContext, resourceKey, retryIndex) -> Chars.toString(keyPassphrase);
 
             var keyPairs = SecurityUtils.loadKeyPairIdentities(session, namedResource, keyFileStream, passwordProvider);
             keyPairs.forEach(kp -> session.addPublicKeyIdentity(kp));
+            authenticateSession();
+        } finally {
+            Chars.clear(keyPassphrase);
         }
+    }
+
+    private static char[] copySecret(char[] secret) {
+        char[] value = Commons.nvl(secret, Chars.EMPTY_ARRAY);
+        return copyOf(value, value.length);
+    }
+
+    private void authenticateSession() throws IOException {
+        session.auth().verify(10, TimeUnit.SECONDS);
     }
 
     private void initTracker() throws IOException {

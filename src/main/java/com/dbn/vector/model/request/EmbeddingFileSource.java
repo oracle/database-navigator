@@ -31,10 +31,20 @@ import static com.dbn.vector.model.request.EmbeddingSourceType.FILE_SYSTEM;
 @NoArgsConstructor
 public class EmbeddingFileSource implements EmbeddingSource{
     private String filePath;
+    private transient boolean uploadAuthorized;
     private transient VirtualFile file;
 
     public EmbeddingFileSource(String filePath) {
+        this(filePath, false);
+    }
+
+    public EmbeddingFileSource(String filePath, boolean uploadAuthorized) {
         this.filePath = filePath;
+        this.uploadAuthorized = uploadAuthorized;
+    }
+
+    public void authorizeUpload() {
+        uploadAuthorized = true;
     }
 
     @Override

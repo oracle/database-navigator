@@ -39,6 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Action;
 import java.sql.SQLException;
 
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -102,7 +103,7 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
             form.applyFormChanges();
         } catch (ConfigurationException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(getProject(), e.getMessage());
+            Messages.showErrorDialog(getProject(), getLocalizedMessage(e));
             return;
         }
         DBObjectSpec input = form.getInput();

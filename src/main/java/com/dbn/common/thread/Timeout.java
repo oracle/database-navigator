@@ -16,7 +16,6 @@
 
 package com.dbn.common.thread;
 
-import com.dbn.common.exception.Exceptions;
 import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.common.routine.ThrowableRunnable;
 import com.dbn.common.util.Commons;
@@ -38,6 +37,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dbn.common.exception.Exceptions.timeoutException;
+import static com.dbn.common.exception.Exceptions.unwrap;
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -88,7 +88,7 @@ public final class Timeout {
             log.warn("{} - Operation timed out after {}s (timeout = {}s). Defaulting to {}. Cause: {}", identifier, TimeUtil.secondsSince(start), seconds, defaultValue, message);
         } catch (ExecutionException e) {
             conditionallyLog(e);
-            log.warn("{} - Operation failed after {}s (timeout = {}s). Defaulting to {}", identifier, TimeUtil.secondsSince(start), seconds, defaultValue, Exceptions.causeOf(e));
+            log.warn("{} - Operation failed after {}s (timeout = {}s). Defaulting to {}", identifier, TimeUtil.secondsSince(start), seconds, defaultValue, unwrap(e));
             throw e.getCause();
         } catch (Throwable e) {
             conditionallyLog(e);
@@ -135,7 +135,7 @@ public final class Timeout {
             log.warn("Operation timed out after {}s (timeout = {}s). Cause: {}", TimeUtil.secondsSince(start), seconds, message);
         } catch (ExecutionException e) {
             conditionallyLog(e);
-            log.warn("Operation failed after {}s (timeout = {}s)", TimeUtil.secondsSince(start), seconds, Exceptions.causeOf(e));
+            log.warn("Operation failed after {}s (timeout = {}s)", TimeUtil.secondsSince(start), seconds, unwrap(e));
             throw e.getCause();
         } catch (Throwable e) {
             conditionallyLog(e);

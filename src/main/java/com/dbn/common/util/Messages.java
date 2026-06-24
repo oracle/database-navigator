@@ -50,10 +50,12 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessages;
 import static com.dbn.common.thread.Dispatch.getCurrentModalityState;
 import static com.dbn.common.ui.progress.ProgressDialogHandler.closeProgressDialogs;
 import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -147,13 +149,8 @@ public class Messages {
                 return; // process was interrupted
             }
 
-            //String className = NamingUtil.getClassName(exception.getClass());
-            //message = message + "\nCause: [" + className + "] " + exception.getMessage();
-            String exceptionMessage = exception.getLocalizedMessage();
-            if (exceptionMessage == null) {
-                exceptionMessage = Classes.className(exception);
-            }
-            message = message + "\n" + exceptionMessage.trim();
+            String errorMessage = isEmpty(message) ? txt("msg.shared.exception.OperationFailed") : message;
+            message = txt("msg.shared.error.ErrorDetails", errorMessage, getLocalizedMessages(exception));
         }
         if (title == null) title = txt("msg.shared.title.Error");
         showDialog(project, message, title, OPTIONS_OK, 0, Icons.DIALOG_ERROR, null, null);

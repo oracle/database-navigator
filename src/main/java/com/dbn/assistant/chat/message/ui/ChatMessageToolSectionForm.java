@@ -22,6 +22,8 @@ import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.mcp.AssistantMcpServerSettings;
 import com.dbn.assistant.mcp.AssistantMcpToolApprovals;
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
+import com.dbn.assistant.mcp.model.AssistantMcpServerData;
+import com.dbn.assistant.mcp.model.AssistantMcpToolInfo;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantTool;
@@ -446,16 +448,38 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         AssistantMcpToolApprovals toolApprovals = getMcpToolApprovals();
         AssistantToolApprovalStatus status = approval ? APPROVED : BLOCKED;
         if (option == 0) {
-            toolApprovals.setStatus(serverId, utilityName, status);
+            AssistantMcpToolInfo toolInfo = resolveMcpToolInfo(serverId, utilityName);
+            if (toolInfo == null) return false;
+
+            toolApprovals.setStatus(serverId, toolInfo, status);
             return true;
         }
 
         if (option == 1) {
+            if (approval) {
+                approveKnownMcpTools(toolApprovals, serverId);
+                return true;
+            }
+
             toolApprovals.setStatus(serverId, status);
             return true;
         }
 
         return false;    }
+
+    private void approveKnownMcpTools(AssistantMcpToolApprovals toolApprovals, EntityId serverId) {
+        AssistantMcpServerData mcpServerData = AssistantMcpServerData.get(ensureProject());
+        List<AssistantMcpToolInfo> toolInfos = mcpServerData.getTools(serverId);
+        toolApprovals.setStatus(serverId, toolInfos, APPROVED);
+    }
+
+    private @Nullable AssistantMcpToolInfo resolveMcpToolInfo(EntityId serverId, String utilityName) {
+        AssistantMcpServerData mcpServerData = AssistantMcpServerData.get(ensureProject());
+        return mcpServerData.getTools(serverId).stream()
+                .filter(t -> t.getName().equals(utilityName))
+                .findFirst()
+                .orElse(null);
+    }
 
     private boolean confirmInternal(boolean approval) {
         String title = approval ?
@@ -513,7 +537,8 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
             EntityId serverId = info.getToolServerId();
 
             AssistantMcpToolApprovals approvals = getMcpToolApprovals();
-            return approvals.isApproved(serverId, utilityName);
+            AssistantMcpToolInfo toolInfo = resolveMcpToolInfo(serverId, utilityName);
+            return toolInfo != null && approvals.isApproved(serverId, toolInfo);
         } else {
             AssistantTool tool = getTool();
             AssistantToolApprovals approvals = getToolApprovals();

@@ -36,6 +36,7 @@ import com.intellij.execution.configurations.RunProfileState;
 import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.util.Range;
 import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugSession;
@@ -100,8 +101,14 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
         return new DBJdwpTcpConfig(localAddress, JDWPTunnelType.NONE);
     }
 
-    public SshTunnelConfig createSshTunnelConfig(ConnectionDebuggerSettings debuggerSettings) {
+    public SshTunnelConfig createSshTunnelConfig(ConnectionDebuggerSettings debuggerSettings) throws ExecutionException {
         ReverseSshTunnelConfiguration config = debuggerSettings.getReverseSshTunnelConfig();
+        try {
+            config.validateBindHost();
+        } catch (ConfigurationException e) {
+            throw new ExecutionException(e.getMessage(), e);
+        }
+
         NetworkAddress proxyAddress = new NetworkAddress(
                 config.getHost(),
                 config.getPort());

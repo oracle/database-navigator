@@ -23,44 +23,45 @@ import static com.dbn.common.util.Unsafe.cast;
 
 /**
  * Cache for {@link UserApprovalAdapter} extensions keyed by the
- * {@link UserApprovable} implementation class.
+ * {@link UserApprovalAction}.
  */
-public class UserApprovalAdapters extends ExtensionPointCache<Class<? extends UserApprovable>, UserApprovalAdapter> {
+public class UserApprovalAdapters extends ExtensionPointCache<UserApprovalAction, UserApprovalAdapter> {
     private static final UserApprovalAdapters INSTANCE = new UserApprovalAdapters();
 
     private UserApprovalAdapters() {
-        super(UserApprovalAdapter.EP, a -> a.getApprovalClass());
+        super(UserApprovalAdapter.EP, a -> a.getApprovalAction());
     }
 
-    public static <T extends UserApprovable> UserApprovalAdapter<T> get(T approval) {
-        Class<? extends UserApprovable> approvalClass = cast(approval.getClass());
-        return cast(INSTANCE.find(approvalClass));
+    public static <T extends UserApprovable> UserApprovalAdapter<T> get(UserApprovalAction action, T approvable) {
+        UserApprovalAdapter<T> adapter = cast(INSTANCE.find(action));
+        if (adapter.getApprovalClass() != approvable.getClass()) {
+            throw new IllegalArgumentException(
+                    "Unexpected approvable class " + approvable.getClass().getName() +
+                            " for approval action " + action +
+                            ", expected " + adapter.getApprovalClass().getName());
+        }
+        if (!approvable.getApprovalActions().contains(action)) {
+            throw new IllegalArgumentException(
+                    "Approval action " + action + " is not supported by " + approvable.getClass().getName());
+        }
+        return adapter;
     }
 
     /**
      * Resolves the approval key using the adapter registered for the given object.
      */
-    public static String getApprovalKey(UserApprovable approval) {
-        UserApprovalAdapter<UserApprovable> adapter = get(approval);
-        String approvalKey = adapter.getApprovalKey(approval);
-        if (approval instanceof ProjectUserApprovable projectApproval) {
-            return approvalKey + ":project:" + projectApproval.getProject().getLocationHash();
+    public static String getApprovalKey(UserApprovalAction action, UserApprovable approvable) {
+        UserApprovalAdapter<UserApprovable> adapter = get(action, approvable);
+        String approvalKey = adapter.getApprovalKey(approvable);
+        String actionApprovalKey = "approval-action:" + action.name() + ":" + approvalKey;
+        if (approvable instanceof ProjectUserApprovable projectApproval) {
+            return actionApprovalKey + ":project:" + projectApproval.getProject().getLocationHash();
         }
-        return approvalKey;
+        return actionApprovalKey;
     }
 
-    @Nullable
-    public static String getApprovalSignature(UserApprovable approval) {
-        UserApprovalAdapter<UserApprovable> adapter = get(approval);
-        return adapter.getApprovalSignature(approval);
-    }
-
-    @Override
-    protected Class<? extends UserApprovable> alternativeKey(Class<? extends UserApprovable> key) {
-        Class<?> superclass = key.getSuperclass();
-        if (superclass != null && UserApprovable.class.isAssignableFrom(superclass)) {
-            return cast(superclass);
-        }
-        return null;
+    public static @Nullable String getApprovalSignature(UserApprovalAction action, UserApprovable approvable) {
+        UserApprovalAdapter<UserApprovable> adapter = get(action, approvable);
+        return adapter.getApprovalSignature(approvable);
     }
 }

@@ -131,7 +131,9 @@ abstract class ClobValueBase<T extends Clob> extends LargeObjectValue {
 
         long totalLength = clob.length();
         int size = (int) (maxSize == 0 ? totalLength : Math.min(maxSize, totalLength));
+        setTruncated(totalLength > size);
         try {
+            release();
             char[] buffer = new char[size];
             reader = clob.getCharacterStream();
             reader.read(buffer, 0, size);

@@ -23,7 +23,6 @@ import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.exception.Exceptions;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.CardLayouts;
@@ -211,7 +210,7 @@ public class ProfileManagementForm extends DBNFormBase {
 
     private void handleLoadError(Throwable e) {
         conditionallyLog(e);
-        Dispatch.run(mainPanel, () -> Messages.showErrorDialog(getProject(), txt("msg.assistant.error.ProfileLoadFailed", Exceptions.causeMessage(e))));
+        Dispatch.run(mainPanel, () -> Messages.showErrorDialog(getProject(), null, txt("msg.assistant.error.ProfileLoadFailed"), e));
         afterProfilesLoad();
     }
 

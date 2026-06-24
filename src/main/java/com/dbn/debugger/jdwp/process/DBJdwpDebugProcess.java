@@ -19,9 +19,7 @@ package com.dbn.debugger.jdwp.process;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.exception.ProcessDeferredException;
 import com.dbn.common.network.NetworkAddress;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.thread.ThreadPropertyGate;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -35,7 +33,6 @@ import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.debugger.DBDebugOperation;
 import com.dbn.debugger.DBDebugTabLayouter;
-import com.dbn.debugger.DBDebugUtil;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.debugger.JDWPTunnelType;
@@ -61,7 +58,6 @@ import com.intellij.debugger.engine.DebugProcessImpl;
 import com.intellij.debugger.engine.DebugProcessListener;
 import com.intellij.debugger.engine.JavaDebugProcess;
 import com.intellij.debugger.engine.JavaStackFrame;
-import com.intellij.debugger.engine.SuspendContext;
 import com.intellij.debugger.engine.SuspendContextImpl;
 import com.intellij.debugger.impl.DebuggerContextListener;
 import com.intellij.debugger.impl.DebuggerSession;
@@ -92,9 +88,7 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.SQLException;
 import java.util.List;
 
-import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
 import static com.dbn.common.util.Classes.simpleClassName;
-import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.debugger.JDWPTunnelType.SSH_REVERSE_TUNNEL;
 import static com.dbn.debugger.JDWPTunnelType.TCP_DRIVER_TUNNEL;
@@ -257,7 +251,9 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                 SchemaId schemaId = executionContext.getTargetSchema();
                 targetConnection = connection.getDebugConnection(schemaId);
                 targetConnection.setAutoCommit(false);
-                targetConnection.beforeClose(() -> releaseSession(targetConnection));
+
+                DBNConnection debugConnection = targetConnection;
+                targetConnection.beforeClose(() -> releaseSession(debugConnection));
 
                 initializeLocalJdwpSession();
 
@@ -331,41 +327,11 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
 
     private @NotNull XDebugSessionListener createSessionListener() {
         XDebugSession session = getSession();
-        return new XDebugSessionListener() {
-            @Override
-            @ThreadPropertyGate(DEBUGGER_NAVIGATION)
-            public void sessionPaused() {
-                XSuspendContext suspendContext = session.getSuspendContext();
-                if (suspendContext == null || !shouldSuspend(suspendContext)) {
-                    Dispatch.run(nonModal(), () -> session.stepInto());
-                    return;
-                }
-
-                XExecutionStack activeExecutionStack = suspendContext.getActiveExecutionStack();
-
-                Location location = getTopFrameLocation(activeExecutionStack);
-                VirtualFile virtualFile = getVirtualFile(location);
-                DBDebugUtil.openEditor(virtualFile);
-            }
-        };
+        return new DBJdwpDebugSessionListener(this, session);
     }
 
     private static @NotNull DebugProcessListener createProcessListener() {
-        return new DebugProcessListener() {
-            @Override
-            public void paused(@NotNull SuspendContext suspendContext) {
-                if (suspendContext instanceof XSuspendContext xSuspendContext) {
-
-                    XExecutionStack[] executionStacks = xSuspendContext.getExecutionStacks();
-                    for (XExecutionStack executionStack : executionStacks) {
-                        //System.out.println();
-                    }
-
-                    //underlyingFrame.getDescriptor().getLocation()
-
-                }
-            }
-        };
+        return new DBJdwpDebugProcessListener();
     }
 
     protected void registerDefaultBreakpoint() {
@@ -486,6 +452,8 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     }
 
     private void releaseSession(DBNConnection targetConnection) {
+        if (targetConnection == null) return;
+
         try {
             console.system(txt("log.debugger.info.ReleasingDebugSession"));
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();

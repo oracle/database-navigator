@@ -15,7 +15,12 @@
   -->
 <driver-packages>
 
-    <driver-package database-type="Oracle" id="oracle-23.6" name="Oracle 23.6">
+    <driver-package database-type="Oracle" id="oracle-23.6" name="Oracle %s">
+
+        <library artifact-id="ojdbc8" group-id="com.oracle.database.jdbc" version="23.6.0.24.10" role="DRIVER">
+            <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
+            <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
+        </library>
 
         <library artifact-id="connector-api" group-id="javax.resource" version="1.5">
             <license name="CDDL + GPLv2 with classpath exception" url="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html"/>
@@ -23,11 +28,6 @@
 
         <library artifact-id="javax.json-api" group-id="javax.json" version="1.1.4">
             <license name="Dual license consisting of the CDDL v1.1 and GPL v2" url="https://oss.oracle.com/licenses/CDDL+GPL-1.1"/>
-        </library>
-
-        <library artifact-id="ojdbc8" group-id="com.oracle.database.jdbc" version="23.6.0.24.10">
-            <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
-            <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
         </library>
 
         <library artifact-id="orai18n" group-id="com.oracle.database.nls" version="23.6.0.24.10">
@@ -51,16 +51,30 @@
 
     </driver-package>
 
-    <driver-package database-type="MySQL" id="mysql-9.7.0" name="MySQL 9.7.0">
+    <driver-package database-type="MySQL" id="mysql-9.7.0" name="MySQL %s">
 
-        <library artifact-id="mysql-connector-j" group-id="com.mysql" version="9.7.0">
+        <library artifact-id="mysql-connector-j" group-id="com.mysql" version="9.7.0" role="DRIVER">
             <license name="The GNU General Public License, v2 with Universal FOSS Exception, v1.0" url="Unknown"/>
             <developer name="Oracle Corporation" url="https://www.oracle.com/"/>
         </library>
 
     </driver-package>
 
-    <driver-package database-type="PostgreSQL" id="postgresql-42.7.11" name="PostgreSQL 42.7.11">
+    <driver-package database-type="MySQL" id="mysql-%s" name="MySQL %s (latest)">
+        <library artifact-id="mysql-connector-j" group-id="com.mysql" version="latest" role="DRIVER"/>
+    </driver-package>
+
+    <driver-package database-type="PostgreSQL" id="postgresql-42.7.11" name="PostgreSQL %s">
+
+        <library artifact-id="postgresql" group-id="org.postgresql" version="42.7.11" role="DRIVER">
+            <license name="BSD-2-Clause" url="https://jdbc.postgresql.org/about/license.html"/>
+            <developer name="Dave Cramer"/>
+            <developer name="Kris Jurka"/>
+            <developer name="Oliver Jowett"/>
+            <developer name="Craig Ringer"/>
+            <developer name="Vladimir Sitnikov"/>
+            <developer name="Brett Okken"/>
+        </library>
 
         <library artifact-id="org.osgi.dto" group-id="org.osgi" version="1.1.1">
             <license name="Apache-2.0" url="https://www.apache.org/licenses/LICENSE-2.0"/>
@@ -82,28 +96,31 @@
             <developer name="Eclipse Foundation" url="https://www.osgi.org/"/>
         </library>
 
-        <library artifact-id="postgresql" group-id="org.postgresql" version="42.7.11">
-            <license name="BSD-2-Clause" url="https://jdbc.postgresql.org/about/license.html"/>
-            <developer name="Dave Cramer"/>
-            <developer name="Kris Jurka"/>
-            <developer name="Oliver Jowett"/>
-            <developer name="Craig Ringer"/>
-            <developer name="Vladimir Sitnikov"/>
-            <developer name="Brett Okken"/>
-        </library>
-
     </driver-package>
 
-    <driver-package database-type="SQLite" id="sqlite-3.53.1" name="SQLite 3.53.1">
+    <driver-package database-type="PostgreSQL" id="postgresql-%s" name="PostgreSQL %s (latest)">
+        <library artifact-id="postgresql" group-id="org.postgresql" version="latest" role="DRIVER"/>
+    </driver-package>
 
-        <library artifact-id="sqlite-jdbc" group-id="org.xerial" version="3.53.1.0">
+    <driver-package database-type="SQLite" id="sqlite-3.53.1" name="SQLite %s">
+
+        <library artifact-id="sqlite-jdbc" group-id="org.xerial" version="3.53.1.0" role="DRIVER">
             <license name="The Apache Software License, Version 2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt"/>
             <developer name="Xerial Project"/>
         </library>
 
     </driver-package>
 
-    <driver-package database-type="Oracle" id="oracle-23.6-token" name="Oracle 23.6 + Token auth">
+    <driver-package database-type="SQLite" id="sqlite-%s" name="SQLite %s (latest)">
+        <library artifact-id="sqlite-jdbc" group-id="org.xerial" version="latest" role="DRIVER"/>
+    </driver-package>
+
+    <driver-package database-type="Oracle" id="oracle-23.6-token" name="Oracle %s + Token auth">
+
+        <library artifact-id="ojdbc8" group-id="com.oracle.database.jdbc" version="23.6.0.24.10" role="DRIVER">
+            <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
+            <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
+        </library>
 
         <library artifact-id="connector-api" group-id="javax.resource" version="1.5">
             <license name="CDDL + GPLv2 with classpath exception" url="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html"/>
@@ -208,11 +225,6 @@
             <license name="The Universal Permissive License (UPL), Version 1.0" url="https://www.oracle.com/downloads/licenses/upl-license.html"/>
         </library>
 
-        <library artifact-id="ojdbc8" group-id="com.oracle.database.jdbc" version="23.6.0.24.10">
-            <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
-            <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
-        </library>
-
         <library artifact-id="orai18n" group-id="com.oracle.database.nls" version="23.6.0.24.10">
             <license name="Oracle Free Use Terms and Conditions (FUTC)" url="https://www.oracle.com/downloads/licenses/oracle-free-license.html"/>
             <developer name="Oracle America, Inc." url="http://www.oracle.com"/>
@@ -263,18 +275,17 @@
     </driver-package>
 
     <driver-package database-type="Oracle" id="oracle-%s" name="Oracle %s">
-        <library artifact-id="ojdbc8-production" group-id="com.oracle.database.jdbc" toResolve="true" type="pom"/>
-        <library artifact-id="connector-api" group-id="javax.resource" version="1.5"/>
-        <library artifact-id="javax.json-api" group-id="javax.json" version="1.1.4"/>
-        <library artifact-id="servlet-api" group-id="javax.servlet" version="2.5"/>
+        <library artifact-id="ojdbc8-production" group-id="com.oracle.database.jdbc" version="latest" role="DRIVER" type="pom"/>
     </driver-package>
 
     <driver-package database-type="Oracle" id="ojdbc-%s-azure-%s" name="Oracle %s + Azure auth %s">
-        <library artifact-id="ojdbc-provider-azure" group-id="com.oracle.database.jdbc" toResolve="true" type="jar"/>
+        <library artifact-id="ojdbc8-production" group-id="com.oracle.database.jdbc" version="latest" role="DRIVER" type="pom"/>
+        <library artifact-id="ojdbc-provider-azure" group-id="com.oracle.database.jdbc" version="latest" role="EXTENSION" type="jar"/>
     </driver-package>
 
     <driver-package database-type="Oracle" id="ojdbc-%s-oci-%s" name="Oracle %s + OCI auth %s">
-        <library artifact-id="ojdbc-provider-oci" group-id="com.oracle.database.jdbc" toResolve="true" type="jar"/>
+        <library artifact-id="ojdbc8-production" group-id="com.oracle.database.jdbc" version="latest" role="DRIVER" type="pom"/>
+        <library artifact-id="ojdbc-provider-oci" group-id="com.oracle.database.jdbc" version="latest" role="EXTENSION" type="jar"/>
     </driver-package>
 
 </driver-packages>

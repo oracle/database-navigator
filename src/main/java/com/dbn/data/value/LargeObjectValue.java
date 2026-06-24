@@ -16,10 +16,18 @@
 
 package com.dbn.data.value;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.sql.SQLException;
 
+@Getter
+@Setter
 public abstract class LargeObjectValue extends ValueAdapter<String> {
+    private boolean truncated;
+
     public abstract String read(int maxSize) throws SQLException;
     public abstract long size() throws SQLException;
     public abstract void release();
+
 }

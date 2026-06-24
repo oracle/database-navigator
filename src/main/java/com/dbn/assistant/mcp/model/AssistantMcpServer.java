@@ -18,6 +18,7 @@ package com.dbn.assistant.mcp.model;
 
 import com.dbn.common.EntityId;
 import com.dbn.common.approval.UserApprovable;
+import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
@@ -33,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.common.approval.UserApprovalAction.MCP_SERVER_ACCESS;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
@@ -60,8 +62,6 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
     private String url;
     private String command;
     private List<String> commandArguments = new ArrayList<>();
-
-    private transient boolean acknowledged;
 
     public AssistantMcpServer(EntityId id) {
         this.id = id;
@@ -168,5 +168,10 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
 
     public boolean isIdeMcpServer() {
         return id.equals(IDE_MCP_SERVER_ID);
+    }
+
+    @Override
+    public Set<UserApprovalAction> getApprovalActions() {
+        return Set.of(MCP_SERVER_ACCESS);
     }
 }

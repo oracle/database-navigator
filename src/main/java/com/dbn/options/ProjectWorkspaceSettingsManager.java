@@ -16,8 +16,6 @@
 
 package com.dbn.options;
 
-import com.dbn.assistant.credential.AssistantCredentialSettings;
-import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.options.ConfigMonitor;
@@ -33,6 +31,7 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.options.ConfigStorage.WORKSPACE;
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.credentials.Secrets.initialize;
 
 
 @State(
@@ -53,22 +52,6 @@ public class ProjectWorkspaceSettingsManager extends ProjectComponentBase implem
     private ProjectSettings getProjectSettings() {
         ProjectSettingsManager projectSettingsManager = ProjectSettingsManager.getInstance(getProject());
         return projectSettingsManager.getProjectSettings();
-    }
-
-    @Override
-    public void initializeComponent() {
-        restoreKeychainSecrets();
-    }
-
-    /**
-     * Restores authentication passwords from the IDE keychain
-     * (to be used once on component initialization)
-     */
-    private void restoreKeychainSecrets() {
-        // LOCAL CREDENTIALS
-        AssistantSettings assistantSettings = getProjectSettings().getAssistantSettings();
-        AssistantCredentialSettings credentialSettings = assistantSettings.getCredentialSettings();
-        credentialSettings.getCredentials().initSecrets();
     }
 
     @Nullable
@@ -92,6 +75,7 @@ public class ProjectWorkspaceSettingsManager extends ProjectComponentBase implem
             ConfigMonitor.set(INITIALIZING, true);
             ProjectSettings projectSettings = getProjectSettings();
             projectSettings.readConfiguration(element);
+            initialize();
         } finally {
             ConfigMonitor.set(WORKSPACE, false);
             ConfigMonitor.set(INITIALIZING, false);

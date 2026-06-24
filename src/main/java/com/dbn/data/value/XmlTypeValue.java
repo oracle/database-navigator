@@ -98,7 +98,14 @@ public class XmlTypeValue extends LargeObjectValue{
     public String read(int maxSize) throws SQLException {
         if (xmlType == null) return null;
         XmlTypeDelegate d = XmlTypeDelegate.get(xmlType);
-        return xmlType == null ? null : d.getStringValue(xmlType);
+        String value = d.getStringValue(xmlType);
+        if (value == null || maxSize <= 0 || value.length() <= maxSize) {
+            setTruncated(false);
+            return value;
+        }
+
+        setTruncated(true);
+        return value.substring(0, maxSize);
     }
 
 

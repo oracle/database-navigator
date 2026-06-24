@@ -44,6 +44,7 @@ import javax.swing.JButton;
 import java.awt.event.ActionEvent;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -155,7 +156,7 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
             projectSettings.disposeUIResources();
         } catch (ConfigurationException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(getProject(), e.getMessage());
+            Messages.showErrorDialog(getProject(), getLocalizedMessage(e));
         }
 
     }
@@ -167,7 +168,7 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
             setCancelButtonText(txt("msg.shared.button.Close"));
         } catch (ConfigurationException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(getProject(), e.getTitle(), e.getMessage());
+            Messages.showErrorDialog(getProject(), e.getTitle(), getLocalizedMessage(e));
         }
     }
 

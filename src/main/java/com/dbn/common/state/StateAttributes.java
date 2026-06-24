@@ -31,6 +31,14 @@ import static com.dbn.common.options.setting.Settings.setStringAttribute;
  * @author Dan Cioca (Oracle)
  */
 public class StateAttributes extends AttributeHolderBase implements PersistentStateElement {
+    public boolean getBooleanAttribute(String name) {
+        return Boolean.parseBoolean(getAttribute(name));
+    }
+
+    public void setBooleanAttribute(String name, boolean value) {
+        setAttribute(name, String.valueOf(value));
+    }
+
     @Override
     public void readState(Element element) {
         for (Element child : childrenOf(element)) {
