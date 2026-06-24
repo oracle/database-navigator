@@ -23,7 +23,7 @@ import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionUtil;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
-import com.dbn.connection.config.ConnectionPropertiesSettings;
+import com.dbn.connection.config.ConnectionDebuggerSettings;
 import com.dbn.debugger.jdwp.process.tunnel.NSTunnelConnectionInitializer;
 import com.dbn.debugger.jdwp.process.tunnel.NSTunnelConnectionProxy;
 import com.intellij.debugger.DebugEnvironment;
@@ -105,8 +105,8 @@ public abstract class DBJdwpTunnelProcessStarter extends DBJdwpProcessStarter{
             }
 
             jdwpHostPort = debugConnection.tunnelAddress();
-            ConnectionPropertiesSettings connectionSettings = getConnection().getSettings().getPropertiesSettings();
-            connectionSettings.getProperties().put("jdwpHostPort", jdwpHostPort);
+
+            getDebuggerSettings().setJdwpHostPort(jdwpHostPort);
 
         } catch (Throwable e) {
             throw new ExecutionException(txt("msg.debugger.error.FailedToConnectDebugger", e.getMessage()), e);
@@ -132,8 +132,13 @@ public abstract class DBJdwpTunnelProcessStarter extends DBJdwpProcessStarter{
         } catch (Throwable e) {
             log.warn("Failed to close existing debug connection", e);
         } finally {
+            getDebuggerSettings().consumeJdwpHostPort();
             debugConnection = null;
         }
+    }
+
+    private ConnectionDebuggerSettings getDebuggerSettings() {
+        return getConnection().getSettings().getDebuggerSettings();
     }
 
 
