@@ -20,8 +20,6 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 @Getter
@@ -37,18 +35,7 @@ public class DriverLibraryInfo {
         this.path = this.library.getAbsolutePath();
         this.directory = this.library.isDirectory();
 
-        this.jars = getLoadableJars(this.library);
-    }
-
-    private static List<File> getLoadableJars(File library) {
-        if (!library.isDirectory()) return List.of(library);
-
-        File[] jars = library.listFiles(file -> file.isFile() && file.getName().endsWith(".jar"));
-        if (jars == null) return List.of();
-
-        return Arrays.stream(jars)
-                .sorted(Comparator.comparing(File::getName))
-                .toList();
+        this.jars = DriverLibraryScanner.getLoadableJars(this.library);
     }
 
     public int getJarCount() {

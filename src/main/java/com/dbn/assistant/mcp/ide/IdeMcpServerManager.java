@@ -150,8 +150,12 @@ public class IdeMcpServerManager extends ApplicationComponentBase {
     @NonNls
     private static final Set<String> IDE_DB_TOOL_NAMES = Set.of(
             "cancel_sql_query",
+            "create_database_connection",
+            "edit_database_connection",
             "execute_sql_query",
+            "fetch_query_result",
             "get_database_object_description",
+            "introspect_schema",
             "list_database_connections",
             "list_database_schemas",
             "list_recent_sql_queries",

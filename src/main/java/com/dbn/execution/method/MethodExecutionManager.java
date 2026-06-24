@@ -64,6 +64,7 @@ import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Conditional.when;
@@ -236,7 +237,7 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
                     if (context.isNot(ExecutionStatus.CANCELLED)) {
                         Messages.showErrorDialog(project,
                                 txt("msg.execution.title.MethodExecutionError"),
-                                txt("msg.execution.message.MethodExecutionError", method.getQualifiedNameWithType(), e.getMessage()),
+                                txt("msg.execution.message.MethodExecutionError", method.getQualifiedNameWithType(), getLocalizedMessage(e)),
                                 new String[]{
                                         txt("msg.shared.button.TryAgain"),
                                         txt("msg.shared.button.Cancel")}, 0,

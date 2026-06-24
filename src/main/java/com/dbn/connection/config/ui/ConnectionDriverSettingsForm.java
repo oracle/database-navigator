@@ -81,7 +81,6 @@ import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.connection.DatabaseType.GENERIC;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.dbn.driver.approval.DriverLibraryApprovalUtil.approveTemporarily;
 import static com.dbn.nls.NlsResources.txt;
 
 
@@ -146,9 +145,6 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     }
 
     private void reloadDrivers() {
-        File driverLibrary = getDriverLibraryFile();
-        approveTemporarily(driverLibrary);
-
         loadDrivers();
     }
 
@@ -237,8 +233,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 driverComboBox,
                 downloadButton));
 
-        fieldAdapter.initFieldsVisibility(() -> loadingDrivers && isExternalDriver(), array(loadingDriversPanel));
-        fieldAdapter.initFieldsVisibility(() -> !loadingDrivers && isExternalDriver(), array(reloadDriversLink));
+        fieldAdapter.initFieldsVisibility(() -> loadingDrivers && isExternalDriver(), array(loadingDriversPanel, driverErrorLabel));
+        fieldAdapter.initFieldsVisibility(() -> !loadingDrivers && isExternalDriver(), array(reloadDriversLink, driverErrorLabel));
         fieldAdapter.initFieldsAvailability(() -> !loadingDrivers, array(driverComboBox));
     }
 

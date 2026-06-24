@@ -26,6 +26,8 @@ import javax.swing.TransferHandler;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
 
+import static com.dbn.common.util.Spreadsheets.neutralizeSpreadsheetFormula;
+
 public class DBNTableTransferHandler extends TransferHandler {
     public static final DBNTableTransferHandler INSTANCE = new DBNTableTransferHandler();
 
@@ -87,7 +89,7 @@ public class DBNTableTransferHandler extends TransferHandler {
             for (int col = 0; col < cols.length; col++) {
                 String presentable = table.getPresentableValueAt(rows[row], cols[col]);
                 String val = Commons.nvl(presentable, "");
-                plainStr.append(val).append('\t');
+                plainStr.append(neutralizeSpreadsheetFormula(val)).append('\t');
                 htmlStr.append("  <td>").append(val).append("</td>\n");
             }
             // we want a newline at the end of each line and not a tab

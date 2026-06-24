@@ -231,11 +231,11 @@ When adding a topic, link both directions where useful:
 
 ## Validation Checklist
 
-Before finishing documentation edits, run focused checks such as:
+Before finishing documentation edits, run focused checks on touched docs. Warn the developer and ask for confirmation before repo-wide documentation scans, or ask the developer to run them locally and share only relevant failures.
 
 ```bash
-rg -n 'Page summary|img/action|<br/>|What it controls:|Typical Use:|Applies To:' docs
-rg -n '^\\| Page \\| Description \\|' docs
+rg -n 'Page summary|img/action|<br/>|What it controls:|Typical Use:|Applies To:' docs/<touched-file>.md
+rg -n '^\\| Page \\| Description \\|' docs/<touched-file>.md
 ```
 
 Also verify:

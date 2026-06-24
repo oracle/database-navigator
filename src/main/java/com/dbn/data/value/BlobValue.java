@@ -137,7 +137,9 @@ public class BlobValue extends LargeObjectValue {
 
         long totalLength = blob.length();
         int size = (int) (maxSize == 0 ? totalLength : Math.min(maxSize, totalLength));
+        setTruncated(totalLength > size);
         try {
+            release();
             byte[] buffer = new byte[size];
             inputStream = blob.getBinaryStream();
             inputStream.read(buffer, 0, size);

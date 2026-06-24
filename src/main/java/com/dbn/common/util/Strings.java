@@ -50,6 +50,14 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
     private static final Map<String, String> LOWER_CASE_STRINGS = new ConcurrentHashMap<>();
     private static final Set<Character> VOWELS = Set.of('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U');
 
+    /**
+     * Returns an empty string when the given value is null.
+     */
+    @NotNull
+    public static String nvle(@Nullable String string) {
+        return string == null ? "" : string;
+    }
+
     @NotNull
     public static List<String> tokenize(@Nullable String string, @NotNull String separator) {
         if (isEmptyOrSpaces(string)) return emptyList();
@@ -600,4 +608,3 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
         return VOWELS.contains(firstChar);
     }
 }
-

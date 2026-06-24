@@ -75,6 +75,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.options.ConfigStorage.CLIPBOARD;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
@@ -311,7 +312,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             connectionsList.setSelectedIndex(selectedIndex);
         } catch (ConfigurationException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(getProject(), e.getMessage());
+            Messages.showErrorDialog(getProject(), getLocalizedMessage(e));
         }
     }
 

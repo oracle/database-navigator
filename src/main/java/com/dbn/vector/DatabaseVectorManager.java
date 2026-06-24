@@ -1,6 +1,5 @@
 package com.dbn.vector;
 
-import com.dbn.DatabaseNavigator;
 import com.dbn.common.collections.LeastRecentlyUsedSet;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
@@ -42,6 +41,7 @@ import com.dbn.vector.pipeline.TableEmbeddingPipeline;
 import com.dbn.vector.ui.VectorToolboxDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import lombok.SneakyThrows;
@@ -70,7 +70,7 @@ import static java.util.Collections.emptyList;
 
 @State(
         name = DatabaseVectorManager.COMPONENT_NAME,
-        storages = @Storage(DatabaseNavigator.STORAGE_FILE)
+        storages = @Storage(StoragePathMacros.WORKSPACE_FILE)
 )
 public class DatabaseVectorManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseVectorManager";

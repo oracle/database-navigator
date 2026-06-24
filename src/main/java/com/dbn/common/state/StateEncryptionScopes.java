@@ -24,6 +24,7 @@ public class StateEncryptionScopes {
     public static final @NonNls String ASSISTANT_CHAT_MESSAGE_CONTENT = "assistant.chat.message.content";
     public static final @NonNls String ASSISTANT_TOOL_ARGUMENTS = "assistant.tool.arguments";
     public static final @NonNls String ASSISTANT_TOOL_RESPONSE = "assistant.tool.response";
+    public static final @NonNls String CONNECTION_GENERIC_PROPERTY = "connection.generic.property";
     public static final @NonNls String EXECUTION_VARIABLE_VALUE = "execution.variable.value";
     public static final @NonNls String EXECUTION_VARIABLE_EXPRESSION = "execution.variable.expression";
     public static final @NonNls String EXECUTION_STATEMENT_VARIABLE = "execution.statement.variable";

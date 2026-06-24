@@ -27,12 +27,16 @@ import dev.langchain4j.http.client.sse.ServerSentEventParser;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 
 import static com.dbn.assistant.AssistantErrorMessages.sanitizeUrl;
-import static com.dbn.common.util.Streams.readInputStream;
 
 class AssistantHttpClient implements AssistantComponent, HttpClient {
+    static final int MAX_ERROR_RESPONSE_LENGTH = 64 * 1024;
+    private static final String ERROR_RESPONSE_TRUNCATED = "\n[Error response body truncated]";
+
     private final ParametricCallable<HttpRequest, HttpURLConnection, IOException> connectionBuilder;
 
     public AssistantHttpClient(ParametricCallable<HttpRequest, HttpURLConnection, IOException> connectionBuilder) {
@@ -108,10 +112,29 @@ class AssistantHttpClient implements AssistantComponent, HttpClient {
         String message = String.format("HTTP %d: %s (Request URL: %s)", responseCode, responseMessage, sanitizeUrl(request.url()));
 
         InputStream errorStream = connection.getErrorStream();
-        String error = Unsafe.logged("", () -> readInputStream(errorStream));
+        String error = Unsafe.logged("", () -> readErrorStream(errorStream));
 
-        message += "\n" + error;
+        if (!error.isEmpty()) {
+            message += "\n" + error;
+        }
         throw new IOException(message);
+    }
+
+    private static String readErrorStream(InputStream inputStream) throws IOException {
+        if (inputStream == null) return "";
+
+        StringBuilder buffer = new StringBuilder(MAX_ERROR_RESPONSE_LENGTH);
+        try (Reader reader = new InputStreamReader(inputStream)) {
+            char[] chars = new char[4096];
+            while (buffer.length() < MAX_ERROR_RESPONSE_LENGTH) {
+                int length = Math.min(chars.length, MAX_ERROR_RESPONSE_LENGTH - buffer.length());
+                int count = reader.read(chars, 0, length);
+                if (count == -1) return buffer.toString();
+                buffer.append(chars, 0, count);
+            }
+
+            return reader.read() == -1 ? buffer.toString() : buffer + ERROR_RESPONSE_TRUNCATED;
+        }
     }
 
     private static void handleException(ServerSentEventListener listener, Exception e) {

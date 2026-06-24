@@ -23,7 +23,6 @@ import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.service.selectai.PromptAction;
 import com.dbn.assistant.service.selectai.SelectAiResponseConsumer;
 import com.dbn.assistant.service.selectai.ui.SelectAiHelpDialog;
-import com.dbn.common.exception.Exceptions;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.ThreadBlocker;
 import com.dbn.common.util.Dialogs;
@@ -37,6 +36,8 @@ import java.util.function.Consumer;
 
 import static com.dbn.assistant.AssistantType.SELECT_AI;
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessages;
+import static com.dbn.common.exception.Exceptions.rootCauseOf;
 import static com.dbn.common.message.MessageType.NEUTRAL;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.options;
@@ -95,7 +96,7 @@ public class SelectAiEditorPromptUtil {
     }
 
     public static String getPresentableMessage(AIProvider provider, Throwable e) {
-        e = Exceptions.rootCauseOf(e);
+        e = rootCauseOf(e);
         String assistantName = SELECT_AI.getName() ;
         String errorMessage = e.getMessage();
         boolean networkAccessDenied = errorMessage != null && errorMessage.contains("ORA-24247");
@@ -103,10 +104,12 @@ public class SelectAiEditorPromptUtil {
         if (networkAccessDenied) {
             String accessPoint = provider.getHost();
 
-            return txt("msg.assistant.error.NetworkAccessDenied", accessPoint, errorMessage);
+            String message = txt("msg.assistant.error.NetworkAccessDenied", accessPoint);
+            return txt("msg.shared.error.ErrorDetails", message, getLocalizedMessages(e));
         }
 
-        return txt("msg.assistant.error.SelectAiInvocationFailure", assistantName, errorMessage);
+        String message = txt("msg.assistant.error.SelectAiInvocationFailure", assistantName);
+        return txt("msg.shared.error.ErrorDetails", message, getLocalizedMessages(e));
     }
 
     public static void showPrerequisitesDialog(ConnectionId connectionId) {

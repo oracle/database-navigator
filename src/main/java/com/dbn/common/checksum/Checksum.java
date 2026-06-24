@@ -36,6 +36,7 @@ import java.util.Formatter;
  */
 @UtilityClass
 public class Checksum {
+    private static final int FILE_BUFFER_SIZE = 64 * 1024;
 
     /**
      * String content checksum producer
@@ -146,7 +147,7 @@ public class Checksum {
     @SneakyThrows
     private static void updateDigest(MessageDigest digest, File file) {
         try (FileInputStream inputStream = new FileInputStream(file)) {
-            byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[FILE_BUFFER_SIZE];
             int length;
             while ((length = inputStream.read(bytes)) != -1) {
                 ProgressMonitor.checkCancelled();

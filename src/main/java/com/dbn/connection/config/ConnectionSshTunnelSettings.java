@@ -22,7 +22,6 @@ import com.dbn.connection.config.ui.ConnectionSshTunnelSettingsForm;
 import com.dbn.connection.ssh.SshAuthType;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
-import com.dbn.credentials.SecretsOwnerRegistry;
 import com.dbn.credentials.TransientSecretStore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -52,12 +51,11 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
     private SshAuthType authType = SshAuthType.PASSWORD;
     private String keyFile;
 
-    private final Secret password = new Secret(SSH_TUNNEL_PASSWORD, () -> getConnectionId(), () -> user);
-    private final Secret keyPassphrase = new Secret(SSH_TUNNEL_KEY_PASSPHRASE, () -> getConnectionId(), () -> keyFile);
+    private final Secret password = new Secret(SSH_TUNNEL_PASSWORD, () -> getSecretOwnerId(), () -> user);
+    private final Secret keyPassphrase = new Secret(SSH_TUNNEL_KEY_PASSPHRASE, () -> getSecretOwnerId(), () -> keyFile);
 
     ConnectionSshTunnelSettings(ConnectionSettings parent) {
         super(parent);
-        SecretsOwnerRegistry.register(this);
     }
 
     @Override
@@ -91,8 +89,8 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
 
         if (isTransientContext()) {
             // transfer secrets outside transient config xml
-            TransientSecretStore.consume(password, getConnectionId(), SSH_TUNNEL_PASSWORD, user);
-            TransientSecretStore.consume(keyPassphrase, getConnectionId(), SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
+            TransientSecretStore.consume(password, getSecretOwnerId(), SSH_TUNNEL_PASSWORD, user);
+            TransientSecretStore.consume(keyPassphrase, getSecretOwnerId(), SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
         }
     }
 
@@ -107,13 +105,13 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
 
         if (isTransientContext()) {
             // transfer secrets outside transient config xml
-            TransientSecretStore.store(password, getConnectionId(), SSH_TUNNEL_PASSWORD, user);
-            TransientSecretStore.store(keyPassphrase, getConnectionId(), SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
+            TransientSecretStore.store(password, getSecretOwnerId(), SSH_TUNNEL_PASSWORD, user);
+            TransientSecretStore.store(keyPassphrase, getSecretOwnerId(), SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
         }
     }
 
     public ConnectionId getConnectionId() {
-        return ensureParent().getConnectionId();
+        return getConnectionSettings().getConnectionId();
     }
 
     /*********************************************************
@@ -122,19 +120,23 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
 
     @Override
     public @NotNull Object getSecretOwnerId() {
-        return getConnectionId();
+        return getConnectionSettings().getSecretOwnerId();
     }
 
     @Override
     public String getSecretOwnerName() {
-        return ensureParent().getDatabaseSettings().getName();
+        return getConnectionSettings().getSecretOwnerName();
+    }
+
+    private @NotNull ConnectionSettings getConnectionSettings() {
+        return ensureParent();
     }
 
     @Override
     public Secret[] getSecrets() {
         return new Secret[] {
-                password.snapshot(),
-                keyPassphrase.snapshot()};
+                password,
+                keyPassphrase};
     }
 
     public char[] getPassword() {

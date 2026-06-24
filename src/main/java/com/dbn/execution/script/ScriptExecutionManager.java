@@ -70,8 +70,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.dbn.common.approval.UserApprovalAction.COMMAND_LINE_EXECUTION;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -169,7 +171,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                         } catch (Exception e) {
                             conditionallyLog(e);
                             showErrorDialog(getProject(),
-                                    txt("msg.execution.error.ErrorExecutingScript", virtualFile.getPath(), e.getMessage()));
+                                    txt("msg.execution.error.ErrorExecutingScript", virtualFile.getPath(), getLocalizedMessage(e)));
                         }
                     });
         }
@@ -178,7 +180,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
     private void doExecuteScript(ScriptExecutionInput input) throws Exception {
         CmdLineInterface cmdLineInterface = input.getCmdLineInterface();
         UserApprovalManager approvalManager = UserApprovalManager.getInstance();
-        approvalManager.ensureApproved(cmdLineInterface);
+        approvalManager.ensureApproved(COMMAND_LINE_EXECUTION, cmdLineInterface);
 
         ScriptExecutionContext context = input.getExecutionContext();
         context.set(ExecutionStatus.EXECUTING, true);
@@ -268,7 +270,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                 public void handleException(Throwable e) {
                     showErrorDialog(project,
                             txt("msg.execution.title.ScriptExecutionError"),
-                            txt("msg.execution.error.ScriptExecutionError", sourceFile.getPath(), e.getMessage()),
+                            txt("msg.execution.error.ScriptExecutionError", sourceFile.getPath(), getLocalizedMessage(e)),
                             Messages.OPTIONS_RETRY_CANCEL, 0,
                             option -> when(option == 0, () -> executeScript(sourceFile)));
                 }
@@ -325,14 +327,13 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         dialog.show();
         if (dialog.getExitCode() != OK_EXIT_CODE) return;
 
-        cmdLineInterface.setAcknowledged(true);
         consumer.accept(cmdLineInterface);
         if (updateSettings) {
             CmdLineInterfaceBundle commandLineInterfaces = executionEngineSettings.getScriptExecutionSettings().getCommandLineInterfaces();
             commandLineInterfaces.add(cmdLineInterface);
 
             UserApprovalManager approvalManager = UserApprovalManager.getInstance();
-            approvalManager.approve(cmdLineInterface);
+            approvalManager.approve(COMMAND_LINE_EXECUTION, cmdLineInterface);
         }
     }
 

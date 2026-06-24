@@ -160,9 +160,4 @@ public abstract class BasicConfiguration<P extends Configuration, E extends Conf
         return null;
     }
 
-    protected static String nvl(String value) {
-        return value == null ? "" : value;
-    }
-
-
 }

@@ -26,6 +26,7 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.project.Projects;
+import com.dbn.common.state.StateContainer;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Dialogs.DialogCallback;
 import com.dbn.common.util.Messages;
@@ -36,6 +37,7 @@ import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.tns.TnsImportData;
 import com.dbn.connection.operation.options.OperationSettings;
+import com.dbn.credentials.LegacyCredentialMigrator;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.data.options.DataEditorSettings;
@@ -60,7 +62,6 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Conditional.when;
-import static com.dbn.credentials.Secrets.initialize;
 import static com.dbn.nls.NlsResources.txt;
 
 @State(
@@ -73,11 +74,14 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
     public static final String COMPONENT_NAME = "DBNavigator.Project.Settings";
 
     private final ProjectSettings projectSettings;
+    private final LegacyCredentialMigrator credentialMigrator;
+    private final StateContainer states = new StateContainer();
     private ConfigId lastConfigId;
 
     private ProjectSettingsManager(Project project) {
         super(project, COMPONENT_NAME);
         projectSettings = new ProjectSettings(project);
+        credentialMigrator = new LegacyCredentialMigrator(this);
     }
 
     public static ProjectSettingsManager getInstance(@NotNull Project project) {
@@ -171,6 +175,7 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
     @Override
     public Element getComponentState() {
         Element element = newStateElement();
+        states.writeState(element, "states");
         projectSettings.writeConfiguration(element);
         return element;
     }
@@ -180,9 +185,10 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         if (areSettingsLoaded()) return;
         try {
             ConfigMonitor.set(INITIALIZING, true);
+            states.readState(element, "states");
             projectSettings.readConfiguration(element);
             markSettingsLoaded();
-            initialize();
+            credentialMigrator.promptCredentialRestore();
         } finally {
             ConfigMonitor.set(INITIALIZING, false);
         }
@@ -197,8 +203,6 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         Project project = getProject();
         setUserData(project, PROJECT_SETTINGS_LOADED, true);
     }
-
-
 
     public void exportToDefaultSettings() {
         Project project = getProject();

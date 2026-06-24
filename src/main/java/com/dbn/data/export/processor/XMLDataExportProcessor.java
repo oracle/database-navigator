@@ -67,7 +67,7 @@ public class XMLDataExportProcessor extends DataExportProcessor{
     @Override
     public void performExport(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connection) throws DataExportException {
         @NonNls
-        StringBuilder buffer = new StringBuilder();
+        DataExportBuffer buffer = new DataExportBuffer();
         buffer.append("<table name=\"");
         buffer.append(model.getTableName());
         buffer.append("\">\n");
@@ -94,7 +94,7 @@ public class XMLDataExportProcessor extends DataExportProcessor{
                         GenericDataType.BLOB)) {
 
                     Object object = model.getValue(rowIndex, columnIndex);
-                    value = formatValue(formatter, object);
+                    value = formatValue(formatter, model, object);
                 }
 
                 if (value == null) value = "";

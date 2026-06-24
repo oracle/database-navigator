@@ -67,7 +67,7 @@ public class MarkdownDataExportProcessor extends DataExportProcessor{
 
     @Override
     public void performExport(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connection) throws DataExportException {
-        StringBuilder buffer = new StringBuilder();
+        DataExportBuffer buffer = new DataExportBuffer();
 
         if (instructions.isCreateHeader()) {
             buffer.append("|");
@@ -91,7 +91,7 @@ public class MarkdownDataExportProcessor extends DataExportProcessor{
                 ProgressMonitor.checkCancelled();
                 GenericDataType genericDataType = model.getGenericDataType(columnIndex);
                 Object object = model.getValue(rowIndex, columnIndex);
-                String value = formatValue(formatter, object);
+                String value = formatValue(formatter, model, object);
                 value = escapeMarkdownValue(value);
 
                 if (Strings.isEmptyOrSpaces(value)) value = " ";

@@ -32,6 +32,15 @@ public interface SecretsOwner {
     @NotNull
     Secret[] getSecrets();
 
+    default Secret[] snapshotSecrets() {
+        Secret[] secrets = getSecrets();
+        Secret[] snapshots = new Secret[secrets.length];
+        for (int i = 0; i < secrets.length; i++) {
+            snapshots[i] = secrets[i].snapshot();
+        }
+        return snapshots;
+    }
+
     /**
      * Utility for updating the secrets in PasswordStore via {@link DatabaseCredentialManager}
      * (will be invoked when settings are saved)
@@ -45,6 +54,12 @@ public interface SecretsOwner {
     default void removeSecrets() {
         DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
         credentialManager.queueSecretsRemove(getSecretOwnerId(), getSecrets());
+    }
+
+    default void reloadSecrets() {
+        for (Secret secret : getSecrets()) {
+            secret.reload();
+        }
     }
 
 }

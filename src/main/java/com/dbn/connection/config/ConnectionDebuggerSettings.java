@@ -47,6 +47,7 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
 
     private String tcpHostAddress;
     private Range<Integer> tcpPortRange = new Range<>(4000, 4999);
+    private transient String jdwpHostPort;
 
     //reverse ssh tunnel settings
     private ReverseSshTunnelConfiguration reverseSshTunnelConfig = new ReverseSshTunnelConfiguration(this);
@@ -73,6 +74,16 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
 
     public String getConfigElementName() {
         return "debugger";
+    }
+
+    public synchronized void setJdwpHostPort(String jdwpHostPort) {
+        this.jdwpHostPort = jdwpHostPort;
+    }
+
+    public synchronized String consumeJdwpHostPort() {
+        String jdwpHostPort = this.jdwpHostPort;
+        this.jdwpHostPort = null;
+        return jdwpHostPort;
     }
 
     @Override

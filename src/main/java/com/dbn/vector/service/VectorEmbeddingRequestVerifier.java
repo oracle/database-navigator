@@ -24,6 +24,8 @@ import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.request.EmbeddingDestinationConfig;
+import com.dbn.vector.model.request.EmbeddingSourceFiles;
+import com.dbn.vector.model.request.EmbeddingSourceType;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 
@@ -37,6 +39,7 @@ public class VectorEmbeddingRequestVerifier {
     public static boolean verifyRequest(VectorEmbeddingRequest request, ProgressIndicator indicator) {
         Project project = request.getProject();
         try {
+            if (!verifyFileSourceAuthorization(request)) return false;
             if (!verifyDestinationModelMatch(request, indicator)) return false;
             //..
 
@@ -48,6 +51,18 @@ public class VectorEmbeddingRequestVerifier {
         }
 
         return true;
+    }
+
+    private static boolean verifyFileSourceAuthorization(VectorEmbeddingRequest request) {
+        if (request.getSourceConfig().getSourceType() != EmbeddingSourceType.FILE_SYSTEM) return true;
+
+        EmbeddingSourceFiles sourceFiles = request.getSourceConfig().getSourceFiles();
+        if (!sourceFiles.hasUnauthorizedFileSources()) return true;
+
+        showErrorDialog(request.getProject(),
+                txt("msg.vector.title.FileUploadNotAuthorized"),
+                txt("msg.vector.error.FileUploadNotAuthorized"));
+        return false;
     }
 
     private static boolean verifyDestinationModelMatch(VectorEmbeddingRequest request, ProgressIndicator indicator) throws SQLException {

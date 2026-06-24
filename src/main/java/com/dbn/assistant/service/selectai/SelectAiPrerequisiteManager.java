@@ -65,10 +65,14 @@ public class SelectAiPrerequisiteManager extends ProjectComponentBase implements
                 DatabaseInterfaceInvoker.execute(HIGH, title, text, project, connection.getConnectionId(),
                         c -> connection.getAssistantInterface().grantACLRights(c, command));
 
-                showInfoDialog(project, txt("msg.assistant.title.AccessGranted"), txt("msg.assistant.info.NetworkAccessGranted", host, user));
+                showInfoDialog(project,
+                        txt("msg.assistant.title.AccessGranted"),
+                        txt("msg.assistant.info.NetworkAccessGranted", host, user));
             } catch (Throwable e) {
                 Diagnostics.conditionallyLog(e);
-                showErrorDialog(project, txt("msg.assistant.title.AccessGrantFailed"), txt("msg.assistant.error.NetworkAccessGrantFailed", host, user, e.getMessage()));
+                showErrorDialog(project,
+                        txt("msg.assistant.title.AccessGrantFailed"),
+                        txt("msg.assistant.error.NetworkAccessGrantFailed", host, user), e);
             }
         });
     }
@@ -83,10 +87,14 @@ public class SelectAiPrerequisiteManager extends ProjectComponentBase implements
                 DatabaseInterfaceInvoker.execute(HIGH, title, text, project, connection.getConnectionId(),
                         c -> connection.getAssistantInterface().grantPrivilege(c, user));
 
-                showInfoDialog(project, txt("msg.assistant.title.PrivilegesGranted"), txt("msg.assistant.info.ExecutionPrivilegesGranted", user));
+                showInfoDialog(project,
+                        txt("msg.assistant.title.PrivilegesGranted"),
+                        txt("msg.assistant.info.ExecutionPrivilegesGranted", user));
             } catch (Throwable e) {
                 Diagnostics.conditionallyLog(e);
-                showErrorDialog(project, txt("msg.assistant.title.PrivilegesGrantFailed"), txt("msg.assistant.error.ExecutionPrivilegesGrantFailed", user, e.getMessage()));
+                showErrorDialog(project,
+                        txt("msg.assistant.title.PrivilegesGrantFailed"),
+                        txt("msg.assistant.error.ExecutionPrivilegesGrantFailed", user), e);
             }
         });
     }
