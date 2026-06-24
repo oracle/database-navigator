@@ -51,10 +51,12 @@ public class AssistantMcpToolProviders {
         UserApprovalManager approvalManager = UserApprovalManager.getInstance();
         approvalManager.ensureApproved(MCP_SERVER_ACCESS, mcpServer);
 
-        return switch (type) {
+        McpTransport transport = switch (type) {
             case HTTP -> createHttpMcpTransport(mcpServer);
             case STDIO -> createStdioMcpTransport(mcpServer);
         };
+
+        return new AssistantMcpGuardedTransport(transport);
     }
 
     private static StdioMcpTransport createStdioMcpTransport(AssistantMcpServer mcpServer) {
