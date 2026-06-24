@@ -67,7 +67,7 @@ public class MarkdownDataExportProcessor extends DataExportProcessor{
 
     @Override
     public void performExport(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connection) throws DataExportException {
-        StringBuilder buffer = new StringBuilder();
+        DataExportBuffer buffer = new DataExportBuffer();
 
         if (instructions.isCreateHeader()) {
             buffer.append("|");

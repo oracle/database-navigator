@@ -44,9 +44,15 @@ import java.io.FileOutputStream;
 import java.util.Date;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class ExcelDataExportProcessor extends DataExportProcessor{
+    private static final int MAX_XLS_DATA_ROWS = 65535;
+    private static final int MAX_XLS_COLUMNS = 256;
+    private static final int MAX_XLS_EXPORT_CELLS = 250000;
+    private static final int MAX_AUTO_SIZE_CELLS = 250000;
+    private static final int MAX_EXCEL_CELL_LENGTH = 32767;
 
     @Override
     public DataExportFormat getFormat() {
@@ -78,10 +84,12 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
     public void performExport(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connection) throws DataExportException {
         Workbook workbook = null;
         try {
+            validateExportCapacity(model);
             workbook = createWorkbook();
             String sheetName = model.getTableName();
             Sheet sheet = createSheet(workbook, sheetName);
-            if (sheet instanceof SXSSFSheet sxssfSheet) {
+            boolean autoSizeColumns = shouldAutoSizeColumns(model);
+            if (autoSizeColumns && sheet instanceof SXSSFSheet sxssfSheet) {
                 sxssfSheet.trackAllColumnsForAutoSizing();
             }
 
@@ -97,8 +105,10 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
                 }
             }
 
-            for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
-                sheet.autoSizeColumn(columnIndex);
+            if (autoSizeColumns) {
+                for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
+                    sheet.autoSizeColumn(columnIndex);
+                }
             }
 
             createFile(workbook, instructions);
@@ -115,6 +125,48 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
             }
         }
 
+    }
+
+    protected void validateExportCapacity(DataExportModel model) throws DataExportException {
+        int rowCount = model.getRowCount();
+        int columnCount = model.getColumnCount();
+        long cellCount = (long) rowCount * columnCount;
+
+        if (rowCount > getMaxDataRows()) {
+            throw new DataExportException(txt("msg.dataExport.error.ExcelRowLimitExceeded", getMaxDataRows(), getFileExtension()));
+        }
+
+        if (columnCount > getMaxColumns()) {
+            throw new DataExportException(txt("msg.dataExport.error.ExcelColumnLimitExceeded", getMaxColumns(), getFileExtension()));
+        }
+
+        if (cellCount > getMaxInMemoryCells()) {
+            throw new DataExportException(txt("msg.dataExport.error.ExcelCellLimitExceeded", getMaxInMemoryCells(), getFileExtension()));
+        }
+    }
+
+    protected int getMaxDataRows() {
+        return MAX_XLS_DATA_ROWS;
+    }
+
+    protected int getMaxColumns() {
+        return MAX_XLS_COLUMNS;
+    }
+
+    protected long getMaxInMemoryCells() {
+        return MAX_XLS_EXPORT_CELLS;
+    }
+
+    protected boolean shouldAutoSizeColumns(DataExportModel model) {
+        return getCellCount(model) <= getMaxAutoSizeCells();
+    }
+
+    protected long getMaxAutoSizeCells() {
+        return MAX_AUTO_SIZE_CELLS;
+    }
+
+    private static long getCellCount(DataExportModel model) {
+        return (long) model.getRowCount() * model.getColumnCount();
     }
 
     private static void createFile(Workbook workbook, DataExportInstructions instructions) throws DataExportException {
@@ -155,9 +207,9 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
                     cellStyleCache.getDateStyle());
         } else {
             String stringValue = formatValue(formatter, model, value);
-            if (stringValue.length() > 32767) {
-                stringValue = stringValue.substring(0, 32767);
-                model.addWarning("Some values exceed the maximum cell limit of 32767 characters and were truncated during export");
+            if (stringValue.length() > MAX_EXCEL_CELL_LENGTH) {
+                stringValue = stringValue.substring(0, MAX_EXCEL_CELL_LENGTH);
+                model.addWarning(txt("msg.dataExport.warning.ExcelCellValueTruncated", MAX_EXCEL_CELL_LENGTH));
             }
 
             cell.setCellValue(stringValue);

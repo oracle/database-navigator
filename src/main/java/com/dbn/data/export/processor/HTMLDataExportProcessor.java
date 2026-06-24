@@ -69,7 +69,7 @@ public class HTMLDataExportProcessor extends DataExportProcessor{
 
     @Override
     public void performExport(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connection) throws DataExportException {
-        @NonNls StringBuilder buffer = new StringBuilder();
+        @NonNls DataExportBuffer buffer = new DataExportBuffer();
         buffer.append("<html>\n");
         buffer.append("    <head>\n");
         buffer.append("        <style type='text/css'>\n");

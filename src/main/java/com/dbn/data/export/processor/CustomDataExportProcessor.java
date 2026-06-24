@@ -50,7 +50,7 @@ public class CustomDataExportProcessor extends DataExportProcessor{
 
     @Override
     public void performExport(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connection) throws DataExportException {
-        StringBuilder buffer = new StringBuilder();
+        DataExportBuffer buffer = new DataExportBuffer();
         Formatter formatter = getFormatter(connection.getProject());
 
         createHeader(model, instructions, buffer);
@@ -58,7 +58,7 @@ public class CustomDataExportProcessor extends DataExportProcessor{
         writeContent(instructions, buffer.toString());
     }
 
-    private void createHeader(DataExportModel model, DataExportInstructions instructions, StringBuilder buffer) throws DataExportException {
+    private void createHeader(DataExportModel model, DataExportInstructions instructions, DataExportBuffer buffer) throws DataExportException {
         if (!instructions.isCreateHeader()) return;
 
         for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++){
@@ -72,7 +72,7 @@ public class CustomDataExportProcessor extends DataExportProcessor{
         buffer.append('\n');
     }
 
-    private void createContent(DataExportModel model, DataExportInstructions instructions, Formatter formatter, StringBuilder buffer) throws DataExportException {
+    private void createContent(DataExportModel model, DataExportInstructions instructions, Formatter formatter, DataExportBuffer buffer) throws DataExportException {
         for (int r = 0; r < model.getRowCount(); r++) {
             for (int c = 0; c < model.getColumnCount(); c++) {
                 ProgressMonitor.checkCancelled();
@@ -88,7 +88,7 @@ public class CustomDataExportProcessor extends DataExportProcessor{
         }
     }
 
-    static void appendField(StringBuilder buffer, String value, DataExportInstructions instructions) {
+    static void appendField(DataExportBuffer buffer, String value, DataExportInstructions instructions) throws DataExportException {
         String beginQuote = instructions.getBeginQuote();
         String endQuote = instructions.getEndQuote();
         String separator = instructions.getValueSeparator();
@@ -118,7 +118,7 @@ public class CustomDataExportProcessor extends DataExportProcessor{
         buffer.append(endQuote);
     }
 
-    private static void appendEscaped(StringBuilder buffer, String value, String beginQuote, String endQuote) {
+    private static void appendEscaped(DataExportBuffer buffer, String value, String beginQuote, String endQuote) throws DataExportException {
         for (int i = 0; i < value.length(); i++) {
             if (beginQuote != null && !beginQuote.isEmpty() && value.startsWith(beginQuote, i)) {
                 buffer.append(beginQuote).append(beginQuote);
