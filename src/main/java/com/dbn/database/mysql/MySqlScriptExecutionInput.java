@@ -23,8 +23,18 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseScriptExecutionInput;
 import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.execution.script.ScriptCredentialDelivery;
+import com.dbn.execution.script.ScriptExecutionOptions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInput {
     public MySqlScriptExecutionInput(
@@ -36,10 +46,24 @@ public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInpu
         super(connection, cmdLineInterface, filePath, content, schemaId);
     }
 
+    public MySqlScriptExecutionInput(
+            @NotNull ConnectionHandler connection,
+            @NotNull CmdLineInterface cmdLineInterface,
+            @NotNull String filePath,
+            @NotNull String content,
+            @Nullable SchemaId schemaId,
+            @NotNull ScriptExecutionOptions options) {
+        super(connection, cmdLineInterface, filePath, content, schemaId, options);
+    }
+
     @Override
     protected void initExecutable(CmdLineInterface cmdLineInterface, DatabaseInfo databaseInfo, AuthenticationInfo authenticationInfo) {
         String executable = cmdLineInterface.getExecutablePath();
         initCommand(executable);
+
+        if (usesTemporaryPasswordFile(authenticationInfo)) {
+            addParameter("--defaults-extra-file=" + createPasswordOptionFile(authenticationInfo).getPath());
+        }
 
         addKvParameter("--user", authenticationInfo.getUser());
         addKvParameter("--host", databaseInfo.getHost());
@@ -52,8 +76,55 @@ public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInpu
     @Override
     protected void initAuthentication(AuthenticationInfo authenticationInfo) {
         AuthenticationType authType = authenticationInfo.getType();
-        if (authType == AuthenticationType.USER_PASSWORD) {
-            addEnvironmentVariable("MYSQL_PWD", authenticationInfo.getPassword());
+        if (authType == AuthenticationType.USER_PASSWORD && getCredentialDelivery() == ScriptCredentialDelivery.ENVIRONMENT) {
+            initLegacyEnvironmentAuthentication(authenticationInfo);
+        }
+    }
+
+    // Legacy support path enabled only with -Ddbn.script.credentials.delivery=environment.
+    private void initLegacyEnvironmentAuthentication(AuthenticationInfo authenticationInfo) {
+        addEnvironmentVariable("MYSQL_PWD", authenticationInfo.getPassword());
+    }
+
+    private boolean usesTemporaryPasswordFile(AuthenticationInfo authenticationInfo) {
+        return
+                authenticationInfo.getType() == AuthenticationType.USER_PASSWORD &&
+                getCredentialDelivery() == ScriptCredentialDelivery.TEMP_FILE;
+    }
+
+    private File createPasswordOptionFile(AuthenticationInfo authenticationInfo) {
+        ScriptExecutionOptions options = getOptions();
+        if (options == null) throw new IllegalStateException("Script execution options are required for temporary credential files");
+
+        try {
+            File file = options.createCredentialFile("DBN-mysql-", ".cnf");
+            try (BufferedWriter writer = Files.newBufferedWriter(file.toPath(), UTF_8)) {
+                writer.write("[client]");
+                writer.newLine();
+                writer.write("password=\"");
+                writeEscapedOptionValue(writer, authenticationInfo.getPassword());
+                writer.write('"');
+                writer.newLine();
+            }
+            return file;
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to create MySQL script credential file", e);
+        }
+    }
+
+    static void writeEscapedOptionValue(BufferedWriter writer, char[] value) throws IOException {
+        if (value == null) return;
+
+        for (char c : value) {
+            switch (c) {
+                case '\\' -> writer.write("\\\\");
+                case '"' -> writer.write("\\\"");
+                case '\b' -> writer.write("\\b");
+                case '\t' -> writer.write("\\t");
+                case '\n' -> writer.write("\\n");
+                case '\r' -> writer.write("\\r");
+                default -> writer.write(c);
+            }
         }
     }
 
