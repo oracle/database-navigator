@@ -161,14 +161,8 @@ public abstract class DataExportProcessor implements ExtensionPoint {
 
     private static String exportLargeObjectValue(DataExportModel model, LargeObjectValue value) throws DataExportException {
         try {
-            long size = value.size();
-            boolean truncated = size > MAX_EXPORT_CELL_LENGTH;
-
             String exportValue = nvl(value.read(MAX_EXPORT_CELL_LENGTH), "");
-            if (exportValue.length() > MAX_EXPORT_CELL_LENGTH) {
-                exportValue = exportValue.substring(0, MAX_EXPORT_CELL_LENGTH);
-                truncated = true;
-            }
+            boolean truncated = value.isTruncated();
 
             if (truncated && model != null) {
                 model.addWarning(txt("msg.dataExport.warning.TruncatedCellValue", MAX_EXPORT_CELL_LENGTH));
