@@ -31,26 +31,35 @@
     <idea-version since-build="201.6668.113" until-build="262.*"/>
     <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
-            <b>Database Development and Management Tool</b><br></br>
-            This software solution extends the capabilities of IntelliJ IDEA and related products
-            by providing a set of practical tools for database development and management.
-            It includes a user-friendly SQL and PL/SQL editor that matches the IDE's standards,
-            along with features for managing database connections, running scripts,
-            viewing and editing database objects, and updating data and code.
-            The tool also supports database compiler tasks, method execution, debugging, and the creation of database objects.
-            Additionally, it offers integrated navigation features across all components,
-            making it a reliable and efficient choice for database development and administration.<br><br>
+        <b>Database Development and Management</b>
 
-            This product is developed and maintained by <a href="https://www.oracle.com/">Oracle</a><br><br>
+        <p>
+            Database Navigator is a database development and management plugin for JetBrains IDEs. It brings database connections,
+            object browsing, data editing, SQL and source-code editing, execution, debugging, transaction control, and AI-assisted workflows
+            directly into your IDE.
+        </p>
 
-            <b>Supported Databases:</b>
-            <ul>
-                <li>Oracle
-                <li>MySQL
-                <li>SQLite
-                <li>PostgreSQL
-                <li>Any JDBC compliant database (EXPERIMENTAL)
-            </ul><br>
+        <p>
+            <b>Explore and edit:</b> Browse schemas, tables, views, procedures, packages, dependencies, metadata, source, and DDL from the integrated Database Browser. Inspect, filter, sort, export, and edit data in rich table editors and result grids with transaction-aware commit and rollback support.
+        </p>
+
+        <p>
+            <b>Code and run:</b> Write, execute, compile, and debug SQL, PL/SQL, scripts, DDL files, stored programs, and database Java code from context-aware editors. Use execution history, output consoles, logging, reusable run configurations, session monitoring, and transaction monitoring.
+        </p>
+
+        <p>
+            <b>Integrate and automate:</b> Synchronize local DDL files, map project files to database connections, and apply environment-aware safeguards for sensitive targets. Use Database Assistant workflows, Oracle Select AI integration, vector embeddings, semantic search, RAG-assisted querying, and MCP Server Builder for SQL-backed tools.
+        </p>
+
+        <p>
+            This product is developed and maintained by <a href="https://www.oracle.com/">Oracle</a>.
+        </p>
+
+        <br>
+        <b>Supported Databases:</b>
+        <p>
+            Oracle, MySQL, SQLite, PostgreSQL, and any JDBC-compliant database (experimental).
+        </p>
     ]]></description>
     <change-notes><![CDATA[
         <ul>
