@@ -123,7 +123,7 @@ public class ScriptCredentialFileExecutionInputTest {
         assertEquals(ScriptCredentialDelivery.CREDENTIAL_FILE, ScriptCredentialDelivery.resolve(null));
         assertEquals(ScriptCredentialDelivery.CREDENTIAL_FILE, ScriptCredentialDelivery.resolve(""));
         assertEquals(ScriptCredentialDelivery.CREDENTIAL_FILE, ScriptCredentialDelivery.resolve("unknown"));
-        assertEquals(ScriptCredentialDelivery.ENVIRONMENT_VARIABLE, ScriptCredentialDelivery.resolve("environment"));
+        assertEquals(ScriptCredentialDelivery.ENVIRONMENT_VARIABLE, ScriptCredentialDelivery.resolve("ENVIRONMENT_VARIABLE"));
     }
 
     private static void setPasswordDeliveryProperty(ScriptCredentialDelivery delivery) {
