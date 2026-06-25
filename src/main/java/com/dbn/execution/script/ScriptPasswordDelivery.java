@@ -20,20 +20,21 @@ import com.dbn.common.util.Strings;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
-public enum ScriptCredentialDelivery {
+public enum ScriptPasswordDelivery {
     CREDENTIAL_FILE,
-    ENVIRONMENT_VARIABLE;
+    ENVIRONMENT_VARIABLE,
+    NONE;
 
     public static final @NonNls String PROPERTY_NAME = "dbn.script.credentials.delivery";
 
-    public static ScriptCredentialDelivery current() {
+    public static ScriptPasswordDelivery current() {
         return resolve(System.getProperty(PROPERTY_NAME));
     }
 
-    public static ScriptCredentialDelivery resolve(@Nullable String value) {
+    public static ScriptPasswordDelivery resolve(@Nullable String value) {
         if (Strings.isEmptyOrSpaces(value)) return CREDENTIAL_FILE;
 
-        for (ScriptCredentialDelivery delivery : values()) {
+        for (ScriptPasswordDelivery delivery : values()) {
             if (delivery.name().equalsIgnoreCase(value.trim())) {
                 return delivery;
             }

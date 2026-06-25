@@ -25,15 +25,19 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.time.Duration;
 
-import static com.dbn.common.approval.UserApprovalAction.COMMAND_LINE_EXECUTION;
+import static com.dbn.common.approval.UserApprovalAction.PASSWORD_ENVIRONMENT_VARIABLE;
 import static com.dbn.common.checksum.Checksum.fromFileAttributes;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.util.Executables.resolveExecutableFile;
 import static com.dbn.nls.NlsResources.txt;
 
-public class CmdLineInterfaceApprovalAdapter implements UserApprovalAdapter<CmdLineInterface> {
+/**
+ * Prepares user approval information for the legacy script authentication path that sends
+ * database passwords to external clients through child-process environment variables.
+ */
+public class CmdLineEnvPasswordApprovalAdapter implements UserApprovalAdapter<CmdLineInterface> {
     private static final String[] APPROVAL_OPTIONS = Messages.options(
-            txt("msg.execution.button.TrustAndExecute"),
+            txt("msg.execution.button.AllowAndExecute"),
             txt("msg.shared.button.Cancel"));
 
     @Override
@@ -43,12 +47,12 @@ public class CmdLineInterfaceApprovalAdapter implements UserApprovalAdapter<CmdL
 
     @Override
     public UserApprovalAction getApprovalAction() {
-        return COMMAND_LINE_EXECUTION;
+        return PASSWORD_ENVIRONMENT_VARIABLE;
     }
 
     @Override
     public String getApprovalTitle(CmdLineInterface cmdLineInterface) {
-        return txt("msg.execution.title.TrustCommandLineInterface");
+        return txt("msg.execution.title.AllowPasswordEnvironmentVariable");
     }
 
     @Override
@@ -56,7 +60,7 @@ public class CmdLineInterfaceApprovalAdapter implements UserApprovalAdapter<CmdL
         String executablePath = getExecutablePath(cmdLineInterface);
         File executableFile = resolveExecutableFile(executablePath);
 
-        return txt("msg.execution.question.TrustCommandLineInterface",
+        return txt("msg.execution.question.AllowPasswordEnvironmentVariable",
                 cmdLineInterface.getName(),
                 executableFile == null ? executablePath : executableFile.getAbsolutePath());
     }

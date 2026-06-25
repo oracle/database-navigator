@@ -20,8 +20,9 @@ import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
-import com.dbn.database.DatabaseScriptExecutionInput;
+import com.dbn.database.DatabaseScriptClientCommand;
 import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.execution.script.ScriptExecutionInput;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,14 +30,13 @@ import java.io.File;
 
 import static com.dbn.common.util.Naming.doubleQuoted;
 
-public final class SqliteScriptExecutionInput extends DatabaseScriptExecutionInput {
-    public SqliteScriptExecutionInput(
-            @NotNull ConnectionHandler connection,
-            @NotNull CmdLineInterface cmdLineInterface,
+public final class SqliteScriptClientCommand extends DatabaseScriptClientCommand {
+    public SqliteScriptClientCommand(
+            @NotNull ScriptExecutionInput executionInput,
             @NotNull File scriptFile,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
-        super(connection, cmdLineInterface, scriptFile, content, schemaId);
+        super(executionInput, scriptFile, content, schemaId);
     }
 
     @Override
@@ -49,7 +49,7 @@ public final class SqliteScriptExecutionInput extends DatabaseScriptExecutionInp
     }
 
     @Override
-    protected void initAuthentication(AuthenticationInfo authenticationInfo) {
+    protected void initAuthentication(CmdLineInterface cmdLineInterface, AuthenticationInfo authenticationInfo) {
     }
 
     @Override

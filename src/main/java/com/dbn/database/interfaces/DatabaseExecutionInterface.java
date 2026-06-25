@@ -16,12 +16,11 @@
 
 package com.dbn.database.interfaces;
 
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
-import com.dbn.database.CmdLineExecutionInput;
+import com.dbn.database.DatabaseScriptClientCommand;
 import com.dbn.database.common.execution.JavaExecutionProcessor;
 import com.dbn.database.common.execution.MethodExecutionProcessor;
-import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.execution.script.ScriptExecutionInput;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
@@ -46,10 +45,11 @@ public interface DatabaseExecutionInterface extends DatabaseInterface {
     JavaExecutionProcessor createExecutionProcessor(DBJavaMethod method);
     JavaExecutionProcessor createDebugExecutionProcessor(DBJavaMethod method);
 
-    CmdLineExecutionInput createScriptExecutionInput(
-            @NotNull ConnectionHandler connection,
-            @NotNull CmdLineInterface cmdLineInterface,
+    default void verifyScriptExecutionInput(ScriptExecutionInput executionInput){}
+
+    DatabaseScriptClientCommand createScriptExecutionCommand(
+            @NotNull ScriptExecutionInput executionInput,
             @NotNull File scriptFile,
-            String content,
+            @NotNull String scriptContent,
             @Nullable SchemaId schemaId);
 }

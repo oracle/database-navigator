@@ -31,7 +31,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.mapping.FileConnectionContextManager;
-import com.dbn.database.CmdLineExecutionInput;
+import com.dbn.database.DatabaseClientCommand;
 import com.dbn.database.interfaces.DatabaseExecutionInterface;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.ExecutionStatus;
@@ -71,7 +71,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.approval.UserApprovalAction.COMMAND_LINE_EXECUTION;
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
@@ -136,7 +135,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
             ConnectionHandler activeConnection = contextManager.getConnection(virtualFile);
             SchemaId currentSchema = contextManager.getDatabaseSchema(virtualFile);
 
-            ScriptExecutionInput executionInput = new ScriptExecutionInput(getProject(), virtualFile, activeConnection, currentSchema, clearOutputOption);
+            ScriptExecutionInput executionInput = new ScriptExecutionInput(project, virtualFile, activeConnection, currentSchema, clearOutputOption);
             ScriptExecutionSettings scriptExecutionSettings = ExecutionEngineSettings.getInstance(project).getScriptExecutionSettings();
             int timeout = scriptExecutionSettings.getExecutionTimeout();
             executionInput.setExecutionTimeout(timeout);
@@ -151,10 +150,11 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
             CmdLineInterface cmdLineExecutable = executionInput.getCmdLineInterface();
             contextManager.setConnection(virtualFile, connection);
             contextManager.setDatabaseSchema(virtualFile, schemaId);
-            if (connection != null) {
-                recentlyUsedInterfaces.put(connection.getDatabaseType(), cmdLineExecutable.getId());
-            }
+            recentlyUsedInterfaces.put(connection.getDatabaseType(), cmdLineExecutable.getId());
             clearOutputOption = executionInput.isClearOutput();
+
+            DatabaseExecutionInterface executionInterface = connection.getInterfaces().getExecutionInterface();
+            executionInterface.verifyScriptExecutionInput(executionInput);
 
             Progress.background(project, connection, true,
                     txt("prc.execution.title.ExecutingScript"),
@@ -180,7 +180,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
         ScriptExecutionContext context = input.getExecutionContext();
         context.set(ExecutionStatus.EXECUTING, true);
-        ConnectionHandler connection = nd(input.getConnection());
+        ConnectionHandler connection = input.getConnection();
         VirtualFile sourceFile = input.getSourceFile();
         activeProcesses.remove(sourceFile, null);
 
@@ -195,20 +195,19 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                 public Object execute() throws Exception {
                     SchemaId schemaId = input.getSchemaId();
 
-                    String content = new String(sourceFile.contentsToByteArray());
+                    String scriptContent = new String(sourceFile.contentsToByteArray());
                     Path temporaryScriptDirectory = createTempScriptDirectory();
                     input.setTempScriptDirectory(temporaryScriptDirectory.toFile());
 
+                    executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.CreatingTemporaryScriptFile", temporaryScriptDirectory)));
                     File temporaryScriptFile = createTempScriptFile(temporaryScriptDirectory).toFile();
-
-                    executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.CreatingTemporaryScriptFile", temporaryScriptFile)));
-                    input.setTempScriptFile(temporaryScriptFile);
+                    input.setTemporaryScriptFile(temporaryScriptFile);
 
                     DatabaseExecutionInterface executionInterface = connection.getInterfaces().getExecutionInterface();
-                    CmdLineExecutionInput executionInput = executionInterface.createScriptExecutionInput(connection,
-                            cmdLineInterface,
+                    DatabaseClientCommand executionInput = executionInterface.createScriptExecutionCommand(
+                            input,
                             temporaryScriptFile,
-                            content,
+                            scriptContent,
                             schemaId);
 
                     FileUtil.writeToFile(temporaryScriptFile, executionInput.getTextContent());
@@ -217,7 +216,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                         throw new IllegalStateException(txt("msg.execution.error.TemporaryScriptFileCreationFailed", temporaryScriptFile));
                     }
 
-                    String commandLine = executionInput.getCommandLine();
+                    String commandLine = executionInput.getPresentableCommand();
                     executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.ExecutingCommand", commandLine)));
                     executionManager.writeLogOutput(outputContext, createSysOutput(""));
 
@@ -285,7 +284,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
             context.set(ExecutionStatus.EXECUTING, false);
             outputContext.finish();
             activeProcesses.remove(sourceFile);
-            File temporaryScriptFile = input.getTempScriptFile();
+            File temporaryScriptFile = input.getTemporaryScriptFile();
             if (temporaryScriptFile != null && temporaryScriptFile.exists()) {
                 executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.DeletingTemporaryScriptFile", temporaryScriptFile)));
                 FileUtil.delete(temporaryScriptFile);

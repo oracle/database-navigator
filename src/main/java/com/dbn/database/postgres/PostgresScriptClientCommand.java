@@ -21,9 +21,10 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
-import com.dbn.database.DatabaseScriptExecutionInput;
+import com.dbn.database.DatabaseScriptClientCommand;
 import com.dbn.execution.script.CmdLineInterface;
-import com.dbn.execution.script.ScriptCredentialDelivery;
+import com.dbn.execution.script.ScriptExecutionInput;
+import com.dbn.execution.script.ScriptPasswordDelivery;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,17 +36,18 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
+import static com.dbn.execution.script.ScriptPasswordDelivery.CREDENTIAL_FILE;
+import static com.dbn.execution.script.ScriptPasswordDelivery.ENVIRONMENT_VARIABLE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @NonNls
-public final class PostgresScriptExecutionInput extends DatabaseScriptExecutionInput {
-    public PostgresScriptExecutionInput(
-            @NotNull ConnectionHandler connection,
-            @NotNull CmdLineInterface cmdLineInterface,
+public final class PostgresScriptClientCommand extends DatabaseScriptClientCommand {
+    public PostgresScriptClientCommand(
+            @NotNull ScriptExecutionInput executionInput,
             @NotNull File scriptFile,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
-        super(connection, cmdLineInterface, scriptFile, content, schemaId);
+        super(executionInput, scriptFile, content, schemaId);
     }
 
     @Override
@@ -59,13 +61,14 @@ public final class PostgresScriptExecutionInput extends DatabaseScriptExecutionI
     }
 
     @Override
-    protected void initAuthentication(AuthenticationInfo authenticationInfo) {
+    protected void initAuthentication(CmdLineInterface cmdLineInterface, AuthenticationInfo authenticationInfo) {
         AuthenticationType authType = authenticationInfo.getType();
         if (authType == USER_PASSWORD) {
-            if (getPasswordDeliveryMethod() == ScriptCredentialDelivery.CREDENTIAL_FILE) {
+            ScriptPasswordDelivery passwordDelivery = getExecutionInput().getPasswordDelivery();
+            if (passwordDelivery == CREDENTIAL_FILE) {
                 addEnvironmentVariable("PGPASSFILE", createPasswordFile(authenticationInfo).getPath());
-            } else {
-                // Legacy support path enabled only with -Ddbn.script.credentials.delivery=environment.
+            } else if  (passwordDelivery == ENVIRONMENT_VARIABLE) {
+                // Legacy support path enabled only with -Ddbn.script.credentials.delivery=ENVIRONMENT_VARIABLE.
                 addEnvironmentVariable("PGPASSWORD", authenticationInfo.getPassword());
             }
         } else {

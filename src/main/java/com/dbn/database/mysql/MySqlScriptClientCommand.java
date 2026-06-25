@@ -21,9 +21,10 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
-import com.dbn.database.DatabaseScriptExecutionInput;
+import com.dbn.database.DatabaseScriptClientCommand;
 import com.dbn.execution.script.CmdLineInterface;
-import com.dbn.execution.script.ScriptCredentialDelivery;
+import com.dbn.execution.script.ScriptExecutionInput;
+import com.dbn.execution.script.ScriptPasswordDelivery;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,16 +34,17 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 
+import static com.dbn.execution.script.ScriptPasswordDelivery.CREDENTIAL_FILE;
+import static com.dbn.execution.script.ScriptPasswordDelivery.ENVIRONMENT_VARIABLE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInput {
-    public MySqlScriptExecutionInput(
-            @NotNull ConnectionHandler connection,
-            @NotNull CmdLineInterface cmdLineInterface,
+public final class MySqlScriptClientCommand extends DatabaseScriptClientCommand {
+    public MySqlScriptClientCommand(
+            @NotNull ScriptExecutionInput executionInput,
             @NotNull File scriptFile,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
-        super(connection, cmdLineInterface, scriptFile, content, schemaId);
+        super(executionInput, scriptFile, content, schemaId);
     }
 
     @Override
@@ -59,15 +61,16 @@ public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInpu
     }
 
     @Override
-    protected void initAuthentication(AuthenticationInfo authenticationInfo) {
+    protected void initAuthentication(CmdLineInterface cmdLineInterface, AuthenticationInfo authenticationInfo) {
         AuthenticationType authType = authenticationInfo.getType();
         if (authType == AuthenticationType.USER_PASSWORD) {
-            if (getPasswordDeliveryMethod() == ScriptCredentialDelivery.ENVIRONMENT_VARIABLE) {
-                // Legacy support path enabled only with -Ddbn.script.credentials.delivery=environment.
-                addEnvironmentVariable("MYSQL_PWD", authenticationInfo.getPassword());
-            } else {
+            ScriptPasswordDelivery passwordDelivery = getExecutionInput().getPasswordDelivery();
+            if (passwordDelivery == CREDENTIAL_FILE) {
                 File passwordFile = createPasswordFile(authenticationInfo);
                 insertKvParameter("--defaults-extra-file", passwordFile.getPath());
+            } else if (passwordDelivery ==  ENVIRONMENT_VARIABLE) {
+                // Legacy support path enabled only with -Ddbn.script.credentials.delivery=ENVIRONMENT_VARIABLE.
+                addEnvironmentVariable("MYSQL_PWD", authenticationInfo.getPassword());
             }
         }
     }

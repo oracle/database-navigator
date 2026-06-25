@@ -40,6 +40,10 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.Strings.truncateWithMiddleEllipsis;
 import static com.dbn.nls.NlsResources.txt;
 
+/**
+ * Prepares user approval information for restoring workspace connections and reconnecting
+ * to database targets that were saved in project state.
+ */
 public class ConnectionHandlerApprovalAdapter implements UserApprovalAdapter<ConnectionHandlerImpl> {
     private static final int TARGET_MAX_LENGTH = 60;
     private static final String[] APPROVAL_OPTIONS = Messages.options(

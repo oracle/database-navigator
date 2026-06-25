@@ -21,7 +21,9 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.execution.script.CmdLineInterface;
-import com.dbn.execution.script.ScriptCredentialDelivery;
+import com.dbn.execution.script.ScriptExecutionInput;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,26 +33,29 @@ import java.nio.file.Path;
 
 import static com.dbn.common.util.FilePermissions.createOwnerOnlyTempFile;
 
-public abstract class DatabaseScriptExecutionInput extends CmdLineExecutionInput{
+@Getter
+@Setter
+public abstract class DatabaseScriptClientCommand extends DatabaseClientCommand {
+    private final ScriptExecutionInput executionInput;
     private final DatabaseInfo databaseInfo;
     private final File scriptFile;
-    private final ScriptCredentialDelivery passwordDeliveryMethod;
 
-    public DatabaseScriptExecutionInput(
-            @NotNull ConnectionHandler connection,
-            @NotNull CmdLineInterface cmdLineInterface,
+    public DatabaseScriptClientCommand(
+            @NotNull ScriptExecutionInput executionInput,
             @NotNull File scriptFile,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
         super(content);
+        this.executionInput = executionInput;
         this.scriptFile = scriptFile;
-        this.passwordDeliveryMethod = ScriptCredentialDelivery.current();
 
-        DatabaseInfo databaseInfo = connection.getDatabaseInfo();
-        this.databaseInfo = databaseInfo;
+        ConnectionHandler connection = executionInput.getConnection();
+        CmdLineInterface cmdLineInterface = executionInput.getCmdLineInterface();
+
+        this.databaseInfo = connection.getDatabaseInfo();
         AuthenticationInfo authenticationInfo = connection.getAuthenticationInfo();
         initExecutable(cmdLineInterface, databaseInfo, authenticationInfo);
-        initAuthentication(authenticationInfo);
+        initAuthentication(cmdLineInterface, authenticationInfo);
         initConsoleCommands(scriptFile, schemaId, connection);
     }
 
@@ -59,18 +64,9 @@ public abstract class DatabaseScriptExecutionInput extends CmdLineExecutionInput
             DatabaseInfo databaseInfo,
             AuthenticationInfo authenticationInfo);
 
-    protected abstract void initAuthentication(AuthenticationInfo authenticationInfo);
+    protected abstract void initAuthentication(CmdLineInterface cmdLineInterface, AuthenticationInfo authenticationInfo);
 
     protected abstract void initConsoleCommands(File scriptFile, SchemaId schemaId, ConnectionHandler connection);
-
-
-    protected @NotNull DatabaseInfo getDatabaseInfo() {
-        return databaseInfo;
-    }
-
-    protected ScriptCredentialDelivery getPasswordDeliveryMethod() {
-        return passwordDeliveryMethod;
-    }
 
     protected File createCredentialFile(String prefix, String suffix) throws IOException {
         Path parentDirectory = scriptFile.toPath().getParent();

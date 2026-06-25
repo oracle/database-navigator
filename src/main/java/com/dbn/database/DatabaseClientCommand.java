@@ -30,23 +30,23 @@ import static com.dbn.common.util.Strings.isEmpty;
 
 @Getter
 @Setter
-public class CmdLineExecutionInput {
-    private GeneralCommandLine command = new GeneralCommandLine();
+public abstract class DatabaseClientCommand {
+    private GeneralCommandLine commandLine = new GeneralCommandLine();
 
     private final String scriptContent;
     private final List<String> statements = new ArrayList<>();
     private char[] password;
 
-    public CmdLineExecutionInput(@NotNull String scriptContent) {
+    public DatabaseClientCommand(@NotNull String scriptContent) {
         this.scriptContent = scriptContent;
     }
 
     public void addEnvironmentVariable(@NonNls String key, char[] value) {
-        command.withEnvironment(key, Chars.toString(value));
+        commandLine.withEnvironment(key, Chars.toString(value));
     }
 
     public void addEnvironmentVariable(@NonNls String key, @NonNls String value) {
-        command.withEnvironment(key, value);
+        commandLine.withEnvironment(key, value);
     }
 
     public String getTextContent() {
@@ -58,31 +58,31 @@ public class CmdLineExecutionInput {
     }
 
     public void initCommand(String executable) {
-        command.setExePath(executable);
+        commandLine.setExePath(executable);
     }
 
     public void addParameter(@NonNls String param) {
         if (isEmpty(param)) return;
-        command.addParameter(param);
+        commandLine.addParameter(param);
     }
 
     public void addParameter(@NonNls String param, @NonNls String value) {
         if (isEmpty(value)) return;
-        command.addParameter(param);
-        command.addParameter(value);
+        commandLine.addParameter(param);
+        commandLine.addParameter(value);
     }
     public void addKvParameter(@NonNls String param, @NonNls String value) {
         if (isEmpty(value)) return;
-        command.addParameter(param + "=" + value);
+        commandLine.addParameter(param + "=" + value);
     }
 
     public void insertKvParameter(@NonNls String param, @NonNls String value) {
         if (isEmpty(value)) return;
-        command.getParametersList().addAt(0, param + "=" + value);
+        commandLine.getParametersList().addAt(0, param + "=" + value);
     }
 
     @NotNull
-    public String getCommandLine() {
-        return command.getCommandLineString();
+    public String getPresentableCommand() {
+        return commandLine.getCommandLineString();
     }
 }
