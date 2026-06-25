@@ -52,6 +52,43 @@ public class DataExportProcessorTest {
     }
 
     @Test
+    public void formatValueDoesNotWarnWhenLargeObjectFitsCellLimit() throws Exception {
+        TestDataExportModel model = new TestDataExportModel();
+        TestLargeObjectValue value = new TestLargeObjectValue(DataExportProcessor.MAX_EXPORT_CELL_LENGTH, "content");
+
+        String exportValue = DataExportProcessor.formatValue(null, model, value);
+
+        assertEquals("content", exportValue);
+        assertEquals(DataExportProcessor.MAX_EXPORT_CELL_LENGTH, value.readMaxSize);
+        assertTrue(value.released);
+        assertEquals(0, model.getWarnings().size());
+    }
+
+    @Test
+    public void formatValueDoesNotWarnWhenLargeObjectIsTruncatedWithoutModel() throws Exception {
+        TestLargeObjectValue value = new TestLargeObjectValue(DataExportProcessor.MAX_EXPORT_CELL_LENGTH + 1L, "partial");
+
+        String exportValue = DataExportProcessor.formatValue(null, null, value);
+
+        assertEquals("partial", exportValue);
+        assertEquals(DataExportProcessor.MAX_EXPORT_CELL_LENGTH, value.readMaxSize);
+        assertTrue(value.released);
+    }
+
+    @Test
+    public void formatValueReturnsEmptyStringWhenLargeObjectReadReturnsNull() throws Exception {
+        TestDataExportModel model = new TestDataExportModel();
+        TestLargeObjectValue value = new TestLargeObjectValue(0, null);
+
+        String exportValue = DataExportProcessor.formatValue(null, model, value);
+
+        assertEquals("", exportValue);
+        assertEquals(DataExportProcessor.MAX_EXPORT_CELL_LENGTH, value.readMaxSize);
+        assertTrue(value.released);
+        assertEquals(0, model.getWarnings().size());
+    }
+
+    @Test
     public void formatValueReleasesLargeObjectWhenReadFails() {
         TestDataExportModel model = new TestDataExportModel();
         TestLargeObjectValue value = new TestLargeObjectValue(DataExportProcessor.MAX_EXPORT_CELL_LENGTH + 1L, "partial");
@@ -63,13 +100,13 @@ public class DataExportProcessorTest {
 
     private static class TestLargeObjectValue extends LargeObjectValue {
         private final long size;
-        private final String content;
+        private final @Nullable String content;
         private int readMaxSize = -1;
         private boolean exportCalled;
         private boolean released;
         private SQLException readException;
 
-        private TestLargeObjectValue(long size, String content) {
+        private TestLargeObjectValue(long size, @Nullable String content) {
             this.size = size;
             this.content = content;
         }
@@ -105,9 +142,10 @@ public class DataExportProcessorTest {
         }
 
         @Override
-        public String read(int maxSize) throws SQLException {
+        public @Nullable String read(int maxSize) throws SQLException {
             readMaxSize = maxSize;
             if (readException != null) throw readException;
+            setTruncated(maxSize > 0 && size > maxSize);
             return content;
         }
 
