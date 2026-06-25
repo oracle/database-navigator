@@ -18,6 +18,7 @@ package com.dbn.execution.script;
 
 import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.approval.UserApprovalAdapter;
+import com.dbn.common.approval.UserApprovalLifetime;
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.util.Messages;
 import org.jetbrains.annotations.Nullable;
@@ -73,6 +74,11 @@ public class CmdLineEnvPasswordApprovalAdapter implements UserApprovalAdapter<Cm
     @Override
     public String[] getApprovalOptions(CmdLineInterface cmdLineInterface) {
         return APPROVAL_OPTIONS;
+    }
+
+    @Override
+    public UserApprovalLifetime getApprovalLifetime(CmdLineInterface cmdLineInterface) {
+        return UserApprovalLifetime.SESSION;
     }
 
     private String getExecutableFingerprint(CmdLineInterface cmdLineInterface) {
