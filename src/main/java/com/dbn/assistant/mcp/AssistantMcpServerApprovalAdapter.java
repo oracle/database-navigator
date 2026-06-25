@@ -34,6 +34,10 @@ import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.nls.NlsResources.txt;
 
+/**
+ * Prepares user approval information for allowing the assistant to connect to configured
+ * MCP servers and exchange tool requests with them.
+ */
 public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<AssistantMcpServer> {
     private static final String[] APPROVAL_OPTIONS = Messages.options(
             txt("msg.shared.button.TrustAndConnect"),

@@ -27,6 +27,10 @@ import java.time.Duration;
 import static com.dbn.common.approval.UserApprovalAction.DRIVER_LIBRARY_LOAD;
 import static com.dbn.nls.NlsResources.txt;
 
+/**
+ * Prepares user approval information for loading external JDBC driver libraries,
+ * which may execute driver code from user-selected files or directories.
+ */
 public class DriverLibraryApprovalAdapter implements UserApprovalAdapter<DriverLibraryApproval> {
     private static final String[] APPROVAL_OPTIONS = Messages.options(
             txt("msg.driver.button.TrustAndLoadDriver"),
