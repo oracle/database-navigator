@@ -23,6 +23,8 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class GroovyExpressionEvaluatorTest {
     GroovyExpressionEvaluator expressionEvaluator = new GroovyExpressionEvaluator();
@@ -157,6 +159,20 @@ public class GroovyExpressionEvaluatorTest {
         assertInvalidExpression("COLUMN_NAME = 'TEST1'; true");
         assertInvalidExpression("false; COLUMN_NAME = 'TEST1'");
         assertInvalidExpression("COLUMN_SIZE > 1; COLUMN_NAME = 'TEST1'");
+    }
+
+    @Test
+    public void verifyExpression_REGEX_TIMEOUT_FAILS_CLOSED() {
+        String value = "a".repeat(50_000) + "X";
+        ExpressionEvaluatorContext context = context("COLUMN_NAME", value);
+
+        long start = System.nanoTime();
+        boolean valid = expressionEvaluator.verifyExpression("COLUMN_NAME ==~ /(a+)+$/", context, Boolean.class);
+        long elapsedSeconds = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start);
+
+        Assert.assertFalse(valid);
+        Assert.assertTrue(context.getError() instanceof TimeoutException);
+        Assert.assertTrue(elapsedSeconds < 10);
     }
 
     @Test

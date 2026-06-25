@@ -31,6 +31,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -43,111 +44,97 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
 @UtilityClass
+/**
+ * Lightweight timeout utilities for short guarded operations.
+ * <p>
+ * The utility runs work on a DBN timeout executor, waits for a bounded interval, and attempts
+ * cooperative cancellation with {@link Future#cancel(boolean)} when the caller times out or is
+ * interrupted. If an IDE progress indicator is bound to the current thread, progress cancellation
+ * is also wired to the submitted task.
+ * <p>
+ * This is not a hard-stop mechanism for arbitrary long-running work. Callers that own blocking
+ * resources such as JDBC statements, connections, sockets, or external processes should still use
+ * their domain-specific timeout/cancel/close mechanisms.
+ */
 public final class Timeout {
     private static final Object lock = new Object();
 
     @SneakyThrows
+    public static void run(int seconds, boolean daemon, ThrowableRunnable<Throwable> runnable) {
+        call("Operation", seconds, null, daemon, () -> {
+            runnable.run();
+            return null;
+        });
+    }
+
+    @SneakyThrows
     public static <T> T call(@NonNls String identifier, int seconds, T defaultValue, boolean daemon, ThrowableCallable<T, Throwable> callable) {
         long start = System.currentTimeMillis();
+        TimeoutTask<T> task = null;
         try {
             Threads.delay(lock);
             seconds = Diagnostics.timeoutAdjustment(seconds);
             ThreadInfo invoker = ThreadInfo.copy();
             ExecutorService executorService = Threads.timeoutExecutor(daemon);
 
-            AtomicReference<Future<T>> future = new AtomicReference<>();
-            AtomicReference<Throwable> exception = new AtomicReference<>();
-
-            future.set(executorService.submit(() -> {
-                String taskId = PooledThread.enter(future.get());
-                try {
-                    return ThreadMonitor.surround(
+            task = new TimeoutTask<>(
+                    () -> ThreadMonitor.surround(
                             invoker,
                             ThreadProperty.TIMEOUT,
-                            callable);
-                } catch (Throwable e) {
-                    conditionallyLog(e);
-                    exception.set(e);
-                    return null;
-                } finally {
-                    PooledThread.exit(taskId);
-                }
-            }));
+                            callable));
+            executorService.execute(task);
 
-            T result = waitFor(future.get(), seconds, TimeUnit.SECONDS);
-            if (exception.get() != null) {
-                throw exception.get();
-            }
+            T result = task.get(seconds, TimeUnit.SECONDS);
+            task.propagateException();
             return result;
+
         } catch (CancellationException e) {
+            // the submitted task was cancelled while waiting for completion.
             conditionallyLog(e);
             throw new ProcessCanceledException();
-        } catch (TimeoutException | InterruptedException | RejectedExecutionException e) {
+
+        } catch (InterruptedException e) {
+            // the caller thread was interrupted while waiting for completion.
             conditionallyLog(e);
+            cancelFuture(task);
+            Thread.currentThread().interrupt();
+            throw new ProcessCanceledException();
+
+        } catch (TimeoutException | RejectedExecutionException e) {
+            // the task exceeded the timeout or could not be submitted.
+            conditionallyLog(e);
+            cancelFuture(task);
             String message = Commons.nvl(e.getMessage(), simpleClassName(e));
             log.warn("{} - Operation timed out after {}s (timeout = {}s). Defaulting to {}. Cause: {}", identifier, TimeUtil.secondsSince(start), seconds, defaultValue, message);
+
         } catch (ExecutionException e) {
+            // FutureTask wrapped a failure raised by task execution.
             conditionallyLog(e);
-            log.warn("{} - Operation failed after {}s (timeout = {}s). Defaulting to {}", identifier, TimeUtil.secondsSince(start), seconds, defaultValue, unwrap(e));
-            throw e.getCause();
+            Throwable cause = unwrap(e);
+            log.warn("{} - Operation failed after {}s (timeout = {}s). Defaulting to {}", identifier, TimeUtil.secondsSince(start), seconds, defaultValue, cause);
+            throw cause;
+
         } catch (Throwable e) {
+            // any remaining failure propagates without timeout fallback.
             conditionallyLog(e);
-            throw e;
+            throw unwrap(e);
         }
         return defaultValue;
     }
 
-    @SneakyThrows
-    public static void run(int seconds, boolean daemon, ThrowableRunnable<Throwable> runnable) {
-        long start = System.currentTimeMillis();
-        try {
-            Threads.delay(lock);
-            seconds = Diagnostics.timeoutAdjustment(seconds);
-            ThreadInfo invoker = ThreadInfo.copy();
-            ExecutorService executorService = Threads.timeoutExecutor(daemon);
-            AtomicReference<Future<?>> future = new AtomicReference<>();
-            AtomicReference<Throwable> exception = new AtomicReference<>();
-
-            future.set(executorService.submit(() -> {
-                String taskId = PooledThread.enter(future.get());
-                try {
-                    ThreadMonitor.surround(
-                            invoker,
-                            ThreadProperty.TIMEOUT,
-                            runnable);
-                } catch (Throwable e) {
-                    conditionallyLog(e);
-                    exception.set(e);
-                } finally {
-                    PooledThread.exit(taskId);
-                }
-            }));
-            waitFor(future.get(), seconds, TimeUnit.SECONDS);
-            if (exception.get() != null) {
-                throw exception.get();
-            }
-        } catch (CancellationException e) {
-            conditionallyLog(e);
-            throw new ProcessCanceledException();
-        } catch (TimeoutException | InterruptedException | RejectedExecutionException e) {
-            conditionallyLog(e);
-            String message = Commons.nvl(e.getMessage(), simpleClassName(e));
-            log.warn("Operation timed out after {}s (timeout = {}s). Cause: {}", TimeUtil.secondsSince(start), seconds, message);
-        } catch (ExecutionException e) {
-            conditionallyLog(e);
-            log.warn("Operation failed after {}s (timeout = {}s)", TimeUtil.secondsSince(start), seconds, unwrap(e));
-            throw e.getCause();
-        } catch (Throwable e) {
-            conditionallyLog(e);
-            throw e;
-        }
+    private static void cancelFuture(Future<?> future) {
+        if (future != null) future.cancel(true);
     }
 
     public static <T> T waitFor(Future<T> future, long time, TimeUnit timeUnit) throws InterruptedException, TimeoutException, ExecutionException {
         try {
             Progress.cancelCallback(() -> future.cancel(true));
             return future.get(time, timeUnit);
-        } catch (TimeoutException | InterruptedException e) {
+        } catch (InterruptedException e) {
+            conditionallyLog(e);
+            future.cancel(true);
+            throw e;
+        } catch (TimeoutException e) {
             conditionallyLog(e);
             future.cancel(true);
 
@@ -156,6 +143,49 @@ public final class Timeout {
             }
 
             throw e;
+        }
+    }
+
+    private static final class TimeoutTask<T> extends FutureTask<T> {
+        private final AtomicReference<Throwable> exception;
+
+        TimeoutTask(ThrowableCallable<T, Throwable> callable) {
+            this(callable, new AtomicReference<>());
+        }
+
+        private TimeoutTask(ThrowableCallable<T, Throwable> callable, AtomicReference<Throwable> exception) {
+            super(() -> {
+                try {
+                    return callable.call();
+                } catch (Throwable e) {
+                    conditionallyLog(e);
+                    exception.set(e);
+                    return null;
+                }
+            });
+            this.exception = exception;
+        }
+
+        @Override
+        public void run() {
+            String taskId = PooledThread.enter(this);
+            try {
+                super.run();
+            } finally {
+                PooledThread.exit(taskId);
+            }
+        }
+
+        @Override
+        public T get(long timeout, TimeUnit timeUnit) throws ExecutionException, InterruptedException, TimeoutException {
+            Progress.cancelCallback(() -> cancelFuture(this));
+            return super.get(timeout, timeUnit);
+        }
+
+        @SneakyThrows
+        private void propagateException() {
+            Throwable throwable = exception.get();
+            if (throwable != null) throw throwable;
         }
     }
 
