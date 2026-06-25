@@ -61,18 +61,16 @@ public final class PostgresScriptExecutionInput extends DatabaseScriptExecutionI
     @Override
     protected void initAuthentication(AuthenticationInfo authenticationInfo) {
         AuthenticationType authType = authenticationInfo.getType();
-        if (authType != USER_PASSWORD) {
-            addParameter("--no-password");
-        } else if (getPasswordDeliveryMethod() == ScriptCredentialDelivery.TEMP_FILE) {
-            addEnvironmentVariable("PGPASSFILE", createPasswordFile(authenticationInfo).getPath());
+        if (authType == USER_PASSWORD) {
+            if (getPasswordDeliveryMethod() == ScriptCredentialDelivery.CREDENTIAL_FILE) {
+                addEnvironmentVariable("PGPASSFILE", createPasswordFile(authenticationInfo).getPath());
+            } else {
+                // Legacy support path enabled only with -Ddbn.script.credentials.delivery=environment.
+                addEnvironmentVariable("PGPASSWORD", authenticationInfo.getPassword());
+            }
         } else {
-            initLegacyEnvironmentAuthentication(authenticationInfo);
+            addParameter("--no-password");
         }
-    }
-
-    // Legacy support path enabled only with -Ddbn.script.credentials.delivery=environment.
-    private void initLegacyEnvironmentAuthentication(AuthenticationInfo authenticationInfo) {
-        addEnvironmentVariable("PGPASSWORD", authenticationInfo.getPassword());
     }
 
     private File createPasswordFile(AuthenticationInfo authenticationInfo) {

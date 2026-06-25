@@ -25,11 +25,15 @@ import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.File;
+
 @Getter
 @Setter
 public class ScriptExecutionInput extends RemoteExecutionInput {
     private CmdLineInterface cmdLineInterface;
     private VirtualFile sourceFile;
+    private File tempScriptFile;
+    private File tempScriptDirectory;
     private boolean clearOutput;
 
     ScriptExecutionInput(Project project, VirtualFile sourceFile, ConnectionHandler connection, SchemaId targetSchema, boolean clearOutput) {

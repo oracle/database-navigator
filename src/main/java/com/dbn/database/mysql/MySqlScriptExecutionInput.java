@@ -50,10 +50,6 @@ public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInpu
         String executable = cmdLineInterface.getExecutablePath();
         initCommand(executable);
 
-        if (usesTemporaryPasswordFile(authenticationInfo)) {
-            addParameter("--defaults-extra-file=" + createPasswordOptionFile(authenticationInfo).getPath());
-        }
-
         addKvParameter("--user", authenticationInfo.getUser());
         addKvParameter("--host", databaseInfo.getHost());
 
@@ -65,23 +61,18 @@ public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInpu
     @Override
     protected void initAuthentication(AuthenticationInfo authenticationInfo) {
         AuthenticationType authType = authenticationInfo.getType();
-        if (authType == AuthenticationType.USER_PASSWORD && getPasswordDeliveryMethod() == ScriptCredentialDelivery.ENVIRONMENT) {
-            initLegacyEnvironmentAuthentication(authenticationInfo);
+        if (authType == AuthenticationType.USER_PASSWORD) {
+            if (getPasswordDeliveryMethod() == ScriptCredentialDelivery.ENVIRONMENT_VARIABLE) {
+                // Legacy support path enabled only with -Ddbn.script.credentials.delivery=environment.
+                addEnvironmentVariable("MYSQL_PWD", authenticationInfo.getPassword());
+            } else {
+                File passwordFile = createPasswordFile(authenticationInfo);
+                insertKvParameter("--defaults-extra-file", passwordFile.getPath());
+            }
         }
     }
 
-    // Legacy support path enabled only with -Ddbn.script.credentials.delivery=environment.
-    private void initLegacyEnvironmentAuthentication(AuthenticationInfo authenticationInfo) {
-        addEnvironmentVariable("MYSQL_PWD", authenticationInfo.getPassword());
-    }
-
-    private boolean usesTemporaryPasswordFile(AuthenticationInfo authenticationInfo) {
-        return
-                authenticationInfo.getType() == AuthenticationType.USER_PASSWORD &&
-                getPasswordDeliveryMethod() == ScriptCredentialDelivery.TEMP_FILE;
-    }
-
-    private File createPasswordOptionFile(AuthenticationInfo authenticationInfo) {
+    private File createPasswordFile(AuthenticationInfo authenticationInfo) {
         try {
             File file = createCredentialFile("DBN-mysql-", ".cnf");
             try (BufferedWriter writer = Files.newBufferedWriter(file.toPath(), UTF_8)) {

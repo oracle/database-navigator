@@ -17,7 +17,6 @@
 package com.dbn.database;
 
 import com.dbn.common.util.Chars;
-import com.dbn.common.util.Strings;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.dbn.common.util.Strings.isEmpty;
 
 @Getter
 @Setter
@@ -61,18 +62,23 @@ public class CmdLineExecutionInput {
     }
 
     public void addParameter(@NonNls String param) {
-        if (Strings.isEmpty(param)) return;
+        if (isEmpty(param)) return;
         command.addParameter(param);
     }
 
     public void addParameter(@NonNls String param, @NonNls String value) {
-        if (Strings.isEmpty(value)) return;
+        if (isEmpty(value)) return;
         command.addParameter(param);
         command.addParameter(value);
     }
     public void addKvParameter(@NonNls String param, @NonNls String value) {
-        if (Strings.isEmpty(value)) return;
+        if (isEmpty(value)) return;
         command.addParameter(param + "=" + value);
+    }
+
+    public void insertKvParameter(@NonNls String param, @NonNls String value) {
+        if (isEmpty(value)) return;
+        command.getParametersList().addAt(0, param + "=" + value);
     }
 
     @NotNull

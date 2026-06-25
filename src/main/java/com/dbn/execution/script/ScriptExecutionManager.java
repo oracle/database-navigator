@@ -68,7 +68,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dbn.common.approval.UserApprovalAction.COMMAND_LINE_EXECUTION;
 import static com.dbn.common.component.Components.projectService;
@@ -186,8 +185,6 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         activeProcesses.remove(sourceFile, null);
 
         Project project = getProject();
-        AtomicReference<File> tempScriptFile = new AtomicReference<>();
-        AtomicReference<File> tempScriptDirectoryRef = new AtomicReference<>();
         LogOutputContext outputContext = new LogOutputContext(connection, sourceFile, null);
         int timeout = input.getExecutionTimeout();
         executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, txt("log.execution.info.InitializingScriptExecution"), input.isClearOutput()));
@@ -200,12 +197,12 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
                     String content = new String(sourceFile.contentsToByteArray());
                     Path temporaryScriptDirectory = createTempScriptDirectory();
-                    tempScriptDirectoryRef.set(temporaryScriptDirectory.toFile());
+                    input.setTempScriptDirectory(temporaryScriptDirectory.toFile());
 
                     File temporaryScriptFile = createTempScriptFile(temporaryScriptDirectory).toFile();
 
                     executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.CreatingTemporaryScriptFile", temporaryScriptFile)));
-                    tempScriptFile.set(temporaryScriptFile);
+                    input.setTempScriptFile(temporaryScriptFile);
 
                     DatabaseExecutionInterface executionInterface = connection.getInterfaces().getExecutionInterface();
                     CmdLineExecutionInput executionInput = executionInterface.createScriptExecutionInput(connection,
@@ -288,12 +285,12 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
             context.set(ExecutionStatus.EXECUTING, false);
             outputContext.finish();
             activeProcesses.remove(sourceFile);
-            File temporaryScriptFile = tempScriptFile.get();
+            File temporaryScriptFile = input.getTempScriptFile();
             if (temporaryScriptFile != null && temporaryScriptFile.exists()) {
                 executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.DeletingTemporaryScriptFile", temporaryScriptFile)));
                 FileUtil.delete(temporaryScriptFile);
             }
-            File temporaryScriptDirectory = tempScriptDirectoryRef.get();
+            File temporaryScriptDirectory = input.getTempScriptDirectory();
             if (temporaryScriptDirectory == null) {
                 temporaryScriptDirectory = temporaryScriptFile == null ? null : temporaryScriptFile.getParentFile();
             }

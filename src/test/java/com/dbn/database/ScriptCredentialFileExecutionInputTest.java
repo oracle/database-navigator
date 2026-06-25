@@ -97,7 +97,7 @@ public class ScriptCredentialFileExecutionInputTest {
 
     @Test
     public void legacyEnvironmentModePreservesPasswordEnvironmentVariables() throws Exception {
-        setPasswordDeliveryProperty(ScriptCredentialDelivery.ENVIRONMENT);
+        setPasswordDeliveryProperty(ScriptCredentialDelivery.ENVIRONMENT_VARIABLE);
 
         CmdLineExecutionInput mysqlInput = new MySqlExecutionInterface().createScriptExecutionInput(
                 connection(DatabaseType.MYSQL, MYSQL_PASSWORD),
@@ -120,10 +120,10 @@ public class ScriptCredentialFileExecutionInputTest {
 
     @Test
     public void invalidCredentialDeliveryPropertyFallsBackToTempFile() {
-        assertEquals(ScriptCredentialDelivery.TEMP_FILE, ScriptCredentialDelivery.resolve(null));
-        assertEquals(ScriptCredentialDelivery.TEMP_FILE, ScriptCredentialDelivery.resolve(""));
-        assertEquals(ScriptCredentialDelivery.TEMP_FILE, ScriptCredentialDelivery.resolve("unknown"));
-        assertEquals(ScriptCredentialDelivery.ENVIRONMENT, ScriptCredentialDelivery.resolve("environment"));
+        assertEquals(ScriptCredentialDelivery.CREDENTIAL_FILE, ScriptCredentialDelivery.resolve(null));
+        assertEquals(ScriptCredentialDelivery.CREDENTIAL_FILE, ScriptCredentialDelivery.resolve(""));
+        assertEquals(ScriptCredentialDelivery.CREDENTIAL_FILE, ScriptCredentialDelivery.resolve("unknown"));
+        assertEquals(ScriptCredentialDelivery.ENVIRONMENT_VARIABLE, ScriptCredentialDelivery.resolve("environment"));
     }
 
     private static void setPasswordDeliveryProperty(ScriptCredentialDelivery delivery) {

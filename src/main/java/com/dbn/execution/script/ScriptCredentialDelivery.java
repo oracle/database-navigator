@@ -21,8 +21,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 public enum ScriptCredentialDelivery {
-    TEMP_FILE,
-    ENVIRONMENT;
+    CREDENTIAL_FILE,
+    ENVIRONMENT_VARIABLE;
 
     public static final @NonNls String PROPERTY_NAME = "dbn.script.credentials.delivery";
 
@@ -31,13 +31,13 @@ public enum ScriptCredentialDelivery {
     }
 
     public static ScriptCredentialDelivery resolve(@Nullable String value) {
-        if (Strings.isEmptyOrSpaces(value)) return TEMP_FILE;
+        if (Strings.isEmptyOrSpaces(value)) return CREDENTIAL_FILE;
 
         for (ScriptCredentialDelivery delivery : values()) {
             if (delivery.name().equalsIgnoreCase(value.trim())) {
                 return delivery;
             }
         }
-        return TEMP_FILE;
+        return CREDENTIAL_FILE;
     }
 }
