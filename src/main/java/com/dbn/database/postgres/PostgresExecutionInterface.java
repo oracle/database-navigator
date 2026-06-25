@@ -24,11 +24,12 @@ import com.dbn.database.common.execution.JavaExecutionProcessor;
 import com.dbn.database.common.execution.MethodExecutionProcessor;
 import com.dbn.database.postgres.execution.PostgresMethodExecutionProcessor;
 import com.dbn.execution.script.CmdLineInterface;
-import com.dbn.execution.script.ScriptExecutionOptions;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
 
 public class PostgresExecutionInterface extends DatabaseExecutionInterfaceImpl {
     @Override
@@ -50,31 +51,14 @@ public class PostgresExecutionInterface extends DatabaseExecutionInterfaceImpl {
     public CmdLineExecutionInput createScriptExecutionInput(
             @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
+            @NotNull File scriptFile,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
         return new PostgresScriptExecutionInput(
                 connection,
                 cmdLineInterface,
-                filePath,
+                scriptFile,
                 content,
                 schemaId);
-    }
-
-    @Override
-    public CmdLineExecutionInput createScriptExecutionInput(
-            @NotNull ConnectionHandler connection,
-            @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
-            @NotNull String content,
-            @Nullable SchemaId schemaId,
-            @NotNull ScriptExecutionOptions options) {
-        return new PostgresScriptExecutionInput(
-                connection,
-                cmdLineInterface,
-                filePath,
-                content,
-                schemaId,
-                options);
     }
 }

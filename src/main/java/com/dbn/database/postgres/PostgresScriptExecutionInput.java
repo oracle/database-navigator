@@ -24,7 +24,6 @@ import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseScriptExecutionInput;
 import com.dbn.execution.script.CmdLineInterface;
 import com.dbn.execution.script.ScriptCredentialDelivery;
-import com.dbn.execution.script.ScriptExecutionOptions;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,21 +42,10 @@ public final class PostgresScriptExecutionInput extends DatabaseScriptExecutionI
     public PostgresScriptExecutionInput(
             @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
+            @NotNull File scriptFile,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
-        super(connection, cmdLineInterface, filePath, content, schemaId);
-    }
-
-    public PostgresScriptExecutionInput(
-            @NotNull ConnectionHandler connection,
-            @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
-            @NotNull String content,
-            @Nullable SchemaId schemaId,
-            @NotNull ScriptExecutionOptions options) {
-
-        super(connection, cmdLineInterface, filePath, content, schemaId, options);
+        super(connection, cmdLineInterface, scriptFile, content, schemaId);
     }
 
     @Override
@@ -75,7 +63,7 @@ public final class PostgresScriptExecutionInput extends DatabaseScriptExecutionI
         AuthenticationType authType = authenticationInfo.getType();
         if (authType != USER_PASSWORD) {
             addParameter("--no-password");
-        } else if (getCredentialDelivery() == ScriptCredentialDelivery.TEMP_FILE) {
+        } else if (getPasswordDeliveryMethod() == ScriptCredentialDelivery.TEMP_FILE) {
             addEnvironmentVariable("PGPASSFILE", createPasswordFile(authenticationInfo).getPath());
         } else {
             initLegacyEnvironmentAuthentication(authenticationInfo);
@@ -88,12 +76,9 @@ public final class PostgresScriptExecutionInput extends DatabaseScriptExecutionI
     }
 
     private File createPasswordFile(AuthenticationInfo authenticationInfo) {
-        ScriptExecutionOptions options = getOptions();
-        if (options == null) throw new IllegalStateException("Script execution options are required for temporary credential files");
-
         try {
             DatabaseInfo databaseInfo = getDatabaseInfo();
-            File file = options.createCredentialFile("DBN-postgres-", ".pgpass");
+            File file = createCredentialFile("DBN-postgres-", ".pgpass");
             try (BufferedWriter writer = Files.newBufferedWriter(file.toPath(), UTF_8)) {
                 writeEscapedField(writer, getConnectionField(databaseInfo.getHost()));
                 writer.write(':');
@@ -128,12 +113,12 @@ public final class PostgresScriptExecutionInput extends DatabaseScriptExecutionI
     }
 
     @Override
-    protected void initConsoleCommands(String filePath, SchemaId schemaId, ConnectionHandler connection) {
+    protected void initConsoleCommands(File scriptFile, SchemaId schemaId, ConnectionHandler connection) {
         if (schemaId != null) {
             addStatement("set search_path to " + getQuotedSchemaId(schemaId, connection) + ";");
         }
 
-        addStatement("\\i " + filePath);
+        addStatement("\\i " + scriptFile.getPath());
         addStatement("\\q"); // exit
     }
 }

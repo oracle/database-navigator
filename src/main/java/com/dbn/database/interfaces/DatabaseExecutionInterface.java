@@ -22,11 +22,12 @@ import com.dbn.database.CmdLineExecutionInput;
 import com.dbn.database.common.execution.JavaExecutionProcessor;
 import com.dbn.database.common.execution.MethodExecutionProcessor;
 import com.dbn.execution.script.CmdLineInterface;
-import com.dbn.execution.script.ScriptExecutionOptions;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
 
 import static com.dbn.database.interfaces.DatabaseInterfaceType.EXECUTION;
 
@@ -48,17 +49,7 @@ public interface DatabaseExecutionInterface extends DatabaseInterface {
     CmdLineExecutionInput createScriptExecutionInput(
             @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
+            @NotNull File scriptFile,
             String content,
             @Nullable SchemaId schemaId);
-
-    default CmdLineExecutionInput createScriptExecutionInput(
-            @NotNull ConnectionHandler connection,
-            @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
-            String content,
-            @Nullable SchemaId schemaId,
-            @NotNull ScriptExecutionOptions options) {
-        return createScriptExecutionInput(connection, cmdLineInterface, filePath, content, schemaId);
-    }
 }

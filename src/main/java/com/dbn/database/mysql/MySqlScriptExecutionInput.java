@@ -24,7 +24,6 @@ import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseScriptExecutionInput;
 import com.dbn.execution.script.CmdLineInterface;
 import com.dbn.execution.script.ScriptCredentialDelivery;
-import com.dbn.execution.script.ScriptExecutionOptions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,20 +39,10 @@ public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInpu
     public MySqlScriptExecutionInput(
             @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
+            @NotNull File scriptFile,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
-        super(connection, cmdLineInterface, filePath, content, schemaId);
-    }
-
-    public MySqlScriptExecutionInput(
-            @NotNull ConnectionHandler connection,
-            @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
-            @NotNull String content,
-            @Nullable SchemaId schemaId,
-            @NotNull ScriptExecutionOptions options) {
-        super(connection, cmdLineInterface, filePath, content, schemaId, options);
+        super(connection, cmdLineInterface, scriptFile, content, schemaId);
     }
 
     @Override
@@ -76,7 +65,7 @@ public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInpu
     @Override
     protected void initAuthentication(AuthenticationInfo authenticationInfo) {
         AuthenticationType authType = authenticationInfo.getType();
-        if (authType == AuthenticationType.USER_PASSWORD && getCredentialDelivery() == ScriptCredentialDelivery.ENVIRONMENT) {
+        if (authType == AuthenticationType.USER_PASSWORD && getPasswordDeliveryMethod() == ScriptCredentialDelivery.ENVIRONMENT) {
             initLegacyEnvironmentAuthentication(authenticationInfo);
         }
     }
@@ -89,15 +78,12 @@ public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInpu
     private boolean usesTemporaryPasswordFile(AuthenticationInfo authenticationInfo) {
         return
                 authenticationInfo.getType() == AuthenticationType.USER_PASSWORD &&
-                getCredentialDelivery() == ScriptCredentialDelivery.TEMP_FILE;
+                getPasswordDeliveryMethod() == ScriptCredentialDelivery.TEMP_FILE;
     }
 
     private File createPasswordOptionFile(AuthenticationInfo authenticationInfo) {
-        ScriptExecutionOptions options = getOptions();
-        if (options == null) throw new IllegalStateException("Script execution options are required for temporary credential files");
-
         try {
-            File file = options.createCredentialFile("DBN-mysql-", ".cnf");
+            File file = createCredentialFile("DBN-mysql-", ".cnf");
             try (BufferedWriter writer = Files.newBufferedWriter(file.toPath(), UTF_8)) {
                 writer.write("[client]");
                 writer.newLine();
@@ -129,11 +115,11 @@ public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInpu
     }
 
     @Override
-    protected void initConsoleCommands(String filePath, SchemaId schemaId, ConnectionHandler connection) {
+    protected void initConsoleCommands(File scriptFile, SchemaId schemaId, ConnectionHandler connection) {
         if (schemaId != null) {
             addStatement("use " + getQuotedSchemaId(schemaId, connection) + ";");
         }
-        filePath = filePath.replace("\\", "/"); // mysql does not seem to understand backslash path even on windows ()
+        String filePath = scriptFile.getPath().replace("\\", "/"); // mysql does not seem to understand backslash path even on windows ()
         addStatement("source " + filePath + ";");
         addStatement("exit");
     }

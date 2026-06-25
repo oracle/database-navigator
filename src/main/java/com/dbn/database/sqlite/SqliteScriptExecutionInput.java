@@ -25,16 +25,18 @@ import com.dbn.execution.script.CmdLineInterface;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+
 import static com.dbn.common.util.Naming.doubleQuoted;
 
 public final class SqliteScriptExecutionInput extends DatabaseScriptExecutionInput {
     public SqliteScriptExecutionInput(
             @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
+            @NotNull File scriptFile,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
-        super(connection, cmdLineInterface, filePath, content, schemaId);
+        super(connection, cmdLineInterface, scriptFile, content, schemaId);
     }
 
     @Override
@@ -51,8 +53,8 @@ public final class SqliteScriptExecutionInput extends DatabaseScriptExecutionInp
     }
 
     @Override
-    protected void initConsoleCommands(String filePath, SchemaId schemaId, ConnectionHandler connection) {
-        addStatement(".read " + doubleQuoted(filePath));
+    protected void initConsoleCommands(File scriptFile, SchemaId schemaId, ConnectionHandler connection) {
+        addStatement(".read " + doubleQuoted(scriptFile.getPath()));
         addStatement(".exit");
     }
 }

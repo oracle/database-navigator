@@ -28,6 +28,8 @@ import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+
 class SqliteExecutionInterface extends DatabaseExecutionInterfaceImpl {
 
     @Override
@@ -49,14 +51,14 @@ class SqliteExecutionInterface extends DatabaseExecutionInterfaceImpl {
     public CmdLineExecutionInput createScriptExecutionInput(
             @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
+            @NotNull File scriptFile,
             String content,
             @Nullable SchemaId schemaId) {
 
         return new SqliteScriptExecutionInput(
                 connection,
                 cmdLineInterface,
-                filePath,
+                scriptFile,
                 content,
                 schemaId);
     }
