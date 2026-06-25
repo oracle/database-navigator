@@ -29,12 +29,20 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Files.normalizePath;
 import static java.lang.Character.isWhitespace;
 
 @NonNls
 public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
+    private static final Pattern PRIVILEGED_ROLE_PATTERN = Pattern.compile(
+            "^(.+?)\\s+AS\\s+(SYSDBA|SYSOPER|SYSASM|SYSBACKUP|SYSDG|SYSKM|SYSRAC)$",
+            Pattern.CASE_INSENSITIVE);
+
     public static final String SQLPLUS_CONNECT_PATTERN_TNS= "[USER]@[TNS_PROFILE]";
     public static final String SQLPLUS_CONNECT_PATTERN_SID = "[USER]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SID=[DATABASE])))\"";
     public static final String SQLPLUS_CONNECT_PATTERN_SERVICE = "[USER]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SERVICE_NAME=[DATABASE])))\"";
@@ -102,6 +110,8 @@ public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
     }
 
     private static String buildConnectionParameter(DatabaseInfo databaseInfo, AuthenticationInfo authenticationInfo) {
+        SqlPlusLogin login = resolveSqlPlusLogin(authenticationInfo);
+
         DatabaseUrlType urlType = databaseInfo.getUrlType();
         String connectPattern =
                 urlType == DatabaseUrlType.TNS ? SQLPLUS_CONNECT_PATTERN_TNS :
@@ -110,11 +120,27 @@ public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
                 urlType == DatabaseUrlType.EZCONNECT ? SQLPLUS_CONNECT_PATTERN_EZCONNECT :
                                     SQLPLUS_CONNECT_PATTERN_BASIC;
 
-        return connectPattern.
-                replace("[USER]",        nvl(authenticationInfo.getUser(),     "")).
+        String connectionParameter = connectPattern.
+                replace("[USER]",        login.user()).
                 replace("[HOST]",        nvl(databaseInfo.getHost(),           "")).
                 replace("[PORT]",        nvl(databaseInfo.getPort(),           "")).
                 replace("[DATABASE]",    nvl(databaseInfo.getDatabase(),       "")).
                 replace("[TNS_PROFILE]", nvl(databaseInfo.getTnsProfile(),     ""));
+
+        return connectionParameter + login.roleClause();
     }
+
+    private static SqlPlusLogin resolveSqlPlusLogin(AuthenticationInfo authenticationInfo) {
+        String user = nvl(authenticationInfo.getUser(), "");
+        Matcher privilegedRoleMatcher = PRIVILEGED_ROLE_PATTERN.matcher(user.trim());
+        if (!privilegedRoleMatcher.matches()) {
+            return new SqlPlusLogin(user, "");
+        }
+
+        String name = privilegedRoleMatcher.group(1).trim();
+        String role = privilegedRoleMatcher.group(2).toUpperCase(Locale.ENGLISH);
+        return new SqlPlusLogin(name, " AS " + role);
+    }
+
+    private record SqlPlusLogin(String user, String roleClause) {}
 }

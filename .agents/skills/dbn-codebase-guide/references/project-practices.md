@@ -31,6 +31,7 @@
 - Prefer local DBN null/default helpers such as `nvl`, `nvln`, `coalesce`, and `Strings.isNotEmpty`.
 - Static imports are common for DBN helpers and enum constants. Follow the imports in adjacent files.
 - Use `var` sparingly and only where surrounding code already does or the type is obvious.
+- Do not introduce reflection, reflective invocation, or classpath-adaptive API shims without explicit developer confirmation. Prefer typed APIs, small adapters, or a dependency upgrade/downgrade decision first; if reflection is still needed, explain why and ask before editing.
 
 ## Services And Components
 
@@ -83,6 +84,7 @@
 ## Settings And Persistence
 
 - Use local configuration base classes such as `BasicProjectConfiguration`, `CompositeProjectConfiguration`, and `ConfigurationEditorForm`.
+- Keep `PersistentStateElement.readState` / `writeState` and `PersistentState.getState` / `loadState` mirrored, clean, and free of custom normalization or migration logic by default.
 - Read/write XML with `com.dbn.common.options.setting.Settings` helpers:
   - `newElement`, `newStateElement`, `childrenOf`.
   - `stringAttribute`, `booleanAttribute`, `enumAttribute`, `connectionIdAttribute`.

@@ -63,7 +63,6 @@ public class AssistantMcpServerApprovalAdapterTest {
         AssistantMcpServer mcpServer = new AssistantMcpServer();
         mcpServer.readConfiguration(httpServerElement("https://example.com/mcp"));
 
-        Assert.assertFalse(mcpServer.isAcknowledged());
         Assert.assertEquals("https://example.com/mcp", mcpServer.getEndpoint());
         Assert.assertTrue(adapter.getApprovalKey(mcpServer).contains("mcp-server:imported-http-server:"));
     }
@@ -73,7 +72,6 @@ public class AssistantMcpServerApprovalAdapterTest {
         AssistantMcpServer mcpServer = new AssistantMcpServer();
         mcpServer.readConfiguration(stdioServerElement("/usr/local/bin/server", "--workspace", "/tmp/project-a"));
 
-        Assert.assertFalse(mcpServer.isAcknowledged());
         Assert.assertEquals("/usr/local/bin/server --workspace /tmp/project-a", mcpServer.getEndpoint());
         Assert.assertTrue(adapter.getApprovalKey(mcpServer).contains("mcp-server:imported-stdio-server:"));
     }

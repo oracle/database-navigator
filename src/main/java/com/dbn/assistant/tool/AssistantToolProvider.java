@@ -70,7 +70,7 @@ public class AssistantToolProvider implements ToolProvider, AssistantComponent {
                 processToolMethod(tools, tool, method);
             }
         }
-        return new ToolProviderResult(tools);
+        return ToolProviderResult.builder().addAll(tools).build();
     }
 
     @Nullable

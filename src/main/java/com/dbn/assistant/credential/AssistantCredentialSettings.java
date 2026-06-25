@@ -19,7 +19,7 @@ package com.dbn.assistant.credential;
 import com.dbn.assistant.credential.ui.AssistantCredentialsSettingsForm;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.options.BasicProjectConfiguration;
-import com.dbn.common.options.WorkspaceConfig;
+import com.dbn.common.options.WorkspaceStorage;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,7 +33,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 
 @Getter
 @Setter
-@WorkspaceConfig
+@WorkspaceStorage
 @EqualsAndHashCode(callSuper = false)
 public class AssistantCredentialSettings
         extends BasicProjectConfiguration<AssistantSettings, AssistantCredentialsSettingsForm> {

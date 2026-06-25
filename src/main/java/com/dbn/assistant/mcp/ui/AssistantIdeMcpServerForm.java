@@ -44,6 +44,7 @@ import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.DISABLED;
 import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.ENABLED;
 import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.UNAVAILABLE;
 import static com.dbn.assistant.mcp.ide.IdeMcpServerManager.MCP_SERVER_PLUGIN_ID;
+import static com.dbn.common.approval.UserApprovalAction.MCP_SERVER_ACCESS;
 import static com.dbn.common.thread.Dispatch.async;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.CheckBoxes.onSelectionChange;
@@ -164,7 +165,7 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
         AssistantMcpServer mcpServer = serverManager.getIdeMcpServer();
 
         UserApprovalManager approvalManager = UserApprovalManager.getInstance();
-        approvalManager.approveTemporarily(mcpServer);
+        approvalManager.approveTemporarily(MCP_SERVER_ACCESS, mcpServer);
 
         Dialogs.show(() -> new AssistantMcpToolApprovalDialog(getProject(), mcpServer));
     }

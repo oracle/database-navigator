@@ -59,10 +59,12 @@ import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setDouble;
 import static com.dbn.common.options.setting.Settings.setEnum;
+import static com.dbn.common.options.setting.Settings.setSensitiveString;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
+import static com.dbn.common.util.Strings.nvle;
 import static com.dbn.connection.config.EasyConnectParameters.sanitizeParameters;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -134,7 +136,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
     }
 
     public String getName() {
-        return nvl(name);
+        return nvle(name);
     }
 
     public String getDriver() {
@@ -373,26 +375,26 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                 Files.convertToRelativePath(getProject(), this.driverLibrary) :
                 this.driverLibrary;
 
-        setString(element, "name", nvl(name));
-        setString(element, "description", nvl(description));
+        setString(element, "name", nvle(name));
+        setString(element, "description", nvle(description));
 
         setEnum(element, "database-type", databaseType);
         setEnum(element, "config-type", configType);
         setDouble(element, "database-version", databaseVersion);
 
         setEnum(element, "driver-source", driverSource);
-        setString(element, "driver-library", nvl(driverLibrary));
-        setString(element, "driver", nvl(driver));
+        setString(element, "driver-library", nvle(driverLibrary));
+        setString(element, "driver", nvle(driver));
         setEnum(element, "url-type", databaseInfo.getUrlType());
 
         if (databaseInfo.isCustomUrl()) {
-            setString(element, "url", nvl(databaseInfo.getUrl()));
+            setString(element, "url", nvle(databaseInfo.getUrl()));
         } else {
-            setString(element, "host", nvl(databaseInfo.getHost()));
-            setString(element, "port", nvl(databaseInfo.getPort()));
-            setString(element, "database", nvl(databaseInfo.getDatabase()));
-            setString(element, "tns-folder", nvl(databaseInfo.getTnsFolder()));
-            setString(element, "tns-profile", nvl(databaseInfo.getTnsProfile()));
+            setString(element, "host", nvle(databaseInfo.getHost()));
+            setString(element, "port", nvle(databaseInfo.getPort()));
+            setString(element, "database", nvle(databaseInfo.getDatabase()));
+            setSensitiveString(element, "tns-folder", nvle(databaseInfo.getTnsFolder()));
+            setString(element, "tns-profile", nvle(databaseInfo.getTnsProfile()));
             setEnum(element, "server-type", databaseInfo.getServerType());
             setEnum(element, "protocol", databaseInfo.getProtocol());
 

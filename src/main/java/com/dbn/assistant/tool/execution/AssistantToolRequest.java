@@ -16,11 +16,14 @@
 
 package com.dbn.assistant.tool.execution;
 
+import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.state.ProtectedContent;
 import com.dbn.common.util.UUIDs;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.jdom.Element;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -31,17 +34,28 @@ import java.util.TreeMap;
 import static com.dbn.assistant.AssistantComponent.OBJECT_MAPPER;
 import static com.dbn.assistant.tool.AssistantToolData.getUtilityMethod;
 import static com.dbn.assistant.tool.AssistantToolData.isInternalTool;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.createPreview;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.getOversizedRequestMessage;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.isOversized;
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.integerAttribute;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
+import static com.dbn.common.options.setting.Settings.setIntegerAttribute;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.state.StateEncryptionScopes.ASSISTANT_TOOL_ARGUMENTS;
 import static com.dbn.common.util.Commons.nvl;
 
-@Slf4j
 @Getter
 @Setter
-public class AssistantToolRequest {
-
+@Slf4j
+public class AssistantToolRequest implements PersistentStateElement {
     private String chatId;
     private String requestId;
     private String toolName;
-    private String toolArguments;
+    private final ProtectedContent toolArguments = new ProtectedContent(ASSISTANT_TOOL_ARGUMENTS);
+    private boolean toolArgumentsTruncated;
+    private int toolArgumentsLength; // length before preview truncation
 
     private Method method;
     private Object[] methodArguments;
@@ -54,23 +68,63 @@ public class AssistantToolRequest {
         this.requestId = nvl(requestId, () -> UUIDs.compact());
 
         this.toolName = toolName;
-        this.toolArguments = toolArguments;
+        setToolArguments(toolArguments);
 
         this.external = !isInternalTool(toolName);
         this.method = this.external ? null : getUtilityMethod(toolName);
     }
 
+    public String getToolArguments() {
+        return toolArguments.get();
+    }
+
+    public void setToolArguments(String toolArguments) {
+        String value = nvl(toolArguments, "");
+        toolArgumentsLength = value.length();
+        toolArgumentsTruncated = isOversized(value);
+        this.toolArguments.set(toolArgumentsTruncated ? createPreview(value, toolArgumentsLength) : value);
+    }
+
+    public void assertExecutable() {
+        if (!toolArgumentsTruncated) return;
+
+        throw new IllegalStateException(getOversizedRequestMessage(toolArgumentsLength));
+    }
+
+    @Override
+    public void readState(Element element) {
+        requestId = stringAttribute(element, "request-id");
+        toolName = stringAttribute(element, "tool-name");
+        toolArgumentsTruncated = booleanAttribute(element, "tool-arguments-truncated", false);
+        toolArgumentsLength = integerAttribute(element, "tool-arguments-length", 0);
+
+        Element argumentsElement = element.getChild("tool-arguments");
+        toolArguments.readState(argumentsElement);
+    }
+
+    @Override
+    public void writeState(Element element) {
+        setStringAttribute(element, "request-id", requestId);
+        setStringAttribute(element, "tool-name", toolName);
+        setBooleanAttribute(element, "tool-arguments-truncated", toolArgumentsTruncated);
+        setIntegerAttribute(element, "tool-arguments-length", toolArgumentsLength);
+
+        toolArguments.writeState(element, "tool-arguments");
+    }
+
     @SneakyThrows
     public List<String> getToolArgumentNames() {
+        assertExecutable();
         // arguments sorted alphabetically (some providers do not return arguments in alphabetical order: arg0, arg1... aso)
-        Map<String, ?> map = OBJECT_MAPPER.readValue(toolArguments, TreeMap.class);
+        Map<String, ?> map = OBJECT_MAPPER.readValue(getToolArguments(), TreeMap.class);
         return new ArrayList<>(map.keySet());
     }
 
     @SneakyThrows
     public List<?> getToolArgumentValues() {
+        assertExecutable();
         // arguments sorted alphabetically (some providers do not return arguments in alphabetical order: arg0, arg1... aso)
-        Map<String, ?> map = OBJECT_MAPPER.readValue(toolArguments, TreeMap.class);
+        Map<String, ?> map = OBJECT_MAPPER.readValue(getToolArguments(), TreeMap.class);
         return new ArrayList<>(map.values());
     }
 }

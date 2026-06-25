@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.util.Lists.filter;
 
 
 @Getter
@@ -64,6 +65,10 @@ public class CmdLineInterfaceBundle implements Cloneable<CmdLineInterfaceBundle>
     @Nullable
     public CmdLineInterface getInterface(String id) {
         return Lists.first(interfaces, cli -> Objects.equals(cli.getId(), id));
+    }
+
+    public List<CmdLineInterface> getDefaultInterfaces() {
+        return filter(interfaces, i -> i.isDefault());
     }
 
     public CmdLineInterface remove(int index) {

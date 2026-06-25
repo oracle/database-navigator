@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -60,7 +61,7 @@ public class DiagnosticSettingsDialog extends DBNDialog<DiagnosticSettingsForm> 
             super.doOKAction();
         } catch (ConfigurationException e) {
             conditionallyLog(e);
-            showErrorDialog(getProject(), txt("msg.diagnostics.title.InvalidConfiguration"), e.getMessage());
+            showErrorDialog(getProject(), txt("msg.diagnostics.title.InvalidConfiguration"), getLocalizedMessage(e));
         }
 
     }

@@ -38,6 +38,8 @@ public interface UserApprovalAdapter<T extends UserApprovable> extends Extension
      */
     Class<T> getApprovalClass();
 
+    UserApprovalAction getApprovalAction();
+
     /**
      * Returns the title shown in the approval dialog.
      */

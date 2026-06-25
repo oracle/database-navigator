@@ -50,7 +50,7 @@ public class EmbeddingSourceFilesForm extends VectorToolboxFormBase {
     @Override
     public void applyFormChanges() {
         EmbeddingSourceFiles config = getConfig();
-        config.setFilePaths(fileListForm.getFilePaths());
+        config.setFilePaths(fileListForm.getFilePaths(), p -> fileListForm.isUserSelectedPath(p));
     }
 
     private EmbeddingSourceFiles getConfig() {

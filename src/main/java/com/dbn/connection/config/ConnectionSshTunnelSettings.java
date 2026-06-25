@@ -20,10 +20,8 @@ import com.dbn.common.options.BasicProjectConfiguration;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ui.ConnectionSshTunnelSettingsForm;
 import com.dbn.connection.ssh.SshAuthType;
-import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
-import com.dbn.credentials.SecretsOwnerRegistry;
 import com.dbn.credentials.TransientSecretStore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,12 +29,13 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.options.ConfigMonitor.isClipboardStorage;
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.common.options.setting.Settings.setEnum;
-import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.common.options.setting.Settings.setSensitiveString;
 import static com.dbn.credentials.SecretType.SSH_TUNNEL_KEY_PASSPHRASE;
 import static com.dbn.credentials.SecretType.SSH_TUNNEL_PASSWORD;
 import static com.dbn.nls.NlsResources.txt;
@@ -48,15 +47,15 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
     private boolean active = false;
     private String host;
     private String user;
-    private char[] password;
     private String port = "22";
     private SshAuthType authType = SshAuthType.PASSWORD;
     private String keyFile;
-    private char[] keyPassphrase;
+
+    private final Secret password = new Secret(SSH_TUNNEL_PASSWORD, () -> getSecretOwnerId(), () -> user);
+    private final Secret keyPassphrase = new Secret(SSH_TUNNEL_KEY_PASSPHRASE, () -> getSecretOwnerId(), () -> keyFile);
 
     ConnectionSshTunnelSettings(ConnectionSettings parent) {
         super(parent);
-        SecretsOwnerRegistry.register(this);
     }
 
     @Override
@@ -90,29 +89,29 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
 
         if (isTransientContext()) {
             // transfer secrets outside transient config xml
-            password = TransientSecretStore.consume(password, getConnectionId(), SSH_TUNNEL_PASSWORD, user);
-            keyPassphrase = TransientSecretStore.consume(keyPassphrase, getConnectionId(), SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
+            TransientSecretStore.consume(password, getSecretOwnerId(), SSH_TUNNEL_PASSWORD, user);
+            TransientSecretStore.consume(keyPassphrase, getSecretOwnerId(), SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
         }
     }
 
     @Override
     public void writeConfiguration(Element element) {
-        setBoolean(element, "active", active);
-        setString(element, "proxy-host", host);
-        setString(element, "proxy-port", port);
-        setString(element, "proxy-user", user);
+        setBoolean(element, "active", !isClipboardStorage() && active);
+        setSensitiveString(element, "proxy-host", host);
+        setSensitiveString(element, "proxy-port", port);
+        setSensitiveString(element, "proxy-user", user);
         setEnum(element, "auth-type", authType);
-        setString(element, "key-file", keyFile);
+        setSensitiveString(element, "key-file", keyFile);
 
         if (isTransientContext()) {
             // transfer secrets outside transient config xml
-            TransientSecretStore.store(password, getConnectionId(), SSH_TUNNEL_PASSWORD, user);
-            TransientSecretStore.store(keyPassphrase, getConnectionId(), SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
+            TransientSecretStore.store(password, getSecretOwnerId(), SSH_TUNNEL_PASSWORD, user);
+            TransientSecretStore.store(keyPassphrase, getSecretOwnerId(), SSH_TUNNEL_KEY_PASSPHRASE, keyFile);
         }
     }
 
     public ConnectionId getConnectionId() {
-        return ensureParent().getConnectionId();
+        return getConnectionSettings().getConnectionId();
     }
 
     /*********************************************************
@@ -121,44 +120,39 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
 
     @Override
     public @NotNull Object getSecretOwnerId() {
-        return getConnectionId();
+        return getConnectionSettings().getSecretOwnerId();
     }
 
     @Override
     public String getSecretOwnerName() {
-        return ensureParent().getDatabaseSettings().getName();
+        return getConnectionSettings().getSecretOwnerName();
+    }
+
+    private @NotNull ConnectionSettings getConnectionSettings() {
+        return ensureParent();
     }
 
     @Override
     public Secret[] getSecrets() {
         return new Secret[] {
-                getPasswordSecret(),
-                getKeyPassphraseSecret()};
+                password,
+                keyPassphrase};
     }
 
-    private Secret getPasswordSecret() {
-        return new Secret(SSH_TUNNEL_PASSWORD, user, password);
+    public char[] getPassword() {
+        return password.getToken();
     }
 
-    private Secret getKeyPassphraseSecret() {
-        return new Secret(SSH_TUNNEL_KEY_PASSPHRASE, keyFile, keyPassphrase);
+    public void setPassword(char[] password) {
+        this.password.setToken(password);
     }
 
-    /**
-     * Load password or passphrase from Password Safe
-     */
-    @Override
-    public void initSecrets() {
-        if (!active) return;
-
-        ConnectionId connectionId = getConnectionId();
-        DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
-        if (authType == SshAuthType.PASSWORD) {
-            Secret secret = credentialManager.loadSecret(SSH_TUNNEL_PASSWORD, connectionId, user);
-            password = secret.getToken();
-        } else if (authType == SshAuthType.KEY_PAIR) {
-            Secret secret = credentialManager.loadSecret(SSH_TUNNEL_KEY_PASSPHRASE, connectionId, keyFile);
-            keyPassphrase = secret.getToken();
-        }
+    public char[] getKeyPassphrase() {
+        return keyPassphrase.getToken();
     }
+
+    public void setKeyPassphrase(char[] keyPassphrase) {
+        this.keyPassphrase.setToken(keyPassphrase);
+    }
+
 }

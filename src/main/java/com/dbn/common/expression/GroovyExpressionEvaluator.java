@@ -23,13 +23,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.Objects;
+import java.util.concurrent.TimeoutException;
 
 import static com.dbn.common.expression.SqlToGroovyExpressionConverter.cachedSqlToGroovy;
 import static com.dbn.common.expression.SqlToGroovyExpressionConverter.sqlToGroovy;
+import static com.dbn.common.thread.Timeout.call;
 import static com.dbn.common.util.Unsafe.cast;
 
 @Slf4j
 public class GroovyExpressionEvaluator implements ExpressionEvaluator{
+    private static final int EVALUATION_TIMEOUT_SECONDS = 2;
+    private static final Object TIMED_OUT = new Object();
 
     @Override
     public boolean verifyExpression(@NonNls String expression, ExpressionEvaluatorContext context) {
@@ -69,7 +73,7 @@ public class GroovyExpressionEvaluator implements ExpressionEvaluator{
             context.getBindVariables().forEach((n, v) -> binding.setVariable(n, v));
 
             GroovyShell shell = GroovySandboxFactory.createSandbox(binding);
-            Object result = shell.evaluate(expression);
+            Object result = evaluate(shell, expression);
 
             verifyResult(result, expectedOutcome);
             return cast(result);
@@ -80,6 +84,20 @@ public class GroovyExpressionEvaluator implements ExpressionEvaluator{
         }
     }
 
+    private static Object evaluate(GroovyShell shell, @NonNls String expression) throws TimeoutException {
+        Object result = call(
+                "Groovy expression evaluation",
+                EVALUATION_TIMEOUT_SECONDS,
+                TIMED_OUT,
+                true,
+                () -> shell.evaluate(expression));
+
+        if (result == TIMED_OUT) {
+            throw new TimeoutException("Expression evaluation timed out after " + EVALUATION_TIMEOUT_SECONDS + " seconds");
+        }
+
+        return result;
+    }
 
     private static void verifyResult(Object result, Class<?> expectedType) {
         if (result == null) return;

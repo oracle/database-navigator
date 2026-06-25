@@ -201,10 +201,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase {
                 Set<StatementExecutionVariable> variables = variablesCache.getVariables(virtualFile);
                 for (StatementExecutionVariable executionVariable : variables) {
                     if (Objects.equals(executionVariable.getName(), variable.getName())) {
-                        Iterable<String> valueHistory = executionVariable.getValueHistory();
-                        for (String value : valueHistory) {
-                            values.add(value);
-                        }
+                        values.addAll(executionVariable.getValueHistory());
                     }
                 }
 

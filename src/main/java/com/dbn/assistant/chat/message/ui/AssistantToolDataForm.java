@@ -53,6 +53,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.util.Objects;
 
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.createPreview;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.isPreviewOversized;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 
@@ -104,7 +106,7 @@ public class AssistantToolDataForm extends DBNFormBase {
 
     private void initDataViewers() {
         Project project = getProject();
-        String requestContent = invocation.getRequestContent();
+        String requestContent = preparePreviewContent(invocation.getRequestContent());
         String responseContent = invocation.getResponseContent();
 
         requestViewer = createViewer(project, "ai_tool_request.json", requestContent);
@@ -121,7 +123,7 @@ public class AssistantToolDataForm extends DBNFormBase {
             requestTextPane.setEditable(false);
             requestTextPane.setText(requestContent);
             responseTextPane.setEditable(false);
-            requestTextPane.setText(responseContent);
+            responseTextPane.setText(responseContent);
 
             requestDataPanel.add(requestTextPane);
             responseDataPanel.add(responseTextPane);
@@ -144,6 +146,8 @@ public class AssistantToolDataForm extends DBNFormBase {
     }
 
     private static @Nullable EditorEx createViewer(Project project, String fileName, String content) {
+        if (isPreviewOversized(content)) return null;
+
         Language language = Languages.getJsonLanguage();
         VirtualFile file =  new LightVirtualFile(fileName, language, content);
 
@@ -154,6 +158,10 @@ public class AssistantToolDataForm extends DBNFormBase {
         if (document == null) return null;
 
         return createViewer(document, project, file);
+    }
+
+    private static String preparePreviewContent(String content) {
+        return isPreviewOversized(content) ? createPreview(content, content.length()) : content;
     }
 
     public static @Nullable PsiFile initPreviewPsiFile(Project project, VirtualFile file, Language language) {

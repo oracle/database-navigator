@@ -21,10 +21,10 @@ import com.dbn.common.util.RefreshableValue;
 import com.dbn.data.model.resultSet.ResultSetColumnInfo;
 import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
-import com.dbn.editor.data.DatasetEditorUtils;
 import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.object.DBColumn;
 import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,6 +35,7 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Nullifier.nullify;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.editor.data.DatasetEditorUtils.loadDistinctColumnValues;
 
 @Getter
 @Setter
@@ -78,21 +79,24 @@ public class DatasetEditorColumnInfo extends ResultSetColumnInfo  {
     private List<String> loadPossibleValues() {
         List<String> values = null;
         DBColumn column = getColumn();
+        Project project = column.getProject();
+        int valuesThreshold = getPossibleValuesThreshold(project);
+
         if (column.isForeignKey()) {
             DBColumn foreignKeyColumn = column.getForeignKeyColumn();
             if (foreignKeyColumn != null) {
-                values = DatasetEditorUtils.loadDistinctColumnValues(foreignKeyColumn);
+                values = loadDistinctColumnValues(foreignKeyColumn, valuesThreshold);
             }
         } else {
-            values = DatasetEditorUtils.loadDistinctColumnValues(column);
-        }
-
-        if (values != null) {
-            DataEditorSettings dataEditorSettings = DataEditorSettings.getInstance(column.getProject());
-            int maxElementCount = dataEditorSettings.getValueListPopupSettings().getElementCountThreshold();
-            if (values.size() > maxElementCount) values.clear();
+            values = loadDistinctColumnValues(column, valuesThreshold);
         }
         return nvl(values, Collections.emptyList());
+    }
+
+    private static int getPossibleValuesThreshold(Project project) {
+        DataEditorSettings dataEditorSettings = DataEditorSettings.getInstance(project);
+        int valuesThreshold = dataEditorSettings.getValueListPopupSettings().getElementCountThreshold();
+        return valuesThreshold;
     }
 
     @Override

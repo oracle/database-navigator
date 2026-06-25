@@ -11,7 +11,7 @@ Use this skill for localization-only or localization-heavy changes in DBN. Pair 
 
 Keep localization edits narrowly scoped. Do not refactor unrelated code while replacing hardcoded strings.
 
-Before changing Java, XML, `.form`, or resource files, inspect enough context to identify open points, then clarify them with the developer. Highlight the planned edits, including keys, files, callers, visible wording changes, and validation commands, and wait for confirmation before applying changes.
+Before changing Java, XML, `.form`, or resource files, inspect enough context to identify open points. Proceed directly for straightforward localized fixes. Ask for confirmation before broad NLS cleanup, key renames, visible wording changes, `.form` rewiring, or changes where callers/composition are unclear.
 
 ## Resource Access
 
@@ -319,7 +319,7 @@ rg -n '<labelFor value=""' -g '*.form' src/main/java
 rg -n 'class="javax.swing.JLabel"|<labelFor|<text resource-bundle="messages/DBNResources"' -g '*.form' src/main/java
 ```
 
-For a broad audit, use a namespace-aware XML scan rather than grep only. Verify that all `labelFor` values resolve to component ids, that localized `JLabel` values with `labelFor` contain a mnemonic, and that same-row copied targets are reviewed manually. After editing, rerun the scan and expect zero empty `labelFor` values, zero missing target ids, zero labels-with-targets lacking mnemonics, and zero obvious copied targets.
+For a broad audit, warn the developer that a repo-wide XML scan can be token-expensive and ask for confirmation before running it. Prefer targeted checks on touched `.form` files unless the developer requested a full audit. If a full audit is needed, ask the developer to run the namespace-aware XML scan locally and share only failures or relevant excerpts. Verify that all `labelFor` values resolve to component ids, that localized `JLabel` values with `labelFor` contain a mnemonic, and that same-row copied targets are reviewed manually.
 
 Treat possible missing `labelFor` results as candidates, not automatic fixes. Manually exclude status/readout labels, units, preview labels, placeholders, headers, and labels in nested panels where grid row/column positions only look adjacent by coincidence.
 
@@ -330,4 +330,4 @@ Treat possible missing `labelFor` results as candidates, not automatic fixes. Ma
 3. Pick the functional area and family (`app`, `cfg`, `msg`, `ntf`, `prc`) from where the text appears.
 4. Patch Java/.form/properties together, using static `txt(...)` imports in Java.
 5. Re-scan the target files for remaining hardcoded user-visible strings.
-6. Run `git diff --check`. Run the narrow compile/test command when useful; report unrelated existing blockers clearly.
+6. Run `git diff --check`. Keep scans targeted to touched files unless the developer asks for a broad audit. Do not run Gradle/build/test/IDE validation unless the developer explicitly asks; instead ask the developer to run the narrow compile/test command when useful.

@@ -10,8 +10,8 @@ import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionUtil;
-import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
+import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.dbn.connection.config.tns.TnsProfile;
 import com.dbn.mcp.model.McpServerDefinition;
@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.util.JdbcUrls.redactSensitiveParameters;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -222,18 +223,15 @@ public class McpBuildTask {
     }
 
     private String resolveConnectionUrl() {
+        ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
         DatabaseInfo info = connection.getDatabaseInfo();
         DatabaseUrlType urlType = info.getUrlType();
 
         if (urlType == DatabaseUrlType.TNS) {
-            return resolveTnsDescriptorUrl(info);
-        }
-        if (urlType == DatabaseUrlType.CUSTOM) {
-            return safe(info.getUrl());
+            return redactSensitiveParameters(resolveTnsDescriptorUrl(info));
         }
 
-        DatabaseUrlPattern pattern = DatabaseUrlPattern.get(connection.getDatabaseType(), urlType);
-        return pattern.buildUrl(info);
+        return redactSensitiveParameters(databaseSettings.getConnectionUrl());
     }
 
     private String resolveTnsDescriptorUrl(DatabaseInfo info) {
