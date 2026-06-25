@@ -215,7 +215,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
                             .exportConnection(project, tmp);
                 }catch (ConfigurationException ex) {
                     conditionallyLog(ex);
-                    Messages.showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), ex.getMessage());
+                    showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), getLocalizedMessage(ex));
                 }
                 return;
             }
