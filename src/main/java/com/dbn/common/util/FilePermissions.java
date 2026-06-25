@@ -20,6 +20,7 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
@@ -27,6 +28,9 @@ import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Set;
+
+import static java.nio.file.Files.createTempDirectory;
+import static java.nio.file.Files.createTempFile;
 
 @UtilityClass
 public class FilePermissions {
@@ -90,5 +94,35 @@ public class FilePermissions {
 
     public static FileAttribute<Set<PosixFilePermission>> ownDirectoryPermissions() {
         return PosixFilePermissions.asFileAttribute(OWN_DIRECTORY_PERMISSIONS);
+    }
+
+    public static Path createOwnerOnlyTempDirectory(String prefix) throws IOException {
+        try {
+            return createTempDirectory(prefix, ownDirectoryPermissions());
+        } catch (UnsupportedOperationException e) {
+            Path tempDirectory = createTempDirectory(prefix);
+            restrictToOwner(tempDirectory.toFile());
+            return tempDirectory;
+        }
+    }
+
+    public static Path createOwnerOnlyTempDirectory(Path parentDirectory, String prefix) throws IOException {
+        try {
+            return createTempDirectory(parentDirectory, prefix, ownDirectoryPermissions());
+        } catch (UnsupportedOperationException e) {
+            Path tempDirectory = createTempDirectory(parentDirectory, prefix);
+            restrictToOwner(tempDirectory.toFile());
+            return tempDirectory;
+        }
+    }
+
+    public static Path createOwnerOnlyTempFile(Path directory, String prefix, String suffix) throws IOException {
+        try {
+            return createTempFile(directory, prefix, suffix, ownFilePermissions());
+        } catch (UnsupportedOperationException e) {
+            Path tempFile = createTempFile(directory, prefix, suffix);
+            restrictToOwner(tempFile.toFile());
+            return tempFile;
+        }
     }
 }

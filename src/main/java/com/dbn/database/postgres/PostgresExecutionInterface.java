@@ -29,6 +29,8 @@ import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+
 public class PostgresExecutionInterface extends DatabaseExecutionInterfaceImpl {
     @Override
     public MethodExecutionProcessor createExecutionProcessor(DBMethod method) {
@@ -49,13 +51,13 @@ public class PostgresExecutionInterface extends DatabaseExecutionInterfaceImpl {
     public CmdLineExecutionInput createScriptExecutionInput(
             @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
+            @NotNull File scriptFile,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
         return new PostgresScriptExecutionInput(
                 connection,
                 cmdLineInterface,
-                filePath,
+                scriptFile,
                 content,
                 schemaId);
     }

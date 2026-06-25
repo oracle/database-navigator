@@ -27,6 +27,8 @@ import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+
 import static com.dbn.database.interfaces.DatabaseInterfaceType.EXECUTION;
 
 /**
@@ -47,7 +49,7 @@ public interface DatabaseExecutionInterface extends DatabaseInterface {
     CmdLineExecutionInput createScriptExecutionInput(
             @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
+            @NotNull File scriptFile,
             String content,
             @Nullable SchemaId schemaId);
 }

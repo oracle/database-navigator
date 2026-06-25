@@ -28,6 +28,8 @@ import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+
 public class GenericExecutionInterface extends DatabaseExecutionInterfaceImpl {
 
     @Override
@@ -53,7 +55,7 @@ public class GenericExecutionInterface extends DatabaseExecutionInterfaceImpl {
     public CmdLineExecutionInput createScriptExecutionInput(
             @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
+            @NotNull File scriptFile,
             String content,
             @Nullable SchemaId schemaId) {
         throw new UnsupportedOperationException();

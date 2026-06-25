@@ -28,6 +28,8 @@ import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+
 public class MySqlExecutionInterface extends DatabaseExecutionInterfaceImpl {
 
     @Override
@@ -49,14 +51,13 @@ public class MySqlExecutionInterface extends DatabaseExecutionInterfaceImpl {
     public CmdLineExecutionInput createScriptExecutionInput(
             @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
+            @NotNull File scriptFile,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
-
         return new MySqlScriptExecutionInput(
                 connection,
                 cmdLineInterface,
-                filePath,
+                scriptFile,
                 content,
                 schemaId);
     }

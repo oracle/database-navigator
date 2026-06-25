@@ -33,6 +33,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+
 @NonNls
 public final class OracleExecutionInterface implements DatabaseExecutionInterface {
 
@@ -59,14 +61,14 @@ public final class OracleExecutionInterface implements DatabaseExecutionInterfac
     public CmdLineExecutionInput createScriptExecutionInput(
             @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
+            @NotNull File scriptFile,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
 
         return new OracleScriptExecutionInput(
                 connection,
                 cmdLineInterface,
-                filePath,
+                scriptFile,
                 content,
                 schemaId);
     }

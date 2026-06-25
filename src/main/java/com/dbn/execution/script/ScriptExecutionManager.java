@@ -68,7 +68,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dbn.common.approval.UserApprovalAction.COMMAND_LINE_EXECUTION;
 import static com.dbn.common.component.Components.projectService;
@@ -81,9 +80,8 @@ import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
-import static com.dbn.common.util.FilePermissions.ownDirectoryPermissions;
-import static com.dbn.common.util.FilePermissions.ownFilePermissions;
-import static com.dbn.common.util.FilePermissions.restrictToOwner;
+import static com.dbn.common.util.FilePermissions.createOwnerOnlyTempDirectory;
+import static com.dbn.common.util.FilePermissions.createOwnerOnlyTempFile;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -91,8 +89,6 @@ import static com.dbn.execution.logging.LogOutput.createSysOutput;
 import static com.dbn.execution.script.ScriptExecutionProcessHandler.startProcess;
 import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.openapi.ui.DialogWrapper.OK_EXIT_CODE;
-import static java.nio.file.Files.createTempDirectory;
-import static java.nio.file.Files.createTempFile;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Getter
@@ -189,7 +185,6 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         activeProcesses.remove(sourceFile, null);
 
         Project project = getProject();
-        AtomicReference<File> tempScriptFile = new AtomicReference<>();
         LogOutputContext outputContext = new LogOutputContext(connection, sourceFile, null);
         int timeout = input.getExecutionTimeout();
         executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, txt("log.execution.info.InitializingScriptExecution"), input.isClearOutput()));
@@ -201,15 +196,18 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     SchemaId schemaId = input.getSchemaId();
 
                     String content = new String(sourceFile.contentsToByteArray());
-                    File temporaryScriptFile = createTempScriptFile();
+                    Path temporaryScriptDirectory = createTempScriptDirectory();
+                    input.setTempScriptDirectory(temporaryScriptDirectory.toFile());
+
+                    File temporaryScriptFile = createTempScriptFile(temporaryScriptDirectory).toFile();
 
                     executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.CreatingTemporaryScriptFile", temporaryScriptFile)));
-                    tempScriptFile.set(temporaryScriptFile);
+                    input.setTempScriptFile(temporaryScriptFile);
 
                     DatabaseExecutionInterface executionInterface = connection.getInterfaces().getExecutionInterface();
                     CmdLineExecutionInput executionInput = executionInterface.createScriptExecutionInput(connection,
                             cmdLineInterface,
-                            temporaryScriptFile.getPath(),
+                            temporaryScriptFile,
                             content,
                             schemaId);
 
@@ -287,12 +285,15 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
             context.set(ExecutionStatus.EXECUTING, false);
             outputContext.finish();
             activeProcesses.remove(sourceFile);
-            File temporaryScriptFile = tempScriptFile.get();
+            File temporaryScriptFile = input.getTempScriptFile();
             if (temporaryScriptFile != null && temporaryScriptFile.exists()) {
                 executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.DeletingTemporaryScriptFile", temporaryScriptFile)));
                 FileUtil.delete(temporaryScriptFile);
             }
-            File temporaryScriptDirectory = temporaryScriptFile == null ? null : temporaryScriptFile.getParentFile();
+            File temporaryScriptDirectory = input.getTempScriptDirectory();
+            if (temporaryScriptDirectory == null) {
+                temporaryScriptDirectory = temporaryScriptFile == null ? null : temporaryScriptFile.getParentFile();
+            }
             if (temporaryScriptDirectory != null && temporaryScriptDirectory.exists()) {
                 executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.DeletingTemporaryScriptDirectory", temporaryScriptDirectory)));
                 FileUtil.delete(temporaryScriptDirectory);
@@ -366,16 +367,6 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         return null;
     }
 
-    private File createTempScriptFile() throws IOException {
-        Path tempDirectory = createTempScriptDirectory();
-        try {
-            return createTempScriptFile(tempDirectory).toFile();
-        } catch (IOException e) {
-            FileUtil.delete(tempDirectory.toFile());
-            throw e;
-        }
-    }
-
     private static Path createTempScriptDirectory() throws IOException {
         try {
             return createTempScriptDirectory(null);
@@ -387,31 +378,13 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
     }
 
     private static Path createTempScriptDirectory(@Nullable Path parentDirectory) throws IOException {
-        try {
-            var permissions = ownDirectoryPermissions();
-            return parentDirectory == null ?
-                    createTempDirectory("DBN-", permissions) :
-                    createTempDirectory(parentDirectory, "DBN-", permissions);
-
-        } catch (UnsupportedOperationException e) {
-            Path tempDirectory = parentDirectory == null ?
-                    createTempDirectory("DBN-") :
-                    createTempDirectory(parentDirectory, "DBN-");
-
-            restrictToOwner(tempDirectory.toFile());
-            return tempDirectory;
-        }
+        return parentDirectory == null ?
+                createOwnerOnlyTempDirectory("DBN-") :
+                createOwnerOnlyTempDirectory(parentDirectory, "DBN-");
     }
 
     private static Path createTempScriptFile(Path tempDirectory) throws IOException {
-        try {
-            var permissions = ownFilePermissions();
-            return createTempFile(tempDirectory, "DBN-", ".sql", permissions);
-        } catch (UnsupportedOperationException e) {
-            Path tempFile = createTempFile(tempDirectory, "DBN-", ".sql");
-            restrictToOwner(tempFile.toFile());
-            return tempFile;
-        }
+        return createOwnerOnlyTempFile(tempDirectory, "DBN-", ".sql");
     }
 
     /****************************************

@@ -21,23 +21,37 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.execution.script.ScriptCredentialDelivery;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+
+import static com.dbn.common.util.FilePermissions.createOwnerOnlyTempFile;
+
 public abstract class DatabaseScriptExecutionInput extends CmdLineExecutionInput{
+    private final DatabaseInfo databaseInfo;
+    private final File scriptFile;
+    private final ScriptCredentialDelivery passwordDeliveryMethod;
+
     public DatabaseScriptExecutionInput(
             @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
+            @NotNull File scriptFile,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
         super(content);
+        this.scriptFile = scriptFile;
+        this.passwordDeliveryMethod = ScriptCredentialDelivery.current();
 
         DatabaseInfo databaseInfo = connection.getDatabaseInfo();
+        this.databaseInfo = databaseInfo;
         AuthenticationInfo authenticationInfo = connection.getAuthenticationInfo();
         initExecutable(cmdLineInterface, databaseInfo, authenticationInfo);
         initAuthentication(authenticationInfo);
-        initConsoleCommands(filePath, schemaId, connection);
+        initConsoleCommands(scriptFile, schemaId, connection);
     }
 
     protected abstract void initExecutable(
@@ -47,7 +61,23 @@ public abstract class DatabaseScriptExecutionInput extends CmdLineExecutionInput
 
     protected abstract void initAuthentication(AuthenticationInfo authenticationInfo);
 
-    protected abstract void initConsoleCommands(String filePath, SchemaId schemaId, ConnectionHandler connection);
+    protected abstract void initConsoleCommands(File scriptFile, SchemaId schemaId, ConnectionHandler connection);
+
+
+    protected @NotNull DatabaseInfo getDatabaseInfo() {
+        return databaseInfo;
+    }
+
+    protected ScriptCredentialDelivery getPasswordDeliveryMethod() {
+        return passwordDeliveryMethod;
+    }
+
+    protected File createCredentialFile(String prefix, String suffix) throws IOException {
+        Path parentDirectory = scriptFile.toPath().getParent();
+        if (parentDirectory == null) throw new IOException("Script file has no parent directory: " + scriptFile);
+
+        return createOwnerOnlyTempFile(parentDirectory, prefix, suffix).toFile();
+    }
 
     protected static String getQuotedSchemaId(SchemaId schemaId, ConnectionHandler connection) {
         return connection.getIdentifierCache().getQuotedIdentifier(schemaId.id());

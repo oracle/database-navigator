@@ -23,23 +23,29 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseScriptExecutionInput;
 import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.execution.script.ScriptCredentialDelivery;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @NonNls
 public final class PostgresScriptExecutionInput extends DatabaseScriptExecutionInput {
-
     public PostgresScriptExecutionInput(
             @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
+            @NotNull File scriptFile,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
-
-        super(connection, cmdLineInterface, filePath, content, schemaId);
+        super(connection, cmdLineInterface, scriptFile, content, schemaId);
     }
 
     @Override
@@ -55,20 +61,62 @@ public final class PostgresScriptExecutionInput extends DatabaseScriptExecutionI
     @Override
     protected void initAuthentication(AuthenticationInfo authenticationInfo) {
         AuthenticationType authType = authenticationInfo.getType();
-        if (authType != USER_PASSWORD) {
-            addParameter("--no-password");
+        if (authType == USER_PASSWORD) {
+            if (getPasswordDeliveryMethod() == ScriptCredentialDelivery.CREDENTIAL_FILE) {
+                addEnvironmentVariable("PGPASSFILE", createPasswordFile(authenticationInfo).getPath());
+            } else {
+                // Legacy support path enabled only with -Ddbn.script.credentials.delivery=environment.
+                addEnvironmentVariable("PGPASSWORD", authenticationInfo.getPassword());
+            }
         } else {
-            addEnvironmentVariable("PGPASSWORD", authenticationInfo.getPassword());
+            addParameter("--no-password");
+        }
+    }
+
+    private File createPasswordFile(AuthenticationInfo authenticationInfo) {
+        try {
+            DatabaseInfo databaseInfo = getDatabaseInfo();
+            File file = createCredentialFile("DBN-postgres-", ".pgpass");
+            try (BufferedWriter writer = Files.newBufferedWriter(file.toPath(), UTF_8)) {
+                writeEscapedField(writer, getConnectionField(databaseInfo.getHost()));
+                writer.write(':');
+                writeEscapedField(writer, getConnectionField(databaseInfo.getPort()));
+                writer.write(':');
+                writeEscapedField(writer, getConnectionField(databaseInfo.getDatabase()));
+                writer.write(':');
+                writeEscapedField(writer, getConnectionField(authenticationInfo.getUser()));
+                writer.write(':');
+                writeEscapedField(writer, authenticationInfo.getPassword());
+                writer.newLine();
+            }
+            return file;
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to create PostgreSQL script credential file", e);
+        }
+    }
+
+    private static char[] getConnectionField(String value) {
+        return value == null || value.isBlank() ? new char[]{'*'} : value.toCharArray();
+    }
+
+    static void writeEscapedField(BufferedWriter writer, char[] value) throws IOException {
+        if (value == null) return;
+
+        for (char c : value) {
+            if (c == '\\' || c == ':') {
+                writer.write('\\');
+            }
+            writer.write(c);
         }
     }
 
     @Override
-    protected void initConsoleCommands(String filePath, SchemaId schemaId, ConnectionHandler connection) {
+    protected void initConsoleCommands(File scriptFile, SchemaId schemaId, ConnectionHandler connection) {
         if (schemaId != null) {
             addStatement("set search_path to " + getQuotedSchemaId(schemaId, connection) + ";");
         }
 
-        addStatement("\\i " + filePath);
+        addStatement("\\i " + scriptFile.getPath());
         addStatement("\\q"); // exit
     }
 }

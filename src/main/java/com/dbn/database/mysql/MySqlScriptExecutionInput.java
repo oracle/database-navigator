@@ -23,17 +23,26 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseScriptExecutionInput;
 import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.execution.script.ScriptCredentialDelivery;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInput {
     public MySqlScriptExecutionInput(
             @NotNull ConnectionHandler connection,
             @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
+            @NotNull File scriptFile,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
-        super(connection, cmdLineInterface, filePath, content, schemaId);
+        super(connection, cmdLineInterface, scriptFile, content, schemaId);
     }
 
     @Override
@@ -53,16 +62,55 @@ public final class MySqlScriptExecutionInput extends DatabaseScriptExecutionInpu
     protected void initAuthentication(AuthenticationInfo authenticationInfo) {
         AuthenticationType authType = authenticationInfo.getType();
         if (authType == AuthenticationType.USER_PASSWORD) {
-            addEnvironmentVariable("MYSQL_PWD", authenticationInfo.getPassword());
+            if (getPasswordDeliveryMethod() == ScriptCredentialDelivery.ENVIRONMENT_VARIABLE) {
+                // Legacy support path enabled only with -Ddbn.script.credentials.delivery=environment.
+                addEnvironmentVariable("MYSQL_PWD", authenticationInfo.getPassword());
+            } else {
+                File passwordFile = createPasswordFile(authenticationInfo);
+                insertKvParameter("--defaults-extra-file", passwordFile.getPath());
+            }
+        }
+    }
+
+    private File createPasswordFile(AuthenticationInfo authenticationInfo) {
+        try {
+            File file = createCredentialFile("DBN-mysql-", ".cnf");
+            try (BufferedWriter writer = Files.newBufferedWriter(file.toPath(), UTF_8)) {
+                writer.write("[client]");
+                writer.newLine();
+                writer.write("password=\"");
+                writeEscapedOptionValue(writer, authenticationInfo.getPassword());
+                writer.write('"');
+                writer.newLine();
+            }
+            return file;
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to create MySQL script credential file", e);
+        }
+    }
+
+    static void writeEscapedOptionValue(BufferedWriter writer, char[] value) throws IOException {
+        if (value == null) return;
+
+        for (char c : value) {
+            switch (c) {
+                case '\\' -> writer.write("\\\\");
+                case '"' -> writer.write("\\\"");
+                case '\b' -> writer.write("\\b");
+                case '\t' -> writer.write("\\t");
+                case '\n' -> writer.write("\\n");
+                case '\r' -> writer.write("\\r");
+                default -> writer.write(c);
+            }
         }
     }
 
     @Override
-    protected void initConsoleCommands(String filePath, SchemaId schemaId, ConnectionHandler connection) {
+    protected void initConsoleCommands(File scriptFile, SchemaId schemaId, ConnectionHandler connection) {
         if (schemaId != null) {
             addStatement("use " + getQuotedSchemaId(schemaId, connection) + ";");
         }
-        filePath = filePath.replace("\\", "/"); // mysql does not seem to understand backslash path even on windows ()
+        String filePath = scriptFile.getPath().replace("\\", "/"); // mysql does not seem to understand backslash path even on windows ()
         addStatement("source " + filePath + ";");
         addStatement("exit");
     }
