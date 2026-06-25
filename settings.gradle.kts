@@ -14,6 +14,23 @@
  * limitations under the License.
  */
 
+if (providers.gradleProperty("dbn.gradle.proxy.disabled").map(String::toBoolean).getOrElse(false)) {
+    listOf(
+        "http.proxyHost",
+        "http.proxyPort",
+        "http.proxyUser",
+        "http.proxyPassword",
+        "http.nonProxyHosts",
+        "https.proxyHost",
+        "https.proxyPort",
+        "https.proxyUser",
+        "https.proxyPassword",
+        "https.nonProxyHosts",
+        "socksProxyHost",
+        "socksProxyPort"
+    ).forEach(System::clearProperty)
+}
+
 rootProject.name = "dbn-plugin"
 include("modules:dbn-api", "modules:dbn-spi")
 project(":modules:dbn-api").projectDir = file("modules/dbn-api")
