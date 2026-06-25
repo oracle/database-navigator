@@ -20,15 +20,22 @@ import com.dbn.common.checksum.Checksum;
 import com.dbn.common.checksum.ChecksumType;
 import com.dbn.test.util.FileUtil;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Locale;
 
 import static com.dbn.common.util.Commons.nvl;
 import static org.junit.Assume.assumeFalse;
 
 public class ChecksumTest {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Test
     public void fromFileContentTest() throws Exception {
         File file = FileUtil.getFileFromClasspath(getClass(), "checksum/T0001.txt");
@@ -42,20 +49,20 @@ public class ChecksumTest {
     public void fromFileAttributesTest() throws Exception {
         // JDBC-4166 -- for some reason these currently fail on Linux
         assumeFalse(isLinux());
-        File file = FileUtil.getFileFromClasspath(getClass(), "checksum");
+        File file = createChecksumDirectory();
         String checksum = Checksum.fromFileAttributes(file, ChecksumType.SHA_256);
 
-        Assert.assertEquals("f6b5bc7bde6d05995135bbcb1b2a20294f5f5f2e1688e2dff9c4db2eb08245bd", checksum);
+        Assert.assertEquals("f3ea5f50af189887c33f280b57c935eda532cb0869ea333557e2a8bb2a1547af", checksum);
     }
 
     @Test
     public void fromFileContentsTest() throws Exception {
         // JDBC-4166 -- for some reason these currently fail on Linux
         assumeFalse(isLinux());
-        File file = FileUtil.getFileFromClasspath(getClass(), "checksum");
+        File file = createChecksumDirectory();
         String checksum = Checksum.fromFileContents(file, ChecksumType.SHA_256);
 
-        Assert.assertEquals("abcd15289b0c71eb444940e8b38c93b31fe2b80dc4c6839bf3ce460e3b4edbc6", checksum);
+        Assert.assertEquals("8187ee8ab8085d3eb9f94e2a739bc50332f17c534516fd44a340402d0ce9ccd2", checksum);
     }
 
     @Test
@@ -75,5 +82,19 @@ public class ChecksumTest {
     private static boolean isLinux() {
         String osName = nvl(System.getProperty("os.name"), "unknown");
         return Strings.containsIgnoreCase(osName, "linux");
+    }
+
+    private File createChecksumDirectory() throws IOException {
+        File directory = temporaryFolder.newFolder("checksum");
+        File subdirectory = new File(directory, "sub");
+        Assert.assertTrue(subdirectory.mkdir());
+
+        File file = new File(subdirectory, "T0001.txt");
+        Files.writeString(file.toPath(), "Test resource for ChecksumTest\n");
+
+        Assert.assertTrue(file.setLastModified(1_700_000_000_000L));
+        Assert.assertTrue(subdirectory.setLastModified(1_700_000_001_000L));
+        Assert.assertTrue(directory.setLastModified(1_700_000_002_000L));
+        return directory;
     }
 }
