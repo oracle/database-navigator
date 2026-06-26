@@ -18,12 +18,10 @@ package com.dbn.execution.script;
 
 import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.approval.UserApprovalAdapter;
+import com.dbn.common.approval.UserApprovalOption;
 import com.dbn.common.checksum.Checksum;
-import com.dbn.common.util.Messages;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.time.Duration;
 
 import static com.dbn.common.approval.UserApprovalAction.COMMAND_LINE_EXECUTION;
 import static com.dbn.common.checksum.Checksum.fromFileAttributes;
@@ -36,9 +34,9 @@ import static com.dbn.nls.NlsResources.txt;
  * for database script execution.
  */
 public class CmdLineExecutionApprovalAdapter implements UserApprovalAdapter<CmdLineInterface> {
-    private static final String[] APPROVAL_OPTIONS = Messages.options(
-            txt("msg.execution.button.TrustAndExecute"),
-            txt("msg.shared.button.Cancel"));
+    private static final UserApprovalOption[] APPROVAL_OPTIONS = {
+            UserApprovalOption.one(txt("msg.execution.button.TrustAndExecute")),
+            UserApprovalOption.noneWithoutCooldown(txt("msg.shared.button.Cancel"))};
 
     @Override
     public Class<CmdLineInterface> getApprovalClass() {
@@ -71,7 +69,7 @@ public class CmdLineExecutionApprovalAdapter implements UserApprovalAdapter<CmdL
     }
 
     @Override
-    public String[] getApprovalOptions(CmdLineInterface cmdLineInterface) {
+    public UserApprovalOption[] getApprovalOptions(CmdLineInterface cmdLineInterface) {
         return APPROVAL_OPTIONS;
     }
 
@@ -93,11 +91,5 @@ public class CmdLineExecutionApprovalAdapter implements UserApprovalAdapter<CmdL
     private static String getExecutablePath(CmdLineInterface cmdLineInterface) {
         String executablePath = cmdLineInterface.getExecutablePath();
         return executablePath == null ? "" : executablePath.trim();
-    }
-
-    @Override
-    @Nullable
-    public Duration getRejectionCooldown(CmdLineInterface approvable, int option) {
-        return null; // do not remember rejections
     }
 }
