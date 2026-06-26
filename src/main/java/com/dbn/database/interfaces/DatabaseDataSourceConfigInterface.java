@@ -32,8 +32,6 @@ public interface DatabaseDataSourceConfigInterface extends DatabaseInterface {
         return DATA_SOURCE_CONFIG;
     }
 
-    ResultSet loadDataSourceConfigEntries(DBNConnection connection) throws SQLException;
-
     ResultSet loadDataSourceConfigEntry(String key, DBNConnection connection) throws SQLException;
 
     void insertDataSourceConfigEntry(String key, String value, DBNConnection connection) throws SQLException;

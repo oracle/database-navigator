@@ -137,6 +137,15 @@
             where PARAMETER = 'CHARACTERSET'
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="data-source-config-entries">
+        <statement>
+            select
+                config_name as key,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from user_data_source_configs
+            order by config_name
+        </statement>
+    </statement-execution-processor>
 
     <statement-execution-processor id="schemas">
         <statement prefixes="DBA, ALL, USER">

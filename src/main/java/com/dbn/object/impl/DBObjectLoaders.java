@@ -226,7 +226,7 @@ public class DBObjectLoaders {
 
         DynamicContentResultSetLoader.<DBDataSourceConfigEntry, DBDataSourceConfigEntryMetadata>create(
                 "DATA_SOURCE_CONFIG_ENTRIES", null, DATA_SOURCE_CONFIG_ENTRY, true, true,
-                (content, conn, mdi) -> conn.getConnectionHandler().getDataSourceConfigInterface().loadDataSourceConfigEntries(conn),
+                (content, conn, mdi) -> mdi.loadDataSourceConfigEntries(conn),
                 (content, cache, md) -> new DBDataSourceConfigEntryImpl(content.getConnection(), md));
 
         DynamicContentResultSetLoader.<DBUserRoleRelation, DBGrantedRoleMetadata>create(

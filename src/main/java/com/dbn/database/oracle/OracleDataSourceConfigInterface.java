@@ -31,11 +31,6 @@ public class OracleDataSourceConfigInterface extends DatabaseInterfaceBase imple
     }
 
     @Override
-    public ResultSet loadDataSourceConfigEntries(DBNConnection connection) throws SQLException {
-        return executeQuery(connection, "data-source-config-entries");
-    }
-
-    @Override
     public ResultSet loadDataSourceConfigEntry(String key, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "data-source-config-entry", key);
     }

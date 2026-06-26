@@ -83,6 +83,11 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
+    public ResultSet loadDataSourceConfigEntries(DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "data-source-config-entries");
+    }
+
+    @Override
     public ResultSet loadAllUserPrivileges(DBNConnection connection) throws SQLException {
         return executeQuery(connection, "all-user-privileges");
     }
