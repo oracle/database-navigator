@@ -40,7 +40,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.SecureRandom;
 import java.sql.Driver;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +49,7 @@ import java.util.stream.Collectors;
 import static com.dbn.common.util.JdbcUrls.redactSensitiveParameters;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Passwords.clearPassword;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.mcp.build.McpJavaVersionManager.MIN_JAVA_VERSION;
 import static com.dbn.mcp.build.McpMavenPluginSupport.verifyMavenAvailability;
@@ -390,7 +390,7 @@ public class McpBuildTask {
         Files.createDirectories(walletDir);
 
         char[] user = safe(connection.getUserName()).toCharArray();
-        char[] pwd = getPassword(connection);
+        char[] password = getPassword(connection);
 
         // Random password — used only to create ewallet.p12, never stored or shown.
         // cwallet.sso (used at runtime) needs no password.
@@ -405,7 +405,7 @@ public class McpBuildTask {
             OracleSecretStore store = wallet.getSecretStore();
             // Use documented default SEPS keys to avoid connect-string lookup mismatches.
             store.setSecret(DEFAULT_SEPS_USERNAME, user);
-            store.setSecret(DEFAULT_SEPS_PASSWORD, pwd);
+            store.setSecret(DEFAULT_SEPS_PASSWORD, password);
             wallet.setSecretStore(store);
 
             wallet.save();
@@ -417,9 +417,9 @@ public class McpBuildTask {
                     : e.getClass().getSimpleName();
             throw new IOException(txt("msg.mcp.exception.OracleSepsWalletCreationFailed", message), e);
         } finally {
-            Arrays.fill(walletPassword, '\0');
-            Arrays.fill(user, '\0');
-            Arrays.fill(pwd, '\0');
+            clearPassword(user); // TODO do we need this?
+            clearPassword(password);
+            clearPassword(walletPassword);
         }
     }
 

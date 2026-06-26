@@ -21,9 +21,11 @@ import com.dbn.common.util.Commons;
 import lombok.experimental.UtilityClass;
 
 import javax.swing.JPasswordField;
+import java.util.function.Predicate;
 
 import static com.dbn.common.ui.util.ClientProperty.PASSWORD_FIELD_STATE;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.Passwords.clearPassword;
 
 /**
  * Utilities for binding persisted password values to {@link JPasswordField} controls without
@@ -92,6 +94,15 @@ public class PasswordFields {
             return state.defaultPassword == null ? defaultPassword : state.defaultPassword;
         }
         return textComponent.getPassword();
+    }
+
+    public static boolean testPassword(JPasswordField textComponent, Predicate<char[]> predicate) {
+        char[] password = textComponent == null ? null : textComponent.getPassword();
+        try {
+            return predicate.test(password);
+        } finally {
+            clearPassword(password);
+        }
     }
 
     /**
