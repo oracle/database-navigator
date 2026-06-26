@@ -24,7 +24,6 @@ import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.IdeBundle;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -66,8 +65,8 @@ import static org.jetbrains.annotations.Nls.Capitalization.Title;
 public class DBNColoredTabs<T extends DBNForm> extends JBEditorTabs {
     private boolean closeable;
 
-    public DBNColoredTabs(@NotNull Disposable parentDisposable) {
-        super(null, IdeFocusManager.getGlobalInstance(), parentDisposable);
+    public DBNColoredTabs(@NotNull DBNForm parentForm) {
+        super(parentForm.ensureProject(), IdeFocusManager.getGlobalInstance(), parentForm);
 
         initTabsPresentation();
     }
