@@ -28,8 +28,15 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 
 @Getter
-class DBDataSourceConfigEntryImpl extends DBRootObjectImpl<DBDataSourceConfigEntryMetadata> implements DBDataSourceConfigEntry {
+public class DBDataSourceConfigEntryImpl extends DBRootObjectImpl<DBDataSourceConfigEntryMetadata> implements DBDataSourceConfigEntry {
     private String lastUpdated;
+    private String value;
+
+    public DBDataSourceConfigEntryImpl(@NotNull ConnectionHandler connection, @NotNull String name, @NotNull String value) {
+        super(connection, DBObjectType.DATA_SOURCE_CONFIG_ENTRY, name);
+        this.lastUpdated = "";
+        this.value = value;
+    }
 
     DBDataSourceConfigEntryImpl(ConnectionHandler connection, DBDataSourceConfigEntryMetadata metadata) throws SQLException {
         super(connection, metadata);

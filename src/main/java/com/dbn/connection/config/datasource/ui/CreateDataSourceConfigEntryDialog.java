@@ -18,7 +18,6 @@ package com.dbn.connection.config.datasource.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.config.datasource.service.DataSourceConfigStoreService;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
@@ -35,10 +34,7 @@ public class CreateDataSourceConfigEntryDialog extends DBNDialog<CreateDataSourc
 
     @Override
     protected @NotNull CreateDataSourceConfigEntryForm createForm() {
-        return new CreateDataSourceConfigEntryForm(
-                this,
-                ensureConnection(),
-                new DataSourceConfigStoreService());
+        return new CreateDataSourceConfigEntryForm(this, ensureConnection());
     }
 
     @Override
@@ -50,10 +46,5 @@ public class CreateDataSourceConfigEntryDialog extends DBNDialog<CreateDataSourc
     @Override
     protected void doOKAction() {
         getForm().createEntry(super::doOKAction);
-    }
-
-    void setActionsEnabled(boolean enabled) {
-        getOKAction().setEnabled(enabled);
-        getCancelAction().setEnabled(enabled);
     }
 }

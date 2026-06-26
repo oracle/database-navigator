@@ -17,7 +17,11 @@
 package com.dbn.object;
 
 import com.dbn.object.common.DBRootObject;
+import org.jetbrains.annotations.Nullable;
 
 public interface DBDataSourceConfigEntry extends DBRootObject {
     String getLastUpdated();
+
+    @Nullable
+    String getValue();
 }

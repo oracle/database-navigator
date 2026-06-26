@@ -32,7 +32,7 @@ public class CreateDataSourceConfigEntryAction extends BasicAction {
     private final WeakRef<DBObjectList> objectList;
 
     CreateDataSourceConfigEntryAction(DBObjectList objectList) {
-        super(txt("app.objects.action.NewObject", objectList.getObjectType().getTitleCasedName()));
+        super(txt("app.objects.action.NewObject", objectList.getObjectType().getTitleCasedDisplayName()));
         this.objectList = WeakRef.of(objectList);
     }
 

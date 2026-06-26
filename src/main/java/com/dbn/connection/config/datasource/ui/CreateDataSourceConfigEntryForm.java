@@ -16,7 +16,6 @@
 
 package com.dbn.connection.config.datasource.ui;
 
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -26,9 +25,12 @@ import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Json;
 import com.dbn.common.util.Messages;
+import com.dbn.common.outcome.Outcome;
+import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.config.datasource.service.DataSourceConfigStoreService;
 import com.dbn.object.common.list.DBObjectList;
+import com.dbn.object.impl.DBDataSourceConfigEntryImpl;
+import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
@@ -44,7 +46,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 import java.awt.BorderLayout;
-import java.sql.SQLException;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.file.FileTypes.getJsonFileType;
@@ -79,17 +80,14 @@ public class CreateDataSourceConfigEntryForm extends DBNFormBase {
     private JLabel statusLabel;
 
     private final ConnectionHandler connection;
-    private final DataSourceConfigStoreService service;
     private EditorEx jsonEditor;
     private DBNHeaderForm headerForm;
 
     CreateDataSourceConfigEntryForm(
             @Nullable Disposable parent,
-            @NotNull ConnectionHandler connection,
-            @NotNull DataSourceConfigStoreService service) {
+            @NotNull ConnectionHandler connection) {
         super(parent, connection.getProject());
         this.connection = connection;
-        this.service = service;
 
         initHeader();
         initFeatureInfo();
@@ -142,14 +140,15 @@ public class CreateDataSourceConfigEntryForm extends DBNFormBase {
         CreateEntryInput input = readAndValidateInput();
         if (input == null) return;
 
-        CreateDataSourceConfigEntryDialog dialog = ensureParentComponent();
-        dialog.setActionsEnabled(false);
-        setStatus("Creating '" + input.key() + "'...");
-
-        Dispatch.async(
-                mainPanel,
-                () -> createEntryInBackground(input),
-                result -> applyCreateResult(result, onSuccess));
+        DBDataSourceConfigEntryImpl entry = new DBDataSourceConfigEntryImpl(connection, input.key(), input.value());
+        ObjectManagementService.getInstance(getProject()).createObject(entry, new OutcomeHandler.HighPriority() {
+            @Override
+            public void handle(Outcome outcome) {
+                reloadEntryList();
+                setStatus("Created '" + input.key() + "'.");
+                onSuccess.run();
+            }
+        });
     }
 
     private @Nullable CreateEntryInput readAndValidateInput() {
@@ -159,30 +158,6 @@ public class CreateDataSourceConfigEntryForm extends DBNFormBase {
         if (!validateKey(key)) return null;
         if (!validateJson(value)) return null;
         return new CreateEntryInput(key, value);
-    }
-
-    private @NotNull CreateEntryResult createEntryInBackground(@NotNull CreateEntryInput input) {
-        try {
-            service.insertRecord(connection, input.key(), input.value());
-            return CreateEntryResult.created(input.key());
-        } catch (SQLException e) {
-            return CreateEntryResult.failure(input.key(), e);
-        }
-    }
-
-    private void applyCreateResult(@NotNull CreateEntryResult result, @NotNull Runnable onSuccess) {
-        CreateDataSourceConfigEntryDialog dialog = ensureParentComponent();
-        dialog.setActionsEnabled(true);
-
-        if (result.created()) {
-            reloadEntryList();
-            setStatus("Created '" + result.key() + "'.");
-            onSuccess.run();
-            return;
-        }
-
-        Messages.showErrorDialog(getProject(), "Failed to create configuration entry", result.exception());
-        setStatus("Creation failed.");
     }
 
     private boolean validateKey(@NotNull String key) {
@@ -248,14 +223,4 @@ public class CreateDataSourceConfigEntryForm extends DBNFormBase {
     }
 
     private record CreateEntryInput(String key, String value) {}
-
-    private record CreateEntryResult(String key, @Nullable Exception exception, boolean created) {
-        private static @NotNull CreateEntryResult created(@NotNull String key) {
-            return new CreateEntryResult(key, null, true);
-        }
-
-        private static @NotNull CreateEntryResult failure(@NotNull String key, @NotNull Exception exception) {
-            return new CreateEntryResult(key, exception, false);
-        }
-    }
 }
