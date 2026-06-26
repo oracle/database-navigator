@@ -32,6 +32,10 @@ import static com.dbn.common.approval.UserApprovalAction.STATE_ENCRYPTION_CHANGE
 import static com.dbn.common.state.StateEncryption.isMemoryPasswordSafe;
 import static com.dbn.nls.NlsResources.txt;
 
+/**
+ * Prepares user approval information for falling back to unencrypted persistent state
+ * when password-safe encryption is not available.
+ */
 public class StateEncryptionApprovalAdapter implements UserApprovalAdapter<StateEncryptionApproval> {
     private static final @NonNls String PASSWORD_SAFE_CONFIGURABLE_ID = "application.passwordSafe";
     private static final int OPTION_DECIDE_LATER = 1;

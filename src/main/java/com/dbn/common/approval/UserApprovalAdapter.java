@@ -70,6 +70,13 @@ public interface UserApprovalAdapter<T extends UserApprovable> extends Extension
     }
 
     /**
+     * Returns how long a successful approval remains valid.
+     */
+    default UserApprovalLifetime getApprovalLifetime(T approvable) {
+        return UserApprovalLifetime.PERSISTENT;
+    }
+
+    /**
      * Returns the dialog options. Option index {@code 0} is the approval action;
      * all other options are treated as cancellation/rejection after
      * {@link #processApprovalOption(UserApprovable, int)} is invoked.

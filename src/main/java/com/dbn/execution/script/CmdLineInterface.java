@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.dbn.common.approval.UserApprovalAction.COMMAND_LINE_EXECUTION;
+import static com.dbn.common.approval.UserApprovalAction.PASSWORD_ENVIRONMENT_VARIABLE;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Unsafe.cast;
@@ -106,7 +107,7 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
 
     @Override
     public Set<UserApprovalAction> getApprovalActions() {
-        return Set.of(COMMAND_LINE_EXECUTION);
+        return Set.of(COMMAND_LINE_EXECUTION, PASSWORD_ENVIRONMENT_VARIABLE);
     }
 
     @Nullable

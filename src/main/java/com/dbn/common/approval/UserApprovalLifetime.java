@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-/**
- * User approval infrastructure for operations that require an explicit
- * user decision before they may proceed.
- * <p>
- * Domain objects mark themselves as {@link com.dbn.common.approval.UserApprovable}
- * or {@link com.dbn.common.approval.ProjectUserApprovable} and declare the approval actions
- * they support. Action metadata is provided through a registered {@link com.dbn.common.approval.UserApprovalAdapter}.
- * The
- * {@link com.dbn.common.approval.UserApprovalManager} owns the persisted and
- * transient approval keys.
- */
 package com.dbn.common.approval;
+
+public enum UserApprovalLifetime {
+    NONE,       // no approval is currently granted
+    ONCE,       // consumed by the next approval check
+    SESSION,    // valid until the IDE restarts
+    PERSISTENT  // stored and valid across IDE restarts
+}

@@ -31,7 +31,11 @@ import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.util.Executables.resolveExecutableFile;
 import static com.dbn.nls.NlsResources.txt;
 
-public class CmdLineInterfaceApprovalAdapter implements UserApprovalAdapter<CmdLineInterface> {
+/**
+ * Prepares user approval information for launching external command-line clients selected
+ * for database script execution.
+ */
+public class CmdLineExecutionApprovalAdapter implements UserApprovalAdapter<CmdLineInterface> {
     private static final String[] APPROVAL_OPTIONS = Messages.options(
             txt("msg.execution.button.TrustAndExecute"),
             txt("msg.shared.button.Cancel"));
