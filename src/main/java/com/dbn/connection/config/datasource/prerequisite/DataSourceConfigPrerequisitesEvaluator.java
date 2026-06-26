@@ -37,7 +37,7 @@ public class DataSourceConfigPrerequisitesEvaluator extends PrerequisiteRequirem
     @Override
     protected void createMandates(List<PrerequisiteMandate> mandates, DatabaseOperation operation) {
         createMandate(mandates, DATABASE_VERSION_26_0, "Configuration entries require Oracle Database 26.0 or later");
-        createMandate(mandates, CREATE_DATA_SOURCE_CONFIG, "Allows the user to create configuration entries in the current schema");
+        createMandate(mandates, CREATE_DATA_SOURCE_CONFIG, "Requires CREATE DATA SOURCE CONFIG, or CREATE ANY DATA SOURCE CONFIG for administrative users");
         createMandate(mandates, EXECUTE_DBMS_DATA_SOURCE_CONFIG, "Allows the user to create, update, and delete configuration entries through SYS.DBMS_DATA_SOURCE_CONFIG");
     }
 }

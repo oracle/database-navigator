@@ -17,7 +17,7 @@
 package com.dbn.object.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.factory.DatabaseObjectFactory;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -27,19 +27,19 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class ObjectDropAction extends AnObjectAction<DBSchemaObject> {
-    public ObjectDropAction(DBSchemaObject object) {
+public class ObjectDropAction extends AnObjectAction<DBObject> {
+    public ObjectDropAction(DBObject object) {
         super(object);
     }
 
     @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBSchemaObject object) {
+    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBObject object) {
         presentation.setText(txt("app.objects.action.Drop"));
         presentation.setIcon(Icons.ACTION_CLOSE);
     }
 
     @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBSchemaObject object) {
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBObject object) {
         DatabaseObjectFactory objectFactory = DatabaseObjectFactory.getInstance(project);
         objectFactory.dropObject(object);
     }

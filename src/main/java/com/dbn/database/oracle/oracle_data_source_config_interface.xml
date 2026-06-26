@@ -27,13 +27,22 @@
         ]>
 <data-dictionary>
     <statement-execution-processor id="data-source-config-entry">
-        <statement>
+        <statement prefixes="DBA, ALL, USER">
             select
                 config_name as key,
                 json_serialize(value returning clob pretty) as value,
                 to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
-            from user_data_source_configs
+            from [PREFIX]_DATA_SOURCE_CONFIGS
             where upper(config_name) = upper({#0})
+        </statement>
+        <statement>
+            <!--empty fallback for databases without data source config store-->
+            select
+                null as key,
+                null as value,
+                null as last_updated
+            from dual
+            where 1 = 0
         </statement>
     </statement-execution-processor>
 

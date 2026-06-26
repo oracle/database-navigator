@@ -16,43 +16,33 @@
 
 package com.dbn.object.management.adapter.impl;
 
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.object.DBDataSourceConfigEntry;
-import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.management.ObjectManagementAdapter;
-import com.dbn.object.management.ObjectManagementAdapterExtension;
-import com.dbn.object.management.adapter.DBObjectCreateAdapter;
-import com.dbn.object.management.adapter.DBObjectDeleteAdapter;
+import com.dbn.object.management.ObjectManagementAdapterBase;
 import com.dbn.object.type.DBObjectType;
 
+import java.sql.SQLException;
+
 import static com.dbn.common.constant.Constant.array;
-import static com.dbn.common.exception.Exceptions.unsupported;
-import static com.dbn.object.event.ObjectChangeAction.CREATE;
-import static com.dbn.object.event.ObjectChangeAction.DELETE;
 import static com.dbn.object.type.DBObjectType.DATA_SOURCE_CONFIG_ENTRY;
 
-public class DBDataSourceConfigEntryManagementAdapter implements ObjectManagementAdapterExtension<DBDataSourceConfigEntry> {
+public class DBDataSourceConfigEntryManagementAdapter extends ObjectManagementAdapterBase<DBDataSourceConfigEntry> {
     @Override
     public DBObjectType[] getObjectTypes() {
         return array(DATA_SOURCE_CONFIG_ENTRY);
     }
 
     @Override
-    public ObjectManagementAdapter<DBDataSourceConfigEntry> createAdapter(DBDataSourceConfigEntry object, ObjectChangeAction action) {
-        if (action == CREATE) {
-            return new DBObjectCreateAdapter<>(
-                    object,
-                    (connection, conn, entry) -> connection.getDataSourceConfigInterface().insertDataSourceConfigEntry(
-                            entry.getName(),
-                            entry.getValue(),
-                            conn));
-        }
+    protected void createObject(ConnectionHandler connection, DBNConnection conn, DBDataSourceConfigEntry object) throws SQLException {
+        connection.getDataSourceConfigInterface().insertDataSourceConfigEntry(
+                object.getName(),
+                object.getValue(),
+                conn);
+    }
 
-        if (action == DELETE) {
-            return new DBObjectDeleteAdapter<>(
-                    object,
-                    (connection, conn, entry) -> connection.getDataSourceConfigInterface().deleteDataSourceConfigEntry(entry.getName(), conn));
-        }
-
-        return unsupported(action);
+    @Override
+    protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBDataSourceConfigEntry object) throws SQLException {
+        connection.getDataSourceConfigInterface().deleteDataSourceConfigEntry(object.getName(), conn);
     }
 }

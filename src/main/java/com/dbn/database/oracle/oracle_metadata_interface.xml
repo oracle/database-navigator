@@ -138,12 +138,20 @@
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="data-source-config-entries">
-        <statement>
+        <statement prefixes="DBA, ALL, USER">
             select
                 config_name as key,
                 to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
-            from user_data_source_configs
+            from [PREFIX]_DATA_SOURCE_CONFIGS
             order by config_name
+        </statement>
+        <statement>
+            <!--empty fallback for databases without data source config store-->
+            select
+                null as key,
+                null as last_updated
+            from dual
+            where 1 = 0
         </statement>
     </statement-execution-processor>
 

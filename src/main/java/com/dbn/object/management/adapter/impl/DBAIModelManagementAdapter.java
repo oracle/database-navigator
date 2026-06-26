@@ -4,7 +4,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.object.DBAIModel;
-import com.dbn.object.management.ObjectManagementAdapterBase;
+import com.dbn.object.management.DBSchemaObjectManagementAdapterBase;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import static com.dbn.common.constant.Constant.array;
 import static com.dbn.object.type.DBObjectType.AI_MODEL;
 
-public class DBAIModelManagementAdapter extends ObjectManagementAdapterBase<DBAIModel> {
+public class DBAIModelManagementAdapter extends DBSchemaObjectManagementAdapterBase<DBAIModel> {
     @Override
     public DBObjectType[] getObjectTypes() {
         return array(AI_MODEL);

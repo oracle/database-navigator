@@ -34,7 +34,6 @@ import com.dbn.execution.method.action.ProgramMethodExecuteAction;
 import com.dbn.generator.statement.action.GenerateStatementActionGroup;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
-import com.dbn.object.DBDataSourceConfigEntry;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaResource;
@@ -49,6 +48,7 @@ import com.dbn.object.common.list.action.HideAuditColumnsToggleAction;
 import com.dbn.object.common.list.action.HideEmptySchemasToggleAction;
 import com.dbn.object.common.list.action.HidePseudoColumnsToggleAction;
 import com.dbn.object.dependency.action.ObjectDependencyTreeAction;
+import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.navigation.DBObjectNavigationInfoProvider;
 import com.dbn.object.navigation.DBObjectNavigationInfoProviderCache;
 import com.dbn.object.type.DBObjectType;
@@ -141,8 +141,11 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
                 //add(new TestAction(object));
             }
-        } else if (object instanceof DBDataSourceConfigEntry configEntry) {
-            add(new DataSourceConfigEntryDropAction(configEntry));
+        } else {
+            // connection-root objects may still expose lifecycle operations through the object management service
+            if (ObjectManagementService.getInstance(object.getProject()).supports(object)) {
+                add(new ObjectDropAction(object));
+            }
         }
     }
 
