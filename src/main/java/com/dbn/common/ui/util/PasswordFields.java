@@ -26,6 +26,7 @@ import java.util.function.Predicate;
 import static com.dbn.common.ui.util.ClientProperty.PASSWORD_FIELD_STATE;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Passwords.clearPassword;
+import static java.util.Arrays.copyOf;
 
 /**
  * Utilities for binding persisted password values to {@link JPasswordField} controls without
@@ -55,7 +56,7 @@ public class PasswordFields {
         if (textComponent == null) return;
 
         PasswordFieldState state = getPasswordFieldState(textComponent);
-        state.defaultPassword = password;
+        state.defaultPassword = password == null ? null : copyOf(password, password.length);
         state.modified = false;
         state.updating = true;
         try {
@@ -91,13 +92,16 @@ public class PasswordFields {
 
         PasswordFieldState state = PASSWORD_FIELD_STATE.get(textComponent);
         if (state != null && !state.modified) {
-            return state.defaultPassword == null ? defaultPassword : state.defaultPassword;
+            char[] password = state.defaultPassword == null ? defaultPassword : state.defaultPassword;
+            if (password == null) return null;
+
+            return copyOf(password, password.length);
         }
         return textComponent.getPassword();
     }
 
     public static boolean testPassword(JPasswordField textComponent, Predicate<char[]> predicate) {
-        char[] password = textComponent == null ? null : textComponent.getPassword();
+        char[] password = getPassword(textComponent);
         try {
             return predicate.test(password);
         } finally {

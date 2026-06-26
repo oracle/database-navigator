@@ -3,6 +3,7 @@ package com.dbn.oci.ui;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.util.PasswordFields;
 import com.dbn.oci.util.WalletPathValidator;
 import com.dbn.oci.util.WalletPathValidator.WalletValidationResult;
 import com.intellij.openapi.Disposable;
@@ -25,6 +26,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.PasswordFields.testPassword;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Passwords.verifyPassword;
 import static com.dbn.nls.NlsResources.txt;
@@ -165,11 +167,11 @@ public class OciConnectionInputForm extends DBNFormBase {
     }
 
     public String getWalletLocation() {
-        return walletLocationField.getText();
+        return getText(walletLocationField);
     }
 
     public char[] getPassword() {
-        return passwordTextField.getPassword();
+        return PasswordFields.getPassword(passwordTextField);
     }
 
     public boolean isSpecifyPassword() {

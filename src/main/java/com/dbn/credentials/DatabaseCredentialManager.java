@@ -90,6 +90,11 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
             removeSecret(ownerId, oldSecret);
         }
 
+        if (!oldSecret.isLoaded() && !newSecret.isProvided()) {
+            log.info("Skipped empty update for unloaded secret {}", oldSecret.safePresentation());
+            return;
+        }
+
         storeSecret(ownerId, newSecret);
     }
 
