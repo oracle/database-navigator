@@ -153,7 +153,7 @@ public class McpBuildTask {
 
     private void verifyConnectionUrl() {
         try {
-            resolveConnectionUrl(); // fail fast before any dialog or file writing
+            getRedactedConnectionUrl(); // fail fast before any dialog or file writing
         } catch (UnsupportedOperationException e) {
             showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), e);
             cancelProcess();
@@ -190,7 +190,7 @@ public class McpBuildTask {
             Path configFile = baseDirectory.resolve(CONFIG);
 
             Files.createDirectories(baseDirectory);
-            Files.write(configFile, yaml.getBytes(StandardCharsets.UTF_8));
+            Files.writeString(configFile, yaml, StandardCharsets.UTF_8);
 
             result.setBaseDirectory(baseDirectory);
             result.setConfigFile(configFile);
@@ -222,7 +222,7 @@ public class McpBuildTask {
                 : Paths.get(System.getProperty("user.home"));
     }
 
-    private String resolveConnectionUrl() {
+    private String getRedactedConnectionUrl() {
         ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
         DatabaseInfo info = connection.getDatabaseInfo();
         DatabaseUrlType urlType = info.getUrlType();
@@ -270,6 +270,10 @@ public class McpBuildTask {
     }
 
     private String buildYaml() {
+        return buildYaml(definition, getRedactedConnectionUrl());
+    }
+
+    static String buildYaml(McpServerDefinition definition, String connectionUrl) {
         @NonNls
         StringBuilder sb = new StringBuilder();
 
@@ -278,7 +282,7 @@ public class McpBuildTask {
         sb.append('\n');
 
         sb.append("dataSource:\n");
-        appendYamlField(sb, "  ", "url", resolveConnectionUrl());
+        appendYamlField(sb, "  ", "url", redactSensitiveParameters(connectionUrl));
         sb.append("  # username: YOUR_USER  # uncomment to override wallet credentials\n");
         sb.append("  # password: YOUR_PASS  # uncomment to override wallet credentials\n");
         sb.append('\n');
@@ -506,8 +510,8 @@ public class McpBuildTask {
         return pwd != null ? pwd.clone() : new char[0];
     }
 
-    private String safe(String v) { return v != null ? v : ""; }
-    private String safe(String v, String d) { return v != null && !v.isEmpty() ? v : d; }
+    private static String safe(String v) { return v != null ? v : ""; }
+    private static String safe(String v, String d) { return v != null && !v.isEmpty() ? v : d; }
 
     private String buildClaudeJson(String name, String jar) {
         String command;
