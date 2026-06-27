@@ -43,6 +43,7 @@ public final class GenericDatabaseInterfaces extends DatabaseInterfacesBase {
     @Override
     protected DatabaseInterface createInterface(DatabaseInterfaceType interfaceType) {
         return switch (interfaceType) {
+            case DRIVER -> new GenericDriverInterface();
             case MESSAGE_PARSER -> new GenericMessageParserInterface();
             case ENVIRONMENT -> new DatabaseEnvironmentInterfaceImpl();
             case COMPATIBILITY -> new GenericCompatibilityInterface();

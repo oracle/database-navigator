@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package com.dbn.database.interfaces;
+package com.dbn.database.oracle;
 
-/**
- * Identifies the database interface contract implemented by a database-specific interface instance.
- */
-public enum DatabaseInterfaceType {
-    DRIVER,
-    ENVIRONMENT,
-    COMPATIBILITY,
-    MESSAGE_PARSER,
-    METADATA,
-    DATA_DEFINITION,
-    EXECUTION,
-    DEBUGGER,
-    ASSISTANT,
-    VECTOR,
-    JAVA
+import com.dbn.database.interfaces.DatabaseDriverInterface;
+import org.jdom.Element;
+
+import java.util.Collections;
+import java.util.List;
+
+public class OracleDriverInterface implements DatabaseDriverInterface {
+    @Override
+    public List<Element> discoverDriverPackages(List<Element> packageElements) {
+        return Collections.emptyList();
+    }
 }
