@@ -132,6 +132,14 @@ public final class Dispatch {
         whenFirstShown(component, () -> background(component, supplier, consumer));
     }
 
+    public static <T> void async(ModalityState modalityState, Supplier<T> supplier, Consumer<T> consumer) {
+        Background.run(() -> {
+            T value = supplier.get();
+            Dispatch.run(modalityState, () -> consumer.accept(value));
+        });
+    }
+
+
     private static <T> void background(JComponent component, Supplier<T> supplier, Consumer<T> consumer) {
         ModalityState modalityState = ModalityState.stateForComponent(component);
         Background.run(() -> {

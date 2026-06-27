@@ -23,12 +23,14 @@ import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.SchemaId;
-import com.dbn.database.DatabaseScriptExecutionInput;
+import com.dbn.database.DatabaseScriptClientCommand;
 import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.execution.script.ScriptExecutionInput;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,7 +40,7 @@ import static com.dbn.common.util.Files.normalizePath;
 import static java.lang.Character.isWhitespace;
 
 @NonNls
-public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
+public class OracleScriptClientCommand extends DatabaseScriptClientCommand {
     private static final Pattern PRIVILEGED_ROLE_PATTERN = Pattern.compile(
             "^(.+?)\\s+AS\\s+(SYSDBA|SYSOPER|SYSASM|SYSBACKUP|SYSDG|SYSKM|SYSRAC)$",
             Pattern.CASE_INSENSITIVE);
@@ -49,13 +51,12 @@ public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
     public static final String SQLPLUS_CONNECT_PATTERN_BASIC = "[USER]@[HOST]:[PORT]/[DATABASE]";
     public static final String SQLPLUS_CONNECT_PATTERN_EZCONNECT = "[USER]@[HOST]:[PORT]/[DATABASE]"; // TODO
 
-    public OracleScriptExecutionInput(
-            @NotNull ConnectionHandler connection,
-            @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
+    public OracleScriptClientCommand(
+            @NotNull ScriptExecutionInput executionInput,
+            @NotNull File scriptFile,
             @NotNull String content,
             @Nullable SchemaId schemaId) {
-        super(connection, cmdLineInterface, filePath, adjustContent(content), schemaId);
+        super(executionInput, scriptFile, adjustContent(content), schemaId);
     }
 
     private static String adjustContent(String content) {
@@ -86,7 +87,7 @@ public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
     }
 
     @Override
-    protected void initAuthentication(AuthenticationInfo authenticationInfo) {
+    protected void initAuthentication(CmdLineInterface cmdLineInterface, AuthenticationInfo authenticationInfo) {
         AuthenticationType authType = authenticationInfo.getType();
         if (authType == AuthenticationType.USER_PASSWORD) {
             setPassword(authenticationInfo.getPassword());
@@ -94,7 +95,7 @@ public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
     }
 
     @Override
-    protected void initConsoleCommands(String filePath, SchemaId schemaId, ConnectionHandler connection) {
+    protected void initConsoleCommands(File scriptFile, SchemaId schemaId, ConnectionHandler connection) {
 
         if (schemaId != null) {
             addStatement("alter session set current_schema = " + getQuotedSchemaId(schemaId, connection) + ";");
@@ -105,7 +106,7 @@ public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
         addStatement("set pagesize 40000;");
         addStatement("set long 50000;");
 
-        addStatement("@" + filePath);
+        addStatement("@" + scriptFile.getPath());
         addStatement("exit");
     }
 

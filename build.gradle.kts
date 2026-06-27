@@ -36,6 +36,12 @@ val bundledJdbcSqlite: Configuration by configurations.creating
 group = "com.dbn"
 version = "4.0.0.0"
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
 repositories {
     // locally built 3rd party dependencies
     maven(url = uri("../dbn-libraries/_repository"))
@@ -67,11 +73,11 @@ dependencies {
     // ********** DEPENDENCY TREE MODEL **********
 /*
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.21.1")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.1")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.1")
-    implementation("com.fasterxml.jackson.module:jackson-modules-base:2.21.1")
-    implementation("com.fasterxml.jackson.module:jackson-modules-java8:2.21.1")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.21.4")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.4")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.4")
+    implementation("com.fasterxml.jackson.module:jackson-modules-base:2.21.4")
+    implementation("com.fasterxml.jackson.module:jackson-modules-java8:2.21.4")
     implementation("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.76.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.76.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.76.1")
@@ -108,13 +114,13 @@ dependencies {
     // ********** DEPENDENCY FLAT MODEL **********
     implementation("joda-time:joda-time:2.14.2@jar")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.21@jar")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.21.1@jar")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.1@jar")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.1@jar")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-joda:2.21.1@jar")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.21.1@jar")
-    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.21.1@jar")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.1@jar")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.21.4@jar")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.4@jar")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.4@jar")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-joda:2.21.4@jar")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.21.4@jar")
+    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.21.4@jar")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.4@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.76.1@jar")
@@ -185,9 +191,9 @@ dependencies {
     bundledJdbcOracle("org.glassfish.hk2:hk2-locator:2.6.1@jar")
     bundledJdbcOracle("org.glassfish.hk2:hk2-utils:2.6.1@jar")
     bundledJdbcOracle("com.fasterxml.jackson.core:jackson-annotations:2.21@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-core:2.21.2@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-databind:2.21.2@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.2@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-core:2.21.4@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-databind:2.21.4@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.4@jar")
     bundledJdbcOracle("org.glassfish.hk2.external:jakarta.inject:2.6.1@jar")
     bundledJdbcOracle("jakarta.ws.rs:jakarta.ws.rs-api:2.1.6@jar")
     bundledJdbcOracle("org.glassfish.jersey.core:jersey-client:2.47@jar")

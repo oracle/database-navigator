@@ -29,39 +29,38 @@ public class WalletPasswordGenerator {
     private static final String SYMBOLS = "!@#$%^&*()-_=+[]{}|;:,.<>?/";
     private static final String ALL_CHARACTERS = LETTERS + NUMBERS + SYMBOLS;
 
-    public static String generateRandomPassword() {
+    public static char[] generateRandomPassword() {
         // Define character pools
 
         Random random = new SecureRandom();
-        StringBuilder password = new StringBuilder();
+        char[] password = new char[8];
+        int index = 0;
 
         // Add at least one letter
-        password.append(randomChar(LETTERS, random));
+        password[index++] = randomChar(LETTERS, random);
 
         // Add at least one number
-        password.append(randomChar(NUMBERS, random));
+        password[index++] = randomChar(NUMBERS, random);
 
         // Add at least one special character
-        password.append(randomChar(SYMBOLS, random));
+        password[index++] = randomChar(SYMBOLS, random);
 
         // Combine all character pools
 
         // Fill the remaining characters up to 8
-        while (password.length() < 8) {
-            password.append(randomChar(ALL_CHARACTERS, random));
+        while (index < password.length) {
+            password[index++] = randomChar(ALL_CHARACTERS, random);
         }
 
         // Shuffle the password
-        char[] passwordArray = password.toString().toCharArray();
-        for (int i = passwordArray.length - 1; i > 0; i--) {
-            int index = random.nextInt(i + 1);
-            char temp = passwordArray[i];
-            passwordArray[i] = passwordArray[index];
-            passwordArray[index] = temp;
+        for (int i = password.length - 1; i > 0; i--) {
+            int swapIndex = random.nextInt(i + 1);
+            char temp = password[i];
+            password[i] = password[swapIndex];
+            password[swapIndex] = temp;
         }
 
-        // Return the shuffled password as a string
-        return new String(passwordArray);
+        return password;
     }
 
     private static char randomChar(String letters, Random random) {

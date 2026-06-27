@@ -17,7 +17,6 @@
 package com.dbn;
 
 import com.dbn.common.component.ApplicationComponentBase;
-import com.dbn.common.component.EagerService;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.file.FileTypeService;
 import com.dbn.common.options.setting.Settings;
@@ -53,7 +52,7 @@ import static com.dbn.common.util.FileChoosers.nativeFileChoosers;
     name = DatabaseNavigator.COMPONENT_NAME,
     storages = @Storage(DatabaseNavigator.STORAGE_FILE)
 )
-public class DatabaseNavigator extends ApplicationComponentBase implements PersistentState, EagerService {
+public class DatabaseNavigator extends ApplicationComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Application.Settings";
     public static final String STORAGE_FILE = "dbnavigator.xml";
 

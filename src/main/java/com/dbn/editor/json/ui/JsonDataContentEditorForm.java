@@ -17,6 +17,7 @@
 package com.dbn.editor.json.ui;
 
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.editor.WrappingTextEditor;
 import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ref.WeakRef;
@@ -30,21 +31,30 @@ import com.dbn.editor.json.JsonFileCache;
 import com.dbn.editor.json.model.JsonDataEditorModelCell;
 import com.dbn.object.DBJsonView;
 import com.dbn.vfs.file.DBContentVirtualFile;
+import com.intellij.openapi.command.undo.UndoUtil;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.FocusChangeListener;
+import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import java.awt.Component;
+import java.awt.KeyboardFocusManager;
 
 import static com.dbn.common.ui.util.UserInterface.updateScrollPanes;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Documents.resetText;
 import static com.dbn.common.util.Editors.enableSelectionOccurrenceHighlights;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JsonDataContentEditorForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -53,7 +63,8 @@ public class JsonDataContentEditorForm extends DBNFormBase {
 
 
     private WeakRef<JsonDataEditorModelCell> selectedCell;
-    private EditorEx editor;
+    private @Getter EditorEx editor;
+    private @Getter TextEditor textEditor;
     private String originalContent;
 
 
@@ -78,20 +89,24 @@ public class JsonDataContentEditorForm extends DBNFormBase {
         };
     }
 
-    private JsonDataEditorForm getPrentForm() {
+    private JsonDataEditorForm getParentForm() {
         return getParentComponent();
     }
 
 
     private void initJsonContentEditor() {
         Project project = ensureProject();
-        DBJsonView jsonView = getPrentForm().getJsonView();
+        DBJsonView jsonView = getParentForm().getJsonView();
 
         PsiFile jsonFile = JsonFileCache.getJsonContentPsiFile(jsonView);
-        Document document = Documents.ensureDocument(jsonFile);
-        Documents.setText(document, "");
+        VirtualFile virtualFile = jsonFile.getVirtualFile();
+        UndoUtil.setForceUndoFlag(virtualFile, true);
 
-        editor = Editors.createEditor(document, project, jsonFile.getVirtualFile(), jsonFile.getFileType());
+        Document document = Documents.ensureDocument(jsonFile);
+        resetText(project, document, "");
+
+        editor = Editors.createEditor(document, project, virtualFile, jsonFile.getFileType());
+        textEditor = new WrappingTextEditor(editor, "JSON Content");
         editor.setEmbeddedIntoDialogWrapper(true);
         Disposer.register(this, editor);
 
@@ -128,13 +143,13 @@ public class JsonDataContentEditorForm extends DBNFormBase {
 
         if (cell == null) {
             originalContent = "";
-            Documents.setText(editor, originalContent, false);
+            resetText(editor, originalContent, false);
 
         } else {
             JsonValue userValue = cell.getUserValue();
             originalContent = Json.removeJsonProperties(userValue.getData(), "_metadata");
 
-            Documents.setText(editor, originalContent, true);
+            resetText(editor, originalContent, true);
         }
 
         updateEditorState();
@@ -143,6 +158,13 @@ public class JsonDataContentEditorForm extends DBNFormBase {
     public void focusEditor() {
         if (editor == null) return;
         editor.getContentComponent().requestFocus();
+    }
+
+    public boolean isEditorFocused() {
+        if (editor == null) return false;
+
+        Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+        return focusOwner != null && SwingUtilities.isDescendingFrom(focusOwner, editor.getComponent());
     }
 
     public boolean isEditorContentChanged() {
@@ -177,22 +199,23 @@ public class JsonDataContentEditorForm extends DBNFormBase {
     public void disposeInner() {
         Editors.releaseEditor(editor);
         editor = null;
+        textEditor = null;
         super.disposeInner();
     }
 
     public void updateEditorState() {
-        JsonDataEditor jsonDataEditor = getPrentForm().getJsonDataEditor();
+        JsonDataEditor jsonDataEditor = getParentForm().getJsonDataEditor();
         boolean connected = jsonDataEditor.isConnected();
         boolean locked = jsonDataEditor.isEditingLocked();
         boolean editable = !jsonDataEditor.isReadonly();
         boolean selected = getSelectedCell() != null;
 
         String readonlyHint =
-                !selected ? "No content selected" :
+                !selected ? txt("app.dataEditor.hint.ContentNotSelected") :
                 //locked ? "<html>Editing is locked. <a href=''>Unlock</a></html>" :
-                locked ? "Editor is locked" :
-                !editable ? "View or database environment is readonly" :
-                !connected ? "Not connected to database" : null;
+                locked ? txt("app.dataEditor.hint.EditingLocked") :
+                !editable ? txt("app.dataEditor.hint.ReadonlyViewOrEnvironment") :
+                !connected ? txt("app.dataEditor.hint.NotConnected") : null;
 
         boolean readonly = !editable || !connected || !selected;
 
