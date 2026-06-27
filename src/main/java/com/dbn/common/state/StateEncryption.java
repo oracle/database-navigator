@@ -39,6 +39,7 @@ import java.security.SecureRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.dbn.common.approval.UserApprovalAction.STATE_ENCRYPTION_CHANGE;
+import static com.dbn.common.util.Passwords.clearPassword;
 import static com.dbn.credentials.SecretType.STATE_ENCRYPTION_KEY;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -146,7 +147,7 @@ public class StateEncryption {
         } catch (Exception e) {
             log.warn("Invalid persistent state encryption key", e);
         } finally {
-            Chars.clear(token);
+            clearPassword(token);
         }
         return null;
     }

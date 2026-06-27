@@ -34,6 +34,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.approval.UserApprovalLifetime.NONE;
+import static com.dbn.common.approval.UserApprovalLifetime.ONCE;
+import static com.dbn.common.approval.UserApprovalLifetime.PERSISTENT;
+import static com.dbn.common.approval.UserApprovalLifetime.SESSION;
 import static com.dbn.common.approval.UserApprovalManager.COMPONENT_NAME;
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.childrenOf;
@@ -44,9 +48,9 @@ import static com.dbn.common.util.Commons.NOT_NULL;
 /**
  * Application-level approval store and prompt coordinator.
  * <p>
- * Persistent approvals are remembered across IDE restarts. Temporary approvals
- * allow a single operation, such as verifying an endpoint, to proceed without
- * persisting trust in that endpoint.
+ * Persistent approvals are remembered across IDE restarts. Session approvals
+ * last until the IDE exits, and one-time approvals are consumed by the next
+ * approval check.
  */
 @State(
         name = COMPONENT_NAME,
@@ -79,10 +83,10 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         updateApprovalSignature(approvalKey, approvalSignature);
 
         UserApprovalData data = getApprovalData(approvalKey);
-        // check and discard temporary approval
-        if (data.consumeTemporary()) return;
+        // check and discard one-time approval
+        if (data.consumeOnce()) return;
 
-        // check persistent approval
+        // check active approval
         if (data.isApproved()) return;
 
         // check for recent rejections
@@ -100,21 +104,35 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
     private <T extends UserApprovable> void obtainUserApproval(UserApprovalAction action, T approvable, UserApprovalData data) {
         UserApprovalAdapter<T> adapter = UserApprovalAdapters.get(action, approvable);
         data.setPending(true);
-        int option = Messages.showAcknowledgementDialog(
+        UserApprovalOption[] options = adapter.getApprovalOptions(approvable);
+        int optionIndex = Messages.showAcknowledgementDialog(
                 null,
                 adapter.getApprovalTitle(approvable),
                 adapter.getApprovalMessage(approvable),
-                adapter.getApprovalOptions(approvable),
-                1, o -> data.setPending(false));
+                adapter.getApprovalOptionNames(approvable),
+                getDefaultOptionIndex(options), o -> data.setPending(false));
 
-        if (option != 0) {
+        UserApprovalOption option = adapter.getApprovalOption(approvable, optionIndex);
+        if (option.type() == UserApprovalType.NONE) {
             adapter.processApprovalOption(approvable, option);
-            data.reject(adapter.getRejectionCooldown(approvable, option));
+            data.reject(option.rejectionCooldown());
             throw new UserApprovalCancelledException();
         }
 
-        data.setApproved(true);
+        UserApprovalLifetime lifetime = adapter.getApprovalLifetime(approvable);
+        data.setApprovalLifetime(lifetime);
         data.clearRejection();
+        if (option.type() == UserApprovalType.ALL) {
+            adapter.getApprovalSiblings(approvable, option).forEach(sibling -> approve(action, sibling, lifetime));
+        }
+    }
+
+    private static int getDefaultOptionIndex(UserApprovalOption[] options) {
+        // Approval dialogs guard sensitive actions, so the safest default is the first rejection option.
+        for (int i = 0; i < options.length; i++) {
+            if (options[i].type() == UserApprovalType.NONE) return i;
+        }
+        return 0;
     }
 
     public <T extends UserApprovable> void updateApprovalSignature(UserApprovalAction action, T approvable) {
@@ -126,7 +144,7 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         if (approvalSignature == null) return;
 
         UserApprovalData data = getApprovalData(approvalKey);
-        if (data.updateSignatureRequiresApprovalClear(approvalSignature)) {
+        if (data.updateSignature(approvalSignature)) {
             clearApproval(approvalKey, data);
         }
     }
@@ -146,11 +164,29 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
     /**
      * Persistently approves the supplied object.
      */
-    public void approve(UserApprovalAction action, UserApprovable approvable) {
+    public <T extends UserApprovable> void approve(UserApprovalAction action, T approvable) {
+        approve(action, approvable, PERSISTENT);
+    }
+
+    /**
+     * Approves the supplied object for the next approval check only.
+     */
+    public <T extends UserApprovable> void approveTemporarily(UserApprovalAction action, T approvable) {
+        approve(action, approvable, ONCE);
+    }
+
+    /**
+     * Approves the supplied object until the IDE restarts.
+     */
+    public <T extends UserApprovable> void approveForSession(UserApprovalAction action, T approvable) {
+        approve(action, approvable, SESSION);
+    }
+
+    private <T extends UserApprovable> void approve(UserApprovalAction action, T approvable, UserApprovalLifetime approvalLifetime) {
         String approvalKey = getApprovalKey(action, approvable);
         String approvalSignature = getApprovalSignature(action, approvable);
         updateApprovalSignature(approvalKey, approvalSignature);
-        getApprovalData(approvalKey).setApproved(true);
+        getApprovalData(approvalKey).setApprovalLifetime(approvalLifetime);
     }
 
     public <T extends UserApprovable> void revoke(UserApprovalAction action, T approvable) {
@@ -161,16 +197,6 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         data.clearApproval();
         data.setSignature(null);
         removeApprovalDataIfEmpty(approvalKey, data);
-    }
-
-    /**
-     * Approves the supplied object for the next approval check only.
-     */
-    public <T extends UserApprovable> void approveTemporarily(UserApprovalAction action, T approvable) {
-        String approvalKey = getApprovalKey(action, approvable);
-        String approvalSignature = getApprovalSignature(action, approvable);
-        updateApprovalSignature(approvalKey, approvalSignature);
-        getApprovalData(approvalKey).setTemporary(true);
     }
 
     public <T extends UserApprovable> void updateApprovals(UserApprovalAction action, List<T> oldApprovables, List<T> newApprovables) {
@@ -191,12 +217,12 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         Set<String> addedKeys = new HashSet<>(newKeys);
         addedKeys.removeAll(oldKeys);
 
-        oldKeys.forEach(this::clearTemporaryApproval);
-        newKeys.forEach(this::clearTemporaryApproval);
+        oldKeys.forEach(this::clearTransientApproval);
+        newKeys.forEach(this::clearTransientApproval);
         removedKeys.forEach(this::removeApproval);
 
-        addedKeys.forEach(k -> getApprovalData(k).setApproved(true));
-        acknowledgedKeys.forEach(k -> getApprovalData(k).setApproved(true));
+        addedKeys.forEach(k -> getApprovalData(k).setApprovalLifetime(PERSISTENT));
+        acknowledgedKeys.forEach(k -> getApprovalData(k).setApprovalLifetime(PERSISTENT));
     }
 
     /**
@@ -214,11 +240,11 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         return approvalData.computeIfAbsent(approvalKey, UserApprovalData::new);
     }
 
-    private void clearTemporaryApproval(String approvalKey) {
+    private void clearTransientApproval(String approvalKey) {
         UserApprovalData data = approvalData.get(approvalKey);
         if (data == null) return;
 
-        data.setTemporary(false);
+        data.clearTransientApproval();
         removeApprovalDataIfEmpty(approvalKey, data);
     }
 
@@ -226,7 +252,7 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         UserApprovalData data = approvalData.get(approvalKey);
         if (data == null) return;
 
-        data.setApproved(false);
+        data.setApprovalLifetime(NONE);
         data.setSignature(null);
         removeApprovalDataIfEmpty(approvalKey, data);
     }

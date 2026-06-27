@@ -30,6 +30,7 @@ import com.dbn.connection.ConnectorProperties;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.config.ConnectionDebuggerSettings;
 import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.config.ConnectionSslSettings;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
@@ -318,6 +319,15 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         ConnectionType connectionType = sessionId.getConnectionType();
         String appName = "DB Navigator - " + connectionType.getName();
         properties.add(Property.SESSION_PROGRAM, appName);
+    }
+
+    @Override
+    public void initConnectorSslConnection(ConnectorProperties properties, ConnectionSettings settings) {
+        ConnectionSslSettings sslSettings = settings.getSslSettings();
+        if (!sslSettings.isActive()) return;
+
+        super.initConnectorSslConnection(properties, settings);
+        properties.add(Property.ORACLE_JDBC_SSL_SERVER_DN_MATCH, "yes");
     }
 
     @Override

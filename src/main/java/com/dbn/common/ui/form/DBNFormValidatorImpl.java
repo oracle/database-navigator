@@ -31,6 +31,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
+import javax.swing.JPasswordField;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
@@ -52,6 +53,7 @@ import static com.dbn.common.ui.util.ClientProperty.HAS_VALIDATION_LISTENERS;
 import static com.dbn.common.ui.util.ClientProperty.LOADING;
 import static com.dbn.common.ui.util.ClientProperty.VALIDATION_INFO;
 import static com.dbn.common.ui.util.ClientProperty.VISITED;
+import static com.dbn.common.ui.util.PasswordFields.testPassword;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Commons.isEmpty;
@@ -111,6 +113,11 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
     @Override
     public void addTextValidation(JTextComponent textField, Predicate<String> validator, @DialogMessage String message) {
         addValidation(textField, f -> validator.test(getText(f)), message);
+    }
+
+    @Override
+    public void addPasswordValidation(JPasswordField passwordField, Predicate<char[]> validator, @DialogMessage String message) {
+        addValidation(passwordField, f -> testPassword(f, validator), message);
     }
 
     @Override
@@ -319,6 +326,10 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         if (component == null) return false;
         if (VISITED.is(component)) return true;
 
+        if (component instanceof JPasswordField passwordField) {
+            return testPassword(passwordField, p -> isNotEmptyOrSpaces(p));
+        }
+
         if (component instanceof JTextComponent textComponent) {
             return Strings.isNotEmptyOrSpaces(getText(textComponent));
         }
@@ -329,6 +340,14 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
 
         if (component instanceof CheckBoxList checkBoxList) {
             return checkBoxList.hasSelection();
+        }
+        return false;
+    }
+
+    private static boolean isNotEmptyOrSpaces(char[] value) {
+        if (value == null || value.length == 0) return false;
+        for (char c : value) {
+            if (!Character.isWhitespace(c)) return true;
         }
         return false;
     }

@@ -19,7 +19,7 @@ package com.dbn.execution.script;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Threads;
 import com.dbn.common.util.Chars;
-import com.dbn.database.CmdLineExecutionInput;
+import com.dbn.database.DatabaseClientCommand;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.process.ProcessAdapter;
@@ -41,7 +41,7 @@ import static com.dbn.common.util.Unsafe.warned;
  * @author Dan Cioca (Oracle)
  */
 public final class ScriptExecutionProcessHandler extends OSProcessHandler {
-    private final CmdLineExecutionInput input;
+    private final DatabaseClientCommand command;
     private Consumer<ProcessEvent> outputConsumer;
     private Consumer<ProcessEvent> notifiedConsumer;
     private Consumer<ProcessEvent> terminatingConsumer;
@@ -50,15 +50,15 @@ public final class ScriptExecutionProcessHandler extends OSProcessHandler {
     private boolean authenticated;
     private Runnable initializer;
 
-    private ScriptExecutionProcessHandler(CmdLineExecutionInput input) throws ExecutionException {
-        super(input.getCommand());
-        this.input = input;
+    private ScriptExecutionProcessHandler(DatabaseClientCommand command) throws ExecutionException {
+        super(command.getCommandLine());
+        this.command = command;
         this.writer = bufferedWriter(getProcessInput());
 
         addProcessListener(createProcessListener());
 
         // if input promotes the password, authentication is yet to be done
-        authenticated = Chars.isEmpty(input.getPassword());
+        authenticated = Chars.isEmpty(command.getPassword());
     }
 
     private @NotNull ProcessAdapter createProcessListener() {
@@ -139,19 +139,19 @@ public final class ScriptExecutionProcessHandler extends OSProcessHandler {
     }
 
     private void sendPassword() {
-        String password = Chars.toString(input.getPassword());
+        String password = Chars.toString(command.getPassword());
         sendCommand(password);
     }
 
     public void sendInputCommands() {
-        sendCommands(input.getStatements());
+        sendCommands(command.getStatements());
     }
 
     public void sendCommands(List<String> commands) {
         commands.forEach(c -> sendCommand(c));
     }
 
-    public static ScriptExecutionProcessHandler startProcess(CmdLineExecutionInput input) throws ExecutionException {
+    public static ScriptExecutionProcessHandler startProcess(DatabaseClientCommand input) throws ExecutionException {
         return new ScriptExecutionProcessHandler(input);
     }
 }
