@@ -13815,148 +13815,186 @@
     <element-def description="Data type definition" id="data_type">
         <one-of id="07609" ambiguous="true">
             <sequence id="07610">
-                <one-of id="07611">
+                <one-of id="07611" ambiguous="true">
                     <token id="07612" type-id="DT_CHARACTER" />
-                    <token id="07613" type-id="DT_CHARACTER_VARYING" />
-                    <token id="07614" type-id="DT_LONG_VARCHAR" />
-                    <token id="07615" type-id="DT_NATIONAL_CHAR" />
-                    <token id="07616" type-id="DT_NATIONAL_CHAR_VARYING" />
-                    <token id="07617" type-id="DT_NATIONAL_CHARACTER" />
-                    <token id="07618" type-id="DT_NATIONAL_CHARACTER_VARYING" />
-                    <token id="07619" type-id="DT_NCHAR" />
-                    <token id="07620" type-id="DT_NCHAR_VARYING" />
-                    <token id="07621" type-id="DT_NVARCHAR2" />
-                    <token id="07622" type-id="DT_RAW" />
-                    <token id="07623" type-id="DT_VARCHAR" />
-                    <token id="07624" type-id="DT_VARCHAR2" />
-                </one-of>
-                <wrapper id="07625" template="PARENTHESES">
+                    <sequence id="07613">
+                        <token type-id="DT_CHARACTER" id="07614" />
+                        <token flavor="datatype" type-id="KW_VARYING" id="07615" />
+                    </sequence>
+                    <sequence id="07616">
+                        <token type-id="DT_LONG" id="07617" />
+                        <token type-id="DT_VARCHAR" id="07618" />
+                    </sequence>
+                    <sequence id="07619">
+                        <token flavor="datatype" type-id="KW_NATIONAL" id="07620" />
+                        <token type-id="DT_CHAR" id="07621" />
+                    </sequence>
+                    <sequence id="07622">
+                        <token flavor="datatype" type-id="KW_NATIONAL" id="07623" />
+                        <token type-id="DT_CHAR" id="07624" />
+                        <token flavor="datatype" type-id="KW_VARYING" id="07625" />
+                    </sequence>
                     <sequence id="07626">
-                        <token id="07627" original-name="size" type-id="INTEGER" />
-                        <one-of id="07628" optional="true">
-                            <token id="07629" type-id="DT_CHAR" />
-                            <token id="07630" type-id="DT_BYTE" />
+                        <token flavor="datatype" type-id="KW_NATIONAL" id="07627" />
+                        <token type-id="DT_CHARACTER" id="07628" />
+                    </sequence>
+                    <sequence id="07629">
+                        <token flavor="datatype" type-id="KW_NATIONAL" id="07630" />
+                        <token type-id="DT_CHARACTER" id="07631" />
+                        <token flavor="datatype" type-id="KW_VARYING" id="07632" />
+                    </sequence>
+                    <token id="07633" type-id="DT_NCHAR" />
+                    <sequence id="07634">
+                        <token type-id="DT_NCHAR" id="07635" />
+                        <token flavor="datatype" type-id="KW_VARYING" id="07636" />
+                    </sequence>
+                    <token id="07637" type-id="DT_NVARCHAR2" />
+                    <token id="07638" type-id="DT_RAW" />
+                    <token id="07639" type-id="DT_VARCHAR" />
+                    <token id="07640" type-id="DT_VARCHAR2" />
+                </one-of>
+                <wrapper id="07641" template="PARENTHESES">
+                    <sequence id="07642">
+                        <token id="07643" original-name="size" type-id="INTEGER" />
+                        <one-of id="07644" optional="true">
+                            <token id="07645" type-id="DT_CHAR" />
+                            <token id="07646" type-id="DT_BYTE" />
                         </one-of>
                     </sequence>
                 </wrapper>
             </sequence>
-            <sequence id="07631">
-                <token id="07632" type-id="DT_UROWID" />
-                <wrapper id="07633" optional="true" template="PARENTHESES">
-                    <token id="07634" original-name="size" type-id="INTEGER" />
+            <sequence id="07647">
+                <token id="07648" type-id="DT_UROWID" />
+                <wrapper id="07649" optional="true" template="PARENTHESES">
+                    <token id="07650" original-name="size" type-id="INTEGER" />
                 </wrapper>
             </sequence>
-            <sequence id="07635">
-                <token id="07636" type-id="DT_TIMESTAMP" />
-                <wrapper id="07637" optional="true" template="PARENTHESES">
-                    <token id="07638" original-name="fractional_seconds_precision" type-id="INTEGER" />
+            <sequence id="07651">
+                <token id="07652" type-id="DT_TIMESTAMP" />
+                <wrapper id="07653" optional="true" template="PARENTHESES">
+                    <token id="07654" original-name="fractional_seconds_precision" type-id="INTEGER" />
                 </wrapper>
-                <one-of id="07639" optional="true">
-                    <token id="07640" type-id="DT_WITH_TIME_ZONE" />
-                    <token id="07641" type-id="DT_WITH_LOCAL_TIME_ZONE" />
+                <one-of id="07655" optional="true" ambiguous="true">
+                    <sequence id="07656">
+                        <token flavor="datatype" type-id="KW_WITH" id="07657" />
+                        <token flavor="datatype" type-id="KW_TIME" id="07658" />
+                        <token flavor="datatype" type-id="KW_ZONE" id="07659" />
+                    </sequence>
+                    <sequence id="07660">
+                        <token flavor="datatype" type-id="KW_WITH" id="07661" />
+                        <token flavor="datatype" type-id="KW_LOCAL" id="07662" />
+                        <token flavor="datatype" type-id="KW_TIME" id="07663" />
+                        <token flavor="datatype" type-id="KW_ZONE" id="07664" />
+                    </sequence>
                 </one-of>
             </sequence>
-            <sequence id="07642">
-                <one-of id="07643">
-                    <token id="07644" type-id="DT_DECIMAL" />
-                    <token id="07645" type-id="DT_NUMBER" />
-                    <token id="07646" type-id="DT_NUMERIC" />
+            <sequence id="07665">
+                <one-of id="07666">
+                    <token id="07667" type-id="DT_DECIMAL" />
+                    <token id="07668" type-id="DT_NUMBER" />
+                    <token id="07669" type-id="DT_NUMERIC" />
                 </one-of>
-                <wrapper id="07647" optional="true" template="PARENTHESES">
-                    <sequence id="07648">
-                        <token id="07649" original-name="precision" type-id="INTEGER" />
-                        <sequence id="07650" optional="true">
-                            <token id="07651" type-id="CHR_COMMA" />
-                            <token id="07652" original-name="size" type-id="INTEGER" />
+                <wrapper id="07670" optional="true" template="PARENTHESES">
+                    <sequence id="07671">
+                        <token id="07672" original-name="precision" type-id="INTEGER" />
+                        <sequence id="07673" optional="true">
+                            <token id="07674" type-id="CHR_COMMA" />
+                            <token id="07675" original-name="size" type-id="INTEGER" />
                         </sequence>
                     </sequence>
                 </wrapper>
             </sequence>
-            <sequence id="07653">
-                <token id="07654" type-id="DT_INTERVAL" />
-                <one-of id="07655">
-                    <sequence id="07656">
-                        <token flavor="datatype" id="07657" type-id="KW_YEAR" />
-                        <wrapper id="07658" optional="true" template="PARENTHESES">
-                            <token id="07659" original-name="year_precision" type-id="INTEGER" />
+            <sequence id="07676">
+                <token id="07677" type-id="DT_INTERVAL" />
+                <one-of id="07678">
+                    <sequence id="07679">
+                        <token flavor="datatype" id="07680" type-id="KW_YEAR" />
+                        <wrapper id="07681" optional="true" template="PARENTHESES">
+                            <token id="07682" original-name="year_precision" type-id="INTEGER" />
                         </wrapper>
-                        <token flavor="datatype" id="07660" type-id="KW_TO" />
-                        <token flavor="datatype" id="07661" type-id="KW_MONTH" />
+                        <token flavor="datatype" id="07683" type-id="KW_TO" />
+                        <token flavor="datatype" id="07684" type-id="KW_MONTH" />
                     </sequence>
-                    <sequence id="07662">
-                        <token flavor="datatype" id="07663" type-id="KW_DAY" />
-                        <wrapper id="07664" optional="true" template="PARENTHESES">
-                            <token id="07665" original-name="day_precision" type-id="INTEGER" />
+                    <sequence id="07685">
+                        <token flavor="datatype" id="07686" type-id="KW_DAY" />
+                        <wrapper id="07687" optional="true" template="PARENTHESES">
+                            <token id="07688" original-name="day_precision" type-id="INTEGER" />
                         </wrapper>
-                        <token flavor="datatype" id="07666" type-id="KW_TO" />
-                        <token flavor="datatype" id="07667" type-id="KW_SECOND" />
-                        <wrapper id="07668" optional="true" template="PARENTHESES">
-                            <token id="07669" original-name="fractional_seconds" type-id="INTEGER" />
+                        <token flavor="datatype" id="07689" type-id="KW_TO" />
+                        <token flavor="datatype" id="07690" type-id="KW_SECOND" />
+                        <wrapper id="07691" optional="true" template="PARENTHESES">
+                            <token id="07692" original-name="fractional_seconds" type-id="INTEGER" />
                         </wrapper>
                     </sequence>
                 </one-of>
             </sequence>
 
-            <token id="07670" type-id="DT_BFILE" />
-            <token id="07671" type-id="DT_BINARY_DOUBLE" />
-            <token id="07672" type-id="DT_BINARY_FLOAT" />
-            <token id="07673" type-id="DT_BLOB" />
-            <token id="07674" type-id="DT_CLOB" />
-            <token id="07675" type-id="DT_DATE" />
-            <token id="07676" type-id="DT_DOUBLE_PRECISION" />
-            <token id="07677" type-id="DT_FLOAT" />
-            <token id="07678" type-id="DT_INT" />
-            <token id="07679" type-id="DT_LONG" />
-            <token id="07680" type-id="DT_LONG_RAW" />
-            <token id="07681" type-id="DT_ROWID" />
-            <token id="07682" type-id="DT_REAL" />
-            <token id="07683" type-id="DT_NCLOB" />
-            <token id="07684" type-id="DT_INTEGER" />
-            <token id="07685" type-id="DT_SMALLINT" />
-            <sequence id="07686">
-                <one-of id="07687">
-                    <token id="07688" type-id="DT_CHAR" />
-                    <token id="07689" type-id="DT_VARCHAR2" />
+            <token id="07693" type-id="DT_BFILE" />
+            <token id="07694" type-id="DT_BINARY_DOUBLE" />
+            <token id="07695" type-id="DT_BINARY_FLOAT" />
+            <token id="07696" type-id="DT_BLOB" />
+            <token id="07697" type-id="DT_CLOB" />
+            <token id="07698" type-id="DT_DATE" />
+            <sequence id="07699">
+                <token type-id="DT_DOUBLE" id="07700" />
+                <token flavor="datatype" type-id="KW_PRECISION" id="07701" />
+            </sequence>
+            <token id="07702" type-id="DT_FLOAT" />
+            <token id="07703" type-id="DT_INT" />
+            <token id="07704" type-id="DT_LONG" />
+            <sequence id="07705">
+                <token type-id="DT_LONG" id="07706" />
+                <token type-id="DT_RAW" id="07707" />
+            </sequence>
+            <token id="07708" type-id="DT_ROWID" />
+            <token id="07709" type-id="DT_REAL" />
+            <token id="07710" type-id="DT_NCLOB" />
+            <token id="07711" type-id="DT_INTEGER" />
+            <token id="07712" type-id="DT_SMALLINT" />
+            <sequence id="07713">
+                <one-of id="07714">
+                    <token id="07715" type-id="DT_CHAR" />
+                    <token id="07716" type-id="DT_VARCHAR2" />
                 </one-of>
-                <wrapper id="07690" template="PARENTHESES">
-                    <sequence id="07691">
-                        <token id="07692" original-name="size" type-id="INTEGER" />
-                        <one-of id="07693" optional="true">
-                            <token id="07694" type-id="DT_BYTE" />
-                            <token id="07695" type-id="DT_CHAR" />
+                <wrapper id="07717" template="PARENTHESES">
+                    <sequence id="07718">
+                        <token id="07719" original-name="size" type-id="INTEGER" />
+                        <one-of id="07720" optional="true">
+                            <token id="07721" type-id="DT_BYTE" />
+                            <token id="07722" type-id="DT_CHAR" />
                         </one-of>
                     </sequence>
                 </wrapper>
             </sequence>
-            <sequence id="07696">
-                <token type-id="DT_VECTOR" id="07697" />
-                <wrapper id="07698" optional="true" template="PARENTHESES">
-                    <sequence id="07699">
-                        <one-of id="07700">
-                            <token type-id="CHR_STAR" id="07701" />
-                            <token type-id="INTEGER" id="07702" />
+            <sequence id="07723">
+                <token type-id="DT_VECTOR" id="07724" />
+                <wrapper id="07725" optional="true" template="PARENTHESES">
+                    <sequence id="07726">
+                        <one-of id="07727">
+                            <token type-id="CHR_STAR" id="07728" />
+                            <token type-id="INTEGER" id="07729" />
                         </one-of>
-                        <sequence optional="true" id="07703">
-                            <token type-id="CHR_COMMA" id="07704" />
-                            <one-of id="07705">
-                                <token type-id="CHR_STAR" id="07706" />
-                                <token type-id="DT_INT8" id="07707" />
-                                <token type-id="DT_FLOAT32" id="07708" />
-                                <token type-id="DT_FLOAT64" id="07709" />
+                        <sequence optional="true" id="07730">
+                            <token type-id="CHR_COMMA" id="07731" />
+                            <one-of id="07732">
+                                <token type-id="CHR_STAR" id="07733" />
+                                <token type-id="DT_INT8" id="07734" />
+                                <token type-id="DT_FLOAT32" id="07735" />
+                                <token type-id="DT_FLOAT64" id="07736" />
                             </one-of>
                         </sequence>
                     </sequence>
                 </wrapper>
             </sequence>
-            <qualified-identifier id="07710" separator="CHR_DOT">
+            <qualified-identifier id="07737" separator="CHR_DOT">
                 <variant>
-                    <object-ref id="07711" optional="true" type="SCHEMA" />
-                    <object-ref id="07712" optional="true" type="PACKAGE" />
-                    <object-ref id="07713" type="PACKAGE_TYPE" />
+                    <object-ref id="07738" optional="true" type="SCHEMA" />
+                    <object-ref id="07739" optional="true" type="PACKAGE" />
+                    <object-ref id="07740" type="PACKAGE_TYPE" />
                 </variant>
                 <variant>
-                    <object-ref id="07714" optional="true" type="SCHEMA" />
-                    <object-ref id="07715" type="TYPE" />
+                    <object-ref id="07741" optional="true" type="SCHEMA" />
+                    <object-ref id="07742" type="TYPE" />
                 </variant>
             </qualified-identifier>
         </one-of>
@@ -13965,102 +14003,102 @@
 
 
     <element-def description="TABLESPACE reference" id="tablespace_reference">
-        <qualified-identifier id="07716" separator="CHR_DOT">
+        <qualified-identifier id="07743" separator="CHR_DOT">
             <variant>
-                <object-ref id="07717" optional="true" type="SCHEMA" />
-                <object-ref id="07718" type="TABLESPACE" />
+                <object-ref id="07744" optional="true" type="SCHEMA" />
+                <object-ref id="07745" type="TABLESPACE" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="SYNONYM reference" id="synonym_reference">
-        <qualified-identifier id="07719" separator="CHR_DOT">
+        <qualified-identifier id="07746" separator="CHR_DOT">
             <variant>
-                <object-ref id="07720" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="07721" type="SYNONYM" />
+                <object-ref id="07747" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="07748" type="SYNONYM" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="PACKAGE reference" id="package_reference">
-        <qualified-identifier id="07722" separator="CHR_DOT">
+        <qualified-identifier id="07749" separator="CHR_DOT">
             <variant>
-                <object-ref id="07723" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="07724" type="PACKAGE" />
+                <object-ref id="07750" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="07751" type="PACKAGE" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="TRIGGER reference" id="trigger_reference">
-        <qualified-identifier id="07725" separator="CHR_DOT">
+        <qualified-identifier id="07752" separator="CHR_DOT">
             <variant>
-                <object-ref id="07726" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="07727" type="TRIGGER" />
+                <object-ref id="07753" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="07754" type="TRIGGER" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="TRIGGER reference" id="type_reference">
-        <qualified-identifier id="07728" separator="CHR_DOT">
+        <qualified-identifier id="07755" separator="CHR_DOT">
             <variant>
-                <object-ref id="07729" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="07730" type="TYPE" />
+                <object-ref id="07756" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="07757" type="TYPE" />
             </variant>
         </qualified-identifier>
     </element-def>
 
     <element-def description="METHOD reference" id="method_reference">
-        <qualified-identifier id="07731" separator="CHR_DOT">
+        <qualified-identifier id="07758" separator="CHR_DOT">
             <variant>
-                <object-ref id="07732" optional="true" type="SCHEMA" />
-                <object-ref id="07733" type="FUNCTION" />
+                <object-ref id="07759" optional="true" type="SCHEMA" />
+                <object-ref id="07760" type="FUNCTION" />
             </variant>
             <variant>
-                <object-ref id="07734" optional="true" type="SCHEMA" />
-                <object-ref id="07735" type="PROCEDURE" />
+                <object-ref id="07761" optional="true" type="SCHEMA" />
+                <object-ref id="07762" type="PROCEDURE" />
             </variant>
             <variant>
-                <object-ref id="07736" optional="true" type="SCHEMA" />
-                <object-ref id="07737" type="PACKAGE" />
-                <object-ref id="07738" type="PACKAGE_FUNCTION" />
+                <object-ref id="07763" optional="true" type="SCHEMA" />
+                <object-ref id="07764" type="PACKAGE" />
+                <object-ref id="07765" type="PACKAGE_FUNCTION" />
             </variant>
             <variant>
-                <object-ref id="07739" optional="true" type="SCHEMA" />
-                <object-ref id="07740" type="PACKAGE" />
-                <object-ref id="07741" type="PACKAGE_PROCEDURE" />
+                <object-ref id="07766" optional="true" type="SCHEMA" />
+                <object-ref id="07767" type="PACKAGE" />
+                <object-ref id="07768" type="PACKAGE_PROCEDURE" />
             </variant>
             <variant>
-                <object-ref id="07742" optional="true" type="SCHEMA" />
-                <object-ref id="07743" type="TYPE" />
-                <object-ref id="07744" type="TYPE_FUNCTION" />
+                <object-ref id="07769" optional="true" type="SCHEMA" />
+                <object-ref id="07770" type="TYPE" />
+                <object-ref id="07771" type="TYPE_FUNCTION" />
             </variant>
             <variant>
-                <object-ref id="07745" optional="true" type="SCHEMA" />
-                <object-ref id="07746" type="TYPE" />
-                <object-ref id="07747" type="TYPE_PROCEDURE" />
+                <object-ref id="07772" optional="true" type="SCHEMA" />
+                <object-ref id="07773" type="TYPE" />
+                <object-ref id="07774" type="TYPE_PROCEDURE" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="FUNCTION reference" id="function_reference">
-        <qualified-identifier id="07748" separator="CHR_DOT">
+        <qualified-identifier id="07775" separator="CHR_DOT">
             <variant>
-                <object-ref id="07749" optional="true" type="SCHEMA" />
-                <object-ref id="07750" type="FUNCTION" />
+                <object-ref id="07776" optional="true" type="SCHEMA" />
+                <object-ref id="07777" type="FUNCTION" />
             </variant>
             <variant>
-                <object-ref id="07751" optional="true" type="SCHEMA" />
-                <object-ref id="07752" type="PACKAGE" />
-                <object-ref id="07753" type="PACKAGE_FUNCTION" />
+                <object-ref id="07778" optional="true" type="SCHEMA" />
+                <object-ref id="07779" type="PACKAGE" />
+                <object-ref id="07780" type="PACKAGE_FUNCTION" />
             </variant>
             <variant>
-                <object-ref id="07754" optional="true" type="SCHEMA" />
-                <object-ref id="07755" type="TYPE" />
-                <object-ref id="07756" type="TYPE_FUNCTION" />
+                <object-ref id="07781" optional="true" type="SCHEMA" />
+                <object-ref id="07782" type="TYPE" />
+                <object-ref id="07783" type="TYPE_FUNCTION" />
             </variant>
         </qualified-identifier>
     </element-def>
 
     <element-def description="VIEW reference" id="view_reference">
-        <qualified-identifier id="07757" separator="CHR_DOT">
+        <qualified-identifier id="07784" separator="CHR_DOT">
             <variant>
-                <object-ref id="07758" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="07759" type="VIEW" />
+                <object-ref id="07785" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="07786" type="VIEW" />
             </variant>
         </qualified-identifier>
     </element-def>
@@ -14092,120 +14130,120 @@
         <element ref-id="simple_expression" />
     </element-def>
     <element-def description="Date string" id="date">
-        <token id="07760" type-id="STRING" />
+        <token id="07787" type-id="STRING" />
     </element-def>
     <element-def description="Number" id="number">
-        <one-of id="07761" optional="true">
-            <token id="07762" type-id="CHR_MINUS" />
-            <token id="07763" type-id="CHR_PLUS" />
+        <one-of id="07788" optional="true">
+            <token id="07789" type-id="CHR_MINUS" />
+            <token id="07790" type-id="CHR_PLUS" />
         </one-of>
-        <one-of id="07764">
-            <token id="07765" type-id="NUMBER" />
-            <token id="07766" type-id="INTEGER" />
+        <one-of id="07791">
+            <token id="07792" type-id="NUMBER" />
+            <token id="07793" type-id="INTEGER" />
         </one-of>
     </element-def>
 
 
     <element-def description="COMPARISON operator" id="comparison_operator">
-        <one-of id="07767">
-            <token id="07768" type-id="CHR_EQUAL" />
-            <token id="07769" type-id="CHR_LESS" />
-            <token id="07770" type-id="CHR_GREATER" />
-            <token id="07771" type-id="OPR_NOT_EQUAL" />
-            <token id="07772" type-id="OPR_LESS_GREATER" />
-            <token id="07773" type-id="OPR_LESS_EQUAL" />
-            <token id="07774" type-id="OPR_GREATER_EQUAL" />
+        <one-of id="07794">
+            <token id="07795" type-id="CHR_EQUAL" />
+            <token id="07796" type-id="CHR_LESS" />
+            <token id="07797" type-id="CHR_GREATER" />
+            <token id="07798" type-id="OPR_NOT_EQUAL" />
+            <token id="07799" type-id="OPR_LESS_GREATER" />
+            <token id="07800" type-id="OPR_LESS_EQUAL" />
+            <token id="07801" type-id="OPR_GREATER_EQUAL" />
         </one-of>
     </element-def>
 
 
     <element-def description="Function name" id="function_name" original-name="PLSQL_function_name">
-        <qualified-identifier id="07775" optional="true" separator="CHR_DOT">
+        <qualified-identifier id="07802" optional="true" separator="CHR_DOT">
             <variant>
-                <object-ref id="07776" optional="true" type="SCHEMA" />
-                <object-ref id="07777" type="PACKAGE" />
-                <object-ref id="07778" type="PACKAGE_FUNCTION" />
+                <object-ref id="07803" optional="true" type="SCHEMA" />
+                <object-ref id="07804" type="PACKAGE" />
+                <object-ref id="07805" type="PACKAGE_FUNCTION" />
             </variant>
             <variant>
-                <object-ref id="07779" optional="true" type="SCHEMA" />
-                <object-ref id="07780" type="TYPE" />
-                <object-ref id="07781" type="TYPE_FUNCTION" />
+                <object-ref id="07806" optional="true" type="SCHEMA" />
+                <object-ref id="07807" type="TYPE" />
+                <object-ref id="07808" type="TYPE_FUNCTION" />
             </variant>
             <variant>
-                <object-ref id="07782" optional="true" type="SCHEMA" />
-                <object-ref id="07783" type="FUNCTION" />
+                <object-ref id="07809" optional="true" type="SCHEMA" />
+                <object-ref id="07810" type="FUNCTION" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def custom="true" description="Chained references list" id="chained_references_list">
-        <iteration id="07784" separator="CHR_COMMA">
+        <iteration id="07811" separator="CHR_COMMA">
             <element ref-id="chained_references" />
         </iteration>
     </element-def>
     <element-def custom="true" description="Chained reference" id="chained_references">
-        <iteration id="07785" separator="CHR_DOT">
-            <one-of id="07786">
+        <iteration id="07812" separator="CHR_DOT">
+            <one-of id="07813">
                 <element ref-id="numeric_index_suffix" />
-                <sequence id="07787">
-                    <variable-ref attributes="SUBJECT" id="07788" type="ANY" />
+                <sequence id="07814">
+                    <variable-ref attributes="SUBJECT" id="07815" type="ANY" />
                     <element optional="true" ref-id="wrapped_expression_list" />
                 </sequence>
             </one-of>
         </iteration>
     </element-def>
     <element-def custom="true" description="Chained reference" id="chained_references_suffix">
-        <token id="07789" type-id="CHR_DOT" />
+        <token id="07816" type-id="CHR_DOT" />
         <element ref-id="chained_references" />
     </element-def>
     <element-def custom="true" description="Numeric index suffix" id="numeric_index_suffix">
-        <one-of id="07790">
-            <token id="07791" type-id="KW_FIRST" />
-            <token id="07792" type-id="KW_LAST" />
-            <token flavor="keyword" id="07793" type-id="FN_COUNT" />
+        <one-of id="07817">
+            <token id="07818" type-id="KW_FIRST" />
+            <token id="07819" type-id="KW_LAST" />
+            <token flavor="keyword" id="07820" type-id="FN_COUNT" />
         </one-of>
     </element-def>
     <element-def custom="true" description="DEFAULT ON CONVERSION ERROR" id="default_on_conversion_error">
-        <token id="07794" type-id="KW_DEFAULT" />
+        <token id="07821" type-id="KW_DEFAULT" />
         <element ref-id="expression" />
-        <token id="07795" type-id="KW_ON" />
-        <token id="07796" type-id="KW_CONVERSION" />
-        <token id="07797" type-id="KW_ERROR" />
+        <token id="07822" type-id="KW_ON" />
+        <token id="07823" type-id="KW_CONVERSION" />
+        <token id="07824" type-id="KW_ERROR" />
     </element-def>
     <element-def custom="true" description="FMT NLSPARAM" id="fmt_nlsparam">
-        <sequence id="07798">
-            <token id="07799" type-id="CHR_COMMA" />
+        <sequence id="07825">
+            <token id="07826" type-id="CHR_COMMA" />
             <element original-name="fmt" ref-id="expression" />
-            <sequence id="07800" optional="true">
-                <token id="07801" type-id="CHR_COMMA" />
+            <sequence id="07827" optional="true">
+                <token id="07828" type-id="CHR_COMMA" />
                 <element original-name="nlsparam" ref-id="expression" />
             </sequence>
         </sequence>
     </element-def>
     <element-def custom="true" description="DBLINK qualifier" id="dblink_qualifier">
-        <token id="07802" type-id="CHR_AT" />
-        <object-ref id="07803" type="DBLINK" />
-        <sequence id="07804" optional="true">
-            <token id="07805" type-id="CHR_DOT" />
-            <token id="07806" type-id="IDENTIFIER" />
+        <token id="07829" type-id="CHR_AT" />
+        <object-ref id="07830" type="DBLINK" />
+        <sequence id="07831" optional="true">
+            <token id="07832" type-id="CHR_DOT" />
+            <token id="07833" type-id="IDENTIFIER" />
         </sequence>
     </element-def>
 
     <element-def description="Column alias definition" id="column_alias_definition">
-        <token id="07807" optional="true" type-id="KW_AS" />
-        <alias-def id="07808" type="COLUMN" attributes="ALIAS_DEFINITION" />
+        <token id="07834" optional="true" type-id="KW_AS" />
+        <alias-def id="07835" type="COLUMN" attributes="ALIAS_DEFINITION" />
     </element-def>
     <element-def description="Dataset alias definition" id="dataset_alias_definition">
-        <token id="07809" optional="true" type-id="KW_AS" />
-        <alias-def id="07810" type="DATASET" />
+        <token id="07836" optional="true" type-id="KW_AS" />
+        <alias-def id="07837" type="DATASET" />
     </element-def>
 
     <element-def description="Unknown identifier" id="custom_undefined">
-        <token id="07811" type-id="IDENTIFIER" />
+        <token id="07838" type-id="IDENTIFIER" />
     </element-def>
     <element-def description="Statement end" formatting-spacing-before="NO_SPACE" id="end" truncate-on-execution="true">
-        <one-of id="07812">
-            <token id="07813" type-id="CHR_SEMICOLON" />
-            <token id="07814" type-id="CHR_SLASH" />
+        <one-of id="07839">
+            <token id="07840" type-id="CHR_SEMICOLON" />
+            <token id="07841" type-id="CHR_SLASH" />
         </one-of>
     </element-def>
 </element-defs>
