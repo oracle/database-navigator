@@ -150,7 +150,6 @@ public class ExecutionConfigManager extends ProjectComponentBase implements Pers
         return RunManagerEx.getInstance(ensureProject());
     }
 
-    @Deprecated // TODO move to stateless run configuration (decommission after a few releases)
     public void removeRunConfigurations() {
         RunManager runManager = getRunManager();
         List<RunnerAndConfigurationSettings> runConfigurations = runManager.getAllSettings();

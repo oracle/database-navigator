@@ -18,17 +18,19 @@ package com.dbn.common.state;
 
 import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.approval.UserApprovalAdapter;
+import com.dbn.common.approval.UserApprovalOption;
 import com.dbn.common.thread.Dispatch;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Modality;
+import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 
 import static com.dbn.common.approval.UserApprovalAction.STATE_ENCRYPTION_CHANGE;
+import static com.dbn.common.approval.UserApprovalOption.none;
+import static com.dbn.common.approval.UserApprovalOption.one;
 import static com.dbn.common.state.StateEncryption.isMemoryPasswordSafe;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -38,12 +40,12 @@ import static com.dbn.nls.NlsResources.txt;
  */
 public class StateEncryptionApprovalAdapter implements UserApprovalAdapter<StateEncryptionApproval> {
     private static final @NonNls String PASSWORD_SAFE_CONFIGURABLE_ID = "application.passwordSafe";
-    private static final int OPTION_DECIDE_LATER = 1;
-    private static final int OPTION_OPEN_PASSWORD_SETTINGS = 2;
-    private static final String[] APPROVAL_OPTIONS = Messages.options(
-            txt("msg.settings.button.UseUnencryptedStorage"),
-            txt("msg.settings.button.DecideLater"),
-            txt("msg.settings.button.OpenPasswordSettings"));
+    private static final UserApprovalOption OPTION_DECIDE_LATER = none(txt("msg.settings.button.DecideLater"), Duration.ofMinutes(10));
+    private static final UserApprovalOption OPTION_OPEN_PASSWORD_SETTINGS = none(txt("msg.settings.button.OpenPasswordSettings"));
+    private static final UserApprovalOption[] APPROVAL_OPTIONS = {
+            one(txt("msg.settings.button.UseUnencryptedStorage")),
+            OPTION_DECIDE_LATER,
+            OPTION_OPEN_PASSWORD_SETTINGS};
 
     @Override
     public Class<StateEncryptionApproval> getApprovalClass() {
@@ -78,24 +80,20 @@ public class StateEncryptionApprovalAdapter implements UserApprovalAdapter<State
     }
 
     @Override
-    public String[] getApprovalOptions(StateEncryptionApproval approval) {
+    public UserApprovalOption[] getApprovalOptions(StateEncryptionApproval approval) {
         return APPROVAL_OPTIONS;
     }
 
     @Override
-    public void processApprovalOption(StateEncryptionApproval approval, int option) {
+    public void processApprovalOption(StateEncryptionApproval approval, UserApprovalOption option) {
         if (option != OPTION_OPEN_PASSWORD_SETTINGS) return;
 
-        Dispatch.run(Modality.nonModal(), () -> ShowSettingsUtil.getInstance().showSettingsDialog(
-                null,
-                c -> c instanceof SearchableConfigurable configurable && PASSWORD_SAFE_CONFIGURABLE_ID.equals(configurable.getId()),
-                null));
+        Dispatch.run(Modality.nonModal(),
+                () -> ShowSettingsUtil.getInstance().showSettingsDialog(null,
+                        c -> isPasswordSafeConfig(c), null));
     }
 
-    @Override
-    @Nullable
-    public Duration getRejectionCooldown(StateEncryptionApproval approval, int option) {
-        if (option == OPTION_DECIDE_LATER) return Duration.ofMinutes(10);
-        return Duration.ofSeconds(10);
+    private static boolean isPasswordSafeConfig(Configurable configurable) {
+        return configurable instanceof SearchableConfigurable config && PASSWORD_SAFE_CONFIGURABLE_ID.equals(config.getId());
     }
 }

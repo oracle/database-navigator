@@ -104,22 +104,35 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
     private <T extends UserApprovable> void obtainUserApproval(UserApprovalAction action, T approvable, UserApprovalData data) {
         UserApprovalAdapter<T> adapter = UserApprovalAdapters.get(action, approvable);
         data.setPending(true);
-        int option = Messages.showAcknowledgementDialog(
+        UserApprovalOption[] options = adapter.getApprovalOptions(approvable);
+        int optionIndex = Messages.showAcknowledgementDialog(
                 null,
                 adapter.getApprovalTitle(approvable),
                 adapter.getApprovalMessage(approvable),
-                adapter.getApprovalOptions(approvable),
-                1, o -> data.setPending(false));
+                adapter.getApprovalOptionNames(approvable),
+                getDefaultOptionIndex(options), o -> data.setPending(false));
 
-        if (option != 0) {
+        UserApprovalOption option = adapter.getApprovalOption(approvable, optionIndex);
+        if (option.type() == UserApprovalType.NONE) {
             adapter.processApprovalOption(approvable, option);
-            data.reject(adapter.getRejectionCooldown(approvable, option));
+            data.reject(option.rejectionCooldown());
             throw new UserApprovalCancelledException();
         }
 
-        UserApprovalLifetime approvalLifetime = adapter.getApprovalLifetime(approvable);
-        data.setApprovalLifetime(approvalLifetime);
+        UserApprovalLifetime lifetime = adapter.getApprovalLifetime(approvable);
+        data.setApprovalLifetime(lifetime);
         data.clearRejection();
+        if (option.type() == UserApprovalType.ALL) {
+            adapter.getApprovalSiblings(approvable, option).forEach(sibling -> approve(action, sibling, lifetime));
+        }
+    }
+
+    private static int getDefaultOptionIndex(UserApprovalOption[] options) {
+        // Approval dialogs guard sensitive actions, so the safest default is the first rejection option.
+        for (int i = 0; i < options.length; i++) {
+            if (options[i].type() == UserApprovalType.NONE) return i;
+        }
+        return 0;
     }
 
     public <T extends UserApprovable> void updateApprovalSignature(UserApprovalAction action, T approvable) {

@@ -18,11 +18,8 @@ package com.dbn.driver.approval;
 
 import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.approval.UserApprovalAdapter;
-import com.dbn.common.util.Messages;
+import com.dbn.common.approval.UserApprovalOption;
 import com.dbn.driver.DriverLibraryInfo;
-import org.jetbrains.annotations.Nullable;
-
-import java.time.Duration;
 
 import static com.dbn.common.approval.UserApprovalAction.DRIVER_LIBRARY_LOAD;
 import static com.dbn.nls.NlsResources.txt;
@@ -32,9 +29,9 @@ import static com.dbn.nls.NlsResources.txt;
  * which may execute driver code from user-selected files or directories.
  */
 public class DriverLibraryApprovalAdapter implements UserApprovalAdapter<DriverLibraryApproval> {
-    private static final String[] APPROVAL_OPTIONS = Messages.options(
-            txt("msg.driver.button.TrustAndLoadDriver"),
-            txt("msg.shared.button.Cancel"));
+    private static final UserApprovalOption[] APPROVAL_OPTIONS = {
+            UserApprovalOption.one(txt("msg.driver.button.TrustAndLoadDriver")),
+            UserApprovalOption.none(txt("msg.shared.button.Cancel"))};
 
     @Override
     public Class<DriverLibraryApproval> getApprovalClass() {
@@ -72,13 +69,7 @@ public class DriverLibraryApprovalAdapter implements UserApprovalAdapter<DriverL
     }
 
     @Override
-    public String[] getApprovalOptions(DriverLibraryApproval approvable) {
+    public UserApprovalOption[] getApprovalOptions(DriverLibraryApproval approvable) {
         return APPROVAL_OPTIONS;
-    }
-
-    @Override
-    @Nullable
-    public Duration getRejectionCooldown(DriverLibraryApproval approvable, int option) {
-        return Duration.ofSeconds(10);
     }
 }

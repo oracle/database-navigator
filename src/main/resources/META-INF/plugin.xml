@@ -28,7 +28,7 @@
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
     <depends optional="true" config-file="dbn-oci-toolkit-support.xml">com.oracle.ocidbtest</depends>
     <vendor email="dan.cioca@oracle.com" url="https://www.oracle.com">Dan Cioca (Oracle)</vendor>
-    <idea-version since-build="201.6668.113" until-build="262.*"/>
+    <idea-version since-build="222.4554.10" until-build="262.*"/>
     <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
         <h3>Database Navigator</h3>
@@ -62,7 +62,12 @@
                     <li>Support for java expressions as inputs to execution engine
                     <li>DB Assistant integration (tools)
                 </ul>
-                <li>Bug fixes and performance improvements
+                <li>DB Assistant enhancements<ul>
+                    <li>MCP server support
+                    <li>IDE MCP server integration
+                </ul>
+                <li>MCP Server Builder
+                <li>Security fixes and performance improvements
             </ul>
             <li><b>3.7.4</b>
             <ul>
@@ -141,20 +146,8 @@
             </ul>
         </ul>
      ]]></change-notes>
-
-    <application-components>
-        <component><implementation-class>com.dbn.DatabaseNavigator</implementation-class></component>
-    </application-components>
-    <project-components>
-        <component><implementation-class>com.dbn.project.ProjectComponentsInitializer</implementation-class></component>
-    </project-components>
-
     <extensions defaultExtensionNs="com.intellij">
-<!--
-        <languageBundle locale="en"/>
-        <languageBundle locale="de"/>
--->
-
+        <applicationService serviceImplementation="com.dbn.DatabaseNavigator"/>
         <applicationService serviceImplementation="com.dbn.plugin.PluginStatusManager"/>
         <applicationService serviceImplementation="com.dbn.plugin.PluginConflictManager"/>
         <applicationService serviceImplementation="com.dbn.common.file.FileTypeService"/>
@@ -170,6 +163,7 @@
 
         <!--<projectService serviceImplementation="com.dbn.options.GlobalProjectSettings"/>-->
         <projectService serviceImplementation="com.dbn.project.ProjectStateManager"/>
+        <projectService serviceImplementation="com.dbn.project.ProjectComponentsInitializer"/>
         <projectService serviceImplementation="com.dbn.diagnostics.DiagnosticsManager"/>
         <projectService serviceImplementation="com.dbn.diagnostics.ParserDiagnosticsManager"/>
         <projectService serviceImplementation="com.dbn.batch.DatabaseBatchManager"/>
@@ -901,6 +895,7 @@
         <notificationGroup id="DBNavigator.NotificationGroup.Diagnostics" displayType="BALLOON" key="ntf.shared.title.DBNavigatorDiagnostics" toolWindowId="DB Diagnostics"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Events" displayType="BALLOON" key="ntf.shared.title.DBNavigatorEvents" toolWindowId="DB Events"/>
         <postStartupActivity implementation="com.dbn.project.ProjectStartupActivity"/>
+
         <!--<postStartupActivity implementation="com.dbn.project.ProjectComponentsInitializer" order="last"/>-->
         <!--<applicationInitializedListener implementation="com.dbn.init.DatabaseNavigatorInitializer"/>-->
         <virtualFileSystem implementationClass="com.dbn.vfs.DatabaseFileSystem" key="db" physical="false"/>

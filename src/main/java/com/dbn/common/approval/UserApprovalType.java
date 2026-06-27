@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.common.component;
+package com.dbn.common.approval;
 
-/**
- * Marker for eagerly loaded services
- * They are defined as components in the plugin.xml
- */
-public interface EagerService {
+public enum UserApprovalType {
+    NONE,
+    ONE,
+    ALL
 }

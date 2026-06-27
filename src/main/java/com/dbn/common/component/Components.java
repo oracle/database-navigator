@@ -40,19 +40,12 @@ public class Components {
 
     @Nullable
     public static <T extends ProjectComponent> T optionalProjectService(@NotNull Project project, @NotNull Class<T> serviceClass) {
-        return isEagerService(serviceClass) ?
-                nd(project).getComponent(serviceClass) :
-                nd(project).getService(serviceClass);    }
+        return nd(project).getService(serviceClass);
+    }
 
     @Nullable
     public static <T extends ApplicationComponent> T optionalApplicationService(@NotNull Class<T> serviceClass) {
         Application application = ApplicationManager.getApplication();
-        return isEagerService(serviceClass) ?
-                application.getComponent(serviceClass) :
-                application.getService(serviceClass);
-    }
-
-    private static <T extends Service> boolean isEagerService(@NotNull Class<T> interfaceClass) {
-        return EagerService.class.isAssignableFrom(interfaceClass);
+        return application.getService(serviceClass);
     }
 }
