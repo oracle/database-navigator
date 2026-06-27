@@ -64,7 +64,7 @@ public class UserDataKeys {
     public static final Key<Integer> BREAKPOINT_ID = Key.create("DBNavigator.BreakpointId");
     public static final Key<VirtualFile> BREAKPOINT_FILE = Key.create("DBNavigator.BreakpointFile");
     public static final Key<Boolean> SKIP_BROWSER_AUTOSCROLL = Key.create("DBNavigator.SkipEditorScroll");
-    public static final Key<Boolean> SOURCE_CODE_EDITOR_TOOLBAR_INSTALLED = Key.create("DBNavigator.SourceCodeEditor.ToolbarInstalled");
+    public static final Key<Boolean> EDITOR_TOOLBAR_INSTALLED = Key.create("DBNavigator.Editor.ToolbarInstalled");
     public static final Key<Long> LAST_ANNOTATION_REFRESH = Key.create("DBNavigator.LastAnnotationRefresh");
     public static final Key<Boolean> WRAPPER_FILE = Key.create("DBNavigator.WrapperFile");
     public static final Key<AssistantMemoryCache> ASSISTANT_MEMORY_CACHE = Key.create("DBNavigator.AssistantMemoryCache");
