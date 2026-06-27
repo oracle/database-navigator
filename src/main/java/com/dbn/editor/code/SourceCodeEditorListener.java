@@ -26,7 +26,7 @@ import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.action.UserDataKeys.SOURCE_CODE_EDITOR_TOOLBAR_INSTALLED;
+import static com.dbn.common.action.UserDataKeys.EDITOR_TOOLBAR_INSTALLED;
 import static com.dbn.common.action.UserDataKeys.isUserData;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.file.util.VirtualFiles.isLocalFileSystem;
@@ -35,10 +35,7 @@ import static com.dbn.common.util.Files.isDbConsoleFile;
 public class SourceCodeEditorListener extends DBNFileEditorManagerListener {
     @Override
     public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-        if (isNotValid(file)) return;
-        if (isDbConsoleFile(file)) return;
-        if (isLocalFileSystem(file)) return;
-        if (!Files.isDbEditableObjectFile(file)) return;
+        if (!isInScope(file)) return;
 
         FileEditor[] fileEditors = source.getEditors(file);
         for (FileEditor fileEditor : fileEditors) {
@@ -50,18 +47,27 @@ public class SourceCodeEditorListener extends DBNFileEditorManagerListener {
 
     @Override
     public void whenSelectionChanged(@NotNull FileEditorManagerEvent event) {
+        if (!isInScope(event.getNewFile())) return;
+
         FileEditor editor = event.getNewEditor();
         if (editor instanceof SourceCodeEditor sourceCodeEditor) {
             ensureToolbar(sourceCodeEditor);
         }
     }
 
+    private static boolean isInScope(VirtualFile file) {
+        if (isNotValid(file)) return false;
+        if (isDbConsoleFile(file)) return false;
+        if (isLocalFileSystem(file)) return false;
+        return Files.isDbEditableObjectFile(file);
+    }
+
     private static void ensureToolbar(@NotNull SourceCodeEditor sourceCodeEditor) {
-        if (isUserData(sourceCodeEditor, SOURCE_CODE_EDITOR_TOOLBAR_INSTALLED)) return;
+        if (isUserData(sourceCodeEditor, EDITOR_TOOLBAR_INSTALLED)) return;
 
         SourceCodeEditorToolbarForm actionsPanel = new SourceCodeEditorToolbarForm(sourceCodeEditor);
         Editors.addEditorToolbar(sourceCodeEditor, actionsPanel);
-        sourceCodeEditor.putUserData(SOURCE_CODE_EDITOR_TOOLBAR_INSTALLED, true);
+        sourceCodeEditor.putUserData(EDITOR_TOOLBAR_INSTALLED, true);
     }
 
 }
