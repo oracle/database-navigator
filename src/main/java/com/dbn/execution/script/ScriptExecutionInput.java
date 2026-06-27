@@ -24,15 +24,23 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+
+import static com.dbn.common.dispose.Failsafe.nd;
 
 @Getter
 @Setter
 public class ScriptExecutionInput extends RemoteExecutionInput {
     private CmdLineInterface cmdLineInterface;
     private VirtualFile sourceFile;
+    private File temporaryScriptFile;
+    private File tempScriptDirectory;
     private boolean clearOutput;
+    private ScriptPasswordDelivery passwordDelivery = ScriptPasswordDelivery.current();
 
-    ScriptExecutionInput(Project project, VirtualFile sourceFile, ConnectionHandler connection, SchemaId targetSchema, boolean clearOutput) {
+    public ScriptExecutionInput(Project project, VirtualFile sourceFile, ConnectionHandler connection, SchemaId targetSchema, boolean clearOutput) {
         super(project, ExecutionTarget.SCRIPT);
         this.sourceFile = sourceFile;
         setTargetConnection(connection);
@@ -46,8 +54,9 @@ public class ScriptExecutionInput extends RemoteExecutionInput {
     }
 
     @Override
+    @NotNull
     public ConnectionHandler getConnection() {
-        return getTargetConnection();
+        return nd(getTargetConnection());
     }
 
     public SchemaId getSchemaId() {

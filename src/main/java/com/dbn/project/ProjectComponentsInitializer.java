@@ -17,7 +17,6 @@
 package com.dbn.project;
 
 import com.dbn.assistant.service.selectai.SelectAiInitializationManager;
-import com.dbn.common.component.EagerService;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.connection.config.ConnectionBundleSettings;
@@ -37,7 +36,6 @@ import com.dbn.execution.compiler.DatabaseCompilerManager;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.object.common.loader.DatabaseLoaderManager;
 import com.dbn.options.ProjectSettingsProvider;
-import com.dbn.options.ProjectWorkspaceSettingsManager;
 import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.dbn.vfs.DBVirtualFile;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -56,7 +54,7 @@ import static com.dbn.common.state.StateEncryption.requestUnencryptedStateApprov
  * TODO find another way to define "silent" dependencies
  */
 @Getter
-public class ProjectComponentsInitializer extends ProjectComponentBase implements /*StartupActivity, */DumbAware, EagerService {
+public class ProjectComponentsInitializer extends ProjectComponentBase implements DumbAware{
     public static final String COMPONENT_NAME = "DBNavigator.Project.WorkspaceInitializer";
     private boolean initialized;
 
@@ -94,8 +92,6 @@ public class ProjectComponentsInitializer extends ProjectComponentBase implement
 
     public void initializeComponents() {
         Project project = getProject();
-
-        ProjectWorkspaceSettingsManager.getInstance(project);
 
         DatabaseConsoleManager.getInstance(project);
         DatabaseEditorStateManager.getInstance(project);

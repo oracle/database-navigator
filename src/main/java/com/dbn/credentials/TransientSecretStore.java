@@ -25,6 +25,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.dbn.common.util.Passwords.clearPassword;
 import static com.dbn.common.util.TimeUtil.Millis.THIRTY_SECONDS;
 import static java.lang.System.currentTimeMillis;
 
@@ -133,7 +134,7 @@ public final class TransientSecretStore {
             }
 
             private void clear() {
-                Chars.clear(secret);
+                clearPassword(secret);
             }
         }
 

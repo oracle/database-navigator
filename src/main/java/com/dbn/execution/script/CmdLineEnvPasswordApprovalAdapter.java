@@ -18,23 +18,26 @@ package com.dbn.execution.script;
 
 import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.approval.UserApprovalAdapter;
+import com.dbn.common.approval.UserApprovalLifetime;
+import com.dbn.common.approval.UserApprovalOption;
 import com.dbn.common.checksum.Checksum;
-import com.dbn.common.util.Messages;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.time.Duration;
 
-import static com.dbn.common.approval.UserApprovalAction.COMMAND_LINE_EXECUTION;
+import static com.dbn.common.approval.UserApprovalAction.PASSWORD_ENVIRONMENT_VARIABLE;
 import static com.dbn.common.checksum.Checksum.fromFileAttributes;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.util.Executables.resolveExecutableFile;
 import static com.dbn.nls.NlsResources.txt;
 
-public class CmdLineInterfaceApprovalAdapter implements UserApprovalAdapter<CmdLineInterface> {
-    private static final String[] APPROVAL_OPTIONS = Messages.options(
-            txt("msg.execution.button.TrustAndExecute"),
-            txt("msg.shared.button.Cancel"));
+/**
+ * Prepares user approval information for the legacy script authentication path that sends
+ * database passwords to external clients through child-process environment variables.
+ */
+public class CmdLineEnvPasswordApprovalAdapter implements UserApprovalAdapter<CmdLineInterface> {
+    private static final UserApprovalOption[] APPROVAL_OPTIONS = {
+            UserApprovalOption.one(txt("msg.execution.button.AllowAndExecute")),
+            UserApprovalOption.noneWithoutCooldown(txt("msg.shared.button.Cancel"))};
 
     @Override
     public Class<CmdLineInterface> getApprovalClass() {
@@ -43,12 +46,12 @@ public class CmdLineInterfaceApprovalAdapter implements UserApprovalAdapter<CmdL
 
     @Override
     public UserApprovalAction getApprovalAction() {
-        return COMMAND_LINE_EXECUTION;
+        return PASSWORD_ENVIRONMENT_VARIABLE;
     }
 
     @Override
     public String getApprovalTitle(CmdLineInterface cmdLineInterface) {
-        return txt("msg.execution.title.TrustCommandLineInterface");
+        return txt("msg.execution.title.AllowPasswordEnvironmentVariable");
     }
 
     @Override
@@ -56,7 +59,7 @@ public class CmdLineInterfaceApprovalAdapter implements UserApprovalAdapter<CmdL
         String executablePath = getExecutablePath(cmdLineInterface);
         File executableFile = resolveExecutableFile(executablePath);
 
-        return txt("msg.execution.question.TrustCommandLineInterface",
+        return txt("msg.execution.question.AllowPasswordEnvironmentVariable",
                 cmdLineInterface.getName(),
                 executableFile == null ? executablePath : executableFile.getAbsolutePath());
     }
@@ -67,8 +70,13 @@ public class CmdLineInterfaceApprovalAdapter implements UserApprovalAdapter<CmdL
     }
 
     @Override
-    public String[] getApprovalOptions(CmdLineInterface cmdLineInterface) {
+    public UserApprovalOption[] getApprovalOptions(CmdLineInterface cmdLineInterface) {
         return APPROVAL_OPTIONS;
+    }
+
+    @Override
+    public UserApprovalLifetime getApprovalLifetime(CmdLineInterface cmdLineInterface) {
+        return UserApprovalLifetime.SESSION;
     }
 
     private String getExecutableFingerprint(CmdLineInterface cmdLineInterface) {
@@ -89,11 +97,5 @@ public class CmdLineInterfaceApprovalAdapter implements UserApprovalAdapter<CmdL
     private static String getExecutablePath(CmdLineInterface cmdLineInterface) {
         String executablePath = cmdLineInterface.getExecutablePath();
         return executablePath == null ? "" : executablePath.trim();
-    }
-
-    @Override
-    @Nullable
-    public Duration getRejectionCooldown(CmdLineInterface approvable, int option) {
-        return null; // do not remember rejections
     }
 }

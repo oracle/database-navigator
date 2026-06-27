@@ -24,17 +24,20 @@ import org.jetbrains.annotations.Nullable;
 import java.time.Duration;
 import java.util.Objects;
 
+import static com.dbn.common.approval.UserApprovalLifetime.NONE;
+import static com.dbn.common.approval.UserApprovalLifetime.ONCE;
+import static com.dbn.common.approval.UserApprovalLifetime.PERSISTENT;
+import static com.dbn.common.approval.UserApprovalLifetime.SESSION;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 final class UserApprovalData implements PersistentStateElement {
     private String key;
-    private boolean approved;
-    private boolean temporary;
-    private boolean pending;
-    private long rejectionExpirationTimestamp;
     private @Nullable String signature;
+    private UserApprovalLifetime approvalLifetime = NONE;
+    private boolean pending;
+    private long rejectionExpiry;
 
     UserApprovalData(@NotNull String key) {
         this.key = key;
@@ -51,11 +54,11 @@ final class UserApprovalData implements PersistentStateElement {
     }
 
     synchronized boolean isApproved() {
-        return approved;
+        return approvalLifetime != NONE;
     }
 
-    synchronized void setApproved(boolean approved) {
-        this.approved = approved;
+    synchronized void setApprovalLifetime(UserApprovalLifetime approvalLifetime) {
+        this.approvalLifetime = nn(approvalLifetime);
     }
 
     synchronized boolean isPending() {
@@ -66,71 +69,75 @@ final class UserApprovalData implements PersistentStateElement {
         this.pending = pending;
     }
 
-    synchronized boolean consumeTemporary() {
-        if (!temporary) return false;
+    synchronized boolean consumeOnce() {
+        if (approvalLifetime != ONCE) return false;
 
-        temporary = false;
+        approvalLifetime = NONE;
         return true;
     }
 
-    synchronized void setTemporary(boolean temporary) {
-        this.temporary = temporary;
+    synchronized void clearTransientApproval() {
+        if (approvalLifetime == ONCE || approvalLifetime == SESSION) {
+            approvalLifetime = NONE;
+        }
     }
 
     synchronized void reject(@Nullable Duration cooldown) {
         if (cooldown == null || cooldown.isZero() || cooldown.isNegative()) {
-            rejectionExpirationTimestamp = 0;
+            rejectionExpiry = 0;
             return;
         }
 
-        rejectionExpirationTimestamp = System.currentTimeMillis() + cooldown.toMillis();
+        rejectionExpiry = System.currentTimeMillis() + cooldown.toMillis();
     }
 
     synchronized void clearRejection() {
-        rejectionExpirationTimestamp = 0;
+        rejectionExpiry = 0;
     }
 
     synchronized boolean isRejected() {
-        return rejectionExpirationTimestamp > System.currentTimeMillis();
+        return rejectionExpiry > System.currentTimeMillis();
     }
 
     synchronized void setSignature(@Nullable String signature) {
         this.signature = signature;
     }
 
-    synchronized boolean updateSignatureRequiresApprovalClear(@Nullable String signature) {
+    /**
+     * Updates the approval signature and returns true when an existing approval
+     * must be cleared because the signature changed.
+     */
+    synchronized boolean updateSignature(@Nullable String signature) {
         if (signature == null) return false;
 
         String previousSignature = this.signature;
         if (Objects.equals(previousSignature, signature)) return false;
 
         this.signature = signature;
-        return previousSignature != null || approved;
+        return previousSignature != null || isApproved();
     }
 
     synchronized void clearApproval() {
-        approved = false;
-        temporary = false;
+        approvalLifetime = NONE;
+        rejectionExpiry = 0;
         pending = false;
-        rejectionExpirationTimestamp = 0;
     }
 
     synchronized boolean isEmpty() {
-        return !approved && !temporary && !pending && rejectionExpirationTimestamp == 0 && signature == null;
+        return approvalLifetime == NONE && !pending && rejectionExpiry == 0 && signature == null;
     }
 
     synchronized boolean isPersistent() {
-        return approved;
+        return approvalLifetime == PERSISTENT;
     }
 
     @Override
     public synchronized void readState(Element element) {
         key = stringAttribute(element, "key");
         signature = stringAttribute(element, "signature");
-        approved = true;
-        temporary = false;
+        approvalLifetime = PERSISTENT;
         pending = false;
-        rejectionExpirationTimestamp = 0;
+        rejectionExpiry = 0;
     }
 
     @Override
