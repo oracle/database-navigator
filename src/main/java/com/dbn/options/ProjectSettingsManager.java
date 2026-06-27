@@ -88,8 +88,6 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         return Components.projectService(project, ProjectSettingsManager.class);
     }
 
-
-
     public ProjectSettings getProjectSettings() {
         return nd(projectSettings);
     }
