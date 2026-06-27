@@ -33,6 +33,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.state.StateEncryptionCache;
 import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.window.ToolWindows;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -73,6 +74,7 @@ import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.util.ContextLookup.getConnectionId;
+import static com.dbn.common.util.Modality.nonModal;
 
 /**
  * Main database AI-Assistance management component
@@ -173,15 +175,19 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     }
 
     public void initializeAssistant() {
+        Dispatch.async(nonModal(),
+                () -> getFirstConnectionId(),
+                c -> switchContext(c));
+    }
+
+    private @Nullable ConnectionId getFirstConnectionId() {
         Project project = getProject();
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
         List<ConnectionHandler> connections = connectionManager.getConnections();
-        if (connections.isEmpty()) return;
+        if (connections.isEmpty()) return null;
 
         ConnectionHandler connection = connections.get(0);
-        ConnectionId connectionId = connection.getConnectionId();
-
-        switchContext(connectionId);
+        return connection.getConnectionId();
     }
 
     public void initializeAssistant(ConnectionId connectionId, AssistantType assistantType) {

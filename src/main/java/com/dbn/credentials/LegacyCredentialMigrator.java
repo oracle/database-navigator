@@ -23,6 +23,7 @@ import com.dbn.common.state.StateCategory;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
+import com.dbn.common.util.Modality;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
@@ -32,7 +33,6 @@ import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.credentialStore.OneTimeString;
 import com.intellij.ide.passwordSafe.PasswordSafe;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
 
 import java.util.ArrayList;
@@ -106,7 +106,7 @@ public class LegacyCredentialMigrator {
     }
 
     private static void dispatch(Runnable runnable) {
-        Dispatch.run(ModalityState.nonModal(), runnable);
+        Dispatch.run(Modality.nonModal(), runnable);
     }
 
     private void prompt(Runnable callback, boolean requireMigration) {
