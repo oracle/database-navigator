@@ -22,9 +22,12 @@ import com.dbn.common.util.Files;
 import com.dbn.editor.code.ui.SourceCodeEditorToolbarForm;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.action.UserDataKeys.SOURCE_CODE_EDITOR_TOOLBAR_INSTALLED;
+import static com.dbn.common.action.UserDataKeys.isUserData;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.file.util.VirtualFiles.isLocalFileSystem;
 import static com.dbn.common.util.Files.isDbConsoleFile;
@@ -40,10 +43,25 @@ public class SourceCodeEditorListener extends DBNFileEditorManagerListener {
         FileEditor[] fileEditors = source.getEditors(file);
         for (FileEditor fileEditor : fileEditors) {
             if (fileEditor instanceof SourceCodeEditor sourceCodeEditor) {
-                SourceCodeEditorToolbarForm actionsPanel = new SourceCodeEditorToolbarForm(sourceCodeEditor);
-                Editors.addEditorToolbar(fileEditor, actionsPanel);
+                ensureToolbar(sourceCodeEditor);
             }
         }
+    }
+
+    @Override
+    public void whenSelectionChanged(@NotNull FileEditorManagerEvent event) {
+        FileEditor editor = event.getNewEditor();
+        if (editor instanceof SourceCodeEditor sourceCodeEditor) {
+            ensureToolbar(sourceCodeEditor);
+        }
+    }
+
+    private static void ensureToolbar(@NotNull SourceCodeEditor sourceCodeEditor) {
+        if (isUserData(sourceCodeEditor, SOURCE_CODE_EDITOR_TOOLBAR_INSTALLED)) return;
+
+        SourceCodeEditorToolbarForm actionsPanel = new SourceCodeEditorToolbarForm(sourceCodeEditor);
+        Editors.addEditorToolbar(sourceCodeEditor, actionsPanel);
+        sourceCodeEditor.putUserData(SOURCE_CODE_EDITOR_TOOLBAR_INSTALLED, true);
     }
 
 }
