@@ -45,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.exception.Exceptions.getMessage;
 import static com.dbn.common.exception.Exceptions.rootCauseOf;
+import static com.dbn.common.util.Passwords.clearPassword;
 import static com.dbn.connection.ssh.SshAuthType.KEY_PAIR;
 import static com.dbn.connection.ssh.SshConnections.toSshdSocketAddress;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -176,7 +177,7 @@ public class SshTunnelConnector {
             authenticateSession();
         } finally {
             session.removePasswordIdentity(passwordIdentity);
-            Chars.clear(proxyPassword);
+            clearPassword(proxyPassword);
         }
     }
 
@@ -194,7 +195,7 @@ public class SshTunnelConnector {
             keyPairs.forEach(kp -> session.addPublicKeyIdentity(kp));
             authenticateSession();
         } finally {
-            Chars.clear(keyPassphrase);
+            clearPassword(keyPassphrase);
         }
     }
 

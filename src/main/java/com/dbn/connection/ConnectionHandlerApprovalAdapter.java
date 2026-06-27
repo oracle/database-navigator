@@ -18,18 +18,17 @@ package com.dbn.connection;
 
 import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.approval.UserApprovalAdapter;
+import com.dbn.common.approval.UserApprovalOption;
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionPropertiesSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
 
-import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -40,15 +39,20 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.Strings.truncateWithMiddleEllipsis;
 import static com.dbn.nls.NlsResources.txt;
 
-public class ConnectionHandlerApprovalAdapter implements UserApprovalAdapter<ConnectionHandlerImpl> {
+/**
+ * Prepares user approval information for restoring workspace connections and reconnecting
+ * to database targets that were saved in project state.
+ */
+public class ConnectionHandlerApprovalAdapter implements UserApprovalAdapter<ConnectionHandler> {
     private static final int TARGET_MAX_LENGTH = 60;
-    private static final String[] APPROVAL_OPTIONS = Messages.options(
-            txt("msg.shared.button.TrustAndConnect"),
-            txt("msg.shared.button.Cancel"));
+    private static final UserApprovalOption[] APPROVAL_OPTIONS = {
+            UserApprovalOption.one(txt("msg.shared.button.TrustAndConnect")),
+            UserApprovalOption.all(txt("msg.connection.button.TrustAllAndConnect")),
+            UserApprovalOption.none(txt("msg.shared.button.Cancel"))};
 
     @Override
-    public Class<ConnectionHandlerImpl> getApprovalClass() {
-        return ConnectionHandlerImpl.class;
+    public Class<ConnectionHandler> getApprovalClass() {
+        return ConnectionHandler.class;
     }
 
     @Override
@@ -57,12 +61,12 @@ public class ConnectionHandlerApprovalAdapter implements UserApprovalAdapter<Con
     }
 
     @Override
-    public String getApprovalTitle(ConnectionHandlerImpl connection) {
+    public String getApprovalTitle(ConnectionHandler connection) {
         return txt("msg.connection.title.TrustConnection");
     }
 
     @Override
-    public String getApprovalMessage(ConnectionHandlerImpl connection) {
+    public String getApprovalMessage(ConnectionHandler connection) {
         ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
         AuthenticationInfo authenticationInfo = databaseSettings.getAuthenticationInfo();
         return txt("msg.connection.question.TrustConnection",
@@ -75,26 +79,27 @@ public class ConnectionHandlerApprovalAdapter implements UserApprovalAdapter<Con
 
     @Override
     @NonNls
-    public String getApprovalKey(ConnectionHandlerImpl connection) {
+    public String getApprovalKey(ConnectionHandler connection) {
         Project project = connection.getProject();
         return "connection:" + nvl(project.getBasePath(), "") + ":" + connection.getConnectionId().id();
     }
 
     @Override
     @NonNls
-    public String getApprovalSignature(ConnectionHandlerImpl connection) {
+    public String getApprovalSignature(ConnectionHandler connection) {
         return Checksum.fromStringContent(getSignatureContent(connection), SHA_256);
     }
 
     @Override
-    public String[] getApprovalOptions(ConnectionHandlerImpl connection) {
+    public UserApprovalOption[] getApprovalOptions(ConnectionHandler connection) {
         return APPROVAL_OPTIONS;
     }
 
     @Override
-    @Nullable
-    public Duration getRejectionCooldown(ConnectionHandlerImpl connection, int option) {
-        return Duration.ofSeconds(10);
+    public List<ConnectionHandler> getApprovalSiblings(ConnectionHandler connection, UserApprovalOption option) {
+        return connection.getConnectionBundle().getAllConnections().stream()
+                .filter(c -> !c.isVirtual())
+                .toList();
     }
 
     private static String getConnectionTarget(ConnectionDatabaseSettings databaseSettings) {
@@ -107,7 +112,7 @@ public class ConnectionHandlerApprovalAdapter implements UserApprovalAdapter<Con
         return port.isEmpty() ? host : host + ":" + port;
     }
 
-    private static String getSignatureContent(ConnectionHandlerImpl connection) {
+    private static String getSignatureContent(ConnectionHandler connection) {
         ConnectionSettings settings = connection.getSettings();
         ConnectionDatabaseSettings databaseSettings = settings.getDatabaseSettings();
         ConnectionPropertiesSettings propertiesSettings = settings.getPropertiesSettings();

@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JPasswordField;
 import javax.swing.text.JTextComponent;
 import java.util.List;
 import java.util.function.Function;
@@ -85,6 +86,11 @@ public class DBNFormValidatorSurrogate implements DBNFormValidator{
 
     @Override
     public void addTextValidation(JTextComponent textField, Function<JTextComponent, @DialogMessage String> validator) {
+        notSupported();
+    }
+
+    @Override
+    public void addPasswordValidation(JPasswordField passwordField, Predicate<char[]> validator, @DialogMessage String message) {
         notSupported();
     }
 
