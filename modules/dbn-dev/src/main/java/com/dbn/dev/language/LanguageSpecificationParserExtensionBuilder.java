@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.dbn.dev.language.LanguageSpecificationXmlUtil.outputPrettyString;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.OPTIONAL_WRAPPING;
 
 public class LanguageSpecificationParserExtensionBuilder implements LanguageSpecificationArtifactBuilder {
     private static final int MAX_LOOKAHEAD_DEPTH = 8;
@@ -289,8 +290,10 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         Map<String, TokenCandidates> candidatesByToken = new LinkedHashMap<>();
         for (Candidate candidate : candidates) {
             PrefixMatch match = resolveNextTokens(candidate.elementType, prefix);
-            for (String token : match.nextTokens) {
-                TokenCandidates tokenCandidates = candidatesByToken.computeIfAbsent(token, k -> new TokenCandidates());
+            for (TokenMatch token : match.nextTokens) {
+                if (token.isOptionalWrapping()) continue;
+
+                TokenCandidates tokenCandidates = candidatesByToken.computeIfAbsent(token.tokenTypeId, k -> new TokenCandidates());
                 tokenCandidates.addCandidate(candidate);
             }
         }
@@ -343,13 +346,13 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         try {
             PrefixMatch result;
             if (elementType instanceof TokenElementType tokenElementType) {
-                result = matchToken(tokenElementType.tokenType.getId(), prefix, offset);
+                result = matchToken(tokenElementType, prefix, offset);
             } else if (elementType instanceof QualifiedIdentifierElementType qualifiedIdentifierElementType) {
                 result = resolveQualifiedIdentifierPrefix(qualifiedIdentifierElementType, prefix, offset);
-            } else if (elementType instanceof IdentifierElementType) {
-                result = matchToken(elementType.bundle.getTokenTypeBundle().getIdentifier().getId(), prefix, offset);
-            } else if (elementType instanceof ExecVariableElementType) {
-                result = matchToken(elementType.bundle.getTokenTypeBundle().getVariable().getId(), prefix, offset);
+            } else if (elementType instanceof IdentifierElementType identifierElementType) {
+                result = matchToken(identifierElementType, prefix, offset);
+            } else if (elementType instanceof ExecVariableElementType execVariableElementType) {
+                result = matchToken(execVariableElementType, prefix, offset);
             } else if (elementType instanceof SequenceElementType sequenceElementType) {
                 result = resolveSequencePrefix(sequenceElementType.children, prefix, offset, visitingElements);
             } else if (elementType instanceof OneOfElementType oneOfElementType) {
@@ -436,7 +439,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
                 }
 
                 for (TokenElementType separatorToken : iterationElementType.separatorTokens) {
-                    PrefixMatch separatorMatch = matchToken(separatorToken.tokenType.getId(), prefix, activeState.offset);
+                    PrefixMatch separatorMatch = matchToken(separatorToken, prefix, activeState.offset);
                     result.addNextTokens(separatorMatch);
                     for (int separatorOffset : separatorMatch.completedOffsets) {
                         PrefixMatch nextMatch = resolvePrefix(iterationElementType.iteratedElement, prefix, separatorOffset, visitingElements);
@@ -460,7 +463,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             Set<PrefixVisit> visitingElements) {
         PrefixMatch result = new PrefixMatch();
         TokenElementType beginTokenElement = wrapperElementType.getBeginTokenElement();
-        PrefixMatch beginMatch = matchToken(beginTokenElement.tokenType.getId(), prefix, offset);
+        PrefixMatch beginMatch = matchToken(beginTokenElement, prefix, offset);
         result.addNextTokens(beginMatch);
 
         Set<Integer> wrappedOffsets = new LinkedHashSet<>();
@@ -475,7 +478,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
         for (int wrappedOffset : wrappedOffsets) {
             TokenElementType endTokenElement = wrapperElementType.getEndTokenElement();
-            PrefixMatch endMatch = matchToken(endTokenElement.tokenType.getId(), prefix, wrappedOffset);
+            PrefixMatch endMatch = matchToken(endTokenElement, prefix, wrappedOffset);
             result.add(endMatch);
         }
 
@@ -504,12 +507,12 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
         for (int i = 0; i < leafs.length; i++) {
             LeafElementType leaf = leafs[i];
-            activeOffsets = resolveTokenPrefix(leaf.tokenType.getId(), prefix, activeOffsets, result);
+            activeOffsets = resolveTokenPrefix(leaf, prefix, activeOffsets, result);
             if (activeOffsets.isEmpty()) break;
 
             if (i < leafs.length - 1) {
                 TokenElementType separatorToken = qualifiedIdentifierElementType.separatorToken;
-                activeOffsets = resolveTokenPrefix(separatorToken.tokenType.getId(), prefix, activeOffsets, result);
+                activeOffsets = resolveTokenPrefix(separatorToken, prefix, activeOffsets, result);
                 if (activeOffsets.isEmpty()) break;
             }
         }
@@ -519,26 +522,30 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
     }
 
     private static Set<Integer> resolveTokenPrefix(
-            String token,
+            LeafElementType leaf,
             List<String> prefix,
             Set<Integer> activeOffsets,
             PrefixMatch result) {
         Set<Integer> nextOffsets = new LinkedHashSet<>();
         for (int activeOffset : activeOffsets) {
-            PrefixMatch tokenMatch = matchToken(token, prefix, activeOffset);
+            PrefixMatch tokenMatch = matchToken(leaf, prefix, activeOffset);
             result.addNextTokens(tokenMatch);
             nextOffsets.addAll(tokenMatch.completedOffsets);
         }
         return nextOffsets;
     }
 
-    private static PrefixMatch matchToken(String token, List<String> prefix, int offset) {
+    private static PrefixMatch matchToken(LeafElementType leaf, List<String> prefix, int offset) {
+        return matchToken(new TokenMatch(leaf.tokenType.getId(), leaf), prefix, offset);
+    }
+
+    private static PrefixMatch matchToken(TokenMatch token, List<String> prefix, int offset) {
         if (offset > prefix.size()) return PrefixMatch.empty();
         if (offset == prefix.size()) {
             return PrefixMatch.next(token);
         }
 
-        return token.equals(prefix.get(offset)) ?
+        return token.tokenTypeId.equals(prefix.get(offset)) ?
                 PrefixMatch.completed(offset + 1) :
                 PrefixMatch.empty();
     }
@@ -638,7 +645,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
     }
 
     private static class PrefixMatch {
-        private final Set<String> nextTokens = new LinkedHashSet<>();
+        private final Set<TokenMatch> nextTokens = new LinkedHashSet<>();
         private final Set<Integer> completedOffsets = new LinkedHashSet<>();
         private boolean incomplete;
 
@@ -662,7 +669,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             return match;
         }
 
-        private static PrefixMatch next(String token) {
+        private static PrefixMatch next(TokenMatch token) {
             PrefixMatch match = new PrefixMatch();
             match.nextTokens.add(token);
             return match;
@@ -672,6 +679,12 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             PrefixMatch match = new PrefixMatch();
             match.completedOffsets.add(offset);
             return match;
+        }
+    }
+
+    private record TokenMatch(String tokenTypeId, LeafElementType leaf) {
+        private boolean isOptionalWrapping() {
+            return leaf != null && leaf.is(OPTIONAL_WRAPPING);
         }
     }
 

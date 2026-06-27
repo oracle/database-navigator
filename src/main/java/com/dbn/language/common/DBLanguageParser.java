@@ -32,9 +32,14 @@ import org.jdom.Document;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public abstract class DBLanguageParser implements PsiParser {
+    @NonNls
+    private static final String PARSER_EXTENSIONS_ENABLED_PROPERTY = "dbn.parser.extensions.enabled";
+
     public final DBLanguageDialect languageDialect;
     private final String defaultParseRootId;
     private final String tokenDefinitionFile;
@@ -69,8 +74,27 @@ public abstract class DBLanguageParser implements PsiParser {
 
     private ElementTypeBundle loadElementTypes() {
         Document definitionDocument = loadDefinition(elementDefinitionFile);
-        Document extensionDocument = loadDefinition(elementExtensionFile);
+        Document extensionDocument = isParserExtensionsEnabled() ? loadDefinition(elementExtensionFile) : null;
         return new ElementTypeBundle(languageDialect, getTokenTypes(), definitionDocument, extensionDocument, null);
+    }
+
+    private boolean isParserExtensionsEnabled() {
+        String dialectProperty = PARSER_EXTENSIONS_ENABLED_PROPERTY + "." + dialectId();
+        String dialectValue = System.getProperty(dialectProperty);
+        if (dialectValue != null) {
+            return Boolean.parseBoolean(dialectValue);
+        }
+
+        String globalValue = System.getProperty(PARSER_EXTENSIONS_ENABLED_PROPERTY);
+        if (globalValue != null) {
+            return Boolean.parseBoolean(globalValue);
+        }
+
+        return true;
+    }
+
+    private String dialectId() {
+        return languageDialect.getIdentifier().name().toLowerCase(Locale.ROOT);
     }
 
 

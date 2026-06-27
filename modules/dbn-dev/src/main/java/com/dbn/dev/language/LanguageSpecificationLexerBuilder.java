@@ -252,7 +252,7 @@ public class LanguageSpecificationLexerBuilder implements LanguageSpecificationA
 
         @NonNls
         public String toLexerToken() {
-            String idToken = "\"" + id.toLowerCase().replace(" ", "\"{ws}\"") + "\"";
+            String idToken = "\"" + id.toLowerCase() + "\"";
             return idToken.replace("_n\"", "_\"{digit}+");
         }
 

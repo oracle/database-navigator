@@ -133,12 +133,10 @@ class LanguageSpecificationParserBundleLoader {
             var constructor = parser.getConstructor(getDialectClass());
             DBLanguageParser languageParser = constructor.newInstance(languageDialect);
             File definitionFile = getParserElementsFile();
-            File extensionFile = input.getParserElementsExtensionFile();
 
             Document definitionDocument = fileToDocument(definitionFile);
-            Document extensionDocument = fileToDocument(extensionFile);
             System.out.println("Building element type bundle: " + languageDialect.getID());
-            return new ElementTypeBundle(languageDialect, languageParser.getTokenTypes(), definitionDocument, extensionDocument, builderCallback);
+            return new ElementTypeBundle(languageDialect, languageParser.getTokenTypes(), definitionDocument, null, builderCallback);
         } finally {
             System.out.println("Element type bundle loading finished");
             ElementTypeBundle.Builder.rebuilding = previousRebuilding;
