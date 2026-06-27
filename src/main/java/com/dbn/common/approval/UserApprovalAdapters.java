@@ -34,7 +34,7 @@ public class UserApprovalAdapters extends ExtensionPointCache<UserApprovalAction
 
     public static <T extends UserApprovable> UserApprovalAdapter<T> get(UserApprovalAction action, T approvable) {
         UserApprovalAdapter<T> adapter = cast(INSTANCE.find(action));
-        if (adapter.getApprovalClass() != approvable.getClass()) {
+        if (!adapter.getApprovalClass().isInstance(approvable)) {
             throw new IllegalArgumentException(
                     "Unexpected approvable class " + approvable.getClass().getName() +
                             " for approval action " + action +

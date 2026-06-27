@@ -18,11 +18,12 @@ package com.dbn.common.approval;
 
 import com.dbn.common.extension.ExtensionPoint;
 import com.intellij.openapi.extensions.ExtensionPointName;
+import com.intellij.openapi.util.NlsContexts.Button;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Duration;
+import java.util.List;
 
 /**
  * Extension point for adapting a {@link UserApprovable} object into approval
@@ -77,20 +78,33 @@ public interface UserApprovalAdapter<T extends UserApprovable> extends Extension
     }
 
     /**
-     * Returns the dialog options. Option index {@code 0} is the approval action;
-     * all other options are treated as cancellation/rejection after
-     * {@link #processApprovalOption(UserApprovable, int)} is invoked.
+     * Returns the dialog options.
      */
-    @Nls
-    String[] getApprovalOptions(T approvable);
+    UserApprovalOption[] getApprovalOptions(T approvable);
 
-    default void processApprovalOption(T approvable, int option) {
+    default @Button String[] getApprovalOptionNames(T approvable) {
+        UserApprovalOption[] options = getApprovalOptions(approvable);
+        String[] names = new String[options.length];
+        for (int i = 0; i < options.length; i++) {
+            names[i] = options[i].name();
+        }
+        return names;
+    }
+
+    default UserApprovalOption getApprovalOption(T approvable, int index) {
+        UserApprovalOption[] options = getApprovalOptions(approvable);
+        return index < 0 || index >= options.length ? UserApprovalOption.none("") : options[index];
     }
 
     /**
-     * Returns how long to suppress repeat approval prompts after
-     * the user selects the given non-approval option.
+     * Returns sibling objects that should be approved together with the supplied
+     * object for the selected approval option.
      */
-    @Nullable
-    Duration getRejectionCooldown(T approvable, int option);
+    default List<T> getApprovalSiblings(T approvable, UserApprovalOption option) {
+        return List.of();
+    }
+
+    default void processApprovalOption(T approvable, UserApprovalOption option) {
+    }
+
 }

@@ -97,6 +97,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     private JLabel driverErrorLabel;
     private JPanel loadingDriversPanel;
 
+    private Throwable driverError;
     private boolean loadingDrivers;
 
     ConnectionDriverSettingsForm(@NotNull ConnectionDatabaseSettingsForm parent) {
@@ -141,7 +142,6 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
         driverErrorLabel.setText("");
         driverErrorLabel.setIcon(Icons.COMMON_ERROR);
-        driverErrorLabel.setVisible(false);
     }
 
     private void reloadDrivers() {
@@ -153,7 +153,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
         if (loadingDrivers) return;
         loadingDrivers = true;
-        driverErrorLabel.setVisible(false);
+        driverError = null;
         updateFieldAvailability();
 
         async(mainPanel,
@@ -187,14 +187,15 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     private void applyDriverBundle(Result<DriverBundle> result) {
         if (result.isSuccess()) {
             updateDriversSelector(result.getValue());
-            driverErrorLabel.setVisible(false);
+            driverError = null;
         } else {
             updateDriversSelector(null);
-            Throwable error = result.getError();
-            String message = Exceptions.rootCauseOf(error).getMessage();
+            driverError = result.getError();
+
+            String message = Exceptions.rootCauseOf(driverError).getMessage();
             driverErrorLabel.setText(message);
-            driverErrorLabel.setVisible(true);
         }
+        updateFieldAvailability();
     }
 
     private void initDriverDownloadFields() {
@@ -233,8 +234,9 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 driverComboBox,
                 downloadButton));
 
-        fieldAdapter.initFieldsVisibility(() -> loadingDrivers && isExternalDriver(), array(loadingDriversPanel, driverErrorLabel));
-        fieldAdapter.initFieldsVisibility(() -> !loadingDrivers && isExternalDriver(), array(reloadDriversLink, driverErrorLabel));
+        fieldAdapter.initFieldsVisibility(() -> loadingDrivers && isExternalDriver(), array(loadingDriversPanel));
+        fieldAdapter.initFieldsVisibility(() -> !loadingDrivers && isExternalDriver(), array(reloadDriversLink));
+        fieldAdapter.initFieldsVisibility(() -> driverError != null && isExternalDriver(), array(driverErrorLabel));
         fieldAdapter.initFieldsAvailability(() -> !loadingDrivers, array(driverComboBox));
     }
 
