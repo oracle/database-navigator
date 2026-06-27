@@ -142,7 +142,7 @@ public class OneOfElementType extends ElementTypeBase {
     }
 
     private void loadLegacyAmbiguousAttribute(Element def) {
-        if (bundle.isExtensionsAvailable()) {
+        if (!bundle.legacyParser) {
             ambiguous = false;
             if (ElementTypeBundle.Builder.rebuilding && stringAttribute(def, "ambiguous") != null) {
                 def.removeAttribute("ambiguous");
@@ -190,6 +190,7 @@ public class OneOfElementType extends ElementTypeBase {
     }
 
     public void sortChildren() {
+        if (!bundle.legacyParser) return;
         if (!sortable) return;
 
         Arrays.sort(children, ONE_OF_COMPARATOR);

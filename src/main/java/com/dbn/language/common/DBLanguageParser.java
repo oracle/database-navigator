@@ -79,15 +79,15 @@ public abstract class DBLanguageParser implements PsiParser {
     }
 
     private boolean isParserExtensionsEnabled() {
+        String globalValue = System.getProperty(PARSER_EXTENSIONS_ENABLED_PROPERTY);
+        if (!Boolean.parseBoolean(globalValue)) {
+            return false;
+        }
+
         String dialectProperty = PARSER_EXTENSIONS_ENABLED_PROPERTY + "." + dialectId();
         String dialectValue = System.getProperty(dialectProperty);
         if (dialectValue != null) {
             return Boolean.parseBoolean(dialectValue);
-        }
-
-        String globalValue = System.getProperty(PARSER_EXTENSIONS_ENABLED_PROPERTY);
-        if (globalValue != null) {
-            return Boolean.parseBoolean(globalValue);
         }
 
         return true;
