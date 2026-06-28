@@ -17,7 +17,9 @@
 package com.dbn.language.common.element.extension;
 
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.ElementTypeRef;
+import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.OneOfElementType;
 import com.dbn.language.common.element.parser.ParserContext;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +36,7 @@ import static java.util.Collections.unmodifiableMap;
 @Slf4j
 public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfElementType> {
     private static final ElementTypeRef[] EMPTY_CANDIDATES = new ElementTypeRef[0];
+    private static final LeafElementType[] EMPTY_LEAFS = new LeafElementType[0];
     private static final String TAG_NODE = "node";
 
     public final ElementTypeRef[] defaultCandidates;
@@ -83,6 +86,25 @@ public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfEle
         return candidateNode == null ? defaultCandidates : candidateNode.candidates;
     }
 
+    public LeafElementType[] nextLeafs(List<TokenType> tokenPath) {
+        if (tokenPath.isEmpty()) return EMPTY_LEAFS;
+
+        TokenNode candidateNode = null;
+        Map<String, TokenNode> nodes = tokens;
+
+        for (TokenType token : tokenPath) {
+            if (token == null) break;
+
+            TokenNode next = nodes.get(token.getId());
+            if (next == null) return EMPTY_LEAFS;
+
+            candidateNode = next;
+            nodes = next.tokens;
+        }
+
+        return candidateNode == null ? EMPTY_LEAFS : candidateNode.nextLeafs;
+    }
+
     private Map<String, TokenNode> loadTokens(Element definition) {
         List<Element> tokenElements = definition.getChildren(TAG_NODE);
         if (tokenElements.isEmpty()) return Map.of();
@@ -110,16 +132,32 @@ public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfEle
         return null;
     }
 
+    private LeafElementType resolveLeaf(String leafId) {
+        OneOfElementType elementType = this.elementType;
+        ElementTypeBase leaf = elementType.bundle.getBuilder().getElementType(leafId);
+        if (leaf instanceof LeafElementType leafElementType) {
+            return leafElementType;
+        }
+
+        log.warn("DBN - [{}] unresolved one-of extension next leaf '{}' (one-of = {})",
+                elementType.getLanguageDialect().getID(), leafId, elementType.getId());
+        return null;
+    }
+
     public class TokenNode {
         public final List<String> tokenTypeIds;
         public final List<String> candidateIds;
+        public final List<String> nextLeafIds;
         public final ElementTypeRef[] candidates;
+        public final LeafElementType[] nextLeafs;
         public final Map<String, TokenNode> tokens;
 
         private TokenNode(Element definition) {
             this.tokenTypeIds = unmodifiableList(csvAttribute(definition, "token-type-ids"));
-            this.candidateIds = unmodifiableList(csvAttribute(definition, "candidate-ids"));
+            this.candidateIds = unmodifiableList(csvAttribute(definition, "parse-candidate-ids"));
+            this.nextLeafIds = unmodifiableList(csvAttribute(definition, "completion-candidate-ids"));
             this.candidates = loadCandidates(candidateIds);
+            this.nextLeafs = loadNextLeafs(nextLeafIds);
             this.tokens = loadTokens(definition);
         }
 
@@ -134,6 +172,19 @@ public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfEle
                 }
             }
             return candidates.toArray(EMPTY_CANDIDATES);
+        }
+
+        private LeafElementType[] loadNextLeafs(List<String> nextLeafIds) {
+            if (nextLeafIds.isEmpty()) return EMPTY_LEAFS;
+
+            List<LeafElementType> nextLeafs = new ArrayList<>(nextLeafIds.size());
+            for (String nextLeafId : nextLeafIds) {
+                LeafElementType nextLeaf = resolveLeaf(nextLeafId);
+                if (nextLeaf != null) {
+                    nextLeafs.add(nextLeaf);
+                }
+            }
+            return nextLeafs.toArray(EMPTY_LEAFS);
         }
     }
 

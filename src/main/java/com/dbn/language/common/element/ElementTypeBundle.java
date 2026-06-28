@@ -95,6 +95,10 @@ public class ElementTypeBundle {
         public Element getDefinition(ElementTypeBase elementType) {
             return elementDefinitions.get(elementType);
         }
+
+        public ElementTypeBase getElementType(String id) {
+            return elementTypes.get(id);
+        }
     }
 
 

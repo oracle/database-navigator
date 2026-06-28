@@ -27,4 +27,5 @@
 <!ELEMENT node (node)*>
 <!ATTLIST node
         token-type-ids CDATA #REQUIRED
-        candidate-ids CDATA #IMPLIED>
+        parse-candidate-ids CDATA #IMPLIED
+        completion-candidate-ids CDATA #IMPLIED>

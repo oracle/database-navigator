@@ -54,7 +54,8 @@ import static com.dbn.language.common.element.util.ElementTypeAttribute.OPTIONAL
 public class LanguageSpecificationParserExtensionBuilder implements LanguageSpecificationArtifactBuilder {
     private static final String EXT_DTD_PATH = "../../../common/definition/language-parser-elements-ext.dtd";
     private static final String ATTR_TOKEN_TYPE_IDS = "token-type-ids";
-    private static final String ATTR_CANDIDATE_IDS = "candidate-ids";
+    private static final String ATTR_PARSE_CANDIDATE_IDS = "parse-candidate-ids";
+    private static final String ATTR_COMPLETION_CANDIDATE_IDS = "completion-candidate-ids";
     private static final String TAG_NODE = "node";
     private static final DateTimeFormatter LOG_TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
     private static final int ELEMENT_LOG_INTERVAL = 25;
@@ -271,7 +272,8 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             context.registerTokenNode(1);
             element.setAttribute(ATTR_TOKEN_TYPE_IDS, entry.getKey());
             writeNextTokenNodes(element, List.of(entry.getKey()), tokenCandidates, oneOfElementType, 2, 0, context);
-            writeCandidateIdsAttribute(element, tokenCandidates, element.getChildren(TAG_NODE).isEmpty(), List.of(entry.getKey()));
+            writeParseCandidateIdsAttribute(element, tokenCandidates, element.getChildren(TAG_NODE).isEmpty(), List.of(entry.getKey()));
+            writeCompletionCandidateIdsAttribute(element, tokenCandidates, List.of(entry.getKey()));
             elements.add(element);
         }
 
@@ -333,7 +335,8 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             if (sameCandidateSet && element.getChildren(TAG_NODE).isEmpty()) {
                 continue;
             }
-            writeCandidateIdsAttribute(element, entry.getValue(), true, nextTokenPath);
+            writeParseCandidateIdsAttribute(element, entry.getValue(), true, nextTokenPath);
+            writeCompletionCandidateIdsAttribute(element, entry.getValue(), nextTokenPath);
             context.registerTokenNode(depth);
             elements.add(element);
         }
@@ -574,6 +577,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             NextTokenMatch result = new NextTokenMatch();
             if (!leafElementType.is(OPTIONAL_WRAPPING)) {
                 result.tokenIds.add(leafElementType.tokenType.getId());
+                result.leafIds.add(leafElementType.getId());
             }
             return result;
         }
@@ -603,6 +607,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         if (tokenPath.isEmpty()) {
             if (!variant[0].is(OPTIONAL_WRAPPING)) {
                 result.tokenIds.add(variant[0].tokenType.getId());
+                result.leafIds.add(variant[0].getId());
             }
             return result;
         }
@@ -638,6 +643,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
                 LeafElementType nextLeaf = variant[variantIndex + 1];
                 if (!nextLeaf.is(OPTIONAL_WRAPPING)) {
                     result.tokenIds.add(nextLeaf.tokenType.getId());
+                    result.leafIds.add(nextLeaf.getId());
                 }
                 return result;
             }
@@ -665,6 +671,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         NextTokenMatch result = getNextTokenMatch(iterationElementType.iteratedElement, tokenPath, context, depth + 1);
         if (result.completed) {
             addSeparatorTokenIds(result.tokenIds, iterationElementType);
+            addSeparatorLeafIds(result.leafIds, iterationElementType);
             result.completed = iterationElementType.minIterations <= 1;
         }
 
@@ -714,6 +721,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
         if (tokenPath.isEmpty()) {
             addFirstPossibleTokenIds(result.tokenIds, children, startIndex);
+            addFirstPossibleLeafIds(result.leafIds, children, startIndex);
             if (allOptional(children, startIndex)) {
                 result.completed = true;
             }
@@ -736,8 +744,10 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
                 if (pathLength == tokenPath.size()) {
                     result.addTokenIds(childMatch);
+                    result.leafIds.addAll(childMatch.leafIds);
                     if (childMatch.completed) {
                         addFirstPossibleTokenIds(result.tokenIds, children, i + 1);
+                        addFirstPossibleLeafIds(result.leafIds, children, i + 1);
                         if (allOptional(children, i + 1)) {
                             result.completed = true;
                         }
@@ -765,10 +775,25 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         }
     }
 
+    private static void addFirstPossibleLeafIds(Set<String> leafIds, ElementTypeRef[] children, int startIndex) {
+        for (int i = startIndex; i < children.length; i++) {
+            ElementTypeRef child = children[i];
+            addFirstPossibleLeafIds(leafIds, child.elementType);
+            if (!child.optional) break;
+        }
+    }
+
     private static void addFirstPossibleTokenIds(Set<String> tokenIds, ElementTypeBase elementType) {
         for (LeafElementType leaf : elementType.cache.getFirstPossibleLeafs()) {
             if (leaf.is(OPTIONAL_WRAPPING)) continue;
             tokenIds.add(leaf.tokenType.getId());
+        }
+    }
+
+    private static void addFirstPossibleLeafIds(Set<String> leafIds, ElementTypeBase elementType) {
+        for (LeafElementType leaf : elementType.cache.getFirstPossibleLeafs()) {
+            if (leaf.is(OPTIONAL_WRAPPING)) continue;
+            leafIds.add(leaf.getId());
         }
     }
 
@@ -780,11 +805,29 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         return tokenIds;
     }
 
+    private static Set<String> getNextPossibleLeafIds(Iterable<Candidate> candidates, List<String> tokenPath) {
+        Set<String> leafIds = new LinkedHashSet<>();
+        MatchContext context = new MatchContext();
+        for (Candidate candidate : candidates) {
+            NextTokenMatch match = getNextTokenMatch(candidate.matchElementType, tokenPath, context);
+            leafIds.addAll(match.leafIds);
+        }
+        return leafIds;
+    }
+
     private static void addSeparatorTokenIds(Set<String> tokenIds, IterationElementType iterationElementType) {
         if (iterationElementType.separatorTokens == null) return;
 
         for (TokenElementType separatorToken : iterationElementType.separatorTokens) {
             tokenIds.add(separatorToken.tokenType.getId());
+        }
+    }
+
+    private static void addSeparatorLeafIds(Set<String> leafIds, IterationElementType iterationElementType) {
+        if (iterationElementType.separatorTokens == null) return;
+
+        for (TokenElementType separatorToken : iterationElementType.separatorTokens) {
+            leafIds.add(separatorToken.getId());
         }
     }
 
@@ -832,7 +875,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         return new ElementTypeRef[0];
     }
 
-    private static void writeCandidateIdsAttribute(
+    private static void writeParseCandidateIdsAttribute(
             Element element,
             Iterable<Candidate> candidates,
             boolean preferSpecificCandidates,
@@ -843,7 +886,17 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             candidateIds.add(candidate.candidateId);
         }
         if (!candidateIds.isEmpty()) {
-            element.setAttribute(ATTR_CANDIDATE_IDS, String.join(", ", candidateIds));
+            element.setAttribute(ATTR_PARSE_CANDIDATE_IDS, String.join(", ", candidateIds));
+        }
+    }
+
+    private static void writeCompletionCandidateIdsAttribute(
+            Element element,
+            Iterable<Candidate> candidates,
+            List<String> tokenPath) {
+        Set<String> leafIds = getNextPossibleLeafIds(candidates, tokenPath);
+        if (!leafIds.isEmpty()) {
+            element.setAttribute(ATTR_COMPLETION_CANDIDATE_IDS, String.join(", ", leafIds));
         }
     }
 
@@ -948,7 +1001,8 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
     private static String tokenContentSignature(Element element) {
         StringBuilder signature = new StringBuilder();
-        signature.append("candidate-ids=").append(attributeValue(element, ATTR_CANDIDATE_IDS));
+        signature.append("parse-candidate-ids=").append(attributeValue(element, ATTR_PARSE_CANDIDATE_IDS));
+        signature.append(";completion-candidate-ids=").append(attributeValue(element, ATTR_COMPLETION_CANDIDATE_IDS));
         for (Element child : element.getChildren(TAG_NODE)) {
             signature.append("|child=").append(tokenFullSignature(child));
         }
@@ -958,7 +1012,8 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
     private static String tokenFullSignature(Element element) {
         StringBuilder signature = new StringBuilder();
         signature.append("token-type-ids=").append(String.join(",", tokenTypeIds(element)));
-        signature.append(";candidate-ids=").append(attributeValue(element, ATTR_CANDIDATE_IDS));
+        signature.append(";parse-candidate-ids=").append(attributeValue(element, ATTR_PARSE_CANDIDATE_IDS));
+        signature.append(";completion-candidate-ids=").append(attributeValue(element, ATTR_COMPLETION_CANDIDATE_IDS));
         for (Element child : element.getChildren(TAG_NODE)) {
             signature.append("|child=").append(tokenFullSignature(child));
         }
@@ -1094,10 +1149,12 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
     private static class NextTokenMatch {
         private final Set<String> tokenIds = new LinkedHashSet<>();
+        private final Set<String> leafIds = new LinkedHashSet<>();
         private boolean completed;
 
         private void add(NextTokenMatch match) {
             addTokenIds(match);
+            leafIds.addAll(match.leafIds);
             completed = completed || match.completed;
         }
 
@@ -1122,6 +1179,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         private NextTokenMatch copy() {
             NextTokenMatch match = new NextTokenMatch();
             match.tokenIds.addAll(tokenIds);
+            match.leafIds.addAll(leafIds);
             match.completed = completed;
             return match;
         }
