@@ -1,4 +1,4 @@
 interface:
   display_name: "DBN Parser Definitions"
-  short_description: "Oracle Database Navigator SQL/PSQL parser XML grammar structure and validation"
-  default_prompt: "Use $dbn-language-parser-guide when changing, reviewing, explaining, or validating DBN SQL/PSQL parser element XML and DTD files."
+  short_description: "DBN parser XML and parser migration guidance"
+  default_prompt: "Use $dbn-language-parser-guide when changing parser XML or working on DBN parser migration."

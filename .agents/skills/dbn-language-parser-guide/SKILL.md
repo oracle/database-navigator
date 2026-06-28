@@ -1,11 +1,22 @@
 ---
 name: dbn-language-parser-guide
-description: Oracle Database Navigator (DBN) language parser guide. Use when changing, reviewing, explaining, validating, or generating SQL/PSQL parser element XML files, language-parser-elements.dtd, grammar element definitions, parser branches, wrappers, semantic object/alias/variable identifiers, or dialect parser definitions under com/dbn/language.
+description: Oracle Database Navigator (DBN) language parser guide. Use when changing, reviewing, explaining, validating, or generating SQL/PSQL parser element XML files, language-parser-elements.dtd, grammar element definitions, parser branches, wrappers, semantic object/alias/variable identifiers, dialect parser definitions under com/dbn/language, or parser migration work from legacy surrogate ambiguity handling to extension-based ambiguity resolution.
 ---
 
 # DBN Language Parser Definitions
 
 Use this skill for DBN SQL/PSQL parser grammar XML work, especially files named `*_parser_elements.xml` and the shared DTD at `src/main/java/com/dbn/language/common/definition/language-parser-elements.dtd`.
+
+## Parser Migration Mission
+
+When working on parser migration, inch the new extension-based parser toward legacy parser behavior with small, observable changes. Prefer preserving the raw grammar tree and improving generated extension candidate selection over changing runtime one-of parsing strategy. Treat regressions as one of two things first: a real grammar definition gap, or a generated extension look-ahead/candidate-selection gap.
+
+Keep these boundaries clear:
+
+- Legacy path: `OneOfElementTypeBuilder`, `ambiguous="true"`, surrogate sequences, sortable one-of behavior, token-monitor borrowing, and `exit="true"` are compatibility mechanisms. Avoid expanding this surface.
+- New path: `LanguageSpecificationParserExtensionBuilder` should generate enough look-ahead metadata for `OneOfElementTypeParser.parseCandidates()` to choose the same branch legacy would have chosen, without rewriting grammar children.
+- Runtime path: avoid broad changes in `OneOfElementTypeParser` unless explicitly requested. Candidate selection should be controlled by generated extension metadata where possible.
+- Grammar path: when a statement is invalid in both parser models, or when the syntax is absent from the dialect definition, fix the dialect parser XML locally and leave generated numeric ids to tooling.
 
 ## Quick Workflow
 

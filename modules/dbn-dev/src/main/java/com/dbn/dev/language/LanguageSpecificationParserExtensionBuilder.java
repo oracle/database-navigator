@@ -25,6 +25,7 @@ import com.dbn.language.common.element.impl.IterationElementType;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.NamedElementType;
 import com.dbn.language.common.element.impl.OneOfElementType;
+import com.dbn.language.common.element.impl.QualifiedIdentifierElementType;
 import com.dbn.language.common.element.impl.SequenceElementType;
 import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.impl.WrapperElementType;
@@ -37,6 +38,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -183,7 +185,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         Element extension = new Element("one-of-extension");
         extension.setAttribute("id", oneOfElementType.getId());
         TrieBuildContext context = new TrieBuildContext();
-        boolean added = writeTokenNodes(extension, candidatesByToken, true, context);
+        boolean added = writeTokenNodes(extension, candidatesByToken, true, oneOfElementType, context);
         if (!added) return null;
 
         extension.setAttribute("depth", Integer.toString(context.maxDepth));
@@ -233,6 +235,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             Element parent,
             Map<String, TokenCandidates> candidatesByToken,
             boolean includeUnambiguous,
+            OneOfElementType oneOfElementType,
             TrieBuildContext context) {
         List<Element> elements = new ArrayList<>();
         for (Map.Entry<String, TokenCandidates> entry : candidatesByToken.entrySet()) {
@@ -243,8 +246,8 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             Element element = new Element(TAG_NODE);
             context.registerTokenNode(1);
             element.setAttribute(ATTR_TOKEN_TYPE_IDS, entry.getKey());
-            writeCandidateIdsAttribute(element, tokenCandidates);
-            writeNextTokenNodes(element, entry.getKey(), tokenCandidates, context);
+            writeCandidateIdsAttribute(element, tokenCandidates, false);
+            writeNextTokenNodes(element, entry.getKey(), tokenCandidates, oneOfElementType, context);
             elements.add(element);
         }
 
@@ -265,10 +268,11 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             Element parent,
             String firstTokenId,
             TokenCandidates tokenCandidates,
+            OneOfElementType oneOfElementType,
             TrieBuildContext context) {
         if (tokenCandidates.size() < 2) return;
 
-        Map<String, TokenCandidates> candidatesByToken = collectNextTokenCandidates(firstTokenId, tokenCandidates);
+        Map<String, TokenCandidates> candidatesByToken = collectNextTokenCandidates(firstTokenId, tokenCandidates, oneOfElementType);
         if (candidatesByToken.isEmpty()) return;
 
         List<Element> elements = new ArrayList<>();
@@ -276,7 +280,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             Element element = new Element(TAG_NODE);
             context.registerTokenNode(2);
             element.setAttribute(ATTR_TOKEN_TYPE_IDS, entry.getKey());
-            writeCandidateIdsAttribute(element, entry.getValue());
+            writeCandidateIdsAttribute(element, entry.getValue(), true);
             elements.add(element);
         }
 
@@ -285,10 +289,29 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         }
     }
 
-    private static Map<String, TokenCandidates> collectNextTokenCandidates(String firstTokenId, TokenCandidates tokenCandidates) {
+    private static Map<String, TokenCandidates> collectNextTokenCandidates(
+            String firstTokenId,
+            TokenCandidates tokenCandidates,
+            OneOfElementType oneOfElementType) {
         Map<String, TokenCandidates> candidatesByToken = new LinkedHashMap<>();
+        Map<Candidate, NextTokenMatch> matches = new LinkedHashMap<>();
+        Set<String> intrinsicTokenIds = new LinkedHashSet<>();
+
         for (Candidate candidate : tokenCandidates) {
-            Set<String> tokenIds = getNextTokenIds(candidate.elementType, firstTokenId);
+            NextTokenMatch match = getNextTokenMatch(candidate.elementType, firstTokenId);
+            matches.put(candidate, match);
+            intrinsicTokenIds.addAll(match.tokenIds);
+        }
+
+        for (Map.Entry<Candidate, NextTokenMatch> entry : matches.entrySet()) {
+            Candidate candidate = entry.getKey();
+            NextTokenMatch match = entry.getValue();
+            Set<String> tokenIds = new LinkedHashSet<>(match.tokenIds);
+            if (match.completed) {
+                Set<String> followTokenIds = getNextPossibleTokenIds(oneOfElementType);
+                followTokenIds.removeAll(intrinsicTokenIds);
+                tokenIds.addAll(followTokenIds);
+            }
             for (String tokenId : tokenIds) {
                 TokenCandidates tokenCandidatesById = candidatesByToken.computeIfAbsent(tokenId, k -> new TokenCandidates());
                 tokenCandidatesById.addCandidate(candidate);
@@ -297,9 +320,8 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         return candidatesByToken;
     }
 
-    private static Set<String> getNextTokenIds(ElementTypeBase elementType, String firstTokenId) {
-        NextTokenMatch match = getNextTokenMatch(elementType, firstTokenId, new HashSet<>(), 0);
-        return match.tokenIds;
+    private static NextTokenMatch getNextTokenMatch(ElementTypeBase elementType, String firstTokenId) {
+        return getNextTokenMatch(elementType, firstTokenId, new HashSet<>(), 0);
     }
 
     private static NextTokenMatch getNextTokenMatch(
@@ -341,6 +363,10 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
                 return result;
             }
 
+            if (elementType instanceof QualifiedIdentifierElementType qualifiedIdentifierElementType) {
+                return getQualifiedIdentifierNextTokenMatch(qualifiedIdentifierElementType, firstTokenId);
+            }
+
             if (elementType instanceof IterationElementType iterationElementType) {
                 NextTokenMatch result = getNextTokenMatch(iterationElementType.iteratedElement, firstTokenId, visiting, depth + 1);
                 if (result.completed) {
@@ -354,6 +380,22 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         } finally {
             visiting.remove(elementType);
         }
+    }
+
+    private static NextTokenMatch getQualifiedIdentifierNextTokenMatch(
+            QualifiedIdentifierElementType elementType,
+            String firstTokenId) {
+        NextTokenMatch result = new NextTokenMatch();
+        for (LeafElementType[] variant : elementType.variants) {
+            if (variant.length == 0 || !isTokenMatch(variant[0], firstTokenId)) continue;
+
+            if (variant.length == 1) {
+                result.completed = true;
+            } else {
+                result.tokenIds.add(elementType.separatorToken.tokenType.getId());
+            }
+        }
+        return result;
     }
 
     private static NextTokenMatch getSequenceNextTokenMatch(
@@ -394,6 +436,14 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         }
     }
 
+    private static Set<String> getNextPossibleTokenIds(ElementTypeBase elementType) {
+        Set<String> tokenIds = new LinkedHashSet<>();
+        for (TokenType tokenType : elementType.cache.getNextPossibleTokens()) {
+            tokenIds.add(tokenType.getId());
+        }
+        return tokenIds;
+    }
+
     private static void addSeparatorTokenIds(Set<String> tokenIds, IterationElementType iterationElementType) {
         if (iterationElementType.separatorTokens == null) return;
 
@@ -426,13 +476,61 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         return new ElementTypeRef[0];
     }
 
-    private static void writeCandidateIdsAttribute(Element element, Iterable<Candidate> candidates) {
+    private static void writeCandidateIdsAttribute(Element element, Iterable<Candidate> candidates, boolean preferSpecificCandidates) {
         Set<String> candidateIds = new LinkedHashSet<>();
-        for (Candidate candidate : candidates) {
+        Iterable<Candidate> orderedCandidates = preferSpecificCandidates ? orderedCandidates(candidates) : candidates;
+        for (Candidate candidate : orderedCandidates) {
             candidateIds.add(candidate.candidateId);
         }
         if (!candidateIds.isEmpty()) {
             element.setAttribute(ATTR_CANDIDATE_IDS, String.join(", ", candidateIds));
+        }
+    }
+
+    private static List<Candidate> orderedCandidates(Iterable<Candidate> candidates) {
+        List<Candidate> orderedCandidates = new ArrayList<>();
+        for (Candidate candidate : candidates) {
+            orderedCandidates.add(candidate);
+        }
+
+        orderedCandidates.sort(
+                Comparator.comparingInt(LanguageSpecificationParserExtensionBuilder::candidateSpecificityRank)
+                        .thenComparingInt(candidate -> candidate.branchIndex));
+        return orderedCandidates;
+    }
+
+    private static int candidateSpecificityRank(Candidate candidate) {
+        int rank = firstPossibleLeafCount(candidate.elementType);
+        if (hasExplicitExitControl(candidate.elementType, new HashSet<>())) {
+            rank += 1_000_000;
+        }
+        return rank;
+    }
+
+    private static int firstPossibleLeafCount(ElementTypeBase elementType) {
+        int count = 0;
+        for (LeafElementType leaf : elementType.cache.getFirstPossibleLeafs()) {
+            if (!leaf.is(OPTIONAL_WRAPPING)) count++;
+        }
+        return count;
+    }
+
+    private static boolean hasExplicitExitControl(ElementTypeBase elementType, Set<ElementTypeBase> visiting) {
+        if (elementType == null || !visiting.add(elementType)) return false;
+
+        try {
+            if (elementType instanceof SequenceElementType sequenceElementType) {
+                for (int i = 1; i < sequenceElementType.children.length; i++) {
+                    if (sequenceElementType.isExitIndex(i)) return true;
+                }
+            }
+
+            for (ElementTypeRef child : getChildren(elementType)) {
+                if (hasExplicitExitControl(child.elementType, visiting)) return true;
+            }
+            return false;
+        } finally {
+            visiting.remove(elementType);
         }
     }
 

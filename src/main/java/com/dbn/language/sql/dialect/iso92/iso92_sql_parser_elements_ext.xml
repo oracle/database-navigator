@@ -47,7 +47,7 @@
     <one-of-extension id="00035" depth="2">
         <node token-type-ids="KW_VALUES" candidate-ids="insert_values_clause, query_expression">
             <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="insert_values_clause, query_expression" />
-            <node token-type-ids="KW_TRUE, KW_CONVERT, FN_SUM, KW_NULL, FN_POSITION, FN_CURRENT_USER, FN_BIT_LENGTH, FN_NULLIF, DT_INTERVAL, INTEGER, CHR_COLON, KW_CASE, FN_CHAR_LENGTH, FN_TRIM, FN_SUBSTRING, IDENTIFIER, FN_CHARACTER_LENGTH, FN_UPPER, STRING, FN_MAX, FN_CURRENT_TIMESTAMP, KW_TRANSLATE, FN_USER, FN_COUNT, FN_AVG, FN_SYSTEM_USER, FN_OCTET_LENGTH, KW_VALUE, FN_CURRENT_TIME, FN_EXTRACT, FN_CURRENT_DATE, KW_CAST, FN_LOWER, FN_SESSION_USER, CHR_MINUS, CHR_PLUS, KW_FALSE, NUMBER, FN_MIN, VARIABLE" candidate-ids="query_expression" />
+            <node token-type-ids="IDENTIFIER, FN_CURRENT_TIME, STRING, CHR_COLON, KW_NULL, NUMBER, FN_CHAR_LENGTH, VARIABLE, FN_COUNT, CHR_PLUS, INTEGER, DT_INTERVAL, KW_TRUE, FN_BIT_LENGTH, KW_CONVERT, FN_OCTET_LENGTH, FN_TRIM, KW_TRANSLATE, KW_VALUE, FN_SESSION_USER, FN_LOWER, KW_FALSE, FN_CURRENT_USER, KW_CAST, FN_MAX, FN_UPPER, FN_POSITION, FN_SUBSTRING, FN_MIN, CHR_MINUS, FN_CURRENT_TIMESTAMP, FN_CHARACTER_LENGTH, FN_USER, FN_CURRENT_DATE, FN_SUM, FN_AVG, FN_SYSTEM_USER, FN_EXTRACT, FN_NULLIF, KW_CASE" candidate-ids="query_expression" />
         </node>
         <node token-type-ids="KW_DEFAULT" candidate-ids="insert_default_values_clause" />
         <node token-type-ids="CHR_LEFT_PARENTHESIS, KW_SELECT" candidate-ids="query_expression" />
@@ -89,8 +89,8 @@
     </one-of-extension>
     <one-of-extension id="00122" depth="2">
         <node token-type-ids="VARIABLE" candidate-ids="target_specification, value_expression">
-            <node token-type-ids="VARIABLE, CHR_COLON, KW_INDICATOR" candidate-ids="target_specification, value_expression" />
-            <node token-type-ids="CHR_PLUS, CHR_MINUS, OPR_CONCATENATION" candidate-ids="value_expression" />
+            <node token-type-ids="VARIABLE, CHR_COLON, KW_INDICATOR, CHR_COMMA, CHR_SEMICOLON" candidate-ids="target_specification, value_expression" />
+            <node token-type-ids="CHR_MINUS, CHR_PLUS, OPR_CONCATENATION" candidate-ids="value_expression" />
         </node>
         <node token-type-ids="CHR_COLON" candidate-ids="target_specification, value_expression">
             <node token-type-ids="IDENTIFIER" candidate-ids="target_specification, value_expression" />
@@ -100,7 +100,8 @@
     <one-of-extension id="00198" depth="2">
         <node token-type-ids="STRING, CHR_PLUS, CHR_MINUS, CHR_LEFT_PARENTHESIS, FN_CURRENT_DATE, FN_CURRENT_TIME, FN_CURRENT_TIMESTAMP, DT_INTERVAL, NUMBER, INTEGER, KW_NULL, KW_TRUE, KW_FALSE, FN_EXTRACT, FN_POSITION, FN_CHARACTER_LENGTH, FN_CHAR_LENGTH, FN_OCTET_LENGTH, FN_BIT_LENGTH, FN_SUBSTRING, FN_TRIM, FN_UPPER, FN_LOWER, KW_CONVERT, KW_TRANSLATE, FN_NULLIF, FN_AVG, FN_COUNT, FN_MAX, FN_MIN, FN_SUM, KW_CASE, KW_CAST, FN_CURRENT_USER, FN_SESSION_USER, FN_SYSTEM_USER, FN_USER, KW_VALUE, VARIABLE, CHR_COLON" candidate-ids="session_characteristic_value" />
         <node token-type-ids="IDENTIFIER" candidate-ids="session_characteristic_value, 00199">
-            <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="session_characteristic_value" />
+            <node token-type-ids="CHR_DOT, CHR_LEFT_PARENTHESIS, CHR_SLASH, CHR_STAR, CHR_PLUS, CHR_MINUS, OPR_CONCATENATION" candidate-ids="session_characteristic_value" />
+            <node token-type-ids="CHR_SEMICOLON" candidate-ids="session_characteristic_value, 00199" />
         </node>
     </one-of-extension>
     <one-of-extension id="00209" depth="2">
@@ -117,7 +118,8 @@
     </one-of-extension>
     <one-of-extension id="00239" depth="2">
         <node token-type-ids="KW_NULL" candidate-ids="00240, value_expression">
-            <node token-type-ids="CHR_PLUS, CHR_MINUS" candidate-ids="value_expression" />
+            <node token-type-ids="CHR_COMMA, CHR_SEMICOLON, KW_DEFERRABLE, KW_INITIALLY, KW_NOT, KW_ON" candidate-ids="00240, value_expression" />
+            <node token-type-ids="CHR_MINUS, CHR_PLUS" candidate-ids="value_expression" />
         </node>
         <node token-type-ids="CHR_PLUS, CHR_MINUS, CHR_LEFT_PARENTHESIS, IDENTIFIER, STRING, FN_CURRENT_DATE, FN_CURRENT_TIME, FN_CURRENT_TIMESTAMP, DT_INTERVAL, NUMBER, INTEGER, KW_TRUE, KW_FALSE, FN_EXTRACT, FN_POSITION, FN_CHARACTER_LENGTH, FN_CHAR_LENGTH, FN_OCTET_LENGTH, FN_BIT_LENGTH, FN_SUBSTRING, FN_TRIM, FN_UPPER, FN_LOWER, KW_CONVERT, KW_TRANSLATE, FN_NULLIF, FN_AVG, FN_COUNT, FN_MAX, FN_MIN, FN_SUM, KW_CASE, KW_CAST, FN_CURRENT_USER, FN_SESSION_USER, FN_SYSTEM_USER, FN_USER, KW_VALUE, VARIABLE, CHR_COLON" candidate-ids="value_expression" />
     </one-of-extension>
@@ -184,18 +186,20 @@
     </one-of-extension>
     <one-of-extension id="00500" depth="2">
         <node token-type-ids="IDENTIFIER" candidate-ids="schema_name, session_characteristic_value">
-            <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="session_characteristic_value" />
+            <node token-type-ids="CHR_SEMICOLON" candidate-ids="schema_name, session_characteristic_value" />
+            <node token-type-ids="CHR_DOT, CHR_LEFT_PARENTHESIS, CHR_SLASH, CHR_STAR, CHR_PLUS, CHR_MINUS, OPR_CONCATENATION" candidate-ids="session_characteristic_value" />
         </node>
         <node token-type-ids="STRING, CHR_PLUS, CHR_MINUS, CHR_LEFT_PARENTHESIS, FN_CURRENT_DATE, FN_CURRENT_TIME, FN_CURRENT_TIMESTAMP, DT_INTERVAL, NUMBER, INTEGER, KW_NULL, KW_TRUE, KW_FALSE, FN_EXTRACT, FN_POSITION, FN_CHARACTER_LENGTH, FN_CHAR_LENGTH, FN_OCTET_LENGTH, FN_BIT_LENGTH, FN_SUBSTRING, FN_TRIM, FN_UPPER, FN_LOWER, KW_CONVERT, KW_TRANSLATE, FN_NULLIF, FN_AVG, FN_COUNT, FN_MAX, FN_MIN, FN_SUM, KW_CASE, KW_CAST, FN_CURRENT_USER, FN_SESSION_USER, FN_SYSTEM_USER, FN_USER, KW_VALUE, VARIABLE, CHR_COLON" candidate-ids="session_characteristic_value" />
     </one-of-extension>
     <one-of-extension id="00506" depth="2">
         <node token-type-ids="STRING" candidate-ids="00507, value_expression">
-            <node token-type-ids="OPR_CONCATENATION, CHR_PLUS, CHR_MINUS" candidate-ids="value_expression" />
+            <node token-type-ids="CHR_SEMICOLON, KW_AS, FN_USER" candidate-ids="00507, value_expression" />
+            <node token-type-ids="OPR_CONCATENATION, CHR_MINUS, CHR_PLUS" candidate-ids="value_expression" />
         </node>
         <node token-type-ids="CHR_PLUS, CHR_MINUS, CHR_LEFT_PARENTHESIS, IDENTIFIER, FN_CURRENT_DATE, FN_CURRENT_TIME, FN_CURRENT_TIMESTAMP, DT_INTERVAL, NUMBER, INTEGER, KW_NULL, KW_TRUE, KW_FALSE, FN_EXTRACT, FN_POSITION, FN_CHARACTER_LENGTH, FN_CHAR_LENGTH, FN_OCTET_LENGTH, FN_BIT_LENGTH, FN_SUBSTRING, FN_TRIM, FN_UPPER, FN_LOWER, KW_CONVERT, KW_TRANSLATE, FN_NULLIF, FN_AVG, FN_COUNT, FN_MAX, FN_MIN, FN_SUM, KW_CASE, KW_CAST, FN_CURRENT_USER, FN_SESSION_USER, FN_SYSTEM_USER, FN_USER, KW_VALUE" candidate-ids="value_expression" />
         <node token-type-ids="VARIABLE" candidate-ids="value_expression, parameter_specification">
-            <node token-type-ids="VARIABLE, CHR_COLON, KW_INDICATOR" candidate-ids="value_expression, parameter_specification" />
-            <node token-type-ids="CHR_PLUS, CHR_MINUS, OPR_CONCATENATION" candidate-ids="value_expression" />
+            <node token-type-ids="VARIABLE, CHR_COLON, KW_INDICATOR, CHR_SEMICOLON, KW_AS, FN_USER" candidate-ids="value_expression, parameter_specification" />
+            <node token-type-ids="CHR_MINUS, CHR_PLUS, OPR_CONCATENATION" candidate-ids="value_expression" />
         </node>
         <node token-type-ids="CHR_COLON" candidate-ids="value_expression, parameter_specification, variable_specification">
             <node token-type-ids="IDENTIFIER" candidate-ids="value_expression, parameter_specification, variable_specification" />
@@ -204,30 +208,37 @@
     <one-of-extension id="00561" depth="2">
         <node token-type-ids="CHR_PLUS, CHR_MINUS, CHR_LEFT_PARENTHESIS, STRING, FN_CURRENT_DATE, FN_CURRENT_TIME, FN_CURRENT_TIMESTAMP, DT_INTERVAL, NUMBER, INTEGER, KW_NULL, KW_TRUE, KW_FALSE, FN_EXTRACT, FN_POSITION, FN_CHARACTER_LENGTH, FN_CHAR_LENGTH, FN_OCTET_LENGTH, FN_BIT_LENGTH, FN_SUBSTRING, FN_TRIM, FN_UPPER, FN_LOWER, KW_CONVERT, KW_TRANSLATE, FN_NULLIF, FN_AVG, FN_COUNT, FN_MAX, FN_MIN, FN_SUM, KW_CASE, KW_CAST, FN_CURRENT_USER, FN_SESSION_USER, FN_SYSTEM_USER, FN_USER, KW_VALUE, VARIABLE, CHR_COLON" candidate-ids="derived_column" />
         <node token-type-ids="IDENTIFIER" candidate-ids="derived_column, 00562">
-            <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="derived_column" />
+            <node token-type-ids="CHR_DOT" candidate-ids="derived_column, 00562" />
+            <node token-type-ids="CHR_LEFT_PARENTHESIS, CHR_SLASH, CHR_STAR, CHR_PLUS, CHR_MINUS, OPR_CONCATENATION, KW_AS, IDENTIFIER, CHR_COMMA, KW_FROM" candidate-ids="derived_column" />
         </node>
     </one-of-extension>
     <one-of-extension id="00567" depth="2">
         <node token-type-ids="CHR_PLUS, CHR_MINUS, CHR_LEFT_PARENTHESIS, FN_EXTRACT, FN_POSITION, FN_CHARACTER_LENGTH, FN_CHAR_LENGTH, FN_OCTET_LENGTH, FN_BIT_LENGTH, FN_NULLIF, FN_AVG, FN_COUNT, FN_MAX, FN_MIN, FN_SUM, KW_CASE, KW_CAST" candidate-ids="numeric_value_expression" />
         <node token-type-ids="IDENTIFIER" candidate-ids="numeric_value_expression, string_value_expression, datetime_value_expression, interval_value_expression, bit_value_expression">
-            <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="numeric_value_expression" />
-        </node>
-        <node token-type-ids="NUMBER, INTEGER, KW_NULL, KW_TRUE, KW_FALSE" candidate-ids="numeric_value_expression, datetime_value_expression, interval_value_expression">
-            <node token-type-ids="CHR_PLUS, CHR_MINUS" candidate-ids="datetime_value_expression" />
-        </node>
-        <node token-type-ids="STRING" candidate-ids="numeric_value_expression, string_value_expression, datetime_value_expression, interval_value_expression">
-            <node token-type-ids="OPR_CONCATENATION" candidate-ids="string_value_expression" />
-            <node token-type-ids="CHR_PLUS, CHR_MINUS" candidate-ids="datetime_value_expression" />
-        </node>
-        <node token-type-ids="FN_CURRENT_USER, FN_SESSION_USER, FN_SYSTEM_USER, FN_USER, KW_VALUE" candidate-ids="numeric_value_expression, string_value_expression, datetime_value_expression, interval_value_expression, bit_value_expression">
-            <node token-type-ids="CHR_STAR, CHR_SLASH" candidate-ids="numeric_value_expression" />
+            <node token-type-ids="CHR_DOT, CHR_COLON, CHR_COMMA, CHR_EQUAL, CHR_GREATER, CHR_LESS, CHR_RIGHT_PARENTHESIS, CHR_SEMICOLON, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, IDENTIFIER, VARIABLE, KW_AND, KW_AS, KW_ASC, KW_BETWEEN, KW_CHARACTER_SET_CATALOG, KW_CHARACTER_SET_NAME, KW_CHARACTER_SET_SCHEMA, KW_COLLATION_CATALOG, KW_COLLATION_NAME, KW_COLLATION_SCHEMA, KW_DATA, KW_DATETIME_INTERVAL_CODE, KW_DATETIME_INTERVAL_PRECISION, KW_DEFERRABLE, KW_DESC, KW_ELSE, KW_END, KW_FOR, KW_FROM, KW_GROUP, KW_HAVING, KW_IN, KW_INDICATOR, KW_INITIALLY, KW_IS, KW_INTERSECT, KW_MATCH, KW_NAME, KW_NOT, KW_NULLABLE, KW_ON, KW_ORDER, KW_OVERLAPS, KW_PRECISION, KW_RETURNED_LENGTH, KW_RETURNED_OCTET_LENGTH, KW_SCALE, KW_THEN, KW_TYPE, KW_UNNAMED, KW_USING, KW_WITH, FN_LENGTH, FN_OCTET_LENGTH, FN_USER" candidate-ids="numeric_value_expression, string_value_expression, datetime_value_expression, interval_value_expression, bit_value_expression" />
+            <node token-type-ids="CHR_LEFT_PARENTHESIS, CHR_SLASH, CHR_STAR" candidate-ids="numeric_value_expression" />
             <node token-type-ids="CHR_PLUS, CHR_MINUS" candidate-ids="numeric_value_expression, datetime_value_expression" />
             <node token-type-ids="OPR_CONCATENATION" candidate-ids="string_value_expression, bit_value_expression" />
         </node>
-        <node token-type-ids="VARIABLE" candidate-ids="numeric_value_expression, string_value_expression, datetime_value_expression, interval_value_expression, bit_value_expression">
-            <node token-type-ids="VARIABLE, CHR_COLON, KW_INDICATOR" candidate-ids="string_value_expression, datetime_value_expression, interval_value_expression, bit_value_expression" />
+        <node token-type-ids="NUMBER, INTEGER, KW_NULL, KW_TRUE, KW_FALSE" candidate-ids="numeric_value_expression, datetime_value_expression, interval_value_expression">
+            <node token-type-ids="CHR_MINUS, CHR_PLUS" candidate-ids="datetime_value_expression" />
+            <node token-type-ids="CHR_COLON, CHR_COMMA, CHR_EQUAL, CHR_GREATER, CHR_LESS, CHR_RIGHT_PARENTHESIS, CHR_SEMICOLON, OPR_CONCATENATION, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, IDENTIFIER, VARIABLE, KW_AND, KW_AS, KW_ASC, KW_BETWEEN, KW_CHARACTER_SET_CATALOG, KW_CHARACTER_SET_NAME, KW_CHARACTER_SET_SCHEMA, KW_COLLATION_CATALOG, KW_COLLATION_NAME, KW_COLLATION_SCHEMA, KW_DATA, KW_DATETIME_INTERVAL_CODE, KW_DATETIME_INTERVAL_PRECISION, KW_DEFERRABLE, KW_DESC, KW_ELSE, KW_END, KW_FOR, KW_FROM, KW_GROUP, KW_HAVING, KW_IN, KW_INDICATOR, KW_INITIALLY, KW_IS, KW_INTERSECT, KW_MATCH, KW_NAME, KW_NOT, KW_NULLABLE, KW_ON, KW_ORDER, KW_OVERLAPS, KW_PRECISION, KW_RETURNED_LENGTH, KW_RETURNED_OCTET_LENGTH, KW_SCALE, KW_THEN, KW_TYPE, KW_UNNAMED, KW_USING, KW_WITH, FN_LENGTH, FN_OCTET_LENGTH, FN_USER" candidate-ids="datetime_value_expression, interval_value_expression" />
+        </node>
+        <node token-type-ids="STRING" candidate-ids="numeric_value_expression, string_value_expression, datetime_value_expression, interval_value_expression">
+            <node token-type-ids="OPR_CONCATENATION" candidate-ids="string_value_expression" />
+            <node token-type-ids="CHR_COLON, CHR_COMMA, CHR_EQUAL, CHR_GREATER, CHR_LESS, CHR_RIGHT_PARENTHESIS, CHR_SEMICOLON, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, IDENTIFIER, VARIABLE, KW_AND, KW_AS, KW_ASC, KW_BETWEEN, KW_CHARACTER_SET_CATALOG, KW_CHARACTER_SET_NAME, KW_CHARACTER_SET_SCHEMA, KW_COLLATION_CATALOG, KW_COLLATION_NAME, KW_COLLATION_SCHEMA, KW_DATA, KW_DATETIME_INTERVAL_CODE, KW_DATETIME_INTERVAL_PRECISION, KW_DEFERRABLE, KW_DESC, KW_ELSE, KW_END, KW_FOR, KW_FROM, KW_GROUP, KW_HAVING, KW_IN, KW_INDICATOR, KW_INITIALLY, KW_IS, KW_INTERSECT, KW_MATCH, KW_NAME, KW_NOT, KW_NULLABLE, KW_ON, KW_ORDER, KW_OVERLAPS, KW_PRECISION, KW_RETURNED_LENGTH, KW_RETURNED_OCTET_LENGTH, KW_SCALE, KW_THEN, KW_TYPE, KW_UNNAMED, KW_USING, KW_WITH, FN_LENGTH, FN_OCTET_LENGTH, FN_USER" candidate-ids="string_value_expression, datetime_value_expression, interval_value_expression" />
+            <node token-type-ids="CHR_MINUS, CHR_PLUS" candidate-ids="datetime_value_expression" />
+        </node>
+        <node token-type-ids="FN_CURRENT_USER, FN_SESSION_USER, FN_SYSTEM_USER, FN_USER, KW_VALUE" candidate-ids="numeric_value_expression, string_value_expression, datetime_value_expression, interval_value_expression, bit_value_expression">
+            <node token-type-ids="CHR_SLASH, CHR_STAR" candidate-ids="numeric_value_expression" />
+            <node token-type-ids="CHR_PLUS, CHR_MINUS" candidate-ids="numeric_value_expression, datetime_value_expression" />
+            <node token-type-ids="CHR_COLON, CHR_COMMA, CHR_EQUAL, CHR_GREATER, CHR_LESS, CHR_RIGHT_PARENTHESIS, CHR_SEMICOLON, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, IDENTIFIER, VARIABLE, KW_AND, KW_AS, KW_ASC, KW_BETWEEN, KW_CHARACTER_SET_CATALOG, KW_CHARACTER_SET_NAME, KW_CHARACTER_SET_SCHEMA, KW_COLLATION_CATALOG, KW_COLLATION_NAME, KW_COLLATION_SCHEMA, KW_DATA, KW_DATETIME_INTERVAL_CODE, KW_DATETIME_INTERVAL_PRECISION, KW_DEFERRABLE, KW_DESC, KW_ELSE, KW_END, KW_FOR, KW_FROM, KW_GROUP, KW_HAVING, KW_IN, KW_INDICATOR, KW_INITIALLY, KW_IS, KW_INTERSECT, KW_MATCH, KW_NAME, KW_NOT, KW_NULLABLE, KW_ON, KW_ORDER, KW_OVERLAPS, KW_PRECISION, KW_RETURNED_LENGTH, KW_RETURNED_OCTET_LENGTH, KW_SCALE, KW_THEN, KW_TYPE, KW_UNNAMED, KW_USING, KW_WITH, FN_LENGTH, FN_OCTET_LENGTH, FN_USER" candidate-ids="numeric_value_expression, string_value_expression, datetime_value_expression, interval_value_expression, bit_value_expression" />
             <node token-type-ids="OPR_CONCATENATION" candidate-ids="string_value_expression, bit_value_expression" />
-            <node token-type-ids="CHR_PLUS, CHR_MINUS" candidate-ids="datetime_value_expression" />
+        </node>
+        <node token-type-ids="VARIABLE" candidate-ids="numeric_value_expression, string_value_expression, datetime_value_expression, interval_value_expression, bit_value_expression">
+            <node token-type-ids="VARIABLE, CHR_COLON, KW_INDICATOR, CHR_COMMA, CHR_EQUAL, CHR_GREATER, CHR_LESS, CHR_RIGHT_PARENTHESIS, CHR_SEMICOLON, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, IDENTIFIER, KW_AND, KW_AS, KW_ASC, KW_BETWEEN, KW_CHARACTER_SET_CATALOG, KW_CHARACTER_SET_NAME, KW_CHARACTER_SET_SCHEMA, KW_COLLATION_CATALOG, KW_COLLATION_NAME, KW_COLLATION_SCHEMA, KW_DATA, KW_DATETIME_INTERVAL_CODE, KW_DATETIME_INTERVAL_PRECISION, KW_DEFERRABLE, KW_DESC, KW_ELSE, KW_END, KW_FOR, KW_FROM, KW_GROUP, KW_HAVING, KW_IN, KW_INITIALLY, KW_IS, KW_INTERSECT, KW_MATCH, KW_NAME, KW_NOT, KW_NULLABLE, KW_ON, KW_ORDER, KW_OVERLAPS, KW_PRECISION, KW_RETURNED_LENGTH, KW_RETURNED_OCTET_LENGTH, KW_SCALE, KW_THEN, KW_TYPE, KW_UNNAMED, KW_USING, KW_WITH, FN_LENGTH, FN_OCTET_LENGTH, FN_USER" candidate-ids="string_value_expression, datetime_value_expression, interval_value_expression, bit_value_expression" />
+            <node token-type-ids="OPR_CONCATENATION" candidate-ids="string_value_expression, bit_value_expression" />
+            <node token-type-ids="CHR_MINUS, CHR_PLUS" candidate-ids="datetime_value_expression" />
         </node>
         <node token-type-ids="CHR_COLON" candidate-ids="numeric_value_expression, string_value_expression, datetime_value_expression, interval_value_expression, bit_value_expression">
             <node token-type-ids="IDENTIFIER" candidate-ids="string_value_expression, datetime_value_expression, interval_value_expression, bit_value_expression" />
@@ -251,36 +262,41 @@
             <node token-type-ids="CHR_LEFT_PARENTHESIS, IDENTIFIER, NUMBER, INTEGER, STRING, KW_NULL, KW_TRUE, KW_FALSE, FN_EXTRACT, FN_POSITION, FN_CHARACTER_LENGTH, FN_CHAR_LENGTH, FN_OCTET_LENGTH, FN_BIT_LENGTH, FN_NULLIF, FN_AVG, FN_COUNT, FN_MAX, FN_MIN, FN_SUM, KW_CASE, KW_CAST, FN_CURRENT_USER, FN_SESSION_USER, FN_SYSTEM_USER, FN_USER, KW_VALUE, VARIABLE, CHR_COLON" candidate-ids="00631" />
         </node>
         <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="00631, 00632">
-            <node token-type-ids="KW_TRUE, KW_CONVERT, FN_SYSTEM_USER, FN_OCTET_LENGTH, IDENTIFIER, STRING, FN_SUM, KW_NULL, CHR_LEFT_PARENTHESIS, FN_POSITION, KW_VALUE, FN_CURRENT_TIME, CHR_COLON, FN_CURRENT_USER, FN_BIT_LENGTH, FN_NULLIF, FN_EXTRACT, DT_INTERVAL, FN_CURRENT_DATE, KW_CAST, INTEGER, FN_LOWER, FN_SESSION_USER, KW_CASE, CHR_MINUS, FN_CHAR_LENGTH, FN_TRIM, FN_SUBSTRING, FN_CHARACTER_LENGTH, FN_UPPER, FN_MAX, FN_CURRENT_TIMESTAMP, CHR_PLUS, KW_FALSE, KW_TRANSLATE, FN_USER, FN_COUNT, NUMBER, FN_AVG, FN_MIN, VARIABLE" candidate-ids="00631, 00632" />
+            <node token-type-ids="IDENTIFIER, FN_CURRENT_TIME, STRING, FN_POSITION, CHR_COLON, FN_SUBSTRING, FN_MIN, CHR_MINUS, FN_CURRENT_TIMESTAMP, KW_NULL, NUMBER, FN_CHAR_LENGTH, VARIABLE, FN_COUNT, CHR_PLUS, INTEGER, FN_CHARACTER_LENGTH, DT_INTERVAL, KW_TRUE, FN_BIT_LENGTH, FN_USER, KW_CONVERT, FN_OCTET_LENGTH, FN_TRIM, KW_TRANSLATE, KW_VALUE, FN_CURRENT_DATE, FN_SUM, CHR_LEFT_PARENTHESIS, FN_SESSION_USER, FN_LOWER, KW_FALSE, FN_AVG, FN_CURRENT_USER, FN_SYSTEM_USER, FN_EXTRACT, FN_NULLIF, KW_CAST, FN_MAX, KW_CASE, FN_UPPER" candidate-ids="00631, 00632" />
             <node token-type-ids="KW_NOT, KW_EXISTS, KW_UNIQUE" candidate-ids="00632" />
         </node>
-        <node token-type-ids="IDENTIFIER, NUMBER, INTEGER, KW_NULL, KW_TRUE, KW_FALSE, FN_EXTRACT, FN_POSITION, FN_CHARACTER_LENGTH, FN_CHAR_LENGTH, FN_OCTET_LENGTH, FN_BIT_LENGTH, FN_TRIM, FN_UPPER, FN_LOWER, KW_CONVERT, KW_TRANSLATE, FN_NULLIF, FN_AVG, FN_COUNT, FN_MAX, FN_MIN, FN_SUM, KW_CASE, KW_CAST, VARIABLE, CHR_COLON" candidate-ids="00631, 00632" />
+        <node token-type-ids="IDENTIFIER" candidate-ids="00631, 00632">
+            <node token-type-ids="CHR_DOT, OPR_CONCATENATION, KW_NOT" candidate-ids="00631, 00632" />
+            <node token-type-ids="CHR_MINUS, CHR_PLUS, CHR_COMMA, KW_IS, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, KW_BETWEEN, KW_IN, KW_MATCH, KW_OVERLAPS" candidate-ids="00631" />
+            <node token-type-ids="KW_LIKE" candidate-ids="00632" />
+        </node>
         <node token-type-ids="STRING" candidate-ids="00631, 00632">
             <node token-type-ids="OPR_CONCATENATION, KW_NOT" candidate-ids="00631, 00632" />
             <node token-type-ids="KW_IS, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, KW_BETWEEN, KW_IN, KW_MATCH, KW_OVERLAPS" candidate-ids="00631" />
             <node token-type-ids="KW_LIKE" candidate-ids="00632" />
         </node>
         <node token-type-ids="FN_CURRENT_DATE" candidate-ids="00631, 00632">
-            <node token-type-ids="CHR_PLUS, CHR_MINUS, CHR_COMMA, KW_IS, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, KW_NOT, KW_BETWEEN, KW_IN, KW_MATCH, KW_OVERLAPS" candidate-ids="00631" />
+            <node token-type-ids="CHR_MINUS, CHR_PLUS, CHR_COMMA, KW_IS, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, KW_NOT, KW_BETWEEN, KW_IN, KW_MATCH, KW_OVERLAPS" candidate-ids="00631" />
         </node>
         <node token-type-ids="FN_CURRENT_TIME, FN_CURRENT_TIMESTAMP" candidate-ids="00631, 00632">
-            <node token-type-ids="CHR_LEFT_PARENTHESIS, CHR_PLUS, CHR_MINUS, CHR_COMMA, KW_IS, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, KW_NOT, KW_BETWEEN, KW_IN, KW_MATCH, KW_OVERLAPS" candidate-ids="00631" />
+            <node token-type-ids="CHR_LEFT_PARENTHESIS, CHR_MINUS, CHR_PLUS, CHR_COMMA, KW_IS, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, KW_NOT, KW_BETWEEN, KW_IN, KW_MATCH, KW_OVERLAPS" candidate-ids="00631" />
         </node>
         <node token-type-ids="DT_INTERVAL" candidate-ids="00631, 00632">
             <node token-type-ids="STRING" candidate-ids="00631" />
         </node>
+        <node token-type-ids="NUMBER, INTEGER, KW_NULL, KW_TRUE, KW_FALSE, FN_EXTRACT, FN_POSITION, FN_CHARACTER_LENGTH, FN_CHAR_LENGTH, FN_OCTET_LENGTH, FN_BIT_LENGTH, FN_TRIM, FN_UPPER, FN_LOWER, KW_CONVERT, KW_TRANSLATE, FN_NULLIF, FN_AVG, FN_COUNT, FN_MAX, FN_MIN, FN_SUM, KW_CASE, KW_CAST, VARIABLE, CHR_COLON" candidate-ids="00631, 00632" />
         <node token-type-ids="FN_SUBSTRING" candidate-ids="00631, 00632">
             <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="00631" />
         </node>
         <node token-type-ids="FN_CURRENT_USER, FN_SESSION_USER, FN_SYSTEM_USER, FN_USER, KW_VALUE" candidate-ids="00631, 00632">
-            <node token-type-ids="CHR_PLUS, CHR_MINUS, OPR_CONCATENATION, KW_IS, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, KW_NOT, KW_BETWEEN, KW_IN, KW_MATCH, KW_OVERLAPS" candidate-ids="00631" />
+            <node token-type-ids="CHR_MINUS, CHR_PLUS, OPR_CONCATENATION, KW_IS, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, KW_NOT, KW_BETWEEN, KW_IN, KW_MATCH, KW_OVERLAPS" candidate-ids="00631" />
         </node>
         <node token-type-ids="KW_EXISTS, KW_UNIQUE" candidate-ids="00632" />
     </one-of-extension>
     <one-of-extension id="00640" depth="2">
         <node token-type-ids="CHR_PLUS, CHR_MINUS, KW_EXISTS, KW_UNIQUE, IDENTIFIER, STRING, FN_CURRENT_DATE, FN_CURRENT_TIME, FN_CURRENT_TIMESTAMP, DT_INTERVAL, NUMBER, INTEGER, KW_NULL, KW_TRUE, KW_FALSE, FN_EXTRACT, FN_POSITION, FN_CHARACTER_LENGTH, FN_CHAR_LENGTH, FN_OCTET_LENGTH, FN_BIT_LENGTH, FN_SUBSTRING, FN_TRIM, FN_UPPER, FN_LOWER, KW_CONVERT, KW_TRANSLATE, FN_NULLIF, FN_AVG, FN_COUNT, FN_MAX, FN_MIN, FN_SUM, KW_CASE, KW_CAST, FN_CURRENT_USER, FN_SESSION_USER, FN_SYSTEM_USER, FN_USER, KW_VALUE, VARIABLE, CHR_COLON" candidate-ids="predicate" />
         <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="predicate, 00641">
-            <node token-type-ids="KW_TRUE, KW_CONVERT, FN_SYSTEM_USER, FN_OCTET_LENGTH, IDENTIFIER, STRING, FN_SUM, KW_NULL, CHR_LEFT_PARENTHESIS, FN_POSITION, KW_VALUE, FN_CURRENT_TIME, CHR_COLON, FN_CURRENT_USER, FN_BIT_LENGTH, FN_NULLIF, FN_EXTRACT, DT_INTERVAL, FN_CURRENT_DATE, KW_CAST, INTEGER, FN_LOWER, FN_SESSION_USER, KW_CASE, CHR_MINUS, FN_CHAR_LENGTH, FN_TRIM, FN_SUBSTRING, FN_CHARACTER_LENGTH, FN_UPPER, FN_MAX, FN_CURRENT_TIMESTAMP, CHR_PLUS, KW_FALSE, KW_TRANSLATE, FN_USER, FN_COUNT, NUMBER, FN_AVG, FN_MIN, VARIABLE" candidate-ids="predicate, 00641" />
+            <node token-type-ids="IDENTIFIER, FN_CURRENT_TIME, STRING, FN_POSITION, CHR_COLON, FN_SUBSTRING, FN_MIN, CHR_MINUS, FN_CURRENT_TIMESTAMP, KW_NULL, NUMBER, FN_CHAR_LENGTH, VARIABLE, FN_COUNT, CHR_PLUS, INTEGER, FN_CHARACTER_LENGTH, DT_INTERVAL, KW_TRUE, FN_BIT_LENGTH, FN_USER, KW_CONVERT, FN_OCTET_LENGTH, FN_TRIM, KW_TRANSLATE, KW_VALUE, FN_CURRENT_DATE, FN_SUM, CHR_LEFT_PARENTHESIS, FN_SESSION_USER, FN_LOWER, KW_FALSE, FN_AVG, FN_CURRENT_USER, FN_SYSTEM_USER, FN_EXTRACT, FN_NULLIF, KW_CAST, FN_MAX, KW_CASE, FN_UPPER" candidate-ids="predicate, 00641" />
             <node token-type-ids="KW_NOT, KW_EXISTS, KW_UNIQUE" candidate-ids="00641" />
         </node>
     </one-of-extension>
@@ -289,9 +305,20 @@
             <node token-type-ids="CHR_LEFT_PARENTHESIS, IDENTIFIER, NUMBER, INTEGER, STRING, KW_NULL, KW_TRUE, KW_FALSE, FN_EXTRACT, FN_POSITION, FN_CHARACTER_LENGTH, FN_CHAR_LENGTH, FN_OCTET_LENGTH, FN_BIT_LENGTH, FN_NULLIF, FN_AVG, FN_COUNT, FN_MAX, FN_MIN, FN_SUM, KW_CASE, KW_CAST, FN_CURRENT_USER, FN_SESSION_USER, FN_SYSTEM_USER, FN_USER, KW_VALUE, VARIABLE, CHR_COLON" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
         </node>
         <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate">
-            <node token-type-ids="KW_TRUE, KW_CONVERT, FN_SYSTEM_USER, FN_OCTET_LENGTH, IDENTIFIER, STRING, FN_SUM, KW_NULL, CHR_LEFT_PARENTHESIS, FN_POSITION, KW_VALUE, FN_CURRENT_TIME, CHR_COLON, FN_CURRENT_USER, FN_BIT_LENGTH, FN_NULLIF, FN_EXTRACT, DT_INTERVAL, FN_CURRENT_DATE, KW_CAST, INTEGER, FN_LOWER, FN_SESSION_USER, KW_CASE, CHR_MINUS, FN_CHAR_LENGTH, FN_TRIM, FN_SUBSTRING, FN_CHARACTER_LENGTH, FN_UPPER, FN_MAX, FN_CURRENT_TIMESTAMP, CHR_PLUS, KW_FALSE, KW_TRANSLATE, FN_USER, FN_COUNT, NUMBER, FN_AVG, FN_MIN, VARIABLE" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+            <node token-type-ids="IDENTIFIER, FN_CURRENT_TIME, STRING, FN_POSITION, CHR_COLON, FN_SUBSTRING, FN_MIN, CHR_MINUS, FN_CURRENT_TIMESTAMP, KW_NULL, NUMBER, FN_CHAR_LENGTH, VARIABLE, FN_COUNT, CHR_PLUS, INTEGER, FN_CHARACTER_LENGTH, DT_INTERVAL, KW_TRUE, FN_BIT_LENGTH, FN_USER, KW_CONVERT, FN_OCTET_LENGTH, FN_TRIM, KW_TRANSLATE, KW_VALUE, FN_CURRENT_DATE, FN_SUM, CHR_LEFT_PARENTHESIS, FN_SESSION_USER, FN_LOWER, KW_FALSE, FN_AVG, FN_CURRENT_USER, FN_SYSTEM_USER, FN_EXTRACT, FN_NULLIF, KW_CAST, FN_MAX, KW_CASE, FN_UPPER" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
         </node>
-        <node token-type-ids="IDENTIFIER" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+        <node token-type-ids="IDENTIFIER" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate">
+            <node token-type-ids="CHR_DOT, OPR_CONCATENATION" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+            <node token-type-ids="CHR_MINUS, CHR_PLUS, CHR_COMMA" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+            <node token-type-ids="KW_IS" candidate-ids="null_predicate, distinct_predicate" />
+            <node token-type-ids="KW_NOT" candidate-ids="like_predicate, between_predicate, in_predicate" />
+            <node token-type-ids="KW_LIKE" candidate-ids="like_predicate" />
+            <node token-type-ids="KW_BETWEEN" candidate-ids="between_predicate" />
+            <node token-type-ids="KW_IN" candidate-ids="in_predicate" />
+            <node token-type-ids="CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER" candidate-ids="quantified_comparison_predicate, comparison_predicate" />
+            <node token-type-ids="KW_MATCH" candidate-ids="match_predicate" />
+            <node token-type-ids="KW_OVERLAPS" candidate-ids="overlaps_predicate" />
+        </node>
         <node token-type-ids="STRING" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate">
             <node token-type-ids="OPR_CONCATENATION" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
             <node token-type-ids="KW_IS" candidate-ids="null_predicate, distinct_predicate" />
@@ -304,7 +331,7 @@
             <node token-type-ids="KW_OVERLAPS" candidate-ids="overlaps_predicate" />
         </node>
         <node token-type-ids="FN_CURRENT_DATE" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate">
-            <node token-type-ids="CHR_PLUS, CHR_MINUS, CHR_COMMA" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+            <node token-type-ids="CHR_MINUS, CHR_PLUS, CHR_COMMA" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
             <node token-type-ids="KW_IS" candidate-ids="null_predicate, distinct_predicate" />
             <node token-type-ids="KW_NOT" candidate-ids="between_predicate, in_predicate" />
             <node token-type-ids="KW_BETWEEN" candidate-ids="between_predicate" />
@@ -314,7 +341,7 @@
             <node token-type-ids="KW_OVERLAPS" candidate-ids="overlaps_predicate" />
         </node>
         <node token-type-ids="FN_CURRENT_TIME, FN_CURRENT_TIMESTAMP" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate">
-            <node token-type-ids="CHR_LEFT_PARENTHESIS, CHR_PLUS, CHR_MINUS, CHR_COMMA" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+            <node token-type-ids="CHR_LEFT_PARENTHESIS, CHR_MINUS, CHR_PLUS, CHR_COMMA" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
             <node token-type-ids="KW_IS" candidate-ids="null_predicate, distinct_predicate" />
             <node token-type-ids="KW_NOT" candidate-ids="between_predicate, in_predicate" />
             <node token-type-ids="KW_BETWEEN" candidate-ids="between_predicate" />
@@ -334,7 +361,7 @@
             <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="like_predicate" />
         </node>
         <node token-type-ids="FN_CURRENT_USER, FN_SESSION_USER, FN_SYSTEM_USER, FN_USER, KW_VALUE" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate">
-            <node token-type-ids="CHR_PLUS, CHR_MINUS" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
+            <node token-type-ids="CHR_MINUS, CHR_PLUS" candidate-ids="null_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
             <node token-type-ids="OPR_CONCATENATION" candidate-ids="null_predicate, like_predicate, between_predicate, in_predicate, quantified_comparison_predicate, distinct_predicate, match_predicate, overlaps_predicate, comparison_predicate" />
             <node token-type-ids="KW_IS" candidate-ids="null_predicate, distinct_predicate" />
             <node token-type-ids="KW_NOT" candidate-ids="like_predicate, between_predicate, in_predicate" />
@@ -375,7 +402,7 @@
     </one-of-extension>
     <one-of-extension id="00651" depth="2">
         <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="00652, value_expression">
-            <node token-type-ids="KW_TRUE, KW_CONVERT, FN_SYSTEM_USER, FN_OCTET_LENGTH, IDENTIFIER, STRING, FN_SUM, KW_NULL, CHR_LEFT_PARENTHESIS, FN_POSITION, KW_VALUE, FN_CURRENT_TIME, CHR_COLON, FN_CURRENT_USER, FN_BIT_LENGTH, FN_NULLIF, FN_EXTRACT, DT_INTERVAL, FN_CURRENT_DATE, KW_CAST, INTEGER, FN_LOWER, FN_SESSION_USER, KW_CASE, CHR_MINUS, FN_CHAR_LENGTH, FN_TRIM, FN_SUBSTRING, FN_CHARACTER_LENGTH, FN_UPPER, FN_MAX, FN_CURRENT_TIMESTAMP, CHR_PLUS, KW_FALSE, KW_TRANSLATE, FN_USER, FN_COUNT, NUMBER, FN_AVG, FN_MIN, VARIABLE" candidate-ids="00652, value_expression" />
+            <node token-type-ids="IDENTIFIER, FN_CURRENT_TIME, STRING, FN_POSITION, CHR_COLON, FN_SUBSTRING, FN_MIN, CHR_MINUS, FN_CURRENT_TIMESTAMP, KW_NULL, NUMBER, FN_CHAR_LENGTH, VARIABLE, FN_COUNT, CHR_PLUS, INTEGER, FN_CHARACTER_LENGTH, DT_INTERVAL, KW_TRUE, FN_BIT_LENGTH, FN_USER, KW_CONVERT, FN_OCTET_LENGTH, FN_TRIM, KW_TRANSLATE, KW_VALUE, FN_CURRENT_DATE, FN_SUM, CHR_LEFT_PARENTHESIS, FN_SESSION_USER, FN_LOWER, KW_FALSE, FN_AVG, FN_CURRENT_USER, FN_SYSTEM_USER, FN_EXTRACT, FN_NULLIF, KW_CAST, FN_MAX, KW_CASE, FN_UPPER" candidate-ids="00652, value_expression" />
             <node token-type-ids="KW_SELECT, KW_VALUES" candidate-ids="value_expression" />
         </node>
         <node token-type-ids="CHR_PLUS, CHR_MINUS, IDENTIFIER, STRING, FN_CURRENT_DATE, FN_CURRENT_TIME, FN_CURRENT_TIMESTAMP, DT_INTERVAL, NUMBER, INTEGER, KW_NULL, KW_TRUE, KW_FALSE, FN_EXTRACT, FN_POSITION, FN_CHARACTER_LENGTH, FN_CHAR_LENGTH, FN_OCTET_LENGTH, FN_BIT_LENGTH, FN_SUBSTRING, FN_TRIM, FN_UPPER, FN_LOWER, KW_CONVERT, KW_TRANSLATE, FN_NULLIF, FN_AVG, FN_COUNT, FN_MAX, FN_MIN, FN_SUM, KW_CASE, KW_CAST, FN_CURRENT_USER, FN_SESSION_USER, FN_SYSTEM_USER, FN_USER, KW_VALUE, VARIABLE, CHR_COLON" candidate-ids="value_expression" />
@@ -384,12 +411,13 @@
         <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="table_subquery, 00667">
             <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="table_subquery, 00667" />
             <node token-type-ids="KW_SELECT, KW_VALUES" candidate-ids="table_subquery" />
-            <node token-type-ids="KW_TRUE, KW_CONVERT, FN_SUM, KW_NULL, FN_POSITION, FN_CURRENT_USER, FN_BIT_LENGTH, FN_NULLIF, DT_INTERVAL, INTEGER, CHR_COLON, KW_CASE, FN_CHAR_LENGTH, FN_TRIM, FN_SUBSTRING, IDENTIFIER, FN_CHARACTER_LENGTH, FN_UPPER, STRING, FN_MAX, FN_CURRENT_TIMESTAMP, KW_TRANSLATE, FN_USER, FN_COUNT, FN_AVG, FN_SYSTEM_USER, FN_OCTET_LENGTH, KW_VALUE, FN_CURRENT_TIME, FN_EXTRACT, FN_CURRENT_DATE, KW_CAST, FN_LOWER, FN_SESSION_USER, CHR_MINUS, CHR_PLUS, KW_FALSE, NUMBER, FN_MIN, VARIABLE" candidate-ids="00667" />
+            <node token-type-ids="IDENTIFIER, FN_CURRENT_TIME, STRING, CHR_COLON, KW_NULL, NUMBER, FN_CHAR_LENGTH, VARIABLE, FN_COUNT, CHR_PLUS, INTEGER, DT_INTERVAL, KW_TRUE, FN_BIT_LENGTH, KW_CONVERT, FN_OCTET_LENGTH, FN_TRIM, KW_TRANSLATE, KW_VALUE, FN_SESSION_USER, FN_LOWER, KW_FALSE, FN_CURRENT_USER, KW_CAST, FN_MAX, FN_UPPER, FN_POSITION, FN_SUBSTRING, FN_MIN, CHR_MINUS, FN_CURRENT_TIMESTAMP, FN_CHARACTER_LENGTH, FN_USER, FN_CURRENT_DATE, FN_SUM, FN_AVG, FN_SYSTEM_USER, FN_EXTRACT, FN_NULLIF, KW_CASE" candidate-ids="00667" />
         </node>
     </one-of-extension>
     <one-of-extension id="00724" depth="2">
         <node token-type-ids="CHR_LEFT_PARENTHESIS, NUMBER, INTEGER, STRING, KW_NULL, KW_TRUE, KW_FALSE, FN_NULLIF, FN_AVG, FN_COUNT, FN_MAX, FN_MIN, FN_SUM, KW_CASE, KW_CAST, FN_CURRENT_USER, FN_SESSION_USER, FN_SYSTEM_USER, FN_USER, KW_VALUE, VARIABLE, CHR_COLON" candidate-ids="value_expression_primary" />
         <node token-type-ids="IDENTIFIER" candidate-ids="value_expression_primary, numeric_value_function">
+            <node token-type-ids="CHR_DOT, CHR_COLON, CHR_COMMA, CHR_EQUAL, CHR_GREATER, CHR_LESS, CHR_MINUS, CHR_PLUS, CHR_RIGHT_PARENTHESIS, CHR_SEMICOLON, OPR_CONCATENATION, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, IDENTIFIER, VARIABLE, KW_AND, KW_AS, KW_ASC, KW_BETWEEN, KW_CHARACTER_SET_CATALOG, KW_CHARACTER_SET_NAME, KW_CHARACTER_SET_SCHEMA, KW_COLLATION_CATALOG, KW_COLLATION_NAME, KW_COLLATION_SCHEMA, KW_DATA, KW_DATETIME_INTERVAL_CODE, KW_DATETIME_INTERVAL_PRECISION, KW_DEFERRABLE, KW_DESC, KW_ELSE, KW_END, KW_FOR, KW_FROM, KW_GROUP, KW_HAVING, KW_IN, KW_INDICATOR, KW_INITIALLY, KW_IS, KW_INTERSECT, KW_MATCH, KW_NAME, KW_NOT, KW_NULLABLE, KW_ON, KW_ORDER, KW_OVERLAPS, KW_PRECISION, KW_RETURNED_LENGTH, KW_RETURNED_OCTET_LENGTH, KW_SCALE, KW_THEN, KW_TYPE, KW_UNNAMED, KW_USING, KW_WITH, FN_LENGTH, FN_OCTET_LENGTH, FN_USER" candidate-ids="value_expression_primary" />
             <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="numeric_value_function" />
         </node>
         <node token-type-ids="FN_EXTRACT, FN_POSITION, FN_CHARACTER_LENGTH, FN_CHAR_LENGTH, FN_OCTET_LENGTH, FN_BIT_LENGTH" candidate-ids="numeric_value_function" />
@@ -408,9 +436,12 @@
         <node token-type-ids="KW_CAST" candidate-ids="cast_specification" />
     </one-of-extension>
     <one-of-extension id="00767" depth="2">
-        <node token-type-ids="IDENTIFIER" candidate-ids="trim_operands, character_value_expression" />
+        <node token-type-ids="IDENTIFIER" candidate-ids="trim_operands, character_value_expression">
+            <node token-type-ids="CHR_DOT, OPR_CONCATENATION, CHR_COLON, CHR_COMMA, CHR_EQUAL, CHR_GREATER, CHR_LESS, CHR_MINUS, CHR_PLUS, CHR_RIGHT_PARENTHESIS, CHR_SEMICOLON, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, IDENTIFIER, VARIABLE, KW_AND, KW_AS, KW_ASC, KW_BETWEEN, KW_CHARACTER_SET_CATALOG, KW_CHARACTER_SET_NAME, KW_CHARACTER_SET_SCHEMA, KW_COLLATION_CATALOG, KW_COLLATION_NAME, KW_COLLATION_SCHEMA, KW_DATA, KW_DATETIME_INTERVAL_CODE, KW_DATETIME_INTERVAL_PRECISION, KW_DEFERRABLE, KW_DESC, KW_ELSE, KW_END, KW_FOR, KW_GROUP, KW_HAVING, KW_IN, KW_INDICATOR, KW_INITIALLY, KW_IS, KW_INTERSECT, KW_MATCH, KW_NAME, KW_NOT, KW_NULLABLE, KW_ON, KW_ORDER, KW_OVERLAPS, KW_PRECISION, KW_RETURNED_LENGTH, KW_RETURNED_OCTET_LENGTH, KW_SCALE, KW_THEN, KW_TYPE, KW_UNNAMED, KW_USING, KW_WHERE, KW_WITH, FN_LENGTH, FN_OCTET_LENGTH, FN_USER" candidate-ids="trim_operands, character_value_expression" />
+            <node token-type-ids="KW_FROM" candidate-ids="trim_operands" />
+        </node>
         <node token-type-ids="STRING, FN_CURRENT_USER, FN_SESSION_USER, FN_SYSTEM_USER, FN_USER, KW_VALUE" candidate-ids="trim_operands, character_value_expression">
-            <node token-type-ids="OPR_CONCATENATION" candidate-ids="trim_operands, character_value_expression" />
+            <node token-type-ids="OPR_CONCATENATION, CHR_COLON, CHR_COMMA, CHR_EQUAL, CHR_GREATER, CHR_LESS, CHR_MINUS, CHR_PLUS, CHR_RIGHT_PARENTHESIS, CHR_SEMICOLON, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, IDENTIFIER, VARIABLE, KW_AND, KW_AS, KW_ASC, KW_BETWEEN, KW_CHARACTER_SET_CATALOG, KW_CHARACTER_SET_NAME, KW_CHARACTER_SET_SCHEMA, KW_COLLATION_CATALOG, KW_COLLATION_NAME, KW_COLLATION_SCHEMA, KW_DATA, KW_DATETIME_INTERVAL_CODE, KW_DATETIME_INTERVAL_PRECISION, KW_DEFERRABLE, KW_DESC, KW_ELSE, KW_END, KW_FOR, KW_GROUP, KW_HAVING, KW_IN, KW_INDICATOR, KW_INITIALLY, KW_IS, KW_INTERSECT, KW_MATCH, KW_NAME, KW_NOT, KW_NULLABLE, KW_ON, KW_ORDER, KW_OVERLAPS, KW_PRECISION, KW_RETURNED_LENGTH, KW_RETURNED_OCTET_LENGTH, KW_SCALE, KW_THEN, KW_TYPE, KW_UNNAMED, KW_USING, KW_WHERE, KW_WITH, FN_LENGTH, FN_OCTET_LENGTH, FN_USER" candidate-ids="trim_operands, character_value_expression" />
             <node token-type-ids="KW_FROM" candidate-ids="trim_operands" />
         </node>
         <node token-type-ids="FN_SUBSTRING, FN_TRIM, FN_UPPER, FN_LOWER, KW_CONVERT, KW_TRANSLATE" candidate-ids="trim_operands, character_value_expression">
@@ -418,7 +449,7 @@
         </node>
         <node token-type-ids="KW_FROM, KW_LEADING, KW_TRAILING, KW_BOTH" candidate-ids="trim_operands" />
         <node token-type-ids="VARIABLE" candidate-ids="trim_operands, character_value_expression">
-            <node token-type-ids="VARIABLE, CHR_COLON, KW_INDICATOR, OPR_CONCATENATION" candidate-ids="trim_operands, character_value_expression" />
+            <node token-type-ids="VARIABLE, CHR_COLON, KW_INDICATOR, OPR_CONCATENATION, CHR_COMMA, CHR_EQUAL, CHR_GREATER, CHR_LESS, CHR_MINUS, CHR_PLUS, CHR_RIGHT_PARENTHESIS, CHR_SEMICOLON, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, IDENTIFIER, KW_AND, KW_AS, KW_ASC, KW_BETWEEN, KW_CHARACTER_SET_CATALOG, KW_CHARACTER_SET_NAME, KW_CHARACTER_SET_SCHEMA, KW_COLLATION_CATALOG, KW_COLLATION_NAME, KW_COLLATION_SCHEMA, KW_DATA, KW_DATETIME_INTERVAL_CODE, KW_DATETIME_INTERVAL_PRECISION, KW_DEFERRABLE, KW_DESC, KW_ELSE, KW_END, KW_FOR, KW_FROM, KW_GROUP, KW_HAVING, KW_IN, KW_INITIALLY, KW_IS, KW_INTERSECT, KW_MATCH, KW_NAME, KW_NOT, KW_NULLABLE, KW_ON, KW_ORDER, KW_OVERLAPS, KW_PRECISION, KW_RETURNED_LENGTH, KW_RETURNED_OCTET_LENGTH, KW_SCALE, KW_THEN, KW_TYPE, KW_UNNAMED, KW_USING, KW_WHERE, KW_WITH, FN_LENGTH, FN_OCTET_LENGTH, FN_USER" candidate-ids="trim_operands, character_value_expression" />
         </node>
         <node token-type-ids="CHR_COLON" candidate-ids="trim_operands, character_value_expression">
             <node token-type-ids="IDENTIFIER" candidate-ids="trim_operands, character_value_expression" />
@@ -426,7 +457,7 @@
     </one-of-extension>
     <one-of-extension id="00823" depth="2">
         <node token-type-ids="DT_CHAR, DT_CHARACTER" candidate-ids="00824, 00828">
-            <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="00824" />
+            <node token-type-ids="CHR_LEFT_PARENTHESIS, CHR_COLON, CHR_COMMA, CHR_EQUAL, CHR_GREATER, CHR_LESS, CHR_MINUS, CHR_PLUS, CHR_RIGHT_PARENTHESIS, CHR_SEMICOLON, OPR_CONCATENATION, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, IDENTIFIER, VARIABLE, KW_AND, KW_AS, KW_ASC, KW_BETWEEN, KW_CHARACTER_SET_CATALOG, KW_CHARACTER_SET_NAME, KW_CHARACTER_SET_SCHEMA, KW_COLLATION_CATALOG, KW_COLLATION_NAME, KW_COLLATION_SCHEMA, KW_DATA, KW_DATETIME_INTERVAL_CODE, KW_DATETIME_INTERVAL_PRECISION, KW_DEFERRABLE, KW_DESC, KW_ELSE, KW_END, KW_FOR, KW_FROM, KW_GROUP, KW_HAVING, KW_IN, KW_INDICATOR, KW_INITIALLY, KW_IS, KW_INTERSECT, KW_MATCH, KW_NAME, KW_NOT, KW_NULLABLE, KW_ON, KW_ORDER, KW_OVERLAPS, KW_PRECISION, KW_RETURNED_LENGTH, KW_RETURNED_OCTET_LENGTH, KW_SCALE, KW_THEN, KW_TYPE, KW_UNNAMED, KW_USING, KW_WITH, FN_LENGTH, FN_OCTET_LENGTH, FN_USER" candidate-ids="00824" />
             <node token-type-ids="KW_VARYING" candidate-ids="00828" />
         </node>
         <node token-type-ids="DT_VARCHAR" candidate-ids="00828" />
@@ -437,7 +468,7 @@
     </one-of-extension>
     <one-of-extension id="00848" depth="2">
         <node token-type-ids="DT_BIT" candidate-ids="00849, 00851">
-            <node token-type-ids="CHR_LEFT_PARENTHESIS" candidate-ids="00849" />
+            <node token-type-ids="CHR_LEFT_PARENTHESIS, CHR_COLON, CHR_COMMA, CHR_EQUAL, CHR_GREATER, CHR_LESS, CHR_MINUS, CHR_PLUS, CHR_RIGHT_PARENTHESIS, CHR_SEMICOLON, OPR_CONCATENATION, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LESS_GREATER, IDENTIFIER, VARIABLE, KW_AND, KW_AS, KW_ASC, KW_BETWEEN, KW_CHARACTER_SET_CATALOG, KW_CHARACTER_SET_NAME, KW_CHARACTER_SET_SCHEMA, KW_COLLATION_CATALOG, KW_COLLATION_NAME, KW_COLLATION_SCHEMA, KW_DATA, KW_DATETIME_INTERVAL_CODE, KW_DATETIME_INTERVAL_PRECISION, KW_DEFERRABLE, KW_DESC, KW_ELSE, KW_END, KW_FOR, KW_FROM, KW_GROUP, KW_HAVING, KW_IN, KW_INDICATOR, KW_INITIALLY, KW_IS, KW_INTERSECT, KW_MATCH, KW_NAME, KW_NOT, KW_NULLABLE, KW_ON, KW_ORDER, KW_OVERLAPS, KW_PRECISION, KW_RETURNED_LENGTH, KW_RETURNED_OCTET_LENGTH, KW_SCALE, KW_THEN, KW_TYPE, KW_UNNAMED, KW_USING, KW_WITH, FN_LENGTH, FN_OCTET_LENGTH, FN_USER" candidate-ids="00849" />
             <node token-type-ids="KW_VARYING" candidate-ids="00851" />
         </node>
     </one-of-extension>
