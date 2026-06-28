@@ -16,6 +16,7 @@
 
 package com.dbn.language.common.element.cache;
 
+import com.dbn.language.common.TokenChain;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.impl.ElementTypeBase;
@@ -24,13 +25,12 @@ import com.dbn.language.common.element.impl.QualifiedIdentifierElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class QualifiedIdentifierElementCache extends ElementTypeIndexedCache<QualifiedIdentifierElementType> {
-    private final Map<List<TokenType>, QualifiedIdentifierVariant> probableParseVariants = new ConcurrentHashMap<>();
+    private final Map<TokenChain, QualifiedIdentifierVariant> probableParseVariants = new ConcurrentHashMap<>();
 
     public QualifiedIdentifierElementCache(QualifiedIdentifierElementType elementType) {
         super(elementType);
@@ -97,7 +97,7 @@ public class QualifiedIdentifierElementCache extends ElementTypeIndexedCache<Qua
         return bucket;
     }
 
-    public QualifiedIdentifierVariant getMostProbableParseVariant(List<TokenType> tokenChain) {
+    public QualifiedIdentifierVariant getMostProbableParseVariant(TokenChain tokenChain) {
         QualifiedIdentifierVariant variant = probableParseVariants.get(tokenChain);
         if (variant == null) {
             variant = evaluateMostProbableParseVariant(tokenChain);
@@ -108,7 +108,7 @@ public class QualifiedIdentifierElementCache extends ElementTypeIndexedCache<Qua
         return variant;
     }
 
-    private QualifiedIdentifierVariant evaluateMostProbableParseVariant(List<TokenType> tokenChain) {
+    private QualifiedIdentifierVariant evaluateMostProbableParseVariant(TokenChain tokenChain) {
         QualifiedIdentifierVariant mostProbableVariant = null;
 
         for (LeafElementType[] elementTypes : elementType.variants) {
@@ -119,7 +119,7 @@ public class QualifiedIdentifierElementCache extends ElementTypeIndexedCache<Qua
                         matchedTokens++;
                     }
                 }
-                if (mostProbableVariant == null || mostProbableVariant.getMatchedTokens() < matchedTokens) {
+                if (mostProbableVariant == null || mostProbableVariant.matchedTokens < matchedTokens) {
                     mostProbableVariant = mostProbableVariant == null ?
                             new QualifiedIdentifierVariant(elementTypes, matchedTokens) :
                             mostProbableVariant.replace(elementTypes, matchedTokens);
