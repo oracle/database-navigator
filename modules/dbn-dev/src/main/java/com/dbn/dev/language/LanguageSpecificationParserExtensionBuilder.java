@@ -581,6 +581,8 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             NextTokenMatch result = new NextTokenMatch();
             if (!leafElementType.is(OPTIONAL_WRAPPING)) {
                 result.tokenIds.add(leafElementType.tokenType.getId());
+            }
+            if (isCompletionCandidate(leafElementType)) {
                 result.leafIds.add(leafElementType.getId());
             }
             return result;
@@ -611,6 +613,8 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         if (tokenPath.isEmpty()) {
             if (!variant[0].is(OPTIONAL_WRAPPING)) {
                 result.tokenIds.add(variant[0].tokenType.getId());
+            }
+            if (isCompletionCandidate(variant[0])) {
                 result.leafIds.add(variant[0].getId());
             }
             return result;
@@ -647,6 +651,8 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
                 LeafElementType nextLeaf = variant[variantIndex + 1];
                 if (!nextLeaf.is(OPTIONAL_WRAPPING)) {
                     result.tokenIds.add(nextLeaf.tokenType.getId());
+                }
+                if (isCompletionCandidate(nextLeaf)) {
                     result.leafIds.add(nextLeaf.getId());
                 }
                 return result;
@@ -796,7 +802,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
     private static void addFirstPossibleLeafIds(Set<String> leafIds, ElementTypeBase elementType) {
         for (LeafElementType leaf : elementType.cache.getFirstPossibleLeafs()) {
-            if (leaf.is(OPTIONAL_WRAPPING)) continue;
+            if (!isCompletionCandidate(leaf)) continue;
             leafIds.add(leaf.getId());
         }
     }
@@ -831,8 +837,13 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         if (iterationElementType.separatorTokens == null) return;
 
         for (TokenElementType separatorToken : iterationElementType.separatorTokens) {
+            if (!isCompletionCandidate(separatorToken)) continue;
             leafIds.add(separatorToken.getId());
         }
+    }
+
+    private static boolean isCompletionCandidate(LeafElementType leaf) {
+        return !leaf.is(OPTIONAL_WRAPPING) && !leaf.tokenType.isCharacter();
     }
 
     private static boolean isSeparator(IterationElementType iterationElementType, String tokenId) {
