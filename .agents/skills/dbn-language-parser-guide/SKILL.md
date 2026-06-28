@@ -76,6 +76,19 @@ Keep these boundaries clear:
 - If the same word can behave as different token categories, define it in the most common/generated family and use `flavor` at parser-use sites to qualify the role, for example `<token type-id="DT_INTERVAL" flavor="keyword" />`. Do not duplicate the same word across registries: the lexer can match a word only once, so duplicate generated rules clash instead of producing context-sensitive token categories.
 - Treat `attributes`, `branch`, `branch-check`, `version`, `formatting-*`, and `optional-wrapping` as runtime behavior, not comments.
 
+## Extension Builder Regression Notes
+
+When touching `LanguageSpecificationParserExtensionBuilder`, keep these migration regressions in mind and re-check their statement shapes after generation:
+
+- `ALTER TABLE ... ADD CONSTRAINT ... CHECK (col IN (...))`: list and wrapper continuations must look through nested expression/list structures far enough to keep the `IN (...)` list branch alive.
+- Object/type constructor calls such as `MDSYS.SDO_GEOMETRY(...)`, nested `MDSYS.SDO_POINT_TYPE(...)`, and unqualified `cust_address_typ(...)`: qualified-name and callable look-ahead must allow `IDENTIFIER CHR_DOT IDENTIFIER CHR_LEFT_PARENTHESIS` paths, and unqualified constructor/function ambiguity may need a grammar-level composite rather than builder-specific favoritism.
+- `INSERT ... VALUES (..., constructor(...), NULL, ...)`: constructor/function resolution must continue to work recursively inside value lists and nested argument lists, including after commas and `NULL` arguments.
+- `CREATE VIEW ... AS SELECT COUNT(*), MIN(...), MAX(...) ... GROUP BY ...`: specificity ranking must not let broad wrapper/model-expression branches steal ordinary built-in function calls. Bare callable prefixes like `FN_MIN CHR_LEFT_PARENTHESIS` and `FN_COUNT CHR_LEFT_PARENTHESIS CHR_STAR` are especially sensitive.
+- `SELECT ... WHERE owner IN ('HR', ...) AND object_name LIKE 'SYS%' ORDER BY ...`: condition and expression branches must keep ordinary string-list `IN`, `LIKE`, and trailing `ORDER BY` statements stable after changes to list or wrapper look-through.
+- `WITH ... ON a.column IN (b.column, 'literal')`: same-candidate trie pruning must not stop at `IDENTIFIER` when the reducing token is only visible after qualified-name continuation (`IDENTIFIER CHR_DOT IDENTIFIER CHR_COMMA`).
+- Builder performance is part of correctness. Unbounded same-candidate expansion over generic expression/condition branches caused very slow generation; keep structural look-through bounded and log progress with timestamps when investigating.
+- Avoid definition-specific checks in the builder. Prefer definition-agnostic token-shape rules such as structural tokens, qualified-name continuation, callable parentheses, candidate completion/specificity, and bounded pruning. If two constructs are syntactically indistinguishable, consider a grammar composite with `custom="true"` and `original-name` metadata.
+
 ## Tooling Runs
 
 - Treat `dbn-dev` language tooling execution as a developer task for now. Do not run builds or tooling from `modules/dbn-dev` unless the developer explicitly asks for it.

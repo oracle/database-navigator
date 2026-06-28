@@ -72,6 +72,11 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             "CHR_RIGHT_BRACKET",
             "CHR_DOT",
             "CHR_COMMA");
+    private static final Set<String> COMPLETED_CANDIDATE_FOLLOW_TOKENS = Set.of(
+            "CHR_COMMA",
+            "CHR_RIGHT_PARENTHESIS",
+            "CHR_RIGHT_BRACKET",
+            "CHR_SEMICOLON");
 
     private final LanguageSpecificationBuilderInput input;
     private ElementTypeBundle bundle;
@@ -230,7 +235,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             ElementTypeBase elementType = candidate.elementType;
             if (elementType instanceof WrapperElementType wrapperElementType &&
                     wrapperElementType.getBeginTokenElement().tokenType.getId().equals(beginTokenId)) {
-                addFirstTokenCandidates(candidatesByToken, candidate, wrapperElementType.wrappedElement);
+                addFirstTokenCandidates(candidatesByToken, candidate.withMatchElementType(wrapperElementType.wrappedElement), wrapperElementType.wrappedElement);
             } else {
                 addFirstTokenCandidates(candidatesByToken, candidate, elementType);
             }
@@ -300,6 +305,8 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
         List<Element> elements = new ArrayList<>();
         boolean hasReducingToken = hasReducingToken(candidatesByToken, tokenCandidates);
+        boolean pathHasCompletedCandidate = hasCompletedCandidate(tokenCandidates, tokenPath);
+        boolean pathHasActualWrapperCandidate = hasActualWrapperCandidate(tokenCandidates, tokenPath);
         for (Map.Entry<String, TokenCandidates> entry : candidatesByToken.entrySet()) {
             boolean sameCandidateSet = sameCandidates(tokenCandidates, entry.getValue());
             // Same-candidate paths do not narrow the one-of by themselves. Keep only bounded
@@ -312,14 +319,16 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             List<String> nextTokenPath = appendToken(tokenPath, entry.getKey());
             Element element = new Element(TAG_NODE);
             element.setAttribute(ATTR_TOKEN_TYPE_IDS, entry.getKey());
-            writeNextTokenNodes(
-                    element,
-                    nextTokenPath,
-                    entry.getValue(),
-                    oneOfElementType,
-                    depth + 1,
-                    sameCandidateSet ? sameCandidateDepth + 1 : 0,
-                    context);
+            if (!isCompletedCandidateBoundaryFollow(entry.getKey(), pathHasCompletedCandidate, pathHasActualWrapperCandidate)) {
+                writeNextTokenNodes(
+                        element,
+                        nextTokenPath,
+                        entry.getValue(),
+                        oneOfElementType,
+                        depth + 1,
+                        sameCandidateSet ? sameCandidateDepth + 1 : 0,
+                        context);
+            }
 
             if (sameCandidateSet && element.getChildren(TAG_NODE).isEmpty()) {
                 continue;
@@ -332,6 +341,25 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         for (Element element : compactTokenNodes(elements)) {
             parent.addContent(element);
         }
+    }
+
+    private static boolean isCompletedCandidateBoundaryFollow(
+            String tokenId,
+            boolean pathHasCompletedCandidate,
+            boolean pathHasActualWrapperCandidate) {
+        return pathHasCompletedCandidate &&
+                !pathHasActualWrapperCandidate &&
+                COMPLETED_CANDIDATE_FOLLOW_TOKENS.contains(tokenId);
+    }
+
+    private static boolean hasCompletedCandidate(TokenCandidates tokenCandidates, List<String> tokenPath) {
+        MatchContext context = new MatchContext();
+        for (Candidate candidate : tokenCandidates) {
+            if (getNextTokenMatch(candidate.matchElementType, tokenPath, context).completed) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean canExpandSameCandidatePath(
@@ -443,7 +471,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         MatchContext matchContext = context.newMatchContext(tokenPath);
 
         for (Candidate candidate : tokenCandidates) {
-            NextTokenMatch match = getNextTokenMatch(candidate.elementType, tokenPath, matchContext);
+            NextTokenMatch match = getNextTokenMatch(candidate.matchElementType, tokenPath, matchContext);
             matches.put(candidate, match);
             intrinsicTokenIds.addAll(match.tokenIds);
         }
@@ -454,7 +482,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             Set<String> tokenIds = new LinkedHashSet<>(match.tokenIds);
             if (match.completed) {
                 Set<String> followTokenIds = getNextPossibleTokenIds(oneOfElementType);
-                followTokenIds.removeAll(intrinsicTokenIds);
+                removeIntrinsicContinuationTokens(followTokenIds, intrinsicTokenIds);
                 tokenIds.addAll(followTokenIds);
             }
             for (String tokenId : tokenIds) {
@@ -463,6 +491,14 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             }
         }
         return candidatesByToken;
+    }
+
+    private static void removeIntrinsicContinuationTokens(Set<String> followTokenIds, Set<String> intrinsicTokenIds) {
+        for (String intrinsicTokenId : intrinsicTokenIds) {
+            if (!COMPLETED_CANDIDATE_FOLLOW_TOKENS.contains(intrinsicTokenId)) {
+                followTokenIds.remove(intrinsicTokenId);
+            }
+        }
     }
 
     private static List<String> appendToken(List<String> tokenPath, String tokenId) {
@@ -515,9 +551,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
                     result.add(getNextTokenMatch(child.elementType, tokenPath, context, depth + 1));
                 }
             } else if (elementType instanceof WrapperElementType wrapperElementType) {
-                result = new NextTokenMatch();
-                result.add(getWrapperNextTokenMatch(wrapperElementType, tokenPath, context, depth));
-                result.add(getNextTokenMatch(wrapperElementType.wrappedElement, tokenPath, context, depth + 1));
+                result = getWrapperNextTokenMatch(wrapperElementType, tokenPath, context, depth);
             } else if (elementType instanceof QualifiedIdentifierElementType qualifiedIdentifierElementType) {
                 result = getQualifiedIdentifierNextTokenMatch(qualifiedIdentifierElementType, tokenPath);
             } else if (elementType instanceof IterationElementType iterationElementType) {
@@ -782,14 +816,6 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
     private static boolean canStartWith(ElementTypeBase elementType, List<String> tokenPath) {
         if (tokenPath.isEmpty()) return true;
 
-        // Wrapper matching also looks through to the wrapped element below. Keep this fast gate
-        // aligned with that behavior, otherwise optional wrapping loses intrinsic continuations
-        // such as list separators after the opening token has already been consumed.
-        if (elementType instanceof WrapperElementType wrapperElementType &&
-                canStartWith(wrapperElementType.wrappedElement, tokenPath)) {
-            return true;
-        }
-
         String firstTokenId = tokenPath.get(0);
         for (LeafElementType leaf : elementType.cache.getFirstPossibleLeafs()) {
             if (leaf.is(OPTIONAL_WRAPPING)) continue;
@@ -829,8 +855,9 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
         Map<Candidate, CandidateMatchRank> matchRanks = new LinkedHashMap<>();
         MatchContext context = new MatchContext();
+        boolean actualWrapperPath = hasActualWrapperCandidate(orderedCandidates, tokenPath);
         for (Candidate candidate : orderedCandidates) {
-            matchRanks.put(candidate, candidateMatchRank(candidate, tokenPath, context));
+            matchRanks.put(candidate, candidateMatchRank(candidate, tokenPath, context, actualWrapperPath));
         }
 
         orderedCandidates.sort(
@@ -838,18 +865,31 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
                 // matches are still prefixes, preserve grammar order instead of letting a wrapper
                 // branch win just because it predicts fewer continuation tokens.
                 Comparator.comparingInt((Candidate candidate) -> matchRanks.get(candidate).completionRank)
+                        .thenComparingInt(candidate -> matchRanks.get(candidate).wrapperRank)
                         .thenComparingInt(candidate -> matchRanks.get(candidate).specificityRank)
                         .thenComparingInt(candidate -> matchRanks.get(candidate).leafRank)
                         .thenComparingInt(candidate -> candidate.branchIndex));
         return orderedCandidates;
     }
 
-    private static CandidateMatchRank candidateMatchRank(Candidate candidate, List<String> tokenPath, MatchContext context) {
-        NextTokenMatch match = getNextTokenMatch(candidate.elementType, tokenPath, context);
+    private static boolean hasActualWrapperCandidate(Iterable<Candidate> candidates, List<String> tokenPath) {
+        for (Candidate candidate : candidates) {
+            if (isActualWrapperPath(candidate, tokenPath)) return true;
+        }
+        return false;
+    }
+
+    private static CandidateMatchRank candidateMatchRank(
+            Candidate candidate,
+            List<String> tokenPath,
+            MatchContext context,
+            boolean actualWrapperPath) {
+        NextTokenMatch match = getNextTokenMatch(candidate.matchElementType, tokenPath, context);
         boolean qualifiedNamePath = isQualifiedNamePath(tokenPath);
         boolean rankIncomplete = qualifiedNamePath || isQualifiedCallPath(tokenPath) || isPlainIdentifierCallArgumentPath(tokenPath);
         boolean completed = match.completed && !qualifiedNamePath;
         int completionRank = completed ? 0 : 1;
+        int wrapperRank = !actualWrapperPath || isActualWrapperPath(candidate, tokenPath) ? 0 : 1;
         // Incomplete plain call prefixes preserve grammar order so generic wrapper branches do not
         // steal built-in functions. Once a plain identifier call has consumed an argument token,
         // however, grammar order can keep a broad function branch ahead of an equally valid but
@@ -858,12 +898,18 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         // prefix of a call, so specificity has to break that tie.
         int specificityRank = completed || rankIncomplete ? match.tokenIds.size() : 0;
         int leafRank = completed || rankIncomplete ? firstPossibleLeafCount(candidate) : 0;
-        return new CandidateMatchRank(completionRank, specificityRank, leafRank);
+        return new CandidateMatchRank(completionRank, wrapperRank, specificityRank, leafRank);
+    }
+
+    private static boolean isActualWrapperPath(Candidate candidate, List<String> tokenPath) {
+        if (!(candidate.elementType instanceof WrapperElementType wrapperElementType)) return false;
+        return !tokenPath.isEmpty() &&
+                wrapperElementType.getBeginTokenElement().tokenType.getId().equals(tokenPath.get(0));
     }
 
     private static int firstPossibleLeafCount(Candidate candidate) {
         int count = 0;
-        for (LeafElementType leaf : candidate.elementType.cache.getFirstPossibleLeafs()) {
+        for (LeafElementType leaf : candidate.matchElementType.cache.getFirstPossibleLeafs()) {
             if (!leaf.is(OPTIONAL_WRAPPING)) count++;
         }
         return count;
@@ -956,11 +1002,13 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
     private static class CandidateMatchRank {
         private final int completionRank;
+        private final int wrapperRank;
         private final int specificityRank;
         private final int leafRank;
 
-        private CandidateMatchRank(int completionRank, int specificityRank, int leafRank) {
+        private CandidateMatchRank(int completionRank, int wrapperRank, int specificityRank, int leafRank) {
             this.completionRank = completionRank;
+            this.wrapperRank = wrapperRank;
             this.specificityRank = specificityRank;
             this.leafRank = leafRank;
         }
@@ -1159,12 +1207,22 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
     private static class Candidate {
         private final int branchIndex;
         private final ElementTypeBase elementType;
+        private final ElementTypeBase matchElementType;
         private final String candidateId;
 
         private Candidate(int branchIndex, ElementTypeBase elementType) {
+            this(branchIndex, elementType, elementType);
+        }
+
+        private Candidate(int branchIndex, ElementTypeBase elementType, ElementTypeBase matchElementType) {
             this.branchIndex = branchIndex;
             this.elementType = elementType;
+            this.matchElementType = matchElementType;
             candidateId = elementType.getId();
+        }
+
+        private Candidate withMatchElementType(ElementTypeBase matchElementType) {
+            return new Candidate(branchIndex, elementType, matchElementType);
         }
 
         private String key() {
