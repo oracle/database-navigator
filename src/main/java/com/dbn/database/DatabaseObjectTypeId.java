@@ -46,6 +46,7 @@ public enum DatabaseObjectTypeId implements Constant<DatabaseObjectTypeId> {
     DISKGROUP,
     DOMAIN,
     EDITION,
+    ENGINE,
     FUNCTION,
     GRANTED_PRIVILEGE,
     GRANTED_ROLE,

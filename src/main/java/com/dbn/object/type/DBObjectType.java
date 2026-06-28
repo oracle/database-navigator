@@ -80,6 +80,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     DISKGROUP(DatabaseObjectTypeId.DISKGROUP, "diskgroup", "diskgroups", null, null, null, false),
     DOMAIN(DatabaseObjectTypeId.DOMAIN, "domain", "domains", null, null, null, false),
     EDITION(DatabaseObjectTypeId.EDITION, "edition", "editions", null, null, null, false),
+    ENGINE(DatabaseObjectTypeId.ENGINE, "engine", "engines", null, null, null, false),
     FUNCTION(DatabaseObjectTypeId.FUNCTION, "function", "functions", Icons.DBO_FUNCTION, null, Icons.DBO_FUNCTIONS, false),
     GRANTED_ROLE(DatabaseObjectTypeId.GRANTED_ROLE, "granted role", "granted roles", Icons.DBO_ROLE, null, Icons.DBO_ROLES, false),
     GRANTED_PRIVILEGE(DatabaseObjectTypeId.GRANTED_PRIVILEGE, "granted privilege", "granted privileges", Icons.DBO_PRIVILEGE, null, Icons.DBO_PRIVILEGES, false),
