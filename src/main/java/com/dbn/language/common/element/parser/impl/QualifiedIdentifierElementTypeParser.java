@@ -32,9 +32,6 @@ import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
 import com.dbn.language.common.element.util.ParseBuilderErrorHandler;
 
-import java.util.Collections;
-import java.util.Set;
-
 import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
@@ -73,8 +70,7 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
 
             if (node.matchedTokens > 0) {
                 if (variant.incomplete) {
-                    Set<TokenType> expected = Collections.singleton(separatorToken.tokenType);
-                    ParseBuilderErrorHandler.updateBuilderError(expected, context);
+                    ParseBuilderErrorHandler.updateBuilderError(separatorToken.tokenType.asSet(), context);
                     return stepOut(node, context, PARTIAL_MATCH);
                 } else {
                     return stepOut(node, context, FULL_MATCH);

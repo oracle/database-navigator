@@ -31,6 +31,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
@@ -55,6 +57,7 @@ public class SimpleTokenType<T extends SimpleTokenType<T>> extends IElementType 
     private TokenPairTemplate tokenPairTemplate;
     private static final AtomicInteger REGISTERED_COUNT = new AtomicInteger();
     private TextAttributesKey[] textAttributesKeys;
+    private Set<TokenType> asSet;
     private Boolean variable;
 
     public SimpleTokenType(@NotNull @NonNls String debugName, @Nullable Language language) {
@@ -199,6 +202,14 @@ public class SimpleTokenType<T extends SimpleTokenType<T>> extends IElementType 
             formatting = new FormattingDefinition();
         }
         return formatting;
+    }
+
+    @Override
+    public Set<TokenType> asSet() {
+        if (asSet == null) {
+            asSet = Collections.singleton(this);
+        }
+        return asSet;
     }
 
     @NotNull
