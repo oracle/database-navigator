@@ -85,11 +85,17 @@ public class SequenceElementType extends ElementTypeBase {
             cache.allPossibleTokens.addAll(elementTypeCache.getAllPossibleTokens());
         }
 
-        ElementTypeCache<?> elementTypeCache = children[0].elementType.cache;
-        cache.firstPossibleLeafs.addAll(elementTypeCache.getFirstPossibleLeafs());
-        cache.firstRequiredLeafs.addAll(elementTypeCache.getFirstRequiredLeafs());
-        cache.firstPossibleTokens.addAll(elementTypeCache.getFirstPossibleTokens());
-        cache.firstRequiredTokens.addAll(elementTypeCache.getFirstRequiredTokens());
+        for (ElementTypeRef child : children) {
+            ElementTypeCache<?> elementTypeCache = child.elementType.cache;
+            cache.firstPossibleLeafs.addAll(elementTypeCache.getFirstPossibleLeafs());
+            cache.firstPossibleTokens.addAll(elementTypeCache.getFirstPossibleTokens());
+
+            if (!child.optional) {
+                cache.firstRequiredLeafs.addAll(elementTypeCache.getFirstRequiredLeafs());
+                cache.firstRequiredTokens.addAll(elementTypeCache.getFirstRequiredTokens());
+                break;
+            }
+        }
 
     }
 
