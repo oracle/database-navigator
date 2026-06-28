@@ -31,29 +31,38 @@ public class LanguageSpecificationBuilder {
     private static final Scanner SCANNER = new Scanner(System.in);
     private static final Deque<String> INPUT_BUFFER = new ArrayDeque<>();
     private static final LanguageSpecificationBuilderInput input = new LanguageSpecificationBuilderInput();
+    private static Artifact selectedArtifact;
+    private static Action selectedAction;
 
     public static void main(String[] args) throws Exception {
         input.setDatabase(selectOption("database", LanguageSpecificationBuilderInput.DATABASE_OPTIONS));
         input.setLanguage(selectOption("language", LanguageSpecificationBuilderInput.LANGUAGE_OPTIONS));
 
-        Artifact artifact = selectOption("artifact", LanguageSpecificationBuilderInput.ARTIFACT_OPTIONS);
-        if (artifact == Artifact.ALL) {
+        selectedArtifact = selectOption("artifact", LanguageSpecificationBuilderInput.ARTIFACT_OPTIONS);
+        if (selectedArtifact == Artifact.ALL) {
+            selectedAction = Action.ALL;
             runAll();
             return;
         }
 
-        Action action = selectOption("action", artifact.getActionOptions());
+        selectedAction = selectOption("action", selectedArtifact.getActionOptions());
 
-        if (artifact == Artifact.LEXER && action == Action.UPDATE_DEFINITION) {
+        if (selectedArtifact == Artifact.LEXER && selectedAction == Action.UPDATE_DEFINITION) {
             buildLexerDefinition();
-        } else if (artifact == Artifact.PARSER && action == Action.UPDATE_DEFINITION) {
+        } else if (selectedArtifact == Artifact.PARSER && selectedAction == Action.UPDATE_DEFINITION) {
             buildParserDefinition();
-        } else if (artifact == Artifact.LEXER && action == Action.BUILD_CLASS) {
+        } else if (selectedArtifact == Artifact.LEXER && selectedAction == Action.BUILD_CLASS) {
             buildLexerClass();
-        } else if (artifact == Artifact.PARSER && action == Action.BUILD_EXTENSION) {
+        } else if (selectedArtifact == Artifact.PARSER && selectedAction == Action.BUILD_EXTENSION) {
+            buildParserExtension();
+        } else if (selectedArtifact == Artifact.LEXER && selectedAction == Action.ALL) {
+            buildLexerDefinition();
+            buildLexerClass();
+        } else if (selectedArtifact == Artifact.PARSER && selectedAction == Action.ALL) {
+            buildParserDefinition();
             buildParserExtension();
         } else {
-            throw new IllegalArgumentException("Unsupported action: " + artifact + " " + action);
+            throw new IllegalArgumentException("Unsupported action: " + selectedArtifact + " " + selectedAction);
         }
     }
 
@@ -81,7 +90,29 @@ public class LanguageSpecificationBuilder {
     }
 
     private static void build(LanguageSpecificationArtifactBuilder builder) throws Exception {
-        builder.build();
+        String operation = builder.getClass().getSimpleName()
+                .replace("LanguageSpecification", "")
+                .replace("Builder", "")
+                .replaceAll("([a-z])([A-Z])", "$1 $2")
+                .toUpperCase();
+        String title = input.database + " " + input.languageFid.toUpperCase() +
+                " | ARTIFACT " + selectedArtifact +
+                " | ACTION " + selectedAction +
+                " | OPERATION " + operation;
+        printBanner("START " + title);
+        try {
+            builder.build();
+        } finally {
+            printBanner("END " + title);
+        }
+    }
+
+    private static void printBanner(String title) {
+        String line = "=".repeat(80);
+        System.out.println();
+        System.out.println(line);
+        System.out.println("=== " + title);
+        System.out.println(line);
     }
 
     private static <T> T selectOption(String name, Map<String, T> options) {

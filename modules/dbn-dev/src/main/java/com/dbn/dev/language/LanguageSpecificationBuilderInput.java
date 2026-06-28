@@ -69,9 +69,11 @@ public class LanguageSpecificationBuilderInput {
 
         LEXER_ACTION_OPTIONS.put("d", Action.UPDATE_DEFINITION);
         LEXER_ACTION_OPTIONS.put("c", Action.BUILD_CLASS);
+        LEXER_ACTION_OPTIONS.put("a", Action.ALL);
 
         PARSER_ACTION_OPTIONS.put("d", Action.UPDATE_DEFINITION);
         PARSER_ACTION_OPTIONS.put("e", Action.BUILD_EXTENSION);
+        PARSER_ACTION_OPTIONS.put("a", Action.ALL);
     }
 
     public LanguageSpecificationBuilderInput() {
@@ -173,7 +175,8 @@ public class LanguageSpecificationBuilderInput {
     public enum Action {
         UPDATE_DEFINITION,
         BUILD_CLASS,
-        BUILD_EXTENSION;
+        BUILD_EXTENSION,
+        ALL;
 
         @Override
         public String toString() {
