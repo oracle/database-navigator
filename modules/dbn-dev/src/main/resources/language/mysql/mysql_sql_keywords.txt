@@ -166,6 +166,7 @@ MODIFIES
 NATIONAL
 NATURAL|reserved
 NEVER
+NEW
 NEXT
 NO
 NONE
@@ -173,6 +174,7 @@ NOT|reserved
 NULL|reserved
 OFFSET
 OJ
+OLD
 ON|reserved
 OPEN
 OPTIMIZE|reserved
