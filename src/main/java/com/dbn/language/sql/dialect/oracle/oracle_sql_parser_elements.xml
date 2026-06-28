@@ -11189,14 +11189,14 @@
     </element-def>
     <element-def description="TYPE constructor expression" id="type_constructor_expression">
         <token id="06155" optional="true" type-id="KW_NEW" />
-        <sequence id="06156" optional="true">
+        <sequence id="06156">
             <qualified-identifier id="06157" separator="CHR_DOT">
                 <variant>
                     <object-ref id="06158" optional="true" type="SCHEMA" />
                     <object-def id="06159" type="TYPE" />
                 </variant>
             </qualified-identifier>
-            <wrapper id="06160" template="PARENTHESES">
+            <wrapper id="06160" template="PARENTHESES" exit="true">
                 <iteration id="06161" optional="true" separator="CHR_COMMA">
                     <element ref-id="expression" />
                 </iteration>

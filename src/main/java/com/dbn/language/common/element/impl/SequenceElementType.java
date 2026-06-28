@@ -132,7 +132,7 @@ public class SequenceElementType extends ElementTypeBase {
                 Set<BranchCheck> branchChecks = parseBranchChecks(stringAttribute(child, "branch-check"));
                 this.children[i] = new ElementTypeRef(elementType, optional, version, branchChecks);
 
-                if (bundle.legacyParser && stringAttribute(child, "exit") != null) exitIndex = i;
+                if (stringAttribute(child, "exit") != null) exitIndex = i;
             }
         }
 
