@@ -404,6 +404,12 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         return hasQualifiedNamePrefix(tokenPath, tokenPath.size() - 1);
     }
 
+    private static boolean isPlainIdentifierCallArgumentPath(List<String> tokenPath) {
+        return tokenPath.size() > 2 &&
+                "IDENTIFIER".equals(tokenPath.get(0)) &&
+                "CHR_LEFT_PARENTHESIS".equals(tokenPath.get(1));
+    }
+
     private static boolean isQualifiedNamePath(List<String> tokenPath) {
         if (tokenPath.size() < 3) return false;
         if (!isIdentifierToken(tokenPath.get(tokenPath.size() - 1))) return false;
@@ -841,12 +847,15 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
     private static CandidateMatchRank candidateMatchRank(Candidate candidate, List<String> tokenPath, MatchContext context) {
         NextTokenMatch match = getNextTokenMatch(candidate.elementType, tokenPath, context);
         boolean qualifiedNamePath = isQualifiedNamePath(tokenPath);
-        boolean rankIncomplete = qualifiedNamePath || isQualifiedCallPath(tokenPath);
+        boolean rankIncomplete = qualifiedNamePath || isQualifiedCallPath(tokenPath) || isPlainIdentifierCallArgumentPath(tokenPath);
         boolean completed = match.completed && !qualifiedNamePath;
         int completionRank = completed ? 0 : 1;
         // Incomplete plain call prefixes preserve grammar order so generic wrapper branches do not
-        // steal built-in functions. Qualified names are different: a dotted name can be both a
-        // complete reference and the prefix of a call, so specificity has to break that tie.
+        // steal built-in functions. Once a plain identifier call has consumed an argument token,
+        // however, grammar order can keep a broad function branch ahead of an equally valid but
+        // tighter constructor branch. At that point we rank by structural specificity again.
+        // Qualified names are different: a dotted name can be both a complete reference and the
+        // prefix of a call, so specificity has to break that tie.
         int specificityRank = completed || rankIncomplete ? match.tokenIds.size() : 0;
         int leafRank = completed || rankIncomplete ? firstPossibleLeafCount(candidate) : 0;
         return new CandidateMatchRank(completionRank, specificityRank, leafRank);
