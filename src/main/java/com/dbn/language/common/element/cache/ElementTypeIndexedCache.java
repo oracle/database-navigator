@@ -31,9 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-
 public abstract class ElementTypeIndexedCache<T extends ElementTypeBase> extends ElementTypeCacheBase<T> {
     private final IndexResolver<TokenType> tokenTypeResolver = index -> getParserTokenTypes().getTokenType(index);
     private final IndexResolver<LeafElementType> elementTypeResolver = index -> getElementTypeBundle().getElement(index);
@@ -162,8 +159,12 @@ public abstract class ElementTypeIndexedCache<T extends ElementTypeBase> extends
 
     @Override
     public boolean startsWith(TokenTypeCategory typeCategory) {
-        return startsWithTokenCategory.computeIfAbsent(typeCategory,
-                c -> checkStartsWith(c) ? TRUE : FALSE);
+        Boolean startsWith = startsWithTokenCategory.get(typeCategory);
+        if (startsWith == null) {
+            startsWith = checkStartsWith(typeCategory);
+            startsWithTokenCategory.put(typeCategory, startsWith);
+        }
+        return startsWith;
     }
 
     protected abstract boolean checkStartsWith(TokenTypeCategory typeCategory);

@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.dbn.dev.language.LanguageSpecificationXmlUtil.fileToDocument;
 import static com.dbn.dev.language.LanguageSpecificationXmlUtil.outputPrettyString;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.OPTIONAL_WRAPPING;
 
@@ -104,7 +105,10 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             analyzedOneOfs = 0;
             emittedOneOfs = 0;
 
-            Document definitionDocument = builder.getDefinitionDocument();
+            Document definitionDocument = builder == null ? fileToDocument(input.getParserElementsFile()) : builder.getDefinitionDocument();
+            if (definitionDocument == null) {
+                throw new IllegalStateException("Could not load parser elements definition " + input.getParserElementsFile());
+            }
             Element definitionRoot = definitionDocument.getRootElement();
             List<Element> elementDefs = definitionRoot.getChildren("element-def");
             log("Building parser extension definition for " + elementDefs.size() + " named elements");
