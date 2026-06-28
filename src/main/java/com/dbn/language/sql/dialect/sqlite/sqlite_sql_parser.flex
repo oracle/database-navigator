@@ -52,7 +52,7 @@ digit = [0-9]
 INTEGER = {digit}+("e"{sign}?{digit}+)?
 NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 
-VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
+VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 
 %state DIV
 %%

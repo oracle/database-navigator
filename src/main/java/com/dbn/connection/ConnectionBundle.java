@@ -79,7 +79,7 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
                 ConnectionId.VIRTUAL_MYSQL,
                 new VirtualConnectionHandler(
                         ConnectionId.VIRTUAL_MYSQL,
-                        "Virtual - MySQL 5.0",
+                        "Virtual - MySQL 7.9",
                         DatabaseType.MYSQL,
                         5.0,
                         this));

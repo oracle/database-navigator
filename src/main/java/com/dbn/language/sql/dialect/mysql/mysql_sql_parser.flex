@@ -52,7 +52,10 @@ digit = [0-9]
 INTEGER = {digit}+("e"{sign}?{digit}+)?
 NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 
-VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
+BIND_VARIABLE = ":"({IDENTIFIER}|{INTEGER})
+USER_VARIABLE = "@"({IDENTIFIER}|{INTEGER})
+SYSTEM_VARIABLE = "@@"({IDENTIFIER}|{INTEGER})
+VARIABLE = {BIND_VARIABLE}|{SYSTEM_VARIABLE}|{USER_VARIABLE}
 
 %state DIV
 %%
@@ -411,45 +414,46 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "straight_join" {return tt.ktt(255);}
 "subject" {return tt.ktt(256);}
 "subpartition" {return tt.ktt(257);}
-"table" {return tt.ktt(258);}
-"tablespace" {return tt.ktt(259);}
-"temporary" {return tt.ktt(260);}
-"temptable" {return tt.ktt(261);}
-"terminated" {return tt.ktt(262);}
-"than" {return tt.ktt(263);}
-"then" {return tt.ktt(264);}
-"to" {return tt.ktt(265);}
-"trailing" {return tt.ktt(266);}
-"transaction" {return tt.ktt(267);}
-"trigger" {return tt.ktt(268);}
-"true" {return tt.ktt(269);}
-"truncate" {return tt.ktt(270);}
-"undefined" {return tt.ktt(271);}
-"undo" {return tt.ktt(272);}
-"union" {return tt.ktt(273);}
-"unique" {return tt.ktt(274);}
-"unlock" {return tt.ktt(275);}
-"unbounded" {return tt.ktt(276);}
-"unsigned" {return tt.ktt(277);}
-"update" {return tt.ktt(278);}
-"usage" {return tt.ktt(279);}
-"use" {return tt.ktt(280);}
-"using" {return tt.ktt(281);}
-"value" {return tt.ktt(282);}
-"values" {return tt.ktt(283);}
-"varcharacter" {return tt.ktt(284);}
-"varying" {return tt.ktt(285);}
-"view" {return tt.ktt(286);}
-"virtual" {return tt.ktt(287);}
-"visible" {return tt.ktt(288);}
-"when" {return tt.ktt(289);}
-"where" {return tt.ktt(290);}
-"while" {return tt.ktt(291);}
-"with" {return tt.ktt(292);}
-"write" {return tt.ktt(293);}
-"x509" {return tt.ktt(294);}
-"xor" {return tt.ktt(295);}
-"zerofill" {return tt.ktt(296);}
+"subpartitions" {return tt.ktt(258);}
+"table" {return tt.ktt(259);}
+"tablespace" {return tt.ktt(260);}
+"temporary" {return tt.ktt(261);}
+"temptable" {return tt.ktt(262);}
+"terminated" {return tt.ktt(263);}
+"than" {return tt.ktt(264);}
+"then" {return tt.ktt(265);}
+"to" {return tt.ktt(266);}
+"trailing" {return tt.ktt(267);}
+"transaction" {return tt.ktt(268);}
+"trigger" {return tt.ktt(269);}
+"true" {return tt.ktt(270);}
+"truncate" {return tt.ktt(271);}
+"undefined" {return tt.ktt(272);}
+"undo" {return tt.ktt(273);}
+"union" {return tt.ktt(274);}
+"unique" {return tt.ktt(275);}
+"unlock" {return tt.ktt(276);}
+"unbounded" {return tt.ktt(277);}
+"unsigned" {return tt.ktt(278);}
+"update" {return tt.ktt(279);}
+"usage" {return tt.ktt(280);}
+"use" {return tt.ktt(281);}
+"using" {return tt.ktt(282);}
+"value" {return tt.ktt(283);}
+"values" {return tt.ktt(284);}
+"varcharacter" {return tt.ktt(285);}
+"varying" {return tt.ktt(286);}
+"view" {return tt.ktt(287);}
+"virtual" {return tt.ktt(288);}
+"visible" {return tt.ktt(289);}
+"when" {return tt.ktt(290);}
+"where" {return tt.ktt(291);}
+"while" {return tt.ktt(292);}
+"with" {return tt.ktt(293);}
+"write" {return tt.ktt(294);}
+"x509" {return tt.ktt(295);}
+"xor" {return tt.ktt(296);}
+"zerofill" {return tt.ktt(297);}
 // MARKER_END_KEYWORDS
 
 
