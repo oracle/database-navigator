@@ -54,7 +54,12 @@ public class QualifiedIdentifierElementCache extends ElementTypeIndexedCache<Qua
 
     @Override
     protected boolean checkStartsWith(TokenTypeCategory typeCategory) {
-        return elementType.variants.stream().anyMatch(t -> t[0].cache.startsWith(typeCategory));
+        for (LeafElementType[] variant : elementType.variants) {
+            if (variant[0].cache.startsWith(typeCategory)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -93,7 +98,14 @@ public class QualifiedIdentifierElementCache extends ElementTypeIndexedCache<Qua
     }
 
     public QualifiedIdentifierVariant getMostProbableParseVariant(List<TokenType> tokenChain) {
-        return probableParseVariants.computeIfAbsent(tokenChain, c -> evaluateMostProbableParseVariant(c));
+        QualifiedIdentifierVariant variant = probableParseVariants.get(tokenChain);
+        if (variant == null) {
+            variant = evaluateMostProbableParseVariant(tokenChain);
+            if (variant != null) {
+                probableParseVariants.put(tokenChain, variant);
+            }
+        }
+        return variant;
     }
 
     private QualifiedIdentifierVariant evaluateMostProbableParseVariant(List<TokenType> tokenChain) {

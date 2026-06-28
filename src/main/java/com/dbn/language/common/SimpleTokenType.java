@@ -32,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.integerAttribute;
@@ -237,9 +236,9 @@ public class SimpleTokenType<T extends SimpleTokenType<T>> extends IElementType 
         return false;
     }
 
-    public TextAttributesKey[] getTokenHighlights(Supplier<TextAttributesKey[]> supplier) {
+    public TextAttributesKey[] getTokenHighlights(TextAttributesKey[] highlights) {
         if (textAttributesKeys == null) {
-            textAttributesKeys = supplier.get();
+            textAttributesKeys = highlights;
         }
         return textAttributesKeys;
     }

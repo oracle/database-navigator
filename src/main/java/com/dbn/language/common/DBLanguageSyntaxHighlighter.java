@@ -59,12 +59,15 @@ public abstract class DBLanguageSyntaxHighlighter extends SyntaxHighlighterBase 
     @NotNull
     public TextAttributesKey[] getTokenHighlights(IElementType tokenType) {
         if (tokenType instanceof SimpleTokenType simpleTokenType) {
-            return simpleTokenType.getTokenHighlights(() -> pack(
-                        getAttributeKeys(tokenType, backgrounds),
-                        getAttributeKeys(tokenType, colors)));
-        } else {
-            return TextAttributesKey.EMPTY_ARRAY;
+            TextAttributesKey[] tokenHighlights = simpleTokenType.getTextAttributesKeys();
+            if (tokenHighlights != null) return tokenHighlights;
+
+            return simpleTokenType.getTokenHighlights(pack(
+                    getAttributeKeys(tokenType, backgrounds),
+                    getAttributeKeys(tokenType, colors)));
         }
+
+        return TextAttributesKey.EMPTY_ARRAY;
     }
 
     private static TextAttributesKey getAttributeKeys(IElementType tokenType, Map map) {
