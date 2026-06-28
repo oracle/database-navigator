@@ -9,8 +9,11 @@ The XML is also semantic. Identifier nodes do more than match text: they create 
 ## Specification References
 
 - SQL-92 / ISO/IEC 9075:1992 draft text: `https://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt`
+- MySQL 9.7 SQL statements reference: `https://dev.mysql.com/doc/refman/9.7/en/sql-statements.html`
 
-The public link above is an online draft copy, not the official ISO publication. Use it as a convenient grammar reference, and prefer exact specification term names when creating ISO92 parser element ids.
+The SQL-92 public link above is an online draft copy, not the official ISO publication. Use it as a convenient grammar reference, and prefer exact specification term names when creating parser element ids.
+
+When working from vendor documentation such as MySQL, start from the linked statement overview, open the exact statement page being changed, and keep grammar element names close to the documented production names. Parser XML files may include one top-level overview reference comment for their dialect, but detailed specification URLs belong here.
 
 ## DBN Dev Tooling
 

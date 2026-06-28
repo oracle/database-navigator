@@ -22,18 +22,19 @@ Keep these boundaries clear:
 
 1. Inspect the target dialect XML and at least one equivalent construct in sibling dialects before editing.
 2. Read [references/parser-elements.md](references/parser-elements.md) when you need element semantics, allowed structures, validation rules, or examples.
-3. For token ids or lexer/token-list changes, inspect the `modules/dbn-dev` language tooling before inventing names.
-4. Keep XML changes declarative and local to the grammar construct requested. Do not refactor unrelated statement definitions while adding one clause or alternative.
-5. Preserve existing generated numeric child ids, but never add ids to new parser elements manually. Leave new elements without `id`; the parser tooling/reindexer assigns ids.
-6. Keep dbn-dev token registries sorted, de-duplicated, and free of blank token entries.
-7. Keep parser XMLs pointed at the shared DTD:
+3. For dialect syntax work, use the official links in [references/parser-elements.md](references/parser-elements.md) `Specification References`.
+4. For token ids or lexer/token-list changes, inspect the `modules/dbn-dev` language tooling before inventing names.
+5. Keep XML changes declarative and local to the grammar construct requested. Do not refactor unrelated statement definitions while adding one clause or alternative.
+6. Preserve existing generated numeric child ids, but never add ids to new parser elements manually. Leave new elements without `id`; the parser tooling/reindexer assigns ids.
+7. Keep dbn-dev token registries sorted, de-duplicated, and free of blank token entries.
+8. Keep parser XMLs pointed at the shared DTD:
 
 ```xml
 <!DOCTYPE element-defs SYSTEM "../../../common/definition/language-parser-elements.dtd">
 ```
 
-8. If the XML uses a new tag, attribute, wrapper template, or child relationship, update `language-parser-elements.dtd` in the same change.
-9. Validate edited parser XMLs with `xmllint --noout --valid <files>` when available.
+9. If the XML uses a new tag, attribute, wrapper template, or child relationship, update `language-parser-elements.dtd` in the same change.
+10. Validate edited parser XMLs with `xmllint --noout --valid <files>` when available.
 
 ## Important Files
 
