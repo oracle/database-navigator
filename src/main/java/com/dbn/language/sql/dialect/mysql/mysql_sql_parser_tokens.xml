@@ -384,11 +384,12 @@
         <token index="313" id="KW_WHEN" value="when" category="keyword" reserved="true"/>
         <token index="314" id="KW_WHERE" value="where" category="keyword" reserved="true"/>
         <token index="315" id="KW_WHILE" value="while" category="keyword" reserved="true"/>
-        <token index="316" id="KW_WITH" value="with" category="keyword" reserved="true"/>
-        <token index="317" id="KW_WRITE" value="write" category="keyword"/>
-        <token index="318" id="KW_X509" value="x509" category="keyword"/>
-        <token index="319" id="KW_XOR" value="xor" category="keyword"/>
-        <token index="320" id="KW_ZEROFILL" value="zerofill" category="keyword"/>
+        <token index="316" id="KW_WINDOW" value="window" category="keyword" reserved="true"/>
+        <token index="317" id="KW_WITH" value="with" category="keyword" reserved="true"/>
+        <token index="318" id="KW_WRITE" value="write" category="keyword"/>
+        <token index="319" id="KW_X509" value="x509" category="keyword"/>
+        <token index="320" id="KW_XOR" value="xor" category="keyword"/>
+        <token index="321" id="KW_ZEROFILL" value="zerofill" category="keyword"/>
         <!-- MARKER_END_KEYWORDS -->
 
 

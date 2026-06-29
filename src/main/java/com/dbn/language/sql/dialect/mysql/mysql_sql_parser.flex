@@ -472,11 +472,12 @@ VARIABLE = {BIND_VARIABLE}|{SYSTEM_VARIABLE}|{USER_VARIABLE}
 "when" {return tt.ktt(313);}
 "where" {return tt.ktt(314);}
 "while" {return tt.ktt(315);}
-"with" {return tt.ktt(316);}
-"write" {return tt.ktt(317);}
-"x509" {return tt.ktt(318);}
-"xor" {return tt.ktt(319);}
-"zerofill" {return tt.ktt(320);}
+"window" {return tt.ktt(316);}
+"with" {return tt.ktt(317);}
+"write" {return tt.ktt(318);}
+"x509" {return tt.ktt(319);}
+"xor" {return tt.ktt(320);}
+"zerofill" {return tt.ktt(321);}
 // MARKER_END_KEYWORDS
 
 

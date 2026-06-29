@@ -314,6 +314,7 @@ VISIBLE
 WHEN|reserved
 WHERE|reserved
 WHILE|reserved
+WINDOW|reserved
 WITH|reserved
 WRITE
 X509
