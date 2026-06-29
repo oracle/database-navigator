@@ -48,13 +48,19 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
         ParseResult surrogateResult = parseSurrogate(context);
         if (surrogateResult != null) return surrogateResult;
 
-        if (isTokenMatch(builder) || builder.isDummyToken()) {
+        if (isTokenMatch(builder)) {
             String text = elementType.text;
             if (text != null && Strings.equalsIgnoreCase(builder.getTokenText(), text)) {
                 Marker marker = builder.markAndAdvance();
                 return stepOut(marker, context, FULL_MATCH, 1);
             }
+            if (text != null) return NO_MATCH_RESULT;
 
+            Marker marker = builder.markAndAdvance();
+            return stepOut(marker, context, FULL_MATCH, 1);
+        }
+
+        if (builder.isDummyToken()) {
             Marker marker = builder.markAndAdvance();
             return stepOut(marker, context, FULL_MATCH, 1);
         }

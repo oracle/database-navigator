@@ -9,6 +9,7 @@ ALTER|reserved
 ALWAYS
 ANALYZE
 AND|reserved
+ANY
 AS|reserved
 ASC|reserved
 ASENSITIVE
@@ -168,6 +169,7 @@ LONG|reserved
 LOOP
 MATCH|reserved
 MAXVALUE
+MEMBER
 MEMORY
 MERGE
 MICROSECOND

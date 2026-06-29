@@ -45,6 +45,7 @@
         <token category="character" index="21" id="CHR_VERTICAL_BAR" value="|"/>
         <token category="character" index="22" id="CHR_AND" value="&#38;"/>
         <token category="character" index="23" id="CHR_TILDE" value="~"/>
+        <token category="character" index="24" id="CHR_CARET" value="^"/>
 
 
         <token category="operator" index="0" id="OPR_EQUAL_EQUAL" value="==" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
@@ -63,6 +64,9 @@
         <token category="operator" index="13" id="OPR_MATCH_CI" value="~*" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
         <token category="operator" index="14" id="OPR_NO_MATCH" value="!~" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
         <token category="operator" index="15" id="OPR_NO_MATCH_CI" value="!~*" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token category="operator" index="16" id="OPR_NULL_SAFE_EQUAL" value="&#60;=&#62;" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token category="operator" index="17" id="OPR_SHIFT_LEFT" value="&#60;&#60;" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token category="operator" index="18" id="OPR_SHIFT_RIGHT" value="&#62;&#62;" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
 
 
 
