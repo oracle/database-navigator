@@ -18,6 +18,8 @@ package com.dbn.dev.language;
 
 import com.dbn.dev.language.LanguageSpecificationBuilderInput.Action;
 import com.dbn.dev.language.LanguageSpecificationBuilderInput.Artifact;
+import com.dbn.language.common.element.impl.ElementTypeIdCache;
+import com.dbn.language.common.element.impl.LeafElementType;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.ArrayDeque;
@@ -30,74 +32,91 @@ import java.util.stream.Collectors;
 public class LanguageSpecificationBuilder {
     private static final Scanner SCANNER = new Scanner(System.in);
     private static final Deque<String> INPUT_BUFFER = new ArrayDeque<>();
-    private static final LanguageSpecificationBuilderInput input = new LanguageSpecificationBuilderInput();
-    private static Artifact selectedArtifact;
-    private static Action selectedAction;
 
     public static void main(String[] args) throws Exception {
-        input.setDatabase(selectOption("database", LanguageSpecificationBuilderInput.DATABASE_OPTIONS));
-        input.setLanguage(selectOption("language", LanguageSpecificationBuilderInput.LANGUAGE_OPTIONS));
+        while (true) {
+            try {
+                runSelection();
+            } catch (ExitRequestedException e) {
+                System.out.println("Bye bye!");
+                return;
+            } finally {
+                INPUT_BUFFER.clear();
+                clearRunState();
+            }
+        }
+    }
 
-        selectedArtifact = selectOption("artifact", LanguageSpecificationBuilderInput.ARTIFACT_OPTIONS);
-        if (selectedArtifact == Artifact.ALL) {
-            selectedAction = Action.ALL;
-            runAll();
+    private static void clearRunState() {
+        ElementTypeIdCache.clear();
+        LeafElementType.clearSurrogateForFlags();
+    }
+
+    private static void runSelection() throws Exception {
+        BuildSession session = new BuildSession();
+        session.input.setDatabase(selectOption("database", LanguageSpecificationBuilderInput.DATABASE_OPTIONS));
+        session.input.setLanguage(selectOption("language", LanguageSpecificationBuilderInput.LANGUAGE_OPTIONS));
+
+        session.selectedArtifact = selectOption("artifact", LanguageSpecificationBuilderInput.ARTIFACT_OPTIONS);
+        if (session.selectedArtifact == Artifact.ALL) {
+            session.selectedAction = Action.ALL;
+            runAll(session);
             return;
         }
 
-        selectedAction = selectOption("action", selectedArtifact.getActionOptions());
+        session.selectedAction = selectOption("action", session.selectedArtifact.getActionOptions());
 
-        if (selectedArtifact == Artifact.LEXER && selectedAction == Action.UPDATE_DEFINITION) {
-            buildLexerDefinition();
-        } else if (selectedArtifact == Artifact.PARSER && selectedAction == Action.UPDATE_DEFINITION) {
-            buildParserDefinition();
-        } else if (selectedArtifact == Artifact.LEXER && selectedAction == Action.BUILD_CLASS) {
-            buildLexerClass();
-        } else if (selectedArtifact == Artifact.PARSER && selectedAction == Action.BUILD_EXTENSION) {
-            buildParserExtension();
-        } else if (selectedArtifact == Artifact.LEXER && selectedAction == Action.ALL) {
-            buildLexerDefinition();
-            buildLexerClass();
-        } else if (selectedArtifact == Artifact.PARSER && selectedAction == Action.ALL) {
-            buildParserDefinition();
-            buildParserExtension();
+        if (session.selectedArtifact == Artifact.LEXER && session.selectedAction == Action.UPDATE_DEFINITION) {
+            buildLexerDefinition(session);
+        } else if (session.selectedArtifact == Artifact.PARSER && session.selectedAction == Action.UPDATE_DEFINITION) {
+            buildParserDefinition(session);
+        } else if (session.selectedArtifact == Artifact.LEXER && session.selectedAction == Action.BUILD_CLASS) {
+            buildLexerClass(session);
+        } else if (session.selectedArtifact == Artifact.PARSER && session.selectedAction == Action.BUILD_EXTENSION) {
+            buildParserExtension(session);
+        } else if (session.selectedArtifact == Artifact.LEXER && session.selectedAction == Action.ALL) {
+            buildLexerDefinition(session);
+            buildLexerClass(session);
+        } else if (session.selectedArtifact == Artifact.PARSER && session.selectedAction == Action.ALL) {
+            buildParserDefinition(session);
+            buildParserExtension(session);
         } else {
-            throw new IllegalArgumentException("Unsupported action: " + selectedArtifact + " " + selectedAction);
+            throw new IllegalArgumentException("Unsupported action: " + session.selectedArtifact + " " + session.selectedAction);
         }
     }
 
-    private static void runAll() throws Exception {
-        buildLexerDefinition();
-        buildLexerClass();
-        buildParserDefinition();
-        buildParserExtension();
+    private static void runAll(BuildSession session) throws Exception {
+        buildLexerDefinition(session);
+        buildLexerClass(session);
+        buildParserDefinition(session);
+        buildParserExtension(session);
     }
 
-    private static void buildLexerDefinition() throws Exception {
-        build(new LanguageSpecificationLexerBuilder(input));
+    private static void buildLexerDefinition(BuildSession session) throws Exception {
+        build(new LanguageSpecificationLexerBuilder(session.input), session);
     }
 
-    private static void buildLexerClass() throws Exception {
-        build(new LanguageSpecificationLexerClassBuilder(input));
+    private static void buildLexerClass(BuildSession session) throws Exception {
+        build(new LanguageSpecificationLexerClassBuilder(session.input), session);
     }
 
-    private static void buildParserDefinition() throws Exception {
-        build(new LanguageSpecificationParserBuilder(input));
+    private static void buildParserDefinition(BuildSession session) throws Exception {
+        build(new LanguageSpecificationParserBuilder(session.input), session);
     }
 
-    private static void buildParserExtension() throws Exception {
-        build(new LanguageSpecificationParserExtensionBuilder(input));
+    private static void buildParserExtension(BuildSession session) throws Exception {
+        build(new LanguageSpecificationParserExtensionBuilder(session.input), session);
     }
 
-    private static void build(LanguageSpecificationArtifactBuilder builder) throws Exception {
+    private static void build(LanguageSpecificationArtifactBuilder builder, BuildSession session) throws Exception {
         String operation = builder.getClass().getSimpleName()
                 .replace("LanguageSpecification", "")
                 .replace("Builder", "")
                 .replaceAll("([a-z])([A-Z])", "$1 $2")
                 .toUpperCase();
-        String title = input.database + " " + input.languageFid.toUpperCase() +
-                " | ARTIFACT " + selectedArtifact +
-                " | ACTION " + selectedAction +
+        String title = session.input.database + " " + session.input.languageFid.toUpperCase() +
+                " | ARTIFACT " + session.selectedArtifact +
+                " | ACTION " + session.selectedAction +
                 " | OPERATION " + operation;
         printBanner("START " + title);
         try {
@@ -127,9 +146,7 @@ public class LanguageSpecificationBuilder {
         }
 
         if (s.equalsIgnoreCase("x")) {
-            System.out.println("Bye bye!");
-            System.exit(0);
-            return null;
+            throw new ExitRequestedException();
         }
 
         System.out.println("Invalid option: " + s);
@@ -153,5 +170,14 @@ public class LanguageSpecificationBuilder {
 
     private static String presentableOptions(Map<String, ?> options) {
         return options.keySet().stream().map(k -> k + " " + options.get(k)).collect(Collectors.joining("\n"));
+    }
+
+    private static class ExitRequestedException extends RuntimeException {
+    }
+
+    private static class BuildSession {
+        private final LanguageSpecificationBuilderInput input = new LanguageSpecificationBuilderInput();
+        private Artifact selectedArtifact;
+        private Action selectedAction;
     }
 }

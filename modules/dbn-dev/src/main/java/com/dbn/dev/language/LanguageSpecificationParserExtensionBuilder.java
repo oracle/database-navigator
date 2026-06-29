@@ -54,6 +54,9 @@ import static com.dbn.language.common.element.util.ElementTypeAttribute.OPTIONAL
 
 public class LanguageSpecificationParserExtensionBuilder implements LanguageSpecificationArtifactBuilder {
     private static final String EXT_DTD_PATH = "../../../common/definition/language-parser-elements-ext.dtd";
+    private static final String BUILDER_VERSION = "1.0.0";
+    private static final String GENERATED_COMMENT = "Generated with LanguageSpecificationParserExtensionBuilder. Do not edit manually.";
+    private static final String ATTR_BUILDER_VERSION = "builder-version";
     private static final String ATTR_TOKEN_TYPE_IDS = "token-type-ids";
     private static final String ATTR_PARSE_CANDIDATE_IDS = "parse-candidate-ids";
     private static final String ATTR_COMPLETION_CANDIDATE_IDS = "completion-candidate-ids";
@@ -81,11 +84,6 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             "CHR_SEMICOLON");
 
     private final LanguageSpecificationBuilderInput input;
-    private ElementTypeBundle bundle;
-    private int processedElements;
-    private int visitedElements;
-    private int analyzedOneOfs;
-    private int emittedOneOfs;
 
     public LanguageSpecificationParserExtensionBuilder(LanguageSpecificationBuilderInput input) {
         this.input = input;
@@ -99,11 +97,8 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
     private void buildExtension(ElementTypeBundle bundle, ElementTypeBundle.Builder builder) {
         try {
-            this.bundle = bundle;
-            processedElements = 0;
-            visitedElements = 0;
-            analyzedOneOfs = 0;
-            emittedOneOfs = 0;
+            BuildSession session = new BuildSession();
+            session.bundle = bundle;
 
             Document definitionDocument = builder == null ? fileToDocument(input.getParserElementsFile()) : builder.getDefinitionDocument();
             if (definitionDocument == null) {
@@ -116,42 +111,38 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             Element extensionRoot = new Element("parser-element-extensions");
             extensionRoot.setAttribute("language", definitionRoot.getAttributeValue("language"));
             extensionRoot.setAttribute("source", input.getParserElementsFile().getName());
+            extensionRoot.setAttribute(ATTR_BUILDER_VERSION, BUILDER_VERSION);
 
             for (Element elementDef : elementDefs) {
                 String elementId = elementDef.getAttributeValue("id");
-                processedElements++;
-                if (processedElements == 1 || processedElements % ELEMENT_LOG_INTERVAL == 0) {
-                    log("Processing named element " + processedElements + "/" + elementDefs.size() + ": " + elementId);
+                session.processedElements++;
+                if (session.processedElements == 1 || session.processedElements % ELEMENT_LOG_INTERVAL == 0) {
+                    log("Processing named element " + session.processedElements + "/" + elementDefs.size() + ": " + elementId);
                 }
 
-                NamedElementType elementType = elementId == null ? null : getNamedElementType(elementId);
+                NamedElementType elementType = elementId == null ? null : getNamedElementType(session, elementId);
                 if (elementType != null) {
-                    collectOneOfExtensions(elementType, elementId, extensionRoot, new HashSet<>());
+                    collectOneOfExtensions(elementType, elementId, extensionRoot, session, new HashSet<>());
                 } else {
                     log("Skipping unresolved named element: " + elementId);
                 }
             }
 
-            log("Parser extension analysis finished. Visited=" + visitedElements +
-                    ", one-of analyzed=" + analyzedOneOfs +
-                    ", one-of emitted=" + emittedOneOfs);
+            log("Parser extension analysis finished. Visited=" + session.visitedElements +
+                    ", one-of analyzed=" + session.analyzedOneOfs +
+                    ", one-of emitted=" + session.emittedOneOfs);
 
             Document extensionDocument = new Document(extensionRoot);
             extensionDocument.addContent(0, new DocType("parser-element-extensions", EXT_DTD_PATH));
             copyCopyright(definitionDocument, extensionDocument);
+            addGeneratedComment(extensionDocument);
 
             File extensionFile = input.getParserElementsExtensionFile();
             log("Writing " + extensionFile.toPath());
             Files.writeString(extensionFile.toPath(), outputPrettyString(extensionDocument), StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new IllegalStateException("Could not build parser extension definition", e);
-        } finally {
-            this.bundle = null;
         }
-    }
-
-    private NamedElementType getNamedElementType(String elementId) {
-        return bundle == null ? null : bundle.getNamedElementType(elementId);
     }
 
     private static void copyCopyright(Document sourceDocument, Document extensionDocument) {
@@ -163,19 +154,29 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         }
     }
 
+    private static void addGeneratedComment(Document extensionDocument) {
+        int rootIndex = extensionDocument.indexOf(extensionDocument.getRootElement());
+        extensionDocument.addContent(rootIndex, new Comment(GENERATED_COMMENT));
+    }
+
     private static void log(String message) {
         System.out.println(LOG_TIME_FORMAT.format(LocalTime.now()) + " " + message);
     }
 
-    private void collectOneOfExtensions(ElementTypeBase elementType, String contextElementId, Element extensionRoot, Set<ElementTypeBase> visited) {
+    private void collectOneOfExtensions(
+            ElementTypeBase elementType,
+            String contextElementId,
+            Element extensionRoot,
+            BuildSession session,
+            Set<ElementTypeBase> visited) {
         if (!visited.add(elementType)) return;
-        visitedElements++;
+        session.visitedElements++;
 
         if (elementType instanceof OneOfElementType oneOfElementType) {
-            Element extension = buildOneOfExtension(oneOfElementType, contextElementId);
+            Element extension = buildOneOfExtension(oneOfElementType, contextElementId, session);
             if (extension != null) {
                 extensionRoot.addContent(extension);
-                emittedOneOfs++;
+                session.emittedOneOfs++;
             }
         }
 
@@ -185,18 +186,18 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         }
 
         for (ElementTypeRef child : getChildren(elementType)) {
-            collectOneOfExtensions(child.elementType, contextElementId, extensionRoot, visited);
+            collectOneOfExtensions(child.elementType, contextElementId, extensionRoot, session, visited);
         }
 
         visited.remove(elementType);
     }
 
-    private Element buildOneOfExtension(OneOfElementType oneOfElementType, String contextElementId) {
+    private Element buildOneOfExtension(OneOfElementType oneOfElementType, String contextElementId, BuildSession session) {
         ElementTypeRef[] children = oneOfElementType.children;
         if (children.length < 2) return null;
-        analyzedOneOfs++;
-        if (analyzedOneOfs == 1 || analyzedOneOfs % ONE_OF_LOG_INTERVAL == 0) {
-            log("Analyzing one-of " + analyzedOneOfs + ": " + contextElementId + "/" + oneOfElementType.getId() +
+        session.analyzedOneOfs++;
+        if (session.analyzedOneOfs == 1 || session.analyzedOneOfs % ONE_OF_LOG_INTERVAL == 0) {
+            log("Analyzing one-of " + session.analyzedOneOfs + ": " + contextElementId + "/" + oneOfElementType.getId() +
                     " children=" + children.length);
         }
 
@@ -1082,6 +1083,18 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             this.specificityRank = specificityRank;
             this.leafRank = leafRank;
         }
+    }
+
+    private static class BuildSession {
+        private ElementTypeBundle bundle;
+        private int processedElements;
+        private int visitedElements;
+        private int analyzedOneOfs;
+        private int emittedOneOfs;
+    }
+
+    private static NamedElementType getNamedElementType(BuildSession session, String elementId) {
+        return session.bundle == null ? null : session.bundle.getNamedElementType(elementId);
     }
 
     private static class MatchContext {

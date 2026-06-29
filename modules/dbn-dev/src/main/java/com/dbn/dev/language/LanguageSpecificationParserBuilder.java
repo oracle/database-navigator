@@ -36,11 +36,12 @@ public class LanguageSpecificationParserBuilder implements LanguageSpecification
     @SneakyThrows
     @Override
     public void build() {
-        new LanguageSpecificationParserBundleLoader(input).load(this::writeElementTypeDefinition);
+        BuildSession session = new BuildSession();
+        new LanguageSpecificationParserBundleLoader(input).load(builder -> writeElementTypeDefinition(session, builder));
     }
 
     @SneakyThrows
-    private File getParserElementsFile() {
+    private File getParserElementsFile(BuildSession session) {
         File file = input.getParserElementsFile();
         if (!file.exists()) {
             throw new IllegalArgumentException("Parser elements definition does not exist: " + file.getAbsolutePath());
@@ -49,16 +50,19 @@ public class LanguageSpecificationParserBuilder implements LanguageSpecification
     }
 
     @SneakyThrows
-    private void writeElementTypeDefinition(ElementTypeBundle.Builder builder) {
+    private void writeElementTypeDefinition(BuildSession session, ElementTypeBundle.Builder builder) {
         if (!builder.isDirty()) {
             System.out.println("Parser elements definition is up to date");
             return;
         }
 
-        File file = getParserElementsFile();
+        File file = getParserElementsFile(session);
         Path filePath = file.toPath();
 
         System.out.println("Writing " + filePath);
         Files.writeString(filePath, outputString(builder.getDefinitionDocument()), StandardCharsets.UTF_8);
+    }
+
+    private static class BuildSession {
     }
 }

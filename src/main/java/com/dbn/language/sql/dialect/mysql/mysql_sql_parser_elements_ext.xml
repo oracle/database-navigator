@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--Generated with LanguageSpecificationParserExtensionBuilder. Do not edit manually.-->
 <!DOCTYPE parser-element-extensions SYSTEM "../../../common/definition/language-parser-elements-ext.dtd">
 
-<parser-element-extensions language="MYSQL-SQL" source="mysql_sql_parser_elements.xml">
+<parser-element-extensions language="MYSQL-SQL" source="mysql_sql_parser_elements.xml" builder-version="1.0.0">
     <one-of-extension id="00001" depth="1">
         <node token-type-ids="KW_WITH" parse-candidate-ids="00002, delete_statement, select_statement, update_statement" completion-candidate-ids="01138, 01140" />
         <node token-type-ids="KW_DELETE" parse-candidate-ids="delete_statement" completion-candidate-ids="00005, 00006, 00007, 00010, 00012, 00018, 00019, 00021" />

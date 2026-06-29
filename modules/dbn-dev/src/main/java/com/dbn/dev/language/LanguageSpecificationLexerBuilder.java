@@ -41,7 +41,6 @@ import static java.util.Collections.emptyList;
 
 public class LanguageSpecificationLexerBuilder implements LanguageSpecificationArtifactBuilder {
     private final LanguageSpecificationBuilderInput input;
-    private final Map<TokenTypeCategory, List<TokenDefinition>> tokenDefinitions = new HashMap<>();
 
     public LanguageSpecificationLexerBuilder(LanguageSpecificationBuilderInput input) {
         this.input = input;
@@ -49,60 +48,61 @@ public class LanguageSpecificationLexerBuilder implements LanguageSpecificationA
 
     @Override
     public void build() {
-        updateParserLexerDefinition();
-        updateParserTokensDefinition();
-        updateHighlighterLexerDefinition();
+        BuildSession session = new BuildSession();
+        updateParserLexerDefinition(session);
+        updateParserTokensDefinition(session);
+        updateHighlighterLexerDefinition(session);
     }
 
     @SneakyThrows
-    private void updateParserLexerDefinition() {
+    private void updateParserLexerDefinition(BuildSession session) {
         File file = input.getParserLexerFile();
         Path filePath = file.toPath();
 
         System.out.println("Reading " + filePath);
 
         List<String> content = Files.readAllLines(filePath);
-        content = updateParserLexerDefinition(KEYWORD, content);
-        content = updateParserLexerDefinition(FUNCTION, content);
-        content = updateParserLexerDefinition(DATATYPE, content);
-        content = updateParserLexerDefinition(PARAMETER, content);
-        content = updateParserLexerDefinition(EXCEPTION, content);
+        content = updateParserLexerDefinition(session, KEYWORD, content);
+        content = updateParserLexerDefinition(session, FUNCTION, content);
+        content = updateParserLexerDefinition(session, DATATYPE, content);
+        content = updateParserLexerDefinition(session, PARAMETER, content);
+        content = updateParserLexerDefinition(session, EXCEPTION, content);
 
         System.out.println("Writing " + filePath);
         Files.write(filePath, content);
     }
 
     @SneakyThrows
-    private void updateParserTokensDefinition() {
+    private void updateParserTokensDefinition(BuildSession session) {
         File file = input.getParserTokensFile();
         Path filePath = file.toPath();
 
         System.out.println("Reading " + filePath);
 
         List<String> content = Files.readAllLines(filePath);
-        content = updateParserTokensDefinition(KEYWORD, content);
-        content = updateParserTokensDefinition(FUNCTION, content);
-        content = updateParserTokensDefinition(DATATYPE, content);
-        content = updateParserTokensDefinition(PARAMETER, content);
-        content = updateParserTokensDefinition(EXCEPTION, content);
+        content = updateParserTokensDefinition(session, KEYWORD, content);
+        content = updateParserTokensDefinition(session, FUNCTION, content);
+        content = updateParserTokensDefinition(session, DATATYPE, content);
+        content = updateParserTokensDefinition(session, PARAMETER, content);
+        content = updateParserTokensDefinition(session, EXCEPTION, content);
 
         System.out.println("Writing " + filePath);
         Files.write(filePath, content);
     }
 
     @SneakyThrows
-    private void updateHighlighterLexerDefinition() {
+    private void updateHighlighterLexerDefinition(BuildSession session) {
         File file = input.getHighlighterLexerBaseFile();
         Path filePath = file.toPath();
 
         System.out.println("Reading " + filePath);
 
         List<String> content = Files.readAllLines(filePath);
-        content = updateHighlighterLexerDefinition(KEYWORD, content);
-        content = updateHighlighterLexerDefinition(FUNCTION, content);
-        content = updateHighlighterLexerDefinition(DATATYPE, content);
-        content = updateHighlighterLexerDefinition(PARAMETER, content);
-        content = updateHighlighterLexerDefinition(EXCEPTION, content);
+        content = updateHighlighterLexerDefinition(session, KEYWORD, content);
+        content = updateHighlighterLexerDefinition(session, FUNCTION, content);
+        content = updateHighlighterLexerDefinition(session, DATATYPE, content);
+        content = updateHighlighterLexerDefinition(session, PARAMETER, content);
+        content = updateHighlighterLexerDefinition(session, EXCEPTION, content);
 
         System.out.println("Reading " + filePath);
         Files.write(filePath, content);
@@ -111,34 +111,34 @@ public class LanguageSpecificationLexerBuilder implements LanguageSpecificationA
 
 
     @SneakyThrows
-    private List<String> updateParserLexerDefinition(TokenTypeCategory category, List<String> content) {
+    private List<String> updateParserLexerDefinition(BuildSession session, TokenTypeCategory category, List<String> content) {
         System.out.println("Updating " + category + " parser lexer definition");
-        List<TokenDefinition> tokens = getTokenDefinitions(category);
+        List<TokenDefinition> tokens = getTokenDefinitions(session, category);
         List<String> lexerEntries = createLexerEntries(tokens);
         String categoryIdentifier = getCategoryIdentifier(category).toUpperCase();
         return replaceBlock(content, "// MARKER_BEGIN_" + categoryIdentifier, "// MARKER_END_" + categoryIdentifier, lexerEntries);
     }
 
     @SneakyThrows
-    private List<String> updateParserTokensDefinition(TokenTypeCategory category, List<String> content) {
+    private List<String> updateParserTokensDefinition(BuildSession session, TokenTypeCategory category, List<String> content) {
         System.out.println("Updating " + category + " parser tokens definition");
-        List<TokenDefinition> tokens = getTokenDefinitions(category);
+        List<TokenDefinition> tokens = getTokenDefinitions(session, category);
         List<String> tokenEntries = createTokenEntries(tokens);
         String categoryIdentifier = getCategoryIdentifier(category).toUpperCase();
         return replaceBlock(content, "<!-- MARKER_BEGIN_" + categoryIdentifier + " -->", "<!-- MARKER_END_" + categoryIdentifier + " -->", tokenEntries);
     }
 
-    private List<String> updateHighlighterLexerDefinition(TokenTypeCategory category, List<String> content) {
+    private List<String> updateHighlighterLexerDefinition(BuildSession session, TokenTypeCategory category, List<String> content) {
         System.out.println("Updating " + category + " highlighter lexer definition");
-        List<TokenDefinition> tokens = getTokenDefinitions(category);
+        List<TokenDefinition> tokens = getTokenDefinitions(session, category);
         String tokenString = tokens.stream().map(tokenDefinition ->  tokenDefinition.toLexerToken()).collect(Collectors.joining("|"));
 
         String lineBegin = input.languageFid.toUpperCase() + "_" + category;
         return replaceLine(content, lineBegin, lineBegin + " = " + tokenString);
     }
 
-    private List<TokenDefinition> getTokenDefinitions(TokenTypeCategory category) {
-        return tokenDefinitions.computeIfAbsent(category, k -> loadTokenDefinitions(category));
+    private List<TokenDefinition> getTokenDefinitions(BuildSession session, TokenTypeCategory category) {
+        return session.tokenDefinitions.computeIfAbsent(category, k -> loadTokenDefinitions(category));
     }
 
     @SneakyThrows
@@ -219,6 +219,10 @@ public class LanguageSpecificationLexerBuilder implements LanguageSpecificationA
 
         assert matched;
         return result;
+    }
+
+    private static class BuildSession {
+        private final Map<TokenTypeCategory, List<TokenDefinition>> tokenDefinitions = new HashMap<>();
     }
 
 

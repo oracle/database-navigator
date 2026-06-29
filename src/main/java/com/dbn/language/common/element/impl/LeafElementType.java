@@ -77,6 +77,10 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
         return flags.computeIfAbsent(elementType, e -> evaluateSurrogateFor(e));
     }
 
+    public static void clearSurrogateForFlags() {
+        surrogateForFlags.clear();
+    }
+
     private boolean evaluateSurrogateFor(ElementTypeBase elementType) {
         Set<LeafElementType> firstPossibleLeafs = unwrapSurrogates(elementType.cache.getFirstPossibleLeafs());
         return !disjoint(surrogateFor, firstPossibleLeafs);

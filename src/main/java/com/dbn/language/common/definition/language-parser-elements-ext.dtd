@@ -17,7 +17,8 @@
 <!ELEMENT parser-element-extensions (one-of-extension)*>
 <!ATTLIST parser-element-extensions
         language CDATA #REQUIRED
-        source CDATA #REQUIRED>
+        source CDATA #REQUIRED
+        builder-version CDATA #REQUIRED>
 
 <!ELEMENT one-of-extension (node)*>
 <!ATTLIST one-of-extension

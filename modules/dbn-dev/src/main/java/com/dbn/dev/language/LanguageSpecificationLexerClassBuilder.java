@@ -36,11 +36,12 @@ public class LanguageSpecificationLexerClassBuilder implements LanguageSpecifica
 
     @Override
     public void build() throws Exception {
-        runJFlex(input.getParserLexerFile());
-        runJFlex(input.getHighlighterLexerFile());
+        BuildSession session = new BuildSession();
+        runJFlex(session, input.getParserLexerFile());
+        runJFlex(session, input.getHighlighterLexerFile());
     }
 
-    private void runJFlex(File flexFile) throws Exception {
+    private void runJFlex(BuildSession session, File flexFile) throws Exception {
         if (!flexFile.exists()) {
             throw new IllegalArgumentException("Flex definition does not exist: " + flexFile.getAbsolutePath());
         }
@@ -77,6 +78,9 @@ public class LanguageSpecificationLexerClassBuilder implements LanguageSpecifica
 
     private static String quote(String value) {
         return value.contains(" ") ? "\"" + value + "\"" : value;
+    }
+
+    private static class BuildSession {
     }
 
 }
