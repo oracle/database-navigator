@@ -16,9 +16,9 @@
 
 package com.dbn.driver.download.metadata;
 
-import com.dbn.common.download.Downloads;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.XmlContents;
+import com.dbn.connection.DatabaseInterfacesBundle;
 import com.dbn.connection.DatabaseType;
 import com.dbn.driver.download.DownloadSession;
 import com.dbn.driver.download.MavenRepositories;
@@ -33,8 +33,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.FileReader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -59,10 +57,6 @@ import static com.dbn.nls.NlsResources.txt;
 public class DriverPackageMetadataDownloader {
     private static final String LATEST_VERSION = "latest";
     private static final int MAX_LATEST_VERSION_ATTEMPTS = 3;
-    private static final String ORACLE_JDBC_GROUP_ID = "com.oracle.database.jdbc";
-    private static final String ORACLE_DRIVER_ARTIFACT_ID = "ojdbc8-production";
-    private static final String OJDBC_PROVIDER_PREFIX = "ojdbc-provider-";
-    private static final String OJDBC_PROVIDER_COMMON = "ojdbc-provider-common";
 
     @SneakyThrows
     public Map<String, DriverPackage> createDriverPackages(DownloadSession session, DatabaseType databaseType) {
@@ -368,99 +362,9 @@ public class DriverPackageMetadataDownloader {
     }
 
     private List<Element> createDiscoveredDriverPackageElements(DatabaseType databaseType, List<Element> packageElements) {
-        if (databaseType != DatabaseType.ORACLE) return Collections.emptyList();
-
-        try {
-            Set<String> declaredArtifacts = getDeclaredOracleProviderArtifacts(packageElements);
-            return fetchOracleProviderArtifactIds()
-                    .stream()
-                    .filter(artifactId -> !declaredArtifacts.contains(artifactId))
-                    .map(DriverPackageMetadataDownloader::createOracleProviderPackageElement)
-                    .toList();
-        } catch (Throwable e) {
-            log.warn("Oracle JDBC provider artifact discovery failed", e);
-            return Collections.emptyList();
-        }
-    }
-
-    private Set<String> getDeclaredOracleProviderArtifacts(List<Element> packageElements) {
-        return packageElements.stream()
-                .flatMap(e -> e.getChildren("library").stream())
-                .map(e -> stringAttribute(e, "artifact-id"))
-                .filter(Objects::nonNull)
-                .filter(DriverPackageMetadataDownloader::isOracleProviderArtifact)
-                .collect(Collectors.toSet());
-    }
-
-    private List<String> fetchOracleProviderArtifactIds() throws Exception {
-        String url = MavenRepositories.CENTRAL_URL + "/" + ORACLE_JDBC_GROUP_ID.replace('.', '/') + "/";
-        File tempFile = File.createTempFile("maven-artifacts", ".html");
-        tempFile.deleteOnExit();
-
-        Downloads.downloadContentToFile(null, url, tempFile);
-
-        List<String> artifactIds = new ArrayList<>();
-        String html = Files.readString(tempFile.toPath(), StandardCharsets.UTF_8);
-        Matcher matcher = Pattern.compile("href=\"([^\"]+)/\"").matcher(html);
-        while (matcher.find()) {
-            String artifactId = matcher.group(1);
-            if (artifactId.equals("..")) continue;
-            if (artifactId.equals(OJDBC_PROVIDER_COMMON)) continue;
-            if (!isOracleProviderArtifact(artifactId)) continue;
-            artifactIds.add(artifactId);
-        }
-        artifactIds.sort(String::compareTo);
-        return artifactIds;
-    }
-
-    static Element createOracleProviderPackageElement(String artifactId) {
-        String providerId = stripOracleProviderPrefix(artifactId);
-        String providerName = toProviderName(providerId);
-
-        Element packageElement = new Element("driver-package");
-        packageElement.setAttribute("database-type", "Oracle");
-        packageElement.setAttribute("id", "ojdbc-%s-" + providerId + "-%s");
-        packageElement.setAttribute("name", "Oracle %s + " + providerName + " auth %s");
-        packageElement.addContent(createOracleDriverLibraryElement());
-        packageElement.addContent(createOracleProviderLibraryElement(artifactId));
-        return packageElement;
-    }
-
-    private static Element createOracleDriverLibraryElement() {
-        Element libraryElement = new Element("library");
-        libraryElement.setAttribute("artifact-id", ORACLE_DRIVER_ARTIFACT_ID);
-        libraryElement.setAttribute("group-id", ORACLE_JDBC_GROUP_ID);
-        libraryElement.setAttribute("version", LATEST_VERSION);
-        libraryElement.setAttribute("role", DRIVER.name());
-        libraryElement.setAttribute("type", "pom");
-        return libraryElement;
-    }
-
-    private static Element createOracleProviderLibraryElement(String artifactId) {
-        Element libraryElement = new Element("library");
-        libraryElement.setAttribute("artifact-id", artifactId);
-        libraryElement.setAttribute("group-id", ORACLE_JDBC_GROUP_ID);
-        libraryElement.setAttribute("version", LATEST_VERSION);
-        libraryElement.setAttribute("role", EXTENSION.name());
-        libraryElement.setAttribute("type", "jar");
-        return libraryElement;
-    }
-
-    private static boolean isOracleProviderArtifact(String artifactId) {
-        return artifactId.startsWith(OJDBC_PROVIDER_PREFIX);
-    }
-
-    private static String stripOracleProviderPrefix(String artifactId) {
-        if (artifactId.startsWith(OJDBC_PROVIDER_PREFIX)) {
-            return artifactId.substring(OJDBC_PROVIDER_PREFIX.length());
-        }
-        return artifactId;
-    }
-
-    static String toProviderName(String providerId) {
-        return Pattern.compile("(^|-)([a-z])")
-                .matcher(providerId)
-                .replaceAll(match -> match.group(1).replace("-", " ") + match.group(2).toUpperCase());
+        return DatabaseInterfacesBundle.get(databaseType)
+                .getDriverInterface()
+                .discoverDriverPackages(packageElements);
     }
 
     private record LibraryResolution(List<Library> libraries, Throwable failure) {
