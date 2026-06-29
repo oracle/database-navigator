@@ -19,12 +19,10 @@ package com.dbn.execution.script;
 import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.approval.UserApprovalAdapter;
 import com.dbn.common.approval.UserApprovalLifetime;
+import com.dbn.common.approval.UserApprovalOption;
 import com.dbn.common.checksum.Checksum;
-import com.dbn.common.util.Messages;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.time.Duration;
 
 import static com.dbn.common.approval.UserApprovalAction.PASSWORD_ENVIRONMENT_VARIABLE;
 import static com.dbn.common.checksum.Checksum.fromFileAttributes;
@@ -37,9 +35,9 @@ import static com.dbn.nls.NlsResources.txt;
  * database passwords to external clients through child-process environment variables.
  */
 public class CmdLineEnvPasswordApprovalAdapter implements UserApprovalAdapter<CmdLineInterface> {
-    private static final String[] APPROVAL_OPTIONS = Messages.options(
-            txt("msg.execution.button.AllowAndExecute"),
-            txt("msg.shared.button.Cancel"));
+    private static final UserApprovalOption[] APPROVAL_OPTIONS = {
+            UserApprovalOption.one(txt("msg.execution.button.AllowAndExecute")),
+            UserApprovalOption.noneWithoutCooldown(txt("msg.shared.button.Cancel"))};
 
     @Override
     public Class<CmdLineInterface> getApprovalClass() {
@@ -72,7 +70,7 @@ public class CmdLineEnvPasswordApprovalAdapter implements UserApprovalAdapter<Cm
     }
 
     @Override
-    public String[] getApprovalOptions(CmdLineInterface cmdLineInterface) {
+    public UserApprovalOption[] getApprovalOptions(CmdLineInterface cmdLineInterface) {
         return APPROVAL_OPTIONS;
     }
 
@@ -99,11 +97,5 @@ public class CmdLineEnvPasswordApprovalAdapter implements UserApprovalAdapter<Cm
     private static String getExecutablePath(CmdLineInterface cmdLineInterface) {
         String executablePath = cmdLineInterface.getExecutablePath();
         return executablePath == null ? "" : executablePath.trim();
-    }
-
-    @Override
-    @Nullable
-    public Duration getRejectionCooldown(CmdLineInterface approvable, int option) {
-        return null; // do not remember rejections
     }
 }
