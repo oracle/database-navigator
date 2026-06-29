@@ -19,6 +19,7 @@ package com.dbn.connection.config.provider;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.config.OciConfigProviderParameters;
 import lombok.EqualsAndHashCode;
@@ -56,6 +57,8 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
     private String profileKey;
     private String label;
     private String azureClientId;
+    private String azureTenantId;
+    private String azureClientCertificatePath;
     private String vaultAddress;
     private String vaultNamespace;
     private String vaultUsername;
@@ -63,6 +66,7 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
     private String roleId;
     private String appRoleAuthPath;
     private String githubAuthPath;
+    private transient ConnectionId credentialConnectionId;
 
     public void reset() {
         sourceType = ConfigFileSourceType.LOCAL_FILE;
@@ -75,6 +79,8 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         profileKey = null;
         label = null;
         azureClientId = null;
+        azureTenantId = null;
+        azureClientCertificatePath = null;
         vaultAddress = null;
         vaultNamespace = null;
         vaultUsername = null;
@@ -95,9 +101,14 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
 
     public void applyAzureAuthentication(
             CloudConfigProviderAuthentication authentication,
-            String azureClientId) {
+            String azureClientId,
+            String azureTenantId,
+            String azureClientCertificatePath) {
         this.authentication = authentication;
-        this.azureClientId = isAzureProvider() ? azureClientId : null;
+        this.azureClientId = isAzureProvider() && isAzureClientIdAuthentication(authentication) ? azureClientId : null;
+        this.azureTenantId = isAzureProvider() && isAzureServicePrincipalAuthentication(authentication) ? azureTenantId : null;
+        this.azureClientCertificatePath = isAzureProvider() && authentication == CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_CERTIFICATE ?
+                azureClientCertificatePath : null;
     }
 
     public void applyHashicorpAuthentication(
@@ -229,9 +240,18 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         }
         if (includeAuthentication && isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isAzure() && authentication != null) {
             parameters.put("AUTHENTICATION", authentication.getParameterValue());
-            if (authentication == CloudConfigProviderAuthentication.AZURE_INTERACTIVE) {
+            if (isAzureClientIdAuthentication(authentication)) {
                 if (isNotEmptyOrSpaces(azureClientId)) {
                     parameters.put("AZURE_CLIENT_ID", azureClientId.trim());
+                }
+            }
+            if (isAzureServicePrincipalAuthentication(authentication)) {
+                if (isNotEmptyOrSpaces(azureTenantId)) {
+                    parameters.put("AZURE_TENANT_ID", azureTenantId.trim());
+                }
+                if (authentication == CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_CERTIFICATE &&
+                        isNotEmptyOrSpaces(azureClientCertificatePath)) {
+                    parameters.put("AZURE_CLIENT_CERTIFICATE_PATH", azureClientCertificatePath.trim());
                 }
             }
         }
@@ -306,6 +326,18 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
                 isEmptyOrSpaces(azureClientId)) {
             errors.add("Azure interactive authentication requires client ID");
         }
+        if (isAzureProvider() && isAzureServicePrincipalAuthentication(authentication)) {
+            if (isEmptyOrSpaces(azureClientId)) {
+                errors.add("Azure service principal authentication requires client ID");
+            }
+            if (isEmptyOrSpaces(azureTenantId)) {
+                errors.add("Azure service principal authentication requires tenant ID");
+            }
+            if (authentication == CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_CERTIFICATE &&
+                    isEmptyOrSpaces(azureClientCertificatePath)) {
+                errors.add("Azure service principal certificate authentication requires certificate path");
+            }
+        }
 
         if (cloudProviderType != CloudConfigProviderType.GCP_STORAGE) return;
 
@@ -355,8 +387,12 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
             ociProfile = getParameterIgnoreCase(parameters, "OCI_PROFILE");
         }
         if (isAzureProvider()) {
-            authentication = CloudConfigProviderAuthentication.get(getParameterIgnoreCase(parameters, "AUTHENTICATION"));
+            authentication = CloudConfigProviderAuthentication.getAzure(
+                    getParameterIgnoreCase(parameters, "AUTHENTICATION"),
+                    isNotEmptyOrSpaces(getParameterIgnoreCase(parameters, "AZURE_CLIENT_CERTIFICATE_PATH")));
             azureClientId = getParameterIgnoreCase(parameters, "AZURE_CLIENT_ID");
+            azureTenantId = getParameterIgnoreCase(parameters, "AZURE_TENANT_ID");
+            azureClientCertificatePath = getParameterIgnoreCase(parameters, "AZURE_CLIENT_CERTIFICATE_PATH");
         }
         if (isHashicorpProvider()) {
             authentication = nvl(
@@ -405,7 +441,9 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
                 getString(element, "oci-config-provider-profile", null));
         applyAzureAuthentication(
                 authentication,
-                getString(element, "azure-config-provider-client-id", null));
+                getString(element, "azure-config-provider-client-id", null),
+                getString(element, "azure-config-provider-tenant-id", null),
+                getString(element, "azure-config-provider-client-certificate-path", null));
         applyHashicorpAuthentication(
                 authentication,
                 getString(element, "hashicorp-config-provider-vault-address", null),
@@ -424,6 +462,8 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         setString(element, "oci-config-provider-config-file", ociConfigFile);
         setString(element, "oci-config-provider-profile", ociProfile);
         setString(element, "azure-config-provider-client-id", azureClientId);
+        setString(element, "azure-config-provider-tenant-id", azureTenantId);
+        setString(element, "azure-config-provider-client-certificate-path", azureClientCertificatePath);
         setString(element, "hashicorp-config-provider-vault-address", vaultAddress);
         setString(element, "hashicorp-config-provider-vault-namespace", vaultNamespace);
         setString(element, "hashicorp-config-provider-vault-username", vaultUsername);
@@ -450,6 +490,8 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         clone.profileKey = profileKey;
         clone.label = label;
         clone.azureClientId = azureClientId;
+        clone.azureTenantId = azureTenantId;
+        clone.azureClientCertificatePath = azureClientCertificatePath;
         clone.vaultAddress = vaultAddress;
         clone.vaultNamespace = vaultNamespace;
         clone.vaultUsername = vaultUsername;
@@ -458,5 +500,15 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         clone.appRoleAuthPath = appRoleAuthPath;
         clone.githubAuthPath = githubAuthPath;
         return clone;
+    }
+
+    private static boolean isAzureClientIdAuthentication(CloudConfigProviderAuthentication authentication) {
+        return authentication == CloudConfigProviderAuthentication.AZURE_INTERACTIVE ||
+                isAzureServicePrincipalAuthentication(authentication);
+    }
+
+    private static boolean isAzureServicePrincipalAuthentication(CloudConfigProviderAuthentication authentication) {
+        return authentication == CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_SECRET ||
+                authentication == CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
     }
 }

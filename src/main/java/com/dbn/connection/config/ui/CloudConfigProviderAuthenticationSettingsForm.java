@@ -64,6 +64,14 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     private DBNComboBox<String> profileComboBox;
     private JLabel azureClientIdLabel;
     private JTextField azureClientIdTextField;
+    private JLabel azureTenantIdLabel;
+    private JTextField azureTenantIdTextField;
+    private JLabel azureClientSecretLabel;
+    private JPasswordField azureClientSecretPasswordField;
+    private JLabel azureClientCertificatePathLabel;
+    private TextFieldWithBrowseButton azureClientCertificatePathTextField;
+    private JLabel azureClientCertificatePasswordLabel;
+    private JPasswordField azureClientCertificatePasswordField;
     private JLabel vaultAddressLabel;
     private JTextField vaultAddressTextField;
     private JLabel vaultNamespaceLabel;
@@ -99,6 +107,10 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                 getProject(), configFileTextField,
                 "Select OCI Configuration File",
                 "Select the OCI config file (usually ~/.oci/config)");
+        addSingleFileChooser(
+                getProject(), azureClientCertificatePathTextField,
+                "Select Azure Client Certificate",
+                "Select the Azure service principal certificate file");
         authenticationComboBox.addActionListener(e -> {
             updateFieldVisibility();
             if (isOciDefaultAuthentication()) {
@@ -137,6 +149,8 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     }
 
     public void applyFormChanges(ConfigProviderInfo configProviderInfo) {
+        configProviderInfo.setCredentialConnectionId(getConnectionId());
+
         CloudConfigProviderAuthentication authentication = getCloudConfigProviderAuthentication();
         if (isOciProvider()) {
             configProviderInfo.applyOciAuthentication(
@@ -144,10 +158,24 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                     isOciDefaultAuthentication() ? getOciConfigProviderConfigFile() : null,
                     isOciDefaultAuthentication() ? getOciConfigProviderProfile() : null);
         } else if (isAzureProvider()) {
-            if (isAzureInteractiveAuthentication()) {
-                configProviderInfo.applyAzureAuthentication(authentication, getText(azureClientIdTextField));
+            if (isAzureClientIdAuthentication()) {
+                configProviderInfo.applyAzureAuthentication(
+                        authentication,
+                        getText(azureClientIdTextField),
+                        getText(azureTenantIdTextField),
+                        getText(azureClientCertificatePathTextField));
             } else {
-                configProviderInfo.applyAzureAuthentication(authentication, null);
+                configProviderInfo.applyAzureAuthentication(authentication, null, null, null);
+            }
+            if (isAzureServicePrincipalSecretAuthentication()) {
+                ConfigProviderSecretStore.saveAzureClientSecret(getConnectionId(), azureClientSecretPasswordField.getPassword());
+            } else {
+                ConfigProviderSecretStore.removeAzureClientSecret(getConnectionId());
+            }
+            if (isAzureServicePrincipalCertificateAuthentication()) {
+                ConfigProviderSecretStore.saveAzureCertificatePassword(getConnectionId(), azureClientCertificatePasswordField.getPassword());
+            } else {
+                ConfigProviderSecretStore.removeAzureCertificatePassword(getConnectionId());
             }
         } else if (isHashicorpProvider()) {
             configProviderInfo.applyHashicorpAuthentication(
@@ -204,6 +232,14 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
 
         azureClientIdTextField.setText(isAzureProvider() ?
                 databaseInfo.getConfigProviderInfo().getAzureClientId() : null);
+        azureTenantIdTextField.setText(isAzureProvider() ?
+                databaseInfo.getConfigProviderInfo().getAzureTenantId() : null);
+        azureClientCertificatePathTextField.setText(isAzureProvider() ?
+                databaseInfo.getConfigProviderInfo().getAzureClientCertificatePath() : null);
+        azureClientSecretPasswordField.setText(isAzureProvider() ?
+                Chars.toString(ConfigProviderSecretStore.loadAzureClientSecret(getConnectionId())) : null);
+        azureClientCertificatePasswordField.setText(isAzureProvider() ?
+                Chars.toString(ConfigProviderSecretStore.loadAzureCertificatePassword(getConnectionId())) : null);
         vaultAddressTextField.setText(isHashicorpProvider() ?
                 databaseInfo.getConfigProviderInfo().getVaultAddress() : null);
         vaultNamespaceTextField.setText(isHashicorpProvider() ?
@@ -240,8 +276,16 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                 getCloudConfigProviderAuthentication());
         if (isAzureProvider()) {
             return authenticationChanged ||
-                    isAzureInteractiveAuthentication() &&
-                            !Commons.match(databaseInfo.getConfigProviderInfo().getAzureClientId(), getText(azureClientIdTextField));
+                    isAzureClientIdAuthentication() &&
+                            !Commons.match(databaseInfo.getConfigProviderInfo().getAzureClientId(), getText(azureClientIdTextField)) ||
+                    isAzureServicePrincipalAuthentication() &&
+                            !Commons.match(databaseInfo.getConfigProviderInfo().getAzureTenantId(), getText(azureTenantIdTextField)) ||
+                    isAzureServicePrincipalSecretAuthentication() &&
+                            !Commons.matchArrays(ConfigProviderSecretStore.loadAzureClientSecret(getConnectionId()), azureClientSecretPasswordField.getPassword()) ||
+                    isAzureServicePrincipalCertificateAuthentication() &&
+                            !Commons.match(databaseInfo.getConfigProviderInfo().getAzureClientCertificatePath(), getText(azureClientCertificatePathTextField)) ||
+                    isAzureServicePrincipalCertificateAuthentication() &&
+                            !Commons.matchArrays(ConfigProviderSecretStore.loadAzureCertificatePassword(getConnectionId()), azureClientCertificatePasswordField.getPassword());
         }
         if (isHashicorpProvider()) {
             return authenticationChanged ||
@@ -277,6 +321,10 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         authenticationComboBox.addActionListener(e -> runnable.run());
         onTextChange(configFileTextField, e -> runnable.run());
         onTextChange(azureClientIdTextField, e -> runnable.run());
+        onTextChange(azureTenantIdTextField, e -> runnable.run());
+        onTextChange(azureClientSecretPasswordField, e -> runnable.run());
+        onTextChange(azureClientCertificatePathTextField, e -> runnable.run());
+        onTextChange(azureClientCertificatePasswordField, e -> runnable.run());
         onTextChange(vaultAddressTextField, e -> runnable.run());
         onTextChange(vaultNamespaceTextField, e -> runnable.run());
         onTextChange(vaultTokenPasswordField, e -> runnable.run());
@@ -310,6 +358,10 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         boolean infoProvider = isInfoProvider();
         boolean ociDefaultAuthentication = isOciDefaultAuthentication();
         boolean azureInteractiveAuthentication = isAzureInteractiveAuthentication();
+        boolean azureClientIdAuthentication = isAzureClientIdAuthentication();
+        boolean azureServicePrincipalAuthentication = isAzureServicePrincipalAuthentication();
+        boolean azureServicePrincipalSecretAuthentication = isAzureServicePrincipalSecretAuthentication();
+        boolean azureServicePrincipalCertificateAuthentication = isAzureServicePrincipalCertificateAuthentication();
         boolean hashicorpProvider = isHashicorpProvider();
         boolean hashicorpVaultTokenAuthentication = isHashicorpVaultTokenAuthentication();
         boolean hashicorpUserpassAuthentication = isHashicorpUserpassAuthentication();
@@ -324,8 +376,16 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         configFileTextField.setVisible(ociDefaultAuthentication);
         profileLabel.setVisible(ociDefaultAuthentication);
         profileComboBox.setVisible(ociDefaultAuthentication);
-        azureClientIdLabel.setVisible(azureInteractiveAuthentication);
-        azureClientIdTextField.setVisible(azureInteractiveAuthentication);
+        azureClientIdLabel.setVisible(azureClientIdAuthentication);
+        azureClientIdTextField.setVisible(azureClientIdAuthentication);
+        azureTenantIdLabel.setVisible(azureServicePrincipalAuthentication);
+        azureTenantIdTextField.setVisible(azureServicePrincipalAuthentication);
+        azureClientSecretLabel.setVisible(azureServicePrincipalSecretAuthentication);
+        azureClientSecretPasswordField.setVisible(azureServicePrincipalSecretAuthentication);
+        azureClientCertificatePathLabel.setVisible(azureServicePrincipalCertificateAuthentication);
+        azureClientCertificatePathTextField.setVisible(azureServicePrincipalCertificateAuthentication);
+        azureClientCertificatePasswordLabel.setVisible(azureServicePrincipalCertificateAuthentication);
+        azureClientCertificatePasswordField.setVisible(azureServicePrincipalCertificateAuthentication);
         vaultAddressLabel.setVisible(hashicorpProvider);
         vaultAddressTextField.setVisible(hashicorpProvider);
         vaultNamespaceLabel.setVisible(hashicorpProvider);
@@ -369,6 +429,26 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     private boolean isAzureInteractiveAuthentication() {
         return isAzureProvider() &&
                 getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.AZURE_INTERACTIVE;
+    }
+
+    private boolean isAzureClientIdAuthentication() {
+        return isAzureInteractiveAuthentication() ||
+                isAzureServicePrincipalAuthentication();
+    }
+
+    private boolean isAzureServicePrincipalAuthentication() {
+        return isAzureServicePrincipalSecretAuthentication() ||
+                isAzureServicePrincipalCertificateAuthentication();
+    }
+
+    private boolean isAzureServicePrincipalSecretAuthentication() {
+        return isAzureProvider() &&
+                getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_SECRET;
+    }
+
+    private boolean isAzureServicePrincipalCertificateAuthentication() {
+        return isAzureProvider() &&
+                getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
     }
 
     private boolean isHashicorpVaultTokenAuthentication() {

@@ -25,7 +25,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
+import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
+import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_SECRET;
 import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.HCP_VAULT_TOKEN;
+import static com.dbn.credentials.SecretType.CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD;
+import static com.dbn.credentials.SecretType.CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET;
 import static com.dbn.connection.config.provider.CloudConfigProviderType.HASHICORP_VAULT;
 import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_APPROLE_SECRET_ID;
 import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_GITHUB_TOKEN;
@@ -34,6 +38,42 @@ import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_VAULT_TOKEN;
 
 @UtilityClass
 public class ConfigProviderSecretStore {
+
+    public static char[] loadAzureClientSecret(@NotNull ConnectionId connectionId) {
+        Secret secret = DatabaseCredentialManager.getInstance().loadSecret(
+                CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET,
+                connectionId,
+                null);
+        return secret.getToken();
+    }
+
+    public static void saveAzureClientSecret(@NotNull ConnectionId connectionId, char[] clientSecret) {
+        Secret secret = new Secret(CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET, null, clientSecret);
+        DatabaseCredentialManager.getInstance().storeSecret(connectionId, secret);
+    }
+
+    public static void removeAzureClientSecret(@NotNull ConnectionId connectionId) {
+        Secret secret = new Secret(CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET, null, Secret.EMPTY);
+        DatabaseCredentialManager.getInstance().removeSecret(connectionId, secret);
+    }
+
+    public static char[] loadAzureCertificatePassword(@NotNull ConnectionId connectionId) {
+        Secret secret = DatabaseCredentialManager.getInstance().loadSecret(
+                CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD,
+                connectionId,
+                null);
+        return secret.getToken();
+    }
+
+    public static void saveAzureCertificatePassword(@NotNull ConnectionId connectionId, char[] certificatePassword) {
+        Secret secret = new Secret(CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD, null, certificatePassword);
+        DatabaseCredentialManager.getInstance().storeSecret(connectionId, secret);
+    }
+
+    public static void removeAzureCertificatePassword(@NotNull ConnectionId connectionId) {
+        Secret secret = new Secret(CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD, null, Secret.EMPTY);
+        DatabaseCredentialManager.getInstance().removeSecret(connectionId, secret);
+    }
 
     public static char[] loadHashicorpVaultToken(@NotNull ConnectionId connectionId) {
         Secret secret = DatabaseCredentialManager.getInstance().loadSecret(
@@ -111,10 +151,20 @@ public class ConfigProviderSecretStore {
             @NotNull Map<String, String> parameters,
             @NotNull ConfigProviderInfo configProviderInfo,
             @NotNull ConnectionId connectionId) {
-        if (configProviderInfo.getCloudProviderType() != HASHICORP_VAULT) return;
-
         CloudConfigProviderAuthentication authentication = configProviderInfo.getAuthentication();
         if (authentication == null) return;
+
+        if (configProviderInfo.getCloudProviderType() != HASHICORP_VAULT) {
+            switch (authentication) {
+                case AZURE_SERVICE_PRINCIPAL_SECRET ->
+                        addRuntimeSecret(parameters, "AZURE_CLIENT_SECRET", loadAzureClientSecret(connectionId));
+                case AZURE_SERVICE_PRINCIPAL_CERTIFICATE ->
+                        addRuntimeSecret(parameters, "AZURE_CLIENT_CERTIFICATE_PASSWORD", loadAzureCertificatePassword(connectionId));
+                default -> {
+                }
+            }
+            return;
+        }
 
         switch (authentication) {
             case HCP_VAULT_TOKEN ->

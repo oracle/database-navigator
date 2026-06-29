@@ -26,7 +26,8 @@ public enum CloudConfigProviderAuthentication implements Presentable {
     OCI_DEFAULT("OCI Default", "OCI_DEFAULT", CloudConfigProviderType.OCI_OBJECT, CloudConfigProviderType.OCI_DB_TOOLS, CloudConfigProviderType.OCI_VAULT),
     OCI_INTERACTIVE("Interactive", "OCI_INTERACTIVE", CloudConfigProviderType.OCI_OBJECT, CloudConfigProviderType.OCI_DB_TOOLS, CloudConfigProviderType.OCI_VAULT),
     AZURE_DEFAULT("Azure Default", "AZURE_DEFAULT", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT),
-    AZURE_SERVICE_PRINCIPAL("Service Principal", "AZURE_SERVICE_PRINCIPAL", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT),
+    AZURE_SERVICE_PRINCIPAL_SECRET("Service Principal Secret", "AZURE_SERVICE_PRINCIPAL", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT),
+    AZURE_SERVICE_PRINCIPAL_CERTIFICATE("Service Principal Certificate", "AZURE_SERVICE_PRINCIPAL", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT),
     AZURE_INTERACTIVE("Interactive", "AZURE_INTERACTIVE", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT),
     HCP_DEFAULT("HashiCorp Default", "auto_detect", CloudConfigProviderType.HASHICORP_VAULT),
     HCP_VAULT_TOKEN("Vault Token", "vault_token", CloudConfigProviderType.HASHICORP_VAULT),
@@ -58,11 +59,21 @@ public enum CloudConfigProviderAuthentication implements Presentable {
         if (name == null) return null;
 
         for (CloudConfigProviderAuthentication value : values()) {
+            if (value.name().equalsIgnoreCase(name)) {
+                return value;
+            }
             if (value.parameterValue.equalsIgnoreCase(name)) {
                 return value;
             }
         }
         return null;
+    }
+
+    public static CloudConfigProviderAuthentication getAzure(String name, boolean certificateAuthentication) {
+        if ("AZURE_SERVICE_PRINCIPAL".equalsIgnoreCase(name)) {
+            return certificateAuthentication ? AZURE_SERVICE_PRINCIPAL_CERTIFICATE : AZURE_SERVICE_PRINCIPAL_SECRET;
+        }
+        return get(name);
     }
 
     public static CloudConfigProviderAuthentication getDefault(CloudConfigProviderType provider) {

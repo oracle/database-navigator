@@ -274,7 +274,11 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
 
         ConfigProviderInfo configProviderInfo = databaseInfo.getConfigProviderInfo();
         Map<String, String> parameters = new LinkedHashMap<>(configProviderInfo.getUrlParameters(true));
-        ConfigProviderSecretStore.addRuntimeSecrets(parameters, configProviderInfo, getConnectionId());
+        ConnectionId credentialConnectionId = configProviderInfo.getCredentialConnectionId();
+        if (credentialConnectionId == null) {
+            credentialConnectionId = getConnectionId();
+        }
+        ConfigProviderSecretStore.addRuntimeSecrets(parameters, configProviderInfo, credentialConnectionId);
         return parameters;
     }
 
