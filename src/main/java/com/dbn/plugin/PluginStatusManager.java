@@ -20,10 +20,10 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.project.Projects;
+import com.dbn.common.util.Plugins;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -108,7 +108,7 @@ public class PluginStatusManager extends ApplicationComponentBase implements Per
 
     private static DBPluginStatus evaluateSqlPluginStatus(Project project) {
         try {
-            IdeaPluginDescriptor pluginDescriptor = PluginManagerCore.getPlugin(DatabaseNavigator.SQL_PLUGIN_ID);
+            IdeaPluginDescriptor pluginDescriptor = Plugins.getPlugin(DatabaseNavigator.SQL_PLUGIN_ID);
             if (pluginDescriptor == null) return MISSING; // not installed
 
             ClassLoader pluginClassLoader = pluginDescriptor.getPluginClassLoader();
