@@ -1,5 +1,6 @@
 package com.dbn.oci;
 
+import com.dbn.common.util.Plugins;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.oci.actions.OciConnectionActionGroup;
 import com.dbn.oci.actions.OciConnectionCreateAction;
@@ -7,7 +8,6 @@ import com.dbn.oci.actions.OciConnectionOpenAction;
 import com.dbn.options.ProjectSettingsManager;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.extensions.PluginDescriptor;
@@ -50,7 +50,9 @@ public class OciConnectionActionContributor implements ContributeADBActions {
   public List<ExtensionContextAction> getModelContextActions(final UIModelContext context) {
     List<ExtensionContextAction>  actions = new ArrayList<>();
     PluginId pluginId = PluginId.getId(OCI_PLUGIN_ID);
-    IdeaPluginDescriptor ociPluginDesc = PluginManagerCore.getPlugin(pluginId);
+    IdeaPluginDescriptor ociPluginDesc = Plugins.getPlugin(pluginId);
+    if (ociPluginDesc == null) return actions;
+
     String versionStr = ociPluginDesc.getVersion();
     Version version = Version.parseVersion(versionStr);
     // ignore this extension if it's version is less than 1.2
