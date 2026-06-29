@@ -21,8 +21,8 @@ import com.dbn.assistant.mcp.model.AssistantMcpServerType;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.util.Environment;
+import com.dbn.common.util.Plugins;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.extensions.PluginId;
 import lombok.Getter;
@@ -130,7 +130,7 @@ public class IdeMcpServerManager extends ApplicationComponentBase {
 
     @Nullable
     private static ClassLoader getPluginClassLoader() {
-        IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(MCP_SERVER_PLUGIN_ID);
+        IdeaPluginDescriptor plugin = Plugins.getPlugin(MCP_SERVER_PLUGIN_ID);
         return plugin == null ? null : plugin.getPluginClassLoader();
     }
 
