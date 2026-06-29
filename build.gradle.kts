@@ -266,7 +266,7 @@ intellijPlatform {
         ides {
             select {
                 // Keep verifier targets aligned with src/main/resources/META-INF/plugin.xml.
-                sinceBuild.set("222.4554.10")
+                sinceBuild.set("231.9423.9")
                 untilBuild.set("262.*")
                 types.set(listOf(IntelliJPlatformType.IntellijIdea))
             }
