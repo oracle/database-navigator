@@ -14,6 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<!--Generated with LanguageSpecificationParserExtensionBuilder. Do not edit manually.-->
 <!DOCTYPE parser-element-extensions SYSTEM "../../../common/definition/language-parser-elements-ext.dtd">
 
 <parser-element-extensions language="ISO92-SQL" source="iso92_sql_parser_elements.xml">
