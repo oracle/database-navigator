@@ -5829,7 +5829,7 @@
         </qualified-identifier>
     </element-def>
 
-    <element-def attributes="DATA_DEFINITION, SPECIFIC, STATEMENT" description="CREATE INDEX statement" id="create_index">
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE INDEX statement" id="create_index">
         <token id="03352" type-id="KW_CREATE" />
         <one-of id="03353" optional="true" tokens="KW_UNIQUE, KW_BITMAP, KW_MULTIVALUE" />
         <token id="03354" type-id="KW_INDEX" />
