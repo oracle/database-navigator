@@ -21,11 +21,11 @@ import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.file.FileTypeService;
 import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Plugins;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.language.psql.PSQLFileType;
 import com.dbn.language.sql.SQLFileType;
 import com.dbn.plugin.ui.PluginConflictResolutionDialog;
-import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -141,9 +141,8 @@ public class PluginConflictManager extends ApplicationComponentBase implements P
         // prompt again if needed on reinstall
         conflictPrompted = false;
 
-        String pluginId = DatabaseNavigator.DBN_PLUGIN_ID.getIdString();
-        PluginManager.disablePlugin(pluginId);
-        ApplicationManagerEx.getApplicationEx().restart(true);
+        boolean disabled = Plugins.disablePlugin(DatabaseNavigator.DBN_PLUGIN_ID);
+        if (disabled) ApplicationManagerEx.getApplicationEx().restart(true);
     }
 
     /**************************************************************************
