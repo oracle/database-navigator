@@ -83,10 +83,22 @@ public abstract class ComboBoxAction
 
     @Override
     protected ListPopup createActionPopup(DefaultActionGroup group, @NotNull DataContext context, @Nullable Runnable disposeCallback) {
-        ListPopupImpl actionPopup = (ListPopupImpl) super.createActionPopup(group, context, disposeCallback);
+        ListPopup actionPopup = JBPopupFactory.getInstance().createActionGroupPopup(
+                myPopupTitle,
+                group,
+                context,
+                false,
+                shouldShowDisabledActions(),
+                false,
+                disposeCallback,
+                getMaxRows(),
+                getPreselectCondition());
+        actionPopup.setMinimumSize(new Dimension(getMinWidth(), getMinHeight()));
 
-        JList list = actionPopup.getList();
-        list.addListSelectionListener(e -> showDescriptionPopup(context, e, actionPopup));
+        if (actionPopup instanceof ListPopupImpl actionPopupImpl) {
+            JList list = actionPopupImpl.getList();
+            list.addListSelectionListener(e -> showDescriptionPopup(context, e, actionPopupImpl));
+        }
 
         return actionPopup;
     }

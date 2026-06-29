@@ -22,13 +22,13 @@ import com.dbn.assistant.mcp.AssistantMcpServerSettings;
 import com.dbn.assistant.mcp.ide.IdeMcpServerManager;
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.mcp.model.AssistantMcpServerBundle;
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Dialogs;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Separator;
@@ -80,7 +80,7 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
         decorator.setMoveDownAction(b -> mcpServersTable.moveRowDown());
         decorator.setEditAction(b -> openMcpServerEditor(false));
         decorator.addExtraAction(Separator.getInstance());
-        decorator.addExtraAction(new AnAction() {
+        decorator.addExtraAction(new BasicAction() {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 Dialogs.show(() -> new AssistantMcpToolApprovalDialog(getProject(), getSelectedMcpServer()));

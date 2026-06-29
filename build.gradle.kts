@@ -19,6 +19,7 @@ import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.ReportRenderer
 import com.github.jk1.license.render.TextReportRenderer
 import org.gradle.kotlin.dsl.register
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 
 // https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 plugins {
@@ -259,6 +260,17 @@ intellijPlatform {
     pluginConfiguration {
         ideaVersion {
             untilBuild = provider { null }
+        }
+    }
+
+    pluginVerification {
+        ides {
+            select {
+                // Keep verifier targets aligned with src/main/resources/META-INF/plugin.xml.
+                sinceBuild.set("231.9423.9")
+                untilBuild.set("262.*")
+                types.set(listOf(IntelliJPlatformType.IntellijIdea))
+            }
         }
     }
 
