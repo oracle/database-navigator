@@ -34,16 +34,13 @@ public class LanguageSpecificationBuilder {
     private static final Deque<String> INPUT_BUFFER = new ArrayDeque<>();
 
     public static void main(String[] args) throws Exception {
-        while (true) {
-            try {
-                runSelection();
-            } catch (ExitRequestedException e) {
-                System.out.println("Bye bye!");
-                return;
-            } finally {
-                INPUT_BUFFER.clear();
-                clearRunState();
-            }
+        try {
+            runSelection();
+        } catch (ExitRequestedException e) {
+            System.out.println("Bye bye!");
+        } finally {
+            INPUT_BUFFER.clear();
+            clearRunState();
         }
     }
 
