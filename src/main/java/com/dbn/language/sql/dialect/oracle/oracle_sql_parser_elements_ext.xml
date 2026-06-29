@@ -2,7 +2,7 @@
 <!--Generated with LanguageSpecificationParserExtensionBuilder. Do not edit manually.-->
 <!DOCTYPE parser-element-extensions SYSTEM "../../../common/definition/language-parser-elements-ext.dtd">
 
-<parser-element-extensions language="ORACLE-SQL" source="oracle_sql_parser_elements.xml" builder-version="1.0.0">
+<parser-element-extensions language="ORACLE-SQL" source="oracle_sql_parser_elements.xml" builder-version="1.1.0">
     <one-of-extension id="00002" depth="2">
         <node token-type-ids="KW_ALTER" parse-candidate-ids="alter_cluster, alter_database, alter_dimension, alter_diskgroup, alter_function, alter_index, alter_indextype, alter_java, alter_library, alter_materialized_view, alter_operator, alter_outline, alter_package, alter_procedure, alter_profile, alter_resource_cost, alter_role, alter_rollback_segment, alter_sequence, alter_session, alter_system, alter_synonym, alter_table, alter_trigger, alter_type, alter_view, alter_user" completion-candidate-ids="00004, 00107, 00619, 00708, 00882, 00905, 01040, 01077, 01144, 01158, 01390, 01430, 01450, 01465, 01476, 01521, 01532, 01552, 01563, 01590, 01788, 02137, 02138, 02235, 02144, 02161, 02209, 03167">
             <node token-type-ids="KW_CLUSTER" parse-candidate-ids="alter_cluster" completion-candidate-ids="00006, 00007" />

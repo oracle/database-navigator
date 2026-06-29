@@ -65,7 +65,6 @@ public class LanguageSpecificationBuilderInput {
 
         ARTIFACT_OPTIONS.put("l", Artifact.LEXER);
         ARTIFACT_OPTIONS.put("p", Artifact.PARSER);
-        ARTIFACT_OPTIONS.put("a", Artifact.ALL);
 
         LEXER_ACTION_OPTIONS.put("d", Action.UPDATE_DEFINITION);
         LEXER_ACTION_OPTIONS.put("c", Action.BUILD_CLASS);
@@ -158,11 +157,9 @@ public class LanguageSpecificationBuilderInput {
 
     public enum Artifact {
         LEXER,
-        PARSER,
-        ALL;
+        PARSER;
 
         public Map<String, Action> getActionOptions() {
-            if (this == ALL) return Map.of();
             return this == LEXER ? LEXER_ACTION_OPTIONS : PARSER_ACTION_OPTIONS;
         }
 

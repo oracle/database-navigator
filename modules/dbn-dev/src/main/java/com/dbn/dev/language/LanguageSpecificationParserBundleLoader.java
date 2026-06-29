@@ -20,19 +20,11 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguageDialectIdentifier;
-import com.dbn.language.common.DBLanguageParser;
+import com.dbn.language.common.TokenTypeBundle;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.impl.OneOfElementTypeBuilder;
 import com.dbn.language.psql.PSQLLanguage;
-import com.dbn.language.psql.dialect.PSQLLanguageDialect;
-import com.dbn.language.psql.dialect.oracle.OraclePLSQLParser;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.language.sql.dialect.SQLLanguageDialect;
-import com.dbn.language.sql.dialect.iso92.Iso92SQLParser;
-import com.dbn.language.sql.dialect.mysql.MysqlSQLParser;
-import com.dbn.language.sql.dialect.oracle.OracleSQLParser;
-import com.dbn.language.sql.dialect.postgres.PostgresSQLParser;
-import com.dbn.language.sql.dialect.sqlite.SqliteSQLParser;
 import lombok.SneakyThrows;
 import org.jdom.Document;
 
@@ -60,20 +52,10 @@ import static java.util.Map.of;
 class LanguageSpecificationParserBundleLoader {
     private final LanguageSpecificationBuilderInput input;
 
-    private static final Map<DatabaseType, Map<DBLanguage, Class<? extends DBLanguageParser>>> PARSERS = new HashMap<>();
     private static final Map<DatabaseType, Map<DBLanguage, DBLanguageDialectIdentifier>> DIALECTS = new HashMap<>();
     static {
         SQLLanguage sql = SQLLanguage.INSTANCE;
         PSQLLanguage psql = PSQLLanguage.INSTANCE;
-
-        PARSERS.put(ORACLE, of(
-                sql, OracleSQLParser.class,
-                psql, OraclePLSQLParser.class));
-
-        PARSERS.put(MYSQL, of(sql, MysqlSQLParser.class));
-        PARSERS.put(POSTGRES, of(sql, PostgresSQLParser.class));
-        PARSERS.put(SQLITE, of(sql, SqliteSQLParser.class));
-        PARSERS.put(ISO92, of(sql, Iso92SQLParser.class));
 
         DIALECTS.put(ORACLE, of(
                 sql, ORACLE_SQL,
@@ -115,13 +97,11 @@ class LanguageSpecificationParserBundleLoader {
     @SneakyThrows
     @SuppressWarnings("removal")
     ElementTypeBundle load(Consumer<ElementTypeBundle.Builder> builderCallback, boolean rebuilding, boolean legacyAmbiguousPathRebuildEnabled) {
-        var parsers = PARSERS.get(input.database);
-        if (parsers == null || !parsers.containsKey(input.language)) {
+        var dialects = DIALECTS.get(input.database);
+        if (dialects == null || !dialects.containsKey(input.language)) {
             throw new IllegalArgumentException("Unsupported parser definition: " + input.databaseId + " " + input.language);
         }
 
-        var parser = parsers.get(input.language);
-        var dialects = DIALECTS.get(input.database);
         var dialect = dialects.get(input.language);
 
         boolean previousRebuilding = ElementTypeBundle.Builder.rebuilding;
@@ -130,13 +110,13 @@ class LanguageSpecificationParserBundleLoader {
             ElementTypeBundle.Builder.rebuilding = rebuilding;
             OneOfElementTypeBuilder.legacyAmbiguousPathRebuildEnabled = legacyAmbiguousPathRebuildEnabled;
             DBLanguageDialect languageDialect = input.language.getLanguageDialect(dialect);
-            var constructor = parser.getConstructor(getDialectClass());
-            DBLanguageParser languageParser = constructor.newInstance(languageDialect);
             File definitionFile = getParserElementsFile();
 
+            Document tokenDocument = fileToDocument(input.getParserTokensFile());
             Document definitionDocument = fileToDocument(definitionFile);
             System.out.println("Building element type bundle: " + languageDialect.getID());
-            return new ElementTypeBundle(languageDialect, languageParser.getTokenTypes(), definitionDocument, null, builderCallback);
+            TokenTypeBundle tokenTypeBundle = new TokenTypeBundle(languageDialect, tokenDocument);
+            return new ElementTypeBundle(languageDialect, tokenTypeBundle, definitionDocument, null, builderCallback);
         } finally {
             System.out.println("Element type bundle loading finished");
             ElementTypeBundle.Builder.rebuilding = previousRebuilding;
@@ -150,11 +130,5 @@ class LanguageSpecificationParserBundleLoader {
             throw new IllegalArgumentException("Parser elements definition does not exist: " + file.getAbsolutePath());
         }
         return file;
-    }
-
-    private Class<? extends DBLanguageDialect> getDialectClass() {
-        if (input.language == SQLLanguage.INSTANCE) return SQLLanguageDialect.class;
-        if (input.language == PSQLLanguage.INSTANCE) return PSQLLanguageDialect.class;
-        return null;
     }
 }

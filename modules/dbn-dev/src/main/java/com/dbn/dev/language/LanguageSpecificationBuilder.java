@@ -58,12 +58,6 @@ public class LanguageSpecificationBuilder {
         session.input.setLanguage(selectOption("language", LanguageSpecificationBuilderInput.LANGUAGE_OPTIONS));
 
         session.selectedArtifact = selectOption("artifact", LanguageSpecificationBuilderInput.ARTIFACT_OPTIONS);
-        if (session.selectedArtifact == Artifact.ALL) {
-            session.selectedAction = Action.ALL;
-            runAll(session);
-            return;
-        }
-
         session.selectedAction = selectOption("action", session.selectedArtifact.getActionOptions());
 
         if (session.selectedArtifact == Artifact.LEXER && session.selectedAction == Action.UPDATE_DEFINITION) {
@@ -83,13 +77,6 @@ public class LanguageSpecificationBuilder {
         } else {
             throw new IllegalArgumentException("Unsupported action: " + session.selectedArtifact + " " + session.selectedAction);
         }
-    }
-
-    private static void runAll(BuildSession session) throws Exception {
-        buildLexerDefinition(session);
-        buildLexerClass(session);
-        buildParserDefinition(session);
-        buildParserExtension(session);
     }
 
     private static void buildLexerDefinition(BuildSession session) throws Exception {

@@ -17,7 +17,7 @@
 <!--Generated with LanguageSpecificationParserExtensionBuilder. Do not edit manually.-->
 <!DOCTYPE parser-element-extensions SYSTEM "../../../common/definition/language-parser-elements-ext.dtd">
 
-<parser-element-extensions language="ISO92-SQL" source="iso92_sql_parser_elements.xml" builder-version="1.0.0">
+<parser-element-extensions language="ISO92-SQL" source="iso92_sql_parser_elements.xml" builder-version="1.1.0">
     <one-of-extension id="00001" depth="2">
         <node token-type-ids="CHR_LEFT_PARENTHESIS" parse-candidate-ids="query_expression" completion-candidate-ids="00021, 00022" />
         <node token-type-ids="KW_SELECT" parse-candidate-ids="query_expression" completion-candidate-ids="00556, 00557, 00688, 00689, 00691, 00692, 00693, 00694, 00700, 00714, 00716, 00718, 00722, 00732, 00733, 00735, 00736, 00737, 00738, 00740, 00747, 00752, 00753, 00755, 00757, 00759, 00765, 00775, 00776, 00778, 00782, 00790, 00795, 00796, 00797, 00798, 00799, 00800, 00803, 00814, 00931, 00932, 00933, 00934, 00935, 00937" />

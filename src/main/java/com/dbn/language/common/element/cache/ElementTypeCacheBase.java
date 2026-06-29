@@ -20,7 +20,6 @@ import com.dbn.common.index.IndexContainer;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
-import com.dbn.language.common.TokenTypeBundle;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.TokenPairTemplate;
 import com.dbn.language.common.element.impl.ElementTypeBase;
@@ -55,10 +54,10 @@ public abstract class ElementTypeCacheBase<T extends ElementTypeBase> implements
         if (nextPossibleTokens == null) {
             nextPossibleTokens = computeNextPossibleTokens();
         }
-        TokenTypeBundle tokenTypes = elementType.getLanguageDialect().getParserTokenTypes();
         return nextPossibleTokens == null ?
                 Collections.emptySet() :
-                nextPossibleTokens.elements(index -> tokenTypes.getTokenType(index));
+                nextPossibleTokens.elements(index ->
+                        elementType.bundle.tokenTypeBundle.getTokenType(index));
     }
 
     @Override
