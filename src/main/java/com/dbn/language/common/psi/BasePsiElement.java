@@ -31,7 +31,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
-import com.dbn.diagnostics.data.ParserDiagnosticsUtil;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.ddl.DDLFileEditor;
 import com.dbn.editor.session.SessionBrowser;
@@ -79,8 +78,7 @@ import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.impl.source.tree.FileElement;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
-import com.intellij.spellchecker.inspections.SpellCheckingInspection;
-import com.maddyhome.idea.copyright.actions.UpdateCopyrightAction;
+
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -92,17 +90,12 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.language.common.psi.PsiUtil.SUPPORTED_VISITORS;
 
 public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapperPsiElement implements DatabaseContextBase, ItemPresentation, FormattingProviderPsiElement {
     private static final WeakRefCache<BasePsiElement, DBVirtualObject> underlyingObjectCache = WeakRefCache.weakKey();
     private static final WeakRefCache<BasePsiElement, FormattingAttributes> formattingAttributesCache = WeakRefCache.weakKey();
     private static final WeakRefCache<BasePsiElement, BasePsiElement> enclosingScopePsiElements = WeakRefCache.weakKeyValue();
-
-    // TODO: check if any other visitor relevant
-    public static final PsiElementVisitors visitors = PsiElementVisitors.create(
-            SpellCheckingInspection.class.getSimpleName(),
-            ParserDiagnosticsUtil.class.getSimpleName(),
-            UpdateCopyrightAction.class.getSimpleName());
 
     public T elementType;
 
@@ -287,7 +280,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
 
     @Override
     public void accept(PsiElementVisitor visitor) {
-        if (visitors.isSupported(visitor)) {
+        if (SUPPORTED_VISITORS.isSupported(visitor)) {
             super.accept(visitor);
         }
     }
