@@ -17,7 +17,6 @@
 package com.dbn.connection.config;
 
 import com.dbn.connection.config.provider.CloudConfigProviderAuthentication;
-import com.dbn.oci.config.OciConfigFileUtil;
 import lombok.experimental.UtilityClass;
 
 import java.util.LinkedHashMap;
@@ -40,25 +39,13 @@ public class OciConfigProviderParameters {
             return parameters;
         }
 
+        if (isNotEmpty(configFile)) {
+            parameters.put("OCI_CONFIG_FILE", configFile);
+        }
         if (isNotEmpty(profile)) {
             parameters.put("OCI_PROFILE", profile);
         }
 
-        if (isNotEmpty(configFile) && isNotEmpty(profile)) {
-            Map<String, String> profileValues = OciConfigFileUtil.getConfigProfileValues(configFile, profile);
-            put(parameters, "OCI_TENANCY", profileValues.get("tenancy"));
-            put(parameters, "OCI_USER", profileValues.get("user"));
-            put(parameters, "OCI_FINGERPRINT", profileValues.get("fingerprint"));
-            put(parameters, "OCI_KEY_FILE", profileValues.get("key_file"));
-            put(parameters, "OCI_PASS_PHRASE", profileValues.get("pass_phrase"));
-        }
-
         return parameters;
-    }
-
-    private static void put(Map<String, String> parameters, String key, String value) {
-        if (isNotEmpty(value)) {
-            parameters.put(key, value);
-        }
     }
 }
