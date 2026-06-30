@@ -16,6 +16,7 @@
 
 package com.dbn.driver.download.metadata;
 
+import com.dbn.common.download.Downloads;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.XmlContents;
 import com.dbn.connection.DatabaseInterfacesBundle;
