@@ -278,14 +278,4 @@
         <library artifact-id="ojdbc8-production" group-id="com.oracle.database.jdbc" version="latest" role="DRIVER" type="pom"/>
     </driver-package>
 
-    <driver-package database-type="Oracle" id="ojdbc-%s-azure-%s" name="Oracle %s + Azure auth %s">
-        <library artifact-id="ojdbc8-production" group-id="com.oracle.database.jdbc" version="latest" role="DRIVER" type="pom"/>
-        <library artifact-id="ojdbc-provider-azure" group-id="com.oracle.database.jdbc" version="latest" role="EXTENSION" type="jar"/>
-    </driver-package>
-
-    <driver-package database-type="Oracle" id="ojdbc-%s-oci-%s" name="Oracle %s + OCI auth %s">
-        <library artifact-id="ojdbc8-production" group-id="com.oracle.database.jdbc" version="latest" role="DRIVER" type="pom"/>
-        <library artifact-id="ojdbc-provider-oci" group-id="com.oracle.database.jdbc" version="latest" role="EXTENSION" type="jar"/>
-    </driver-package>
-
 </driver-packages>
