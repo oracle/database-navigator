@@ -456,8 +456,9 @@
         <token index="385" id="KW_WRAPPER" value="wrapper" category="keyword"/>
         <token index="386" id="KW_WRITE" value="write" category="keyword"/>
         <token index="387" id="KW_X509" value="x509" category="keyword"/>
-        <token index="388" id="KW_XOR" value="xor" category="keyword"/>
-        <token index="389" id="KW_ZEROFILL" value="zerofill" category="keyword"/>
+        <token index="388" id="KW_XML" value="xml" category="keyword"/>
+        <token index="389" id="KW_XOR" value="xor" category="keyword"/>
+        <token index="390" id="KW_ZEROFILL" value="zerofill" category="keyword"/>
         <!-- MARKER_END_KEYWORDS -->
 
 

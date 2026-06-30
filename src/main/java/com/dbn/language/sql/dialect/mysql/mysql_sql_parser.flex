@@ -553,8 +553,9 @@ VARIABLE = {BIND_VARIABLE}|{SYSTEM_VARIABLE}|{USER_VARIABLE}
 "wrapper" {return tt.ktt(385);}
 "write" {return tt.ktt(386);}
 "x509" {return tt.ktt(387);}
-"xor" {return tt.ktt(388);}
-"zerofill" {return tt.ktt(389);}
+"xml" {return tt.ktt(388);}
+"xor" {return tt.ktt(389);}
+"zerofill" {return tt.ktt(390);}
 // MARKER_END_KEYWORDS
 
 
