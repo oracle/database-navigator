@@ -77,6 +77,21 @@ Keep these boundaries clear:
 - If the same word can behave as different token categories, define it in the most common/generated family and use `flavor` at parser-use sites to qualify the role, for example `<token type-id="DT_INTERVAL" flavor="keyword" />`. Do not duplicate the same word across registries: the lexer can match a word only once, so duplicate generated rules clash instead of producing context-sensitive token categories.
 - Treat `attributes`, `branch`, `branch-check`, `version`, `formatting-*`, and `optional-wrapping` as runtime behavior, not comments.
 
+## Expression Grammar Patterns
+
+Expression grammar is usually the most fragile part of each SQL dialect because optional parentheses, broad operator chains, predicates, functions, subqueries, and lists all overlap. Keep the dialect close to the vendor production names, but use small `custom="true"` helpers where the parser needs a delimiter-safe shape.
+
+- Prefer the vendor's expression tiers where they exist, such as `expr`, `boolean_primary`, `predicate`, `bit_expr`, and `simple_expression`. Add custom helper elements only for repeated parser conveniences or delimiter-sensitive sub-productions.
+- For binary operator chains where the head and repeated item are the same grammar unit, prefer a single separator-driven `iteration` over that unit. Avoid a separate head plus tail iteration unless the operator token is inside the repeated child sequence; otherwise the second expression can be parsed as an adjacent expression without a real operator.
+- Broad operator lists are useful for parser resilience, but they can steal grammar delimiters. Use scoped helper expressions that omit only the problematic delimiter, for example a `between_expr` that excludes `AND` for the lower bound, rather than weakening the global `expr`.
+- Model special expression atoms as simple-expression alternatives when that matches the specification shape: parameter markers such as `?`, user/system/bind variables emitted by the lexer, row constructors, `{identifier expr}`, ODBC escapes, interval expressions, current temporal expressions, and quantified subquery operands such as `{ALL | ANY} (subquery)`.
+- Put concrete callable/function alternatives before generic qualified identifiers. If a function token can also satisfy an identifier sequence, the generic branch can consume the name and leave the opening parenthesis orphaned.
+- Use `optional-wrapping="PARENTHESES"` on expression tiers and list elements that can legally be parenthesized. Prefer optional wrappers over duplicating parenthesized alternatives, unless parentheses introduce a distinct production such as a subquery, row/list constructor, or function argument list.
+- Add wrapping cautiously and locally. Wrapper borrowing should let the monitor allocate balanced parentheses to the nearest capable wrapper, but changing the expression tree shape just to handle parentheses tends to break unrelated arithmetic, predicate, and function cases.
+- Keep delimiter-sensitive constructs separate from generic expression chains: `BETWEEN ... AND ...`, `IN (expr_list | subquery)`, `ANY/ALL (subquery)`, interval units after `INTERVAL`, and expression lists inside `INSERT`, `LOAD DATA`, function calls, and row constructors.
+- When a statement embeds query expressions, check branch ordering around standalone query forms. For example, regular `INSERT ... VALUES (...)` or `REPLACE ... VALUES (...)` alternatives should win before broader standalone `VALUES` query/table-value-constructor branches.
+- After expression changes, run a focused dialect corpus before broad validation. Include arithmetic precedence chains, nested parentheses, shift/bit operators, intervals, `BETWEEN`, `IN` lists, `ANY/ALL` subqueries, `CASE`, built-in and qualified functions, window functions, `SELECT ... INTO`, `INSERT ... VALUES`, and `LOAD DATA ... SET` expressions.
+
 ## Extension Builder Regression Notes
 
 When touching `LanguageSpecificationParserExtensionBuilder`, keep these migration regressions in mind and re-check their statement shapes after generation:
