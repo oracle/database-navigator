@@ -46,6 +46,7 @@
         <token category="character" index="22" id="CHR_AND" value="&#38;"/>
         <token category="character" index="23" id="CHR_TILDE" value="~"/>
         <token category="character" index="24" id="CHR_CARET" value="^"/>
+        <token category="character" index="25" id="CHR_QUESTION_MARK" value="?"/>
 
 
         <token category="operator" index="0" id="OPR_EQUAL_EQUAL" value="==" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
