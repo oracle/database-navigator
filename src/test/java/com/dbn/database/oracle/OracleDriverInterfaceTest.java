@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.driver.download.metadata;
+package com.dbn.database.oracle;
 
 import org.jdom.Element;
 import org.junit.Assert;
@@ -22,30 +22,32 @@ import org.junit.Test;
 
 import java.util.List;
 
-public class DriverPackageMetadataDownloaderTest {
+public class OracleDriverInterfaceTest {
+    private static final String DRIVER_VERSION = "23.26.1.0.0";
+
     @Test
     public void providerNameIsDerivedFromArtifactId() {
-        Assert.assertEquals("Azure", DriverPackageMetadataDownloader.toProviderName("azure"));
-        Assert.assertEquals("Aws Secrets", DriverPackageMetadataDownloader.toProviderName("aws-secrets"));
-        Assert.assertEquals("Gcp", DriverPackageMetadataDownloader.toProviderName("gcp"));
+        Assert.assertEquals("Azure", OracleDriverInterface.toProviderName("azure"));
+        Assert.assertEquals("Aws Secrets", OracleDriverInterface.toProviderName("aws-secrets"));
+        Assert.assertEquals("Gcp", OracleDriverInterface.toProviderName("gcp"));
     }
 
     @Test
-    public void discoveredProviderPackageUsesLatestDriverAndExtensionRoles() {
-        Element packageElement = DriverPackageMetadataDownloader.createOracleProviderPackageElement("ojdbc-provider-aws");
+    public void discoveredProviderPackageUsesProviderDriverVersionAndExtensionRoles() {
+        Element packageElement = OracleDriverInterface.createOracleProviderPackageElement("ojdbc-provider-aws", DRIVER_VERSION);
         List<Element> libraries = packageElement.getChildren("library");
 
         Assert.assertEquals("Oracle", packageElement.getAttributeValue("database-type"));
         Assert.assertEquals("ojdbc-%s-aws-%s", packageElement.getAttributeValue("id"));
         Assert.assertEquals("Oracle %s + Aws auth %s", packageElement.getAttributeValue("name"));
         Assert.assertEquals(2, libraries.size());
-        assertLibrary(libraries.get(0), "ojdbc8-production", "latest", "DRIVER", "pom");
+        assertLibrary(libraries.get(0), "ojdbc8", DRIVER_VERSION, "DRIVER", "jar");
         assertLibrary(libraries.get(1), "ojdbc-provider-aws", "latest", "EXTENSION", "jar");
     }
 
     @Test
     public void discoveredGcpProviderPackageUsesAuthLabel() {
-        Element packageElement = DriverPackageMetadataDownloader.createOracleProviderPackageElement("ojdbc-provider-gcp");
+        Element packageElement = OracleDriverInterface.createOracleProviderPackageElement("ojdbc-provider-gcp", DRIVER_VERSION);
         List<Element> libraries = packageElement.getChildren("library");
 
         Assert.assertEquals("ojdbc-%s-gcp-%s", packageElement.getAttributeValue("id"));

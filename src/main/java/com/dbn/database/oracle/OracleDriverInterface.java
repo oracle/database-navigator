@@ -108,7 +108,7 @@ public class OracleDriverInterface implements DatabaseDriverInterface {
         }
     }
 
-    private static Element createOracleProviderPackageElement(String artifactId, String driverVersion) {
+    static Element createOracleProviderPackageElement(String artifactId, String driverVersion) {
         String providerId = stripOracleProviderPrefix(artifactId);
         String providerName = toProviderName(providerId);
 
@@ -152,7 +152,7 @@ public class OracleDriverInterface implements DatabaseDriverInterface {
         return artifactId;
     }
 
-    private static String toProviderName(String providerId) {
+    static String toProviderName(String providerId) {
         return Pattern.compile("(^|-)([a-z])")
                 .matcher(providerId)
                 .replaceAll(match -> match.group(1).replace("-", " ") + match.group(2).toUpperCase());
