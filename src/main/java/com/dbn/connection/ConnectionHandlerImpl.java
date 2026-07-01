@@ -476,6 +476,7 @@ public class ConnectionHandlerImpl extends StatefulDisposableBase implements Con
 
     @Override
     public DBSchema getSchema(SchemaId schema) {
+        if (schema == null) return null;
         return getObjectBundle().getSchema(schema.id());
     }
 
