@@ -56,7 +56,6 @@ public class LanguageSpecificationBuilder {
 
         session.selectedArtifact = selectOption("artifact", LanguageSpecificationBuilderInput.ARTIFACT_OPTIONS);
         if (session.selectedArtifact == Artifact.ALL) {
-            session.selectedAction = Action.ALL;
             buildAll(session);
             return;
         }
@@ -90,36 +89,35 @@ public class LanguageSpecificationBuilder {
     }
 
     private static void buildLexerDefinition(BuildSession session) throws Exception {
-        build(new LanguageSpecificationLexerBuilder(session.input), session);
+        build(new LanguageSpecificationLexerBuilder(session.input), session, Artifact.LEXER, Action.UPDATE_DEFINITION);
     }
 
     private static void buildLexerClass(BuildSession session) throws Exception {
-        build(new LanguageSpecificationLexerClassBuilder(session.input), session);
+        build(new LanguageSpecificationLexerClassBuilder(session.input), session, Artifact.LEXER, Action.BUILD_CLASS);
     }
 
     private static void buildParserDefinition(BuildSession session) throws Exception {
-        build(new LanguageSpecificationParserBuilder(session.input), session);
+        build(new LanguageSpecificationParserBuilder(session.input), session, Artifact.PARSER, Action.UPDATE_DEFINITION);
     }
 
     private static void buildParserExtension(BuildSession session) throws Exception {
-        build(new LanguageSpecificationParserExtensionBuilder(session.input), session);
+        build(new LanguageSpecificationParserExtensionBuilder(session.input), session, Artifact.PARSER, Action.BUILD_EXTENSION);
     }
 
-    private static void build(LanguageSpecificationArtifactBuilder builder, BuildSession session) throws Exception {
-        String operation = builder.getClass().getSimpleName()
-                .replace("LanguageSpecification", "")
-                .replace("Builder", "")
-                .replaceAll("([a-z])([A-Z])", "$1 $2")
-                .toUpperCase();
-        String title = session.input.database + " " + session.input.languageFid.toUpperCase() +
-                " | ARTIFACT " + session.selectedArtifact +
-                " | ACTION " + session.selectedAction +
-                " | OPERATION " + operation;
-        printBanner("START " + title);
+    private static void build(
+            LanguageSpecificationArtifactBuilder builder,
+            BuildSession session,
+            Artifact artifact,
+            Action action) throws Exception {
+        String title = "database " + session.input.database +
+                " | language " + session.input.languageFid.toUpperCase() +
+                " | artifact " + artifact.toString().toUpperCase() +
+                " | action " + action.toString().toUpperCase();
+        printBanner("START: " + title);
         try {
             builder.build();
         } finally {
-            printBanner("END " + title);
+            printBanner("END: " + title);
         }
     }
 
@@ -127,7 +125,7 @@ public class LanguageSpecificationBuilder {
         String line = "=".repeat(80);
         System.out.println();
         System.out.println(line);
-        System.out.println("=== " + title);
+        System.out.println(title);
         System.out.println(line);
     }
 
