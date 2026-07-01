@@ -21,9 +21,9 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.config.datasource.ui.DataSourceConfigEntryDialog;
+import com.dbn.connection.config.datasource.ui.ConnectionConfigurationDialog;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.object.DBDataSourceConfigEntry;
+import com.dbn.object.DBConnectionConfiguration;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.editor.ObjectEditorProvider;
@@ -34,58 +34,58 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
-import static com.dbn.common.operation.DatabaseOperation.MANAGE_DATA_SOURCE_CONFIG_ENTRIES;
+import static com.dbn.common.operation.DatabaseOperation.MANAGE_CONNECTION_CONFIGURATIONS;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.type.DBObjectType.DATA_SOURCE_CONFIG_ENTRY;
+import static com.dbn.object.type.DBObjectType.CONNECTION_CONFIGURATION;
 
 /**
- * {@link ObjectEditorProvider} for {@link DBDataSourceConfigEntry} (a connection-root configuration entry).
+ * {@link ObjectEditorProvider} for {@link DBConnectionConfiguration} (a connection-root configuration).
  * Owns the create/edit input dialog; the entry lifecycle runs through {@link com.dbn.object.management.ObjectManagementService}.
  */
-public class DataSourceConfigEntryEditorProvider implements ObjectEditorProvider {
+public class ConnectionConfigurationEditorProvider implements ObjectEditorProvider {
 
     @Override
     public DBObjectType getObjectType() {
-        return DATA_SOURCE_CONFIG_ENTRY;
+        return CONNECTION_CONFIGURATION;
     }
 
     @Override
     public void openCreateDialog(DBObjectList objectList) {
         ConnectionHandler connection = objectList.getConnection();
-        MANAGE_DATA_SOURCE_CONFIG_ENTRIES.start(
+        MANAGE_CONNECTION_CONFIGURATIONS.start(
                 connection,
-                () -> Dialogs.show(() -> new DataSourceConfigEntryDialog(connection)));
+                () -> Dialogs.show(() -> new ConnectionConfigurationDialog(connection)));
     }
 
     @Override
     public void openEditDialog(DBObject object) {
-        DBDataSourceConfigEntry entry = (DBDataSourceConfigEntry) object;
+        DBConnectionConfiguration entry = (DBConnectionConfiguration) object;
         Project project = entry.getProject();
-        MANAGE_DATA_SOURCE_CONFIG_ENTRIES.start(
+        MANAGE_CONNECTION_CONFIGURATIONS.start(
                 entry.getConnection(),
                 () -> openEditor(project, entry));
     }
 
-    private static void openEditor(@NotNull Project project, @NotNull DBDataSourceConfigEntry entry) {
+    private static void openEditor(@NotNull Project project, @NotNull DBConnectionConfiguration entry) {
         try {
             String value = loadValue(project, entry);
-            Dispatch.run((ModalityState) null, () -> Dialogs.show(() -> new DataSourceConfigEntryDialog(entry, value)));
+            Dispatch.run((ModalityState) null, () -> Dialogs.show(() -> new ConnectionConfigurationDialog(entry, value)));
         } catch (Exception e) {
-            Dispatch.run((ModalityState) null, () -> Messages.showErrorDialog(project, txt("msg.datasource.error.ConfigEntryLoadFailed"), e));
+            Dispatch.run((ModalityState) null, () -> Messages.showErrorDialog(project, txt("msg.connectionConfig.error.LoadFailed"), e));
         }
     }
 
-    private static @NotNull String loadValue(@NotNull Project project, @NotNull DBDataSourceConfigEntry entry) throws SQLException {
+    private static @NotNull String loadValue(@NotNull Project project, @NotNull DBConnectionConfiguration entry) throws SQLException {
         String value = DatabaseInterfaceInvoker.load(
                 Priority.HIGHEST,
-                txt("prc.datasource.title.LoadingConfigEntry"),
-                txt("prc.datasource.text.LoadingConfigEntry", entry.getName()),
+                txt("prc.connectionConfig.title.Loading"),
+                txt("prc.connectionConfig.text.Loading", entry.getName()),
                 project,
                 entry.getConnectionId(),
-                conn -> entry.getConnection().getDataSourceConfigInterface().loadDataSourceConfigEntryValue(entry.getName(), conn));
+                conn -> entry.getConnection().getConnectionConfigurationInterface().loadConnectionConfigurationValue(entry.getName(), conn));
 
         if (value == null) {
-            throw new SQLException(txt("msg.datasource.error.ConfigEntryNotFound", entry.getName()));
+            throw new SQLException(txt("msg.connectionConfig.error.NotFound", entry.getName()));
         }
         return value;
     }

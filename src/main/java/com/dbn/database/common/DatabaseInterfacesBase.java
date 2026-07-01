@@ -18,7 +18,7 @@ package com.dbn.database.common;
 
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
-import com.dbn.database.interfaces.DatabaseDataSourceConfigInterface;
+import com.dbn.database.interfaces.DatabaseConnectionConfigurationInterface;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.database.interfaces.DatabaseEnvironmentInterface;
@@ -119,7 +119,7 @@ public abstract class DatabaseInterfacesBase implements DatabaseInterfaces {
     }
 
     @Override
-    public DatabaseDataSourceConfigInterface getDataSourceConfigInterface() {
+    public DatabaseConnectionConfigurationInterface getConnectionConfigurationInterface() {
         return getInterface(DATA_SOURCE_CONFIG);
     }
 

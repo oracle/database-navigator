@@ -69,7 +69,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     COLUMN(DatabaseObjectTypeId.COLUMN, "column", "columns", Icons.DBO_COLUMN, null, Icons.DBO_COLUMNS, false),
     CONSTRAINT(DatabaseObjectTypeId.CONSTRAINT, "constraint", "constraints", Icons.DBO_CONSTRAINT, Icons.DBO_CONSTRAINT_DISABLED, Icons.DBO_CONSTRAINTS, false),
     CREDENTIAL(DatabaseObjectTypeId.CREDENTIAL, "credential", "credentials", Icons.DBO_CREDENTIAL, Icons.DBO_CREDENTIAL_DISABLED, Icons.DBO_CREDENTIALS, false),
-    DATA_SOURCE_CONFIG_ENTRY(DatabaseObjectTypeId.DATA_SOURCE_CONFIG_ENTRY, "configuration entry", "configuration entries", Icons.DBO_CREDENTIAL, Icons.DBO_CREDENTIAL_DISABLED, Icons.DBO_CREDENTIALS, false),
+    CONNECTION_CONFIGURATION(DatabaseObjectTypeId.CONNECTION_CONFIGURATION, "connection configuration", "connection configurations", Icons.DBO_CREDENTIAL, Icons.DBO_CREDENTIAL_DISABLED, Icons.DBO_CREDENTIALS, false),
     DATABASE(DatabaseObjectTypeId.DATABASE, "database", "databases", null, null, null, false),
     DATASET(DatabaseObjectTypeId.DATASET, "dataset", "datasets", null, null, null, true),
     DIRECTORY(DatabaseObjectTypeId.DIRECTORY, "directory", "directories", null, null, null, true),
@@ -230,7 +230,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
             DBObjectType.CLUSTER,
             DBObjectType.DBLINK,
             DBObjectType.CREDENTIAL,
-            DBObjectType.DATA_SOURCE_CONFIG_ENTRY,
+            DBObjectType.CONNECTION_CONFIGURATION,
             DBObjectType.AI_PROFILE,
             DBObjectType.AI_MODEL));
 

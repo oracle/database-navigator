@@ -20,7 +20,7 @@ import com.dbn.common.outcome.DialogCloseOutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.object.DBDataSourceConfigEntry;
+import com.dbn.object.DBConnectionConfiguration;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
@@ -30,18 +30,18 @@ import javax.swing.Action;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class DataSourceConfigEntryDialog extends DBNDialog<DataSourceConfigEntryForm> {
-    @Nullable private final DBObjectRef<DBDataSourceConfigEntry> entry;
+public class ConnectionConfigurationDialog extends DBNDialog<ConnectionConfigurationForm> {
+    @Nullable private final DBObjectRef<DBConnectionConfiguration> entry;
     @Nullable private final String value;
 
-    public DataSourceConfigEntryDialog(@NotNull ConnectionHandler connection) {
+    public ConnectionConfigurationDialog(@NotNull ConnectionHandler connection) {
         super(connection, txt("msg.objects.title.CreateObject", entryTypeName()), true);
         this.entry = null;
         this.value = null;
         initDialog();
     }
 
-    public DataSourceConfigEntryDialog(@NotNull DBDataSourceConfigEntry entry, @NotNull String value) {
+    public ConnectionConfigurationDialog(@NotNull DBConnectionConfiguration entry, @NotNull String value) {
         super(entry.getConnection(), txt("msg.objects.title.EditObject", entryTypeName()), true);
         this.entry = DBObjectRef.of(entry);
         this.value = value;
@@ -49,7 +49,7 @@ public class DataSourceConfigEntryDialog extends DBNDialog<DataSourceConfigEntry
     }
 
     private static String entryTypeName() {
-        return DBObjectType.DATA_SOURCE_CONFIG_ENTRY.getTitleCasedDisplayName();
+        return DBObjectType.CONNECTION_CONFIGURATION.getTitleCasedDisplayName();
     }
 
     private void initDialog() {
@@ -60,11 +60,11 @@ public class DataSourceConfigEntryDialog extends DBNDialog<DataSourceConfigEntry
     }
 
     @Override
-    protected @NotNull DataSourceConfigEntryForm createForm() {
-        DBDataSourceConfigEntry entry = getEntry();
+    protected @NotNull ConnectionConfigurationForm createForm() {
+        DBConnectionConfiguration entry = getEntry();
         return entry == null ?
-                new DataSourceConfigEntryForm(this, ensureConnection()) :
-                new DataSourceConfigEntryForm(this, entry, value);
+                new ConnectionConfigurationForm(this, ensureConnection()) :
+                new ConnectionConfigurationForm(this, entry, value);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class DataSourceConfigEntryDialog extends DBNDialog<DataSourceConfigEntry
         return getEntry() != null;
     }
 
-    private @Nullable DBDataSourceConfigEntry getEntry() {
+    private @Nullable DBConnectionConfiguration getEntry() {
         return DBObjectRef.get(entry);
     }
 }

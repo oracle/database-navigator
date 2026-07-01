@@ -315,14 +315,14 @@
         <!--object management adapters-->
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBCredentialManagementAdapter"/>
-        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBDataSourceConfigEntryManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBConnectionConfigurationManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBAIProfileManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBAIModelManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBTriggerManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBJsonViewManagementAdapter"/>
 
         <!--object editor providers-->
-        <objectEditorProvider implementation="com.dbn.connection.config.datasource.DataSourceConfigEntryEditorProvider"/>
+        <objectEditorProvider implementation="com.dbn.connection.config.datasource.ConnectionConfigurationEditorProvider"/>
 
         <!--presentation providers-->
         <presentationProvider implementation="com.dbn.common.presentation.provider.ConnectionPresentationProvider"/>
@@ -374,7 +374,7 @@
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.DatabaseVersion_VECTOR_SUPPORT"/>
 
         <!--data source configuration prerequisites-->
-        <prerequisiteRequirementEvaluator implementation="com.dbn.connection.config.datasource.prerequisite.DataSourceConfigPrerequisitesEvaluator"/>
+        <prerequisiteRequirementEvaluator implementation="com.dbn.connection.config.datasource.prerequisite.ConnectionConfigurationPrerequisitesEvaluator"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.DatabaseVersion_DATA_SOURCE_CONFIG"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.SystemPrivilege_CREATE_DATA_SOURCE_CONFIG"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.SystemPrivilege_CREATE_ANY_DATA_SOURCE_CONFIG"/>

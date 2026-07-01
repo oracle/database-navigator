@@ -17,14 +17,14 @@
 package com.dbn.database.common.metadata.impl;
 
 import com.dbn.database.common.metadata.DBObjectMetadataBase;
-import com.dbn.database.common.metadata.def.DBDataSourceConfigEntryMetadata;
+import com.dbn.database.common.metadata.def.DBConnectionConfigurationMetadata;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DBDataSourceConfigEntryMetadataImpl extends DBObjectMetadataBase implements DBDataSourceConfigEntryMetadata {
+public class DBConnectionConfigurationMetadataImpl extends DBObjectMetadataBase implements DBConnectionConfigurationMetadata {
 
-    public DBDataSourceConfigEntryMetadataImpl(ResultSet resultSet) {
+    public DBConnectionConfigurationMetadataImpl(ResultSet resultSet) {
         super(resultSet);
     }
 

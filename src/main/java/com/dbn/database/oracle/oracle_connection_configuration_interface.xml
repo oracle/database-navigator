@@ -26,7 +26,7 @@
                 prefixes CDATA #IMPLIED>
         ]>
 <data-dictionary>
-    <statement-execution-processor id="data-source-config-entry">
+    <statement-execution-processor id="connection-configuration">
         <statement prefixes="DBA, ALL, USER">
             select
                 json_serialize(value returning clob pretty) as value
@@ -42,7 +42,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="create-data-source-config-entry">
+    <statement-execution-processor id="create-connection-configuration">
         <statement>
             begin SYS.DBMS_DATA_SOURCE_CONFIG.CREATE_CONFIG(
                 p_config_name => {#0},
@@ -50,7 +50,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="update-data-source-config-entry">
+    <statement-execution-processor id="update-connection-configuration">
         <statement>
             begin SYS.DBMS_DATA_SOURCE_CONFIG.ALTER_CONFIG(
                 p_config_name => {#0},
@@ -58,7 +58,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="delete-data-source-config-entry">
+    <statement-execution-processor id="delete-connection-configuration">
         <statement>
             begin SYS.DBMS_DATA_SOURCE_CONFIG.DROP_CONFIG(
                 p_config_name => {#0}); end;

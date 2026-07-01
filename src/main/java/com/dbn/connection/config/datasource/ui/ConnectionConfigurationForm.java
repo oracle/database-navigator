@@ -26,8 +26,8 @@ import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Json;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.object.DBDataSourceConfigEntry;
-import com.dbn.object.impl.DBDataSourceConfigEntryImpl;
+import com.dbn.object.DBConnectionConfiguration;
+import com.dbn.object.impl.DBConnectionConfigurationImpl;
 import com.dbn.object.management.ObjectManagementService;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
@@ -50,7 +50,7 @@ import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.nls.NlsResources.txt;
 
-public class DataSourceConfigEntryForm extends DBNFormBase {
+public class ConnectionConfigurationForm extends DBNFormBase {
     private static final Pattern KEY_PATTERN = Pattern.compile("^[A-Za-z][A-Za-z0-9._-]*$");
     private static final int KEY_MAX_LENGTH = 128;
     private static final String DEFAULT_ENTRY_KEY = "new_entry";
@@ -73,27 +73,27 @@ public class DataSourceConfigEntryForm extends DBNFormBase {
     private JPanel editorPanel;
 
     private final ConnectionHandler connection;
-    @Nullable private final DBDataSourceConfigEntry entry;
+    @Nullable private final DBConnectionConfiguration entry;
     private EditorEx jsonEditor;
     private DBNHeaderForm headerForm;
 
-    DataSourceConfigEntryForm(
+    ConnectionConfigurationForm(
             @Nullable Disposable parent,
             @NotNull ConnectionHandler connection) {
         this(parent, connection, null, null);
     }
 
-    DataSourceConfigEntryForm(
+    ConnectionConfigurationForm(
             @Nullable Disposable parent,
-            @NotNull DBDataSourceConfigEntry entry,
+            @NotNull DBConnectionConfiguration entry,
             @NotNull String value) {
         this(parent, entry.getConnection(), entry, value);
     }
 
-    private DataSourceConfigEntryForm(
+    private ConnectionConfigurationForm(
             @Nullable Disposable parent,
             @NotNull ConnectionHandler connection,
-            @Nullable DBDataSourceConfigEntry entry,
+            @Nullable DBConnectionConfiguration entry,
             @Nullable String value) {
         super(parent, connection.getProject());
         this.connection = connection;
@@ -111,12 +111,12 @@ public class DataSourceConfigEntryForm extends DBNFormBase {
     }
 
     private void initFeatureInfo() {
-        DBNHintForm hintForm = new DBNHintForm(this, TextContent.plain(txt("cfg.datasource.hint.Feature")), null, true);
+        DBNHintForm hintForm = new DBNHintForm(this, TextContent.plain(txt("cfg.connectionConfig.hint.Feature")), null, true);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
 
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
-                txt("cfg.datasource.link.Documentation"),
-                txt("cfg.datasource.link.ConfigProvider"),
+                txt("cfg.connectionConfig.link.Documentation"),
+                txt("cfg.connectionConfig.link.ConfigProvider"),
                 DOCUMENTATION_URL);
         hyperlinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
     }
@@ -143,7 +143,7 @@ public class DataSourceConfigEntryForm extends DBNFormBase {
     private void initInputs(@Nullable String value) {
         setText(keyTextField, entry == null ? DEFAULT_ENTRY_KEY : entry.getName());
         keyTextField.setEnabled(entry == null);
-        keyTextField.setToolTipText(txt("cfg.datasource.text.KeyFieldTooltip"));
+        keyTextField.setToolTipText(txt("cfg.connectionConfig.text.KeyFieldTooltip"));
         if (entry != null && value != null) {
             Documents.setText(getProject(), jsonEditor.getDocument(), value);
         }
@@ -151,9 +151,9 @@ public class DataSourceConfigEntryForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(keyTextField, c -> isNotEmpty(c.trim()), txt("cfg.datasource.error.KeyRequired"));
-        addTextValidation(keyTextField, c -> c.trim().isEmpty() || c.trim().length() <= KEY_MAX_LENGTH, txt("cfg.datasource.error.KeyTooLong", KEY_MAX_LENGTH));
-        addTextValidation(keyTextField, c -> c.trim().isEmpty() || KEY_PATTERN.matcher(c.trim()).matches(), txt("cfg.datasource.error.KeyInvalid"));
+        addTextValidation(keyTextField, c -> isNotEmpty(c.trim()), txt("cfg.connectionConfig.error.KeyRequired"));
+        addTextValidation(keyTextField, c -> c.trim().isEmpty() || c.trim().length() <= KEY_MAX_LENGTH, txt("cfg.connectionConfig.error.KeyTooLong", KEY_MAX_LENGTH));
+        addTextValidation(keyTextField, c -> c.trim().isEmpty() || KEY_PATTERN.matcher(c.trim()).matches(), txt("cfg.connectionConfig.error.KeyInvalid"));
         addValidation(editorPanel, c -> validateJson());
     }
 
@@ -165,10 +165,10 @@ public class DataSourceConfigEntryForm extends DBNFormBase {
         getManagementService().updateObject(inputsToEntry(), successHandler);
     }
 
-    private DBDataSourceConfigEntryImpl inputsToEntry() {
+    private DBConnectionConfigurationImpl inputsToEntry() {
         String key = getText(keyTextField).trim();
         String value = readEditorText().trim();
-        return new DBDataSourceConfigEntryImpl(connection, key, value);
+        return new DBConnectionConfigurationImpl(connection, key, value);
     }
 
     @NotNull
@@ -178,13 +178,13 @@ public class DataSourceConfigEntryForm extends DBNFormBase {
 
     private @Nullable String validateJson() {
         String value = readEditorText().trim();
-        if (value.isBlank()) return txt("cfg.datasource.error.JsonRequired");
+        if (value.isBlank()) return txt("cfg.connectionConfig.error.JsonRequired");
 
         try {
             Json.readAsMap(value);
             return null;
         } catch (Exception e) {
-            return txt("cfg.datasource.error.JsonInvalid");
+            return txt("cfg.connectionConfig.error.JsonInvalid");
         }
     }
 

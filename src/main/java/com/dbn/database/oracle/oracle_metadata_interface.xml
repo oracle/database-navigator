@@ -137,7 +137,7 @@
             where PARAMETER = 'CHARACTERSET'
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="data-source-config-entries">
+    <statement-execution-processor id="connection-configurations">
         <statement prefixes="DBA, ALL, USER">
             select
                 config_name as key,

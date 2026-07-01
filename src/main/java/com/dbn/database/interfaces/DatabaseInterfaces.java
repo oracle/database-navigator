@@ -49,7 +49,7 @@ public interface DatabaseInterfaces {
 
     DatabaseVectorInterface getVectorInterface();
 
-    DatabaseDataSourceConfigInterface getDataSourceConfigInterface();
+    DatabaseConnectionConfigurationInterface getConnectionConfigurationInterface();
 
     DatabaseJavaInterface getJavaInterface();
 

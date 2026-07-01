@@ -26,7 +26,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.database.DatabaseFeature.DATA_CHANGE_NOTIFICATION;
-import static com.dbn.database.DatabaseFeature.DATA_SOURCE_CONFIGURATION;
+import static com.dbn.database.DatabaseFeature.CONNECTION_CONFIGURATION;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
 import static com.dbn.database.DatabaseFeature.VECTOR_EMBEDDING;
@@ -74,10 +74,10 @@ public enum DatabaseOperation implements Constant<DatabaseOperation> {
             txt("app.shared.const.Operation_CREATE_VECTOR_EMBEDDINGS"),
             txt("msg.prerequisites.warning.MissingPrerequisites_CREATE_VECTOR_EMBEDDINGS")),
 
-    MANAGE_DATA_SOURCE_CONFIG_ENTRIES(
-            DATA_SOURCE_CONFIGURATION,
-            txt("app.shared.const.Operation_MANAGE_DATA_SOURCE_CONFIG_ENTRIES"),
-            txt("msg.prerequisites.warning.MissingPrerequisites_MANAGE_DATA_SOURCE_CONFIG_ENTRIES")),
+    MANAGE_CONNECTION_CONFIGURATIONS(
+            CONNECTION_CONFIGURATION,
+            txt("app.shared.const.Operation_MANAGE_CONNECTION_CONFIGURATIONS"),
+            txt("msg.prerequisites.warning.MissingPrerequisites_MANAGE_CONNECTION_CONFIGURATIONS")),
 
     ;
 

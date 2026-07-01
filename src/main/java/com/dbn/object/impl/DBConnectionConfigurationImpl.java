@@ -17,8 +17,8 @@
 package com.dbn.object.impl;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.database.common.metadata.def.DBDataSourceConfigEntryMetadata;
-import com.dbn.object.DBDataSourceConfigEntry;
+import com.dbn.database.common.metadata.def.DBConnectionConfigurationMetadata;
+import com.dbn.object.DBConnectionConfiguration;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBRootObjectImpl;
 import com.dbn.object.type.DBObjectType;
@@ -28,22 +28,22 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 
 @Getter
-public class DBDataSourceConfigEntryImpl extends DBRootObjectImpl<DBDataSourceConfigEntryMetadata> implements DBDataSourceConfigEntry {
+public class DBConnectionConfigurationImpl extends DBRootObjectImpl<DBConnectionConfigurationMetadata> implements DBConnectionConfiguration {
     private String lastUpdated;
     private String value;
 
-    public DBDataSourceConfigEntryImpl(@NotNull ConnectionHandler connection, @NotNull String name, @NotNull String value) {
-        super(connection, DBObjectType.DATA_SOURCE_CONFIG_ENTRY, name);
+    public DBConnectionConfigurationImpl(@NotNull ConnectionHandler connection, @NotNull String name, @NotNull String value) {
+        super(connection, DBObjectType.CONNECTION_CONFIGURATION, name);
         this.lastUpdated = "";
         this.value = value;
     }
 
-    DBDataSourceConfigEntryImpl(ConnectionHandler connection, DBDataSourceConfigEntryMetadata metadata) throws SQLException {
+    DBConnectionConfigurationImpl(ConnectionHandler connection, DBConnectionConfigurationMetadata metadata) throws SQLException {
         super(connection, metadata);
     }
 
     @Override
-    protected String initObject(ConnectionHandler connection, DBObject parentObject, DBDataSourceConfigEntryMetadata metadata) throws SQLException {
+    protected String initObject(ConnectionHandler connection, DBObject parentObject, DBConnectionConfigurationMetadata metadata) throws SQLException {
         lastUpdated = metadata.getLastUpdated();
         return metadata.getKey();
     }
@@ -51,6 +51,6 @@ public class DBDataSourceConfigEntryImpl extends DBRootObjectImpl<DBDataSourceCo
     @NotNull
     @Override
     public DBObjectType getObjectType() {
-        return DBObjectType.DATA_SOURCE_CONFIG_ENTRY;
+        return DBObjectType.CONNECTION_CONFIGURATION;
     }
 }

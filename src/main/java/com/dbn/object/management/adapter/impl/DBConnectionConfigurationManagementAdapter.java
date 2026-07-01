@@ -18,39 +18,39 @@ package com.dbn.object.management.adapter.impl;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.object.DBDataSourceConfigEntry;
+import com.dbn.object.DBConnectionConfiguration;
 import com.dbn.object.management.ObjectManagementAdapterBase;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
 
 import static com.dbn.common.constant.Constant.array;
-import static com.dbn.object.type.DBObjectType.DATA_SOURCE_CONFIG_ENTRY;
+import static com.dbn.object.type.DBObjectType.CONNECTION_CONFIGURATION;
 
-public class DBDataSourceConfigEntryManagementAdapter extends ObjectManagementAdapterBase<DBDataSourceConfigEntry> {
+public class DBConnectionConfigurationManagementAdapter extends ObjectManagementAdapterBase<DBConnectionConfiguration> {
     @Override
     public DBObjectType[] getObjectTypes() {
-        return array(DATA_SOURCE_CONFIG_ENTRY);
+        return array(CONNECTION_CONFIGURATION);
     }
 
     @Override
-    protected void createObject(ConnectionHandler connection, DBNConnection conn, DBDataSourceConfigEntry object) throws SQLException {
-        connection.getDataSourceConfigInterface().createDataSourceConfigEntry(
+    protected void createObject(ConnectionHandler connection, DBNConnection conn, DBConnectionConfiguration object) throws SQLException {
+        connection.getConnectionConfigurationInterface().createConnectionConfiguration(
                 object.getName(),
                 object.getValue(),
                 conn);
     }
 
     @Override
-    protected void updateObject(ConnectionHandler connection, DBNConnection conn, DBDataSourceConfigEntry object) throws SQLException {
-        connection.getDataSourceConfigInterface().updateDataSourceConfigEntry(
+    protected void updateObject(ConnectionHandler connection, DBNConnection conn, DBConnectionConfiguration object) throws SQLException {
+        connection.getConnectionConfigurationInterface().updateConnectionConfiguration(
                 object.getName(),
                 object.getValue(),
                 conn);
     }
 
     @Override
-    protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBDataSourceConfigEntry object) throws SQLException {
-        connection.getDataSourceConfigInterface().deleteDataSourceConfigEntry(object.getName(), conn);
+    protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBConnectionConfiguration object) throws SQLException {
+        connection.getConnectionConfigurationInterface().deleteConnectionConfiguration(object.getName(), conn);
     }
 }
