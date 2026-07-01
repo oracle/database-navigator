@@ -16,6 +16,7 @@
 
 package com.dbn.connection.config.datasource.ui;
 
+import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -24,14 +25,10 @@ import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Json;
-import com.dbn.common.util.Messages;
-import com.dbn.common.outcome.Outcome;
-import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.object.common.list.DBObjectList;
+import com.dbn.object.DBDataSourceConfigEntry;
 import com.dbn.object.impl.DBDataSourceConfigEntryImpl;
 import com.dbn.object.management.ObjectManagementService;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -44,23 +41,20 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.JLabel;
 import java.awt.BorderLayout;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.file.FileTypes.getJsonFileType;
-import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.TextFields.setText;
+import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 
-public class CreateDataSourceConfigEntryForm extends DBNFormBase {
+public class DataSourceConfigEntryForm extends DBNFormBase {
     private static final Pattern KEY_PATTERN = Pattern.compile("^[A-Za-z][A-Za-z0-9._-]*$");
     private static final int KEY_MAX_LENGTH = 128;
     private static final String DEFAULT_ENTRY_KEY = "new_entry";
     private static final String DOCUMENTATION_URL = "https://docs.oracle.com/en/database/oracle/oracle-database/23/netag/configuring-centralized-configuration-provider-naming-method.html";
-    private static final String FEATURE_HINT = """
-            Configuration Entries lets you save reusable connection configuration profiles in the database.
-
-            Create a key and JSON settings once, then let clients reference that entry using DATA_SOURCE_CONFIG_KEY. Add only the sections you need, including optional driver blocks for jdbc, oci, pyo, and njs.
-            """;
     private static final String DEFAULT_JSON_TEMPLATE = """
             {
               "connect_descriptor": "",
@@ -77,22 +71,38 @@ public class CreateDataSourceConfigEntryForm extends DBNFormBase {
     private JPanel hyperlinkPanel;
     private JTextField keyTextField;
     private JPanel editorPanel;
-    private JLabel statusLabel;
 
     private final ConnectionHandler connection;
+    @Nullable private final DBDataSourceConfigEntry entry;
     private EditorEx jsonEditor;
     private DBNHeaderForm headerForm;
 
-    CreateDataSourceConfigEntryForm(
+    DataSourceConfigEntryForm(
             @Nullable Disposable parent,
             @NotNull ConnectionHandler connection) {
+        this(parent, connection, null, null);
+    }
+
+    DataSourceConfigEntryForm(
+            @Nullable Disposable parent,
+            @NotNull DBDataSourceConfigEntry entry,
+            @NotNull String value) {
+        this(parent, entry.getConnection(), entry, value);
+    }
+
+    private DataSourceConfigEntryForm(
+            @Nullable Disposable parent,
+            @NotNull ConnectionHandler connection,
+            @Nullable DBDataSourceConfigEntry entry,
+            @Nullable String value) {
         super(parent, connection.getProject());
         this.connection = connection;
+        this.entry = entry;
 
         initHeader();
         initFeatureInfo();
         initEditor();
-        initDefaults();
+        initInputs(value);
     }
 
     private void initHeader() {
@@ -101,12 +111,12 @@ public class CreateDataSourceConfigEntryForm extends DBNFormBase {
     }
 
     private void initFeatureInfo() {
-        DBNHintForm hintForm = new DBNHintForm(this, TextContent.plain(FEATURE_HINT), null, true);
+        DBNHintForm hintForm = new DBNHintForm(this, TextContent.plain(txt("cfg.datasource.hint.Feature")), null, true);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
 
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
-                "Documentation:",
-                "Centralized Config Provider",
+                txt("cfg.datasource.link.Documentation"),
+                txt("cfg.datasource.link.ConfigProvider"),
                 DOCUMENTATION_URL);
         hyperlinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
     }
@@ -130,83 +140,56 @@ public class CreateDataSourceConfigEntryForm extends DBNFormBase {
         editorPanel.add(jsonEditor.getComponent(), BorderLayout.CENTER);
     }
 
-    private void initDefaults() {
-        keyTextField.setText(DEFAULT_ENTRY_KEY);
-        keyTextField.setToolTipText("Entry key: starts with a letter, then letters, digits, dot, dash, or underscore.");
-        setStatus("Specify a key and JSON payload, then click Create.");
+    private void initInputs(@Nullable String value) {
+        setText(keyTextField, entry == null ? DEFAULT_ENTRY_KEY : entry.getName());
+        keyTextField.setEnabled(entry == null);
+        keyTextField.setToolTipText(txt("cfg.datasource.text.KeyFieldTooltip"));
+        if (entry != null && value != null) {
+            Documents.setText(getProject(), jsonEditor.getDocument(), value);
+        }
     }
 
-    void createEntry(Runnable onSuccess) {
-        CreateEntryInput input = readAndValidateInput();
-        if (input == null) return;
-
-        DBDataSourceConfigEntryImpl entry = new DBDataSourceConfigEntryImpl(connection, input.key(), input.value());
-        ObjectManagementService.getInstance(getProject()).createObject(entry, new OutcomeHandler.HighPriority() {
-            @Override
-            public void handle(Outcome outcome) {
-                reloadEntryList();
-                setStatus("Created '" + input.key() + "'.");
-                onSuccess.run();
-            }
-        });
+    @Override
+    protected void initValidation() {
+        addTextValidation(keyTextField, c -> isNotEmpty(c.trim()), txt("cfg.datasource.error.KeyRequired"));
+        addTextValidation(keyTextField, c -> c.trim().isEmpty() || c.trim().length() <= KEY_MAX_LENGTH, txt("cfg.datasource.error.KeyTooLong", KEY_MAX_LENGTH));
+        addTextValidation(keyTextField, c -> c.trim().isEmpty() || KEY_PATTERN.matcher(c.trim()).matches(), txt("cfg.datasource.error.KeyInvalid"));
+        addValidation(editorPanel, c -> validateJson());
     }
 
-    private @Nullable CreateEntryInput readAndValidateInput() {
-        String key = keyTextField.getText().trim();
+    void createEntry(OutcomeHandler successHandler) {
+        getManagementService().createObject(inputsToEntry(), successHandler);
+    }
+
+    void updateEntry(OutcomeHandler successHandler) {
+        getManagementService().updateObject(inputsToEntry(), successHandler);
+    }
+
+    private DBDataSourceConfigEntryImpl inputsToEntry() {
+        String key = getText(keyTextField).trim();
         String value = readEditorText().trim();
-
-        if (!validateKey(key)) return null;
-        if (!validateJson(value)) return null;
-        return new CreateEntryInput(key, value);
+        return new DBDataSourceConfigEntryImpl(connection, key, value);
     }
 
-    private boolean validateKey(@NotNull String key) {
-        if (isEmpty(key)) {
-            Messages.showWarningDialog(getProject(), "Validation", "Entry key is required.");
-            return false;
-        }
-        if (key.length() > KEY_MAX_LENGTH) {
-            Messages.showWarningDialog(getProject(), "Validation", "Entry key must be at most " + KEY_MAX_LENGTH + " characters.");
-            return false;
-        }
-        if (!KEY_PATTERN.matcher(key).matches()) {
-            Messages.showWarningDialog(
-                    getProject(),
-                    "Validation",
-                    "Invalid entry key. It must start with a letter and use only letters, digits, '.', '-', or '_'.");
-            return false;
-        }
-        return true;
+    @NotNull
+    private ObjectManagementService getManagementService() {
+        return ObjectManagementService.getInstance(getProject());
     }
 
-    private boolean validateJson(@NotNull String value) {
-        if (isEmpty(value)) {
-            Messages.showWarningDialog(getProject(), "Validation", "JSON payload is required.");
-            return false;
-        }
+    private @Nullable String validateJson() {
+        String value = readEditorText().trim();
+        if (value.isBlank()) return txt("cfg.datasource.error.JsonRequired");
 
         try {
             Json.readAsMap(value);
-            return true;
+            return null;
         } catch (Exception e) {
-            Messages.showErrorDialog(getProject(), "Invalid JSON payload", e);
-            return false;
-        }
-    }
-
-    private void reloadEntryList() {
-        DBObjectList<?> objectList = connection.getObjectBundle().getObjectList(DBObjectType.DATA_SOURCE_CONFIG_ENTRY);
-        if (objectList != null) {
-            objectList.reloadInBackground();
+            return txt("cfg.datasource.error.JsonInvalid");
         }
     }
 
     private @NotNull String readEditorText() {
         return jsonEditor == null ? "" : jsonEditor.getDocument().getText();
-    }
-
-    private void setStatus(@NotNull String status) {
-        statusLabel.setText(status);
     }
 
     @Override
@@ -221,6 +204,4 @@ public class CreateDataSourceConfigEntryForm extends DBNFormBase {
         jsonEditor = null;
         super.disposeInner();
     }
-
-    private record CreateEntryInput(String key, String value) {}
 }

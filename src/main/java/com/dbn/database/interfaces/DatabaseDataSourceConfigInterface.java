@@ -18,7 +18,6 @@ package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static com.dbn.database.interfaces.DatabaseInterfaceType.DATA_SOURCE_CONFIG;
@@ -32,9 +31,9 @@ public interface DatabaseDataSourceConfigInterface extends DatabaseInterface {
         return DATA_SOURCE_CONFIG;
     }
 
-    ResultSet loadDataSourceConfigEntry(String key, DBNConnection connection) throws SQLException;
+    String loadDataSourceConfigEntryValue(String key, DBNConnection connection) throws SQLException;
 
-    void insertDataSourceConfigEntry(String key, String value, DBNConnection connection) throws SQLException;
+    void createDataSourceConfigEntry(String key, String value, DBNConnection connection) throws SQLException;
 
     void updateDataSourceConfigEntry(String key, String value, DBNConnection connection) throws SQLException;
 

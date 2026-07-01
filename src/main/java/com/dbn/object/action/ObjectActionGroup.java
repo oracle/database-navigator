@@ -48,6 +48,7 @@ import com.dbn.object.common.list.action.HideAuditColumnsToggleAction;
 import com.dbn.object.common.list.action.HideEmptySchemasToggleAction;
 import com.dbn.object.common.list.action.HidePseudoColumnsToggleAction;
 import com.dbn.object.dependency.action.ObjectDependencyTreeAction;
+import com.dbn.object.editor.ObjectEditorProviders;
 import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.navigation.DBObjectNavigationInfoProvider;
 import com.dbn.object.navigation.DBObjectNavigationInfoProviderCache;
@@ -142,8 +143,12 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
                 //add(new TestAction(object));
             }
         } else {
-            // connection-root objects may still expose lifecycle operations through the object management service
-            if (ObjectManagementService.getInstance(object.getProject()).supports(object)) {
+            // connection-root managed objects: edit (when an editor provider is registered) + drop
+            ObjectManagementService managementService = ObjectManagementService.getInstance(object.getProject());
+            if (managementService.supports(object)) {
+                if (ObjectEditorProviders.isSupported(object.getObjectType())) {
+                    add(new ObjectEditAction(object));
+                }
                 add(new ObjectDropAction(object));
             }
         }

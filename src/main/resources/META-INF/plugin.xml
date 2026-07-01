@@ -236,6 +236,7 @@
         <extensionPoint name="objectNavigationInfoProvider" qualifiedName="com.dbn.objectNavigationInfoProvider" interface="com.dbn.object.navigation.DBObjectNavigationInfoProvider" dynamic="true"/>
         <extensionPoint name="objectFactoryAdapter" qualifiedName="com.dbn.objectFactoryAdapter" interface="com.dbn.object.factory.ObjectFactoryAdapter" dynamic="true"/>
         <extensionPoint name="objectManagementAdapter" qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterExtension" dynamic="true"/>
+        <extensionPoint name="objectEditorProvider" qualifiedName="com.dbn.objectEditorProvider" interface="com.dbn.object.editor.ObjectEditorProvider" dynamic="true"/>
 
         <extensionPoint name="assistantAdapter" qualifiedName="com.dbn.assistantAdapter" interface="com.dbn.assistant.adapter.AssistantAdapter" dynamic="true"/>
         <extensionPoint name="assistantModelFactory" qualifiedName="com.dbn.assistantModelFactory" interface="com.dbn.assistant.service.generic.model.AssistantModelFactory" dynamic="true"/>
@@ -319,6 +320,9 @@
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBAIModelManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBTriggerManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBJsonViewManagementAdapter"/>
+
+        <!--object editor providers-->
+        <objectEditorProvider implementation="com.dbn.connection.config.datasource.DataSourceConfigEntryEditorProvider"/>
 
         <!--presentation providers-->
         <presentationProvider implementation="com.dbn.common.presentation.provider.ConnectionPresentationProvider"/>

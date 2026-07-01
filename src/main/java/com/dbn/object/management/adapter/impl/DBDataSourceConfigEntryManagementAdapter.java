@@ -35,7 +35,15 @@ public class DBDataSourceConfigEntryManagementAdapter extends ObjectManagementAd
 
     @Override
     protected void createObject(ConnectionHandler connection, DBNConnection conn, DBDataSourceConfigEntry object) throws SQLException {
-        connection.getDataSourceConfigInterface().insertDataSourceConfigEntry(
+        connection.getDataSourceConfigInterface().createDataSourceConfigEntry(
+                object.getName(),
+                object.getValue(),
+                conn);
+    }
+
+    @Override
+    protected void updateObject(ConnectionHandler connection, DBNConnection conn, DBDataSourceConfigEntry object) throws SQLException {
+        connection.getDataSourceConfigInterface().updateDataSourceConfigEntry(
                 object.getName(),
                 object.getValue(),
                 conn);

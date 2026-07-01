@@ -21,7 +21,6 @@ import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.interfaces.DatabaseDataSourceConfigInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class OracleDataSourceConfigInterface extends DatabaseInterfaceBase implements DatabaseDataSourceConfigInterface {
@@ -31,13 +30,13 @@ public class OracleDataSourceConfigInterface extends DatabaseInterfaceBase imple
     }
 
     @Override
-    public ResultSet loadDataSourceConfigEntry(String key, DBNConnection connection) throws SQLException {
-        return executeQuery(connection, "data-source-config-entry", key);
+    public String loadDataSourceConfigEntryValue(String key, DBNConnection connection) throws SQLException {
+        return getSingleValue(connection, "data-source-config-entry", key);
     }
 
     @Override
-    public void insertDataSourceConfigEntry(String key, String value, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "insert-data-source-config-entry", key, value);
+    public void createDataSourceConfigEntry(String key, String value, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "create-data-source-config-entry", key, value);
     }
 
     @Override

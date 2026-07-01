@@ -82,7 +82,12 @@ final class ObjectManagementServiceImpl extends ProjectComponentBase implements 
 
     @Override
     public boolean supports(DBObject object) {
-        return managementAdapters.containsKey(object.getObjectType());
+        return supports(object.getObjectType());
+    }
+
+    @Override
+    public boolean supports(DBObjectType objectType) {
+        return managementAdapters.containsKey(objectType);
     }
 
     public void createObject(DBObject object, OutcomeHandler successHandler) {

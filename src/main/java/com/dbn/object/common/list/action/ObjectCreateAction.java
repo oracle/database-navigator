@@ -19,32 +19,31 @@ package com.dbn.object.common.list.action;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ref.WeakRef;
-import com.dbn.common.util.Dialogs;
-import com.dbn.connection.config.datasource.ui.CreateDataSourceConfigEntryDialog;
 import com.dbn.object.common.list.DBObjectList;
+import com.dbn.object.editor.ObjectEditorProviders;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.operation.DatabaseOperation.MANAGE_DATA_SOURCE_CONFIG_ENTRIES;
 import static com.dbn.nls.NlsResources.txt;
 
-public class CreateDataSourceConfigEntryAction extends BasicAction {
+/**
+ * Generic "New ..." action for a connection-root object list whose type has a registered
+ * {@link com.dbn.object.editor.ObjectEditorProvider}. The provider owns the type-specific create dialog.
+ * <p>
+ * This is the management-based, schema-free counterpart of {@link CreateObjectAction} (which drives the
+ * schema-centered object factory).
+ */
+public class ObjectCreateAction extends BasicAction {
     private final WeakRef<DBObjectList> objectList;
 
-    CreateDataSourceConfigEntryAction(DBObjectList objectList) {
+    ObjectCreateAction(DBObjectList objectList) {
         super(txt("app.objects.action.NewObject", objectList.getObjectType().getTitleCasedDisplayName()));
         this.objectList = WeakRef.of(objectList);
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        DBObjectList objectList = getObjectList();
-        MANAGE_DATA_SOURCE_CONFIG_ENTRIES.start(
-                objectList.getConnection(),
-                () -> Dialogs.show(() -> new CreateDataSourceConfigEntryDialog(objectList.getConnection())));
-    }
-
-    private @NotNull DBObjectList getObjectList() {
-        return Failsafe.nn(WeakRef.get(objectList));
+        DBObjectList objectList = Failsafe.nn(WeakRef.get(this.objectList));
+        ObjectEditorProviders.get(objectList.getObjectType()).openCreateDialog(objectList);
     }
 }
