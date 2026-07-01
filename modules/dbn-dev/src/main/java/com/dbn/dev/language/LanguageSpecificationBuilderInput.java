@@ -65,6 +65,7 @@ public class LanguageSpecificationBuilderInput {
 
         ARTIFACT_OPTIONS.put("l", Artifact.LEXER);
         ARTIFACT_OPTIONS.put("p", Artifact.PARSER);
+        ARTIFACT_OPTIONS.put("a", Artifact.ALL);
 
         LEXER_ACTION_OPTIONS.put("d", Action.UPDATE_DEFINITION);
         LEXER_ACTION_OPTIONS.put("c", Action.BUILD_CLASS);
@@ -104,6 +105,13 @@ public class LanguageSpecificationBuilderInput {
 
     public File getParserElementsExtensionFile() {
         return new File(getProjectPath(), getDefinitionFilePath() + getDefinitionFilePrefix() + "_parser_elements_ext.xml");
+    }
+
+    public File getTokenRegistryFile(String categoryIdentifier) {
+        return new File(
+                getProjectPath(),
+                "modules/dbn-dev/src/main/resources/language/" + databaseId + "/" +
+                        getDefinitionFilePrefix() + "_" + categoryIdentifier + ".txt");
     }
 
     public File getHighlighterLexerBaseFile() {
@@ -157,9 +165,11 @@ public class LanguageSpecificationBuilderInput {
 
     public enum Artifact {
         LEXER,
-        PARSER;
+        PARSER,
+        ALL;
 
         public Map<String, Action> getActionOptions() {
+            if (this == ALL) return Map.of();
             return this == LEXER ? LEXER_ACTION_OPTIONS : PARSER_ACTION_OPTIONS;
         }
 

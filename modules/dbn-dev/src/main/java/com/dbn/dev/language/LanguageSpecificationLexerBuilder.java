@@ -21,7 +21,6 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -144,12 +143,13 @@ public class LanguageSpecificationLexerBuilder implements LanguageSpecificationA
     @SneakyThrows
     private List<TokenDefinition> loadTokenDefinitions(TokenTypeCategory category) {
         String categoryIdentifier = getCategoryIdentifier(category);
+        File file = input.getTokenRegistryFile(categoryIdentifier);
+        if (!file.exists()) return emptyList();
 
-        String filePath = "/language/" + input.databaseId + "/" + input.databaseId + "_" + input.languageFid + "_" + categoryIdentifier + ".txt";
-        URL fileUrl = LanguageSpecificationBuilder.class.getResource(filePath);
-        if (fileUrl == null) return emptyList();
+        Path filePath = file.toPath();
+        System.out.println("Reading token registry " + filePath);
 
-        String tokens = Files.readString(Path.of(fileUrl.getPath()));
+        String tokens = Files.readString(filePath);
         String[] tokenEntries = tokens.split("\n");
         AtomicInteger index = new AtomicInteger(0);
         return Arrays.stream(tokenEntries).
