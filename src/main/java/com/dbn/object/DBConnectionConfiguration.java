@@ -20,6 +20,12 @@ import com.dbn.object.common.DBRootObject;
 import org.jetbrains.annotations.Nullable;
 
 public interface DBConnectionConfiguration extends DBRootObject {
+    String getOwnerName();
+
+    String getConfigName();
+
+    String getQualifiedConfigName();
+
     String getLastUpdated();
 
     @Nullable

@@ -138,17 +138,27 @@
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="connection-configurations">
-        <statement prefixes="DBA, ALL, USER">
+        <statement prefixes="DBA, ALL">
             select
-                config_name as key,
+                owner,
+                config_name,
                 to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
             from [PREFIX]_DATA_SOURCE_CONFIGS
+            order by owner, config_name
+        </statement>
+        <statement prefixes="USER">
+            select
+                USER as owner,
+                config_name,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from USER_DATA_SOURCE_CONFIGS
             order by config_name
         </statement>
         <statement>
             <!--empty fallback for databases without data source config store-->
             select
-                null as key,
+                null as owner,
+                null as config_name,
                 null as last_updated
             from dual
             where 1 = 0

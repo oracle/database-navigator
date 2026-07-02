@@ -74,7 +74,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
     /**
      * Load all connection configurations visible to the current user
      * Column names of the returned ResultSet
-     *  <li> KEY (char)
+     *  <li> OWNER (char)
+     *  <li> CONFIG_NAME (char)
      *  <li> LAST_UPDATED (char)
      */
     ResultSet loadConnectionConfigurations(DBNConnection connection) throws SQLException;

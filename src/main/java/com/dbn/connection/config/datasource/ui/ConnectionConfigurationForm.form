@@ -16,7 +16,7 @@
         <border type="none"/>
         <children/>
       </grid>
-      <grid id="entry-info-panel" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="8" vgap="-1">
+      <grid id="entry-info-panel" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="8" vgap="4">
         <margin top="6" left="0" bottom="2" right="0"/>
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -24,18 +24,33 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="key-label" class="javax.swing.JLabel">
+          <component id="owner-label" class="javax.swing.JLabel">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <labelFor value="key-field"/>
-              <text resource-bundle="messages/DBNResources" key="cfg.connectionConfig.label.Key"/>
+              <labelFor value="owner-field"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.connectionConfig.label.Owner"/>
             </properties>
           </component>
-          <component id="key-field" class="javax.swing.JTextField" binding="keyTextField">
+          <component id="owner-field" class="javax.swing.JTextField" binding="ownerTextField">
             <constraints>
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="config-name-label" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <labelFor value="config-name-field"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.connectionConfig.label.ConfigName"/>
+            </properties>
+          </component>
+          <component id="config-name-field" class="javax.swing.JTextField" binding="configNameTextField">
+            <constraints>
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
           </component>

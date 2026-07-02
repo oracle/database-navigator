@@ -30,22 +30,22 @@ public class OracleConnectionConfigurationInterface extends DatabaseInterfaceBas
     }
 
     @Override
-    public String loadConnectionConfigurationValue(String key, DBNConnection connection) throws SQLException {
-        return getSingleValue(connection, "connection-configuration", key);
+    public String loadConnectionConfigurationValue(String ownerName, String configName, DBNConnection connection) throws SQLException {
+        return getSingleValue(connection, "connection-configuration", ownerName, configName);
     }
 
     @Override
-    public void createConnectionConfiguration(String key, String value, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "create-connection-configuration", key, value);
+    public void createConnectionConfiguration(String qualifiedConfigName, String value, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "create-connection-configuration", qualifiedConfigName, value);
     }
 
     @Override
-    public void updateConnectionConfiguration(String key, String value, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "update-connection-configuration", key, value);
+    public void updateConnectionConfiguration(String qualifiedConfigName, String value, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "update-connection-configuration", qualifiedConfigName, value);
     }
 
     @Override
-    public void deleteConnectionConfiguration(String key, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "delete-connection-configuration", key);
+    public void deleteConnectionConfiguration(String qualifiedConfigName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "delete-connection-configuration", qualifiedConfigName);
     }
 }

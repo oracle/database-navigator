@@ -36,7 +36,7 @@ public class DBConnectionConfigurationManagementAdapter extends ObjectManagement
     @Override
     protected void createObject(ConnectionHandler connection, DBNConnection conn, DBConnectionConfiguration object) throws SQLException {
         connection.getConnectionConfigurationInterface().createConnectionConfiguration(
-                object.getName(),
+                object.getQualifiedConfigName(),
                 object.getValue(),
                 conn);
     }
@@ -44,13 +44,13 @@ public class DBConnectionConfigurationManagementAdapter extends ObjectManagement
     @Override
     protected void updateObject(ConnectionHandler connection, DBNConnection conn, DBConnectionConfiguration object) throws SQLException {
         connection.getConnectionConfigurationInterface().updateConnectionConfiguration(
-                object.getName(),
+                object.getQualifiedConfigName(),
                 object.getValue(),
                 conn);
     }
 
     @Override
     protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBConnectionConfiguration object) throws SQLException {
-        connection.getConnectionConfigurationInterface().deleteConnectionConfiguration(object.getName(), conn);
+        connection.getConnectionConfigurationInterface().deleteConnectionConfiguration(object.getQualifiedConfigName(), conn);
     }
 }

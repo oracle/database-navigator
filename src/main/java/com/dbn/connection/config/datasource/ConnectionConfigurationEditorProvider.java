@@ -34,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
+import static com.dbn.common.operation.DatabaseOperation.CREATE_CONNECTION_CONFIGURATION;
 import static com.dbn.common.operation.DatabaseOperation.MANAGE_CONNECTION_CONFIGURATIONS;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.CONNECTION_CONFIGURATION;
@@ -52,7 +53,7 @@ public class ConnectionConfigurationEditorProvider implements ObjectEditorProvid
     @Override
     public void openCreateDialog(DBObjectList objectList) {
         ConnectionHandler connection = objectList.getConnection();
-        MANAGE_CONNECTION_CONFIGURATIONS.start(
+        CREATE_CONNECTION_CONFIGURATION.start(
                 connection,
                 () -> Dialogs.show(() -> new ConnectionConfigurationDialog(connection)));
     }
@@ -82,10 +83,13 @@ public class ConnectionConfigurationEditorProvider implements ObjectEditorProvid
                 txt("prc.connectionConfig.text.Loading", entry.getName()),
                 project,
                 entry.getConnectionId(),
-                conn -> entry.getConnection().getConnectionConfigurationInterface().loadConnectionConfigurationValue(entry.getName(), conn));
+                conn -> entry.getConnection().getConnectionConfigurationInterface().loadConnectionConfigurationValue(
+                        entry.getOwnerName(),
+                        entry.getConfigName(),
+                        conn));
 
         if (value == null) {
-            throw new SQLException(txt("msg.connectionConfig.error.NotFound", entry.getName()));
+            throw new SQLException(txt("msg.connectionConfig.error.NotFound", entry.getQualifiedConfigName()));
         }
         return value;
     }

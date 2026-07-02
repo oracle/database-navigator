@@ -27,11 +27,18 @@
         ]>
 <data-dictionary>
     <statement-execution-processor id="connection-configuration">
-        <statement prefixes="DBA, ALL, USER">
+        <statement prefixes="DBA, ALL">
             select
                 json_serialize(value returning clob pretty) as value
             from [PREFIX]_DATA_SOURCE_CONFIGS
-            where upper(config_name) = upper({#0})
+            where upper(owner) = upper({#0})
+              and upper(config_name) = upper({#1})
+        </statement>
+        <statement prefixes="USER">
+            select
+                json_serialize(value returning clob pretty) as value
+            from USER_DATA_SOURCE_CONFIGS
+            where upper(config_name) = upper({#1})
         </statement>
         <statement>
             <!--empty fallback for databases without data source config store-->

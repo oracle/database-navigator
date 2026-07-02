@@ -31,11 +31,11 @@ public interface DatabaseConnectionConfigurationInterface extends DatabaseInterf
         return DATA_SOURCE_CONFIG;
     }
 
-    String loadConnectionConfigurationValue(String key, DBNConnection connection) throws SQLException;
+    String loadConnectionConfigurationValue(String ownerName, String configName, DBNConnection connection) throws SQLException;
 
-    void createConnectionConfiguration(String key, String value, DBNConnection connection) throws SQLException;
+    void createConnectionConfiguration(String qualifiedConfigName, String value, DBNConnection connection) throws SQLException;
 
-    void updateConnectionConfiguration(String key, String value, DBNConnection connection) throws SQLException;
+    void updateConnectionConfiguration(String qualifiedConfigName, String value, DBNConnection connection) throws SQLException;
 
-    void deleteConnectionConfiguration(String key, DBNConnection connection) throws SQLException;
+    void deleteConnectionConfiguration(String qualifiedConfigName, DBNConnection connection) throws SQLException;
 }

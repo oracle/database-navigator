@@ -51,9 +51,10 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionConfigurationForm extends DBNFormBase {
-    private static final Pattern KEY_PATTERN = Pattern.compile("^[A-Za-z][A-Za-z0-9._-]*$");
-    private static final int KEY_MAX_LENGTH = 128;
-    private static final String DEFAULT_ENTRY_KEY = "new_entry";
+    private static final Pattern OWNER_PATTERN = Pattern.compile("^[A-Za-z][A-Za-z0-9_$#]*$");
+    private static final Pattern CONFIG_NAME_PATTERN = Pattern.compile("^[A-Za-z][A-Za-z0-9_-]*$");
+    private static final int IDENTIFIER_MAX_LENGTH = 128;
+    private static final String DEFAULT_CONFIG_NAME = "new_configuration";
     private static final String DOCUMENTATION_URL = "https://docs.oracle.com/en/database/oracle/oracle-database/23/netag/configuring-centralized-configuration-provider-naming-method.html";
     private static final String DEFAULT_JSON_TEMPLATE = """
             {
@@ -69,7 +70,8 @@ public class ConnectionConfigurationForm extends DBNFormBase {
     private JPanel headerPanel;
     private JPanel hintPanel;
     private JPanel hyperlinkPanel;
-    private JTextField keyTextField;
+    private JTextField ownerTextField;
+    private JTextField configNameTextField;
     private JPanel editorPanel;
 
     private final ConnectionHandler connection;
@@ -141,9 +143,14 @@ public class ConnectionConfigurationForm extends DBNFormBase {
     }
 
     private void initInputs(@Nullable String value) {
-        setText(keyTextField, entry == null ? DEFAULT_ENTRY_KEY : entry.getName());
-        keyTextField.setEnabled(entry == null);
-        keyTextField.setToolTipText(txt("cfg.connectionConfig.text.KeyFieldTooltip"));
+        setText(ownerTextField, entry == null ? connection.getUserName() : entry.getOwnerName());
+        setText(configNameTextField, entry == null ? DEFAULT_CONFIG_NAME : entry.getConfigName());
+
+        boolean creating = entry == null;
+        ownerTextField.setEnabled(creating);
+        configNameTextField.setEnabled(creating);
+        ownerTextField.setToolTipText(txt("cfg.connectionConfig.text.OwnerFieldTooltip"));
+        configNameTextField.setToolTipText(txt("cfg.connectionConfig.text.ConfigNameFieldTooltip"));
         if (entry != null && value != null) {
             Documents.setText(getProject(), jsonEditor.getDocument(), value);
         }
@@ -151,9 +158,12 @@ public class ConnectionConfigurationForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(keyTextField, c -> isNotEmpty(c.trim()), txt("cfg.connectionConfig.error.KeyRequired"));
-        addTextValidation(keyTextField, c -> c.trim().isEmpty() || c.trim().length() <= KEY_MAX_LENGTH, txt("cfg.connectionConfig.error.KeyTooLong", KEY_MAX_LENGTH));
-        addTextValidation(keyTextField, c -> c.trim().isEmpty() || KEY_PATTERN.matcher(c.trim()).matches(), txt("cfg.connectionConfig.error.KeyInvalid"));
+        addTextValidation(ownerTextField, c -> isNotEmpty(c.trim()), txt("cfg.connectionConfig.error.OwnerRequired"));
+        addTextValidation(ownerTextField, c -> c.trim().isEmpty() || c.trim().length() <= IDENTIFIER_MAX_LENGTH, txt("cfg.connectionConfig.error.OwnerTooLong", IDENTIFIER_MAX_LENGTH));
+        addTextValidation(ownerTextField, c -> c.trim().isEmpty() || OWNER_PATTERN.matcher(c.trim()).matches(), txt("cfg.connectionConfig.error.OwnerInvalid"));
+        addTextValidation(configNameTextField, c -> isNotEmpty(c.trim()), txt("cfg.connectionConfig.error.ConfigNameRequired"));
+        addTextValidation(configNameTextField, c -> c.trim().isEmpty() || c.trim().length() <= IDENTIFIER_MAX_LENGTH, txt("cfg.connectionConfig.error.ConfigNameTooLong", IDENTIFIER_MAX_LENGTH));
+        addTextValidation(configNameTextField, c -> c.trim().isEmpty() || CONFIG_NAME_PATTERN.matcher(c.trim()).matches(), txt("cfg.connectionConfig.error.ConfigNameInvalid"));
         addValidation(editorPanel, c -> validateJson());
     }
 
@@ -166,9 +176,10 @@ public class ConnectionConfigurationForm extends DBNFormBase {
     }
 
     private DBConnectionConfigurationImpl inputsToEntry() {
-        String key = getText(keyTextField).trim();
+        String ownerName = getText(ownerTextField).trim();
+        String configName = getText(configNameTextField).trim();
         String value = readEditorText().trim();
-        return new DBConnectionConfigurationImpl(connection, key, value);
+        return new DBConnectionConfigurationImpl(connection, ownerName, configName, value);
     }
 
     @NotNull

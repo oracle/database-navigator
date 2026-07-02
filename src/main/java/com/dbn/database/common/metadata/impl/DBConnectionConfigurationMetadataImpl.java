@@ -29,8 +29,13 @@ public class DBConnectionConfigurationMetadataImpl extends DBObjectMetadataBase 
     }
 
     @Override
-    public String getKey() throws SQLException {
-        return getString("KEY");
+    public String getOwnerName() throws SQLException {
+        return getString("OWNER");
+    }
+
+    @Override
+    public String getConfigName() throws SQLException {
+        return getString("CONFIG_NAME");
     }
 
     @Override

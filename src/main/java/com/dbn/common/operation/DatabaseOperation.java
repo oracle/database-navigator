@@ -69,6 +69,11 @@ public enum DatabaseOperation implements Constant<DatabaseOperation> {
             txt("app.shared.const.Operation_ENABLE_CHANGE_NOTIFICATIONS"),
             txt("msg.prerequisites.warning.MissingPrerequisites_ENABLE_CHANGE_NOTIFICATIONS")),
 
+    CREATE_CONNECTION_CONFIGURATION(
+            CONNECTION_CONFIGURATION,
+            txt("app.shared.const.Operation_CREATE_CONNECTION_CONFIGURATION"),
+            txt("msg.prerequisites.warning.MissingPrerequisites_CREATE_CONNECTION_CONFIGURATION")),
+
     CREATE_VECTOR_EMBEDDINGS(
             VECTOR_EMBEDDING,
             txt("app.shared.const.Operation_CREATE_VECTOR_EMBEDDINGS"),

@@ -24,7 +24,10 @@ import java.sql.SQLException;
 public interface DBConnectionConfigurationMetadata extends DBObjectMetadata {
 
     @ObjectIdentifier
-    String getKey() throws SQLException;
+    String getOwnerName() throws SQLException;
+
+    @ObjectIdentifier
+    String getConfigName() throws SQLException;
 
     String getLastUpdated() throws SQLException;
 }

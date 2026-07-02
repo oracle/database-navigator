@@ -22,7 +22,9 @@ import com.dbn.prerequisite.model.PrerequisiteMandate;
 
 import java.util.List;
 
+import static com.dbn.common.operation.DatabaseOperation.CREATE_CONNECTION_CONFIGURATION;
 import static com.dbn.common.operation.DatabaseOperation.MANAGE_CONNECTION_CONFIGURATIONS;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_DATA_SOURCE_CONFIG;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.DATABASE_VERSION_26_0;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_DATA_SOURCE_CONFIG;
@@ -31,13 +33,16 @@ public class ConnectionConfigurationPrerequisitesEvaluator extends PrerequisiteR
 
     @Override
     public boolean supports(DatabaseOperation operation) {
-        return operation == MANAGE_CONNECTION_CONFIGURATIONS;
+        return operation == CREATE_CONNECTION_CONFIGURATION || operation == MANAGE_CONNECTION_CONFIGURATIONS;
     }
 
     @Override
     protected void createMandates(List<PrerequisiteMandate> mandates, DatabaseOperation operation) {
-        createMandate(mandates, DATABASE_VERSION_26_0, "Connection configurations require Oracle Database 26.0 or later");
-        createMandate(mandates, CREATE_DATA_SOURCE_CONFIG, "Requires CREATE DATA SOURCE CONFIG, or CREATE ANY DATA SOURCE CONFIG for administrative users");
-        createMandate(mandates, EXECUTE_DBMS_DATA_SOURCE_CONFIG, "Allows the user to create, update, and delete connection configurations through SYS.DBMS_DATA_SOURCE_CONFIG");
+        createMandate(mandates, DATABASE_VERSION_26_0, txt("msg.prerequisite.text.Reason_DATABASE_VERSION_26_0"));
+        createMandate(mandates, EXECUTE_DBMS_DATA_SOURCE_CONFIG, txt("msg.prerequisite.text.Reason_EXECUTE_DBMS_DATA_SOURCE_CONFIG"));
+
+        if (operation == CREATE_CONNECTION_CONFIGURATION) {
+            createMandate(mandates, CREATE_DATA_SOURCE_CONFIG, txt("msg.prerequisite.text.Reason_CREATE_DATA_SOURCE_CONFIG"));
+        }
     }
 }

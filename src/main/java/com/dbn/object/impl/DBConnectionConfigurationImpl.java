@@ -29,11 +29,19 @@ import java.sql.SQLException;
 
 @Getter
 public class DBConnectionConfigurationImpl extends DBRootObjectImpl<DBConnectionConfigurationMetadata> implements DBConnectionConfiguration {
+    private String ownerName;
+    private String configName;
     private String lastUpdated;
     private String value;
 
-    public DBConnectionConfigurationImpl(@NotNull ConnectionHandler connection, @NotNull String name, @NotNull String value) {
-        super(connection, DBObjectType.CONNECTION_CONFIGURATION, name);
+    public DBConnectionConfigurationImpl(
+            @NotNull ConnectionHandler connection,
+            @NotNull String ownerName,
+            @NotNull String configName,
+            @NotNull String value) {
+        super(connection, DBObjectType.CONNECTION_CONFIGURATION, qualifiedName(ownerName, configName));
+        this.ownerName = ownerName;
+        this.configName = configName;
         this.lastUpdated = "";
         this.value = value;
     }
@@ -44,13 +52,34 @@ public class DBConnectionConfigurationImpl extends DBRootObjectImpl<DBConnection
 
     @Override
     protected String initObject(ConnectionHandler connection, DBObject parentObject, DBConnectionConfigurationMetadata metadata) throws SQLException {
+        ownerName = metadata.getOwnerName();
+        configName = metadata.getConfigName();
         lastUpdated = metadata.getLastUpdated();
-        return metadata.getKey();
+        return getQualifiedConfigName();
+    }
+
+    @Override
+    public String getQualifiedConfigName() {
+        return qualifiedName(ownerName, configName);
+    }
+
+    @Override
+    public String getPresentableName() {
+        return configName;
+    }
+
+    @Override
+    public String getPresentableTextDetails() {
+        return ownerName;
     }
 
     @NotNull
     @Override
     public DBObjectType getObjectType() {
         return DBObjectType.CONNECTION_CONFIGURATION;
+    }
+
+    private static String qualifiedName(String ownerName, String configName) {
+        return ownerName + "." + configName;
     }
 }
