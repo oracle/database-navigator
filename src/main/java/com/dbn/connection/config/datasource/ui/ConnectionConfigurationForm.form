@@ -33,7 +33,7 @@
               <text resource-bundle="messages/DBNResources" key="cfg.connectionConfig.label.Owner"/>
             </properties>
           </component>
-          <component id="owner-field" class="javax.swing.JTextField" binding="ownerTextField">
+          <component id="owner-field" class="com.dbn.object.common.ui.DBObjectSelector" binding="ownerComboBox">
             <constraints>
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>

@@ -26,6 +26,23 @@
                 prefixes CDATA #IMPLIED>
         ]>
 <data-dictionary>
+    <statement-execution-processor id="connection-configuration-creation-scope">
+        <statement>
+            select case
+                when exists (
+                    select 1 from SESSION_PRIVS
+                    where PRIVILEGE = 'CREATE ANY DATA SOURCE CONFIG'
+                ) then 'ANY_SCHEMA'
+                when exists (
+                    select 1 from SESSION_PRIVS
+                    where PRIVILEGE = 'CREATE DATA SOURCE CONFIG'
+                ) then 'OWN_SCHEMA'
+                else 'NONE'
+            end as scope
+            from DUAL
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="connection-configuration">
         <statement prefixes="DBA, ALL">
             select

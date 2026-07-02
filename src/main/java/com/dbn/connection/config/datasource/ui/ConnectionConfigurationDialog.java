@@ -33,11 +33,13 @@ import static com.dbn.nls.NlsResources.txt;
 public class ConnectionConfigurationDialog extends DBNDialog<ConnectionConfigurationForm> {
     @Nullable private final DBObjectRef<DBConnectionConfiguration> entry;
     @Nullable private final String value;
+    private final boolean canCreateInAnySchema;
 
-    public ConnectionConfigurationDialog(@NotNull ConnectionHandler connection) {
+    public ConnectionConfigurationDialog(@NotNull ConnectionHandler connection, boolean canCreateInAnySchema) {
         super(connection, txt("msg.objects.title.CreateObject", entryTypeName()), true);
         this.entry = null;
         this.value = null;
+        this.canCreateInAnySchema = canCreateInAnySchema;
         initDialog();
     }
 
@@ -45,6 +47,7 @@ public class ConnectionConfigurationDialog extends DBNDialog<ConnectionConfigura
         super(entry.getConnection(), txt("msg.objects.title.EditObject", entryTypeName()), true);
         this.entry = DBObjectRef.of(entry);
         this.value = value;
+        this.canCreateInAnySchema = false;
         initDialog();
     }
 
@@ -63,7 +66,7 @@ public class ConnectionConfigurationDialog extends DBNDialog<ConnectionConfigura
     protected @NotNull ConnectionConfigurationForm createForm() {
         DBConnectionConfiguration entry = getEntry();
         return entry == null ?
-                new ConnectionConfigurationForm(this, ensureConnection()) :
+                new ConnectionConfigurationForm(this, ensureConnection(), canCreateInAnySchema) :
                 new ConnectionConfigurationForm(this, entry, value);
     }
 

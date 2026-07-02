@@ -27,6 +27,8 @@ import com.dbn.common.util.Editors;
 import com.dbn.common.util.Json;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBConnectionConfiguration;
+import com.dbn.object.DBSchema;
+import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.impl.DBConnectionConfigurationImpl;
 import com.dbn.object.management.ObjectManagementService;
 import com.intellij.openapi.Disposable;
@@ -45,13 +47,14 @@ import java.awt.BorderLayout;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.file.FileTypes.getJsonFileType;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
 
 public class ConnectionConfigurationForm extends DBNFormBase {
-    private static final Pattern OWNER_PATTERN = Pattern.compile("^[A-Za-z][A-Za-z0-9_$#]*$");
     private static final Pattern CONFIG_NAME_PATTERN = Pattern.compile("^[A-Za-z][A-Za-z0-9_-]*$");
     private static final int IDENTIFIER_MAX_LENGTH = 128;
     private static final String DEFAULT_CONFIG_NAME = "new_configuration";
@@ -70,36 +73,46 @@ public class ConnectionConfigurationForm extends DBNFormBase {
     private JPanel headerPanel;
     private JPanel hintPanel;
     private JPanel hyperlinkPanel;
-    private JTextField ownerTextField;
+    private DBObjectSelector<DBSchema> ownerComboBox;
     private JTextField configNameTextField;
     private JPanel editorPanel;
 
     private final ConnectionHandler connection;
     @Nullable private final DBConnectionConfiguration entry;
+    private final boolean canCreateInAnySchema;
     private EditorEx jsonEditor;
     private DBNHeaderForm headerForm;
 
     ConnectionConfigurationForm(
             @Nullable Disposable parent,
             @NotNull ConnectionHandler connection) {
-        this(parent, connection, null, null);
+        this(parent, connection, null, null, false);
+    }
+
+    ConnectionConfigurationForm(
+            @Nullable Disposable parent,
+            @NotNull ConnectionHandler connection,
+            boolean canCreateInAnySchema) {
+        this(parent, connection, null, null, canCreateInAnySchema);
     }
 
     ConnectionConfigurationForm(
             @Nullable Disposable parent,
             @NotNull DBConnectionConfiguration entry,
             @NotNull String value) {
-        this(parent, entry.getConnection(), entry, value);
+        this(parent, entry.getConnection(), entry, value, false);
     }
 
     private ConnectionConfigurationForm(
             @Nullable Disposable parent,
             @NotNull ConnectionHandler connection,
             @Nullable DBConnectionConfiguration entry,
-            @Nullable String value) {
+            @Nullable String value,
+            boolean canCreateInAnySchema) {
         super(parent, connection.getProject());
         this.connection = connection;
         this.entry = entry;
+        this.canCreateInAnySchema = canCreateInAnySchema;
 
         initHeader();
         initFeatureInfo();
@@ -143,13 +156,19 @@ public class ConnectionConfigurationForm extends DBNFormBase {
     }
 
     private void initInputs(@Nullable String value) {
-        setText(ownerTextField, entry == null ? connection.getUserName() : entry.getOwnerName());
+        String ownerName = entry == null ? connection.getUserName() : entry.getOwnerName();
         setText(configNameTextField, entry == null ? DEFAULT_CONFIG_NAME : entry.getConfigName());
 
         boolean creating = entry == null;
-        ownerTextField.setEnabled(creating);
+        ownerComboBox
+                .initialize(this, SCHEMA)
+                .withConnectionContext(() -> connection)
+                .withValueLoader(() -> connection.getObjectBundle().getSchemas())
+                .withValuePreselector(() -> ownerName)
+                .triggerLoad();
+        ownerComboBox.setEnabled(creating && canCreateInAnySchema);
         configNameTextField.setEnabled(creating);
-        ownerTextField.setToolTipText(txt("cfg.connectionConfig.text.OwnerFieldTooltip"));
+        ownerComboBox.setToolTipText(txt("cfg.connectionConfig.text.OwnerFieldTooltip"));
         configNameTextField.setToolTipText(txt("cfg.connectionConfig.text.ConfigNameFieldTooltip"));
         if (entry != null && value != null) {
             Documents.setText(getProject(), jsonEditor.getDocument(), value);
@@ -158,9 +177,7 @@ public class ConnectionConfigurationForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(ownerTextField, c -> isNotEmpty(c.trim()), txt("cfg.connectionConfig.error.OwnerRequired"));
-        addTextValidation(ownerTextField, c -> c.trim().isEmpty() || c.trim().length() <= IDENTIFIER_MAX_LENGTH, txt("cfg.connectionConfig.error.OwnerTooLong", IDENTIFIER_MAX_LENGTH));
-        addTextValidation(ownerTextField, c -> c.trim().isEmpty() || OWNER_PATTERN.matcher(c.trim()).matches(), txt("cfg.connectionConfig.error.OwnerInvalid"));
+        addSelectionValidation(ownerComboBox, txt("cfg.connectionConfig.error.OwnerRequired"));
         addTextValidation(configNameTextField, c -> isNotEmpty(c.trim()), txt("cfg.connectionConfig.error.ConfigNameRequired"));
         addTextValidation(configNameTextField, c -> c.trim().isEmpty() || c.trim().length() <= IDENTIFIER_MAX_LENGTH, txt("cfg.connectionConfig.error.ConfigNameTooLong", IDENTIFIER_MAX_LENGTH));
         addTextValidation(configNameTextField, c -> c.trim().isEmpty() || CONFIG_NAME_PATTERN.matcher(c.trim()).matches(), txt("cfg.connectionConfig.error.ConfigNameInvalid"));
@@ -176,7 +193,8 @@ public class ConnectionConfigurationForm extends DBNFormBase {
     }
 
     private DBConnectionConfigurationImpl inputsToEntry() {
-        String ownerName = getText(ownerTextField).trim();
+        DBSchema owner = getSelection(ownerComboBox);
+        String ownerName = owner == null ? "" : owner.getName();
         String configName = getText(configNameTextField).trim();
         String value = readEditorText().trim();
         return new DBConnectionConfigurationImpl(connection, ownerName, configName, value);

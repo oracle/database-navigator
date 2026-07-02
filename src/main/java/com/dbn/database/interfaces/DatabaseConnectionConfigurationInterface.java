@@ -33,6 +33,8 @@ public interface DatabaseConnectionConfigurationInterface extends DatabaseInterf
 
     String loadConnectionConfigurationValue(String ownerName, String configName, DBNConnection connection) throws SQLException;
 
+    ConnectionConfigurationCreationScope loadConnectionConfigurationCreationScope(DBNConnection connection) throws SQLException;
+
     void createConnectionConfiguration(String qualifiedConfigName, String value, DBNConnection connection) throws SQLException;
 
     void updateConnectionConfiguration(String qualifiedConfigName, String value, DBNConnection connection) throws SQLException;

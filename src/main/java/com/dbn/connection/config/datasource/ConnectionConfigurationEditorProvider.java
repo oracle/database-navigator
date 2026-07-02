@@ -23,6 +23,7 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.datasource.ui.ConnectionConfigurationDialog;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.ConnectionConfigurationCreationScope;
 import com.dbn.object.DBConnectionConfiguration;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectList;
@@ -55,7 +56,20 @@ public class ConnectionConfigurationEditorProvider implements ObjectEditorProvid
         ConnectionHandler connection = objectList.getConnection();
         CREATE_CONNECTION_CONFIGURATION.start(
                 connection,
-                () -> Dialogs.show(() -> new ConnectionConfigurationDialog(connection)));
+                () -> openCreateDialog(connection));
+    }
+
+    private static void openCreateDialog(@NotNull ConnectionHandler connection) {
+        try {
+            ConnectionConfigurationCreationScope scope = DatabaseInterfaceInvoker.load(
+                    Priority.HIGH,
+                    connection.getProject(),
+                    connection.getConnectionId(),
+                    conn -> connection.getConnectionConfigurationInterface().loadConnectionConfigurationCreationScope(conn));
+            Dialogs.show(() -> new ConnectionConfigurationDialog(connection, scope == ConnectionConfigurationCreationScope.ANY_SCHEMA));
+        } catch (SQLException e) {
+            Messages.showErrorDialog(connection.getProject(), txt("msg.connectionConfig.error.LoadFailed"), e);
+        }
     }
 
     @Override

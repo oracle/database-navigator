@@ -19,6 +19,7 @@ package com.dbn.database.oracle;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.interfaces.DatabaseConnectionConfigurationInterface;
+import com.dbn.database.interfaces.ConnectionConfigurationCreationScope;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 
 import java.sql.SQLException;
@@ -32,6 +33,11 @@ public class OracleConnectionConfigurationInterface extends DatabaseInterfaceBas
     @Override
     public String loadConnectionConfigurationValue(String ownerName, String configName, DBNConnection connection) throws SQLException {
         return getSingleValue(connection, "connection-configuration", ownerName, configName);
+    }
+
+    @Override
+    public ConnectionConfigurationCreationScope loadConnectionConfigurationCreationScope(DBNConnection connection) throws SQLException {
+        return ConnectionConfigurationCreationScope.valueOf(getSingleValue(connection, "connection-configuration-creation-scope"));
     }
 
     @Override
