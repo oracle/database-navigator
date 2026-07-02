@@ -242,6 +242,10 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         return getSelection(urlTypeComboBox);
     }
 
+    void addUrlTypeChangeListeners(Runnable listener) {
+        urlTypeComboBox.addActionListener(e -> listener.run());
+    }
+
     public ConfigFileSourceType getConfigFileSourceType() {
         return Commons.nvl(getSelection(sourceTypeComboBox), ConfigFileSourceType.LOCAL_FILE);
     }

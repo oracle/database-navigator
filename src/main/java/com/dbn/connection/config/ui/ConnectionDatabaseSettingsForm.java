@@ -402,6 +402,15 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
                 !cloudProviderConfig && databaseType.supportsAuthentication() && urlSettingsForm.requiresAuthentication());
     }
 
+    DatabaseUrlType getUrlType() {
+        return urlSettingsForm.getUrlType();
+    }
+
+    void addJsonExportChangeListeners(Runnable listener) {
+        databaseTypeComboBox.addActionListener(e -> listener.run());
+        urlSettingsForm.addUrlTypeChangeListeners(listener);
+    }
+
     private boolean isCloudProviderAuthenticationVisible() {
         CloudConfigProviderType provider = urlSettingsForm.getCloudConfigProviderType();
         return urlSettingsForm.isCloudProviderConfig() &&
