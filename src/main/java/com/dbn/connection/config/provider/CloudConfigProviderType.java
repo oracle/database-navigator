@@ -64,29 +64,34 @@ public enum CloudConfigProviderType implements Presentable {
         return null;
     }
 
+    public CloudConfigProviderFamily getFamily() {
+        return switch (this) {
+            case OCI_OBJECT, OCI_DB_TOOLS, OCI_VAULT -> CloudConfigProviderFamily.OCI;
+            case AZURE_APP_CONFIG, AZURE_VAULT -> CloudConfigProviderFamily.AZURE;
+            case AWS_S3, AWS_SECRETS -> CloudConfigProviderFamily.AWS;
+            case GCP_STORAGE, GCP_SECRET_MANAGER -> CloudConfigProviderFamily.GCP;
+            case HASHICORP_VAULT -> CloudConfigProviderFamily.HASHICORP;
+        };
+    }
+
     public boolean isOci() {
-        return this == OCI_OBJECT ||
-                this == OCI_DB_TOOLS ||
-                this == OCI_VAULT;
+        return getFamily() == CloudConfigProviderFamily.OCI;
     }
 
     public boolean isAws() {
-        return this == AWS_S3 ||
-                this == AWS_SECRETS;
+        return getFamily() == CloudConfigProviderFamily.AWS;
     }
 
     public boolean isGcp() {
-        return this == GCP_STORAGE ||
-                this == GCP_SECRET_MANAGER;
+        return getFamily() == CloudConfigProviderFamily.GCP;
     }
 
     public boolean isAzure() {
-        return this == AZURE_APP_CONFIG ||
-                this == AZURE_VAULT;
+        return getFamily() == CloudConfigProviderFamily.AZURE;
     }
 
     public boolean isHashicorp() {
-        return this == HASHICORP_VAULT;
+        return getFamily() == CloudConfigProviderFamily.HASHICORP;
     }
 
     public String getRegionParameterName() {
