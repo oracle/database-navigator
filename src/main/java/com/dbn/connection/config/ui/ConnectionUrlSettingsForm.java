@@ -65,6 +65,7 @@ import java.util.Objects;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.Labels.setText;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Commons.coalesce;
@@ -435,6 +436,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         cloudProviderComboBox.setVisible(cloudProviderVisible);
         configFileLabel.setVisible(localConfigFileVisible);
         configFileTextField.setVisible(localConfigFileVisible);
+        setText(configLocationLabel, resolveConfigLocationLabel(configFileSourceType));
         configLocationLabel.setVisible(remoteConfigVisible && !gcpStorageConfig);
         configLocationTextField.setVisible(remoteConfigVisible && !gcpStorageConfig);
         cloudRegionLabel.setVisible(cloudRegionConfig);
@@ -458,6 +460,32 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         ConnectionDatabaseSettingsForm parent = ensureParentComponent();
         parent.updateAuthenticationVisibility();
 
+    }
+
+    private String resolveConfigLocationLabel(ConfigFileSourceType sourceType) {
+        if (sourceType == ConfigFileSourceType.HTTPS) {
+            return txt("cfg.connection.label.ConfigLocationHttps");
+        }
+
+        if (sourceType != ConfigFileSourceType.CLOUD_PROVIDER) {
+            return txt("cfg.connection.label.ConfigLocation");
+        }
+
+        CloudConfigProviderType providerType = getCloudConfigProviderType();
+        if (providerType == null) return txt("cfg.connection.label.ConfigLocation");
+
+        return switch (providerType) {
+            case OCI_OBJECT -> txt("cfg.connection.label.ConfigLocationOciObjectStorage");
+            case OCI_DB_TOOLS -> txt("cfg.connection.label.ConfigLocationOciDatabaseTools");
+            case OCI_VAULT -> txt("cfg.connection.label.ConfigLocationOciVault");
+            case AZURE_APP_CONFIG -> txt("cfg.connection.label.ConfigLocationAzureAppConfiguration");
+            case AZURE_VAULT -> txt("cfg.connection.label.ConfigLocationAzureVault");
+            case AWS_S3 -> txt("cfg.connection.label.ConfigLocationAwsS3");
+            case AWS_SECRETS -> txt("cfg.connection.label.ConfigLocationAwsSecretsManager");
+            case GCP_STORAGE -> txt("cfg.connection.label.ConfigLocationGcpCloudStorage");
+            case GCP_SECRET_MANAGER -> txt("cfg.connection.label.ConfigLocationGcpSecretManager");
+            case HASHICORP_VAULT -> txt("cfg.connection.label.ConfigLocationHashicorpVault");
+        };
     }
 
     boolean isOciCloudProvider() {
