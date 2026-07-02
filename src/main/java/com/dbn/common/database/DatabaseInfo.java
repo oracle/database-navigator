@@ -25,6 +25,7 @@ import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.ServerType;
 import com.dbn.connection.config.file.DatabaseFile;
 import com.dbn.connection.config.file.DatabaseFileBundle;
+import com.dbn.connection.config.provider.ConfigProviderInfo;
 import com.dbn.connection.config.tns.TnsAdmin;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -67,6 +68,7 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
     private ServerType serverType;
     private String tnsFolder;
     private String tnsProfile;
+    private ConfigProviderInfo configProviderInfo = new ConfigProviderInfo();
     private Map<String, String> parameters = new HashMap<>();
 
     public DatabaseInfo() {}
@@ -98,6 +100,7 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.fileBundle = null;
         this.url = null;
         this.serverType = null;
+        this.configProviderInfo.reset();
         this.parameters = new HashMap<>();
     }
 
@@ -117,6 +120,7 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.serverType = pattern.resolveServerType(url);
         this.parameters = pattern.resolveParameters(url);
         this.protocol = pattern.resolveProtocol(url);
+        this.configProviderInfo.initialize(url, pattern, parameters);
 
         // TODO: resolve serverType
         initializeFiles(pattern);
@@ -157,6 +161,12 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         return getUrlType() == CUSTOM;
     }
 
+    @NotNull
+    public ConfigProviderInfo getConfigProviderInfo() {
+        if (configProviderInfo == null) configProviderInfo = new ConfigProviderInfo();
+        return configProviderInfo;
+    }
+
     @Override
     public DatabaseInfo clone() {
         DatabaseInfo clone = new DatabaseInfo();
@@ -171,6 +181,7 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         clone.tnsFolder = this.tnsFolder;
         clone.tnsProfile = this.tnsProfile;
         clone.serverType = this.serverType;
+        clone.configProviderInfo = this.getConfigProviderInfo().clone();
         clone.parameters = new HashMap<>(this.parameters);
         return clone;
     }

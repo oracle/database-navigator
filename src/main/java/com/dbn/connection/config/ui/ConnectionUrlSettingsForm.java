@@ -33,6 +33,9 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.EasyConnectParameters;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.file.ui.DatabaseFileSettingsForm;
+import com.dbn.connection.config.provider.CloudConfigProviderType;
+import com.dbn.connection.config.provider.ConfigProviderInfo;
+import com.dbn.connection.config.provider.ConfigFileSourceType;
 import com.dbn.connection.config.parameter.ui.UrlParameterInputDialog;
 import com.dbn.connection.config.tns.TnsAdmin;
 import com.dbn.connection.config.tns.TnsNames;
@@ -66,6 +69,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.FileChoosers.addSingleFolderChooser;
 import static com.dbn.common.util.Files.normalizePath;
 import static com.dbn.common.util.Strings.isEmpty;
@@ -86,15 +90,35 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JLabel urlLabel;
     private JLabel serverTypeLabel;
     private JLabel protocolLabel;
+    private JLabel sourceTypeLabel;
+    private JLabel cloudProviderLabel;
+    private JLabel configFileLabel;
+    private JLabel configLocationLabel;
+    private JLabel configFileProfileKeyLabel;
+    private JLabel azureLabelLabel;
+    private JLabel cloudRegionLabel;
+    private JLabel gcpStorageProjectLabel;
+    private JLabel gcpStorageBucketLabel;
+    private JLabel gcpStorageObjectLabel;
     private JPanel databaseFilesPanel;
     private ComboBox<DatabaseUrlType> urlTypeComboBox;
+    private JComboBox<ConfigFileSourceType> sourceTypeComboBox;
+    private JComboBox<CloudConfigProviderType> cloudProviderComboBox;
     private JComboBox<ServerType> serverTypeComboBox;
     private JComboBox<DatabaseProtocol> protocolComboBox;
     private DBNComboBox<Presentable> tnsProfileComboBox;
     private JTextField hostTextField;
     private JTextField portTextField;
     private JTextField databaseTextField;
+    private JTextField configLocationTextField;
+    private JTextField cloudRegionTextField;
+    private JTextField gcpStorageProjectTextField;
+    private JTextField gcpStorageBucketTextField;
+    private JTextField gcpStorageObjectTextField;
+    private JTextField configFileProfileKeyTextField;
+    private JTextField azureLabelTextField;
     private TextFieldWithBrowseButton tnsFolderTextField;
+    private TextFieldWithBrowseButton configFileTextField;
     private ExpandableTextField urlTextField;
     private JPanel mainPanel;
     private JButton parametersButton;
@@ -110,6 +134,8 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         databaseFileSettingsForm = new DatabaseFileSettingsForm(this, configuration.getDatabaseInfo().getFileBundle());
         databaseFilesPanel.add(databaseFileSettingsForm.getComponent(), BorderLayout.CENTER);
         urlTypeComboBox.addActionListener(e -> updateFieldVisibility());
+        sourceTypeComboBox.addActionListener(e -> updateFieldVisibility());
+        cloudProviderComboBox.addActionListener(e -> updateFieldVisibility());
         parametersButton.addActionListener(e -> openParametersDialog());
 
         updateTnsAdminField();
@@ -119,12 +145,21 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                 tnsFolderTextField,
                 txt("cfg.connection.title.SelectWalletDirectory"),
                 txt("cfg.connection.text.ValidTnsNamesFolder"));
+        addSingleFileChooser(getProject(), configFileTextField, txt("cfg.connection.title.SelectConfigFile"), "");
 
         onTextChange(hostTextField, e -> updateUrlField());
         onTextChange(portTextField, e -> updateUrlField());
         onTextChange(databaseTextField, e -> updateUrlField());
         onTextChange(tnsFolderTextField, e -> updateTnsProfilesField());
         onTextChange(tnsFolderTextField, e -> updateUrlField());
+        onTextChange(configFileTextField, e -> updateUrlField());
+        onTextChange(configLocationTextField, e -> updateUrlField());
+        onTextChange(cloudRegionTextField, e -> updateUrlField());
+        onTextChange(gcpStorageProjectTextField, e -> updateUrlField());
+        onTextChange(gcpStorageBucketTextField, e -> updateUrlField());
+        onTextChange(gcpStorageObjectTextField, e -> updateUrlField());
+        onTextChange(configFileProfileKeyTextField, e -> updateUrlField());
+        onTextChange(azureLabelTextField, e -> updateUrlField());
         tnsProfileComboBox.addActionListener(e -> updateUrlField());
         serverTypeComboBox.addActionListener(e -> updateUrlField());
         protocolComboBox.addActionListener(e -> updateUrlField());
@@ -207,12 +242,71 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         return getSelection(urlTypeComboBox);
     }
 
-    private void updateUrlField() {
+    void addUrlTypeChangeListeners(Runnable listener) {
+        urlTypeComboBox.addActionListener(e -> listener.run());
+    }
+
+    public ConfigFileSourceType getConfigFileSourceType() {
+        return Commons.nvl(getSelection(sourceTypeComboBox), ConfigFileSourceType.LOCAL_FILE);
+    }
+
+    public CloudConfigProviderType getCloudConfigProviderType() {
+        return getSelection(cloudProviderComboBox);
+    }
+
+    public String getConfigLocation() {
+        ConfigFileSourceType sourceType = getConfigFileSourceType();
+        if (sourceType == ConfigFileSourceType.LOCAL_FILE) return getText(configFileTextField);
+        if (isGcpStorageConfig()) return loadGcpStorageConfigProviderInfo().getLocation();
+
+        String configLocation = getText(configLocationTextField);
+        return sourceType == ConfigFileSourceType.HTTPS || isOciObjectStorageConfig() ?
+                DatabaseUrlPattern.normalizeConfigHttpsLocation(configLocation) :
+                configLocation;
+    }
+
+    private ConfigProviderInfo loadGcpStorageConfigProviderInfo() {
+        ConfigProviderInfo configProviderInfo = new ConfigProviderInfo();
+        configProviderInfo.apply(
+                getConfigFileSourceType(),
+                getCloudConfigProviderType(),
+                getCloudConfigProviderRegion(),
+                null,
+                getConfigFileProfileKey(),
+                getAzureLabel());
+        configProviderInfo.applyGcpStorageLocation(
+                getText(gcpStorageProjectTextField),
+                getText(gcpStorageBucketTextField),
+                getText(gcpStorageObjectTextField));
+        return configProviderInfo;
+    }
+
+    public String getConfigFileProfileKey() {
+        return getText(configFileProfileKeyTextField);
+    }
+
+    public String getAzureLabel() {
+        return isAzureAppConfig() ? getText(azureLabelTextField) : null;
+    }
+
+    public String getCloudConfigProviderRegion() {
+        return isCloudRegionConfig() ? getCloudRegion() : null;
+    }
+
+    public boolean requiresAuthentication() {
+        return getUrlType() != DatabaseUrlType.CONFIG_FILE || getConfigFileSourceType() != ConfigFileSourceType.LOCAL_FILE;
+    }
+
+    void updateUrlField() {
         DatabaseUrlType urlType = getUrlType();
         if (urlType == DatabaseUrlType.CUSTOM) return;
 
         DatabaseType databaseType = getDatabaseType();
         DatabaseUrlPattern urlPattern = nvl(databaseType.getUrlPattern(urlType), DatabaseUrlPattern.GENERIC);
+        ConfigProviderInfo configProviderInfo = loadConfigProviderInfo();
+        Map<String, String> urlParameters = urlType == DatabaseUrlType.CONFIG_FILE ?
+                configProviderInfo.getUrlParameters(false) :
+                getParameters();
         String url = urlPattern.buildUrl(
                 getVendor(),
                 getHost(),
@@ -223,8 +317,16 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                 getTnsProfile(),
                 getProtocol(),
                 getServerType(),
-                getParameters());
+                urlParameters,
+                configProviderInfo.getProviderSlug(),
+                configProviderInfo.getLocation());
         urlTextField.setText(url);
+    }
+
+    private ConfigProviderInfo loadConfigProviderInfo() {
+        ConfigProviderInfo configProviderInfo = new ConfigProviderInfo();
+        applyConfigProviderInfo(configProviderInfo);
+        return configProviderInfo;
     }
 
     public Map<String, String> getParameters() {
@@ -281,10 +383,18 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
     public void updateFieldVisibility() {
         DatabaseUrlType urlType = nvl(getUrlType(), DatabaseUrlType.CUSTOM);
+        ConfigFileSourceType configFileSourceType = getConfigFileSourceType();
 
         boolean ezConnectVisible = urlType == DatabaseUrlType.EZCONNECT;
         boolean tnsVisible = urlType == DatabaseUrlType.TNS;
         boolean flsVisible = urlType == DatabaseUrlType.FILE;
+        boolean configFileVisible = urlType == DatabaseUrlType.CONFIG_FILE;
+        boolean localConfigFileVisible = configFileVisible && configFileSourceType == ConfigFileSourceType.LOCAL_FILE;
+        boolean remoteConfigVisible = configFileVisible && configFileSourceType != ConfigFileSourceType.LOCAL_FILE;
+        boolean cloudProviderVisible = configFileVisible && configFileSourceType == ConfigFileSourceType.CLOUD_PROVIDER;
+        boolean gcpStorageConfig = remoteConfigVisible && isGcpStorageConfig();
+        boolean cloudRegionConfig = remoteConfigVisible && isCloudRegionConfig();
+        boolean azureLabelConfig = remoteConfigVisible && isAzureAppConfig();
         boolean hpdVisible = Constants.isOneOf(urlType,
                 DatabaseUrlType.SID,
                 DatabaseUrlType.SERVICE,
@@ -319,11 +429,65 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         protocolComboBox.setVisible(ezConnectVisible);
         parametersButton.setVisible(ezConnectVisible);
 
+        sourceTypeLabel.setVisible(configFileVisible);
+        sourceTypeComboBox.setVisible(configFileVisible);
+        cloudProviderLabel.setVisible(cloudProviderVisible);
+        cloudProviderComboBox.setVisible(cloudProviderVisible);
+        configFileLabel.setVisible(localConfigFileVisible);
+        configFileTextField.setVisible(localConfigFileVisible);
+        configLocationLabel.setVisible(remoteConfigVisible && !gcpStorageConfig);
+        configLocationTextField.setVisible(remoteConfigVisible && !gcpStorageConfig);
+        cloudRegionLabel.setVisible(cloudRegionConfig);
+        cloudRegionTextField.setVisible(cloudRegionConfig);
+        gcpStorageProjectLabel.setVisible(gcpStorageConfig);
+        gcpStorageProjectTextField.setVisible(gcpStorageConfig);
+        gcpStorageBucketLabel.setVisible(gcpStorageConfig);
+        gcpStorageBucketTextField.setVisible(gcpStorageConfig);
+        gcpStorageObjectLabel.setVisible(gcpStorageConfig);
+        gcpStorageObjectTextField.setVisible(gcpStorageConfig);
+        configFileProfileKeyLabel.setVisible(configFileVisible);
+        configFileProfileKeyTextField.setVisible(configFileVisible);
+        azureLabelLabel.setVisible(azureLabelConfig);
+        azureLabelTextField.setVisible(azureLabelConfig);
+
         // file based url
         databaseFilesLabel.setVisible(flsVisible);
         databaseFilesPanel.setVisible(flsVisible);
 
         updateUrlField();
+        ConnectionDatabaseSettingsForm parent = ensureParentComponent();
+        parent.updateAuthenticationVisibility();
+
+    }
+
+    boolean isOciCloudProvider() {
+        CloudConfigProviderType provider = getCloudConfigProviderType();
+        return isCloudProviderConfig() && provider != null && provider.isOci();
+    }
+
+    private boolean isOciObjectStorageConfig() {
+        return isCloudProviderConfig() &&
+                getCloudConfigProviderType() == CloudConfigProviderType.OCI_OBJECT;
+    }
+
+    private boolean isGcpStorageConfig() {
+        return isCloudProviderConfig() &&
+                getCloudConfigProviderType() == CloudConfigProviderType.GCP_STORAGE;
+    }
+
+    private boolean isAzureAppConfig() {
+        return isCloudProviderConfig() &&
+                getCloudConfigProviderType() == CloudConfigProviderType.AZURE_APP_CONFIG;
+    }
+
+    private boolean isCloudRegionConfig() {
+        CloudConfigProviderType provider = getCloudConfigProviderType();
+        return isCloudProviderConfig() && provider != null && provider.getRegionParameterName() != null;
+    }
+
+    boolean isCloudProviderConfig() {
+        return getUrlType() == DatabaseUrlType.CONFIG_FILE &&
+                getConfigFileSourceType() == ConfigFileSourceType.CLOUD_PROVIDER;
     }
 
     void handleDatabaseTypeChange(DatabaseType oldDatabaseType, DatabaseType newDatabaseType) {
@@ -356,6 +520,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         ConnectionDatabaseSettings configuration = getDatabaseSettings();
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
         applyDatabaseInfo(databaseInfo);
+        updateFieldVisibility();
 
     }
 
@@ -367,12 +532,23 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         databaseInfo.setFileBundle(getFileBundle().clone());
         databaseInfo.setTnsFolder(getTnsFolder());
         databaseInfo.setTnsProfile(getTnsProfile());
+        applyConfigProviderInfo(databaseInfo.getConfigProviderInfo());
         databaseInfo.setUrlType(getUrlType());
         databaseInfo.setUrl(getUrl());
         databaseInfo.setServerType(getServerType());
         databaseInfo.setParameters(getParameters());
         databaseInfo.setProtocol(getProtocol());
         return databaseInfo;
+    }
+
+    void applyConfigProviderInfo(ConfigProviderInfo configProviderInfo) {
+        configProviderInfo.apply(
+                getConfigFileSourceType(),
+                getCloudConfigProviderType(),
+                getCloudConfigProviderRegion(),
+                getConfigLocation(),
+                getConfigFileProfileKey(),
+                getAzureLabel());
     }
 
 
@@ -383,6 +559,12 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         portTextField.setText(databaseInfo.getPort());
         databaseTextField.setText(databaseInfo.getDatabase());
         tnsFolderTextField.setText(databaseInfo.getTnsFolder());
+        configFileTextField.setText(databaseInfo.getConfigProviderInfo().getLocation());
+        configLocationTextField.setText(databaseInfo.getConfigProviderInfo().getLocation());
+        cloudRegionTextField.setText(databaseInfo.getConfigProviderInfo().getRegion());
+        applyGcpStorageConfigLocation(databaseInfo.getConfigProviderInfo());
+        configFileProfileKeyTextField.setText(databaseInfo.getConfigProviderInfo().getProfileKey());
+        azureLabelTextField.setText(databaseInfo.getConfigProviderInfo().getLabel());
         parameters = databaseInfo.getParameters();
 
         String tnsProfile = databaseInfo.getTnsProfile();
@@ -396,6 +578,12 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         initComboBox(urlTypeComboBox, urlTypes);
         setSelection(urlTypeComboBox, databaseInfo.getUrlType());
 
+        initComboBox(sourceTypeComboBox, ConfigFileSourceType.values());
+        setSelection(sourceTypeComboBox, Commons.nvl(databaseInfo.getConfigProviderInfo().getSourceType(), ConfigFileSourceType.LOCAL_FILE));
+
+        initComboBox(cloudProviderComboBox, CloudConfigProviderType.values());
+        setSelection(cloudProviderComboBox, databaseInfo.getConfigProviderInfo().getCloudProviderType());
+
         initComboBox(protocolComboBox, true, DatabaseProtocol.values());
         setSelection(protocolComboBox, databaseInfo.getProtocol());
 
@@ -405,6 +593,12 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         urlTypeLabel.setVisible(urlTypes.length > 1);
         urlTypeComboBox.setVisible(urlTypes.length > 1);
         urlTextField.setText(databaseInfo.getUrl());
+    }
+
+    private void applyGcpStorageConfigLocation(ConfigProviderInfo configProviderInfo) {
+        gcpStorageProjectTextField.setText(configProviderInfo.getGcpStorageProject());
+        gcpStorageBucketTextField.setText(configProviderInfo.getGcpStorageBucket());
+        gcpStorageObjectTextField.setText(configProviderInfo.getGcpStorageObject());
     }
 
     @NotNull
@@ -424,9 +618,19 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
             !Commons.match(databaseInfo.getDatabase(), getDatabase()) ||
             !Commons.match(databaseInfo.getTnsFolder(), getTnsFolder()) ||
             !Commons.match(databaseInfo.getTnsProfile(), getTnsProfile()) ||
+            !Commons.match(databaseInfo.getConfigProviderInfo().getSourceType(), getConfigFileSourceType()) ||
+            !Commons.match(databaseInfo.getConfigProviderInfo().getCloudProviderType(), getCloudConfigProviderType()) ||
+            !Commons.match(databaseInfo.getConfigProviderInfo().getRegion(), isCloudRegionConfig() ? getCloudRegion() : null) ||
+            !Commons.match(databaseInfo.getConfigProviderInfo().getLocation(), getConfigLocation()) ||
+            !Commons.match(databaseInfo.getConfigProviderInfo().getProfileKey(), getConfigFileProfileKey()) ||
+            !Commons.match(databaseInfo.getConfigProviderInfo().getLabel(), getAzureLabel()) ||
             !Commons.match(databaseInfo.getUrl(), getUrl()) ||
             !Commons.match(databaseInfo.getUrlType(), urlType) ||
             !Commons.match(databaseInfo.getFileBundle(), urlType == DatabaseUrlType.FILE ? getFileBundle() : null);
 
+    }
+
+    private String getCloudRegion() {
+        return getText(cloudRegionTextField);
     }
 }

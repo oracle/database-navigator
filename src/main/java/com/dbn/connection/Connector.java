@@ -114,7 +114,9 @@ class Connector {
             if (!authenticationInfo.isProvided() && this.authenticationInfo != null) {
                 authenticationInfo = this.authenticationInfo;
             }
-            compatibility.initConnectorAuthentication(properties, authenticationInfo);
+            if (!databaseSettings.isConfigHttps()) {
+                compatibility.initConnectorAuthentication(properties, authenticationInfo);
+            }
 
             // SESSION INFO
             compatibility.initConnectorSession(properties, connectionSettings, sessionId);
@@ -137,10 +139,13 @@ class Connector {
             compatibility.initConnectorSslConnection(properties, connectionSettings);
 
             String connectionUrl = databaseSettings.getConnectionUrl();
+            if (databaseSettings.isConfigFile()) {
+                connectionUrl = databaseSettings.getConnectionUrlForConnect();
+            }
 
             // SSH Tunnel
             ConnectionSshTunnelSettings sshTunnelSettings = connectionSettings.getSshTunnelSettings();
-            if (sshTunnelSettings.isActive()) {
+            if (sshTunnelSettings.isActive() && !databaseSettings.isConfigFile()) {
                 SshTunnelManager sshTunnelManager = SshTunnelManager.getInstance();
                 SshTunnelConnector sshTunnelConnector = sshTunnelManager.ensureSshConnection(connectionSettings);
                 if (sshTunnelConnector != null) {

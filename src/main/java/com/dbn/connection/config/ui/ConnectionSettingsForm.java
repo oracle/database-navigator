@@ -30,6 +30,7 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.ConnectivityStatus;
 import com.dbn.connection.DatabaseType;
+import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
@@ -39,6 +40,7 @@ import com.dbn.connection.config.ConnectionFilterSettings;
 import com.dbn.connection.config.ConnectionPropertiesSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
+import com.dbn.connection.config.export.ConfigProviderExportManager;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
@@ -65,6 +67,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     private JPanel headerPanel;
     private JButton infoButton;
     private JButton testButton;
+    private JButton jsonButton;
     private JBTabbedPane tabbedPane;
     private DBNHeaderForm headerForm;
 
@@ -85,6 +88,10 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         //tabbedPane.setTabComponentInsets(DBNTabbedPane.REGULAR_INSETS);
         tabbedPane.addTab(txt("cfg.connection.title.Database"), databaseSettings.createComponent());
+        ConnectionDatabaseSettingsForm databaseSettingsForm = databaseSettings.getSettingsEditor();
+        if (databaseSettingsForm != null) {
+            databaseSettingsForm.addJsonExportChangeListeners(this::updateJsonExportVisibility);
+        }
         tabbedPane.setTabLayoutPolicy(JBTabbedPane.SCROLL_TAB_LAYOUT);
 
         if (databaseSettings.getConfigType() == ConnectionConfigType.BASIC) {
@@ -126,10 +133,37 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         headerForm = new DBNHeaderForm(this, name, icon, color);
         testButton = new JButton(txt("cfg.connection.button.TestConnection"));
         infoButton = new JButton(txt("cfg.connection.button.Info"));
+        jsonButton = new JButton(txt("cfg.connection.button.Json"));
         headerForm.addButton(testButton);
         headerForm.addButton(infoButton);
+        headerForm.addButton(jsonButton);
+        registerComponent(jsonButton);
+
+        updateJsonExportVisibility();
 
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+    }
+
+    void updateJsonExportVisibility(DatabaseType databaseType, DatabaseUrlType urlType) {
+        if (jsonButton == null) return;
+
+        boolean supportedUrlType = urlType != DatabaseUrlType.CUSTOM &&
+                urlType != DatabaseUrlType.CONFIG_FILE;
+        jsonButton.setVisible(databaseType == DatabaseType.ORACLE && supportedUrlType);
+    }
+
+    private void updateJsonExportVisibility() {
+        ConnectionDatabaseSettings databaseSettings = getConfiguration().getDatabaseSettings();
+        ConnectionDatabaseSettingsForm databaseSettingsForm = databaseSettings.getSettingsEditor();
+
+        DatabaseType databaseType = databaseSettingsForm == null ?
+                databaseSettings.getDatabaseType() :
+                databaseSettingsForm.getSelectedDatabaseType();
+        DatabaseUrlType urlType = databaseSettingsForm == null ?
+                databaseSettings.getDatabaseInfo().getUrlType() :
+                databaseSettingsForm.getUrlType();
+
+        updateJsonExportVisibility(databaseType, urlType);
     }
 
 
@@ -199,6 +233,19 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
                     showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), getLocalizedMessage(e1));
                 }
             }
+            if (source == jsonButton){
+                Project project = ensureProject();
+                try{
+                    ConnectionSettings tmp = getTemporaryConfig();
+                    ConfigProviderExportManager
+                            .getInstance()
+                            .exportConnection(project, tmp);
+                }catch (ConfigurationException ex) {
+                    conditionallyLog(ex);
+                    showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), getLocalizedMessage(ex));
+                }
+                return;
+            }
         };
     }
 
@@ -240,7 +287,6 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
 
                 DBNHeaderForm header = headerForm;
                 if (header == null) return;
-
                 if (name != null) header.setTitle(name);
                 if (icon != null) header.setIcon(icon);
                 if (color != null) header.setBackground(color); else header.setBackground(Colors.getPanelBackground());

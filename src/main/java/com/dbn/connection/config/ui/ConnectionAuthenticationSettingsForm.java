@@ -17,8 +17,12 @@
 package com.dbn.connection.config.ui;
 
 import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.provider.CloudConfigProviderType;
+import com.dbn.connection.config.provider.ConfigProviderInfo;
 import com.dbn.connection.ui.ConnectionAuthenticationFieldsForm;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,10 +36,13 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
     private JPanel mainPanel;
 
     private final ConnectionAuthenticationFieldsForm fieldsForm = new ConnectionAuthenticationFieldsForm(this);
+    private final CloudConfigProviderAuthenticationSettingsForm cloudConfigProviderAuthSettingsForm;
 
     public ConnectionAuthenticationSettingsForm(@NotNull ConnectionDatabaseSettingsForm parentComponent) {
         super(parentComponent);
-        mainPanel.add(fieldsForm.getComponent());
+        cloudConfigProviderAuthSettingsForm = new CloudConfigProviderAuthenticationSettingsForm(parentComponent);
+
+        setCloudProviderMode(null);
     }
 
     @Override
@@ -48,9 +55,39 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
         return fieldsForm.settingsChanged(authenticationInfo);
     }
 
+    public boolean cloudProviderSettingsChanged() {
+        return cloudConfigProviderAuthSettingsForm.settingsChanged();
+    }
+
     public void resetFormChanges() {
         AuthenticationInfo authenticationInfo = getAuthenticationInfo();
         fieldsForm.resetFormChanges(authenticationInfo);
+        cloudConfigProviderAuthSettingsForm.resetFormChanges();
+    }
+
+    public void setAuthenticationTypes(AuthenticationType ... authenticationTypes) {
+        fieldsForm.setAuthenticationTypes(authenticationTypes);
+    }
+
+    public void setCloudProviderMode(CloudConfigProviderType cloudProviderType) {
+        mainPanel.removeAll();
+        if (cloudProviderType != null) {
+            cloudConfigProviderAuthSettingsForm.setCloudProviderType(cloudProviderType);
+        }
+        JComponent component = cloudProviderType != null ?
+                cloudConfigProviderAuthSettingsForm.getComponent() :
+                fieldsForm.getComponent();
+        mainPanel.add(component);
+        mainPanel.revalidate();
+        mainPanel.repaint();
+    }
+
+    public void applyCloudProviderFormChanges(ConfigProviderInfo configProviderInfo) {
+        cloudConfigProviderAuthSettingsForm.applyFormChanges(configProviderInfo);
+    }
+
+    public void addCloudProviderChangeListeners(Runnable runnable) {
+        cloudConfigProviderAuthSettingsForm.addChangeListeners(runnable);
     }
 
     private AuthenticationInfo getAuthenticationInfo() {

@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dbn.connection.config.ui.CloudConfigProviderAuthenticationSettingsForm">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="20" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="4" left="4" bottom="4" right="4"/>
+    <constraints>
+      <xy x="20" y="20" width="620" height="480"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <component id="a4af3" class="javax.swing.JLabel" binding="authenticationLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
+            <preferred-size width="120" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <labelFor value="eda5b"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.Authentication"/>
+        </properties>
+      </component>
+      <component id="eda5b" class="javax.swing.JComboBox" binding="authenticationComboBox">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="220" height="-1"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="da321" class="javax.swing.JLabel" binding="authenticationInfoLabel">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="[Authentication Info]"/>
+        </properties>
+      </component>
+      <component id="dc37e" class="com.dbn.common.ui.link.DBNHyperlinkLabel" binding="authenticationInfoHyperlink">
+        <constraints>
+          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Authentication details"/>
+        </properties>
+      </component>
+      <component id="f0206" class="javax.swing.JLabel" binding="configFileLabel">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="c9609"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.OciConfigFile"/>
+        </properties>
+      </component>
+      <component id="c9609" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="configFileTextField">
+        <constraints>
+          <grid row="2" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="bde8d" class="javax.swing.JLabel" binding="profileLabel">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="a01e6"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.OciProfile"/>
+        </properties>
+      </component>
+      <component id="a01e6" class="com.dbn.common.ui.misc.DBNComboBox" binding="profileComboBox">
+        <constraints>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="220" height="-1"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <hspacer id="a87a5">
+        <constraints>
+          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </hspacer>
+      <component id="4bd3e" class="javax.swing.JLabel" binding="azureClientIdLabel">
+        <constraints>
+          <grid row="15" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="1a9df"/>
+          <text value="Client ID"/>
+        </properties>
+      </component>
+      <component id="1a9df" class="javax.swing.JTextField" binding="azureClientIdTextField">
+        <constraints>
+          <grid row="15" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="azt01" class="javax.swing.JLabel" binding="azureTenantIdLabel">
+        <constraints>
+          <grid row="16" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="azt02"/>
+          <text value="Tenant ID"/>
+        </properties>
+      </component>
+      <component id="azt02" class="javax.swing.JTextField" binding="azureTenantIdTextField">
+        <constraints>
+          <grid row="16" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="azs01" class="javax.swing.JLabel" binding="azureClientSecretLabel">
+        <constraints>
+          <grid row="17" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="azs02"/>
+          <text value="Client Secret"/>
+        </properties>
+      </component>
+      <component id="azs02" class="javax.swing.JPasswordField" binding="azureClientSecretPasswordField">
+        <constraints>
+          <grid row="17" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="azc01" class="javax.swing.JLabel" binding="azureClientCertificatePathLabel">
+        <constraints>
+          <grid row="18" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="azc02"/>
+          <text value="Certificate Path"/>
+        </properties>
+      </component>
+      <component id="azc02" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="azureClientCertificatePathTextField">
+        <constraints>
+          <grid row="18" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="azp01" class="javax.swing.JLabel" binding="azureClientCertificatePasswordLabel">
+        <constraints>
+          <grid row="19" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="azp02"/>
+          <text value="Certificate Password"/>
+        </properties>
+      </component>
+      <component id="azp02" class="javax.swing.JPasswordField" binding="azureClientCertificatePasswordField">
+        <constraints>
+          <grid row="19" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="b6aae" class="javax.swing.JLabel" binding="vaultAddressLabel">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="e730d"/>
+          <text value="Vault Address"/>
+        </properties>
+      </component>
+      <component id="e730d" class="javax.swing.JTextField" binding="vaultAddressTextField">
+        <constraints>
+          <grid row="4" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="40f22" class="javax.swing.JLabel" binding="vaultNamespaceLabel">
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="5433c"/>
+          <text value="Vault Namespace"/>
+        </properties>
+      </component>
+      <component id="5433c" class="javax.swing.JTextField" binding="vaultNamespaceTextField">
+        <constraints>
+          <grid row="5" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="a37d0" class="javax.swing.JLabel" binding="vaultTokenLabel">
+        <constraints>
+          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="9c189"/>
+          <text value="Vault Token"/>
+        </properties>
+      </component>
+      <component id="9c189" class="javax.swing.JPasswordField" binding="vaultTokenPasswordField">
+        <constraints>
+          <grid row="6" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="bb2e1" class="javax.swing.JLabel" binding="vaultUsernameLabel">
+        <constraints>
+          <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="e7b9d"/>
+          <text value="Vault Username"/>
+        </properties>
+      </component>
+      <component id="e7b9d" class="javax.swing.JTextField" binding="vaultUsernameTextField">
+        <constraints>
+          <grid row="7" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="bb0db" class="javax.swing.JLabel" binding="vaultPasswordLabel">
+        <constraints>
+          <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="71b85"/>
+          <text value="Vault Password"/>
+        </properties>
+      </component>
+      <component id="71b85" class="javax.swing.JPasswordField" binding="vaultPasswordField">
+        <constraints>
+          <grid row="8" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="e9663" class="javax.swing.JLabel" binding="userPassAuthPathLabel">
+        <constraints>
+          <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="ad385"/>
+          <text value="Auth Path"/>
+        </properties>
+      </component>
+      <component id="ad385" class="javax.swing.JTextField" binding="userPassAuthPathTextField">
+        <constraints>
+          <grid row="9" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="aa55f" class="javax.swing.JLabel" binding="roleIdLabel">
+        <constraints>
+          <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="aae2c"/>
+          <text value="Role ID"/>
+        </properties>
+      </component>
+      <component id="aae2c" class="javax.swing.JTextField" binding="roleIdTextField">
+        <constraints>
+          <grid row="10" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="e42bf" class="javax.swing.JLabel" binding="secretIdLabel">
+        <constraints>
+          <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="f6d5c"/>
+          <text value="Secret ID"/>
+        </properties>
+      </component>
+      <component id="f6d5c" class="javax.swing.JPasswordField" binding="secretIdPasswordField">
+        <constraints>
+          <grid row="11" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="e2da7" class="javax.swing.JLabel" binding="appRoleAuthPathLabel">
+        <constraints>
+          <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="c0277"/>
+          <text value="Auth Path"/>
+        </properties>
+      </component>
+      <component id="c0277" class="javax.swing.JTextField" binding="appRoleAuthPathTextField">
+        <constraints>
+          <grid row="12" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="d6cf1" class="javax.swing.JLabel" binding="githubTokenLabel">
+        <constraints>
+          <grid row="13" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="d6478"/>
+          <text value="GitHub Token"/>
+        </properties>
+      </component>
+      <component id="d6478" class="javax.swing.JPasswordField" binding="githubTokenPasswordField">
+        <constraints>
+          <grid row="13" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="b3884" class="javax.swing.JLabel" binding="githubAuthPathLabel">
+        <constraints>
+          <grid row="14" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="bb484"/>
+          <text value="Auth Path"/>
+        </properties>
+      </component>
+      <component id="bb484" class="javax.swing.JTextField" binding="githubAuthPathTextField">
+        <constraints>
+          <grid row="14" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+    </children>
+  </grid>
+</form>
