@@ -11,6 +11,7 @@ public class ConfigProviderPayload {
 
     String connectDescriptor;
     String user;
+    SecretRef password;
     SecretRef walletLocation;
 
     Map<String,Object> jdbc;

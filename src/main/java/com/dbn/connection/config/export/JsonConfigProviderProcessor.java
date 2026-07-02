@@ -52,9 +52,12 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
 
         putIfNotBlank(node, "connect_descriptor", payload.getConnectDescriptor());
         putIfNotBlank(node, "user", payload.getUser());
+        if (payload.getPassword() != null) {
+            node.set("password", toSecretRefJson(payload.getPassword(), true));
+        }
 
         if (payload.getWalletLocation() != null) {
-            node.set("wallet_location", toSecretRefJson(payload.getWalletLocation()));
+            node.set("wallet_location", toSecretRefJson(payload.getWalletLocation(), false));
         }
         Map<String, Object> jdbc = payload.getJdbc();
         if (jdbc != null && !jdbc.isEmpty()) {
@@ -64,15 +67,17 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
 
     }
 
-    private static JsonNode toSecretRefJson(SecretRef ref) {
+    private static JsonNode toSecretRefJson(SecretRef ref, boolean includeEmptyTypeAndValue) {
         ObjectNode node = MAPPER.createObjectNode();
 
         SecretProviderType type = ref.getType();
         if (type != null) {
             node.put("type", type.id());
+        } else if (includeEmptyTypeAndValue) {
+            node.put("type", "FILL_THIS_TYPE");
         }
 
-        putIfNotBlank(node, "value", ref.getValue());
+        putValue(node, "value", ref.getValue(), includeEmptyTypeAndValue);
 
         putIfNotBlank(node, "field_name", ref.getFieldName());
 
@@ -96,6 +101,18 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
         if (value != null) {
             String v = value.trim();
             if (!v.isEmpty()) node.put(key, v);
+        }
+    }
+
+    private static void putValue(ObjectNode node, String key, String value, boolean includeEmptyValue) {
+        if (value == null) {
+            if (includeEmptyValue) node.put(key, "");
+            return;
+        }
+
+        String trimmedValue = value.trim();
+        if (!trimmedValue.isEmpty() || includeEmptyValue) {
+            node.put(key, trimmedValue);
         }
     }
 }

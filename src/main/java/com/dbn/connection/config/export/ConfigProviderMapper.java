@@ -19,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.dbn.common.util.Files.normalizePath;
+import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 
 public class ConfigProviderMapper {
     private ConfigProviderMapper(){}
@@ -33,6 +34,9 @@ public class ConfigProviderMapper {
         String user = auth == null ? null : trim(auth.getUser());
         Map<String, Object> jdbc = resolveJdbc(props);
 
+        SecretRef passwordRef = auth != null && auth.getType() == USER_PASSWORD ?
+                SecretRefFactory.emptyTemplate() :
+                null;
         SecretRef walletRef = null;
 
         if (request != null && request.isIncludeWallet()) {
@@ -43,6 +47,7 @@ public class ConfigProviderMapper {
         return ConfigProviderPayload.builder()
                 .connectDescriptor(connectDescriptor)
                 .user(user)
+                .password(passwordRef)
                 .jdbc(jdbc)
                 .walletLocation(walletRef)
                 .build();

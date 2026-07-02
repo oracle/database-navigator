@@ -8,6 +8,12 @@ public class SecretRefFactory {
 
     private SecretRefFactory(){}
 
+    public static SecretRef emptyTemplate() {
+        return SecretRef.builder()
+                .value("FILL_THIS_VALUE")
+                .build();
+    }
+
     public static SecretRef base64Wallet(Path walletFile) throws Exception {
         if (walletFile == null) return null;
 
