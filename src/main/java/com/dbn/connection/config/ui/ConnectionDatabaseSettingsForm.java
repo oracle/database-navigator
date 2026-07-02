@@ -21,6 +21,7 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
@@ -43,6 +44,7 @@ import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.provider.CloudConfigProviderAuthentication;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.config.provider.ConfigFileSourceType;
+import com.dbn.connection.config.provider.ConfigProviderInfo;
 import com.dbn.credentials.Secret;
 import com.dbn.driver.DriverSource;
 import com.intellij.openapi.options.ConfigurationException;
@@ -266,6 +268,9 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         configuration.setUrlPattern(urlPattern);
 
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
+        ConfigProviderInfo configProviderInfo = databaseInfo.getConfigProviderInfo();
+        configProviderInfo.setCredentialConnectionId(configuration.getConnectionId());
+        Secret[] oldConfigProviderSecrets = configProviderInfo.snapshotSecrets();
         databaseInfo.reset();
 
         databaseInfo.setUrlType(urlType);
@@ -323,6 +328,9 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         if (!authenticationInfo.isTemporary()) {
             // update password store if authentication info is not marked as temporary
             authenticationInfo.updateSecrets(oldSecrets);
+        }
+        if (!ConfigMonitor.isCloning()) {
+            configProviderInfo.updateSecrets(oldConfigProviderSecrets);
         }
 
         configuration.setDriverSource(driverSettingsForm.getDriverSource());

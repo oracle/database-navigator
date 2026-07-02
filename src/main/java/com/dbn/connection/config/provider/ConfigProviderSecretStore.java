@@ -17,9 +17,6 @@
 package com.dbn.connection.config.provider;
 
 import com.dbn.common.util.Chars;
-import com.dbn.connection.ConnectionId;
-import com.dbn.credentials.DatabaseCredentialManager;
-import com.dbn.credentials.Secret;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,138 +25,23 @@ import java.util.Map;
 import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
 import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_SECRET;
 import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.HCP_VAULT_TOKEN;
-import static com.dbn.credentials.SecretType.CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD;
-import static com.dbn.credentials.SecretType.CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET;
 import static com.dbn.connection.config.provider.CloudConfigProviderType.HASHICORP_VAULT;
-import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_APPROLE_SECRET_ID;
-import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_GITHUB_TOKEN;
-import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_VAULT_PASSWORD;
-import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_VAULT_TOKEN;
 
 @UtilityClass
 public class ConfigProviderSecretStore {
 
-    public static char[] loadAzureClientSecret(@NotNull ConnectionId connectionId) {
-        Secret secret = DatabaseCredentialManager.getInstance().loadSecret(
-                CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET,
-                connectionId,
-                null);
-        return secret.getToken();
-    }
-
-    public static void saveAzureClientSecret(@NotNull ConnectionId connectionId, char[] clientSecret) {
-        Secret secret = new Secret(CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET, null, clientSecret);
-        DatabaseCredentialManager.getInstance().storeSecret(connectionId, secret);
-    }
-
-    public static void removeAzureClientSecret(@NotNull ConnectionId connectionId) {
-        Secret secret = new Secret(CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET, null, Secret.EMPTY);
-        DatabaseCredentialManager.getInstance().removeSecret(connectionId, secret);
-    }
-
-    public static char[] loadAzureCertificatePassword(@NotNull ConnectionId connectionId) {
-        Secret secret = DatabaseCredentialManager.getInstance().loadSecret(
-                CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD,
-                connectionId,
-                null);
-        return secret.getToken();
-    }
-
-    public static void saveAzureCertificatePassword(@NotNull ConnectionId connectionId, char[] certificatePassword) {
-        Secret secret = new Secret(CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD, null, certificatePassword);
-        DatabaseCredentialManager.getInstance().storeSecret(connectionId, secret);
-    }
-
-    public static void removeAzureCertificatePassword(@NotNull ConnectionId connectionId) {
-        Secret secret = new Secret(CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD, null, Secret.EMPTY);
-        DatabaseCredentialManager.getInstance().removeSecret(connectionId, secret);
-    }
-
-    public static char[] loadHashicorpVaultToken(@NotNull ConnectionId connectionId) {
-        Secret secret = DatabaseCredentialManager.getInstance().loadSecret(
-                CONNECTION_HASHICORP_VAULT_TOKEN,
-                connectionId,
-                null);
-        return secret.getToken();
-    }
-
-    public static void saveHashicorpVaultToken(@NotNull ConnectionId connectionId, char[] token) {
-        Secret secret = new Secret(CONNECTION_HASHICORP_VAULT_TOKEN, null, token);
-        DatabaseCredentialManager.getInstance().storeSecret(connectionId, secret);
-    }
-
-    public static void removeHashicorpVaultToken(@NotNull ConnectionId connectionId) {
-        Secret secret = new Secret(CONNECTION_HASHICORP_VAULT_TOKEN, null, Secret.EMPTY);
-        DatabaseCredentialManager.getInstance().removeSecret(connectionId, secret);
-    }
-
-    public static char[] loadHashicorpVaultPassword(@NotNull ConnectionId connectionId) {
-        Secret secret = DatabaseCredentialManager.getInstance().loadSecret(
-                CONNECTION_HASHICORP_VAULT_PASSWORD,
-                connectionId,
-                null);
-        return secret.getToken();
-    }
-
-    public static void saveHashicorpVaultPassword(@NotNull ConnectionId connectionId, char[] password) {
-        Secret secret = new Secret(CONNECTION_HASHICORP_VAULT_PASSWORD, null, password);
-        DatabaseCredentialManager.getInstance().storeSecret(connectionId, secret);
-    }
-
-    public static void removeHashicorpVaultPassword(@NotNull ConnectionId connectionId) {
-        Secret secret = new Secret(CONNECTION_HASHICORP_VAULT_PASSWORD, null, Secret.EMPTY);
-        DatabaseCredentialManager.getInstance().removeSecret(connectionId, secret);
-    }
-
-    public static char[] loadHashicorpAppRoleSecretId(@NotNull ConnectionId connectionId) {
-        Secret secret = DatabaseCredentialManager.getInstance().loadSecret(
-                CONNECTION_HASHICORP_APPROLE_SECRET_ID,
-                connectionId,
-                null);
-        return secret.getToken();
-    }
-
-    public static void saveHashicorpAppRoleSecretId(@NotNull ConnectionId connectionId, char[] secretId) {
-        Secret secret = new Secret(CONNECTION_HASHICORP_APPROLE_SECRET_ID, null, secretId);
-        DatabaseCredentialManager.getInstance().storeSecret(connectionId, secret);
-    }
-
-    public static void removeHashicorpAppRoleSecretId(@NotNull ConnectionId connectionId) {
-        Secret secret = new Secret(CONNECTION_HASHICORP_APPROLE_SECRET_ID, null, Secret.EMPTY);
-        DatabaseCredentialManager.getInstance().removeSecret(connectionId, secret);
-    }
-
-    public static char[] loadHashicorpGithubToken(@NotNull ConnectionId connectionId) {
-        Secret secret = DatabaseCredentialManager.getInstance().loadSecret(
-                CONNECTION_HASHICORP_GITHUB_TOKEN,
-                connectionId,
-                null);
-        return secret.getToken();
-    }
-
-    public static void saveHashicorpGithubToken(@NotNull ConnectionId connectionId, char[] token) {
-        Secret secret = new Secret(CONNECTION_HASHICORP_GITHUB_TOKEN, null, token);
-        DatabaseCredentialManager.getInstance().storeSecret(connectionId, secret);
-    }
-
-    public static void removeHashicorpGithubToken(@NotNull ConnectionId connectionId) {
-        Secret secret = new Secret(CONNECTION_HASHICORP_GITHUB_TOKEN, null, Secret.EMPTY);
-        DatabaseCredentialManager.getInstance().removeSecret(connectionId, secret);
-    }
-
     public static void addRuntimeSecrets(
             @NotNull Map<String, String> parameters,
-            @NotNull ConfigProviderInfo configProviderInfo,
-            @NotNull ConnectionId connectionId) {
+            @NotNull ConfigProviderInfo configProviderInfo) {
         CloudConfigProviderAuthentication authentication = configProviderInfo.getAuthentication();
         if (authentication == null) return;
 
         if (configProviderInfo.getCloudProviderType() != HASHICORP_VAULT) {
             switch (authentication) {
                 case AZURE_SERVICE_PRINCIPAL_SECRET ->
-                        addRuntimeSecret(parameters, "AZURE_CLIENT_SECRET", loadAzureClientSecret(connectionId));
+                        addRuntimeSecret(parameters, "AZURE_CLIENT_SECRET", configProviderInfo.getAzureClientSecret());
                 case AZURE_SERVICE_PRINCIPAL_CERTIFICATE ->
-                        addRuntimeSecret(parameters, "AZURE_CLIENT_CERTIFICATE_PASSWORD", loadAzureCertificatePassword(connectionId));
+                        addRuntimeSecret(parameters, "AZURE_CLIENT_CERTIFICATE_PASSWORD", configProviderInfo.getAzureClientCertificatePassword());
                 default -> {
                 }
             }
@@ -168,13 +50,13 @@ public class ConfigProviderSecretStore {
 
         switch (authentication) {
             case HCP_VAULT_TOKEN ->
-                    addRuntimeSecret(parameters, "VAULT_TOKEN", loadHashicorpVaultToken(connectionId));
+                    addRuntimeSecret(parameters, "VAULT_TOKEN", configProviderInfo.getHashicorpVaultToken());
             case HCP_USERPASS ->
-                    addRuntimeSecret(parameters, "VAULT_PASSWORD", loadHashicorpVaultPassword(connectionId));
+                    addRuntimeSecret(parameters, "VAULT_PASSWORD", configProviderInfo.getHashicorpVaultPassword());
             case HCP_APPROLE ->
-                    addRuntimeSecret(parameters, "SECRET_ID", loadHashicorpAppRoleSecretId(connectionId));
+                    addRuntimeSecret(parameters, "SECRET_ID", configProviderInfo.getHashicorpAppRoleSecretId());
             case HCP_GITHUB ->
-                    addRuntimeSecret(parameters, "GITHUB_TOKEN", loadHashicorpGithubToken(connectionId));
+                    addRuntimeSecret(parameters, "GITHUB_TOKEN", configProviderInfo.getHashicorpGithubToken());
             default -> {
             }
         }

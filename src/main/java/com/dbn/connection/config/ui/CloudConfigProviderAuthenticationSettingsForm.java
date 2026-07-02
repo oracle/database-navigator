@@ -20,13 +20,12 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
-import com.dbn.common.util.Chars;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.provider.CloudConfigProviderAuthentication;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
-import com.dbn.connection.config.provider.ConfigProviderSecretStore;
+import com.dbn.credentials.Secret;
 import com.dbn.oci.config.OciConfigFileUtil;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
@@ -46,6 +45,8 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.ui.util.PasswordFields.getPassword;
+import static com.dbn.common.ui.util.PasswordFields.setPassword;
 
 public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     private static final String GCP_AUTHENTICATION_URL =
@@ -167,16 +168,10 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
             } else {
                 configProviderInfo.applyAzureAuthentication(authentication, null, null, null);
             }
-            if (isAzureServicePrincipalSecretAuthentication()) {
-                ConfigProviderSecretStore.saveAzureClientSecret(getConnectionId(), azureClientSecretPasswordField.getPassword());
-            } else {
-                ConfigProviderSecretStore.removeAzureClientSecret(getConnectionId());
-            }
-            if (isAzureServicePrincipalCertificateAuthentication()) {
-                ConfigProviderSecretStore.saveAzureCertificatePassword(getConnectionId(), azureClientCertificatePasswordField.getPassword());
-            } else {
-                ConfigProviderSecretStore.removeAzureCertificatePassword(getConnectionId());
-            }
+            configProviderInfo.setAzureClientSecret(isAzureServicePrincipalSecretAuthentication() ?
+                    getPassword(azureClientSecretPasswordField, configProviderInfo.getAzureClientSecret()) : Secret.EMPTY);
+            configProviderInfo.setAzureClientCertificatePassword(isAzureServicePrincipalCertificateAuthentication() ?
+                    getPassword(azureClientCertificatePasswordField, configProviderInfo.getAzureClientCertificatePassword()) : Secret.EMPTY);
         } else if (isHashicorpProvider()) {
             configProviderInfo.applyHashicorpAuthentication(
                     authentication,
@@ -187,32 +182,23 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                     getText(roleIdTextField),
                     getText(appRoleAuthPathTextField),
                     getText(githubAuthPathTextField));
-            if (isHashicorpVaultTokenAuthentication()) {
-                ConfigProviderSecretStore.saveHashicorpVaultToken(getConnectionId(), vaultTokenPasswordField.getPassword());
-            } else {
-                ConfigProviderSecretStore.removeHashicorpVaultToken(getConnectionId());
-            }
-            if (isHashicorpUserpassAuthentication()) {
-                ConfigProviderSecretStore.saveHashicorpVaultPassword(getConnectionId(), vaultPasswordField.getPassword());
-            } else {
-                ConfigProviderSecretStore.removeHashicorpVaultPassword(getConnectionId());
-            }
-            if (isHashicorpAppRoleAuthentication()) {
-                ConfigProviderSecretStore.saveHashicorpAppRoleSecretId(getConnectionId(), secretIdPasswordField.getPassword());
-            } else {
-                ConfigProviderSecretStore.removeHashicorpAppRoleSecretId(getConnectionId());
-            }
-            if (isHashicorpGithubAuthentication()) {
-                ConfigProviderSecretStore.saveHashicorpGithubToken(getConnectionId(), githubTokenPasswordField.getPassword());
-            } else {
-                ConfigProviderSecretStore.removeHashicorpGithubToken(getConnectionId());
-            }
+            configProviderInfo.setHashicorpVaultToken(isHashicorpVaultTokenAuthentication() ?
+                    getPassword(vaultTokenPasswordField, configProviderInfo.getHashicorpVaultToken()) : Secret.EMPTY);
+            configProviderInfo.setHashicorpVaultPassword(isHashicorpUserpassAuthentication() ?
+                    getPassword(vaultPasswordField, configProviderInfo.getHashicorpVaultPassword()) : Secret.EMPTY);
+            configProviderInfo.setHashicorpAppRoleSecretId(isHashicorpAppRoleAuthentication() ?
+                    getPassword(secretIdPasswordField, configProviderInfo.getHashicorpAppRoleSecretId()) : Secret.EMPTY);
+            configProviderInfo.setHashicorpGithubToken(isHashicorpGithubAuthentication() ?
+                    getPassword(githubTokenPasswordField, configProviderInfo.getHashicorpGithubToken()) : Secret.EMPTY);
         }
     }
 
     public void resetFormChanges() {
         DatabaseInfo databaseInfo = getDatabaseInfo();
-        setCloudProviderType(databaseInfo.getConfigProviderInfo().getCloudProviderType());
+        ConfigProviderInfo configProviderInfo = databaseInfo.getConfigProviderInfo();
+        configProviderInfo.setCredentialConnectionId(getConnectionId());
+        configProviderInfo.reloadSecrets();
+        setCloudProviderType(configProviderInfo.getCloudProviderType());
 
         if (isAuthenticationProvider()) {
             setSelection(authenticationComboBox, Commons.nvl(
@@ -230,16 +216,11 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
             profileComboBox.removeAllItems();
         }
 
-        azureClientIdTextField.setText(isAzureProvider() ?
-                databaseInfo.getConfigProviderInfo().getAzureClientId() : null);
-        azureTenantIdTextField.setText(isAzureProvider() ?
-                databaseInfo.getConfigProviderInfo().getAzureTenantId() : null);
-        azureClientCertificatePathTextField.setText(isAzureProvider() ?
-                databaseInfo.getConfigProviderInfo().getAzureClientCertificatePath() : null);
-        azureClientSecretPasswordField.setText(isAzureProvider() ?
-                Chars.toString(ConfigProviderSecretStore.loadAzureClientSecret(getConnectionId())) : null);
-        azureClientCertificatePasswordField.setText(isAzureProvider() ?
-                Chars.toString(ConfigProviderSecretStore.loadAzureCertificatePassword(getConnectionId())) : null);
+        azureClientIdTextField.setText(isAzureProvider() ? configProviderInfo.getAzureClientId() : null);
+        azureTenantIdTextField.setText(isAzureProvider() ? configProviderInfo.getAzureTenantId() : null);
+        azureClientCertificatePathTextField.setText(isAzureProvider() ? configProviderInfo.getAzureClientCertificatePath() : null);
+        setPassword(azureClientSecretPasswordField, isAzureProvider() ? configProviderInfo.getAzureClientSecret() : null);
+        setPassword(azureClientCertificatePasswordField, isAzureProvider() ? configProviderInfo.getAzureClientCertificatePassword() : null);
         vaultAddressTextField.setText(isHashicorpProvider() ?
                 databaseInfo.getConfigProviderInfo().getVaultAddress() : null);
         vaultNamespaceTextField.setText(isHashicorpProvider() ?
@@ -254,14 +235,10 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                 databaseInfo.getConfigProviderInfo().getAppRoleAuthPath() : null);
         githubAuthPathTextField.setText(isHashicorpProvider() ?
                 databaseInfo.getConfigProviderInfo().getGithubAuthPath() : null);
-        vaultTokenPasswordField.setText(isHashicorpProvider() ?
-                Chars.toString(ConfigProviderSecretStore.loadHashicorpVaultToken(getConnectionId())) : null);
-        vaultPasswordField.setText(isHashicorpProvider() ?
-                Chars.toString(ConfigProviderSecretStore.loadHashicorpVaultPassword(getConnectionId())) : null);
-        secretIdPasswordField.setText(isHashicorpProvider() ?
-                Chars.toString(ConfigProviderSecretStore.loadHashicorpAppRoleSecretId(getConnectionId())) : null);
-        githubTokenPasswordField.setText(isHashicorpProvider() ?
-                Chars.toString(ConfigProviderSecretStore.loadHashicorpGithubToken(getConnectionId())) : null);
+        setPassword(vaultTokenPasswordField, isHashicorpProvider() ? configProviderInfo.getHashicorpVaultToken() : null);
+        setPassword(vaultPasswordField, isHashicorpProvider() ? configProviderInfo.getHashicorpVaultPassword() : null);
+        setPassword(secretIdPasswordField, isHashicorpProvider() ? configProviderInfo.getHashicorpAppRoleSecretId() : null);
+        setPassword(githubTokenPasswordField, isHashicorpProvider() ? configProviderInfo.getHashicorpGithubToken() : null);
         updateFieldVisibility();
     }
 
@@ -281,11 +258,11 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                     isAzureServicePrincipalAuthentication() &&
                             !Commons.match(databaseInfo.getConfigProviderInfo().getAzureTenantId(), getText(azureTenantIdTextField)) ||
                     isAzureServicePrincipalSecretAuthentication() &&
-                            !Commons.matchArrays(ConfigProviderSecretStore.loadAzureClientSecret(getConnectionId()), azureClientSecretPasswordField.getPassword()) ||
+                            !Commons.matchArrays(databaseInfo.getConfigProviderInfo().getAzureClientSecret(), getPassword(azureClientSecretPasswordField)) ||
                     isAzureServicePrincipalCertificateAuthentication() &&
                             !Commons.match(databaseInfo.getConfigProviderInfo().getAzureClientCertificatePath(), getText(azureClientCertificatePathTextField)) ||
                     isAzureServicePrincipalCertificateAuthentication() &&
-                            !Commons.matchArrays(ConfigProviderSecretStore.loadAzureCertificatePassword(getConnectionId()), azureClientCertificatePasswordField.getPassword());
+                            !Commons.matchArrays(databaseInfo.getConfigProviderInfo().getAzureClientCertificatePassword(), getPassword(azureClientCertificatePasswordField));
         }
         if (isHashicorpProvider()) {
             return authenticationChanged ||
@@ -296,19 +273,19 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                     isHashicorpUserpassAuthentication() &&
                             !Commons.match(databaseInfo.getConfigProviderInfo().getUserPassAuthPath(), getText(userPassAuthPathTextField)) ||
                     isHashicorpUserpassAuthentication() &&
-                            !Commons.matchArrays(ConfigProviderSecretStore.loadHashicorpVaultPassword(getConnectionId()), vaultPasswordField.getPassword()) ||
+                            !Commons.matchArrays(databaseInfo.getConfigProviderInfo().getHashicorpVaultPassword(), getPassword(vaultPasswordField)) ||
                     isHashicorpVaultTokenAuthentication() &&
-                            !Commons.matchArrays(ConfigProviderSecretStore.loadHashicorpVaultToken(getConnectionId()), vaultTokenPasswordField.getPassword()) ||
+                            !Commons.matchArrays(databaseInfo.getConfigProviderInfo().getHashicorpVaultToken(), getPassword(vaultTokenPasswordField)) ||
                     isHashicorpAppRoleAuthentication() &&
                             !Commons.match(databaseInfo.getConfigProviderInfo().getRoleId(), getText(roleIdTextField)) ||
                     isHashicorpAppRoleAuthentication() &&
                             !Commons.match(databaseInfo.getConfigProviderInfo().getAppRoleAuthPath(), getText(appRoleAuthPathTextField)) ||
                     isHashicorpAppRoleAuthentication() &&
-                            !Commons.matchArrays(ConfigProviderSecretStore.loadHashicorpAppRoleSecretId(getConnectionId()), secretIdPasswordField.getPassword()) ||
+                            !Commons.matchArrays(databaseInfo.getConfigProviderInfo().getHashicorpAppRoleSecretId(), getPassword(secretIdPasswordField)) ||
                     isHashicorpGithubAuthentication() &&
                             !Commons.match(databaseInfo.getConfigProviderInfo().getGithubAuthPath(), getText(githubAuthPathTextField)) ||
                     isHashicorpGithubAuthentication() &&
-                            !Commons.matchArrays(ConfigProviderSecretStore.loadHashicorpGithubToken(getConnectionId()), githubTokenPasswordField.getPassword());
+                            !Commons.matchArrays(databaseInfo.getConfigProviderInfo().getHashicorpGithubToken(), getPassword(githubTokenPasswordField));
         }
         if (!isOciProvider()) return authenticationChanged;
 

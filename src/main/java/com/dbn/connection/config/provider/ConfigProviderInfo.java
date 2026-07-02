@@ -22,10 +22,13 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.config.OciConfigProviderParameters;
+import com.dbn.credentials.Secret;
+import com.dbn.credentials.SecretsOwner;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,16 +40,23 @@ import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.connection.DatabaseUrlType.CONFIG_FILE;
+import static com.dbn.credentials.SecretType.CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD;
+import static com.dbn.credentials.SecretType.CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET;
+import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_APPROLE_SECRET_ID;
+import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_GITHUB_TOKEN;
+import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_VAULT_PASSWORD;
+import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_VAULT_TOKEN;
 
 @Getter
 @Setter
 @EqualsAndHashCode
-public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
+public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, SecretsOwner {
     private ConfigFileSourceType sourceType = ConfigFileSourceType.LOCAL_FILE;
     private CloudConfigProviderType cloudProviderType;
     private CloudConfigProviderAuthentication authentication;
@@ -67,6 +77,36 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
     private String appRoleAuthPath;
     private String githubAuthPath;
     private transient ConnectionId credentialConnectionId;
+    @EqualsAndHashCode.Exclude
+    private final Secret azureClientSecret = new Secret(
+            CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET,
+            this::getSecretOwnerId,
+            () -> null);
+    @EqualsAndHashCode.Exclude
+    private final Secret azureClientCertificatePassword = new Secret(
+            CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD,
+            this::getSecretOwnerId,
+            () -> null);
+    @EqualsAndHashCode.Exclude
+    private final Secret hashicorpVaultToken = new Secret(
+            CONNECTION_HASHICORP_VAULT_TOKEN,
+            this::getSecretOwnerId,
+            () -> null);
+    @EqualsAndHashCode.Exclude
+    private final Secret hashicorpVaultPassword = new Secret(
+            CONNECTION_HASHICORP_VAULT_PASSWORD,
+            this::getSecretOwnerId,
+            () -> null);
+    @EqualsAndHashCode.Exclude
+    private final Secret hashicorpAppRoleSecretId = new Secret(
+            CONNECTION_HASHICORP_APPROLE_SECRET_ID,
+            this::getSecretOwnerId,
+            () -> null);
+    @EqualsAndHashCode.Exclude
+    private final Secret hashicorpGithubToken = new Secret(
+            CONNECTION_HASHICORP_GITHUB_TOKEN,
+            this::getSecretOwnerId,
+            () -> null);
 
     public void reset() {
         sourceType = ConfigFileSourceType.LOCAL_FILE;
@@ -88,6 +128,75 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         roleId = null;
         appRoleAuthPath = null;
         githubAuthPath = null;
+    }
+
+    @Override
+    public @NotNull Object getSecretOwnerId() {
+        return nn(credentialConnectionId);
+    }
+
+    @Override
+    public @NotNull String getSecretOwnerName() {
+        return getSecretOwnerId().toString();
+    }
+
+    @Override
+    public @NotNull Secret[] getSecrets() {
+        return new Secret[] {
+                azureClientSecret,
+                azureClientCertificatePassword,
+                hashicorpVaultToken,
+                hashicorpVaultPassword,
+                hashicorpAppRoleSecretId,
+                hashicorpGithubToken};
+    }
+
+    public char[] getAzureClientSecret() {
+        return azureClientSecret.getToken();
+    }
+
+    public void setAzureClientSecret(char[] token) {
+        azureClientSecret.setToken(token);
+    }
+
+    public char[] getAzureClientCertificatePassword() {
+        return azureClientCertificatePassword.getToken();
+    }
+
+    public void setAzureClientCertificatePassword(char[] token) {
+        azureClientCertificatePassword.setToken(token);
+    }
+
+    public char[] getHashicorpVaultToken() {
+        return hashicorpVaultToken.getToken();
+    }
+
+    public void setHashicorpVaultToken(char[] token) {
+        hashicorpVaultToken.setToken(token);
+    }
+
+    public char[] getHashicorpVaultPassword() {
+        return hashicorpVaultPassword.getToken();
+    }
+
+    public void setHashicorpVaultPassword(char[] token) {
+        hashicorpVaultPassword.setToken(token);
+    }
+
+    public char[] getHashicorpAppRoleSecretId() {
+        return hashicorpAppRoleSecretId.getToken();
+    }
+
+    public void setHashicorpAppRoleSecretId(char[] token) {
+        hashicorpAppRoleSecretId.setToken(token);
+    }
+
+    public char[] getHashicorpGithubToken() {
+        return hashicorpGithubToken.getToken();
+    }
+
+    public void setHashicorpGithubToken(char[] token) {
+        hashicorpGithubToken.setToken(token);
     }
 
     public void applyOciAuthentication(
@@ -499,6 +608,13 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         clone.roleId = roleId;
         clone.appRoleAuthPath = appRoleAuthPath;
         clone.githubAuthPath = githubAuthPath;
+        clone.credentialConnectionId = credentialConnectionId;
+        clone.azureClientSecret.setToken(azureClientSecret);
+        clone.azureClientCertificatePassword.setToken(azureClientCertificatePassword);
+        clone.hashicorpVaultToken.setToken(hashicorpVaultToken);
+        clone.hashicorpVaultPassword.setToken(hashicorpVaultPassword);
+        clone.hashicorpAppRoleSecretId.setToken(hashicorpAppRoleSecretId);
+        clone.hashicorpGithubToken.setToken(hashicorpGithubToken);
         return clone;
     }
 
