@@ -48,6 +48,7 @@ import com.dbn.object.common.list.action.HideAuditColumnsToggleAction;
 import com.dbn.object.common.list.action.HideEmptySchemasToggleAction;
 import com.dbn.object.common.list.action.HidePseudoColumnsToggleAction;
 import com.dbn.object.dependency.action.ObjectDependencyTreeAction;
+import com.dbn.object.diagram.DBNShowDiagramAction;
 import com.dbn.object.navigation.DBObjectNavigationInfoProvider;
 import com.dbn.object.navigation.DBObjectNavigationInfoProviderCache;
 import com.dbn.object.type.DBObjectType;
@@ -186,9 +187,15 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
     }
 
     private void addDependencyActions(DBObject object) {
+        boolean separatorAdded = false;
         if (object instanceof DBSchemaObject) {
-            if (object.is(REFERENCEABLE) && OBJECT_DEPENDENCIES.isSupported(object)) {
+            if (object instanceof DBTable table) {
                 addSeparator();
+                add(new DBNShowDiagramAction(table));
+                separatorAdded = true;
+            }
+            if (object.is(REFERENCEABLE) && OBJECT_DEPENDENCIES.isSupported(object)) {
+                if (!separatorAdded) addSeparator();
                 add(new ObjectDependencyTreeAction((DBSchemaObject) object));
             }
         }

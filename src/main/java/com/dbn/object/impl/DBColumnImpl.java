@@ -18,7 +18,6 @@ package com.dbn.object.impl;
 
 import com.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.load.ProgressMonitor;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.type.DBDataType;
@@ -45,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.common.load.ProgressMonitor.isProgressCancelled;
 import static com.dbn.object.common.property.DBObjectProperty.FOREIGN_KEY;
 import static com.dbn.object.common.property.DBObjectProperty.HIDDEN;
 import static com.dbn.object.common.property.DBObjectProperty.IDENTITY;
@@ -57,6 +57,7 @@ import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.CONSTRAINT;
 import static com.dbn.object.type.DBObjectType.INDEX;
 import static com.dbn.object.type.DBObjectType.TYPE_ATTRIBUTE;
+import static java.util.Collections.emptyList;
 
 @Getter
 class DBColumnImpl extends DBObjectImpl<DBColumnMetadata> implements DBColumn {
@@ -255,15 +256,13 @@ class DBColumnImpl extends DBObjectImpl<DBColumnMetadata> implements DBColumn {
 
     @Override
     public List<DBColumn> getReferencingColumns() {
-        assert isPrimaryKey();
+        if (!isPrimaryKey()) return emptyList();
 
         List<DBColumn> list = new ArrayList<>();
-        boolean isSystemSchema = getDataset().getSchema().isSystemSchema();
+        boolean systemSchema = getDataset().getSchema().isSystemSchema();
         for (DBSchema schema : getObjectBundle().getSchemas()) {
-            if (ProgressMonitor.isProgressCancelled()) {
-                break;
-            }
-            if (schema.isSystemSchema() == isSystemSchema) {
+            if (isProgressCancelled()) break;
+            if (schema.isSystemSchema() == systemSchema) {
                 List<DBColumn> columns = schema.getForeignKeyColumns();
                 for (DBColumn column : columns){
                     if (this.equals(column.getForeignKeyColumn())) {
