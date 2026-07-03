@@ -56,8 +56,6 @@ import com.dbn.sync.java.action.JavaObjectDownloadAction;
 import com.dbn.sync.java.action.JavaResourceDownloadAction;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.project.DumbAware;
 
 import java.util.List;
@@ -189,23 +187,18 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
     }
 
     private void addDependencyActions(DBObject object) {
+        boolean separated = false;
         if (object.is(DIAGRAMMABLE)) {
-            addSmartSeparator();
+            addSeparator();
+            separated = true;
             add(new DBNShowDiagramAction(object));
         }
 
         if (object instanceof DBSchemaObject schemaObject) {
             if (object.is(REFERENCEABLE) && OBJECT_DEPENDENCIES.isSupported(object)) {
-                addSmartSeparator();
+                if (!separated) addSeparator();
                 add(new ObjectDependencyTreeAction(schemaObject));
             }
-        }
-    }
-
-    private void addSmartSeparator() {
-        AnAction[] actions = getChildActionsOrStubs();
-        if (actions.length == 0 || !(actions[actions.length - 1] instanceof Separator)) {
-            addSeparator();
         }
     }
 
