@@ -10,6 +10,7 @@
 
 package com.dbn.object.diagram.model;
 
+import com.dbn.common.thread.Dispatch;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.diagram.DatabaseDiagramManager;
 import com.dbn.object.type.DBObjectType;
@@ -23,6 +24,8 @@ import com.intellij.diagram.DiagramPresentationModel;
 import com.intellij.diagram.DiagramProvider;
 import com.intellij.diagram.DiagramVfsResolver;
 import com.intellij.diagram.presentation.DiagramState;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
@@ -118,6 +121,12 @@ public abstract class DBDiagramProvider<T extends DBObject> extends BaseDiagramP
             VirtualFile file,
             DiagramPresentationModel presentationModel) {
 
+        if (element == null) {
+            // close ghost diagrams from previous sessions
+            // TODO is there a better way to prevent reopening diagrams? we have no control over the UmlFileSystem
+            FileEditorManager instance = FileEditorManager.getInstance(project);
+            Dispatch.run(ModalityState.nonModal(), () -> instance.closeFile(file));
+        }
         DatabaseDiagramManager diagramManager = DatabaseDiagramManager.getInstance(project);
         DBDiagramInput<T> input = diagramManager.createDiagramInput(nd(element));
         return new DBDiagramDataModel<>(project, this, input);
