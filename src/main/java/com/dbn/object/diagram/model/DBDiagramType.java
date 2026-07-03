@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Getter
 public enum DBDiagramType {
-    DATA_MODEL("dbn_data_model_diagram", "Data Model Diagram"),
+    TABLE_MODEL("dbn_table_model_diagram", "Table Model Diagram"),
     ROLE_MODEL("dbn_role_model_diagram", "Role Model Diagram");
 
     private final String providerId;
@@ -21,7 +21,7 @@ public enum DBDiagramType {
     @Nullable
     public static DBDiagramType forObjectType(DBObjectType objectType) {
         return switch (objectType) {
-            case TABLE -> DATA_MODEL;
+            case TABLE -> TABLE_MODEL;
             case ROLE -> ROLE_MODEL;
             default -> null;
         };

@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseDiagramManager extends ProjectComponentBase {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseDiagramManager";
@@ -49,46 +50,61 @@ public class DatabaseDiagramManager extends ProjectComponentBase {
         return projectService(project, DatabaseDiagramManager.class);
     }
 
-    @NotNull
+    /**
+     * Creates the input consumed by IntelliJ when it initializes the diagram model.
+     *
+     * <p>If {@link #prepareDiagramInput(DBObject)} already built the input during the
+     * background preparation phase, this method consumes that staged input. This
+     * handoff avoids repeating database traversal on the EDT. If no staged input is
+     * available, the provider creates one synchronously as a fallback.</p>
+     */
     public <T extends DBObject> DBDiagramInput<T> createDiagramInput(@NotNull T source) {
-        DBDiagramType diagramType = resolveDiagramType(source);
-        DBDiagramProvider<T> provider = DBDiagramProvider.get(diagramType);
+        DBDiagramProvider<T> provider = getDiagramProvider(source);
         DBDiagramInput<T> input = cast(preparedInputs.remove(source.ref()));
         return input == null ? provider.createInput(source) : input;
     }
 
+    /**
+     * Builds and stages diagram input for later consumption by
+     * {@link #createDiagramInput(DBObject)}.
+     *
+     * <p>This method is intended to run during the background/progress phase. The
+     * staged input is kept by source reference so IntelliJ's later model-creation
+     * callback can reuse it instead of loading database objects again on the EDT.</p>
+     */
     @NotNull
     public <T extends DBObject> DBDiagramInput<T> prepareDiagramInput(@NotNull T source) {
-        DBDiagramType diagramType = resolveDiagramType(source);
-        DBDiagramProvider<T> provider = DBDiagramProvider.get(diagramType);
+        DBDiagramProvider<T> provider = getDiagramProvider(source);
         DBDiagramInput<T> input = provider.createInput(source);
         preparedInputs.put(source.ref(), input);
         return input;
     }
 
     public <T extends DBObject> void showDiagram(@NotNull T source, @NotNull AnActionEvent event) {
-        DBDiagramType diagramType = resolveDiagramType(source);
-        Project project = getProject();
+        DBDiagramProvider<T> provider = getDiagramProvider(source);
+        DBDiagramType diagramType = provider.getDiagramType();
+
         DataContext dataContext = event.getDataContext();
         DiagramAction<T> diagramAction = new DiagramAction<>();
         RelativePoint location = diagramAction.getDiagramLocation(dataContext, event);
-        Progress.prompt(project, source, true, "Preparing database diagram", "Loading database diagram objects...", progress -> {
+
+        Project project = getProject();
+        Progress.prompt(project, source, true,
+                txt("prc.diagram.title.Preparing_" + diagramType),
+                txt("prc.diagram.text.LoadingObjects_" + diagramType, source.getQualifiedName()), progress -> {
             DBDiagramInput<T> input = prepareDiagramInput(source);
             Dispatch.run(dataContext, false, () -> {
-                DiagramProvider<?> provider = DiagramProvider.findByID(diagramType.getProviderId());
-                if (provider == null) return;
                 diagramAction.showDiagram(project, provider, source, input.getRoots(), location);
             });
         });
     }
 
-    @NotNull
-    private DBDiagramType resolveDiagramType(DBObject source) {
+    private <T extends DBObject> DBDiagramProvider<T> getDiagramProvider(@NotNull T source) {
         DBDiagramType diagramType = DBDiagramType.forObjectType(source.getObjectType());
         if (diagramType == null) {
             throw new IllegalArgumentException("Unsupported diagram object type: " + source.getObjectType());
         }
-        return diagramType;
+        return DBDiagramProvider.get(diagramType);
     }
 
     private static class DiagramAction<R extends DBObject> extends ShowDiagram {

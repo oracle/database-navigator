@@ -1,6 +1,5 @@
 package com.dbn.object.diagram.impl;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
@@ -22,12 +21,13 @@ import java.util.Locale;
 import java.util.Set;
 
 import static com.dbn.common.load.ProgressMonitor.checkCancelled;
+import static com.dbn.object.type.DBObjectType.COLUMN;
 
-public final class DBDataModelDiagramProvider extends DBDiagramProvider<DBTable> {
-    private static final DiagramCategory COLUMNS = new DiagramCategory(() -> "Columns", Icons.DBO_COLUMNS);
+public final class DBTableModelDiagramProvider extends DBDiagramProvider<DBTable> {
+    private static final DiagramCategory COLUMNS = createCategory(COLUMN);
 
-    DBDataModelDiagramProvider() {
-        super(DBDiagramType.DATA_MODEL);
+    DBTableModelDiagramProvider() {
+        super(DBDiagramType.TABLE_MODEL);
     }
 
     @Override

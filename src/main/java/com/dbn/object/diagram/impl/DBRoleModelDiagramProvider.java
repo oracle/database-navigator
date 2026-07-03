@@ -1,6 +1,5 @@
 package com.dbn.object.diagram.impl;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.object.DBGrantedPrivilege;
 import com.dbn.object.DBGrantedRole;
 import com.dbn.object.DBRole;
@@ -17,11 +16,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public final class DBRoleDiagramProvider extends DBDiagramProvider<DBRole> {
-    private static final DiagramCategory PRIVILEGES = new DiagramCategory(() -> "Privileges", Icons.DBO_PRIVILEGES);
-    private static final DiagramCategory GRANTED_ROLES = new DiagramCategory(() -> "Granted Roles", Icons.DBO_ROLES);
+import static com.dbn.object.type.DBObjectType.PRIVILEGE;
+import static com.dbn.object.type.DBObjectType.ROLE;
 
-    DBRoleDiagramProvider() {
+public final class DBRoleModelDiagramProvider extends DBDiagramProvider<DBRole> {
+    private static final DiagramCategory PRIVILEGES = createCategory(PRIVILEGE);
+    private static final DiagramCategory ROLES = createCategory(ROLE);
+
+    DBRoleModelDiagramProvider() {
         super(DBDiagramType.ROLE_MODEL);
     }
 
@@ -61,20 +63,20 @@ public final class DBRoleDiagramProvider extends DBDiagramProvider<DBRole> {
 
     @Override
     public DiagramCategory[] getContentCategories() {
-        return new DiagramCategory[]{PRIVILEGES, GRANTED_ROLES};
+        return new DiagramCategory[]{PRIVILEGES, ROLES};
     }
 
     @Override
     public boolean isInCategory(Object node, Object child, DiagramCategory category, DiagramBuilder builder) {
         if (PRIVILEGES.equals(category)) return child instanceof DBGrantedPrivilege;
-        if (GRANTED_ROLES.equals(category)) return child instanceof DBGrantedRole;
+        if (ROLES.equals(category)) return child instanceof DBGrantedRole;
         return false;
     }
 
     @Override
     public boolean isInCategory(Object child, DiagramCategory category, DiagramState state) {
         if (PRIVILEGES.equals(category)) return child instanceof DBGrantedPrivilege;
-        if (GRANTED_ROLES.equals(category)) return child instanceof DBGrantedRole;
+        if (ROLES.equals(category)) return child instanceof DBGrantedRole;
         return false;
     }
 }

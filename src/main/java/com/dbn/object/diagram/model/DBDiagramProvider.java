@@ -12,6 +12,7 @@ package com.dbn.object.diagram.model;
 
 import com.dbn.object.common.DBObject;
 import com.dbn.object.diagram.DatabaseDiagramManager;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.diagram.BaseDiagramProvider;
 import com.intellij.diagram.DiagramBuilder;
 import com.intellij.diagram.DiagramCategory;
@@ -24,11 +25,13 @@ import com.intellij.diagram.DiagramVfsResolver;
 import com.intellij.diagram.presentation.DiagramState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import lombok.Getter;
 
 import java.util.Collection;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 
+@Getter
 public abstract class DBDiagramProvider<T extends DBObject> extends BaseDiagramProvider<T> {
     private final DiagramElementManager<T> elementManager = new DBDiagramElementManager<>(this);
     private final DiagramVfsResolver<T> vfsResolver = new DBDiagramVfsResolver<>();
@@ -97,6 +100,10 @@ public abstract class DBDiagramProvider<T extends DBObject> extends BaseDiagramP
             throw new IllegalArgumentException("Unknown DBN diagram provider: " + diagramType.getProviderId());
         }
         return (DBDiagramProvider<T>) provider;
+    }
+
+    protected static DiagramCategory createCategory(DBObjectType objectType) {
+        return new DiagramCategory(() -> objectType.getListDisplayName(), objectType.getListIcon());
     }
 
     @Override
