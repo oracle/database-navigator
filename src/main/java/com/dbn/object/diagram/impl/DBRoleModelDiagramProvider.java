@@ -12,10 +12,15 @@ import com.intellij.diagram.DiagramBuilder;
 import com.intellij.diagram.DiagramCategory;
 import com.intellij.diagram.presentation.DiagramState;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.PRIVILEGE;
 import static com.dbn.object.type.DBObjectType.ROLE;
 
@@ -35,9 +40,18 @@ public final class DBRoleModelDiagramProvider extends DBDiagramProvider<DBRole> 
     @Override
     public Collection<DBRole> getRootObjects(DBRole source) {
         List<DBRole> result = new ArrayList<>();
-        result.add(source);
-        for (DBGrantedRole granted : source.getGrantedRoles())
-            if (granted.getRole() != null && !result.contains(granted.getRole())) result.add(granted.getRole());
+        Set<Object> visited = new HashSet<>();
+        Deque<DBRole> pending = new ArrayDeque<>();
+        pending.add(source);
+        while (!pending.isEmpty()) {
+            DBRole role = pending.removeFirst();
+            if (!visited.add(role.ref())) continue;
+            result.add(role);
+            for (DBGrantedRole granted : role.getGrantedRoles()) {
+                DBRole grantedRole = granted.getRole();
+                if (grantedRole != null) pending.addLast(grantedRole);
+            }
+        }
         return result;
     }
 
@@ -56,7 +70,8 @@ public final class DBRoleModelDiagramProvider extends DBDiagramProvider<DBRole> 
             for (DBGrantedRole granted : source.getGrantedRoles()) {
                 DBRole target = granted.getRole();
                 if (target != null && roots.contains(target))
-                    result.add(new DBDiagramRelation<>(source, target, "GRANTS"));
+                    result.add(new DBDiagramRelation<>(source, target,
+                            txt("app.diagram.text.InheritsPrivilegesFrom", source.getName(), target.getName())));
             }
         return result;
     }

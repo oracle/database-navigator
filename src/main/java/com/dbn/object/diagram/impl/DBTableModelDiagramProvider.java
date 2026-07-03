@@ -21,6 +21,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import static com.dbn.common.load.ProgressMonitor.checkCancelled;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 
 public final class DBTableModelDiagramProvider extends DBDiagramProvider<DBTable> {
@@ -70,7 +71,10 @@ public final class DBTableModelDiagramProvider extends DBDiagramProvider<DBTable
             for (DBColumn column : source.getColumns()) {
                 DBColumn targetColumn = column.getForeignKeyColumn();
                 if (targetColumn != null && targetColumn.getDataset() instanceof DBTable target)
-                    result.add(new DBDiagramRelation<>(source, target, source.getName() + "." + column.getName() + " -> " + target.getName() + "." + targetColumn.getName()));
+                    result.add(new DBDiagramRelation<>(source, target,
+                            txt("app.diagram.text.ColumnReferencesColumn",
+                                    source.getName() + "." + column.getName(),
+                                    target.getName() + "." + targetColumn.getName())));
             }
         return result;
     }
