@@ -11,7 +11,7 @@
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="com.dbn.object.diagram.DatabaseDiagramManager"/>
-        <diagram.Provider implementation="com.dbn.object.diagram.model.DBNDiagramProvider"/>
+        <diagram.Provider implementation="com.dbn.object.diagram.impl.DBDataModelDiagramProvider"/>
     </extensions>
     <actions>
         <action id="DBN.DatabaseDiagram.Show"

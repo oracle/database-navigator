@@ -10,7 +10,7 @@
 
 package com.dbn.object.diagram.model;
 
-import com.dbn.object.DBTable;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.diagram.DiagramNodeBase;
 import com.intellij.diagram.DiagramProvider;
@@ -20,30 +20,30 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
-final class DBNDiagramNode extends DiagramNodeBase<DBTable> {
-    private final DBObjectRef<DBTable> table;
+final class DBDiagramNode<T extends DBObject> extends DiagramNodeBase<T> {
+    private final DBObjectRef<T> object;
 
-    DBNDiagramNode(@NotNull DBTable table, @NotNull DiagramProvider<DBTable> provider) {
+    DBDiagramNode(@NotNull T object, @NotNull DiagramProvider<T> provider) {
         super(provider);
-        this.table = DBObjectRef.of(table);
+        this.object = DBObjectRef.of(object);
     }
 
     @NotNull
     @Override
-    public DBTable getIdentifyingElement() {
-        return table.ensure();
+    public T getIdentifyingElement() {
+        return object.ensure();
     }
 
     @Override
     public String getTooltip() {
-        DBTable table = getIdentifyingElement();
-        return table.getQualifiedNameWithType();
+        DBObject object = getIdentifyingElement();
+        return object.getQualifiedNameWithType();
     }
 
     @Override
     public Icon getIcon() {
-        DBTable table = getIdentifyingElement();
-        return table.getIcon();
+        DBObject object = getIdentifyingElement();
+        return object.getIcon();
     }
 
     @Override
@@ -52,6 +52,6 @@ final class DBNDiagramNode extends DiagramNodeBase<DBTable> {
     }
 
     public String getObjectName() {
-        return table.getObjectName();
+        return object.getObjectName();
     }
 }

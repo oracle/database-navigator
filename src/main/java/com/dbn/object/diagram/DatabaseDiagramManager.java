@@ -13,9 +13,11 @@ package com.dbn.object.diagram;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
-import com.dbn.object.DBTable;
-import com.dbn.object.diagram.model.DBNDiagramInput;
-import com.dbn.object.diagram.model.DBNDiagramProvider;
+import com.dbn.object.common.DBObject;
+import com.dbn.object.diagram.impl.DBDataModelDiagramDescriptor;
+import com.dbn.object.diagram.impl.DBDataModelDiagramProvider;
+import com.dbn.object.diagram.model.DBDiagramDescriptor;
+import com.dbn.object.diagram.model.DBDiagramInput;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.diagram.DiagramProvider;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -33,6 +35,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.util.Unsafe.cast;
 
 public class DatabaseDiagramManager extends ProjectComponentBase {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseDiagramManager";
@@ -41,47 +44,44 @@ public class DatabaseDiagramManager extends ProjectComponentBase {
         super(project, COMPONENT_NAME);
     }
 
-    private final Map<DBObjectRef<DBTable>, DBNDiagramInput> preparedInputs = new ConcurrentHashMap<>();
+    private final Map<DBObjectRef<?>, DBDiagramInput<?>> preparedInputs = new ConcurrentHashMap<>();
 
     public static DatabaseDiagramManager getInstance(@NotNull Project project) {
         return projectService(project, DatabaseDiagramManager.class);
     }
 
     @NotNull
-    public DBNDiagramInput createModel(@NotNull Collection<? extends DBTable> tables) {
-        return new DBNDiagramInput(tables);
+    public <T extends DBObject> DBDiagramInput<T> createInput(@NotNull T source) {
+        DBDiagramInput<T> input = cast(preparedInputs.remove(source.ref()));
+        DBDiagramDescriptor<T> descriptor = (DBDiagramDescriptor<T>) new DBDataModelDiagramDescriptor();
+        return input == null ? descriptor.createInput(source) : input;
     }
 
     @NotNull
-    public DBNDiagramInput createModel(@NotNull DBTable table) {
-        DBNDiagramInput input = preparedInputs.remove(table.ref());
-        return input == null ? new DBNDiagramInput(table) : input;
-    }
-
-    @NotNull
-    public DBNDiagramInput prepareModel(@NotNull DBTable table) {
-        DBNDiagramInput input = new DBNDiagramInput(table);
-        DBObjectRef<DBTable> ref = DBObjectRef.of(table);
+    public <T extends DBObject> DBDiagramInput<T> prepareModel(@NotNull T source) {
+        DBDiagramDescriptor<T> descriptor = (DBDiagramDescriptor<T>) new DBDataModelDiagramDescriptor();
+        DBDiagramInput<T> input = descriptor.createInput(source);
+        DBObjectRef<T> ref = DBObjectRef.of(source);
         preparedInputs.put(ref, input);
         return input;
     }
 
-    public void showDiagram(@NotNull DBTable table, @NotNull AnActionEvent event) {
+    public <T extends DBObject> void showDiagram(@NotNull T source, @NotNull AnActionEvent event) {
         Project project = getProject();
         DataContext dataContext = event.getDataContext();
-        DiagramAction diagramAction = new DiagramAction();
+        DiagramAction<T> diagramAction = new DiagramAction<>();
         RelativePoint location = diagramAction.getDiagramLocation(dataContext, event);
-        Progress.prompt(project, table, true, "Preparing database diagram", "Loading database diagram objects...", progress -> {
-            DBNDiagramInput input = prepareModel(table);
+        Progress.prompt(project, source, true, "Preparing database diagram", "Loading database diagram objects...", progress -> {
+            DBDiagramInput<T> input = prepareModel(source);
             Dispatch.run(dataContext, false, () -> {
-                DiagramProvider<?> provider = DiagramProvider.findByID(DBNDiagramProvider.ID);
+                DiagramProvider<?> provider = DiagramProvider.findByID(DBDataModelDiagramProvider.ID);
                 if (provider == null) return;
-                diagramAction.showDiagram(project, provider, table, input.getDatabaseTables(), location);
+                diagramAction.showDiagram(project, provider, source, input.getRoots(), location);
             });
         });
     }
 
-    private static class DiagramAction extends ShowDiagram {
+    private static class DiagramAction<R extends DBObject> extends ShowDiagram {
         DiagramAction() {
             super(true, false);
         }
@@ -91,13 +91,13 @@ public class DatabaseDiagramManager extends ProjectComponentBase {
         }
 
         @SuppressWarnings("unchecked")
-        void showDiagram(Project project, DiagramProvider<?> provider, DBTable table,
-                         Collection<DBTable> tables, RelativePoint location) {
-            List<DBTable> seedTables = new ArrayList<>(tables.size() + 1);
-            seedTables.add(table);
-            seedTables.addAll(tables);
-            var seed = createSeed(project, (DiagramProvider<Object>) provider, table,
-                    new ArrayList<>(seedTables));
+        void showDiagram(Project project, DiagramProvider<?> provider, R source,
+                         Collection<R> roots, RelativePoint location) {
+            List<R> seedElements = new ArrayList<>(roots.size() + 1);
+            seedElements.add(source);
+            seedElements.addAll(roots);
+            var seed = createSeed(project, (DiagramProvider<Object>) provider, source, new ArrayList<>(seedElements));
+
             CompletableFuture<Void> shown = show(seed, location, null).toCompletableFuture();
             shown.exceptionally(exception -> {
                 com.dbn.diagnostics.Diagnostics.conditionallyLog(exception);

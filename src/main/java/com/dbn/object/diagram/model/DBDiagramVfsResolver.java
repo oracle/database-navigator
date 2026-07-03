@@ -10,18 +10,18 @@
 
 package com.dbn.object.diagram.model;
 
-import com.dbn.object.DBTable;
+import com.dbn.object.common.DBObject;
 import com.intellij.diagram.DiagramVfsResolver;
 import com.intellij.openapi.project.Project;
 
-final class DBNDiagramVfsResolver implements DiagramVfsResolver<DBTable> {
+final class DBDiagramVfsResolver<T extends DBObject> implements DiagramVfsResolver<T> {
     @Override
-    public String getQualifiedName(DBTable element) {
+    public String getQualifiedName(T element) {
         return element == null ? "" : element.getQualifiedName();
     }
 
     @Override
-    public DBTable resolveElementByFQN(String fqn, Project project) {
+    public T resolveElementByFQN(String fqn, Project project) {
         return null;
     }
 }

@@ -6,22 +6,22 @@
 
 package com.dbn.object.diagram.model;
 
-import com.dbn.object.DBColumn;
 import com.intellij.diagram.AbstractDiagramNodeContentManager;
 import com.intellij.diagram.DiagramBuilder;
 import com.intellij.diagram.DiagramCategory;
 import com.intellij.diagram.presentation.DiagramState;
 
-final class DBNDiagramNodeContentManager extends AbstractDiagramNodeContentManager {
-    private static final DiagramCategory COLUMNS = new DiagramCategory(() -> "Columns", null);
+final class DBDiagramNodeContentManager extends AbstractDiagramNodeContentManager {
+    private final DBDiagramDescriptor<?> descriptor;
 
-    DBNDiagramNodeContentManager() {
-        setCategoryEnabled(COLUMNS, true);
+    DBDiagramNodeContentManager(DBDiagramDescriptor<?> descriptor) {
+        this.descriptor = descriptor;
+        for (DiagramCategory category : descriptor.getContentCategories()) setCategoryEnabled(category, true);
     }
 
     @Override
     public DiagramCategory[] getContentCategories() {
-        return new DiagramCategory[]{COLUMNS};
+        return descriptor.getContentCategories();
     }
 
     @Override
@@ -31,13 +31,13 @@ final class DBNDiagramNodeContentManager extends AbstractDiagramNodeContentManag
             DiagramCategory category,
             DiagramBuilder builder) {
 
-        return COLUMNS.equals(category) && element instanceof DBColumn;
+        return descriptor.isInCategory(node, element, category, builder);
     }
 
 
     @Override
     @SuppressWarnings({"removal"})
     public boolean isInCategory(Object element, DiagramCategory category, DiagramState state) {
-        return COLUMNS.equals(category) && element instanceof DBColumn;
+        return descriptor.isInCategory(element, category, state);
     }
 }

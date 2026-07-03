@@ -11,7 +11,7 @@ import com.intellij.diagram.presentation.DiagramLineType;
 
 import java.awt.Shape;
 
-final class DBNDiagramRelationshipInfo implements DiagramRelationshipInfo {
+final class DBDiagramRelationshipInfo implements DiagramRelationshipInfo {
     @Override
     public DiagramLineType getLineType() {
         return DiagramLineType.SOLID;
