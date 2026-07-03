@@ -13,6 +13,7 @@ package com.dbn.object.diagram.model;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.diagram.DatabaseDiagramManager;
 import com.intellij.diagram.BaseDiagramProvider;
+import com.intellij.diagram.DiagramCategory;
 import com.intellij.diagram.DiagramDataModel;
 import com.intellij.diagram.DiagramElementManager;
 import com.intellij.diagram.DiagramNodeContentManager;
@@ -27,16 +28,33 @@ public abstract class DBDiagramProvider<T extends DBObject> extends BaseDiagramP
     private final DiagramElementManager<T> elementManager = new DBDiagramElementManager<>(this);
     private final DiagramVfsResolver<T> vfsResolver = new DBDiagramVfsResolver<>();
     private final DBDiagramDescriptor<T> descriptor;
+    private final DBDiagramType diagramType;
 
-    protected DBDiagramProvider() {
-        descriptor = createDescriptor();
+    protected DBDiagramProvider(DBDiagramType diagramType) {
+        this.descriptor = createDescriptor();
+        this.diagramType = diagramType;
     }
 
     protected abstract DBDiagramDescriptor<T> createDescriptor();
 
-    // DiagramProvider.findByID accepts only [a-zA-Z0-9_-]* identifiers.
     @Override
-    public abstract String getID();
+    public final String getID() {
+        return diagramType.getProviderId();
+    }
+
+    @Override
+    public final String getPresentableName() {
+        return getDiagramType().getPresentableName();
+    }
+
+    @Override
+    public DiagramCategory[] getAllContentCategories() {
+        return descriptor.getContentCategories();
+    }
+
+    public final DBDiagramType getDiagramType(){
+        return diagramType;
+    }
 
     @Override
     public DiagramDataModel<T> createDataModel(
@@ -46,7 +64,7 @@ public abstract class DBDiagramProvider<T extends DBObject> extends BaseDiagramP
             DiagramPresentationModel presentationModel) {
 
         DatabaseDiagramManager diagramManager = DatabaseDiagramManager.getInstance(project);
-        DBDiagramInput<T> input = diagramManager.createInput(nd(element));
+        DBDiagramInput<T> input = diagramManager.createDiagramInput(nd(element));
         return new DBDiagramDataModel<>(project, this, input);
     }
 
@@ -65,5 +83,5 @@ public abstract class DBDiagramProvider<T extends DBObject> extends BaseDiagramP
         return new DBDiagramNodeContentManager(descriptor);
     }
 
-    protected final DBDiagramDescriptor<T> getDescriptor() { return descriptor; }
+    public final DBDiagramDescriptor<T> getDescriptor() { return descriptor; }
 }

@@ -14,10 +14,10 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.diagram.impl.DBDataModelDiagramDescriptor;
-import com.dbn.object.diagram.impl.DBDataModelDiagramProvider;
 import com.dbn.object.diagram.model.DBDiagramDescriptor;
 import com.dbn.object.diagram.model.DBDiagramInput;
+import com.dbn.object.diagram.model.DBDiagramProvider;
+import com.dbn.object.diagram.model.DBDiagramType;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.diagram.DiagramProvider;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -51,34 +51,54 @@ public class DatabaseDiagramManager extends ProjectComponentBase {
     }
 
     @NotNull
-    public <T extends DBObject> DBDiagramInput<T> createInput(@NotNull T source) {
+    public <T extends DBObject> DBDiagramInput<T> createDiagramInput(@NotNull T source) {
+        DBDiagramType diagramType = resolveDiagramType(source);
+        DBDiagramDescriptor<T> descriptor = getDescriptor(diagramType);
         DBDiagramInput<T> input = cast(preparedInputs.remove(source.ref()));
-        DBDiagramDescriptor<T> descriptor = (DBDiagramDescriptor<T>) new DBDataModelDiagramDescriptor();
         return input == null ? descriptor.createInput(source) : input;
     }
 
     @NotNull
-    public <T extends DBObject> DBDiagramInput<T> prepareModel(@NotNull T source) {
-        DBDiagramDescriptor<T> descriptor = (DBDiagramDescriptor<T>) new DBDataModelDiagramDescriptor();
+    public <T extends DBObject> DBDiagramInput<T> prepareDiagramInput(@NotNull T source) {
+        DBDiagramType diagramType = resolveDiagramType(source);
+        DBDiagramDescriptor<T> descriptor = getDescriptor(diagramType);
         DBDiagramInput<T> input = descriptor.createInput(source);
-        DBObjectRef<T> ref = DBObjectRef.of(source);
-        preparedInputs.put(ref, input);
+        preparedInputs.put(source.ref(), input);
         return input;
     }
 
     public <T extends DBObject> void showDiagram(@NotNull T source, @NotNull AnActionEvent event) {
+        DBDiagramType diagramType = resolveDiagramType(source);
         Project project = getProject();
         DataContext dataContext = event.getDataContext();
         DiagramAction<T> diagramAction = new DiagramAction<>();
         RelativePoint location = diagramAction.getDiagramLocation(dataContext, event);
         Progress.prompt(project, source, true, "Preparing database diagram", "Loading database diagram objects...", progress -> {
-            DBDiagramInput<T> input = prepareModel(source);
+            DBDiagramInput<T> input = prepareDiagramInput(source);
             Dispatch.run(dataContext, false, () -> {
-                DiagramProvider<?> provider = DiagramProvider.findByID(DBDataModelDiagramProvider.ID);
+                DiagramProvider<?> provider = DiagramProvider.findByID(diagramType.getProviderId());
                 if (provider == null) return;
                 diagramAction.showDiagram(project, provider, source, input.getRoots(), location);
             });
         });
+    }
+
+    @NotNull
+    private DBDiagramType resolveDiagramType(DBObject source) {
+        DBDiagramType diagramType = DBDiagramType.forObjectType(source.getObjectType());
+        if (diagramType == null) {
+            throw new IllegalArgumentException("Unsupported diagram object type: " + source.getObjectType());
+        }
+        return diagramType;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends DBObject> DBDiagramDescriptor<T> getDescriptor(DBDiagramType diagramType) {
+        DiagramProvider<?> provider = DiagramProvider.findByID(diagramType.getProviderId());
+        if (!(provider instanceof DBDiagramProvider<?> dbProvider)) {
+            throw new IllegalArgumentException("Unknown DBN diagram provider: " + diagramType.getProviderId());
+        }
+        return (DBDiagramDescriptor<T>) dbProvider.getDescriptor();
     }
 
     private static class DiagramAction<R extends DBObject> extends ShowDiagram {

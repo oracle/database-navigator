@@ -12,6 +12,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="com.dbn.object.diagram.DatabaseDiagramManager"/>
         <diagram.Provider implementation="com.dbn.object.diagram.impl.DBDataModelDiagramProvider"/>
+        <diagram.Provider implementation="com.dbn.object.diagram.impl.DBRoleDiagramProvider"/>
     </extensions>
     <actions>
         <action id="DBN.DatabaseDiagram.Show"

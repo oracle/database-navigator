@@ -56,6 +56,8 @@ import com.dbn.sync.java.action.JavaObjectDownloadAction;
 import com.dbn.sync.java.action.JavaResourceDownloadAction;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.project.DumbAware;
 
 import java.util.List;
@@ -73,6 +75,7 @@ import static com.dbn.editor.DBContentType.CODE_AND_DATA;
 import static com.dbn.editor.DBContentType.CODE_SPEC_AND_BODY;
 import static com.dbn.editor.DBContentType.DATA;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
+import static com.dbn.object.common.property.DBObjectProperty.DIAGRAMMABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
@@ -82,7 +85,6 @@ import static com.dbn.vfs.DBConsoleType.SEARCH;
 import static com.dbn.vfs.DBConsoleType.STANDARD;
 
 public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
-
     public ObjectActionGroup(DBObject[] objects) {
         DBObject object = objects[0];
 
@@ -187,17 +189,23 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
     }
 
     private void addDependencyActions(DBObject object) {
-        boolean separatorAdded = false;
-        if (object instanceof DBSchemaObject) {
-            if (object instanceof DBTable table) {
-                addSeparator();
-                add(new DBNShowDiagramAction(table));
-                separatorAdded = true;
-            }
+        if (object.is(DIAGRAMMABLE)) {
+            addSmartSeparator();
+            add(new DBNShowDiagramAction(object));
+        }
+
+        if (object instanceof DBSchemaObject schemaObject) {
             if (object.is(REFERENCEABLE) && OBJECT_DEPENDENCIES.isSupported(object)) {
-                if (!separatorAdded) addSeparator();
-                add(new ObjectDependencyTreeAction((DBSchemaObject) object));
+                addSmartSeparator();
+                add(new ObjectDependencyTreeAction(schemaObject));
             }
+        }
+    }
+
+    private void addSmartSeparator() {
+        AnAction[] actions = getChildActionsOrStubs();
+        if (actions.length == 0 || !(actions[actions.length - 1] instanceof Separator)) {
+            addSeparator();
         }
     }
 

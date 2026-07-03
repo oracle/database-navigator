@@ -10,27 +10,27 @@
 
 package com.dbn.object.diagram;
 
-import com.dbn.object.DBTable;
 import com.dbn.object.action.AnObjectAction;
+import com.dbn.object.common.DBObject;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class DBNShowDiagramAction extends AnObjectAction<DBTable> {
-    public DBNShowDiagramAction(DBTable table) {
-        super(table);
+public final class DBNShowDiagramAction extends AnObjectAction<DBObject> {
+    public DBNShowDiagramAction(DBObject object) {
+        super(object);
     }
 
     @Override
-    protected void actionPerformed(@NotNull AnActionEvent event, @NotNull Project project, @NotNull DBTable table) {
-        DatabaseDiagramManager.getInstance(project).showDiagram(table, event);
+    protected void actionPerformed(@NotNull AnActionEvent event, @NotNull Project project, @NotNull DBObject object) {
+        DatabaseDiagramManager.getInstance(project).showDiagram(object, event);
     }
 
     @Override
     protected void update(@NotNull AnActionEvent event, @NotNull Presentation presentation,
-                          @NotNull Project project, @Nullable DBTable table) {
-        if (table != null) presentation.setText("Show Database Diagram");
+                          @NotNull Project project, @Nullable DBObject object) {
+        if (object != null) presentation.setText("Show Diagram");
     }
 }
