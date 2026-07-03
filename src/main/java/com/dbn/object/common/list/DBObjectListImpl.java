@@ -26,6 +26,7 @@ import com.dbn.common.content.DynamicContentProperty;
 import com.dbn.common.content.DynamicContentType;
 import com.dbn.common.content.GroupedDynamicContent;
 import com.dbn.common.content.dependency.ContentDependencyAdapter;
+import com.dbn.common.content.dependency.VoidContentDependencyAdapter;
 import com.dbn.common.content.loader.DynamicContentLoader;
 import com.dbn.common.content.loader.DynamicContentLoaderImpl;
 import com.dbn.common.dispose.Failsafe;
@@ -116,6 +117,11 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
             quickFilterManager.restoreQuickFilter(this);
         }
     }
+
+    public static <T extends DBObject> DBObjectListImpl<T> empty(DBObjectType objectType, DBObject parent) {
+        return new DBObjectListImpl<>(objectType, parent, VoidContentDependencyAdapter.INSTANCE);
+    }
+
 
     @Override
     public DynamicContentLoader<T, DBObjectMetadata> getLoader() {

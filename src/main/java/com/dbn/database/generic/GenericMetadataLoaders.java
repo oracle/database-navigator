@@ -185,6 +185,17 @@ public interface GenericMetadataLoaders {
                 });
     }
 
+    static CachedResultSet loadExportedKeysRaw(String ownerName, String datasetName, DBNConnection connection) throws SQLException {
+        return attemptCached(
+                JdbcProperty.MD_IMPORTED_KEYS,
+                key("EXPORTED_KEYS", ownerName, datasetName),
+                () -> {
+                    String[] owner = lookupOwner(ownerName, connection);
+                    DatabaseMetaData metaData = connection.getMetaData();
+                    return CachedResultSet.create(metaData.getExportedKeys(owner[0], owner[1], datasetName));
+                });
+    }
+
     static CachedResultSet loadFunctionsRaw(String ownerName, DBNConnection connection) throws SQLException {
         return attemptCached(
                 JdbcProperty.MD_FUNCTIONS,

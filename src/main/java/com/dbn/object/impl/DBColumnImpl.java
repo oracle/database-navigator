@@ -26,12 +26,13 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBConstraint;
 import com.dbn.object.DBDataset;
 import com.dbn.object.DBIndex;
-import com.dbn.object.DBSchema;
 import com.dbn.object.DBType;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
+import com.dbn.object.common.list.DBObjectListImpl;
+import com.dbn.object.common.list.DBObjectListProxy;
 import com.dbn.object.common.list.DBObjectRelationList;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -44,13 +45,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.dbn.common.load.ProgressMonitor.isProgressCancelled;
 import static com.dbn.object.common.property.DBObjectProperty.FOREIGN_KEY;
 import static com.dbn.object.common.property.DBObjectProperty.HIDDEN;
 import static com.dbn.object.common.property.DBObjectProperty.IDENTITY;
 import static com.dbn.object.common.property.DBObjectProperty.NULLABLE;
 import static com.dbn.object.common.property.DBObjectProperty.PRIMARY_KEY;
 import static com.dbn.object.common.property.DBObjectProperty.UNIQUE_KEY;
+import static com.dbn.object.type.DBObjectRelationType.COLUMN_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
 import static com.dbn.object.type.DBObjectType.COLUMN;
@@ -92,18 +93,21 @@ class DBColumnImpl extends DBObjectImpl<DBColumnMetadata> implements DBColumn {
         childObjects.createSubcontentObjectList(CONSTRAINT, this, dataset, CONSTRAINT_COLUMN);
         childObjects.createSubcontentObjectList(INDEX, this, dataset, INDEX_COLUMN);
 
-        DBObjectList typeAttributes = initDeclaredType();
-        childObjects.addObjectList(typeAttributes);
+
+        initDeclaredType(childObjects);
     }
 
-    private DBObjectList initDeclaredType() {
-        DBType declaredType = dataType.getDeclaredType();
-        if (declaredType == null) return null;
+    private void initDeclaredType(DBObjectListContainer childObjects) {
+        if (!dataType.isDeclared()) return;
 
-        DBObjectListContainer typeChildObjects = declaredType.getChildObjects();
-        if (typeChildObjects == null) return null;
+        DBObjectListImpl<DBObject> empty = DBObjectListImpl.empty(TYPE_ATTRIBUTE, this);
+            childObjects.addObjectList(DBObjectListProxy.create(() -> {
+            DBType declaredType = dataType.getDeclaredType();
+            if (declaredType == null) return empty;
 
-        return typeChildObjects.getObjectList(TYPE_ATTRIBUTE);
+            DBObjectList<DBObject> typeAttributes = declaredType.getChildObjectList(TYPE_ATTRIBUTE);
+            return typeAttributes == null ? empty : typeAttributes;
+        }));
     }
 
     @NotNull
@@ -258,17 +262,16 @@ class DBColumnImpl extends DBObjectImpl<DBColumnMetadata> implements DBColumn {
     public List<DBColumn> getReferencingColumns() {
         if (!isPrimaryKey()) return emptyList();
 
+        DBObjectListContainer childObjects = getDataset().getChildObjects();
+        if (childObjects == null) return emptyList();
+
+        DBObjectRelationList<DBColumnColumnRelation> relations = childObjects.getRelations(COLUMN_COLUMN);
+        if (relations == null) return emptyList();
+
         List<DBColumn> list = new ArrayList<>();
-        boolean systemSchema = getDataset().getSchema().isSystemSchema();
-        for (DBSchema schema : getObjectBundle().getSchemas()) {
-            if (isProgressCancelled()) break;
-            if (schema.isSystemSchema() == systemSchema) {
-                List<DBColumn> columns = schema.getForeignKeyColumns();
-                for (DBColumn column : columns){
-                    if (this.equals(column.getForeignKeyColumn())) {
-                        list.add(column);
-                    }
-                }
+        for (DBColumnColumnRelation relation : relations.getObjectRelations()) {
+            if (this.equals(relation.getTargetColumn())) {
+                list.add(relation.getSourceColumn());
             }
         }
         return list;
