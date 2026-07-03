@@ -47,6 +47,8 @@ import java.awt.BorderLayout;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.file.FileTypes.getJsonFileType;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormField;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
@@ -55,6 +57,7 @@ import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 
 public class ConnectionConfigurationForm extends DBNFormBase {
+    private static final String READ_ONLY = "READ_ONLY";
     private static final Pattern CONFIG_NAME_PATTERN = Pattern.compile("^[A-Za-z][A-Za-z0-9_-]*$");
     private static final int IDENTIFIER_MAX_LENGTH = 128;
     private static final String DEFAULT_CONFIG_NAME = "new_configuration";
@@ -166,7 +169,11 @@ public class ConnectionConfigurationForm extends DBNFormBase {
                 .withValueLoader(() -> connection.getObjectBundle().getSchemas())
                 .withValuePreselector(() -> ownerName)
                 .triggerLoad();
-        ownerComboBox.setEnabled(creating && canCreateInAnySchema);
+        if (creating && canCreateInAnySchema) {
+            enableFormField(ownerComboBox, READ_ONLY);
+        } else {
+            disableFormField(ownerComboBox, READ_ONLY);
+        }
         configNameTextField.setEnabled(creating);
         ownerComboBox.setToolTipText(txt("cfg.connectionConfig.text.OwnerFieldTooltip"));
         configNameTextField.setToolTipText(txt("cfg.connectionConfig.text.ConfigNameFieldTooltip"));
