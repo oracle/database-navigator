@@ -59,7 +59,7 @@ final class DBDiagramElementManager<T extends DBObject> implements DiagramElemen
 
     @Override
     public Object[] getNodeItems(T element) {
-        return descriptor().getNodeItems(element);
+        return provider.getNodeItems(element);
     }
 
     @Override
@@ -74,38 +74,38 @@ final class DBDiagramElementManager<T extends DBObject> implements DiagramElemen
 
     @Override
     public String getElementTitle(T element) {
-        return descriptor().getElementTitle(element);
+        return provider.getElementTitle(element);
     }
 
     @Override
     public String getNodeTooltip(T element) {
-        return descriptor().getNodeTooltip(element);
+        return provider.getNodeTooltip(element);
     }
 
     @Override
     public SimpleColoredText getItemName(Object item, DiagramBuilder builder) {
-        return regularText(descriptor().getItemName(item, builder));
+        return regularText(provider.getItemName(item, builder));
     }
 
     @Override
     public SimpleColoredText getItemName(Object item, DiagramState state) {
-        return regularText(descriptor().getItemName(item, null));
+        return regularText(provider.getItemName(item, null));
     }
 
     @Override
     public SimpleColoredText getItemName(DBObject element, Object item, DiagramBuilder builder) {
-        return regularText(descriptor().getItemName(item, builder));
+        return regularText(provider.getItemName(item, builder));
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public SimpleColoredText getItemType(Object item) {
-        return grayedText(descriptor().getItemType(item));
+        return grayedText(provider.getItemType(item));
     }
 
     @Override
     public SimpleColoredText getItemType(DBObject element, Object item, DiagramBuilder builder) {
-        return grayedText(descriptor().getItemType(item));
+        return grayedText(provider.getItemType(item));
     }
 
     @Override
@@ -119,10 +119,6 @@ final class DBDiagramElementManager<T extends DBObject> implements DiagramElemen
 
     private static SimpleColoredText grayedText(String text) {
         return new SimpleColoredText(text, SimpleTextAttributes.GRAYED_ATTRIBUTES);
-    }
-
-    private DBDiagramDescriptor<T> descriptor() {
-        return provider.getDescriptor();
     }
 
 }

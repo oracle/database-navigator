@@ -30,14 +30,14 @@ import java.util.Map;
 import static java.util.Collections.unmodifiableList;
 
 public final class DBDiagramInput<T extends DBObject> {
-    private final DBDiagramDescriptor<T> descriptor;
+    private final DBObjectRef<T> source;
     private final List<DBObjectRef<T>> roots;
     private final Map<DBObjectRef<T>, List<DBObjectRef<?>>> children;
 
-    public DBDiagramInput(DBDiagramDescriptor<T> descriptor, @NotNull T source) {
-        this.descriptor = descriptor;
+    public DBDiagramInput(DBDiagramProvider<T> provider, @NotNull T source) {
+        this.source = DBObjectRef.of(source);
 
-        Collection<T> rootObjects = this.descriptor.getRootObjects(source);
+        Collection<T> rootObjects = provider.getRootObjects(source);
 
         List<DBObjectRef<T>> rootRefs = new ArrayList<>(rootObjects.size());
         Map<DBObjectRef<T>, List<DBObjectRef<?>>> childIndex = new LinkedHashMap<>();
@@ -45,13 +45,17 @@ public final class DBDiagramInput<T extends DBObject> {
             DBObjectRef<T> rootRef = DBObjectRef.of(root);
             rootRefs.add(rootRef);
             List<DBObjectRef<?>> childRefs = new ArrayList<>();
-            for (DBObject child : descriptor.getChildObjects(root)) {
+            for (DBObject child : provider.getChildObjects(root)) {
                 childRefs.add(DBObjectRef.of(child));
             }
             childIndex.put(rootRef, unmodifiableList(childRefs));
         }
         this.roots = unmodifiableList(rootRefs);
         this.children = Collections.unmodifiableMap(childIndex);
+    }
+
+    public boolean isSource(@NotNull T root) {
+        return source.equals(root.ref());
     }
 
     @NotNull

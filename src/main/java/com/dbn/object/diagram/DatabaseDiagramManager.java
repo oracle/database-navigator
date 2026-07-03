@@ -14,7 +14,6 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.diagram.model.DBDiagramDescriptor;
 import com.dbn.object.diagram.model.DBDiagramInput;
 import com.dbn.object.diagram.model.DBDiagramProvider;
 import com.dbn.object.diagram.model.DBDiagramType;
@@ -53,16 +52,16 @@ public class DatabaseDiagramManager extends ProjectComponentBase {
     @NotNull
     public <T extends DBObject> DBDiagramInput<T> createDiagramInput(@NotNull T source) {
         DBDiagramType diagramType = resolveDiagramType(source);
-        DBDiagramDescriptor<T> descriptor = getDescriptor(diagramType);
+        DBDiagramProvider<T> provider = DBDiagramProvider.get(diagramType);
         DBDiagramInput<T> input = cast(preparedInputs.remove(source.ref()));
-        return input == null ? descriptor.createInput(source) : input;
+        return input == null ? provider.createInput(source) : input;
     }
 
     @NotNull
     public <T extends DBObject> DBDiagramInput<T> prepareDiagramInput(@NotNull T source) {
         DBDiagramType diagramType = resolveDiagramType(source);
-        DBDiagramDescriptor<T> descriptor = getDescriptor(diagramType);
-        DBDiagramInput<T> input = descriptor.createInput(source);
+        DBDiagramProvider<T> provider = DBDiagramProvider.get(diagramType);
+        DBDiagramInput<T> input = provider.createInput(source);
         preparedInputs.put(source.ref(), input);
         return input;
     }
@@ -90,15 +89,6 @@ public class DatabaseDiagramManager extends ProjectComponentBase {
             throw new IllegalArgumentException("Unsupported diagram object type: " + source.getObjectType());
         }
         return diagramType;
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T extends DBObject> DBDiagramDescriptor<T> getDescriptor(DBDiagramType diagramType) {
-        DiagramProvider<?> provider = DiagramProvider.findByID(diagramType.getProviderId());
-        if (!(provider instanceof DBDiagramProvider<?> dbProvider)) {
-            throw new IllegalArgumentException("Unknown DBN diagram provider: " + diagramType.getProviderId());
-        }
-        return (DBDiagramDescriptor<T>) dbProvider.getDescriptor();
     }
 
     private static class DiagramAction<R extends DBObject> extends ShowDiagram {

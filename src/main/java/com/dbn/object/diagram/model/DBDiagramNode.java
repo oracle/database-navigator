@@ -22,10 +22,12 @@ import javax.swing.Icon;
 
 final class DBDiagramNode<T extends DBObject> extends DiagramNodeBase<T> {
     private final DBObjectRef<T> object;
+    private final boolean source;
 
-    DBDiagramNode(@NotNull T object, @NotNull DiagramProvider<T> provider) {
+    DBDiagramNode(@NotNull T object, @NotNull DiagramProvider<T> provider, boolean source) {
         super(provider);
         this.object = DBObjectRef.of(object);
+        this.source = source;
     }
 
     @NotNull
@@ -41,6 +43,16 @@ final class DBDiagramNode<T extends DBObject> extends DiagramNodeBase<T> {
     }
 
     @Override
+    public void navigate(boolean requestFocus) {
+        getIdentifyingElement().navigate(requestFocus);
+    }
+
+    @Override
+    public boolean canNavigate() {
+        return getIdentifyingElement().canNavigate();
+    }
+
+    @Override
     public Icon getIcon() {
         DBObject object = getIdentifyingElement();
         return object.getIcon();
@@ -48,7 +60,9 @@ final class DBDiagramNode<T extends DBObject> extends DiagramNodeBase<T> {
 
     @Override
     protected SimpleColoredText computePresentableTitle() {
-        return new SimpleColoredText(getObjectName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        return new SimpleColoredText(getObjectName(), source ?
+                SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES :
+                SimpleTextAttributes.REGULAR_ATTRIBUTES);
     }
 
     public String getObjectName() {

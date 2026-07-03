@@ -40,13 +40,12 @@ final class DBDiagramDataModel<T extends DBObject> extends DiagramDataModel<T> {
         super(project, provider, provider.createNodeContentManager());
         Map<T, DBDiagramNode<T>> nodeMap = new LinkedHashMap<>();
         for (T root : input.getRoots()) {
-            nodeMap.put(root, new DBDiagramNode<>(root, provider));
+            nodeMap.put(root, new DBDiagramNode<>(root, provider, input.isSource(root)));
         }
         this.nodes = new ArrayList<>(nodeMap.values());
         this.edges = new ArrayList<>();
         if (!input.getRoots().isEmpty()) {
-            DBDiagramDescriptor<T> descriptor = getDiagramProvider().getDescriptor();
-            for (DBDiagramRelation<T> relation : descriptor.getRelations(input.getRoots())) {
+            for (DBDiagramRelation<T> relation : getDiagramProvider().getRelations(input.getRoots())) {
                 DBDiagramNode<T> sourceNode = nodeMap.get(relation.source());
                 DBDiagramNode<T> targetNode = nodeMap.get(relation.target());
                 if (sourceNode != null && targetNode != null) {
@@ -82,7 +81,7 @@ final class DBDiagramDataModel<T extends DBObject> extends DiagramDataModel<T> {
             DBObject nodeElement = node.getIdentifyingElement();
             if (nodeElement.ref().equals(element.ref())) return node;
         }
-        DBDiagramNode<T> node = new DBDiagramNode<>(element, getProvider());
+        DBDiagramNode<T> node = new DBDiagramNode<>(element, getProvider(), false);
         nodes.add(node);
         return node;
     }

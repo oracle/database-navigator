@@ -12,16 +12,16 @@ import com.intellij.diagram.DiagramCategory;
 import com.intellij.diagram.presentation.DiagramState;
 
 final class DBDiagramNodeContentManager extends AbstractDiagramNodeContentManager {
-    private final DBDiagramDescriptor<?> descriptor;
+    private final DBDiagramProvider<?> provider;
 
-    DBDiagramNodeContentManager(DBDiagramDescriptor<?> descriptor) {
-        this.descriptor = descriptor;
-        for (DiagramCategory category : descriptor.getContentCategories()) setCategoryEnabled(category, true);
+    DBDiagramNodeContentManager(DBDiagramProvider<?> provider) {
+        this.provider = provider;
+        for (DiagramCategory category : provider.getContentCategories()) setCategoryEnabled(category, true);
     }
 
     @Override
     public DiagramCategory[] getContentCategories() {
-        return descriptor.getContentCategories();
+        return provider.getContentCategories();
     }
 
     @Override
@@ -31,13 +31,13 @@ final class DBDiagramNodeContentManager extends AbstractDiagramNodeContentManage
             DiagramCategory category,
             DiagramBuilder builder) {
 
-        return descriptor.isInCategory(node, element, category, builder);
+        return provider.isInCategory(node, element, category, builder);
     }
 
 
     @Override
     @SuppressWarnings({"removal"})
     public boolean isInCategory(Object element, DiagramCategory category, DiagramState state) {
-        return descriptor.isInCategory(element, category, state);
+        return provider.isInCategory(element, category, state);
     }
 }
