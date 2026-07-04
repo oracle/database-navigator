@@ -16,6 +16,7 @@
 
 package com.dbn.connection.ui;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
@@ -26,12 +27,13 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import java.awt.BorderLayout;
 import java.util.Arrays;
 
 import static com.dbn.common.ui.util.PasswordFields.getPassword;
+import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.util.PasswordFields.testPassword;
 import static com.dbn.common.util.Chars.isNotEmpty;
+import static com.dbn.common.util.Passwords.clearPassword;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionPasswordChangeForm extends DBNFormBase {
@@ -41,16 +43,33 @@ public class ConnectionPasswordChangeForm extends DBNFormBase {
     private JPasswordField newPasswordField;
     private JPasswordField confirmPasswordField;
 
+    private final ConnectionSettings connectionSettings;
+
     ConnectionPasswordChangeForm(@NotNull ConnectionPasswordChangeDialog parentComponent, @NotNull ConnectionSettings connectionSettings) {
         super(parentComponent);
+        this.connectionSettings = connectionSettings;
 
+        initHeaderPanel();
+        initOldPassword();
+    }
+
+    private void initOldPassword() {
+        char[] oldPassword = connectionSettings.getDatabaseSettings().getAuthenticationInfo().getPassword();
+        try {
+            setPassword(currentPasswordField, oldPassword);
+        } finally {
+            clearPassword(oldPassword);
+        }
+    }
+
+    private void initHeaderPanel() {
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         DBNHeaderForm headerForm = new DBNHeaderForm(
                 this,
                 databaseSettings.getDisplayName(),
-                databaseSettings.getDatabaseType().getIcon(),
+                Icons.CONNECTION_INACTIVE,
                 connectionSettings.getDetailSettings().getEnvironmentType().getColor());
-        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+        headerPanel.add(headerForm.getComponent());
     }
 
     @Override

@@ -81,7 +81,7 @@ public abstract class ConnectionAction implements DatabaseContextBase {
                 Throwable connectionException = connection.getConnectionStatus().getConnectionException();
 
                 ConnectionManager connectionManager = getConnectionManager(connection);
-                connectionManager.showErrorConnectionMessage(connectionSettings, connectionException);
+                connectionManager.showConnectionErrorMessage(connectionSettings, connectionException);
             }
         } else {
             if (connection.isDatabaseInitialized()) {

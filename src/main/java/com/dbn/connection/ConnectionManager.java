@@ -91,11 +91,13 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessages;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.common.util.Messages.showWarningDialog;
+import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.transaction.TransactionAction.actions;
 import static com.dbn.database.DatabaseFeature.CHANGE_EXPIRED_PASSWORD;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -236,7 +238,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                     } catch (Exception e) {
                         conditionallyLog(e);
                         if (showErrorMessage) {
-                            showErrorConnectionMessage(connection.getSettings(), e);
+                            showConnectionErrorMessage(connection.getSettings(), e);
                         }
                     }
                 });
@@ -299,7 +301,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                 conditionallyLog(e);
                 databaseSettings.setConnectivityStatus(ConnectivityStatus.INVALID);
                 if (showMessageDialog) {
-                    showErrorConnectionMessage(connectionSettings, e);
+                    showConnectionErrorMessage(connectionSettings, e);
                 }
             }
         });
@@ -328,7 +330,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                                 conditionallyLog(e);
                             } catch (Exception e) {
                                 conditionallyLog(e);
-                                showErrorConnectionMessage(connectionSettings, e);
+                                showConnectionErrorMessage(connectionSettings, e);
                             }
                         });
             });
@@ -404,30 +406,41 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                 callback);
     }
 
-    public void showErrorConnectionMessage(@NotNull ConnectionSettings connectionSettings, @Nullable Throwable e) {
+    public void showConnectionErrorMessage(@NotNull ConnectionSettings connectionSettings, @Nullable Throwable e) {
         Project project = connectionSettings.getProject();
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         String connectionName = databaseSettings.getName();
-        DatabaseType databaseType = databaseSettings.getDatabaseType();
 
         String message = e == null ?
                 txt("msg.connection.error.ConnectionErrorUnknown", connectionName) :
                 txt("msg.connection.error.ConnectionError", connectionName);
 
-
-        if (e instanceof SQLException exception && CHANGE_EXPIRED_PASSWORD.isSupported(databaseType)) {
-            DatabaseInterfaces databaseInterfaces = DatabaseInterfacesBundle.get(databaseType);
-            DatabaseMessageParserInterface messageParserInterface = databaseInterfaces.getMessageParserInterface();
-
-            if (messageParserInterface.isPasswordExpiredException(exception)) {
-                showErrorDialog(getProject(), txt("msg.connection.title.ConnectionError"), message,
-                        options(txt("msg.connection.button.ChangePassword"), txt("msg.shared.button.Cancel")), 0,
-                        option -> when(option == 0, () ->
-                                Dialogs.show(() -> new ConnectionPasswordChangeDialog(connectionSettings))));
-                return;
-            }
-        }
+        if (attemptConnectionErrorRecovery(connectionSettings, e, message)) return;
         showErrorDialog(project, txt("msg.connection.title.ConnectionError"), message, e);
+    }
+
+    public void showPasswordChangeDialog(@NotNull ConnectionSettings connectionSettings) {
+        Dialogs.show(() -> new ConnectionPasswordChangeDialog(connectionSettings));
+    }
+
+    private boolean attemptConnectionErrorRecovery(@NotNull ConnectionSettings connectionSettings, @Nullable Throwable e, @NotNull String message) {
+        if (!(e instanceof SQLException exception)) return false;
+
+        ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
+        DatabaseType databaseType = databaseSettings.getDatabaseType();
+        if (databaseSettings.getAuthenticationInfo().getType() != USER_PASSWORD) return false;
+        if (!CHANGE_EXPIRED_PASSWORD.isSupported(databaseType)) return false;
+
+        DatabaseInterfaces databaseInterfaces = DatabaseInterfacesBundle.get(databaseType);
+        DatabaseMessageParserInterface messageParserInterface = databaseInterfaces.getMessageParserInterface();
+        if (!messageParserInterface.isPasswordExpiredException(exception)) return false;
+
+        String detailedMessage = txt("msg.shared.error.ErrorDetails", message, getLocalizedMessages(exception));
+        showErrorDialog(getProject(), txt("msg.connection.title.ConnectionError"), detailedMessage,
+                options(txt("msg.connection.button.ChangePassword"), txt("msg.shared.button.Cancel")), 0,
+                option -> when(option == 0, () ->
+                        showPasswordChangeDialog(connectionSettings)));
+        return true;
     }
 
     void showSuccessfulConnectionMessage(Project project, String connectionName) {

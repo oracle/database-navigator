@@ -16,12 +16,27 @@
 
 package com.dbn.connection.ui;
 
+import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.common.util.Messages;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionUtil;
+import com.dbn.connection.Resources;
+import com.dbn.connection.SessionId;
 import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.credentials.Secret;
+import com.intellij.openapi.progress.ProcessCanceledException;
+import com.intellij.openapi.ui.ExitActionType;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
+import static com.dbn.common.util.Passwords.clearPassword;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionPasswordChangeDialog extends DBNDialog<ConnectionPasswordChangeForm> {
@@ -47,5 +62,73 @@ public class ConnectionPasswordChangeDialog extends DBNDialog<ConnectionPassword
         return actions(
                 getOKAction(),
                 getCancelAction());
+    }
+
+    @Override
+    protected void doOKAction() {
+        ConnectionPasswordChangeForm form = getForm();
+        char[] currentPassword = form.getCurrentPassword();
+        char[] newPassword = form.getNewPassword();
+        getOKAction().setEnabled(false);
+
+        Progress.modal(getProject(), null, true,
+                txt("prc.connection.title.ChangingPassword"),
+                txt("prc.connection.text.ChangingPassword", connectionSettings.getDatabaseSettings().getDisplayName()),
+                progress -> changePassword(currentPassword, newPassword));
+    }
+
+    private void changePassword(char[] currentPassword, char[] newPassword) {
+        try {
+            AuthenticationInfo authenticationInfo = connectionSettings.getDatabaseSettings().getAuthenticationInfo().clone();
+            authenticationInfo.setPassword(currentPassword);
+
+            DBNConnection connection = ConnectionUtil.changePassword(
+                    connectionSettings,
+                    null,
+                    authenticationInfo,
+                    SessionId.TEST,
+                    false,
+                    newPassword);
+            Resources.close(connection);
+
+            updateStoredPassword(newPassword);
+            dispatch(() -> completePasswordChange());
+        } catch (ProcessCanceledException e) {
+            conditionallyLog(e);
+            dispatch(() -> getOKAction().setEnabled(true));
+        } catch (Exception e) {
+            conditionallyLog(e);
+            dispatch(() -> {
+                getOKAction().setEnabled(true);
+                Messages.showErrorDialog(getProject(), txt("msg.connection.title.ChangePassword"), getLocalizedMessage(e));
+            });
+        } finally {
+            clearPassword(currentPassword);
+            clearPassword(newPassword);
+        }
+    }
+
+    private void completePasswordChange() {
+        close(OK_EXIT_CODE, ExitActionType.OK);
+        Messages.showInfoDialog(
+                getProject(),
+                txt("msg.connection.title.PasswordChanged"),
+                txt("msg.connection.confirmation.PasswordChanged", connectionSettings.getDatabaseSettings().getDisplayName()));
+    }
+
+    private void updateStoredPassword(char[] newPassword) {
+        ConnectionId connectionId = connectionSettings.getConnectionId();
+        ConnectionHandler connection = ConnectionHandler.get(connectionId);
+        AuthenticationInfo authenticationInfo = connection == null ?
+                connectionSettings.getDatabaseSettings().getAuthenticationInfo() :
+                connection.getAuthenticationInfo();
+        Secret[] oldSecrets = authenticationInfo.snapshotSecrets();
+        authenticationInfo.setPassword(newPassword);
+        authenticationInfo.updateSecrets(oldSecrets);
+
+        if (connection == null) return;
+
+        connection.getConnectionStatus().setAuthenticationError(null);
+        connection.closeAllConnections();
     }
 }
