@@ -21,6 +21,7 @@ import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.ThreadInfo;
 import com.dbn.common.thread.ThreadMonitor;
+import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.options.ProjectSettingsManager;
@@ -76,10 +77,11 @@ public abstract class ConnectionAction implements DatabaseContextBase {
             if (interactive || connection.isValid()) {
                 guarded(this, a -> a.execute());
             } else {
-                String connectionName = connection.getName();
+                ConnectionSettings connectionSettings = connection.getSettings();
                 Throwable connectionException = connection.getConnectionStatus().getConnectionException();
+
                 ConnectionManager connectionManager = getConnectionManager(connection);
-                connectionManager.showErrorConnectionMessage(getProject(), connectionName, connectionException);
+                connectionManager.showErrorConnectionMessage(connectionSettings, connectionException);
             }
         } else {
             if (connection.isDatabaseInitialized()) {

@@ -17,7 +17,7 @@
 package com.dbn.connection.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.config.ConnectionSettings;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
@@ -25,17 +25,19 @@ import javax.swing.Action;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionPasswordChangeDialog extends DBNDialog<ConnectionPasswordChangeForm> {
-    public ConnectionPasswordChangeDialog(@NotNull ConnectionHandler connection) {
-        super(connection.getProject(), txt("msg.connection.title.ChangePassword"), true);
+    private final ConnectionSettings connectionSettings;
+
+    public ConnectionPasswordChangeDialog(@NotNull ConnectionSettings connectionSettings) {
+        super(connectionSettings.getProject(), txt("msg.connection.title.ChangePassword"), true);
+        this.connectionSettings = connectionSettings;
         setModal(true);
-        setConnection(connection);
         init();
     }
 
     @NotNull
     @Override
     protected ConnectionPasswordChangeForm createForm() {
-        return new ConnectionPasswordChangeForm(this, ensureConnection());
+        return new ConnectionPasswordChangeForm(this, connectionSettings);
     }
 
     @NotNull

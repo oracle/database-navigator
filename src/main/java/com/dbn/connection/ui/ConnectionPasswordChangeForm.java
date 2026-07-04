@@ -18,7 +18,8 @@ package com.dbn.connection.ui;
 
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.ConnectionSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,10 +41,15 @@ public class ConnectionPasswordChangeForm extends DBNFormBase {
     private JPasswordField newPasswordField;
     private JPasswordField confirmPasswordField;
 
-    ConnectionPasswordChangeForm(@NotNull ConnectionPasswordChangeDialog parentComponent, @NotNull ConnectionHandler connection) {
+    ConnectionPasswordChangeForm(@NotNull ConnectionPasswordChangeDialog parentComponent, @NotNull ConnectionSettings connectionSettings) {
         super(parentComponent);
 
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
+        ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
+        DBNHeaderForm headerForm = new DBNHeaderForm(
+                this,
+                databaseSettings.getDisplayName(),
+                databaseSettings.getDatabaseType().getIcon(),
+                connectionSettings.getDetailSettings().getEnvironmentType().getColor());
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
     }
 
