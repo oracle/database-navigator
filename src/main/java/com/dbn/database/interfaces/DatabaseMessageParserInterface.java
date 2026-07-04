@@ -42,6 +42,10 @@ public interface DatabaseMessageParserInterface extends DatabaseInterface {
 
     boolean isSuccessException(SQLException exception);
 
+    default boolean isMissingSavepointException(SQLException exception) {
+        return false;
+    }
+
     default DatabaseMessage parseExceptionMessage(SQLException exception) {
         return new DatabaseMessage(exception.getMessage(), null);
     }

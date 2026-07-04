@@ -50,4 +50,9 @@ public class MySqlMessageParserInterface implements DatabaseMessageParserInterfa
     public boolean isSuccessException(SQLException exception) {
         return false;
     }
+
+    @Override
+    public boolean isMissingSavepointException(SQLException exception) {
+        return exception.getErrorCode() == 1305;
+    }
 }
