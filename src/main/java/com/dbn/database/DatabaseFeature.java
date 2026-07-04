@@ -84,9 +84,7 @@ public enum DatabaseFeature {
 
         DatabaseCompatibilityInterface compatibility = context.getCompatibilityInterface();
         if (context instanceof DBObject object) {
-            // qualified feature support lookup
-            DatabaseObjectTypeId objectTypeId = object.getObjectType().getTypeId();
-            return compatibility.supportsFeature(this, objectTypeId);
+            return compatibility.supportsFeature(this, object);
         }
 
         return compatibility.supportsFeature(this);

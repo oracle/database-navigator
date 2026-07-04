@@ -32,6 +32,7 @@ import com.dbn.database.JdbcProperty;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
+import com.dbn.object.common.DBObject;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,6 +67,10 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
     boolean supportsFeature(DatabaseFeature feature);
 
     boolean supportsFeature(DatabaseFeature feature, DatabaseObjectTypeId objectTypeId);
+
+    default boolean supportsFeature(DatabaseFeature feature, DBObject object) {
+        return supportsFeature(feature, object.getObjectType().getTypeId());
+    }
 
     boolean supportsOperation(DatabaseOperation operation);
 
