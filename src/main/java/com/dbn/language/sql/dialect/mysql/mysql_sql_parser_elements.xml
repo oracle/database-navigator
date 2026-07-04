@@ -3452,7 +3452,7 @@
     </element-def>
     <element-def description="COLUMN definition clause" id="column_definition">
         <element ref-id="data_type_definition" original-name="data_type" />
-        <one-of id="01815">
+        <one-of optional="true" id="01815">
             <element ref-id="generated_column_definition" />
             <element ref-id="regular_column_definition" />
         </one-of>
