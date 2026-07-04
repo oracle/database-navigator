@@ -81,7 +81,8 @@ public class ConnectionUtil {
                 diagnostics.log(sessionId, true, false, millisSince(start));
                 DatabaseMessageParserInterface messageParser = connection.getMessageParserInterface();
                 boolean passwordExpired = messageParser.isPasswordExpiredException(e);
-                if (messageParser.isAuthenticationException(e) || passwordExpired) {
+                boolean authenticationError = messageParser.isAuthenticationException(e);
+                if (authenticationError || passwordExpired) {
                     if (!passwordExpired) authenticationInfo.setPassword(null);
                     connectionStatus.setAuthenticationError(new AuthenticationError(authenticationInfo, e));
                 }
