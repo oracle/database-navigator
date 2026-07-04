@@ -16,12 +16,14 @@
 
 package com.dbn.editor.json.ui;
 
+import com.dbn.common.action.BasicTextAction;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.editor.WrappingTextEditor;
 import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.util.Actions;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Json;
@@ -31,6 +33,9 @@ import com.dbn.editor.json.JsonFileCache;
 import com.dbn.editor.json.model.JsonDataEditorModelCell;
 import com.dbn.object.DBJsonView;
 import com.dbn.vfs.file.DBContentVirtualFile;
+import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.command.undo.UndoUtil;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -44,6 +49,7 @@ import com.intellij.psi.PsiFile;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -60,6 +66,7 @@ public class JsonDataContentEditorForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel editorPanel;
     private JPanel headerPanel;
+    private JPanel actionsPanel;
 
 
     private WeakRef<JsonDataEditorModelCell> selectedCell;
@@ -73,6 +80,7 @@ public class JsonDataContentEditorForm extends DBNFormBase {
 
         ProjectEvents.subscribe(EnvironmentManagerListener.TOPIC, environmentManagerListener());
         initJsonContentEditor();
+        initActionsPanel();
     }
 
     private EnvironmentManagerListener environmentManagerListener() {
@@ -131,9 +139,18 @@ public class JsonDataContentEditorForm extends DBNFormBase {
             }
         });
 
+        Documents.onDocumentChanged(document, this, event -> updateActionToolbars());
+
 
         editorPanel.add(editor.getComponent());
         updateScrollPanes(editorPanel);
+    }
+
+    private void initActionsPanel() {
+        var contentActionsToolbar = Actions.createActionToolbar(actionsPanel, true,
+                new ApplyContentChangesAction(),
+                new RevertContentChangesAction());
+        actionsPanel.add(contentActionsToolbar.getComponent());
     }
 
     public void selectRecord(JsonDataEditorModelCell cell) {
@@ -153,6 +170,7 @@ public class JsonDataContentEditorForm extends DBNFormBase {
         }
 
         updateEditorState();
+        updateActionToolbars();
     }
 
     public void focusEditor() {
@@ -177,6 +195,10 @@ public class JsonDataContentEditorForm extends DBNFormBase {
     }
 
     public void updateCellValue() {
+        applyChanges();
+    }
+
+    private void applyChanges() {
         JsonDataEditorModelCell selectedCell = getSelectedCell();
         if (selectedCell == null) return;
         if (!isEditorContentChanged()) return;
@@ -184,7 +206,15 @@ public class JsonDataContentEditorForm extends DBNFormBase {
         String editorContent = editor.getDocument().getText();
         JsonValue userValue = new JsonValue(editorContent);
         selectedCell.updateUserValue(userValue, false);
+        originalContent = editorContent;
+        updateActionToolbars();
     }
+
+    private void revertChanges() {
+        resetText(editor, nvl(originalContent, ""), true);
+        updateActionToolbars();
+    }
+
 
     public JsonDataEditorModelCell getSelectedCell() {
         return WeakRef.get(selectedCell);
@@ -221,5 +251,41 @@ public class JsonDataContentEditorForm extends DBNFormBase {
 
         Editors.setEditorReadonly(editor, readonly);
         Editors.setEditorReadonlyHint(editor, readonlyHint);
+    }
+
+    private abstract class ContentChangesAction extends BasicTextAction {
+        private ContentChangesAction(String text, Icon icon) {
+            super(text, null, icon);
+        }
+
+        @Override
+        public void update(@NotNull AnActionEvent e) {
+            Presentation presentation = e.getPresentation();
+            boolean changed = isEditorContentChanged();
+            presentation.setVisible(changed);
+            presentation.setEnabled(changed);
+        }
+    }
+
+    private class ApplyContentChangesAction extends ContentChangesAction {
+        private ApplyContentChangesAction() {
+            super(txt("app.dataEditor.action.AcceptChanges"), AllIcons.Actions.Checked);
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            applyChanges();
+        }
+    }
+
+    private class RevertContentChangesAction extends ContentChangesAction {
+        private RevertContentChangesAction() {
+            super(txt("app.dataEditor.action.RevertChanges"), AllIcons.Actions.Rollback);
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            revertChanges();
+        }
     }
 }
