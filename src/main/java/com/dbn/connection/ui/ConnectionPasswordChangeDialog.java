@@ -29,7 +29,6 @@ import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.credentials.Secret;
 import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.ui.ExitActionType;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
@@ -109,7 +108,7 @@ public class ConnectionPasswordChangeDialog extends DBNDialog<ConnectionPassword
     }
 
     private void completePasswordChange() {
-        close(OK_EXIT_CODE, ExitActionType.OK);
+        close(OK_EXIT_CODE);
         Messages.showInfoDialog(
                 getProject(),
                 txt("msg.connection.title.PasswordChanged"),
