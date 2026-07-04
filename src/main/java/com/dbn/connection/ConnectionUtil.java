@@ -80,8 +80,9 @@ public class ConnectionUtil {
                 conditionallyLog(e);
                 diagnostics.log(sessionId, true, false, millisSince(start));
                 DatabaseMessageParserInterface messageParser = connection.getMessageParserInterface();
-                if (messageParser.isAuthenticationException(e)) {
-                    authenticationInfo.setPassword(null);
+                boolean passwordExpired = messageParser.isPasswordExpiredException(e);
+                if (messageParser.isAuthenticationException(e) || passwordExpired) {
+                    if (!passwordExpired) authenticationInfo.setPassword(null);
                     connectionStatus.setAuthenticationError(new AuthenticationError(authenticationInfo, e));
                 }
                 throw e;
@@ -144,12 +145,35 @@ public class ConnectionUtil {
             @Nullable AuthenticationInfo temporaryAuthenticationInfo,
             @NotNull SessionId sessionId,
             boolean autoCommit) throws SQLException {
+        return connect(connectionSettings, connectionStatus, temporaryAuthenticationInfo, sessionId, autoCommit, null);
+    }
+
+    @NotNull
+    public static DBNConnection changePassword(
+            ConnectionSettings connectionSettings,
+            @Nullable ConnectionHandlerStatusHolder connectionStatus,
+            @NotNull AuthenticationInfo authenticationInfo,
+            @NotNull SessionId sessionId,
+            boolean autoCommit,
+            @NotNull char[] newPassword) throws SQLException {
+        return connect(connectionSettings, connectionStatus, authenticationInfo, sessionId, autoCommit, newPassword);
+    }
+
+    @NotNull
+    private static DBNConnection connect(
+            ConnectionSettings connectionSettings,
+            @Nullable ConnectionHandlerStatusHolder connectionStatus,
+            @Nullable AuthenticationInfo temporaryAuthenticationInfo,
+            @NotNull SessionId sessionId,
+            boolean autoCommit,
+            @Nullable char[] newPassword) throws SQLException {
         Connector connector = new Connector(
                 sessionId,
                 temporaryAuthenticationInfo,
                 connectionSettings,
                 connectionStatus,
-                autoCommit);
+                autoCommit,
+                newPassword);
 
         DBNConnection connection = connector.connect();
 
