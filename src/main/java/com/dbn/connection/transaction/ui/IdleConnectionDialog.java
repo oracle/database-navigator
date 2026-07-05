@@ -37,6 +37,7 @@ import static com.dbn.connection.transaction.TransactionAction.COMMIT;
 import static com.dbn.connection.transaction.TransactionAction.DISCONNECT_IDLE;
 import static com.dbn.connection.transaction.TransactionAction.KEEP_ALIVE;
 import static com.dbn.connection.transaction.TransactionAction.ROLLBACK_IDLE;
+import static com.dbn.nls.NlsResources.txt;
 
 public class IdleConnectionDialog extends DialogWithTimeout {
     private final IdleConnectionDialogForm form;
@@ -86,7 +87,7 @@ public class IdleConnectionDialog extends DialogWithTimeout {
 
     private class CommitAction extends AbstractAction {
         CommitAction() {
-            super("Commit", Icons.CONNECTION_COMMIT);
+            super(txt("msg.transactions.button.Commit"), Icons.CONNECTION_COMMIT);
         }
 
         @Override
@@ -97,7 +98,7 @@ public class IdleConnectionDialog extends DialogWithTimeout {
 
     private class RollbackAction extends AbstractAction {
         RollbackAction() {
-            super("Rollback", Icons.CONNECTION_ROLLBACK);
+            super(txt("msg.transactions.button.Rollback"), Icons.CONNECTION_ROLLBACK);
         }
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -107,7 +108,7 @@ public class IdleConnectionDialog extends DialogWithTimeout {
     }
     private class KeepAliveAction extends AbstractAction {
         KeepAliveAction() {
-            super("Keep Alive");
+            super(txt("msg.transactions.button.KeepAlive"));
         }
         @Override
         public void actionPerformed(ActionEvent e) {

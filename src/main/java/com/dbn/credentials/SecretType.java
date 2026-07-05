@@ -18,6 +18,10 @@ package com.dbn.credentials;
 
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Secret type classification used to uniquely identify secret tokens stored in {@link com.intellij.ide.passwordSafe.PasswordSafe}
@@ -30,13 +34,25 @@ public enum SecretType implements Presentable {
     SSH_TUNNEL_PASSWORD("SSH tunnel password"),                                       // password for SSH tunnels
     SSH_TUNNEL_KEY_PASSPHRASE("SSH tunnel key passphrase"),                           // key passphrases for SSH tunnels
     DEBUGGER_SSH_TUNNEL_PASSWORD("Debugger SSH tunnel password"),                     // password for debugger SSH reverse tunnels
-    DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE("Debugger SSH tunnel key passphrase"),         // key passphrases for debugger SSH reverse tunnelsGENERIC_CREDENTIAL("Generic credential")                                          // e.g. database assistant credential tokens
+    DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE("Debugger SSH tunnel key passphrase"),         // key passphrases for debugger SSH reverse tunnels
     GENERIC_CREDENTIAL("Generic credential"),                                         // e.g. database assistant credential tokens
+    STATE_ENCRYPTION_KEY("State encryption key"),                                     // key used to encrypt persistent state values
     ;
 
-    SecretType(String name) {
-        this.name = name;
+    SecretType(@NonNls String serviceName) {
+        this.serviceName = serviceName;
     }
 
-    private final String name;
+    private transient @Nls String name;
+    private final @NonNls String serviceName;
+
+    @Override
+    public @Nls String getName() {
+        String name = this.name;
+        if (name == null) {
+            name = txt("app.credentials.const.SecretType_" + name());
+            this.name = name;
+        }
+        return name;
+    }
 }

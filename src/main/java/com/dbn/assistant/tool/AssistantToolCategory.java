@@ -18,19 +18,38 @@ package com.dbn.assistant.tool;
 
 import com.dbn.common.constant.Constant;
 import lombok.Getter;
-import org.jetbrains.annotations.NonNls;
 
-@NonNls
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public enum AssistantToolCategory implements Constant<AssistantToolCategory> {
-    EXTERNAL("External", "External tool provided by MCP Servers"),
-    USER_INTERACTION("User interaction", "Interactive tools for quick user input"),
-    CONFIG_INFO_PROVIDER("Config information provider", "Database configuration details"),
-    METADATA_PROVIDER("Metadata provider", "Database structure insights"),
-    SOURCE_CODE_PROVIDER("Source-code provider", "Source code for database objects"),
-    DATA_PROVIDER("Data provider", "Actual data records and query results"),
-    ACTION_INVOKER("Action invoker", "Database operations and external action invocations"),
-    IDE_ACTION_INVOKER("IDE action invoker", "IDE action invocations, such as opening database object editors, executing queries, etc."),
+    EXTERNAL(
+            txt("app.assistant.const.AssistantToolCategory_EXTERNAL"),
+            txt("app.assistant.hint.AssistantToolCategory_EXTERNAL")),
+
+    USER_INTERACTION(
+            txt("app.assistant.const.AssistantToolCategory_USER_INTERACTION"),
+            txt("app.assistant.hint.AssistantToolCategory_USER_INTERACTION")),
+
+    METADATA_PROVIDER(
+            txt("app.assistant.const.AssistantToolCategory_METADATA_PROVIDER"),
+            txt("app.assistant.hint.AssistantToolCategory_METADATA_PROVIDER")),
+
+    SOURCE_CODE_PROVIDER(
+            txt("app.assistant.const.AssistantToolCategory_SOURCE_CODE_PROVIDER"),
+            txt("app.assistant.hint.AssistantToolCategory_SOURCE_CODE_PROVIDER")),
+
+    DATA_PROVIDER(
+            txt("app.assistant.const.AssistantToolCategory_DATA_PROVIDER"),
+            txt("app.assistant.hint.AssistantToolCategory_DATA_PROVIDER")),
+
+    ACTION_INVOKER(
+            txt("app.assistant.const.AssistantToolCategory_ACTION_INVOKER"),
+            txt("app.assistant.hint.AssistantToolCategory_ACTION_INVOKER")),
+
+    IDE_ACTION_INVOKER(
+            txt("app.assistant.const.AssistantToolCategory_IDE_ACTION_INVOKER"),
+            txt("app.assistant.hint.AssistantToolCategory_IDE_ACTION_INVOKER")),
     ;
 
     private final String description;

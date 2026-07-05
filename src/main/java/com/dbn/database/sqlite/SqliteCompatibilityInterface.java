@@ -27,9 +27,10 @@ import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
 import com.dbn.editor.session.SessionStatus;
-import com.dbn.language.common.QuoteDefinition;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuoteDefinition;
+import com.dbn.language.common.quotes.QuotePair;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
@@ -43,6 +44,7 @@ import static com.dbn.common.notification.NotificationSupport.sendErrorNotificat
 import static com.dbn.database.DatabaseFeature.CONNECTION_ERROR_RECOVERY;
 import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 class SqliteCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
 
@@ -51,6 +53,7 @@ class SqliteCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
             new QuotePair('[', ']'),
             new QuotePair('`', '`'));
 
+    @NonNls
     public static final String ATTACH_DATABASE_SQL = "attach database ? as ?";
 
     @Override

@@ -19,14 +19,11 @@ package com.dbn.assistant.credential;
 import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
-import com.dbn.common.util.Chars;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.UUIDs;
-import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
-import com.dbn.credentials.SecretType;
 import com.dbn.credentials.SecretsOwner;
-import com.dbn.credentials.SecretsOwnerRegistry;
+import com.dbn.credentials.TransientSecretStore;
 import com.dbn.oci.config.OciConfig;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,15 +31,11 @@ import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.options.setting.Settings.charsAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.setCharsAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.util.Base64.decode;
-import static com.dbn.common.util.Base64.encode;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.credentials.SecretType.GENERIC_CREDENTIAL;
@@ -54,16 +47,12 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
     private AIProviderId providerId;
     private String name;
     private String user;
-    private char[] secret;
     private OciConfig ociConfig = new OciConfig();
-
-    public AssistantCredential() {
-        SecretsOwnerRegistry.register(this);
-    }
+    private final Secret secret = new Secret(GENERIC_CREDENTIAL, () -> getSecretOwnerId(), () -> user);
 
     public void updateFrom(AssistantCredential credential) {
         this.user = credential.user;
-        this.secret = credential.secret;
+        this.secret.setToken(credential.secret);
         this.ociConfig = credential.ociConfig.clone();
     }
 
@@ -76,7 +65,7 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
     public boolean isProvided() {
         return isOci() ?
                 ociConfig.isProvided() :
-                Chars.isNotEmpty(secret);
+                secret.isProvided();
     }
 
     private boolean isOci() {
@@ -110,9 +99,8 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         }
 
         if (isTransientContext()) {
-            // only propagate credential key when config context is transient
-            // (avoid storing it in config xml)
-            secret = decode(charsAttribute(element, "transient-key"));
+            // transfer secrets outside transient config xml
+            TransientSecretStore.consume(secret, getSecretOwnerId(), GENERIC_CREDENTIAL, user);
         }
     }
 
@@ -129,9 +117,8 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         }
 
         if (isTransientContext()) {
-            // only propagate credential key when config context is transient
-            // (avoid storing it in config xml)
-            setCharsAttribute(element, "transient-key", encode(secret));
+            // transfer secrets outside transient config xml
+            TransientSecretStore.store(secret, getSecretOwnerId(), GENERIC_CREDENTIAL, user);
         }
     }
 
@@ -153,17 +140,15 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
 
     @Override
     public @NotNull Secret[] getSecrets() {
-        return new Secret[]{getKeySecret()};
+        return new Secret[]{secret};
     }
 
-    private Secret getKeySecret() {
-        return new Secret(SecretType.GENERIC_CREDENTIAL, user, secret);
+    public char[] getSecret() {
+        return secret.getToken();
     }
 
-    @Override
-    public void initSecrets() {
-        DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
-        Secret secret = credentialManager.loadSecret(GENERIC_CREDENTIAL, getSecretOwnerId(), user);
-        this.secret = secret.getToken();
+    public void setSecret(char[] secret) {
+        this.secret.setToken(secret);
     }
+
 }

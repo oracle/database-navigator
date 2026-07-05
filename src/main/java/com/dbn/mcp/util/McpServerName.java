@@ -5,35 +5,30 @@ import lombok.experimental.UtilityClass;
 
 import java.util.regex.Pattern;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @UtilityClass
 public class McpServerName {
     private static final int MAX_LENGTH = 63;
     private static final Pattern VALID_NAME = Pattern.compile("^[A-Za-z0-9][A-Za-z0-9._-]*$");
 
-    public static String normalize(String value) {
-        return value == null ? "" : value.trim();
-    }
-
     public static String validationError(String value) {
-        String normalized = normalize(value);
-
-        if (Strings.isEmptyOrSpaces(normalized)) {
-            return "Please enter a server name";
+        if (Strings.isEmptyOrSpaces(value)) {
+            return txt("msg.mcp.error.ServerNameRequired");
         }
-        if (normalized.length() > MAX_LENGTH) {
-            return "Server name is too long (max " + MAX_LENGTH + " characters)";
+        if (value.length() > MAX_LENGTH) {
+            return txt("msg.mcp.error.ServerNameTooLong", MAX_LENGTH);
         }
-        if (".".equals(normalized) || "..".equals(normalized)) {
-            return "Invalid server name";
+        if (".".equals(value) || "..".equals(value)) {
+            return txt("msg.mcp.error.ServerNameInvalid");
         }
-        if (normalized.contains("/") || normalized.contains("\\")) {
-            return "Server name cannot contain path separators";
+        if (value.contains("/") || value.contains("\\")) {
+            return txt("msg.mcp.error.ServerNamePathSeparators");
         }
-        if (!VALID_NAME.matcher(normalized).matches()) {
-            return "Use letters, digits, '.', '-', '_' and start with a letter or digit";
+        if (!VALID_NAME.matcher(value).matches()) {
+            return txt("msg.mcp.error.ServerNameCharactersInvalid");
         }
 
         return null;
     }
 }
-

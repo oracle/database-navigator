@@ -17,6 +17,8 @@
 package com.dbn.common.exception;
 
 import com.dbn.common.lookup.Visitor;
+import lombok.SneakyThrows;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,19 +27,23 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.sql.SQLException;
 import java.sql.SQLNonTransientConnectionException;
 import java.sql.SQLTimeoutException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Commons.nvl;
-import static com.dbn.common.util.Strings.cachedLowerCase;
+import static com.dbn.common.util.TimeUtil.presentableDuration;
+import static com.dbn.nls.NlsResources.txt;
 
 public class Exceptions {
-    public static final SQLNonTransientConnectionException DBN_NOT_CONNECTED_EXCEPTION = new SQLNonTransientConnectionException("Not connected to database");
+    public static final SQLNonTransientConnectionException DBN_NOT_CONNECTED_EXCEPTION =
+            new SQLNonTransientConnectionException(txt("msg.connection.exception.NotConnectedToDatabase"));
 
     private Exceptions() {}
 
@@ -50,7 +56,7 @@ public class Exceptions {
     }
 
     @NotNull
-    public static SQLException toSqlException(@NotNull Throwable e, String s) {
+    public static SQLException toSqlException(@NotNull Throwable e, @Nls String s) {
         if (e instanceof SQLException) return (SQLException) e;
 
         e = unwrap(e);
@@ -59,13 +65,13 @@ public class Exceptions {
     }
 
     @NotNull
-    public static SQLTimeoutException toSqlTimeoutException(@NotNull Throwable e, String s) {
+    public static SQLTimeoutException toSqlTimeoutException(@NotNull Throwable e, @Nls String s) {
         if (e instanceof SQLTimeoutException) return (SQLTimeoutException) e;
         String reason = normalizeMessage(e, s);
         return new SQLTimeoutException(reason, e);
     }
 
-    private static @NotNull String normalizeMessage(@NotNull Throwable e, String s) {
+    private static @NotNull String normalizeMessage(@NotNull Throwable e, @Nls String s) {
         // remove duplicate message content for nested exceptions propagating own message
         String message = nvl(e.getMessage(), "");
         s = s.replace(message, "");
@@ -88,12 +94,14 @@ public class Exceptions {
     }
 
     public static <T, E extends Enum> T unsupported(E enumeration) {
-        throw new UnsupportedOperationException("Unsupported " + simpleClassName(enumeration) + " " + enumeration);
+        throw new UnsupportedOperationException(
+                txt("msg.shared.exception.UnsupportedEnumeration", simpleClassName(enumeration), enumeration));
     }
 
 
     public static TimeoutException timeoutException(long time, TimeUnit timeUnit) {
-        return new TimeoutException("Operation timed out after " + time + " " + cachedLowerCase(timeUnit.name()));
+        return new TimeoutException(
+                txt("msg.shared.exception.OperationTimedOut", presentableDuration(timeUnit.toMillis(time), false)));
     }
 
     public static Throwable causeOf(Throwable e) {
@@ -107,8 +115,52 @@ public class Exceptions {
         return e;
     }
 
-    public static String causeMessage(Throwable e) {
-        return causeOf(e).getMessage();
+    public static String getMessage(Throwable e) {
+        return getMessage(unwrap(e), false);
+    }
+
+    public static String getLocalizedMessage(Throwable e) {
+        return getMessage(unwrap(e), true);
+    }
+
+    @NotNull
+    public static String getMessages(Throwable e) {
+        return getMessages(e, false);
+    }
+
+    @NotNull
+    public static String getLocalizedMessages(Throwable e) {
+        return getMessages(e, true);
+    }
+
+    @NotNull
+    private static String getMessages(Throwable e, boolean localized) {
+        e = unwrap(e);
+        StringBuilder messages = new StringBuilder();
+        Set<String> visited = new HashSet<>();
+        String[] previous = new String[1];
+        accept(t -> {
+            String message = normalizeMessage(getMessage(t, localized));
+            if (!visited.add(message)) return;
+            if (previous[0] != null && previous[0].contains(message)) return;
+
+            messages.append(message);
+            messages.append("\n\n");
+            previous[0] = message;
+        }, e);
+        return messages.toString().trim();
+    }
+
+    private static String getMessage(Throwable e, boolean localized) {
+        if (localized) return nvl(e.getLocalizedMessage(), simpleClassName(e));
+        return nvl(e.getMessage(), simpleClassName(e));
+    }
+
+    private static String normalizeMessage(String message) {
+        return Arrays.stream(message.replace("\r\n", "\n").replace('\r', '\n').split("\n"))
+                .map(String::trim)
+                .filter(line -> !line.isEmpty())
+                .collect(Collectors.joining("\n"));
     }
 
     public static void illegalState(@NonNls String message) {
@@ -127,10 +179,6 @@ public class Exceptions {
             visitor.visit(t);
             t = t.getCause();
         }
-    }
-
-    public static String getMessage(Throwable e) {
-        return nvl(e.getMessage(), simpleClassName(e));
     }
 
     public static Throwable unwrap(Throwable throwable) {
@@ -157,5 +205,10 @@ public class Exceptions {
         //...
 
         return throwable;
+    }
+
+    @SneakyThrows
+    public static Throwable sneakyThrow(Throwable exception) {
+        throw exception;
     }
 }

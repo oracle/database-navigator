@@ -35,6 +35,7 @@ import javax.swing.JComponent;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.options.ConfigActivity.RESETTING;
+import static com.dbn.common.options.ConfigActivity.TRANSFERRING;
 
 @Getter
 public abstract class BasicConfiguration<P extends Configuration, E extends ConfigurationEditorForm>
@@ -119,9 +120,14 @@ public abstract class BasicConfiguration<P extends Configuration, E extends Conf
         if (this instanceof TopLevelConfig topLevelConfig) {
             Configuration originalSettings = topLevelConfig.getOriginalSettings();
             if (originalSettings != this ) {
-                Element settingsElement = new Element("settings");
-                writeConfiguration(settingsElement);
-                originalSettings.readConfiguration(settingsElement);
+                try {
+                    ConfigMonitor.set(TRANSFERRING, true);
+                    Element settingsElement = new Element("settings");
+                    writeConfiguration(settingsElement);
+                    originalSettings.readConfiguration(settingsElement);
+                } finally {
+                    ConfigMonitor.set(TRANSFERRING, false);
+                }
             }
 
             // Notify only when all changes are set
@@ -153,10 +159,5 @@ public abstract class BasicConfiguration<P extends Configuration, E extends Conf
         //throw new UnsupportedOperationException("Element name not defined for this configuration type.");
         return null;
     }
-
-    protected static String nvl(String value) {
-        return value == null ? "" : value;
-    }
-
 
 }

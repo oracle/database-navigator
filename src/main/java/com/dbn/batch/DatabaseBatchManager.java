@@ -38,6 +38,7 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.message.MessageType.ERROR;
 import static com.dbn.common.message.MessageType.WARNING;
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class DatabaseBatchManager extends ProjectComponentBase implements PersistentState {
@@ -79,7 +80,7 @@ public class DatabaseBatchManager extends ProjectComponentBase implements Persis
 		Object contextObject = batch.getContextObject();
 
 		MessageBundleDialogConfig config = MessageBundleDialogConfig
-				.create(project, "Errors")
+				.create(project, txt("msg.batch.title.Errors"))
 				.withContextObject(contextObject)
 				.withMessageTypes(ERROR, WARNING);
 

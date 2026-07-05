@@ -28,6 +28,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class DataFindAction extends AbstractDataEditorAction {
 
+    public DataFindAction() {
+        super(txt("app.dataEditor.action.DataEditorFind"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         datasetEditor.showSearchHeader();

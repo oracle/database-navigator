@@ -82,7 +82,7 @@ public class TokenPairStack extends ParserBuilderExtension {
         if (explicit) {
             if (marker.explicit && marker.owner == parent) {
                 markers.pop();
-                if (marker.borrowed) {
+                if (marker.borrowed && !markers.isEmpty()) {
                     markers.pop();
                 }
                 return true;

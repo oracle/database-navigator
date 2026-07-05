@@ -25,10 +25,11 @@
 
         <projectService serviceImplementation="com.dbn.sync.java.download.JavaDownloadManager"/>
         <projectService serviceImplementation="com.dbn.sync.java.upload.JavaUploadManager"/>
+        <projectService serviceImplementation="com.dbn.mcp.build.McpJavaVersionManager"/>
 
     </extensions>
     <actions>
-        <group id="DBNavigator.ActionGroup.ExtractJavaCode">
+        <group id="DBN.Java.ExtractCode">
             <!--empty placeholder group to verify the availability of java module-->
         </group>
     </actions>

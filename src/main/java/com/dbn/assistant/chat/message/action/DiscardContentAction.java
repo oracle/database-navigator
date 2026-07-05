@@ -23,6 +23,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DiscardContentAction extends ChatMessageAction implements AssistantActionSupport {
 
     @Override
@@ -31,7 +33,7 @@ public class DiscardContentAction extends ChatMessageAction implements Assistant
 
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_CLOSE);
-        presentation.setText("Discard");
+        presentation.setText(txt("app.assistant.action.Discard"));
         presentation.setEnabled(discardableComponent != null);
     }
 

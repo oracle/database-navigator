@@ -69,7 +69,7 @@ public class AssistantToolApprovalForm extends DBNFormBase {
     }
 
     private void initHintPanel() {
-        String hintContent = TextResources.get(AssistantToolApprovalForm.class, "assistant_tool_approval.html.ft");
+        String hintContent = TextResources.getLocalizable(AssistantToolApprovalForm.class, "assistant_tool_approval.html.ft");
         TextContent hintText = TextContent.html(hintContent);
         hintText.initFonts();
 
@@ -97,7 +97,7 @@ public class AssistantToolApprovalForm extends DBNFormBase {
     }
 
     public AssistantToolApprovals getToolApprovals() {
-        return settings.getApprovals();
+        return settings.getToolApprovals();
     }
 
     public AssistantToolCache getToolCache() {

@@ -20,8 +20,8 @@ import com.dbn.common.file.FileTypes;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaResourceMetadata;
-import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBJavaResource;
 import com.dbn.object.DBSchema;
@@ -38,6 +38,7 @@ import javax.swing.Icon;
 import java.sql.SQLException;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.type.DBObjectType.JAVA_RESOURCE;
@@ -116,14 +117,14 @@ public class DBJavaResourceImpl extends DBSchemaObjectImpl<DBJavaResourceMetadat
 	public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
 
 		DatabaseInterfaceInvoker.execute(HIGHEST,
-				"Updating source code",
-				"Updating sources of " + getQualifiedNameWithType(),
+				txt("prc.object.title.UpdatingSourceCode"),
+				txt("prc.object.text.UpdatingSources", getQualifiedNameWithType()),
 				getProject(),
 				getConnectionId(),
 				conn -> {
 					ConnectionHandler connection = getConnection();
-					DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
-					dataDefinitionInterface.updateJavaResource(
+					DatabaseJavaInterface javaInterface = connection.getJavaInterface();
+					javaInterface.updateJavaResource(
 							getSchemaName(true),
 							getName(true),
 							newCode.getBytes(),

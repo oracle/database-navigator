@@ -31,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class StatementExecutionCursorProcessor extends StatementExecutionBasicProcessor {
 
     public StatementExecutionCursorProcessor(@NotNull Project project, @NotNull FileEditor fileEditor, @NotNull ExecutablePsiElement psiElement, int index) {
@@ -51,7 +53,7 @@ public class StatementExecutionCursorProcessor extends StatementExecutionBasicPr
             statement.close();
 
             StatementExecutionResult executionResult = new StatementExecutionCursorResult(this, resultName, updateCount);
-            executionResult.updateExecutionMessage(MessageType.INFO, getStatementName() + " executed successfully.");
+            executionResult.updateExecutionMessage(MessageType.INFO, txt("app.execution.text.StatementExecutedSuccessfully", getStatementName()));
             executionResult.setExecutionStatus(StatementExecutionStatus.SUCCESS);
             return executionResult;
         } else {

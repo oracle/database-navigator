@@ -31,7 +31,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
-import com.dbn.diagnostics.data.ParserDiagnosticsUtil;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.ddl.DDLFileEditor;
 import com.dbn.editor.session.SessionBrowser;
@@ -39,7 +38,6 @@ import com.dbn.editor.session.ui.SessionBrowserForm;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguagePsiFile;
-import com.dbn.language.common.QuoteDefinition;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
@@ -47,6 +45,7 @@ import com.dbn.language.common.element.util.IdentifierCategory;
 import com.dbn.language.common.psi.lookup.ObjectLookupAdapter;
 import com.dbn.language.common.psi.lookup.ObjectReferenceLookupAdapter;
 import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
+import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectPsiElement;
 import com.dbn.object.common.DBSchemaObject;
@@ -79,8 +78,8 @@ import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.impl.source.tree.FileElement;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
-import com.intellij.spellchecker.inspections.SpellCheckingInspection;
-import com.maddyhome.idea.copyright.actions.UpdateCopyrightAction;
+
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -91,17 +90,12 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.language.common.psi.PsiUtil.SUPPORTED_VISITORS;
 
 public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapperPsiElement implements DatabaseContextBase, ItemPresentation, FormattingProviderPsiElement {
     private static final WeakRefCache<BasePsiElement, DBVirtualObject> underlyingObjectCache = WeakRefCache.weakKey();
     private static final WeakRefCache<BasePsiElement, FormattingAttributes> formattingAttributesCache = WeakRefCache.weakKey();
     private static final WeakRefCache<BasePsiElement, BasePsiElement> enclosingScopePsiElements = WeakRefCache.weakKeyValue();
-
-    // TODO: check if any other visitor relevant
-    public static final PsiElementVisitors visitors = PsiElementVisitors.create(
-            SpellCheckingInspection.class.getSimpleName(),
-            ParserDiagnosticsUtil.class.getSimpleName(),
-            UpdateCopyrightAction.class.getSimpleName());
 
     public T elementType;
 
@@ -126,6 +120,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
         return null;
     }
 
+    @NonNls
     public String getElementId() {
         return elementType.getId();
     }
@@ -285,7 +280,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
 
     @Override
     public void accept(PsiElementVisitor visitor) {
-        if (visitors.isSupported(visitor)) {
+        if (SUPPORTED_VISITORS.isSupported(visitor)) {
             super.accept(visitor);
         }
     }

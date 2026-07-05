@@ -37,6 +37,7 @@ import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setInteger;
 import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -46,6 +47,7 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
 
     private String tcpHostAddress;
     private Range<Integer> tcpPortRange = new Range<>(4000, 4999);
+    private transient String jdwpHostPort;
 
     //reverse ssh tunnel settings
     private ReverseSshTunnelConfiguration reverseSshTunnelConfig = new ReverseSshTunnelConfiguration(this);
@@ -53,8 +55,8 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
     private final InteractiveOptionBroker<DebuggerTypeOption> debuggerType =
             new InteractiveOptionBroker<>(
                     "debugger-type",
-                    "Debugger Type",
-                    "Please select debugger type to use.",
+                    txt("msg.debugger.title.DebuggerType"),
+                    txt("msg.debugger.question.SelectDebuggerType"),
                     DBDebuggerType.JDWP.isSupported() ? DebuggerTypeOption.ASK : DebuggerTypeOption.JDBC,
                     DebuggerTypeOption.JDWP,
                     DebuggerTypeOption.JDBC,
@@ -72,6 +74,16 @@ public class ConnectionDebuggerSettings extends BasicConfiguration<ConnectionSet
 
     public String getConfigElementName() {
         return "debugger";
+    }
+
+    public synchronized void setJdwpHostPort(String jdwpHostPort) {
+        this.jdwpHostPort = jdwpHostPort;
+    }
+
+    public synchronized String consumeJdwpHostPort() {
+        String jdwpHostPort = this.jdwpHostPort;
+        this.jdwpHostPort = null;
+        return jdwpHostPort;
     }
 
     @Override

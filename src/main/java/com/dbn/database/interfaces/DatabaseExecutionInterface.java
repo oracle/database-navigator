@@ -16,30 +16,40 @@
 
 package com.dbn.database.interfaces;
 
-import com.dbn.common.database.AuthenticationInfo;
-import com.dbn.common.database.DatabaseInfo;
 import com.dbn.connection.SchemaId;
-import com.dbn.database.CmdLineExecutionInput;
+import com.dbn.database.DatabaseScriptClientCommand;
 import com.dbn.database.common.execution.JavaExecutionProcessor;
 import com.dbn.database.common.execution.MethodExecutionProcessor;
-import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.execution.script.ScriptExecutionInput;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface DatabaseExecutionInterface {
+import java.io.File;
+
+import static com.dbn.database.interfaces.DatabaseInterfaceType.EXECUTION;
+
+/**
+ * Creates database-specific execution processors and command-line script inputs.
+ */
+public interface DatabaseExecutionInterface extends DatabaseInterface {
+    @Override
+    default DatabaseInterfaceType getInterfaceType() {
+        return EXECUTION;
+    }
+
     MethodExecutionProcessor createExecutionProcessor(DBMethod method);
     MethodExecutionProcessor createDebugExecutionProcessor(DBMethod method);
 
     JavaExecutionProcessor createExecutionProcessor(DBJavaMethod method);
     JavaExecutionProcessor createDebugExecutionProcessor(DBJavaMethod method);
 
-    CmdLineExecutionInput createScriptExecutionInput(
-            @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
-            String content,
-            @Nullable SchemaId schemaId,
-            @NotNull DatabaseInfo databaseInfo,
-            @NotNull AuthenticationInfo authenticationInfo);
+    default void verifyScriptExecutionInput(ScriptExecutionInput executionInput){}
+
+    DatabaseScriptClientCommand createScriptExecutionCommand(
+            @NotNull ScriptExecutionInput executionInput,
+            @NotNull File scriptFile,
+            @NotNull String scriptContent,
+            @Nullable SchemaId schemaId);
 }

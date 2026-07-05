@@ -24,6 +24,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jdom.Element;
 
+import static com.dbn.common.options.ConfigActivity.TRANSFERRING;
+
 @EqualsAndHashCode(callSuper = false)
 public abstract class CompositeConfiguration<P extends Configuration, E extends CompositeConfigurationEditorForm>
         extends BasicConfiguration<P, E> {
@@ -76,7 +78,9 @@ public abstract class CompositeConfiguration<P extends Configuration, E extends 
     public void readConfiguration(Element element) {
         Configuration[] configurations = getConfigurations();
         for (Configuration configuration : configurations) {
-            readConfiguration(element, configuration);
+            if (accepts(configuration)) {
+                readConfiguration(element, configuration);
+            }
         }
     }
 
@@ -84,7 +88,28 @@ public abstract class CompositeConfiguration<P extends Configuration, E extends 
     public void writeConfiguration(Element element) {
         Configuration[] configurations = getConfigurations();
         for (Configuration configuration : configurations) {
-            writeConfiguration(element, configuration);
+            if (accepts(configuration)) {
+                writeConfiguration(element, configuration);
+            }
         }
+    }
+
+    /**
+     * Accepts configurations matching the active storage context, while keeping
+     * composite parents that contain accepted children.
+     */
+    private static boolean accepts(Configuration configuration) {
+        if (ConfigMonitor.is(TRANSFERRING)) return true;
+        if (configuration instanceof CompositeConfiguration compositeConfiguration) {
+            return compositeConfiguration.hasAcceptedConfigurations();
+        }
+        return configuration.isWorkspaceStorage() == ConfigMonitor.isWorkspaceStorage();
+    }
+
+    private boolean hasAcceptedConfigurations() {
+        for (Configuration configuration : getConfigurations()) {
+            if (accepts(configuration)) return true;
+        }
+        return false;
     }
 }

@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import static com.dbn.common.action.UserDataKeys.LANGUAGE_DIALECT;
+import static com.dbn.common.util.Commons.nvl;
 
 @Getter
 @Setter
@@ -37,7 +38,7 @@ public class McpToolSqlVirtualFile extends DBVirtualFileBase implements DBParsea
     public McpToolSqlVirtualFile(ConnectionHandler connection, String content) {
         super(connection.getProject(), "mcp-tool-query.sql");
         this.connection = connection.ref();
-        this.content = content;
+        this.content = nvl(content, "");
         this.schemaId = connection.getDefaultSchemaId();
         setCharset(connection.getSettings().getDetailSettings().getCharset());
         putUserData(LANGUAGE_DIALECT, DBLanguageDialect.get(SQLLanguage.INSTANCE, connection));

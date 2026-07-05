@@ -1,0 +1,4 @@
+interface:
+  display_name: "DBN Development Guide"
+  short_description: "DBN workflow, BugDB, build, and test triggers"
+  default_prompt: "Use $dbn-development-guide for DBN BugDB workflow, build/test validation choices, and repository mechanics."

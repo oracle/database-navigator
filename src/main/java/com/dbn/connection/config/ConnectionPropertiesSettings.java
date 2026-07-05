@@ -17,7 +17,7 @@
 package com.dbn.connection.config;
 
 import com.dbn.common.options.BasicProjectConfiguration;
-import com.dbn.common.util.Commons;
+import com.dbn.common.state.ProtectedContent;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ui.ConnectionPropertiesSettingsForm;
 import lombok.EqualsAndHashCode;
@@ -29,15 +29,18 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.state.StateEncryptionScopes.CONNECTION_GENERIC_PROPERTY;
 
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
 public class ConnectionPropertiesSettings extends BasicProjectConfiguration<ConnectionSettings, ConnectionPropertiesSettingsForm> {
+    private static final int MAX_PROPERTY_COUNT = 512;
     private Map<String, String> properties = new HashMap<>();
     private boolean enableAutoCommit = false;
 
@@ -66,15 +69,26 @@ public class ConnectionPropertiesSettings extends BasicProjectConfiguration<Conn
     *********************************************************/
     @Override
     public void readConfiguration(Element element) {
-        enableAutoCommit = getBoolean(element, "auto-commit", enableAutoCommit);
+        Map<String, String> properties = new HashMap<>();
         Element propertiesElement = element.getChild("properties");
-        if (propertiesElement != null) {
-            for (Element propertyElement : propertiesElement.getChildren()) {
-                properties.put(
-                        stringAttribute(propertyElement, "key"),
-                        stringAttribute(propertyElement, "value"));
+        for (Element propertyElement : childrenOf(propertiesElement, "property", MAX_PROPERTY_COUNT)) {
+            String key = stringAttribute(propertyElement, "key");
+            if (key == null) continue;
+
+            ProtectedContent value = new ProtectedContent(CONNECTION_GENERIC_PROPERTY);
+            Element valueElement = propertyElement.getChild("value");
+            if (valueElement == null) {
+                // Legacy settings stored property values as plaintext attributes.
+                value.set(stringAttribute(propertyElement, "value"));
+            } else {
+                value.readState(valueElement);
             }
+            properties.put(key, value.get());
         }
+
+        this.properties = properties;
+        this.enableAutoCommit = getBoolean(element, "auto-commit", enableAutoCommit);
+
         getParent().getDatabaseSettings().updateSignature();
     }
 
@@ -85,9 +99,15 @@ public class ConnectionPropertiesSettings extends BasicProjectConfiguration<Conn
 
         Element propertiesElement = newElement(element, "properties");
         for (var entry : properties.entrySet()) {
+            String key = entry.getKey();
+            if (key == null) continue;
+
             Element propertyElement = newElement(propertiesElement, "property");
-            propertyElement.setAttribute("key", entry.getKey());
-            propertyElement.setAttribute("value", Commons.nvl(entry.getValue(), ""));
+            propertyElement.setAttribute("key", key);
+
+            Element valueElement = newElement(propertyElement, "value");
+            ProtectedContent value = new ProtectedContent(CONNECTION_GENERIC_PROPERTY, entry.getValue());
+            value.writeState(valueElement);
         }
     }
 }

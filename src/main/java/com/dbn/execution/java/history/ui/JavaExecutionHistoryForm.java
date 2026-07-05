@@ -53,6 +53,7 @@ import java.util.Map;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.Splitters.makeRegular;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JavaExecutionHistoryForm extends DBNFormBase {
 	private JPanel mainPanel;
@@ -161,7 +162,7 @@ public class JavaExecutionHistoryForm extends DBNFormBase {
 		@Override
 		protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
 			Presentation presentation = e.getPresentation();
-			presentation.setText("Delete");
+			presentation.setText(txt("app.execution.action.Delete"));
 			presentation.setIcon(Icons.ACTION_REMOVE);
 			presentation.setEnabled(!getTree().isSelectionEmpty());
 			presentation.setVisible(getParentDialog().isEditable());
@@ -179,13 +180,13 @@ public class JavaExecutionHistoryForm extends DBNFormBase {
 		protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
 			Presentation presentation = e.getPresentation();
 			presentation.setIcon(Icons.ACTION_OPTIONS);
-			presentation.setText("Settings");
+			presentation.setText(txt("app.execution.action.Settings"));
 		}
 	}
 
 	public class ShowGroupedTreeAction extends ToggleAction {
 		ShowGroupedTreeAction() {
-			super("Group by Program", "Show grouped by program", Icons.ACTION_GROUP);
+			super(txt("app.execution.action.GroupByProgram"), txt("app.execution.tooltip.GroupByProgram"), Icons.ACTION_GROUP);
 		}
 
 		@Override
@@ -195,7 +196,7 @@ public class JavaExecutionHistoryForm extends DBNFormBase {
 
 		@Override
 		public void setSelected(@NotNull AnActionEvent e, boolean state) {
-			getTemplatePresentation().setText(state ? "Ungroup" : "Group by Program");
+			getTemplatePresentation().setText(state ? txt("app.execution.action.Ungroup") : txt("app.execution.action.GroupByProgram"));
 			JavaExecutionHistoryTree historyTree = getTree();
 			List<JavaExecutionInput> executionInputs = historyTree.getModel().getExecutionInputs();
 			historyTree.init(executionInputs, state);
@@ -212,7 +213,10 @@ public class JavaExecutionHistoryForm extends DBNFormBase {
 	private final TreeSelectionListener treeSelectionListener = e -> {
 		JavaExecutionInput executionInput = getTree().getSelectedExecutionInput();
 		if (executionInput != null) {
-			ConnectionAction.invoke("loading the execution history", true, executionInput, action -> Progress.prompt(getProject(), action, false, "Loading method details", "Loading details of " + executionInput.getMethodRef().getQualifiedNameWithType(), progress -> {
+			ConnectionAction.invoke(txt("msg.execution.title.LoadingExecutionHistory"), true, executionInput, action -> Progress.prompt(getProject(), action, false,
+					txt("prc.execution.title.LoadingMethodDetails"),
+					txt("prc.execution.text.LoadingMethodDetails", executionInput.getMethodRef().getQualifiedNameWithType()),
+					progress -> {
                                                                 /*DBMethod method = executionInput.getMethod();
                                 if (method != null) {
                                     method.getArguments();

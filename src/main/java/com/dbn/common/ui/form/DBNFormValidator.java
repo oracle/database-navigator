@@ -18,10 +18,12 @@ package com.dbn.common.ui.form;
 
 import com.dbn.common.ui.list.CheckBoxList;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JPasswordField;
 import javax.swing.text.JTextComponent;
 import java.util.List;
 import java.util.function.Function;
@@ -72,9 +74,9 @@ public interface DBNFormValidator {
      *                   It returns {@code true} if the component is valid, and {@code false} otherwise.
      * @param message    the error message to display if the validation fails.
      */
-    <C extends JComponent> void addValidation(C component, Predicate<C> validator, String message);
+    <C extends JComponent> void addValidation(C component, Predicate<C> validator, @DialogMessage String message);
 
-    <C extends JComponent> void addValidation(C component, Function<C, String> validator);
+    <C extends JComponent> void addValidation(C component, Function<C, @DialogMessage String> validator);
 
     /**
      * Add a raw validator to the component
@@ -94,13 +96,15 @@ public interface DBNFormValidator {
      *                  It returns {@code true} if the input is valid, and {@code false} otherwise
      * @param message   the error message to display if the validation fails
      */
-    void addTextValidation(JTextComponent textField, Predicate<String> validator, String message);
+    void addTextValidation(JTextComponent textField, Predicate<String> validator, @DialogMessage String message);
 
-    void addTextValidation(JTextComponent textField, Function<JTextComponent, String> validator);
+    void addTextValidation(JTextComponent textField, Function<JTextComponent, @DialogMessage String> validator);
 
-    void addSelectionValidation(JComboBox comboBox, String message);
+    void addPasswordValidation(JPasswordField passwordField, Predicate<char[]> validator, @DialogMessage String message);
 
-    void addSelectionValidation(CheckBoxList checkBoxList, String message);
+    void addSelectionValidation(JComboBox comboBox, @DialogMessage String message);
+
+    void addSelectionValidation(CheckBoxList checkBoxList, @DialogMessage String message);
 
 
     default void validateInput() {

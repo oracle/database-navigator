@@ -37,7 +37,6 @@ import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseEntity;
-import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -52,12 +51,13 @@ import static com.dbn.common.content.DynamicContentProperty.LOADING;
 import static com.dbn.common.content.DynamicContentProperty.REFRESHING;
 import static com.dbn.common.notification.NotificationCategory.METADATA;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public abstract class DynamicContentBase<T extends DynamicContentElement>
         extends PropertyHolderBase.ShortStore<DynamicContentProperty>
         implements DisposablePropertyHolder<DynamicContentProperty>,
-                   DynamicContent<T>, NotificationSupport, NlsSupport {
+                   DynamicContent<T>, NotificationSupport {
 
     protected static final List<?> EMPTY_CONTENT = Collections.unmodifiableList(new ArrayList<>(0));
     protected static final List<?> EMPTY_DISPOSED_CONTENT = Collections.unmodifiableList(new ArrayList<>(0));
@@ -252,22 +252,24 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
     }
 
     @Override
-    public synchronized void refresh() {
-        if (is(REFRESHING)) return;
+    public void refresh() {
+        Synchronized.on(this, o -> {
+            if (o.is(REFRESHING)) return;
 
-        try {
-            set(REFRESHING, true);
-            // refresh sources even if this content itself does not need refresh
-            // (e.g. if not loaded yet or already marked dirty)
-            refreshSources();
+            try {
+                o.set(REFRESHING, true);
+                // refresh sources even if this content itself does not need refresh
+                // (e.g. if not loaded yet or already marked dirty)
+                o.refreshSources();
 
-            if (shouldRefresh()) {
-                refreshElements();
-                markDirty();
+                if (o.shouldRefresh()) {
+                    o.refreshElements();
+                    o.markDirty();
+                }
+            } finally {
+                o.set(REFRESHING, false);
             }
-        } finally {
-            set(REFRESHING, false);
-        }
+        });
     }
 
     private void refreshSources() {
@@ -329,7 +331,7 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
             set(DynamicContentProperty.LOADED, true);
             set(DynamicContentProperty.ERROR, true);
             sendWarningNotification(METADATA,
-                    txt("ntf.metadata.error.FailedToLoadContent",
+                    txt("ntf.objects.warning.FailedToLoadContent",
                             getContentDescription(),
                             e.getMessage()));
 

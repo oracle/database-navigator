@@ -70,7 +70,7 @@ public class AssistantToolProvider implements ToolProvider, AssistantComponent {
                 processToolMethod(tools, tool, method);
             }
         }
-        return new ToolProviderResult(tools);
+        return ToolProviderResult.builder().addAll(tools).build();
     }
 
     @Nullable
@@ -121,6 +121,7 @@ public class AssistantToolProvider implements ToolProvider, AssistantComponent {
 
         ToolSpecification specification = wrapped(() -> toolSpecificationFrom(method));
 
+        @NonNls
         String description =
                 "type = " + toolSpec.type() + "\n" +
                 "category = " + toolSpec.category() + "\n" +

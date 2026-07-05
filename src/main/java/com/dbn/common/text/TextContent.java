@@ -97,6 +97,11 @@ public class TextContent {
                         "font-size: " + (fontSize + JBUI.scale(4)) + "pt; " +
                         "color: #" + colorHex + ";");
 
+        replaceFields("REGULAR_GRAY_FONT_STYLE",
+                "font-family:" + fontName + ",Segoe UI,SansSerif,serif; " +
+                        "font-size: " + fontSize + "pt; " +
+                        "color: #" + toHex(UIUtil.getContextHelpForeground()) + ";");
+
         replaceFields("MONOSPACE_FONT_STYLE",
                 "font-family: Courier New, Courier, monospace; " +
                         "font-size: " + fontSize + "pt; " +
@@ -107,10 +112,10 @@ public class TextContent {
                         "font-size: " + (fontSize + JBUI.scale(2)) + "pt; " +
                         "color: #" + colorHex + ";");
 
-        replaceFields("TABLE_GRID_COLOR", toHex(UIUtil.getLabelDisabledForeground()));
+        replaceFields("TABLE_GRID_COLOR", "#" + toHex(UIUtil.getLabelDisabledForeground()));
     }
 
-    private void replaceFields(String identifier, String replacement) {
+    private void replaceFields(@NonNls String identifier, @NonNls String replacement) {
         replacement = Matcher.quoteReplacement(replacement);
         text = text.replaceAll("\\$\\{" + identifier + "}", replacement);
     }
@@ -131,8 +136,25 @@ public class TextContent {
         return new TextContent(text, MimeType.TEXT_HTML);
     }
 
+    public static TextContent htmlTooltip(String bodyContent, @NonNls String bodyStyle) {
+        @NonNls
+        TextContent content = html("<html><body style='${HTML_BODY_STYLE}; ${REGULAR_FONT_STYLE}'>${HTML_BODY_CONTENT}</body></html>");
+        content.initField("HTML_BODY_STYLE", bodyStyle);
+        content.initField("HTML_BODY_CONTENT", bodyContent);
+        content.rebuild();
+        return content;
+    }
+
+    public static TextContent htmlMessage(String bodyContent) {
+        @NonNls
+        TextContent content = html("<html><body style='${REGULAR_FONT_STYLE}'>${HTML_BODY_CONTENT}</body></html>");
+        content.initField("HTML_BODY_CONTENT", bodyContent);
+        content.rebuild();
+        return content;
+    }
+
     public static TextContent html(Object object, @NonNls String resourceName) {
-        String info = TextResources.get(object, resourceName);
+        String info = TextResources.getLocalizable(object, resourceName);
         return html(info);
     }
     public static TextContent markdown(String text) {

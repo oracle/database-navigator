@@ -60,6 +60,7 @@ import java.util.Date;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implements TableModelListener {
     private static final TableCellRenderer CELL_RENDERER = new CalendarTableCellRenderer();
@@ -111,9 +112,9 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
             }
         });*/
 
-        ActionToolbar actionToolbarLeft = Actions.createActionToolbar(actionsLeftPanel, true, "DBNavigator.ActionGroup.Calendar.LeftControls");
-        ActionToolbar actionToolbarRight = Actions.createActionToolbar(actionsLeftPanel, true, "DBNavigator.ActionGroup.Calendar.RightControls");
-        ActionToolbar actionToolbarBottom = Actions.createActionToolbar(actionsLeftPanel, true, "DBNavigator.ActionGroup.Calendar.BottomControls");
+        ActionToolbar actionToolbarLeft = Actions.createActionToolbar(actionsLeftPanel, true, "DBN.Calendar.Left");
+        ActionToolbar actionToolbarRight = Actions.createActionToolbar(actionsLeftPanel, true, "DBN.Calendar.Right");
+        ActionToolbar actionToolbarBottom = Actions.createActionToolbar(actionsLeftPanel, true, "DBN.Calendar.Bottom");
 
         Arrays.asList(actionToolbarLeft, actionToolbarRight, actionToolbarBottom).forEach(tb -> Actions.getActions(tb).forEach(a -> registerAction(a)));
 
@@ -192,7 +193,7 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
         monthYearLabel.setText(tableModel.getCurrentMonthName() + " " + tableModel.getCurrentYear());
 
         timeTextField.setText(getFormatter().formatTime(date));
-        timeLabel.setText("Time (" + getFormatter().getTimeFormatPattern() + ")");
+        timeLabel.setText(txt("msg.dataEditor.label.TimeFormat", getFormatter().getTimeFormatPattern()));
 
         return popupBuilder.createPopup();
     }
@@ -204,7 +205,7 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
 
     @Override
     public String getName() {
-        return "Calendar";
+        return txt("msg.dataEditor.title.Calendar");
     }
 
     @Override

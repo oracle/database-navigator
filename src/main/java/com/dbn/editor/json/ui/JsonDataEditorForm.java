@@ -39,7 +39,9 @@ import com.dbn.editor.json.ui.table.JsonDataEditorTable;
 import com.dbn.object.DBJsonView;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -55,6 +57,7 @@ import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JsonDataEditorForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel actionsPanel;
@@ -90,7 +93,7 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
             jsonDataEditorTable = new JsonDataEditorTable(this, jsonDataEditor);
             jsonDataTableScrollPane.setViewportView(jsonDataEditorTable);
 
-            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.JsonDataEditor");
+            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.JsonDataEditor");
             setAccessibleName(actionToolbar, txt("app.dataEditor.aria.JsonDataEditorActions"));
 
             actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
@@ -237,6 +240,15 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
     @Override
     public Object getData(@NotNull String dataId) {
         if (DataKeys.JSON_DATA_EDITOR.is(dataId)) return getJsonDataEditor();
+
+        JsonDataContentEditorForm contentEditorForm = getContentEditorForm();
+        if (contentEditorForm.isEditorFocused()) {
+            EditorEx editor = contentEditorForm.getEditor();
+            if (PlatformDataKeys.FILE_EDITOR.is(dataId)) return contentEditorForm.getTextEditor();
+            if (PlatformDataKeys.EDITOR.is(dataId)) return editor;
+            if (PlatformDataKeys.VIRTUAL_FILE.is(dataId)) return editor.getVirtualFile();
+        }
+
         return null;
     }
 }

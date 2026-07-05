@@ -24,7 +24,13 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class MethodExecutionHistoryAction extends ProjectAction {
+
+    public MethodExecutionHistoryAction() {
+        super(txt("app.menu.action.MethodExecutionHistory"));
+    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {

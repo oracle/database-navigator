@@ -42,6 +42,7 @@ import static com.dbn.assistant.state.AssistantStatus.INITIALIZING;
 import static com.dbn.assistant.state.AssistantStatus.UNAVAILABLE;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Lists.firstElement;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
@@ -82,7 +83,7 @@ public class SelectAiContextActionsForm extends AssistantDetailFormBase implemen
     }
 
     private void createActionPanel() {
-        ActionToolbar contextActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.SelectAiContextActions");
+        ActionToolbar contextActions = Actions.createActionToolbar(actionsPanel, true, "DBN.Assistant.SelectAI.Context");
         setAccessibleName(contextActions, txt("app.assistant.aria.ChatProfileActions"));
         this.actionsPanel.add(contextActions.getComponent());
     }

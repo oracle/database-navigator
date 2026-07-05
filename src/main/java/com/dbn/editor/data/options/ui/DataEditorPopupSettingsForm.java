@@ -28,6 +28,7 @@ import java.awt.event.ActionListener;
 
 import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DataEditorPopupSettingsForm extends ConfigurationEditorForm<DataEditorPopupSettings> {
     private JTextField lengthThresholdTextField;
@@ -79,8 +80,8 @@ public class DataEditorPopupSettingsForm extends ConfigurationEditorForm<DataEdi
         settings.setActive(activeCheckBox.isSelected());
         settings.setActiveIfEmpty(activeIfEmptyCheckBox.isSelected());
         if (settings.isActive()) {
-            settings.setDataLengthThreshold(validateIntegerValue(lengthThresholdTextField, "Length threshold", true, 0, 999999999, null));
-            settings.setDelay(validateIntegerValue(delayTextField, "Delay", true, 10, 2000, null));
+            settings.setDataLengthThreshold(validateIntegerValue(lengthThresholdTextField, txt("cfg.dataEditor.field.LengthThreshold"), true, 0, 999999999, null));
+            settings.setDelay(validateIntegerValue(delayTextField, txt("cfg.dataEditor.field.Delay"), true, 10, 2000, null));
         }
     }
 

@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
@@ -110,13 +111,12 @@ public class DBMethodRunConfig extends DBRunConfig<MethodExecutionInput> impleme
 
         MethodExecutionInput executionInput = getExecutionInput();
         if (executionInput == null) {
-            throw new RuntimeConfigurationError("No or invalid method selected. The database connection is down, obsolete or method has been dropped.");
+            throw new RuntimeConfigurationError(txt("msg.debugger.error.InvalidMethodSelection"));
         }
 
         if (executionInput.isObsolete()) {
             throw new RuntimeConfigurationError(
-                    "Method " + executionInput.getMethodRef().getQualifiedName() + " could not be resolved. " +
-                            "The database connection is down or method has been dropped.");
+                    txt("msg.debugger.error.MethodNotResolved", executionInput.getMethodRef().getQualifiedName()));
         }
 
         DBMethod method = getMethod();
@@ -125,7 +125,7 @@ public class DBMethodRunConfig extends DBRunConfig<MethodExecutionInput> impleme
         ConnectionHandler connection = method.getConnection();
         if (!DatabaseFeature.DEBUGGING.isSupported(connection)){
             throw new RuntimeConfigurationError(
-                    "Debugging is not supported for " + connection.getDatabaseType().getName() +" databases.");
+                    txt("msg.debugger.error.UnsupportedDatabase", connection.getDatabaseType().getName()));
         }
 
         DebuggerTypeOption debuggerTypeOption = DebuggerTypeOption.of(connection);

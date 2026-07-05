@@ -22,6 +22,7 @@ import com.dbn.prerequisite.model.PrerequisiteMandate;
 
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_TABLE;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.TABLESPACE_QUOTA;
 
@@ -33,7 +34,7 @@ public class CreateJavaPrerequisiteEvaluator extends PrerequisiteRequirementEval
 
     @Override
     protected void createMandates(List<PrerequisiteMandate> mandates, DatabaseOperation operation) {
-        createMandate(mandates, CREATE_TABLE, "Allows user to create tables in own schema. This is required for creating the java lob table for storing java binary");
-        createMandate(mandates, TABLESPACE_QUOTA, "Allows user to create and insert rows in table in own schema. This is required for storing java source code binary");
+        createMandate(mandates, CREATE_TABLE, txt("msg.prerequisite.text.Reason_CREATE_TABLE"));
+        createMandate(mandates, TABLESPACE_QUOTA, txt("msg.prerequisite.text.Reason_TABLESPACE_QUOTA"));
     }
 }

@@ -17,18 +17,20 @@
 package com.dbn.common.extension;
 
 import com.intellij.openapi.extensions.ExtensionPointName;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-public abstract class ExtensionPointCache<K, E> {
+@Slf4j
+public abstract class ExtensionPointCache<K, E extends ExtensionPoint> {
     private final ExtensionPointName<E> extensionPointName;
     private final Set<K> keys;
     private final Map<K, E> cache = new ConcurrentHashMap<>();
@@ -37,7 +39,18 @@ public abstract class ExtensionPointCache<K, E> {
     protected ExtensionPointCache(ExtensionPointName<E> extensionPointName, Function<E, K> keyProvider) {
         this.extensionPointName = extensionPointName;
         this.keyProvider = keyProvider;
-        this.keys = extensionPointName.getExtensionList().stream().map(keyProvider).collect(Collectors.toSet());
+        List<K> keys = extensionPointName.getExtensionList().stream().map(keyProvider).toList();
+        reportDuplicateKeys(extensionPointName, keys);
+        this.keys = new HashSet<>(keys);
+    }
+
+    private static <K, E extends ExtensionPoint> void reportDuplicateKeys(ExtensionPointName<E> extensionPointName, List<K> keys) {
+        Set<K> uniqueKeys = new HashSet<>();
+        for (K key : keys) {
+            if (!uniqueKeys.add(key)) {
+                log.error("Duplicate extension key \"{}\" for extension point \"{}\"", key, extensionPointName);
+            }
+        }
     }
 
     protected E find(K key) {

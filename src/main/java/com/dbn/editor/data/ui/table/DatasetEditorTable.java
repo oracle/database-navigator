@@ -27,7 +27,6 @@ import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Actions;
-import com.dbn.common.util.Messages;
 import com.dbn.data.grid.options.DataGridAuditColumnSettings;
 import com.dbn.data.grid.ui.table.basic.BasicTableCellRenderer;
 import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
@@ -82,6 +81,7 @@ import java.util.EventObject;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
 import static com.dbn.editor.data.DataLoadInstruction.PRESERVE_CHANGES;
@@ -121,7 +121,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         ActionUtil.registerDataProvider(this, dataProvider, false);
         ActionUtil.registerDataProvider(getTableHeader(), dataProvider, false);
 */
-        setAccessibleName(this, "Dataset Editor");
+        setAccessibleName(this, txt("app.dataEditor.aria.DatasetEditor"));
         setFocusable(true);
         setRequestFocusEnabled(true);
 
@@ -378,9 +378,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                 }
 
                 if (editorTableCell.isModified() && !(editorTableCell.getUserValue() instanceof ValueAdapter)) {
-                    text.append("<br>Original value: <b>");
-                    text.append(editorTableCell.getOriginalUserValue());
-                    text.append("</b>");
+                    text.append(txt("app.dataEditor.tooltip.OriginalValueLine", editorTableCell.getOriginalUserValue()));
                 }
 
                 text.append("</html>");
@@ -391,11 +389,11 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
             if (editorTableCell.isModified() && !e.isControlDown()) {
                 Object userValue = editorTableCell.getUserValue();
                 if (userValue instanceof ArrayValue) {
-                    return "ARRAY value has changed";
+                    return txt("app.dataEditor.tooltip.ArrayValueChanged");
                 } else  if (userValue instanceof LargeObjectValue largeObjectValue) {
-                    return largeObjectValue.getGenericDataType() + " content has changed";
+                    return txt("app.dataEditor.tooltip.LargeObjectContentChanged", largeObjectValue.getGenericDataType());
                 } else {
-                    return "<html>Original value: <b>" + editorTableCell.getOriginalUserValue() + "</b></html>";
+                    return txt("app.dataEditor.tooltip.OriginalValue", editorTableCell.getOriginalUserValue());
                 }
 
             }
@@ -467,7 +465,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                 DBColumn column = cell.getColumn();
                 DBColumn foreignKeyColumn = column.getForeignKeyColumn();
                 if (foreignKeyColumn != null) {
-                    setToolTipText("<html>Show referenced <b>" + foreignKeyColumn.getDataset().getQualifiedName() + "</b> record<html>");
+                    setToolTipText(txt("app.dataEditor.tooltip.ShowReferencedRecord", foreignKeyColumn.getDataset().getQualifiedName()));
                 }
             }
         } else {
@@ -502,7 +500,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                             try {
                                 model.postInsertRecord(false, true, false);
                             } catch (SQLException e1) {
-                                Messages.showErrorDialog(getProject(), "Could not create row in " + dataset.getQualifiedNameWithType() + ".", e1);
+                                showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotCreateRow", dataset.getQualifiedNameWithType()), e1);
                             }
                         });
             }

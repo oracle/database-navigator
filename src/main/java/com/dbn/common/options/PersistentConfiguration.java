@@ -16,24 +16,29 @@
 
 package com.dbn.common.options;
 
-import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 
 import static com.dbn.common.options.ConfigActivity.APPLYING;
 import static com.dbn.common.options.ConfigActivity.CLONING;
+import static com.dbn.common.options.ConfigActivity.TRANSFERRING;
 
-public interface PersistentConfiguration extends NlsSupport {
+public interface PersistentConfiguration  {
     void readConfiguration(@NonNls Element element);
     void writeConfiguration(@NonNls Element element);
 
     default void validate() throws ConfigurationException {};
 
     default void applyTo(PersistentConfiguration configuration) {
-        @NonNls Element element = new Element("configuration");
-        writeConfiguration(element);
-        configuration.readConfiguration(element);
+        try {
+            ConfigMonitor.set(TRANSFERRING, true);
+            @NonNls Element element = new Element("configuration");
+            writeConfiguration(element);
+            configuration.readConfiguration(element);
+        } finally {
+            ConfigMonitor.set(TRANSFERRING, false);
+        }
     }
 
     default boolean isTransientContext() {

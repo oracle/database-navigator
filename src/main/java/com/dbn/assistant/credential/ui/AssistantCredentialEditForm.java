@@ -28,7 +28,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
-import com.dbn.common.util.Chars;
+import com.dbn.common.ui.util.Labels;
 import com.dbn.common.util.Strings;
 import com.dbn.oci.config.ui.OciConfigForm;
 import com.intellij.ui.components.JBPasswordField;
@@ -49,12 +49,15 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.PasswordFields.getPassword;
+import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.ui.util.TextFields.setTextSilently;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantCredentialEditForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -140,9 +143,9 @@ public class AssistantCredentialEditForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, n -> isNotEmpty(n), "Please provide a credential name");
-        addTextValidation(nameTextField, n -> isNotUsed(n), "The credential name is already in use");
-        addTextValidation(secretTextField, s -> isNotEmpty(s), "Please provide a credential");
+        addTextValidation(nameTextField, n -> isNotEmpty(n), txt("msg.assistant.error.CredentialNameRequired"));
+        addTextValidation(nameTextField, n -> isNotUsed(n), txt("msg.assistant.error.CredentialNameAlreadyInUse"));
+        addTextValidation(secretTextField, s -> isNotEmpty(s), txt("msg.assistant.error.CredentialRequired"));
     }
 
     protected void updateFieldAvailability() {
@@ -153,16 +156,25 @@ public class AssistantCredentialEditForm extends DBNFormBase {
 
         AIAuthentication authentication = getAuthentication();
         Field secretField = authentication.getSecretField();
-        secretLabel.setText(secretField.getName());
+        Labels.setText(secretLabel, getSecretFieldLabel(secretField));
 
         AIProvider provider = getSelectedProvider();
         boolean infoAvailable = provider != null && secretField == API_KEY;
         guideHyperlink.setVisible(infoAvailable);
         if (infoAvailable) {
             String providerName = provider.getName();
-            guideHyperlink.setHyperlinkText(providerName + " API keys");
+            guideHyperlink.setHyperlinkText(txt("cfg.assistant.link.ProviderApiKeys", providerName));
             guideHyperlink.setHyperlinkTarget(provider.getUrl(ProviderUrlType.KEYS));
         }
+    }
+
+    private static String getSecretFieldLabel(Field secretField) {
+        return switch (secretField) {
+            case API_KEY -> txt("cfg.assistant.label.ApiKey");
+            case PASSWORD -> txt("cfg.assistant.label.Password");
+            case TOKEN -> txt("cfg.assistant.label.AccessToken");
+            default -> secretField.getName();
+        };
     }
 
     private AIAuthentication getAuthentication() {
@@ -186,7 +198,7 @@ public class AssistantCredentialEditForm extends DBNFormBase {
     public void applyFormChanges() {
         credential.setName(getText(nameTextField));
         credential.setUser(getText(userTextField));
-        credential.setSecret(secretTextField.getPassword());
+        credential.setSecret(getPassword(secretTextField, credential.getSecret()));
         ociConfigForm.applyFormChanges();
 
         AIProvider provider = getSelectedProvider();
@@ -196,7 +208,7 @@ public class AssistantCredentialEditForm extends DBNFormBase {
     public void resetFormChanges() {
         setText(nameTextField, credential.getName());
         setText(userTextField, credential.getUser());
-        setText(secretTextField, Chars.toString(credential.getSecret()));
+        setPassword(secretTextField, credential.getSecret());
         ociConfigForm.resetFormChanges();
 
         AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, credential.getProviderId());

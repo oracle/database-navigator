@@ -47,6 +47,7 @@ import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class PrerequisiteData implements PersistentStateElement {
@@ -151,15 +152,14 @@ public class PrerequisiteData implements PersistentStateElement {
     private static OptionBroker<PrerequisiteOption> createOptionBroker(DatabaseOperation operation) {
         return new InteractiveOptionBroker<>(
                 "missing-prerequisites",
-                "Missing Prerequisites",
-                operation.getMissingPrerequisiteMessage() +
-                        "\n\nDo you want to continue?",
+                txt("msg.prerequisites.title.MissingPrerequisites"),
+                txt("msg.prerequisites.question.MissingPrerequisites"),
                 PrerequisiteOption.CONTINUE,
                 PrerequisiteOption.CONTINUE,
                 PrerequisiteOption.RESOLVE,
                 PrerequisiteOption.CANCEL).
                 withIcon(Icons.DIALOG_WARNING).
-                withDoNotShowMessage("Ignore for this connection");
+                withDoNotShowMessage(txt("msg.prerequisites.option.IgnoreForThisConnection"));
 
     }
 

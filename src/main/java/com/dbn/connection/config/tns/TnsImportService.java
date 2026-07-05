@@ -62,7 +62,7 @@ public class TnsImportService extends ApplicationComponentBase implements Persis
 
 
     public void importTnsNames(Project project, Consumer<TnsImportData> consumer) {
-        VirtualFile[] virtualFiles = FileChooser.chooseFiles(TnsNamesParser.FILE_CHOOSER_DESCRIPTOR, project, null);
+        VirtualFile[] virtualFiles = FileChooser.chooseFiles(TnsNamesParser.tnsFileChooser(), project, null);
         if (virtualFiles.length != 1) return;
 
         File file = new File(virtualFiles[0].getPath());

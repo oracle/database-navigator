@@ -22,7 +22,6 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.CancellableDatabaseCall;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -57,6 +56,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.environment.EnvironmentManager.isTransientlyEditable;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.DBContentType.JSON;
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
@@ -64,6 +64,7 @@ import static com.dbn.editor.data.model.RecordStatus.DIRTY;
 import static com.dbn.editor.data.model.RecordStatus.INSERTED;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
 import static com.dbn.editor.data.model.RecordStatus.MODIFIED;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class JsonDataEditorModel
@@ -354,7 +355,7 @@ public class JsonDataEditorModel
         } catch (SQLException e) {
             conditionallyLog(e);
             set(INSERTING, false);
-            Messages.showErrorDialog(getProject(), "Could not insert record for " + dataset.getQualifiedNameWithType() + ".", e);
+            showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotInsertRecord", dataset.getQualifiedNameWithType()), e);
         }
     }
 
@@ -382,7 +383,7 @@ public class JsonDataEditorModel
         } catch (SQLException e) {
             conditionallyLog(e);
             set(INSERTING, false);
-            Messages.showErrorDialog(getProject(), "Could not duplicate record in " + dataset.getQualifiedNameWithType() + ".", e);
+            showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotDuplicateRecord", dataset.getQualifiedNameWithType()), e);
         }
     }
 

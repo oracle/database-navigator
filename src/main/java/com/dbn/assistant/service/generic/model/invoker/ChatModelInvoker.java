@@ -23,6 +23,8 @@ import com.dbn.assistant.state.AssistantState;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.service.AiServices;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
     public ChatModelInvoker() {
         super(AssistantModelType.CHAT);
@@ -39,6 +41,7 @@ public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
             initSystemMessage(builder, context);
             initInternalToolProvider(builder, context);
             initExternalToolProviders(builder, context);
+            initToolExecutionErrorHandler(builder, context);
 
             ChatModelAdapter adapter = builder.build();
 
@@ -46,7 +49,7 @@ public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
             consumer.acceptMessage(message);
 
         } catch (Throwable e) {
-            consumer.acceptError("Model invocation failed", e);
+            consumer.acceptError(txt("msg.assistant.error.ModelInvocationFailed"), e);
 
         } finally {
             consumer.acceptCompletion();

@@ -17,13 +17,11 @@
 package com.dbn.vector.ui.request;
 
 import com.dbn.common.color.Colors;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.PooledConnection;
@@ -45,21 +43,21 @@ import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.sql.SQLException;
 
-import static com.dbn.common.ui.util.Buttons.onButtonClick;
+import static com.dbn.common.ui.util.Buttons.onButtonClickAsync;
 import static com.dbn.common.util.Editors.focusEditor;
 import static com.dbn.common.util.Editors.initEditorHighlighter;
 import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.common.util.Editors.updateEditorScrollPane;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     private JPanel mainPanel;
@@ -67,7 +65,6 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     private JPanel queryPanel;
     private JPanel outputPanel;
     private JButton verifyButton;
-    private JPanel spinPanel;
     private DBNScrollPane outputScrollPane;
 
     private final ConnectionRef connection;
@@ -84,7 +81,6 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
         this.config = config;
 
         initHeaderPanel();
-        initSpinner();
         initVerifyButton();
         initOutputPanel();
 
@@ -132,14 +128,9 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
         focusEditor(editor);
     }
 
-    private void initSpinner() {
-        spinPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
-        spinPanel.setVisible(false);
-    }
-
     private void initOutputPanel() {
         ConnectionHandler connection = getConnection();
-        RecordViewInfo recordViewInfo = new RecordViewInfo("Query data", null);
+        RecordViewInfo recordViewInfo = new RecordViewInfo(txt("app.vector.title.QueryData"), null);
         ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
         outputTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
         outputScrollPane.setViewportView(outputTable);
@@ -149,10 +140,8 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     }
 
     private void initVerifyButton() {
-        onButtonClick(verifyButton, e ->
-                Dispatch.async(mainPanel,
-                    () -> verifyQuery(),
-                    d -> applyChunkResult(d)));
+        onButtonClickAsync(verifyButton, () -> verifyQuery(),
+                    d -> applyChunkResult(d));
     }
 
     private void applyChunkResult(ResultSetDataModel data){
@@ -167,7 +156,7 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
         try {
             return executeStatement();
         } catch (Exception e) {
-            Messages.showErrorDialog(project, "Failed to verify query", e);
+            showErrorDialog(project, txt("msg.vector.error.QueryVerificationFailed"), e);
             return new ResultSetDataModel(connection);
         } finally {
             stopActivityNotifier();
@@ -196,14 +185,10 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     }
 
     private void startActivityNotifier() {
-        spinPanel.setVisible(true);
-        verifyButton.setEnabled(false);
         outputTable.setLoading(true);
     }
 
     private void stopActivityNotifier() {
-        spinPanel.setVisible(false);
-        verifyButton.setEnabled(true);
         outputTable.setLoading(false);
     }
 

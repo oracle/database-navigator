@@ -25,8 +25,8 @@ import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
 import com.dbn.editor.session.SessionStatus;
-import com.dbn.language.common.QuoteDefinition;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuoteDefinition;
+import com.dbn.language.common.quotes.QuotePair;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.Arrays;
@@ -134,7 +134,11 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
         if (!sslSettings.isActive()) return;
 
         super.initConnectorSslConnection(properties, settings);
+        properties.add("sslMode", "VERIFY_IDENTITY");
+
+        // Legacy Connector/J SSL properties retained for older user-provided drivers.
         properties.add("useSSL", "true");
         properties.add("requireSSL", "true");
+        properties.add("verifyServerCertificate", "true");
     }
 }

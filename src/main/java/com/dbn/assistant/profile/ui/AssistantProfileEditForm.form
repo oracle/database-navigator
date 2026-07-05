@@ -29,8 +29,8 @@
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <labelFor value="c1f7d"/>
-          <text value="&amp;Credential"/>
+          <labelFor value="2975b"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.Credential"/>
         </properties>
       </component>
       <component id="4731d" class="javax.swing.JLabel">
@@ -39,7 +39,7 @@
         </constraints>
         <properties>
           <labelFor value="b730e"/>
-          <text value="LLM &amp;provider"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.LlmProvider"/>
         </properties>
       </component>
       <component id="b730e" class="com.dbn.common.ui.misc.DBNComboBox" binding="providerComboBox">
@@ -56,7 +56,7 @@
         </constraints>
         <properties>
           <labelFor value="c1f7d"/>
-          <text value="Profile &amp;name"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.ProfileName"/>
         </properties>
       </component>
       <component id="c1f7d" class="com.intellij.ui.components.JBTextField" binding="nameTextField">
@@ -70,7 +70,8 @@
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="&amp;Temperature"/>
+          <labelFor value="ba1d"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.Temperature"/>
         </properties>
       </component>
       <component id="ba1d" class="com.dbn.common.ui.misc.DBNComboBox" binding="temperatureComboBox">
@@ -84,7 +85,8 @@
           <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Custom &amp;instructions"/>
+          <labelFor value="35967"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.assistant.label.CustomInstructions"/>
         </properties>
       </component>
       <scrollpane id="c7c1c" class="com.intellij.ui.components.JBScrollPane">

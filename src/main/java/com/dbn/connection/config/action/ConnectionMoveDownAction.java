@@ -28,6 +28,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionMoveDownAction extends ConnectionSettingsAction {
 
+    public ConnectionMoveDownAction() {
+        super(txt("cfg.connection.action.MoveConnectionsDown"));
+    }
+
     @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,

@@ -30,10 +30,11 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.dbn.common.exception.Exceptions.causeOf;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.exception.Exceptions.toSqlTimeoutException;
+import static com.dbn.common.exception.Exceptions.unwrap;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @UtilityClass
 public final class StatementExecutor {
@@ -53,20 +54,20 @@ public final class StatementExecutor {
             conditionallyLog(e);
             context.log("QUERY", false, true, millisSince(start));
             Resources.close(context.getStatement());
-            throw toSqlTimeoutException(e, "Operation timed out (timeout = " + timeout + "s)");
+            throw toSqlTimeoutException(e, txt("msg.execution.exception.OperationTimedOut", timeout));
 
         } catch (ExecutionException e) {
             conditionallyLog(e);
             context.log("QUERY", true, false, millisSince(start));
             Resources.close(context.getStatement());
-            Throwable cause = causeOf(e);
-            throw toSqlException(cause, "Error processing request: " + cause.getMessage());
+            Throwable cause = unwrap(e);
+            throw toSqlException(cause, txt("msg.execution.exception.RequestProcessingError", cause.getMessage()));
 
         } catch (Throwable e) {
             conditionallyLog(e);
             context.log("QUERY", true, false, millisSince(start));
             Resources.close(context.getStatement());
-            throw toSqlException(e, "Error processing request: " + e.getMessage());
+            throw toSqlException(e, txt("msg.execution.exception.RequestProcessingError", e.getMessage()));
 
         }
     }

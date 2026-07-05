@@ -14,13 +14,13 @@
         <properties>
           <horizontalAlignment value="11"/>
           <horizontalTextPosition value="2"/>
-          <text value="[text]"/>
+          <text resource-bundle="messages/DBNResources" key="app.shared.placeholder.Text"/>
         </properties>
       </component>
       <component id="d8aea" class="javax.swing.JLabel" binding="iconLabel">
         <constraints border-constraint="East"/>
         <properties>
-          <text value="[icon]"/>
+          <text resource-bundle="messages/DBNResources" key="app.shared.placeholder.Icon"/>
         </properties>
       </component>
     </children>

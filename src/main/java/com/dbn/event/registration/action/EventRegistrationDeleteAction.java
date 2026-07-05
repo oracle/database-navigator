@@ -12,6 +12,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class EventRegistrationDeleteAction extends BasicAction {
 
+    public EventRegistrationDeleteAction() {
+        super(txt("app.eventRegistration.action.EventRegistrationsDeleteRegistration"));
+    }
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         EventRegistrationsForm registrationsForm = getRegistrationsForm(e);
@@ -24,7 +28,7 @@ public class EventRegistrationDeleteAction extends BasicAction {
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(isEnabled(e));
-        presentation.setText(txt("app.eventRegistration.action.Delete"));
+        presentation.setText(txt("app.eventRegistration.action.DeleteRegistration"));
         presentation.setIcon(Icons.ACTION_DELETE);
     }
 

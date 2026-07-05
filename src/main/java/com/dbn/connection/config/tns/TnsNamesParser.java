@@ -21,6 +21,7 @@ import com.dbn.common.util.FileContentCache;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -32,14 +33,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Commons.coalesce;
-import static com.dbn.common.util.FileChoosers.extensionFilter;
+import static com.dbn.nls.NlsResources.txt;
 
 public class TnsNamesParser {
-    public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFile().
-            withTitle("Select TNS Names File").
-            withDescription("Select a valid Oracle tnsnames.ora file").
-            withFileFilter(extensionFilter("ora"));
-
     private static final FileContentCache<TnsNames> cache = new FileContentCache<>() {
         @Override
         protected TnsNames load(File file) {
@@ -107,5 +103,14 @@ public class TnsNamesParser {
             }
         }
         return new TnsNames(file, tnsProfiles);
+    }
+
+    public static @NotNull FileChooserDescriptor tnsFileChooser() {
+        FileChooserDescriptor descriptor = FileChoosers.singleFile().
+                withTitle(txt("cfg.connection.title.SelectTnsFile")).
+                withDescription(txt("cfg.connection.text.SelectTnsFile"))/*.
+                withExtensionFilter("ora")*/;
+
+        return FileChoosers.withExtensionFilter(descriptor, "ora");
     }
 }

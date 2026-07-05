@@ -21,9 +21,11 @@ import com.dbn.object.DBJsonView;
 import com.intellij.openapi.fileEditor.FileEditor;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class JsonDataEditorLoadErrorNotificationPanel extends JsonDataEditorNotificationPanel {
     public JsonDataEditorLoadErrorNotificationPanel(DBJsonView jsonView, @NotNull FileEditor fileEditor, String sourceLoadError) {
         super(jsonView, fileEditor, MessageType.ERROR);
-        setText("Could not load data for " + jsonView.getQualifiedNameWithType() + ". Error details: " + sourceLoadError.replace("\n", " "));
+        setText(txt("ntf.dataEditor.error.CouldNotLoadData", jsonView.getQualifiedNameWithType(), sourceLoadError.replace("\n", " ")));
     }
 }

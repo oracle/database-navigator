@@ -37,11 +37,12 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.TABLE;
 
-public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec, DBTableFactoryInputForm> {
+public class DBTableFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public DBObjectType getObjectType() {
@@ -62,11 +63,12 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec,
         DBObjectType objectType = tableSpec.getObjectType();
 
         if (objectName.isEmpty()) {
-            String hint = tableSpec.getParent() == null ? "" : " at index " + tableSpec.getIndex();
-            errors.add(objectType.getName() + " name is not specified" + hint);
+            errors.add(tableSpec.getParent() == null ?
+                    txt("msg.objects.error.ObjectNameNotSpecified", objectType.getDisplayName()) :
+                    txt("msg.objects.error.ObjectNameNotSpecifiedAtIndex", objectType.getDisplayName(), tableSpec.getIndex()));
 
         } else if (!Strings.isWord(objectName)) {
-            errors.add("invalid " + objectType.getName() + " name specified" + ": \"" + objectName + "\"");
+            errors.add(txt("msg.objects.error.ObjectNameInvalid", objectType.getDisplayName(), objectName));
         }
 
         DBColumnFactoryAdapter columnAdapter = ObjectFactoryAdapters.get(COLUMN);
@@ -77,30 +79,32 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec,
             if (Strings.isEmptyOrSpaces(columnName)) continue; // already covered by field validator
 
             if (columnNames.contains(columnName)) {
-                String hint = tableSpec.getParent() == null ? "" : " for " + objectType.getName() + " \"" + objectName + "\"";
-                errors.add("duplicate column name \"" + columnName + "\"" + hint);
+                errors.add(tableSpec.getParent() == null ?
+                        txt("msg.objects.error.DuplicateColumnName", columnName) :
+                        txt("msg.objects.error.DuplicateColumnNameForObject", columnName, objectType.getDisplayName(), objectName));
             }
             columnNames.add(columnName);
         }
     }
 
     @Override
-    public void createObject(DBObjectSpec tableSpec) throws SQLException {
-        DBSchema schema = tableSpec.getSchema();
+    public void createObject(DBObjectSpec input) throws SQLException {
+        DBObjectType objectType = input.getObjectType();
+        DBSchema schema = input.getSchema();
 
         ConnectionId connectionId = schema.getConnectionId();
         SchemaId schemaId = schema.getSchemaId();
 
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Creating " + tableSpec.getObjectType().getTitleCasedName(),
-                "Creating " + tableSpec.getObjectDescription(),
+                txt("prc.object.title.CreatingObject", objectType.getTitleCasedDisplayName()),
+                txt("prc.object.text.CreatingObjectDescription", input.getObjectDescription()),
                 schema.getProject(),
                 connectionId,
                 schemaId,
                 conn -> {
                     DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
-                    dataDefinition.createTable(tableSpec, conn);
-                    DBObjectSpecList<DBObjectSpec> indexSpecs = tableSpec.getChildren(DBObjectType.INDEX);
+                    dataDefinition.createTable(input, conn);
+                    DBObjectSpecList indexSpecs = input.getChildren(DBObjectType.INDEX);
                     for (DBObjectSpec indexSpec : indexSpecs) {
                         dataDefinition.createIndex(indexSpec, conn);
                     }

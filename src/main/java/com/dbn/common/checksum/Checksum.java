@@ -36,6 +36,7 @@ import java.util.Formatter;
  */
 @UtilityClass
 public class Checksum {
+    private static final int FILE_BUFFER_SIZE = 64 * 1024;
 
     /**
      * String content checksum producer
@@ -93,6 +94,22 @@ public class Checksum {
         return visitor.produce();
     }
 
+    /**
+     * Strict checksum verifier
+     * Allows upper/lower case hexadecimal checksums, but rejects malformed or wrong-length values.
+     *
+     * @param expectedChecksum the externally provided checksum
+     * @param actualChecksum the locally calculated checksum
+     * @param type the {@link ChecksumType} expected for both checksums
+     * @return true if the decoded checksum bytes match
+     */
+    public static boolean verifyChecksum(String expectedChecksum, String actualChecksum, ChecksumType type) {
+        byte[] expectedDigest = decodeDigest(expectedChecksum, type);
+        byte[] actualDigest = decodeDigest(actualChecksum, type);
+        return expectedDigest != null &&
+                actualDigest != null &&
+                MessageDigest.isEqual(expectedDigest, actualDigest);
+    }
 
     private static class AttributeBasedVisitor extends ChecksumVisitor {
         AttributeBasedVisitor(ChecksumType checksumType) {
@@ -101,9 +118,11 @@ public class Checksum {
 
         @Override
         void visit(File file, MessageDigest digest) {
+            String name = file.getName();
+            long modified = file.lastModified();
             String signature = file.isDirectory() ?
-                    file.getName() :
-                    file.getName() + file.length();
+                    name + ":" + modified :
+                    name + ":" + modified + ":" + file.length();
 
             digest.update(signature.getBytes());
         }
@@ -128,7 +147,7 @@ public class Checksum {
     @SneakyThrows
     private static void updateDigest(MessageDigest digest, File file) {
         try (FileInputStream inputStream = new FileInputStream(file)) {
-            byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[FILE_BUFFER_SIZE];
             int length;
             while ((length = inputStream.read(bytes)) != -1) {
                 ProgressMonitor.checkCancelled();
@@ -152,5 +171,31 @@ public class Checksum {
             }
             return formatter.toString();
         }
+    }
+
+    private static byte[] decodeDigest(String checksum, ChecksumType type) {
+        if (checksum == null || type == null) return null;
+
+        String value = checksum.trim();
+        int length = value.length();
+        int digestLength = type.getMessageDigest().getDigestLength();
+        if (length == 0 || (length & 1) == 1 || (digestLength > 0 && length != digestLength * 2)) return null;
+
+        byte[] bytes = new byte[length / 2];
+        for (int i = 0; i < length; i += 2) {
+            int high = hexValue(value.charAt(i));
+            int low = hexValue(value.charAt(i + 1));
+            if (high == -1 || low == -1) return null;
+
+            bytes[i / 2] = (byte) ((high << 4) | low);
+        }
+        return bytes;
+    }
+
+    private static int hexValue(char c) {
+        if (c >= '0' && c <= '9') return c - '0';
+        if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+        if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+        return -1;
     }
 }

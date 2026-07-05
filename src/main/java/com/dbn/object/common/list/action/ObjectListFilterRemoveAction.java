@@ -28,6 +28,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectListFilterRemoveAction extends BasicAction {
 
@@ -35,7 +36,7 @@ public class ObjectListFilterRemoveAction extends BasicAction {
     private final DBObjectType objectType;
 
     public ObjectListFilterRemoveAction(DBObjectList objectList) {
-        super("Remove Filter", null, Icons.ACTION_DELETE);
+        super(txt("app.objects.action.RemoveFilter"), null, Icons.ACTION_DELETE);
         this.connectionId = objectList.getConnectionId();
         this.objectType = objectList.getObjectType();
     }
@@ -61,7 +62,7 @@ public class ObjectListFilterRemoveAction extends BasicAction {
         presentation.setVisible(visible);
 
         boolean quickFiltersActive = filterManager.isQuickFilterFeatureActive();
-        String text = quickFiltersActive ? "Remove Global Filter" : "Remove Filter";
+        String text = txt(quickFiltersActive ? "app.objects.action.RemoveGlobalFilter" : "app.objects.action.RemoveFilter");
         presentation.setText(text);
     }
 }

@@ -16,12 +16,20 @@
 
 package com.dbn.database.common.statement;
 
+import com.dbn.common.data.Data;
+import com.dbn.common.routine.ThrowableFunction;
 import com.dbn.common.util.TransientId;
+import com.dbn.connection.DatabaseInterfacesBundle;
+import com.dbn.connection.DatabaseType;
 import com.dbn.connection.jdbc.DBNCallableStatement;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
+import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
+import com.dbn.database.interfaces.DatabaseInterfaces;
+import com.dbn.language.common.quotes.QuoteDefinition;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -35,20 +43,25 @@ import java.util.regex.Pattern;
 @Getter
 public class StatementDefinition {
     private static final Pattern parameterPattern = Pattern.compile("\\{#(\\d+)}");
+    private static final Pattern identifierPattern = Pattern.compile("\\{@(\\d+)}");
     private static final Pattern placeholderPattern = Pattern.compile("\\{(\\d+)}");
 
     private final String statementText;
     private final double sinceVersion;
 
     private final List<Integer> parameterIndices;
+    private final List<Integer> identifierIndices;
     private final List<Integer> placeholderIndices;
+    private final List<Integer> silentErrorCodes;
 
     private final TransientId id = TransientId.create();
 
-    StatementDefinition(String statementText, String prefix, double sinceVersion) {
+    StatementDefinition(String statementText, String prefix, String silentErrorCodes, double sinceVersion) {
         this.sinceVersion = sinceVersion;
         this.parameterIndices = getDynamicContentIndices(statementText, parameterPattern);
+        this.identifierIndices = getDynamicContentIndices(statementText, identifierPattern);
         this.placeholderIndices = getDynamicContentIndices(statementText, placeholderPattern);
+        this.silentErrorCodes = Data.csvToList(silentErrorCodes, Integer.class);
 
         statementText = statementText.trim();
         statementText = statementText.replaceAll("\\t", "    ");
@@ -63,6 +76,10 @@ public class StatementDefinition {
         }
 
         this.statementText = statementText;
+    }
+
+    public boolean isSilentError(SQLException exception) {
+        return silentErrorCodes.contains(exception.getErrorCode());
     }
 
     private List<Integer> getDynamicContentIndices(String statementText, Pattern pattern) {
@@ -81,7 +98,7 @@ public class StatementDefinition {
 
 
     DBNPreparedStatement<?> prepareStatement(DBNConnection connection, Object[] arguments) throws SQLException {
-        String statementText = prepareStatementText(arguments);
+        String statementText = prepareStatementText(connection, arguments);
 
         DBNPreparedStatement<?> preparedStatement = connection.prepareStatementCached(statementText);
         for (int i = 0; i < parameterIndices.size(); i++) {
@@ -98,7 +115,7 @@ public class StatementDefinition {
     }
 
     DBNCallableStatement prepareCall(DBNConnection connection, Object[] arguments) throws SQLException {
-        String statementText = prepareStatementText(arguments);
+        String statementText = prepareStatementText(connection, arguments);
 
         DBNCallableStatement callableStatement = connection.prepareCallCached(statementText);
         for (int i = 0; i < parameterIndices.size(); i++) {
@@ -109,7 +126,22 @@ public class StatementDefinition {
         return callableStatement;
     }
 
-    String prepareStatementText(Object... arguments) {
+    String prepareStatementText(@NotNull DBNConnection connection, Object... arguments) throws SQLException {
+        return prepareStatementText(identifier -> enquoteIdentifier(connection, identifier), arguments);
+    }
+
+    String prepareStatementLogText() {
+        String statementText = this.statementText;
+        for (Integer placeholderIndex : placeholderIndices) {
+            statementText = statementText.replaceAll("\\{" + placeholderIndex + "}", "<value>");
+        }
+        for (Integer identifierIndex : identifierIndices) {
+            statementText = statementText.replaceAll("\\{@" + identifierIndex + "}", "<identifier>");
+        }
+        return statementText;
+    }
+
+    String prepareStatementText(@NotNull ThrowableFunction<String, String, SQLException> identifierQuoter, Object... arguments) throws SQLException {
         String statementText = this.statementText;
         for (Integer placeholderIndex : placeholderIndices) {
             String placeholderValue = Objects.toString(arguments[placeholderIndex]);
@@ -117,20 +149,32 @@ public class StatementDefinition {
 
             statementText = statementText.replaceAll("\\{" + placeholderIndex + "}", placeholderValue);
         }
+        for (Integer identifierIndex : identifierIndices) {
+            String identifierValue = identifierQuoter.apply(Objects.toString(arguments[identifierIndex]));
+            identifierValue = Matcher.quoteReplacement(identifierValue);
+
+            statementText = statementText.replaceAll("\\{@" + identifierIndex + "}", identifierValue);
+        }
         return statementText;
     }
 
+    private static String enquoteIdentifier(@NotNull DBNConnection connection, String identifier) throws SQLException {
+        DatabaseType databaseType = connection.getDatabaseType();
+        DatabaseInterfaces databaseInterfaces = DatabaseInterfacesBundle.get(databaseType);
+        DatabaseCompatibilityInterface compatibilityInterface = databaseInterfaces.getCompatibilityInterface();
+        QuoteDefinition identifierQuotes = compatibilityInterface.getIdentifierQuotes();
 
-    @Override
-    public String toString() {
-        return statementText;
+        if (identifierQuotes.isQuoted(identifier)) return identifier;
+
+        return connection.enquoteIdentifier(identifier);
     }
 
     public int getParameterCount() {
         return parameterIndices.size();
     }
 
-    public int getPlaceholderCount() {
-        return placeholderIndices.size();
+    @Override
+    public String toString() {
+        return statementText;
     }
 }

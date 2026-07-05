@@ -30,6 +30,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class DisconnectSessionsAction extends AbstractSessionBrowserAction {
 
+    public DisconnectSessionsAction() {
+        super(txt("app.sessionBrowser.action.SessionBrowserDisconnectSessions"));
+    }
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         SessionBrowser sessionBrowser = getSessionBrowser(e);

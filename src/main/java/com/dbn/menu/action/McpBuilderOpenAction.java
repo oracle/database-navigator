@@ -17,13 +17,10 @@
 package com.dbn.menu.action;
 
 import com.dbn.common.action.ProjectAction;
-import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
-import com.dbn.connection.DatabaseType;
 import com.dbn.connection.action.AbstractConnectionAction;
-import com.dbn.mcp.MCPServerManager;
+import com.dbn.mcp.McpServerBuilderManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -35,26 +32,30 @@ import java.util.List;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
+import static com.dbn.database.DatabaseFeature.MCP_SERVER_BUILDER;
+import static com.dbn.nls.NlsResources.txt;
 
 public class McpBuilderOpenAction extends ProjectAction {
+
+    public McpBuilderOpenAction() {
+        super(txt("app.menu.action.OpenMcpServerBuilder"));
+    }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Open MCP Builder...");
-        presentation.setIcon(Icons.ASSISTANT_TOOL);
+        presentation.setText(txt("app.menu.action.OpenMcpServerBuilder"));
+        presentation.setVisible(isVisible(project));
+    }
+
+    private boolean isVisible(@NotNull Project project) {
+        return MCP_SERVER_BUILDER.isSupported(project);
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        List<ConnectionHandler> connections = ConnectionManager.getInstance(project).getConnections(DatabaseType.ORACLE);
-
-        if (connections.isEmpty()) {
-            Messages.showInfoDialog(project, "No Connection Found",
-                    "A connection configuration in DBN is required to use this feature.\n" +
-                    "Please create a connection by clicking the plus sign in the DB Browser.");
-            return;
-        }
+        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+        List<ConnectionHandler> connections = connectionManager.getConnections(MCP_SERVER_BUILDER);
 
         if (connections.size() == 1) {
             openMcpBuilder(connections.get(0));
@@ -63,7 +64,7 @@ public class McpBuilderOpenAction extends ProjectAction {
 
         List<SelectConnectionAction> actions = convert(connections, SelectConnectionAction::new);
         popupBuilder(actions, e)
-                .withTitle("Select MCP Builder Connection")
+                .withTitle(txt("msg.mcp.title.SelectMcpServerConnection"))
                 .withSpeedSearch()
                 .buildAndShowCentered();
     }
@@ -88,6 +89,8 @@ public class McpBuilderOpenAction extends ProjectAction {
     }
 
     private static void openMcpBuilder(ConnectionHandler connection) {
-        MCPServerManager.getInstance(connection.getProject()).openMCPBuilder(connection);
+        Project project = connection.getProject();
+        McpServerBuilderManager builderManager = McpServerBuilderManager.getInstance(project);
+        builderManager.openMCPBuilder(connection);
     }
 }

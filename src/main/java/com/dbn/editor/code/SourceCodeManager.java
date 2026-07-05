@@ -117,6 +117,9 @@ import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.common.util.Naming.unquote;
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
+import static com.dbn.database.common.DatabaseContentLimits.checkJavaBinaryLength;
+import static com.dbn.database.common.DatabaseContentLimits.checkSourceLineCount;
+import static com.dbn.database.common.DatabaseContentLimits.checkSourceTextLength;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vfs.file.status.DBFileStatus.LOADING;
@@ -157,10 +160,9 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
             if (databaseFile.isModified()) {
                 showQuestionDialog(
-                        getProject(), "Unsaved Changes",
-                        "The " + object.getQualifiedNameWithType() + " has been updated in database. You have unsaved changes in the object editor.\n" +
-                                "Do you want to discard the changes and reload the updated database version?",
-                        new String[]{"Reload", "Keep changes"}, 0,
+                        getProject(), txt("msg.codeEditor.title.UnsavedChanges"),
+                        txt("msg.codeEditor.question.UnsavedChanges", object.getQualifiedNameWithType()),
+                        new String[]{txt("msg.codeEditor.button.Reload"), txt("msg.codeEditor.button.KeepChanges")}, 0,
                         option -> when(option == 0, () ->
                                 reloadAndUpdateEditors(databaseFile, false)));
             } else {
@@ -288,13 +290,10 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                 String presentableChangeTime =
                         OBJECT_CHANGE_MONITORING.isSupported(object) ?
                                 toLowerCase(DateFormatUtil.formatPrettyDateTime(sourceCodeFile.getDatabaseChangeTimestamp())) : "";
-                String message =
-                        "The " + objectQualifiedName +
-                                " was changed in database by another user " + presentableChangeTime + "." +
-                                "\nYou must merge the changes before saving.";
+                String message = txt("msg.codeEditor.warning.VersionConflict", objectQualifiedName, presentableChangeTime);
 
-                showWarningDialog(project, "Version conflict", message,
-                        options("Merge Changes", "Cancel"), 0,
+                showWarningDialog(project, txt("msg.codeEditor.title.VersionConflict"), message,
+                        options(txt("msg.codeEditor.button.MergeChanges"), txt("msg.shared.button.Cancel")), 0,
                         option -> {
                             if (option == 0) {
                                 openCodeMergeDialog(sourceCodeFile, fileEditor);
@@ -309,7 +308,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
         } catch (Exception e) {
             conditionallyLog(e);
-            showErrorDialog(project, "Could not save changes to database.", e);
+            showErrorDialog(project, txt("msg.codeEditor.error.CouldNotSaveChanges"), e);
             sourceCodeFile.set(SAVING, false);
         }
     }
@@ -326,9 +325,9 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         PsiFile psiFile = sourceCodeFile.getPsiFile();
 
         if (psiFile != null && psiFile.getFirstChild() != null && !isValidObjectTypeAndName(psiFile, object, contentType)) {
-            String message = "You are not allowed to change the name or the type of the object";
+            String message = txt("msg.codeEditor.error.IllegalObjectHeaderChange");
             sourceCodeFile.set(SAVING, false);
-            showErrorDialog(getProject(), "Illegal action", message);
+            showErrorDialog(getProject(), txt("msg.codeEditor.title.IllegalAction"), message);
             return false;
         }
         return true;
@@ -336,8 +335,8 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     public SourceCodeContent loadSourceFromDatabase(@NotNull DBSchemaObject object, DBContentType contentType) throws SQLException {
         SourceCodeContent sourceCodeContent = DatabaseInterfaceInvoker.load(HIGH,
-                "Loading source code",
-                "Loading source code of " + object.getQualifiedNameWithType(),
+                txt("prc.codeEditor.title.LoadingSourceCode"),
+                txt("prc.codeEditor.text.LoadingSourceCodeOf", object.getQualifiedNameWithType()),
                 object.getProject(),
                 object.getConnectionId(),
                 conn -> loadSourceFromDatabase(object, contentType, conn));
@@ -364,26 +363,31 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                     conn);
 
             StringBuilder buffer = new StringBuilder();
+            long lineCount = 0;
             while (resultSet != null && resultSet.next()) {
+                checkSourceLineCount(++lineCount);
                 String codeLine = resultSet.getString("SOURCE_CODE");
                 codeLine = normalizeLine(codeLine);
+                checkSourceTextLength((long) buffer.length() + codeLine.length());
                 buffer.append(codeLine);
             }
 
-            if (buffer.length() == 0 && object.getObjectType() == DBObjectType.JAVA_CLASS) {
+            if (buffer.isEmpty() && object.getObjectType() == DBObjectType.JAVA_CLASS) {
                 CharSequence code = loadJavaDecompiledCode(object, conn, metadata);
+                checkSourceTextLength(code.length());
                 buffer.append(code);
                 writable = false;
             }
 
-            if (buffer.length() == 0 && object.getObjectType() == DBObjectType.JAVA_RESOURCE) {
+            if (buffer.isEmpty() && object.getObjectType() == DBObjectType.JAVA_RESOURCE) {
                 String code = loadJavaResourceCode(object, conn, metadata);
+                checkSourceTextLength(code.length());
                 buffer.append(code);
                 writable = true;
                 optionalContent = true; // If the resource file is empty, dont throw the exception.
             }
 
-            if (buffer.length() == 0 && !optionalContent) {
+            if (buffer.isEmpty() && !optionalContent) {
                 throw new SQLException("Source lookup returned empty");
             }
             return new SourceCodeContent(buffer.toString(), writable);
@@ -398,6 +402,8 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
             String schemaName = object.getSchemaName();
             String objectName = object.getName();
             byte[] bytes = metadata.loadJavaBinaryCode(schemaName, objectName, conn);
+            if (bytes == null) return "";
+            checkJavaBinaryLength(bytes.length);
 
             tempFile = FileUtil.createTempFile(objectName, ".class");
             Files.write(tempFile.toPath(), bytes);
@@ -540,8 +546,8 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         if (OBJECT_CHANGE_MONITORING.isNotSupported(object)) return ChangeTimestamp.now();
 
         Timestamp timestamp = DatabaseInterfaceInvoker.load(HIGHEST,
-                "Loading object details",
-                "Loading change timestamp for " + object.getQualifiedNameWithType(),
+                txt("prc.codeEditor.title.LoadingObjectDetails"),
+                txt("prc.codeEditor.text.LoadingChangeTimestampFor", object.getQualifiedNameWithType()),
                 object.getProject(),
                 object.getConnectionId(),
                 conn -> {
@@ -659,7 +665,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
                     } catch (SQLException e) {
                         conditionallyLog(e);
-                        showErrorDialog(project, "Could not save changes to database.", e);
+                        showErrorDialog(project, txt("msg.codeEditor.error.CouldNotSaveChanges"), e);
                     } finally {
                         sourceCodeFile.set(SAVING, false);
                     }

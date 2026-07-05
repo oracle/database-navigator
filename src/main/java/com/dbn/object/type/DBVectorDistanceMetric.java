@@ -22,16 +22,18 @@ import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @NonNls
 @Getter
 public enum DBVectorDistanceMetric implements Constant<DBVectorDistanceMetric>, Presentable {
-    COSINE("COSINE", "Cosine distance; measures angular difference between vectors (ignores magnitude)"),
-    DOT ("DOT", "Negated dot product; lower values mean higher inner-product similarity"),
-    EUCLIDEAN ("EUCLIDEAN", "Straight-line (L2) distance between vectors"),
-    EUCLIDEAN_SQUARED ("EUCLIDEAN_SQUARED", "Squared L2 distance (Euclidean distance without the square root)"),
-    HAMMING ("HAMMING", "Counts positions (dimensions/bits) where the vectors differ"),
-    MANHATTAN ("MANHATTAN", "Sum of absolute coordinate-wise differences (taxicab distance)"),
-    JACCARD ("JACCARD", "Jaccard distance for binary vectors; 1 minus overlap/union of “on” bits")
+    COSINE("COSINE", txt("app.objects.hint.DBVectorDistanceMetric_COSINE")),
+    DOT ("DOT", txt("app.objects.hint.DBVectorDistanceMetric_DOT")),
+    EUCLIDEAN ("EUCLIDEAN", txt("app.objects.hint.DBVectorDistanceMetric_EUCLIDEAN")),
+    EUCLIDEAN_SQUARED ("EUCLIDEAN_SQUARED", txt("app.objects.hint.DBVectorDistanceMetric_EUCLIDEAN_SQUARED")),
+    HAMMING ("HAMMING", txt("app.objects.hint.DBVectorDistanceMetric_HAMMING")),
+    MANHATTAN ("MANHATTAN", txt("app.objects.hint.DBVectorDistanceMetric_MANHATTAN")),
+    JACCARD ("JACCARD", txt("app.objects.hint.DBVectorDistanceMetric_JACCARD"))
 
     ;
 

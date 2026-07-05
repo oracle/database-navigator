@@ -59,10 +59,14 @@ import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setDouble;
 import static com.dbn.common.options.setting.Settings.setEnum;
+import static com.dbn.common.options.setting.Settings.setSensitiveString;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
+import static com.dbn.common.util.Strings.nvle;
+import static com.dbn.connection.config.EasyConnectParameters.sanitizeParameters;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @Getter
@@ -132,7 +136,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
     }
 
     public String getName() {
-        return nvl(name);
+        return nvle(name);
     }
 
     public String getDriver() {
@@ -186,7 +190,10 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
     }
 
     public String getConnectionUrl(String host, String port) {
-        if (databaseInfo.isCustomUrl()) {
+        if (databaseInfo.isCustomUrl() &&
+                (!urlPattern.isValid(databaseInfo.getUrl()) ||
+                        Strings.isEmpty(databaseInfo.getHost()) ||
+                        Strings.isEmpty(databaseInfo.getPort()))) {
             return databaseInfo.getUrl();
         } else {
             return urlPattern.buildUrl(
@@ -228,37 +235,36 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         String connectionUrl = getConnectionUrl();
         if (Strings.isEmpty(connectionUrl)) {
             errors.add(databaseInfo.isCustomUrl() ?
-                    "Database connection url not provided" :
-                    "Database information not provided (host, port, database, file)"
+                    txt("cfg.connection.error.DatabaseConnectionUrlMissing") :
+                    txt("cfg.connection.error.DatabaseInfoMissing")
             );
         } else {
             if (!databaseInfo.isCustomUrl() && !urlPattern.isValid(connectionUrl)) {
-                errors.add("Database information incomplete or invalid (host, port, database, file)");
+                errors.add(txt("cfg.connection.error.DatabaseInfoInvalid"));
             }
         }
 
         if (getDriverSource() == DriverSource.EXTERNAL) {
             if (Strings.isEmpty(getDriverLibrary())) {
-                errors.add("JDBC driver library not provided");
+                errors.add(txt("cfg.connection.error.DriverLibraryMissing"));
             } else {
                 String driver = getDriver();
                 if (Strings.isEmpty(driver)) {
-                    errors.add("JDBC driver not provided");
+                    errors.add(txt("cfg.connection.error.DriverClassMissing"));
                 } else {
                     DatabaseType driverDatabaseType = DatabaseType.resolve(driver);
                     if (databaseType != DatabaseType.GENERIC && driverDatabaseType != databaseType) {
-                        errors.add("JDBC driver does not match the selected database type");
+                        errors.add(txt("cfg.connection.error.DriverDatabaseTypeMismatch"));
                     }
                 }
             }
         }
 
         if (!errors.isEmpty()) {
-            StringBuilder message = new StringBuilder("Invalid or incomplete database configuration:");
+            StringBuilder message = new StringBuilder(txt("cfg.connection.error.DatabaseConfigurationInvalid"));
             for (String error : errors) {
                 message.append("\n - ").append(error);
             }
-            // TODO NLS
             throw new ConfigurationException(message.toString());
         }
     }
@@ -330,6 +336,9 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                     parameters.put(key, value);
                 }
             }
+            if (urlType == DatabaseUrlType.EZCONNECT) {
+                parameters = sanitizeParameters(parameters, databaseInfo.getProtocol());
+            }
             databaseInfo.setParameters(parameters);
 
             urlPattern = DatabaseUrlPattern.get(databaseType, urlType);
@@ -366,26 +375,26 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                 Files.convertToRelativePath(getProject(), this.driverLibrary) :
                 this.driverLibrary;
 
-        setString(element, "name", nvl(name));
-        setString(element, "description", nvl(description));
+        setString(element, "name", nvle(name));
+        setString(element, "description", nvle(description));
 
         setEnum(element, "database-type", databaseType);
         setEnum(element, "config-type", configType);
         setDouble(element, "database-version", databaseVersion);
 
         setEnum(element, "driver-source", driverSource);
-        setString(element, "driver-library", nvl(driverLibrary));
-        setString(element, "driver", nvl(driver));
+        setString(element, "driver-library", nvle(driverLibrary));
+        setString(element, "driver", nvle(driver));
         setEnum(element, "url-type", databaseInfo.getUrlType());
 
         if (databaseInfo.isCustomUrl()) {
-            setString(element, "url", nvl(databaseInfo.getUrl()));
+            setString(element, "url", nvle(databaseInfo.getUrl()));
         } else {
-            setString(element, "host", nvl(databaseInfo.getHost()));
-            setString(element, "port", nvl(databaseInfo.getPort()));
-            setString(element, "database", nvl(databaseInfo.getDatabase()));
-            setString(element, "tns-folder", nvl(databaseInfo.getTnsFolder()));
-            setString(element, "tns-profile", nvl(databaseInfo.getTnsProfile()));
+            setString(element, "host", nvle(databaseInfo.getHost()));
+            setString(element, "port", nvle(databaseInfo.getPort()));
+            setString(element, "database", nvle(databaseInfo.getDatabase()));
+            setSensitiveString(element, "tns-folder", nvle(databaseInfo.getTnsFolder()));
+            setString(element, "tns-profile", nvle(databaseInfo.getTnsProfile()));
             setEnum(element, "server-type", databaseInfo.getServerType());
             setEnum(element, "protocol", databaseInfo.getProtocol());
 

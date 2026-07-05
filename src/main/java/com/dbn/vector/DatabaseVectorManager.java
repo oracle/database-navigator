@@ -1,12 +1,12 @@
 package com.dbn.vector;
 
-import com.dbn.DatabaseNavigator;
 import com.dbn.common.collections.LeastRecentlyUsedSet;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Naming;
@@ -41,6 +41,7 @@ import com.dbn.vector.pipeline.TableEmbeddingPipeline;
 import com.dbn.vector.ui.VectorToolboxDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import lombok.SneakyThrows;
@@ -62,13 +63,14 @@ import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.TABLE;
 import static java.util.Collections.emptyList;
 
 
 @State(
         name = DatabaseVectorManager.COMPONENT_NAME,
-        storages = @Storage(DatabaseNavigator.STORAGE_FILE)
+        storages = @Storage(StoragePathMacros.WORKSPACE_FILE)
 )
 public class DatabaseVectorManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseVectorManager";
@@ -146,8 +148,8 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
 
     public ResultSet chunkTextContent(ConnectionHandler connection, EmbeddingChunkingConfig config, String text) throws SQLException {
         return DatabaseInterfaceInvoker.load(MEDIUM,
-                "Chunking Data",
-                "Chunking text content",
+                txt("prc.vector.title.ChunkingData"),
+                txt("prc.vector.text.ChunkingTextContent"),
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {
@@ -169,8 +171,8 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
 
     public ResultSet performSimilaritySearch(ConnectionHandler connection, String schemaName, String tableName, String queryText, DBVectorDistanceMetric metric, int rows) throws SQLException {
         return DatabaseInterfaceInvoker.load(MEDIUM,
-                "Perform Similarity Search",
-                "Perform similarity search on vector table " + schemaName + "." + tableName,
+                txt("prc.vector.title.PerformingSimilaritySearch"),
+                txt("prc.vector.text.PerformingSimilaritySearchOn", schemaName, tableName),
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {
@@ -193,8 +195,8 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         Progress.prompt(
                 getProject(),
                 connection.getSchema(), true,
-                "Embedding Data",
-                "Embedding data into \"" + destinationConfig.getSchemaName() + "\".\"" + destinationConfig.getTableName() + "\"",
+                txt("prc.vector.title.EmbeddingData"),
+                txt("prc.vector.text.EmbeddingData", destinationConfig.getSchemaName(), destinationConfig.getTableName()),
                 p -> DatabaseInterfaceInvoker.execute(MEDIUM,
                         p.getText(),
                         p.getText2(),
@@ -260,9 +262,11 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
         DBObjectNameCache<DBTable> names = getObjectNamesCache(connectionId, DBObjectFilterType.EMBEDDING_DESTINATION_TABLES);
 
+        TextContent hint = TextContent.plain(txt("msg.vector.hint.SelectEmbeddingsTable"));
         return new DBObjectSelectionInput<DBTable>(connection, DBObjectType.TABLE)
                 .withSchemaFilter(s -> !s.isSystemSchema())
                 .withSchemaPreselector(s -> s.getSchemaId() == connection.getUserSchemaId())
+                .withHint(hint)
                 .withObjectFilter(names);
     }
 

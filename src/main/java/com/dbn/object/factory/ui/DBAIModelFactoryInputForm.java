@@ -2,27 +2,29 @@ package com.dbn.object.factory.ui;
 
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.FileChoosers;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
+import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.factory.ObjectFactoryManager;
-import com.dbn.object.factory.model.DBAIModelSpec;
-import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBAIModelSourceType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -38,10 +40,13 @@ import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
-import static com.dbn.common.ui.util.TextFields.onTextChange;
-import static com.dbn.common.util.FileChoosers.extensionFilter;
+import static com.dbn.common.util.FileChoosers.addFileChooser;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
+import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_CREDENTIAL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_SOURCE_LOCATION;
+import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_SOURCE_TYPE;
 import static com.dbn.object.type.DBAIModelSourceType.MODEL_FILE;
 import static com.dbn.object.type.DBAIModelSourceType.OBJECT_STORAGE;
 import static com.dbn.object.type.DBCredentialType.PASSWORD;
@@ -50,19 +55,14 @@ import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
 
-public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIModelSpec> {
-    public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFile().
-            withTitle("Select ONNX Model File").
-            withDescription("Select a valid ONNX file").
-            withFileFilter(extensionFilter("onnx"));
-
+public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel mainPanel;
-    private JPanel headerPanel;
-    private DBNComboBox<ConnectionHandler> connectionComboBox;
-    private DBNComboBox<SchemaId> schemaComboBox;
+    private @Getter JPanel headerPanel;
+    private @Getter DBNComboBox<ConnectionHandler> connectionComboBox;
+    private @Getter DBNComboBox<SchemaId> schemaComboBox;
+    private @Getter JTextField nameTextField;
 
     private DBNComboBox<DBAIModelSourceType> sourceComboBox;
-    private JTextField nameTextField;
     private TextFieldWithBrowseButton modelFileTextField;
     private JTextField objectUrlTextField;
     private JLabel modelFileLabel;
@@ -73,36 +73,48 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
 
     private DBObjectSelector<DBSchema> credentialSchemaComboBox;
     private DBObjectSelector<DBCredential> credentialComboBox;
+    private JCheckBox preserveCaseCheckBox;
+    private DBNInfoLabel preserveCaseInfoLabel;
 
-    public DBAIModelFactoryInputForm(DBNComponent parent, DBAIModelSpec input) {
+    public DBAIModelFactoryInputForm(DBNComponent parent, DBObjectSpec input) {
         super(parent, input);
 
         initHeaderForm();
         initComboBoxes();
         initModelFileBrowser();
         initDocumentationLink();
+        initPreserveCaseFields();
     }
 
     private void initModelFileBrowser() {
-        modelFileTextField.addBrowseFolderListener(null, null, getProject(), FILE_CHOOSER_DESCRIPTOR);
+        addFileChooser(getProject(), modelFileTextField, modelFileChooser());
     }
 
-    private void initHeaderForm() {
-        DBNHeaderForm headerForm = createHeaderForm();
-        headerPanel.add(headerForm.getComponent());
-        onTextChange(nameTextField, e -> headerForm.setTitle(buildHeaderTitle()));
+    private FileChooserDescriptor modelFileChooser() {
+        FileChooserDescriptor descriptor = FileChoosers.singleFile().
+                withTitle(txt("msg.objects.title.SelectModelFile")).
+                withDescription(txt("msg.objects.text.SelectOnnxModelFile"))/*.
+                withFileFilter(extensionFilter("onnx"))*/;
+
+        return FileChoosers.withExtensionFilter(descriptor, "onnx");
     }
 
+    private void initPreserveCaseFields() {
+        preserveCaseInfoLabel.setContent(getPreserveCaseInfoText());
+    }
+
+    @Override
     protected void initStatePersistence() {
         Project project = ensureProject();
         ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
 
         StateAttributes state = factoryManager.getState(getObjectType());
         initPersistence(sourceComboBox, state, "model-source-selection");
+        initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
     }
 
     private void initComboBoxes() {
-        DBAIModelSpec input = getInput();
+        DBObjectSpec input = getInput();
         ConnectionHandler connection = input.getConnection();
         DBSchema schema = input.getSchema();
 
@@ -119,8 +131,9 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
         schemaComboBox.setEnabled(false); // TODO support connection switch
 
         // model source combo-box
+        DBAIModelSourceType sourceType = AI_MODEL_SOURCE_TYPE.of(input);
         initComboBox(sourceComboBox, DBAIModelSourceType.values());
-        setSelection(sourceComboBox, MODEL_FILE);
+        setSelection(sourceComboBox, sourceType == null ? MODEL_FILE : sourceType);
         onSelectionChange(sourceComboBox, e -> updateFieldAvailability());
 
         // credential combo-boxes
@@ -136,7 +149,7 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
                 .withConnectionContext(() -> getConnection())
                 .withSchemaContext(() -> getCredentialSchema())
                 .withValueLoader(() -> loadCredentials())
-                .withObjectFactory("New Credential...")
+                .withObjectFactory(txt("app.objects.action.NewCredential"))
                 .triggerLoad();
         updateFieldAvailability();
     }
@@ -158,8 +171,8 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
 
     private void initDocumentationLink() {
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
-                "Documentation:",
-                "ONNX ML Model Import into DB ",
+                txt("app.objects.label.Documentation"),
+                txt("app.objects.link.OnnxModelImport"),
                 "https://blogs.oracle.com/machinelearning/use-our-prebuilt-onnx-model-now-available-for-embedding-generation-in-oracle-database-23ai#:~:text=https%3A//adwc4pm.objectstorage.us%2Dashburn%2D1.oci.customer%2Doci.com/p/eLddQappgBJ7jNi6Guz9m9LOtYe2u8LWY19GfgU8flFK4N9YgP4kTlrE9Px3pE12/n/adwc4pm/b/OML%2DResources/o/");
         hyperLinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
     }
@@ -187,10 +200,10 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), "Please enter a name for the new model");
-        addTextValidation(modelFileTextField.getTextField(), n -> isNotEmptyOrSpaces(n), "Please select a model file");
-        addTextValidation(objectUrlTextField, n -> isNotEmptyOrSpaces(n), "Please provide an object URL");
-//    addSelectionValidation(credentialComboBox, "Please select or create a credential");
+        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ModelNameRequired"));
+        addTextValidation(modelFileTextField.getTextField(), n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ModelFileRequired"));
+        addTextValidation(objectUrlTextField, n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ObjectUrlRequired"));
+//    addSelectionValidation(credentialComboBox, txt("msg.vector.error.SelectOrCreateCredential"));
     }
 
     private DBSchema getSchema() {
@@ -236,9 +249,10 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
     @Override
     public void applyFormChanges() {
         input.setObjectName(getText(nameTextField));
-        input.setCredential(getCredential());
-        input.setSourceType(getModelSourceType());
-        input.setSourceLocation(getModelSourceLocation());
+        input.setIdentifierCase(getSelectedIdentifierCase());
+        input.setAttributeValue(AI_MODEL_CREDENTIAL, getCredential());
+        input.setAttributeValue(AI_MODEL_SOURCE_TYPE, getModelSourceType());
+        input.setAttributeValue(AI_MODEL_SOURCE_LOCATION, getModelSourceLocation());
     }
 
     private DBObjectRef<DBCredential> getCredential() {
@@ -248,7 +262,7 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
     @Override
     public void resetFormChanges() {
         nameTextField.setText(input.getObjectName());
-        modelFileTextField.setText(input.getSourceLocation());
+        modelFileTextField.setText(AI_MODEL_SOURCE_LOCATION.of(input));
     }
 
     private DBAIModelSourceType getModelSourceType() {
@@ -260,6 +274,13 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
         return sourceType == MODEL_FILE ?
                 modelFileTextField.getText() :
                 objectUrlTextField.getText();
+    }
+
+    @Override
+    protected DatabaseIdentifierCase getSelectedIdentifierCase() {
+        return preserveCaseCheckBox.isSelected() ?
+                DatabaseIdentifierCase.PRESERVE :
+                getDefaultIdentifierCase();
     }
 
     @Override

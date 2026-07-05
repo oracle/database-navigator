@@ -34,6 +34,8 @@ import com.intellij.openapi.options.ConfigurationException;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class AssistantProfilesTableModel extends DBNEntityEditableTableModel<DeclaredAssistantProfile> {
 
     private final Supplier<AssistantCredentialBundle> credentials;
@@ -41,10 +43,10 @@ public class AssistantProfilesTableModel extends DBNEntityEditableTableModel<Dec
         super(() -> profiles.getDeclaredProfiles());
         this.credentials = () -> profiles.getCredentials();
 
-        addColumn("Profile Name", String.class, p -> p.getName(), null);
-        addColumn("LLM Provider", String.class, p -> getProviderName(p), null);
-        addColumn("Credential", String.class, p -> getCredentialName(p), null);
-        addColumn("Temperature", String.class, p -> getTemperatureName(p), null);
+        addColumn(txt("app.assistant.column.ProfileName"), String.class, p -> p.getName(), null);
+        addColumn(txt("app.assistant.column.LlmProvider"), String.class, p -> getProviderName(p), null);
+        addColumn(txt("app.assistant.column.Credential"), String.class, p -> getCredentialName(p), null);
+        addColumn(txt("app.assistant.column.Temperature"), String.class, p -> getTemperatureName(p), null);
     }
 
     private String getTemperatureName(DeclaredAssistantProfile profile) {
@@ -73,7 +75,7 @@ public class AssistantProfilesTableModel extends DBNEntityEditableTableModel<Dec
     public void validate() throws ConfigurationException {
         for (AssistantProfile profile : getElements()) {
             if (Strings.isEmpty(profile.getName())) {
-                throw new ConfigurationException("Please provide names for all profiles.");
+                throw new ConfigurationException(txt("cfg.assistant.error.ProfileNamesRequired"));
             }
         }
     }

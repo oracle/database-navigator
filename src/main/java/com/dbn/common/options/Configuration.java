@@ -18,7 +18,6 @@ package com.dbn.common.options;
 
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.help.HelpTopic;
-import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +27,7 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Unsafe.cast;
 
 public interface Configuration<P extends Configuration, E extends ConfigurationEditorForm>
-        extends SearchableConfigurable, PersistentConfiguration, NlsSupport {
+        extends SearchableConfigurable, PersistentConfiguration {
 
     @Nullable
     P getParent();
@@ -59,4 +58,8 @@ public interface Configuration<P extends Configuration, E extends ConfigurationE
     Project resolveProject();
 
     HelpTopic getConfigHelpTopic();
+
+    default boolean isWorkspaceStorage() {
+        return getClass().getAnnotation(WorkspaceStorage.class) != null;
+    }
 }

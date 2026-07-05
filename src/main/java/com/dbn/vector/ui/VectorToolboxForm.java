@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.html;
+import static com.dbn.nls.NlsResources.txt;
 
 public class VectorToolboxForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
@@ -193,12 +194,7 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
   private void initHintPanel() {
 
     TextContent hintText = TextContent.plain(
-            "Vector Chain Embeddings Configuration\n\n" +
-                    "Use this interface to generate dense vector representations of your data using the Oracle DBMS_VECTOR and DBMS_VECTOR_CHAIN utilities. " +
-                    "Choose data from existing tables or upload file contents, customize chunking parameters, " +
-                    "select from a range of pre-trained embedding models hosted in the database or configure third-party alternatives, " +
-                    "and decide whether to store generated embeddings in an existing table or create a new one.\n\n" +
-                    "These embeddings can be used to power Retrieval-Augmented Generation (RAG) workflows, among other applications.");
+            txt("msg.vector.hint.VectorToolbox"));
     DBNHintForm hintForm = new DBNHintForm(null, hintText, null, true);
 
     JComponent hintComponent = hintForm.getComponent();
@@ -207,8 +203,8 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
 
   private void initPoweredByPanel() {
     HyperLinkForm hyperLinkForm = HyperLinkForm.create(
-            "Powered by",
-            "Oracle AI Vector Search",
+            txt("app.vector.label.PoweredBy"),
+            txt("app.vector.link.OracleAiVectorSearch"),
             "https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/overview-ai-vector-search.html");
 
     hyperlinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);

@@ -34,7 +34,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="[logo]"/>
+              <text resource-bundle="messages/DBNResources" key="app.plugin.placeholder.Logo"/>
             </properties>
           </component>
           <vspacer id="ad57e">
@@ -50,7 +50,7 @@
         </constraints>
         <properties>
           <font size="14" style="1"/>
-          <text value="Database Navigator"/>
+          <text resource-bundle="messages/DBNResources" key="app.plugin.label.DatabaseNavigator"/>
         </properties>
       </component>
       <component id="673fb" class="javax.swing.JLabel" binding="versionLabel">
@@ -58,7 +58,7 @@
           <grid row="1" column="1" row-span="1" col-span="5" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Version: [version]"/>
+          <text resource-bundle="messages/DBNResources" key="app.plugin.label.VersionVersion"/>
         </properties>
       </component>
       <component id="72fc6" class="javax.swing.JLabel">
@@ -66,7 +66,7 @@
           <grid row="2" column="1" row-span="1" col-span="4" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Vendor: Dan Cioca (Oracle)"/>
+          <text resource-bundle="messages/DBNResources" key="app.plugin.label.VendorDanCiocaOracle"/>
         </properties>
       </component>
       <component id="2ff7d" class="javax.swing.JLabel">
@@ -74,7 +74,7 @@
           <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Supported Databases:"/>
+          <text resource-bundle="messages/DBNResources" key="app.plugin.label.SupportedDatabases"/>
         </properties>
       </component>
       <component id="6c145" class="javax.swing.JLabel">
@@ -83,7 +83,7 @@
         </constraints>
         <properties>
           <font style="1"/>
-          <text value="Oracle, MySQL, PostgreSQL, SQLite"/>
+          <text resource-bundle="messages/DBNResources" key="app.plugin.label.OracleMySQLPostgreSQLSQLite"/>
         </properties>
       </component>
       <hspacer id="bf2ad">
@@ -97,7 +97,7 @@
         </constraints>
         <properties>
           <font size="10"/>
-          <text value="Download Page:"/>
+          <text resource-bundle="messages/DBNResources" key="app.plugin.label.DownloadPage"/>
         </properties>
       </component>
       <component id="7991" class="javax.swing.JLabel" binding="downloadPageLinkLabel">
@@ -106,7 +106,7 @@
         </constraints>
         <properties>
           <font size="10"/>
-          <text value="http://plugins.jetbrains.com"/>
+          <text resource-bundle="messages/DBNResources" key="app.plugin.label.HttpPluginsJetbrainsCom"/>
         </properties>
       </component>
       <component id="3ec5d" class="javax.swing.JLabel" binding="supportPageLabel">
@@ -115,7 +115,7 @@
         </constraints>
         <properties>
           <font size="10"/>
-          <text value="Support Page:"/>
+          <text resource-bundle="messages/DBNResources" key="app.plugin.label.SupportPage"/>
         </properties>
       </component>
       <component id="c189a" class="javax.swing.JLabel" binding="supportPageLinkLabel">
@@ -124,7 +124,7 @@
         </constraints>
         <properties>
           <font size="10"/>
-          <text value="http://confluence.jetbrains.com"/>
+          <text resource-bundle="messages/DBNResources" key="app.plugin.label.HttpConfluenceJetbrainsCom"/>
         </properties>
       </component>
       <component id="17d6b" class="javax.swing.JLabel" binding="requestTrackerLabel">
@@ -133,7 +133,7 @@
         </constraints>
         <properties>
           <font size="10"/>
-          <text value="Request Tracker:"/>
+          <text resource-bundle="messages/DBNResources" key="app.plugin.label.RequestTracker"/>
         </properties>
       </component>
       <component id="69a81" class="javax.swing.JLabel" binding="requestTrackerPageLinkLabel">
@@ -142,7 +142,7 @@
         </constraints>
         <properties>
           <font size="10"/>
-          <text value="https://database-navigator.atlassian.net/issues"/>
+          <text resource-bundle="messages/DBNResources" key="app.plugin.label.RequestTrackerUrl"/>
         </properties>
       </component>
     </children>

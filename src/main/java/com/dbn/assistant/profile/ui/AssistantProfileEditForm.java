@@ -66,6 +66,7 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setTextSilently;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantProfileEditForm extends DBNFormBase {
     private JPanel hintPanel;
@@ -103,15 +104,13 @@ public class AssistantProfileEditForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hintContent = TextContent.plain(
-                "Profiles let you customize your experience with the LLM. " +
-                    "You can choose from different temperature presets to adjust the balance between accuracy and creativity. " +
-                    "You can also specify custom instructions to help the LLM better understand your needs.");
+                txt("cfg.assistant.hint.ProfileEdit"));
         DBNHintForm hintForm = new DBNHintForm(this, hintContent, null, true);
         hintPanel.add(hintForm.getComponent());
     }
 
     private void initInstructionsField() {
-        instructionsTextArea.getEmptyText().setText("e.g. ‘Use Java best practices’ or ‘Comment each step.’");
+        instructionsTextArea.getEmptyText().setText(txt("cfg.assistant.placeholder.ProfileInstructionsExample"));
     }
 
     private void initCredentialFields() {
@@ -120,7 +119,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
     }
 
     private ValueFactory<AssistantCredential> createCredentialFactory() {
-        return new ValueFactory<>("New Credential...") {
+        return new ValueFactory<>(txt("cfg.assistant.action.NewCredential")) {
             @Override
             public void createValue(Consumer<AssistantCredential> consumer) {
                 AssistantCredentialEditRequest request = createNewCredentialRequest(consumer);
@@ -152,7 +151,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
     }
 
     private TextContent buildTemperatureInfo() {
-        String infoRawContent = TextResources.get(getClass(), "llm_temperature_info.html.ft");
+        String infoRawContent = TextResources.getLocalizable(getClass(), "llm_temperature_info.html.ft");
         TextContent infoContent = TextContent.html(infoRawContent);
 
         StringBuilder body = new StringBuilder();
@@ -247,10 +246,10 @@ public class AssistantProfileEditForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, Strings::isNotEmpty, "Please provide a profile name");
-        addTextValidation(nameTextField, this::isNotUsed, "The profile name is already in use");
-        addSelectionValidation(providerComboBox, "Please select a LLM provider");
-        addSelectionValidation(credentialComboBox, "Please select or create a credential");
+        addTextValidation(nameTextField, Strings::isNotEmpty, txt("msg.assistant.error.ProfileNameRequired"));
+        addTextValidation(nameTextField, this::isNotUsed, txt("msg.assistant.error.ProfileNameAlreadyInUse"));
+        addSelectionValidation(providerComboBox, txt("msg.assistant.error.LlmProviderRequired"));
+        addSelectionValidation(credentialComboBox, txt("msg.assistant.error.SelectOrCreateCredential"));
     }
 
     public void applyFormChanges() {

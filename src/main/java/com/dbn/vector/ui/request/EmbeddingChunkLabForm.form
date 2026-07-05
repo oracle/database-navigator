@@ -27,7 +27,7 @@
             </constraints>
             <properties>
               <labelFor value="6cdd6"/>
-              <text value="&amp;Chunk by"/>
+              <text resource-bundle="messages/DBNResources" key="app.vector.label.ChunkBy"/>
             </properties>
           </component>
           <component id="6cdd6" class="javax.swing.JComboBox" binding="chunkByComboBox">
@@ -47,7 +47,7 @@
             </constraints>
             <properties>
               <labelFor value="96fae"/>
-              <text value="&amp;Split by"/>
+              <text resource-bundle="messages/DBNResources" key="app.vector.label.SplitByMnemonic"/>
             </properties>
           </component>
           <component id="96fae" class="javax.swing.JComboBox" binding="splitByComboBox">
@@ -71,7 +71,7 @@
             </constraints>
             <properties>
               <labelFor value="105c7"/>
-              <text value="&amp;Max size"/>
+              <text resource-bundle="messages/DBNResources" key="app.vector.label.MaxSize"/>
             </properties>
           </component>
           <component id="105c7" class="javax.swing.JSpinner" binding="maxSpinner">
@@ -88,7 +88,7 @@
             </constraints>
             <properties>
               <labelFor value="6c4de"/>
-              <text value="&amp;Overlap"/>
+              <text resource-bundle="messages/DBNResources" key="app.vector.label.Overlap"/>
             </properties>
           </component>
           <component id="6c4de" class="javax.swing.JSpinner" binding="overlapSpinner">
@@ -111,7 +111,7 @@
               <grid row="1" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="%"/>
+              <text resource-bundle="messages/DBNResources" key="app.vector.label.Percent"/>
             </properties>
           </component>
         </children>
@@ -150,7 +150,7 @@
           </scrollpane>
         </children>
       </grid>
-      <grid id="395a4" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="395a4" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -164,24 +164,14 @@
             </constraints>
             <properties>
               <autoscrolls value="false"/>
-              <text value="Test Chunk Configuration"/>
+              <text resource-bundle="messages/DBNResources" key="app.vector.button.TestChunkConfiguration"/>
             </properties>
           </component>
           <hspacer id="43463">
             <constraints>
-              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
-          <grid id="7c323" binding="spinPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
-            <constraints>
-              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <visible value="true"/>
-            </properties>
-            <border type="none"/>
-            <children/>
-          </grid>
         </children>
       </grid>
     </children>

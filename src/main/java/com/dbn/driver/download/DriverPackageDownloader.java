@@ -16,8 +16,6 @@
 
 package com.dbn.driver.download;
 
-import com.dbn.common.load.ProgressMonitor;
-import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
 import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.metadata.Library;
@@ -30,7 +28,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.function.Consumer;
 
+import static com.dbn.common.load.ProgressMonitor.isProgressCancelled;
 import static com.dbn.driver.download.MavenArtifactDownloader.downloadArtifact;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class DriverPackageDownloader {
@@ -41,8 +41,8 @@ public class DriverPackageDownloader {
         DriverDownloadManager downloadManager = getDownloadManager();
 
         Progress.modal(project, null, true,
-                "Downloading Drivers",
-                "Downloading driver packages for " + driverPackage.getName(),
+                txt("prc.connection.title.DownloadingDrivers"),
+                txt("prc.connection.text.DownloadingDriverPackages", driverPackage.getName()),
                 indicator -> {
                     int downloadCount = driverPackage.getLibraries().size();
                     String packageId = driverPackage.getId();
@@ -50,8 +50,7 @@ public class DriverPackageDownloader {
 
                     DownloadSession downloadSession = new DownloadSession(indicator)
                             .withDownloadSize(downloadCount)
-                            .withDownloadPath(downloadPath)
-                            .withLatchControl();
+                            .withDownloadPath(downloadPath);
                     downloadDriverPackage(downloadSession, driverPackage);
                 });
     }
@@ -61,12 +60,8 @@ public class DriverPackageDownloader {
         PackageChecksumData checksumData = getDownloadManager().getChecksumData(packageId);
         checksumData.readChecksums();
 
-        for (Library library : driverPackage.getLibraries()) {
-            if (ProgressMonitor.isProgressCancelled()) break;
-            downloadDriverLibrary(session, packageId, library);
-        }
-
-        awaitLatchCompletion(session, packageId);
+        driverPackage.getLibraries().parallelStream()
+                .forEach(library -> downloadDriverLibrary(session, packageId, library));
         checksumData.writeChecksums();
 
         handleCompletion(packageId, session);
@@ -76,20 +71,19 @@ public class DriverPackageDownloader {
             DownloadSession session,
             String packageId,
             Library library) {
-        Background.run(() -> {
-            if (session.hasErrors()) {
-                session.countDown();
-                return;
-            }
-            String currentFile = library.getArtifactId() + "-" + library.getVersion() + ".jar";
+        String currentFile = library.getArtifactId() + "-" + library.getVersion() + ".jar";
+        try {
+            if (session.hasErrors()) return;
+            if (isProgressCancelled()) return;
+
             if (isAlreadyDownloaded(packageId, library)) {
                 log.info("Library '{}' download skipped. Already downloaded.", currentFile);
             } else {
                 downloadArtifact(session, packageId, library);
             }
-
+        } finally {
             updateProgress(session, currentFile);
-        });
+        }
     }
 
     private boolean isAlreadyDownloaded(String packageId, Library library) {
@@ -118,28 +112,11 @@ public class DriverPackageDownloader {
         session.updateProgress("Downloaded " + currentFile);
     }
 
-    private void awaitLatchCompletion(DownloadSession session, String packageId) {
-        try {
-            while (!session.isComplete()) {
-                if (ProgressMonitor.isProgressCancelled()) {
-                    session.addInfoMessage("Download process cancelled for package: " + packageId);
-                    break;
-                }
-                if (session.awaitCompletion()) {
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            log.warn("Error waiting on download completion for package: {}", packageId, e);
-            session.addErrorMessage("Download process interrupted for package: " + packageId);
-        }
-    }
-
     private void handleCompletion(String packageId, DownloadSession session) {
         DriverDownloadManager downloadManager = getDownloadManager();
         if (session.hasErrors()) {
             log.warn("Package '{}' download and verification failed.", packageId);
-            session.addErrorMessage("One or more downloads failed. Cleaning up...");
+            session.addErrorMessage(txt("msg.connection.error.DownloadsFailedCleaningUp"));
             cleanupDownloadedJars(session);
             downloadManager.cleanupPackage(packageId);
             ApplicationManager.getApplication().invokeLater(()->{
@@ -169,7 +146,7 @@ public class DriverPackageDownloader {
                 log.info("Deleted library file '{}'", filePath);
             } else {
                 log.warn("Failed to delete library file '{}'", filePath);
-                session.addErrorMessage("Failed to delete file: " + libraryFile.getAbsolutePath());
+                session.addErrorMessage(txt("msg.connection.error.FailedToDeleteFile", libraryFile.getAbsolutePath()));
             }
         });
     }

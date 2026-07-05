@@ -32,6 +32,8 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.text.JTextComponent;
 import java.lang.reflect.Field;
@@ -42,6 +44,8 @@ import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormField;
 import static com.dbn.common.ui.util.ClientProperty.AVAILABILITY_CONDITION;
 import static com.dbn.common.ui.util.ClientProperty.VISIBILITY_CONDITION;
+import static com.dbn.common.ui.util.PasswordFields.getPassword;
+import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.common.util.Unsafe.warned;
@@ -152,6 +156,7 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
         if (component instanceof HyperlinkLabel) return component;
         if (component instanceof JSpinner) return component;
         if (component instanceof JPanel) return component;
+        if (component instanceof JScrollPane) return component;
         // TODO....
 
         return null;
@@ -172,7 +177,10 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
     }
 
     private static @Nullable Object getFieldValue(JComponent component) {
-        if (component instanceof TextFieldWithBrowseButton textComponent) {
+        if (component instanceof JPasswordField passwordField) {
+            return getPassword(passwordField);
+
+        } else if (component instanceof TextFieldWithBrowseButton textComponent) {
             return textComponent.getText();
 
         } else if (component instanceof JTextComponent textComponent) {
@@ -190,7 +198,16 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
     }
 
     private static void setFieldValue(JComponent component, Object value) {
-        if (component instanceof TextFieldWithBrowseButton textComponent) {
+        if (component instanceof JPasswordField passwordField) {
+            if (value instanceof char[] password) {
+                setPassword(passwordField, password);
+            } else if (value == null) {
+                setPassword(passwordField, null);
+            } else {
+                passwordField.setText(value.toString());
+            }
+
+        } else if (component instanceof TextFieldWithBrowseButton textComponent) {
             String stringValue = value == null ? "" : value.toString();
             textComponent.setText(stringValue);
 

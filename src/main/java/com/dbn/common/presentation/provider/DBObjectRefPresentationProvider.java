@@ -17,9 +17,12 @@
 package com.dbn.common.presentation.provider;
 
 
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.lookup.DBObjectRef;
 
 import javax.swing.Icon;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBObjectRefPresentationProvider extends PresentationProviderBase<DBObjectRef> {
     public DBObjectRefPresentationProvider() {
@@ -28,7 +31,15 @@ public class DBObjectRefPresentationProvider extends PresentationProviderBase<DB
 
     @Override
     public String getName(DBObjectRef object) {
-        return object.getObjectName();
+        return object.getQualifiedName();
+    }
+
+    @Override
+    public String getDetailedName(DBObjectRef object) {
+        ConnectionHandler connection = object.getConnection();
+
+        String connectionName = connection == null ? txt("app.shared.text.Unknown") : connection.getName();
+        return txt("app.shared.text.ContextQualifiedName", connectionName, getName(object));
     }
 
     @Override

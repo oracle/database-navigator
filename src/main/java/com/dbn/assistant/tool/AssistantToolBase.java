@@ -30,13 +30,17 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 
+@NonNls
 @Getter
 public abstract class AssistantToolBase extends ConnectionComponent implements AssistantTool{
     private AssistantToolType type;
@@ -61,11 +65,29 @@ public abstract class AssistantToolBase extends ConnectionComponent implements A
     }
 
     protected static <T extends DBObject> List<String> getObjectNames(List<T> objects, boolean qualified, Predicate<T> filter) {
-        return objects
+        List<String> objectNames = objects
                 .stream()
                 .filter(filter)
                 .map(o -> qualified ? o.getQualifiedName() : o.getName())
                 .toList();
+
+        int MAX_OBJECT_NAMES = 100; // TODO make configurable
+        if (objectNames.size() > MAX_OBJECT_NAMES) {
+            T first = objects.get(0);
+            DBObjectType objectType = first.getObjectType();
+            throw new IllegalArgumentException(
+                    "Too many " + objectType.getListName() + " matched this request (" + objectNames.size() + "). " +
+                    "Maximum allowed is " + MAX_OBJECT_NAMES + ". " +
+                    "Narrow the request with a more specific object name filter.");
+        }
+        return objectNames;
+    }
+
+    protected static <T extends DBObject> Predicate<T> nameFilter(String nameRegex) {
+        if (isEmptyOrSpaces(nameRegex)) return o -> true;
+
+        Pattern pattern = Pattern.compile(nameRegex, Pattern.CASE_INSENSITIVE);
+        return o -> pattern.matcher(o.getName()).find();
     }
 
     @NotNull

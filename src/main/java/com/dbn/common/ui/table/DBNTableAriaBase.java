@@ -25,6 +25,8 @@ import javax.swing.table.TableModel;
 import java.awt.Component;
 import java.awt.Point;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * An abstract base class for creating accessible table components within the DBN framework.
  * This class extends {@link JTable} and provides enhanced accessibility features using ARIA standards.
@@ -61,7 +63,7 @@ abstract class DBNTableAriaBase<T extends DBNTableModel> extends JTable {
             int column = getAccessibleColumnAtIndex(i);
             int row = getAccessibleRowAtIndex(i);
 
-            String accessibleDescription = getColumnName(column) + ", row " + (row + 1) + ", column " + (column + 1);
+            String accessibleDescription = txt("app.shared.aria.TableCellDescription", getColumnName(column), row + 1, column + 1);
 
             AccessibleTableCell cell = new AccessibleTableCell(DBNTableAriaBase.this, row, column, getAccessibleIndexAt(row, column));
             Accessibility.setAccessibleDescription(cell, accessibleDescription);

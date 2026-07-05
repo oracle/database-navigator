@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
+import com.dbn.assistant.tool.approval.AssistantToolApprovalUtil;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.color.Colors;
@@ -48,9 +49,6 @@ import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROV
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
 import static com.dbn.common.constant.Constant.array;
-import static com.dbn.common.ui.misc.DBNToggleButton.getDefaultForeground;
-import static com.dbn.common.ui.misc.DBNToggleButton.getErrorForeground;
-import static com.dbn.common.ui.misc.DBNToggleButton.getSuccessForeground;
 
 public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItemForm {
     private JPanel mainPanel;
@@ -76,19 +74,15 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
     }
 
     private void initStatusToggle() {
-        statusToggle.setTextColor(s ->
-                switch (s) {
-                    case PROMPTED -> getDefaultForeground();
-                    case APPROVED -> getSuccessForeground();
-                    case BLOCKED -> getErrorForeground();
-                });
         AssistantToolApprovalStatus[] approvalStatuses = category == USER_INTERACTION ?
                 array(PROMPTED, BLOCKED) : // interactive tools are always prompted; cannot be pre-approved
                 AssistantToolApprovalStatus.values();
 
-        statusToggle.setValues(approvalStatuses);
-        statusToggle.setSelectedValue(getApprovalStatus());
-        statusToggle.addListener((os, ns) -> setApprovalStatus(ns));
+        AssistantToolApprovalUtil.initStatusToggle(
+                statusToggle,
+                approvalStatuses,
+                () -> getApprovalStatus(),
+                s -> setApprovalStatus(s));
     }
 
     private void initNameLabel() {

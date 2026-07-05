@@ -31,7 +31,9 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
+import com.dbn.common.state.StateEncryptionCache;
 import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.window.ToolWindows;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -56,6 +58,7 @@ import com.intellij.ui.content.Content;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -71,6 +74,7 @@ import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.util.ContextLookup.getConnectionId;
+import static com.dbn.common.util.Modality.nonModal;
 
 /**
  * Main database AI-Assistance management component
@@ -85,11 +89,12 @@ import static com.dbn.common.util.ContextLookup.getConnectionId;
         storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class DatabaseAssistantManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseAssistantManager";
-    public static final String TOOL_WINDOW_ID = "DB Assistant";
+    public static final @NonNls String TOOL_WINDOW_ID = "DB Assistant";
 
     private final Map<ConnectionId, Map<AssistantType, AssistantState>> assistantStates = new ConcurrentHashMap<>();
     private final Map<ConnectionId, AssistantType> selectedAssistantTypes = new ConcurrentHashMap<>();
     private final AssistantSelectionState selectionState = new AssistantSelectionState();
+    private final StateEncryptionCache encryptionCache = new StateEncryptionCache();
 
     private DatabaseAssistantManager(Project project) {
         super(project, COMPONENT_NAME);
@@ -170,15 +175,19 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     }
 
     public void initializeAssistant() {
+        Dispatch.async(nonModal(),
+                () -> getFirstConnectionId(),
+                c -> switchContext(c));
+    }
+
+    private @Nullable ConnectionId getFirstConnectionId() {
         Project project = getProject();
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
         List<ConnectionHandler> connections = connectionManager.getConnections();
-        if (connections.isEmpty()) return;
+        if (connections.isEmpty()) return null;
 
         ConnectionHandler connection = connections.get(0);
-        ConnectionId connectionId = connection.getConnectionId();
-
-        switchContext(connectionId);
+        return connection.getConnectionId();
     }
 
     public void initializeAssistant(ConnectionId connectionId, AssistantType assistantType) {

@@ -38,10 +38,15 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
-import static com.dbn.editor.DBContentType.*;
+import static com.dbn.editor.DBContentType.CODE_BODY;
+import static com.dbn.editor.DBContentType.CODE_SPEC;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ProgramCompileAction extends AbstractCodeEditorAction {
+
+    public ProgramCompileAction() {
+        super(txt("app.codeEditor.action.CodeEditorCompile"));
+    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {

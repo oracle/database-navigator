@@ -17,6 +17,7 @@
 package com.dbn.execution.script.options.ui;
 
 import com.dbn.common.action.BasicAction;
+import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
 import com.dbn.common.ui.util.Popups;
@@ -39,9 +40,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.Dimension;
 
+import static com.dbn.common.approval.UserApprovalAction.COMMAND_LINE_EXECUTION;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptExecutionSettings> {
     private JPanel mainPanel;
@@ -85,7 +88,7 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
         }
 
         ListPopup popup = Popups.popupBuilder(actionGroup, dataContext)
-                .withTitle("Database Type")
+                .withTitle(txt("cfg.execution.title.DatabaseType"))
                 .withTitleVisible(false)
                 .build();
 
@@ -123,12 +126,21 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
     @Override
     public void applyFormChanges() throws ConfigurationException {
         ScriptExecutionSettings configuration = getConfiguration();
-        int executionTimeout = ConfigurationEditors.validateIntegerValue(executionTimeoutTextField, "Execution timeout", true, 0, 6000, "\nUse value 0 for no timeout");
+        int executionTimeout = ConfigurationEditors.validateIntegerValue(executionTimeoutTextField, txt("cfg.execution.field.ExecutionTimeout"), true, 0, 6000, txt("cfg.shared.hint.ZeroForNoTimeout"));
         CmdLineInterfacesTableModel model = cmdLineInterfacesTable.getModel();
         model.validate();
+
+        CmdLineInterfaceBundle oldExecutorBundle = configuration.getCommandLineInterfaces();
         CmdLineInterfaceBundle executorBundle = model.getBundle();
         configuration.setCommandLineInterfaces(executorBundle);
         configuration.setExecutionTimeout(executionTimeout);
+
+        UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+        approvalManager.updateApprovals(
+                COMMAND_LINE_EXECUTION,
+                oldExecutorBundle.getInterfaces(),
+                executorBundle.getInterfaces(),
+                executorBundle.getDefaultInterfaces());
     }
 
     @Override

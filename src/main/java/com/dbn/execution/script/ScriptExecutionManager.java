@@ -17,6 +17,7 @@
 package com.dbn.execution.script;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
@@ -30,7 +31,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.mapping.FileConnectionContextManager;
-import com.dbn.database.CmdLineExecutionInput;
+import com.dbn.database.DatabaseClientCommand;
 import com.dbn.database.interfaces.DatabaseExecutionInterface;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.ExecutionStatus;
@@ -47,7 +48,6 @@ import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -62,20 +62,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.PosixFileAttributeView;
-import java.nio.file.attribute.PosixFilePermission;
-import java.security.SecureRandom;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
+import static com.dbn.common.approval.UserApprovalAction.COMMAND_LINE_EXECUTION;
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -83,10 +79,15 @@ import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.FilePermissions.createOwnerOnlyTempDirectory;
+import static com.dbn.common.util.FilePermissions.createOwnerOnlyTempFile;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.logging.LogOutput.createSysOutput;
 import static com.dbn.execution.script.ScriptExecutionProcessHandler.startProcess;
 import static com.dbn.nls.NlsResources.txt;
+import static com.intellij.openapi.ui.DialogWrapper.OK_EXIT_CODE;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Getter
@@ -98,7 +99,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class ScriptExecutionManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.ScriptExecutionManager";
 
-    private static final SecureRandom TMP_FILE_RANDOMIZER = new SecureRandom();
     private final ExecutionManager executionManager;
     private final Map<VirtualFile, Process> activeProcesses = new ConcurrentHashMap<>();
     private final Map<DatabaseType, String> recentlyUsedInterfaces = new EnumMap<>(DatabaseType.class);
@@ -128,14 +128,14 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
     public void executeScript(VirtualFile virtualFile) {
         Project project = getProject();
         if (activeProcesses.containsKey(virtualFile)) {
-            Messages.showInfoDialog(project, "Information", "SQL Script \"" + virtualFile.getPath() + "\" is already running. \nWait for the execution to finish before running again.");
+            showInfoDialog(project, txt("msg.shared.title.Info"), txt("msg.execution.info.ScriptAlreadyRunning", virtualFile.getPath()));
         } else {
             FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
 
             ConnectionHandler activeConnection = contextManager.getConnection(virtualFile);
             SchemaId currentSchema = contextManager.getDatabaseSchema(virtualFile);
 
-            ScriptExecutionInput executionInput = new ScriptExecutionInput(getProject(), virtualFile, activeConnection, currentSchema, clearOutputOption);
+            ScriptExecutionInput executionInput = new ScriptExecutionInput(project, virtualFile, activeConnection, currentSchema, clearOutputOption);
             ScriptExecutionSettings scriptExecutionSettings = ExecutionEngineSettings.getInstance(project).getScriptExecutionSettings();
             int timeout = scriptExecutionSettings.getExecutionTimeout();
             executionInput.setExecutionTimeout(timeout);
@@ -143,45 +143,51 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
             ScriptExecutionInputDialog inputDialog = new ScriptExecutionInputDialog(project,executionInput);
 
             inputDialog.show();
-            if (inputDialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) {
-                ConnectionHandler connection = executionInput.getConnection();
-                SchemaId schemaId = executionInput.getSchemaId();
-                CmdLineInterface cmdLineExecutable = executionInput.getCmdLineInterface();
-                contextManager.setConnection(virtualFile, connection);
-                contextManager.setDatabaseSchema(virtualFile, schemaId);
-                if (connection != null) {
-                    recentlyUsedInterfaces.put(connection.getDatabaseType(), cmdLineExecutable.getId());
-                }
-                clearOutputOption = executionInput.isClearOutput();
+            if (inputDialog.getExitCode() != OK_EXIT_CODE) return;
 
-                Progress.background(project, connection, true,
-                        txt("prc.execution.title.ExecutingScript"),
-                        txt("prc.execution.text.ExecutingScript",virtualFile.getName()),
-                        progress -> {
-                            try {
-                                doExecuteScript(executionInput);
-                            } catch (Exception e) {
-                                conditionallyLog(e);
-                                Messages.showErrorDialog(getProject(),
-                                        txt("msg.execution.error.ErrorExecutingScript", virtualFile.getPath(), e.getMessage()));
-                            }
-                        });
-            }
+            ConnectionHandler connection = executionInput.getConnection();
+            SchemaId schemaId = executionInput.getSchemaId();
+            CmdLineInterface cmdLineExecutable = executionInput.getCmdLineInterface();
+            contextManager.setConnection(virtualFile, connection);
+            contextManager.setDatabaseSchema(virtualFile, schemaId);
+            recentlyUsedInterfaces.put(connection.getDatabaseType(), cmdLineExecutable.getId());
+            clearOutputOption = executionInput.isClearOutput();
+
+            DatabaseExecutionInterface executionInterface = connection.getInterfaces().getExecutionInterface();
+            executionInterface.verifyScriptExecutionInput(executionInput);
+
+            Progress.background(project, connection, true,
+                    txt("prc.execution.title.ExecutingScript"),
+                    txt("prc.execution.text.ExecutingScript",virtualFile.getName()),
+                    progress -> {
+                        try {
+                            doExecuteScript(executionInput);
+                        } catch (ProcessCanceledException e) {
+                            conditionallyLog(e);
+                        } catch (Exception e) {
+                            conditionallyLog(e);
+                            showErrorDialog(getProject(),
+                                    txt("msg.execution.error.ErrorExecutingScript", virtualFile.getPath(), getLocalizedMessage(e)));
+                        }
+                    });
         }
     }
 
     private void doExecuteScript(ScriptExecutionInput input) throws Exception {
+        CmdLineInterface cmdLineInterface = input.getCmdLineInterface();
+        UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+        approvalManager.ensureApproved(COMMAND_LINE_EXECUTION, cmdLineInterface);
+
         ScriptExecutionContext context = input.getExecutionContext();
         context.set(ExecutionStatus.EXECUTING, true);
-        ConnectionHandler connection = nd(input.getConnection());
+        ConnectionHandler connection = input.getConnection();
         VirtualFile sourceFile = input.getSourceFile();
         activeProcesses.remove(sourceFile, null);
 
         Project project = getProject();
-        AtomicReference<File> tempScriptFile = new AtomicReference<>();
         LogOutputContext outputContext = new LogOutputContext(connection, sourceFile, null);
         int timeout = input.getExecutionTimeout();
-        executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, " - Initializing script execution", input.isClearOutput()));
+        executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, txt("log.execution.info.InitializingScriptExecution"), input.isClearOutput()));
 
         try {
             new CancellableDatabaseCall<>(connection, null, timeout, SECONDS) {
@@ -189,29 +195,29 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                 public Object execute() throws Exception {
                     SchemaId schemaId = input.getSchemaId();
 
-                    String content = new String(sourceFile.contentsToByteArray());
-                    File temporaryScriptFile = createTempScriptFile();
+                    String scriptContent = new String(sourceFile.contentsToByteArray());
+                    Path temporaryScriptDirectory = createTempScriptDirectory();
+                    input.setTempScriptDirectory(temporaryScriptDirectory.toFile());
 
-                    executionManager.writeLogOutput(outputContext, createSysOutput("Creating temporary script file " + temporaryScriptFile));
-                    tempScriptFile.set(temporaryScriptFile);
+                    executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.CreatingTemporaryScriptFile", temporaryScriptDirectory)));
+                    File temporaryScriptFile = createTempScriptFile(temporaryScriptDirectory).toFile();
+                    input.setTemporaryScriptFile(temporaryScriptFile);
 
                     DatabaseExecutionInterface executionInterface = connection.getInterfaces().getExecutionInterface();
-                    CmdLineInterface cmdLineInterface = input.getCmdLineInterface();
-                    CmdLineExecutionInput executionInput = executionInterface.createScriptExecutionInput(cmdLineInterface,
-                            temporaryScriptFile.getPath(),
-                            content,
-                            schemaId,
-                            connection.getDatabaseInfo(),
-                            connection.getAuthenticationInfo());
+                    DatabaseClientCommand executionInput = executionInterface.createScriptExecutionCommand(
+                            input,
+                            temporaryScriptFile,
+                            scriptContent,
+                            schemaId);
 
                     FileUtil.writeToFile(temporaryScriptFile, executionInput.getTextContent());
                     if (!temporaryScriptFile.isFile() || !temporaryScriptFile.exists()) {
-                        executionManager.writeLogOutput(outputContext, LogOutput.createErrOutput("Failed to create temporary script file " + temporaryScriptFile + "."));
-                        throw new IllegalStateException("Failed to create temporary script file " + temporaryScriptFile + ". Check access rights at location.");
+                        executionManager.writeLogOutput(outputContext, LogOutput.createErrOutput(txt("log.execution.error.TemporaryScriptFileCreationFailed", temporaryScriptFile)));
+                        throw new IllegalStateException(txt("msg.execution.error.TemporaryScriptFileCreationFailed", temporaryScriptFile));
                     }
 
-                    String commandLine = executionInput.getCommandLine();
-                    executionManager.writeLogOutput(outputContext, createSysOutput("Executing command: " + commandLine));
+                    String commandLine = executionInput.getPresentableCommand();
+                    executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.ExecutingCommand", commandLine)));
                     executionManager.writeLogOutput(outputContext, createSysOutput(""));
 
                     ScriptExecutionProcessHandler processHandler = startProcess(executionInput);
@@ -225,7 +231,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
                     outputContext.setHideEmptyLines(false);
                     outputContext.start();
-                    executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, " - Script execution started", false));
+                    executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, txt("log.execution.info.ScriptExecutionStarted"), false));
 
                     // start monitoring the process and wait for completion
                     processHandler.startNotify();
@@ -233,8 +239,8 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
                     LogOutput logOutput = createSysOutput(outputContext,
                             outputContext.isStopped() ?
-                                    " - Script execution interrupted by user" :
-                                    " - Script execution finished", false);
+                                    txt("log.execution.info.ScriptExecutionInterrupted") :
+                                    txt("log.execution.info.ScriptExecutionFinished"), false);
                     executionManager.writeLogOutput(outputContext, logOutput);
                     ProjectEvents.notify(project,
                             ScriptExecutionListener.TOPIC,
@@ -249,9 +255,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
                 @Override
                 public void handleTimeout() {
-                    Messages.showErrorDialog(project,
-                            "Script execution timeout",
-                            "The script execution has timed out",
+                    showErrorDialog(project,
+                            txt("msg.execution.title.ScriptExecutionTimeout"),
+                            txt("msg.execution.error.ScriptExecutionTimeout"),
                             Messages.OPTIONS_RETRY_CANCEL, 0,
                             option -> when(option == 0, () -> executeScript(sourceFile)));
 
@@ -259,9 +265,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
                 @Override
                 public void handleException(Throwable e) {
-                    Messages.showErrorDialog(project,
-                            "Script execution error",
-                            "Error executing SQL script \"" + sourceFile.getPath() + "\". \nDetails: " + e.getMessage(),
+                    showErrorDialog(project,
+                            txt("msg.execution.title.ScriptExecutionError"),
+                            txt("msg.execution.error.ScriptExecutionError", sourceFile.getPath(), getLocalizedMessage(e)),
                             Messages.OPTIONS_RETRY_CANCEL, 0,
                             option -> when(option == 0, () -> executeScript(sourceFile)));
                 }
@@ -272,16 +278,24 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         } catch (Exception e) {
             conditionallyLog(e);
             executionManager.writeLogOutput(outputContext, LogOutput.createErrOutput(e.getMessage()));
-            executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, " - Script execution finished with errors", false));
+            executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, txt("log.execution.info.ScriptExecutionFinishedWithErrors"), false));
             throw e;
         } finally {
             context.set(ExecutionStatus.EXECUTING, false);
             outputContext.finish();
             activeProcesses.remove(sourceFile);
-            File temporaryScriptFile = tempScriptFile.get();
+            File temporaryScriptFile = input.getTemporaryScriptFile();
             if (temporaryScriptFile != null && temporaryScriptFile.exists()) {
-                executionManager.writeLogOutput(outputContext, createSysOutput("Deleting temporary script file " + temporaryScriptFile));
+                executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.DeletingTemporaryScriptFile", temporaryScriptFile)));
                 FileUtil.delete(temporaryScriptFile);
+            }
+            File temporaryScriptDirectory = input.getTempScriptDirectory();
+            if (temporaryScriptDirectory == null) {
+                temporaryScriptDirectory = temporaryScriptFile == null ? null : temporaryScriptFile.getParentFile();
+            }
+            if (temporaryScriptDirectory != null && temporaryScriptDirectory.exists()) {
+                executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.DeletingTemporaryScriptDirectory", temporaryScriptDirectory)));
+                FileUtil.delete(temporaryScriptDirectory);
             }
         }
     }
@@ -299,24 +313,27 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
         boolean updateSettings = false;
         VirtualFile virtualFile = selectCmdLineExecutable(databaseType, null);
-        if (virtualFile != null) {
-            Project project = getProject();
-            ExecutionEngineSettings executionEngineSettings = ExecutionEngineSettings.getInstance(project);
-            if (bannedNames == null) {
-                bannedNames = executionEngineSettings.getScriptExecutionSettings().getCommandLineInterfaces().getInterfaceNames();
-                updateSettings = true;
-            }
+        if (virtualFile == null) return;
 
-            CmdLineInterface cmdLineInterface = new CmdLineInterface(databaseType, virtualFile.getPath(), CmdLineInterface.getDefault(databaseType).getName(), null);
-            CmdLineInterfaceInputDialog dialog = new CmdLineInterfaceInputDialog(project, cmdLineInterface, bannedNames);
-            dialog.show();
-            if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) {
-                consumer.accept(cmdLineInterface);
-                if (updateSettings) {
-                    CmdLineInterfaceBundle commandLineInterfaces = executionEngineSettings.getScriptExecutionSettings().getCommandLineInterfaces();
-                    commandLineInterfaces.add(cmdLineInterface);
-                }
-            }
+        Project project = getProject();
+        ExecutionEngineSettings executionEngineSettings = ExecutionEngineSettings.getInstance(project);
+        if (bannedNames == null) {
+            bannedNames = executionEngineSettings.getScriptExecutionSettings().getCommandLineInterfaces().getInterfaceNames();
+            updateSettings = true;
+        }
+
+        CmdLineInterface cmdLineInterface = new CmdLineInterface(databaseType, virtualFile.getPath(), CmdLineInterface.getDefault(databaseType).getName(), null);
+        CmdLineInterfaceInputDialog dialog = new CmdLineInterfaceInputDialog(project, cmdLineInterface, bannedNames);
+        dialog.show();
+        if (dialog.getExitCode() != OK_EXIT_CODE) return;
+
+        consumer.accept(cmdLineInterface);
+        if (updateSettings) {
+            CmdLineInterfaceBundle commandLineInterfaces = executionEngineSettings.getScriptExecutionSettings().getCommandLineInterfaces();
+            commandLineInterfaces.add(cmdLineInterface);
+
+            UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+            approvalManager.approve(COMMAND_LINE_EXECUTION, cmdLineInterface);
         }
     }
 
@@ -325,8 +342,8 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         CmdLineInterface defaultCli = CmdLineInterface.getDefault(databaseType);
         String extension = OS.isWindows() ? ".exe" : "";
         FileChooserDescriptor fileChooserDescriptor = FileChoosers.singleFile().
-                withTitle("Select Command-Line Client").
-                withDescription("Select Command-Line Interface executable (" + defaultCli.getExecutablePath() + extension + ")").
+                withTitle(txt("cfg.execution.title.SelectCommandLineClient")).
+                withDescription(txt("cfg.execution.text.SelectCommandLineClient", defaultCli.getExecutablePath() + extension)).
                 withShowHiddenFiles(true);
         VirtualFile selectedFile = Strings.isEmpty(selectedExecutable) ? null : LocalFileSystem.getInstance().findFileByPath(selectedExecutable);
         VirtualFile[] virtualFiles = FileChooser.chooseFiles(fileChooserDescriptor, getProject(), selectedFile);
@@ -349,42 +366,24 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         return null;
     }
 
-    private File createTempScriptFile() throws IOException {
-        File tempFile = File.createTempFile("DBN-", ".sql");
-        if (!tempFile.isFile()) {
-            long n = TMP_FILE_RANDOMIZER.nextLong();
-            n = n == Long.MIN_VALUE ? 0 : Math.abs(n);
-            String tempFileName = "DBN-" + n;
-
-            tempFile = FileUtil.createTempFile(tempFileName, ".sql");
-            if (!tempFile.isFile()) {
-                String systemDir = PathManager.getSystemPath();
-                File systemTempDir = new File(systemDir, "tmp");
-                tempFile = new File(systemTempDir, tempFileName);
-                FileUtil.createParentDirs(tempFile);
-                FileUtil.delete(tempFile);
-                FileUtil.createIfDoesntExist(tempFile);
-            }
+    private static Path createTempScriptDirectory() throws IOException {
+        try {
+            return createTempScriptDirectory(null);
+        } catch (IOException e) {
+            Path systemTempDirectory = Path.of(PathManager.getSystemPath(), "tmp");
+            Files.createDirectories(systemTempDirectory);
+            return createTempScriptDirectory(systemTempDirectory);
         }
+    }
 
-        Path filePath = tempFile.toPath();
-        PosixFileAttributeView view = Files.getFileAttributeView(filePath, PosixFileAttributeView.class);
-        if (view != null) {
-            Set<PosixFilePermission> permissions = new HashSet<>();
-            permissions.add(PosixFilePermission.OWNER_READ);
-            permissions.add(PosixFilePermission.OWNER_WRITE);
-            permissions.add(PosixFilePermission.OWNER_EXECUTE);
-            permissions.add(PosixFilePermission.OTHERS_READ);
-            permissions.add(PosixFilePermission.OTHERS_EXECUTE);
-            permissions.add(PosixFilePermission.GROUP_READ);
-            permissions.add(PosixFilePermission.GROUP_EXECUTE);
-            view.setPermissions(permissions);
-        } else {
-            tempFile.setReadable(true, false);
-            tempFile.setExecutable(true, false);
-        }
+    private static Path createTempScriptDirectory(@Nullable Path parentDirectory) throws IOException {
+        return parentDirectory == null ?
+                createOwnerOnlyTempDirectory("DBN-") :
+                createOwnerOnlyTempDirectory(parentDirectory, "DBN-");
+    }
 
-        return tempFile;
+    private static Path createTempScriptFile(Path tempDirectory) throws IOException {
+        return createOwnerOnlyTempFile(tempDirectory, "DBN-", ".sql");
     }
 
     /****************************************

@@ -17,14 +17,15 @@
 package com.dbn.data.record;
 
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 
 import javax.swing.Icon;
 
 public class RecordViewInfo {
-    private final @Getter String title;
+    private final @Getter @Nls String title;
     private final @Getter Icon icon;
 
-    public RecordViewInfo(String title, Icon icon) {
+    public RecordViewInfo(@Nls String title, Icon icon) {
         this.title = title;
         this.icon = icon;
     }

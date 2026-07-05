@@ -19,30 +19,33 @@ package com.dbn.common.component;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 
+@UtilityClass
 public class Components {
-    private Components() {}
-
 
     @NotNull
-    public static <T extends ProjectComponent> T projectService(@NotNull Project project, @NotNull Class<T> interfaceClass) {
-        return isEagerService(interfaceClass) ?
-                nd(project).getComponent(interfaceClass) :
-                nd(project).getService(interfaceClass);
+    public static <T extends ProjectComponent> T projectService(@NotNull Project project, @NotNull Class<T> serviceClass) {
+        return nd(optionalProjectService(project, serviceClass));
     }
 
     @NotNull
-    public static <T extends ApplicationComponent> T applicationService(@NotNull Class<T> interfaceClass) {
+    public static <T extends ApplicationComponent> T applicationService(@NotNull Class<T> serviceClass) {
+        return nd(optionalApplicationService(serviceClass));
+    }
+
+    @Nullable
+    public static <T extends ProjectComponent> T optionalProjectService(@NotNull Project project, @NotNull Class<T> serviceClass) {
+        return nd(project).getService(serviceClass);
+    }
+
+    @Nullable
+    public static <T extends ApplicationComponent> T optionalApplicationService(@NotNull Class<T> serviceClass) {
         Application application = ApplicationManager.getApplication();
-        return isEagerService(interfaceClass) ?
-            application.getComponent(interfaceClass) :
-            application.getService(interfaceClass);
-    }
-
-    private static <T extends Service> boolean isEagerService(@NotNull Class<T> interfaceClass) {
-        return EagerService.class.isAssignableFrom(interfaceClass);
+        return application.getService(serviceClass);
     }
 }

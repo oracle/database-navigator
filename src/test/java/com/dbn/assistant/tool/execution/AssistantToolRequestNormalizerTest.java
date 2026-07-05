@@ -22,6 +22,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -91,6 +92,28 @@ public class AssistantToolRequestNormalizerTest {
         Assert.assertEquals(EXPECTED_ARGS, normalized);
     }
 
+    @Test(timeout = 1000)
+    public void normalizeArguments8() {
+        Map<Object, Object> arguments = new LinkedHashMap<>();
+        arguments.put("invalid".repeat(8_000), "string value");
+        arguments.put("arg1", Boolean.TRUE);
+        arguments.put("arg2", 1);
+
+        testNormalization(arguments, getTestMethod1());
+    }
+
+    @Test(timeout = 1000)
+    public void normalizeArguments9() {
+        Map<Object, Object> arguments = new LinkedHashMap<>();
+        for (int i = 0; i < 32; i++) {
+            arguments.put("invalid argument name " + i, "value " + i);
+        }
+
+        Map<String, ?> normalized = AssistantToolRequestNormalizer.normalizeArguments(arguments, getTestMethod4());
+        Assert.assertEquals(16, normalized.size());
+        Assert.assertTrue(normalized.keySet().stream().allMatch(k -> k.matches("^arg\\d+$")));
+    }
+
     @SneakyThrows
     private Method getTestMethod1() {
         return TestClass.class.getMethod("testMethod1", String.class, boolean.class, int.class);
@@ -104,6 +127,17 @@ public class AssistantToolRequestNormalizerTest {
     @SneakyThrows
     private Method getTestMethod3() {
         return TestClass.class.getMethod("testMethod3", String.class, String.class, List.class);
+    }
+
+    @SneakyThrows
+    private Method getTestMethod4() {
+        return TestClass.class.getMethod(
+                "testMethod4",
+                String.class, String.class, String.class, String.class,
+                String.class, String.class, String.class, String.class,
+                String.class, String.class, String.class, String.class,
+                String.class, String.class, String.class, String.class,
+                String.class, String.class, String.class, String.class);
     }
 
     @SneakyThrows
@@ -128,6 +162,29 @@ public class AssistantToolRequestNormalizerTest {
                 @P("Confirmation title") String title,
                 @P("Confirmation message") String message,
                 @P("Confirmation options") List<String> options
+        ) {}
+
+        public void testMethod4(
+                @P("String value 0") String value0,
+                @P("String value 1") String value1,
+                @P("String value 2") String value2,
+                @P("String value 3") String value3,
+                @P("String value 4") String value4,
+                @P("String value 5") String value5,
+                @P("String value 6") String value6,
+                @P("String value 7") String value7,
+                @P("String value 8") String value8,
+                @P("String value 9") String value9,
+                @P("String value 10") String value10,
+                @P("String value 11") String value11,
+                @P("String value 12") String value12,
+                @P("String value 13") String value13,
+                @P("String value 14") String value14,
+                @P("String value 15") String value15,
+                @P("String value 16") String value16,
+                @P("String value 17") String value17,
+                @P("String value 18") String value18,
+                @P("String value 19") String value19
         ) {}
     }
 }

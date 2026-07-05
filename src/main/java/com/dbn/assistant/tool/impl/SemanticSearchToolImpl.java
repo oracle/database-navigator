@@ -33,9 +33,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.assistant.AssistantContextUtil.getAssistantState;
+import static com.dbn.assistant.tool.AssistantToolContents.prepareUntrustedDatabaseContent;
 import static com.dbn.object.type.DBVectorDistanceMetric.COSINE;
 
 public class SemanticSearchToolImpl extends AssistantToolBase implements SemanticSearchTool {
+    private static final int MIN_SEARCH_RESULTS = 1;
+    private static final int MAX_SEARCH_RESULTS = 20;
 
     @Override
     public List<SemanticSearchResult> performSemanticSearch(String query, int maxResults) {
@@ -57,11 +60,12 @@ public class SemanticSearchToolImpl extends AssistantToolBase implements Semanti
 
             String schemaName = embeddingTable.getSchemaName();
             String tableName = embeddingTable.getObjectName();
+            maxResults = normalizeSearchResultCount(maxResults);
             resultSet = vectorManager.performSimilaritySearch(connection, schemaName, tableName, query, COSINE, maxResults);
 
-            while (resultSet.next()) {
+            while (searchResults.size() < maxResults && resultSet.next()) {
                 SemanticSearchResult searchResult = new SemanticSearchResult();
-                searchResult.setContent(resultSet.getString("CONTENT"));
+                searchResult.setContent(prepareUntrustedDatabaseContent(resultSet.getString("CONTENT")));
                 searchResult.setScore(resultSet.getDouble("DISTANCE"));
                 searchResults.add(searchResult);
             }
@@ -71,5 +75,9 @@ public class SemanticSearchToolImpl extends AssistantToolBase implements Semanti
             Resources.close(resultSet);
         }
         return searchResults;
+    }
+
+    static int normalizeSearchResultCount(int maxResults) {
+        return Math.min(Math.max(maxResults, MIN_SEARCH_RESULTS), MAX_SEARCH_RESULTS);
     }
 }

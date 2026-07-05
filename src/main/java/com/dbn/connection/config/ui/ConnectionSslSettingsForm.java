@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import java.awt.event.ActionListener;
 
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionSslSettingsForm extends ConfigurationEditorForm<ConnectionSslSettings> {
     private JPanel mainPanel;

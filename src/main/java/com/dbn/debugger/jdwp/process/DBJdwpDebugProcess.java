@@ -19,9 +19,7 @@ package com.dbn.debugger.jdwp.process;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.exception.ProcessDeferredException;
 import com.dbn.common.network.NetworkAddress;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.thread.ThreadPropertyGate;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -29,11 +27,12 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.Resources;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.ssh.SshTunnelConfig;
 import com.dbn.connection.ssh.SshTunnelConnector;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.debugger.DBDebugOperation;
-import com.dbn.debugger.DBDebugUtil;
+import com.dbn.debugger.DBDebugTabLayouter;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.debugger.JDWPTunnelType;
@@ -59,7 +58,6 @@ import com.intellij.debugger.engine.DebugProcessImpl;
 import com.intellij.debugger.engine.DebugProcessListener;
 import com.intellij.debugger.engine.JavaDebugProcess;
 import com.intellij.debugger.engine.JavaStackFrame;
-import com.intellij.debugger.engine.SuspendContext;
 import com.intellij.debugger.engine.SuspendContextImpl;
 import com.intellij.debugger.impl.DebuggerContextListener;
 import com.intellij.debugger.impl.DebuggerSession;
@@ -78,6 +76,7 @@ import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XStackFrame;
 import com.intellij.xdebugger.frame.XSuspendContext;
+import com.intellij.xdebugger.ui.XDebugTabLayouter;
 import com.sun.jdi.Location;
 import com.sun.jdi.StackFrame;
 import lombok.SneakyThrows;
@@ -89,13 +88,12 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.SQLException;
 import java.util.List;
 
-import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
 import static com.dbn.common.util.Classes.simpleClassName;
-import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.debugger.JDWPTunnelType.SSH_REVERSE_TUNNEL;
 import static com.dbn.debugger.JDWPTunnelType.TCP_DRIVER_TUNNEL;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.debugger.impl.PrioritizedTask.Priority.LOWEST;
 import static com.intellij.debugger.impl.PrioritizedTask.Priority.NORMAL;
 
@@ -216,6 +214,12 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         return console;
     }
 
+    @NotNull
+    @Override
+    public XDebugTabLayouter createTabLayouter() {
+        return new DBDebugTabLayouter(super.createTabLayouter());
+    }
+
     @Override
     public void sessionInitialized() {
         unmuteBreakpoints();
@@ -234,22 +238,26 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         contextManager.addListener(createContextListener());
         process.setXDebugProcess(this);
 
-        DBDebugOperation.run(getProject(), "initialize debug environment", () -> {
+        DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_INITIALIZE_ENVIRONMENT"), () -> {
             try {
                 T input = getExecutionInput();
                 if (input == null) return;
 
-                console.system("Initializing debug environment");
+                console.system(txt("log.debugger.info.InitializingDebugEnvironment"));
 
                 ConnectionHandler connection = getConnection();
-                SchemaId schemaId = input.getExecutionContext().getTargetSchema();
+                ExecutionContext executionContext = input.getExecutionContext();
+                executionContext.setDebuggerType(DBDebuggerType.JDWP);
+                SchemaId schemaId = executionContext.getTargetSchema();
                 targetConnection = connection.getDebugConnection(schemaId);
                 targetConnection.setAutoCommit(false);
-                targetConnection.beforeClose(() -> releaseSession(targetConnection));
+
+                DBNConnection debugConnection = targetConnection;
+                targetConnection.beforeClose(() -> releaseSession(debugConnection));
 
                 initializeLocalJdwpSession();
 
-                console.system("Debug session initialized (JDWP)");
+                console.system(txt("log.debugger.info.DebugSessionInitializedJdwp"));
                 set(DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED, true);
 
                 createExecutionWrappers();
@@ -259,7 +267,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
             } catch (Exception e) {
                 conditionallyLog(e);
                 set(DBDebugProcessStatus.SESSION_INITIALIZATION_THREW_EXCEPTION, true);
-                console.error("Error initializing debug environment\n" + e.getMessage());
+                console.error(txt("log.debugger.error.ErrorInitializingDebugEnvironment", e.getMessage()));
                 stop();
             }
         });
@@ -271,14 +279,15 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
 
         try {
             NetworkAddress localAddress = tcpConfig.getLocalAddress();
-            console.info("Initializing debug session on address " + localAddress);
+            console.info(txt("log.debugger.info.InitializingDebugSessionOnAddress", localAddress));
 
             NetworkAddress jdwpTcpAddress = localAddress.clone();
 
             //opening reverse ssh tunnel here if required
             if (tunnelType == SSH_REVERSE_TUNNEL) {
-                console.info("Initializing reverse ssh tunnel...");
-                SshTunnelConnector sshTunnelConnector = new SshTunnelConnector(tcpConfig.getSshTunnelConfig(), localAddress);
+                console.info(txt("log.debugger.info.InitializingReverseSshTunnel"));
+                SshTunnelConfig sshTunnelConfig = tcpConfig.getSshTunnelConfig();
+                SshTunnelConnector sshTunnelConnector = new SshTunnelConnector(sshTunnelConfig, localAddress);
                 sshTunnelConnector.setReverseTunnel(true);
                 sshTunnelConnector.connect();
                 targetConnection.beforeClose(() -> sshTunnelConnector.disconnect());
@@ -287,9 +296,8 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                 jdwpTcpAddress.setHost(boundAddress.getHostName());
                 jdwpTcpAddress.setPort(boundAddress.getPort());
 
-                NetworkAddress proxyAddress = tcpConfig.getSshTunnelConfig().getProxyAddress();
-                console.system("Reverse ssh tunnel started ~ " + localAddress + " (this machine)"
-                        + " <- " + jdwpTcpAddress + " (" + proxyAddress + ")");
+                NetworkAddress proxyAddress = sshTunnelConfig.getProxyAddress();
+                console.system(txt("log.debugger.info.ReverseSshTunnelStarted", localAddress, jdwpTcpAddress, proxyAddress));
             }
 
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
@@ -300,7 +308,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         catch (Exception e) {
             conditionallyLog(e);
             set(DBDebugProcessStatus.SESSION_INITIALIZATION_THREW_EXCEPTION, true);
-            console.error("Error initializing local jdwp session\n" + e.getMessage());
+            console.error(txt("log.debugger.error.ErrorInitializingLocalJdwpSession", e.getMessage()));
             stop();
         }
     }
@@ -319,45 +327,15 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
 
     private @NotNull XDebugSessionListener createSessionListener() {
         XDebugSession session = getSession();
-        return new XDebugSessionListener() {
-            @Override
-            @ThreadPropertyGate(DEBUGGER_NAVIGATION)
-            public void sessionPaused() {
-                XSuspendContext suspendContext = session.getSuspendContext();
-                if (suspendContext == null || !shouldSuspend(suspendContext)) {
-                    Dispatch.run(nonModal(), () -> session.stepInto());
-                    return;
-                }
-
-                XExecutionStack activeExecutionStack = suspendContext.getActiveExecutionStack();
-
-                Location location = getTopFrameLocation(activeExecutionStack);
-                VirtualFile virtualFile = getVirtualFile(location);
-                DBDebugUtil.openEditor(virtualFile);
-            }
-        };
+        return new DBJdwpDebugSessionListener(this, session);
     }
 
     private static @NotNull DebugProcessListener createProcessListener() {
-        return new DebugProcessListener() {
-            @Override
-            public void paused(@NotNull SuspendContext suspendContext) {
-                if (suspendContext instanceof XSuspendContext xSuspendContext) {
-
-                    XExecutionStack[] executionStacks = xSuspendContext.getExecutionStacks();
-                    for (XExecutionStack executionStack : executionStacks) {
-                        //System.out.println();
-                    }
-
-                    //underlyingFrame.getDescriptor().getLocation()
-
-                }
-            }
-        };
+        return new DBJdwpDebugProcessListener();
     }
 
     protected void registerDefaultBreakpoint() {
-        console.system("Registering default breakpoint");
+        console.system(txt("log.debugger.info.RegisteringDefaultBreakpoint"));
 
         DBRunConfig<T> runProfile = getRunProfile();
         List<DBObjectRef<DBMethod>> methods = runProfile.getMethodRefs();
@@ -368,7 +346,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     }
 
     private void registerBreakpoints() {
-        console.system("Registering breakpoints...");
+        console.system(txt("log.debugger.info.RegisteringBreakpoints"));
 
         List<DBObjectRef<DBMethod>> methods = getRunProfile().getMethodRefs();
         List<XLineBreakpoint<XBreakpointProperties>> breakpoints = getDatabaseBreakpoints();
@@ -474,6 +452,8 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     }
 
     private void releaseSession(DBNConnection targetConnection) {
+        if (targetConnection == null) return;
+
         try {
             console.system(txt("log.debugger.info.ReleasingDebugSession"));
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();

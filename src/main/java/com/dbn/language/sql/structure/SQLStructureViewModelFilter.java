@@ -31,8 +31,10 @@ import com.intellij.ide.util.treeView.smartTree.TreeElement;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SQLStructureViewModelFilter implements Filter {
-    private final ActionPresentation actionPresentation = new ActionPresentationData("Top Level Elements", "", Icons.TOP_LEVEL_FILTER);
+    private final ActionPresentation actionPresentation = new ActionPresentationData(txt("app.codeEditor.action.TopLevelElements"), "", Icons.TOP_LEVEL_FILTER);
 
     @Override
     @NotNull

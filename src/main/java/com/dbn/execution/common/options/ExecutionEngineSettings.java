@@ -34,6 +34,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.help.HelpTopic.EXECUTION_ENGINE_SETTINGS;
+import static com.dbn.nls.NlsResources.txt;
 
 @EqualsAndHashCode(callSuper = false)
 public class ExecutionEngineSettings extends CompositeProjectConfiguration<ProjectSettings, ExecutionEngineSettingsForm> implements TopLevelConfig {

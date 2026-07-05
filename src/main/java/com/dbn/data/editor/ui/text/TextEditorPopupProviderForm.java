@@ -63,6 +63,7 @@ import static com.dbn.common.ui.util.UserInterface.focusNextComponent;
 import static com.dbn.common.ui.util.UserInterface.focusPreviousComponent;
 import static com.dbn.common.util.Actions.createActionToolbar;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
     private JPanel mainPanel;
@@ -85,7 +86,7 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
         ActionToolbar leftActionToolbar = Actions.createActionToolbar(leftActionPanel, true);
         leftActionPanel.add(leftActionToolbar.getComponent(), BorderLayout.WEST);
 
-        ActionToolbar rightActionToolbar = createActionToolbar(leftActionPanel, true, "DBNavigator.ActionGroup.TextEditor.Controls");
+        ActionToolbar rightActionToolbar = createActionToolbar(leftActionPanel, true, "DBN.TextEditor");
         rightActionPanel.add(rightActionToolbar.getComponent(), BorderLayout.EAST);
 
         Arrays.asList(leftActionToolbar, rightActionToolbar).forEach(tb -> Actions.getActions(tb).forEach(a -> registerAction(a)));
@@ -149,7 +150,7 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
                     text = Commons.nvl(largeObjectValue.read(), "");
                 } catch (SQLException e) {
                     conditionallyLog(e);
-                    Messages.showErrorDialog(getProject(), e.getLocalizedMessage(), e);
+                    Messages.showErrorDialog(getProject(), null, txt("msg.dataEditor.error.ContentLoadError", "text"), e);
                     return null;
                 }
             }
@@ -184,7 +185,7 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
     @Override
     public String getName() {
-        return "Text Editor";
+        return txt("msg.dataEditor.title.TextEditor");
     }
 
     @Override

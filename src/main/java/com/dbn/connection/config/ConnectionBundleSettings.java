@@ -34,18 +34,21 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.help.HelpTopic.DATABASE_CONFIG;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
 public class ConnectionBundleSettings extends BasicProjectConfiguration<ProjectSettings, ConnectionBundleSettingsForm> implements TopLevelConfig {
+    private static final int MAX_CONNECTION_COUNT = 256;
     public static final ThreadLocalFlag IS_IMPORT_EXPORT_ACTION = new ThreadLocalFlag(false);
-    private final List<ConnectionSettings> connections = new CopyOnWriteArrayList<>();
+    private final List<ConnectionSettings> connections = new ArrayList<>();
 
     public ConnectionBundleSettings(ProjectSettings parent) {
         super(parent);
@@ -133,14 +136,17 @@ public class ConnectionBundleSettings extends BasicProjectConfiguration<ProjectS
      *********************************************************/
     @Override
     public void readConfiguration(Element element) {
-        Project project = getProject();
-        connections.clear();
-        for (Element child : element.getChildren()) {
+        List<ConnectionSettings> connections = new ArrayList<>();
+        for (Element child : childrenOf(element, "connection", MAX_CONNECTION_COUNT)) {
             ConnectionSettings connection = new ConnectionSettings(this);
             connection.readConfiguration(child);
             connections.add(connection);
         }
 
+        this.connections.clear();
+        this.connections.addAll(connections);
+
+        Project project = getProject();
         if (!project.isDefault() && !ConfigMonitor.isCloning()) {
             ConnectionManager connectionManager = ConnectionManager.getInstance(project);
             ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();

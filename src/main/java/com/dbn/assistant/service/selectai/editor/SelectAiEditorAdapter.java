@@ -39,6 +39,7 @@ import lombok.experimental.UtilityClass;
 
 import static com.dbn.assistant.AssistantMode.DEVELOPMENT;
 import static com.dbn.assistant.AssistantType.SELECT_AI;
+import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.util.ObjectUtils.coalesce;
 
 /**
@@ -73,7 +74,7 @@ public class SelectAiEditorAdapter {
 
     private static void appendMessage(Project project, Editor editor, ChatMessage message) {
         Dispatch.run(editor.getComponent(), () ->
-                Command.run(project, "Database Assistant Response", () -> {
+                Command.run(project, txt("app.assistant.title.DatabaseAssistantResponse"), () -> {
                     PsiFile psiFile = Documents.getPsiFile(editor);
                     if (psiFile == null) return;
 

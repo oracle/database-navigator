@@ -36,6 +36,7 @@ import com.intellij.execution.configurations.RunProfileState;
 import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.util.Range;
 import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugSession;
@@ -49,6 +50,7 @@ import java.net.UnknownHostException;
 
 import static com.dbn.debugger.JDWPTunnelType.SSH_REVERSE_TUNNEL;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
@@ -67,7 +69,7 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
     public final XDebugProcess start(@NotNull XDebugSession session) throws ExecutionException {
         Executor executor = DefaultDebugExecutor.getDebugExecutorInstance();
         RunProfile runProfile = session.getRunProfile();
-        runProfile = assertNotNull(runProfile, "Invalid run profile");
+        runProfile = assertNotNull(runProfile, txt("msg.debugger.error.InvalidRunProfile"));
 
 
         ExecutionEnvironment environment = ExecutionEnvironmentBuilder.create(session.getProject(), executor, runProfile).build();
@@ -80,7 +82,7 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
         DebugEnvironment debugEnvironment = new DefaultDebugEnvironment(environment, state, remoteConnection, true);
         DebuggerManagerEx debuggerManagerEx = DebuggerManagerEx.getInstanceEx(session.getProject());
         DebuggerSession debuggerSession = debuggerManagerEx.attachVirtualMachine(debugEnvironment);
-        assertNotNull(debuggerSession, "Could not initialize JDWP listener");
+        assertNotNull(debuggerSession, txt("msg.debugger.error.CouldNotInitializeJdwpListener"));
 
         return createDebugProcess(session, debuggerSession, tcpConfig);
 
@@ -99,8 +101,14 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
         return new DBJdwpTcpConfig(localAddress, JDWPTunnelType.NONE);
     }
 
-    public SshTunnelConfig createSshTunnelConfig(ConnectionDebuggerSettings debuggerSettings) {
+    public SshTunnelConfig createSshTunnelConfig(ConnectionDebuggerSettings debuggerSettings) throws ExecutionException {
         ReverseSshTunnelConfiguration config = debuggerSettings.getReverseSshTunnelConfig();
+        try {
+            config.validateBindHost();
+        } catch (ConfigurationException e) {
+            throw new ExecutionException(e.getMessage(), e);
+        }
+
         NetworkAddress proxyAddress = new NetworkAddress(
                 config.getHost(),
                 config.getPort());
@@ -132,7 +140,7 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
         try {
             inetAddress = InetAddress.getByName(host);
         } catch (UnknownHostException e) {
-            throw new ExecutionException("Failed to resolve host", e);
+            throw new ExecutionException(txt("msg.debugger.error.FailedToResolveHost"), e);
         }
 
         for (int portNumber = minPortNumber; portNumber <= maxPortNumber; portNumber++) {
@@ -142,7 +150,7 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
                 conditionallyLog(e);
             }
         }
-        throw new ExecutionException("Could not find any free port on the host for the given range");
+        throw new ExecutionException(txt("msg.debugger.error.CouldNotFindFreePortForRange"));
     }
 
     private static String resolveTcpHost(String tcpHost) {

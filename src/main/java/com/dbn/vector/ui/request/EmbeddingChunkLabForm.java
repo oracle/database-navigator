@@ -19,14 +19,12 @@ package com.dbn.vector.ui.request;
 import com.dbn.common.color.Colors;
 import com.dbn.common.file.FileTypes;
 import com.dbn.common.text.TextContent;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.jdbc.DBNResultSet;
@@ -43,7 +41,6 @@ import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.LightVirtualFile;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JButton;
@@ -51,13 +48,14 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import java.awt.BorderLayout;
 import java.sql.ResultSet;
 
-import static com.dbn.common.ui.util.Buttons.onButtonClick;
+import static com.dbn.common.ui.util.Buttons.onButtonClickAsync;
 import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.common.util.Editors.updateEditorScrollPane;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EmbeddingChunkLabForm extends DBNFormBase {
 
@@ -69,7 +67,6 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
     private JComboBox<String> splitByComboBox;
     private JSpinner maxSpinner;
     private JSpinner overlapSpinner;
-    private JPanel spinPanel;
     private JPanel outputPanel;
     private JPanel hintPanel;
     private JPanel inputPanel;
@@ -85,21 +82,19 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
         initOutputPanel();
         initConfigFields(config);
         initInputTextArea();
-        initSpinner();
         initTestButton();
     }
 
     private void initHintPanel() {
         TextContent textContent = TextContent.plain(
-                "Use this tool to experiment with different chunking settings before applying them in embedding and retrieval workflows. " +
-                        "Adjust the parameters, preview the resulting chunks, and fine-tune the configuration that works best for your data.");
+                txt("msg.vector.hint.ChunkLab"));
         DBNHintForm hintForm = new DBNHintForm(this, textContent, null, true);
         hintPanel.add(hintForm.getComponent());
     }
 
     private void initOutputPanel() {
         ConnectionHandler connection = getConnection();
-        RecordViewInfo recordViewInfo = new RecordViewInfo("Chunk data", null);
+        RecordViewInfo recordViewInfo = new RecordViewInfo(txt("app.vector.title.ChunkData"), null);
         ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
         chunkDataTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
         outputScrollPane.setViewportView(chunkDataTable);
@@ -117,7 +112,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
         inputEditor = Editors.createEditor(document, project, virtualFile, fileType);
         inputEditor.setEmbeddedIntoDialogWrapper(false);
         inputEditor.getContentComponent().setFocusTraversalKeysEnabled(false);
-        inputEditor.setPlaceholder("Enter your sample text for chunking here");
+        inputEditor.setPlaceholder(txt("app.vector.placeholder.ChunkSampleText"));
         inputEditor.setBorder(null);
         inputEditor.getComponent().setBorder(null);
 
@@ -136,11 +131,6 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
         inputPanel.add(inputEditor.getComponent());
     }
 
-    private void initSpinner() {
-        spinPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
-        spinPanel.setVisible(false);
-    }
-
     private ConnectionHandler getConnection() {
         return connection.ensure();
     }
@@ -153,10 +143,9 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
     }
 
     private void initTestButton() {
-        onButtonClick(testButton, e ->
-                Dispatch.async(mainPanel,
-                        () -> chunkTextContent(),
-                        d -> applyChunkResult(d)));
+        onButtonClickAsync(testButton,
+                () -> chunkTextContent(),
+                d -> applyChunkResult(d));
     }
 
     private ResultSetDataModel chunkTextContent() {
@@ -175,7 +164,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
             dataModel.fetchNextRecords(1000, false);
             return dataModel;
         } catch (Exception e) {
-            Messages.showErrorDialog(project, "Failed to chunk data", e);
+            showErrorDialog(project, txt("msg.vector.error.DataChunkFailed"), e);
             return new ResultSetDataModel(connection);
         } finally {
             stopActivityNotifier();
@@ -187,8 +176,6 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
     }
 
     private void startActivityNotifier() {
-        spinPanel.setVisible(true);
-        testButton.setEnabled(false);
         chunkDataTable.setLoading(true);
     }
 
@@ -196,8 +183,6 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
      * Stops the spining wheel
      */
     private void stopActivityNotifier() {
-        spinPanel.setVisible(false);
-        testButton.setEnabled(true);
         chunkDataTable.setLoading(false);
     }
 

@@ -27,9 +27,7 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.navigation.NavigationInstructions;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.tab.DBNTabbedPane;
-import com.dbn.common.ui.tab.DBNTabsSelectionListener;
-import com.dbn.common.ui.tab.DBNTabsUpdateListener;
+import com.dbn.common.ui.tab.DBNColoredTabs;
 import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Documents;
@@ -64,6 +62,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.PsiDocumentTransactionListener;
+import com.intellij.ui.tabs.JBTabsPosition;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -71,9 +70,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.tree.TreePath;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
@@ -82,6 +79,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
@@ -92,13 +90,13 @@ import static com.dbn.common.navigation.NavigationInstruction.OPEN;
 import static com.dbn.common.navigation.NavigationInstruction.RESET;
 import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
 import static com.dbn.common.navigation.NavigationInstruction.SELECT;
-import static com.dbn.common.ui.tab.DBNTabs.initTabComponent;
 import static com.dbn.common.ui.tab.DBNTabs.updateTabColor;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionConsoleForm extends DBNFormBase {
     private JPanel mainPanel;
-    private DBNTabbedPane<DBNForm> resultTabs;
+    private DBNColoredTabs<DBNForm> resultTabs;
     private ExecutionMessagesForm executionMessagesForm;
     private final Map<ExecutionResult, ExecutionResultForm> executionResultForms = ContainerUtil.createConcurrentWeakKeySoftValueMap();
 
@@ -153,10 +151,10 @@ public class ExecutionConsoleForm extends DBNFormBase {
     }
 
     private void refreshResultTabs(@NotNull PsiFile file) {
-        List<Component> components = getTabbedComponents();
-        DBNTabbedPane<DBNForm> tabs = getResultTabs();
+        List<JComponent> components = getTabbedComponents();
+        DBNColoredTabs<DBNForm> tabs = getResultTabs();
 
-        for (Component component : components) {
+        for (JComponent component : components) {
             var executionResult = getExecutionResult(component);
             if (executionResult instanceof StatementExecutionResult statementExecutionResult) {
                 StatementExecutionProcessor executionProcessor = statementExecutionResult.getExecutionProcessor();
@@ -179,33 +177,38 @@ public class ExecutionConsoleForm extends DBNFormBase {
     }
 
 
-    public DBNTabbedPane<DBNForm> getResultTabs() {
-        if (!isValid(resultTabs) && !isDisposed()) {
-            resultTabs = new DBNTabbedPane<>(SwingConstants.BOTTOM, this, true);
-            mainPanel.removeAll();
-            mainPanel.add(resultTabs, BorderLayout.CENTER);
-            resultTabs.setFocusable(false);
-            //resultTabs.setAdjustBorders(false);
-            resultTabs.addTabSelectionListener(tabsSelectionListener);
-            resultTabs.addTabUpdateListener(tabsUpdateListener);
-            resultTabs.setPopupActions(new ExecutionConsolePopupActionGroup(this));
-            resultTabs.setBorder(null);
-            resultTabs.enableFocusInheritance();
-            Disposer.register(this, resultTabs);
-            return resultTabs;
+    public DBNColoredTabs<DBNForm> getResultTabs() {
+        if (isValid(resultTabs) || isDisposed()) {
+            return Failsafe.nn(resultTabs);
         }
-        return Failsafe.nn(resultTabs);
+
+        resultTabs = new DBNColoredTabs<>(this);
+        resultTabs.setFocusable(false);
+        resultTabs.setTabsLocation(JBTabsPosition.top);
+        resultTabs.onTabSelected(handleTabSelected());
+        resultTabs.onTabRemoved(handleTabRemoved());
+
+        ExecutionConsolePopupActionGroup popupActions = new ExecutionConsolePopupActionGroup(this);
+        resultTabs.setPopupActions(popupActions, "ExecutionResultConsole", false);
+        resultTabs.setBorder(null);
+        resultTabs.setCloseable(true);
+        Disposer.register(this, resultTabs);
+
+        mainPanel.removeAll();
+        mainPanel.add(resultTabs);
+        return resultTabs;
     }
 
     private int getTabCount() {
-        return getResultTabs().getTabCount();
+        return getResultTabs().getTabsCount();
     }
 
-    private final DBNTabsSelectionListener tabsSelectionListener = i -> {
+    private Consumer<Integer> handleTabSelected() {
+        return i -> {
             if (!canScrollToSource) return;
             if (i <= -1) return;
 
-            Component component = getResultTabs().getComponentAt(i);
+            Component component = getResultTabs().getTabComponent(i);
             ExecutionResult<?> executionResult = getExecutionResult(component);
             if (isNotValid(executionResult)) return;
 
@@ -213,15 +216,15 @@ public class ExecutionConsoleForm extends DBNFormBase {
                 statementExecutionResult.navigateToEditor(NavigationInstructions.create(FOCUS, SCROLL));
             }
         };
+    }
 
-    private final DBNTabsUpdateListener tabsUpdateListener = new DBNTabsUpdateListener() {
-        @Override
-        public void tabRemoved(int index) {
+    private Runnable handleTabRemoved() {
+        return () -> {
             if (getTabCount() == 0) {
                 getExecutionManager().hideExecutionConsole();
             }
-        }
-    };
+        };
+    }
 
     public void removeAllExceptTab(Component excluded) {
         for (Component component : getTabbedComponents()) {
@@ -346,7 +349,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
 
     @Nullable
     private static ExecutionResult<?> getExecutionResult(Component component) {
-        Object content = ClientProperty.TAB_CONTENT.get(component);
+        DBNForm content = ClientProperty.FORM.get(component);
         if (content instanceof ExecutionResultForm<?> executionResultForm) {
             return isValid(executionResultForm) ? executionResultForm.getExecutionResult() : null;
         }
@@ -377,12 +380,12 @@ public class ExecutionConsoleForm extends DBNFormBase {
             messagesPanel.resetMessagesStatus();
         }
         JComponent component = messagesPanel.getComponent();
-        if (tabs.getTabCount() == 0 || tabs.getComponentAt(0) != component) {
-            initTabComponent(component, Icons.EXEC_RESULT_MESSAGES, null, messagesPanel);
-            tabs.insertTab("Messages", component, 0);
+        if (tabs.getTabsCount() == 0 || tabs.getTabComponent(0) != component) {
+            tabs.insertTab(txt("app.execution.title.Messages"), component, 0);
+            tabs.setTabIcon(component, Icons.EXEC_RESULT_MESSAGES);
         }
 
-        tabs.selectTab(component, instructions.isFocus());
+        tabs.selectTab(messagesPanel, instructions.isFocus());
     }
 
 
@@ -392,8 +395,8 @@ public class ExecutionConsoleForm extends DBNFormBase {
 
         var tabs = getResultTabs();
         JComponent component = messagesPanel.getComponent();
-        if (tabs.getTabCount() > 0 && tabs.getComponentAt(0) == component) {
-            tabs.removeTab(component, true);
+        if (tabs.getTabsCount() > 0 && tabs.getTabComponent(0) == component) {
+            tabs.closeTab(component);
         }
 
         Disposer.dispose(messagesPanel);
@@ -408,9 +411,9 @@ public class ExecutionConsoleForm extends DBNFormBase {
 
     private boolean isMessagesTabVisible() {
         var tabs = getResultTabs();
-        if (tabs.getTabCount() > 0) {
+        if (tabs.getTabsCount() > 0) {
             JComponent messagesPanelComponent = ensureExecutionMessagesPanel().getComponent();
-            Component component = tabs.getComponentAt(0);
+            Component component = tabs.getTabComponent(0);
             return component == messagesPanelComponent;
         }
         return false;
@@ -426,7 +429,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
         boolean selectTab = sourceFile != null;
         var tabs = getResultTabs();
 
-        for (Component component : getTabbedComponents()) {
+        for (JComponent component : getTabbedComponents()) {
             ExecutionResult<?> executionResult = getExecutionResult(component);
             if (executionResult instanceof DatabaseLoggingResult logOutput) {
                 if (!logOutput.matches(context)) continue;
@@ -457,10 +460,11 @@ public class ExecutionConsoleForm extends DBNFormBase {
             }
 
             JComponent component = resultForm.getComponent();
-            initTabComponent(component, icon, color, resultForm);
 
             int index = messagesTabVisible ? 1 : 0;
             tabs.insertTab(title, component, index);
+            tabs.setTabIcon(component, icon);
+            tabs.setTabColor(component, color);
 
             if (selectTab) {
                 tabs.selectTab(component, true);
@@ -514,11 +518,13 @@ public class ExecutionConsoleForm extends DBNFormBase {
         }
 
         JComponent component = resultForm.getComponent();
-        initTabComponent(component, icon, color, resultForm);
 
         var tabs = getResultTabs();
         tabs.addTab(title, component);
-        tabs.selectTab(component);
+        tabs.setTabIcon(component, icon);
+        tabs.setTabColor(component, color);
+
+        tabs.selectTab(component, true);
     }
 
     public void removeResultTab(ExecutionResult<?> executionResult) {
@@ -538,7 +544,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
                 file = executionInput.getExecutionProcessor().getPsiFile();
             }
 
-            tabs.removeTab(component, true);
+            tabs.closeTab(component);
             Documents.refreshEditorAnnotations(file);
         } finally {
             canScrollToSource = true;
@@ -551,13 +557,13 @@ public class ExecutionConsoleForm extends DBNFormBase {
 
         JComponent component = resultForm.getComponent();
 
-        DBNTabbedPane<DBNForm> tabs = getResultTabs();
+        DBNColoredTabs<DBNForm> tabs = getResultTabs();
         int index = tabs.getTabIndex(component);
         if (index == -1) return;
 
-        tabs.setSelectedIndex(index);
-        tabs.setIconAt(index, executionResult.getIcon());
-        tabs.setTitleAt(index, executionResult.getName());
+        tabs.selectTab(component, false);
+        tabs.setTabIcon(component, executionResult.getIcon());
+        tabs.setTabTitle(component, executionResult.getName());
     }
 
     public void closeExecutionResults(List<ConnectionId> connectionIds) {
@@ -570,7 +576,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
         }
     }
 
-    private List<Component> getTabbedComponents() {
+    private List<JComponent> getTabbedComponents() {
         return isValid(resultTabs) ? new ArrayList<>(resultTabs.getTabbedComponents()) : Collections.emptyList();
     }
 

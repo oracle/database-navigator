@@ -127,14 +127,12 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   }
 
   private void initAccessibility() {
-    Accessibility.setAccessibleName(databaseObjectsTable, "Available Datasets");
-    Accessibility.setAccessibleName(profileObjectListTable, "Profile Datasets");
+    Accessibility.setAccessibleName(databaseObjectsTable, txt("cfg.assistant.aria.AvailableDatasets"));
+    Accessibility.setAccessibleName(profileObjectListTable, txt("cfg.assistant.aria.ProfileDatasets"));
   }
 
   private void initHintPanel() {
-    TextContent hintText = plain("AI-Profiles must include information about your data model to be forwarded to the language model. This will allow it to produce more accurate results, closely tailored to your data model. " +
-            "The metadata can include database table names, column names, column data types, and comments. Your data will never be sent out to the language model.\n\n" +
-            "Please find the datasets you want to include in the profile, and drag them to the container on the right. Start by selecting the schema.");
+    TextContent hintText = plain(txt("cfg.assistant.hint.ProfileDatasetSelection"));
     DBNHintForm hintForm = new DBNHintForm(null, hintText, null, true);
 
     JComponent hintComponent = hintForm.getComponent();
@@ -149,12 +147,12 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   }
 
   private void initFilterField() {
-    filterTextField.getEmptyText().setText("Filter");
+    filterTextField.getEmptyText().setText(txt("cfg.assistant.placeholder.Filter"));
     onTextChange(filterTextField, e -> updateDatasetsFilter());
   }
 
   protected void initFiltersPanel() {
-    Accessibility.setAccessibleName(filtersPanel, "Dataset Type Filters");
+    Accessibility.setAccessibleName(filtersPanel, txt("cfg.assistant.aria.DatasetTypeFilters"));
     initializingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
     tablesCheckBox.addActionListener(e -> filterDatasets(DBObjectType.TABLE, tablesCheckBox.isSelected()));
     viewsCheckBox.addActionListener(e -> filterDatasets(DBObjectType.VIEW, viewsCheckBox.isSelected()));

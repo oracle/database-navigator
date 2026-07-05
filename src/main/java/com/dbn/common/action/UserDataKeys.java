@@ -16,7 +16,8 @@
 
 package com.dbn.common.action;
 
-import com.dbn.assistant.mcp.AssistantMcpServerData;
+import com.dbn.assistant.mcp.AssistantMcpServerState;
+import com.dbn.assistant.mcp.AssistantMcpServerToolInterceptor;
 import com.dbn.assistant.service.generic.context.AssistantInstructionsCache;
 import com.dbn.assistant.service.generic.context.AssistantMemoryCache;
 import com.dbn.assistant.tool.AssistantToolCache;
@@ -63,13 +64,15 @@ public class UserDataKeys {
     public static final Key<Integer> BREAKPOINT_ID = Key.create("DBNavigator.BreakpointId");
     public static final Key<VirtualFile> BREAKPOINT_FILE = Key.create("DBNavigator.BreakpointFile");
     public static final Key<Boolean> SKIP_BROWSER_AUTOSCROLL = Key.create("DBNavigator.SkipEditorScroll");
+    public static final Key<Boolean> EDITOR_TOOLBAR_INSTALLED = Key.create("DBNavigator.Editor.ToolbarInstalled");
     public static final Key<Long> LAST_ANNOTATION_REFRESH = Key.create("DBNavigator.LastAnnotationRefresh");
     public static final Key<Boolean> WRAPPER_FILE = Key.create("DBNavigator.WrapperFile");
     public static final Key<AssistantMemoryCache> ASSISTANT_MEMORY_CACHE = Key.create("DBNavigator.AssistantMemoryCache");
     public static final Key<AssistantToolCache> ASSISTANT_TOOL_CACHE = Key.create("DBNavigator.AssistantMemoryCache");
     public static final Key<AssistantToolSettings> ASSISTANT_TOOL_SETTINGS = Key.create("DBNavigator.AssistantToolSettings");
     public static final Key<AssistantInstructionsCache> ASSISTANT_INSTRUCTIONS_CACHE = Key.create("DBNavigator.AssistantInstructionsCache");
-    public static final Key<AssistantMcpServerData> ASSISTANT_MCP_SERVER_DATA = Key.create("DBNavigator.AssistantMcpServerOptions");
+    public static final Key<AssistantMcpServerState> ASSISTANT_MCP_SERVER_STATE = Key.create("DBNavigator.AssistantMcpServerState");
+    public static final Key<AssistantMcpServerToolInterceptor> ASSISTANT_MCP_SERVER_TOOL_INTERCEPTOR = Key.create("DBNavigator.AssistantMcpServerToolInterceptor");
 
     public static final Key<MessageOutcomeHandler> MESSAGE_OUTCOME_HANDLER = Key.create("DBNavigator.MessageOutcomeHandler");
     public static final Key<Map<NotificationCategory, NotificationOutcomeHandler>> NOTIFICATION_OUTCOME_HANDLERS = Key.create("DBNavigator.NotificationOutcomeHandlers");

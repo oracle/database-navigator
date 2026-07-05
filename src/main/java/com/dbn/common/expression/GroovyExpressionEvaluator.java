@@ -16,40 +16,38 @@
 
 package com.dbn.common.expression;
 
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import java.util.Objects;
+import java.util.concurrent.TimeoutException;
 
 import static com.dbn.common.expression.SqlToGroovyExpressionConverter.cachedSqlToGroovy;
 import static com.dbn.common.expression.SqlToGroovyExpressionConverter.sqlToGroovy;
+import static com.dbn.common.thread.Timeout.call;
 import static com.dbn.common.util.Unsafe.cast;
 
 @Slf4j
 public class GroovyExpressionEvaluator implements ExpressionEvaluator{
-    private final ScriptEngine scriptEngine;
-
-    public GroovyExpressionEvaluator() {
-        ScriptEngineManager manager = new ScriptEngineManager();
-        scriptEngine = manager.getEngineByName("Groovy");
-    }
+    private static final int EVALUATION_TIMEOUT_SECONDS = 2;
+    private static final Object TIMED_OUT = new Object();
 
     @Override
-    public boolean verifyExpression(String expression, ExpressionEvaluatorContext context) {
+    public boolean verifyExpression(@NonNls String expression, ExpressionEvaluatorContext context) {
         return verifyExpression(expression, context, null);
     }
 
     @Override
-    public boolean verifyExpression(String expression, ExpressionEvaluatorContext context, Class<?> expectedOutcome) {
+    public boolean verifyExpression(@NonNls String expression, ExpressionEvaluatorContext context, Class<?> expectedOutcome) {
         evaluate(expression, context, expectedOutcome, true);
         return context.isValid();
     }
 
     @Override
-    public <T> T evaluateExpression(String expression, ExpressionEvaluatorContext context) {
+    public <T> T evaluateExpression(@NonNls String expression, ExpressionEvaluatorContext context) {
         try {
             return evaluate(expression, context, null, false);
         } catch (Throwable e) {
@@ -59,20 +57,23 @@ public class GroovyExpressionEvaluator implements ExpressionEvaluator{
     }
 
     @Override
-    public boolean evaluateBooleanExpression(String expression, ExpressionEvaluatorContext context) {
+    public boolean evaluateBooleanExpression(@NonNls String expression, ExpressionEvaluatorContext context) {
         Object result = evaluateExpression(expression, context);
-        return result == null || Objects.equals(result, Boolean.TRUE);
+        return Objects.equals(result, Boolean.TRUE);
     }
 
     @SneakyThrows
-    private <T> T evaluate(String expression, ExpressionEvaluatorContext context, Class<?> expectedOutcome, boolean silent) {
+    private <T> T evaluate(@NonNls String expression, ExpressionEvaluatorContext context, Class<?> expectedOutcome, boolean silent) {
         try {
             expression = context.isTemporary() ? sqlToGroovy(expression) : cachedSqlToGroovy(expression);
             context.setExpression(expression);
             context.setError(null);
 
-            ScriptContext scriptContext = context.createScriptContext();
-            Object result = scriptEngine.eval(expression, scriptContext);
+            Binding binding = new Binding();
+            context.getBindVariables().forEach((n, v) -> binding.setVariable(n, v));
+
+            GroovyShell shell = GroovySandboxFactory.createSandbox(binding);
+            Object result = evaluate(shell, expression);
 
             verifyResult(result, expectedOutcome);
             return cast(result);
@@ -83,6 +84,20 @@ public class GroovyExpressionEvaluator implements ExpressionEvaluator{
         }
     }
 
+    private static Object evaluate(GroovyShell shell, @NonNls String expression) throws TimeoutException {
+        Object result = call(
+                "Groovy expression evaluation",
+                EVALUATION_TIMEOUT_SECONDS,
+                TIMED_OUT,
+                true,
+                () -> shell.evaluate(expression));
+
+        if (result == TIMED_OUT) {
+            throw new TimeoutException("Expression evaluation timed out after " + EVALUATION_TIMEOUT_SECONDS + " seconds");
+        }
+
+        return result;
+    }
 
     private static void verifyResult(Object result, Class<?> expectedType) {
         if (result == null) return;

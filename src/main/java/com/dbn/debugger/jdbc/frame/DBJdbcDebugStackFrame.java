@@ -18,6 +18,7 @@ package com.dbn.debugger.jdbc.frame;
 
 import com.dbn.common.latent.Latent;
 import com.dbn.database.common.debug.DebuggerRuntimeInfo;
+import com.dbn.database.common.debug.VariableInfo;
 import com.dbn.debugger.common.frame.DBDebugSourcePosition;
 import com.dbn.debugger.common.frame.DBDebugStackFrame;
 import com.dbn.debugger.jdbc.DBJdbcDebugProcess;
@@ -27,11 +28,15 @@ import com.dbn.execution.statement.StatementExecutionInput;
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XSourcePosition;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import static com.dbn.common.util.Strings.toLowerCase;
 
@@ -40,9 +45,16 @@ public class DBJdbcDebugStackFrame extends DBDebugStackFrame<DBJdbcDebugProcess,
     private final Latent<DBJdbcDebuggerEvaluator> evaluator =
             Latent.basic(() -> new DBJdbcDebuggerEvaluator(DBJdbcDebugStackFrame.this));
 
+    private final Map<String, VariableInfo> variableCache = new ConcurrentHashMap<>();
+
     DBJdbcDebugStackFrame(DBJdbcDebugProcess debugProcess, DebuggerRuntimeInfo runtimeInfo, int index) {
         super(debugProcess, index);
         this.runtimeInfo = runtimeInfo;
+    }
+
+    @SneakyThrows
+    public VariableInfo getVariableInfo(String variableName, Function<String, VariableInfo> loader) {
+        return variableCache.computeIfAbsent(variableName, loader);
     }
 
     @Override

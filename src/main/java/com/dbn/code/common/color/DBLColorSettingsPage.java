@@ -41,7 +41,7 @@ public abstract class DBLColorSettingsPage implements ColorSettingsPage {
     @NotNull
     public final String getDemoText() {
         if (demoText == null) {
-            demoText = TextResources.get(this, getDemoTextFileName());
+            demoText = TextResources.getInternal(this, getDemoTextFileName());
         }
         return demoText.replace("\r\n", "\n");
     }

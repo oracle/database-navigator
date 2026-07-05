@@ -28,6 +28,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SelectAiPromptActionsForm extends AssistantDetailFormBase implements AssistantPromptActionsForm {
     private JPanel mainPanel;
@@ -52,7 +53,7 @@ public class SelectAiPromptActionsForm extends AssistantDetailFormBase implement
     }
 
     private void createActionPanel() {
-        ActionToolbar typeActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantChatTypes");
+        ActionToolbar typeActions = Actions.createActionToolbar(actionsPanel, true, "DBN.Assistant.Chat.Types");
         setAccessibleName(typeActions, txt("app.assistant.aria.ChatTypeActions"));
         this.actionsPanel.add(typeActions.getComponent());
     }

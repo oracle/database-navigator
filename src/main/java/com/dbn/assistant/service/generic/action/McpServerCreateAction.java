@@ -17,13 +17,15 @@
 package com.dbn.assistant.service.generic.action;
 
 import com.dbn.assistant.chat.window.action.AbstractChatBoxAction;
-import com.dbn.assistant.mcp.AssistantMcpServerData;
 import com.dbn.assistant.mcp.AssistantMcpServerSettings;
+import com.dbn.assistant.mcp.AssistantMcpServerState;
+import com.dbn.assistant.mcp.model.AssistantMcpServerBundle;
 import com.dbn.assistant.mcp.ui.AssistantMcpServerEditDialog;
 import com.dbn.assistant.mcp.ui.AssistantMcpServerEditRequest;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.BackgroundUpdate;
+import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.util.Dialogs;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -32,6 +34,7 @@ import com.intellij.openapi.project.Project;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.approval.UserApprovalAction.MCP_SERVER_ACCESS;
 import static com.dbn.nls.NlsResources.txt;
 
 @Setter
@@ -43,17 +46,19 @@ public class McpServerCreateAction extends AbstractChatBoxAction {
         AssistantState assistantState = getAssistantState(e);
         if (assistantState == null) return;
 
-        AssistantMcpServerData mcpServerData = assistantState.getMcpServerData();
+        AssistantMcpServerState mcpServerState = AssistantMcpServerState.get(assistantState);
 
         AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
         AssistantMcpServerSettings mcpServerSettings = assistantSettings.getMcpServerSettings();
 
+        AssistantMcpServerBundle mcpServers = mcpServerSettings.getMcpServers();
         AssistantMcpServerEditRequest request = AssistantMcpServerEditRequest
                 .builder()
-                .mcpServers(mcpServerSettings.getMcpServers())
+                .mcpServers(mcpServers)
                 .saveConsumer(s -> {
-                    mcpServerSettings.getMcpServers().addMcpServer(s);
-                    mcpServerData.setSelected(s.getId(), true);
+                    mcpServers.addMcpServer(s);
+                    UserApprovalManager.getInstance().approve(MCP_SERVER_ACCESS, s);
+                    mcpServerState.setSelected(s.getId(), true);
                 })
                 .build();
 

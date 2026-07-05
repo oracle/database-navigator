@@ -26,7 +26,8 @@ import com.dbn.database.common.statement.CallableStatementOutput;
 import com.dbn.database.common.statement.StatementExecutionProcessor;
 import com.dbn.database.interfaces.DatabaseInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuoteDefinition;
+import com.dbn.language.common.quotes.QuotePair;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
@@ -41,6 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 
 @Getter
 public abstract class DatabaseInterfaceBase implements DatabaseInterface{
@@ -147,5 +149,15 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
             Resources.close(resultSet);
         }
         return null;
+    }
+
+    protected String quoted(String identifier) {
+        QuotePair quotes = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
+        return quotes.quote(identifier, DATABASE);
+    }
+
+    protected final String unquoted(String identifier) {
+        QuoteDefinition identifierQuotes = getInterfaces().getCompatibilityInterface().getIdentifierQuotes();
+        return identifierQuotes.unquote(identifier, DATABASE);
     }
 }

@@ -24,7 +24,9 @@ import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.context.DatabaseContextBase;
+import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.generator.statement.StatementGeneratorResult;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.sql.SQLFileType;
@@ -36,6 +38,7 @@ import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.datatransfer.StringSelection;
 
@@ -56,27 +59,43 @@ public abstract class GenerateStatementAction extends ProjectAction implements D
                                         txt("msg.codeGenerator.message.StatementGenerationError"),
                                         result.getMessages());
                             } else {
-                                pasteStatement(result, project);
+                                pasteStatement(result, project, getConnectionId());
                             }
                         }));
     }
 
 
-    private void pasteStatement(StatementGeneratorResult result, Project project) {
+    private void pasteStatement(StatementGeneratorResult result, Project project, ConnectionId connectionId) {
         Dispatch.run(nonModal(), () -> {
-            Editor editor = Editors.getSelectedEditor(project, SQLFileType.INSTANCE);
-            if (editor != null) {
-                VirtualFile virtualFile = Documents.getVirtualFile(editor);
-                if (virtualFile instanceof DBSourceCodeVirtualFile) {
-                    // do not paste ddl statements into source code files
-                    editor = null;
-                }
-            }
+            Editor editor = resolveTargetEditor(project, connectionId);
 
-            if (editor != null)
-                pasteToEditor(editor, result); else
+            if (editor == null) {
                 pasteToClipboard(result, project);
+            } else {
+                pasteToEditor(editor, result);
+            }
         });
+    }
+
+    @Nullable
+    private static Editor resolveTargetEditor(Project project, ConnectionId connectionId) {
+        Editor editor = Editors.getSelectedEditor(project, SQLFileType.INSTANCE);
+        if (editor == null) return null;
+
+        VirtualFile virtualFile = Documents.getVirtualFile(editor);
+        if (virtualFile == null) return null;
+
+        // do not paste ddl statements into source code files
+        if (virtualFile instanceof DBSourceCodeVirtualFile) return null;
+
+        // do not paste ddl statements into foreign connections
+        FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
+        ConnectionId fileConnectionId = contextManager.getConnectionId(virtualFile);
+        if (fileConnectionId != null && !fileConnectionId.equals(connectionId)) {
+            return null;
+        }
+
+        return editor;
     }
 
     private static void pasteToClipboard(StatementGeneratorResult result, Project project) {
@@ -92,7 +111,7 @@ public abstract class GenerateStatementAction extends ProjectAction implements D
     private static void pasteToEditor(final Editor editor, final StatementGeneratorResult generatorResult) {
         Command.run(
                 editor.getProject(),
-                txt("prc.codeGenerator.label.ExtractStatement"),
+                txt("app.codeGenerator.action.ExtractStatement"),
                 () -> {
                     String statement = generatorResult.getStatement();
                     PsiUtil.moveCaretOutsideExecutable(editor);

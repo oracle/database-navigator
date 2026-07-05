@@ -17,7 +17,6 @@
 package com.dbn.project;
 
 import com.dbn.assistant.service.selectai.SelectAiInitializationManager;
-import com.dbn.common.component.EagerService;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.connection.config.ConnectionBundleSettings;
@@ -48,13 +47,14 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.state.StateEncryption.requestUnencryptedStateApproval;
 
 /**
  * TODO SERVICES
  * TODO find another way to define "silent" dependencies
  */
 @Getter
-public class ProjectComponentsInitializer extends ProjectComponentBase implements /*StartupActivity, */DumbAware, EagerService {
+public class ProjectComponentsInitializer extends ProjectComponentBase implements DumbAware{
     public static final String COMPONENT_NAME = "DBNavigator.Project.WorkspaceInitializer";
     private boolean initialized;
 
@@ -92,6 +92,7 @@ public class ProjectComponentsInitializer extends ProjectComponentBase implement
 
     public void initializeComponents() {
         Project project = getProject();
+
         DatabaseConsoleManager.getInstance(project);
         DatabaseEditorStateManager.getInstance(project);
         SourceCodeManager.getInstance(project);
@@ -109,5 +110,7 @@ public class ProjectComponentsInitializer extends ProjectComponentBase implement
         DatabasePrerequisiteManager.getInstance(project);
         EventNotificationManager.getInstance(project);
         initialized = true;
+
+        requestUnencryptedStateApproval();
     }
 }

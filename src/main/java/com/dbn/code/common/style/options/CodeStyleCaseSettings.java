@@ -32,6 +32,7 @@ import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter

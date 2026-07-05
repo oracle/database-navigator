@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,30 @@
 
 package com.dbn.assistant.mcp.ui;
 
-import com.dbn.assistant.mcp.AssistantMcpServer;
-import com.dbn.assistant.mcp.AssistantMcpServerBundle;
-import com.dbn.assistant.mcp.AssistantMcpServerType;
+import com.dbn.assistant.mcp.model.AssistantMcpServer;
+import com.dbn.assistant.mcp.model.AssistantMcpServerBundle;
+import com.dbn.assistant.mcp.model.AssistantMcpServerType;
 import com.dbn.common.ui.table.DBNEntityEditableTableModel;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.options.ConfigurationException;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantMcpServersTableModel extends DBNEntityEditableTableModel<AssistantMcpServer> {
 
     AssistantMcpServersTableModel(AssistantMcpServerBundle mcpServers) {
         super(() -> mcpServers.getElements());
 
-        addColumn("Server Name", String.class, c -> c.getName(), (c, v) -> c.setName(v));
-        addColumn("Server Type", AssistantMcpServerType.class, c -> c.getType(), null);
-        addColumn("Url / Command", String.class, c -> c.getEndpoint(), null);
+        addColumn(txt("app.assistant.column.ServerName"), String.class, c -> c.getName(), (c, v) -> c.setName(v));
+        addColumn(txt("app.assistant.column.ServerType"), AssistantMcpServerType.class, c -> c.getType(), null);
+        addColumn(txt("app.assistant.column.UrlCommand"), String.class, c -> c.getEndpoint(), null);
     }
 
 
     public void validate() throws ConfigurationException {
         for (AssistantMcpServer mcpServer : getElements()) {
             if (Strings.isEmpty(mcpServer.getName())) {
-                throw new ConfigurationException("Please provide names for all mcp servers.");
+                throw new ConfigurationException(txt("cfg.assistant.error.McpServerNamesRequired"));
             }
         }
     }

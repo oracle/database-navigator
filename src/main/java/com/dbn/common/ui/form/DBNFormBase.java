@@ -18,7 +18,6 @@ package com.dbn.common.ui.form;
 
 import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.ComponentDisposer;
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.latent.Latent;
@@ -37,10 +36,11 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.Button;
+import com.intellij.openapi.util.NlsContexts.Tooltip;
 import lombok.Getter;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,6 +60,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
 
+import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static com.dbn.common.ui.form.DBNFormBinding.bindForm;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
@@ -198,6 +199,8 @@ public abstract class DBNFormBase
     }
 
     public void revalidateForm() {
+        if (!isInitialized()) return;
+
         JComponent mainComponent = getMainComponent();
         mainComponent.revalidate();
         mainComponent.repaint();
@@ -282,6 +285,10 @@ public abstract class DBNFormBase
     }
 
 
+    public <D extends DBNDialog> D ensureParentDialog() {
+        return nd(getParentDialog());
+    }
+
     /**
      * Retrieves the parent dialog associated with the current form or component, if present.
      * The method attempts to determine the parent dialog by navigating the hierarchy of parent components.
@@ -315,18 +322,18 @@ public abstract class DBNFormBase
 
     @NotNull
     public final <F extends DBNForm> F ensureParentFrom(Class<F> formClass) {
-        return Failsafe.nd(getParentFrom(formClass));
+        return nd(getParentFrom(formClass));
     }
 
     protected static Action createAction(
-            @NotNull @Nls String name,
+            @NotNull @Button String name,
             @NotNull Runnable runnable) {
         return createAction(name, null, runnable);
     }
 
     protected static Action createAction(
-            @NotNull @Nls String name,
-            @Nullable String description,
+            @NotNull @Button String name,
+            @Nullable @Tooltip String description,
             @NotNull Runnable runnable) {
         return new AbstractAction(name) {
             {

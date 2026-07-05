@@ -29,6 +29,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class TransactionCommitAction extends TransactionEditorAction {
 
+    public TransactionCommitAction() {
+        super(txt("app.codeEditor.action.ScriptEditorCommitTransaction"));
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         super.update(e, project);

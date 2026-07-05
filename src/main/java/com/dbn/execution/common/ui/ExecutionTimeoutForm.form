@@ -16,7 +16,7 @@
         </constraints>
         <properties>
           <labelFor value="2212"/>
-          <text value="Execution &amp;timeout"/>
+          <text resource-bundle="messages/DBNResources" key="app.shared.label.ExecutionTimeout"/>
         </properties>
       </component>
       <hspacer id="9dcf3">
@@ -39,7 +39,7 @@
           <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="seconds (0 = no timeout)"/>
+          <text resource-bundle="messages/DBNResources" key="app.shared.label.Seconds0NoTimeout"/>
         </properties>
       </component>
       <grid id="7733a" binding="actionsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">

@@ -1,6 +1,8 @@
 package com.dbn.mcp.build;
 
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.mcp.model.McpServerDefinition;
+import com.dbn.mcp.model.McpTransportType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.ui.components.JBScrollPane;
@@ -17,21 +19,24 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.datatransfer.StringSelection;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class McpBuildResultForm extends DBNFormBase {
     private final JPanel mainPanel;
+    private final McpServerDefinition definition;
+    private final McpBuilderResult result;
 
-    public McpBuildResultForm(@NotNull Disposable parent,
-                               String configPath,
-                               String jarPath,
-                               String walletPath,
-                               String sourceProjectPath,
-                               boolean httpTransport,
-                               String claudeSnippetJson,
-                               String clineSnippetJson) {
+    public McpBuildResultForm(
+            @NotNull Disposable parent,
+            @NotNull McpServerDefinition definition,
+            @NotNull McpBuilderResult result) {
         super(parent);
+        this.definition = definition;
+        this.result = result;
+
         mainPanel = new JPanel(new BorderLayout(8, 8));
-        mainPanel.add(createHeaderLabel(configPath, jarPath, walletPath, sourceProjectPath, httpTransport), BorderLayout.NORTH);
-        mainPanel.add(createConfigTabs(httpTransport, claudeSnippetJson, clineSnippetJson), BorderLayout.CENTER);
+        mainPanel.add(createHeaderLabel(), BorderLayout.NORTH);
+        mainPanel.add(createConfigTabs(), BorderLayout.CENTER);
     }
 
     @NotNull
@@ -40,36 +45,29 @@ public class McpBuildResultForm extends DBNFormBase {
         return mainPanel;
     }
 
-    private JLabel createHeaderLabel(String configPath, String jarPath, String walletPath, String sourceProjectPath, boolean httpTransport) {
-        String transportSteps = httpTransport
-                ? "1. Start the JAR so it serves HTTP (see README for transport/httpPort).<br>"
-                + "2. Copy the JSON below into your MCP client configuration.<br>"
-                + "3. Keep the <code>wallet/</code> folder private and secure.<br>"
-                : "1. Copy the JSON below into your MCP client configuration (e.g. Claude Desktop).<br>"
-                + "2. Keep the <code>wallet/</code> folder private.<br>";
-        String readmeStep = httpTransport ? "4." : "3.";
-        String readmeMessage = httpTransport
-                ? " See <code>README.md</code> in the output folder for full run details and HTTP customization (including <code>httpPort</code> changes)."
-                : " See <code>README.md</code> in the output folder for full run and customization details.";
-
-        String headerHtml = "<html>"
-                + "<b>MCP server built successfully.</b><br><br>"
-                + "Built JAR: " + escapeHtml(jarPath) + "<br>"
-                + "Config: " + escapeHtml(configPath) + "<br>"
-                + "Wallet: " + escapeHtml(walletPath) + "<br>"
-                + "Source project: " + escapeHtml(sourceProjectPath) + "<br><br>"
-                + "<b>Next steps:</b><br>"
-                + transportSteps
-                + readmeStep + readmeMessage
-                + "</html>";
+    private JLabel createHeaderLabel() {
+        boolean httpTransport = isHttpTransport();
+        String headerHtml = txt(httpTransport ?
+                        "msg.mcp.text.BuildResultHttp" :
+                        "msg.mcp.text.BuildResultStdio",
+                escapeHtml(result.getServerJar().toString()),
+                escapeHtml(result.getConfigFile().toString()),
+                escapeHtml(result.getWalletDirectory().toString()),
+                escapeHtml(result.getSourceDirectory().toString()));
         return new JLabel(headerHtml);
     }
 
-    private JBTabbedPane createConfigTabs(boolean httpTransport, String claudeSnippetJson, String clineSnippetJson) {
+    private boolean isHttpTransport() {
+        return definition.getTransportType() == McpTransportType.HTTP;
+    }
+
+    private JBTabbedPane createConfigTabs() {
+        boolean httpTransport = isHttpTransport();
         JBTabbedPane tabs = new JBTabbedPane();
-        tabs.addTab(httpTransport ? "Claude" : "MCP Config", createConfigTab(claudeSnippetJson));
+        tabs.addTab(httpTransport ? txt("app.mcp.title.Claude") : txt("app.mcp.title.McpConfig"), createConfigTab(result.getClaudeSnippetJson()));
+        String clineSnippetJson = result.getClineSnippetJson();
         if (httpTransport && clineSnippetJson != null) {
-            tabs.addTab("Cline", createConfigTab(clineSnippetJson));
+            tabs.addTab(txt("app.mcp.title.Cline"), createConfigTab(clineSnippetJson));
         }
         return tabs;
     }
@@ -89,7 +87,7 @@ public class McpBuildResultForm extends DBNFormBase {
     }
 
     private JPanel createCopyButtonPanel(String content) {
-        JButton copyButton = new JButton("Copy to Clipboard");
+        JButton copyButton = new JButton(txt("app.mcp.button.CopyToClipboard"));
         copyButton.addActionListener(e ->
                 CopyPasteManager.getInstance().setContents(new StringSelection(content))
         );

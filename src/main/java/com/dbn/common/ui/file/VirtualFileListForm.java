@@ -19,6 +19,7 @@ package com.dbn.common.ui.file;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.intellij.openapi.util.NlsContexts.Label;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ToolbarDecorator;
 import lombok.Getter;
@@ -41,11 +42,11 @@ public class VirtualFileListForm extends DBNFormBase {
     @Getter
     private final VirtualFileList fileList;
 
-    public VirtualFileListForm(DBNComponent parent, String title) {
+    public VirtualFileListForm(DBNComponent parent, @Label String title) {
         this(parent, title, new ArrayList<>());
     }
 
-    public VirtualFileListForm(DBNComponent parent, String title, List<VirtualFile> elements) {
+    public VirtualFileListForm(DBNComponent parent, @Label String title, List<VirtualFile> elements) {
         super(parent);
         titleLabel.setText(title);
         fileList = new VirtualFileList(elements);
@@ -89,7 +90,12 @@ public class VirtualFileListForm extends DBNFormBase {
     }
 
     public void setFiles(List<VirtualFile> files) {
+        fileList.resetUserSelectedPaths();
         VirtualFileListModel model = fileList.getModel();
         model.reset(files);
+    }
+
+    public boolean isUserSelectedPath(String path) {
+        return fileList.isUserSelectedPath(path);
     }
 }

@@ -28,6 +28,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EmbeddingResultForm extends ExecutionResultFormBase<VectorEmbeddingExecutionResult> {
     private JPanel mainPanel;
@@ -57,7 +58,7 @@ public class EmbeddingResultForm extends ExecutionResultFormBase<VectorEmbedding
     }
 
     private void createActionsPanel() {
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.VectorEmbeddingResult");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBN.Vector.Embedding.Result");
         setAccessibleName(actionToolbar, txt("app.execution.aria.VectorEmbeddingExecutionResultActions"));
         actionsPanel.add(actionToolbar.getComponent());
     }

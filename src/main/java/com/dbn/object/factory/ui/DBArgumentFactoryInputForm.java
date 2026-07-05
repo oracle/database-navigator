@@ -41,11 +41,12 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_OUTPUT;
 
-public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm<DBObjectSpec> {
+public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm {
     private JPanel mainPanel;
     private JLabel iconLabel;
     private JBTextField nameTextField;
@@ -66,7 +67,7 @@ public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm<DBObjec
             inCheckBox.addActionListener(actionListener);
             outCheckBox.addActionListener(actionListener);
         }
-        nameTextField.getEmptyText().setText("Argument name");
+        nameTextField.getEmptyText().setText(txt("app.objects.placeholder.ArgumentName"));
 
         dataTypeEditor = new DataTypeEditor(getConnection());
         dataTypeEditorPanel.add(dataTypeEditor);
@@ -92,11 +93,11 @@ public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm<DBObjec
 
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), "Please enter an argument name");
-        addTextValidation(nameTextField, n -> isWord(n), "Please enter a valid argument name");
-        addTextValidation(nameTextField, n -> isNotUsed(n), "Please enter a unique argument name");
+        addTextValidation(nameTextField, n -> isNotEmptyOrSpaces(n), txt("msg.objects.error.ArgumentNameRequired"));
+        addTextValidation(nameTextField, n -> isWord(n), txt("msg.objects.error.ValidArgumentNameRequired"));
+        addTextValidation(nameTextField, n -> isNotUsed(n), txt("msg.objects.error.UniqueArgumentNameRequired"));
 
-        addTextValidation(getTypeTextField(), t -> isNotEmptyOrSpaces(t), "Please enter the argument data type");
+        addTextValidation(getTypeTextField(), t -> isNotEmptyOrSpaces(t), txt("msg.objects.error.ArgumentDataTypeRequired"));
     }
 
     private boolean isNotUsed(String argumentName) {
@@ -109,10 +110,10 @@ public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm<DBObjec
     protected void initAccessibility() {
         JTextField typeTextField = getTypeTextField();
 
-        setAccessibleName(typeTextField, "Argument type");
-        setAccessibleName(nameTextField, "Argument name");
-        setAccessibleName(inCheckBox, "Is input argument");
-        setAccessibleName(outCheckBox, "Is output argument");
+        setAccessibleName(typeTextField, txt("app.objects.aria.ArgumentType"));
+        setAccessibleName(nameTextField, txt("app.objects.aria.ArgumentName"));
+        setAccessibleName(inCheckBox, txt("app.objects.aria.IsInputArgument"));
+        setAccessibleName(outCheckBox, txt("app.objects.aria.IsOutputArgument"));
     }
 
     @Override

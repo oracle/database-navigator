@@ -30,8 +30,10 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
+import static com.dbn.nls.NlsResources.txt;
 
 public class JsonDataEditorModelRow extends ResultSetDataModelRow<JsonDataEditorModel, JsonDataEditorModelCell> {
 
@@ -89,7 +91,7 @@ public class JsonDataEditorModelRow extends ResultSetDataModelRow<JsonDataEditor
             conditionallyLog(e);
             Messages.showErrorDialog(getProject(),
                     txt("msg.dataEditor.title.CannotDeleteRecord"),
-                    txt("msg.dataEditor.error.CannotDeleteRecord",  getIndex(), e.getMessage()));
+                    txt("msg.dataEditor.error.CannotDeleteRecord",  getIndex(), getLocalizedMessage(e)));
         }
     }
 

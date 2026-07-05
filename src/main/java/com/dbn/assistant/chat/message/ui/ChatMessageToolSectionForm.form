@@ -75,7 +75,7 @@
                           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties>
-                          <text value="[tool type]"/>
+                          <text resource-bundle="messages/DBNResources" key="cfg.assistant.placeholder.ToolType"/>
                         </properties>
                       </component>
                       <component id="ba90d" class="com.dbn.common.ui.info.DBNInfoLabel" binding="toolInfoLabel">
@@ -102,7 +102,7 @@
                         </constraints>
                         <properties>
                           <font style="1"/>
-                          <text value="[tool name]"/>
+                          <text resource-bundle="messages/DBNResources" key="cfg.assistant.placeholder.ToolName"/>
                         </properties>
                       </component>
                       <hspacer id="6cf54">
@@ -115,7 +115,7 @@
                           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties>
-                          <text value="[invocation summary]"/>
+                          <text resource-bundle="messages/DBNResources" key="cfg.assistant.placeholder.InvocationSummary"/>
                         </properties>
                       </component>
                     </children>
@@ -161,7 +161,7 @@
                     </constraints>
                     <properties>
                       <font style="1"/>
-                      <text value="[header title]"/>
+                      <text resource-bundle="messages/DBNResources" key="cfg.assistant.placeholder.HeaderTitle"/>
                     </properties>
                   </component>
                   <hspacer id="2b3b7">
@@ -176,7 +176,7 @@
                   <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="[tool]"/>
+                  <text resource-bundle="messages/DBNResources" key="cfg.assistant.placeholder.Tool"/>
                 </properties>
               </component>
             </children>
@@ -219,7 +219,7 @@
                 </constraints>
                 <properties>
                   <opaque value="false"/>
-                  <text value="The agent has requested the execution of this tool against your database. Please verify the request and approve or reject the tool execution."/>
+                  <text resource-bundle="messages/DBNResources" key="cfg.assistant.text.ToolApprovalRequest"/>
                 </properties>
               </component>
               <component id="70cbf" class="javax.swing.JSeparator" binding="messageSeparator">
@@ -263,7 +263,7 @@
                 </constraints>
                 <properties>
                   <enabled value="false"/>
-                  <text value="Processing..."/>
+                  <text resource-bundle="messages/DBNResources" key="cfg.assistant.text.Processing"/>
                 </properties>
               </component>
             </children>

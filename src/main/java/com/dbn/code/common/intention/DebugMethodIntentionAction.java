@@ -40,8 +40,8 @@ public class DebugMethodIntentionAction extends AbstractMethodExecutionIntention
     @Override
     protected String getActionName(DBMethod method) {
         return method == null ?
-                txt("app.codeEditor.action.DebugMethod") :
-                txt("app.codeEditor.action.DebugSpecificMethod", method.getQualifiedNameWithType());
+                txt("app.codeEditor.intention.DebugMethod") :
+                txt("app.codeEditor.intention.DebugSpecificMethod", method.getQualifiedNameWithType());
     }
 
     @Override

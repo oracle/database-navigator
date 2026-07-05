@@ -16,18 +16,18 @@
 
 package com.dbn.database.mysql;
 
-import com.dbn.common.database.AuthenticationInfo;
-import com.dbn.common.database.DatabaseInfo;
 import com.dbn.connection.SchemaId;
-import com.dbn.database.CmdLineExecutionInput;
+import com.dbn.database.DatabaseScriptClientCommand;
 import com.dbn.database.common.DatabaseExecutionInterfaceImpl;
 import com.dbn.database.common.execution.JavaExecutionProcessor;
 import com.dbn.database.common.execution.MethodExecutionProcessor;
-import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.execution.script.ScriptExecutionInput;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
 
 public class MySqlExecutionInterface extends DatabaseExecutionInterfaceImpl {
 
@@ -46,21 +46,20 @@ public class MySqlExecutionInterface extends DatabaseExecutionInterfaceImpl {
 
     public JavaExecutionProcessor createDebugExecutionProcessor(DBJavaMethod method) {return null;}
 
-    @Override
-    public CmdLineExecutionInput createScriptExecutionInput(
-            @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
-            @NotNull String content,
-            @Nullable SchemaId schemaId,
-            @NotNull DatabaseInfo databaseInfo,
-            @NotNull AuthenticationInfo authenticationInfo) {
+    public void verifyScriptExecutionInput(ScriptExecutionInput executionInput) {
+        verifyEnvironmentPasswordApproval(executionInput);
+    }
 
-        return new MySqlScriptExecutionInput(
-                cmdLineInterface,
-                filePath,
-                content,
-                schemaId,
-                databaseInfo,
-                authenticationInfo);
+    @Override
+    public DatabaseScriptClientCommand createScriptExecutionCommand(
+            @NotNull ScriptExecutionInput executionInput,
+            @NotNull File scriptFile,
+            @NotNull String scriptContent,
+            @Nullable SchemaId schemaId) {
+        return new MySqlScriptClientCommand(
+                executionInput,
+                scriptFile,
+                scriptContent,
+                schemaId);
     }
 }

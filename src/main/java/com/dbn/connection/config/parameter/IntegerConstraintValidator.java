@@ -19,6 +19,8 @@ package com.dbn.connection.config.parameter;
 import com.dbn.common.properties.ui.PropertiesValidator;
 import com.intellij.openapi.ui.ValidationInfo;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class IntegerConstraintValidator extends PropertiesValidator {
     private final int lowerBound;
     private final int upperBound;
@@ -40,21 +42,21 @@ public class IntegerConstraintValidator extends PropertiesValidator {
             try {
                 intValue = Integer.parseInt((String) value);
             } catch (NumberFormatException nfe) {
-                return new ValidationInfo(keyName + " must be an integer");
+                return new ValidationInfo(txt("cfg.connection.error.ParameterValueMustBeInteger", keyName));
             }
         }
         else if (value instanceof Integer) {
             intValue = (Integer) value;
         }
         else {
-            return new ValidationInfo(keyName + " must be an integer");
+            return new ValidationInfo(txt("cfg.connection.error.ParameterValueMustBeInteger", keyName));
         }
 
         if (intValue < lowerBound) {
-            return new ValidationInfo(keyName + " must be an integer value of at least "+lowerBound);
+            return new ValidationInfo(txt("cfg.connection.error.ParameterValueTooSmall", keyName, lowerBound));
         }
         else if (intValue > upperBound ) {
-            return new ValidationInfo(keyName + " mut be an integer value of no more than "+upperBound);
+            return new ValidationInfo(txt("cfg.connection.error.ParameterValueTooLarge", keyName, upperBound));
         }
         return null;
     }

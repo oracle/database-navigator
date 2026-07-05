@@ -17,11 +17,11 @@
 package com.dbn.connection.config.ui;
 
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.clipboard.Clipboard;
 import com.dbn.common.color.Colors;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.util.Borders;
@@ -30,12 +30,13 @@ import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Naming;
-import com.dbn.common.util.XmlContents;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.ConnectionBundleSettings;
+import com.dbn.connection.config.ConnectionConfigExport;
+import com.dbn.connection.config.ConnectionConfigImportPreview;
 import com.dbn.connection.config.ConnectionConfigListCellRenderer;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
@@ -58,6 +59,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,22 +71,24 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
 import java.awt.datatransfer.StringSelection;
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
+import static com.dbn.common.options.ConfigStorage.CLIPBOARD;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.makeRegular;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Lists.anyMatch;
 import static com.dbn.common.util.Lists.count;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<ConnectionBundleSettings> implements ListSelectionListener {
-
     private JPanel mainPanel;
     private JPanel actionsPanel;
     private JPanel connectionSetupPanel;
@@ -111,7 +115,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         connectionsList.setBorder(Borders.EMPTY_BORDER);
         makeRegular(contentSplitPane);
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.ConnectionSettings");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.Connection.Settings");
         setAccessibleName(actionToolbar, txt("cfg.connections.aria.ConnectionConfigurationActions"));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
         connectionListScrollPane.setViewportView(connectionsList);
@@ -274,6 +278,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         return connectionId;
     }
 
+    @NonNls
     private String  getUrl(OciConnectionData connectionData){
         String urlPrefix = "jdbc:oracle:thin:@tcps://";
         String connectionStringHigh = connectionData.getAllConnectionStrings().get("HIGH");
@@ -307,7 +312,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             connectionsList.setSelectedIndex(selectedIndex);
         } catch (ConfigurationException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(getProject(), e.getMessage());
+            Messages.showErrorDialog(getProject(), getLocalizedMessage(e));
         }
     }
 
@@ -358,7 +363,8 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         List<ConnectionSettings> configurations = connectionsList.getSelectedValuesList();
         Project project = getProject();
         try {
-            Element rootElement = newElement("connection-configurations");
+            ConfigMonitor.set(CLIPBOARD, true);
+            Element rootElement = ConnectionConfigExport.createConnectionConfigElement();
             for (ConnectionSettings configuration : configurations) {
                 Element configElement = newElement(rootElement, "config");
                 configuration.writeConfiguration(configElement);
@@ -378,74 +384,93 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             Messages.showErrorDialog(project,
                     txt("msg.connection.title.ExportFailed"),
                     txt("msg.connection.error.ExportFailed"), e);
+        } finally {
+            ConfigMonitor.set(CLIPBOARD, false);
         }
     }
 
     public void pasteConnectionsFromClipboard() {
-        String clipboardData = Clipboard.getStringContent();
-        if (clipboardData != null) {
-            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(clipboardData.getBytes())) {
-                Element rootElement = XmlContents.streamToElement(inputStream);
-                boolean configurationsFound = false;
-                List<Element> configElements = rootElement.getChildren();
-                ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
-                int index = connectionsList.getModel().getSize();
-                List<Integer> selectedIndices = new ArrayList<>();
-                ConnectionBundleSettings configuration = getConfiguration();
-                for (Element configElement : configElements) {
-                    ConnectionSettings clone = new ConnectionSettings(configuration);
-                    clone.readConfiguration(configElement);
-                    clone.setNew(true);
-                    clone.generateNewId();
+        try {
+            Element rootElement = ConnectionConfigExport.readClipboardElement();
+            if (rootElement == null) return;
 
-                    ConnectionDatabaseSettings databaseSettings = clone.getDatabaseSettings();
-                    String name = databaseSettings.getName();
-                    while (model.getConnectionConfig(name) != null) {
-                        name = Naming.nextNumberedIdentifier(name, true);
-                    }
-                    databaseSettings.setName(name);
-                    model.add(index, clone);
-                    selectedIndices.add(index);
-                    configuration.setModified(true);
-                    index++;
-                    configurationsFound = true;
-                }
+            List<Element> configElements = rootElement.getChildren();
+            ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
+            ConnectionBundleSettings configuration = getConfiguration();
+            List<ConnectionSettings> importedConnections = new ArrayList<>();
+            for (Element configElement : configElements) {
+                ConnectionSettings clone = new ConnectionSettings(configuration);
+                clone.readConfiguration(configElement);
+                clone.setNew(true);
+                clone.generateNewId();
 
-                if (configurationsFound) {
-                    int[] indices = selectedIndices.stream().mapToInt(i -> i).toArray();
-                    connectionsList.setSelectedIndices(indices);
-                }
-
-                if (!configurationsFound) {
-                    Messages.showWarningDialog(
-                            getProject(),
-                            txt("msg.connection.title.ImportFailed"),
-                            txt("msg.connection.warning.ImportFailedEmpty"));
-                }
-
-            } catch (Exception e) {
-                conditionallyLog(e);
-                Messages.showErrorDialog(getProject(),
-                        txt("msg.connection.title.ImportFailed"),
-                        txt("msg.connection.error.ImportFailedUnparseable"), e);
+                ConnectionDatabaseSettings databaseSettings = clone.getDatabaseSettings();
+                databaseSettings.setName(ensureUniqueName(databaseSettings.getName(), model, importedConnections));
+                importedConnections.add(clone);
             }
+
+            if (importedConnections.isEmpty()) {
+                Messages.showWarningDialog(
+                        getProject(),
+                        txt("msg.connection.title.ImportFailed"),
+                        txt("msg.connection.warning.ImportFailedEmpty"));
+                return;
+            }
+
+            if (!ConnectionConfigImportPreview.confirm(getProject(), importedConnections)) return;
+
+            int index = connectionsList.getModel().getSize();
+            List<Integer> selectedIndices = new ArrayList<>();
+            for (ConnectionSettings connection : importedConnections) {
+                model.add(index, connection);
+                selectedIndices.add(index);
+                configuration.setModified(true);
+                index++;
+            }
+
+            int[] indices = selectedIndices.stream().mapToInt(i -> i).toArray();
+            connectionsList.setSelectedIndices(indices);
+
+        } catch (Exception e) {
+            conditionallyLog(e);
+            Messages.showErrorDialog(getProject(),
+                    txt("msg.connection.title.ImportFailed"),
+                    txt("msg.connection.error.ImportFailedUnparseable"), e);
         }
     }
-    public void importTnsNames(TnsImportData importData){
-        importTnsNames(importData,null);
+
+    private static String ensureUniqueName(
+            String name,
+            ConnectionListModel model,
+            List<ConnectionSettings> importedConnections) {
+        while (true) {
+            String candidateName = name;
+            boolean nameAlreadyUsed =
+                    model.getConnectionConfig(candidateName) != null ||
+                    anyMatch(importedConnections, connection -> Commons.match(connection.getDatabaseSettings().getName(), candidateName));
+            if (!nameAlreadyUsed) return candidateName;
+
+            name = Naming.nextNumberedIdentifier(candidateName, true);
+        }
     }
-    public void importTnsNames(TnsImportData importData, OciConnectionData ociConnectionData) {
+
+    public ConnectionId importTnsNames(TnsImportData importData){
+        return importTnsNames(importData,null);
+    }
+    public ConnectionId importTnsNames(TnsImportData importData, OciConnectionData ociConnectionData) {
         ConnectionBundleSettings connectionBundleSettings = getConfiguration();
         ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
         int index = connectionsList.getModel().getSize();
         List<Integer> selectedIndexes = new ArrayList<>();
 
+        ConnectionId firstConnectionId = null;
         TnsNames tnsNames = importData.getTnsNames();
         List<TnsProfile> tnsProfiles = importData.isSelectedOnly() ? tnsNames.getSelectedProfiles() : tnsNames.getProfiles();
         for (TnsProfile tnsProfile : tnsProfiles) {
             ConnectionSettings connectionSettings = getConnectionSettings(ociConnectionData, connectionBundleSettings);
             connectionBundleSettings.setModified(true);
             connectionBundleSettings.getConnections().add(connectionSettings);
+            firstConnectionId = firstConnectionId == null ? connectionSettings.getConnectionId() : firstConnectionId;
 
             ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
             DatabaseInfo databaseInfo = databaseSettings.getDatabaseInfo();
@@ -474,6 +499,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         }
 
         connectionsList.setSelectedIndices(selectedIndexes.stream().mapToInt(i -> i).toArray());
+        return firstConnectionId;
     }
 
     private static @NotNull ConnectionSettings getConnectionSettings(OciConnectionData ociConnectionData, ConnectionBundleSettings connectionBundleSettings) {

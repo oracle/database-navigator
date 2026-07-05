@@ -23,7 +23,6 @@ import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
-import com.dbn.connection.ResultSets;
 import com.dbn.connection.SchemaId;
 import com.dbn.execution.ExecutionResultBase;
 import com.dbn.execution.explain.result.ui.ExplainPlanResultForm;
@@ -47,6 +46,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.dispose.Disposer.replace;
+import static com.dbn.editor.data.model.ResultSetSupport.getColumnNames;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -66,7 +67,7 @@ public class ExplainPlanResult extends ExecutionResultBase<ExplainPlanResultForm
         // entries must be sorted by PARENT_ID NULLS FIRST, ID
         Map<Integer, ExplainPlanEntry> entries = new HashMap<>();
         ConnectionHandler connection = getConnection();
-        List<String> explainColumnNames = ResultSets.getColumnNames(resultSet);
+        List<String> explainColumnNames = getColumnNames(resultSet);
 
         while (resultSet.next()) {
             ExplainPlanEntry entry = new ExplainPlanEntry(connection, resultSet, explainColumnNames);
@@ -89,7 +90,7 @@ public class ExplainPlanResult extends ExecutionResultBase<ExplainPlanResultForm
         this.connection = connection.ref();
         this.currentSchema = psiFile.getSchemaId();
         this.virtualFile = psiFile.getVirtualFile();
-        this.resultName = Commons.nvl(executablePsiElement.createSubjectList(), "Explain Plan");
+        this.resultName = Commons.nvl(executablePsiElement.createSubjectList(), txt("app.execution.title.ExplainPlan"));
         this.errorMessage = errorMessage;
         this.statementText = executablePsiElement.getText();
     }

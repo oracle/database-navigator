@@ -20,7 +20,6 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
-import com.dbn.common.util.Chars;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
 import com.dbn.connection.ssh.SshAuthType;
 import com.dbn.credentials.Secret;
@@ -39,8 +38,12 @@ import java.awt.event.ActionListener;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.PasswordFields.getPassword;
+import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<ConnectionSshTunnelSettings> {
     private JPanel mainPanel;
@@ -124,7 +127,7 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
     @Override
     public void applyFormChanges(ConnectionSshTunnelSettings configuration) throws ConfigurationException {
         // snapshot old secret before form changes are applied
-        Secret[] oldSecrets = configuration.getSecrets();
+        Secret[] oldSecrets = configuration.snapshotSecrets();
 
         boolean enabled = activeCheckBox.isSelected();
         configuration.setActive(enabled);
@@ -139,9 +142,9 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
         //ConfigurationEditorUtil.validateStringInputValue(keyPassphraseField, "Key passphrase", enabled && isKeyPair);
 
         configuration.setAuthType(authType);
-        configuration.setPassword(passwordField.getPassword());
+        configuration.setPassword(getPassword(passwordField, configuration.getPassword()));
         configuration.setKeyFile(getText(keyFileField));
-        configuration.setKeyPassphrase(keyPassphraseField.getPassword());
+        configuration.setKeyPassphrase(getPassword(keyPassphraseField, configuration.getKeyPassphrase()));
 
         if (!ConfigMonitor.isCloning()) {
             // replace secrets in password store
@@ -153,12 +156,12 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
     public void resetFormChanges() {
         ConnectionSshTunnelSettings configuration = getConfiguration();
         activeCheckBox.setSelected(configuration.isActive());
-        hostTextField.setText(configuration.getHost());
-        portTextField.setText(configuration.getPort());
-        userTextField.setText(configuration.getUser());
-        passwordField.setText(Chars.toString(configuration.getPassword()));
+        setText(hostTextField, configuration.getHost());
+        setText(portTextField, configuration.getPort());
+        setText(userTextField, configuration.getUser());
+        setPassword(passwordField, configuration.getPassword());
         setSelection(authTypeComboBox, configuration.getAuthType());
-        keyFileField.setText(configuration.getKeyFile());
-        keyPassphraseField.setText(Chars.toString(configuration.getKeyPassphrase()));
+        setText(keyFileField, configuration.getKeyFile());
+        setPassword(keyPassphraseField, configuration.getKeyPassphrase());
     }
 }

@@ -26,48 +26,52 @@ import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.object.common.DBObject;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public enum DatabaseFeature {
-    OBJECT_REPLACING("Replacing existing objects via DDL"),
-    OBJECT_DEPENDENCIES("Object dependencies"),
-    OBJECT_DDL_EXTRACTION("Object DDL extraction"),
-    OBJECT_INVALIDATION("Object invalidation"),
-    OBJECT_DISABLING("Disabling objects"),
-    OBJECT_SOURCE_EDITING("Editing object sources"),
-    OBJECT_CHANGE_MONITORING("Monitoring objects changes"),
-    AUTHID_METHOD_EXECUTION("AUDHID method execution (execution on different schema)"),
-    FUNCTION_OUT_ARGUMENTS("OUT arguments for functions"),
-    DEBUGGING("Program execution debugging"),
-    EXPLAIN_PLAN("Statement explain plan"),
-    DATABASE_LOGGING("Database logging"),
-    SESSION_CURRENT_SQL("Session current SQL"),
-    SESSION_BROWSING("Session browsing"),
-    SESSION_KILL("Kill session"),
-    SESSION_DISCONNECT("Disconnect session"),
-    SESSION_INTERRUPTION_TIMING("Session interruption timing"),
-    CONNECTION_ERROR_RECOVERY("Recover connection transaction after error"),
-    UPDATABLE_RESULT_SETS("Updatable result sets"),
-    CURRENT_SCHEMA("Current schema initializing"),
-    USER_SCHEMA("User dedicated schema"),
-    CONSTRAINT_MANIPULATION("Constraint manipulation"),
-    READONLY_CONNECTIVITY("Readonly connectivity"),
-    AI_ASSISTANT("AI assistant"),
-    DATA_CHANGE_NOTIFICATION("Data change notification"),
-    VECTOR_EMBEDDING("Vector embedding"),
-    VECTOR_SEARCH("Vector search"),
+    OBJECT_REPLACING(txt("app.database.const.DatabaseFeature_OBJECT_REPLACING")),
+    OBJECT_DEPENDENCIES(txt("app.database.const.DatabaseFeature_OBJECT_DEPENDENCIES")),
+    OBJECT_DDL_EXTRACTION(txt("app.database.const.DatabaseFeature_OBJECT_DDL_EXTRACTION")),
+    OBJECT_INVALIDATION(txt("app.database.const.DatabaseFeature_OBJECT_INVALIDATION")),
+    OBJECT_DISABLING(txt("app.database.const.DatabaseFeature_OBJECT_DISABLING")),
+    OBJECT_SOURCE_EDITING(txt("app.database.const.DatabaseFeature_OBJECT_SOURCE_EDITING")),
+    OBJECT_CHANGE_MONITORING(txt("app.database.const.DatabaseFeature_OBJECT_CHANGE_MONITORING")),
+    AUTHID_METHOD_EXECUTION(txt("app.database.const.DatabaseFeature_AUTHID_METHOD_EXECUTION")),
+    FUNCTION_OUT_ARGUMENTS(txt("app.database.const.DatabaseFeature_FUNCTION_OUT_ARGUMENTS")),
+    DEBUGGING(txt("app.database.const.DatabaseFeature_DEBUGGING")),
+    EXPLAIN_PLAN(txt("app.database.const.DatabaseFeature_EXPLAIN_PLAN")),
+    DATABASE_LOGGING(txt("app.database.const.DatabaseFeature_DATABASE_LOGGING")),
+    SESSION_CURRENT_SQL(txt("app.database.const.DatabaseFeature_SESSION_CURRENT_SQL")),
+    SESSION_BROWSING(txt("app.database.const.DatabaseFeature_SESSION_BROWSING")),
+    SESSION_KILL(txt("app.database.const.DatabaseFeature_SESSION_KILL")),
+    SESSION_DISCONNECT(txt("app.database.const.DatabaseFeature_SESSION_DISCONNECT")),
+    SESSION_INTERRUPTION_TIMING(txt("app.database.const.DatabaseFeature_SESSION_INTERRUPTION_TIMING")),
+    CONNECTION_ERROR_RECOVERY(txt("app.database.const.DatabaseFeature_CONNECTION_ERROR_RECOVERY")),
+    UPDATABLE_RESULT_SETS(txt("app.database.const.DatabaseFeature_UPDATABLE_RESULT_SETS")),
+    CURRENT_SCHEMA(txt("app.database.const.DatabaseFeature_CURRENT_SCHEMA")),
+    USER_SCHEMA(txt("app.database.const.DatabaseFeature_USER_SCHEMA")),
+    CONSTRAINT_MANIPULATION(txt("app.database.const.DatabaseFeature_CONSTRAINT_MANIPULATION")),
+    READONLY_CONNECTIVITY(txt("app.database.const.DatabaseFeature_READONLY_CONNECTIVITY")),
+    AI_ASSISTANT(txt("app.database.const.DatabaseFeature_AI_ASSISTANT")),
+    DATA_CHANGE_NOTIFICATION(txt("app.database.const.DatabaseFeature_DATA_CHANGE_NOTIFICATION")),
+    VECTOR_EMBEDDING(txt("app.database.const.DatabaseFeature_VECTOR_EMBEDDING")),
+    VECTOR_SEARCH(txt("app.database.const.DatabaseFeature_VECTOR_SEARCH")),
+    MCP_SERVER_BUILDER(txt("app.database.const.DatabaseFeature_MCP_SERVER_BUILDER")),
 
     // OJVM
-    JAVA_VIRTUAL_MACHINE("Embedded java virtual machine"),
+    JAVA_VIRTUAL_MACHINE(txt("app.database.const.DatabaseFeature_JAVA_VIRTUAL_MACHINE")),
 
     @Deprecated // temporary disabled feature because of performance issues with empty schema evaluations
-    EMPTY_SCHEMA_EVALUATION("Empty schema evaluation"),
+    EMPTY_SCHEMA_EVALUATION(txt("app.database.const.DatabaseFeature_EMPTY_SCHEMA_EVALUATION")),
     ;
 
-    private final String description;
+    private final @Nls String description;
 
-    DatabaseFeature(String description) {
+    DatabaseFeature(@Nls String description) {
         this.description = description;
     }
 

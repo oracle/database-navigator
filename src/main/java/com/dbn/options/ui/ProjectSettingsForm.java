@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,10 @@ package com.dbn.options.ui;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.browser.options.DatabaseBrowserSettings;
 import com.dbn.code.common.completion.options.CodeCompletionSettings;
-import com.dbn.common.options.BasicConfiguration;
 import com.dbn.common.options.Configuration;
 import com.dbn.common.options.ui.CompositeConfigurationEditorForm;
-import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.ui.tab.DBNTabbedPane;
+import com.dbn.common.ui.list.ColoredListCellRenderer;
+import com.dbn.common.ui.util.Fonts;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
@@ -37,27 +36,48 @@ import com.dbn.navigation.options.NavigationSettings;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.general.GeneralProjectSettings;
+import com.intellij.openapi.project.Project;
+import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.components.breadcrumbs.Breadcrumbs;
+import com.intellij.ui.components.breadcrumbs.Crumb;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
+import javax.swing.event.ListSelectionEvent;
+import java.awt.Component;
+import java.util.List;
+import java.util.function.Consumer;
+
+import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.ui.CardLayouts.addCard;
+import static com.dbn.common.ui.CardLayouts.getCard;
+import static com.dbn.common.ui.CardLayouts.showCard;
+import static com.dbn.common.ui.util.Borderless.markBorderless;
+import static com.dbn.common.ui.util.Lists.onSelectionChange;
+import static com.dbn.nls.NlsResources.txt;
+import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
 public class ProjectSettingsForm extends CompositeConfigurationEditorForm<ProjectSettings> {
     private JPanel mainPanel;
-    private JPanel tabsPanel;
-    private final DBNTabbedPane<ConfigurationEditorForm<?>> configurationTabs;
+    private JPanel configsPanel;
+    private JBList<Configuration> configList;
+    private JBScrollPane configsScrollPane;
+    private JLabel titleLabel;
+    private JLabel subtitleLabel;
+    private Breadcrumbs selectionBreadcrumbs;
+
+    DefaultListModel<Configuration> configListModel = new DefaultListModel<>();
 
     public ProjectSettingsForm(ProjectSettings projectSettings) {
         super(projectSettings);
 
-        configurationTabs = new DBNTabbedPane<>(this);
-        configurationTabs.setTabComponentInsets(DBNTabbedPane.REGULAR_INSETS);
-        //configurationTabs.setAdjustBorders(false);
-
-        tabsPanel.add(configurationTabs, BorderLayout.CENTER);
+        initConfigSelector();
 
         ConnectionBundleSettings connectionSettings = projectSettings.getConnectionSettings();
         DatabaseBrowserSettings browserSettings = projectSettings.getBrowserSettings();
@@ -72,27 +92,80 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
         AssistantSettings assistantSettings = projectSettings.getAssistantSettings();
         GeneralProjectSettings generalSettings = projectSettings.getGeneralSettings();
 
-        addSettingsPanel(connectionSettings);
-        addSettingsPanel(browserSettings);
-        addSettingsPanel(navigationSettings);
-        addSettingsPanel(codeEditorSettings);
-        addSettingsPanel(codeCompletionSettings);
-        addSettingsPanel(dataGridSettings);
-        addSettingsPanel(dataEditorSettings);
-        addSettingsPanel(executionEngineSettings);
-        addSettingsPanel(operationSettings);
-        addSettingsPanel(ddlFileSettings);
-        addSettingsPanel(assistantSettings);
-        addSettingsPanel(generalSettings);
-        projectSettings.reset();
+        configListModel.addElement(connectionSettings);
+        configListModel.addElement(browserSettings);
+        configListModel.addElement(navigationSettings);
+        configListModel.addElement(codeEditorSettings);
+        configListModel.addElement(codeCompletionSettings);
+        configListModel.addElement(dataGridSettings);
+        configListModel.addElement(dataEditorSettings);
+        configListModel.addElement(executionEngineSettings);
+        configListModel.addElement(operationSettings);
+        configListModel.addElement(ddlFileSettings);
+        configListModel.addElement(assistantSettings);
+        configListModel.addElement(generalSettings);
 
-        tabsPanel.setFocusable(true);
+        projectSettings.reset();
+        configsPanel.setFocusable(true);
    }
 
-    private void addSettingsPanel(BasicConfiguration<?, ?> configuration) {
-        JComponent component = configuration.createComponent();
-        JBScrollPane scrollPane = new JBScrollPane(component);
-        configurationTabs.addTab(configuration.getDisplayName(), scrollPane, configuration.getSettingsEditor());
+    private void initConfigSelector() {
+        titleLabel.setFont(Fonts.regular(2));
+        selectionBreadcrumbs.setFont(Fonts.regular(1));
+
+        Project project = getProject();
+        boolean defaultProject = project != null && project.isDefault();
+        subtitleLabel.setText(
+                defaultProject ?
+                        txt("msg.settings.title.DefaultProjectSettings") :
+                        txt("msg.settings.title.ProjectSettings"));
+
+        markBorderless(configList);
+        configList.setModel(configListModel);
+        configList.setCellRenderer(listCellRenderer());
+        configList.setSelectionMode(SINGLE_SELECTION);
+        onSelectionChange(configList, listSelectionHandler());
+    }
+
+    private Consumer<ListSelectionEvent> listSelectionHandler() {
+        return e -> {
+            if (e.getValueIsAdjusting()) return;
+            initConfigurationPanel();
+        };
+    }
+
+    private void initConfigurationPanel() {
+        Configuration<?, ?> configuration = getSelectedConfiguration();
+        ensureConfigurationPanel(configuration);
+
+        String configurationId = configuration.getId();
+        showCard(configsPanel, configurationId);
+        selectionBreadcrumbs.setCrumbs(List.of(
+                new Crumb.Impl(null, txt("cfg.project.title.Settings"), null),
+                new Crumb.Impl(null, configuration.getDisplayName(), null)
+                ));
+
+    }
+
+    private void ensureConfigurationPanel(Configuration<?, ?> configuration) {
+        String configurationId = configuration.getId();
+        Component configurationCard = getCard(configsPanel, configurationId);
+        if (configurationCard == null) {
+            JComponent component = nd(configuration.createComponent());
+            JBScrollPane scrollPane = new JBScrollPane(component);
+            configsPanel.add(scrollPane);
+
+            addCard(configsPanel, component, configuration.getId());
+        }
+    }
+
+    private static ColoredListCellRenderer<Configuration> listCellRenderer() {
+        return new ColoredListCellRenderer<>() {
+            @Override
+            protected void customize(@NotNull JList<? extends Configuration> list, Configuration value, int index, boolean selected, boolean hasFocus) {
+                append(value.getDisplayName());
+            }
+        };
     }
 
     @NotNull
@@ -103,32 +176,37 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
 
     @Override
     public @Nullable JComponent getPreferredFocusedComponent() {
-        return configurationTabs;
+        return configList;
     }
 
     void selectConnectionSettings(@Nullable ConnectionId connectionId) {
+        selectSettingsEditor(ConfigId.CONNECTIONS);
+
         ConnectionBundleSettings connectionSettings = getConfiguration().getConnectionSettings();
+        ensureConfigurationPanel(connectionSettings);
+
         ConnectionBundleSettingsForm settingsEditor = connectionSettings.getSettingsEditor();
-        if (settingsEditor != null) {
-            settingsEditor.selectConnection(connectionId);
-            selectSettingsEditor(ConfigId.CONNECTIONS);
-        }
+        if (settingsEditor == null) return;
+
+        settingsEditor.selectConnection(connectionId);
     }
 
     void selectSettingsEditor(ConfigId configId) {
         Configuration<?, ?> configuration = getConfiguration().getConfiguration(configId);
         if (configuration == null) return;
 
-        ConfigurationEditorForm<?> settingsEditor = configuration.getSettingsEditor();
-        if (settingsEditor == null) return;
+        int configIndex = configListModel.indexOf(configuration);
+        if (configIndex == -1) return;
 
-        whenFirstShown(() -> configurationTabs.selectTab(settingsEditor));
+        whenFirstShown(() -> configList.setSelectedIndex(configIndex));
     }
 
 
     @NotNull
-    public Configuration<?, ?> getActiveConfiguration() {
-        ConfigurationEditorForm<?> settingsEditor = configurationTabs.getSelectedContent();
-        return settingsEditor.getConfiguration();
+    public Configuration<?, ?> getSelectedConfiguration() {
+        int selectedIndex = configList.getSelectedIndex();
+        selectedIndex = Math.max(selectedIndex, 0);
+
+        return configListModel.get(selectedIndex);
     }
 }

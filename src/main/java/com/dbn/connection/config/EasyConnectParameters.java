@@ -1,26 +1,37 @@
 package com.dbn.connection.config;
 
 import com.dbn.common.database.DatabaseInfo;
+import com.dbn.common.util.Parameters;
 import com.dbn.connection.DatabaseProtocol;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.parameter.CheckForInvalidCharactersValidator;
 import com.dbn.connection.config.parameter.RegexConstraintValidator;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuotePair;
+import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NonNls;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
+import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.common.util.Strings.trim;
 import static com.dbn.connection.DatabaseUrlType.EZCONNECT;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Common constants and utility functionality to support Easy Connect
  * Parameters.  See https://download.oracle.com/ocomdocs/global/Oracle-Net-Easy-Connect-Plus.pdf
  */
 public class EasyConnectParameters {
-    @NonNls
     /**
      * List of all general Easy Connect parameters that we support.
      */
+    @NonNls
     public static final List<String> PARAMETER_NAMES = List.of(
             "ENABLE",
             "FAILOVER",
@@ -36,7 +47,7 @@ public class EasyConnectParameters {
             "WALLET_LOCATION");
 
     /**
-     * Easy Connect Parameters only available when protocol is TCPS
+     * Easy Connect parameters only available when protocol is TCPS.
      */
     @NonNls
     public static final List<String> TCPS_ONLY_PARAMETER_NAMES = List.of(
@@ -52,34 +63,41 @@ public class EasyConnectParameters {
 
     /**
      * List of parameters that must have their values quoted in the connect URL.
-      */
+     */
     @NonNls
     public static final List<String> PARAMETERS_THAT_NEED_QUOTING = List.of(
             "WALLET_LOCATION", "SSL_SERVER_CERT_DN");
+
     /**
      * Error message for RETRY_DELAY.
      */
-    public static final String RETRY_DELAY_SHOULD_MATCH = "80, 80ms, 80sec, or 80min. Default is sec if unit is not specified";
+    public static final String RETRY_DELAY_SHOULD_MATCH = txt("cfg.connection.token.RetryDelayFormat");
+
     /**
      * Common validator pattern instance for RETRY_DELAY.
      */
     public final static RegexConstraintValidator.ValidationPattern RETRY_DELAY_PATTERN =
             new RegexConstraintValidator.ValidationPattern("\\d+( )?(ms|msec|sec|min)?", RETRY_DELAY_SHOULD_MATCH);
+
     /**
      * Common validator instance for RETRY_DELAY.
      */
     public final static RegexConstraintValidator RETRY_DELAY_VALIDATOR = new RegexConstraintValidator(RETRY_DELAY_PATTERN);
+
     /**
      * Common validator for properties where we don't want double quotes in the value.
      */
     public final static CheckForInvalidCharactersValidator NO_DQUOTES_ALLOWED_IN_PROPERTY =
             new CheckForInvalidCharactersValidator(Set.of(Character.valueOf('"')),
                     Optional.of(QuotePair.DEFAULT_IDENTIFIER_QUOTE_PAIR::unquote));
+
     /**
+     * Returns the complete Easy Connect parameter set for the protocol, initialized with blank values and
+     * overlaid with the supplied parameter values.
      *
-     * @param parameters
-     * @param protocol
-     * @return a copy of parameters adjusted for whether we are processsing TCPS or not.
+     * @param parameters existing parameter values
+     * @param protocol database protocol controlling whether TCPS-only parameters are included
+     * @return a copy of parameters adjusted for whether the connection uses TCPS
      */
     public static LinkedHashMap<String, String> ensureParameters(Map<String, String> parameters, DatabaseProtocol protocol) {
         LinkedHashMap<String, String> copyOfParameters = new LinkedHashMap<>();
@@ -95,62 +113,80 @@ public class EasyConnectParameters {
         return copyOfParameters;
     }
 
+    /**
+     * Returns a sanitized copy of Easy Connect parameters, excluding unknown parameters and
+     * key/value pairs that can introduce additional URL query tokens.
+     *
+     * @param parameters parameter values to sanitize
+     * @param protocol database protocol controlling whether TCPS-only parameters are allowed
+     * @return sanitized Easy Connect parameter values
+     */
+    public static Map<String, String> sanitizeParameters(Map<String, String> parameters, DatabaseProtocol protocol) {
+        return Parameters.sanitizeParameters(parameters, supportedParameterNames(protocol), PARAMETERS_THAT_NEED_QUOTING);
+    }
+
+    /**
+     * Returns Easy Connect parameter names supported for the supplied protocol.
+     *
+     * @param protocol database protocol controlling whether TCPS-only parameters are included
+     * @return supported Easy Connect parameter names
+     */
+    private static Set<String> supportedParameterNames(DatabaseProtocol protocol) {
+        Set<String> supportedParameterNames = new HashSet<>(PARAMETER_NAMES);
+        if (protocol == DatabaseProtocol.TCPS) {
+            supportedParameterNames.addAll(TCPS_ONLY_PARAMETER_NAMES);
+        }
+        return supportedParameterNames;
+    }
+
+    /**
+     * Returns a copy of parameters adjusted for Easy Connect quoting and protocol-specific availability.
+     *
+     * @param parameters existing parameter values
+     * @param databaseInfo database information providing protocol and URL type
+     * @param escapeQuotes whether generated quote characters should be escaped
+     * @return a copy of parameters adjusted when the URL type is Easy Connect
+     */
     public static Map<String, String> ensureParametersIfEasyConnect(Map<String,String> parameters, DatabaseInfo databaseInfo, boolean escapeQuotes) {
         return ensureParametersIfEasyConnect(parameters, databaseInfo.getProtocol(), databaseInfo.getUrlType(), escapeQuotes);
     }
 
     /**
-     * Returns a copy of paramters
-     * @param parameters
-     * @param protocol
-     * @param urlType
-     * @return a copy of parameters that may be modified depending on urlType and protocol.
+     * Returns a copy of parameters adjusted for Easy Connect quoting and protocol-specific availability.
+     *
+     * @param parameters existing parameter values
+     * @param protocol database protocol controlling whether TCPS-only parameters are retained
+     * @param urlType database URL type controlling whether Easy Connect adjustments apply
+     * @param escapeQuotes whether generated quote characters should be escaped
+     * @return a copy of parameters adjusted when the URL type is Easy Connect
      */
     public static Map<String, String> ensureParametersIfEasyConnect(Map<String,String> parameters, DatabaseProtocol protocol, DatabaseUrlType urlType, boolean escapeQuotes) {
         Map<String, String> copyOfParameters = new HashMap<>(parameters);
         if (urlType == EZCONNECT) {
-            copyOfParameters = ensureQuoted(excludeInvalidInTCP(copyOfParameters, protocol), escapeQuotes);
+            return ensureQuoted(sanitizeParameters(copyOfParameters, protocol), escapeQuotes);
         }
         return copyOfParameters;
     }
-    /**
-     * Modifies parameters
-     * @param parameters
-     * @return a possibly modified map with parameters that aren't valid for the
-     * url removed.
-     */
-    public static Map<String, String> excludeInvalidInTCP(Map<String, String> parameters, DatabaseProtocol protocol) {
-        TCPS_ONLY_PARAMETER_NAMES.forEach(key -> {
-            if (protocol != DatabaseProtocol.TCPS && parameters.containsKey(key)) {
-                parameters.remove(key);
-            }
-        });
-
-        return parameters;
-    }
 
     /**
-     * Modifies parameters; ensure to pass a copy
+     * Quotes Easy Connect parameter values that require URL-level quoting.
      *
-     * @param parameters
-     * @return a possibly modified map with parameters double-quoted if necessary
+     * @param parameters parameter values to modify
+     * @param escapeQuotes whether generated quote characters should be escaped
+     * @return the supplied parameter map with quote-required values double-quoted when necessary
      */
     public static Map<String, String> ensureQuoted(Map<String, String> parameters, boolean escapeQuotes) {
         PARAMETERS_THAT_NEED_QUOTING.forEach(key -> {
-            if (parameters.containsKey(key)) {
-                String originalValue = parameters.get(key);
-                originalValue = originalValue.trim();
-                if (!originalValue.isBlank()) {
-                    // method won't requote a quoted value
-                    if (escapeQuotes) {
-                        originalValue = QuotePair.DEFAULT_IDENTIFIER_QUOTE_PAIR.quoteWithJavaEscape(originalValue);
-                    } else {
-                        originalValue = QuotePair.DEFAULT_IDENTIFIER_QUOTE_PAIR.quote(originalValue);
+            if (!parameters.containsKey(key)) return;
 
-                    }
-                    parameters.put(key,originalValue);
-                }
+            String originalValue = trim(parameters.get(key));
+            if (isEmpty(originalValue)) return;
+
+            originalValue = QuotePair.DEFAULT_IDENTIFIER_QUOTE_PAIR.quote(originalValue);
+            if (escapeQuotes) {
+                originalValue = StringUtil.escapeStringCharacters(originalValue);
             }
+            parameters.put(key, originalValue);
         });
         return parameters;
     }

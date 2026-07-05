@@ -49,8 +49,8 @@ public class DataExportInstructions implements PersistentStateElement, Cloneable
     private String baseName;
     private Charset charset = Charset.defaultCharset();
 
-    public File getFile() {
-        return new File(fileLocation, fileName);
+    public File getFile() throws DataExportException {
+        return DataExportFiles.getFile(fileLocation, fileName);
     }
 
     public enum Scope{

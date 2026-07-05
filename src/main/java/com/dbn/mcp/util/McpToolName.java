@@ -5,29 +5,25 @@ import lombok.experimental.UtilityClass;
 
 import java.util.regex.Pattern;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @UtilityClass
 public class McpToolName {
     private static final int MAX_LENGTH = 128;
     private static final Pattern VALID_NAME = Pattern.compile("^[A-Za-z0-9_.-]+$");
 
-    public static String normalize(String value) {
-        return value == null ? "" : value.trim();
-    }
-
     public static String validationError(String value) {
-        String normalized = normalize(value);
-
-        if (Strings.isEmptyOrSpaces(normalized)) {
-            return "Please enter a tool name";
+        if (Strings.isEmptyOrSpaces(value)) {
+            return txt("msg.mcp.error.ToolNameRequired");
         }
-        if (normalized.length() > MAX_LENGTH) {
-            return "Tool name is too long (max " + MAX_LENGTH + " characters)";
+        if (value.length() > MAX_LENGTH) {
+            return txt("msg.mcp.error.ToolNameTooLong", MAX_LENGTH);
         }
-        if (normalized.contains(" ")) {
-            return "No spaces are allowed in tool name";
+        if (value.contains(" ")) {
+            return txt("msg.mcp.error.ToolNameSpacesUnsupported");
         }
-        if (!VALID_NAME.matcher(normalized).matches()) {
-            return "Tool name can only contain letters, digits, '.', '-', and '_'";
+        if (!VALID_NAME.matcher(value).matches()) {
+            return txt("msg.mcp.error.ToolNameCharactersInvalid");
         }
 
         return null;

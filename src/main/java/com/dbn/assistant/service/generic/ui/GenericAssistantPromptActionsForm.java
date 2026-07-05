@@ -27,6 +27,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class GenericAssistantPromptActionsForm extends AssistantDetailFormBase implements AssistantPromptActionsForm {
     private JPanel mainPanel;
@@ -44,7 +45,7 @@ public class GenericAssistantPromptActionsForm extends AssistantDetailFormBase i
     }
 
     private void createActionPanel() {
-        ActionToolbar typeActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantPromptActions");
+        ActionToolbar typeActions = Actions.createActionToolbar(actionsPanel, true, "DBN.Assistant.Prompt");
         setAccessibleName(typeActions, txt("app.assistant.aria.PromptActions"));
         this.actionsPanel.add(typeActions.getComponent());
     }

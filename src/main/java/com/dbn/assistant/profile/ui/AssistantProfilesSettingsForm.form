@@ -15,7 +15,7 @@
           </grid>
         </constraints>
         <properties/>
-        <border type="none" title="Profiles">
+        <border type="none" title-resource-bundle="messages/DBNResources" title-key="cfg.assistant.title.Profiles">
           <size top="5" left="5" bottom="5" right="5"/>
         </border>
         <children/>

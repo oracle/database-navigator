@@ -20,6 +20,8 @@ import com.dbn.batch.impl.BatchMessengerBase;
 import com.dbn.common.message.MessageType;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class JavaDownloadMessenger extends BatchMessengerBase<JavaDownloadTask, JavaDownloadInput, JavaDownloadBatch> {
     public static final JavaDownloadMessenger INSTANCE = new JavaDownloadMessenger();
 
@@ -27,50 +29,50 @@ public class JavaDownloadMessenger extends BatchMessengerBase<JavaDownloadTask, 
 
     @Override
     public String getBatchTitle(JavaDownloadBatch batch) {
-        return "Java Download Process";
+        return txt("app.java.title.JavaDownloadProcess");
     }
 
     @Override
     public String getProgressTitle(JavaDownloadBatch batch) {
-        if (batch.isRunning() || batch.isPaused()) return "Downloading java resources...";
-        if (batch.isCancelled()) return "Download Cancelled";
+        if (batch.isRunning() || batch.isPaused()) return txt("app.java.title.DownloadingJavaResources");
+        if (batch.isCancelled()) return txt("app.java.title.DownloadCanceled");
         if (batch.isFinished()) {
             MessageType messageType = getProgressMessageType(batch);
             return switch (messageType) {
-                case SUCCESS -> "Download Complete";
-                case WARNING -> "Download Partially Complete";
-                case ERROR -> "Download Failed";
-                default -> "Download Finished";
+                case SUCCESS -> txt("app.java.title.DownloadComplete");
+                case WARNING -> txt("app.java.title.DownloadPartiallyComplete");
+                case ERROR -> txt("app.java.title.DownloadFailed");
+                default -> txt("app.java.title.DownloadFinished");
             };
         }
 
-        return "Java Download";
+        return txt("app.java.title.JavaDownload");
     }
 
     @Override
     public String getProgressMessage(JavaDownloadBatch batch, @Nullable JavaDownloadTask task) {
         String progressText = getProgressText(batch);
-        if (task != null) return "Downloading " + task.getName() + " " + progressText;
-        if (batch.isPaused()) return "Paused " + progressText;
-        if (batch.isCancelled()) return "Java resource download cancelled\n" + progressText;
-        if (batch.isFinished()) return "Java resource download finished\n" + progressText;
+        if (task != null) return txt("app.java.text.DownloadingJavaResourceNamed", task.getName(), progressText);
+        if (batch.isPaused()) return txt("app.batch.text.Paused", progressText);
+        if (batch.isCancelled()) return txt("app.java.text.JavaResourceDownloadCanceled", progressText);
+        if (batch.isFinished()) return txt("app.java.text.JavaResourceDownloadFinished", progressText);
         return "";
     }
 
     @Override
     public String getTaskInitMessage(JavaDownloadBatch batch, JavaDownloadTask task) {
-        return "Downloading java resource...";
+        return txt("app.java.text.DownloadingJavaResource");
     }
 
     @Override
     public String getTaskSuccessMessage(JavaDownloadBatch batch, JavaDownloadTask task) {
-        return "Java resource successfully downloaded\n" + task.getTargetFile().getPath() + "";
+        return txt("app.java.text.JavaResourceDownloaded", task.getTargetFile().getPath());
     }
 
     @Override
     public String getTaskFailureMessage(JavaDownloadBatch batch, JavaDownloadTask task, Exception e) {
         String message = e.getMessage();
         message = cleanExceptionMessage(batch, message);
-        return "Failed to download java resource\nCause: " + message;
+        return txt("app.java.error.JavaResourceDownloadFailed", message);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 
 package com.dbn.assistant.mcp.ui;
 
-import com.dbn.assistant.mcp.AssistantMcpServer;
+import com.dbn.assistant.mcp.model.AssistantMcpServer;
+import com.dbn.common.EntityId;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -24,16 +25,20 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class AssistantMcpServerEditDialog extends DBNDialog<AssistantMcpServerEditForm> {
     private final AssistantMcpServer mcpServer;
     private final AssistantMcpServerEditRequest request;
 
     public AssistantMcpServerEditDialog(Project project, AssistantMcpServerEditRequest request) {
-        super(project, request.isNewMcpServer() ? "Create MCP Server Config" : "Update MCP Server Config", true);
+        super(project, request.isNewMcpServer() ?
+                txt("msg.assistant.title.CreateMcpServerConfig") :
+                txt("msg.assistant.title.UpdateMcpServerConfig"), true);
         this.request = request;
         this.mcpServer = initMcpServer();
-
+        setDefaultSize(600, 400);
         setModal(true);
         setAutoSize(true);
         init();
@@ -42,7 +47,8 @@ public class AssistantMcpServerEditDialog extends DBNDialog<AssistantMcpServerEd
     private AssistantMcpServer initMcpServer() {
         AssistantMcpServer mcpServer = request.getMcpServer();
         if (mcpServer == null) {
-            mcpServer = new AssistantMcpServer();
+            EntityId serverId = EntityId.create(false);
+            mcpServer = new AssistantMcpServer(serverId);
         }
         return mcpServer;
     }
@@ -56,7 +62,9 @@ public class AssistantMcpServerEditDialog extends DBNDialog<AssistantMcpServerEd
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        String actionName = request.isNewMcpServer() ? "Create" : "Update";
+        String actionName = request.isNewMcpServer() ?
+                txt("msg.shared.button.Create") :
+                txt("msg.shared.button.Update");
         renameAction(getOKAction(), actionName);
         return actions(
                 getOKAction(),
@@ -76,4 +84,3 @@ public class AssistantMcpServerEditDialog extends DBNDialog<AssistantMcpServerEd
         super.doOKAction();
     }
 }
-

@@ -31,6 +31,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class VoidDynamicContent extends StatefulDisposableBase implements DynamicContent{
     public static final VoidDynamicContent INSTANCE = new VoidDynamicContent();
 
@@ -109,7 +111,7 @@ public class VoidDynamicContent extends StatefulDisposableBase implements Dynami
 
     @Override
     public String getContentDescription() {
-        return "Empty Content";
+        return txt("app.shared.text.EmptyContent");
     }
 
     @Override
@@ -167,7 +169,7 @@ public class VoidDynamicContent extends StatefulDisposableBase implements Dynami
     @NotNull
     @Override
     public String getName() {
-        return "Empty Content";
+        return txt("app.shared.text.EmptyContent");
     }
 
     @Override

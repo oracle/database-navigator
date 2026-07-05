@@ -66,7 +66,14 @@ public class JsonValue extends LargeObjectValue{
     @Override
     @Nullable
     public String read(int maxSize) throws SQLException {
-        return data;
+        if (data == null) return null;
+        if (maxSize <= 0 || data.length() <= maxSize) {
+            setTruncated(false);
+            return data;
+        }
+
+        setTruncated(true);
+        return data.substring(0, maxSize);
     }
 
 
@@ -89,7 +96,7 @@ public class JsonValue extends LargeObjectValue{
 
     @Override
     public long size() throws SQLException {
-        return 0;
+        return data == null ? 0 : data.length();
     }
 
     @Override

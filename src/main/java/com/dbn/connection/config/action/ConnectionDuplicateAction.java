@@ -28,6 +28,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionDuplicateAction extends ConnectionSettingsAction {
 
+    public ConnectionDuplicateAction() {
+        super(txt("cfg.connection.action.DuplicateConnection"));
+    }
+
     @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,

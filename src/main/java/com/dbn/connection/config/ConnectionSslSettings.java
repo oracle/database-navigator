@@ -25,10 +25,12 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.options.ConfigMonitor.isClipboardStorage;
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setBoolean;
-import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.common.options.setting.Settings.setSensitiveString;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -72,10 +74,10 @@ public class ConnectionSslSettings extends BasicProjectConfiguration<ConnectionS
 
     @Override
     public void writeConfiguration(Element element) {
-        setBoolean(element, "active", active);
-        setString(element, "certificate-authority-file", certificateAuthorityFile);
-        setString(element, "client-certificate-file", clientCertificateFile);
-        setString(element, "client-key-file", clientKeyFile);
+        setBoolean(element, "active", !isClipboardStorage() && active);
+        setSensitiveString(element, "certificate-authority-file", certificateAuthorityFile);
+        setSensitiveString(element, "client-certificate-file", clientCertificateFile);
+        setSensitiveString(element, "client-key-file", clientKeyFile);
     }
 
     public ConnectionId getConnectionId() {

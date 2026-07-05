@@ -16,97 +16,76 @@
 
 package com.dbn.driver.download;
 
-import com.dbn.common.checksum.Checksum;
 import com.dbn.common.checksum.ChecksumType;
 import com.dbn.common.download.Downloads;
 import com.dbn.common.util.Files;
 import com.dbn.driver.download.metadata.Library;
+import com.dbn.driver.download.metadata.LibraryChecksum;
 import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.util.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Scanner;
-import java.util.UUID;
+
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class MavenArtifactDownloader {
 
-    private static final String MAVEN_REPO_URL = "https://repo.maven.apache.org/maven2";
-
     public static void downloadArtifact(DownloadSession session, String packageId, Library library) {
-        String groupId = library.getGroupId();
-        String artifactId = library.getArtifactId();
-        String version = library.getVersion();
-
         String libraryId = library.getLibraryId();
         String artifactPath = library.getArtefactPath();
-        String artifactUrl = MAVEN_REPO_URL + "/" + artifactPath;
-        String checksumUrl = artifactUrl + ".sha1";
+        String artifactUrl = MavenRepositories.CENTRAL_URL + "/" + artifactPath;
 
         try {
             DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
             downloadManager.setDownloadStatus(packageId, libraryId, DownloadStatus.PENDING);
-            downloadAndVerify(session, packageId, artifactUrl, checksumUrl, artifactId, version, groupId);
+            downloadAndVerify(session, packageId, artifactUrl, library);
 
         } catch (ProcessCanceledException ignored) {
-            session.addInfoMessage("Download process canceled for " + packageId);
+            session.addInfoMessage(txt("msg.connection.info.DownloadCanceledForPackage", packageId));
         } catch (Exception e) {
             log.warn("Failed to download artifact '{}'", libraryId, e);
-            session.addErrorMessage("Download failed for " + libraryId + ": " + e.getMessage());
+            session.addErrorMessage(txt("msg.connection.error.DownloadFailedForLibrary", libraryId, e));
         }
     }
 
-    private static void downloadAndVerify(DownloadSession session, String packageId, String artifactUrl, String checksumUrl, String artifactId, String version, String groupId) throws Exception {
+    private static void downloadAndVerify(DownloadSession session, String packageId, String artifactUrl, Library library) throws Exception {
         File downloadDir = Files.ensureDirectory(session.getDownloadPath());
-        File outputFile = new File(downloadDir, artifactId + "-" + version + ".jar");
+        File outputFile = new File(downloadDir, library.getFileName());
 
         try {
-            session.addDownloadedArtifacts(artifactId + "-" + version + ".jar");
+            session.addDownloadedArtifacts(library.getFileName());
 
             Downloads.downloadAtomically(session, artifactUrl, outputFile);
-            log.info("Artifact '{}' downloaded to '{}'", artifactId + "-" + version, outputFile.getAbsolutePath());
+            log.info("Artifact '{}' downloaded to '{}'", library.getLibraryId(), outputFile.getAbsolutePath());
 
-            String expectedChecksum = getLibraryChecksum(session, checksumUrl);
-            verifyChecksum(expectedChecksum, outputFile, packageId, artifactId, version, groupId);
+            LibraryChecksum checksum = MavenArtifactIntegrityVerifier.verify(session, artifactUrl, outputFile, library);
+            registerVerifiedChecksum(checksum, outputFile, packageId, library);
         } catch (IOException e) {
             deleteFile(outputFile);
             throw e;
         }
     }
 
-    private static String getLibraryChecksum(ProgressIndicator indicator, String checksumUrl) throws IOException {
-        File tempFile = FileUtil.createTempFile(UUID.randomUUID().toString(), ".tmp", true);
-        try {
-            Downloads.downloadAtomically(indicator, checksumUrl, tempFile);
-            try (Scanner scanner = new Scanner(tempFile)) {
-                // Read the first line and extract the checksum
-                String line = scanner.nextLine().trim();
-                // Extract only the hexadecimal checksum (e.g., MD5, SHA256, etc.)
-                return line.split("\\s+")[0];
-            }
-        } finally {
-            deleteFile(tempFile);
-        }
-    }
-
-    private static void verifyChecksum(String expectedChecksum, File outputFile, String packageId, String artifactId, String version, String groupId) throws IOException {
-        String actualChecksum = Checksum.fromFileContent(outputFile, ChecksumType.SHA_1);
-
+    private static void registerVerifiedChecksum(LibraryChecksum checksum, File outputFile, String packageId, Library library) throws IOException {
         DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-        if (expectedChecksum.equals(actualChecksum)) {
+        String libraryId = library.getLibraryId();
+        ChecksumType checksumType = checksum.getType();
+        String checksumValue = checksum.getValue();
+
+        if (checksumType != null && checksum.hasValue()) {
             // Update download status
-            downloadManager.setDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.DONE);
+            downloadManager.setDownloadStatus(packageId, libraryId, DownloadStatus.DONE);
 
             // Append checksum to file
             PackageChecksumData checksumData = downloadManager.getChecksumData(packageId);
-            checksumData.addChecksum(artifactId + "-" + version, actualChecksum);
+            checksumData.addChecksum(libraryId, checksumType, checksumValue);
         } else {
             deleteFile(outputFile);
-            downloadManager.setDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.FAILED);
-            throw new IOException("Checksum verification failed for " + artifactId + "-" + version);
+            downloadManager.setDownloadStatus(packageId, libraryId, DownloadStatus.FAILED);
+            throw new IOException("Checksum verification failed for " + libraryId);
         }
     }
 

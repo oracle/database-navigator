@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.dbn.assistant.tool.AssistantToolCache;
 import com.dbn.assistant.tool.AssistantToolData;
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
+import com.dbn.assistant.tool.approval.AssistantToolApprovalUtil;
 import com.dbn.common.color.Colors;
 import com.dbn.common.ui.misc.DBNToggleButton;
 import com.dbn.common.ui.util.Fonts;
@@ -31,14 +32,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 
+import static com.dbn.assistant.tool.AssistantToolData.getToolDisplayDescription;
+import static com.dbn.assistant.tool.AssistantToolData.getToolDisplayName;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
 import static com.dbn.common.constant.Constant.array;
 import static com.dbn.common.dispose.Failsafe.nn;
-import static com.dbn.common.ui.misc.DBNToggleButton.getDefaultForeground;
-import static com.dbn.common.ui.misc.DBNToggleButton.getErrorForeground;
-import static com.dbn.common.ui.misc.DBNToggleButton.getSuccessForeground;
 
 public class AssistantToolApprovalTypeForm extends AssistantToolApprovalItemForm {
     private JPanel mainPanel;
@@ -61,25 +61,23 @@ public class AssistantToolApprovalTypeForm extends AssistantToolApprovalItemForm
     }
 
     private void initStatusToggle() {
-        statusToggle.setTextColor(s ->
-                switch (s) {
-                    case PROMPTED -> getDefaultForeground();
-                    case APPROVED -> getSuccessForeground();
-                    case BLOCKED -> getErrorForeground();
-                });
-
         AssistantToolApprovalStatus[] approvalStatuses = AssistantToolData.isInteractive(type) ?
                 array(PROMPTED, BLOCKED) : // interactive tools are always prompted; cannot be pre-approved
                 AssistantToolApprovalStatus.values();
-        statusToggle.setValues(approvalStatuses);
-        statusToggle.setSelectedValue(getApprovalStatus());
-        statusToggle.addListener((os, ns) -> setApprovalStatus(ns));
+
+        AssistantToolApprovalUtil.initStatusToggle(
+                statusToggle,
+                approvalStatuses,
+                () -> getApprovalStatus(),
+                s -> setApprovalStatus(s));
     }
 
 
     private void initNameLabel() {
         AssistantTool tool = getAssistantTool();
-        nameLabel.setText(tool.getName());
+        String toolName = getToolDisplayName(tool);
+
+        nameLabel.setText(toolName);
         nameLabel.setFont(Fonts.regular(1));
     }
 
@@ -91,8 +89,11 @@ public class AssistantToolApprovalTypeForm extends AssistantToolApprovalItemForm
     }
 
     private void initDescriptionPanel() {
+        AssistantTool assistantTool = getAssistantTool();
+        String toolDescription = getToolDisplayDescription(assistantTool);
+
         descriptionTextPane.setForeground(Colors.faded(UIUtil.getLabelForeground()));
-        descriptionTextPane.setText(getAssistantTool().getDescription());
+        descriptionTextPane.setText(toolDescription);
     }
 
     private AssistantToolApprovalCategoryForm getCategoryForm() {

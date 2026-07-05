@@ -23,7 +23,6 @@ import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.exception.Exceptions;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.CardLayouts;
@@ -61,6 +60,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 
@@ -130,7 +130,7 @@ public class ProfileManagementForm extends DBNFormBase {
     }
 
     private void initActionsPanel() {
-        ActionToolbar managementActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantProfileManagement");
+        ActionToolbar managementActions = Actions.createActionToolbar(actionsPanel, true, "DBN.Assistant.Profiles");
         setAccessibleName(managementActions, txt("cfg.assistant.aria.ProfileManagementActions"));
         this.actionsPanel.add(managementActions.getComponent(), BorderLayout.CENTER);
         initializingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
@@ -210,7 +210,7 @@ public class ProfileManagementForm extends DBNFormBase {
 
     private void handleLoadError(Throwable e) {
         conditionallyLog(e);
-        Dispatch.run(mainPanel, () -> Messages.showErrorDialog(getProject(), "Failed to load profiles.\nCause: " + Exceptions.causeMessage(e)));
+        Dispatch.run(mainPanel, () -> Messages.showErrorDialog(getProject(), null, txt("msg.assistant.error.ProfileLoadFailed"), e));
         afterProfilesLoad();
     }
 

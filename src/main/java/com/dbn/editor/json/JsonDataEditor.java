@@ -65,6 +65,7 @@ import java.sql.SQLException;
 import java.sql.SQLRecoverableException;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.editor.DBContentType.JSON;
 import static com.dbn.editor.data.DataEditorStatus.CONNECTED;
 import static com.dbn.editor.data.DataEditorStatus.LOADED;
@@ -300,7 +301,7 @@ public class JsonDataEditor extends DataEditorBase<DBJsonView> {
                             });
                 }
             } else {
-                Messages.showErrorDialog(project,  txt("msg.dataEditor.error.DataLoadCannotConnect", datasetName, e.getMessage()));
+                Messages.showErrorDialog(project,  txt("msg.dataEditor.error.DataLoadCannotConnect", datasetName, getLocalizedMessage(e)));
             }
         });
     }

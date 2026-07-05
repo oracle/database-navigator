@@ -1,0 +1,46 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="ja">
+<head>
+    <title>ステージング場所</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body style="width: 300px">
+    <h3>ステージング場所</h3>
+    <p>
+        ファイル・コンテンツは、Chunk化およびEmbeddingの前にステージング表にアップロードされます。
+        既存の表を使用するか、新規作成するかを指定してください。
+    </p>
+    <br>
+    <p>ステージング表は次の構造を持ちます:</p>
+    <ul>
+        <li><code>ID</code> - ファイル・コンテンツの一意識別子</li>
+        <li><code>FILE_CONTENT (BLOB)</code> - ファイルのコンテンツ</li>
+        <li><code>FILE_SIZE</code> - バイト単位のファイル・サイズ</li>
+        <li><code>FILE_HASH</code> - コンテンツの一意シグネチャ</li>
+        <li><code>METADATA (JSON)</code> - JSON形式のアップロードに関するメタデータ</li>
+    </ul>
+</body>
+</html>
+

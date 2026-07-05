@@ -30,8 +30,8 @@ import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.JdbcProperty;
 import com.dbn.editor.session.SessionStatus;
-import com.dbn.language.common.QuoteDefinition;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuoteDefinition;
+import com.dbn.language.common.quotes.QuotePair;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,9 +40,23 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.assistant.tool.AssistantToolType.JAVA_METADATA;
+import static com.dbn.assistant.tool.AssistantToolType.JAVA_SOURCE_CODE;
+import static com.dbn.assistant.tool.AssistantToolType.JAVA_SOURCE_CODE_EDITORS;
+import static com.dbn.assistant.tool.AssistantToolType.SEMANTIC_SEARCH;
+import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
 import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.COMPATIBILITY;
 
+/**
+ * Describes database dialect capabilities and SQL compatibility rules used by higher-level database services.
+ */
 public interface DatabaseCompatibilityInterface extends DatabaseInterface {
+    @Override
+    default DatabaseInterfaceType getInterfaceType() {
+        return COMPATIBILITY;
+    }
+
     List<DatabaseObjectTypeId> getSupportedObjectTypes();
 
     List<DatabaseFeature> getSupportedFeatures();
@@ -123,9 +137,17 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
     }
 
     default boolean isAssistantToolSupported(AssistantToolType toolType) {
-        if (toolType == AssistantToolType.SEMANTIC_SEARCH) {
+        if (toolType == SEMANTIC_SEARCH) {
             return supportsFeature(VECTOR_SEARCH);
         }
+
+        if (toolType.isOneOf(
+                JAVA_METADATA,
+                JAVA_SOURCE_CODE,
+                JAVA_SOURCE_CODE_EDITORS)) {
+            return supportsFeature(JAVA_VIRTUAL_MACHINE);
+        }
+
         return true;
     }
 }

@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Utility class for creating and configuring toolbar decorators for various components.
@@ -63,7 +64,7 @@ public class Decorators {
         String accessibleName = Accessibility.getAccessibleName(target);
         CommonActionsPanel actionsPanel = decorator.getActionsPanel();
         target.setFocusable(true);
-        setAccessibleName(actionsPanel, accessibleName + " actions");
+        setAccessibleName(actionsPanel, txt("app.shared.aria.Actions", accessibleName));
         return decoratorPanel;
     }
 }

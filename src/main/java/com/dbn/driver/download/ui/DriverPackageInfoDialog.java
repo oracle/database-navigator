@@ -23,6 +23,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DriverPackageInfoDialog extends DBNDialog<DriverPackageInfoForm> {
     DriverPackage driverPackage;
     public DriverPackageInfoDialog(Project project, String title, boolean canBeParent, DriverPackage driverPackage) {
@@ -40,7 +42,7 @@ public class DriverPackageInfoDialog extends DBNDialog<DriverPackageInfoForm> {
     @NotNull
     @Override
     protected Action[] initializeActions() {
-        renameAction(getCancelAction(), "Close");
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
         return actions(getCancelAction());
     }
 }

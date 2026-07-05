@@ -70,27 +70,28 @@ public class StatementExecutionProcessor {
         List<Element> children = element.getChildren();
         if (children.isEmpty()) {
             String statementText = element.getTextTrim();
-            readStatements(statementText, null, 0.0);
+            readStatements(statementText, null, null, 0.0);
         } else {
             for (Element child : children) {
                 String statementText = child.getTextTrim();
                 double sinceVersion = doubleAttribute(child, "since-version", 0.0);
                 String prefixes = stringAttribute(child, "prefixes");
-                readStatements(statementText, prefixes, sinceVersion);
+                String silentErrorCodes = stringAttribute(child, "silent-error-codes");
+                readStatements(statementText, prefixes, silentErrorCodes, sinceVersion);
             }
         }
         statementDefinitions = Compactables.compact(statementDefinitions);
     }
 
-    private void readStatements(String statementText, String prefixes, double sinceVersion) {
+    private void readStatements(String statementText, String prefixes, String silentErrorCodes, double sinceVersion) {
         if (prefixes == null) {
-            StatementDefinition statementDefinition = new StatementDefinition(statementText, null, sinceVersion);
+            StatementDefinition statementDefinition = new StatementDefinition(statementText, null, silentErrorCodes, sinceVersion);
             statementDefinitions.add(statementDefinition);
         } else {
             StringTokenizer tokenizer = new StringTokenizer(prefixes, ",");
             while (tokenizer.hasMoreTokens()) {
                 String prefix = tokenizer.nextToken().trim();
-                StatementDefinition statementDefinition = new StatementDefinition(statementText, prefix, sinceVersion);
+                StatementDefinition statementDefinition = new StatementDefinition(statementText, prefix, silentErrorCodes, sinceVersion);
                 statementDefinitions.add(statementDefinition);
             }
         }
@@ -140,14 +141,14 @@ public class StatementExecutionProcessor {
 
         return StatementExecutor.execute(context,
                 () -> {
-                    String statementText = definition.prepareStatementText(arguments);
-                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
+                    DBNConnection connection = context.getConnection();
+                    String statementLogText = definition.prepareStatementLogText();
+                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementLogText);
 
                     DBNPreparedStatement statement = null;
                     ResultSet resultSet = null;
                     try {
                         activityTrace.init();
-                        DBNConnection connection = context.getConnection();
                         statement = definition.prepareStatement(connection, arguments);
                         context.setStatement(statement);
 
@@ -164,7 +165,7 @@ public class StatementExecutionProcessor {
                         Resources.close(statement);
                         String message = e.getMessage();
                         if (isDatabaseAccessDebug())
-                            log.warn("[DBN] Error executing statement: {}\nCause: {}", statementText, message);
+                            log.warn("[DBN] Error executing statement: {}\nCause: {}", statementLogText, message);
 
                         boolean unsupported = interfaces.getMessageParserInterface().isModelException(e);
                         String traceMessage = unsupported ?
@@ -195,7 +196,7 @@ public class StatementExecutionProcessor {
 
         StatementExecutorContext context = createContext(connection);
         SQLException exception = NO_STATEMENT_DEFINITION_EXCEPTION;
-        for (StatementDefinition definition : statementDefinitions) {
+        for (StatementDefinition definition : getStatementDefinitions(connection)) {
             try {
                 return executeCall(definition, context, outputReader, arguments);
             } catch (SQLException e){
@@ -215,10 +216,10 @@ public class StatementExecutionProcessor {
 
         return StatementExecutor.execute(context,
                 () -> {
-                    String statementText = definition.prepareStatementText(arguments);
-                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
-
                     DBNConnection connection = context.getConnection();
+                    String statementLogText = definition.prepareStatementLogText();
+                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementLogText);
+
                     DBNCallableStatement statement = null;
                     try {
                         statement = definition.prepareCall(connection, arguments);
@@ -231,7 +232,7 @@ public class StatementExecutionProcessor {
                         invokeOutputReader(outputReader, statement);
                         return outputReader;
                     } catch (SQLException e) {
-                        handleException(e, statementText);
+                        handleException(e, statementLogText);
                         return outputReader;
                     } finally {
                         Resources.close(statement);
@@ -260,6 +261,8 @@ public class StatementExecutionProcessor {
             } catch (SQLException e){
                 conditionallyLog(e);
                 exception = e;
+
+                if (statementDefinition.isSilentError(e)) return 0;
             }
         }
         throw exception;
@@ -272,8 +275,8 @@ public class StatementExecutionProcessor {
         return StatementExecutor.execute(context,
                 () -> {
                     DBNConnection connection = context.getConnection();
-                    String statementText = definition.prepareStatementText(arguments);
-                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
+                    String statementLogText = definition.prepareStatementLogText();
+                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementLogText);
 
                     DBNPreparedStatement statement = null;
                     try {
@@ -284,7 +287,7 @@ public class StatementExecutionProcessor {
                         statement.executeUpdate();
                         return statement.getUpdateCount();
                     } catch (SQLException e) {
-                        handleException(e, statementText);
+                        handleException(e, statementLogText);
                     } finally {
                         Resources.close(statement);
                     }
@@ -295,12 +298,14 @@ public class StatementExecutionProcessor {
     public int executeStatement(@NotNull DBNConnection connection, Object... arguments) throws SQLException {
         StatementExecutorContext context = createContext(connection);
         SQLException exception = NO_STATEMENT_DEFINITION_EXCEPTION;
-        for (StatementDefinition statementDefinition : statementDefinitions) {
+        for (StatementDefinition statementDefinition : getStatementDefinitions(connection)) {
             try {
                 return executeStatement(statementDefinition, context, arguments);
             } catch (SQLException e){
                 conditionallyLog(e);
                 exception = e;
+
+                if (statementDefinition.isSilentError(e)) return 0;
             }
         }
         throw exception;
@@ -312,10 +317,11 @@ public class StatementExecutionProcessor {
             Object... arguments) throws SQLException {
         return StatementExecutor.execute(context,
                 () -> {
-                    String statementText = definition.prepareStatementText(arguments);
-                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
-
                     DBNConnection connection = context.getConnection();
+                    String statementText = definition.prepareStatementText(connection, arguments);
+                    String statementLogText = definition.prepareStatementLogText();
+                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementLogText);
+
                     DBNStatement statement = connection.createStatement();
                     context.setStatement(statement);
                     try {
@@ -323,7 +329,7 @@ public class StatementExecutionProcessor {
                         statement.execute(statementText);
                         return statement.getUpdateCount();
                     } catch (SQLException e) {
-                        handleException(e, statementText);
+                        handleException(e, statementLogText);
                         return 0;
                     } finally {
                         Resources.close(statement);
@@ -331,15 +337,15 @@ public class StatementExecutionProcessor {
                 });
     }
 
-    private void handleException(SQLException e, String statementText) throws SQLException {
+    private void handleException(SQLException e, String statementLogText) throws SQLException {
         conditionallyLog(e);
         if (isSuccessException(e)) {
-            log.warn("[DBN] Success exception received while executing statement \"{}\"\nDetails: {}", statementText, e.getMessage());
+            log.warn("[DBN] Success exception received while executing statement \"{}\"\nDetails: {}", statementLogText, e.getMessage());
             return;
         }
 
         if (isDatabaseAccessDebug()) {
-            log.warn("[DBN] Error executing statement: {}\nDetails: {}", statementText, e.getMessage());
+            log.warn("[DBN] Error executing statement: {}\nDetails: {}", statementLogText, e.getMessage());
         }
         throw e;
     }

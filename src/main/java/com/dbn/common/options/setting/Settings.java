@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.common.options.ConfigMonitor.isClipboardStorage;
 import static com.dbn.common.util.Strings.containsOneOf;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
@@ -167,7 +168,7 @@ public final class Settings {
         }
     }
 
-    public static int integerAttribute(Element element, @NonNls String attributeName, int defaultValue) {
+    public static Integer integerAttribute(Element element, @NonNls String attributeName, Integer defaultValue) {
         try {
             String attributeValue = stringAttribute(element, attributeName);
             if (isEmpty(attributeValue)) return defaultValue;
@@ -180,7 +181,15 @@ public final class Settings {
         }
     }
 
+    public static int integerAttribute(Element element, @NonNls String attributeName, int defaultValue) {
+        return integerAttribute(element, attributeName, Integer.valueOf(defaultValue));
+    }
+
     public static long longAttribute(Element element, @NonNls String attributeName, long defaultValue) {
+        return longAttribute(element, attributeName, Long.valueOf(defaultValue));
+    }
+
+    public static Long longAttribute(Element element, @NonNls String attributeName, Long defaultValue) {
         try {
             String attributeValue = stringAttribute(element, attributeName);
             if (isEmpty(attributeValue)) return defaultValue;
@@ -294,6 +303,11 @@ public final class Settings {
         element.setAttribute("value", value == null ? "" : value);
     }
 
+    public static void setSensitiveString(Element parent, @NonNls String childName, @NonNls String value) {
+        if (isClipboardStorage()) return;
+        setString(parent, childName, value);
+    }
+
     public static void setDouble(Element parent, @NonNls String childName, double value) {
         Element element = newElement(parent, childName);
         element.setAttribute("value", Double.toString(value));
@@ -378,6 +392,25 @@ public final class Settings {
     @NotNull
     public static List<Element> childrenOf(@Nullable Element element, String name) {
         return element == null ? Collections.emptyList(): element.getChildren(name);
+    }
+
+    /**
+     * Retrieves named child elements, returning an empty list when the supplied cardinality limit is exceeded.
+     *
+     * @param element the parent {@code Element} from which to retrieve child elements; may be {@code null}
+     * @param name the name of the child elements to retrieve
+     * @param maxCount the maximum accepted number of matching child elements
+     * @return a list of child {@code Element} objects matching the specified name if the given element is not null,
+     *         or an empty list if the given element is null
+     */
+    @NotNull
+    public static List<Element> childrenOf(@Nullable Element element, String name, int maxCount) {
+        List<Element> children = childrenOf(element, name);
+        if (children.size() > maxCount) {
+            log.warn("Ignoring excessive <{}> elements: count {} exceeds maximum {}", name, children.size(), maxCount);
+            return Collections.emptyList();
+        }
+        return children;
     }
 
     /**

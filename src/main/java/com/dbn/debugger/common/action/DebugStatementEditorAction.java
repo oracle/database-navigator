@@ -48,6 +48,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class DebugStatementEditorAction extends ProjectAction {
 
+    public DebugStatementEditorAction() {
+        super(txt("app.codeEditor.action.ScriptEditorDebugStatement"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         Editor editor = Lookups.getEditor(e);

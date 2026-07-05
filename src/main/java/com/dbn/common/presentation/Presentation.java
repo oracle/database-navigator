@@ -16,69 +16,33 @@
 
 package com.dbn.common.presentation;
 
-import com.dbn.common.presentation.provider.ConnectionPresentationProvider;
-import com.dbn.common.presentation.provider.ConnectionRefPresentationProvider;
-import com.dbn.common.presentation.provider.DBObjectPresentationProvider;
-import com.dbn.common.presentation.provider.DBObjectRefPresentationProvider;
 import com.dbn.common.presentation.provider.DefaultPresentationProvider;
-import com.dbn.common.presentation.provider.PsiFilePresentationProvider;
-import com.dbn.common.presentation.provider.VirtualFilePresentationProvider;
 import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.Icon;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
-@Slf4j
 @UtilityClass
 public class Presentation {
-    private static final List<PresentationProvider<?>> PROVIDERS = new ArrayList<>();
-    private static final Map<Class, PresentationProvider> LOOKUP_CACHE = new ConcurrentHashMap<>();
-
     public static final DefaultPresentationProvider GENERIC_PROVIDER = new DefaultPresentationProvider();
 
-    static {
-
-        PROVIDERS.add(new ConnectionPresentationProvider());
-        PROVIDERS.add(new ConnectionRefPresentationProvider());
-
-        PROVIDERS.add(new DBObjectPresentationProvider());
-        PROVIDERS.add(new DBObjectRefPresentationProvider());
-
-        PROVIDERS.add(new VirtualFilePresentationProvider());
-        PROVIDERS.add(new PsiFilePresentationProvider());
-        //...
-        // latest fallback (do not define providers after this)
-        PROVIDERS.add(GENERIC_PROVIDER);
-    }
-
-    private static PresentationProvider resolveProvider(Class<?> objectClass) {
-        for (PresentationProvider<?> provider : PROVIDERS) {
-            if (provider.supports(objectClass)) {
-                return provider;
-            }
-        }
-        log.error("No presentation provider found for object type {}", objectClass);
-        return GENERIC_PROVIDER;
-    }
-
-
-    private static <T> PresentationProvider<T> getProvider(Object object) {
-        return cast(LOOKUP_CACHE.computeIfAbsent(object.getClass(), k -> resolveProvider(k)));
+    private static <T> PresentationProvider<T> getProvider(T object) {
+        return PresentationProviders.get(object);
     }
 
     public static String presentableName(Object object) {
-        if (object == null) return "Undefined";
+        if (object == null) return txt("app.shared.text.Undefined");
         return getProvider(object).getName(object);
     }
 
+    public static String presentableDetailedName(Object object) {
+        if (object == null) return txt("app.shared.text.Undefined");
+        return getProvider(object).getDetailedName(object);
+    }
+
     public static String presentableTypeName(Object object) {
-        if (object == null) return "Undefined";
+        if (object == null) return txt("app.shared.text.Undefined");
         return getProvider(object).getTypeName(object);
     }
 

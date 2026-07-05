@@ -25,6 +25,7 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.config.ui.CharsetOption;
+import com.dbn.data.export.DataExportException;
 import com.dbn.data.export.DataExportFormat;
 import com.dbn.data.export.DataExportInstructions;
 import com.dbn.data.export.DataExportManager;
@@ -62,6 +63,8 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.isEmptyText;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.FileChoosers.addSingleFolderChooser;
+import static com.dbn.data.export.DataExportFiles.sanitizeFileName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExportDataForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -71,6 +74,7 @@ public class ExportDataForm extends DBNFormBase {
     private JRadioButton formatHTMLRadioButton;
     private JRadioButton formatXMLRadioButton;
     private JRadioButton formatJiraRadioButton;
+    private JRadioButton formatMarkdownRadioButton;
     private JRadioButton formatExcelRadioButton;
     private JRadioButton formatExcelXRadioButton;
     private JRadioButton formatCSVRadioButton;
@@ -117,6 +121,7 @@ public class ExportDataForm extends DBNFormBase {
         formatHTMLRadioButton.addActionListener(actionListener);
         formatXMLRadioButton.addActionListener(actionListener);
         formatJiraRadioButton.addActionListener(actionListener);
+        formatMarkdownRadioButton.addActionListener(actionListener);
         formatExcelRadioButton.addActionListener(actionListener);
         formatExcelXRadioButton.addActionListener(actionListener);
         formatCSVRadioButton.addActionListener(actionListener);
@@ -145,6 +150,7 @@ public class ExportDataForm extends DBNFormBase {
         formatHTMLRadioButton.setSelected(format == DataExportFormat.HTML);
         formatXMLRadioButton.setSelected(format == DataExportFormat.XML);
         formatJiraRadioButton.setSelected(format == DataExportFormat.JIRA);
+        formatMarkdownRadioButton.setSelected(format == DataExportFormat.MARKDOWN);
         formatCSVRadioButton.setSelected(format == DataExportFormat.CSV);
         formatCustomRadioButton.setSelected(format == DataExportFormat.CUSTOM);
 
@@ -171,7 +177,8 @@ public class ExportDataForm extends DBNFormBase {
 
         Project project = connection.getProject();
         addSingleFolderChooser(
-                project, fileLocationTextField,
+                project,
+                fileLocationTextField,
                 txt("msg.dataExport.title.SelectDirectory"),
                 txt("msg.dataExport.text.SelectDirectory"));
         enableDisableFields();
@@ -249,6 +256,7 @@ public class ExportDataForm extends DBNFormBase {
             formatHTMLRadioButton.isSelected() ? DataExportFormat.HTML :
             formatXMLRadioButton.isSelected() ? DataExportFormat.XML :
             formatJiraRadioButton.isSelected() ? DataExportFormat.JIRA :
+            formatMarkdownRadioButton.isSelected() ? DataExportFormat.MARKDOWN :
             formatExcelRadioButton.isSelected() ? DataExportFormat.EXCEL :
             formatExcelXRadioButton.isSelected() ? DataExportFormat.EXCELX :
             formatCSVRadioButton.isSelected() ? DataExportFormat.CSV :
@@ -292,7 +300,16 @@ public class ExportDataForm extends DBNFormBase {
         }
 
         if (destinationFileRadioButton.isSelected()) {
-            File file = getExportInstructions().getFile();
+            File file;
+            try {
+                file = getExportInstructions().getFile();
+            } catch (DataExportException e) {
+                Messages.showErrorDialog(
+                        project,
+                        txt("msg.dataExport.title.InvalidFilePath"),
+                        txt("msg.dataExport.error.InvalidFilePath"));
+                return;
+            }
             if (file.exists()) {
                 Messages.showQuestionDialog(project,
                         txt("msg.dataExport.title.FileExists"),
@@ -341,7 +358,7 @@ public class ExportDataForm extends DBNFormBase {
         String fileNameBase = sourceObject == null ? instructions.getBaseName() : sourceObject.getObjectName();
         if (fileNameBase != null && processor != null) {
             String fileName = fileNameBase + "." + processor.getFileExtension();
-            fileNameTextField.setText(fileName);
+            fileNameTextField.setText(sanitizeFileName(fileName));
         }
     }
 }

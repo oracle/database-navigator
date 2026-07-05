@@ -44,11 +44,11 @@ import com.dbn.assistant.service.generic.ui.GenericAssistantContextActionsForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantIntroductionForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantPromptActionsForm;
 import com.dbn.assistant.state.AssistantState;
-import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -57,6 +57,8 @@ import static com.dbn.assistant.credential.AssistantCredentialLookup.getCredenti
 import static com.dbn.assistant.profile.AssistantProfileLookup.getProfile;
 import static com.dbn.assistant.profile.AssistantProfileUtil.verifyAssistantProfile;
 import static com.dbn.assistant.provider.AIModelFeature.TEMPERATURE;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessages;
+import static com.dbn.common.exception.Exceptions.rootCauseOf;
 import static com.dbn.nls.NlsResources.txt;
 
 public class GenericAssistantAdapter extends AssistantAdapterBase {
@@ -136,9 +138,10 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
 
     @Override
     public String prepareError(ConnectionId connectionId, ChatContext chatContext, Throwable e) {
-        e = Exceptions.rootCauseOf(e);
-        String errorMessage = Exceptions.getMessage(e);
-        return txt("msg.assistant.error.AssistantInvocationFailure", getAssistantType().getName(), errorMessage);
+        e = rootCauseOf(e);
+        String errorMessage = getLocalizedMessages(e);
+        String message = txt("msg.assistant.error.AssistantInvocationFailure", getAssistantType().getName());
+        return txt("msg.shared.error.ErrorDetails", message, errorMessage);
     }
 
     @Override
@@ -172,7 +175,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
             invoker.invokeModel(model, state, memoryId, prompt, responseConsumer);
 
         } catch (Throwable t) {
-            responseConsumer.acceptError("Model invocation failed", t);
+            responseConsumer.acceptError(txt("msg.assistant.error.ModelInvocationFailed"), t);
             responseConsumer.acceptCompletion();
         }
     }
@@ -187,6 +190,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         if (userPrompts.isEmpty()) return null;
 
         String prompts = Lists.toCsv(userPrompts, "\n", s -> "\"" + s + "\"");
+        @NonNls
         String titlePrompt = "Summarize the following user prompts into a concise title (3-5 words). Respond with the title only, no punctuation, quotes, or filler words:\n\n" + prompts;
 
         AssistantModelInput input = createModelInput(connectionId, context);
@@ -232,6 +236,8 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         AIProviderId providerId = provider.getId();
         AssistantModelInput input = AssistantModelInput.create(baseProviderId, providerId, modelName);
         input.setCredential(credential);
+        input.setMaxTokens(model.getMaxTokens());
+        input.setMaxOutputTokens(model.getMaxOutputTokens());
 
         if (model.isFeatureSupported(TEMPERATURE)) {
             double temperature = profile.getTemperature();

@@ -31,6 +31,7 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.intellij.util.ui.AsyncProcessIcon;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
@@ -41,6 +42,7 @@ import static com.dbn.common.feature.FeatureAvailability.AVAILABLE;
 import static com.dbn.common.feature.FeatureAvailability.UNAVAILABLE;
 import static com.dbn.common.feature.FeatureAvailability.UNCERTAIN;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Database Assistant initialization form
@@ -50,6 +52,8 @@ import static com.dbn.common.util.Conditional.when;
  * @author Dan Cioca (Oracle)
  */
 public class SelectAiInitializationForm extends DBNFormBase implements AssistantInitializationForm {
+    private static final @NonNls String LOADING_ICON_NAME = "Loading";
+
     private JPanel initializingIconPanel;
     private JPanel mainPanel;
     private JPanel initializingPanel;
@@ -60,7 +64,7 @@ public class SelectAiInitializationForm extends DBNFormBase implements Assistant
 
     public SelectAiInitializationForm(@NotNull SelectAiIntroductionForm parent) {
         super(parent);
-        initializingIconPanel.add(new AsyncProcessIcon("Loading"));
+        initializingIconPanel.add(new AsyncProcessIcon(LOADING_ICON_NAME));
         retryButton.addActionListener(e -> checkAvailability());
 
         checkAvailability();
@@ -116,7 +120,8 @@ public class SelectAiInitializationForm extends DBNFormBase implements Assistant
             unsupportedPanel.setVisible(true);
         } else if (availability == UNCERTAIN) {
             reinitializePanel.setVisible(true);
-            String messageContent = "Could not initialize Database Assistant\n\n" + availabilityInfo.getMessage();
+            String errorMessage = txt("msg.assistant.error.DatabaseAssistantInitializationFailed");
+            String messageContent = txt("msg.shared.error.ErrorDetails", errorMessage, availabilityInfo.getMessage());
             TextContent message = TextContent.plain(messageContent);
             DBNHintForm messageForm = new DBNHintForm(this, message, MessageType.ERROR, true);
             messagePanel.add(messageForm.getComponent());

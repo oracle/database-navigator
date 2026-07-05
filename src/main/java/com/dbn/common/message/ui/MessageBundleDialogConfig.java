@@ -19,6 +19,8 @@ package com.dbn.common.message.ui;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.project.ProjectRef;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.Getter;
 
 import javax.swing.Action;
@@ -26,18 +28,18 @@ import javax.swing.Action;
 @Getter
 public class MessageBundleDialogConfig {
     private final ProjectRef project;
-    private final String title;
-    private String mainMessage;
+    private final @DialogTitle String title;
+    private @DialogMessage String mainMessage;
     private Object contextObject;
     private Action[] actions;
     private MessageType[] messageTypes;
 
-    private MessageBundleDialogConfig(Project project, String title) {
+    private MessageBundleDialogConfig(Project project, @DialogTitle String title) {
         this.project = ProjectRef.of(project);
         this.title = title;
     }
 
-    public static MessageBundleDialogConfig create(Project project, String title) {
+    public static MessageBundleDialogConfig create(Project project, @DialogTitle String title) {
         return new MessageBundleDialogConfig(project, title);
     }
 
@@ -45,7 +47,7 @@ public class MessageBundleDialogConfig {
         return project.ensure();
     }
 
-    public MessageBundleDialogConfig withMainMessage(String mainMessage) {
+    public MessageBundleDialogConfig withMainMessage(@DialogMessage String mainMessage) {
         this.mainMessage = mainMessage;
         return this;
     }

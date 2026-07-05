@@ -29,6 +29,7 @@ import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.codeInsight.folding.CodeFoldingManager;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.command.undo.UndoUtil;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -171,9 +172,14 @@ public class Documents {
         return fileDocumentManager.getFile(document);
     }
 
+    @NotNull
+    public static Document ensureDocument(@NotNull VirtualFile file) {
+        return nn(getDocument(file));
+    }
+
     @Nullable
-    public static Document getDocument(@NotNull VirtualFile virtualFile) {
-        return Read.call(virtualFile, f -> {
+    public static Document getDocument(@NotNull VirtualFile file) {
+        return Read.call(file, f -> {
             FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
             return fileDocumentManager.getDocument(f);
         });
@@ -243,8 +249,54 @@ public class Documents {
         });
     }
 
+    /**
+     * Replaces the document text inside a plain write action.
+     * <p>
+     * This overload does not register an undoable project command, so it is best suited for
+     * internal, generated, preview, or temporary documents where the change should not appear
+     * in the IDE undo stack.
+     *
+     * @param document document to update
+     * @param text new document text; line separators are normalized before writing
+     */
     public static void setText(@NotNull Document document, CharSequence text) {
         Write.run(() -> changeText(document, text));
+    }
+
+    /**
+     * Replaces the document text inside a project-scoped write command.
+     * <p>
+     * Unlike {@link #setText(Document, CharSequence)}, this overload passes the project to
+     * {@link Write#run(Project, Runnable)}, which wraps the write action in an IntelliJ command
+     * and makes the text replacement available through the IDE undo stack.
+     *
+     * @param project project used to register the undoable command
+     * @param document document to update
+     * @param text new document text; line separators are normalized before writing
+     */
+    public static void setText(@NotNull Project project, @NotNull Document document, CharSequence text) {
+        Write.run(project, () -> changeText(document, text));
+    }
+
+    /**
+     * Replaces the document text and makes the replacement the undo baseline.
+     * <p>
+     * This is useful for embedded editors that load content from an external selection: users
+     * should be able to undo edits made after the load, but not undo past the selected content.
+     */
+    public static void resetText(@NotNull Project project, @NotNull Document document, CharSequence text) {
+        UndoUtil.enableUndoFor(document);
+        UndoUtil.disableUndoIn(document, () -> setText(document, text));
+    }
+
+    /**
+     * Replaces the editor text and makes the replacement the undo baseline.
+     */
+    public static void resetText(@NotNull Editor editor, CharSequence text, boolean format) {
+        Document document = editor.getDocument();
+
+        UndoUtil.enableUndoFor(document);
+        UndoUtil.disableUndoIn(document, () -> setText(editor, text, format));
     }
 
     public static String getText(@NotNull Document document) {

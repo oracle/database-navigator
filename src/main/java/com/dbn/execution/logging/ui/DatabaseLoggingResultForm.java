@@ -39,6 +39,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseLoggingResultForm extends ExecutionResultFormBase<DatabaseLoggingResult> {
     private JPanel mainPanel;
@@ -57,7 +58,7 @@ public class DatabaseLoggingResultForm extends ExecutionResultFormBase<DatabaseL
         consolePanel.add(consoleComponent, BorderLayout.CENTER);
 
         ActionManager actionManager = ActionManager.getInstance();
-        //ActionGroup actionGroup = (ActionGroup) actionManager.getAction("DBNavigator.ActionGroup.DatabaseLogOutput");
+        //ActionGroup actionGroup = (ActionGroup) actionManager.getAction("DBN.Execution.LogOutput");
         DefaultActionGroup toolbarActions = (DefaultActionGroup) console.getToolbarActions();
         if (toolbarActions != null) {
             for (AnAction action : toolbarActions.getChildActionsOrStubs()) {
@@ -66,10 +67,10 @@ public class DatabaseLoggingResultForm extends ExecutionResultFormBase<DatabaseL
                 }
             }
 
-            toolbarActions.add(actionManager.getAction("DBNavigator.Actions.DatabaseLogOutput.KillProcess"), Constraints.FIRST);
-            toolbarActions.add(actionManager.getAction("DBNavigator.Actions.DatabaseLogOutput.RerunProcess"), Constraints.FIRST);
-            toolbarActions.add(actionManager.getAction("DBNavigator.Actions.DatabaseLogOutput.Close"), Constraints.FIRST);
-            toolbarActions.add(actionManager.getAction("DBNavigator.Actions.DatabaseLogOutput.Settings"), Constraints.LAST);
+            toolbarActions.add(actionManager.getAction("DBN.Execution.LogOutput.KillProcess"), Constraints.FIRST);
+            toolbarActions.add(actionManager.getAction("DBN.Execution.LogOutput.RerunProcess"), Constraints.FIRST);
+            toolbarActions.add(actionManager.getAction("DBN.Execution.LogOutput.Close"), Constraints.FIRST);
+            toolbarActions.add(actionManager.getAction("DBN.Execution.LogOutput.Settings"), Constraints.LAST);
             ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, toolbarActions);
             setAccessibleName(actionToolbar, txt("cfg.execution.aria.ExecutionConsoleLogOutputActions"));
 

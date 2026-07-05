@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.dbn.common.notification.NotificationSupport.sendInfoNotification;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class DBNConnectionPool extends ObjectPoolBase<DBNConnection, SQLException> {

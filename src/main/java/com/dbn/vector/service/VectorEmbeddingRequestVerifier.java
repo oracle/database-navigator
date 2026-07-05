@@ -24,6 +24,8 @@ import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.request.EmbeddingDestinationConfig;
+import com.dbn.vector.model.request.EmbeddingSourceFiles;
+import com.dbn.vector.model.request.EmbeddingSourceType;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 
@@ -31,27 +33,43 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class VectorEmbeddingRequestVerifier {
     public static boolean verifyRequest(VectorEmbeddingRequest request, ProgressIndicator indicator) {
         Project project = request.getProject();
         try {
+            if (!verifyFileSourceAuthorization(request)) return false;
             if (!verifyDestinationModelMatch(request, indicator)) return false;
             //..
 
         } catch (Exception e) {
-            showErrorDialog(project, "Verification Error", "Failed to verify embedding request", e);
+            showErrorDialog(project,
+                    txt("msg.vector.title.VerificationError"),
+                    txt("msg.vector.error.EmbeddingRequestVerificationFailed"), e);
             return false;
         }
 
         return true;
     }
 
+    private static boolean verifyFileSourceAuthorization(VectorEmbeddingRequest request) {
+        if (request.getSourceConfig().getSourceType() != EmbeddingSourceType.FILE_SYSTEM) return true;
+
+        EmbeddingSourceFiles sourceFiles = request.getSourceConfig().getSourceFiles();
+        if (!sourceFiles.hasUnauthorizedFileSources()) return true;
+
+        showErrorDialog(request.getProject(),
+                txt("msg.vector.title.FileUploadNotAuthorized"),
+                txt("msg.vector.error.FileUploadNotAuthorized"));
+        return false;
+    }
+
     private static boolean verifyDestinationModelMatch(VectorEmbeddingRequest request, ProgressIndicator indicator) throws SQLException {
         Project project = request.getProject();
         ConnectionHandler connection = request.getConnection();
 
-        indicator.setText2("Verifying destination model consistency");
+        indicator.setText2(txt("prc.vector.text.VerifyingDestinationModelConsistency"));
         String modelMetadata = DatabaseInterfaceInvoker.load(Priority.MEDIUM, project, request.getConnectionId(), conn -> {
             DatabaseVectorInterface vectorInterface = connection.getVectorInterface();
             EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
@@ -71,10 +89,12 @@ public class VectorEmbeddingRequestVerifier {
         String requestModel = String.valueOf(requestModelConfig.get("model"));
 
 
-        showErrorDialog(project, "Inconsistent Model Selection",
-                "The embedding model you selected " +
-                        "does not match the one already recorded in the embedding destination table " + request.getDestinationConfig().getQualifiedTableName() + ". " +
-                        "\n\nThe requested model is \"" + requestModel + "\"\nThe model used in embedding table is \"" + destinationModel + "\"");
+        showErrorDialog(project,
+                txt("msg.vector.title.InconsistentModelSelection"),
+                txt("msg.vector.error.InconsistentModelSelection",
+                        request.getDestinationConfig().getQualifiedTableName(),
+                        requestModel,
+                        destinationModel));
         return false;
     }
 }

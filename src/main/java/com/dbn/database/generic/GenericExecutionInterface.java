@@ -16,18 +16,18 @@
 
 package com.dbn.database.generic;
 
-import com.dbn.common.database.AuthenticationInfo;
-import com.dbn.common.database.DatabaseInfo;
 import com.dbn.connection.SchemaId;
-import com.dbn.database.CmdLineExecutionInput;
+import com.dbn.database.DatabaseScriptClientCommand;
 import com.dbn.database.common.DatabaseExecutionInterfaceImpl;
 import com.dbn.database.common.execution.JavaExecutionProcessor;
 import com.dbn.database.common.execution.MethodExecutionProcessor;
-import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.execution.script.ScriptExecutionInput;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
 
 public class GenericExecutionInterface extends DatabaseExecutionInterfaceImpl {
 
@@ -51,13 +51,11 @@ public class GenericExecutionInterface extends DatabaseExecutionInterfaceImpl {
     }
 
     @Override
-    public CmdLineExecutionInput createScriptExecutionInput(
-            @NotNull CmdLineInterface cmdLineInterface,
-            @NotNull String filePath,
-            String content,
-            @Nullable SchemaId schemaId,
-            @NotNull DatabaseInfo databaseInfo,
-            @NotNull AuthenticationInfo authenticationInfo) {
+    public DatabaseScriptClientCommand createScriptExecutionCommand(
+            @NotNull ScriptExecutionInput executionInput,
+            @NotNull File scriptFile,
+            @NotNull String scriptContent,
+            @Nullable SchemaId schemaId) {
         throw new UnsupportedOperationException();
     }
 }

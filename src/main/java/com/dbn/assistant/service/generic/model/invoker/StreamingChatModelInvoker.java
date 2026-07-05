@@ -33,11 +33,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static com.dbn.assistant.service.generic.model.AssistantModelType.STREAMING_CHAT;
-import static com.dbn.assistant.tool.AssistantToolData.isInternalTool;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.util.TimeUtil.isOlderThan;
 
 public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingChatModel> implements AssistantComponent {
+    private static final Pattern MARKDOWN_TOKEN_PATTERN = Pattern.compile("[#*_`~\\[\\]()>+\\-!=|]");
+    static final int MAX_TOKEN_BUFFER_LENGTH = 4096;
+
     public StreamingChatModelInvoker() {
         super(STREAMING_CHAT);
     }
@@ -52,6 +54,7 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
         initSystemMessage(builder, context);
         initInternalToolProvider(builder, context);
         initExternalToolProviders(builder, context);
+        initToolExecutionErrorHandler(builder, context);
 
         StreamingChatModelAdapter adapter = builder.build();
 
@@ -82,12 +85,9 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
 
         modelTokenStream.onPartialResponse(t -> {
             // avoid scroll flickering on incomplete markdown structures
-            // (buffer consecutive tokens containing formating elements)
-            Pattern pattern = Pattern.compile("[#*_`~\\[\\]()>+\\-!=|]");
+            // (buffer consecutive tokens containing formatting elements)
             buffer.append(t);
-            if (!pattern.matcher(t).matches()) {
-                buffer.consume(consumer, false);
-            }
+            buffer.consume(consumer, !MARKDOWN_TOKEN_PATTERN.matcher(t).matches());
         });
 
         modelTokenStream.onCompleteResponse(r -> {
@@ -120,13 +120,14 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
 
     // avoid screen flickering when time-interval between tokens is below chatbox UI refresh time
     // (buffer tokens and release only if forced or buffer time exceeded)
-    private static class TokenBuffer {
+    static class TokenBuffer {
         private final StringBuilder buffer = new StringBuilder();
-        private long consumeTimestamp = 0;
+        private long consumeTimestamp = System.currentTimeMillis();
 
-        private void consume(AssistantResponseConsumer consumer, boolean force) {
-            force = force || isOlderThan(consumeTimestamp, 50, TimeUnit.MILLISECONDS);
+        void consume(AssistantResponseConsumer consumer, boolean force) {
+            force = force || isFull() || isStale();
             if (!force) return;
+            if (buffer.isEmpty()) return;
 
             // consume and reset
             consumeTimestamp = System.currentTimeMillis();
@@ -134,15 +135,25 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
             buffer.delete(0, buffer.length());
         }
 
-        public void append(String token) {
+        void append(String token) {
             buffer.append(token);
+        }
+
+        int length() {
+            return buffer.length();
+        }
+
+        private boolean isFull() {
+            return buffer.length() >= MAX_TOKEN_BUFFER_LENGTH;
+        }
+
+        private boolean isStale() {
+            return isOlderThan(consumeTimestamp, 50, TimeUnit.MILLISECONDS);
         }
     }
 
     @Workaround
     private static void normalizeRequest(ToolExecutionRequest request) {
-        if (!isInternalTool(request.name())) return;
-
         Unsafe.logged(() -> AssistantToolRequestNormalizer.normalize(request));
     }
 

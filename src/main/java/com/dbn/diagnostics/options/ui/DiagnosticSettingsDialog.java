@@ -17,22 +17,24 @@
 package com.dbn.diagnostics.options.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.common.util.Messages;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DiagnosticSettingsDialog extends DBNDialog<DiagnosticSettingsForm> {
 
     public DiagnosticSettingsDialog(Project project) {
-        super(project, "Diagnostic Settings", true);
+        super(project, txt("msg.diagnostics.title.DiagnosticSettings"), true);
         setModal(false);
         setResizable(true);
-        setCancelButtonText("Cancel");
+        setCancelButtonText(txt("msg.shared.button.Cancel"));
         setDefaultSize(600, 800);
         init();
     }
@@ -59,7 +61,7 @@ public class DiagnosticSettingsDialog extends DBNDialog<DiagnosticSettingsForm> 
             super.doOKAction();
         } catch (ConfigurationException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(getProject(), "Invalid Configuration", e.getMessage());
+            showErrorDialog(getProject(), txt("msg.diagnostics.title.InvalidConfiguration"), getLocalizedMessage(e));
         }
 
     }

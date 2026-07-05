@@ -53,6 +53,7 @@ import java.util.Objects;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.debugger.ExecutionConfigManager.COMPONENT_NAME;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
         name = COMPONENT_NAME,
@@ -63,14 +64,10 @@ public class ExecutionConfigManager extends ProjectComponentBase implements Pers
 
 
     public static final TextContent GENERIC_METHOD_RUNNER_HINT =
-            plain("This is the generic Database Method debug runner. " +
-                    "This is used when debugging is invoked on a given method. " +
-                    "No specific method information can be specified here.");
+            plain(txt("msg.debugger.hint.GenericMethodRunner"));
 
     public static final TextContent GENERIC_STATEMENT_RUNNER_HINT =
-            plain("This is the generic Database Statement debug runner. " +
-                    "This is used when debugging is invoked on a given SQL statement. " +
-                    "No specific statement information can be specified here.");
+            plain(txt("msg.debugger.hint.GenericStatementRunner"));
 
 
     private ExecutionConfigManager(Project project) {
@@ -153,7 +150,6 @@ public class ExecutionConfigManager extends ProjectComponentBase implements Pers
         return RunManagerEx.getInstance(ensureProject());
     }
 
-    @Deprecated // TODO move to stateless run configuration (decommission after a few releases)
     public void removeRunConfigurations() {
         RunManager runManager = getRunManager();
         List<RunnerAndConfigurationSettings> runConfigurations = runManager.getAllSettings();

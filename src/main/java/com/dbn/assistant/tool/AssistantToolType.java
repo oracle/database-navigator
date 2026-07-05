@@ -31,26 +31,25 @@ public enum AssistantToolType implements Constant<AssistantToolType> {
     // DATA_PROVIDER
     SEMANTIC_SEARCH,
 
-    // CONFIG_INFO_PROVIDER
-    CONNECTION_INFO,
-
-
     // METADATA_PROVIDER
     DATABASE_METADATA,
     SCHEMA_METADATA,
     TABLE_METADATA,
     VIEW_METADATA,
     PROGRAM_METADATA,
+    JAVA_METADATA,
 
     // SOURCE_CODE_PROVIDER
     VIEW_SOURCE_CODE,
     PROGRAM_SOURCE_CODE,
+    JAVA_SOURCE_CODE,
 
 
     // IDE_ACTION_INVOKER
     DATASET_EDITORS,
-    SOURCE_CODE_EDITORS,
     SQL_CONSOLE_EDITORS,
+    PROGRAM_SOURCE_CODE_EDITORS,
+    JAVA_SOURCE_CODE_EDITORS,
 
     ;
 
@@ -58,16 +57,18 @@ public enum AssistantToolType implements Constant<AssistantToolType> {
             // code development
             AssistantMode.DEVELOPMENT, Set.of(
                 USER_PROMPTS,
-                CONNECTION_INFO,
                 DATABASE_METADATA,
                 SCHEMA_METADATA,
                 TABLE_METADATA,
                 VIEW_METADATA,
                 PROGRAM_METADATA,
+                JAVA_METADATA,
                 VIEW_SOURCE_CODE,
                 PROGRAM_SOURCE_CODE,
+                JAVA_SOURCE_CODE,
                 DATASET_EDITORS,
-                SOURCE_CODE_EDITORS,
+                PROGRAM_SOURCE_CODE_EDITORS,
+                JAVA_SOURCE_CODE_EDITORS,
                 SQL_CONSOLE_EDITORS),
 
             // data analytics

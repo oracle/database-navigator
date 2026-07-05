@@ -34,15 +34,16 @@ import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.toCsv;
-import static com.dbn.common.util.Naming.unquote;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.database.DatabaseObjectTypeId.DATABASE_TRIGGER;
 import static com.dbn.database.DatabaseObjectTypeId.DATASET_TRIGGER;
@@ -51,6 +52,7 @@ import static com.dbn.database.DatabaseObjectTypeId.JSON_VIEW;
 import static com.dbn.database.DatabaseObjectTypeId.MATERIALIZED_VIEW;
 import static com.dbn.database.DatabaseObjectTypeId.TRIGGER;
 import static com.dbn.database.DatabaseObjectTypeId.VIEW;
+import static com.dbn.database.oracle.OracleStatementWrappers.executeImmediate;
 import static com.dbn.object.factory.model.DBObjectAttributeType.CONSTRAINT_COLUMNS;
 import static com.dbn.object.factory.model.DBObjectAttributeType.CONSTRAINT_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
@@ -74,37 +76,40 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
     @Override
     public String createDDLStatement(Project project, DatabaseObjectTypeId objectTypeId, String userName, String schemaName, String objectName, DBContentType contentType, String code, String alternativeDelimiter) {
+        schemaName = quoted(schemaName);
+        objectName = quoted(objectName);
+
         DDLFileSettings ddlFileSettings = DDLFileSettings.getInstance(project);
         boolean useQualified = ddlFileSettings.getGeneralSettings().isUseQualifiedObjectNames();
         boolean makeRerunnable = ddlFileSettings.getGeneralSettings().isMakeScriptsRerunnable();
 
         CodeStyleCaseSettings styleCaseSettings = DBLCodeStyleManager.getInstance(project).getCodeStyleCaseSettings(SQLLanguage.INSTANCE);
         CodeStyleCaseOption kco = styleCaseSettings.getKeywordCaseOption();
-        CodeStyleCaseOption oco = styleCaseSettings.getObjectCaseOption();
 
         if (objectTypeId.isOneOf(DATABASE_TRIGGER, DATASET_TRIGGER)) {
             objectTypeId = TRIGGER;
         }
 
         if(objectTypeId == JAVA_CLASS){
-            return kco.format("begin \n") +
-                    kco.format("execute immediate \n") +
-                    kco.format("' \n") +
-                    kco.format("create" + (makeRerunnable ? " or replace" : "") + " and compile java source named " )
-                    + "\"" + oco.format(objectName.replace("/", ".")) + "\""
-                    + kco.format(" as\n") +
-                    code +
-                    "';\n" + "end;\n/";
-        } else if (objectTypeId == VIEW) {
-            return kco.format("create" + (makeRerunnable ? " or replace" : "") + " view ") + oco.format((useQualified ? schemaName + "." : "") + objectName) + kco.format(" as\n") + code + "\n/";
-        } else {
-            String objectType = cachedLowerCase(objectTypeId.toString());
-            if (contentType == DBContentType.CODE_BODY) {
-                objectType = objectType + " body";
-            }
-            code = updateNameQualification(code, useQualified, objectType, schemaName, objectName, styleCaseSettings);
-            return kco.format("create" + (makeRerunnable ? " or replace" : "") + " ") + code + "\n/";
+            String className = objectName.replace("/", ".");
+            return executeImmediate(
+                    kco.format("create" + (makeRerunnable ? " or replace" : "") + " and compile java source named " ) +
+                            className +
+                            kco.format(" as\n") +
+                            code,
+                    kco);
         }
+
+        if (objectTypeId == VIEW) {
+            return kco.format("create" + (makeRerunnable ? " or replace" : "") + " view ") + (useQualified ? schemaName + "." : "") + objectName + kco.format(" as\n") + code + "\n/";
+        }
+
+        String objectType = cachedLowerCase(objectTypeId.toString());
+        if (contentType == DBContentType.CODE_BODY) {
+            objectType = objectType + " body";
+        }
+        code = updateNameQualification(code, useQualified, objectType, schemaName, objectName, styleCaseSettings);
+        return kco.format("create" + (makeRerunnable ? " or replace" : "") + " ") + code + "\n/";
     }
 
     @Override
@@ -144,9 +149,10 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     public String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException {
         ResultSet resultSet = null;
         try {
-            resultSet = executeQuery(connection, "extract-ddl-statement", objectType, ownerName, objectName);
+            resultSet = executeQuery(connection, "extract-ddl-statement", objectType, unquoted(ownerName), unquoted(objectName));
             resultSet.next();
-            return resultSet.getString(1);
+            Clob clob = resultSet.getClob(1);
+            return Resources.readClob(clob);
         } finally {
             Resources.close(resultSet);
         }
@@ -176,76 +182,33 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         executeUpdate(connection, "update-object", newCode);
     }
 
-    public void createJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "create-java-source", ownerName, objectName, content);
-        compileJavaClass(ownerName, objectName, connection);
-    }
-
-    public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
-        try {
-            executeSilentUpdate(connection, "set-java-property", "sun.tools.javac.Main.args", 'g');
-            executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "true");
-            executeUpdate(connection, "compile-java-class", ownerName, objectName);
-        } finally {
-            executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "false");
-        }
-    }
-
-    @Override
-    public void updateJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "update-java-source", ownerName, objectName, content);
-        compileJavaClass(ownerName, objectName, connection);
-    }
-
-    @Override
-    public void replaceJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "drop-java-object", ownerName, objectName);
-        executeUpdate(connection, "create-java-source", ownerName, objectName, content);
-    }
-
-    @Override
-    public void replaceJavaClass(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "drop-java-object", ownerName, objectName);
-        executeUpdate(connection, "create-java-class", ownerName, objectName, content);
-    }
-
-    @Override
-    public void updateJavaResource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "update-java-resource", ownerName, objectName, content);
-    }
-
 
     /*********************************************************
      *                   CREATE statements                   *
      *********************************************************/
     @Override
     public void createMethod(@NotNull DBObjectSpec methodSpec, DBNConnection connection) throws SQLException {
-        // TODO SQL-Injection
         Project project = methodSpec.getSchema().getProject();
         CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyle.caseSettings(project);
         CodeStyleCaseOption kco = styleCaseSettings.getKeywordCaseOption();
-        CodeStyleCaseOption oco = styleCaseSettings.getObjectCaseOption();
         CodeStyleCaseOption dco = styleCaseSettings.getDatatypeCaseOption();
         boolean function = methodSpec.getObjectType() == FUNCTION;
 
+        @NonNls
         StringBuilder buffer = new StringBuilder();
         String methodType = function ? "function " : "procedure ";
         buffer.append(kco.format(methodType));
-        buffer.append(oco.format(methodSpec.getObjectName()));
+        buffer.append(methodSpec.getAdjustedObjectName());
         buffer.append("(");
         
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        DBObjectSpecList<DBObjectSpec> arguments = methodSpec.getChildren(ARGUMENT);
+        DBObjectSpecList arguments = methodSpec.getChildren(ARGUMENT);
         for (DBObjectSpec argument : arguments) {
             boolean in = IS_INPUT.is(argument);
             boolean out = IS_OUTPUT.is(argument);
-            maxArgNameLength = Math.max(maxArgNameLength, argument.getObjectName().length());
+            String argumentName = argument.getAdjustedObjectName();
+            maxArgNameLength = Math.max(maxArgNameLength, argumentName.length());
             maxArgDirectionLength = Math.max(maxArgDirectionLength, in && out ? 6 : in ? 2 : out ? 3 : 0);
         }
 
@@ -254,8 +217,9 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             boolean out = IS_OUTPUT.is(argument);
 
             buffer.append("\n    ");
-            buffer.append(oco.format(argument.getObjectName()));
-            buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
+            String argumentName = argument.getAdjustedObjectName();
+            buffer.append(argumentName);
+            buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argumentName.length() + 1));
             String direction =
                     in && out ? kco.format("in out") :
                     in ? kco.format("in") :
@@ -283,15 +247,16 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
     @Override
     public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
+        @NonNls
         StringBuilder builder = new StringBuilder();
         builder.append("table ");
         builder.append(tableSpec.getSchemaName(true));
         builder.append(".");
-        builder.append(tableSpec.getObjectName(true));
+        builder.append(tableSpec.getAdjustedObjectName());
         builder.append(" (\n");
 
         boolean first = true;
-        DBObjectSpecList<DBObjectSpec> columnSpecs = tableSpec.getChildren(COLUMN);
+        DBObjectSpecList columnSpecs = tableSpec.getChildren(COLUMN);
         for (DBObjectSpec columnSpec : columnSpecs) {
             if (first) {
                 first = false;
@@ -299,14 +264,14 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
                 builder.append(",\n");
             }
             builder.append("    ");
-            builder.append(columnSpec.getObjectName(true));
+            builder.append(columnSpec.getAdjustedObjectName());
             builder.append(" ");
             builder.append(DATA_TYPE.of(columnSpec));
             builder.append(IS_NOT_NULL.is(columnSpec) ? " not null" : "");
             builder.append(IS_PRIMARY_KEY.is(columnSpec) ? " primary key" : "");
         }
 
-        DBObjectSpecList<DBObjectSpec> constraintSpecs = tableSpec.getChildren(CONSTRAINT);
+        DBObjectSpecList constraintSpecs = tableSpec.getChildren(CONSTRAINT);
         for (DBObjectSpec constraintSpec : constraintSpecs) {
             String constraintType = CONSTRAINT_TYPE.of(constraintSpec);
             String[] constraintColumns = CONSTRAINT_COLUMNS.of(constraintSpec);
@@ -331,9 +296,10 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     public void createIndex(DBObjectSpec indexSpec, DBNConnection connection) throws SQLException {
         DBObjectSpec tableSpec = indexSpec.getParent();
         String schemaName = tableSpec.getSchemaName(true);
-        String indexName = indexSpec.getObjectName(true);
-        String tableName = tableSpec.getObjectName(true);
+        String indexName = indexSpec.getAdjustedObjectName();
+        String tableName = tableSpec.getAdjustedObjectName();
 
+        @NonNls
         StringBuilder builder = new StringBuilder();
         builder.append("index ");
 

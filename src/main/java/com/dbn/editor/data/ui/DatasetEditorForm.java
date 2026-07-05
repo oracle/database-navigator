@@ -63,6 +63,7 @@ import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.help.HelpTopic.TABLE_EDITORS;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel actionsPanel;
@@ -93,7 +94,7 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
             datasetEditorTable = new DatasetEditorTable(this, datasetEditor);
             datasetTableScrollPane.setViewportView(datasetEditorTable);
 
-            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.DataEditor");
+            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.DataEditor");
             setAccessibleName(actionToolbar, txt("app.dataEditor.aria.DatasetEditorActions"));
 
             actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);

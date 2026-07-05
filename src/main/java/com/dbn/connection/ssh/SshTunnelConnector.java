@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.config.hosts.KnownHostEntry;
 import org.apache.sshd.client.future.ConnectFuture;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.client.session.forward.ExplicitPortForwardingTracker;
@@ -32,7 +33,6 @@ import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.util.net.SshdSocketAddress;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.core.CoreModuleProperties;
-import org.apache.sshd.server.forward.AcceptAllForwardingFilter;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
@@ -40,12 +40,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
-import java.rmi.ConnectException;
+import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
+import static com.dbn.common.exception.Exceptions.getMessage;
+import static com.dbn.common.exception.Exceptions.rootCauseOf;
+import static com.dbn.common.util.Passwords.clearPassword;
 import static com.dbn.connection.ssh.SshAuthType.KEY_PAIR;
 import static com.dbn.connection.ssh.SshConnections.toSshdSocketAddress;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static java.util.Arrays.copyOf;
 
 @Slf4j
 @Getter
@@ -58,15 +62,18 @@ public class SshTunnelConnector {
     private ClientSession session;
     private SshClient client;
     private PortForwardingTracker tracker;
+    private StrictKnownHostsServerKeyVerifier keyVerifier;
     private boolean reverseTunnel = false;
 
     public SshTunnelConnector(SshTunnelConfig config) {
         this.config = config;
+        this.keyVerifier = new StrictKnownHostsServerKeyVerifier();
     }
 
     public SshTunnelConnector(SshTunnelConfig config, NetworkAddress localAddress) {
         this.config = config;
         this.localAddress = localAddress;
+        this.keyVerifier = new StrictKnownHostsServerKeyVerifier();
     }
 
     public ClientSession connect() throws Exception {
@@ -78,8 +85,43 @@ public class SshTunnelConnector {
             initTracker();
             return session;
         } catch (Exception e) {
-            throw new ConnectException("Failed to create SSL Tunnel", e);
+            disconnect();
+            throw createTunnelException(e);
         }
+    }
+
+    private SshTunnelException createTunnelException(Exception e) {
+        NetworkAddress proxyAddress = config.getProxyAddress();
+        Path knownHostsFile = KnownHostEntry.getDefaultKnownHostsFile();
+        StrictKnownHostsServerKeyVerifier.HostKeyMismatch mismatch = keyVerifier.getHostKeyMismatch();
+        if (mismatch != null) {
+            String message = "SSH tunnel blocked: the saved SSH host key no longer matches this server.\n\n" +
+                    "Host: " + formatHost(proxyAddress) + "\n" +
+                    "Fingerprint: " + mismatch.getActualKeyType() + " " + mismatch.getActualFingerprint() + "\n" +
+                    "Known hosts file: " + knownHostsFile + "\n\n" +
+                    "This could be a man-in-the-middle attack, or the server key may have changed intentionally.\n" +
+                    "Verify the SSH server before updating known_hosts.";
+
+            return new SshTunnelException(message, e);
+        }
+
+        Throwable knownHostsFileUpdateFailure = keyVerifier.getKnownHostsFileUpdateFailure();
+        if (knownHostsFileUpdateFailure != null) {
+            String message = "SSH tunnel blocked: DB Navigator could not save the SSH server key.\n\n" +
+                    "Host: " + formatHost(proxyAddress) + "\n" +
+                    "Known hosts file: " + knownHostsFile + "\n\n" +
+                    "The connection was blocked because this trust decision could not be saved.\n" +
+                    "Check the file permissions and try again.\n\nCause: " +
+                    getMessage(rootCauseOf(knownHostsFileUpdateFailure));
+
+            return new SshTunnelException(message, e);
+        }
+
+        return new SshTunnelException("Failed to create SSH tunnel: " + getMessage(rootCauseOf(e)), e);
+    }
+
+    private static String formatHost(NetworkAddress address) {
+        return address == null ? "unknown" : address.toString();
     }
 
     private void initPort() throws IOException {
@@ -94,9 +136,11 @@ public class SshTunnelConnector {
     private void initClient() {
         client = SshClient.setUpDefaultClient();
         if (reverseTunnel) {
-            client.setForwardingFilter(AcceptAllForwardingFilter.INSTANCE);
+            SshdSocketAddress socketAddress = toSshdSocketAddress(localAddress);
+            ReverseSshTunnelForwardingFilter forwardingFilter = new ReverseSshTunnelForwardingFilter(socketAddress);
+            client.setForwardingFilter(forwardingFilter);
         }
-        client.setServerKeyVerifier((clientSession, remoteAddress, serverKey) -> true); // Disable host key checking (for development/testing)
+        client.setServerKeyVerifier(keyVerifier);
 
         CoreModuleProperties.SOCKET_KEEPALIVE.set(client, true);
 
@@ -119,26 +163,49 @@ public class SshTunnelConnector {
         if (config.getAuthType() == KEY_PAIR) {
             initKeyPairAuth();
         } else {
-            String proxyPassword = Chars.toString(config.getProxyPassword());
-            session.addPasswordIdentity(proxyPassword);
+            initPasswordAuth();
         }
 
-        session.auth().verify(10, TimeUnit.SECONDS);
         log.info("SSH Tunnel Connection - authentication succeeded");
     }
 
-    private void initKeyPairAuth() throws Exception{
-        String keyFile = config.getKeyFile();
-        String keyPassphrase = Chars.toString(Commons.nvl(config.getKeyPassphrase(), Chars.EMPTY_ARRAY));
+    private void initPasswordAuth() throws Exception {
+        char[] proxyPassword = copySecret(config.getProxyPassword());
+        String passwordIdentity = Chars.toString(proxyPassword);
+        try {
+            session.addPasswordIdentity(passwordIdentity);
+            authenticateSession();
+        } finally {
+            session.removePasswordIdentity(passwordIdentity);
+            clearPassword(proxyPassword);
+        }
+    }
 
+    private void initKeyPairAuth() throws Exception {
+        char[] keyPassphrase = copySecret(config.getKeyPassphrase());
+
+        String keyFile = config.getKeyFile();
         File privateKeyFile = new File(keyFile);
         try (InputStream keyFileStream = new FileInputStream(privateKeyFile)) {
             NamedResource namedResource = NamedResource.ofName(privateKeyFile.getName());
-            FilePasswordProvider passwordProvider = (sessionContext, resourceKey, retryIndex) -> keyPassphrase;
+            FilePasswordProvider passwordProvider =
+                    (sessionContext, resourceKey, retryIndex) -> Chars.toString(keyPassphrase);
 
             var keyPairs = SecurityUtils.loadKeyPairIdentities(session, namedResource, keyFileStream, passwordProvider);
             keyPairs.forEach(kp -> session.addPublicKeyIdentity(kp));
+            authenticateSession();
+        } finally {
+            clearPassword(keyPassphrase);
         }
+    }
+
+    private static char[] copySecret(char[] secret) {
+        char[] value = Commons.nvl(secret, Chars.EMPTY_ARRAY);
+        return copyOf(value, value.length);
+    }
+
+    private void authenticateSession() throws IOException {
+        session.auth().verify(10, TimeUnit.SECONDS);
     }
 
     private void initTracker() throws IOException {

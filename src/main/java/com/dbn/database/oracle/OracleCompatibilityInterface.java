@@ -28,14 +28,16 @@ import com.dbn.connection.ConnectionExceptionInfo;
 import com.dbn.connection.ConnectionType;
 import com.dbn.connection.ConnectorProperties;
 import com.dbn.connection.SessionId;
+import com.dbn.connection.config.ConnectionDebuggerSettings;
 import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.config.ConnectionSslSettings;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.editor.session.SessionStatus;
-import com.dbn.language.common.QuoteDefinition;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuoteDefinition;
+import com.dbn.language.common.quotes.QuotePair;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -64,6 +66,7 @@ import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.EXPLAIN_PLAN;
 import static com.dbn.database.DatabaseFeature.FUNCTION_OUT_ARGUMENTS;
 import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
+import static com.dbn.database.DatabaseFeature.MCP_SERVER_BUILDER;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
 import static com.dbn.database.DatabaseFeature.OBJECT_DDL_EXTRACTION;
 import static com.dbn.database.DatabaseFeature.OBJECT_DEPENDENCIES;
@@ -86,11 +89,15 @@ import static com.dbn.database.DatabaseObjectTypeId.CREDENTIAL;
 import static com.dbn.database.DatabaseObjectTypeId.JAVA_CLASS;
 import static com.dbn.database.DatabaseObjectTypeId.JAVA_RESOURCE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class OracleCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
     public static final QuoteDefinition IDENTIFIER_QUOTE_DEFINITION = new QuoteDefinition(new QuotePair('"', '"'));
+    private static final int MIN_JDWP_PORT = 1024;
+    private static final int MAX_JDWP_PORT = 65535;
 
+    @NonNls
     private interface Property {
         String SESSION_PROGRAM = "v$session.program";
 
@@ -207,6 +214,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 DATA_CHANGE_NOTIFICATION,
                 VECTOR_EMBEDDING,
                 VECTOR_SEARCH,
+                MCP_SERVER_BUILDER,
                 JAVA_VIRTUAL_MACHINE
                 //EMPTY_SCHEMA_EVALUATION // TODO disabled due to performance reasons
                 );
@@ -314,14 +322,47 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     }
 
     @Override
-    public void initConnectorDebugger(ConnectorProperties properties, ConnectionSettings settings) {
-        Map<String, String> configProperties = settings.getPropertiesSettings().getProperties();
+    public void initConnectorSslConnection(ConnectorProperties properties, ConnectionSettings settings) {
+        ConnectionSslSettings sslSettings = settings.getSslSettings();
+        if (!sslSettings.isActive()) return;
 
-        // i check if we have got jdwpHostPort if yes i get a connection using CONNECTION_PROPERTY_THIN_DEBUG_JDWP property
-        // TODO jdwpHostPort may remain resident if this stage is not reached for any reason... (maybe add transient properties container to settings)
-        String jdwpHostPort = configProperties.remove("jdwpHostPort");
-        if (Strings.isNotEmpty(jdwpHostPort)) {
+        super.initConnectorSslConnection(properties, settings);
+        properties.add(Property.ORACLE_JDBC_SSL_SERVER_DN_MATCH, "yes");
+    }
+
+    @Override
+    public void initConnectorDebugger(ConnectorProperties properties, ConnectionSettings settings) {
+        ConnectionDebuggerSettings debuggerSettings = settings.getDebuggerSettings();
+        String jdwpHostPort = debuggerSettings.consumeJdwpHostPort();
+        if (Strings.isNotEmpty(jdwpHostPort) && isValidJdwpHostPort(jdwpHostPort)) {
             properties.add(Property.ORACLE_JDBC_DEBUG_JDWP, jdwpHostPort);
+        }
+    }
+
+    /**
+     * Accepts only transient JDWP tunnel endpoints on the local host before forwarding them to the Oracle JDBC driver.
+     * Supports both {@code host=127.0.0.1;port=5005} and {@code 127.0.0.1:5005} formats.
+     */
+    static boolean isValidJdwpHostPort(String jdwpHostPort) {
+        if (Strings.isEmpty(jdwpHostPort)) return false;
+
+        int portSeparatorIndex = jdwpHostPort.indexOf(";port=");
+        int hostPortSeparatorIndex = portSeparatorIndex > -1 ? portSeparatorIndex : jdwpHostPort.lastIndexOf(':');
+        if (hostPortSeparatorIndex < 1) return false;
+        if (portSeparatorIndex > -1 && !jdwpHostPort.startsWith("host=")) return false;
+
+        String host = portSeparatorIndex > -1 ?
+                jdwpHostPort.substring(5, portSeparatorIndex) :
+                jdwpHostPort.substring(0, hostPortSeparatorIndex);
+        if (!host.equals("127.0.0.1") && !host.equals("localhost")) return false;
+
+        String portString = jdwpHostPort.substring(hostPortSeparatorIndex + (portSeparatorIndex > -1 ? 6 : 1));
+        try {
+            int port = Integer.parseInt(portString);
+            return port >= MIN_JDWP_PORT && port <= MAX_JDWP_PORT;
+        } catch (NumberFormatException e) {
+            conditionallyLog(e);
+            return false;
         }
     }
 

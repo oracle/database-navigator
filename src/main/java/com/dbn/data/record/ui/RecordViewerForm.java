@@ -51,6 +51,7 @@ import java.util.List;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.nls.NlsResources.txt;
 
 public class RecordViewerForm extends DBNFormBase {
     private JPanel actionsPanel;
@@ -101,7 +102,7 @@ public class RecordViewerForm extends DBNFormBase {
         sortColumns(sortingType);
         updateFieldAlignment();
 
-        filterTextField.getEmptyText().setText("Filter");
+        filterTextField.getEmptyText().setText(txt("app.dataEditor.placeholder.Filter"));
         onTextChange(filterTextField, e -> filterColumForms());
 
         int scrollUnitIncrement = (int) columnForms.get(0).getComponent().getPreferredSize().getHeight();
@@ -110,7 +111,7 @@ public class RecordViewerForm extends DBNFormBase {
 
     @Override
     protected void initAccessibility() {
-        setAccessibleName(columnsScrollPane, "Record columns");
+        setAccessibleName(columnsScrollPane, txt("app.dataEditor.aria.RecordColumns"));
     }
 
     @Override
@@ -193,7 +194,7 @@ public class RecordViewerForm extends DBNFormBase {
      *********************************************************/
     private class SortAlphabeticallyAction extends ToggleAction {
         private SortAlphabeticallyAction() {
-            super("Sort Columns Alphabetically", null, Icons.ACTION_SORT_ALPHA);
+            super(txt("app.data.action.SortColumnsAlphabetically"), null, Icons.ACTION_SORT_ALPHA);
         }
 
         @Override

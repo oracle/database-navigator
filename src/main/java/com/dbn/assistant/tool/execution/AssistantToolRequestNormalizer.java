@@ -20,6 +20,7 @@ import com.dbn.assistant.tool.AssistantToolData;
 import com.dbn.common.Reflection;
 import com.dbn.common.data.Data;
 import com.dbn.common.util.Strings;
+import com.dbn.common.util.UUIDs;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -27,6 +28,7 @@ import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import lombok.SneakyThrows;
 import org.apache.xmlbeans.impl.common.Levenshtein;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Array;
@@ -41,10 +43,36 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import static com.dbn.assistant.AssistantComponent.OBJECT_MAPPER;
+import static com.dbn.assistant.tool.AssistantToolData.isInternalTool;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_FUZZY_ARGUMENT_NAME_LENGTH;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_FUZZY_ARGUMENT_TEXT_LENGTH;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_SIMPLIFIED_ARGUMENT_NAME_LENGTH;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_TOOL_REQUEST_ARGUMENT_COUNT;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.isOversized;
+import static com.dbn.common.Reflection.updateFieldValue;
 
+/**
+ * Normalizes internal assistant tool requests before DBN displays and executes them.
+ * <p>
+ * Model providers occasionally return tool calls with missing request identifiers,
+ * JSON argument objects encoded as strings, descriptive argument names instead of
+ * DBN's positional {@code argN} convention, or quoted scalar/list values. This
+ * class coerces those shapes back to the reflected utility method signature exposed
+ * by {@link AssistantToolData}.
+ */
 public class AssistantToolRequestNormalizer {
+    /**
+     * Mutates the given tool request so an internal DBN tool has a stable request id
+     * and a canonical JSON argument payload compatible with its utility method.
+     */
     @SneakyThrows
     public static void normalize(ToolExecutionRequest request) {
+        if (request.id() == null) {
+            updateFieldValue(request, "id", UUIDs.compact());
+        }
+
+        if (!isInternalTool(request.name())) return;
+
         Method method = AssistantToolData.getUtilityMethod(request.name());
         if (method == null) return;
 
@@ -52,10 +80,18 @@ public class AssistantToolRequestNormalizer {
         if (argTypes.length == 0) return;
 
         String arguments = request.arguments();
+        if (isOversized(arguments)) return;
+
         arguments = normalize(arguments, method);
-        Reflection.updateFieldValue(request, "arguments", arguments);
+        updateFieldValue(request, "arguments", arguments);
     }
 
+    /**
+     * Parses and normalizes a raw JSON argument block for the given utility method.
+     *
+     * @return a canonical JSON object using positional {@code arg0}, {@code arg1},
+     * and subsequent argument keys
+     */
     @SneakyThrows
     static String normalize(String arguments, Method method){
         if (Strings.isEmptyOrSpaces(arguments)) return  "{}";
@@ -74,6 +110,10 @@ public class AssistantToolRequestNormalizer {
         return OBJECT_MAPPER.writeValueAsString(normalizedArgs);
     }
 
+    /**
+     * Normalizes an already parsed argument map by key type, positional argument
+     * name, and reflected Java parameter type.
+     */
     static @NotNull Map<String, ?> normalizeArguments(Map<?, ?> args, Method method) {
         Map<String, ?> normalizedArgs = normalizeArgumentTypes(args);
 
@@ -97,7 +137,7 @@ public class AssistantToolRequestNormalizer {
         // handle "hallucinated" arguments not matching the "arg#" format
         List<String> args = new ArrayList<>(arguments.keySet());
         Class<?>[] params = method.getParameterTypes();
-        int count = Math.min(args.size(), params.length);
+        int count = Math.min(Math.min(args.size(), params.length), MAX_TOOL_REQUEST_ARGUMENT_COUNT);
 
         Map<String, Object> normalizedArgs = new LinkedHashMap<>();
         // add arguments that match the "arg#" format
@@ -205,6 +245,9 @@ public class AssistantToolRequestNormalizer {
     }
 
     private static String mostProbableArgumentName(Method method, String argumentName) {
+        String argName = simplifyArgumentName(argumentName, MAX_FUZZY_ARGUMENT_NAME_LENGTH);
+        if (Strings.isEmpty(argName)) return argumentName;
+
         int index = -1;
         double maxSimilarity = 0;
 
@@ -213,8 +256,9 @@ public class AssistantToolRequestNormalizer {
             P annotation = annotations[i];
             if (annotation == null) continue;
 
-            String paramName = simplifyArgumentName(annotation.value());
-            String argName = simplifyArgumentName(argumentName);
+            String paramName = simplifyArgumentName(annotation.value(), MAX_FUZZY_ARGUMENT_TEXT_LENGTH);
+            if (Strings.isEmpty(paramName)) continue;
+
             if (paramName.contains(argName) && argName.length() > 10) {
                 // most common use-case (argument name is "hallucinated" from the parameter description)
                 index = i;
@@ -223,6 +267,8 @@ public class AssistantToolRequestNormalizer {
 
             // use Longest Common Subsequence (LCS) to find the most similar argument name
             int maxLength = Math.max(paramName.length(), argName.length());
+            if (maxLength == 0) continue;
+
             double distance = Levenshtein.distance(paramName, argName);
             double similarity = 1 - distance / maxLength;
             if (similarity > maxSimilarity) {
@@ -236,8 +282,23 @@ public class AssistantToolRequestNormalizer {
         return buildArgumentName(index);
     }
 
-    private static String simplifyArgumentName(String argumentName) {
-        return argumentName.toLowerCase().replaceAll("[^a-zA-Z]", "");
+    private static String simplifyArgumentName(String argumentName, int maxRawLength) {
+        if (argumentName == null || argumentName.length() > maxRawLength) return null;
+
+        StringBuilder builder = new StringBuilder(Math.min(argumentName.length(), MAX_SIMPLIFIED_ARGUMENT_NAME_LENGTH));
+        for (int i = 0; i < argumentName.length(); i++) {
+            char c = argumentName.charAt(i);
+            if (c >= 'A' && c <= 'Z') {
+                builder.append((char) (c + ('a' - 'A')));
+            } else if (c >= 'a' && c <= 'z') {
+                builder.append(c);
+            } else {
+                continue;
+            }
+
+            if (builder.length() > MAX_SIMPLIFIED_ARGUMENT_NAME_LENGTH) return null;
+        }
+        return builder.toString();
     }
 
     private static String buildArgumentName(Set<String> argNames) {
@@ -249,6 +310,7 @@ public class AssistantToolRequestNormalizer {
         return argumentName;
     }
 
+    @NonNls
     private static String buildArgumentName(int index) {
         return "arg" + index;
     }

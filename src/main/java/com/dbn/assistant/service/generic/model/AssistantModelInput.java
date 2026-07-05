@@ -24,6 +24,7 @@ import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.provider.ProviderUrlType;
 import com.dbn.common.util.Chars;
 import lombok.Data;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,8 @@ public class AssistantModelInput {
     private final String modelName;
     private String baseUrl;
     private Double temperature;
+    private Integer maxTokens;
+    private Integer maxOutputTokens;
     private AssistantCredential credential;
     private Map<String, String> headers = new HashMap<>();
     private Map<Attribute, String> attributes = new HashMap<>();
@@ -78,6 +81,7 @@ public class AssistantModelInput {
         return null;
     }
 
+    @NonNls
     public String getRegionId() {
         // TODO region specific OCI hosted models
         return "us-chicago-1";

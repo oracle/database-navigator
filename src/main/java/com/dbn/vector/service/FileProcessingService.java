@@ -74,6 +74,10 @@ public class FileProcessingService {
         StepResult step = result.startStep(PipelineStep.UPLOADING_FILE);
 
         try {
+            if (!result.getSource().isUploadAuthorized()) {
+                throw new SecurityException("File source upload was not authorized in the current session");
+            }
+
             // Extract metadata from FileContent and connection
             String fileMetadata = buildFileMetadata(connection, result);
             result.setMetadata(fileMetadata);
@@ -180,11 +184,11 @@ public class FileProcessingService {
     }
 
     private String buildRowMetadata(@NotNull VectorEmbeddingRequest request, Map<String, Object> fileMetadata){
-        Map<String, Object> sourceMetadata = new LinkedHashMap<>();
+        @NonNls Map<String, Object> sourceMetadata = new LinkedHashMap<>();
         sourceMetadata.put("source_type", FILE_SYSTEM);
         sourceMetadata.putAll(fileMetadata);
 
-        Map<String, Object> metadata = new LinkedHashMap<>();
+        @NonNls Map<String, Object> metadata = new LinkedHashMap<>();
         metadata.put("engine_version", ENGINE_VERSION);
         metadata.put("embedding_source", sourceMetadata);
         metadata.put("embedding_config", request.getModelConfig().getConfigMap());

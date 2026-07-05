@@ -20,7 +20,6 @@ import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.DatabaseType;
 import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.metadata.DriverPackageMetadata;
@@ -39,15 +38,18 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Files.getPluginDeploymentRoot;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.driver.download.DownloadStatus.DONE;
 import static com.dbn.driver.download.DownloadStatus.NEW;
 import static com.dbn.driver.download.DriverDownloadManager.COMPONENT_NAME;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Download Manager for tracking the state of driver package downloads.
@@ -139,6 +141,9 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
 
     public void setDownloadPath(String packageId, String path) {
         DriverPackageStatus packageStatus = ensurePackageStatus(packageId);
+        if (!Objects.equals(packageStatus.getDownloadPath(), path)) {
+            cleanupPackage(packageId);
+        }
         packageStatus.setDownloadPath(path);
     }
 
@@ -173,7 +178,42 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         DriverPackageStatus status = getPackageStatus(driverPackage.getId());
         if (status == null) return false;
 
-        return status.isComplete(driverPackage.getLibraries().size());
+        List<String> libraryIds = driverPackage.getLibraryIds();
+        reconcilePackageStatus(driverPackage);
+        return status.isComplete(libraryIds) && hasVerifiedChecksumManifest(driverPackage, status);
+    }
+
+    public void reconcilePackageStatus(DriverPackage driverPackage) {
+        DriverPackageStatus status = getPackageStatus(driverPackage.getId());
+        if (status == null) return;
+
+        List<String> libraryIds = driverPackage.getLibraryIds();
+        status.retainLibraryStatuses(libraryIds);
+
+        String downloadPath = status.getDownloadPath();
+        if (downloadPath == null) return;
+
+        PackageChecksumData checksumData = getChecksumData(driverPackage.getId());
+        if (!checksumData.fileExists()) return;
+
+        checksumData.readChecksums();
+        File packageDir = new File(downloadPath);
+        if (checksumData.retainChecksums(packageDir, libraryIds)) {
+            checksumData.writeChecksums();
+        }
+    }
+
+    private boolean hasVerifiedChecksumManifest(DriverPackage driverPackage, DriverPackageStatus status) {
+        String downloadPath = status.getDownloadPath();
+        if (downloadPath == null) return false;
+
+        PackageChecksumData checksumData = getChecksumData(driverPackage.getId());
+        if (!checksumData.fileExists()) return false;
+
+        checksumData.readChecksums();
+        File packageDir = new File(downloadPath);
+        List<String> libraryIds = driverPackage.getLibraryIds();
+        return checksumData.verifyChecksums(packageDir, libraryIds);
     }
 
     public void cleanupPackage(String packageId) {
@@ -184,11 +224,11 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
    }
 
     public List<DriverPackage> getDownloadedDriverPackages(DatabaseType databaseType) {
-        return driverPackageMetadata.getDriverPackages(p -> p.matches(databaseType) && isPackageDownloaded(p));
+        return driverPackageMetadata.getDriverPackages(databaseType, p -> isPackageDownloaded(p));
     }
 
     public List<DriverPackage> getDriverPackages(DatabaseType databaseType) {
-        return driverPackageMetadata.getDriverPackages(p -> p.matches(databaseType) && (!p.isObsolete() || isPackageDownloaded(p)));
+        return driverPackageMetadata.getDriverPackages(databaseType, p -> !p.isObsolete() || isPackageDownloaded(p));
     }
 
     public void openDownloadDialog(Project project, DatabaseType databaseType, Consumer<String> successCallback) {
@@ -198,7 +238,7 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
                 when(exitCode == DialogWrapper.OK_EXIT_CODE, () -> successCallback.accept(dialog.getSelectedDownloadPath()));
             });
         } catch (Exception e) {
-            Messages.showErrorDialog(project, "Failed to download driver libraries metadata", e);
+            showErrorDialog(project, txt("msg.driver.error.DriverLibrariesMetadataDownloadFailed"), e);
         }
     }
 

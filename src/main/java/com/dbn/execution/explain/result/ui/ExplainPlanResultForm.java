@@ -33,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JPanel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ExplainPlanResultForm extends ExecutionResultFormBase<ExplainPlanResult> {
     private JPanel mainPanel;
@@ -44,7 +45,7 @@ public class ExplainPlanResultForm extends ExecutionResultFormBase<ExplainPlanRe
 
     public ExplainPlanResultForm(@NotNull ExplainPlanResult explainPlanResult) {
         super(explainPlanResult);
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.ExplainPlanResult");
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBN.Execution.ExplainPlan.Result");
         setAccessibleName(actionToolbar, txt("app.execution.aria.ExplainPlanResultActions"));
 
         actionsPanel.add(actionToolbar.getComponent());

@@ -36,12 +36,14 @@ import com.dbn.options.ProjectSettings;
 import com.intellij.ide.util.gotoByName.ChooseByNameModel;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.ListCellRenderer;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBObjectLookupModel extends StatefulDisposableBase implements ChooseByNameModel, Signed {
     private static final Object[] EMPTY_ARRAY = new Object[0];
@@ -70,12 +72,14 @@ public class DBObjectLookupModel extends StatefulDisposableBase implements Choos
     }
 
     @Override
-    public String getPromptText() {
+    public @Nls String getPromptText() {
         ConnectionHandler selectedConnection = getSelectedConnection();
         String connectionIdentifier = selectedConnection == null || selectedConnection.isVirtual() ?
-                "All Connections" :
+                txt("app.navigation.label.AllConnections") :
                 selectedConnection.getName();
-        return "Enter database object name (" + connectionIdentifier + (selectedSchema == null ? "" : " / " + selectedSchema.getObjectName()) + ")";
+        return selectedSchema == null ?
+                txt("app.navigation.text.DatabaseObjectLookupPrompt", connectionIdentifier) :
+                txt("app.navigation.text.DatabaseObjectLookupPromptSchema", connectionIdentifier, selectedSchema.getObjectName());
     }
 
     protected ConnectionHandler getSelectedConnection() {
@@ -93,19 +97,19 @@ public class DBObjectLookupModel extends StatefulDisposableBase implements Choos
 
     @NotNull
     @Override
-    public String getNotInMessage() {
-        return "No database object matching criteria";
+    public @Nls String getNotInMessage() {
+        return txt("app.navigation.text.NoMatchingDatabaseObject");
     }
 
     @NotNull
     @Override
-    public String getNotFoundMessage() {
-        return "Database object not found";
+    public @Nls String getNotFoundMessage() {
+        return txt("app.navigation.text.DatabaseObjectNotFound");
     }
 
     @Override
-    public String getCheckBoxName() {
-        return getSettings().getForceDatabaseLoad().value() ? "Load database objects" : null;
+    public @Nullable @Nls String getCheckBoxName() {
+        return getSettings().getForceDatabaseLoad().value() ? txt("app.navigation.label.LoadDatabaseObjects") : null;
     }
 
     @Override

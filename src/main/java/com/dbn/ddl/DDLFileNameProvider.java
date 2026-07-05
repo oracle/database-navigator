@@ -27,12 +27,12 @@ import static com.dbn.common.util.Strings.toLowerCase;
 public class DDLFileNameProvider {
     private final DBObjectRef object;
     private final DDLFileType ddlFileType;
-    private final String extension;
+    private final String namePattern;
 
-    public DDLFileNameProvider(DBObjectRef object, DDLFileType ddlFileType, String extension) {
+    public DDLFileNameProvider(DBObjectRef object, DDLFileType ddlFileType, String namePattern) {
         this.object = object;
         this.ddlFileType = ddlFileType;
-        this.extension = extension;
+        this.namePattern = namePattern;
     }
 
     public DBObjectType getObjectType() {
@@ -53,11 +53,15 @@ public class DDLFileNameProvider {
     }
 
     public String getFileName() {
-        return getAdjustedFileName() + '.' + extension;
+        return namePattern.replace("*", getAdjustedFileName());
     }
 
     public String getFilePattern() {
-        return "*" + getAdjustedFileName() + "*." + extension;  // TODO allow more qualified suffix and postfix definitions
+        return getFileName();
+    }
+
+    public boolean matches(String fileName) {
+        return DDLFileType.matchesFileName(getFilePattern(), fileName);
     }
 
 }

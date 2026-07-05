@@ -33,6 +33,10 @@ public class EmbeddingSourceList<T extends EmbeddingSource> implements Iterable<
         elements.add(element);
     }
 
+    public void addElements(List<T> elements) {
+        this.elements.addAll(elements);
+    }
+
     public int size() {
         return elements.size();
     }

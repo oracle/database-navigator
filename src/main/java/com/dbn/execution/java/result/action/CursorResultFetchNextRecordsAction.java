@@ -18,7 +18,6 @@ package com.dbn.execution.java.result.action;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.util.Messages;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.execution.common.options.ExecutionEngineSettings;
@@ -30,9 +29,15 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class CursorResultFetchNextRecordsAction extends JavaExecutionCursorResultAction {
+
+    public CursorResultFetchNextRecordsAction() {
+        super(txt("app.execution.action.JavaExecutionCursorResultFetchNextRecords"));
+    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
@@ -41,8 +46,8 @@ public class CursorResultFetchNextRecordsAction extends JavaExecutionCursorResul
 
         ResultSetDataModel model = resultSetTable.getModel();
         Progress.prompt(project, model, false,
-                "Loading cursor result",
-                "Loading method execution cursor result",
+                txt("prc.execution.title.LoadingCursorResult"),
+                txt("prc.execution.text.LoadingMethodCursorResult"),
                 progress -> {
                     try {
                         if (!model.isResultSetExhausted()) {
@@ -54,7 +59,7 @@ public class CursorResultFetchNextRecordsAction extends JavaExecutionCursorResul
 
                     } catch (SQLException ex) {
                         conditionallyLog(ex);
-                        Messages.showErrorDialog(project, "Could not perform operation.", ex);
+                        showErrorDialog(project, txt("msg.execution.message.CouldNotPerformOperation"), ex);
                     }
 
                 });
@@ -65,7 +70,7 @@ public class CursorResultFetchNextRecordsAction extends JavaExecutionCursorResul
         super.update(e, project);
         ResultSetTable resultSetTable = getResultSetTable(e);
         Presentation presentation = e.getPresentation();
-        presentation.setText("Fetch Next Records");
+        presentation.setText(txt("app.execution.action.FetchNextRecords"));
         presentation.setIcon(Icons.EXEC_RESULT_RESUME);
 
         if (resultSetTable != null) {

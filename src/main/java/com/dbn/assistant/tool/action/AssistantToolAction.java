@@ -22,6 +22,7 @@ import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.ProjectAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +33,12 @@ import org.jetbrains.annotations.Nullable;
  * @author Dan Cioca (Oracle)
  */
 @BackgroundUpdate
+@NoArgsConstructor
 public abstract class AssistantToolAction extends ProjectAction implements AssistantActionSupport {
+
+    protected AssistantToolAction(String text) {
+        super(text);
+    }
 
     @Nullable
     protected ChatMessageToolSectionForm getToolSectionForm(@NotNull AnActionEvent e) {
@@ -43,6 +49,6 @@ public abstract class AssistantToolAction extends ProjectAction implements Assis
         ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
         if (toolSectionForm == null) return false;
 
-        return toolSectionForm.isInteractive();
+        return toolSectionForm.isInteractiveTool();
     }
 }

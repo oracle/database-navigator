@@ -31,6 +31,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseLogOutputCloseAction extends AbstractDatabaseLoggingAction {
 
+    public DatabaseLogOutputCloseAction() {
+        super(txt("app.execution.action.DatabaseLogOutputClose"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatabaseLoggingResult loggingResult) {
         if (loggingResult.getContext().isActive()) {

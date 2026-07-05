@@ -16,29 +16,40 @@
 
 package com.dbn.project;
 
+import com.dbn.DatabaseNavigator;
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.state.StateEncryption;
 import com.dbn.connection.config.ConnectionBundleSettings;
-import com.dbn.debugger.ExecutionConfigManager;
+import com.dbn.options.ProjectWorkspaceSettingsManager;
 import com.dbn.plugin.PluginConflictManager;
 import com.dbn.plugin.PluginStatusManager;
 import com.dbn.vfs.DatabaseFileManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.startup.StartupActivity;
+import com.intellij.openapi.startup.ProjectActivity;
+import kotlin.Unit;
+import kotlin.coroutines.Continuation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Compatibility
-public class ProjectStartupActivity implements StartupActivity/*, ProjectActivity*/ {
-    //@Override
-    public void runActivity(@NotNull Project project) {
-        // make sure dbn connections are loaded
+public class ProjectStartupActivity implements ProjectActivity {
+
+    @Nullable
+    @Override
+    public Object execute(@NotNull Project project, @NotNull Continuation<? super Unit> continuation) {
+        DatabaseNavigator.getInstance();
         ConnectionBundleSettings.getInstance(project);
-        project.getService(DatabaseAssistantManager.class);
+        DatabaseAssistantManager.getInstance(project);
+        ProjectComponentsInitializer.getInstance(project);
+        ProjectWorkspaceSettingsManager.getInstance(project);
+
         evaluatePluginStatus(project);
         assesPluginConflict(project);
-        removeRunConfigurations(project);
-        reopenDatabaseEditors(project);
         initializeDatabaseAssistant(project);
+        initializeStateEncryption();
+        reopenDatabaseEditors(project);
+        return null;
     }
 
     private static void evaluatePluginStatus(Project project) {
@@ -51,14 +62,8 @@ public class ProjectStartupActivity implements StartupActivity/*, ProjectActivit
         conflictManager.assesPluginConflict(project);
     }
 
-    private static void removeRunConfigurations(Project project) {
-        ExecutionConfigManager configManager = ExecutionConfigManager.getInstance(project);
-        configManager.removeRunConfigurations();
-    }
-
-    private static void reopenDatabaseEditors(Project project) {
-        DatabaseFileManager fileManager = DatabaseFileManager.getInstance(project);
-        fileManager.reopenDatabaseEditors();
+    private static void initializeStateEncryption() {
+        StateEncryption.initialize();
     }
 
     private static void initializeDatabaseAssistant(Project project) {
@@ -66,10 +71,8 @@ public class ProjectStartupActivity implements StartupActivity/*, ProjectActivit
         assistantManager.initializeAssistant();
     }
 
-/*
-    @Override
-    public @Nullable Object execute(@NotNull Project project, @NotNull Continuation<? super Unit> continuation) {
-        return null;
+    private static void reopenDatabaseEditors(Project project) {
+        DatabaseFileManager fileManager = DatabaseFileManager.getInstance(project);
+        fileManager.reopenDatabaseEditors();
     }
-*/
 }

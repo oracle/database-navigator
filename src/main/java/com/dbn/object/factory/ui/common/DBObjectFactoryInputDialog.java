@@ -39,17 +39,19 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Action;
 import java.sql.SQLException;
 
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
-public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputForm<?>> {
+public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputForm> {
     private final DBObjectRef<DBSchema> schema;
     private final DBObjectType objectType;
     private final DBObjectSpec initialInput;
 
     public DBObjectFactoryInputDialog(@NotNull Project project, DBSchema schema, DBObjectType objectType, DBObjectSpec initialInput) {
-        super(project, "Create " + objectType.getName(), true);
+        super(project, txt("msg.objects.title.CreateObject", objectType.getDisplayName()), true);
         this.schema = DBObjectRef.of(schema);
         this.objectType = objectType;
         this.initialInput = initialInput;
@@ -84,7 +86,7 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
 
     @Override
     protected Action[] initializeActions() {
-        renameAction(getOKAction(), "Create " + objectType.getTitleCasedName());
+        renameAction(getOKAction(), txt("msg.objects.button.CreateObject", objectType.getTitleCasedDisplayName()));
         return actions(
                 getOKAction(),
                 getCancelAction());
@@ -101,14 +103,14 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
             form.applyFormChanges();
         } catch (ConfigurationException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(getProject(), e.getMessage());
+            Messages.showErrorDialog(getProject(), getLocalizedMessage(e));
             return;
         }
         DBObjectSpec input = form.getInput();
         super.doOKAction();
 
-        String title = "Creating " + input.getObjectTypeName();
-        String text = "Creating " + input.getObjectDescription();
+        String title = txt("prc.object.title.CreatingObject", input.getObjectTypeName());
+        String text = txt("prc.object.text.CreatingObjectDescription", input.getObjectDescription());
         ProgressRunnable invoker = p -> invokeObjectFactory(project, schema, objectType, input);
 
         if (isRootDialog()) {
@@ -127,7 +129,9 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
             //Messages.showErrorDialog(project, "Failed to create " + input.getObjectTypeName() + ".", e);
 
             InteractiveMessage message =
-                    InteractiveMessage.error("Object creation failed", "Failed to create " + input.getObjectTypeName() + ".").
+                    InteractiveMessage.error(
+                            txt("msg.objects.title.ObjectCreationFailed"),
+                            txt("msg.objects.error.ObjectCreationFailed", input.getObjectTypeName())).
                     withException(e).
                     withOptions(Messages.OPTIONS_RETRY_CANCEL, 0).
                     withCallback(o -> Conditional.when(o == 0, () -> reopenInputDialog(project, schema, objectType, input)));

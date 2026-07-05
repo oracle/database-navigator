@@ -34,7 +34,7 @@ import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.JdbcProperty;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuotePair;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -150,6 +150,8 @@ public abstract class DatabaseCompatibilityInterfaceImpl implements DatabaseComp
         ConnectionSslSettings sslSettings = settings.getSslSettings();
         if (!sslSettings.isActive()) return;
 
+        // Generic JDBC drivers do not share a portable hostname verification property.
+        // Database-specific compatibility layers must set the strict driver SSL mode.
         SslConnectionManager connectionManager = SslConnectionManager.getInstance();
         connectionManager.ensureSslConnection(settings);
     }

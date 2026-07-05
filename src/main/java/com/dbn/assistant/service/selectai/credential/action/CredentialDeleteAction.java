@@ -33,6 +33,10 @@ import static com.dbn.nls.NlsResources.txt;
  * @author Dan Cioca (Oracle)
  */
 public class CredentialDeleteAction extends CredentialManagementAction {
+    public CredentialDeleteAction() {
+        super(txt("app.assistant.action.AssistantDeleteCredential"));
+    }
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         CredentialManagementForm managementForm = getManagementForm(e);

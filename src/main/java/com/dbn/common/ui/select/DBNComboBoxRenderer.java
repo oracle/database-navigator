@@ -25,6 +25,7 @@ import javax.swing.JComboBox;
 import javax.swing.JList;
 
 import static com.dbn.common.ui.util.ClientProperty.LOADING;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DBNComboBoxRenderer<T> extends ColoredListCellRenderer<T> {
     private final JComboBox<T> comboBox;
@@ -46,7 +47,7 @@ public class DBNComboBoxRenderer<T> extends ColoredListCellRenderer<T> {
         }
         boolean loading = LOADING.is(comboBox);
         if (loading) {
-            append("Loading...", SimpleTextAttributes.GRAY_ATTRIBUTES);
+            append(txt("app.shared.placeholder.Loading"), SimpleTextAttributes.GRAY_ATTRIBUTES);
         }
     }
 }

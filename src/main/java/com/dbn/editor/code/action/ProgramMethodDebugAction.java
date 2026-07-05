@@ -36,6 +36,10 @@ import static com.dbn.nls.NlsResources.txt;
 @BackgroundUpdate
 public class ProgramMethodDebugAction extends ProgramMethodLaunchAction {
 
+    public ProgramMethodDebugAction() {
+        super(txt("app.codeEditor.action.CodeEditorExecuteMethod"));
+    }
+
     @Override
     protected AnAction createExecutionAction(DBObject method) {
         if (method instanceof DBMethod programMethod) {

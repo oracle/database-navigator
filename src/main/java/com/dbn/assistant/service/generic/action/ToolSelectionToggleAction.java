@@ -26,8 +26,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
-import static com.dbn.assistant.tool.AssistantToolData.getToolDescription;
-import static com.dbn.assistant.tool.AssistantToolData.getToolName;
+import static com.dbn.assistant.tool.AssistantToolData.getToolDisplayDescription;
+import static com.dbn.assistant.tool.AssistantToolData.getToolDisplayName;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
 import static com.dbn.common.icon.Icons.ACTION_CHECK;
@@ -44,8 +44,8 @@ public class ToolSelectionToggleAction extends ToggleAction implements Assistant
         Presentation presentation = e.getPresentation();
 
         Icon icon = isSelected(e) ? ACTION_CHECK : null;
-        String text = getToolName(toolType);
-        String description = getToolDescription(toolType);
+        String text = getToolDisplayName(toolType);
+        String description = "<strong>" + text + "</strong><br><br>" + getToolDisplayDescription(toolType);
 
         presentation.setIcon(icon);
         presentation.setText(text);

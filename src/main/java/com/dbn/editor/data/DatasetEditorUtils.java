@@ -32,16 +32,17 @@ import java.util.List;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorUtils {
-    public static List<String> loadDistinctColumnValues(@NotNull DBColumn column) {
+    public static List<String> loadDistinctColumnValues(@NotNull DBColumn column, int valuesThreshold) {
         try {
             return DatabaseInterfaceInvoker.load(HIGH,
-                    "Loading data",
-                    "Loading possible values for " + column.getQualifiedNameWithType(),
+                    txt("prc.dataEditor.title.LoadingValues"),
+                    txt("prc.dataEditor.text.LoadingPossibleValuesFor", column.getQualifiedNameWithType()),
                     column.getProject(),
                     column.getConnectionId(),
-                    conn -> loadDistinctColumnValues(column, conn));
+                    conn -> loadDistinctColumnValues(column, conn, valuesThreshold));
         } catch (Exception e) {
             conditionallyLog(e);
             return Collections.emptyList();
@@ -49,21 +50,26 @@ public class DatasetEditorUtils {
     }
 
     @NotNull
-    private static List<String> loadDistinctColumnValues(DBColumn column, DBNConnection conn) throws SQLException {
+    private static List<String> loadDistinctColumnValues(DBColumn column, DBNConnection conn, int valuesThreshold) throws SQLException {
         List<String> list = new ArrayList<>();
         ResultSet resultSet = null;
         try {
             DBDataset dataset = column.getDataset();
             DatabaseMetadataInterface metadata = column.getMetadataInterface();
+            int maxValues = valuesThreshold == Integer.MAX_VALUE ? Integer.MAX_VALUE : valuesThreshold + 1;
             resultSet = metadata.getDistinctValues(
                     dataset.getSchemaName(true),
                     dataset.getName(true),
                     column.getName(true),
+                    maxValues,
                     conn);
 
-            while (resultSet.next()) {
+            while (list.size() < maxValues && resultSet.next()) {
                 String value = resultSet.getString(1);
                 list.add(value);
+            }
+            if (list.size() > valuesThreshold) {
+                list.clear();
             }
         } finally {
             Resources.close(resultSet);
