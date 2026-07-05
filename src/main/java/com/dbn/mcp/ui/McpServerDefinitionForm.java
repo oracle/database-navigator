@@ -32,6 +32,7 @@ import com.dbn.common.util.Titles;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.mcp.model.McpServerDefinition;
+import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.model.McpToolDefinition;
 import com.dbn.mcp.model.McpTransportType;
 import com.dbn.mcp.util.McpServerName;
@@ -83,6 +84,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
     private JBTextField httpPortField;
 
     private McpToolDefinitionListForm toolDefinitionListForm;
+    private ComboBox<McpServerImplementation> implementationComboBox;
     private ComboBox<McpTransportType> transportTypeComboBox;
     private DBNCommentLabel nameInfoLabel;
     private DBNHyperlinkLabel loadConfigHyperlink;
@@ -128,6 +130,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
     }
 
     private void initInputFields() {
+        initComboBox(implementationComboBox, McpServerImplementation.values());
         initComboBox(transportTypeComboBox, McpTransportType.values());
         onSelectionChange(transportTypeComboBox, type -> {
             updateFieldAvailability();
@@ -245,6 +248,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
     public void resetFormChanges() {
         McpServerDefinition serverDefinition = getServerDefinition();
         setText(serverNameTextField, serverDefinition.getServerName());
+        setSelection(implementationComboBox, serverDefinition.getImplementation());
         setSelection(transportTypeComboBox, serverDefinition.getTransportType());
         setText(httpPortField, serverDefinition.getHttpPort());
     }
@@ -253,6 +257,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
     public void applyFormChanges() {
         McpServerDefinition serverDefinition = getServerDefinition();
         serverDefinition.setServerName(getText(serverNameTextField));
+        serverDefinition.setImplementation(getSelection(implementationComboBox));
         serverDefinition.setTransportType(getSelection(transportTypeComboBox));
         serverDefinition.setHttpPort(getText(httpPortField));
     }

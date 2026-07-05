@@ -42,6 +42,7 @@ import static com.dbn.common.util.Unsafe.cast;
 public class McpServerDefinition implements PersistentStateElement, Cloneable<McpServerDefinition> {
     private String serverName = "mcp-server";
     private String description;
+    private McpServerImplementation implementation = McpServerImplementation.STANDARD_JAVA;
     private McpTransportType transportType = McpTransportType.STDIO;
     private String httpPort = "8080";
 
@@ -54,6 +55,7 @@ public class McpServerDefinition implements PersistentStateElement, Cloneable<Mc
     @Override
     public void readState(Element element) {
         serverName = stringAttribute(element, "server-name");
+        implementation = enumAttribute(element, "implementation", implementation);
         transportType = enumAttribute(element, "transport-type", McpTransportType.class);
         description = readCdata(element.getChild("description"));
 
@@ -70,6 +72,7 @@ public class McpServerDefinition implements PersistentStateElement, Cloneable<Mc
     @Override
     public void writeState(Element element) {
         setStringAttribute(element, "server-name", serverName);
+        setEnumAttribute(element, "implementation", implementation);
         setEnumAttribute(element, "transport-type", transportType);
         writeCdata(newElement(element, "description"), description);
 
