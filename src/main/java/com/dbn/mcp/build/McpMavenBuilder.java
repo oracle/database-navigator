@@ -9,44 +9,32 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.dbn.mcp.build.McpJavaVersionManager.resolveJavaVersion;
 import static com.dbn.nls.NlsResources.txt;
 
 public final class McpMavenBuilder {
-    private static final String POM_TEMPLATE = "DBN - MCP Server POM.xml";
-    private static final Pattern PKG = Pattern.compile("\\bpackage\\s+([a-zA-Z_][a-zA-Z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z0-9_]*)*)\\s*;");
-    private static final Pattern PUB_CLASS = Pattern.compile("\\bpublic\\s+class\\s+([A-Za-z_][A-Za-z0-9_]*)");
-    private static final Pattern ANY_CLASS = Pattern.compile("\\bclass\\s+([A-Za-z_][A-Za-z0-9_]*)");
 
     private McpMavenBuilder() {}
 
     public static Path build(
             Project project,
             Path outDir,
-            String serverName,
-            String sdkCoord,
-            String jdbcCoord,
-            String java,
+            McpServerGenerator generator,
             Path sourceProjectDir,
             ProgressIndicator indicator,
             Consumer<String> outputHandler)
             throws IOException {
-        MavenCoordinate sdk = MavenCoordinate.parse(sdkCoord);
-        MavenCoordinate jdbc = MavenCoordinate.parse(jdbcCoord);
-        ServerMainClass mainClass = resolveServerMainClass(java);
 
-        Path projDir = uniqueDir(outDir, mainClass.className);
+        Path projDir = uniqueDir(outDir, generator.getServerName());
         try {
-            setupProject(projDir, java, mainClass);
-            writePom(project, projDir, serverName, sdk, jdbc, mainClass.fullyQualifiedName);
-            runMaven(project, projDir, indicator, outputHandler);
+            writeSourceFiles(projDir, generator.getSourceFiles());
+            writePom(project, projDir, generator);
+            runMaven(project, projDir, generator.getMavenGoals(), indicator, outputHandler);
             exportSourceProject(projDir, sourceProjectDir);
-            return copyJar(projDir, outDir);
+            return copyArtifact(generator, projDir, outDir);
         } finally {
             deleteDir(projDir);
         }
@@ -103,20 +91,6 @@ public final class McpMavenBuilder {
         } catch (IOException ignored) {}
     }
 
-    private static ServerMainClass resolveServerMainClass(String src) {
-        String packageName = find(PKG, src);
-        String className = find(PUB_CLASS, src);
-        if (className == null) className = find(ANY_CLASS, src);
-        if (className == null) className = "GeneratedMcpServer";
-        String fullyQualifiedName = packageName != null ? packageName + "." + className : className;
-        return new ServerMainClass(packageName, className, fullyQualifiedName);
-    }
-
-    private static String find(Pattern p, String src) {
-        Matcher m = p.matcher(src);
-        return m.find() ? m.group(1) : null;
-    }
-
     private static Path uniqueDir(Path base, String name) throws IOException {
         Path dir = base.resolve("mcp-mvn-" + name);
         int i = 1;
@@ -124,63 +98,32 @@ public final class McpMavenBuilder {
         return dir;
     }
 
-    private static void setupProject(Path dir, String java, ServerMainClass mainClass) throws IOException {
-        Path src = dir.resolve("src/main/java");
-        Files.createDirectories(src);
-
-        Path packagePath = mainClass.packageName != null ? src.resolve(mainClass.packageName.replace('.', '/')) : src;
-        Files.createDirectories(packagePath);
-        Files.writeString(packagePath.resolve(mainClass.className + ".java"), java);
+    private static void writeSourceFiles(Path projDir, Map<String, String> sourceFiles) throws IOException {
+        for (Map.Entry<String, String> entry : sourceFiles.entrySet()) {
+            Path file = projDir.resolve(entry.getKey());
+            Files.createDirectories(file.getParent());
+            Files.writeString(file, entry.getValue());
+        }
     }
 
-    private static void writePom(
-            Project project,
-            Path dir,
-            String serverName,
-            MavenCoordinate sdk,
-            MavenCoordinate jdbc,
-            String main)
-            throws IOException {
-        Properties p = new Properties();
-        p.setProperty("SERVER_NAME", serverName);
-        p.setProperty("MCP_SDK_GROUP_ID", sdk.groupId);
-        p.setProperty("MCP_SDK_ARTIFACT_ID", sdk.artifactId);
-        p.setProperty("MCP_SDK_VERSION", sdk.version);
-        p.setProperty("JDBC_GROUP_ID", jdbc.groupId);
-        p.setProperty("JDBC_ARTIFACT_ID", jdbc.artifactId);
-        p.setProperty("JDBC_VERSION", jdbc.version);
-        p.setProperty("MAIN_CLASS_FQ", main);
-        p.setProperty("PROJECT_JAVA_VERSION", resolveJavaVersion(project));
-        Files.writeString(dir.resolve("pom.xml"), TemplateUtilities.generateCode(project, POM_TEMPLATE, p));
+    private static void writePom(Project project, Path dir, McpServerGenerator generator) throws IOException {
+        String pom = TemplateUtilities.generateCode(project, generator.getPomTemplateName(), generator.getPomProperties());
+        Files.writeString(dir.resolve("pom.xml"), pom);
     }
 
-    private static void runMaven(Project project, Path dir, ProgressIndicator indicator, Consumer<String> outputHandler) throws IOException {
+    private static void runMaven(Project project, Path dir, List<String> goals, ProgressIndicator indicator, Consumer<String> outputHandler) throws IOException {
         McpMavenBuildManager mavenManager = McpMavenBuildManager.getInstance(project);
         if (mavenManager == null) {
             throw new IOException(txt("msg.mcp.exception.MavenServiceUnavailable"));
         }
-        mavenManager.runBuild(dir, indicator, outputHandler);
+        mavenManager.runBuild(dir, goals, indicator, outputHandler);
     }
 
-    private static Path copyJar(Path proj, Path out) throws IOException {
-        Path jar;
-        try (var stream = Files.list(proj.resolve("target"))) {
-            jar = stream.filter(p -> p.toString().endsWith(".jar") && !p.toString().contains("original"))
-                    .findFirst().orElseThrow(() -> new IOException(txt("msg.mcp.exception.JarNotFound")));
-        }
+    private static Path copyArtifact(McpServerGenerator generator, Path proj, Path out) throws IOException {
+        Path artifact = generator.locateArtifact(proj.resolve("target"));
         Files.createDirectories(out);
-        Path dest = out.resolve(jar.getFileName());
-        Files.copy(jar, dest, StandardCopyOption.REPLACE_EXISTING);
+        Path dest = out.resolve(artifact.getFileName());
+        Files.copy(artifact, dest, StandardCopyOption.REPLACE_EXISTING);
         return dest;
     }
-
-
-    private record MavenCoordinate(String groupId, String artifactId, String version) {
-        static MavenCoordinate parse(String s) {
-            String[] p = s.split(":");
-            return new MavenCoordinate(p[0], p[1], p[2]);
-        }
-    }
-
-    private record ServerMainClass(String packageName, String className, String fullyQualifiedName) {}
 }

@@ -17,5 +17,4 @@ public class McpBuilderResult {
 
     private String claudeSnippetJson; // Claude Desktop MCP server configuration snippet.
     private String clineSnippetJson;  // Cline MCP server configuration snippet, when applicable.
-    private String mainClassContent;  // Generated Java main class source used for the Maven build.
 }

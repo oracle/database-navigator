@@ -1,6 +1,5 @@
 package com.dbn.mcp.build;
 
-import com.dbn.common.template.TemplateUtilities;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
@@ -21,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Properties;
 
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showErrorDialog;
@@ -31,12 +29,9 @@ import static com.dbn.mcp.build.McpMavenPluginSupport.verifyMavenAvailability;
 import static com.dbn.nls.NlsResources.txt;
 
 public class McpBuildTask {
-    private static final @NonNls String TEMPLATE = "DBN - MCP Server Main";
     private static final @NonNls String CONFIG = "mcp-config.yaml";
     private static final @NonNls String DIST = "mcp-dist";
     private static final @NonNls String SOURCE_PROJECT = "source-project";
-    private static final @NonNls String MCP_SDK = "io.modelcontextprotocol.sdk:mcp:1.1.1";
-    private static final @NonNls String JDBC = "com.oracle.database.jdbc:ojdbc11:23.26.1.0.0";
 
     private final Project project;
     private final McpServerDefinition definition;
@@ -45,6 +40,8 @@ public class McpBuildTask {
     private final McpWalletBuilder walletBuilder;
     private final McpReadmeWriter readmeWriter;
     private final McpClientConfiguration clientConfiguration;
+
+    private McpServerGenerator generator;
 
     public McpBuildTask(Project project, ConnectionHandler connection, McpServerDefinition definition) {
         this.project = project;
@@ -70,6 +67,7 @@ public class McpBuildTask {
     private void verifyBuilt(ProgressIndicator indicator) {
         indicator.setText2(txt("prc.mcp.text.VerifyingServerDefinition"));
         verifyServerDefinition();
+        initServerGenerator();
 
         indicator.setText2(txt("prc.mcp.text.VerifyingMavenAvailability"));
         verifyMavenAvailability(project);
@@ -87,7 +85,17 @@ public class McpBuildTask {
         initServerConfig();
 
         indicator.setText2(txt("prc.mcp.text.PreparingMainClassContent"));
-        initMainClassContent();
+        initServerContent();
+    }
+
+    private void initServerGenerator() {
+        try {
+            generator = McpServerGenerator.create(project, definition);
+        } catch (UnsupportedOperationException e) {
+            conditionallyLog(e);
+            showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), e);
+            cancelProcess();
+        }
     }
 
     public static void verifyJavaVersion(@NotNull Project project) {
@@ -178,19 +186,14 @@ public class McpBuildTask {
         }
     }
 
-    private void initMainClassContent() {
+    private void initServerContent() {
         try {
-            String serverName = definition.getServerName();
-            Properties templateProps = new Properties();
-            templateProps.setProperty("SERVER_NAME", serverName);
-            String mainClassContent = TemplateUtilities.generateCode(project, TEMPLATE, templateProps);
-            result.setMainClassContent(mainClassContent);
+            generator.prepareContent();
         } catch (Exception e) {
             conditionallyLog(e);
             showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), txt("msg.mcp.error.MainClassBuildFailed"), e);
             cancelProcess();
         }
-
     }
 
     private Path resolveBasePath() {
@@ -211,22 +214,19 @@ public class McpBuildTask {
                 Path sourceDirectory = outputDirectory.resolve(SOURCE_PROJECT).toAbsolutePath().normalize();
                 result.setSourceDirectory(sourceDirectory);
                 indicator.setText2(txt("prc.mcp.text.RunningMavenBuild"));
-                Path tempJar = McpMavenBuilder.build(
+                Path tempArtifact = McpMavenBuilder.build(
                         project,
                         result.getBaseDirectory().resolve(DIST),
-                        definition.getServerName(),
-                        MCP_SDK,
-                        JDBC,
-                        result.getMainClassContent(),
+                        generator,
                         sourceDirectory,
                         indicator,
                         null);
                 indicator.setText2(txt("prc.mcp.text.FinalizingOutput"));
                 Files.createDirectories(outputDirectory);
-                Path serverJar = outputDirectory.resolve(tempJar.getFileName());
-                result.setServerJar(serverJar);
+                Path serverArtifact = outputDirectory.resolve(tempArtifact.getFileName());
+                result.setServerJar(serverArtifact);
 
-                Files.move(tempJar, serverJar, StandardCopyOption.REPLACE_EXISTING);
+                Files.move(tempArtifact, serverArtifact, StandardCopyOption.REPLACE_EXISTING);
                 Path outputConfigFile = outputDirectory.resolve(CONFIG).toAbsolutePath().normalize();
                 Files.copy(result.getConfigFile(), outputConfigFile, StandardCopyOption.REPLACE_EXISTING);
                 result.setConfigFile(outputConfigFile);

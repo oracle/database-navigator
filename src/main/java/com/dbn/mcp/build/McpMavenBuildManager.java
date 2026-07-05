@@ -76,7 +76,7 @@ public class McpMavenBuildManager extends ProjectComponentBase {
         }
     }
 
-    public void runBuild(@NotNull Path projectDir, @NotNull ProgressIndicator indicator, Consumer<String> outputHandler) throws IOException {
+    public void runBuild(@NotNull Path projectDir, @NotNull List<String> goals, @NotNull ProgressIndicator indicator, Consumer<String> outputHandler) throws IOException {
         indicator.setText2(txt("prc.mcp.text.RunningMavenBuild"));
 
         Project project = getProject();
@@ -93,7 +93,7 @@ public class McpMavenBuildManager extends ProjectComponentBase {
                 true,
                 projectDir.toAbsolutePath().toString(),
                 "pom.xml",
-                List.of("clean", "package"),
+                goals,
                 List.of());
 
         StringBuilder output = new StringBuilder();
