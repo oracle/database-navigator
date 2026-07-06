@@ -50,6 +50,7 @@ import com.dbn.object.common.list.action.HidePseudoColumnsToggleAction;
 import com.dbn.object.dependency.action.ObjectDependencyTreeAction;
 import com.dbn.object.editor.ObjectEditorProviders;
 import com.dbn.object.management.ObjectManagementService;
+import com.dbn.object.diagram.actions.OpenDependencyDiagramAction;
 import com.dbn.object.navigation.DBObjectNavigationInfoProvider;
 import com.dbn.object.navigation.DBObjectNavigationInfoProviderCache;
 import com.dbn.object.type.DBObjectType;
@@ -74,6 +75,7 @@ import static com.dbn.editor.DBContentType.CODE_AND_DATA;
 import static com.dbn.editor.DBContentType.CODE_SPEC_AND_BODY;
 import static com.dbn.editor.DBContentType.DATA;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
+import static com.dbn.object.common.property.DBObjectProperty.DIAGRAMMABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
@@ -83,7 +85,6 @@ import static com.dbn.vfs.DBConsoleType.SEARCH;
 import static com.dbn.vfs.DBConsoleType.STANDARD;
 
 public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
-
     public ObjectActionGroup(DBObject[] objects) {
         DBObject object = objects[0];
 
@@ -197,10 +198,17 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
     }
 
     private void addDependencyActions(DBObject object) {
-        if (object instanceof DBSchemaObject) {
+        boolean separated = false;
+        if (object.is(DIAGRAMMABLE)) {
+            addSeparator();
+            separated = true;
+            add(new OpenDependencyDiagramAction(object));
+        }
+
+        if (object instanceof DBSchemaObject schemaObject) {
             if (object.is(REFERENCEABLE) && OBJECT_DEPENDENCIES.isSupported(object)) {
-                addSeparator();
-                add(new ObjectDependencyTreeAction((DBSchemaObject) object));
+                if (!separated) addSeparator();
+                add(new ObjectDependencyTreeAction(schemaObject));
             }
         }
     }

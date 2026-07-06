@@ -29,6 +29,7 @@ public enum DBObjectProperty implements Property.LongBase {
     DEBUGABLE,
     INVALIDABLE,
     REFERENCEABLE,
+    DIAGRAMMABLE,
     EDITIONABLE,
     ROOT_OBJECT,
     SCHEMA_OBJECT,

@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.object.common.property.DBObjectProperty.DIAGRAMMABLE;
 import static com.dbn.object.common.property.DBObjectProperty.TEMPORARY;
 import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
 import static com.dbn.object.type.DBObjectType.COLUMN;
@@ -61,6 +62,7 @@ class DBTableImpl extends DBDatasetImpl<DBTableMetadata> implements DBTable {
         String name = metadata.getTableName();
         this.comments = metadata.getComments();
         set(TEMPORARY, metadata.isTemporary());
+        set(DIAGRAMMABLE, true);
         return name;
     }
 

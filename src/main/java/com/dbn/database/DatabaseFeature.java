@@ -51,6 +51,8 @@ public enum DatabaseFeature {
     SESSION_DISCONNECT(txt("app.database.const.DatabaseFeature_SESSION_DISCONNECT")),
     SESSION_INTERRUPTION_TIMING(txt("app.database.const.DatabaseFeature_SESSION_INTERRUPTION_TIMING")),
     CONNECTION_ERROR_RECOVERY(txt("app.database.const.DatabaseFeature_CONNECTION_ERROR_RECOVERY")),
+    CHANGE_PASSWORD(txt("app.database.const.DatabaseFeature_CHANGE_PASSWORD")),
+    CHANGE_EXPIRED_PASSWORD(txt("app.database.const.DatabaseFeature_CHANGE_EXPIRED_PASSWORD")),
     UPDATABLE_RESULT_SETS(txt("app.database.const.DatabaseFeature_UPDATABLE_RESULT_SETS")),
     CURRENT_SCHEMA(txt("app.database.const.DatabaseFeature_CURRENT_SCHEMA")),
     USER_SCHEMA(txt("app.database.const.DatabaseFeature_USER_SCHEMA")),
