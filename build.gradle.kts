@@ -67,6 +67,7 @@ dependencies {
             "com.intellij.java",
             "com.intellij.modules.json",
             "com.intellij.copyright",
+            "com.intellij.diagram",
             "org.jetbrains.idea.maven"
         )
     }

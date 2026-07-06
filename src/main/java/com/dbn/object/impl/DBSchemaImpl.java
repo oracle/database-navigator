@@ -94,6 +94,7 @@ import static com.dbn.object.common.property.DBObjectProperty.ROOT_OBJECT;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_SCHEMA;
 import static com.dbn.object.common.property.DBObjectProperty.USER_SCHEMA;
+import static com.dbn.object.type.DBObjectRelationType.COLUMN_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.JSON_VIEW_TABLE;
@@ -199,6 +200,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         //ol.createHiddenObjectList(DBObjectType.TYPE_METHOD, this, TYPE_METHODS_LOADER);
 
         childObjects.createObjectRelationList(CONSTRAINT_COLUMN, this, constraints, columns, INTERNAL, GROUPED);
+        childObjects.createObjectRelationList(COLUMN_COLUMN, this, columns, columns, INTERNAL, GROUPED);
         childObjects.createObjectRelationList(INDEX_COLUMN, this, indexes, columns, INTERNAL, GROUPED);
         childObjects.createObjectRelationList(JSON_VIEW_TABLE, this, jsonViews, tables, INTERNAL, GROUPED);
 
