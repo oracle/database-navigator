@@ -47,6 +47,11 @@ public class MySqlMessageParserInterface implements DatabaseMessageParserInterfa
     }
 
     @Override
+    public boolean isPasswordExpiredException(SQLException e) {
+        return e.getErrorCode() == 1862;
+    }
+
+    @Override
     public boolean isSuccessException(SQLException exception) {
         return false;
     }

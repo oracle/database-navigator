@@ -16,6 +16,7 @@
 
 package com.dbn.object.impl;
 
+import com.dbn.common.content.DynamicContent;
 import com.dbn.common.content.GroupedDynamicContent;
 import com.dbn.common.content.loader.DynamicContentLoaderImpl;
 import com.dbn.common.content.loader.DynamicContentResultSetLoader;
@@ -27,6 +28,7 @@ import com.dbn.database.common.metadata.def.DBAIProfileMetadata;
 import com.dbn.database.common.metadata.def.DBArgumentMetadata;
 import com.dbn.database.common.metadata.def.DBCharsetMetadata;
 import com.dbn.database.common.metadata.def.DBClusterMetadata;
+import com.dbn.database.common.metadata.def.DBColumnColumnMetadata;
 import com.dbn.database.common.metadata.def.DBColumnMetadata;
 import com.dbn.database.common.metadata.def.DBConstraintColumnMetadata;
 import com.dbn.database.common.metadata.def.DBConstraintMetadata;
@@ -112,6 +114,7 @@ import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.loader.DBObjectListFromRelationListLoader;
 import com.dbn.object.type.DBObjectType;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,6 +123,7 @@ import static com.dbn.common.content.DynamicContentProperty.MASTER;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.object.type.DBObjectRelationType.COLUMN_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.JSON_VIEW_TABLE;
@@ -563,6 +567,20 @@ public class DBObjectLoaders {
                     return new DBArgumentImpl(valid(method), md);
                 });
 
+        DynamicContentResultSetLoader.<DBColumnColumnRelation, DBColumnColumnMetadata>create(
+                "ALL_COLUMN_RELATIONS", SCHEMA, COLUMN_COLUMN, true, false,
+                (content, conn, mdi) -> mdi.loadAllColumnRelations(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> {
+                    DBSchema sourceSchema = getSchema(content, md.getSourceSchemaName());
+                    DBDataset sourceDataset = valid(sourceSchema.getDataset(md.getSourceDatasetName()));
+                    DBColumn sourceColumn = valid(sourceDataset.getColumn(md.getSourceColumnName()));
+
+                    DBSchema targetSchema = content.ensureParentEntity();
+                    DBDataset targetDataset = valid(targetSchema.getDataset(md.getTargetDatasetName()));
+                    DBColumn targetColumn = valid(targetDataset.getColumn(md.getTargetColumnName()));
+                    return new DBColumnColumnRelation(sourceColumn, targetColumn);
+                });
+
         DynamicContentResultSetLoader.<DBConstraintColumnRelation, DBConstraintColumnMetadata>create(
                 "ALL_CONSTRAINT_COLUMNS", SCHEMA, CONSTRAINT_COLUMN, true, false,
                 (content, conn, mdi) -> mdi.loadAllConstraintRelations(content.ensureParentEntity().getName(), conn),
@@ -579,8 +597,9 @@ public class DBObjectLoaders {
                 "ALL_INDEX_COLUMNS", SCHEMA, INDEX_COLUMN, true, false,
                 (content, conn, mdi) -> mdi.loadAllIndexRelations(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
+                    DBSchema schema = content.ensureParentEntity();
                     String tableName = md.getTableName();
-                    DBDataset dataset = valid(cache.get(tableName, () -> ((DBSchema) content.ensureParentEntity()).getDataset(tableName)));
+                    DBDataset dataset = valid(cache.get(tableName, () -> schema.getDataset(tableName)));
 
                     DBColumn column = getCachedColumn(dataset, md.getColumnName());
                     DBIndex index = getCachedIndex(dataset, md.getIndexName());
@@ -591,11 +610,12 @@ public class DBObjectLoaders {
                 "ALL_JSON_VIEW_TABLES", SCHEMA, JSON_VIEW_TABLE, true, false,
                 (content, conn, mdi) -> mdi.loadAllJsonViewTableRelations(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
+                    DBSchema schema = content.ensureParentEntity();
                     String jsonViewName = md.getJsonViewName();
                     String tableName = md.getTableName();
                     DBSchema tableSchema = content.ensureParentEntity();
 
-                    DBJsonView jsonView = valid(cache.get(jsonViewName, () -> ((DBSchema) content.ensureParentEntity()).getJsonView(jsonViewName)));
+                    DBJsonView jsonView = valid(cache.get(jsonViewName, () -> schema.getJsonView(jsonViewName)));
                     DBTable table = valid(tableSchema.getTable(tableName));
                     return new DBJsonViewTableRelation(jsonView, table, md.getPosition(), md.isRootTable(), md.isReadonly());
                 });
@@ -648,6 +668,20 @@ public class DBObjectLoaders {
                             DBColumn column = valid(dataset.getColumn(md.getColumnName()));
                             DBConstraint constraint = valid(dataset.getConstraint(md.getConstraintName()));
                             return new DBConstraintColumnRelation(constraint, column, md.getPosition());
+                        }));
+
+        DynamicSubcontentLoader.create("DATASET_COLUMN_RELATIONS", DATASET, COLUMN_COLUMN,
+                DynamicContentResultSetLoader.<DBColumnColumnRelation, DBColumnColumnMetadata>create(
+                        "DATASET_COLUMN_RELATIONS", DATASET, COLUMN_COLUMN, false, false,
+                        (content, conn, mdi) -> mdi.loadColumnRelations(content.getParentSchemaName(), content.getParentObjectName(), conn),
+                        (content, cache, md) -> {
+                            DBSchema sourceSchema = getSchema(content, md.getSourceSchemaName());
+                            DBDataset sourceDataset = valid(sourceSchema.getDataset(md.getSourceDatasetName()));
+                            DBColumn sourceColumn = valid(sourceDataset.getColumn(md.getSourceColumnName()));
+
+                            DBDataset targetDataset = valid(content.getParentEntity());
+                            DBColumn targetColumn = valid(targetDataset.getColumn(md.getTargetColumnName()));
+                            return new DBColumnColumnRelation(sourceColumn, targetColumn);
                         }));
 
         DynamicSubcontentLoader.create("JSON_VIEW_TABLES", JSON_VIEW, JSON_VIEW_TABLE,
@@ -780,7 +814,7 @@ public class DBObjectLoaders {
                     if (objectType == PACKAGE_BODY) objectType = PACKAGE;
                     if (objectType == TYPE_BODY) objectType = TYPE;
 
-                    DBSchema schema = valid(cache.get(objectOwner, () -> content.ensureParentEntity().getObjectBundle().getSchema(objectOwner)));
+                    DBSchema schema = getSchema(content, objectOwner);
                     return schema.getChildObject(objectType, objectName, (short) 0, true);
                 });
 
@@ -795,7 +829,7 @@ public class DBObjectLoaders {
                     if (objectType == PACKAGE_BODY) objectType = PACKAGE;
                     if (objectType == TYPE_BODY) objectType = TYPE;
 
-                    DBSchema schema = valid(cache.get(objectOwner, () -> content.ensureParentEntity().getObjectBundle().getSchema(objectOwner)));
+                    DBSchema schema = getSchema(content, objectOwner);
                     return schema.getChildObject(objectType, objectName, (short) 0, true);
                 });
     }
@@ -839,5 +873,7 @@ public class DBObjectLoaders {
         return valid(index.getChildElement(dataset, indexName));
     }
 
-
+    private static @NotNull DBSchema getSchema(DynamicContent content, String schemaName) {
+        return valid(content.getConnection().getObjectBundle().getSchema(schemaName));
+    }
 }

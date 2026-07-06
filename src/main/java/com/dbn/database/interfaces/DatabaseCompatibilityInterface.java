@@ -33,6 +33,7 @@ import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
@@ -121,6 +122,17 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
     ConnectorProperties createConnectorProperties();
 
     void initConnectorAuthentication(ConnectorProperties properties, AuthenticationInfo authenticationInfo);
+
+    /**
+     * Configures a database-specific JDBC password-change connection attempt.
+     * The caller must initialize normal authentication properties first.
+     */
+    default void initConnectorPasswordChange(@NotNull ConnectorProperties properties, @NotNull char[] newPassword) {}
+
+    /**
+     * Completes a database-specific password-change connection attempt after the JDBC connection is established.
+     */
+    default void completeConnectorPasswordChange(@NotNull Connection connection, @NotNull char[] newPassword) throws SQLException {}
 
     void initConnectorSession(ConnectorProperties properties, ConnectionSettings settings, SessionId sessionId);
 

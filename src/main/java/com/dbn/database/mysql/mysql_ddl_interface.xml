@@ -20,6 +20,10 @@
         <statement>create view {0} as {1}</statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="change-json-view">
+        <statement>create or replace json relational duality view {0}.{1} as {2}</statement>
+    </statement-execution-processor>
+
 
 
 

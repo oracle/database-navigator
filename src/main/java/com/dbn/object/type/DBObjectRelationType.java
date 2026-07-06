@@ -22,6 +22,7 @@ import lombok.Getter;
 @Getter
 public enum DBObjectRelationType implements DynamicContentType<DBObjectRelationType> {
     CONSTRAINT_COLUMN(DBObjectType.CONSTRAINT, DBObjectType.COLUMN),
+    COLUMN_COLUMN(DBObjectType.COLUMN, DBObjectType.COLUMN),
     JSON_VIEW_TABLE(DBObjectType.JSON_VIEW, DBObjectType.TABLE),
     INDEX_COLUMN(DBObjectType.INDEX, DBObjectType.COLUMN),
     USER_ROLE(DBObjectType.USER, DBObjectType.GRANTED_ROLE),
