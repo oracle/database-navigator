@@ -214,19 +214,17 @@ public class McpBuildTask {
                 Path sourceDirectory = outputDirectory.resolve(SOURCE_PROJECT).toAbsolutePath().normalize();
                 result.setSourceDirectory(sourceDirectory);
                 indicator.setText2(txt("prc.mcp.text.RunningMavenBuild"));
-                Path tempArtifact = McpMavenBuilder.build(
+                Path serverArtifact = McpMavenBuilder.build(
                         project,
                         result.getBaseDirectory().resolve(DIST),
+                        outputDirectory,
                         generator,
                         sourceDirectory,
                         indicator,
                         null);
                 indicator.setText2(txt("prc.mcp.text.FinalizingOutput"));
-                Files.createDirectories(outputDirectory);
-                Path serverArtifact = outputDirectory.resolve(tempArtifact.getFileName());
                 result.setServerJar(serverArtifact);
 
-                Files.move(tempArtifact, serverArtifact, StandardCopyOption.REPLACE_EXISTING);
                 Path outputConfigFile = outputDirectory.resolve(CONFIG).toAbsolutePath().normalize();
                 Files.copy(result.getConfigFile(), outputConfigFile, StandardCopyOption.REPLACE_EXISTING);
                 result.setConfigFile(outputConfigFile);

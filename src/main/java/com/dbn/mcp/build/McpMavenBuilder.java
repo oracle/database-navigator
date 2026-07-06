@@ -21,20 +21,21 @@ public final class McpMavenBuilder {
 
     public static Path build(
             Project project,
-            Path outDir,
+            Path workDir,
+            Path artifactDir,
             McpServerGenerator generator,
             Path sourceProjectDir,
             ProgressIndicator indicator,
             Consumer<String> outputHandler)
             throws IOException {
 
-        Path projDir = uniqueDir(outDir, generator.getServerName());
+        Path projDir = uniqueDir(workDir, generator.getServerName());
         try {
             writeSourceFiles(projDir, generator.getSourceFiles());
             writePom(project, projDir, generator);
             runMaven(project, projDir, generator.getMavenGoals(), indicator, outputHandler);
             exportSourceProject(projDir, sourceProjectDir);
-            return copyArtifact(generator, projDir, outDir);
+            return copyArtifact(generator, projDir, artifactDir);
         } finally {
             deleteDir(projDir);
         }
@@ -123,7 +124,8 @@ public final class McpMavenBuilder {
         Path artifact = generator.locateArtifact(proj.resolve("target"));
         Files.createDirectories(out);
         Path dest = out.resolve(artifact.getFileName());
-        Files.copy(artifact, dest, StandardCopyOption.REPLACE_EXISTING);
+        // COPY_ATTRIBUTES preserves the executable bit of native binaries
+        Files.copy(artifact, dest, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
         return dest;
     }
 }
