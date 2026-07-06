@@ -467,6 +467,36 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="all-column-relations">
+        <statement>
+            select
+                TABLE_SCHEMA as SOURCE_SCHEMA_NAME,
+                TABLE_NAME as SOURCE_DATASET_NAME,
+                COLUMN_NAME as SOURCE_COLUMN_NAME,
+                REFERENCED_TABLE_SCHEMA as TARGET_SCHEMA_NAME,
+                REFERENCED_TABLE_NAME as TARGET_DATASET_NAME,
+                REFERENCED_COLUMN_NAME as TARGET_COLUMN_NAME
+            from information_schema.KEY_COLUMN_USAGE
+            where REFERENCED_TABLE_SCHEMA = {#0} and REFERENCED_TABLE_NAME is not null
+            order by TABLE_NAME asc
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="column-relations">
+        <statement>
+            select
+                TABLE_SCHEMA as SOURCE_SCHEMA_NAME,
+                TABLE_NAME as SOURCE_DATASET_NAME,
+                COLUMN_NAME as SOURCE_COLUMN_NAME,
+                REFERENCED_TABLE_SCHEMA as TARGET_SCHEMA_NAME,
+                REFERENCED_TABLE_NAME as TARGET_DATASET_NAME,
+                REFERENCED_COLUMN_NAME as TARGET_COLUMN_NAME
+            from information_schema.KEY_COLUMN_USAGE
+            where REFERENCED_TABLE_SCHEMA = {#0} and REFERENCED_TABLE_NAME = {#1}
+            order by COLUMN_NAME asc
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="indexes">
         <statement>
             select distinct

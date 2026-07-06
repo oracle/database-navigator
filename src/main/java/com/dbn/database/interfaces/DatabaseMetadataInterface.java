@@ -239,6 +239,32 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
     ResultSet loadColumns(String ownerName, String datasetName, DBNConnection connection) throws SQLException;
 
     /**
+     * Loads the linkage actions between foreign key columns and their referenced columns for given schema<br>
+     * Column names of the returned ResultSet
+     *  <li> SOURCE_SCHEMA_NAME (char)
+     *  <li> SOURCE_DATASET_NAME (char)
+     *  <li> SOURCE_COLUMN_NAME (char)
+     *  <li> TARGET_SCHEMA_NAME (char)
+     *  <li> TARGET_DATASET_NAME (char)
+     *  <li> TARGET_COLUMN_NAME (char)
+     *
+     * Order by SOURCE_DATASET_NAME
+     */
+    ResultSet loadAllColumnRelations(String ownerName, DBNConnection connection) throws SQLException;
+
+    /**
+     * Loads the linkage actions between foreign key columns and their referenced columns for given dataset<br>
+     * Column names of the returned ResultSet
+     *  <li> SOURCE_SCHEMA_NAME (char)
+     *  <li> SOURCE_DATASET_NAME (char)
+     *  <li> SOURCE_COLUMN_NAME (char)
+     *  <li> TARGET_SCHEMA_NAME (char)
+     *  <li> TARGET_DATASET_NAME (char)
+     *  <li> TARGET_COLUMN_NAME (char)
+     */
+    ResultSet loadColumnRelations(String ownerName, String datasetName, DBNConnection connection) throws SQLException;
+
+    /**
      * Loads the linkage actions between columns and constraints for given owner<br>
      * Column names of the returned ResultSet
      *  <li> DATASET_NAME (char)
