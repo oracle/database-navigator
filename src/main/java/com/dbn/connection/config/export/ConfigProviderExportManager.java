@@ -9,6 +9,7 @@ import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.export.ui.ConfigProviderExportDialog;
 import com.intellij.openapi.components.State;
@@ -17,6 +18,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,9 +57,12 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
         states.readState(element, STATES);
     }
 
-    public void exportConnection(@NotNull Project project, @NotNull ConnectionSettings settings){
+    public void exportConnection(
+            @NotNull Project project,
+            @Nullable ConnectionHandler connection,
+            @NotNull ConnectionSettings settings) {
         Dialogs.show(
-                () -> new ConfigProviderExportDialog(project, this),
+                () -> new ConfigProviderExportDialog(project, this, connection, settings),
                 (dialog, exitCode) -> {
                     if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
 

@@ -2,7 +2,12 @@ package com.dbn.connection.config.export.ui;
 
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Strings;
+import com.dbn.common.icon.Icons;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.export.ConfigProviderExportManager;
 import com.dbn.connection.config.export.ConfigProviderExportRequest;
 import com.intellij.openapi.fileChooser.FileSaverDescriptor;
@@ -15,9 +20,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBCheckBox;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.awt.BorderLayout;
 import java.nio.file.Path;
 
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
@@ -29,6 +36,7 @@ import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_
 
 public class ConfigProviderExportForm extends DBNFormBase {
     private JPanel mainPanel;
+    private JPanel headerPanel;
 
     private JTextField wrapperKeyTextField;
     private TextFieldWithBrowseButton outputFileTextField;
@@ -41,25 +49,44 @@ public class ConfigProviderExportForm extends DBNFormBase {
     private Path walletFile;
 
     private final ConfigProviderExportManager exportService;
+    private final ConnectionHandler connection;
+    private final ConnectionSettings connectionSettings;
 
     ConfigProviderExportForm(
             @NotNull ConfigProviderExportDialog parent,
-            @NotNull ConfigProviderExportManager exportService) {
+            @NotNull ConfigProviderExportManager exportService,
+            @Nullable ConnectionHandler connection,
+            @NotNull ConnectionSettings connectionSettings) {
 
         super(parent);
         this.exportService = exportService;
+        this.connection = connection;
+        this.connectionSettings = connectionSettings;
 
         // Fail-fast if .form bindings are wrong
-        if (mainPanel == null || wrapperKeyTextField == null || outputFileTextField == null ||
+        if (mainPanel == null || headerPanel == null || wrapperKeyTextField == null || outputFileTextField == null ||
                 includeWalletCheckBox == null || walletFileTextField == null) {
             throw new IllegalStateException("Form binding failed. Check ConfigProviderExportForm.form bindings.");
         }
 
+        initHeaderPanel();
         outputFileTextField.getTextField().setEditable(false);
         walletFileTextField.getTextField().setEditable(false);
 
         initListeners();
         updateWalletControls();
+    }
+
+    private void initHeaderPanel() {
+        ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
+        DBNHeaderForm headerForm = connection == null ?
+                new DBNHeaderForm(
+                        this,
+                        databaseSettings.getName(),
+                        Icons.CONNECTION_NEW,
+                        connectionSettings.getDetailSettings().getEnvironmentType().getColor()) :
+                new DBNHeaderForm(this, connection);
+        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
     }
 
     @Override
