@@ -16,6 +16,7 @@
 
 package com.dbn.database.mysql;
 
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectorProperties;
 import com.dbn.connection.config.ConnectionSettings;
@@ -30,10 +31,16 @@ import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.object.DBConstraint;
 import com.dbn.object.common.DBObject;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.dbn.database.DatabaseFeature.CHANGE_EXPIRED_PASSWORD;
+import static com.dbn.database.DatabaseFeature.CHANGE_PASSWORD;
 import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
 import static com.dbn.database.DatabaseFeature.CURRENT_SCHEMA;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
@@ -50,6 +57,10 @@ import static com.dbn.object.type.DBConstraintType.CHECK;
 public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
     private static final QuoteDefinition IDENTIFIER_QUOTE_DEFINITION = new QuoteDefinition(new QuotePair('`', '`'));
 
+    private interface Property {
+        String DISCONNECT_ON_EXPIRED_PASSWORDS = "disconnectOnExpiredPasswords";
+    }
+
     @Override
     public List<DatabaseObjectTypeId> getSupportedObjectTypes() {
         return Arrays.asList(
@@ -59,6 +70,7 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
                 DatabaseObjectTypeId.SCHEMA,
                 DatabaseObjectTypeId.TABLE,
                 DatabaseObjectTypeId.VIEW,
+                DatabaseObjectTypeId.JSON_VIEW,
                 DatabaseObjectTypeId.COLUMN,
                 DatabaseObjectTypeId.CONSTRAINT,
                 DatabaseObjectTypeId.INDEX,
@@ -81,6 +93,8 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
                 OBJECT_DDL_EXTRACTION,
                 UPDATABLE_RESULT_SETS,
                 CURRENT_SCHEMA,
+                CHANGE_PASSWORD,
+                CHANGE_EXPIRED_PASSWORD,
                 CONSTRAINT_MANIPULATION,
                 READONLY_CONNECTIVITY);
     }
@@ -139,6 +153,19 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
         // though fails with syntax error when a statement with such quoted identifiers is executed
         // TODO see if we are missing something here
         return true;
+    }
+
+    @Override
+    public void initConnectorPasswordChange(@NotNull ConnectorProperties properties, @NotNull char[] newPassword) {
+        properties.add(Property.DISCONNECT_ON_EXPIRED_PASSWORDS, "false");
+    }
+
+    @Override
+    public void completeConnectorPasswordChange(@NotNull Connection connection, @NotNull char[] newPassword) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("SET PASSWORD = ?")) {
+            statement.setString(1, Chars.toStringAcceptEmpty(newPassword));
+            statement.execute();
+        }
     }
 
     @Override

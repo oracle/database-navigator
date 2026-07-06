@@ -40,6 +40,10 @@ public interface DatabaseMessageParserInterface extends DatabaseInterface {
 
     boolean isAuthenticationException(SQLException e);
 
+    default boolean isPasswordExpiredException(SQLException e) {
+        return false;
+    }
+
     boolean isSuccessException(SQLException exception);
 
     default boolean isMissingSavepointException(SQLException exception) {
