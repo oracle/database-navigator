@@ -84,6 +84,13 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
                     code;
         }
 
+        if (objectTypeId == DatabaseObjectTypeId.JSON_VIEW) {
+            return kco.format("create" + (makeRerunnable ? " or replace" : "") + " json relational duality view ") +
+                    (useQualified ? schemaName + "." : "") + objectName +
+                    kco.format(" as\n") +
+                    code;
+        }
+
         if (objectTypeId.isOneOf(DatabaseObjectTypeId.PROCEDURE, DatabaseObjectTypeId.FUNCTION, DatabaseObjectTypeId.DATASET_TRIGGER)) {
             if (objectTypeId == DatabaseObjectTypeId.DATASET_TRIGGER) {
                 objectTypeId = DatabaseObjectTypeId.TRIGGER;

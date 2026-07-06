@@ -35,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.dbn.object.type.DBObjectRelationType.COLUMN_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.CONSTRAINT;
@@ -58,6 +59,7 @@ abstract class DBDatasetImpl<M extends DBObjectMetadata> extends DBSchemaObjectI
         childObjects.createSubcontentObjectList(CONSTRAINT, this, schema);
         childObjects.createSubcontentObjectList(DATASET_TRIGGER, this, schema);
         childObjects.createSubcontentObjectRelationList(CONSTRAINT_COLUMN, this, schema);
+        childObjects.createSubcontentObjectRelationList(COLUMN_COLUMN, this, schema);
     }
 
     @Override

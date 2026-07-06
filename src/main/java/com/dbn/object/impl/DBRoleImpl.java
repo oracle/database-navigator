@@ -64,6 +64,7 @@ class DBRoleImpl extends DBRootObjectImpl<DBRoleMetadata> implements DBRole {
     @Override
     protected void initProperties() {
         properties.set(DBObjectProperty.ROOT_OBJECT, true);
+        properties.set(DBObjectProperty.DIAGRAMMABLE, true);
     }
 
     @NotNull

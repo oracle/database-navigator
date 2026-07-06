@@ -23,7 +23,6 @@ import com.dbn.object.DBIndex;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectNavigationList;
-import com.dbn.object.common.list.ObjectListProvider;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,8 +71,8 @@ public class DBColumnNavigationInfoProvider extends DBObjectNavigationInfoProvid
         }
 
         if (column.isPrimaryKey()) {
-            ObjectListProvider<DBColumn> objectListProvider = () -> column.getReferencingColumns();
-            navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.ForeignKeyColumns"), objectListProvider));
+            List<DBColumn> referencingColumns = column.getReferencingColumns();
+            navigationLists.add(DBObjectNavigationList.create(txt("app.objects.navigation.ForeignKeyColumns"), referencingColumns));
         }
         return navigationLists;
     }

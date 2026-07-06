@@ -40,6 +40,7 @@ import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
@@ -57,6 +58,8 @@ import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
 import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
 import static com.dbn.database.DatabaseFeature.AUTHID_METHOD_EXECUTION;
+import static com.dbn.database.DatabaseFeature.CHANGE_EXPIRED_PASSWORD;
+import static com.dbn.database.DatabaseFeature.CHANGE_PASSWORD;
 import static com.dbn.database.DatabaseFeature.CONNECTION_ERROR_RECOVERY;
 import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
 import static com.dbn.database.DatabaseFeature.CURRENT_SCHEMA;
@@ -115,6 +118,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         String ORACLE_JDBC_AZURE_CLIENT_SECRET = "oracle.jdbc.clientSecret";
         String ORACLE_JDBC_AZURE_CLIENT_ID = "oracle.jdbc.clientId";
         String ORACLE_JDBC_AZURE_TENANT_ID = "oracle.jdbc.tenantId";
+        String ORACLE_JDBC_NEW_PASSWORD = "oracle.jdbc.newPassword";
         String ORACLE_JDBC_SSL_SERVER_DN_MATCH = "oracle.net.ssl_server_dn_match";
     }
 
@@ -205,6 +209,8 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 SESSION_KILL,
                 SESSION_CURRENT_SQL,
                 CONNECTION_ERROR_RECOVERY,
+                CHANGE_PASSWORD,
+                CHANGE_EXPIRED_PASSWORD,
                 UPDATABLE_RESULT_SETS,
                 CURRENT_SCHEMA,
                 USER_SCHEMA,
@@ -310,6 +316,11 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         } else {
             super.initConnectorAuthentication(properties, authenticationInfo);
         }
+    }
+
+    @Override
+    public void initConnectorPasswordChange(@NotNull ConnectorProperties properties, @NotNull char[] newPassword) {
+        properties.add(Property.ORACLE_JDBC_NEW_PASSWORD, Chars.toStringAcceptEmpty(newPassword));
     }
 
     @Override

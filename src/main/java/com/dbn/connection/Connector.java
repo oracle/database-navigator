@@ -56,6 +56,7 @@ class Connector {
     private final ConnectionSettings connectionSettings;
     private final ConnectionHandlerStatusHolder connectionStatus;
     private final boolean autoCommit;
+    private final char[] newPassword;
     private SQLException exception;
 
     Connector(
@@ -63,12 +64,14 @@ class Connector {
             AuthenticationInfo authenticationInfo,
             ConnectionSettings connectionSettings,
             ConnectionHandlerStatusHolder connectionStatus,
-            boolean autoCommit) {
+            boolean autoCommit,
+            @Nullable char[] newPassword) {
         this.sessionId = sessionId;
         this.authenticationInfo = authenticationInfo;
         this.connectionSettings = connectionSettings;
         this.connectionStatus = connectionStatus;
         this.autoCommit = autoCommit;
+        this.newPassword = newPassword;
     }
 
 
@@ -115,6 +118,9 @@ class Connector {
                 authenticationInfo = this.authenticationInfo;
             }
             compatibility.initConnectorAuthentication(properties, authenticationInfo);
+            if (newPassword != null) {
+                compatibility.initConnectorPasswordChange(properties, newPassword);
+            }
 
             // SESSION INFO
             compatibility.initConnectorSession(properties, connectionSettings, sessionId);
@@ -155,6 +161,9 @@ class Connector {
             Connection connection = connect(driver, connectionUrl, properties.export());
             if (connection == null) {
                 throw new SQLException("Driver failed to create connection. No failure information provided by jdbc vendor.");
+            }
+            if (newPassword != null) {
+                compatibility.completeConnectorPasswordChange(connection, newPassword);
             }
 
             if (connectionStatus != null) {
