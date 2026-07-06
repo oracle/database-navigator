@@ -16,15 +16,17 @@
 
 package com.dbn.database.generic;
 
+import com.dbn.connection.config.provider.CloudConfigProviderFamily;
 import com.dbn.database.interfaces.DatabaseDriverInterface;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
 
 public class GenericDriverInterface implements DatabaseDriverInterface {
     @Override
-    public List<Element> discoverDriverPackages(List<Element> packageElements) {
+    public List<Element> discoverDriverPackages(List<Element> packageElements, @Nullable CloudConfigProviderFamily providerFamily) {
         return Collections.emptyList();
     }
 }

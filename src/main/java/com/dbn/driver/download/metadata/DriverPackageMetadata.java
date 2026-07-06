@@ -20,6 +20,7 @@ import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.connection.DatabaseType;
+import com.dbn.connection.config.provider.CloudConfigProviderFamily;
 import com.dbn.driver.download.DownloadSession;
 import com.dbn.driver.download.DownloadStatus;
 import com.dbn.driver.download.DriverDownloadManager;
@@ -42,8 +43,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.integerAttribute;
 import static com.dbn.common.options.setting.Settings.longAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setIntegerAttribute;
 import static com.dbn.common.options.setting.Settings.setLongAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -72,43 +75,80 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
  */
 @Setter
 public class DriverPackageMetadata implements PersistentStateElement {
+    private static final int METADATA_VERSION = 4;
     private static final int REFRESH_INTERVAL = 7;
     private static final TimeUnit REFRESH_INTERVAL_UNIT = TimeUnit.DAYS;
 
-    private final Map<DatabaseType, Long> lastRefresh = new ConcurrentHashMap<>();
+    private int metadataVersion = METADATA_VERSION;
+    private final Map<String, Long> lastRefresh = new ConcurrentHashMap<>();
     private final Map<String, DriverPackage> driverPackages = new ConcurrentHashMap<>();
 
     @SneakyThrows
     public synchronized void refreshDriverPackages(DatabaseType databaseType) {
-        if (!isOutdated(databaseType)) return;
+        refreshDriverPackages(databaseType, null);
+    }
+
+    @SneakyThrows
+    public synchronized void refreshDriverPackages(DatabaseType databaseType, @Nullable CloudConfigProviderFamily providerFamily) {
+        if (providerFamily == null) {
+            for (CloudConfigProviderFamily family : CloudConfigProviderFamily.values()) {
+                refreshDriverPackages(databaseType, family);
+            }
+            return;
+        }
+
+        if (!isOutdated(databaseType, providerFamily)) return;
 
         ProgressIndicator indicator = ProgressMonitor.getProgressIndicator();
         DownloadSession session = new DownloadSession(indicator);
 
         DriverPackageMetadataDownloader downloader = new DriverPackageMetadataDownloader();
-        Map<String, DriverPackage> driverPackages = downloader.createDriverPackages(session, databaseType);
+        Map<String, DriverPackage> driverPackages = downloader.createDriverPackages(session, databaseType, providerFamily);
         Set<String> packageIds = driverPackages.keySet();
 
-        // Mark packages obsolete only for the refreshed database type.
+        // Mark packages obsolete only for the refreshed database type/provider family.
         this.driverPackages.values().stream()
                 .filter(p -> p.matches(databaseType))
+                .filter(p -> p.matches(providerFamily))
                 .forEach(p -> p.setObsolete(!packageIds.contains(p.getId())));
         this.driverPackages.putAll(driverPackages);
 
         verifyDriverPackages();
-        lastRefresh.put(databaseType, System.currentTimeMillis());
+        metadataVersion = METADATA_VERSION;
+        lastRefresh.put(refreshKey(databaseType, providerFamily), System.currentTimeMillis());
     }
 
     public boolean isOutdated(DatabaseType databaseType) {
-        long refreshTime = lastRefresh.getOrDefault(databaseType, 0L);
+        return isOutdated(databaseType, null);
+    }
+
+    public boolean isOutdated(DatabaseType databaseType, @Nullable CloudConfigProviderFamily providerFamily) {
+        if (metadataVersion != METADATA_VERSION) return true;
+
+        if (providerFamily == null) {
+            for (CloudConfigProviderFamily family : CloudConfigProviderFamily.values()) {
+                if (isOutdated(databaseType, family)) return true;
+            }
+            return false;
+        }
+
+        long refreshTime = lastRefresh.getOrDefault(refreshKey(databaseType, providerFamily), 0L);
         return TimeUtil.isOlderThan(refreshTime, REFRESH_INTERVAL, REFRESH_INTERVAL_UNIT);
     }
 
     public List<DriverPackage> getDriverPackages(DatabaseType databaseType, Predicate<DriverPackage> predicate) {
-        refreshDriverPackages(databaseType);
+        return getDriverPackages(databaseType, null, predicate);
+    }
+
+    public List<DriverPackage> getDriverPackages(
+            DatabaseType databaseType,
+            @Nullable CloudConfigProviderFamily providerFamily,
+            Predicate<DriverPackage> predicate) {
+        refreshDriverPackages(databaseType, providerFamily);
         return driverPackages.values().stream()
                 .sorted()
                 .filter(p -> p.matches(databaseType))
+                .filter(p -> p.matches(providerFamily))
                 .filter(predicate)
                 .collect(Collectors.toList());
     }
@@ -187,11 +227,16 @@ public class DriverPackageMetadata implements PersistentStateElement {
     public void readState(Element element) {
         if (element == null) return;
 
+        metadataVersion = integerAttribute(element, "version", 1);
+        if (metadataVersion != METADATA_VERSION) {
+            lastRefresh.clear();
+        }
+
         Element refreshesElement = element.getChild("last-refresh");
         for (Element refreshElement : childrenOf(refreshesElement, "database-type")) {
-            DatabaseType databaseType = DatabaseType.valueOf(stringAttribute(refreshElement, "id"));
+            String refreshKey = stringAttribute(refreshElement, "id");
             long refreshTime = longAttribute(refreshElement, "timestamp", 0L);
-            lastRefresh.put(databaseType, refreshTime);
+            lastRefresh.put(refreshKey, refreshTime);
         }
 
         for (Element packageElement : childrenOf(element, "package")) {
@@ -203,11 +248,13 @@ public class DriverPackageMetadata implements PersistentStateElement {
 
     @Override
     public void writeState(Element element) {
+        setIntegerAttribute(element, "version", METADATA_VERSION);
+
         Element refreshesElement = newElement(element, "last-refresh");
-        Map<DatabaseType, Long> refreshes = new TreeMap<>(lastRefresh);
-        for (Map.Entry<DatabaseType, Long> entry : refreshes.entrySet()) {
+        Map<String, Long> refreshes = new TreeMap<>(lastRefresh);
+        for (Map.Entry<String, Long> entry : refreshes.entrySet()) {
             Element refreshElement = newElement(refreshesElement, "database-type");
-            setStringAttribute(refreshElement, "id", entry.getKey().name());
+            setStringAttribute(refreshElement, "id", entry.getKey());
             setLongAttribute(refreshElement, "timestamp", entry.getValue());
         }
 
@@ -215,5 +262,10 @@ public class DriverPackageMetadata implements PersistentStateElement {
             Element packageElement = newElement(element, "package");
             driverPackage.writeState(packageElement);
         }
+    }
+
+    private static String refreshKey(DatabaseType databaseType, @Nullable CloudConfigProviderFamily providerFamily) {
+        if (providerFamily == null) return databaseType.name();
+        return databaseType.name() + ":" + providerFamily.name();
     }
 }

@@ -38,10 +38,11 @@ public class OracleDriverInterfaceTest {
         List<Element> libraries = packageElement.getChildren("library");
 
         Assert.assertEquals("Oracle", packageElement.getAttributeValue("database-type"));
+        Assert.assertEquals("AWS", packageElement.getAttributeValue("cloud-config-provider-family"));
         Assert.assertEquals("ojdbc-%s-aws-%s", packageElement.getAttributeValue("id"));
         Assert.assertEquals("Oracle %s + Aws auth %s", packageElement.getAttributeValue("name"));
         Assert.assertEquals(2, libraries.size());
-        assertLibrary(libraries.get(0), "ojdbc8", DRIVER_VERSION, "DRIVER", "jar");
+        assertLibrary(libraries.get(0), "ojdbc8", DRIVER_VERSION, "DRIVER", null);
         assertLibrary(libraries.get(1), "ojdbc-provider-aws", "latest", "EXTENSION", "jar");
     }
 
@@ -51,6 +52,7 @@ public class OracleDriverInterfaceTest {
         List<Element> libraries = packageElement.getChildren("library");
 
         Assert.assertEquals("ojdbc-%s-gcp-%s", packageElement.getAttributeValue("id"));
+        Assert.assertEquals("GCP", packageElement.getAttributeValue("cloud-config-provider-family"));
         Assert.assertEquals("Oracle %s + Gcp auth %s", packageElement.getAttributeValue("name"));
         assertLibrary(libraries.get(1), "ojdbc-provider-gcp", "latest", "EXTENSION", "jar");
     }

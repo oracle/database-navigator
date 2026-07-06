@@ -16,7 +16,9 @@
 
 package com.dbn.database.interfaces;
 
+import com.dbn.connection.config.provider.CloudConfigProviderFamily;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -28,5 +30,5 @@ public interface DatabaseDriverInterface extends DatabaseInterface {
         return DRIVER;
     }
 
-    List<Element> discoverDriverPackages(List<Element> packageElements);
+    List<Element> discoverDriverPackages(List<Element> packageElements, @Nullable CloudConfigProviderFamily providerFamily);
 }

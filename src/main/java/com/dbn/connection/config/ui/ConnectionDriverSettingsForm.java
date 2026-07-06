@@ -29,6 +29,8 @@ import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.provider.CloudConfigProviderFamily;
+import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverBundle;
 import com.dbn.driver.DriverSource;
@@ -201,24 +203,25 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     private void initDriverDownloadFields() {
         downloadButton.addActionListener(e -> {
             DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-            if (downloadManager.isDriverPackageMetadataOutdated(getDatabaseType())) {
+            CloudConfigProviderFamily providerFamily = getCloudConfigProviderFamily();
+            if (downloadManager.isDriverPackageMetadataOutdated(getDatabaseType(), providerFamily)) {
                 Progress.modal(ensureProject(),
                         null, true,
                         txt("prc.connection.title.LoadingDrivers"),
                         txt("prc.connection.text.LoadingDriverPackageMetadata"),
-                        indicator -> showDownloadPopup()
+                        indicator -> showDownloadPopup(providerFamily)
                 );
             } else {
-                Background.run(() -> showDownloadPopup());
+                Background.run(() -> showDownloadPopup(providerFamily));
             }
         });
     }
 
-    private void showDownloadPopup() {
+    private void showDownloadPopup(@Nullable CloudConfigProviderFamily providerFamily) {
         try {
             DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-            List<DriverPackage> driverPackages = downloadManager.getDownloadedDriverPackages(getDatabaseType());
-            dispatch(() -> showDownloadPopup(downloadButton, driverPackages));
+            List<DriverPackage> driverPackages = downloadManager.getDownloadedDriverPackages(getDatabaseType(), providerFamily);
+            dispatch(() -> showDownloadPopup(downloadButton, driverPackages, providerFamily));
         } catch (Exception e) {
             conditionallyLog(e);
             showErrorDialog(ensureProject(), txt("msg.driver.error.DriverLibrariesMetadataDownloadFailed"), e);
@@ -367,7 +370,10 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         setSelection(driverComboBox, DriverOption.get(driverOptions, configuration.getDriver()));
     }
 
-    private void showDownloadPopup(JButton button, List<DriverPackage> driverPackages) {
+    private void showDownloadPopup(
+            JButton button,
+            List<DriverPackage> driverPackages,
+            @Nullable CloudConfigProviderFamily providerFamily) {
         List<AnAction> actions = new ArrayList<>();
         for (DriverPackage driverPackage : driverPackages) {
                 String title = Actions.adjustActionName(driverPackage.getName());
@@ -384,14 +390,14 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             @Override
             public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
                 DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-                if (downloadManager.isDriverPackageMetadataOutdated(getDatabaseType())) {
+                if (downloadManager.isDriverPackageMetadataOutdated(getDatabaseType(), providerFamily)) {
                     Project project = getProject();
                     Progress.modal(project, null, true,
                             txt("prc.connection.title.LoadingDrivers"),
                             txt("prc.connection.text.LoadingDriverPackageMetadata"),
-                            indicator -> initDownloadManagerDialog());
+                            indicator -> initDownloadManagerDialog(providerFamily));
                 } else {
-                    Background.run(() -> initDownloadManagerDialog());
+                    Background.run(() -> initDownloadManagerDialog(providerFamily));
                 }
             }
         });
@@ -410,12 +416,12 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         return downloadManager.getDownloadPath(driverPackage.getId());
     }
 
-    private void initDownloadManagerDialog() {
+    private void initDownloadManagerDialog(@Nullable CloudConfigProviderFamily providerFamily) {
         Project project = ensureProject();
         DatabaseType databaseType = getDatabaseType();
 
         DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-        downloadManager.openDownloadDialog(project, databaseType, path -> {
+        downloadManager.openDownloadDialog(project, databaseType, providerFamily, path -> {
             String currentPath = driverLibraryTextField.getText();
             if (Objects.equals(currentPath, path)) {
                 // when download targets the already specified location (initially empty)
@@ -424,6 +430,12 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 setText(driverLibraryTextField, path);
             }
         });
+    }
+
+    @Nullable
+    private CloudConfigProviderFamily getCloudConfigProviderFamily() {
+        CloudConfigProviderType cloudProviderType = getParentForm().getCloudConfigProviderType();
+        return cloudProviderType == null ? null : cloudProviderType.getFamily();
     }
 
 }

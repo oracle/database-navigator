@@ -21,6 +21,7 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.DatabaseType;
+import com.dbn.connection.config.provider.CloudConfigProviderFamily;
 import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.metadata.DriverPackageMetadata;
 import com.dbn.driver.download.ui.DriverDownloadDialog;
@@ -225,15 +226,33 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
    }
 
     public List<DriverPackage> getDownloadedDriverPackages(DatabaseType databaseType) {
-        return driverPackageMetadata.getDriverPackages(databaseType, p -> isPackageDownloaded(p));
+        return getDownloadedDriverPackages(databaseType, null);
+    }
+
+    public List<DriverPackage> getDownloadedDriverPackages(
+            DatabaseType databaseType,
+            @Nullable CloudConfigProviderFamily providerFamily) {
+        return driverPackageMetadata.getDriverPackages(databaseType, providerFamily, p -> isPackageDownloaded(p));
     }
 
     public List<DriverPackage> getDriverPackages(DatabaseType databaseType) {
-        return driverPackageMetadata.getDriverPackages(databaseType, p -> !p.isObsolete() || isPackageDownloaded(p));
+        return getDriverPackages(databaseType, null);
+    }
+
+    public List<DriverPackage> getDriverPackages(
+            DatabaseType databaseType,
+            @Nullable CloudConfigProviderFamily providerFamily) {
+        return driverPackageMetadata.getDriverPackages(databaseType, providerFamily, p -> !p.isObsolete() || isPackageDownloaded(p));
     }
 
     public boolean isDriverPackageMetadataOutdated(DatabaseType databaseType) {
-        return driverPackageMetadata.isOutdated(databaseType);
+        return isDriverPackageMetadataOutdated(databaseType, null);
+    }
+
+    public boolean isDriverPackageMetadataOutdated(
+            DatabaseType databaseType,
+            @Nullable CloudConfigProviderFamily providerFamily) {
+        return driverPackageMetadata.isOutdated(databaseType, providerFamily);
     }
 
     public DriverPackage resolveDriverPackageDetails(DriverPackage driverPackage, DownloadSession session) {
@@ -241,8 +260,16 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
     }
 
     public void openDownloadDialog(Project project, DatabaseType databaseType, Consumer<String> successCallback) {
+        openDownloadDialog(project, databaseType, null, successCallback);
+    }
+
+    public void openDownloadDialog(
+            Project project,
+            DatabaseType databaseType,
+            @Nullable CloudConfigProviderFamily providerFamily,
+            Consumer<String> successCallback) {
         try {
-            List<DriverPackage> driverPackages = getDriverPackages(databaseType);
+            List<DriverPackage> driverPackages = getDriverPackages(databaseType, providerFamily);
             Dialogs.show(() -> new DriverDownloadDialog(project, databaseType, driverPackages), (dialog, exitCode) -> {
                 when(exitCode == DialogWrapper.OK_EXIT_CODE, () -> successCallback.accept(dialog.getSelectedDownloadPath()));
             });

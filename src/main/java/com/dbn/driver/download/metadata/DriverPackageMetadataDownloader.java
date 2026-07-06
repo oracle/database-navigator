@@ -21,12 +21,14 @@ import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.XmlContents;
 import com.dbn.connection.DatabaseInterfacesBundle;
 import com.dbn.connection.DatabaseType;
+import com.dbn.connection.config.provider.CloudConfigProviderFamily;
 import com.dbn.driver.download.DownloadSession;
 import com.dbn.driver.download.MavenRepositories;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -60,14 +62,18 @@ public class DriverPackageMetadataDownloader {
     private static final int MAX_LATEST_VERSION_ATTEMPTS = 3;
 
     @SneakyThrows
-    public Map<String, DriverPackage> createDriverPackages(DownloadSession session, DatabaseType databaseType) {
+    public Map<String, DriverPackage> createDriverPackages(
+            DownloadSession session,
+            DatabaseType databaseType,
+            @Nullable CloudConfigProviderFamily providerFamily) {
         Element element = XmlContents.fileToElement(getClass(), "driver-packages.xml");
         List<Element> packageElements = new ArrayList<>(element
                 .getChildren("driver-package")
                 .stream()
                 .filter(e -> DatabaseType.resolve(stringAttribute(e, "database-type")) == databaseType)
+                .filter(e -> matchesProviderFamily(e, providerFamily))
                 .toList());
-        packageElements.addAll(createDiscoveredDriverPackageElements(databaseType, packageElements));
+        packageElements.addAll(createDiscoveredDriverPackageElements(databaseType, packageElements, providerFamily));
         session.withDownloadSize(packageElements.size());
 
         List<DriverPackage> driverPackages = packageElements.parallelStream()
@@ -84,7 +90,10 @@ public class DriverPackageMetadataDownloader {
         String id = stringAttribute(element, "id");
         String name = stringAttribute(element, "name");
         String databaseType = stringAttribute(element, "database-type");
+        CloudConfigProviderFamily providerFamily = enumAttribute(element, "cloud-config-provider-family", CloudConfigProviderFamily.class);
+        if (providerFamily == null) providerFamily = CloudConfigProviderFamily.GENERIC;
         boolean latestPackage = isLatestPackage(element);
+        boolean detailsResolutionRequired = isDetailsResolutionRequired(element);
 
         List<ResolvedLibrary> resolvedLibraries = element
                 .getChildren("library")
@@ -107,8 +116,9 @@ public class DriverPackageMetadataDownloader {
 
         name = getFormattedString(name, libraries, resolvedLibraries, placeholderCount, false);
         DriverPackage driverPackage = new DriverPackage(id, name, DatabaseType.resolve(databaseType), libraries);
+        driverPackage.setCloudConfigProviderFamily(providerFamily);
         driverPackage.setLatest(latestPackage);
-        if (latestPackage) {
+        if (detailsResolutionRequired) {
             driverPackage.setDetailsResolved(false);
             driverPackage.setSourceId(stringAttribute(element, "id"));
             driverPackage.setSourceName(stringAttribute(element, "name"));
@@ -163,6 +173,19 @@ public class DriverPackageMetadataDownloader {
     private boolean isLatestPackage(Element element) {
         return element.getChildren("library").stream()
                 .anyMatch(e -> isLatestVersion(stringAttribute(e, "version")));
+    }
+
+    private boolean matchesProviderFamily(Element element, @Nullable CloudConfigProviderFamily providerFamily) {
+        if (providerFamily == null) return true;
+
+        CloudConfigProviderFamily elementProviderFamily = enumAttribute(element, "cloud-config-provider-family", CloudConfigProviderFamily.class);
+        if (elementProviderFamily == null) elementProviderFamily = CloudConfigProviderFamily.GENERIC;
+        return elementProviderFamily == providerFamily;
+    }
+
+    private boolean isDetailsResolutionRequired(Element element) {
+        return element.getChildren("library").stream()
+                .anyMatch(e -> isLatestVersion(stringAttribute(e, "version")) || stringAttribute(e, "type") != null);
     }
 
     private List<DriverPackage> removeDuplicatePinnedPackages(List<DriverPackage> driverPackages) {
@@ -272,7 +295,8 @@ public class DriverPackageMetadataDownloader {
         String groupId = stringAttribute(element, "group-id");
         String artifactId = stringAttribute(element, "artifact-id");
         String version = stringAttribute(element, "version");
-        String type = stringAttribute(element, "type");
+        String declaredType = stringAttribute(element, "type");
+        String type = declaredType;
         if (type == null) type = "jar";
 
         if (isLatestVersion(version)) {
@@ -282,6 +306,13 @@ public class DriverPackageMetadataDownloader {
         version = ensureVersion(groupId, artifactId, version);
 
         Library library = createLibrary(element, groupId, artifactId, version);
+        if (declaredType != null) {
+            LibraryResolution resolution = resolveLibraryDependencies(library, type, session);
+            if (resolution.isResolved()) {
+                return new ResolvedLibrary(resolution.libraries(), getDriverRoleLibrary(library), getExtensionRoleLibrary(library));
+            }
+            return new ResolvedLibrary(Collections.emptyList(), null, null);
+        }
         return new ResolvedLibrary(Collections.singletonList(library), getDriverRoleLibrary(library), getExtensionRoleLibrary(library));
     }
 
@@ -362,10 +393,13 @@ public class DriverPackageMetadataDownloader {
         return LATEST_VERSION.equalsIgnoreCase(version);
     }
 
-    private List<Element> createDiscoveredDriverPackageElements(DatabaseType databaseType, List<Element> packageElements) {
+    private List<Element> createDiscoveredDriverPackageElements(
+            DatabaseType databaseType,
+            List<Element> packageElements,
+            @Nullable CloudConfigProviderFamily providerFamily) {
         return DatabaseInterfacesBundle.get(databaseType)
                 .getDriverInterface()
-                .discoverDriverPackages(packageElements);
+                .discoverDriverPackages(packageElements, providerFamily);
     }
 
     private record LibraryResolution(List<Library> libraries, Throwable failure) {

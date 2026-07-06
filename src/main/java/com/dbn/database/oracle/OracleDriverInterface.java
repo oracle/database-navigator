@@ -17,10 +17,12 @@
 package com.dbn.database.oracle;
 
 import com.dbn.common.download.Downloads;
+import com.dbn.connection.config.provider.CloudConfigProviderFamily;
 import com.dbn.database.interfaces.DatabaseDriverInterface;
 import com.dbn.driver.download.MavenRepositories;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -40,6 +42,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.connection.config.provider.CloudConfigProviderFamily.AWS;
+import static com.dbn.connection.config.provider.CloudConfigProviderFamily.AZURE;
+import static com.dbn.connection.config.provider.CloudConfigProviderFamily.GCP;
+import static com.dbn.connection.config.provider.CloudConfigProviderFamily.GENERIC;
+import static com.dbn.connection.config.provider.CloudConfigProviderFamily.HASHICORP;
+import static com.dbn.connection.config.provider.CloudConfigProviderFamily.OCI;
 import static com.dbn.driver.download.metadata.LibraryRole.DRIVER;
 import static com.dbn.driver.download.metadata.LibraryRole.EXTENSION;
 
@@ -53,14 +61,15 @@ public class OracleDriverInterface implements DatabaseDriverInterface {
     private static final String OJDBC_PROVIDER_COMMON = "ojdbc-provider-common";
 
     @Override
-    public List<Element> discoverDriverPackages(List<Element> packageElements) {
+    public List<Element> discoverDriverPackages(List<Element> packageElements, @Nullable CloudConfigProviderFamily providerFamily) {
         try {
-            Set<String> declaredArtifacts = getDeclaredOracleProviderArtifacts(packageElements);
+            Set<String> declaredPackageIds = getDeclaredPackageIds(packageElements);
             return fetchOracleProviderArtifactIds()
                     .stream()
-                    .filter(artifactId -> !declaredArtifacts.contains(artifactId))
+                    .filter(artifactId -> matchesProviderFamily(artifactId, providerFamily))
                     .map(this::createOracleProviderPackageElement)
                     .filter(Objects::nonNull)
+                    .filter(e -> !declaredPackageIds.contains(stringAttribute(e, "id")))
                     .toList();
         } catch (Throwable e) {
             log.warn("Oracle JDBC provider artifact discovery failed", e);
@@ -68,13 +77,10 @@ public class OracleDriverInterface implements DatabaseDriverInterface {
         }
     }
 
-    private Set<String> getDeclaredOracleProviderArtifacts(List<Element> packageElements) {
+    private Set<String> getDeclaredPackageIds(List<Element> packageElements) {
         return packageElements.stream()
-                .flatMap(e -> e.getChildren("library").stream())
-                .filter(e -> LATEST_VERSION.equalsIgnoreCase(stringAttribute(e, "version")))
-                .map(e -> stringAttribute(e, "artifact-id"))
+                .map(e -> stringAttribute(e, "id"))
                 .filter(Objects::nonNull)
-                .filter(OracleDriverInterface::isOracleProviderArtifact)
                 .collect(Collectors.toSet());
     }
 
@@ -101,7 +107,8 @@ public class OracleDriverInterface implements DatabaseDriverInterface {
 
     private Element createOracleProviderPackageElement(String artifactId) {
         try {
-            return createOracleProviderPackageElement(artifactId, fetchProviderDriverVersion(artifactId));
+            String providerVersion = fetchLatestProviderVersion(artifactId);
+            return createOracleProviderPackageElement(artifactId, fetchProviderDriverVersion(artifactId, providerVersion), providerVersion);
         } catch (Exception e) {
             log.warn("Oracle JDBC provider package discovery failed for artifact '{}'", artifactId, e);
             return null;
@@ -109,16 +116,32 @@ public class OracleDriverInterface implements DatabaseDriverInterface {
     }
 
     static Element createOracleProviderPackageElement(String artifactId, String driverVersion) {
+        return createOracleProviderPackageElement(artifactId, driverVersion, LATEST_VERSION);
+    }
+
+    static Element createOracleProviderPackageElement(String artifactId, String driverVersion, String providerVersion) {
         String providerId = stripOracleProviderPrefix(artifactId);
         String providerName = toProviderName(providerId);
+        boolean latestProvider = LATEST_VERSION.equalsIgnoreCase(providerVersion);
 
         Element packageElement = new Element("driver-package");
         packageElement.setAttribute("database-type", "Oracle");
-        packageElement.setAttribute("id", "ojdbc-%s-" + providerId + "-%s");
-        packageElement.setAttribute("name", "Oracle %s + " + providerName + " auth %s");
+        packageElement.setAttribute("cloud-config-provider-family", getProviderFamily(artifactId).name());
+        packageElement.setAttribute("id", latestProvider ? "ojdbc-%s-" + providerId + "-%s" : getProviderPackageId(providerId, driverVersion, providerVersion));
+        packageElement.setAttribute("name", latestProvider ? "Oracle %s + " + providerName + " auth %s" : "Oracle " + driverVersion + " + " + providerName + " auth " + providerVersion);
         packageElement.addContent(createOracleDriverLibraryElement(driverVersion));
-        packageElement.addContent(createOracleProviderLibraryElement(artifactId));
+        packageElement.addContent(createOracleProviderLibraryElement(artifactId, providerVersion));
         return packageElement;
+    }
+
+    private static String getProviderPackageId(String providerId, String driverVersion, String providerVersion) {
+        return "ojdbc-" + shortenVersion(driverVersion) + "-" + providerId + "-" + providerVersion;
+    }
+
+    private static String shortenVersion(String version) {
+        String[] splitVersion = version.split("\\.");
+        if (splitVersion.length <= 3) return version;
+        return String.join(".", java.util.Arrays.copyOfRange(splitVersion, 0, 3));
     }
 
     private static Element createOracleDriverLibraryElement(String version) {
@@ -127,15 +150,14 @@ public class OracleDriverInterface implements DatabaseDriverInterface {
         libraryElement.setAttribute("group-id", ORACLE_JDBC_GROUP_ID);
         libraryElement.setAttribute("version", version);
         libraryElement.setAttribute("role", DRIVER.name());
-        libraryElement.setAttribute("type", "jar");
         return libraryElement;
     }
 
-    private static Element createOracleProviderLibraryElement(String artifactId) {
+    private static Element createOracleProviderLibraryElement(String artifactId, String version) {
         Element libraryElement = new Element("library");
         libraryElement.setAttribute("artifact-id", artifactId);
         libraryElement.setAttribute("group-id", ORACLE_JDBC_GROUP_ID);
-        libraryElement.setAttribute("version", LATEST_VERSION);
+        libraryElement.setAttribute("version", version);
         libraryElement.setAttribute("role", EXTENSION.name());
         libraryElement.setAttribute("type", "jar");
         return libraryElement;
@@ -143,6 +165,21 @@ public class OracleDriverInterface implements DatabaseDriverInterface {
 
     private static boolean isOracleProviderArtifact(String artifactId) {
         return artifactId.startsWith(OJDBC_PROVIDER_PREFIX);
+    }
+
+    private static boolean matchesProviderFamily(String artifactId, @Nullable CloudConfigProviderFamily providerFamily) {
+        return providerFamily == null || providerFamily == getProviderFamily(artifactId);
+    }
+
+    private static CloudConfigProviderFamily getProviderFamily(String artifactId) {
+        return switch (stripOracleProviderPrefix(artifactId)) {
+            case "aws" -> AWS;
+            case "azure" -> AZURE;
+            case "gcp" -> GCP;
+            case "hashicorp" -> HASHICORP;
+            case "oci" -> OCI;
+            default -> GENERIC;
+        };
     }
 
     private static String stripOracleProviderPrefix(String artifactId) {
@@ -158,9 +195,8 @@ public class OracleDriverInterface implements DatabaseDriverInterface {
                 .replaceAll(match -> match.group(1).replace("-", " ") + match.group(2).toUpperCase());
     }
 
-    private static String fetchProviderDriverVersion(String artifactId) {
+    private static String fetchProviderDriverVersion(String artifactId, String providerVersion) {
         try {
-            String providerVersion = fetchLatestProviderVersion(artifactId);
             String parentVersion = fetchProviderParentVersion(artifactId, providerVersion);
             return fetchParentDriverVersion(parentVersion);
         } catch (Exception e) {

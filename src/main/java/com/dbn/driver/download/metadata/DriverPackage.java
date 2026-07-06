@@ -18,10 +18,12 @@ package com.dbn.driver.download.metadata;
 
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.connection.DatabaseType;
+import com.dbn.connection.config.provider.CloudConfigProviderFamily;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +60,7 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
     private String id;
     private String name;
     private DatabaseType databaseType;
+    private CloudConfigProviderFamily cloudConfigProviderFamily = CloudConfigProviderFamily.GENERIC;
     private List<Library> libraries = new ArrayList<>();
     private boolean obsolete;
     private boolean latest;
@@ -84,6 +87,10 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
 
     public boolean matches(DatabaseType databaseType) {
         return this.databaseType == databaseType || databaseType == DatabaseType.GENERIC;
+    }
+
+    public boolean matches(@Nullable CloudConfigProviderFamily providerFamily) {
+        return providerFamily == null || cloudConfigProviderFamily == providerFamily;
     }
 
     @Override
@@ -131,6 +138,8 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
     public void readState(Element element) {
         this.name = stringAttribute(element, "name");
         this.databaseType = enumAttribute(element, "database-type", DatabaseType.class);
+        this.cloudConfigProviderFamily = enumAttribute(element, "cloud-config-provider-family", CloudConfigProviderFamily.class);
+        if (cloudConfigProviderFamily == null) cloudConfigProviderFamily = CloudConfigProviderFamily.GENERIC;
         this.latest = booleanAttribute(element, "latest", false);
         for (Element libraryElement : childrenOf(element, "library")) {
             Library library = new Library();
@@ -144,6 +153,9 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
         setStringAttribute(element, "id", id);
         setStringAttribute(element, "name", name);
         setEnumAttribute(element, "database-type", databaseType);
+        if (cloudConfigProviderFamily != CloudConfigProviderFamily.GENERIC) {
+            setEnumAttribute(element, "cloud-config-provider-family", cloudConfigProviderFamily);
+        }
         if (latest) setBooleanAttribute(element, "latest", true);
         for (Library library : libraries) {
             Element libraryElement = newElement(element, "library");
