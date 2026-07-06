@@ -26,8 +26,10 @@ import com.dbn.common.content.DynamicContentProperty;
 import com.dbn.common.content.DynamicContentType;
 import com.dbn.common.content.GroupedDynamicContent;
 import com.dbn.common.content.dependency.ContentDependencyAdapter;
+import com.dbn.common.content.dependency.VoidContentDependencyAdapter;
 import com.dbn.common.content.loader.DynamicContentLoader;
 import com.dbn.common.content.loader.DynamicContentLoaderImpl;
+import com.dbn.common.dispose.AlreadyDisposedException;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.filter.CompositeFilter;
@@ -93,6 +95,7 @@ import static com.dbn.common.search.Search.comboSearch;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Titles.titleCased;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
@@ -103,6 +106,7 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
     private static final WeakRefCache<DBObjectList, ObjectQuickFilter> quickFilterCache = WeakRefCache.weakKey();
 
     private final DBObjectType objectType;
+    private final DBObjectRef<DBObject> parent;
 
     DBObjectListImpl(
             @NotNull DBObjectType objectType,
@@ -111,11 +115,17 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
             DynamicContentProperty... properties) {
         super(parent, dependencyAdapter, properties);
         this.objectType = objectType;
+        this.parent = parent instanceof DBObject object ? DBObjectRef.of(object) : null;
         if ((parent instanceof DBSchema || parent instanceof DBObjectBundle) && !isInternal()) {
             ObjectQuickFilterManager quickFilterManager = ObjectQuickFilterManager.getInstance(getProject());
             quickFilterManager.restoreQuickFilter(this);
         }
     }
+
+    public static <T extends DBObject> DBObjectListImpl<T> empty(DBObjectType objectType, DBObject parent) {
+        return new DBObjectListImpl<>(objectType, parent, VoidContentDependencyAdapter.INSTANCE);
+    }
+
 
     @Override
     public DynamicContentLoader<T, DBObjectMetadata> getLoader() {
@@ -180,6 +190,27 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
     @NotNull
     public List<T> getObjects() {
         return getAllElements();
+    }
+
+    @Override
+    public List<T> getElements() {
+        try {
+            return super.getElements();
+        } catch (AlreadyDisposedException e) {
+            conditionallyLog(e);
+            return getFallbackElements();
+        }
+    }
+
+    private List<T> getFallbackElements() {
+        DBObject parent = DBObjectRef.get(this.parent);
+        if (parent == null) return emptyList();
+
+        DBObjectList<T> objectList = parent.getChildObjectList(objectType);
+        if (objectList == null) return emptyList();
+        if (objectList.isDisposed()) return emptyList();
+
+        return objectList.getElements();
     }
 
     @NotNull

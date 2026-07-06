@@ -64,4 +64,5 @@ public interface DBObjectList<T extends DBObject> extends BrowserTreeNode, Dynam
     boolean contains(T object);
 
     String getTitleCasedName();
+
 }
