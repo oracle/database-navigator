@@ -34,7 +34,6 @@ import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ElementLookupContext;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.BasePsiElement;
-import com.dbn.language.common.psi.PsiElementVisitors;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.common.psi.lookup.LookupAdapters;
 import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
@@ -55,7 +54,6 @@ import com.intellij.injected.editor.VirtualFileWindow;
 import com.intellij.lang.Language;
 import com.intellij.lang.LanguageParserDefinitions;
 import com.intellij.lang.ParserDefinition;
-import com.intellij.lang.injection.InjectedLanguageManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
@@ -71,9 +69,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.SingleRootFileViewProvider;
 import com.intellij.psi.impl.source.PsiFileImpl;
 import com.intellij.psi.tree.IFileElementType;
-import com.intellij.spellchecker.inspections.SpellCheckingInspection;
 import com.intellij.testFramework.LightVirtualFile;
-import com.maddyhome.idea.copyright.actions.UpdateCopyrightAction;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
@@ -89,15 +85,10 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.file.util.VirtualFiles.getUnderlyingFile;
 import static com.dbn.common.util.Documents.getDocument;
 import static com.dbn.common.util.Documents.getEditors;
+import static com.dbn.language.common.psi.PsiUtil.SUPPORTED_VISITORS;
 import static com.dbn.vfs.DBParseableVirtualFile.PARSE_ROOT_ID_KEY;
 
 public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseContextBase, Presentable, StatefulDisposable, UnlistedDisposable {
-    // TODO: check if any other visitor relevant
-    public static final PsiElementVisitors visitors = PsiElementVisitors.create(
-            SpellCheckingInspection.class.getSimpleName(),
-            InjectedLanguageManager.class.getSimpleName(),
-            UpdateCopyrightAction.class.getSimpleName());
-
     private final Language language;
     private final DBLanguageFileType fileType;
     private DBObjectRef<DBSchemaObject> underlyingObject;
@@ -191,7 +182,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
 
     @Override
     public void accept(PsiElementVisitor visitor) {
-        if (visitors.isSupported(visitor)) {
+        if (SUPPORTED_VISITORS.isSupported(visitor)) {
             visitor.visitFile(this);
         }
     }

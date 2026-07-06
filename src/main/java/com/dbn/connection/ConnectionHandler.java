@@ -111,6 +111,12 @@ public interface ConnectionHandler extends StatefulDisposable, EnvironmentTypePr
 
     void closeConnection(DBNConnection connection);
 
+    default void closeAllConnections() {
+        for (DBNConnection connection : getConnections()) {
+            closeConnection(connection);
+        }
+    }
+
     void freePoolConnection(DBNConnection connection);
 
     @NotNull

@@ -23,6 +23,7 @@ import com.dbn.database.common.metadata.impl.DBAIProfileMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBArgumentMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBCharsetMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBClusterMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBColumnColumnMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBColumnMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBConstraintColumnMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBConstraintMetadataImpl;
@@ -140,6 +141,7 @@ public class DBObjectMetadataFactory {
         return switch (relationType) {
             case INDEX_COLUMN -> new DBIndexColumnMetadataImpl(resultSet);
             case CONSTRAINT_COLUMN -> new DBConstraintColumnMetadataImpl(resultSet);
+            case COLUMN_COLUMN -> new DBColumnColumnMetadataImpl(resultSet);
             case JSON_VIEW_TABLE -> new DBJsonViewTableMetadataImpl(resultSet);
             case USER_ROLE -> new DBGrantedRoleMetadataImpl(resultSet);
             case USER_PRIVILEGE -> new DBGrantedPrivilegeMetadataImpl(resultSet);

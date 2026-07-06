@@ -442,6 +442,28 @@ public class GenericMetadataTranslators {
     }
 
     /**
+     * Metadata translation for FOREIGN KEY COLUMN relations.
+     */
+    public static class ColumnColumnRelationsResultSet extends WrappedCachedResultSet {
+        public ColumnColumnRelationsResultSet(@Nullable CachedResultSet inner) {
+            super(inner);
+        }
+
+        @Override
+        public String getString(String columnLabel) throws SQLException {
+            return switch (columnLabel) {
+                case "SOURCE_SCHEMA_NAME" -> resolveOwner(inner, "FKTABLE_CAT", "FKTABLE_SCHEM");
+                case "SOURCE_DATASET_NAME" -> inner.getString("FKTABLE_NAME");
+                case "SOURCE_COLUMN_NAME" -> inner.getString("FKCOLUMN_NAME");
+                case "TARGET_SCHEMA_NAME" -> resolveOwner(inner, "PKTABLE_CAT", "PKTABLE_SCHEM");
+                case "TARGET_DATASET_NAME" -> inner.getString("PKTABLE_NAME");
+                case "TARGET_COLUMN_NAME" -> inner.getString("PKCOLUMN_NAME");
+                default -> null;
+            };
+        }
+    }
+
+    /**
      * Metadata translation for PROCEDURES and FUNCTIONS
      *  - from {@link java.sql.DatabaseMetaData#getProcedures(String, String, String)}
      *     and {@link java.sql.DatabaseMetaData#getFunctions(String, String, String)}
