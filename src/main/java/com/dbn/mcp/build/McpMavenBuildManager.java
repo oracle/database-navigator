@@ -17,12 +17,15 @@
 package com.dbn.mcp.build;
 
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.thread.Read;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.process.ProcessListener;
 import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.ProjectJdkTable;
+import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.util.Key;
 import com.intellij.util.Consumer;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +41,9 @@ import org.jetbrains.idea.maven.server.MavenDistributionsCache;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -97,10 +102,6 @@ public class McpMavenBuildManager extends ProjectComponentBase {
                 List.of());
 
         StringBuilder output = new StringBuilder();
-        Consumer<String> capture = line -> {
-            output.append(line).append('\n');
-            if (outputHandler != null) outputHandler.consume(line);
-        };
 
         AtomicReference<ProcessHandler> processRef = new AtomicReference<>();
         AtomicInteger exitCode = new AtomicInteger(Integer.MIN_VALUE);
@@ -112,13 +113,22 @@ public class McpMavenBuildManager extends ProjectComponentBase {
                 @Override
                 public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
                     String text = event.getText();
-                    if (text == null || text.isBlank()) return;
-                    String source =
-                            outputType == ProcessOutputTypes.STDERR ? "STDERR" :
-                            outputType == ProcessOutputTypes.STDOUT ? "STDOUT" : "SYSTEM";
-                    for (String line : text.split("\\R")) {
-                        if (!line.isBlank()) {
-                            capture.consume("[" + source + "] " + line);
+                    if (text == null || text.isEmpty()) return;
+
+                    // append verbatim: the console emits sub-line fragments, raw concatenation
+                    // reconstructs the true line structure of the Maven output
+                    synchronized (output) {
+                        output.append(text);
+                    }
+
+                    if (outputHandler != null && !text.isBlank()) {
+                        String source =
+                                outputType == ProcessOutputTypes.STDERR ? "STDERR" :
+                                outputType == ProcessOutputTypes.STDOUT ? "STDOUT" : "SYSTEM";
+                        for (String line : text.split("\\R")) {
+                            if (!line.isBlank()) {
+                                outputHandler.consume("[" + source + "] " + line);
+                            }
                         }
                     }
                 }
@@ -143,6 +153,7 @@ public class McpMavenBuildManager extends ProjectComponentBase {
         MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(project);
         MavenGeneralSettings generalSettings = projectsManager.getGeneralSettings().clone();
         MavenRunnerSettings runnerSettings = MavenRunner.getInstance(project).getSettings().clone();
+        alignToolchainEnvironment(runnerSettings);
         boolean success = MavenRunner.getInstance(project).runBatch(
                 List.of(parameters),
                 generalSettings,
@@ -159,11 +170,30 @@ public class McpMavenBuildManager extends ProjectComponentBase {
         waitForCompletion(indicator, processRef, finished, exitCode, distribution, output);
         if (exitCode.get() != 0) {
             String errors = output.toString().lines()
-                    .filter(line -> line.contains("ERROR") || line.contains("error:"))
+                    .filter(line -> line.contains("[ERROR]") || line.contains("error:"))
                     .collect(Collectors.joining("\n"));
             log.error("Maven build output:\n{}", output);
             throw new IllegalStateException(txt("msg.mcp.exception.MavenBuildFailed", errors.isBlank() ? output.toString() : errors));
         }
+    }
+
+    /**
+     * Build plugins like native-maven-plugin resolve their toolchain from GRAALVM_HOME/JAVA_HOME
+     * rather than from the JVM running Maven. Align those variables with the configured runner
+     * JRE so the build does not silently pick up whatever the IDE process inherited from the shell.
+     */
+    private static void alignToolchainEnvironment(MavenRunnerSettings runnerSettings) {
+        String jreName = runnerSettings.getJreName();
+        if (jreName.startsWith("#")) return; // environment-based JRE macros: keep inherited environment
+
+        Sdk sdk = Read.call(() -> ProjectJdkTable.getInstance().findJdk(jreName));
+        String jdkHome = sdk == null ? null : sdk.getHomePath();
+        if (jdkHome == null) return;
+
+        Map<String, String> environment = new HashMap<>(runnerSettings.getEnvironmentProperties());
+        environment.put("JAVA_HOME", jdkHome);
+        environment.put("GRAALVM_HOME", jdkHome);
+        runnerSettings.setEnvironmentProperties(environment);
     }
 
     private static void waitForCompletion(
