@@ -97,6 +97,79 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="json-views">
+        <statement>
+            select
+                TABLE_NAME as VIEW_NAME,
+                null as VIEW_TYPE_OWNER,
+                null as VIEW_TYPE,
+                TABLE_COMMENT as COMMENTS,
+                TABLE_SCHEMA as ROOT_TABLE_OWNER,
+                TABLE_NAME as ROOT_TABLE_NAME,
+                null as JSON_COLUMN_NAME,
+                'N' as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE,
+                'Y' as IS_VALID,
+                'N' as IS_READONLY,
+                'Y' as IS_INSERT_ALLOWED,
+                'Y' as IS_UPDATE_ALLOWED,
+                'Y' as IS_DELETE_ALLOWED,
+                null as JSON_SCHEMA,
+                null as KEY_ATTRIBUTE_NAMES
+            from information_schema.TABLES
+            where
+                TABLE_SCHEMA = {#0} and
+                TABLE_TYPE in ('JSON DUALITY VIEW', 'JSON RELATIONAL DUALITY VIEW')
+            order by TABLE_NAME asc
+        </statement>
+        <statement>
+            select
+                null as VIEW_NAME,
+                null as VIEW_TYPE_OWNER,
+                null as VIEW_TYPE,
+                null as COMMENTS,
+                null as ROOT_TABLE_OWNER,
+                null as ROOT_TABLE_NAME,
+                null as JSON_COLUMN_NAME,
+                'N' as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE,
+                'Y' as IS_VALID,
+                'N' as IS_READONLY,
+                'N' as IS_INSERT_ALLOWED,
+                'N' as IS_UPDATE_ALLOWED,
+                'N' as IS_DELETE_ALLOWED,
+                null as JSON_SCHEMA,
+                null as KEY_ATTRIBUTE_NAMES
+            where 1 = 2
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="json-view-table-relations">
+        <statement>
+            select
+                null as JSON_VIEW_NAME,
+                null as TABLE_OWNER_NAME,
+                null as TABLE_NAME,
+                null as `POSITION`,
+                'N' as IS_ROOT_TABLE,
+                'N' as IS_READONLY
+            where 1 = 2
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="all-json-view-table-relations">
+        <statement>
+            select
+                null as JSON_VIEW_NAME,
+                null as TABLE_OWNER_NAME,
+                null as TABLE_NAME,
+                null as `POSITION`,
+                'N' as IS_ROOT_TABLE,
+                'N' as IS_READONLY
+            where 1 = 2
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="dataset-columns">
         <!--<statement>
             select

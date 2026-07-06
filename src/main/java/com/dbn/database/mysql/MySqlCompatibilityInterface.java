@@ -55,6 +55,7 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
                 DatabaseObjectTypeId.SCHEMA,
                 DatabaseObjectTypeId.TABLE,
                 DatabaseObjectTypeId.VIEW,
+                DatabaseObjectTypeId.JSON_VIEW,
                 DatabaseObjectTypeId.COLUMN,
                 DatabaseObjectTypeId.CONSTRAINT,
                 DatabaseObjectTypeId.INDEX,
