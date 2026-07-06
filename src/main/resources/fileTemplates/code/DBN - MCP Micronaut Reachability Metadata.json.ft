@@ -1,0 +1,372 @@
+{
+  "reflection": [
+    {
+      "type": "apple.security.AppleProvider",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {"type": "boolean[]"},
+    {"type": "byte[]"},
+    {"type": "char[]"},
+    {
+      "type": "ch.qos.logback.core.ConsoleAppender",
+      "methods": [{"name": "setTarget", "parameterTypes": ["java.lang.String"]}]
+    },
+    {
+      "type": "com.sun.crypto.provider.AESCipher$General",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "com.sun.crypto.provider.ARCFOURCipher",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "com.sun.crypto.provider.ChaCha20Cipher$ChaCha20Poly1305",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "com.sun.crypto.provider.DESCipher",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "com.sun.crypto.provider.DESedeCipher",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "com.sun.crypto.provider.DHParameters",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "com.sun.crypto.provider.GaloisCounterMode$AESGCM",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "com.sun.crypto.provider.HKDFKeyDerivation$HKDFSHA256",
+      "methods": [{"name": "<init>", "parameterTypes": ["javax.crypto.KDFParameters"]}]
+    },
+    {
+      "type": "com.sun.crypto.provider.HmacCore$HmacSHA256",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "com.sun.crypto.provider.HmacCore$HmacSHA512",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "com.sun.crypto.provider.HmacSHA1",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "com.sun.crypto.provider.PBKDF2Core$HmacSHA256",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "com.sun.crypto.provider.PBKDF2Core$HmacSHA512",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "com.sun.crypto.provider.TlsMasterSecretGenerator",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {"type": "com.sun.management.GarbageCollectorMXBean"},
+    {"type": "com.sun.management.GcInfo"},
+    {"type": "com.sun.management.HotSpotDiagnosticMXBean"},
+    {"type": "com.sun.management.ThreadMXBean"},
+    {"type": "com.sun.management.UnixOperatingSystemMXBean"},
+    {"type": "com.sun.management.VMOption"},
+    {
+      "type": "com.sun.management.internal.DiagnosticCommandArgumentInfo",
+      "jniAccessible": true,
+      "methods": [{"name": "<init>", "parameterTypes": ["java.lang.String", "java.lang.String", "java.lang.String", "java.lang.String", "boolean", "boolean", "boolean", "int"]}]
+    },
+    {"type": "com.sun.management.internal.DiagnosticCommandArgumentInfo[]"},
+    {
+      "type": "com.sun.management.internal.DiagnosticCommandInfo",
+      "jniAccessible": true,
+      "methods": [{"name": "<init>", "parameterTypes": ["java.lang.String", "java.lang.String", "java.lang.String", "boolean", "java.util.List"]}]
+    },
+    {"type": "com.sun.management.internal.DiagnosticCommandInfo[]"},
+    {"type": "com.sun.management.internal.GarbageCollectorExtImpl"},
+    {"type": "com.sun.management.internal.HotSpotDiagnostic"},
+    {"type": "com.sun.management.internal.HotSpotThreadImpl"},
+    {"type": "com.sun.management.internal.OperatingSystemImpl"},
+    {"type": "com.sun.management.internal.VirtualThreadSchedulerImpls$VirtualThreadSchedulerImpl"},
+    {"type": "double[]"},
+    {"type": "float[]"},
+    {"type": "int[]", "serializable": true},
+    {"type": "int[][]", "serializable": true},
+    {
+      "type": "java.lang.Boolean",
+      "jniAccessible": true,
+      "fields": [{"name": "TYPE"}],
+      "methods": [{"name": "getBoolean", "parameterTypes": ["java.lang.String"]}]
+    },
+    {"type": "java.lang.Byte", "fields": [{"name": "TYPE"}]},
+    {"type": "java.lang.Character", "fields": [{"name": "TYPE"}]},
+    {"type": "java.lang.Deprecated"},
+    {"type": "java.lang.Double", "fields": [{"name": "TYPE"}]},
+    {"type": "java.lang.Float", "fields": [{"name": "TYPE"}]},
+    {"type": "java.lang.Integer", "fields": [{"name": "TYPE"}]},
+    {"type": "java.lang.Long", "fields": [{"name": "TYPE"}]},
+    {"type": "java.lang.Short", "fields": [{"name": "TYPE"}]},
+    {"type": "java.lang.StackTraceElement"},
+    {"type": "java.lang.String"},
+    {"type": "java.lang.String[]"},
+    {"type": "java.lang.Void", "fields": [{"name": "TYPE"}]},
+    {"type": "java.lang.management.BufferPoolMXBean"},
+    {"type": "java.lang.management.ClassLoadingMXBean"},
+    {"type": "java.lang.management.CompilationMXBean"},
+    {"type": "java.lang.management.LockInfo"},
+    {"type": "java.lang.management.MemoryMXBean"},
+    {"type": "java.lang.management.MemoryManagerMXBean"},
+    {"type": "java.lang.management.MemoryPoolMXBean"},
+    {"type": "java.lang.management.MemoryUsage"},
+    {"type": "java.lang.management.MonitorInfo"},
+    {"type": "java.lang.management.PlatformLoggingMXBean"},
+    {"type": "java.lang.management.RuntimeMXBean"},
+    {"type": "java.lang.management.ThreadInfo"},
+    {"type": "java.math.BigDecimal"},
+    {"type": "java.math.BigInteger"},
+    {"type": "java.security.AlgorithmParametersSpi"},
+    {"type": "java.security.KeyStoreSpi"},
+    {"type": "java.security.interfaces.ECPrivateKey"},
+    {"type": "java.security.interfaces.ECPublicKey"},
+    {"type": "java.security.interfaces.RSAPrivateKey"},
+    {"type": "java.security.interfaces.RSAPublicKey"},
+    {
+      "type": "java.util.Arrays",
+      "jniAccessible": true,
+      "methods": [{"name": "asList", "parameterTypes": ["java.lang.Object[]"]}]
+    },
+    {"type": "java.util.Date"},
+    {"type": "javax.management.MBeanOperationInfo"},
+    {
+      "type": "javax.management.MBeanServerBuilder",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {"type": "javax.management.MXBean"},
+    {"type": "javax.management.ObjectName"},
+    {"type": "javax.management.StandardEmitterMBean"},
+    {"type": "javax.management.openmbean.CompositeData"},
+    {"type": "javax.management.openmbean.CompositeData[]"},
+    {"type": "javax.management.openmbean.OpenMBeanOperationInfoSupport"},
+    {"type": "javax.management.openmbean.TabularData"},
+    {"type": "javax.net.ssl.KeyManagerFactory"},
+    {"type": "javax.net.ssl.TrustManagerFactory"},
+    {"type": "javax.security.auth.kerberos.KerberosCredMessage"},
+    {"type": "jdk.management.VirtualThreadSchedulerMXBean"},
+    {"type": "jdk.management.jfr.ConfigurationInfo"},
+    {"type": "jdk.management.jfr.EventTypeInfo"},
+    {"type": "jdk.management.jfr.FlightRecorderMXBean"},
+    {"type": "jdk.management.jfr.FlightRecorderMXBeanImpl"},
+    {"type": "jdk.management.jfr.RecordingInfo"},
+    {"type": "jdk.management.jfr.SettingDescriptorInfo"},
+    {"type": "long[]"},
+    {"type": "oracle.jdbc.OracleDriver"},
+    {"type": "oracle.jdbc.diagnostics.DiagnosticsMXBean"},
+    {"type": "oracle.jdbc.diagnostics.OracleDiagnosticsMXBean"},
+    {"type": "oracle.jdbc.driver.DefaultJsonProvider"},
+    {
+      "type": "oracle.jdbc.driver.LiveDMSFactory",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "oracle.jdbc.driver.T4CDriverExtension",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "oracle.net.ano.AuthenticationService",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "oracle.net.ano.DataIntegrityService",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "oracle.net.ano.EncryptionService",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "oracle.net.ano.SupervisorService",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {"type": "oracle.security.pki.OracleWallet"},
+    {"type": "oracle.sql.AnyDataFactory"},
+    {"type": "oracle.sql.TypeDescriptorFactory"},
+    {"type": "oracle.sql.converter.CharacterConverter1Byte", "serializable": true},
+    {"type": "oracle.sql.converter.CharacterConverterJDBC", "serializable": true},
+    {"type": "short[]"},
+    {"type": "sun.management.ClassLoadingImpl"},
+    {"type": "sun.management.CompilationImpl"},
+    {"type": "sun.management.ManagementFactoryHelper$1"},
+    {"type": "sun.management.ManagementFactoryHelper$PlatformLoggingImpl"},
+    {"type": "sun.management.MemoryImpl"},
+    {"type": "sun.management.MemoryManagerImpl"},
+    {"type": "sun.management.MemoryPoolImpl"},
+    {"type": "sun.management.RuntimeImpl"},
+    {
+      "type": "sun.management.VMManagementImpl",
+      "jniAccessible": true,
+      "fields": [
+        {"name": "compTimeMonitoringSupport"},
+        {"name": "currentThreadCpuTimeSupport"},
+        {"name": "objectMonitorUsageSupport"},
+        {"name": "otherThreadCpuTimeSupport"},
+        {"name": "remoteDiagnosticCommandsSupport"},
+        {"name": "synchronizerUsageSupport"},
+        {"name": "threadAllocatedMemorySupport"},
+        {"name": "threadContentionMonitoringSupport"}
+      ]
+    },
+    {"type": "sun.security.krb5.internal.APReq"},
+    {
+      "type": "sun.security.pkcs12.PKCS12KeyStore",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.pkcs12.PKCS12KeyStore$DualFormatPKCS12",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.provider.DSA$SHA224withDSA",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.provider.DSA$SHA256withDSA",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.provider.MD5",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.provider.NativePRNG",
+      "methods": [{"name": "<init>", "parameterTypes": ["java.security.SecureRandomParameters"]}]
+    },
+    {
+      "type": "sun.security.provider.SHA",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.provider.SHA2$SHA224",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.provider.SHA2$SHA256",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.provider.SHA5$SHA384",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.provider.SHA5$SHA512",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.provider.X509Factory",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.provider.certpath.PKIXCertPathValidator",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.rsa.PSSParameters",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.rsa.RSAKeyFactory$Legacy",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.rsa.RSAPSSSignature",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.rsa.RSASignature$SHA224withRSA",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.rsa.RSASignature$SHA256withRSA",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.ssl.SSLContextImpl$TLSContext",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.ssl.TrustManagerFactoryImpl$PKIXFactory",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    },
+    {
+      "type": "sun.security.x509.AuthorityInfoAccessExtension",
+      "methods": [{"name": "<init>", "parameterTypes": ["java.lang.Boolean", "java.lang.Object"]}]
+    },
+    {
+      "type": "sun.security.x509.AuthorityKeyIdentifierExtension",
+      "methods": [{"name": "<init>", "parameterTypes": ["java.lang.Boolean", "java.lang.Object"]}]
+    },
+    {
+      "type": "sun.security.x509.BasicConstraintsExtension",
+      "methods": [{"name": "<init>", "parameterTypes": ["java.lang.Boolean", "java.lang.Object"]}]
+    },
+    {
+      "type": "sun.security.x509.CRLDistributionPointsExtension",
+      "methods": [{"name": "<init>", "parameterTypes": ["java.lang.Boolean", "java.lang.Object"]}]
+    },
+    {
+      "type": "sun.security.x509.CertificatePoliciesExtension",
+      "methods": [{"name": "<init>", "parameterTypes": ["java.lang.Boolean", "java.lang.Object"]}]
+    },
+    {
+      "type": "sun.security.x509.ExtendedKeyUsageExtension",
+      "methods": [{"name": "<init>", "parameterTypes": ["java.lang.Boolean", "java.lang.Object"]}]
+    },
+    {
+      "type": "sun.security.x509.KeyUsageExtension",
+      "methods": [{"name": "<init>", "parameterTypes": ["java.lang.Boolean", "java.lang.Object"]}]
+    },
+    {
+      "type": "sun.security.x509.NetscapeCertTypeExtension",
+      "methods": [{"name": "<init>", "parameterTypes": ["java.lang.Boolean", "java.lang.Object"]}]
+    },
+    {
+      "type": "sun.security.x509.PrivateKeyUsageExtension",
+      "methods": [{"name": "<init>", "parameterTypes": ["java.lang.Boolean", "java.lang.Object"]}]
+    },
+    {
+      "type": "sun.security.x509.SubjectAlternativeNameExtension",
+      "methods": [{"name": "<init>", "parameterTypes": ["java.lang.Boolean", "java.lang.Object"]}]
+    },
+    {
+      "type": "sun.security.x509.SubjectKeyIdentifierExtension",
+      "methods": [{"name": "<init>", "parameterTypes": ["java.lang.Boolean", "java.lang.Object"]}]
+    },
+    {"type": "sun.text.resources.CollationData"},
+    {"type": "sun.text.resources.cldr.FormatData"},
+    {"type": "sun.text.resources.cldr.FormatData_en"},
+    {"type": "sun.util.resources.cldr.CalendarData"}
+  ],
+  "resources": [
+    {"glob": "META-INF/services/java.net.spi.InetAddressResolverProvider"},
+    {"glob": "META-INF/services/java.net.spi.URLStreamHandlerProvider"},
+    {"glob": "META-INF/services/java.nio.channels.spi.SelectorProvider"},
+    {"glob": "META-INF/services/java.sql.Driver"},
+    {"glob": "META-INF/services/java.time.zone.ZoneRulesProvider"},
+    {"glob": "META-INF/services/java.util.spi.ResourceBundleControlProvider"},
+    {"glob": "META-INF/services/oracle.jdbc.spi.JsonProvider"},
+    {"glob": "oracle/jdbc/defaultConnectionProperties.properties"},
+    {"glob": "oracle/jdbc/driver/*.properties"},
+    {"glob": "oracle/jdbc/driver/errorMap.xml"},
+    {"glob": "oracle/security/pki/resources/*.properties"},
+    {"glob": "oracle/sql/converter_xcharset/*.glb"},
+    {"module": "java.base", "glob": "jdk/internal/icu/impl/data/icudt76b/nfc.nrm"},
+    {"module": "java.base", "glob": "jdk/internal/icu/impl/data/icudt76b/nfkc.nrm"},
+    {"module": "java.base", "glob": "jdk/internal/icu/impl/data/icudt76b/uprops.icu"},
+    {"module": "java.base", "glob": "sun/net/idn/uidna.spp"},
+    {"module": "jdk.jfr", "glob": "jdk/jfr/internal/query/view.ini"},
+    {"bundle": "oracle.jdbc.driver.ErrorMessages"},
+    {"bundle": "oracle.jdbc.driver.Messages"},
+    {"bundle": "oracle.security.pki.resources.OraclePKIMsg"}
+  ]
+}

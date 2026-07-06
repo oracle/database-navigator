@@ -37,8 +37,9 @@ interface McpServerGenerator {
     static McpServerGenerator create(@NotNull Project project, @NotNull McpServerDefinition definition) {
         switch (definition.getImplementation()) {
             case STANDARD_JAVA: return new McpStandardJavaGenerator(project, definition);
+            case MICRONAUT_NATIVE: return new McpMicronautNativeGenerator(project, definition);
             default: throw new UnsupportedOperationException(
-                    "MCP server implementation not supported yet: " + definition.getImplementation());
+                    "MCP server implementation not supported: " + definition.getImplementation());
         }
     }
 
