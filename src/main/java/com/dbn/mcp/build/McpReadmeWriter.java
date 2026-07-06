@@ -36,7 +36,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 final class McpReadmeWriter {
-    private static final @NonNls String TEMPLATE = "DBN - MCP Server README";
+    private static final @NonNls String STANDARD_TEMPLATE = "DBN - MCP Server README";
+    private static final @NonNls String MICRONAUT_TEMPLATE = "DBN - MCP Micronaut README";
 
     private final Project project;
     private final McpServerDefinition definition;
@@ -56,9 +57,12 @@ final class McpReadmeWriter {
             @NonNls Map<String, Object> context = new LinkedHashMap<>();
             context.put("SERVER_NAME", serverName);
             context.put("JAR_NAME", serverName + ".jar");
+            context.put("EXECUTABLE_NAME", serverName);
             context.put("HTTP_PORT", httpPort);
             context.put("TOOLS", toolList);
-            String content = TemplateUtilities.generateCode(project, TEMPLATE, context);
+
+            String template = definition.getImplementation().isNative() ? MICRONAUT_TEMPLATE : STANDARD_TEMPLATE;
+            String content = TemplateUtilities.generateCode(project, template, context);
             Files.writeString(dir.resolve("README.md"), content, StandardCharsets.UTF_8);
         } catch (IOException e) {
             log.error("Failed to write README", e);

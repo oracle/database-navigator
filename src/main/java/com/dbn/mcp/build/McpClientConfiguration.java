@@ -28,16 +28,19 @@ import java.util.Map;
 final class McpClientConfiguration {
     private final McpServerDefinition definition;
 
-    String buildClaudeJson(String jar) {
+    String buildClaudeJson(String serverArtifact) {
         String command;
         List<String> args;
         if (definition.getTransportType().isHttp()) {
             command = "npx";
             String httpPort = definition.getHttpPort();
             args = List.of("-y", "mcp-remote", "http://127.0.0.1:" + httpPort + "/mcp");
+        } else if (definition.getImplementation().isNative()) {
+            command = serverArtifact;
+            args = List.of();
         } else {
             command = "java";
-            args = List.of("-jar", jar);
+            args = List.of("-jar", serverArtifact);
         }
         return buildCommandSnippetJson(definition.getServerName(), command, args);
     }

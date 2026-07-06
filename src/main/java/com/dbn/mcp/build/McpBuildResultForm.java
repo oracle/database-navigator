@@ -8,6 +8,7 @@ import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.components.JBTextArea;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
@@ -46,15 +47,20 @@ public class McpBuildResultForm extends DBNFormBase {
     }
 
     private JLabel createHeaderLabel() {
-        boolean httpTransport = isHttpTransport();
-        String headerHtml = txt(httpTransport ?
-                        "msg.mcp.text.BuildResultHttp" :
-                        "msg.mcp.text.BuildResultStdio",
+        String headerHtml = txt(resolveSummaryKey(),
                 escapeHtml(result.getServerJar().toString()),
                 escapeHtml(result.getConfigFile().toString()),
                 escapeHtml(result.getWalletDirectory().toString()),
                 escapeHtml(result.getSourceDirectory().toString()));
         return new JLabel(headerHtml);
+    }
+
+    private @NonNls String resolveSummaryKey() {
+        boolean httpTransport = isHttpTransport();
+        if (definition.getImplementation().isNative()) {
+            return httpTransport ? "msg.mcp.text.BuildResultNativeHttp" : "msg.mcp.text.BuildResultNativeStdio";
+        }
+        return httpTransport ? "msg.mcp.text.BuildResultHttp" : "msg.mcp.text.BuildResultStdio";
     }
 
     private boolean isHttpTransport() {
