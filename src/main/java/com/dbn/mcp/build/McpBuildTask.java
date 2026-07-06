@@ -72,6 +72,11 @@ public class McpBuildTask {
         indicator.setText2(txt("prc.mcp.text.VerifyingMavenAvailability"));
         verifyMavenAvailability(project);
 
+        if (definition.getImplementation().isNative()) {
+            indicator.setText2(txt("prc.mcp.text.VerifyingGraalVmAvailability"));
+            McpGraalVmSupport.verifyGraalVmAvailability(project);
+        }
+
         indicator.setText2(txt("prc.mcp.text.VerifyingProjectJavaVersion"));
         verifyJavaVersion(project);
 
@@ -239,7 +244,10 @@ public class McpBuildTask {
                 showResult();
             } catch (Throwable e) {
                 conditionallyLog(e);
-                showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), txt("msg.mcp.error.McpServerBuildFailed"), e);
+                String message = definition.getImplementation().isNative()
+                        ? txt("msg.mcp.error.NativeServerBuildFailed")
+                        : txt("msg.mcp.error.McpServerBuildFailed");
+                showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), message, e);
                 onBuildFailure.run();
             }
         });
