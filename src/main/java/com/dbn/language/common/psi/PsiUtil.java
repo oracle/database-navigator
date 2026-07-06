@@ -52,6 +52,15 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Unsafe.cast;
 
 public class PsiUtil {
+    // TODO: check if any other visitor relevant
+    public static final PsiElementVisitors SUPPORTED_VISITORS = PsiElementVisitors.create(
+            //com.intellij.spellchecker.inspections.SpellCheckingInspection;
+            //com.maddyhome.idea.copyright.actions.UpdateCopyrightAction;
+            //com.dbn.diagnostics.data.ParserDiagnosticsUtil;
+            "SpellCheckingInspection",
+            "ParserDiagnosticsUtil",
+            "UpdateCopyrightAction");
+
 
     public static DBSchema getDatabaseSchema(PsiElement psiElement) {
         DBSchema currentSchema = null;
