@@ -59,7 +59,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
  * <driver-packages>
  *     <driver-package id="oracle-23.3-standard" name="Oracle 23.3" database-type="ORACLE">
  *         <library group-id="javax.resource" artifact-id="connector-api" version="1.5"/>
- *         <library group-id="oracle.jdbc" artifact-id="ojdbc8" version="23.3.0.23.09"/>
+ *         <library group-id="oracle.jdbc" artifact-id="ojdbc17" version="23.3.0.23.09"/>
  *     </driver-package>
  *     <driver-package id="mysql-8.0-standard" name="MySQL 8.0.33" database-type="MYSQL">
  *         <library group-id="mysql" artifact-id="mysql-connector-j" version="8.0.33"/>

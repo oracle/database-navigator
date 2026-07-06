@@ -42,7 +42,7 @@ public class OracleDriverInterfaceTest {
         Assert.assertEquals("ojdbc-%s-aws-%s", packageElement.getAttributeValue("id"));
         Assert.assertEquals("Oracle %s + Aws auth %s", packageElement.getAttributeValue("name"));
         Assert.assertEquals(2, libraries.size());
-        assertLibrary(libraries.get(0), "ojdbc8", DRIVER_VERSION, "DRIVER", null);
+        assertLibrary(libraries.get(0), "ojdbc17", DRIVER_VERSION, "DRIVER", null);
         assertLibrary(libraries.get(1), "ojdbc-provider-aws", "latest", "EXTENSION", "jar");
     }
 

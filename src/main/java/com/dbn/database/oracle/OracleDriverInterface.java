@@ -55,7 +55,7 @@ import static com.dbn.driver.download.metadata.LibraryRole.EXTENSION;
 public class OracleDriverInterface implements DatabaseDriverInterface {
     private static final String LATEST_VERSION = "latest";
     private static final String ORACLE_JDBC_GROUP_ID = "com.oracle.database.jdbc";
-    private static final String ORACLE_DRIVER_ARTIFACT_ID = "ojdbc8";
+    private static final String ORACLE_DRIVER_ARTIFACT_ID = "ojdbc17";
     private static final String ORACLE_PROVIDER_PARENT_ARTIFACT_ID = "ojdbc-extensions";
     private static final String OJDBC_PROVIDER_PREFIX = "ojdbc-provider-";
     private static final String OJDBC_PROVIDER_COMMON = "ojdbc-provider-common";
