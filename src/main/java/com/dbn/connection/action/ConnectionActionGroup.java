@@ -50,6 +50,7 @@ public class ConnectionActionGroup extends AbstractConnectionActionGroup {
         add(new MiscellaneousConnectionAction(connection));
         addSeparator();
         add(new DatabaseInformationOpenAction(connection));
+        add(new ConnectionPasswordChangeAction(connection));
         add(new ConnectionSettingsOpenAction(connection));
     }
 }
