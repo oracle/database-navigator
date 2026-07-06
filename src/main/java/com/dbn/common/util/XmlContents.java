@@ -24,6 +24,7 @@ import org.jdom.Element;
 import org.jdom.input.JDOMParseException;
 import org.jdom.input.SAXBuilder;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.xml.sax.SAXParseException;
 import org.jetbrains.annotations.Nullable;
