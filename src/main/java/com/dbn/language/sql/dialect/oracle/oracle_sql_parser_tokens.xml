@@ -29,33 +29,33 @@
         <token index="3" id="DT_BLOB" value="blob" category="datatype"/>
         <token index="4" id="DT_BOOLEAN" value="boolean" category="datatype"/>
         <token index="5" id="DT_BYTE" value="byte" category="datatype"/>
-        <token index="6" id="DT_CHAR" value="char" category="datatype"/>
+        <token index="6" id="DT_CHAR" value="char" category="datatype" reserved="true"/>
         <token index="7" id="DT_CHARACTER" value="character" category="datatype"/>
         <token index="8" id="DT_CLOB" value="clob" category="datatype"/>
-        <token index="9" id="DT_DATE" value="date" category="datatype"/>
-        <token index="10" id="DT_DECIMAL" value="decimal" category="datatype"/>
+        <token index="9" id="DT_DATE" value="date" category="datatype" reserved="true"/>
+        <token index="10" id="DT_DECIMAL" value="decimal" category="datatype" reserved="true"/>
         <token index="11" id="DT_DOUBLE" value="double" category="datatype"/>
-        <token index="12" id="DT_FLOAT" value="float" category="datatype"/>
+        <token index="12" id="DT_FLOAT" value="float" category="datatype" reserved="true"/>
         <token index="13" id="DT_FLOAT32" value="float32" category="datatype"/>
         <token index="14" id="DT_FLOAT64" value="float64" category="datatype"/>
         <token index="15" id="DT_INT" value="int" category="datatype"/>
         <token index="16" id="DT_INT8" value="int8" category="datatype"/>
         <token index="17" id="DT_INTEGER" value="integer" category="datatype"/>
         <token index="18" id="DT_INTERVAL" value="interval" category="datatype"/>
-        <token index="19" id="DT_LONG" value="long" category="datatype"/>
+        <token index="19" id="DT_LONG" value="long" category="datatype" reserved="true"/>
         <token index="20" id="DT_NCHAR" value="nchar" category="datatype"/>
         <token index="21" id="DT_NCLOB" value="nclob" category="datatype"/>
-        <token index="22" id="DT_NUMBER" value="number" category="datatype"/>
+        <token index="22" id="DT_NUMBER" value="number" category="datatype" reserved="true"/>
         <token index="23" id="DT_NUMERIC" value="numeric" category="datatype"/>
         <token index="24" id="DT_NVARCHAR2" value="nvarchar2" category="datatype"/>
-        <token index="25" id="DT_RAW" value="raw" category="datatype"/>
+        <token index="25" id="DT_RAW" value="raw" category="datatype" reserved="true"/>
         <token index="26" id="DT_REAL" value="real" category="datatype"/>
-        <token index="27" id="DT_ROWID" value="rowid" category="datatype"/>
-        <token index="28" id="DT_SMALLINT" value="smallint" category="datatype"/>
+        <token index="27" id="DT_ROWID" value="rowid" category="datatype" reserved="true"/>
+        <token index="28" id="DT_SMALLINT" value="smallint" category="datatype" reserved="true"/>
         <token index="29" id="DT_TIMESTAMP" value="timestamp" category="datatype"/>
         <token index="30" id="DT_UROWID" value="urowid" category="datatype"/>
-        <token index="31" id="DT_VARCHAR" value="varchar" category="datatype"/>
-        <token index="32" id="DT_VARCHAR2" value="varchar2" category="datatype"/>
+        <token index="31" id="DT_VARCHAR" value="varchar" category="datatype" reserved="true"/>
+        <token index="32" id="DT_VARCHAR2" value="varchar2" category="datatype" reserved="true"/>
         <token index="33" id="DT_VECTOR" value="vector" category="datatype"/>
         <!-- MARKER_END_DATATYPES -->
 
