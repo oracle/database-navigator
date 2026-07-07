@@ -189,7 +189,18 @@
       "type": "oracle.net.ano.SupervisorService",
       "methods": [{"name": "<init>", "parameterTypes": []}]
     },
+    {
+      "type": "oracle.security.crypto.cert.ext.ExtKeyUsageExtension",
+      "allDeclaredConstructors": true,
+      "allDeclaredFields": true,
+      "allDeclaredMethods": true
+    },
+    {"type": "oracle.security.pki.OracleSSOKeyStoreSpi", "methods": [{"name": "<init>", "parameterTypes": []}]},
     {"type": "oracle.security.pki.OracleWallet"},
+    {"type": "oracle.security.pki.internal.cert.ext.AuthorityKeyIDExtension", "methods": [{"name": "<init>", "parameterTypes": []}]},
+    {"type": "oracle.security.pki.internal.cert.ext.BasicConstraintsExtension", "methods": [{"name": "<init>", "parameterTypes": []}]},
+    {"type": "oracle.security.pki.internal.cert.ext.KeyUsageExtension", "methods": [{"name": "<init>", "parameterTypes": []}]},
+    {"type": "oracle.security.pki.internal.cert.ext.SubjectKeyIDExtension", "methods": [{"name": "<init>", "parameterTypes": []}]},
     {"type": "oracle.sql.AnyDataFactory"},
     {"type": "oracle.sql.TypeDescriptorFactory"},
     {"type": "oracle.sql.converter.CharacterConverter1Byte", "serializable": true},
