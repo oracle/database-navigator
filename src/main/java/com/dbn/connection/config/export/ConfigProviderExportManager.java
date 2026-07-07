@@ -21,13 +21,17 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.Desktop;
 import java.awt.datatransfer.StringSelection;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
         name = ConfigProviderExportManager.COMPONENT_NAME,
@@ -106,15 +110,14 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
             // 4) write output
             if (request.getDestination() == ConfigProviderExportRequest.Destination.CLIPBOARD) {
                 CopyPasteManager.getInstance().setContents(new StringSelection(processor.render(payload, request.getWrapperKey())));
+                Messages.showInfoDialog(
+                        project,
+                        txt("msg.connection.title.ExportConfiguration"),
+                        txt("msg.connection.info.ConfigExportedToClipboard"));
             } else {
                 processor.write(payload, request.getOutputFile(), request.getWrapperKey());
+                showFileExportedDialog(project, request.getOutputFile());
             }
-
-            // 5) success message (safe)
-            String message = request.getDestination() == ConfigProviderExportRequest.Destination.CLIPBOARD ?
-                    "Configuration copied to clipboard." :
-                    "Configuration exported successfully.";
-            Messages.showInfoDialog(project, "Export configuration", message);
         } catch (Exception e) {
             boolean sensitive = request.isIncludeWallet();
 
@@ -124,7 +127,35 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
                 conditionallyLog(e);
             }
 
-            Messages.showErrorDialog(project, "Export failed", userMessage(e));
+            Messages.showErrorDialog(project, txt("msg.connection.title.ExportFailed"), userMessage(e));
+        }
+    }
+
+    private static void showFileExportedDialog(@NotNull Project project, @NotNull Path outputFile) {
+        String title = txt("msg.connection.title.ExportConfiguration");
+        String message = txt("msg.connection.info.ConfigExportedToFile", outputFile);
+        if (Desktop.isDesktopSupported()) {
+            Messages.showInfoDialog(
+                    project,
+                    title,
+                    message,
+                    new String[]{txt("msg.shared.button.OK"), txt("msg.shared.button.OpenFile")},
+                    0,
+                    option -> when(option == 1, () -> openFile(project, outputFile)));
+        } else {
+            Messages.showInfoDialog(project, title, message);
+        }
+    }
+
+    private static void openFile(@NotNull Project project, @NotNull Path outputFile) {
+        try {
+            Desktop.getDesktop().open(outputFile.toFile());
+        } catch (IOException e) {
+            conditionallyLog(e);
+            Messages.showErrorDialog(
+                    project,
+                    txt("msg.connection.title.ExportConfiguration"),
+                    txt("msg.connection.error.FailedToOpenExportFile", outputFile));
         }
     }
 
@@ -173,7 +204,7 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
 
     private static String userMessage(Exception e) {
         String message = messageOf(e);
-        return message == null ? "Export failed." : message;
+        return message == null ? txt("msg.connection.title.ExportFailed") : message;
     }
 
     private static String messageOf(Exception e) {
