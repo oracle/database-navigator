@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package com.dbn.database.interfaces;
+package com.dbn.database.sqlite;
 
-/**
- * Identifies the database interface contract implemented by a database-specific interface instance.
- */
-public enum DatabaseInterfaceType {
-    DRIVER,
-    ENVIRONMENT,
-    COMPATIBILITY,
-    MESSAGE_PARSER,
-    METADATA,
-    DATA_DEFINITION,
-    EXECUTION,
-    DEBUGGER,
-    ASSISTANT,
-    VECTOR,
-    JAVA
+import com.dbn.connection.config.provider.CloudConfigProviderFamily;
+import com.dbn.database.interfaces.DatabaseDriverInterface;
+import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Collections;
+import java.util.List;
+
+public class SqliteDriverInterface implements DatabaseDriverInterface {
+    @Override
+    public List<Element> discoverDriverPackages(List<Element> packageElements, @Nullable CloudConfigProviderFamily providerFamily) {
+        return Collections.emptyList();
+    }
 }

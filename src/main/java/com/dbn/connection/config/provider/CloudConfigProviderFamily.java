@@ -17,6 +17,7 @@
 package com.dbn.connection.config.provider;
 
 public enum CloudConfigProviderFamily {
+    GENERIC,
     OCI,
     AZURE,
     AWS,

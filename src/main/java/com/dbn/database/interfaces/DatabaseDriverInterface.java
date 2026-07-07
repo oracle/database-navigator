@@ -16,19 +16,19 @@
 
 package com.dbn.database.interfaces;
 
-/**
- * Identifies the database interface contract implemented by a database-specific interface instance.
- */
-public enum DatabaseInterfaceType {
-    DRIVER,
-    ENVIRONMENT,
-    COMPATIBILITY,
-    MESSAGE_PARSER,
-    METADATA,
-    DATA_DEFINITION,
-    EXECUTION,
-    DEBUGGER,
-    ASSISTANT,
-    VECTOR,
-    JAVA
+import com.dbn.connection.config.provider.CloudConfigProviderFamily;
+import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+
+import static com.dbn.database.interfaces.DatabaseInterfaceType.DRIVER;
+
+public interface DatabaseDriverInterface extends DatabaseInterface {
+    @Override
+    default DatabaseInterfaceType getInterfaceType() {
+        return DRIVER;
+    }
+
+    List<Element> discoverDriverPackages(List<Element> packageElements, @Nullable CloudConfigProviderFamily providerFamily);
 }

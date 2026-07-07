@@ -406,6 +406,10 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         return urlSettingsForm.getUrlType();
     }
 
+    CloudConfigProviderType getCloudConfigProviderType() {
+        return urlSettingsForm.isCloudProviderConfig() ? urlSettingsForm.getCloudConfigProviderType() : null;
+    }
+
     void addJsonExportChangeListeners(Runnable listener) {
         databaseTypeComboBox.addActionListener(e -> listener.run());
         urlSettingsForm.addUrlTypeChangeListeners(listener);
