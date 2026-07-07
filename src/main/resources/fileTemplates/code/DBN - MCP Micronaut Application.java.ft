@@ -2,68 +2,43 @@ package com.dbn.mcp.server;
 
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.Micronaut;
-import io.modelcontextprotocol.json.McpJsonDefaults;
-import io.modelcontextprotocol.json.McpJsonMapper;
-import io.modelcontextprotocol.server.McpServerFeatures;
-import io.modelcontextprotocol.server.McpStatelessServerFeatures;
-import io.modelcontextprotocol.spec.McpSchema;
-import oracle.jdbc.OracleConnection;
-import oracle.jdbc.OraclePreparedStatement;
-import org.yaml.snakeyaml.Yaml;
 
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 
 public class Application {
 
     private static final String SERVER_NAME = "${SERVER_NAME}";
     private static final String CONFIG_FILE_NAME = "mcp-config.yaml";
     private static final String WALLET_DIR_NAME = "wallet";
-    private static final String TRANSPORT_STDIO = "stdio";
-    private static final String TRANSPORT_HTTP = "http";
     private static final String MCP_ENDPOINT = "/mcp";
-    private static final int DEFAULT_HTTP_PORT = 8080;
-
-    private static final McpJsonMapper MAPPER = McpJsonDefaults.getMapper();
-
-    private static Path sepsWalletDir;
 
     public static void main(String[] args) throws Exception {
         Path baseDir = resolveBaseDir();
         Path configFile = resolveConfigFile(args, baseDir);
         McpConfig config = McpConfig.load(configFile);
+        Path walletDir = resolveWalletDir(baseDir);
 
-        sepsWalletDir = resolveWalletDir(baseDir);
+        SqlToolExecutor toolExecutor = new SqlToolExecutor(config.dataSource, walletDir);
+        McpToolFactory toolFactory = new McpToolFactory(toolExecutor);
 
-        boolean http = isHttpTransport(config.transport);
+        boolean http = config.isHttpTransport();
         Map<String, Object> properties = buildMicronautProperties(config, http);
 
         if (http) {
             Micronaut.build(args)
                     .banner(false)
                     .properties(properties)
-                    .singletons(buildStatelessToolSpecifications(config).toArray())
+                    .singletons(toolFactory.createStatelessToolSpecifications(config.tools).toArray())
                     .start();
         } else {
             ApplicationContext.builder()
                     .banner(false)
                     .properties(properties)
-                    .singletons(buildToolSpecifications(config).toArray())
+                    .singletons(toolFactory.createToolSpecifications(config.tools).toArray())
                     .start();
             // stdio transport is served by SDK reader threads; keep the main thread alive
             Thread.currentThread().join();
@@ -79,7 +54,7 @@ public class Application {
         properties.put("micronaut.mcp.server.info.version", "1.0.0");
         if (http) {
             properties.put("micronaut.server.host", "127.0.0.1");
-            properties.put("micronaut.server.port", resolveHttpPort(config.httpPort));
+            properties.put("micronaut.server.port", config.resolveHttpPort());
         }
         return properties;
     }
@@ -113,280 +88,5 @@ public class Application {
             throw new IllegalStateException("Wallet directory not found at: " + walletDir);
         }
         return walletDir;
-    }
-
-    private static boolean isHttpTransport(String transport) {
-        String value = transport == null ? TRANSPORT_STDIO : transport.trim().toLowerCase(Locale.ROOT);
-        if ("streamablehttp".equals(value) || "streamable-http".equals(value)) {
-            value = TRANSPORT_HTTP;
-        }
-
-        return switch (value) {
-            case TRANSPORT_HTTP -> true;
-            case TRANSPORT_STDIO -> false;
-            default -> throw new IllegalStateException(
-                    "Unsupported transport '" + transport + "'. Use 'stdio' or 'http'.");
-        };
-    }
-
-    private static int resolveHttpPort(Integer port) {
-        int value = port == null ? DEFAULT_HTTP_PORT : port;
-        if (value < 1 || value > 65535) {
-            throw new IllegalStateException("Invalid httpPort '" + value + "'. Use a value between 1 and 65535.");
-        }
-        return value;
-    }
-
-    private static List<McpServerFeatures.SyncToolSpecification> buildToolSpecifications(McpConfig config) {
-        List<McpServerFeatures.SyncToolSpecification> specs = new ArrayList<>();
-        for (Map.Entry<String, ToolConfig> entry : config.tools.entrySet()) {
-            ToolConfig toolConfig = entry.getValue();
-            specs.add(McpServerFeatures.SyncToolSpecification.builder()
-                    .tool(buildTool(entry.getKey(), toolConfig))
-                    .callHandler((exchange, request) ->
-                            tryCall(() -> executeTool(toolConfig, config.dataSource, request.arguments())))
-                    .build());
-        }
-        return specs;
-    }
-
-    private static List<McpStatelessServerFeatures.SyncToolSpecification> buildStatelessToolSpecifications(McpConfig config) {
-        List<McpStatelessServerFeatures.SyncToolSpecification> specs = new ArrayList<>();
-        for (Map.Entry<String, ToolConfig> entry : config.tools.entrySet()) {
-            ToolConfig toolConfig = entry.getValue();
-            specs.add(McpStatelessServerFeatures.SyncToolSpecification.builder()
-                    .tool(buildTool(entry.getKey(), toolConfig))
-                    .callHandler((context, request) ->
-                            tryCall(() -> executeTool(toolConfig, config.dataSource, request.arguments())))
-                    .build());
-        }
-        return specs;
-    }
-
-    private static McpSchema.Tool buildTool(String toolName, ToolConfig toolConfig) {
-        return McpSchema.Tool.builder()
-                .name(toolName)
-                .description(toolConfig.description)
-                .inputSchema(MAPPER, toolConfig.buildInputSchemaJson())
-                .build();
-    }
-
-    private static McpSchema.CallToolResult executeTool(
-            ToolConfig toolConfig,
-            DataSourceConfig dataSource,
-            Map<String, Object> arguments) throws Exception {
-
-        // one connection per tool call: no shared state across concurrent HTTP requests
-        try (Connection connection = dataSource.connect(sepsWalletDir);
-             OraclePreparedStatement statement = (OraclePreparedStatement) connection.prepareStatement(toolConfig.statement)) {
-
-            if (toolConfig.parameters != null) {
-                for (ToolParameterConfig parameter : toolConfig.parameters) {
-                    statement.setObjectAtName(parameter.name, arguments == null ? null : arguments.get(parameter.name));
-                }
-            }
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-                List<Map<String, Object>> rows = rsToList(resultSet);
-                return McpSchema.CallToolResult.builder()
-                        .structuredContent(Map.of("rows", rows, "rowCount", rows.size()))
-                        .addTextContent(MAPPER.writeValueAsString(rows))
-                        .build();
-            }
-        }
-    }
-
-    @FunctionalInterface
-    interface McpCallable {
-        McpSchema.CallToolResult call() throws Exception;
-    }
-
-    private static McpSchema.CallToolResult tryCall(McpCallable callable) {
-        try {
-            return callable.call();
-        } catch (Exception ex) {
-            String message = ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName();
-            return McpSchema.CallToolResult.builder()
-                    .isError(true)
-                    .addTextContent(message)
-                    .build();
-        }
-    }
-
-    private static List<Map<String, Object>> rsToList(ResultSet rs) throws SQLException {
-        List<Map<String, Object>> out = new ArrayList<>();
-        ResultSetMetaData md = rs.getMetaData();
-        int cols = md.getColumnCount();
-
-        while (rs.next()) {
-            Map<String, Object> row = new LinkedHashMap<>();
-            for (int i = 1; i <= cols; i++) {
-                Object value = rs.getObject(i);
-                if (value instanceof Clob clob) {
-                    value = clob.getSubString(1, (int) clob.length());
-                }
-                row.put(md.getColumnLabel(i), value);
-            }
-            out.add(row);
-        }
-        return out;
-    }
-
-    // configuration model, parsed from plain maps: no reflective YAML binding, native-image friendly
-    public static class McpConfig {
-        public String transport = TRANSPORT_STDIO;
-        public Integer httpPort = DEFAULT_HTTP_PORT;
-        public DataSourceConfig dataSource;
-        public Map<String, ToolConfig> tools = new LinkedHashMap<>();
-
-        static McpConfig load(Path configFile) throws Exception {
-            Map<String, Object> root;
-            try (Reader reader = Files.newBufferedReader(configFile, StandardCharsets.UTF_8)) {
-                root = new Yaml().load(reader);
-            }
-            if (root == null) {
-                throw new IllegalStateException(CONFIG_FILE_NAME + " is empty or invalid");
-            }
-
-            McpConfig config = new McpConfig();
-            config.transport = str(root.get("transport"), TRANSPORT_STDIO);
-            config.httpPort = intValue(root.get("httpPort"), DEFAULT_HTTP_PORT);
-
-            Map<String, Object> dataSource = map(root.get("dataSource"));
-            if (dataSource == null) {
-                throw new IllegalStateException("dataSource section is missing in " + CONFIG_FILE_NAME);
-            }
-            config.dataSource = new DataSourceConfig();
-            config.dataSource.url = str(dataSource.get("url"), null);
-            config.dataSource.username = str(dataSource.get("username"), null);
-            config.dataSource.password = str(dataSource.get("password"), null);
-
-            Map<String, Object> tools = map(root.get("tools"));
-            if (tools != null) {
-                for (Map.Entry<String, Object> entry : tools.entrySet()) {
-                    config.tools.put(entry.getKey(), ToolConfig.parse(map(entry.getValue())));
-                }
-            }
-            return config;
-        }
-
-        @SuppressWarnings("unchecked")
-        private static Map<String, Object> map(Object value) {
-            return value instanceof Map ? (Map<String, Object>) value : null;
-        }
-
-        private static String str(Object value, String defaultValue) {
-            return value == null ? defaultValue : value.toString();
-        }
-
-        private static Integer intValue(Object value, Integer defaultValue) {
-            if (value == null) return defaultValue;
-            if (value instanceof Number number) return number.intValue();
-            return Integer.parseInt(value.toString().trim());
-        }
-    }
-
-    public static class DataSourceConfig {
-        public String url;
-        public String username; // optional — overrides wallet if set
-        public String password; // optional — overrides wallet if set
-
-        public Connection connect(Path walletDir) throws SQLException {
-            try {
-                if (username != null && !username.isBlank()) {
-                    return DriverManager.getConnection(url, username, password);
-                }
-
-                // Let Oracle JDBC resolve default SEPS credentials from the wallet for this connection.
-                Properties properties = new Properties();
-                properties.setProperty(
-                        OracleConnection.CONNECTION_PROPERTY_SEPS_WALLET_LOCATION,
-                        walletDir.toAbsolutePath().toString());
-                return DriverManager.getConnection(url, properties);
-            } catch (SQLException e) {
-                throw new IllegalStateException("Could not connect to database: " + e.getMessage(), e);
-            }
-        }
-    }
-
-    public static class ToolConfig {
-        public String description;
-        public String statement;
-        public List<ToolParameterConfig> parameters;
-
-        static ToolConfig parse(Map<String, Object> source) {
-            ToolConfig config = new ToolConfig();
-            if (source == null) return config;
-
-            config.description = McpConfig.str(source.get("description"), null);
-            config.statement = McpConfig.str(source.get("statement"), null);
-
-            Object parameters = source.get("parameters");
-            if (parameters instanceof List<?> list) {
-                config.parameters = new ArrayList<>();
-                for (Object entry : list) {
-                    ToolParameterConfig parameter = ToolParameterConfig.parse(McpConfig.map(entry));
-                    if (parameter != null) {
-                        config.parameters.add(parameter);
-                    }
-                }
-            }
-            return config;
-        }
-
-        public String buildInputSchemaJson() {
-            Map<String, Object> schema = new LinkedHashMap<>();
-            schema.put("type", "object");
-
-            Map<String, Object> properties = new LinkedHashMap<>();
-            List<String> required = new ArrayList<>();
-
-            if (parameters != null) {
-                for (ToolParameterConfig param : parameters) {
-                    Map<String, Object> property = new LinkedHashMap<>();
-                    property.put("type", param.type);
-                    if (param.format != null && !param.format.isBlank()) {
-                        property.put("format", param.format);
-                    }
-                    property.put("description", param.description);
-                    properties.put(param.name, property);
-
-                    if (param.required) {
-                        required.add(param.name);
-                    }
-                }
-            }
-
-            schema.put("properties", properties);
-            if (!required.isEmpty()) {
-                schema.put("required", required);
-            }
-
-            try {
-                return MAPPER.writeValueAsString(schema);
-            } catch (Exception e) {
-                throw new IllegalStateException("Could not build tool input schema", e);
-            }
-        }
-    }
-
-    public static class ToolParameterConfig {
-        public String name;
-        public String type = "string";
-        public String format;
-        public String description;
-        public boolean required;
-
-        static ToolParameterConfig parse(Map<String, Object> source) {
-            if (source == null) return null;
-
-            ToolParameterConfig parameter = new ToolParameterConfig();
-            parameter.name = McpConfig.str(source.get("name"), null);
-            parameter.type = McpConfig.str(source.get("type"), "string");
-            parameter.format = McpConfig.str(source.get("format"), null);
-            parameter.description = McpConfig.str(source.get("description"), null);
-            parameter.required = Boolean.parseBoolean(McpConfig.str(source.get("required"), "false"));
-            return parameter;
-        }
     }
 }

@@ -1,0 +1,91 @@
+package com.dbn.mcp.server;
+
+import org.yaml.snakeyaml.Yaml;
+
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+
+/**
+ * MCP server configuration loaded from mcp-config.yaml.
+ * Parsed from plain maps: no reflective YAML binding, native-image friendly.
+ */
+public class McpConfig {
+    static final String TRANSPORT_STDIO = "stdio";
+    static final String TRANSPORT_HTTP = "http";
+    static final int DEFAULT_HTTP_PORT = 8080;
+
+    public String transport = TRANSPORT_STDIO;
+    public Integer httpPort = DEFAULT_HTTP_PORT;
+    public DataSourceConfig dataSource;
+    public Map<String, ToolConfig> tools = new LinkedHashMap<>();
+
+    public static McpConfig load(Path configFile) throws Exception {
+        Map<String, Object> root;
+        try (Reader reader = Files.newBufferedReader(configFile, StandardCharsets.UTF_8)) {
+            root = new Yaml().load(reader);
+        }
+        if (root == null) {
+            throw new IllegalStateException("Configuration is empty or invalid: " + configFile);
+        }
+
+        McpConfig config = new McpConfig();
+        config.transport = str(root.get("transport"), TRANSPORT_STDIO);
+        config.httpPort = intValue(root.get("httpPort"), DEFAULT_HTTP_PORT);
+
+        Map<String, Object> dataSource = map(root.get("dataSource"));
+        if (dataSource == null) {
+            throw new IllegalStateException("dataSource section is missing in " + configFile);
+        }
+        config.dataSource = DataSourceConfig.parse(dataSource);
+
+        Map<String, Object> tools = map(root.get("tools"));
+        if (tools != null) {
+            for (Map.Entry<String, Object> entry : tools.entrySet()) {
+                config.tools.put(entry.getKey(), ToolConfig.parse(map(entry.getValue())));
+            }
+        }
+        return config;
+    }
+
+    public boolean isHttpTransport() {
+        String value = transport == null ? TRANSPORT_STDIO : transport.trim().toLowerCase(Locale.ROOT);
+        if ("streamablehttp".equals(value) || "streamable-http".equals(value)) {
+            value = TRANSPORT_HTTP;
+        }
+
+        return switch (value) {
+            case TRANSPORT_HTTP -> true;
+            case TRANSPORT_STDIO -> false;
+            default -> throw new IllegalStateException(
+                    "Unsupported transport '" + transport + "'. Use 'stdio' or 'http'.");
+        };
+    }
+
+    public int resolveHttpPort() {
+        int value = httpPort == null ? DEFAULT_HTTP_PORT : httpPort;
+        if (value < 1 || value > 65535) {
+            throw new IllegalStateException("Invalid httpPort '" + value + "'. Use a value between 1 and 65535.");
+        }
+        return value;
+    }
+
+    @SuppressWarnings("unchecked")
+    static Map<String, Object> map(Object value) {
+        return value instanceof Map ? (Map<String, Object>) value : null;
+    }
+
+    static String str(Object value, String defaultValue) {
+        return value == null ? defaultValue : value.toString();
+    }
+
+    static Integer intValue(Object value, Integer defaultValue) {
+        if (value == null) return defaultValue;
+        if (value instanceof Number number) return number.intValue();
+        return Integer.parseInt(value.toString().trim());
+    }
+}

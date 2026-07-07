@@ -1,0 +1,26 @@
+package com.dbn.mcp.server;
+
+import java.util.Map;
+
+/**
+ * A single bind parameter of an MCP tool: JSON schema attributes and the SQL bind name.
+ */
+public class ToolParameterConfig {
+    public String name;
+    public String type = "string";
+    public String format;
+    public String description;
+    public boolean required;
+
+    static ToolParameterConfig parse(Map<String, Object> source) {
+        if (source == null) return null;
+
+        ToolParameterConfig parameter = new ToolParameterConfig();
+        parameter.name = McpConfig.str(source.get("name"), null);
+        parameter.type = McpConfig.str(source.get("type"), "string");
+        parameter.format = McpConfig.str(source.get("format"), null);
+        parameter.description = McpConfig.str(source.get("description"), null);
+        parameter.required = Boolean.parseBoolean(McpConfig.str(source.get("required"), "false"));
+        return parameter;
+    }
+}

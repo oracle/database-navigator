@@ -1,0 +1,72 @@
+package com.dbn.mcp.server;
+
+import io.modelcontextprotocol.json.McpJsonMapper;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * A single MCP tool definition: description, SQL statement and bind parameters.
+ */
+public class ToolConfig {
+    public String description;
+    public String statement;
+    public List<ToolParameterConfig> parameters;
+
+    static ToolConfig parse(Map<String, Object> source) {
+        ToolConfig config = new ToolConfig();
+        if (source == null) return config;
+
+        config.description = McpConfig.str(source.get("description"), null);
+        config.statement = McpConfig.str(source.get("statement"), null);
+
+        Object parameters = source.get("parameters");
+        if (parameters instanceof List<?> list) {
+            config.parameters = new ArrayList<>();
+            for (Object entry : list) {
+                ToolParameterConfig parameter = ToolParameterConfig.parse(McpConfig.map(entry));
+                if (parameter != null) {
+                    config.parameters.add(parameter);
+                }
+            }
+        }
+        return config;
+    }
+
+    public String buildInputSchemaJson(McpJsonMapper mapper) {
+        Map<String, Object> schema = new LinkedHashMap<>();
+        schema.put("type", "object");
+
+        Map<String, Object> properties = new LinkedHashMap<>();
+        List<String> required = new ArrayList<>();
+
+        if (parameters != null) {
+            for (ToolParameterConfig param : parameters) {
+                Map<String, Object> property = new LinkedHashMap<>();
+                property.put("type", param.type);
+                if (param.format != null && !param.format.isBlank()) {
+                    property.put("format", param.format);
+                }
+                property.put("description", param.description);
+                properties.put(param.name, property);
+
+                if (param.required) {
+                    required.add(param.name);
+                }
+            }
+        }
+
+        schema.put("properties", properties);
+        if (!required.isEmpty()) {
+            schema.put("required", required);
+        }
+
+        try {
+            return mapper.writeValueAsString(schema);
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not build tool input schema", e);
+        }
+    }
+}

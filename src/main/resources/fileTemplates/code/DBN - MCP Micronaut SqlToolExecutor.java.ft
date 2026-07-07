@@ -1,0 +1,84 @@
+package com.dbn.mcp.server;
+
+import io.modelcontextprotocol.json.McpJsonDefaults;
+import io.modelcontextprotocol.json.McpJsonMapper;
+import io.modelcontextprotocol.spec.McpSchema;
+import oracle.jdbc.OraclePreparedStatement;
+
+import java.nio.file.Path;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Executes tool SQL statements against the configured database.
+ * Opens one connection per tool call: no shared state across concurrent HTTP requests.
+ */
+public class SqlToolExecutor {
+    private static final McpJsonMapper MAPPER = McpJsonDefaults.getMapper();
+
+    private final DataSourceConfig dataSource;
+    private final Path walletDir;
+
+    public SqlToolExecutor(DataSourceConfig dataSource, Path walletDir) {
+        this.dataSource = dataSource;
+        this.walletDir = walletDir;
+    }
+
+    public McpSchema.CallToolResult execute(ToolConfig toolConfig, Map<String, Object> arguments) {
+        try {
+            return executeQuery(toolConfig, arguments);
+        } catch (Exception ex) {
+            String message = ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName();
+            return McpSchema.CallToolResult.builder()
+                    .isError(true)
+                    .addTextContent(message)
+                    .build();
+        }
+    }
+
+    private McpSchema.CallToolResult executeQuery(ToolConfig toolConfig, Map<String, Object> arguments) throws Exception {
+        try (Connection connection = dataSource.connect(walletDir);
+             OraclePreparedStatement statement = (OraclePreparedStatement) connection.prepareStatement(toolConfig.statement)) {
+
+            if (toolConfig.parameters != null) {
+                for (ToolParameterConfig parameter : toolConfig.parameters) {
+                    statement.setObjectAtName(parameter.name, arguments == null ? null : arguments.get(parameter.name));
+                }
+            }
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                List<Map<String, Object>> rows = rsToList(resultSet);
+                return McpSchema.CallToolResult.builder()
+                        .structuredContent(Map.of("rows", rows, "rowCount", rows.size()))
+                        .addTextContent(MAPPER.writeValueAsString(rows))
+                        .build();
+            }
+        }
+    }
+
+    private static List<Map<String, Object>> rsToList(ResultSet rs) throws SQLException {
+        List<Map<String, Object>> out = new ArrayList<>();
+        ResultSetMetaData md = rs.getMetaData();
+        int cols = md.getColumnCount();
+
+        while (rs.next()) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            for (int i = 1; i <= cols; i++) {
+                Object value = rs.getObject(i);
+                if (value instanceof Clob clob) {
+                    value = clob.getSubString(1, (int) clob.length());
+                }
+                row.put(md.getColumnLabel(i), value);
+            }
+            out.add(row);
+        }
+        return out;
+    }
+}
