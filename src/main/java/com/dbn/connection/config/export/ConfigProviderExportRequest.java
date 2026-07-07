@@ -8,7 +8,13 @@ import java.nio.file.Path;
 @Value
 @Builder
 public class ConfigProviderExportRequest {
+    public enum Destination {
+        FILE,
+        CLIPBOARD
+    }
+
     Path outputFile;
+    Destination destination;
     String formatId;
     String wrapperKey;
     boolean includeWallet;

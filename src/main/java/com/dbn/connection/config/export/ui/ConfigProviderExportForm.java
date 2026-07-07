@@ -22,7 +22,9 @@ import com.intellij.ui.components.JBCheckBox;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
+import javax.swing.JRadioButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
@@ -39,9 +41,12 @@ import static com.dbn.nls.NlsResources.txt;
 public class ConfigProviderExportForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
+    private JPanel outputFilePanel;
 
     private JTextField wrapperKeyTextField;
     private TextFieldWithBrowseButton outputFileTextField;
+    private JRadioButton clipboardDestinationRadioButton;
+    private JRadioButton fileDestinationRadioButton;
 
     private JBCheckBox includeWalletCheckBox;
     private JLabel walletHelpLabel;
@@ -67,7 +72,8 @@ public class ConfigProviderExportForm extends DBNFormBase {
         this.connectionSettings = connectionSettings;
 
         // Fail-fast if .form bindings are wrong
-        if (mainPanel == null || headerPanel == null || wrapperKeyTextField == null || outputFileTextField == null ||
+        if (mainPanel == null || headerPanel == null || outputFilePanel == null || wrapperKeyTextField == null || outputFileTextField == null ||
+                clipboardDestinationRadioButton == null || fileDestinationRadioButton == null ||
                 includeWalletCheckBox == null || walletHelpLabel == null || walletFileTextField == null) {
             throw new IllegalStateException("Form binding failed. Check ConfigProviderExportForm.form bindings.");
         }
@@ -78,8 +84,14 @@ public class ConfigProviderExportForm extends DBNFormBase {
         outputFileTextField.getTextField().setEditable(false);
         walletFileTextField.getTextField().setEditable(false);
 
+        ButtonGroup destinationGroup = new ButtonGroup();
+        destinationGroup.add(clipboardDestinationRadioButton);
+        destinationGroup.add(fileDestinationRadioButton);
+        fileDestinationRadioButton.setSelected(true);
+
         initListeners();
         updateWalletControls();
+        updateDestinationControls();
     }
 
     private void initHeaderPanel() {
@@ -110,13 +122,18 @@ public class ConfigProviderExportForm extends DBNFormBase {
         outputFile = toPath(getText(outputFileTextField.getTextField()));
         walletFile = toPath(getText(walletFileTextField.getTextField()));
         updateWalletControls();
+        updateDestinationControls();
     }
 
     private void initListeners() {
         outputFileTextField.addActionListener(e -> chooseOutputFile());
 
+        clipboardDestinationRadioButton.addActionListener(e -> updateDestinationControls());
+        fileDestinationRadioButton.addActionListener(e -> updateDestinationControls());
+
         includeWalletCheckBox.addActionListener(e -> {
             updateWalletControls();
+            updateDestinationControls();
             if (!includeWalletCheckBox.isSelected()) {
                 walletFile = null;
                 walletFileTextField.setText("");
@@ -182,6 +199,23 @@ public class ConfigProviderExportForm extends DBNFormBase {
         walletFileTextField.getTextField().setEnabled(enabled);
     }
 
+    private void updateDestinationControls() {
+        boolean clipboardAvailable = !includeWalletCheckBox.isSelected();
+        clipboardDestinationRadioButton.setEnabled(clipboardAvailable);
+        clipboardDestinationRadioButton.setToolTipText(clipboardAvailable ? null :
+                txt("cfg.connection.tooltip.ClipboardWithWallet"));
+
+        if (!clipboardAvailable && clipboardDestinationRadioButton.isSelected()) {
+            fileDestinationRadioButton.setSelected(true);
+        }
+
+        boolean fileDestination = fileDestinationRadioButton.isSelected();
+        outputFilePanel.setVisible(fileDestination);
+        mainPanel.revalidate();
+        mainPanel.repaint();
+        validateFormFields();
+    }
+
     private String resolveOutputDirectoryPath() {
         if (outputFile != null) {
             Path parent = outputFile.toAbsolutePath().getParent();
@@ -209,6 +243,7 @@ public class ConfigProviderExportForm extends DBNFormBase {
     }
 
     private String validateOutputFile() {
+        if (clipboardDestinationRadioButton.isSelected()) return null;
         if (outputFile == null) {
             return "Please choose an output file.";
         }
@@ -227,7 +262,10 @@ public class ConfigProviderExportForm extends DBNFormBase {
         if (key != null && key.isBlank()) key = null;
 
         return ConfigProviderExportRequest.builder()
-                .outputFile(outputFile)
+                .outputFile(fileDestinationRadioButton.isSelected() ? outputFile : null)
+                .destination(clipboardDestinationRadioButton.isSelected() ?
+                        ConfigProviderExportRequest.Destination.CLIPBOARD :
+                        ConfigProviderExportRequest.Destination.FILE)
                 .formatId("json") // JSON-only UI
                 .wrapperKey(key)
                 .includeWallet(includeWalletCheckBox.isSelected())

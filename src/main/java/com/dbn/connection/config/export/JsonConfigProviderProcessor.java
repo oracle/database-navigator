@@ -5,7 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -32,20 +33,23 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
 
     @Override
     public void write(ConfigProviderPayload payload, Path file, String wrapperKey) throws Exception {
-        if(payload == null) throw new IllegalArgumentException("payload is null");
-        if (file == null)throw new IllegalArgumentException("output file is null");
+        if (file == null) throw new IllegalArgumentException("output file is null");
+        Files.writeString(file, render(payload, wrapperKey), StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public String render(ConfigProviderPayload payload, String wrapperKey) throws Exception {
+        if (payload == null) throw new IllegalArgumentException("payload is null");
 
         ObjectNode payloadNode = toJson(payload);
 
-        if(wrapperKey == null || wrapperKey.isBlank()){
-            MAPPER.writeValue(file.toFile(), payloadNode);
-        }
-        else {
+        if (wrapperKey == null || wrapperKey.isBlank()) {
+            return MAPPER.writeValueAsString(payloadNode);
+        } else {
             ObjectNode root = MAPPER.createObjectNode();
             root.set(wrapperKey.trim(), payloadNode);
-            MAPPER.writeValue(file.toFile(), root);
+            return MAPPER.writeValueAsString(root);
         }
-
     }
     private static ObjectNode toJson(ConfigProviderPayload payload){
         ObjectNode node = MAPPER.createObjectNode();

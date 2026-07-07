@@ -14,12 +14,14 @@ import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.export.ui.ConfigProviderExportDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.datatransfer.StringSelection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -102,10 +104,17 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
                     ConfigProviderFormatRegistry.getInstance().get(request.getFormatId());
 
             // 4) write output
-            processor.write(payload, request.getOutputFile(), request.getWrapperKey());
+            if (request.getDestination() == ConfigProviderExportRequest.Destination.CLIPBOARD) {
+                CopyPasteManager.getInstance().setContents(new StringSelection(processor.render(payload, request.getWrapperKey())));
+            } else {
+                processor.write(payload, request.getOutputFile(), request.getWrapperKey());
+            }
 
             // 5) success message (safe)
-            Messages.showInfoDialog(project, "Export configuration", "Configuration exported successfully.");
+            String message = request.getDestination() == ConfigProviderExportRequest.Destination.CLIPBOARD ?
+                    "Configuration copied to clipboard." :
+                    "Configuration exported successfully.";
+            Messages.showInfoDialog(project, "Export configuration", message);
         } catch (Exception e) {
             boolean sensitive = request.isIncludeWallet();
 
@@ -124,23 +133,25 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
             throw new IllegalArgumentException("Export request is missing.");
         }
 
-        Path outputFile = request.getOutputFile();
-        if (outputFile == null) {
-            throw new IllegalArgumentException("Output file is required.");
-        }
+        if (request.getDestination() != ConfigProviderExportRequest.Destination.CLIPBOARD) {
+            Path outputFile = request.getOutputFile();
+            if (outputFile == null) {
+                throw new IllegalArgumentException("Output file is required.");
+            }
 
-        Path outputDirectory = outputFile.toAbsolutePath().getParent();
-        if (outputDirectory == null) {
-            throw new IllegalArgumentException("Output file must have a parent directory.");
-        }
-        if (!Files.exists(outputDirectory)) {
-            throw new IllegalArgumentException("Output directory does not exist: " + outputDirectory);
-        }
-        if (!Files.isDirectory(outputDirectory)) {
-            throw new IllegalArgumentException("Output path parent is not a directory: " + outputDirectory);
-        }
-        if (!Files.isWritable(outputDirectory)) {
-            throw new IllegalArgumentException("Output directory is not writable: " + outputDirectory);
+            Path outputDirectory = outputFile.toAbsolutePath().getParent();
+            if (outputDirectory == null) {
+                throw new IllegalArgumentException("Output file must have a parent directory.");
+            }
+            if (!Files.exists(outputDirectory)) {
+                throw new IllegalArgumentException("Output directory does not exist: " + outputDirectory);
+            }
+            if (!Files.isDirectory(outputDirectory)) {
+                throw new IllegalArgumentException("Output path parent is not a directory: " + outputDirectory);
+            }
+            if (!Files.isWritable(outputDirectory)) {
+                throw new IllegalArgumentException("Output directory is not writable: " + outputDirectory);
+            }
         }
 
         if (request.isIncludeWallet()) {
