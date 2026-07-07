@@ -95,6 +95,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     private JLabel driverLibraryLabel;
     private JLabel driverSourceLabel;
     private HyperlinkLabel reloadDriversLink;
+    private HyperlinkLabel useExternalLibraryLink;
     private JButton downloadButton;
     private JLabel driverErrorLabel;
     private JPanel loadingDriversPanel;
@@ -141,6 +142,9 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         loadingDriversPanel.add(new AsyncProcessIcon("Loading drivers..."), BorderLayout.WEST);
         reloadDriversLink.setHyperlinkText(txt("cfg.connection.link.ReloadDrivers"));
         onHyperlinkAccess(reloadDriversLink, e -> reloadDrivers());
+
+        useExternalLibraryLink.setHyperlinkText(txt("cfg.connection.link.UseExternalLibrary"));
+        onHyperlinkAccess(useExternalLibraryLink, e -> useExternalLibrary());
 
         driverErrorLabel.setText("");
         driverErrorLabel.setIcon(Icons.COMMON_ERROR);
@@ -217,6 +221,12 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         });
     }
 
+    private void useExternalLibrary() {
+        setSelection(driverSourceComboBox, DriverSource.EXTERNAL);
+        driverLibraryTextField.getTextField().requestFocusInWindow();
+        downloadButton.doClick();
+    }
+
     private void showDownloadPopup(@Nullable CloudConfigProviderFamily providerFamily) {
         try {
             DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
@@ -244,7 +254,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
         fieldAdapter.initFieldsVisibility(() -> loadingDrivers && isExternalDriver(), array(loadingDriversPanel));
         fieldAdapter.initFieldsVisibility(() -> !loadingDrivers && isExternalDriver(), array(reloadDriversLink));
-        fieldAdapter.initFieldsVisibility(() -> driverError != null && isExternalDriver(), array(driverErrorLabel));
+        fieldAdapter.initFieldsVisibility(() -> isDriverErrorVisible(), array(driverErrorLabel));
+        fieldAdapter.initFieldsVisibility(() -> isCloudProviderSupportRequired(), array(useExternalLibraryLink));
         fieldAdapter.initFieldsAvailability(() -> !loadingDrivers, array(driverComboBox));
     }
 
@@ -257,7 +268,35 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             setSelection(driverSourceComboBox, DriverSource.EXTERNAL);
         }
 
+        updateDriverStatusMessage();
         updateFieldAvailability();
+    }
+
+    private void updateDriverStatusMessage() {
+        if (driverError != null && isExternalDriver()) return;
+
+        CloudConfigProviderType provider = getParentForm().getExternalLibraryCloudProvider();
+        driverErrorLabel.setText(isCloudProviderSupportRequired() ?
+                txt("cfg.connection.error.CloudProviderSupportRequired", getCloudProviderName(provider)) :
+                "");
+    }
+
+    private boolean isDriverErrorVisible() {
+        return driverError != null && isExternalDriver() || isCloudProviderSupportRequired();
+    }
+
+    private boolean isCloudProviderSupportRequired() {
+        return getParentForm().getExternalLibraryCloudProvider() != null && !isExternalDriver();
+    }
+
+    private static String getCloudProviderName(CloudConfigProviderType provider) {
+        if (provider == null) return "";
+        if (provider.isAzure()) return "Azure";
+        if (provider.isAws()) return "AWS";
+        if (provider.isGcp()) return "GCP";
+        if (provider.isHashicorp()) return "HashiCorp";
+
+        return provider.getName();
     }
 
     private String verifyDriverLibrary() {

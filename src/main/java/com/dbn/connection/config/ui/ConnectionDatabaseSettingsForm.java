@@ -400,6 +400,18 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         authSettingsForm.setCloudProviderMode(cloudProviderType);
         authenticationPanel.setVisible(cloudProviderType != null ||
                 !cloudProviderConfig && databaseType.supportsAuthentication() && urlSettingsForm.requiresAuthentication());
+        if (driverSettingsForm != null) {
+            driverSettingsForm.updateDriverFields();
+        }
+    }
+
+    CloudConfigProviderType getExternalLibraryCloudProvider() {
+        CloudConfigProviderType provider = urlSettingsForm.getCloudConfigProviderType();
+        if (getSelectedDatabaseType() != DatabaseType.ORACLE) return null;
+        if (!urlSettingsForm.isCloudProviderConfig()) return null;
+        if (provider == null || provider.isOci()) return null;
+
+        return provider;
     }
 
     DatabaseUrlType getUrlType() {
