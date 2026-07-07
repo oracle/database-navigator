@@ -11794,16 +11794,16 @@
         <iteration id="06454" optional-wrapping="PARENTHESES" original-name="compound_condition" separator="KW_AND, KW_OR">
             <sequence attributes="CONDITION" id="06455" optional-wrapping="PARENTHESES">
                 <token id="06456" optional="true" type-id="KW_NOT" />
-                <one-of id="06457" optional-wrapping="PARENTHESES" sortable="true" ambiguous="true">
+                <one-of id="06457" optional-wrapping="PARENTHESES" ambiguous="true">
                     <element ref-id="exists_condition" />
                     <element ref-id="equals_path_condition" />
                     <element ref-id="regexp_like_condition" />
                     <element ref-id="under_path_condition" />
                     <sequence id="06458">
-                        <one-of id="06459" optional-wrapping="PARENTHESES" ambiguous="true">
+                        <one-of id="06459" ambiguous="true">
                             <wrapper id="06460" template="PARENTHESES">
                                 <one-of id="06461" ambiguous="true">
-                                    <iteration id="06462" separator="CHR_COMMA">
+                                    <iteration id="06462" min-iterations="2" separator="CHR_COMMA">
                                         <element ref-id="expression" />
                                     </iteration>
                                     <element exit="true" ref-id="subquery" />

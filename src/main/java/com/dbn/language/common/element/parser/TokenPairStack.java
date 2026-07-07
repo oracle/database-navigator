@@ -109,6 +109,12 @@ public class TokenPairStack extends ParserBuilderExtension {
 
     }
 
+    public boolean isConsumedOptionalBegin(TokenType tokenType) {
+        if (tokenType != beginToken || markers.isEmpty()) return false;
+
+        return !markers.peek().explicit;
+    }
+
     public static class TokenPairMarker {
         private final ElementTypeBase owner;
         private final int offset;

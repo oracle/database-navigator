@@ -17,6 +17,7 @@
 package com.dbn.language.common.element.extension;
 
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.element.TokenPairTemplate;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.ElementTypeRef;
 import com.dbn.language.common.element.impl.LeafElementType;
@@ -41,32 +42,33 @@ public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfEle
 
     public final ElementTypeRef[] defaultCandidates;
     public final Map<String, TokenNode> tokens;
+    private final TokenType[] optionalWrappingBeginTokens;
+    private final ElementTypeRef[][] optionalWrappingCandidates;
 
     public OneOfElementTypeExtension(OneOfElementType elementType, Element definition) {
         super(elementType, definition);
         defaultCandidates = elementType.children;
         tokens = loadTokens(definition);
-    }
-
-    public int pathDepth(ParserContext context) {
-        Map<String, TokenNode> nodes = tokens;
-        int matchedDepth = 0;
-
-        for (int i = 0; i < depth; i++) {
-            TokenType token = i == 0 ? context.builder.getToken() : context.builder.lookAhead(i);
-            if (token == null) break;
-
-            TokenNode next = nodes.get(token.getId());
-            if (next == null) break;
-
-            matchedDepth = i + 1;
-            nodes = next.tokens;
+        TokenPairTemplate[] templates = elementType.getLanguageDialect().getTokenPairTemplates();
+        optionalWrappingBeginTokens = new TokenType[templates.length];
+        optionalWrappingCandidates = new ElementTypeRef[templates.length][];
+        for (int i = 0; i < templates.length; i++) {
+            TokenType beginToken = elementType.bundle.tokenTypeBundle.getTokenType(templates[i].getBeginToken());
+            optionalWrappingBeginTokens[i] = beginToken;
+            optionalWrappingCandidates[i] = loadOptionalWrappingCandidates(beginToken);
         }
-
-        return matchedDepth;
     }
 
     public ElementTypeRef[] parseCandidates(ParserContext context) {
+        ElementTypeRef[] candidates = parseTrieCandidates(context);
+        TokenType beginToken = context.builder.tokenPairMonitor.getConsumedOptionalBegin();
+        if (beginToken == null) return candidates;
+
+        ElementTypeRef[] wrappingCandidates = getOptionalWrappingCandidates(beginToken);
+        return wrappingCandidates.length == 0 ? candidates : mergeCandidates(candidates, wrappingCandidates);
+    }
+
+    private ElementTypeRef[] parseTrieCandidates(ParserContext context) {
         TokenNode candidateNode = null;
         Map<String, TokenNode> nodes = tokens;
 
@@ -84,6 +86,62 @@ public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfEle
         }
 
         return candidateNode == null ? defaultCandidates : candidateNode.candidates;
+    }
+
+    private ElementTypeRef[] loadOptionalWrappingCandidates(TokenType beginToken) {
+        int count = 0;
+        for (ElementTypeRef candidate : defaultCandidates) {
+            if (candidate.elementType.cache.couldStartWithToken(beginToken)) {
+                count++;
+            }
+        }
+        if (count == 0) return EMPTY_CANDIDATES;
+
+        ElementTypeRef[] candidates = new ElementTypeRef[count];
+        int index = 0;
+        for (ElementTypeRef candidate : defaultCandidates) {
+            if (candidate.elementType.cache.couldStartWithToken(beginToken)) {
+                candidates[index++] = candidate;
+            }
+        }
+        return candidates;
+    }
+
+    private ElementTypeRef[] getOptionalWrappingCandidates(TokenType beginToken) {
+        for (int i = 0; i < optionalWrappingBeginTokens.length; i++) {
+            if (optionalWrappingBeginTokens[i] == beginToken) {
+                return optionalWrappingCandidates[i];
+            }
+        }
+        return EMPTY_CANDIDATES;
+    }
+
+    private ElementTypeRef[] mergeCandidates(ElementTypeRef[] candidates, ElementTypeRef[] wrappingCandidates) {
+        int count = 0;
+        boolean ordered = true;
+        for (ElementTypeRef candidate : defaultCandidates) {
+            if (contains(candidates, candidate) || contains(wrappingCandidates, candidate)) {
+                ordered &= count < candidates.length && candidates[count] == candidate;
+                count++;
+            }
+        }
+        if (ordered && count == candidates.length) return candidates;
+
+        ElementTypeRef[] result = new ElementTypeRef[count];
+        int index = 0;
+        for (ElementTypeRef candidate : defaultCandidates) {
+            if (contains(candidates, candidate) || contains(wrappingCandidates, candidate)) {
+                result[index++] = candidate;
+            }
+        }
+        return result;
+    }
+
+    private static boolean contains(ElementTypeRef[] candidates, ElementTypeRef candidate) {
+        for (ElementTypeRef existing : candidates) {
+            if (existing == candidate) return true;
+        }
+        return false;
     }
 
     public LeafElementType[] nextLeafs(List<TokenType> tokenPath) {
