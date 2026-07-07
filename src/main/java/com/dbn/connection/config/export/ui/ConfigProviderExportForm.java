@@ -1,10 +1,10 @@
 package com.dbn.connection.config.export.ui;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Strings;
-import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
@@ -22,6 +22,7 @@ import com.intellij.ui.components.JBCheckBox;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
@@ -33,6 +34,7 @@ import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_
 import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_OUTPUT_FILE;
 import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_WALLET_FILE;
 import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_WRAPPER_KEY;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ConfigProviderExportForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -42,6 +44,7 @@ public class ConfigProviderExportForm extends DBNFormBase {
     private TextFieldWithBrowseButton outputFileTextField;
 
     private JBCheckBox includeWalletCheckBox;
+    private JLabel walletHelpLabel;
 
     private TextFieldWithBrowseButton walletFileTextField;
 
@@ -65,11 +68,13 @@ public class ConfigProviderExportForm extends DBNFormBase {
 
         // Fail-fast if .form bindings are wrong
         if (mainPanel == null || headerPanel == null || wrapperKeyTextField == null || outputFileTextField == null ||
-                includeWalletCheckBox == null || walletFileTextField == null) {
+                includeWalletCheckBox == null || walletHelpLabel == null || walletFileTextField == null) {
             throw new IllegalStateException("Form binding failed. Check ConfigProviderExportForm.form bindings.");
         }
 
         initHeaderPanel();
+        walletHelpLabel.setIcon(Icons.COMMON_INFO);
+        walletHelpLabel.setToolTipText(txt("cfg.connection.tooltip.OracleWallet"));
         outputFileTextField.getTextField().setEditable(false);
         walletFileTextField.getTextField().setEditable(false);
 
