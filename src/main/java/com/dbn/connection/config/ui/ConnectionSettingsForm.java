@@ -87,7 +87,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     private void initConfigTabs(ConnectionSettings connectionSettings) {
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         //tabbedPane.setTabComponentInsets(DBNTabbedPane.REGULAR_INSETS);
-        tabbedPane.addTab(txt("cfg.connection.title.Database"), databaseSettings.createComponent());
+        tabbedPane.addTab(txt("cfg.connection.title.Database"), new JBScrollPane(databaseSettings.createComponent()));
         ConnectionDatabaseSettingsForm databaseSettingsForm = databaseSettings.getSettingsEditor();
         if (databaseSettingsForm != null) {
             databaseSettingsForm.addJsonExportChangeListeners(this::updateJsonExportVisibility);
