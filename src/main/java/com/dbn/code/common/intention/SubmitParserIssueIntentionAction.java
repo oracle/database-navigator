@@ -34,7 +34,7 @@ public class SubmitParserIssueIntentionAction extends EditorIntentionAction {
 
     @Override
     public Icon getIcon(int flags) {
-        return Icons.ACTION_UPLOAD;
+        return Icons.COMMON_ERROR;
     }
 
     @Override
