@@ -29,21 +29,6 @@
 
     <!-- ==================== MODEL CREATION ==================== -->
 
-    <statement-execution-processor id="create-ml-model" timeout="300000">
-        <statement>
-            BEGIN
-                DBMS_DATA_MINING.CREATE_MODEL(
-                    model_name          => {#0},
-                    mining_function     => {#1},
-                    data_table_name     => {#2},
-                    case_id_column_name => {#3},
-                    target_column_name  => {#4},
-                    settings_table_name => {#5}
-                );
-            END;
-        </statement>
-    </statement-execution-processor>
-
     <!-- Create Settings Table -->
     <statement-execution-processor id="create-settings-table" timeout="5000">
         <statement>

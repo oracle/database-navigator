@@ -32,19 +32,6 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
     // ==================== MODEL CREATION ====================
 
     /**
-     * Creates a classification or regression model using DBMS_DATA_MINING.
-     */
-    void createModel(
-            DBNConnection conn,
-            String modelName,
-            String miningFunction,
-            String dataTableName,
-            String caseIdColumn,
-            String targetColumn,
-            String settingsTableName
-    ) throws SQLException;
-
-    /**
      * Creates a settings table for DBMS_DATA_MINING.
      */
     void createSettingsTable(DBNConnection conn, String settingsTableName) throws SQLException;

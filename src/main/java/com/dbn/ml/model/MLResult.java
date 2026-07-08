@@ -61,9 +61,6 @@ public class MLResult {
     // Source name for default model naming (table name or CSV file name)
     private String sourceName;
 
-    // Model internals from Oracle Model Detail Views (DM$V*)
-    private MLModelDetails modelDetails;
-
     /**
      * Returns the database model name.
      */

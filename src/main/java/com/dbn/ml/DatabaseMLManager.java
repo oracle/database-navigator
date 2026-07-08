@@ -135,8 +135,8 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                 getProject(),
                 connection,
                 true,
-                "Submitting Training Job",
-                "Preparing data for " + algorithmName + " on \"" + sourceName + "\"...",
+                txt("prc.machineLearning.title.SubmittingTrainingJob"),
+                txt("prc.machineLearning.text.PreparingTrainingData", algorithmName, sourceName),
                 progress -> {
                     try {
                         MLPipelineExecutor executor = new MLPipelineExecutor();
@@ -145,17 +145,16 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                         log.info("Training job submitted for model: {}", modelName);
                         Dispatch.run(() -> Messages.showInfoDialog(
                                 getProject(),
-                                "Training Job Submitted",
-                                "Model \"" + modelName + "\" has been submitted to Oracle Scheduler.\n" +
-                                "Training continues on the database server."
+                                txt("msg.machineLearning.title.TrainingJobSubmitted"),
+                                txt("msg.machineLearning.info.TrainingJobSubmitted", modelName)
                         ));
                         monitorTrainingJob(executor, submission, connection);
                     } catch (Exception e) {
                         log.warn("Failed to submit training job", e);
                         Dispatch.run(() -> Messages.showErrorDialog(
                                 getProject(),
-                                "Failed to Submit Training Job",
-                                "An error occurred:\n" + e.getMessage()
+                                txt("msg.machineLearning.title.TrainingJobSubmitFailed"),
+                                txt("msg.machineLearning.error.ModelTrainingFailed", e.getMessage())
                         ));
                     }
                 });
@@ -173,8 +172,8 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                 getProject(),
                 connection,
                 true,
-                "Waiting for Training Job",
-                "Monitoring training job for model \"" + modelName + "\"...",
+                txt("prc.machineLearning.title.MonitoringTrainingJob"),
+                txt("prc.machineLearning.text.MonitoringTrainingJob", modelName),
                 progress -> {
                     boolean cancelled = false;
                     try {
@@ -184,8 +183,8 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                             showResultInExecutionManager(result);
                             Messages.showInfoDialog(
                                     getProject(),
-                                    "Training Completed",
-                                    "Model \"" + modelName + "\" finished training.\nDashboard result is now available."
+                                    txt("msg.machineLearning.title.TrainingCompleted"),
+                                    txt("msg.machineLearning.info.TrainingCompleted", modelName)
                             );
                         });
                     } catch (ProcessCanceledException e) {
@@ -195,8 +194,8 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                         log.warn("Async training monitor failed for model {}", modelName, e);
                         Dispatch.run(() -> Messages.showErrorDialog(
                                 getProject(),
-                                "Training Monitoring Failed",
-                                "Model \"" + modelName + "\" could not be finalized:\n" + e.getMessage()
+                                txt("msg.machineLearning.title.TrainingMonitoringFailed"),
+                                txt("msg.machineLearning.error.TrainingMonitoringFailed", modelName, e.getMessage())
                         ));
                     } finally {
                         if (!cancelled) {
@@ -224,7 +223,7 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
             String runStatus = normalizeStatus(executor.getSchedulerJobRunStatus(connection, jobName));
             String statusText = statusText(state, runStatus);
 
-            progress.setText("Training status (" + jobName + "): " + statusText);
+            progress.setText(txt("prc.machineLearning.text.TrainingJobStatus", jobName, statusText));
 
             if (isJobSucceeded(state, runStatus)) {
                 return;

@@ -47,21 +47,6 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     // ==================== MODEL CREATION ====================
 
     @Override
-    public void createModel(
-            DBNConnection conn,
-            String modelName,
-            String miningFunction,
-            String dataTableName,
-            String caseIdColumn,
-            String targetColumn,
-            String settingsTableName
-    ) throws SQLException {
-        log.debug("Creating ML model: {} with function: {}", modelName, miningFunction);
-        executeUpdate(conn, "create-ml-model",
-                modelName, miningFunction, dataTableName, caseIdColumn, targetColumn, settingsTableName);
-    }
-
-    @Override
     public void createSettingsTable(DBNConnection conn, String settingsTableName) throws SQLException {
         log.debug("Creating settings table: {}", settingsTableName);
         executeUpdate(conn, "create-settings-table", settingsTableName);
