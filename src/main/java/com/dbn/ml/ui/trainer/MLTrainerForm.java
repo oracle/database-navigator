@@ -162,7 +162,8 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         config.setTrainerType(algorithmComboBox.getSelectedValue());
         config.setTrainTestSplitRatio(splitSlider.getValue() / 100.0);
         config.setUseFixedSeed(useFixedSeedCheckBox.isSelected());
-        config.setRandomSeed((Long) seedSpinner.getValue());
+        // spinner editor may commit typed input as Double - coerce through Number
+        config.setRandomSeed(((Number) seedSpinner.getValue()).longValue());
     }
 
     @Override
