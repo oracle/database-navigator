@@ -393,6 +393,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
     void updateAuthenticationVisibility() {
         DatabaseType databaseType = getSelectedDatabaseType();
         authSettingsForm.setAuthenticationTypes(getAuthenticationTypes());
+        authSettingsForm.setCredentialsTitle(getCredentialsTitle());
         boolean cloudProviderConfig = urlSettingsForm.isCloudProviderConfig();
         CloudConfigProviderType cloudProviderType = isCloudProviderAuthenticationVisible() ?
                 urlSettingsForm.getCloudConfigProviderType() :
@@ -437,11 +438,24 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
     private AuthenticationType[] getAuthenticationTypes() {
         DatabaseUrlType urlType = Commons.nvl(urlSettingsForm.getUrlType(), DatabaseUrlType.CUSTOM);
-        boolean httpsConfigFile = urlType == DatabaseUrlType.CONFIG_FILE &&
-                urlSettingsForm.getConfigFileSourceType() == ConfigFileSourceType.HTTPS;
-        return httpsConfigFile ?
+        return isHttpsConfigFile(urlType) ?
                 new AuthenticationType[]{NONE, USER_PASSWORD} :
                 getSelectedDatabaseType().getAuthTypes();
+    }
+
+    private String getCredentialsTitle() {
+        if (urlSettingsForm.isCloudProviderConfig()) {
+            return txt("cfg.connection.title.CloudProviderCredentials");
+        }
+        if (isHttpsConfigFile(urlSettingsForm.getUrlType())) {
+            return txt("cfg.connection.title.ServerCredentials");
+        }
+        return txt("cfg.connection.title.DatabaseCredentials");
+    }
+
+    private boolean isHttpsConfigFile(DatabaseUrlType urlType) {
+        return urlType == DatabaseUrlType.CONFIG_FILE &&
+                urlSettingsForm.getConfigFileSourceType() == ConfigFileSourceType.HTTPS;
     }
 
     @Override
