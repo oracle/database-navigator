@@ -5,6 +5,7 @@
  */
 package com.dbn.code.common.intention;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.diagnostics.ParserDiagnosticsManager;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.intellij.openapi.editor.Editor;
@@ -14,6 +15,8 @@ import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
+
+import javax.swing.Icon;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -27,6 +30,11 @@ public class SubmitParserIssueIntentionAction extends EditorIntentionAction {
     @NotNull
     public String getText() {
         return txt("app.codeEditor.intention.SubmitParserIssue");
+    }
+
+    @Override
+    public Icon getIcon(int flags) {
+        return Icons.ACTION_UPLOAD;
     }
 
     @Override

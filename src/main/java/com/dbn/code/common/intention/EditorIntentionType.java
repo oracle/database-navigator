@@ -27,6 +27,8 @@ import lombok.Getter;
  */
 @Getter
 public enum EditorIntentionType {
+    PARSER_DIAGNOSTICS,
+
     // statement
     EXECUTION_RESULT,
     EXECUTE_STATEMENT,
@@ -47,8 +49,6 @@ public enum EditorIntentionType {
     CONNECT,
     EDITOR_SETTINGS,
     TOGGLE_LOGGING,
-    PARSER_DIAGNOSTICS,
-
     // context
     SELECT_SESSION,
     SELECT_SCHEMA,
