@@ -4178,31 +4178,31 @@
                                 </qualified-identifier>
                             </sequence>
                             <sequence optional="true" id="02487">
-                                <token type-id="KW_NOT" optional="true" id="02488" />
-                                <token type-id="KW_RESERVABLE" id="02489" />
+                                <token type-id="KW_COLLATE" id="02488" />
+                                <object-ref type="COLLATION" id="02489" original-name="column_collation_name" />
                             </sequence>
-                            <sequence optional="true" id="02490">
-                                <token type-id="KW_COLLATE" id="02491" />
-                                <object-ref type="COLLATION" id="02492" original-name="column_collation_name" />
-                            </sequence>
-                            <one-of optional="true" id="02493">
+                            <one-of optional="true" id="02490">
                                 <element ref-id="default_clause" />
                                 <element ref-id="identity_clause" />
-                                <sequence id="02494">
-                                    <token type-id="KW_DROP" id="02495" />
-                                    <token type-id="KW_IDENTITY" id="02496" />
+                                <sequence id="02491">
+                                    <token type-id="KW_DROP" id="02492" />
+                                    <token type-id="KW_IDENTITY" id="02493" />
                                 </sequence>
                             </one-of>
-                            <one-of optional="true" id="02497">
-                                <sequence id="02498">
-                                    <token type-id="KW_ENCRYPT" id="02499" />
+                            <one-of optional="true" id="02494">
+                                <sequence id="02495">
+                                    <token type-id="KW_ENCRYPT" id="02496" />
                                     <element ref-id="encryption_spec" />
                                 </sequence>
-                                <token type-id="KW_DECRYPT" id="02500" />
+                                <token type-id="KW_DECRYPT" id="02497" />
                             </one-of>
-                            <iteration optional="true" id="02501">
+                            <iteration optional="true" id="02498">
                                 <element ref-id="inline_constraint" />
                             </iteration>
+                            <sequence optional="true" id="02499">
+                                <token type-id="KW_NOT" id="02500" />
+                                <token type-id="KW_RESERVABLE" id="02501" />
+                            </sequence>
                             <element ref-id="lob_storage_clause" optional="true" />
                             <element ref-id="alter_xmlschema_clause" optional="true" />
                             <element ref-id="annotations_clause" optional="true" />
