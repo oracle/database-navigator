@@ -21,6 +21,7 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.file.util.FileSearchRequest;
 import com.dbn.common.notification.NotificationSupport;
+import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
@@ -86,6 +87,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
     public static final String COMPONENT_NAME = "DBNavigator.Project.ParserDiagnosticsManager";
 
     private final List<ParserDiagnosticsResult> resultHistory = new ArrayList<>();
+    private final StateContainer states = new StateContainer();
     private ParserDiagnosticsFilter resultFilter = ParserDiagnosticsFilter.EMPTY;
     private boolean running;
 
@@ -298,6 +300,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
     @Override
     public Element getComponentState() {
         Element element = newElement("state");
+        states.writeState(element);
         Element historyElement = newElement(element, "diagnostics-history");
         for (ParserDiagnosticsResult capturedResult : resultHistory) {
             if (!capturedResult.isDraft()) {
@@ -310,6 +313,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
 
     @Override
     public void loadComponentState(@NotNull Element element) {
+        states.readState(element);
         Element historyElement = element.getChild("diagnostics-history");
         resultHistory.clear();
         if (historyElement != null) {

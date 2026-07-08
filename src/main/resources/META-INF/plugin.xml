@@ -1005,6 +1005,7 @@
         <editorNotificationProvider implementation="com.dbn.editor.session.SessionBrowserNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.connection.mapping.FileConnectionContextNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.assistant.service.selectai.editor.SelectAiEditorNotificationProvider"/>
+        <editorNotificationProvider implementation="com.dbn.diagnostics.ParserIssueEditorNotificationProvider"/>
 
         <additionalTextAttributes scheme="Dark" file="textAttributes/DBNDarkColors.xml" id="DBN-Dark"/>
         <additionalTextAttributes scheme="Light" file="textAttributes/DBNLightColors.xml" id="DBN-Light"/>

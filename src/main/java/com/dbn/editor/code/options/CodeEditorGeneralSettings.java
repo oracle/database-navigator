@@ -41,6 +41,7 @@ public class CodeEditorGeneralSettings
     private boolean showSpecDeclarationNavigationGutter = true;
     private boolean enableSpellchecking = true;
     private boolean enableReferenceSpellchecking = false;
+    private boolean showParserIssueNotifications = true;
 
     CodeEditorGeneralSettings(CodeEditorSettings parent) {
         super(parent);
@@ -76,6 +77,7 @@ public class CodeEditorGeneralSettings
         showSpecDeclarationNavigationGutter = getBoolean(element, "show-spec-declaration-navigation-gutter", showSpecDeclarationNavigationGutter);
         enableSpellchecking = getBoolean(element, "enable-spellchecking", enableSpellchecking);
         enableReferenceSpellchecking = getBoolean(element, "enable-reference-spellchecking", enableReferenceSpellchecking);
+        showParserIssueNotifications = getBoolean(element, "show-parser-issue-notifications", showParserIssueNotifications);
     }
 
     @Override
@@ -84,5 +86,6 @@ public class CodeEditorGeneralSettings
         setBoolean(element, "show-spec-declaration-navigation-gutter", showSpecDeclarationNavigationGutter);
         setBoolean(element, "enable-spellchecking", enableSpellchecking);
         setBoolean(element, "enable-reference-spellchecking", enableReferenceSpellchecking);
+        setBoolean(element, "show-parser-issue-notifications", showParserIssueNotifications);
     }
 }
