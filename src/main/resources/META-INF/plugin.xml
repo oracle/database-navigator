@@ -201,6 +201,7 @@
         <projectService serviceImplementation="com.dbn.event.registration.EventRegistrationManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.vector.DatabaseVectorManager"/>
+        <projectService serviceImplementation="com.dbn.scheduler.DatabaseSchedulerManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.SourceCodeManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.diff.SourceCodeDiffManager"/>
         <projectService serviceImplementation="com.dbn.editor.data.DatasetEditorManager"/>
@@ -338,6 +339,7 @@
 
         <!--shared prerequisites-->
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_TABLE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_JOB"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_PROCEDURE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_TYPE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_TABLE"/>
