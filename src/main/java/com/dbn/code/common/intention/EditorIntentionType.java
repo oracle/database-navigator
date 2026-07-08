@@ -47,6 +47,7 @@ public enum EditorIntentionType {
     CONNECT,
     EDITOR_SETTINGS,
     TOGGLE_LOGGING,
+    PARSER_DIAGNOSTICS,
 
     // context
     SELECT_SESSION,

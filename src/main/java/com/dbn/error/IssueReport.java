@@ -18,6 +18,7 @@ package com.dbn.error;
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.idea.IdeaLogger;
+import com.intellij.openapi.diagnostic.Attachment;
 import com.intellij.openapi.diagnostic.IdeaLoggingEvent;
 import com.intellij.openapi.diagnostic.SubmittedReportInfo;
 import com.intellij.openapi.project.Project;
@@ -25,6 +26,7 @@ import com.intellij.util.Consumer;
 import lombok.Data;
 
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Locale;
 
 import static com.dbn.common.util.Commons.nvl;
@@ -51,6 +53,7 @@ public class IssueReport {
     private String summary;
     private String description;
     private String clientId;
+    private List<Attachment> attachments = List.of();
     
     public IssueReport(
             Project project,

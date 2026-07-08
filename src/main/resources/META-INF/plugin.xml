@@ -1029,6 +1029,11 @@
         <statusBarWidgetFactory implementation="com.dbn.editor.data.statusbar.DatasetEditorStatusBarWidgetFactory" id="DBNavigator.Project.DatasetEditorStatusBarWidgetFactory"/>
 
         <intentionAction>
+            <className>com.dbn.code.common.intention.SubmitParserIssueIntentionAction</className>
+            <categoryKey>app.codeEditor.category.Diagnostics</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
+        </intentionAction>
+        <intentionAction>
             <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.ExecuteScriptIntentionAction</className>
             <categoryKey>app.codeEditor.category.ScriptExecution</categoryKey>

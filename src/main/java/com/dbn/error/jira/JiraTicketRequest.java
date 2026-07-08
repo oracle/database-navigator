@@ -22,6 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
 @NonNls
 @Getter
@@ -30,7 +31,7 @@ class JiraTicketRequest implements TicketRequest {
 
     JiraTicketRequest(IssueReport report) {
         String summary = report.getSummary();
-        summary = summary.replace("\r\n", " ").replace("\t", " ");
+        summary = normalizeSpaces(summary);
 
         // project
         JsonObject project = new JsonObject();
@@ -56,5 +57,9 @@ class JiraTicketRequest implements TicketRequest {
         fields.add("issuetype", issueType);
         //fields.add("versions", versions); TODO create versions on the fly
         jsonObject.add("fields", fields);
+    }
+
+    private static @NotNull String normalizeSpaces(String summary) {
+        return summary.replace("\r\n", " ").replace("\r", " ").replace("\n", " ").replace("\t", " ");
     }
 }

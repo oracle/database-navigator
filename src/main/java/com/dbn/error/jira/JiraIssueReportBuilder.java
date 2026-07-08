@@ -40,6 +40,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -48,10 +50,9 @@ import java.util.Set;
 import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.checksum.Checksum.fromStringContent;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
-import static com.dbn.common.util.Classes.className;
 import static java.util.Collections.emptyList;
 
-public class JiraIssueReportBuilder implements IssueReportBuilder {
+public abstract class JiraIssueReportBuilder implements IssueReportBuilder {
     private static final String LINE_DELIMITER = "\n__________________________________________________________________\n";
     public static final @NonNls String PLUGIN_ID_CHECKSUM = "84dd76d6695f237f4ef7f8814c0b716b66a54704a922ee74c8578d52d0e4c30c";
 
@@ -70,6 +71,7 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
         initEnvironmentInfo(report);
         initDatabaseInfo(report);
         buildSummary(report);
+        report.setAttachments(getIncludedAttachments(report));
         buildDetails(report);
 
         return report;
@@ -114,14 +116,9 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
         }
     }
 
-    private static void buildSummary(IssueReport report) {
-        IdeaLoggingEvent event = report.getEvents()[0];
-        String summary = event.getThrowableText();
-        summary = summary.substring(0, Math.min(summary.length(), 100));
-        report.setSummary(summary);
-    }
+    protected abstract void buildSummary(IssueReport report);
 
-    private static void buildDetails(IssueReport report) {
+    protected final void buildDetails(IssueReport report) {
         StringBuilder description = new StringBuilder();
         buildEnvironmentInfo(report, description);
         buildAdditionalInfo(report, description);
@@ -155,25 +152,9 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
         }
     }
 
-    private static void buildExceptionInfo(IssueReport report, StringBuilder description) {
-        IdeaLoggingEvent event = report.getEvent();
-        String exceptionMessage = event.getMessage();
-        if (Strings.isNotEmpty(exceptionMessage) && !"null".equals(exceptionMessage)) {
-            description.append("\n\n");
-            exceptionMessage = exceptionMessage.replace("{", "\\{").replace("}", "\\}").replace("[", "\\[").replace("]", "\\]");
-            description.append(exceptionMessage);
-            description.append("\n\n");
-        }
-        description.append(getMarkupElement(MarkupElement.CODE, className(event.getThrowable())));
-        String eventDetails = event.getThrowableText();
-        if (eventDetails.length() > 30000) {
-            eventDetails = eventDetails.substring(0, 30000);
-        }
-        description.append(eventDetails);
-        description.append(getMarkupElement(MarkupElement.CODE));
-    }
+    protected abstract void buildExceptionInfo(IssueReport report, StringBuilder description);
 
-    private static void buildAttachmentInfo(IssueReport report, @NonNls StringBuilder description) {
+    private void buildAttachmentInfo(IssueReport report, @NonNls StringBuilder description) {
         List<Attachment> attachments = getIncludedAttachments(report);
         if (attachments.isEmpty()) return;
 
@@ -195,13 +176,29 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
         description.append(LINE_DELIMITER);
     }
 
-    private static List<Attachment> getIncludedAttachments(IssueReport report) {
+    protected List<Attachment> getIncludedAttachments(IssueReport report) {
         IdeaLoggingEvent event = report.getEvent();
-        List<Attachment> attachments = Unsafe.silent(null, event, e -> invokeMethod(e, "getAttachments"));
-        if (attachments != null) return Lists.filter(attachments, a -> a.isIncluded());
+        Object attachments = Unsafe.silent(null, event, e -> invokeMethod(e, "getAttachments"));
+        if (attachments instanceof Attachment[] array) {
+            return Lists.filter(Arrays.asList(array), this::includeAttachment);
+        }
+        if (attachments instanceof Collection<?> collection) {
+            return Lists.filter(collection.stream().filter(Attachment.class::isInstance).map(Attachment.class::cast).toList(), this::includeAttachment);
+        }
 
         Object data = event.getData();
-        return Unsafe.silent(emptyList(), data, e -> invokeMethod(e, "getIncludedAttachments"));
+        Object includedAttachments = Unsafe.silent(null, data, e -> invokeMethod(e, "getIncludedAttachments"));
+        if (includedAttachments instanceof Attachment[] array) {
+            return Arrays.asList(array);
+        }
+        if (includedAttachments instanceof Collection<?> collection) {
+            return collection.stream().filter(Attachment.class::isInstance).map(Attachment.class::cast).toList();
+        }
+        return emptyList();
+    }
+
+    protected boolean includeAttachment(Attachment attachment) {
+        return attachment.isIncluded();
     }
 
     @Nullable
@@ -236,12 +233,12 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
     }
 
 
-    private static String getMarkupElement(MarkupElement element) {
+    protected static String getMarkupElement(MarkupElement element) {
         return getMarkupElement(element, null);
     }
 
     @NonNls
-    private static String getMarkupElement(MarkupElement element, String title) {
+    protected static String getMarkupElement(MarkupElement element, String title) {
         return switch (element) {
             case BOLD -> "*";
             case ITALIC -> "_";

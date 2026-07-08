@@ -150,7 +150,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
             progress.checkCanceled();
             if (psiFile != null) {
 
-                String scrambled = scrambler.scramble(psiFile);
+                String scrambled = scrambleFile(psiFile, scrambler);
                 String newFileName = scrambler.scrambleName(file);
                 File scrambledFile = new File(rootDir, newFileName);
                 try {
@@ -164,6 +164,15 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
                 }
             }
         }
+    }
+
+    public static byte[] scrambleFile(@NotNull DBLanguagePsiFile psiFile, @NotNull Charset charset) {
+        String scrambled = scrambleFile(psiFile, new DBLLanguageFileScrambler());
+        return scrambled.getBytes(charset);
+    }
+
+    private static String scrambleFile(DBLanguagePsiFile psiFile, DBLLanguageFileScrambler scrambler) {
+        return scrambler.scramble(psiFile);
     }
 
     public String[] getFileExtensions() {

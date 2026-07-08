@@ -77,7 +77,7 @@ public abstract class IssueReportSubmitter extends ErrorReportSubmitter  {
         return true;
     }
 
-    private void submitReport(@Nullable IssueReport report) {
+    public void submitReport(@Nullable IssueReport report) {
         if (report == null) return;
 
         Project project = report.getProject();
