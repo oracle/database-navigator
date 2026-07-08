@@ -20,6 +20,7 @@ import com.dbn.common.thread.Read;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
+import com.dbn.language.common.psi.ExecVariablePsiElement;
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.language.common.psi.LeafPsiElement;
 import com.dbn.language.common.psi.PsiUtil;
@@ -102,6 +103,9 @@ public class DBLLanguageFileScrambler {
                     objectName = StringUtils.rightPad(objectName, objectNameLength, " ");
                 }
                 builder.append(objectName);
+            } else if (child instanceof ExecVariablePsiElement) {
+                String text = child.getText();
+                builder.append(scrambleSubstitutionVariable(text));
             }
         } else if (child instanceof com.intellij.psi.impl.source.tree.LeafPsiElement) {
             IElementType elementType = ((com.intellij.psi.impl.source.tree.LeafPsiElement) child).getElementType();
@@ -126,6 +130,14 @@ public class DBLLanguageFileScrambler {
                 child = child.getNextSibling();
             }
         }
+    }
+
+    private String scrambleSubstitutionVariable(String text) {
+        int prefixLength = text.startsWith("&&") ? 2 :
+                text.startsWith("&") || text.startsWith(":") ? 1 : 0;
+        String prefix = text.substring(0, prefixLength);
+        String variableName = text.substring(prefixLength);
+        return prefix + getObjectName(DBObjectType.VARIABLE, variableName);
     }
 
     public String scrambleName(VirtualFile file) {

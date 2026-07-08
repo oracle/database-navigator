@@ -23,6 +23,7 @@ import com.dbn.common.file.util.FileSearchRequest;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Files;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
@@ -31,16 +32,22 @@ import com.dbn.diagnostics.data.ParserDiagnosticsFilter;
 import com.dbn.diagnostics.data.ParserDiagnosticsResult;
 import com.dbn.diagnostics.data.ParserDiagnosticsUtil;
 import com.dbn.diagnostics.ui.ParserDiagnosticsForm;
+import com.dbn.diagnostics.ui.ParserIssueReportDialog;
+import com.dbn.error.jira.JiraParserIssueReportSubmitter;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.common.psi.scrambler.DBLLanguageFileScrambler;
 import com.dbn.language.psql.PSQLFileType;
 import com.dbn.language.sql.SQLFileType;
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.diagnostic.Attachment;
+import com.intellij.openapi.diagnostic.IdeaLoggingEvent;
 import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher;
 import com.intellij.openapi.fileTypes.FileNameMatcher;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -48,6 +55,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -64,6 +72,7 @@ import static com.dbn.common.file.util.VirtualFiles.findFiles;
 import static com.dbn.common.notification.NotificationCategory.DEVELOPER;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.thread.Progress.progressOf;
+import static com.dbn.common.util.Dialogs.whenOk;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -86,6 +95,37 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
 
     public static ParserDiagnosticsManager get(@NotNull Project project) {
         return projectService(project, ParserDiagnosticsManager.class);
+    }
+
+    @SneakyThrows
+    public void submitParserIssueReport(DBLanguagePsiFile psiFile) {
+        File attachmentFile = File.createTempFile("dbn-parser-issue-", "." + psiFile.getVirtualFile().getExtension());
+        attachmentFile.deleteOnExit();
+
+        Charset charset = psiFile.getVirtualFile().getCharset();
+        byte[] scrambled = ParserDiagnosticsManager.scrambleFile(psiFile, charset);
+        FileUtil.writeToFile(attachmentFile, scrambled);
+
+        Attachment attachment = new Attachment(attachmentFile.getPath(), attachmentFile, attachmentFile.getName());
+        FileType fileType = psiFile.getFileType();
+        String scrambledCode = new String(scrambled, charset);
+
+        Dialogs.show(() -> new ParserIssueReportDialog(getProject(), scrambledCode, fileType,
+                psiFile.getLanguageDialect()), whenOk(d -> submitParserIssueReport(attachment)));
+    }
+
+    private void submitParserIssueReport(Attachment attachment) {
+        IdeaLoggingEvent event = new IdeaLoggingEvent(
+                "Parser issue",
+                new IllegalArgumentException("Parser error"),
+                List.of(attachment),
+                (IdeaPluginDescriptor) null,
+                null);
+
+        new JiraParserIssueReportSubmitter().submit(
+                getProject(),
+                new IdeaLoggingEvent[]{event},
+                "Parser issue reported from the SQL/PLSQL editor");
     }
 
     @NotNull
