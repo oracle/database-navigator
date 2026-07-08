@@ -17,8 +17,10 @@
 package com.dbn.ml.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.diagnostics.Diagnostics;
 import com.dbn.ml.DatabaseMLManager;
 import com.dbn.ml.model.MLRequest;
 import org.jetbrains.annotations.NotNull;
@@ -66,27 +68,41 @@ public class MLToolboxDialog extends DBNDialog<MLToolboxForm> {
 
     @Override
     protected void doOKAction() {
-        MLToolboxForm form = getForm();
-        form.applyFormChanges();
-        
-        if (request.isTemplate()) {
-            form.saveRequestTemplate(true);
+        try {
+            MLToolboxForm form = getForm();
+            form.applyFormChanges();
+
+            if (request.isTemplate()) {
+                form.saveRequestTemplate(true);
+            }
+        } catch (Exception e) {
+            // surface apply failures instead of silently swallowing the Train click
+            Diagnostics.conditionallyLog(e);
+            Messages.showErrorDialog(getProject(),
+                    txt("msg.machineLearning.title.MLToolboxError"),
+                    txt("msg.machineLearning.error.ModelTrainingFailed", e.getMessage()));
+            return;
         }
 
         // Close dialog first, then start training in background
         super.doOKAction();
-        
+
         DatabaseMLManager mlManager = DatabaseMLManager.getInstance(getProject());
         mlManager.trainModelAsync(request, getConnection());
     }
 
     @Override
     public void doCancelAction() {
-        MLToolboxForm form = getForm();
-        form.applyFormChanges();
+        try {
+            MLToolboxForm form = getForm();
+            form.applyFormChanges();
 
-        if (request.isTemplate()) {
-            form.saveRequestTemplate(false);
+            if (request.isTemplate()) {
+                form.saveRequestTemplate(false);
+            }
+        } catch (Exception e) {
+            // template snapshot on close is best-effort - never block dialog cancellation
+            Diagnostics.conditionallyLog(e);
         }
 
         super.doCancelAction();
