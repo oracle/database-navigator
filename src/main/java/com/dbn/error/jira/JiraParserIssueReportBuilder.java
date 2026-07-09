@@ -41,6 +41,12 @@ public class JiraParserIssueReportBuilder extends JiraIssueReportBuilder {
     }
 
     @Override
+    protected void buildAttachments(IssueReport report) {
+        ParserIssueReportInput input = getReportInput(report);
+        if (input != null) report.addAttachment(input.getAttachment());
+    }
+
+    @Override
     protected void buildAdditionalInfo(IssueReport report, StringBuilder description) {
         super.buildAdditionalInfo(report, description);
 

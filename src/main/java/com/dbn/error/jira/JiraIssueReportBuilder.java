@@ -17,8 +17,6 @@
 package com.dbn.error.jira;
 
 import com.dbn.DatabaseNavigator;
-import com.dbn.common.util.Lists;
-import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
@@ -39,8 +37,6 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -49,8 +45,10 @@ import java.util.Set;
 import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.checksum.Checksum.fromStringContent;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
+import static com.dbn.common.data.Data.asIterable;
+import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Strings.isEmpty;
-import static java.util.Collections.emptyList;
+import static com.dbn.common.util.Unsafe.silent;
 
 public abstract class JiraIssueReportBuilder implements IssueReportBuilder {
     private static final String LINE_DELIMITER = "\n__________________________________________________________________\n";
@@ -67,12 +65,13 @@ public abstract class JiraIssueReportBuilder implements IssueReportBuilder {
         if (!verifyPlugin(plugin)) return null;
 
         IssueReport report = new IssueReport(project, plugin, events, message, consumer);
+        addAttachments(report);
 
         initEnvironmentInfo(report);
         initDatabaseInfo(report);
         buildSummary(report);
         buildLabels(report);
-        report.setAttachments(getIncludedAttachments(report));
+        buildAttachments(report);
         buildDetails(report);
 
         return report;
@@ -125,6 +124,9 @@ public abstract class JiraIssueReportBuilder implements IssueReportBuilder {
         report.addLabel(report.getPluginVersion());
     }
 
+    protected void buildAttachments(IssueReport report) {
+    }
+
     protected final void buildDetails(IssueReport report) {
         StringBuilder description = new StringBuilder();
         buildEnvironmentInfo(report, description);
@@ -162,7 +164,7 @@ public abstract class JiraIssueReportBuilder implements IssueReportBuilder {
     protected abstract void buildExceptionInfo(IssueReport report, StringBuilder description);
 
     private void buildAttachmentInfo(IssueReport report, @NonNls StringBuilder description) {
-        List<Attachment> attachments = getIncludedAttachments(report);
+        List<Attachment> attachments = report.getAttachments();
         if (attachments.isEmpty()) return;
 
         Set<String> attachmentTexts = new HashSet<>();
@@ -183,25 +185,17 @@ public abstract class JiraIssueReportBuilder implements IssueReportBuilder {
         description.append(LINE_DELIMITER);
     }
 
-    protected List<Attachment> getIncludedAttachments(IssueReport report) {
+    private void addAttachments(IssueReport report) {
         IdeaLoggingEvent event = report.getEvent();
-        Object attachments = Unsafe.silent(null, event, e -> invokeMethod(e, "getAttachments"));
-        if (attachments instanceof Attachment[] array) {
-            return Lists.filter(Arrays.asList(array), this::includeAttachment);
-        }
-        if (attachments instanceof Collection<?> collection) {
-            return Lists.filter(collection.stream().filter(Attachment.class::isInstance).map(Attachment.class::cast).toList(), this::includeAttachment);
-        }
+        Object attachments = coalesce(
+                () -> silent(null, event, e -> invokeMethod(e, "getAttachments")),
+                () -> silent(null, event.getData(), e -> invokeMethod(e, "getIncludedAttachments")));
 
-        Object data = event.getData();
-        Object includedAttachments = Unsafe.silent(null, data, e -> invokeMethod(e, "getIncludedAttachments"));
-        if (includedAttachments instanceof Attachment[] array) {
-            return Arrays.asList(array);
+        for (Object attachment : asIterable(attachments)) {
+            if (attachment instanceof Attachment a && includeAttachment(a)) {
+                report.addAttachment(a);
+            }
         }
-        if (includedAttachments instanceof Collection<?> collection) {
-            return collection.stream().filter(Attachment.class::isInstance).map(Attachment.class::cast).toList();
-        }
-        return emptyList();
     }
 
     protected boolean includeAttachment(Attachment attachment) {

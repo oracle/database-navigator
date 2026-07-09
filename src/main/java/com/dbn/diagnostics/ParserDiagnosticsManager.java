@@ -41,7 +41,6 @@ import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.common.psi.scrambler.DBLLanguageFileScrambler;
 import com.dbn.language.psql.PSQLFileType;
 import com.dbn.language.sql.SQLFileType;
-import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.diagnostic.Attachment;
@@ -113,17 +112,14 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
         String scrambledCode = new String(scrambled, charset);
 
         ParserIssueReportInput input = new ParserIssueReportInput(
-                scrambledCode, fileType, psiFile.getLanguageDialect());
+                scrambledCode, fileType, psiFile.getLanguageDialect(), attachment);
         Dialogs.show(() -> new ParserIssueReportDialog(getProject(), input),
-                whenOk(d -> submitParserIssueReport(input, attachment)));
+                whenOk(d -> submitParserIssueReport(input)));
     }
 
-    private void submitParserIssueReport(ParserIssueReportInput input, Attachment attachment) {
-        IdeaLoggingEvent event = new IdeaLoggingEvent(
-                "Parser issue",
+    private void submitParserIssueReport(ParserIssueReportInput input) {
+        IdeaLoggingEvent event = new IdeaLoggingEvent("Parser issue",
                 new IllegalArgumentException("Parser error"),
-                List.of(attachment),
-                (IdeaPluginDescriptor) null,
                 input);
 
         new JiraParserIssueReportSubmitter().submit(

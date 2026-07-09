@@ -57,7 +57,7 @@ public class IssueReport {
     private String summary;
     private String description;
     private String clientId;
-    private List<Attachment> attachments = List.of();
+    private List<Attachment> attachments = new ArrayList<>();
     private List<String> labels = new ArrayList<>();
 
     public void addLabel(String label) {
@@ -65,6 +65,10 @@ public class IssueReport {
         if (label.equals(NA)) return;
 
         labels.add(label);
+    }
+
+    public void addAttachment(Attachment attachment) {
+        if (attachment != null) attachments.add(attachment);
     }
     
     public IssueReport(
