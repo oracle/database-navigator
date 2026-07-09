@@ -78,6 +78,11 @@ final class DBDiagramElementManager<T extends DBObject> implements DiagramElemen
     }
 
     @Override
+    public String getEditorTitle(T element, Collection<T> elements) {
+        return getElementTitle(element);
+    }
+
+    @Override
     public String getNodeTooltip(T element) {
         return provider.getNodeTooltip(element);
     }
