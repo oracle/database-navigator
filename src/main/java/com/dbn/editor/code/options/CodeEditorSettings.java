@@ -40,7 +40,7 @@ public class CodeEditorSettings extends CompositeProjectConfiguration<ProjectSet
         super(parent);
     }
 
-    public static CodeEditorSettings getInstance(@NotNull Project project) {
+    public static CodeEditorSettings get(@NotNull Project project) {
         return ProjectSettings.get(project).getCodeEditorSettings();
     }
 
@@ -68,7 +68,7 @@ public class CodeEditorSettings extends CompositeProjectConfiguration<ProjectSet
     @NotNull
     @Override
     public CodeEditorSettings getOriginalSettings() {
-        return getInstance(getProject());
+        return get(getProject());
     }
 
     /*********************************************************
