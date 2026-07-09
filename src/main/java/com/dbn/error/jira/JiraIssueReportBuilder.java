@@ -17,9 +17,6 @@
 package com.dbn.error.jira;
 
 import com.dbn.DatabaseNavigator;
-import com.dbn.common.util.Lists;
-import com.dbn.common.util.Strings;
-import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
@@ -48,10 +45,12 @@ import java.util.Set;
 import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.checksum.Checksum.fromStringContent;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
-import static com.dbn.common.util.Classes.className;
-import static java.util.Collections.emptyList;
+import static com.dbn.common.data.Data.asIterable;
+import static com.dbn.common.util.Commons.coalesce;
+import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.common.util.Unsafe.silent;
 
-public class JiraIssueReportBuilder implements IssueReportBuilder {
+public abstract class JiraIssueReportBuilder implements IssueReportBuilder {
     private static final String LINE_DELIMITER = "\n__________________________________________________________________\n";
     public static final @NonNls String PLUGIN_ID_CHECKSUM = "84dd76d6695f237f4ef7f8814c0b716b66a54704a922ee74c8578d52d0e4c30c";
 
@@ -66,10 +65,13 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
         if (!verifyPlugin(plugin)) return null;
 
         IssueReport report = new IssueReport(project, plugin, events, message, consumer);
+        addAttachments(report);
 
         initEnvironmentInfo(report);
         initDatabaseInfo(report);
         buildSummary(report);
+        buildLabels(report);
+        buildAttachments(report);
         buildDetails(report);
 
         return report;
@@ -110,18 +112,22 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
             report.setDatabaseType(databaseType.name());
             report.setDatabaseVersion("NA");
             String driverLibrary = databaseSettings.getDriverLibrary();
-            report.setDatabaseDriver(Strings.isEmpty(driverLibrary) ? "NA" : new File(driverLibrary).getName());
+            report.setDatabaseDriver(isEmpty(driverLibrary) ? "NA" : new File(driverLibrary).getName());
         }
     }
 
-    private static void buildSummary(IssueReport report) {
-        IdeaLoggingEvent event = report.getEvents()[0];
-        String summary = event.getThrowableText();
-        summary = summary.substring(0, Math.min(summary.length(), 100));
-        report.setSummary(summary);
+    protected abstract void buildSummary(IssueReport report);
+
+    protected void buildLabels(IssueReport report) {
+        report.addLabel(report.getDatabaseType());
+        report.addLabel(report.getIdeVersion());
+        report.addLabel(report.getPluginVersion());
     }
 
-    private static void buildDetails(IssueReport report) {
+    protected void buildAttachments(IssueReport report) {
+    }
+
+    protected final void buildDetails(IssueReport report) {
         StringBuilder description = new StringBuilder();
         buildEnvironmentInfo(report, description);
         buildAdditionalInfo(report, description);
@@ -146,35 +152,19 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
         addEnvironmentInfo(description, "Client Id", report.getClientId());
     }
 
-    private static void buildAdditionalInfo(IssueReport report, StringBuilder description) {
+    protected void buildAdditionalInfo(IssueReport report, StringBuilder description) {
         String message = report.getMessage();
-        if (Strings.isNotEmpty(message)) {
-            description.append(getMarkupElement(MarkupElement.PANEL, "User Message"));
-            description.append(message);
-            description.append(getMarkupElement(MarkupElement.PANEL));
-        }
+        if (isEmpty(message)) return;
+
+        description.append(getMarkupElement(MarkupElement.PANEL, "User Message"));
+        description.append(message);
+        description.append(getMarkupElement(MarkupElement.PANEL));
     }
 
-    private static void buildExceptionInfo(IssueReport report, StringBuilder description) {
-        IdeaLoggingEvent event = report.getEvent();
-        String exceptionMessage = event.getMessage();
-        if (Strings.isNotEmpty(exceptionMessage) && !"null".equals(exceptionMessage)) {
-            description.append("\n\n");
-            exceptionMessage = exceptionMessage.replace("{", "\\{").replace("}", "\\}").replace("[", "\\[").replace("]", "\\]");
-            description.append(exceptionMessage);
-            description.append("\n\n");
-        }
-        description.append(getMarkupElement(MarkupElement.CODE, className(event.getThrowable())));
-        String eventDetails = event.getThrowableText();
-        if (eventDetails.length() > 30000) {
-            eventDetails = eventDetails.substring(0, 30000);
-        }
-        description.append(eventDetails);
-        description.append(getMarkupElement(MarkupElement.CODE));
-    }
+    protected abstract void buildExceptionInfo(IssueReport report, StringBuilder description);
 
-    private static void buildAttachmentInfo(IssueReport report, @NonNls StringBuilder description) {
-        List<Attachment> attachments = getIncludedAttachments(report);
+    private void buildAttachmentInfo(IssueReport report, @NonNls StringBuilder description) {
+        List<Attachment> attachments = report.getAttachments();
         if (attachments.isEmpty()) return;
 
         Set<String> attachmentTexts = new HashSet<>();
@@ -195,13 +185,21 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
         description.append(LINE_DELIMITER);
     }
 
-    private static List<Attachment> getIncludedAttachments(IssueReport report) {
+    private void addAttachments(IssueReport report) {
         IdeaLoggingEvent event = report.getEvent();
-        List<Attachment> attachments = Unsafe.silent(null, event, e -> invokeMethod(e, "getAttachments"));
-        if (attachments != null) return Lists.filter(attachments, a -> a.isIncluded());
+        Object attachments = coalesce(
+                () -> silent(null, event, e -> invokeMethod(e, "getAttachments")),
+                () -> silent(null, event.getData(), e -> invokeMethod(e, "getIncludedAttachments")));
 
-        Object data = event.getData();
-        return Unsafe.silent(emptyList(), data, e -> invokeMethod(e, "getIncludedAttachments"));
+        for (Object attachment : asIterable(attachments)) {
+            if (attachment instanceof Attachment a && includeAttachment(a)) {
+                report.addAttachment(a);
+            }
+        }
+    }
+
+    protected boolean includeAttachment(Attachment attachment) {
+        return attachment.isIncluded();
     }
 
     @Nullable
@@ -236,12 +234,12 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
     }
 
 
-    private static String getMarkupElement(MarkupElement element) {
+    protected static String getMarkupElement(MarkupElement element) {
         return getMarkupElement(element, null);
     }
 
     @NonNls
-    private static String getMarkupElement(MarkupElement element, String title) {
+    protected static String getMarkupElement(MarkupElement element, String title) {
         return switch (element) {
             case BOLD -> "*";
             case ITALIC -> "_";

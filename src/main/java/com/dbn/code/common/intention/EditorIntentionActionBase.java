@@ -26,6 +26,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,6 +58,11 @@ public abstract class EditorIntentionActionBase extends com.intellij.codeInsight
     }
 
     public abstract EditorIntentionType getType();
+
+    @Nullable
+    public static EditorIntentionActionBase get(EditorIntentionType type) {
+        return REGISTRY.get(type);
+    }
 
     public final void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
         if (isNotValid(editor)) return;

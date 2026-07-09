@@ -25,7 +25,6 @@ import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
-import com.dbn.editor.code.options.CodeEditorSettings;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -61,9 +60,8 @@ public class SourceCodeSaveAction extends AbstractCodeEditorAction {
     }
 
     private static void performSave(@NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
-        CodeEditorSettings editorSettings = CodeEditorSettings.getInstance(project);
-        CodeEditorConfirmationSettings confirmationSettings = editorSettings.getConfirmationSettings();
-        InteractiveConfirmationBroker confirmationBroker = confirmationSettings.getSaveChanges();
+        CodeEditorConfirmationSettings settings = CodeEditorConfirmationSettings.get(project);
+        InteractiveConfirmationBroker confirmationBroker = settings.getSaveChanges();
 
         String objectName = fileEditor.getObject().getQualifiedNameWithType();
         boolean canContinue = confirmationBroker.resolve(project, objectName);
