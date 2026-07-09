@@ -115,7 +115,12 @@ public class DatabaseSchedulerManager extends ProjectComponentBase {
                 getProject(), connection.getConnectionId(),
                 conn -> {
                     DatabaseSchedulerInterface schedulerInterface = connection.getSchedulerInterface();
-                    schedulerInterface.stopJob(conn, job.getName());
+                    try {
+                        schedulerInterface.stopJob(conn, job.getName());
+                    } catch (SQLException e) {
+                        // the job may have already completed/stopped - drop it regardless so it is never orphaned
+                        Diagnostics.conditionallyLog(e);
+                    }
                     schedulerInterface.dropJob(conn, job.getName(), true);
                 });
     }

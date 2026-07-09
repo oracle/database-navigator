@@ -46,11 +46,11 @@ public enum SchedulerJobStatus {
     }
 
     public static SchedulerJobStatus resolve(@Nullable String state, @Nullable String runStatus) {
-        SchedulerJobStatus status = valueOf(runStatus);
-        return status == UNKNOWN ? valueOf(state) : status;
+        SchedulerJobStatus status = parse(runStatus);
+        return status == UNKNOWN ? parse(state) : status;
     }
 
-    private static SchedulerJobStatus valueOf(@Nullable String value) {
+    private static SchedulerJobStatus parse(@Nullable String value) {
         try {
             return value == null ? UNKNOWN : SchedulerJobStatus.valueOf(value.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ignore) {

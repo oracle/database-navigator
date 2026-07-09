@@ -28,6 +28,9 @@ public class SchedulerJobRequest {
     public SchedulerJobRequest(@NotNull @NonNls String namePrefix, @NotNull @NonNls String action) {
         if (namePrefix.isBlank()) throw new IllegalArgumentException("Job name prefix must not be blank");
         if (action.isBlank()) throw new IllegalArgumentException("Job action must not be blank");
+        // the action must be fully-rendered text (a scheduler job runs later in its own session, so it
+        // cannot carry JDBC binds). Build it from feature XML via DatabaseInterfaceBase.renderStatementText(...),
+        // which rejects {#N} bind templates - do not concatenate SQL in Java.
         this.namePrefix = namePrefix;
         this.action = action;
     }
