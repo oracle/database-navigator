@@ -269,12 +269,15 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     private void saveSourceToDatabase(@NotNull DBSourceCodeVirtualFile sourceCodeFile, @Nullable SourceCodeEditor fileEditor, @Nullable Runnable successCallback) {
         if (sourceCodeFile.is(SAVING)) return;
-        sourceCodeFile.set(SAVING, true);
 
         Project project = getProject();
+        if (isNotValid(project)) return;
+
         try {
             DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
             if (!debuggerManager.checkForbiddenOperation(sourceCodeFile.getConnection())) return;
+
+            sourceCodeFile.set(SAVING, true);
 
             Document document = Failsafe.nn(Documents.getDocument(sourceCodeFile));
             Documents.saveDocument(document);
@@ -308,8 +311,8 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
         } catch (Exception e) {
             conditionallyLog(e);
-            showErrorDialog(project, txt("msg.codeEditor.error.CouldNotSaveChanges"), e);
             sourceCodeFile.set(SAVING, false);
+            showErrorDialog(project, txt("msg.codeEditor.error.CouldNotSaveChanges"), e);
         }
     }
 
