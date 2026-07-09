@@ -47,6 +47,10 @@ public class CodeEditorGeneralSettings
         super(parent);
     }
 
+    public static CodeEditorGeneralSettings get(Project project) {
+        return CodeEditorSettings.get(project).getGeneralSettings();
+    }
+
     @Override
     public String getDisplayName() {
         return txt("cfg.codeEditor.title.GeneralSettings");

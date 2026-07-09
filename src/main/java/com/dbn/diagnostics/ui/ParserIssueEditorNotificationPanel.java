@@ -9,8 +9,7 @@ import com.dbn.common.editor.EditorNotificationPanel;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.util.Messages;
 import com.dbn.diagnostics.ParserDiagnosticsManager;
-import com.dbn.diagnostics.ParserIssueEditorNotificationProvider;
-import com.dbn.editor.code.options.CodeEditorSettings;
+import com.dbn.editor.code.options.CodeEditorGeneralSettings;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -20,14 +19,17 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Editors.updateNotifications;
 import static com.dbn.common.util.Messages.options;
+import static com.dbn.diagnostics.ParserIssueEditorNotificationProvider.markDismissed;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ParserIssueEditorNotificationPanel extends EditorNotificationPanel {
     private final DBLanguagePsiFile psiFile;
+    private final VirtualFile contentFile;
 
     public ParserIssueEditorNotificationPanel(@NotNull Project project, @NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull DBLanguagePsiFile psiFile) {
         super(project, file, fileEditor, MessageType.WARNING);
         this.psiFile = psiFile;
+        this.contentFile = psiFile.getVirtualFile();
         setIcon(AllIcons.Actions.IntentionBulb);
         setText(txt("ntf.diagnostics.text.ParserIssue"));
 
@@ -52,12 +54,11 @@ public class ParserIssueEditorNotificationPanel extends EditorNotificationPanel 
                 0);
 
         if (option == 0) {
-            VirtualFile file = getFile();
-            file.putUserData(ParserIssueEditorNotificationProvider.DISMISSED, true);
-            updateNotifications(project, file);
+            markDismissed(contentFile);
+            updateNotifications(project, getFile());
         } else if (option == 1) {
-            CodeEditorSettings codeEditorSettings = CodeEditorSettings.getInstance(project);
-            codeEditorSettings.getGeneralSettings().setShowParserIssueNotifications(false);
+            CodeEditorGeneralSettings settings = CodeEditorGeneralSettings.get(project);
+            settings.setShowParserIssueNotifications(false);
             updateNotifications(project, null);
         }
     }
