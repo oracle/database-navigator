@@ -252,6 +252,25 @@ public class StatementExecutionProcessor {
         outputReader.read(statement);
     }
 
+    /**
+     * Renders the statement text with identifiers inlined, without executing it. Intended for deferred
+     * execution contexts (e.g. a DBMS_SCHEDULER job action) where the finished statement text must be
+     * handed to the database instead of run as a JDBC prepared statement.
+     * <p>
+     * Only {@code {@N}} identifier markers (safely quoted) and literal template text are safe here.
+     * A template carrying {@code {#N}} JDBC bind parameters is rejected, because those cannot be bound
+     * in a deferred session. {@code {N}} placeholders are inlined verbatim (no literal escaping), so they
+     * must only ever carry trusted tokens - never untrusted values.
+     */
+    public String prepareStatementText(@NotNull DBNConnection connection, Object... arguments) throws SQLException {
+        for (StatementDefinition definition : getStatementDefinitions(connection)) {
+            if (definition.getParameterCount() > 0)
+                throw new SQLException("Statement '" + id + "' cannot be rendered for deferred execution: it declares {#N} bind parameters. Use {@N} identifiers or literal text instead.");
+            return definition.prepareStatementText(connection, arguments);
+        }
+        throw NO_STATEMENT_DEFINITION_EXCEPTION;
+    }
+
     public int executeUpdate(DBNConnection connection, Object... arguments) throws SQLException {
         StatementExecutorContext context = createContext(connection);
         SQLException exception = NO_STATEMENT_DEFINITION_EXCEPTION;
