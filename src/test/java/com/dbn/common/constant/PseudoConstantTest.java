@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -120,6 +121,49 @@ public class PseudoConstantTest {
             PseudoConstant value = values[i];
             Assert.assertEquals(i, value.ordinal());
         }
+    }
+
+    @Test
+    public void testConcurrentLookupOfSameIdReturnsCanonicalInstance() throws Exception {
+        String constantId = "PSEUDO_CONSTANT_SAME_ID";
+        int threadCount = 100;
+        CountDownLatch start = new CountDownLatch(1);
+        CountDownLatch done = new CountDownLatch(threadCount);
+        List<PseudoConstant> captures = new CopyOnWriteArrayList<>();
+
+        for (int i = 0; i < threadCount; i++) {
+            new Thread(() -> {
+                try {
+                    start.await();
+                    captures.add(constant(constantId));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new AssertionError(e);
+                } finally {
+                    done.countDown();
+                }
+            }).start();
+        }
+
+        start.countDown();
+        done.await();
+
+        PseudoConstant canonical = constant(constantId);
+        Assert.assertEquals(threadCount, captures.size());
+        for (PseudoConstant capture : captures) {
+            Assert.assertSame(canonical, capture);
+        }
+    }
+
+    @Test
+    public void testDuplicateConstructionDoesNotReplaceCanonicalInstance() {
+        String constantId = "PSEUDO_CONSTANT_DUPLICATE";
+        PseudoConstant canonical = constant(constantId);
+        PseudoConstant duplicate = TestPseudoConstant.create(constantId);
+
+        Assert.assertNotSame(canonical, duplicate);
+        Assert.assertSame(canonical, constant(constantId));
+        Assert.assertEquals(canonical.ordinal(), duplicate.ordinal());
     }
 
     private static PseudoConstant constant(String constantId) {

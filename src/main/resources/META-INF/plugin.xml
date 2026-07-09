@@ -1017,6 +1017,7 @@
         <editorNotificationProvider implementation="com.dbn.editor.session.SessionBrowserNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.connection.mapping.FileConnectionContextNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.assistant.service.selectai.editor.SelectAiEditorNotificationProvider"/>
+        <editorNotificationProvider implementation="com.dbn.diagnostics.ParserIssueEditorNotificationProvider"/>
 
         <additionalTextAttributes scheme="Dark" file="textAttributes/DBNDarkColors.xml" id="DBN-Dark"/>
         <additionalTextAttributes scheme="Light" file="textAttributes/DBNLightColors.xml" id="DBN-Light"/>
@@ -1040,6 +1041,11 @@
         <fileTemplateGroup implementation="com.dbn.common.file.DBNFileTemplateGroupDescriptorFactory"/>
         <statusBarWidgetFactory implementation="com.dbn.editor.data.statusbar.DatasetEditorStatusBarWidgetFactory" id="DBNavigator.Project.DatasetEditorStatusBarWidgetFactory"/>
 
+        <intentionAction>
+            <className>com.dbn.code.common.intention.SubmitParserIssueIntentionAction</className>
+            <categoryKey>app.codeEditor.category.Diagnostics</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
+        </intentionAction>
         <intentionAction>
             <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.ExecuteScriptIntentionAction</className>

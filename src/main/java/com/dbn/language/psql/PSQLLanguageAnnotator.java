@@ -38,7 +38,6 @@ import com.dbn.language.common.psi.NamedPsiElement;
 import com.dbn.language.common.psi.TokenPsiElement;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.options.ProjectSettings;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -168,10 +167,8 @@ public class PSQLLanguageAnnotator extends DBLanguageAnnotator {
                     DBSchemaObject object = (DBSchemaObject) file.getUnderlyingObject();
                     VirtualFile virtualFile = file.getVirtualFile();
 
-                    ProjectSettings projectSettings = ProjectSettings.get(basePsiElement.getProject());
-                    CodeEditorGeneralSettings codeEditorGeneralSettings = projectSettings.getCodeEditorSettings().getGeneralSettings();
-
-                    if (codeEditorGeneralSettings.isShowSpecDeclarationNavigationGutter()) {
+                    CodeEditorGeneralSettings settings = CodeEditorGeneralSettings.get(basePsiElement.getProject());
+                    if (settings.isShowSpecDeclarationNavigationGutter()) {
                         if (object == null || (virtualFile != null && virtualFile.isInLocalFileSystem())) {
                             ElementTypeAttribute targetAttribute =
                                     elementType.is(OBJECT_DECLARATION) ? OBJECT_SPECIFICATION :
@@ -209,7 +206,7 @@ public class PSQLLanguageAnnotator extends DBLanguageAnnotator {
                         }
                     }
 
-                    if (codeEditorGeneralSettings.isShowObjectsNavigationGutter()) {
+                    if (settings.isShowObjectsNavigationGutter()) {
                         NavigateToObjectAction navigateToObjectAction = new NavigateToObjectAction(identifierPsiElement.getUnderlyingObject(), objectType);
                         NavigationGutterRenderer gutterRenderer = new NavigationGutterRenderer(navigateToObjectAction, GutterIconRenderer.Alignment.LEFT);
                         createGutterAnnotation(holder, basePsiElement, gutterRenderer);
