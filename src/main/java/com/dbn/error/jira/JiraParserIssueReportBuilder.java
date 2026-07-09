@@ -67,8 +67,12 @@ public class JiraParserIssueReportBuilder extends JiraIssueReportBuilder {
         Attachment attachment = attachments.get(0);
         try {
             String content = Files.readString(Path.of(attachment.getPath()), StandardCharsets.UTF_8);
+            int previewLength = Math.min(content.length(), 10000);
             description.append(getMarkupElement(MarkupElement.CODE, attachment.getDisplayText()));
-            description.append(content.substring(0, Math.min(content.length(), 10000)));
+            description.append(content, 0, previewLength);
+            if (previewLength < content.length()) {
+                description.append("\n...");
+            }
             description.append(getMarkupElement(MarkupElement.CODE));
         } catch (IOException e) {
             description.append("Parser issue attachment could not be read");
