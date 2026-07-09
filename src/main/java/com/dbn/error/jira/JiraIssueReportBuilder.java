@@ -18,7 +18,6 @@ package com.dbn.error.jira;
 
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.util.Lists;
-import com.dbn.common.util.Strings;
 import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
@@ -50,6 +49,7 @@ import java.util.Set;
 import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.checksum.Checksum.fromStringContent;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
+import static com.dbn.common.util.Strings.isEmpty;
 import static java.util.Collections.emptyList;
 
 public abstract class JiraIssueReportBuilder implements IssueReportBuilder {
@@ -71,6 +71,7 @@ public abstract class JiraIssueReportBuilder implements IssueReportBuilder {
         initEnvironmentInfo(report);
         initDatabaseInfo(report);
         buildSummary(report);
+        buildLabels(report);
         report.setAttachments(getIncludedAttachments(report));
         buildDetails(report);
 
@@ -112,11 +113,17 @@ public abstract class JiraIssueReportBuilder implements IssueReportBuilder {
             report.setDatabaseType(databaseType.name());
             report.setDatabaseVersion("NA");
             String driverLibrary = databaseSettings.getDriverLibrary();
-            report.setDatabaseDriver(Strings.isEmpty(driverLibrary) ? "NA" : new File(driverLibrary).getName());
+            report.setDatabaseDriver(isEmpty(driverLibrary) ? "NA" : new File(driverLibrary).getName());
         }
     }
 
     protected abstract void buildSummary(IssueReport report);
+
+    protected void buildLabels(IssueReport report) {
+        report.addLabel(report.getDatabaseType());
+        report.addLabel(report.getIdeVersion());
+        report.addLabel(report.getPluginVersion());
+    }
 
     protected final void buildDetails(IssueReport report) {
         StringBuilder description = new StringBuilder();
@@ -143,13 +150,13 @@ public abstract class JiraIssueReportBuilder implements IssueReportBuilder {
         addEnvironmentInfo(description, "Client Id", report.getClientId());
     }
 
-    private static void buildAdditionalInfo(IssueReport report, StringBuilder description) {
+    protected void buildAdditionalInfo(IssueReport report, StringBuilder description) {
         String message = report.getMessage();
-        if (Strings.isNotEmpty(message)) {
-            description.append(getMarkupElement(MarkupElement.PANEL, "User Message"));
-            description.append(message);
-            description.append(getMarkupElement(MarkupElement.PANEL));
-        }
+        if (isEmpty(message)) return;
+
+        description.append(getMarkupElement(MarkupElement.PANEL, "User Message"));
+        description.append(message);
+        description.append(getMarkupElement(MarkupElement.PANEL));
     }
 
     protected abstract void buildExceptionInfo(IssueReport report, StringBuilder description);

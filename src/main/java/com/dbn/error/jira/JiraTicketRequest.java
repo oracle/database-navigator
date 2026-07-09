@@ -55,6 +55,11 @@ class JiraTicketRequest implements TicketRequest {
         fields.addProperty("description", report.getDescription());
         fields.addProperty("environment", report.getIdeVersion());
         fields.add("issuetype", issueType);
+        if (!report.getLabels().isEmpty()) {
+            JsonArray labels = new JsonArray();
+            report.getLabels().forEach(labels::add);
+            fields.add("labels", labels);
+        }
         //fields.add("versions", versions); TODO create versions on the fly
         jsonObject.add("fields", fields);
     }

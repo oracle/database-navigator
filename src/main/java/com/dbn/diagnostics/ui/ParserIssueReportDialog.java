@@ -6,8 +6,7 @@
 package com.dbn.diagnostics.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.language.common.DBLanguageDialect;
-import com.intellij.openapi.fileTypes.FileType;
+import com.dbn.diagnostics.ParserIssueReportInput;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,23 +16,19 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class ParserIssueReportDialog extends DBNDialog<ParserIssueReportForm> {
     private final Project project;
-    private final String scrambledCode;
-    private final FileType fileType;
-    private final DBLanguageDialect languageDialect;
+    private final ParserIssueReportInput input;
 
-    public ParserIssueReportDialog(@NotNull Project project, @NotNull String scrambledCode, @NotNull FileType fileType, @NotNull DBLanguageDialect languageDialect) {
+    public ParserIssueReportDialog(@NotNull Project project, @NotNull ParserIssueReportInput input) {
         super(project, txt("app.diagnostics.title.ParserIssue"), true);
         this.project = project;
-        this.scrambledCode = scrambledCode;
-        this.fileType = fileType;
-        this.languageDialect = languageDialect;
+        this.input = input;
         setDefaultSize(920, 650);
         init();
     }
 
     @Override
     protected @NotNull ParserIssueReportForm createForm() {
-        return new ParserIssueReportForm(this, project, scrambledCode, fileType, languageDialect);
+        return new ParserIssueReportForm(this, project, input);
     }
 
     @Override

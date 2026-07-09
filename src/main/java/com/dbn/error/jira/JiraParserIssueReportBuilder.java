@@ -9,26 +9,62 @@
  */
 package com.dbn.error.jira;
 
+import com.dbn.diagnostics.ParserIssueReportInput;
 import com.dbn.error.IssueReport;
 import com.dbn.error.MarkupElement;
 import com.intellij.openapi.diagnostic.Attachment;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 public class JiraParserIssueReportBuilder extends JiraIssueReportBuilder {
     @Override
     protected void buildSummary(IssueReport report) {
-        report.setSummary("SQL / PL/SQL parser issue");
+        ParserIssueReportInput input = getReportInput(report);
+        report.setSummary(input == null ?
+                "SQL / PL/SQL parser issue" :
+                input.getLanguageDialectId() + " parser issue");
+    }
+
+    @Override
+    protected void buildLabels(IssueReport report) {
+        super.buildLabels(report);
+        ParserIssueReportInput input = getReportInput(report);
+        if (input == null) return;
+
+        report.addLabel("parser-issue");
+        report.addLabel(input.getLanguageDialectId());
+    }
+
+    @Override
+    protected void buildAdditionalInfo(IssueReport report, StringBuilder description) {
+        super.buildAdditionalInfo(report, description);
+
+        ParserIssueReportInput input = getReportInput(report);
+        if (input == null) return;
+
+        description.append(getMarkupElement(MarkupElement.PANEL, "Parser Information"));
+        description.append("Language Dialect: ");
+        description.append(input.getLanguageDialectId());
+        description.append(getMarkupElement(MarkupElement.PANEL));
+    }
+
+    @Nullable
+    private static ParserIssueReportInput getReportInput(IssueReport report) {
+        Object data = report.getEvent().getData();
+        return data instanceof ParserIssueReportInput ? (ParserIssueReportInput) data : null;
     }
 
     @Override
     protected void buildExceptionInfo(IssueReport report, StringBuilder description) {
-        if (report.getAttachments().isEmpty()) return;
+        List<Attachment> attachments = report.getAttachments();
+        if (attachments.isEmpty()) return;
 
-        Attachment attachment = report.getAttachments().get(0);
+        Attachment attachment = attachments.get(0);
         try {
             String content = Files.readString(Path.of(attachment.getPath()), StandardCharsets.UTF_8);
             description.append(getMarkupElement(MarkupElement.CODE, attachment.getDisplayText()));

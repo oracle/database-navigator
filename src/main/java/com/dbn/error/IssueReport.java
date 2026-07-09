@@ -26,13 +26,17 @@ import com.intellij.util.Consumer;
 import lombok.Data;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Strings.isEmpty;
 
 @Data
 public class IssueReport {
+    public static final String NA = "NA";
+
     private final Project project;
     private final IdeaPluginDescriptor plugin;
     private final IdeaLoggingEvent[] events;
@@ -54,6 +58,14 @@ public class IssueReport {
     private String description;
     private String clientId;
     private List<Attachment> attachments = List.of();
+    private List<String> labels = new ArrayList<>();
+
+    public void addLabel(String label) {
+        if (isEmpty(label)) return;
+        if (label.equals(NA)) return;
+
+        labels.add(label);
+    }
     
     public IssueReport(
             Project project,
@@ -73,30 +85,34 @@ public class IssueReport {
     }
 
     public String getDatabaseType() {
-        return nvl(databaseType, "NA");
+        return nvl(databaseType, NA);
     }
 
     public String getDatabaseName() {
-        return nvl(databaseName, "NA");
+        return nvl(databaseName, NA);
     }
 
     public String getDatabaseVersion() {
-        return nvl(databaseVersion, "NA");
+        return nvl(databaseVersion, NA);
     }
 
     public String getDatabaseDriver() {
-        return nvl(databaseDriver, "NA");
+        return nvl(databaseDriver, NA);
     }
 
     public String getLastActionId() {
-        return nvl(IdeaLogger.ourLastActionId, "NA");
+        return nvl(IdeaLogger.ourLastActionId, NA);
     }
 
     public String getSystemLocale() {
         Locale locale = Locale.getDefault();
-        return locale.toLanguageTag() + " (" +
-                locale.getDisplayLanguage(Locale.ENGLISH) + " - " +
-                locale.getDisplayCountry(Locale.ENGLISH) + ")";
+        String language = locale.getDisplayLanguage(Locale.ENGLISH);
+        String country = locale.getDisplayCountry(Locale.ENGLISH);
+        String tag = locale.toLanguageTag();
+
+        return isEmpty(country) ?
+            tag + " (" + language + ")" :
+            tag + " (" + language + " - " + country + ")";
     }
 
     public String getSystemCharset() {

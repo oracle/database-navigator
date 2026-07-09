@@ -26,7 +26,7 @@ public class ParserIssueEditorNotificationPanel extends EditorNotificationPanel 
     private final DBLanguagePsiFile psiFile;
 
     public ParserIssueEditorNotificationPanel(@NotNull Project project, @NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull DBLanguagePsiFile psiFile) {
-        super(project, file, fileEditor, MessageType.NEUTRAL);
+        super(project, file, fileEditor, MessageType.WARNING);
         this.psiFile = psiFile;
         setIcon(AllIcons.Actions.IntentionBulb);
         setText(txt("ntf.diagnostics.text.ParserIssue"));

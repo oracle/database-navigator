@@ -112,22 +112,24 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
         FileType fileType = psiFile.getFileType();
         String scrambledCode = new String(scrambled, charset);
 
-        Dialogs.show(() -> new ParserIssueReportDialog(getProject(), scrambledCode, fileType,
-                psiFile.getLanguageDialect()), whenOk(d -> submitParserIssueReport(attachment)));
+        ParserIssueReportInput input = new ParserIssueReportInput(
+                scrambledCode, fileType, psiFile.getLanguageDialect());
+        Dialogs.show(() -> new ParserIssueReportDialog(getProject(), input),
+                whenOk(d -> submitParserIssueReport(input, attachment)));
     }
 
-    private void submitParserIssueReport(Attachment attachment) {
+    private void submitParserIssueReport(ParserIssueReportInput input, Attachment attachment) {
         IdeaLoggingEvent event = new IdeaLoggingEvent(
                 "Parser issue",
                 new IllegalArgumentException("Parser error"),
                 List.of(attachment),
                 (IdeaPluginDescriptor) null,
-                null);
+                input);
 
         new JiraParserIssueReportSubmitter().submit(
                 getProject(),
                 new IdeaLoggingEvent[]{event},
-                "Parser issue reported from the SQL/PLSQL editor");
+                null);
     }
 
     @NotNull

@@ -11,13 +11,12 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Viewers;
-import com.dbn.language.common.DBLanguageDialect;
+import com.dbn.diagnostics.ParserIssueReportInput;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,17 +30,12 @@ public class ParserIssueReportForm extends DBNFormBase {
     private JPanel hintPanel;
     private JPanel codePanel;
 
-    private final String code;
-    private final FileType fileType;
-    private final DBLanguageDialect languageDialect;
-
+    private final ParserIssueReportInput input;
     private EditorEx viewer;
 
-    public ParserIssueReportForm(@NotNull Disposable parent, @NotNull Project project, @NotNull String scrambledCode, @NotNull FileType fileType, @NotNull DBLanguageDialect languageDialect) {
+    public ParserIssueReportForm(@NotNull Disposable parent, @NotNull Project project, @NotNull ParserIssueReportInput input) {
         super(parent, project);
-        this.code = scrambledCode;
-        this.fileType = fileType;
-        this.languageDialect = languageDialect;
+        this.input = input;
 
         initHeaderPanel();
         initCodeViewer();
@@ -56,15 +50,15 @@ public class ParserIssueReportForm extends DBNFormBase {
         Project project = ensureProject();
 
         DBLanguagePsiFile previewFile = DBLanguagePsiFile.createFromText(
-                project, "parser-issue-preview." + fileType.getDefaultExtension(), languageDialect,
-                code, null, null);
+                project, "parser-issue-preview." + input.getFileType().getDefaultExtension(), input.getLanguageDialect(),
+                input.getCode(), null, null);
         if (previewFile == null) return;
 
         Document document = Documents.ensureDocument(previewFile);
-        viewer = Viewers.createViewer(document, project, previewFile.getVirtualFile(), fileType);
+        viewer = Viewers.createViewer(document, project, previewFile.getVirtualFile(), input.getFileType());
         viewer.setEmbeddedIntoDialogWrapper(true);
 
-        Editors.initEditorHighlighter(viewer, languageDialect);
+        Editors.initEditorHighlighter(viewer, input.getLanguageDialect());
         Editors.setEditorReadonly(viewer, true);
         Editors.updateEditorScrollPane(viewer);
 

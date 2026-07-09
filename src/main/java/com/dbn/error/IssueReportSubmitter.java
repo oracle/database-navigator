@@ -54,7 +54,7 @@ public abstract class IssueReportSubmitter extends ErrorReportSubmitter  {
     @NotNull
     @Override
     public String getReportActionText() {
-        return txt("msg.reporting.title.SubmitIssueReport");
+        return txt("app.reporting.action.SubmitIssueReport");
     }
 
     public abstract String getTicketUrl(String ticketId);
@@ -82,7 +82,6 @@ public abstract class IssueReportSubmitter extends ErrorReportSubmitter  {
 
     public void submitReport(@Nullable IssueReport report) {
         if (report == null) return;
-
         Project project = report.getProject();
 
         Progress.prompt(project, null, true, txt("prc.reporting.title.SubmittingIssueReport"), null, progress -> {
