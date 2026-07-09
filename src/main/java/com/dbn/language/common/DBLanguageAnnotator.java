@@ -16,6 +16,8 @@
 
 package com.dbn.language.common;
 
+import com.dbn.code.common.intention.EditorIntentionActionBase;
+import com.dbn.code.common.intention.EditorIntentionType;
 import com.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.thread.ThreadMonitor;
@@ -30,12 +32,14 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiErrorElement;
 import com.intellij.testFramework.LightVirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.connection.mapping.FileConnectionContextManager.hasConnectivityContext;
 import static com.dbn.debugger.DatabaseDebuggerManager.isDebugConsole;
+import static com.intellij.lang.annotation.HighlightSeverity.ERROR;
 import static com.intellij.lang.annotation.HighlightSeverity.INFORMATION;
 
 public abstract class DBLanguageAnnotator implements Annotator {
@@ -74,6 +78,15 @@ public abstract class DBLanguageAnnotator implements Annotator {
     }
 
     public final void annotate(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
+        if (psiElement instanceof PsiErrorElement && psiElement.getContainingFile() instanceof DBLanguagePsiFile) {
+            EditorIntentionActionBase intentionAction = EditorIntentionActionBase.get(EditorIntentionType.PARSER_DIAGNOSTICS);
+            if (intentionAction == null) return;
+
+            holder.newSilentAnnotation(ERROR)
+                    .withFix(intentionAction)
+                    .create();
+            return;
+        }
         if (!isSupported(psiElement)) return;
 
         ThreadMonitor.surround(

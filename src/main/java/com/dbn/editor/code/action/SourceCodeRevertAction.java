@@ -23,7 +23,6 @@ import com.dbn.common.option.InteractiveConfirmationBroker;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
-import com.dbn.editor.code.options.CodeEditorSettings;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -42,8 +41,8 @@ public class SourceCodeRevertAction extends AbstractCodeEditorAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
-        CodeEditorConfirmationSettings confirmationSettings = CodeEditorSettings.getInstance(project).getConfirmationSettings();
-        InteractiveConfirmationBroker optionHandler = confirmationSettings.getRevertChanges();
+        CodeEditorConfirmationSettings settings = CodeEditorConfirmationSettings.get(project);
+        InteractiveConfirmationBroker optionHandler = settings.getRevertChanges();
         boolean canContinue = optionHandler.resolve(project, fileEditor.getObject().getQualifiedNameWithType());
 
         if (canContinue) {

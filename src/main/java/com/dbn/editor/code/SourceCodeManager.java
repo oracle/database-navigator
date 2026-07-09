@@ -52,7 +52,6 @@ import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.editor.code.diff.MergeAction;
 import com.dbn.editor.code.diff.SourceCodeDiffManager;
 import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
-import com.dbn.editor.code.options.CodeEditorSettings;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
@@ -716,12 +715,11 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                 Project objectProject = object.getProject();
                 if (isNotValid(objectProject)) continue;
 
-                CodeEditorSettings codeEditorSettings = CodeEditorSettings.getInstance(objectProject);
-                CodeEditorConfirmationSettings confirmationSettings = codeEditorSettings.getConfirmationSettings();
+                CodeEditorConfirmationSettings settings = CodeEditorConfirmationSettings.get(objectProject);
 
                 String objectDescription = object.getQualifiedNameWithType();
                 boolean exitApp = checkAppExitRequested();
-                confirmationSettings.getExitOnChanges().resolve(
+                settings.getExitOnChanges().resolve(
                         project, array(objectDescription),
                         option -> {
                             switch (option) {

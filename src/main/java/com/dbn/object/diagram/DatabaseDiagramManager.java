@@ -24,6 +24,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.uml.core.actions.ShowDiagram;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
 
+@Slf4j
 public class DatabaseDiagramManager extends ProjectComponentBase {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseDiagramManager";
 
@@ -108,10 +110,6 @@ public class DatabaseDiagramManager extends ProjectComponentBase {
     }
 
     private static class DiagramAction<R extends DBObject> extends ShowDiagram {
-        DiagramAction() {
-            super(true, false);
-        }
-
         RelativePoint getDiagramLocation(DataContext dataContext, AnActionEvent event) {
             return getLocation(dataContext, event);
         }
@@ -122,11 +120,10 @@ public class DatabaseDiagramManager extends ProjectComponentBase {
             List<R> seedElements = new ArrayList<>(roots.size() + 1);
             seedElements.add(source);
             seedElements.addAll(roots);
-            var seed = createSeed(project, (DiagramProvider<Object>) provider, source, new ArrayList<>(seedElements));
-
+            DiagramSeed seed = new DiagramSeed(project, (DiagramProvider<Object>) provider, source, new ArrayList<>(seedElements));
             CompletableFuture<Void> shown = show(seed, location, null).toCompletableFuture();
             shown.exceptionally(exception -> {
-                com.dbn.diagnostics.Diagnostics.conditionallyLog(exception);
+                log.error("Error showing diagram", exception);
                 return null;
             });
         }

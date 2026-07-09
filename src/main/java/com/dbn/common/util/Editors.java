@@ -278,7 +278,7 @@ public class Editors {
         initEditorHighlighter(editor, languageDialect);
     }
 
-    private static void initEditorHighlighter(Editor editor, DBLanguageDialect languageDialect) {
+    public static void initEditorHighlighter(Editor editor, DBLanguageDialect languageDialect) {
         if (editor instanceof EditorEx editorEx) {
             SyntaxHighlighter syntaxHighlighter = languageDialect.getSyntaxHighlighter();
 
