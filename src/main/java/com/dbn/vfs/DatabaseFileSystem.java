@@ -24,6 +24,7 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.config.ConnectionDetailSettings;
 import com.dbn.editor.DBContentType;
+import com.dbn.mcp.vfs.McpToolSqlVirtualFile;
 import com.dbn.object.DBConsole;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
@@ -43,7 +44,6 @@ import com.dbn.vfs.file.DBObjectListVirtualFile;
 import com.dbn.vfs.file.DBObjectVirtualFile;
 import com.dbn.vfs.file.DBSessionBrowserVirtualFile;
 import com.dbn.vfs.file.DBSessionStatementVirtualFile;
-import com.dbn.mcp.vfs.McpToolSqlVirtualFile;
 import com.dbn.vfs.file.DBSingleQueryVirtualFile;
 import com.intellij.openapi.components.NamedComponent;
 import com.intellij.openapi.progress.ProcessCanceledException;
@@ -205,9 +205,10 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
         } else if (OBJECTS.is(relativePath)) {
             String objectIdentifier = OBJECTS.collate(relativePath);
             DBObjectRef<DBSchemaObject> objectRef = new DBObjectRef<>(connectionId, objectIdentifier);
-            DBEditableObjectVirtualFile databaseFile = findOrCreateDatabaseFile(project, objectRef);
-            return databaseFile;
+            DBSchemaObject object = objectRef.get();
+            if (object == null) return null; // prevent default file history editor restore
 
+            return findOrCreateDatabaseFile(project, objectRef);
         } else if (OBJECT_CONTENTS.is(relativePath)) {
             String contentIdentifier = OBJECT_CONTENTS.collate(relativePath);
             int contentTypeEndIndex = contentIdentifier.indexOf(PS);

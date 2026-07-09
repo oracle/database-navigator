@@ -41,5 +41,9 @@ public class TestPseudoConstant extends PseudoConstant<TestPseudoConstant> {
         return PseudoConstant.get(TestPseudoConstant.class, id);
     }
 
+    static TestPseudoConstant create(String id) {
+        return new TestPseudoConstant(id);
+    }
+
 
 }

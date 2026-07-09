@@ -20,6 +20,7 @@ import com.dbn.common.thread.Read;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
+import com.dbn.language.common.psi.ExecVariablePsiElement;
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.language.common.psi.LeafPsiElement;
 import com.dbn.language.common.psi.PsiUtil;
@@ -68,7 +69,7 @@ public class DBLLanguageFileScrambler {
             builder.append(child.getText().replaceAll("\t", "    "));
         } else if (child instanceof PsiComment) {
             String text = child.getText();
-            builder.append(text.replaceAll("[a-zA-Z0-9]", "#"));
+            builder.append(scrambleComment(text));
         } else if (child instanceof LeafPsiElement) {
             if (child instanceof TokenPsiElement token) {
                 TokenType tokenType = token.getTokenType();
@@ -102,6 +103,9 @@ public class DBLLanguageFileScrambler {
                     objectName = StringUtils.rightPad(objectName, objectNameLength, " ");
                 }
                 builder.append(objectName);
+            } else if (child instanceof ExecVariablePsiElement) {
+                String text = child.getText();
+                builder.append(scrambleSubstitutionVariable(text));
             }
         } else if (child instanceof com.intellij.psi.impl.source.tree.LeafPsiElement) {
             IElementType elementType = ((com.intellij.psi.impl.source.tree.LeafPsiElement) child).getElementType();
@@ -126,6 +130,27 @@ public class DBLLanguageFileScrambler {
                 child = child.getNextSibling();
             }
         }
+    }
+
+    private String scrambleSubstitutionVariable(String text) {
+        int prefixLength = text.startsWith("&&") ? 2 :
+                text.startsWith("&") || text.startsWith(":") ? 1 : 0;
+        String prefix = text.substring(0, prefixLength);
+        String variableName = text.substring(prefixLength);
+        return prefix + getObjectName(DBObjectType.VARIABLE, variableName);
+    }
+
+    private String scrambleComment(String text) {
+        int prefixEnd = 0;
+        while (prefixEnd < text.length() && Character.isWhitespace(text.charAt(prefixEnd))) {
+            prefixEnd++;
+        }
+        if (text.regionMatches(true, prefixEnd, "rem", 0, 3) &&
+                (prefixEnd + 3 == text.length() || Character.isWhitespace(text.charAt(prefixEnd + 3)))) {
+            prefixEnd += 3;
+            return text.substring(0, prefixEnd) + text.substring(prefixEnd).replaceAll("[a-zA-Z0-9]", "#");
+        }
+        return text.replaceAll("[a-zA-Z0-9]", "#");
     }
 
     public String scrambleName(VirtualFile file) {
