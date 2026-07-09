@@ -34,7 +34,6 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.Component;
 
 import static com.dbn.common.notification.NotificationCategory.REPORTING;
-import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.openapi.diagnostic.SubmittedReportInfo.SubmissionStatus.FAILED;
@@ -55,7 +54,7 @@ public abstract class IssueReportSubmitter extends ErrorReportSubmitter  {
     @NotNull
     @Override
     public String getReportActionText() {
-        return txt("msg.reporting.title.SubmitIssueReport");
+        return txt("app.reporting.action.SubmitIssueReport");
     }
 
     public abstract String getTicketUrl(String ticketId);
@@ -69,17 +68,20 @@ public abstract class IssueReportSubmitter extends ErrorReportSubmitter  {
             @NotNull Component parentComponent,
             @NotNull Consumer consumer) {
         Project project = Lookups.getProject(parentComponent);
+        return submit(project, events, additionalInfo);
+    }
+
+    public boolean submit(Project project, @NotNull IdeaLoggingEvent[] events, @Nullable String additionalInfo) {
         IdeaPluginDescriptor plugin = getPluginDescriptor();
         IssueReportBuilder builder = getBuilder();
 
-        IssueReport report = builder.buildReport(project, plugin, events, additionalInfo, cast(consumer));
+        IssueReport report = builder.buildReport(project, plugin, events, additionalInfo, i -> {});
         submitReport(report);
         return true;
     }
 
-    private void submitReport(@Nullable IssueReport report) {
+    public void submitReport(@Nullable IssueReport report) {
         if (report == null) return;
-
         Project project = report.getProject();
 
         Progress.prompt(project, null, true, txt("prc.reporting.title.SubmittingIssueReport"), null, progress -> {

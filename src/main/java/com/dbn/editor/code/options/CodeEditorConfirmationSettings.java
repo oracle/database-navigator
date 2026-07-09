@@ -20,6 +20,7 @@ import com.dbn.common.option.InteractiveConfirmationBroker;
 import com.dbn.common.option.InteractiveOptionBroker;
 import com.dbn.common.options.BasicConfiguration;
 import com.dbn.editor.code.options.ui.CodeEditorConfirmationSettingsForm;
+import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jdom.Element;
@@ -69,6 +70,10 @@ public class CodeEditorConfirmationSettings extends BasicConfiguration<CodeEdito
 
     public CodeEditorConfirmationSettings(CodeEditorSettings parent) {
         super(parent);
+    }
+
+    public static CodeEditorConfirmationSettings get(Project project) {
+        return CodeEditorSettings.get(project).getConfirmationSettings();
     }
 
     @Override

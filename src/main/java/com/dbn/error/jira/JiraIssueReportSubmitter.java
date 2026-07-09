@@ -22,22 +22,27 @@ import com.dbn.error.IssueReportSubmitter;
 import com.dbn.error.TicketResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.intellij.openapi.diagnostic.Attachment;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class JiraIssueReportSubmitter extends IssueReportSubmitter {
     private static final GsonBuilder GSON_BUILDER = new GsonBuilder();
-    private static final JiraIssueReportBuilder REPORT_BUILDER = new JiraIssueReportBuilder();
+    private static final JiraExceptionReportBuilder REPORT_BUILDER = new JiraExceptionReportBuilder();
     private static final String URL = "https://database-navigator.atlassian.net/";
 
     @Override
@@ -67,7 +72,11 @@ public class JiraIssueReportSubmitter extends IssueReportSubmitter {
             }
 
             String jsonResponse = readResponse(connection);
-            return new JiraTicketResponse(jsonResponse, null);
+            JiraTicketResponse response = new JiraTicketResponse(jsonResponse, null);
+            if (response.getTicketId() != null) {
+                uploadAttachments(response.getTicketId(), report);
+            }
+            return response;
         } catch (Exception e) {
             conditionallyLog(e);
             return new JiraTicketResponse(null, e.getMessage());
@@ -90,6 +99,43 @@ public class JiraIssueReportSubmitter extends IssueReportSubmitter {
         connection.setRequestProperty("Content-Type", "application/json");
         //TODO connection.addRequestProperty("Authorization", "Basic ["email:apikey" -> base64"]);
         return connection;
+    }
+
+    private static void uploadAttachments(String ticketId, IssueReport report) {
+        for (Attachment attachment : report.getAttachments()) {
+            try {
+                uploadAttachment(ticketId, attachment);
+            } catch (Exception e) {
+                conditionallyLog(e);
+            }
+        }
+    }
+
+    private static void uploadAttachment(String ticketId, Attachment attachment) throws IOException {
+        File file = new File(attachment.getPath());
+        if (!file.isFile()) return;
+
+        String boundary = "----DBN" + UUID.randomUUID();
+        URL url = new URL(URL + "rest/api/latest/issue/" + ticketId + "/attachments");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("X-Atlassian-Token", "no-check");
+        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+
+        try (OutputStream output = connection.getOutputStream(); FileInputStream input = new FileInputStream(file)) {
+            writeMultipartHeader(output, boundary, file.getName());
+            input.transferTo(output);
+            output.write(("\r\n--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8));
+        }
+        connection.getResponseCode();
+    }
+
+    private static void writeMultipartHeader(OutputStream output, String boundary, String fileName) throws IOException {
+        String header = "--" + boundary + "\r\n" +
+                "Content-Disposition: form-data; name=\"file\"; filename=\"" + fileName + "\"\r\n" +
+                "Content-Type: application/octet-stream\r\n\r\n";
+        output.write(header.getBytes(StandardCharsets.UTF_8));
     }
 
     @NotNull

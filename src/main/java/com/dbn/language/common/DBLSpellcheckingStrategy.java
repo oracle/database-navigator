@@ -17,7 +17,6 @@
 package com.dbn.language.common;
 
 import com.dbn.editor.code.options.CodeEditorGeneralSettings;
-import com.dbn.editor.code.options.CodeEditorSettings;
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
@@ -37,8 +36,7 @@ public class DBLSpellcheckingStrategy extends SpellcheckingStrategy implements S
             return EMPTY_TOKENIZER;
         }
 
-        CodeEditorSettings codeEditorSettings = CodeEditorSettings.getInstance(element.getProject());
-        CodeEditorGeneralSettings codeEditorGeneralSettings = codeEditorSettings.getGeneralSettings();
+        CodeEditorGeneralSettings codeEditorGeneralSettings = CodeEditorGeneralSettings.get(element.getProject());
         if (codeEditorGeneralSettings.isEnableSpellchecking()) {
             if (element instanceof PsiComment) {
                 return TEXT_TOKENIZER;
