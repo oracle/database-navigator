@@ -27,8 +27,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.dbn.common.util.Classes.simpleClassName;
-
 class PseudoConstantData<T extends PseudoConstant<T>> {
     static final ThreadLocal<PseudoConstantData> LOCAL = new ThreadLocal<>();
 
@@ -57,29 +55,23 @@ class PseudoConstantData<T extends PseudoConstant<T>> {
         T constant = mappings.get(id);
         if (constant != null) return constant;
 
-        try {
-            lock.lock();
-            constant = mappings.get(id);
-            if (constant == null) {
-                constant = createConstant(id);
-                // constant will self register in the constructor
-            }
-        } finally {
-            lock.unlock();
-        }
+        // The constructor registers the new instance. Do not hold the registry
+        // lock while invoking it: class initialization and constructor code may
+        // request another pseudo constant and create a lock cycle.
+        createConstant(id);
 
-        return constant;
+        // Another thread may have won the race and registered the canonical
+        // instance while this instance was being constructed.
+        return mappings.get(id);
     }
 
     int register(T constant) {
         try {
             lock.lock();
             String id = constant.id();
-            String name = simpleClassName(constant);
 
-            if (mappings.containsKey(id)) {
-                throw new IllegalStateException("Constant " + name + ":" + id + " is already registered");
-            }
+            T registered = mappings.get(id);
+            if (registered != null) return registered.ordinal();
 
             int ordinal = mappings.size();
             ensureCapacity(ordinal);

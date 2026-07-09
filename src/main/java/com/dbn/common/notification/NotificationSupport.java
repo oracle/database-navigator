@@ -22,6 +22,7 @@ import com.dbn.common.util.Titles;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroupManager;
+import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.project.Project;
@@ -73,6 +74,7 @@ public interface NotificationSupport extends ProjectSupplier {
                 Titles.signed(txt(notificationGroup.getTitleKey())),
                 message,
                 type);
+        notification.setListener(NotificationListener.URL_OPENING_LISTENER);
         notification.setImportant(false);
         Notifications.Bus.notify(notification, project);
     }
