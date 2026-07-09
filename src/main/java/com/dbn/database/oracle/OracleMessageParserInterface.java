@@ -73,6 +73,11 @@ public class OracleMessageParserInterface implements DatabaseMessageParserInterf
     }
 
     @Override
+    public boolean isPasswordExpiredException(SQLException e) {
+        return e.getErrorCode() == 28001;
+    }
+
+    @Override
     public boolean isSuccessException(SQLException exception) {
         int errorCode = exception.getErrorCode();
         return successExceptionCodes.contains(errorCode);

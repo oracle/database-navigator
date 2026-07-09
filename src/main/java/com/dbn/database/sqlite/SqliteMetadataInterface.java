@@ -21,6 +21,7 @@ import com.dbn.database.common.DatabaseMetadataInterfaceImpl;
 import com.dbn.database.common.metadata.impl.DBSchemaMetadataImpl;
 import com.dbn.database.common.util.WrappedResultSet;
 import com.dbn.database.interfaces.DatabaseInterfaces;
+import com.dbn.database.sqlite.adapter.rs.SqliteColumnColumnRelationsResultSet;
 import com.dbn.database.sqlite.adapter.rs.SqliteColumnConstraintsResultSet;
 import com.dbn.database.sqlite.adapter.rs.SqliteColumnIndexesResultSet;
 import com.dbn.database.sqlite.adapter.rs.SqliteColumnsResultSet;
@@ -183,6 +184,16 @@ class SqliteMetadataInterface extends DatabaseMetadataInterfaceImpl {
         return new ColumnConstraintsResultSet(ownerName, getDatasetNames(ownerName, connection), connection);
     }
 
+    @Override
+    public ResultSet loadAllColumnRelations(String ownerName, DBNConnection connection) throws SQLException {
+        return new ColumnRelationsResultSet(ownerName, getDatasetNames(ownerName, connection), connection);
+    }
+
+    @Override
+    public ResultSet loadColumnRelations(String ownerName, String datasetName, DBNConnection connection) throws SQLException {
+        return new ColumnRelationsResultSet(ownerName, getDatasetNames(ownerName, connection), connection);
+    }
+
     private class ConstraintsResultSet extends SqliteConstraintsResultSet {
 
         ConstraintsResultSet(String ownerName, SqliteDatasetNamesResultSet datasetNames, DBNConnection connection) throws SQLException {
@@ -190,6 +201,37 @@ class SqliteMetadataInterface extends DatabaseMetadataInterfaceImpl {
         }
 
         ConstraintsResultSet(String ownerName, String datasetName, DBNConnection connection) throws SQLException {
+            super(ownerName, datasetName, connection);
+        }
+
+        @Override
+        protected ResultSet loadTableInfo(String ownerName, String datasetName) throws SQLException {
+            return SqliteMetadataInterface.this.loadTableInfo(ownerName, datasetName, getConnection());
+        }
+
+        @Override
+        protected ResultSet loadForeignKeyInfo(String ownerName, String datasetName) throws SQLException {
+            return SqliteMetadataInterface.this.loadForeignKeyInfo(ownerName, datasetName, getConnection());
+        }
+
+        @Override
+        protected ResultSet loadIndexInfo(String ownerName, String tableName) throws SQLException {
+            return SqliteMetadataInterface.this.loadIndexInfo(ownerName, tableName, getConnection());
+        }
+
+        @Override
+        protected ResultSet loadIndexDetailInfo(String ownerName, String indexName) throws SQLException {
+            return SqliteMetadataInterface.this.loadIndexDetailInfo(ownerName, indexName, getConnection());
+        }
+    }
+
+    private class ColumnRelationsResultSet extends SqliteColumnColumnRelationsResultSet {
+
+        ColumnRelationsResultSet(String ownerName, SqliteDatasetNamesResultSet datasetNames, DBNConnection connection) throws SQLException {
+            super(ownerName, datasetNames, connection);
+        }
+
+        ColumnRelationsResultSet(String ownerName, String datasetName, DBNConnection connection) throws SQLException {
             super(ownerName, datasetName, connection);
         }
 

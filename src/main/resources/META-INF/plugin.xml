@@ -26,6 +26,7 @@
     <depends optional="true" config-file="dbn-maven-support.xml">org.jetbrains.idea.maven</depends>
     <depends optional="true" config-file="dbn-debugger-support.xml">com.intellij.modules.xdebugger</depends>
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
+    <depends optional="true" config-file="dbn-diagram-support.xml">com.intellij.diagram</depends>
     <depends optional="true" config-file="dbn-oci-toolkit-support.xml">com.oracle.ocidbtest</depends>
     <vendor email="dan.cioca@oracle.com" url="https://www.oracle.com">Dan Cioca (Oracle)</vendor>
     <idea-version since-build="231.9423.9" until-build="262.*"/>   <!--2023.1.7 - 2026.2.*-->
@@ -1004,6 +1005,7 @@
         <editorNotificationProvider implementation="com.dbn.editor.session.SessionBrowserNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.connection.mapping.FileConnectionContextNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.assistant.service.selectai.editor.SelectAiEditorNotificationProvider"/>
+        <editorNotificationProvider implementation="com.dbn.diagnostics.ParserIssueEditorNotificationProvider"/>
 
         <additionalTextAttributes scheme="Dark" file="textAttributes/DBNDarkColors.xml" id="DBN-Dark"/>
         <additionalTextAttributes scheme="Light" file="textAttributes/DBNLightColors.xml" id="DBN-Light"/>
@@ -1027,6 +1029,11 @@
         <fileTemplateGroup implementation="com.dbn.common.file.DBNFileTemplateGroupDescriptorFactory"/>
         <statusBarWidgetFactory implementation="com.dbn.editor.data.statusbar.DatasetEditorStatusBarWidgetFactory" id="DBNavigator.Project.DatasetEditorStatusBarWidgetFactory"/>
 
+        <intentionAction>
+            <className>com.dbn.code.common.intention.SubmitParserIssueIntentionAction</className>
+            <categoryKey>app.codeEditor.category.Diagnostics</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
+        </intentionAction>
         <intentionAction>
             <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.ExecuteScriptIntentionAction</className>

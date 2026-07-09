@@ -292,6 +292,54 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="all-column-relations">
+        <statement>
+            select
+                fk.TABLE_SCHEMA as SOURCE_SCHEMA_NAME,
+                fk.TABLE_NAME as SOURCE_DATASET_NAME,
+                fk.COLUMN_NAME as SOURCE_COLUMN_NAME,
+                pk.TABLE_SCHEMA as TARGET_SCHEMA_NAME,
+                pk.TABLE_NAME as TARGET_DATASET_NAME,
+                pk.COLUMN_NAME as TARGET_COLUMN_NAME
+            from INFORMATION_SCHEMA.KEY_COLUMN_USAGE fk
+                join INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc on
+                    rc.CONSTRAINT_CATALOG = fk.CONSTRAINT_CATALOG and
+                    rc.CONSTRAINT_SCHEMA = fk.CONSTRAINT_SCHEMA and
+                    rc.CONSTRAINT_NAME = fk.CONSTRAINT_NAME
+                join INFORMATION_SCHEMA.KEY_COLUMN_USAGE pk on
+                    pk.CONSTRAINT_CATALOG = rc.UNIQUE_CONSTRAINT_CATALOG and
+                    pk.CONSTRAINT_SCHEMA = rc.UNIQUE_CONSTRAINT_SCHEMA and
+                    pk.CONSTRAINT_NAME = rc.UNIQUE_CONSTRAINT_NAME and
+                    pk.ORDINAL_POSITION = fk.POSITION_IN_UNIQUE_CONSTRAINT
+            where pk.TABLE_SCHEMA = {#0}
+            order by fk.TABLE_NAME asc
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="column-relations">
+        <statement>
+            select
+                fk.TABLE_SCHEMA as SOURCE_SCHEMA_NAME,
+                fk.TABLE_NAME as SOURCE_DATASET_NAME,
+                fk.COLUMN_NAME as SOURCE_COLUMN_NAME,
+                pk.TABLE_SCHEMA as TARGET_SCHEMA_NAME,
+                pk.TABLE_NAME as TARGET_DATASET_NAME,
+                pk.COLUMN_NAME as TARGET_COLUMN_NAME
+            from INFORMATION_SCHEMA.KEY_COLUMN_USAGE fk
+                join INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc on
+                    rc.CONSTRAINT_CATALOG = fk.CONSTRAINT_CATALOG and
+                    rc.CONSTRAINT_SCHEMA = fk.CONSTRAINT_SCHEMA and
+                    rc.CONSTRAINT_NAME = fk.CONSTRAINT_NAME
+                join INFORMATION_SCHEMA.KEY_COLUMN_USAGE pk on
+                    pk.CONSTRAINT_CATALOG = rc.UNIQUE_CONSTRAINT_CATALOG and
+                    pk.CONSTRAINT_SCHEMA = rc.UNIQUE_CONSTRAINT_SCHEMA and
+                    pk.CONSTRAINT_NAME = rc.UNIQUE_CONSTRAINT_NAME and
+                    pk.ORDINAL_POSITION = fk.POSITION_IN_UNIQUE_CONSTRAINT
+            where pk.TABLE_SCHEMA = {#0} and pk.TABLE_NAME = {#1}
+            order by fk.COLUMN_NAME asc
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="indexes">
         <statement>
             select distinct

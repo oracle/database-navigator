@@ -39,7 +39,6 @@ import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.diff.SourceCodeDiffManager;
 import com.dbn.editor.code.options.CodeEditorChangesOption;
 import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
-import com.dbn.editor.code.options.CodeEditorSettings;
 import com.dbn.object.DBConsole;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
@@ -152,8 +151,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
                 String objectDescription = object.getQualifiedNameWithType();
                 Project project = getProject();
 
-                CodeEditorSettings editorSettings = CodeEditorSettings.getInstance(project);
-                CodeEditorConfirmationSettings confirmationSettings = editorSettings.getConfirmationSettings();
+                CodeEditorConfirmationSettings confirmationSettings = CodeEditorConfirmationSettings.get(project);
                 confirmationSettings.getExitOnChanges().resolve(project,
                         array(objectDescription),
                         option -> processCodeChangeOption(databaseFile, option));
