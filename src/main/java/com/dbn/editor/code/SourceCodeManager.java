@@ -33,6 +33,8 @@ import com.dbn.common.navigation.NavigationInstructions;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Read;
+import com.dbn.common.thread.ThreadContext;
+import com.dbn.common.thread.ThreadProperty;
 import com.dbn.common.util.ChangeTimestamp;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
@@ -336,6 +338,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         return true;
     }
 
+    @ThreadContext(ThreadProperty.CODE_LOAD)
     public SourceCodeContent loadSourceFromDatabase(@NotNull DBSchemaObject object, DBContentType contentType) throws SQLException {
         SourceCodeContent sourceCodeContent = DatabaseInterfaceInvoker.load(HIGH,
                 txt("prc.codeEditor.title.LoadingSourceCode"),
