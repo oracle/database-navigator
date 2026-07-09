@@ -21,7 +21,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.object.DBConstraint;
-import com.dbn.object.management.DBSchemaObjectManagementAdapterBase;
+import com.dbn.object.management.ObjectManagementAdapterBase;
 import com.dbn.object.management.ObjectManagementAdapterExtension;
 import com.dbn.object.type.DBObjectType;
 
@@ -34,7 +34,7 @@ import static com.dbn.object.type.DBObjectType.CONSTRAINT;
  * Implementation of {@link ObjectManagementAdapterExtension} for objects of type {@link com.dbn.object.DBConstraint}
  * @author Dan Cioca (Oracle)
  */
-public class DBConstraintManagementAdapter extends DBSchemaObjectManagementAdapterBase<DBConstraint> {
+public class DBConstraintManagementAdapter extends ObjectManagementAdapterBase<DBConstraint> {
 
     @Override
     public DBObjectType[] getObjectTypes() {

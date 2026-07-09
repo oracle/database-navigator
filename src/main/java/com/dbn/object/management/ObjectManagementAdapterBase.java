@@ -23,6 +23,8 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.adapter.DBObjectCreateAdapter;
 import com.dbn.object.management.adapter.DBObjectDeleteAdapter;
+import com.dbn.object.management.adapter.DBObjectDisableAdapter;
+import com.dbn.object.management.adapter.DBObjectEnableAdapter;
 import com.dbn.object.management.adapter.DBObjectUpdateAdapter;
 import com.dbn.object.type.DBObjectType;
 
@@ -30,6 +32,8 @@ import java.sql.SQLException;
 
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.event.ObjectChangeAction.DELETE;
+import static com.dbn.object.event.ObjectChangeAction.DISABLE;
+import static com.dbn.object.event.ObjectChangeAction.ENABLE;
 import static com.dbn.object.event.ObjectChangeAction.UPDATE;
 
 public abstract class ObjectManagementAdapterBase<T extends DBObject> implements ObjectManagementAdapterExtension<T> {
@@ -38,9 +42,11 @@ public abstract class ObjectManagementAdapterBase<T extends DBObject> implements
     @Override
     public ObjectManagementAdapter<T> createAdapter(T object, ObjectChangeAction action) {
         return switch (action) {
-            case CREATE -> new DBObjectCreateAdapter<>(object, (d, c, o) -> createObject(d, c, o));
-            case UPDATE -> new DBObjectUpdateAdapter<>(object, (d, c, o) -> updateObject(d, c, o));
-            case DELETE -> new DBObjectDeleteAdapter<>(object, (d, c, o) -> deleteObject(d, c, o));
+            case CREATE  -> new DBObjectCreateAdapter<>(object, (d, c, o) -> createObject(d, c, o));
+            case UPDATE  -> new DBObjectUpdateAdapter<>(object, (d, c, o) -> updateObject(d, c, o));
+            case DELETE  -> new DBObjectDeleteAdapter<>(object, (d, c, o) -> deleteObject(d, c, o));
+            case ENABLE  -> new DBObjectEnableAdapter<>(object, (d, c, o) -> enableObject(d, c, o));
+            case DISABLE -> new DBObjectDisableAdapter<>(object, (d, c, o) -> disableObject(d, c, o));
             default -> Exceptions.unsupported(action);
         };
     }
@@ -55,5 +61,13 @@ public abstract class ObjectManagementAdapterBase<T extends DBObject> implements
 
     protected void deleteObject(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException {
         Exceptions.unsupported(DELETE);
+    }
+
+    protected void enableObject(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException {
+        Exceptions.unsupported(ENABLE);
+    }
+
+    protected void disableObject(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException {
+        Exceptions.unsupported(DISABLE);
     }
 }

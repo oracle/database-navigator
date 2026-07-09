@@ -21,7 +21,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBAIProfile;
-import com.dbn.object.management.DBSchemaObjectManagementAdapterBase;
+import com.dbn.object.management.ObjectManagementAdapterBase;
 import com.dbn.object.management.ObjectManagementAdapterExtension;
 import com.dbn.object.type.DBObjectType;
 
@@ -35,7 +35,7 @@ import static com.dbn.object.type.DBObjectType.AI_PROFILE;
  *
  * @author Dan Cioca (Oracle)
  */
-public class DBAIProfileManagementAdapter extends DBSchemaObjectManagementAdapterBase<DBAIProfile> {
+public class DBAIProfileManagementAdapter extends ObjectManagementAdapterBase<DBAIProfile> {
 
     @Override
     public DBObjectType[] getObjectTypes() {

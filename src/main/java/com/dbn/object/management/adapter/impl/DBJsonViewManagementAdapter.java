@@ -22,7 +22,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.object.DBJsonView;
-import com.dbn.object.management.DBSchemaObjectManagementAdapterBase;
+import com.dbn.object.management.ObjectManagementAdapterBase;
 import com.dbn.object.management.ObjectManagementAdapterExtension;
 import com.dbn.object.type.DBObjectType;
 
@@ -34,7 +34,7 @@ import static com.dbn.object.type.DBObjectType.JSON_VIEW;
  * Implementation of {@link ObjectManagementAdapterExtension} for objects of type {@link DBJsonView}
  * @author Dan Cioca (Oracle)
  */
-public class DBJsonViewManagementAdapter extends DBSchemaObjectManagementAdapterBase<DBJsonView> {
+public class DBJsonViewManagementAdapter extends ObjectManagementAdapterBase<DBJsonView> {
     @Override
     public DBObjectType[] getObjectTypes() {
         return Constant.array(JSON_VIEW);
