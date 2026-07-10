@@ -32,7 +32,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 
+import static com.dbn.database.DatabaseFeature.SCHEDULER_JOBS;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseSchedulerManager extends ProjectComponentBase {
@@ -48,6 +50,9 @@ public class DatabaseSchedulerManager extends ProjectComponentBase {
 
     @NotNull
     public SchedulerJob submitJob(@NotNull ConnectionHandler connection, @NotNull SchedulerJobRequest request) throws SQLException {
+        if (SCHEDULER_JOBS.isNotSupported(connection))
+            throw new SQLFeatureNotSupportedException("Scheduler jobs are not supported for " + connection.getDatabaseType().getName() + " databases");
+
         String jobName = SchedulerJobs.newJobName(request.getNamePrefix());
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
                 getProject(), connection.getConnectionId(),
@@ -86,6 +91,9 @@ public class DatabaseSchedulerManager extends ProjectComponentBase {
                     }
 
                     if (System.currentTimeMillis() - startTime >= monitor.getTimeoutMillis()) {
+                        // monitoring is being abandoned - apply the same job treatment as user cancellation
+                        // (STOP_AND_DROP cleans up the job, DETACH leaves it running server-side)
+                        cancelJob(job, monitor.getCancellationPolicy());
                         throw new IllegalStateException(txt("msg.scheduler.error.JobTimedOut", job.getName()));
                     }
                     Threads.sleep(monitor.getPollIntervalMillis());
