@@ -17,11 +17,13 @@
 package com.dbn.liquibase.ui;
 
 import com.dbn.common.text.TextContent;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.ContentRootSelector;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.model.LiquibaseArtifact;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.intellij.ui.components.JBTextField;
@@ -64,13 +66,41 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     private final LiquibaseWorkspace workspace;
     private final LiquibaseArtifact artifact;
 
-    LiquibaseArtifactSettingsForm(LiquibaseArtifactSettingsDialog parent) {
+    LiquibaseArtifactSettingsForm(@NotNull LiquibaseArtifactSettingsDialog parent) {
+        this(parent,
+                parent.getWorkspace(),
+                parent.getArtifact(),
+                parent.getConnection());
+    }
+
+    LiquibaseArtifactSettingsForm(@NotNull DBNComponent parent, @NotNull LiquibaseWorkspace workspace, @NotNull LiquibaseArtifact artifact, @NotNull ConnectionHandler connection) {
         super(parent);
-        workspace = parent.getWorkspace();
-        artifact = parent.getArtifact();
-        initHeaderPanel();
+        this.workspace = workspace;
+        this.artifact = artifact;
+        initHeaderPanel(connection);
         initHintPanel();
-        initDocumentationPanel();
+        initDocuPanel();
+        initFields();
+    }
+
+    private void initHeaderPanel(@NotNull ConnectionHandler connection) {
+        headerPanel.add(new DBNHeaderForm(this, connection).getComponent());
+    }
+
+    private void initHintPanel() {
+        TextContent hint = plain(txt("cfg.liquibase.hint.WorkspaceSettings"));
+        hintPanel.add(new DBNHintForm(this, hint, null, true).getComponent());
+    }
+
+    private void initDocuPanel() {
+        HyperLinkForm linkForm = HyperLinkForm.create(
+                txt("cfg.liquibase.label.Documentation"),
+                txt("cfg.liquibase.link.Documentation"),
+                "https://docs.liquibase.com/oss/reference-guide-4-33");
+        documentationPanel.add(linkForm.getComponent(), BorderLayout.EAST);
+    }
+
+    private void initFields() {
         initContentRoots();
         initPlaceholders();
         resetFormChanges();
@@ -121,24 +151,6 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
         if (parent == null || parent.isEmpty()) return child;
         if (child == null || child.isEmpty()) return parent;
         return parent + "/" + child;
-    }
-
-    private void initHeaderPanel() {
-        LiquibaseArtifactSettingsDialog dialog = ensureParentComponent();
-        headerPanel.add(new DBNHeaderForm(this, dialog.getConnection()).getComponent());
-    }
-
-    private void initHintPanel() {
-        TextContent hint = plain(txt("cfg.liquibase.hint.WorkspaceSettings"));
-        hintPanel.add(new DBNHintForm(this, hint, null, true).getComponent());
-    }
-
-    private void initDocumentationPanel() {
-        HyperLinkForm linkForm = HyperLinkForm.create(
-                txt("cfg.liquibase.label.Documentation"),
-                txt("cfg.liquibase.link.Documentation"),
-                "https://docs.liquibase.com/oss/reference-guide-4-33");
-        documentationPanel.add(linkForm.getComponent(), BorderLayout.EAST);
     }
 
     @Override

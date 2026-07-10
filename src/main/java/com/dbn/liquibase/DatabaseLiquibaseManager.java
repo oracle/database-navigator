@@ -29,6 +29,7 @@ import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.liquibase.model.LiquibaseArtifact;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.ui.LiquibaseArtifactSettingsDialog;
+import com.dbn.liquibase.ui.LiquibaseWorkspaceSettingsDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -72,6 +73,10 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         boolean newArtifact = !workspace.hasArtifact(connection.getConnectionId());
         LiquibaseArtifact artifact = workspace.ensureArtifact(connection.getConnectionId());
         Dialogs.show(() -> new LiquibaseArtifactSettingsDialog(workspace, artifact, connection, newArtifact));
+    }
+
+    public void openWorkspaceSettings() {
+        Dialogs.show(() -> new LiquibaseWorkspaceSettingsDialog(workspace));
     }
 
     public void detachWorkspace(@NotNull ConnectionHandler connection) {

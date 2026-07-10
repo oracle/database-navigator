@@ -555,6 +555,7 @@
             <action class="com.dbn.menu.action.FileConnectionMappingsOpenAction" id="DBN.MainMenu.FileConnectionMappings"/>
             <action class="com.dbn.menu.action.ResourceMonitorOpenAction" id="DBN.MainMenu.ResourceMonitor"/>
             <action id="DBN.MainMenu.EventMonitor" class="com.dbn.menu.action.MonitorDataChangeOpenAction"/>
+            <action id="DBN.MainMenu.LiquibaseWorkspaces" class="com.dbn.menu.action.LiquibaseWorkspacesOpenAction" icon="com.dbn.common.icon.Icons.DB_LIQUIBASE"/>
             <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" id="DBN.MainMenu.PendingTransactions"/>-->
             <group class="com.dbn.prerequisite.action.PrerequisiteVerificationAction" popup="true" id="DBN.MainMenu.PrerequisiteVerification"/> />
             <separator/>

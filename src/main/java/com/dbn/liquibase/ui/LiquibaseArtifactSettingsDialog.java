@@ -37,7 +37,7 @@ public class LiquibaseArtifactSettingsDialog extends DBNDialog<LiquibaseArtifact
     private final boolean newArtifact;
 
     public LiquibaseArtifactSettingsDialog(LiquibaseWorkspace workspace, LiquibaseArtifact artifact, ConnectionHandler connection, boolean newArtifact) {
-        super(connection.getProject(), txt("msg.liquibase.title.WorkspaceSettings"), true);
+        super(connection.getProject(), txt("msg.liquibase.title.ArtifactSettings"), true);
         this.workspace = workspace;
         this.artifact = artifact;
         this.connection = connection.ref();

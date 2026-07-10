@@ -25,8 +25,8 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class WorkspaceSettingsAction extends LiquibaseConnectionAction {
-    public WorkspaceSettingsAction(@NotNull ConnectionHandler connection) {
+public class ArtifactSettingsAction extends LiquibaseConnectionAction {
+    public ArtifactSettingsAction(@NotNull ConnectionHandler connection) {
         super(connection);
     }
 
@@ -39,7 +39,7 @@ public class WorkspaceSettingsAction extends LiquibaseConnectionAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         boolean attached = isWorkspaceAttached(project);
         Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.liquibase.action.WorkspaceSettings"));
+        presentation.setText(txt("app.liquibase.action.ArtifactSettings"));
         presentation.setIcon(Icons.ACTION_OPTIONS);
         presentation.setVisible(attached);
     }
