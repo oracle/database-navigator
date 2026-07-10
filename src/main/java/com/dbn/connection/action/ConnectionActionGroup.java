@@ -25,6 +25,7 @@ import com.dbn.connection.transaction.action.TransactionCommitAction;
 import com.dbn.connection.transaction.action.TransactionRollbackAction;
 import com.dbn.diagnostics.action.BulkLoadAllObjectsAction;
 import com.dbn.diagnostics.action.MiscellaneousConnectionAction;
+import com.dbn.liquibase.action.LiquibaseConnectionActions;
 
 public class ConnectionActionGroup extends AbstractConnectionActionGroup {
 
@@ -52,5 +53,7 @@ public class ConnectionActionGroup extends AbstractConnectionActionGroup {
         add(new DatabaseInformationOpenAction(connection));
         add(new ConnectionPasswordChangeAction(connection));
         add(new ConnectionSettingsOpenAction(connection));
+        addSeparator();
+        add(new LiquibaseConnectionActions(connection));
     }
 }

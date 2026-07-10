@@ -201,6 +201,7 @@
         <projectService serviceImplementation="com.dbn.event.registration.EventRegistrationManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.vector.DatabaseVectorManager"/>
+        <projectService serviceImplementation="com.dbn.liquibase.DatabaseLiquibaseManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.SourceCodeManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.diff.SourceCodeDiffManager"/>
         <projectService serviceImplementation="com.dbn.editor.data.DatasetEditorManager"/>
