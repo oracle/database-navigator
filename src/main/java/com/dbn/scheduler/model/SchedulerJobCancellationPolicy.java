@@ -14,22 +14,9 @@
  * limitations under the License.
  */
 
-package com.dbn.scheduler;
+package com.dbn.scheduler.model;
 
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
-
-@Getter
-@EqualsAndHashCode
-public class SchedulerJob {
-    private final ConnectionRef connection;
-    private final String name;
-
-    public SchedulerJob(@NotNull ConnectionHandler connection, @NotNull String name) {
-        this.connection = ConnectionRef.of(connection);
-        this.name = name;
-    }
+public enum SchedulerJobCancellationPolicy {
+    DETACH,
+    STOP_AND_DROP
 }

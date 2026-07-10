@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.scheduler;
+package com.dbn.scheduler.model;
 
 import com.intellij.openapi.util.NlsContexts.ProgressText;
 import com.intellij.openapi.util.NlsContexts.ProgressTitle;

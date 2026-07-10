@@ -21,7 +21,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseSchedulerInterface;
-import com.dbn.scheduler.SchedulerJobSnapshot;
+import com.dbn.scheduler.model.SchedulerJobSnapshot;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;

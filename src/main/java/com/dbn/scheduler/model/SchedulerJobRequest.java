@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.scheduler;
+package com.dbn.scheduler.model;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;

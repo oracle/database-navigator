@@ -17,7 +17,7 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.scheduler.SchedulerJobSnapshot;
+import com.dbn.scheduler.model.SchedulerJobSnapshot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

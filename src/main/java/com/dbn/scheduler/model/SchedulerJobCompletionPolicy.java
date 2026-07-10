@@ -14,18 +14,9 @@
  * limitations under the License.
  */
 
-package com.dbn.scheduler;
+package com.dbn.scheduler.model;
 
-import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
-
-@Getter
-public class SchedulerJobCompletion {
-    private final SchedulerJob job;
-    private final SchedulerJobSnapshot snapshot;
-
-    public SchedulerJobCompletion(@NotNull SchedulerJob job, @NotNull SchedulerJobSnapshot snapshot) {
-        this.job = job;
-        this.snapshot = snapshot;
-    }
+public enum SchedulerJobCompletionPolicy {
+    DROP,
+    KEEP
 }
