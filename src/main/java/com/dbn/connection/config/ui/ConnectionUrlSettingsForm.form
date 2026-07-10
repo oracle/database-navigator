@@ -231,6 +231,14 @@
         </constraints>
         <properties/>
       </component>
+      <component id="5cacc" class="com.dbn.common.ui.link.DBNHyperlinkLabel" binding="cloudProviderDocumentationLink">
+        <constraints>
+          <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.link.ProviderDocumentation"/>
+        </properties>
+      </component>
       <component id="8adf1" class="javax.swing.JLabel" binding="configFileLabel">
         <constraints>
           <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
