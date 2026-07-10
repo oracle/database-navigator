@@ -24,6 +24,16 @@ import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 public class ConfigProviderMapper {
     private ConfigProviderMapper(){}
 
+    public static boolean hasConfiguredWallet(ConnectionSettings settings) {
+        if (settings == null) return false;
+
+        DatabaseInfo databaseInfo = settings.getDatabaseSettings().getDatabaseInfo();
+        if (hasParameter(databaseInfo.getParameters(), "WALLET_LOCATION")) return true;
+
+        ConnectionPropertiesSettings propertiesSettings = settings.getPropertiesSettings();
+        return hasParameter(propertiesSettings.getProperties(), "oracle.net.wallet_location");
+    }
+
     public static ConfigProviderPayload map(ConnectionSettings settings, ConfigProviderExportRequest request) throws Exception{
         ConnectionDatabaseSettings db = settings.getDatabaseSettings();
         DatabaseInfo info = db.getDatabaseInfo();
@@ -217,6 +227,17 @@ public class ConfigProviderMapper {
         return "WALLET_LOCATION".equalsIgnoreCase(key) ||
                 "SSL_SERVER_DN_MATCH".equalsIgnoreCase(key) ||
                 "SSL_SERVER_CERT_DN".equalsIgnoreCase(key);
+    }
+
+    private static boolean hasParameter(Map<String, String> parameters, String parameterName) {
+        if (parameters == null) return false;
+
+        for (Map.Entry<String, String> parameter : parameters.entrySet()) {
+            if (parameterName.equalsIgnoreCase(parameter.getKey()) && !isBlank(parameter.getValue())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String trim(String s) { return s == null ? null : s.trim(); }

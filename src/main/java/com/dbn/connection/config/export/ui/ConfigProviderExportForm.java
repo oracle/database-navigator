@@ -4,12 +4,14 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.export.ConfigProviderExportManager;
+import com.dbn.connection.config.export.ConfigProviderMapper;
 import com.dbn.connection.config.export.ConfigProviderExportRequest;
 import com.intellij.openapi.fileChooser.FileSaverDescriptor;
 import com.intellij.openapi.fileChooser.FileSaverDialog;
@@ -25,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JRadioButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
@@ -51,8 +54,11 @@ public class ConfigProviderExportForm extends DBNFormBase {
 
     private JBCheckBox includeWalletCheckBox;
     private DBNInfoLabel walletInfoLabel;
+    private JPanel walletPanel;
 
     private TextFieldWithBrowseButton walletFileTextField;
+    private DBNCommentLabel walletFileHintLabel;
+    private JLabel walletFileLabel;
 
     private Path outputFile;
     private Path walletFile;
@@ -60,6 +66,7 @@ public class ConfigProviderExportForm extends DBNFormBase {
     private final ConfigProviderExportManager exportService;
     private final ConnectionHandler connection;
     private final ConnectionSettings connectionSettings;
+    private final boolean walletConfigured;
 
     ConfigProviderExportForm(
             @NotNull ConfigProviderExportDialog parent,
@@ -71,11 +78,13 @@ public class ConfigProviderExportForm extends DBNFormBase {
         this.exportService = exportService;
         this.connection = connection;
         this.connectionSettings = connectionSettings;
+        this.walletConfigured = ConfigProviderMapper.hasConfiguredWallet(connectionSettings);
 
         // Fail-fast if .form bindings are wrong
         if (mainPanel == null || headerPanel == null || outputFilePanel == null || wrapperKeyTextField == null || outputFileTextField == null ||
                 clipboardDestinationRadioButton == null || fileDestinationRadioButton == null ||
-                includeWalletCheckBox == null || walletInfoLabel == null || walletFileTextField == null) {
+                includeWalletCheckBox == null || walletInfoLabel == null || walletPanel == null ||
+                walletFileTextField == null || walletFileHintLabel == null || walletFileLabel == null) {
             throw new IllegalStateException("Form binding failed. Check ConfigProviderExportForm.form bindings.");
         }
 
@@ -194,9 +203,19 @@ public class ConfigProviderExportForm extends DBNFormBase {
     }
 
     private void updateWalletControls() {
-        boolean enabled = includeWalletCheckBox.isSelected();
+        if (!walletConfigured) {
+            includeWalletCheckBox.setSelected(false);
+            walletFile = null;
+            walletFileTextField.setText("");
+        }
+
+        boolean enabled = walletConfigured && includeWalletCheckBox.isSelected();
+        walletPanel.setVisible(walletConfigured);
+        walletFileLabel.setVisible(enabled);
+        walletFileTextField.setVisible(enabled);
         walletFileTextField.setEnabled(enabled);
         walletFileTextField.getTextField().setEnabled(enabled);
+        walletFileHintLabel.setVisible(enabled);
     }
 
     private void updateDestinationControls() {
