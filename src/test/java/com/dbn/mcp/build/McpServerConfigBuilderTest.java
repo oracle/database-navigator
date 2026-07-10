@@ -28,7 +28,7 @@ import java.util.List;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class McpBuildTaskTest {
+public class McpServerConfigBuilderTest {
 
     @Test
     public void buildYamlRedactsCredentials() {
@@ -37,7 +37,7 @@ public class McpBuildTaskTest {
         definition.setHttpPort("8080");
         definition.setTools(List.of(createTool()));
 
-        String yaml = McpBuildTask.buildYaml(
+        String yaml = McpServerConfigBuilder.build(
                 definition,
                 "jdbc:oracle:thin:scott/tiger@localhost:1521/orclpdb?password=Secret123&token=ApiToken");
 

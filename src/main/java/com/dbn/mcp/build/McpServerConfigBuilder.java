@@ -93,7 +93,7 @@ final class McpServerConfigBuilder {
         }
     }
 
-    private static String build(McpServerDefinition definition, String connectionUrl) {
+    static String build(McpServerDefinition definition, String connectionUrl) {
         @NonNls StringBuilder sb = new StringBuilder();
 
         appendYamlField(sb, "", "transport", definition.getTransportType().isHttp() ? "http" : "stdio");
