@@ -248,6 +248,10 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
     @Override
     public void applyFormChanges(final ConnectionDatabaseSettings configuration) throws ConfigurationException {
+        if (isCloudProviderAuthenticationVisible()) {
+            authSettingsForm.validateCloudProviderSettings();
+        }
+
         DatabaseType databaseType = getSelectedDatabaseType();
         DriverOption driverOption = driverSettingsForm.getDriverOption();
         DatabaseUrlType urlType = Commons.nvl(urlSettingsForm.getUrlType(), DatabaseUrlType.CUSTOM);

@@ -32,6 +32,11 @@ import static java.util.Collections.emptyMap;
 
 public class OciConfigFileUtil {
 
+    @NonNls
+    public static String getDefaultConfigFilePath() {
+        return ConfigFileReader.DEFAULT_FILE_PATH;
+    }
+
     @Workaround
     public static List<String> getConfigProfileNames(String configFilePath) {
         if (isEmpty(configFilePath)) return emptyList();

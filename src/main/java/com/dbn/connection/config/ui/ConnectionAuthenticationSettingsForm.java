@@ -23,6 +23,7 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
 import com.dbn.connection.ui.ConnectionAuthenticationFieldsForm;
+import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -98,6 +99,10 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
 
     public void applyCloudProviderFormChanges(ConfigProviderInfo configProviderInfo) {
         cloudConfigProviderAuthSettingsForm.applyFormChanges(configProviderInfo);
+    }
+
+    public void validateCloudProviderSettings() throws ConfigurationException {
+        cloudConfigProviderAuthSettingsForm.validateSettings();
     }
 
     public void addCloudProviderChangeListeners(Runnable runnable) {
