@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 public class StatementDefinition {
     private static final Pattern parameterPattern = Pattern.compile("\\{#(\\d+)}");
     private static final Pattern identifierPattern = Pattern.compile("\\{@(\\d+)}");
+    private static final Pattern literalPattern = Pattern.compile("\\{\\$(\\d+)}");
     private static final Pattern placeholderPattern = Pattern.compile("\\{(\\d+)}");
 
     private final String statementText;
@@ -51,6 +52,7 @@ public class StatementDefinition {
 
     private final List<Integer> parameterIndices;
     private final List<Integer> identifierIndices;
+    private final List<Integer> literalIndices;
     private final List<Integer> placeholderIndices;
     private final List<Integer> silentErrorCodes;
 
@@ -60,6 +62,7 @@ public class StatementDefinition {
         this.sinceVersion = sinceVersion;
         this.parameterIndices = getDynamicContentIndices(statementText, parameterPattern);
         this.identifierIndices = getDynamicContentIndices(statementText, identifierPattern);
+        this.literalIndices = getDynamicContentIndices(statementText, literalPattern);
         this.placeholderIndices = getDynamicContentIndices(statementText, placeholderPattern);
         this.silentErrorCodes = Data.csvToList(silentErrorCodes, Integer.class);
 
@@ -138,6 +141,9 @@ public class StatementDefinition {
         for (Integer identifierIndex : identifierIndices) {
             statementText = statementText.replaceAll("\\{@" + identifierIndex + "}", "<identifier>");
         }
+        for (Integer literalIndex : literalIndices) {
+            statementText = statementText.replaceAll("\\{\\$" + literalIndex + "}", "<literal>");
+        }
         return statementText;
     }
 
@@ -154,6 +160,12 @@ public class StatementDefinition {
             identifierValue = Matcher.quoteReplacement(identifierValue);
 
             statementText = statementText.replaceAll("\\{@" + identifierIndex + "}", identifierValue);
+        }
+        for (Integer literalIndex : literalIndices) {
+            String literalValue = SqlLiterals.renderLiteral(arguments[literalIndex]);
+            literalValue = Matcher.quoteReplacement(literalValue);
+
+            statementText = statementText.replaceAll("\\{\\$" + literalIndex + "}", literalValue);
         }
         return statementText;
     }
