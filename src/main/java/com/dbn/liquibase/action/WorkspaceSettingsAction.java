@@ -32,7 +32,7 @@ public class WorkspaceSettingsAction extends LiquibaseConnectionAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        getManager(project).openWorkspaceSettings(getConnection());
+        getManager(project).openArtifactSettings(getConnection());
     }
 
     @Override

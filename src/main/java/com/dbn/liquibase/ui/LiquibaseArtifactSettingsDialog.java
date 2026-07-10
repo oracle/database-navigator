@@ -30,13 +30,13 @@ import javax.swing.Action;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
-public class LiquibaseWorkspaceSettingsDialog extends DBNDialog<LiquibaseWorkspaceSettingsForm> {
+public class LiquibaseArtifactSettingsDialog extends DBNDialog<LiquibaseArtifactSettingsForm> {
     private final LiquibaseWorkspace workspace;
     private final LiquibaseArtifact artifact;
     private final ConnectionRef connection;
     private final boolean newArtifact;
 
-    public LiquibaseWorkspaceSettingsDialog(LiquibaseWorkspace workspace, LiquibaseArtifact artifact, ConnectionHandler connection, boolean newArtifact) {
+    public LiquibaseArtifactSettingsDialog(LiquibaseWorkspace workspace, LiquibaseArtifact artifact, ConnectionHandler connection, boolean newArtifact) {
         super(connection.getProject(), txt("msg.liquibase.title.WorkspaceSettings"), true);
         this.workspace = workspace;
         this.artifact = artifact;
@@ -53,8 +53,8 @@ public class LiquibaseWorkspaceSettingsDialog extends DBNDialog<LiquibaseWorkspa
 
     @NotNull
     @Override
-    protected LiquibaseWorkspaceSettingsForm createForm() {
-        return new LiquibaseWorkspaceSettingsForm(this);
+    protected LiquibaseArtifactSettingsForm createForm() {
+        return new LiquibaseArtifactSettingsForm(this);
     }
 
     @Override

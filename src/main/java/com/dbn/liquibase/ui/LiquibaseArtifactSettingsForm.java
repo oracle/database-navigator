@@ -49,7 +49,7 @@ import static com.dbn.liquibase.model.LiquibaseArtifact.DEFAULT_ROOT_PATH;
 import static com.dbn.liquibase.model.LiquibaseArtifact.DEFAULT_SQL_DIRECTORY;
 import static com.dbn.nls.NlsResources.txt;
 
-public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
+public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
@@ -64,7 +64,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
     private final LiquibaseWorkspace workspace;
     private final LiquibaseArtifact artifact;
 
-    LiquibaseWorkspaceSettingsForm(LiquibaseWorkspaceSettingsDialog parent) {
+    LiquibaseArtifactSettingsForm(LiquibaseArtifactSettingsDialog parent) {
         super(parent);
         workspace = parent.getWorkspace();
         artifact = parent.getArtifact();
@@ -124,7 +124,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
     }
 
     private void initHeaderPanel() {
-        LiquibaseWorkspaceSettingsDialog dialog = ensureParentComponent();
+        LiquibaseArtifactSettingsDialog dialog = ensureParentComponent();
         headerPanel.add(new DBNHeaderForm(this, dialog.getConnection()).getComponent());
     }
 
