@@ -123,10 +123,10 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
      * for deferred-execution scenarios such as building a DBMS_SCHEDULER {@code job_action} from a
      * readable template kept in this interface's XML.
      * <p>
-     * Templates for rendering must express dynamic parts as {@code {@N}} identifiers (safely quoted);
-     * literal values belong in the template text itself. Templates carrying {@code {#N}} JDBC binds are
-     * rejected. There is intentionally no untrusted value-literal escaping here - do not feed user
-     * values through {@code {N}} placeholders.
+     * Templates for rendering must express dynamic parts as {@code {@N}} identifiers (safely quoted)
+     * or {@code {$N}} typed value literals (escaped/validated, fail-closed type whitelist). Templates
+     * carrying {@code {#N}} JDBC binds are rejected. Do not feed untrusted values through raw {@code {N}}
+     * placeholders - they are inlined verbatim.
      */
     @NonNls
     protected String renderStatementText(@NotNull DBNConnection connection, @NonNls String statementId, @Nullable Object... arguments) throws SQLException {
