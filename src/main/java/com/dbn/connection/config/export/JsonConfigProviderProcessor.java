@@ -34,7 +34,29 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
     @Override
     public void write(ConfigProviderPayload payload, Path file, String wrapperKey) throws Exception {
         if (file == null) throw new IllegalArgumentException("output file is null");
-        Files.writeString(file, render(payload, wrapperKey), StandardCharsets.UTF_8);
+        if (payload == null) throw new IllegalArgumentException("payload is null");
+
+        boolean hasWrapperKey = wrapperKey != null && !wrapperKey.isBlank();
+        boolean hasExistingContent = Files.exists(file) && Files.size(file) > 0;
+        if (!hasExistingContent) {
+            Files.writeString(file, render(payload, wrapperKey), StandardCharsets.UTF_8);
+            return;
+        }
+        JsonNode existing = MAPPER.readTree(Files.readString(file, StandardCharsets.UTF_8));
+        if (!(existing instanceof ObjectNode root)) {
+            throw new IllegalArgumentException("Existing export file must contain a JSON object.");
+        }
+        if (!hasWrapperKey) {
+            Files.writeString(file, render(payload, wrapperKey), StandardCharsets.UTF_8);
+            return;
+        }
+        if (containsRootConfiguration(root)) {
+            Files.writeString(file, render(payload, wrapperKey), StandardCharsets.UTF_8);
+            return;
+        }
+
+        root.set(wrapperKey.trim(), toJson(payload));
+        Files.writeString(file, MAPPER.writeValueAsString(root), StandardCharsets.UTF_8);
     }
 
     @Override
@@ -69,6 +91,10 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
         }
         return node;
 
+    }
+
+    private static boolean containsRootConfiguration(ObjectNode root) {
+        return root.has("connect_descriptor");
     }
 
     private static JsonNode toSecretRefJson(SecretRef ref, boolean includeEmptyTypeAndValue) {
