@@ -4,13 +4,14 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
-import com.dbn.common.ui.link.HyperLinkForm;
+import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.liquibase.model.LiquibaseWorkspace;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -19,18 +20,27 @@ public class LiquibaseArtifactPlaceholderForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
-    private JPanel documentationPanel;
+    private DBNHyperlinkLabel documentationLink;
     private JButton attachButton;
 
-    LiquibaseArtifactPlaceholderForm(DBNFormBase parent, ConnectionHandler connection, Runnable attachAction) {
+    private final LiquibaseWorkspace workspace;
+    private final ConnectionId connectionId;
+
+    LiquibaseArtifactPlaceholderForm(DBNFormBase parent, LiquibaseWorkspace workspace, ConnectionHandler connection) {
         super(parent);
+        this.workspace = workspace;
+        connectionId = connection.getConnectionId();
         headerPanel.add(new DBNHeaderForm(this, connection).getComponent());
         hintPanel.add(new DBNHintForm(this, TextContent.plain(txt("cfg.liquibase.hint.ArtifactPlaceholder")), null, true).getComponent());
-        documentationPanel.add(HyperLinkForm.create(
-                txt("cfg.liquibase.label.Documentation"),
-                txt("cfg.liquibase.link.Documentation"),
-                "https://docs.liquibase.com/oss/reference-guide-4-33").getComponent(), BorderLayout.EAST);
-        attachButton.addActionListener(e -> attachAction.run());
+        documentationLink.setHyperlinkText(txt("cfg.liquibase.link.LiquibaseDocumentation"));
+        documentationLink.setHyperlinkTarget("https://docs.liquibase.com/oss/reference-guide-4-33");
+        attachButton.addActionListener(e -> attachWorkspace());
+    }
+
+    private void attachWorkspace() {
+        workspace.ensureArtifact(connectionId);
+        LiquibaseWorkspaceSettingsForm parentComponent = ensureParentComponent();
+        parentComponent.artifactAttached(connectionId);
     }
 
     @NotNull

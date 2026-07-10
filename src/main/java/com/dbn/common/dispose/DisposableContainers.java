@@ -106,6 +106,13 @@ public final class DisposableContainers {
         }
 
         @Override
+        public V remove(Object key) {
+            V removed = super.remove(key);
+            if (removed != null) Disposer.dispose(removed);
+            return removed;
+        }
+
+        @Override
         public boolean remove(Object key, Object value) {
             boolean removed = super.remove(key, value);
             if (removed && value instanceof Disposable disposable) {

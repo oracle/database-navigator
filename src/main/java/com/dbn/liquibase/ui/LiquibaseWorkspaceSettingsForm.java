@@ -1,6 +1,7 @@
 package com.dbn.liquibase.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -13,12 +14,14 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.UserInterface.repaint;
+import static com.dbn.common.util.Messages.options;
+import static com.dbn.common.util.Messages.showConfirmationDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 /** Overview form containing one simple Liquibase settings card per connection. */
 public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
@@ -28,6 +31,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
 
     private final LiquibaseWorkspace workspace;
     private final Map<ConnectionId, LiquibaseArtifactSettingsForm> artifactForms = DisposableContainers.map(this);
+    private final Map<ConnectionId, LiquibaseArtifactPlaceholderForm> placeholderForms = DisposableContainers.map(this);
     private final Set<ConnectionId> newlyAttached = new HashSet<>();
 
     LiquibaseWorkspaceSettingsForm(LiquibaseWorkspaceSettingsDialog parent) {
@@ -56,33 +60,72 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
     private void showSelectedConnection() {
         detailsPanel.removeAll();
         ConnectionHandler connection = connectionsList.getSelectedValue();
-        if (connection != null) {
-            ConnectionId connectionId = connection.getConnectionId();
-            if (!workspace.hasArtifact(connectionId)) {
-                LiquibaseArtifactPlaceholderForm placeholder = new LiquibaseArtifactPlaceholderForm(this, connection, () -> {
-                    workspace.ensureArtifact(connectionId);
-                    newlyAttached.add(connectionId);
-                    showSelectedConnection();
-                });
-                detailsPanel.add(placeholder.getComponent(), BorderLayout.CENTER);
-            } else {
-                LiquibaseArtifactSettingsForm form = artifactForms.get(connectionId);
-                if (form == null) {
-                    form = new LiquibaseArtifactSettingsForm(this, workspace, workspace.ensureArtifact(connectionId), connection);
-                    artifactForms.put(connectionId, form);
-                }
-                detailsPanel.add(form.getComponent(), BorderLayout.CENTER);
-            }
-        }
+        if (connection == null) return;
+
+        ConnectionId connectionId = connection.getConnectionId();
+        DBNForm artifactForm = workspace.hasArtifact(connectionId)
+                ? getArtifactForm(connection)
+                : getPlaceholderForm(connection);
+        detailsPanel.add(artifactForm.getComponent());
         repaint(detailsPanel);
+    }
+
+    private LiquibaseArtifactSettingsForm getArtifactForm(ConnectionHandler connection) {
+        ConnectionId connectionId = connection.getConnectionId();
+        return artifactForms.computeIfAbsent(connectionId, id ->
+                new LiquibaseArtifactSettingsForm(this, workspace, workspace.ensureArtifact(id), connection));
+    }
+
+    private LiquibaseArtifactPlaceholderForm getPlaceholderForm(ConnectionHandler connection) {
+        ConnectionId connectionId = connection.getConnectionId();
+        return placeholderForms.computeIfAbsent(connectionId, id ->
+                new LiquibaseArtifactPlaceholderForm(this, workspace, connection));
     }
 
     public void applyFormChanges() {
         artifactForms.values().forEach(LiquibaseArtifactSettingsForm::applyFormChanges);
+        newlyAttached.clear();
+    }
+
+    public boolean hasChanges() {
+        return !newlyAttached.isEmpty() || artifactForms.values().stream().anyMatch(LiquibaseArtifactSettingsForm::isArtifactChanged);
     }
 
     public void cancelFormChanges() {
         newlyAttached.forEach(workspace::removeArtifact);
+    }
+
+    void detachArtifact(ConnectionId connectionId) {
+        boolean newlyAttachedArtifact = newlyAttached.remove(connectionId);
+        boolean confirmed = newlyAttachedArtifact || showConfirmationDialog(ensureProject(),
+                txt("msg.liquibase.title.DetachWorkspace"),
+                txt("msg.liquibase.question.DetachWorkspace"),
+                options(txt("msg.shared.button.Yes"), txt("msg.shared.button.No")), 1) == 0;
+        if (confirmed) {
+            workspace.removeArtifact(connectionId);
+            artifactDetached(connectionId);
+        } else {
+            newlyAttached.add(connectionId);
+        }
+    }
+
+
+    void artifactAttached(ConnectionId connectionId) {
+        placeholderForms.remove(connectionId);
+        newlyAttached.add(connectionId);
+        getWorkspaceDialog().updateChangeState();
+        showSelectedConnection();
+    }
+
+    void artifactDetached(ConnectionId connectionId) {
+        artifactForms.remove(connectionId);
+        placeholderForms.remove(connectionId);
+        getWorkspaceDialog().updateChangeState();
+        showSelectedConnection();
+    }
+
+    private LiquibaseWorkspaceSettingsDialog getWorkspaceDialog() {
+        return getParentDialog();
     }
 
     @NotNull

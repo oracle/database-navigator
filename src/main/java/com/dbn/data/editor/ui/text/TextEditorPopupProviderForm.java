@@ -41,8 +41,6 @@ import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.JBUI;
-import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,7 +56,6 @@ import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 import java.util.Arrays;
 
-import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.UserInterface.focusNextComponent;
 import static com.dbn.common.ui.util.UserInterface.focusPreviousComponent;
 import static com.dbn.common.util.Actions.createActionToolbar;
@@ -71,8 +68,6 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
     private JPanel leftActionPanel;
     private JTextArea editorTextArea;
     private DBNScrollPane textEditorScrollPane;
-
-    private @Getter @Setter boolean changed;
 
     public TextEditorPopupProviderForm(TextFieldWithPopup<?> textField, boolean autoPopup) {
         super(textField, autoPopup, true);
@@ -157,11 +152,9 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
         }
 
         editorTextArea.setText(text);
-        changed = false;
         if (textField.isEditable()) editorTextArea.setCaretPosition(textField.getCaretPosition());
         editorTextArea.setSelectionStart(textField.getSelectionStart());
         editorTextArea.setSelectionEnd(textField.getSelectionEnd());
-        onTextChange(editorTextArea, e -> changed = true);
 
         JComponent component = getComponent();
         component.setPreferredSize(new Dimension(Math.max(200, textField.getWidth() + 32), 160));

@@ -21,7 +21,8 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
-import com.dbn.common.ui.link.HyperLinkForm;
+import com.dbn.common.ui.link.DBNHyperlinkLabel;
+import com.dbn.common.ui.link.Hyperlinks;
 import com.dbn.common.ui.misc.ContentRootSelector;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.model.LiquibaseArtifact;
@@ -31,10 +32,10 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
@@ -55,7 +56,8 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
-    private JPanel documentationPanel;
+    private DBNHyperlinkLabel documentationLink;
+    private DBNHyperlinkLabel detachLink;
     private ContentRootSelector contentRootComboBox;
     private JBTextField rootPathTextField;
     private JBTextField changelogDirectoryTextField;
@@ -79,7 +81,7 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
         this.artifact = artifact;
         initHeaderPanel(connection);
         initHintPanel();
-        initDocuPanel();
+        initHyperlinksPanel();
         initFields();
     }
 
@@ -92,12 +94,16 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
         hintPanel.add(new DBNHintForm(this, hint, null, true).getComponent());
     }
 
-    private void initDocuPanel() {
-        HyperLinkForm linkForm = HyperLinkForm.create(
-                txt("cfg.liquibase.label.Documentation"),
-                txt("cfg.liquibase.link.Documentation"),
-                "https://docs.liquibase.com/oss/reference-guide-4-33");
-        documentationPanel.add(linkForm.getComponent(), BorderLayout.EAST);
+    private void initHyperlinksPanel() {
+        documentationLink.setHyperlinkText(txt("cfg.liquibase.link.LiquibaseDocumentation"));
+        documentationLink.setHyperlinkTarget("https://docs.liquibase.com/oss/reference-guide-4-33");
+
+        if (getParentComponent() instanceof LiquibaseWorkspaceSettingsForm workspaceForm) {
+            detachLink.setHyperlinkText(txt("cfg.liquibase.link.DetachWorkspace"));
+            Hyperlinks.onHyperlinkAccess(detachLink, e -> workspaceForm.detachArtifact(artifact.getConnectionId()));
+        } else {
+            detachLink.setVisible(false);
+        }
     }
 
     private void initFields() {
@@ -219,6 +225,16 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
         artifact.setSqlDirectory(getText(sqlDirectoryTextField));
         artifact.setMasterChangelog(getText(masterChangelogTextField));
         artifact.setPropertiesFile(getText(propertiesFileTextField));
+    }
+
+    public boolean isArtifactChanged() {
+        if (!Objects.equals(artifact.getRootPath(), getText(rootPathTextField))) return true;
+        if (!Objects.equals(artifact.getContentRootPath(), contentRootComboBox.getSelectedPath())) return true;
+        if (!Objects.equals(artifact.getChangelogDirectory(), getText(changelogDirectoryTextField))) return true;
+        if (!Objects.equals(artifact.getSqlDirectory(), getText(sqlDirectoryTextField))) return true;
+        if (!Objects.equals(artifact.getMasterChangelog(), getText(masterChangelogTextField))) return true;
+        if (!Objects.equals(artifact.getPropertiesFile(), getText(propertiesFileTextField))) return true;
+        return false;
     }
 
     @Override

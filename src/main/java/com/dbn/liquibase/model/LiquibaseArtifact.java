@@ -17,9 +17,11 @@
 package com.dbn.liquibase.model;
 
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.util.Cloneable;
 import com.dbn.connection.ConnectionId;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +37,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
  */
 @Getter
 @Setter
-public class LiquibaseArtifact implements PersistentStateElement {
+public class LiquibaseArtifact implements PersistentStateElement, Cloneable<LiquibaseArtifact> {
     public static final String DEFAULT_ROOT_PATH = "db/liquibase";
     public static final String DEFAULT_CHANGELOG_DIRECTORY = "changes";
     public static final String DEFAULT_SQL_DIRECTORY = "sql";
@@ -77,5 +79,11 @@ public class LiquibaseArtifact implements PersistentStateElement {
         setStringAttribute(element, "sql-directory", sqlDirectory);
         setStringAttribute(element, "master-changelog", masterChangelog);
         setStringAttribute(element, "properties-file", propertiesFile);
+    }
+
+    @Override
+    @SneakyThrows
+    public LiquibaseArtifact clone() {
+        return (LiquibaseArtifact) super.clone();
     }
 }

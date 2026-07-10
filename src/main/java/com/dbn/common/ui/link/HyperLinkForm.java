@@ -27,6 +27,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.ClientProperty.NON_DISABLEABLE;
 
 public class HyperLinkForm extends DBNFormBase {
@@ -47,6 +48,12 @@ public class HyperLinkForm extends DBNFormBase {
 
     public static HyperLinkForm create(@Label String text, @LinkLabel String linkText, @NonNls String linkUrl) {
         return new HyperLinkForm(text, linkText, linkUrl);
+    }
+
+    public static HyperLinkForm create(@Label String text, @LinkLabel String linkText, Runnable action) {
+        HyperLinkForm form = new HyperLinkForm(text, linkText, null);
+        onHyperlinkAccess(form.hyperLink, e -> action.run());
+        return form;
     }
 
     public void setTooltipText(@Tooltip String tooltip) {

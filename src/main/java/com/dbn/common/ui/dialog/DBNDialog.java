@@ -233,6 +233,9 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     @NotNull
     protected abstract F createForm();
 
+    public void updateChangeState() {
+
+    }
 
     @Override
     protected final @NonNls @Nullable String getHelpId() {
