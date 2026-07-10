@@ -38,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.util.Dialogs.whenOk;
 
 @State(
         name = DatabaseLiquibaseManager.COMPONENT_NAME,
@@ -76,7 +77,8 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     }
 
     public void openWorkspaceSettings() {
-        Dialogs.show(() -> new LiquibaseWorkspaceSettingsDialog(workspace));
+        Dialogs.show(() -> new LiquibaseWorkspaceSettingsDialog(workspace),
+                whenOk(d -> workspace.replaceArtifacts(d.getWorkspace())));
     }
 
     public void detachWorkspace(@NotNull ConnectionHandler connection) {

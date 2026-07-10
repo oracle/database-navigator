@@ -81,7 +81,7 @@ public abstract class DBNFormBase
 
     private final Latent<DBNFormFieldAdapter> fieldAdapter = Latent.basic(() -> DBNFormFieldAdapter.create(this));
     private final Latent<Boolean> hasScrollBars = Latent.basic(() -> hasChildComponent(getMainComponent(), c -> c instanceof JScrollPane));
-    private final DBNFormMonitor monitor = new DBNFormMonitor(this);
+    private final @Getter DBNFormMonitor monitor = new DBNFormMonitor(this);
 
     public DBNFormBase(@Nullable Disposable parent) {
         super(parent);
@@ -175,13 +175,12 @@ public abstract class DBNFormBase
     }
 
     /** Returns whether a user interaction has changed one of this form's fields. */
-    public boolean isChanged() {
+    public boolean isFormChanged() {
         return monitor.isChanged();
     }
 
-    /** Clears the generic form change state after applying or resetting values. */
-    public final void resetChanged() {
-        monitor.reset();
+    public final void markFormChanged() {
+        monitor.markChanged();
     }
 
     /**

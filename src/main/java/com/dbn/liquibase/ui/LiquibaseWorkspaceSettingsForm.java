@@ -19,9 +19,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.UserInterface.repaint;
-import static com.dbn.common.util.Messages.options;
-import static com.dbn.common.util.Messages.showConfirmationDialog;
-import static com.dbn.nls.NlsResources.txt;
 
 /** Overview form containing one simple Liquibase settings card per connection. */
 public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
@@ -87,41 +84,30 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
         newlyAttached.clear();
     }
 
-    public boolean hasChanges() {
-        return !newlyAttached.isEmpty() || artifactForms.values().stream().anyMatch(LiquibaseArtifactSettingsForm::isArtifactChanged);
-    }
-
     public void cancelFormChanges() {
         newlyAttached.forEach(workspace::removeArtifact);
     }
 
     void detachArtifact(ConnectionId connectionId) {
-        boolean newlyAttachedArtifact = newlyAttached.remove(connectionId);
-        boolean confirmed = newlyAttachedArtifact || showConfirmationDialog(ensureProject(),
-                txt("msg.liquibase.title.DetachWorkspace"),
-                txt("msg.liquibase.question.DetachWorkspace"),
-                options(txt("msg.shared.button.Yes"), txt("msg.shared.button.No")), 1) == 0;
-        if (confirmed) {
-            workspace.removeArtifact(connectionId);
-            artifactDetached(connectionId);
-        } else {
-            newlyAttached.add(connectionId);
-        }
+        newlyAttached.remove(connectionId);
+        workspace.removeArtifact(connectionId);
+        artifactDetached(connectionId);
     }
-
 
     void artifactAttached(ConnectionId connectionId) {
         placeholderForms.remove(connectionId);
         newlyAttached.add(connectionId);
-        getWorkspaceDialog().updateChangeState();
+        getWorkspaceDialog().updateDialogButtons();
         showSelectedConnection();
+        markFormChanged();
     }
 
     void artifactDetached(ConnectionId connectionId) {
         artifactForms.remove(connectionId);
         placeholderForms.remove(connectionId);
-        getWorkspaceDialog().updateChangeState();
+        getWorkspaceDialog().updateDialogButtons();
         showSelectedConnection();
+        markFormChanged();
     }
 
     private LiquibaseWorkspaceSettingsDialog getWorkspaceDialog() {

@@ -2,6 +2,7 @@ package com.dbn.common.ui.form;
 
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.intellij.openapi.Disposable;
 import lombok.Getter;
 
 import javax.swing.AbstractButton;
@@ -59,9 +60,20 @@ public class DBNFormMonitor {
         changed = false;
     }
 
-    private void markChanged() {
+    public void markChanged() {
+        markChanged(true);
+    }
+
+    private void markChanged(boolean propagate) {
         changed = true;
+        if (propagate) {
+            Disposable parent = getForm().getParentComponent();
+            while (parent instanceof DBNFormBase parentForm) {
+                parentForm.getMonitor().markChanged(false);
+                parent = parentForm.getParentComponent();
+            }
+        }
         DBNDialog dialog = getForm().getParentDialog();
-        if (dialog != null) dialog.updateChangeState();
+        if (dialog != null) dialog.updateDialogButtons();
     }
 }

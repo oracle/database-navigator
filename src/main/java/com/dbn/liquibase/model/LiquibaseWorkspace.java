@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -69,25 +70,24 @@ public class LiquibaseWorkspace implements PersistentStateElement, Cloneable<Liq
         artifacts.remove(connectionId);
     }
 
+    public void replaceArtifact(@NotNull LiquibaseArtifact artifact) {
+        artifacts.put(artifact.getConnectionId(), artifact);
+    }
+
+    public void replaceArtifacts(LiquibaseWorkspace workspace) {
+        artifacts = new LinkedHashMap<>();
+        workspace.artifacts.values().forEach(a -> artifacts.put(a.getConnectionId(), a));
+    }
+
     @NotNull
     public VirtualFile[] getContentRoots() {
         return ProjectRootManager.getInstance(getProject()).getContentRoots();
     }
 
-    public boolean hasDuplicateArtifactData(@NotNull LiquibaseArtifact candidate) {
-        return artifacts.values().stream()
-                .filter(artifact -> artifact != candidate)
-                .anyMatch(artifact -> artifact.usesSameContentRoot(candidate));
-    }
-
-    public boolean hasContentRootConflict(@NotNull String contentRootPath, @NotNull LiquibaseArtifact currentArtifact) {
-        return findContentRootOwner(contentRootPath, currentArtifact) != null;
-    }
-
     @Nullable
     public LiquibaseArtifact findContentRootOwner(@NotNull String contentRootPath, @NotNull LiquibaseArtifact currentArtifact) {
         return artifacts.values().stream()
-                .filter(artifact -> artifact != currentArtifact)
+                .filter(artifact -> !Objects.equals(artifact.getConnectionId(), currentArtifact.getConnectionId()))
                 .filter(artifact -> contentRootPath.equals(artifact.getContentRootPath()))
                 .findFirst()
                 .orElse(null);

@@ -15,7 +15,7 @@ public class LiquibaseWorkspaceSettingsDialog extends DBNDialog<LiquibaseWorkspa
 
     public LiquibaseWorkspaceSettingsDialog(LiquibaseWorkspace workspace) {
         super(workspace.getProject(), txt("msg.liquibase.title.WorkspaceSettings"), true);
-        this.workspace = workspace;
+        this.workspace = workspace.clone();
         init();
     }
 
@@ -34,31 +34,28 @@ public class LiquibaseWorkspaceSettingsDialog extends DBNDialog<LiquibaseWorkspa
     @NotNull
     protected Action[] initializeActions() {
         renameAction(getOKAction(), txt("msg.liquibase.button.Update"));
-        updateChangeState();
-        return actions(getOKAction(), getCancelAction());
+        updateDialogButtons();
+        return actions(
+                getOKAction(),
+                getCancelAction());
     }
 
     @Override
     protected void doOKAction() {
-        applyChanges();
+        applyFormChanges();
         super.doOKAction();
     }
 
     @Override
     public void validateInput(JComponent component) {
         super.validateInput(component);
-        updateChangeState();
+        updateDialogButtons();
     }
 
-    private void applyChanges() {
-        getForm().applyFormChanges();
-        updateChangeState();
-    }
-
-    public void updateChangeState() {
+    public void updateDialogButtons() {
         if (isDisposed()) return;
 
-        boolean changed = getForm().hasChanges();
+        boolean changed = getForm().isFormChanged();
         getOKAction().setEnabled(changed);
         setCancelButtonText(txt(changed ? "msg.shared.button.Cancel" : "msg.shared.button.Close"));
     }

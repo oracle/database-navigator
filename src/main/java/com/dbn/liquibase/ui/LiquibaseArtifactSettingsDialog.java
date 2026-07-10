@@ -39,7 +39,7 @@ public class LiquibaseArtifactSettingsDialog extends DBNDialog<LiquibaseArtifact
     public LiquibaseArtifactSettingsDialog(LiquibaseWorkspace workspace, LiquibaseArtifact artifact, ConnectionHandler connection, boolean newArtifact) {
         super(connection.getProject(), txt("msg.liquibase.title.ArtifactSettings"), true);
         this.workspace = workspace;
-        this.artifact = artifact;
+        this.artifact = artifact.clone();
         this.connection = connection.ref();
         this.newArtifact = newArtifact;
         setModal(true);
@@ -75,6 +75,7 @@ public class LiquibaseArtifactSettingsDialog extends DBNDialog<LiquibaseArtifact
     @Override
     protected void doOKAction() {
         getForm().applyFormChanges();
+        workspace.replaceArtifact(artifact);
         super.doOKAction();
     }
 }
