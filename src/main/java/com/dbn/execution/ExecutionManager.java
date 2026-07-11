@@ -38,6 +38,7 @@ import com.dbn.execution.logging.LogOutputContext;
 import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.execution.statement.options.StatementExecutionSettings;
 import com.dbn.execution.statement.result.StatementExecutionResult;
+import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -182,6 +183,10 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
 
 
     public void addExecutionResult(MethodExecutionResult executionResult) {
+        showExecutionConsole(c -> c.addResult(executionResult));
+    }
+
+    public void addExecutionResult(LiquibaseExecutionResult executionResult) {
         showExecutionConsole(c -> c.addResult(executionResult));
     }
 

@@ -28,6 +28,7 @@ public class LiquibaseConnectionActions extends DefaultActionGroup {
         super(txt("app.liquibase.action.Liquibase"), true);
         getTemplatePresentation().setIcon(Icons.DB_LIQUIBASE);
         add(new ArtifactSettingsAction(connection));
+        add(new GenerateInitialChangelogAction(connection));
         add(new AttachWorkspaceAction(connection));
         add(new DetachWorkspaceAction(connection));
     }

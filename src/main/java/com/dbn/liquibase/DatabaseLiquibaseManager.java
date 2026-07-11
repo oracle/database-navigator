@@ -85,6 +85,10 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         workspace.removeArtifact(connection.getConnectionId());
     }
 
+    public void generateInitialChangelog(@NotNull ConnectionHandler connection) {
+        // TODO
+    }
+
     @Nullable
     @Override
     public Element getComponentState() {
