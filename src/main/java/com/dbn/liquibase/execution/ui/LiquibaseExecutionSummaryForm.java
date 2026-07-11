@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private JPanel mainPanel;
     private JLabel connectionLabel;
+    private JLabel schemaLabel;
     private JLabel operationLabel;
     private JLabel statusLabel;
     private JLabel durationLabel;
@@ -18,6 +19,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     LiquibaseExecutionSummaryForm(@NotNull LiquibaseExecutionResult result) {
         super(null, result.getProject());
         connectionLabel.setText(result.getConnection().getName());
+        schemaLabel.setText(result.getSchema().getName());
         operationLabel.setText(result.getOperation().name());
         statusLabel.setText(result.isSuccessful() ? "Successful" : "In progress or failed");
         long duration = result.getEndTime() > 0 ? result.getEndTime() - result.getStartTime() : 0;

@@ -29,13 +29,14 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
+import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
-import com.dbn.liquibase.execution.LiquibaseInitialChangelogProcessor;
-import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.execution.processor.LiquibaseExecutionProcessorFactory;
 import com.dbn.liquibase.model.LiquibaseArtifact;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.ui.LiquibaseArtifactSettingsDialog;
 import com.dbn.liquibase.ui.LiquibaseWorkspaceSettingsDialog;
+import com.dbn.object.DBSchema;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -45,6 +46,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Dialogs.whenOk;
+import static com.dbn.liquibase.execution.LiquibaseOperation.INITIALIZE;
 
 @State(
         name = DatabaseLiquibaseManager.COMPONENT_NAME,
@@ -91,25 +93,23 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         workspace.removeArtifact(connection.getConnectionId());
     }
 
-    public void generateInitialChangelog(@NotNull ConnectionHandler connection) {
-        ConnectionId connectionId = connection.getConnectionId();
+    public void generateInitialChangelog(@NotNull DBSchema schema) {
+        ConnectionHandler connection = schema.getConnection();
+        ConnectionId connectionId = schema.getConnectionId();
         if (!workspace.hasArtifact(connectionId)) {
             LiquibaseArtifact artifact = workspace.ensureArtifact(connectionId);
             Dialogs.show(
                     () -> new LiquibaseArtifactSettingsDialog(workspace, artifact, connection, true),
-                    whenOk(dialog -> generateInitialChangelog(connection)));
+                    whenOk(dialog -> generateInitialChangelog(schema)));
             return;
         }
 
         LiquibaseArtifact artifact = workspace.getArtifacts().get(connectionId);
         if (artifact == null) return;
 
-        LiquibaseExecutionInput input = new LiquibaseExecutionInput(
-                connection,
-                LiquibaseOperation.GENERATE_INITIAL_CHANGELOG,
-                artifact);
+        LiquibaseExecutionInput input = new LiquibaseExecutionInput(schema, INITIALIZE, artifact);
 
-        LiquibaseInitialChangelogProcessor processor = new LiquibaseInitialChangelogProcessor(input);
+        LiquibaseExecutionProcessor processor = LiquibaseExecutionProcessorFactory.create(input);
         LiquibaseExecutionResult result = processor.prepareExecutionResult();
 
         ExecutionManager executionManager = ExecutionManager.getInstance(getProject());

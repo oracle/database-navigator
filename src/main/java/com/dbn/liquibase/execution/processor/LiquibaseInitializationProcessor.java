@@ -1,5 +1,26 @@
-package com.dbn.liquibase.execution;
+/*
+ * Copyright 2026 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+package com.dbn.liquibase.execution.processor;
+
+import com.dbn.liquibase.execution.LiquibaseExecutionInput;
+import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
+import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.execution.LiquibaseProcessedItem;
 import com.dbn.liquibase.model.LiquibaseArtifactPaths;
 import liquibase.CatalogAndSchema;
 import liquibase.Scope;
@@ -19,13 +40,17 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/** Processor for generating an initial changelog from a database schema. */
-public class LiquibaseInitialChangelogProcessor extends LiquibaseExecutionProcessor {
-    public LiquibaseInitialChangelogProcessor(@NotNull LiquibaseExecutionInput executionInput) {
-        super(executionInput);
-        if (executionInput.getOperation() != LiquibaseOperation.GENERATE_INITIAL_CHANGELOG) {
-            throw new IllegalArgumentException("Invalid operation for initial changelog processor");
-        }
+/**
+ * Processor for generating an initial changelog from a database schema.
+ */
+public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcessor {
+    public LiquibaseInitializationProcessor(@NotNull LiquibaseExecutionInput input) {
+        super(input);
+    }
+
+    @Override
+    public LiquibaseOperation getOperation() {
+        return LiquibaseOperation.INITIALIZE;
     }
 
     @NotNull
@@ -59,10 +84,13 @@ public class LiquibaseInitialChangelogProcessor extends LiquibaseExecutionProces
 
         withPoolConnection(true, c -> {
             Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(c));
-            collectDatabaseObjects(database, result);
+            String schemaName = getInput().getSchema().getName();
+            database.setDefaultSchemaName(schemaName);
+            collectDatabaseObjects(database, schemaName, result);
             Scope.child(Scope.Attr.resourceAccessor, new DirectoryResourceAccessor(contentRoot), () -> {
                 new CommandScope("generate-changelog")
                         .addArgumentValue("database", database)
+                        .addArgumentValue("schemas", schemaName)
                         .addArgumentValue("changelogFile", relativeChangelogFile)
                         .addArgumentValue("overwriteOutputFile", false)
                         .execute();
@@ -71,7 +99,10 @@ public class LiquibaseInitialChangelogProcessor extends LiquibaseExecutionProces
         });
     }
 
-    private void collectDatabaseObjects(@NotNull Database database, @NotNull LiquibaseExecutionResult result) throws Exception {
+    private void collectDatabaseObjects(
+            @NotNull Database database,
+            @NotNull String schemaName,
+            @NotNull LiquibaseExecutionResult result) throws Exception {
         SnapshotControl snapshotControl = new SnapshotControl(database);
         snapshotControl.setSnapshotListener(new SnapshotListener() {
             @Override
@@ -96,7 +127,7 @@ public class LiquibaseInitialChangelogProcessor extends LiquibaseExecutionProces
 
         CatalogAndSchema catalogAndSchema = new CatalogAndSchema(
                 database.getDefaultCatalogName(),
-                database.getDefaultSchemaName());
+                schemaName);
         SnapshotGeneratorFactory.getInstance().createSnapshot(catalogAndSchema, database, snapshotControl);
     }
 

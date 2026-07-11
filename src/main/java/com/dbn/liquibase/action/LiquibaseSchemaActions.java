@@ -18,17 +18,16 @@ package com.dbn.liquibase.action;
 
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.icon.Icons;
-import com.dbn.connection.ConnectionHandler;
+import com.dbn.object.DBSchema;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class LiquibaseConnectionActions extends DefaultActionGroup {
-    public LiquibaseConnectionActions(@NotNull ConnectionHandler connection) {
+/** Liquibase operations available for a single database schema. */
+public class LiquibaseSchemaActions extends DefaultActionGroup {
+    public LiquibaseSchemaActions(@NotNull DBSchema schema) {
         super(txt("app.liquibase.action.Liquibase"), true);
         getTemplatePresentation().setIcon(Icons.DB_LIQUIBASE);
-        add(new ArtifactSettingsAction(connection));
-        add(new AttachWorkspaceAction(connection));
-        add(new DetachWorkspaceAction(connection));
+        add(new GenerateInitialChangelogAction(schema));
     }
 }

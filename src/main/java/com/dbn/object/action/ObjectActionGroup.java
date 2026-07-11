@@ -32,6 +32,7 @@ import com.dbn.execution.method.action.MethodExecuteAction;
 import com.dbn.execution.method.action.ProgramMethodDebugAction;
 import com.dbn.execution.method.action.ProgramMethodExecuteAction;
 import com.dbn.generator.statement.action.GenerateStatementActionGroup;
+import com.dbn.liquibase.action.LiquibaseSchemaActions;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBJavaClass;
@@ -96,6 +97,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         addNavigationActions(object);
         addConsoleActions(object);
         addCodeGeneratorActions(object);
+        addLiquibaseActions(object);
         addObjectListActions(object);
         addObjectPropertiesActions(object);
     }
@@ -258,6 +260,13 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
             add(new HideEmptySchemasToggleAction(connection));
         }
         add(new RefreshActionGroup(object));
+    }
+
+    private void addLiquibaseActions(DBObject object) {
+        if (object instanceof DBSchema schema) {
+            addSeparator();
+            add(new LiquibaseSchemaActions(schema));
+        }
     }
 
     private void addObjectPropertiesActions(DBObject object) {

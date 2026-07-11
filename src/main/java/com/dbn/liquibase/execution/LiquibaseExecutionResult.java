@@ -8,6 +8,8 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.execution.ExecutionResultBase;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.liquibase.execution.ui.LiquibaseExecutionResultForm;
+import com.dbn.object.DBSchema;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import liquibase.structure.DatabaseObject;
 import lombok.Getter;
@@ -23,6 +25,7 @@ import java.util.Map;
 /** Execution-console result for a Liquibase operation and its console output. */
 @Getter
 public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecutionResultForm> {
+    private final DBObjectRef<DBSchema> schema;
     private final ConnectionRef connection;
     private final LiquibaseOperation operation;
     private String consoleOutput = "";
@@ -80,9 +83,15 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
         listeners.notify(Runnable::run);
     }
 
-    public LiquibaseExecutionResult(@NotNull ConnectionHandler connection, @NotNull LiquibaseOperation operation) {
-        this.connection = connection.ref();
+    public LiquibaseExecutionResult(@NotNull DBSchema schema, @NotNull LiquibaseOperation operation) {
+        this.schema = DBObjectRef.of(schema);
+        this.connection = schema.getConnection().ref();
         this.operation = operation;
+    }
+
+    @NotNull
+    public DBSchema getSchema() {
+        return DBObjectRef.ensure(schema);
     }
 
     public void start() {
@@ -111,7 +120,7 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     @NotNull
     @Override
     public String getName() {
-        return getConnection().getName() + " - " + operation.name();
+        return getConnection().getName() + " - " + getSchema().getName() + " - " + operation.name();
     }
 
     @Override
