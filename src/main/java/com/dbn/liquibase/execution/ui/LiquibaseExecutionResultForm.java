@@ -1,6 +1,7 @@
 package com.dbn.liquibase.execution.ui;
 
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
@@ -21,6 +22,7 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
     private JTabbedPane contentTabbedPane;
 
     private final DatabaseLoggingResultConsole console;
+    private final LiquibaseProcessedItemsTableModel processedItemsTableModel;
 
     public LiquibaseExecutionResultForm(@NotNull LiquibaseExecutionResult result) {
         super(result);
@@ -28,8 +30,11 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
         summaryPanel.add(new LiquibaseExecutionSummaryForm(result).getComponent(), BorderLayout.CENTER);
         consolePanel.add(console.getComponent(), BorderLayout.CENTER);
         contentTabbedPane.addTab("Console", consolePanel);
-        LiquibaseProcessedItemsTable processedItemsTable = new LiquibaseProcessedItemsTable(this, new LiquibaseProcessedItemsTableModel(result));
+        processedItemsTableModel = new LiquibaseProcessedItemsTableModel(result);
+
+        LiquibaseProcessedItemsTable processedItemsTable = new LiquibaseProcessedItemsTable(this, processedItemsTableModel);
         contentTabbedPane.addTab("Processed Items", new com.intellij.ui.components.JBScrollPane(processedItemsTable));
+        result.addListener(() -> Dispatch.run(false, () -> processedItemsTableModel.refresh()));
         writeOutput(result.getConsoleOutput());
         writeOutput(result.getErrorOutput());
         Disposer.register(this, console);

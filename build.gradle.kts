@@ -180,6 +180,7 @@ dependencies {
     implementation("org.glassfish.jersey.inject:jersey-hk2:2.48@jar")
     implementation("org.glassfish.jersey.media:jersey-media-json-jackson:2.48@jar")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.21@jar")
+    implementation("org.liquibase:liquibase-core:4.33.0@jar")
     implementation("org.projectlombok:lombok:1.18.46@jar")
 
     implementation(project(":modules:dbn-api"))

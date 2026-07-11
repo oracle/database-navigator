@@ -22,10 +22,16 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.state.StateContainer;
+import com.dbn.common.thread.Background;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
+import com.dbn.execution.ExecutionManager;
+import com.dbn.liquibase.execution.LiquibaseExecutionInput;
+import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.execution.LiquibaseInitialChangelogProcessor;
+import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.model.LiquibaseArtifact;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.ui.LiquibaseArtifactSettingsDialog;
@@ -86,7 +92,29 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     }
 
     public void generateInitialChangelog(@NotNull ConnectionHandler connection) {
-        // TODO
+        ConnectionId connectionId = connection.getConnectionId();
+        if (!workspace.hasArtifact(connectionId)) {
+            LiquibaseArtifact artifact = workspace.ensureArtifact(connectionId);
+            Dialogs.show(
+                    () -> new LiquibaseArtifactSettingsDialog(workspace, artifact, connection, true),
+                    whenOk(dialog -> generateInitialChangelog(connection)));
+            return;
+        }
+
+        LiquibaseArtifact artifact = workspace.getArtifacts().get(connectionId);
+        if (artifact == null) return;
+
+        LiquibaseExecutionInput input = new LiquibaseExecutionInput(
+                connection,
+                LiquibaseOperation.GENERATE_INITIAL_CHANGELOG,
+                artifact);
+
+        LiquibaseInitialChangelogProcessor processor = new LiquibaseInitialChangelogProcessor(input);
+        LiquibaseExecutionResult result = processor.prepareExecutionResult();
+
+        ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
+        executionManager.addExecutionResult(result);
+        Background.run(() -> processor.execute());
     }
 
     @Nullable

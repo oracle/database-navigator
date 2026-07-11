@@ -1,6 +1,7 @@
 package com.dbn.liquibase.execution;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.util.Listeners;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
@@ -8,13 +9,16 @@ import com.dbn.execution.ExecutionResultBase;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.liquibase.execution.ui.LiquibaseExecutionResultForm;
 import com.intellij.openapi.project.Project;
+import liquibase.structure.DatabaseObject;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /** Execution-console result for a Liquibase operation and its console output. */
 @Getter
@@ -26,10 +30,54 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     private boolean successful;
     private long startTime;
     private long endTime;
-    private final List<LiquibaseProcessedItem> processedItems = new ArrayList<>();
+    private final Map<String, LiquibaseProcessedItem> processedItems = new LinkedHashMap<>();
+    private final Listeners<Runnable> listeners = Listeners.create(this);
 
-    public void addProcessedItem(@NotNull LiquibaseProcessedItem item) {
-        processedItems.add(item);
+    @NotNull
+    public List<LiquibaseProcessedItem> getProcessedItems() {
+        synchronized (processedItems) {
+            return new ArrayList<>(processedItems.values());
+        }
+    }
+
+    @NotNull
+    public LiquibaseProcessedItem ensureProcessedItem(@NotNull DatabaseObject databaseObject) {
+        String key = getDatabaseObjectKey(databaseObject);
+        LiquibaseProcessedItem item;
+        boolean created = false;
+        synchronized (processedItems) {
+            item = processedItems.get(key);
+            if (item == null) {
+                item = new LiquibaseProcessedItem(databaseObject);
+                processedItems.put(key, item);
+                created = true;
+            }
+        }
+        if (created) notifListeners();
+        return item;
+    }
+
+    @NotNull
+    private String getDatabaseObjectKey(@NotNull DatabaseObject databaseObject) {
+        String schemaName = databaseObject.getSchema() == null ? "" : databaseObject.getSchema().getName();
+        return databaseObject.getObjectTypeName() + ':' + schemaName + ':' + databaseObject.getName();
+    }
+
+    public void updateProcessedItem(
+            @NotNull LiquibaseProcessedItem item,
+            @NotNull DatabaseObject databaseObject,
+            @NotNull String status,
+            String message) {
+        item.update(databaseObject, status, message);
+        notifListeners();
+    }
+
+    public void addListener(@NotNull Runnable listener) {
+        listeners.add(listener);
+    }
+
+    private void notifListeners() {
+        listeners.notify(Runnable::run);
     }
 
     public LiquibaseExecutionResult(@NotNull ConnectionHandler connection, @NotNull LiquibaseOperation operation) {
