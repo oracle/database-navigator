@@ -36,6 +36,7 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     private Path changelogPath;
     private final LogOutputBuffer output;
     private TaskStatus status = TaskStatus.NEW;
+    private transient Thread executionThread;
     private long startTime;
     private long endTime;
     private final Map<String, LiquibaseProcessedItem> processedItems = new LinkedHashMap<>();
@@ -108,12 +109,24 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
 
     public void start() {
         status = TaskStatus.RUNNING;
+        executionThread = Thread.currentThread();
         startTime = System.currentTimeMillis();
     }
 
     public void finish(@NotNull TaskStatus status) {
-        this.status = status;
+        if (this.status != TaskStatus.CANCELLED) this.status = status;
         endTime = System.currentTimeMillis();
+        executionThread = null;
+        notifListeners();
+    }
+
+    public void cancel() {
+        if (status != TaskStatus.RUNNING) return;
+
+        status = TaskStatus.CANCELLED;
+        endTime = System.currentTimeMillis();
+        Thread thread = executionThread;
+        if (thread != null) thread.interrupt();
         notifListeners();
     }
 
