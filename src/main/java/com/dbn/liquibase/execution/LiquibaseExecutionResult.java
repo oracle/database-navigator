@@ -3,6 +3,7 @@ package com.dbn.liquibase.execution;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.task.TaskStatus;
 import com.dbn.common.ui.util.Listeners;
+import com.dbn.common.util.ExecutionTiming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
@@ -15,6 +16,7 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import liquibase.structure.DatabaseObject;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,30 +36,29 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     private final LiquibaseOperation operation;
     @Nullable
     private Path changelogPath;
-    private final LogOutputBuffer output;
-    private volatile TaskStatus status = TaskStatus.NEW;
-    private long startTime;
-    private long endTime;
-    private final Map<String, LiquibaseProcessedItem> processedItems = new LinkedHashMap<>();
     private final Listeners<Runnable> listeners = Listeners.create(this);
+    private final LogOutputBuffer output;
+    private final ExecutionTiming timing = new ExecutionTiming();
+    private final Map<String, LiquibaseExecutionItem> executionItems = new LinkedHashMap<>();
+    private volatile TaskStatus status = TaskStatus.NEW;
 
     @NotNull
-    public List<LiquibaseProcessedItem> getProcessedItems() {
-        synchronized (processedItems) {
-            return new ArrayList<>(processedItems.values());
+    public List<LiquibaseExecutionItem> getExecutionItems() {
+        synchronized (executionItems) {
+            return new ArrayList<>(executionItems.values());
         }
     }
 
     @NotNull
-    public LiquibaseProcessedItem ensureProcessedItem(@NotNull DatabaseObject databaseObject) {
+    public LiquibaseExecutionItem ensureExecutionItem(@NotNull DatabaseObject databaseObject) {
         String key = getDatabaseObjectKey(databaseObject);
-        LiquibaseProcessedItem item;
+        LiquibaseExecutionItem item;
         boolean created = false;
-        synchronized (processedItems) {
-            item = processedItems.get(key);
+        synchronized (executionItems) {
+            item = executionItems.get(key);
             if (item == null) {
-                item = new LiquibaseProcessedItem(databaseObject);
-                processedItems.put(key, item);
+                item = new LiquibaseExecutionItem(databaseObject);
+                executionItems.put(key, item);
                 created = true;
             }
         }
@@ -71,8 +72,8 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
         return databaseObject.getObjectTypeName() + ':' + schemaName + ':' + databaseObject.getName();
     }
 
-    public void updateProcessedItem(
-            @NotNull LiquibaseProcessedItem item,
+    public void updateExecutionItem(
+            @NotNull LiquibaseExecutionItem item,
             @NotNull DatabaseObject databaseObject,
             @NotNull String status,
             String message) {
@@ -108,42 +109,40 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
 
     public void notifyStarted() {
         status = TaskStatus.RUNNING;
-        startTime = System.currentTimeMillis();
+        timing.start();
         notifListeners();
     }
 
     public void notifyFinished(@NotNull TaskStatus status) {
         this.status = status;
-        endTime = System.currentTimeMillis();
+        timing.finish();
         notifListeners();
     }
 
     public void notifyCancelled() {
         status = TaskStatus.CANCELLED;
-        endTime = System.currentTimeMillis();
+        timing.finish();
         notifListeners();
     }
 
     @NotNull
-    public Duration getDuration() {
-        if (startTime == 0) return Duration.ZERO;
-        long finishTime = endTime > 0 ? endTime : System.currentTimeMillis();
-        return Duration.ofMillis(Math.max(0, finishTime - startTime));
+    public Duration getExecutionDuration() {
+        return timing.getDuration();
     }
 
-    public void appendConsoleOutput(@Nullable String output) {
+    public void appendConsoleOutput(@Nullable @Nls String output) {
         if (output == null) return;
         this.output.appendStdOutput(output);
         notifListeners();
     }
 
-    public void appendErrorOutput(@Nullable String output) {
+    public void appendErrorOutput(@Nullable @Nls String output) {
         if (output == null) return;
         this.output.appendErrOutput(output);
         notifListeners();
     }
 
-    public void appendInfoOutput(@Nullable String output) {
+    public void appendInfoOutput(@Nullable @Nls String output) {
         if (output == null) return;
         this.output.appendSysOutput(getConnection(), output);
         notifListeners();

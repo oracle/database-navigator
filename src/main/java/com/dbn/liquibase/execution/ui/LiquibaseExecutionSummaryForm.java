@@ -65,7 +65,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         messageForm.setMessage(message);
         messagePanel.add(messageForm.getComponent());
         result.addListener(() -> Dispatch.run(mainPanel, () -> updateMessageForm(result)));
-        if (result.getEndTime() > 0) updateMessageForm(result);
+        if (result.getTiming().getEndTime() > 0) updateMessageForm(result);
     }
 
     private void updateMessageForm(@NotNull LiquibaseExecutionResult result) {
@@ -102,7 +102,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
 
     private void updateStatus(@NotNull LiquibaseExecutionResult result) {
         statusLabel.setText(result.getStatus().getName());
-        durationLabel.setText(presentableDuration(result.getDuration(), true));
+        durationLabel.setText(presentableDuration(result.getExecutionDuration(), true));
     }
 
     @NotNull

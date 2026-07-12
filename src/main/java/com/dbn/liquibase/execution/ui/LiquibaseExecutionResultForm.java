@@ -28,7 +28,7 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
     private JTabbedPane contentTabbedPane;
 
     private ExecutionResultLogConsole console;
-    private LiquibaseProcessedItemsTableModel processedItemsTableModel;
+    private LiquibaseExecutionItemsTableModel executionItemsTableModel;
     private int outputOffset;
 
     public LiquibaseExecutionResultForm(@NotNull LiquibaseExecutionResult result) {
@@ -36,9 +36,9 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
         initActionsPanel();
         initSummaryPanel();
         initConsolePanel();
-        initProcessedItemsPanel();
+        initExecutionItemsPanel();
         initResultListeners();
-        updateResult(result, processedItemsTableModel);
+        updateResult(result, executionItemsTableModel);
     }
 
     private void initActionsPanel() {
@@ -59,20 +59,20 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
         Disposer.register(this, console);
     }
 
-    private void initProcessedItemsPanel() {
+    private void initExecutionItemsPanel() {
         LiquibaseExecutionResult result = getExecutionResult();
-        processedItemsTableModel = new LiquibaseProcessedItemsTableModel(result);
+        executionItemsTableModel = new LiquibaseExecutionItemsTableModel(result);
 
-        LiquibaseProcessedItemsTable processedItemsTable = new LiquibaseProcessedItemsTable(this, processedItemsTableModel);
-        contentTabbedPane.addTab("Processed Items", new com.intellij.ui.components.JBScrollPane(processedItemsTable));
+        LiquibaseExecutionItemsTable executionItemsTable = new LiquibaseExecutionItemsTable(this, executionItemsTableModel);
+        contentTabbedPane.addTab("Processed Items", new com.intellij.ui.components.JBScrollPane(executionItemsTable));
     }
 
     private void initResultListeners() {
         LiquibaseExecutionResult result = getExecutionResult();
-        result.addListener(() -> Dispatch.run(false, () -> updateResult(result, processedItemsTableModel)));
+        result.addListener(() -> Dispatch.run(false, () -> updateResult(result, executionItemsTableModel)));
     }
 
-    private void updateResult(@NotNull LiquibaseExecutionResult result, @NotNull LiquibaseProcessedItemsTableModel tableModel) {
+    private void updateResult(@NotNull LiquibaseExecutionResult result, @NotNull LiquibaseExecutionItemsTableModel tableModel) {
         boolean outputChanged = updateConsoleOutput(result);
         tableModel.refresh();
         if (outputChanged) console.markOutputUnread();
@@ -97,9 +97,9 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
 
         initSummaryPanel();
         initConsolePanel();
-        initProcessedItemsPanel();
+        initExecutionItemsPanel();
         initResultListeners();
-        updateResult(getExecutionResult(), processedItemsTableModel);
+        updateResult(getExecutionResult(), executionItemsTableModel);
 
         mainPanel.revalidate();
         mainPanel.repaint();

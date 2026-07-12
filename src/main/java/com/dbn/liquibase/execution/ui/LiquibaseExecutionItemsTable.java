@@ -13,8 +13,8 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Table displaying structured items processed by a Liquibase operation. */
-public class LiquibaseProcessedItemsTable extends DBNTableWithGutter<LiquibaseProcessedItemsTableModel> {
-    public LiquibaseProcessedItemsTable(@NotNull DBNComponent parent, LiquibaseProcessedItemsTableModel model) {
+public class LiquibaseExecutionItemsTable extends DBNTableWithGutter<LiquibaseExecutionItemsTableModel> {
+    public LiquibaseExecutionItemsTable(@NotNull DBNComponent parent, LiquibaseExecutionItemsTableModel model) {
         super(parent, model, true);
         setCellSelectionEnabled(true);
         setDefaultRenderer(Object.class, new DBNDynamicTableCellRenderer());

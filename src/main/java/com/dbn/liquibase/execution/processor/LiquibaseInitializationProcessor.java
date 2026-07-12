@@ -19,10 +19,10 @@ package com.dbn.liquibase.execution.processor;
 import com.dbn.common.task.TaskStatus;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
+import com.dbn.liquibase.execution.LiquibaseExecutionItem;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.execution.LiquibaseProcessedItem;
 import com.dbn.liquibase.model.LiquibaseArtifactPaths;
 import liquibase.CatalogAndSchema;
 import liquibase.Scope;
@@ -42,6 +42,10 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CancellationException;
+
+import static com.dbn.common.util.TimeUtil.presentableDuration;
+import static com.dbn.liquibase.execution.LiquibaseExecutionLogging.isLoggableObject;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Processor for generating an initial changelog from a database schema.
@@ -70,7 +74,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             Files.createDirectories(changelogFile.getParent());
             generateChangelog(artifactPaths, changelogFile, result);
 
-            result.appendConsoleOutput("Generated initial changelog: " + changelogFile);
+            result.appendConsoleOutput(txt("log.liquibase.info.InitialChangelogGenerated", changelogFile));
             finishResult(TaskStatus.DONE);
         } catch (CancellationException e) {
             finishResult(TaskStatus.CANCELLED);
@@ -116,30 +120,39 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
     private void collectDatabaseObjects(
             @NotNull Database database,
             @NotNull String schemaName,
-            @NotNull LiquibaseExecutionResult result) throws Exception {
+        @NotNull LiquibaseExecutionResult result) throws Exception {
         SnapshotControl snapshotControl = new SnapshotControl(database);
         snapshotControl.setSnapshotListener(new SnapshotListener() {
             @Override
             public void willSnapshot(DatabaseObject object, Database database) {
                 if (object == null) return;
                 checkCanceled();
+                LiquibaseExecutionItem item = result.ensureExecutionItem(object);
+                item.startProcessing();
 
-                result.appendInfoOutput("Started processing " + describe(object) + "...");
-                result.ensureProcessedItem(object);
+                if (isLoggableObject(object)) {
+                    result.appendInfoOutput(txt("log.liquibase.info.ObjectProcessingStarted", describe(object)));
+                }
             }
 
             @Override
             public void finishedSnapshot(DatabaseObject object, DatabaseObject snapshot, Database database) {
                 if (snapshot == null) return;
                 checkCanceled();
+                LiquibaseExecutionItem item = result.ensureExecutionItem(snapshot);
+                item.finishProcessing();
 
-                result.appendInfoOutput("Finished processing " + describe(snapshot));
-                LiquibaseProcessedItem item = result.ensureProcessedItem(snapshot);
-                result.updateProcessedItem(
+                if (isLoggableObject(snapshot)) {
+                    result.appendInfoOutput(txt(
+                            "log.liquibase.info.ObjectProcessingFinished",
+                            describe(snapshot),
+                            presentableDuration(item.getProcessingDuration(), true)));
+                }
+                result.updateExecutionItem(
                         item,
                         snapshot,
                         "discovered",
-                        "Database object discovered during changelog generation");
+                        txt("log.liquibase.info.DatabaseObjectDiscovered"));
             }
         });
 
