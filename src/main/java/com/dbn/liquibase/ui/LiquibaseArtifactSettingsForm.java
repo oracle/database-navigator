@@ -21,6 +21,7 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.link.Hyperlinks;
 import com.dbn.common.ui.misc.ContentRootSelector;
@@ -64,6 +65,7 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     private JBTextField sqlDirectoryTextField;
     private JBTextField masterChangelogTextField;
     private JBTextField propertiesFileTextField;
+    private DBNCommentLabel rootPathInfoLabel;
 
     private final LiquibaseWorkspace workspace;
     private final LiquibaseArtifact artifact;
@@ -138,6 +140,7 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     private void updatePathTooltips() {
         String contentRoot = contentRootComboBox.getSelectedPath();
         if (isEmpty(contentRoot)) {
+            rootPathInfoLabel.setText("");
             setToolTipText(rootPathTextField, null);
             setToolTipText(changelogDirectoryTextField, null);
             setToolTipText(sqlDirectoryTextField, null);
@@ -146,6 +149,7 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
             return;
         }
         String liquibaseRoot = appendPath(contentRoot, getText(rootPathTextField));
+        rootPathInfoLabel.setText(liquibaseRoot);
         setToolTipText(rootPathTextField, liquibaseRoot);
         setToolTipText(changelogDirectoryTextField, appendPath(liquibaseRoot, getText(changelogDirectoryTextField)));
         setToolTipText(sqlDirectoryTextField, appendPath(liquibaseRoot, getText(sqlDirectoryTextField)));
@@ -162,7 +166,7 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     @Override
     protected void initValidation() {
         addSelectionValidation(contentRootComboBox,    txt("msg.liquibase.error.ContentRootRequired"));
-        addValidation(contentRootComboBox, selector -> validateContentRoot(selector));
+        addValidation(rootPathTextField, field -> validateArtifactRoot());
 
         addRequiredTextValidation(rootPathTextField,           txt("msg.liquibase.error.RootPathRequired"));
         addRequiredTextValidation(changelogDirectoryTextField, txt("msg.liquibase.error.ChangelogDirectoryRequired"));
@@ -181,11 +185,11 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
         return getName(artifact.getConnectionId());
     }
 
-    private String validateContentRoot(ContentRootSelector selector) {
-        String selectedPath = selector.getSelectedPath();
+    private String validateArtifactRoot() {
+        String selectedPath = contentRootComboBox.getSelectedPath();
         if (selectedPath == null) return null;
 
-        LiquibaseArtifact owner = workspace.findContentRootOwner(selectedPath, artifact);
+        LiquibaseArtifact owner = workspace.findRootOwner(selectedPath, getText(rootPathTextField), artifact);
         return owner == null ? null : txt("msg.liquibase.error.ContentRootAlreadyMapped", getConnectionName(owner));
     }
 

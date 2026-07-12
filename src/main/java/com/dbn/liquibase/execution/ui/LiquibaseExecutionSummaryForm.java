@@ -2,17 +2,29 @@ package com.dbn.liquibase.execution.ui;
 
 import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
+import com.dbn.common.task.TaskStatus;
+import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.link.DBNHyperlinkLabel;
+import com.dbn.common.ui.link.Hyperlinks;
 import com.dbn.common.ui.messages.DBNMessageForm;
+import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.object.DBSchema;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
+import static com.dbn.common.ui.util.Tooltips.setToolTipText;
+import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Summary panel for a Liquibase operation result. */
@@ -23,6 +35,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private JLabel operationLabel;
     private JLabel statusLabel;
     private JLabel durationLabel;
+    private DBNHyperlinkLabel changelogLink;
     private JPanel messagePanel;
     private DBNMessageForm messageForm;
 
@@ -37,10 +50,11 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         schemaLabel.setIcon(schema.getIcon());
         schemaLabel.setText(schema.getName());
 
-        operationLabel.setText(result.getOperation().name());
-        statusLabel.setText(result.isSuccessful() ? "Successful" : "In progress or failed");
-        long duration = result.getEndTime() > 0 ? result.getEndTime() - result.getStartTime() : 0;
-        durationLabel.setText(duration > 0 ? duration + " ms" : "");
+        operationLabel.setText(result.getOperation().getName());
+        setToolTipText(operationLabel, result.getOperation().getDescription());
+        updateStatus(result);
+        Hyperlinks.onHyperlinkAccess(changelogLink, e -> openChangelog(result));
+        updateChangelogLink(result);
 
         initMessageForm(result, schema);
     }
@@ -55,28 +69,79 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     }
 
     private void updateMessageForm(@NotNull LiquibaseExecutionResult result) {
+        updateStatus(result);
+        updateChangelogLink(result);
         messageForm.setMessage(createMessage(result, result.getSchema()));
+    }
+
+    private void updateChangelogLink(@NotNull LiquibaseExecutionResult result) {
+        Path changelogPath = result.getChangelogPath();
+        if (changelogPath == null || !Files.isRegularFile(changelogPath)) {
+            changelogLink.setVisible(false);
+            setToolTipText(changelogLink, null);
+            return;
+        }
+
+        changelogLink.setHyperlinkText(changelogPath.getFileName().toString());
+        setToolTipText(changelogLink, changelogPath.toString());
+        changelogLink.setVisible(true);
+    }
+
+    private void openChangelog(@NotNull LiquibaseExecutionResult result) {
+        Path changelogPath = result.getChangelogPath();
+        if (changelogPath == null) return;
+
+        Background.run(() -> {
+            LocalFileSystem fileSystem = LocalFileSystem.getInstance();
+            VirtualFile file = fileSystem.refreshAndFindFileByIoFile(changelogPath.toFile());
+            if (file == null) return;
+
+            Editors.openFileEditor(result.getProject(), file, true);
+        });
+    }
+
+    private void updateStatus(@NotNull LiquibaseExecutionResult result) {
+        statusLabel.setText(result.getStatus().getName());
+        durationLabel.setText(presentableDuration(result.getDuration(), true));
     }
 
     @NotNull
     private static TitledMessage createMessage(
             @NotNull LiquibaseExecutionResult result,
             @NotNull DBSchema schema) {
-        if (result.getEndTime() == 0) {
+        LiquibaseOperation operation = result.getOperation();
+        TaskStatus status = result.getStatus();
+        String schemaName = schema.getName();
+
+        if (status == TaskStatus.RUNNING) {
             return new TitledMessage(
                     MessageType.PROCESSING,
-                    txt("app.liquibase.action.Liquibase"),
-                    txt("prc.liquibase.text.Initializing", schema.getName()));
+                    txt(getTitleKey(operation, status)),
+                    txt(getMessageKey(operation, status), schemaName));
         }
 
-        MessageType messageType = result.isSuccessful() ? MessageType.SUCCESS : MessageType.ERROR;
-        String messageKey = result.isSuccessful() ?
-                "prc.liquibase.text.OperationCompleted" :
-                "prc.liquibase.text.OperationFailed";
+        boolean successful = status == TaskStatus.DONE;
+        MessageType messageType = successful ? MessageType.SUCCESS : MessageType.ERROR;
         return new TitledMessage(
                 messageType,
-                txt("app.liquibase.action.Liquibase"),
-                txt(messageKey, schema.getName()));
+                txt(getTitleKey(operation, status)),
+                txt(getMessageKey(operation, status), schemaName));
+    }
+
+    @NotNull
+    private static String getTitleKey(
+            @NotNull LiquibaseOperation operation,
+            @NotNull TaskStatus status) {
+        String operationName = operation == LiquibaseOperation.INITIALIZE ? operation.name() : "ANY";
+        return "prc.liquibase.title.Operation_" + operationName + '_' + status.name();
+    }
+
+    @NotNull
+    private static String getMessageKey(
+            @NotNull LiquibaseOperation operation,
+            @NotNull TaskStatus status) {
+        String operationName = operation == LiquibaseOperation.INITIALIZE ? operation.name() : "ANY";
+        return "prc.liquibase.text.Operation_" + operationName + '_' + status.name();
     }
 
     @NotNull

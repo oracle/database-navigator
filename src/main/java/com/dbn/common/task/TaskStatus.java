@@ -16,11 +16,17 @@
 
 package com.dbn.common.task;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public enum TaskStatus {
     NEW,
     DONE,
     RUNNING,
     CANCELLED,
     SKIPPED,
-    FAILED
+    FAILED;
+
+    public String getName() {
+        return txt("app.shared.const.TaskStatus_" + name());
+    }
 }

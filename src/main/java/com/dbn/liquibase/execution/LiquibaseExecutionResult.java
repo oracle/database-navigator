@@ -1,6 +1,7 @@
 package com.dbn.liquibase.execution;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.task.TaskStatus;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -18,6 +19,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,8 +32,10 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     private final DBObjectRef<DBSchema> schema;
     private final ConnectionRef connection;
     private final LiquibaseOperation operation;
+    @Nullable
+    private Path changelogPath;
     private final LogOutputBuffer output;
-    private boolean successful;
+    private TaskStatus status = TaskStatus.NEW;
     private long startTime;
     private long endTime;
     private final Map<String, LiquibaseProcessedItem> processedItems = new LinkedHashMap<>();
@@ -83,11 +88,17 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
         listeners.notify(Runnable::run);
     }
 
-    public LiquibaseExecutionResult(@NotNull DBSchema schema, @NotNull LiquibaseOperation operation) {
+    public LiquibaseExecutionResult(
+            @NotNull DBSchema schema,
+            @NotNull LiquibaseOperation operation) {
         this.schema = DBObjectRef.of(schema);
         this.connection = schema.getConnection().ref();
         this.operation = operation;
         this.output = new LogOutputBuffer(schema.getProject());
+    }
+
+    public void setChangelogPath(@Nullable Path changelogPath) {
+        this.changelogPath = changelogPath;
     }
 
     @NotNull
@@ -96,13 +107,21 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     }
 
     public void start() {
+        status = TaskStatus.RUNNING;
         startTime = System.currentTimeMillis();
     }
 
-    public void finish(boolean successful) {
-        this.successful = successful;
+    public void finish(@NotNull TaskStatus status) {
+        this.status = status;
         endTime = System.currentTimeMillis();
         notifListeners();
+    }
+
+    @NotNull
+    public Duration getDuration() {
+        if (startTime == 0) return Duration.ZERO;
+        long finishTime = endTime > 0 ? endTime : System.currentTimeMillis();
+        return Duration.ofMillis(Math.max(0, finishTime - startTime));
     }
 
     public void appendConsoleOutput(@Nullable String output) {

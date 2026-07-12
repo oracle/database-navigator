@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.execution.processor;
 
+import com.dbn.common.task.TaskStatus;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
@@ -61,6 +62,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
         try {
             LiquibaseArtifactPaths artifactPaths = getInput().getArtifactPaths();
             Path changelogFile = artifactPaths.getMasterChangelogPath();
+            result.setChangelogPath(changelogFile);
             if (Files.exists(changelogFile)) {
                 throw new IllegalStateException("Changelog file already exists: " + changelogFile);
             }
@@ -68,10 +70,10 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             generateChangelog(artifactPaths, changelogFile, result);
 
             result.appendConsoleOutput("Generated initial changelog: " + changelogFile);
-            result.finish(true);
+            result.finish(TaskStatus.DONE);
         } catch (Exception e) {
             result.appendErrorOutput(formatException(e));
-            result.finish(false);
+            result.finish(TaskStatus.FAILED);
         }
         return result;
     }

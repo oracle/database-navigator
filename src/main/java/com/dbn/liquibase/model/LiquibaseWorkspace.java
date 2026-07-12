@@ -29,12 +29,16 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.util.Strings.isEmpty;
 
 /**
  * Project-level container for Liquibase artifacts and their connection mappings.
@@ -85,12 +89,31 @@ public class LiquibaseWorkspace implements PersistentStateElement, Cloneable<Liq
     }
 
     @Nullable
-    public LiquibaseArtifact findContentRootOwner(@NotNull String contentRootPath, @NotNull LiquibaseArtifact currentArtifact) {
+    public LiquibaseArtifact findRootOwner(
+            @NotNull String contentRootPath,
+            @NotNull String rootPath,
+            @NotNull LiquibaseArtifact currentArtifact) {
+        Path resolvedRoot = resolveRootPath(contentRootPath, rootPath);
+        if (resolvedRoot == null) return null;
+
         return artifacts.values().stream()
                 .filter(artifact -> !Objects.equals(artifact.getConnectionId(), currentArtifact.getConnectionId()))
-                .filter(artifact -> contentRootPath.equals(artifact.getContentRootPath()))
+                .filter(artifact -> resolvedRoot.equals(resolveRootPath(artifact.getContentRootPath(), artifact.getRootPath())))
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Nullable
+    private Path resolveRootPath(String contentRootPath, String rootPath) {
+        if (isEmpty(contentRootPath) || isEmpty(rootPath)) return null;
+
+        try {
+            Path contentRoot = Paths.get(contentRootPath).toAbsolutePath().normalize();
+            Path resolvedRoot = contentRoot.resolve(rootPath).normalize();
+            return resolvedRoot.startsWith(contentRoot) ? resolvedRoot : null;
+        } catch (InvalidPathException e) {
+            return null;
+        }
     }
 
     @Override
