@@ -1,6 +1,7 @@
 package com.dbn.liquibase.action;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -17,7 +18,8 @@ public class GenerateInitialChangelogAction extends LiquibaseSchemaAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        getManager(project).generateInitialChangelog(getSchema());
+        DatabaseLiquibaseManager liquibaseManager = getManager(project);
+        liquibaseManager.generateInitialChangelog(getSchema(), null);
     }
 
     @Override

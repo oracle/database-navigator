@@ -2,6 +2,7 @@ package com.dbn.liquibase.execution.action;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.task.TaskStatus;
+import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -18,7 +19,7 @@ public class LiquibaseExecutionStopAction extends AbstractLiquibaseExecutionResu
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull LiquibaseExecutionResult target) {
-        target.cancel();
+        DatabaseLiquibaseManager.getInstance(project).cancelExecution(target);
     }
 
     @Override

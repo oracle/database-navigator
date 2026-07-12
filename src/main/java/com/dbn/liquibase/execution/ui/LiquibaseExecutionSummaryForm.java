@@ -120,8 +120,9 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
                     txt(getMessageKey(operation, status), schemaName));
         }
 
-        boolean successful = status == TaskStatus.DONE;
-        MessageType messageType = successful ? MessageType.SUCCESS : MessageType.ERROR;
+        MessageType messageType =
+                status == TaskStatus.CANCELLED ? MessageType.WARNING :
+                status == TaskStatus.DONE ? MessageType.SUCCESS : MessageType.ERROR;
         return new TitledMessage(
                 messageType,
                 txt(getTitleKey(operation, status)),

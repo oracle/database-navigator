@@ -88,6 +88,23 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
         }
     }
 
+    @Override
+    public void rebuildForm() {
+        Disposer.dispose(console);
+        summaryPanel.removeAll();
+        contentTabbedPane.removeAll();
+        outputOffset = 0;
+
+        initSummaryPanel();
+        initConsolePanel();
+        initProcessedItemsPanel();
+        initResultListeners();
+        updateResult(getExecutionResult(), processedItemsTableModel);
+
+        mainPanel.revalidate();
+        mainPanel.repaint();
+    }
+
     private void writeOutput(@NotNull LogOutput output) {
         LogOutputContext context = new LogOutputContext(getExecutionResult().getConnection());
         context.setHideEmptyLines(false);

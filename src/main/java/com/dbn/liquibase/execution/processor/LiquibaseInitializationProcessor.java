@@ -41,6 +41,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.CancellationException;
 
 /**
  * Processor for generating an initial changelog from a database schema.
@@ -70,10 +71,12 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             generateChangelog(artifactPaths, changelogFile, result);
 
             result.appendConsoleOutput("Generated initial changelog: " + changelogFile);
-            result.finish(TaskStatus.DONE);
+            finishResult(TaskStatus.DONE);
+        } catch (CancellationException e) {
+            finishResult(TaskStatus.CANCELLED);
         } catch (Exception e) {
             result.appendErrorOutput(formatException(e));
-            result.finish(TaskStatus.FAILED);
+            finishResult(TaskStatus.FAILED);
         }
         return result;
     }
@@ -85,12 +88,15 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
         Path contentRoot = artifactPaths.getContentRootPath();
 
         withPoolConnection(true, c -> {
+            checkCanceled();
             Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(
                     new JdbcConnection(DBNConnection.getInner(c)));
             String schemaName = getInput().getSchema().getName();
             database.setDefaultSchemaName(schemaName);
             collectDatabaseObjects(database, schemaName, result);
+            checkCanceled();
             Scope.child(Scope.Attr.resourceAccessor, new DirectoryResourceAccessor(contentRoot), () -> {
+                checkCanceled();
                 new CommandScope("generateChangelog")
                         .addArgumentValue("database", database)
                         .addArgumentValue("schemas", schemaName)
@@ -98,6 +104,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
                         .addArgumentValue("overwriteOutputFile", false)
                         .execute();
             });
+            checkCanceled();
 
             if (!Files.isRegularFile(changelogFile)) {
                 throw new IllegalStateException("Liquibase did not create the changelog file: " + changelogFile);
@@ -115,6 +122,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             @Override
             public void willSnapshot(DatabaseObject object, Database database) {
                 if (object == null) return;
+                checkCanceled();
 
                 result.appendInfoOutput("Started processing " + describe(object) + "...");
                 result.ensureProcessedItem(object);
@@ -123,6 +131,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             @Override
             public void finishedSnapshot(DatabaseObject object, DatabaseObject snapshot, Database database) {
                 if (snapshot == null) return;
+                checkCanceled();
 
                 result.appendInfoOutput("Finished processing " + describe(snapshot));
                 LiquibaseProcessedItem item = result.ensureProcessedItem(snapshot);

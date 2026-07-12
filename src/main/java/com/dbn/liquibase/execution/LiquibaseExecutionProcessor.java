@@ -17,6 +17,7 @@
 package com.dbn.liquibase.execution;
 
 import com.dbn.common.routine.ThrowableFunction;
+import com.dbn.common.task.TaskStatus;
 import com.dbn.connection.ConnectionContext;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.PooledConnection;
@@ -25,6 +26,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
+import java.util.concurrent.CancellationException;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.exception.Exceptions.unwrap;
@@ -35,6 +37,8 @@ import static com.dbn.common.util.Classes.withClassLoader;
 public abstract class LiquibaseExecutionProcessor {
     private final LiquibaseExecutionInput input;
     private LiquibaseExecutionResult result;
+    private volatile Thread executionThread;
+    private volatile boolean cancellationRequested;
 
     public LiquibaseExecutionProcessor(@NotNull LiquibaseExecutionInput input) {
         this.input = input;
@@ -58,11 +62,37 @@ public abstract class LiquibaseExecutionProcessor {
     @NotNull
     public LiquibaseExecutionResult execute() {
         LiquibaseExecutionResult result = prepareExecutionResult();
-        result.start();
+        executionThread = Thread.currentThread();
+        result.notifyStarted();
         return result;
     }
 
+    public void cancel() {
+        cancellationRequested = true;
+        Thread thread = executionThread;
+        if (thread != null) thread.interrupt();
+    }
+
+    protected final boolean isCancellationRequested() {
+        return cancellationRequested || Thread.currentThread().isInterrupted();
+    }
+
+    protected final void checkCanceled() {
+        if (isCancellationRequested()) throw new CancellationException("Liquibase execution canceled");
+    }
+
+    protected final void finishResult(@NotNull TaskStatus status) {
+        LiquibaseExecutionResult result = prepareExecutionResult();
+        if (cancellationRequested) {
+            result.notifyCancelled();
+        } else {
+            result.notifyFinished(status);
+        }
+        executionThread = null;
+    }
+
     protected <T> T withPoolConnection(boolean readonly, @NotNull ThrowableFunction<DBNConnection, T, Exception> operation) throws SQLException {
+        checkCanceled();
         ConnectionHandler connection = input.getConnection();
         ConnectionContext context = new ConnectionContext(
                 connection.getProject(),
@@ -71,8 +101,12 @@ public abstract class LiquibaseExecutionProcessor {
         return PooledConnection.call(context, readonly, c ->
                 withClassLoader(LiquibaseExecutionProcessor.class, () -> {
                     try {
-                        return operation.apply(c);
+                        checkCanceled();
+                        T result = operation.apply(c);
+                        checkCanceled();
+                        return result;
                     } catch (Throwable e) {
+                        if (e instanceof CancellationException cancellationException) throw cancellationException;
                         throw toSqlException(unwrap(e));
                     }
                 }));

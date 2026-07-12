@@ -44,6 +44,9 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Dialogs.whenOk;
 import static com.dbn.liquibase.execution.LiquibaseOperation.INITIALIZE;
@@ -57,6 +60,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
 
     private final StateContainer states = new StateContainer();
     private final LiquibaseWorkspace workspace;
+    private final Map<LiquibaseExecutionResult, LiquibaseExecutionProcessor> executionProcessors = new ConcurrentHashMap<>();
 
     private DatabaseLiquibaseManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
@@ -93,14 +97,21 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         workspace.removeArtifact(connection.getConnectionId());
     }
 
-    public void generateInitialChangelog(@NotNull DBSchema schema) {
+    public void cancelExecution(@NotNull LiquibaseExecutionResult result) {
+        LiquibaseExecutionProcessor processor = executionProcessors.get(result);
+        if (processor != null) processor.cancel();
+    }
+
+    public void generateInitialChangelog(
+            @NotNull DBSchema schema,
+            @Nullable LiquibaseExecutionResult previousResult) {
         ConnectionHandler connection = schema.getConnection();
         ConnectionId connectionId = schema.getConnectionId();
         if (!workspace.hasArtifact(connectionId)) {
             LiquibaseArtifact artifact = workspace.ensureArtifact(connectionId);
             Dialogs.show(
                     () -> new LiquibaseArtifactSettingsDialog(workspace, artifact, connection, true),
-                    whenOk(dialog -> generateInitialChangelog(schema)));
+                    whenOk(dialog -> generateInitialChangelog(schema, previousResult)));
             return;
         }
 
@@ -111,10 +122,18 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
 
         LiquibaseExecutionProcessor processor = LiquibaseExecutionProcessorFactory.create(input);
         LiquibaseExecutionResult result = processor.prepareExecutionResult();
+        result.setPrevious(previousResult);
+        executionProcessors.put(result, processor);
 
         ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
         executionManager.addExecutionResult(result);
-        Background.run(() -> processor.execute());
+        Background.run(() -> {
+            try {
+                processor.execute();
+            } finally {
+                executionProcessors.remove(result);
+            }
+        });
     }
 
     @Nullable
