@@ -10,6 +10,7 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.execution.ExecutionResultBase;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.language.common.DBLanguagePsiFile;
+import com.dbn.liquibase.execution.logging.LogOutputBuffer;
 import com.dbn.liquibase.execution.ui.LiquibaseExecutionResultForm;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;

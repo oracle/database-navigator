@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.liquibase.execution;
+package com.dbn.liquibase.execution.logging;
 
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.util.Strings;

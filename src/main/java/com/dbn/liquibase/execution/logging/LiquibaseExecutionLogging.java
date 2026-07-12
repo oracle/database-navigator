@@ -8,7 +8,7 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 
-package com.dbn.liquibase.execution;
+package com.dbn.liquibase.execution.logging;
 
 import liquibase.structure.DatabaseObject;
 import org.jetbrains.annotations.NotNull;

@@ -23,6 +23,8 @@ import com.dbn.liquibase.execution.LiquibaseExecutionItem;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.execution.logging.LiquibaseExecutionLogService;
+import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.liquibase.model.LiquibaseArtifactPaths;
 import liquibase.CatalogAndSchema;
 import liquibase.Scope;
@@ -44,8 +46,9 @@ import java.nio.file.Path;
 import java.util.concurrent.CancellationException;
 
 import static com.dbn.common.util.TimeUtil.presentableDuration;
-import static com.dbn.liquibase.execution.LiquibaseExecutionLogging.isLoggableObject;
+import static com.dbn.liquibase.execution.logging.LiquibaseExecutionLogging.isLoggableObject;
 import static com.dbn.nls.NlsResources.txt;
+import static liquibase.Scope.child;
 
 /**
  * Processor for generating an initial changelog from a database schema.
@@ -93,20 +96,29 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
 
         withPoolConnection(true, c -> {
             checkCanceled();
-            Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(
-                    new JdbcConnection(DBNConnection.getInner(c)));
+            DatabaseFactory databaseFactory = DatabaseFactory.getInstance();
+            JdbcConnection connection = new JdbcConnection(DBNConnection.getInner(c));
+            Database database = databaseFactory.findCorrectDatabaseImplementation(connection);
+
             String schemaName = getInput().getSchema().getName();
             database.setDefaultSchemaName(schemaName);
-            collectDatabaseObjects(database, schemaName, result);
-            checkCanceled();
-            Scope.child(Scope.Attr.resourceAccessor, new DirectoryResourceAccessor(contentRoot), () -> {
+
+            LiquibaseExecutionLogService logService = new LiquibaseExecutionLogService(result);
+            child(Scope.Attr.logService, logService, () -> {
+                collectDatabaseObjects(database, schemaName, result);
                 checkCanceled();
-                new CommandScope("generateChangelog")
-                        .addArgumentValue("database", database)
-                        .addArgumentValue("schemas", schemaName)
-                        .addArgumentValue("changelogFile", changelogFile.toString())
-                        .addArgumentValue("overwriteOutputFile", false)
-                        .execute();
+                child(Scope.Attr.resourceAccessor, new DirectoryResourceAccessor(contentRoot), () -> {
+                    checkCanceled();
+                    try (LiquibaseExecutionOutputStream output = new LiquibaseExecutionOutputStream(result)) {
+                        new CommandScope("generateChangelog")
+                                .addArgumentValue("database", database)
+                                .addArgumentValue("schemas", schemaName)
+                                .addArgumentValue("changelogFile", changelogFile.toString())
+                                .addArgumentValue("overwriteOutputFile", false)
+                                .setOutput(output)
+                                .execute();
+                    }
+                });
             });
             checkCanceled();
 
