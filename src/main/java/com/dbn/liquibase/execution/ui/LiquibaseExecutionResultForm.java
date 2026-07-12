@@ -6,9 +6,9 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.util.Actions;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
+import com.dbn.execution.common.result.ui.ExecutionResultLogConsole;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
-import com.dbn.execution.logging.ui.DatabaseLoggingResultConsole;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import org.jetbrains.annotations.NotNull;
@@ -25,10 +25,9 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
     private JPanel mainPanel;
     private JPanel actionsPanel;
     private JPanel summaryPanel;
-    private JPanel consolePanel;
     private JTabbedPane contentTabbedPane;
 
-    private DatabaseLoggingResultConsole console;
+    private ExecutionResultLogConsole console;
     private LiquibaseProcessedItemsTableModel processedItemsTableModel;
     private int outputOffset;
 
@@ -40,7 +39,6 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
         initProcessedItemsPanel();
         initResultListeners();
         updateResult(result, processedItemsTableModel);
-        Disposer.register(this, console);
     }
 
     private void initActionsPanel() {
@@ -56,10 +54,9 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
 
     private void initConsolePanel() {
         LiquibaseExecutionResult result = getExecutionResult();
-        console = new DatabaseLoggingResultConsole(result.getConnection(), result.getName(), false);
-        consolePanel = new JPanel(new BorderLayout());
-        consolePanel.add(console.getComponent());
-        contentTabbedPane.addTab("Console", consolePanel);
+        console = new ExecutionResultLogConsole(result.getConnection(), "Console", false);
+        console.installOn(contentTabbedPane);
+        Disposer.register(this, console);
     }
 
     private void initProcessedItemsPanel() {
@@ -76,16 +73,19 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
     }
 
     private void updateResult(@NotNull LiquibaseExecutionResult result, @NotNull LiquibaseProcessedItemsTableModel tableModel) {
-        updateConsoleOutput(result);
+        boolean outputChanged = updateConsoleOutput(result);
         tableModel.refresh();
+        if (outputChanged) console.markOutputUnread();
     }
 
-    private void updateConsoleOutput(@NotNull LiquibaseExecutionResult result) {
+    private boolean updateConsoleOutput(@NotNull LiquibaseExecutionResult result) {
+        int initialOffset = outputOffset;
         List<LogOutput> output = result.getOutput();
         while (outputOffset < output.size()) {
             writeOutput(output.get(outputOffset));
             outputOffset++;
         }
+        return outputOffset > initialOffset;
     }
 
     @Override
