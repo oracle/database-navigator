@@ -28,6 +28,7 @@ import java.sql.SQLException;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.exception.Exceptions.unwrap;
+import static com.dbn.common.util.Classes.withClassLoader;
 
 /** Coordinates execution of a Liquibase input and publishes its execution result. */
 @Getter
@@ -67,13 +68,14 @@ public abstract class LiquibaseExecutionProcessor {
                 connection.getProject(),
                 connection.getConnectionId(),
                 null);
-        return PooledConnection.call(context, readonly, c -> {
-            try {
-                return operation.apply(c);
-            } catch (Throwable e) {
-                throw toSqlException(unwrap(e));
-            }
-        });
+        return PooledConnection.call(context, readonly, c ->
+                withClassLoader(LiquibaseExecutionProcessor.class, () -> {
+                    try {
+                        return operation.apply(c);
+                    } catch (Throwable e) {
+                        throw toSqlException(unwrap(e));
+                    }
+                }));
     }
 
 }

@@ -6,6 +6,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.execution.ExecutionResultBase;
+import com.dbn.execution.logging.LogOutput;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.liquibase.execution.ui.LiquibaseExecutionResultForm;
 import com.dbn.object.DBSchema;
@@ -28,8 +29,7 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     private final DBObjectRef<DBSchema> schema;
     private final ConnectionRef connection;
     private final LiquibaseOperation operation;
-    private String consoleOutput = "";
-    private String errorOutput = "";
+    private final LogOutputBuffer output;
     private boolean successful;
     private long startTime;
     private long endTime;
@@ -87,6 +87,7 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
         this.schema = DBObjectRef.of(schema);
         this.connection = schema.getConnection().ref();
         this.operation = operation;
+        this.output = new LogOutputBuffer(schema.getProject());
     }
 
     @NotNull
@@ -101,14 +102,30 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     public void finish(boolean successful) {
         this.successful = successful;
         endTime = System.currentTimeMillis();
+        notifListeners();
     }
 
     public void appendConsoleOutput(@Nullable String output) {
-        if (output != null) consoleOutput += output;
+        if (output == null) return;
+        this.output.appendStdOutput(output);
+        notifListeners();
     }
 
     public void appendErrorOutput(@Nullable String output) {
-        if (output != null) errorOutput += output;
+        if (output == null) return;
+        this.output.appendErrOutput(output);
+        notifListeners();
+    }
+
+    public void appendInfoOutput(@Nullable String output) {
+        if (output == null) return;
+        this.output.appendSysOutput(getConnection(), output);
+        notifListeners();
+    }
+
+    @NotNull
+    public List<LogOutput> getOutput() {
+        return output.getOutput();
     }
 
     @Nullable

@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
@@ -23,6 +24,7 @@ import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+@BackgroundUpdate
 public abstract class LiquibaseConnectionAction extends ProjectAction {
     private final ConnectionRef connection;
 

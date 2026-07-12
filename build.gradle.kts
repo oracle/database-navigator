@@ -129,6 +129,7 @@ dependencies {
     implementation("com.oracle.oci.sdk:oci-java-sdk-common:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-generativeaiinference:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-identity:3.76.1@jar")
+    implementation("com.opencsv:opencsv:5.12.0@jar")
     implementation("commons-io:commons-io:2.18.0@jar")
     implementation("dev.langchain4j:langchain4j-anthropic:1.16.2@jar")
     implementation("dev.langchain4j:langchain4j-community-oci-genai:1.16.0-beta26@jar")

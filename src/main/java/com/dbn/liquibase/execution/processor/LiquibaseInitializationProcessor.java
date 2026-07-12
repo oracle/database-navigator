@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.execution.processor;
 
+import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
@@ -66,7 +67,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             Files.createDirectories(changelogFile.getParent());
             generateChangelog(artifactPaths, changelogFile, result);
 
-            result.appendConsoleOutput("Generated initial changelog: " + changelogFile + System.lineSeparator());
+            result.appendConsoleOutput("Generated initial changelog: " + changelogFile);
             result.finish(true);
         } catch (Exception e) {
             result.appendErrorOutput(formatException(e));
@@ -76,25 +77,29 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
     }
 
     private void generateChangelog(
-            @NotNull LiquibaseArtifactPaths artifactPaths,
-            @NotNull Path changelogFile,
-            @NotNull LiquibaseExecutionResult result) throws Exception {
+        @NotNull LiquibaseArtifactPaths artifactPaths,
+        @NotNull Path changelogFile,
+        @NotNull LiquibaseExecutionResult result) throws Exception {
         Path contentRoot = artifactPaths.getContentRootPath();
-        String relativeChangelogFile = artifactPaths.getRelativePath(changelogFile);
 
         withPoolConnection(true, c -> {
-            Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(c));
+            Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(
+                    new JdbcConnection(DBNConnection.getInner(c)));
             String schemaName = getInput().getSchema().getName();
             database.setDefaultSchemaName(schemaName);
             collectDatabaseObjects(database, schemaName, result);
             Scope.child(Scope.Attr.resourceAccessor, new DirectoryResourceAccessor(contentRoot), () -> {
-                new CommandScope("generate-changelog")
+                new CommandScope("generateChangelog")
                         .addArgumentValue("database", database)
                         .addArgumentValue("schemas", schemaName)
-                        .addArgumentValue("changelogFile", relativeChangelogFile)
+                        .addArgumentValue("changelogFile", changelogFile.toString())
                         .addArgumentValue("overwriteOutputFile", false)
                         .execute();
             });
+
+            if (!Files.isRegularFile(changelogFile)) {
+                throw new IllegalStateException("Liquibase did not create the changelog file: " + changelogFile);
+            }
             return null;
         });
     }
@@ -109,6 +114,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             public void willSnapshot(DatabaseObject object, Database database) {
                 if (object == null) return;
 
+                result.appendInfoOutput("Started processing " + describe(object) + "...");
                 result.ensureProcessedItem(object);
             }
 
@@ -116,6 +122,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             public void finishedSnapshot(DatabaseObject object, DatabaseObject snapshot, Database database) {
                 if (snapshot == null) return;
 
+                result.appendInfoOutput("Finished processing " + describe(snapshot));
                 LiquibaseProcessedItem item = result.ensureProcessedItem(snapshot);
                 result.updateProcessedItem(
                         item,
@@ -129,6 +136,11 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
                 database.getDefaultCatalogName(),
                 schemaName);
         SnapshotGeneratorFactory.getInstance().createSnapshot(catalogAndSchema, database, snapshotControl);
+    }
+
+    @NotNull
+    private static String describe(@NotNull DatabaseObject object) {
+        return object.getObjectTypeName() + " \"" + object.getName() + "\"";
     }
 
     @NotNull

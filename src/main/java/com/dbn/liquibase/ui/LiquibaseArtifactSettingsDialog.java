@@ -69,7 +69,7 @@ public class LiquibaseArtifactSettingsDialog extends DBNDialog<LiquibaseArtifact
         if (newArtifact) {
             DatabaseLiquibaseManager.getInstance(getProject()).detachWorkspace(getConnection());
         }
-        close(0);
+        super.doCancelAction();
     }
 
     @Override

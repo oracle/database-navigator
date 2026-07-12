@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import java.awt.BorderLayout;
+import java.util.List;
 
 /** Console form for Liquibase operation output. */
 public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<LiquibaseExecutionResult> {
@@ -23,28 +24,41 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
 
     private final DatabaseLoggingResultConsole console;
     private final LiquibaseProcessedItemsTableModel processedItemsTableModel;
+    private int outputOffset;
 
     public LiquibaseExecutionResultForm(@NotNull LiquibaseExecutionResult result) {
         super(result);
         console = new DatabaseLoggingResultConsole(result.getConnection(), result.getName(), false);
         summaryPanel.add(new LiquibaseExecutionSummaryForm(result).getComponent(), BorderLayout.CENTER);
-        consolePanel.add(console.getComponent(), BorderLayout.CENTER);
+        consolePanel = new JPanel(new BorderLayout());
+        consolePanel.add(console.getComponent());
         contentTabbedPane.addTab("Console", consolePanel);
         processedItemsTableModel = new LiquibaseProcessedItemsTableModel(result);
 
         LiquibaseProcessedItemsTable processedItemsTable = new LiquibaseProcessedItemsTable(this, processedItemsTableModel);
         contentTabbedPane.addTab("Processed Items", new com.intellij.ui.components.JBScrollPane(processedItemsTable));
-        result.addListener(() -> Dispatch.run(false, () -> processedItemsTableModel.refresh()));
-        writeOutput(result.getConsoleOutput());
-        writeOutput(result.getErrorOutput());
+        result.addListener(() -> Dispatch.run(false, () -> updateResult(result, processedItemsTableModel)));
+        updateResult(result, processedItemsTableModel);
         Disposer.register(this, console);
     }
 
-    private void writeOutput(String output) {
-        if (output.isEmpty()) return;
+    private void updateResult(@NotNull LiquibaseExecutionResult result, @NotNull LiquibaseProcessedItemsTableModel tableModel) {
+        updateConsoleOutput(result);
+        tableModel.refresh();
+    }
+
+    private void updateConsoleOutput(@NotNull LiquibaseExecutionResult result) {
+        List<LogOutput> output = result.getOutput();
+        while (outputOffset < output.size()) {
+            writeOutput(output.get(outputOffset));
+            outputOffset++;
+        }
+    }
+
+    private void writeOutput(@NotNull LogOutput output) {
         LogOutputContext context = new LogOutputContext(getExecutionResult().getConnection());
         context.setHideEmptyLines(false);
-        console.writeToConsole(context, LogOutput.createStdOutput(output));
+        console.writeToConsole(context, output);
     }
 
     @NotNull
