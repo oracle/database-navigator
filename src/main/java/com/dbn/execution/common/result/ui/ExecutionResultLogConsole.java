@@ -10,15 +10,11 @@
 
 package com.dbn.execution.common.result.ui;
 
-import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.util.Borders;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.execution.logging.LogOutput;
-import com.dbn.execution.logging.LogOutputContext;
 import com.dbn.execution.logging.ui.DatabaseLoggingResultConsole;
 import com.intellij.openapi.Disposable;
-import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
@@ -26,8 +22,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeListener;
 
 /** Logging console and tab state used by an execution result form. */
-public class ExecutionResultLogConsole implements Disposable {
-    private final DatabaseLoggingResultConsole console;
+public class ExecutionResultLogConsole extends DatabaseLoggingResultConsole implements Disposable {
     private JTabbedPane tabs;
     private JComponent tabComponent;
     private ChangeListener tabSelectionListener;
@@ -36,30 +31,17 @@ public class ExecutionResultLogConsole implements Disposable {
             @NotNull ConnectionHandler connection,
             String title,
             boolean buildInActions) {
-        console = new DatabaseLoggingResultConsole(connection, title, buildInActions);
-        console.getComponent().setBorder(Borders.lineBorder(JBColor.border(), 0, 0, 1, 0));
-    }
-
-    @NotNull
-    public void writeToConsole(@NotNull LogOutputContext context, @NotNull LogOutput output) {
-        console.writeToConsole(context, output);
-    }
-
-    @NotNull
-    public JComponent getComponent() {
-        return console.getComponent();
-    }
-
-    @NotNull
-    public String getTitle() {
-        return console.getTitle();
+        super(connection, title, buildInActions);
+        normalizeBorders();
     }
 
     public void installOn(@NotNull JTabbedPane tabs) {
         removeTabListener();
         this.tabs = tabs;
-        this.tabComponent = console.getComponent();
-        tabs.addTab(console.getTitle(), Icons.EXEC_LOG_OUTPUT_CONSOLE, tabComponent);
+        this.tabComponent = getComponent();
+        tabs.addTab(getTitle(), Icons.EXEC_LOG_OUTPUT_CONSOLE, tabComponent);
+
+        Dispatch.run(tabComponent, () -> normalizeBorders());
         tabSelectionListener = e -> updateTabIcon(false);
         tabs.addChangeListener(tabSelectionListener);
         updateTabIcon(false);
@@ -92,7 +74,7 @@ public class ExecutionResultLogConsole implements Disposable {
     @Override
     public void dispose() {
         removeTabListener();
-        Disposer.dispose(console);
+        super.dispose();
         tabs = null;
         tabComponent = null;
     }

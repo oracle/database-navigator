@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.table.TableModel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Borderless.markBorderless;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Table displaying structured items processed by a Liquibase operation. */
@@ -20,6 +21,7 @@ public class LiquibaseExecutionItemsTable extends DBNTableWithGutter<LiquibaseEx
         setDefaultRenderer(Object.class, new DBNDynamicTableCellRenderer());
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
         initTableSorter();
+        markBorderless(this);
         setAccessibleName(this, txt("app.liquibase.aria.ProcessedItems"));
     }
 

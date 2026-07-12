@@ -3,6 +3,7 @@ package com.dbn.liquibase.execution.ui;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.util.Actions;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
@@ -64,7 +65,7 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
         executionItemsTableModel = new LiquibaseExecutionItemsTableModel(result);
 
         LiquibaseExecutionItemsTable executionItemsTable = new LiquibaseExecutionItemsTable(this, executionItemsTableModel);
-        contentTabbedPane.addTab("Processed Items", new com.intellij.ui.components.JBScrollPane(executionItemsTable));
+        contentTabbedPane.addTab("Processed Items", new DBNScrollPane(executionItemsTable));
     }
 
     private void initResultListeners() {
