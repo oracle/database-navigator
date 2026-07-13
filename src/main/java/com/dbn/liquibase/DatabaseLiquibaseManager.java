@@ -35,8 +35,8 @@ import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.processor.LiquibaseExecutionProcessorFactory;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
-import com.dbn.liquibase.ui.LiquibaseArtifactSettingsDialog;
 import com.dbn.liquibase.ui.LiquibaseWorkspaceBundleSettingsDialog;
+import com.dbn.liquibase.ui.LiquibaseWorkspaceSettingsDialog;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -90,7 +90,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         LiquibaseWorkspace workspace = workspaces.getWorkspace(connectionId);
         if (workspace == null) return;
 
-        Dialogs.show(() -> new LiquibaseArtifactSettingsDialog(workspaces, workspace, false));
+        Dialogs.show(() -> new LiquibaseWorkspaceSettingsDialog(workspaces, workspace, false));
     }
 
     public void openWorkspaceSettings() {
@@ -167,7 +167,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
 
         LiquibaseWorkspace workspace = workspaces.createWorkspace();
         Dialogs.show(
-                () -> new LiquibaseArtifactSettingsDialog(workspaces, workspace, true),
+                () -> new LiquibaseWorkspaceSettingsDialog(workspaces, workspace, true),
                 whenOk(dialog -> {
                     workspaces.attachWorkspace(connection.getConnectionId(), dialog.getWorkspace().getId());
                     if (consumer != null) consumer.accept(dialog.getWorkspace());

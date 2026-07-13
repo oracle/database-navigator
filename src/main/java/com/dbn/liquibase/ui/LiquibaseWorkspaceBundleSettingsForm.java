@@ -30,7 +30,7 @@ public class LiquibaseWorkspaceBundleSettingsForm extends DBNFormBase {
     private JList<LiquibaseWorkspace> workspacesList;
 
     private final LiquibaseWorkspaceBundle workspaces;
-    private final Map<String, LiquibaseArtifactSettingsForm> workspaceForms = DisposableContainers.map(this);
+    private final Map<String, LiquibaseWorkspaceSettingsForm> workspaceForms = DisposableContainers.map(this);
 
     LiquibaseWorkspaceBundleSettingsForm(LiquibaseWorkspaceBundleSettingsDialog parent) {
         super(parent);
@@ -71,7 +71,7 @@ public class LiquibaseWorkspaceBundleSettingsForm extends DBNFormBase {
         if (workspace == null) return;
 
         DBNForm workspaceForm = workspaceForms.computeIfAbsent(workspace.getId(), id ->
-                new LiquibaseArtifactSettingsForm(this, workspaces, workspace));
+                new LiquibaseWorkspaceSettingsForm(this, workspaces, workspace));
         detailsPanel.add(workspaceForm.getComponent());
         repaint(detailsPanel);
     }
