@@ -51,12 +51,12 @@ import static com.dbn.common.util.Strings.isEmpty;
  * Project-level container for Liquibase artifacts and their connection mappings.
  */
 @Getter
-public class LiquibaseWorkspace implements PersistentStateElement, Cloneable<LiquibaseWorkspace> {
+public class LiquibaseWorkspaceBundle implements PersistentStateElement, Cloneable<LiquibaseWorkspaceBundle> {
     private final ProjectRef project;
     private Map<String, LiquibaseArtifact> artifacts = new LinkedHashMap<>();
     private Map<ConnectionId, String> artifactMappings = new LinkedHashMap<>();
 
-    public LiquibaseWorkspace(@NotNull Project project) {
+    public LiquibaseWorkspaceBundle(@NotNull Project project) {
         this.project = ProjectRef.of(project);
     }
 
@@ -122,7 +122,7 @@ public class LiquibaseWorkspace implements PersistentStateElement, Cloneable<Liq
         artifacts.put(artifact.getId(), artifact);
     }
 
-    public void replaceArtifacts(LiquibaseWorkspace workspace) {
+    public void replaceArtifacts(LiquibaseWorkspaceBundle workspace) {
         artifacts = new LinkedHashMap<>();
         workspace.artifacts.values().forEach(a -> artifacts.put(a.getId(), a));
         artifactMappings = new LinkedHashMap<>(workspace.artifactMappings);
@@ -208,8 +208,8 @@ public class LiquibaseWorkspace implements PersistentStateElement, Cloneable<Liq
 
     @Override
     @SneakyThrows
-    public LiquibaseWorkspace clone() {
-        LiquibaseWorkspace clone = (LiquibaseWorkspace) super.clone();
+    public LiquibaseWorkspaceBundle clone() {
+        LiquibaseWorkspaceBundle clone = (LiquibaseWorkspaceBundle) super.clone();
         clone.artifacts = new LinkedHashMap<>();
         clone.artifactMappings = new LinkedHashMap<>(artifactMappings);
         artifacts.forEach((artifactId, artifact) -> clone.artifacts.put(artifactId, artifact.clone()));

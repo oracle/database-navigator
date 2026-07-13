@@ -24,7 +24,7 @@ import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.ContentRootSelector;
 import com.dbn.liquibase.model.LiquibaseArtifact;
-import com.dbn.liquibase.model.LiquibaseWorkspace;
+import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,7 +62,7 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     private JBTextField propertiesFileTextField;
     private DBNCommentLabel rootPathInfoLabel;
 
-    private final LiquibaseWorkspace workspace;
+    private final LiquibaseWorkspaceBundle workspace;
     private final LiquibaseArtifact artifact;
 
     LiquibaseArtifactSettingsForm(@NotNull LiquibaseArtifactSettingsDialog parent) {
@@ -73,7 +73,7 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
 
     LiquibaseArtifactSettingsForm(
             @NotNull DBNComponent parent,
-            @NotNull LiquibaseWorkspace workspace,
+            @NotNull LiquibaseWorkspaceBundle workspace,
             @NotNull LiquibaseArtifact artifact) {
         super(parent);
         this.workspace = workspace;

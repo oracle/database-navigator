@@ -1,7 +1,7 @@
 package com.dbn.liquibase.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.liquibase.model.LiquibaseWorkspace;
+import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
@@ -10,24 +10,24 @@ import javax.swing.JComponent;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Project-level Liquibase workspace overview for its named artifacts. */
-public class LiquibaseWorkspaceSettingsDialog extends DBNDialog<LiquibaseWorkspaceSettingsForm> {
-    private final LiquibaseWorkspace workspace;
+public class LiquibaseWorkspaceSettingsDialog extends DBNDialog<LiquibaseWorkspaceBundleSettingsForm> {
+    private final LiquibaseWorkspaceBundle workspace;
 
-    public LiquibaseWorkspaceSettingsDialog(LiquibaseWorkspace workspace) {
+    public LiquibaseWorkspaceSettingsDialog(LiquibaseWorkspaceBundle workspace) {
         super(workspace.getProject(), txt("msg.liquibase.title.WorkspaceSettings"), true);
         this.workspace = workspace.clone();
         init();
     }
 
     @NotNull
-    public LiquibaseWorkspace getWorkspace() {
+    public LiquibaseWorkspaceBundle getWorkspace() {
         return workspace;
     }
 
     @NotNull
     @Override
-    protected LiquibaseWorkspaceSettingsForm createForm() {
-        return new LiquibaseWorkspaceSettingsForm(this);
+    protected LiquibaseWorkspaceBundleSettingsForm createForm() {
+        return new LiquibaseWorkspaceBundleSettingsForm(this);
     }
 
     @Override

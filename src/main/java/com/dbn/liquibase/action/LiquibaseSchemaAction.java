@@ -21,7 +21,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.model.LiquibaseArtifact;
-import com.dbn.liquibase.model.LiquibaseWorkspace;
+import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -69,7 +69,7 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
             @NotNull Consumer<LiquibaseArtifact> selectionConsumer) {
         if (isWorkspaceAttached(project)) {
             DatabaseLiquibaseManager manager = getManager(project);
-            LiquibaseWorkspace workspace = manager.getWorkspace();
+            LiquibaseWorkspaceBundle workspace = manager.getWorkspace();
 
             ConnectionId connectionId = getSchema().getConnectionId();
             LiquibaseArtifact artifact = workspace.getArtifact(connectionId);

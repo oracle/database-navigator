@@ -18,7 +18,7 @@ package com.dbn.liquibase.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.liquibase.model.LiquibaseArtifact;
-import com.dbn.liquibase.model.LiquibaseWorkspace;
+import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,12 +28,12 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class LiquibaseArtifactSettingsDialog extends DBNDialog<LiquibaseArtifactSettingsForm> {
-    private final LiquibaseWorkspace workspace;
+    private final LiquibaseWorkspaceBundle workspace;
     private final LiquibaseArtifact artifact;
     private final boolean newArtifact;
 
     public LiquibaseArtifactSettingsDialog(
-            LiquibaseWorkspace workspace,
+            LiquibaseWorkspaceBundle workspace,
             LiquibaseArtifact artifact,
             boolean newArtifact) {
         super(workspace.getProject(), txt("msg.liquibase.title.ArtifactSettings"), true);

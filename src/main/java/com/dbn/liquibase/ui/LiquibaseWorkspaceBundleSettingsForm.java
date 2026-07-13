@@ -6,7 +6,7 @@ import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Strings;
 import com.dbn.liquibase.model.LiquibaseArtifact;
-import com.dbn.liquibase.model.LiquibaseWorkspace;
+import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,16 +23,16 @@ import static com.dbn.common.ui.util.UserInterface.repaint;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Overview form for managing the named Liquibase artifacts in a project workspace. */
-public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
+public class LiquibaseWorkspaceBundleSettingsForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel artifactsPanel;
     private JPanel detailsPanel;
     private JList<LiquibaseArtifact> artifactsList;
 
-    private final LiquibaseWorkspace workspace;
+    private final LiquibaseWorkspaceBundle workspace;
     private final Map<String, LiquibaseArtifactSettingsForm> artifactForms = DisposableContainers.map(this);
 
-    LiquibaseWorkspaceSettingsForm(LiquibaseWorkspaceSettingsDialog parent) {
+    LiquibaseWorkspaceBundleSettingsForm(LiquibaseWorkspaceSettingsDialog parent) {
         super(parent);
         workspace = parent.getWorkspace();
         artifactsList.setCellRenderer((list, value, index, selected, focus) -> {

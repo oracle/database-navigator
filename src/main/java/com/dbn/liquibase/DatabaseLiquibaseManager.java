@@ -34,7 +34,7 @@ import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.processor.LiquibaseExecutionProcessorFactory;
 import com.dbn.liquibase.model.LiquibaseArtifact;
-import com.dbn.liquibase.model.LiquibaseWorkspace;
+import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.dbn.liquibase.ui.LiquibaseArtifactSettingsDialog;
 import com.dbn.liquibase.ui.LiquibaseWorkspaceSettingsDialog;
 import com.dbn.object.DBSchema;
@@ -62,12 +62,12 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseLiquibaseManager";
 
     private final StateContainer states = new StateContainer();
-    private final LiquibaseWorkspace workspace;
+    private final LiquibaseWorkspaceBundle workspace;
     private final Map<LiquibaseExecutionResult, LiquibaseExecutionProcessor> executionProcessors = new ConcurrentHashMap<>();
 
     private DatabaseLiquibaseManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
-        workspace = new LiquibaseWorkspace(project);
+        workspace = new LiquibaseWorkspaceBundle(project);
         ProjectEvents.subscribe(project, this, ConnectionConfigListener.TOPIC,
                 ConnectionConfigListener.whenRemoved(workspace::removeArtifact));
     }
@@ -77,7 +77,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     }
 
     @NotNull
-    public LiquibaseWorkspace getWorkspace() {
+    public LiquibaseWorkspaceBundle getWorkspace() {
         return workspace;
     }
 

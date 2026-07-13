@@ -25,7 +25,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.model.LiquibaseArtifact;
-import com.dbn.liquibase.model.LiquibaseWorkspace;
+import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
@@ -47,7 +47,7 @@ public final class LiquibaseArtifactSelector {
             @NotNull ConnectionHandler connection,
             @NotNull Consumer<LiquibaseArtifact> selectionConsumer) {
         DatabaseLiquibaseManager manager = DatabaseLiquibaseManager.getInstance(project);
-        LiquibaseWorkspace workspace = manager.getWorkspace();
+        LiquibaseWorkspaceBundle workspace = manager.getWorkspace();
         ConnectionId connectionId = connection.getConnectionId();
         LiquibaseArtifact selectedArtifact = workspace.getArtifact(connectionId);
 
@@ -75,13 +75,13 @@ public final class LiquibaseArtifactSelector {
     }
 
     private static class SelectArtifactAction extends BasicAction {
-        private final LiquibaseWorkspace workspace;
+        private final LiquibaseWorkspaceBundle workspace;
         private final ConnectionId connectionId;
         private final LiquibaseArtifact artifact;
         private final Consumer<LiquibaseArtifact> selectionConsumer;
 
         private SelectArtifactAction(
-                LiquibaseWorkspace workspace,
+                LiquibaseWorkspaceBundle workspace,
                 ConnectionId connectionId,
                 LiquibaseArtifact artifact,
                 Consumer<LiquibaseArtifact> selectionConsumer) {
