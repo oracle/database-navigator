@@ -13,6 +13,7 @@ import com.dbn.execution.logging.LogOutputContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -62,6 +63,8 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
 
     private void initExecutionItemsPanel() {
         LiquibaseExecutionResult result = getExecutionResult();
+        if (!result.getOperation().supportsProcessedItems()) return;
+
         executionItemsTableModel = new LiquibaseExecutionItemsTableModel(result);
 
         LiquibaseExecutionItemsTable executionItemsTable = new LiquibaseExecutionItemsTable(this, executionItemsTableModel);
@@ -73,9 +76,11 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
         result.addListener(() -> Dispatch.run(false, () -> updateResult(result, executionItemsTableModel)));
     }
 
-    private void updateResult(@NotNull LiquibaseExecutionResult result, @NotNull LiquibaseExecutionItemsTableModel tableModel) {
+    private void updateResult(
+            @NotNull LiquibaseExecutionResult result,
+            @Nullable LiquibaseExecutionItemsTableModel tableModel) {
         boolean outputChanged = updateConsoleOutput(result);
-        tableModel.refresh();
+        if (tableModel != null) tableModel.refresh();
         if (outputChanged) console.markOutputUnread();
     }
 

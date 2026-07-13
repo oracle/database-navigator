@@ -31,6 +31,7 @@ import com.dbn.execution.ExecutionManager;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.processor.LiquibaseExecutionProcessorFactory;
 import com.dbn.liquibase.model.LiquibaseArtifact;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
@@ -50,6 +51,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Dialogs.whenOk;
 import static com.dbn.liquibase.execution.LiquibaseOperation.INITIALIZE;
+import static com.dbn.liquibase.execution.LiquibaseOperation.VALIDATE;
 
 @State(
         name = DatabaseLiquibaseManager.COMPONENT_NAME,
@@ -105,20 +107,40 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     public void generateInitialChangelog(
             @NotNull DBSchema schema,
             @Nullable LiquibaseExecutionResult previousResult) {
+        execute(schema, INITIALIZE, previousResult);
+    }
+
+    public void validateChangelog(
+            @NotNull DBSchema schema,
+            @Nullable LiquibaseExecutionResult previousResult) {
+        execute(schema, VALIDATE, previousResult);
+    }
+
+    public void rerun(@NotNull LiquibaseExecutionResult previousResult) {
+        execute(
+                previousResult.getSchema(),
+                previousResult.getOperation(),
+                previousResult);
+    }
+
+    private void execute(
+            @NotNull DBSchema schema,
+            @NotNull LiquibaseOperation operation,
+            @Nullable LiquibaseExecutionResult previousResult) {
         ConnectionHandler connection = schema.getConnection();
         ConnectionId connectionId = schema.getConnectionId();
         if (!workspace.hasArtifact(connectionId)) {
             LiquibaseArtifact artifact = workspace.ensureArtifact(connectionId);
             Dialogs.show(
                     () -> new LiquibaseArtifactSettingsDialog(workspace, artifact, connection, true),
-                    whenOk(dialog -> generateInitialChangelog(schema, previousResult)));
+                    whenOk(dialog -> execute(schema, operation, previousResult)));
             return;
         }
 
         LiquibaseArtifact artifact = workspace.getArtifacts().get(connectionId);
         if (artifact == null) return;
 
-        LiquibaseExecutionInput input = new LiquibaseExecutionInput(schema, INITIALIZE, artifact);
+        LiquibaseExecutionInput input = new LiquibaseExecutionInput(schema, operation, artifact);
 
         LiquibaseExecutionProcessor processor = LiquibaseExecutionProcessorFactory.create(input);
         LiquibaseExecutionResult result = processor.prepareExecutionResult();

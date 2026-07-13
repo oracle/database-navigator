@@ -28,8 +28,9 @@ public final class LiquibaseExecutionProcessorFactory {
     public static LiquibaseExecutionProcessor create(@NotNull LiquibaseExecutionInput input) {
         return switch (input.getOperation()) {
             case INITIALIZE -> new LiquibaseInitializationProcessor(input);
-            case VALIDATE, STATUS, UPDATE, ROLLBACK ->
-                    throw new UnsupportedOperationException("Unsupported Liquibase operation: " + input.getOperation());
+            case VALIDATE -> new LiquibaseValidationProcessor(input);
+            case STATUS, UPDATE, ROLLBACK ->
+                throw new UnsupportedOperationException("Unsupported Liquibase operation: " + input.getOperation());
         };
     }
 }

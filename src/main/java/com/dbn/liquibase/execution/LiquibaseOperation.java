@@ -17,4 +17,8 @@ public enum LiquibaseOperation {
     public String getDescription() {
         return txt("cfg.liquibase.text.OperationDescription_" + name());
     }
+
+    public boolean supportsProcessedItems() {
+        return this == INITIALIZE;
+    }
 }

@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.nls.NlsResources.txtOr;
 
 /** Summary panel for a Liquibase operation result. */
 public class LiquibaseExecutionSummaryForm extends DBNFormBase {
@@ -133,16 +134,25 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private static String getTitleKey(
             @NotNull LiquibaseOperation operation,
             @NotNull TaskStatus status) {
-        String operationName = operation == LiquibaseOperation.INITIALIZE ? operation.name() : "ANY";
-        return "prc.liquibase.title.Operation_" + operationName + '_' + status.name();
+        return getOperationKey("title", operation, status);
     }
 
     @NotNull
     private static String getMessageKey(
             @NotNull LiquibaseOperation operation,
             @NotNull TaskStatus status) {
-        String operationName = operation == LiquibaseOperation.INITIALIZE ? operation.name() : "ANY";
-        return "prc.liquibase.text.Operation_" + operationName + '_' + status.name();
+        return getOperationKey("text", operation, status);
+    }
+
+    @NotNull
+    private static String getOperationKey(
+            @NotNull String category,
+            @NotNull LiquibaseOperation operation,
+            @NotNull TaskStatus status) {
+        String suffix = operation.name() + '_' + status.name();
+        String operationKey = "prc.liquibase." + category + ".Operation_" + suffix;
+        String fallbackKey = "prc.liquibase." + category + ".Operation_ANY_" + status.name();
+        return txtOr(operationKey, fallbackKey);
     }
 
     @NotNull

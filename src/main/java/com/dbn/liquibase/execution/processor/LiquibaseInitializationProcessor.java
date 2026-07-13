@@ -16,42 +16,30 @@
 
 package com.dbn.liquibase.execution.processor;
 
-import com.dbn.common.task.TaskStatus;
 import com.dbn.common.util.Strings;
-import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionItem;
 import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.execution.logging.LiquibaseExecutionLogService;
-import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.liquibase.model.LiquibaseArtifactPaths;
 import com.dbn.object.type.DBObjectType;
 import liquibase.CatalogAndSchema;
-import liquibase.Scope;
 import liquibase.command.CommandScope;
 import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.resource.DirectoryResourceAccessor;
 import liquibase.snapshot.SnapshotControl;
 import liquibase.snapshot.SnapshotGeneratorFactory;
 import liquibase.snapshot.SnapshotListener;
 import liquibase.structure.DatabaseObject;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.concurrent.CancellationException;
 
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.resolveObjectType;
 import static com.dbn.nls.NlsResources.txt;
-import static liquibase.Scope.child;
 
 /**
  * Processor for generating an initial changelog from a database schema.
@@ -66,29 +54,17 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
         return LiquibaseOperation.INITIALIZE;
     }
 
-    @NotNull
     @Override
-    public LiquibaseExecutionResult execute() {
-        LiquibaseExecutionResult result = super.execute();
-        try {
-            LiquibaseArtifactPaths artifactPaths = getInput().getArtifactPaths();
-            Path changelogFile = artifactPaths.getMasterChangelogPath();
-            result.setChangelogPath(changelogFile);
-            if (Files.exists(changelogFile)) {
-                throw new IllegalStateException("Changelog file already exists: " + changelogFile);
-            }
-            Files.createDirectories(changelogFile.getParent());
-            generateChangelog(artifactPaths, changelogFile, result);
-
-            result.appendConsoleOutput(txt("log.liquibase.info.InitialChangelogGenerated", changelogFile));
-            finishResult(TaskStatus.DONE);
-        } catch (CancellationException e) {
-            finishResult(TaskStatus.CANCELLED);
-        } catch (Exception e) {
-            result.appendErrorOutput(formatException(e));
-            finishResult(TaskStatus.FAILED);
+    protected void executeOperation(@NotNull LiquibaseExecutionResult result) throws Exception {
+        LiquibaseArtifactPaths artifactPaths = getInput().getArtifactPaths();
+        Path changelogFile = artifactPaths.getMasterChangelogPath();
+        result.setChangelogPath(changelogFile);
+        if (Files.exists(changelogFile)) {
+            throw new IllegalStateException("Changelog file already exists: " + changelogFile);
         }
-        return result;
+        Files.createDirectories(changelogFile.getParent());
+        generateChangelog(artifactPaths, changelogFile, result);
+        result.appendConsoleOutput(txt("log.liquibase.info.InitialChangelogGenerated", changelogFile));
     }
 
     private void generateChangelog(
@@ -97,31 +73,22 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
         @NotNull LiquibaseExecutionResult result) throws Exception {
         Path contentRoot = artifactPaths.getContentRootPath();
 
-        withPoolConnection(true, c -> {
+        withLiquibaseDatabase(true, database -> {
             checkCanceled();
-            DatabaseFactory databaseFactory = DatabaseFactory.getInstance();
-            JdbcConnection connection = new JdbcConnection(DBNConnection.getInner(c));
-            Database database = databaseFactory.findCorrectDatabaseImplementation(connection);
-
             String schemaName = getInput().getSchema().getName();
             database.setDefaultSchemaName(schemaName);
 
-            LiquibaseExecutionLogService logService = new LiquibaseExecutionLogService(result);
-            child(Scope.Attr.logService, logService, () -> {
+            withLiquibaseScope(contentRoot, result, output -> {
                 collectDatabaseObjects(database, schemaName, result);
                 checkCanceled();
-                child(Scope.Attr.resourceAccessor, new DirectoryResourceAccessor(contentRoot), () -> {
-                    checkCanceled();
-                    try (LiquibaseExecutionOutputStream output = new LiquibaseExecutionOutputStream(result)) {
-                        new CommandScope("generateChangelog")
-                                .addArgumentValue("database", database)
-                                .addArgumentValue("schemas", schemaName)
-                                .addArgumentValue("changelogFile", changelogFile.toString())
-                                .addArgumentValue("overwriteOutputFile", false)
-                                .setOutput(output)
-                                .execute();
-                    }
-                });
+                new CommandScope("generateChangelog")
+                        .addArgumentValue("database", database)
+                        .addArgumentValue("schemas", schemaName)
+                        .addArgumentValue("changelogFile", changelogFile.toString())
+                        .addArgumentValue("overwriteOutputFile", false)
+                        .setOutput(output)
+                        .execute();
+                return null;
             });
             checkCanceled();
 
@@ -197,10 +164,4 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
         return txt("log.liquibase.info.ObjectInContainer", description, parentDesc);
     }
 
-    @NotNull
-    private String formatException(@NotNull Exception exception) {
-        StringWriter output = new StringWriter();
-        exception.printStackTrace(new PrintWriter(output));
-        return output.toString();
-    }
 }
