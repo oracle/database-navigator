@@ -1,7 +1,5 @@
 package com.dbn.liquibase.action;
 
-import com.dbn.common.icon.Icons;
-import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -11,21 +9,20 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Entry point for generating the initial Liquibase changelog for a schema. */
-public class GenerateInitialChangelogAction extends LiquibaseSchemaAction {
-    public GenerateInitialChangelogAction(@NotNull DBSchema schema) {
+public class GenerateChangelogAction extends LiquibaseSchemaAction {
+    public GenerateChangelogAction(@NotNull DBSchema schema) {
         super(schema);
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        DatabaseLiquibaseManager liquibaseManager = getManager(project);
-        liquibaseManager.generateInitialChangelog(getSchema(), null);
+        selectArtifact(e, project, artifact ->
+                getManager(project).generateInitialChangelog(getSchema(), artifact, null));
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.liquibase.action.GenerateInitialChangelog"));
-        presentation.setIcon(Icons.ACTION_ADD);
+        presentation.setText(txt("app.liquibase.action.GenerateChangelog"));
     }
 }

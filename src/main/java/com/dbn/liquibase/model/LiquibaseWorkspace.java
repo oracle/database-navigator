@@ -32,12 +32,19 @@ import org.jetbrains.annotations.Nullable;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Strings.equalsIgnoreCase;
 import static com.dbn.common.util.Strings.isEmpty;
 
 /**
@@ -46,7 +53,8 @@ import static com.dbn.common.util.Strings.isEmpty;
 @Getter
 public class LiquibaseWorkspace implements PersistentStateElement, Cloneable<LiquibaseWorkspace> {
     private final ProjectRef project;
-    private Map<ConnectionId, LiquibaseArtifact> artifacts = new LinkedHashMap<>();
+    private Map<String, LiquibaseArtifact> artifacts = new LinkedHashMap<>();
+    private Map<ConnectionId, String> artifactMappings = new LinkedHashMap<>();
 
     public LiquibaseWorkspace(@NotNull Project project) {
         this.project = ProjectRef.of(project);
@@ -58,29 +66,66 @@ public class LiquibaseWorkspace implements PersistentStateElement, Cloneable<Liq
     }
 
     @NotNull
-    public LiquibaseArtifact ensureArtifact(@NotNull ConnectionId connectionId) {
-        return artifacts.computeIfAbsent(connectionId, id -> {
-            LiquibaseArtifact artifact = new LiquibaseArtifact();
-            artifact.setConnectionId(id);
-            return artifact;
-        });
+    public LiquibaseArtifact createArtifact() {
+        LiquibaseArtifact artifact = new LiquibaseArtifact();
+        artifacts.put(artifact.getId(), artifact);
+        return artifact;
+    }
+
+    @NotNull
+    public List<LiquibaseArtifact> getArtifactList() {
+        return new ArrayList<>(artifacts.values());
+    }
+
+    public void moveArtifact(@NotNull LiquibaseArtifact artifact, int offset) {
+        List<String> artifactIds = new ArrayList<>(artifacts.keySet());
+        int currentIndex = artifactIds.indexOf(artifact.getId());
+        int targetIndex = currentIndex + offset;
+        if (currentIndex < 0 || targetIndex < 0 || targetIndex >= artifactIds.size()) return;
+
+        String movedId = artifactIds.remove(currentIndex);
+        artifactIds.add(targetIndex, movedId);
+        Map<String, LiquibaseArtifact> reordered = new LinkedHashMap<>();
+        artifactIds.forEach(id -> reordered.put(id, artifacts.get(id)));
+        artifacts = reordered;
+    }
+
+    @Nullable
+    public LiquibaseArtifact getArtifact(@NotNull ConnectionId connectionId) {
+        String artifactId = artifactMappings.get(connectionId);
+        return artifactId == null ? null : artifacts.get(artifactId);
     }
 
     public boolean hasArtifact(@NotNull ConnectionId connectionId) {
-        return artifacts.containsKey(connectionId);
+        return getArtifact(connectionId) != null;
     }
 
     public void removeArtifact(@NotNull ConnectionId connectionId) {
-        artifacts.remove(connectionId);
+        artifactMappings.remove(connectionId);
+    }
+
+    public void removeArtifact(@NotNull String artifactId) {
+        artifactMappings.values().removeIf(id -> Objects.equals(id, artifactId));
+        artifacts.remove(artifactId);
+    }
+
+    public void attachArtifact(
+            @NotNull ConnectionId connectionId,
+            @NotNull String artifactId) {
+        if (!artifacts.containsKey(artifactId)) {
+            throw new IllegalArgumentException("Unknown Liquibase artifact: " + artifactId);
+        }
+        artifactMappings.put(connectionId, artifactId);
     }
 
     public void replaceArtifact(@NotNull LiquibaseArtifact artifact) {
-        artifacts.put(artifact.getConnectionId(), artifact);
+        artifacts.put(artifact.getId(), artifact);
     }
 
     public void replaceArtifacts(LiquibaseWorkspace workspace) {
         artifacts = new LinkedHashMap<>();
-        workspace.artifacts.values().forEach(a -> artifacts.put(a.getConnectionId(), a));
+        workspace.artifacts.values().forEach(a -> artifacts.put(a.getId(), a));
+        artifactMappings = new LinkedHashMap<>(workspace.artifactMappings);
     }
 
     @NotNull
@@ -97,8 +142,21 @@ public class LiquibaseWorkspace implements PersistentStateElement, Cloneable<Liq
         if (resolvedRoot == null) return null;
 
         return artifacts.values().stream()
-                .filter(artifact -> !Objects.equals(artifact.getConnectionId(), currentArtifact.getConnectionId()))
+                .filter(artifact -> !Objects.equals(artifact.getId(), currentArtifact.getId()))
                 .filter(artifact -> resolvedRoot.equals(resolveRootPath(artifact.getContentRootPath(), artifact.getRootPath())))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Nullable
+    public LiquibaseArtifact findNameOwner(
+            @NotNull String name,
+            @NotNull LiquibaseArtifact currentArtifact) {
+        if (isEmpty(name)) return null;
+
+        return artifacts.values().stream()
+                .filter(artifact -> !Objects.equals(artifact.getId(), currentArtifact.getId()))
+                .filter(artifact -> equalsIgnoreCase(artifact.getName(), name))
                 .findFirst()
                 .orElse(null);
     }
@@ -119,10 +177,18 @@ public class LiquibaseWorkspace implements PersistentStateElement, Cloneable<Liq
     @Override
     public void readState(@NotNull Element element) {
         artifacts.clear();
+        artifactMappings.clear();
         for (Element artifactElement : childrenOf(element, "artifact")) {
             LiquibaseArtifact artifact = new LiquibaseArtifact();
             artifact.readState(artifactElement);
-            artifacts.put(artifact.getConnectionId(), artifact);
+            artifacts.put(artifact.getId(), artifact);
+        }
+        for (Element mappingElement : childrenOf(element, "mapping")) {
+            ConnectionId connectionId = connectionIdAttribute(mappingElement, "connection-id");
+            String artifactId = stringAttribute(mappingElement, "artifact-id");
+            if (connectionId != null && artifacts.containsKey(artifactId)) {
+                artifactMappings.put(connectionId, artifactId);
+            }
         }
     }
 
@@ -132,6 +198,11 @@ public class LiquibaseWorkspace implements PersistentStateElement, Cloneable<Liq
             Element artifactElement = newElement(element, "artifact");
             artifact.writeState(artifactElement);
         }
+        artifactMappings.forEach((connectionId, artifactId) -> {
+            Element mappingElement = newElement(element, "mapping");
+            setConstantAttribute(mappingElement, "connection-id", connectionId);
+            setStringAttribute(mappingElement, "artifact-id", artifactId);
+        });
     }
 
 
@@ -140,7 +211,8 @@ public class LiquibaseWorkspace implements PersistentStateElement, Cloneable<Liq
     public LiquibaseWorkspace clone() {
         LiquibaseWorkspace clone = (LiquibaseWorkspace) super.clone();
         clone.artifacts = new LinkedHashMap<>();
-        artifacts.forEach((connectionId, artifact) -> clone.artifacts.put(connectionId, artifact.clone()));
+        clone.artifactMappings = new LinkedHashMap<>(artifactMappings);
+        artifacts.forEach((artifactId, artifact) -> clone.artifacts.put(artifactId, artifact.clone()));
         return clone;
     }
 }

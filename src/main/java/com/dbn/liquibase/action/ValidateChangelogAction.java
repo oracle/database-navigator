@@ -1,6 +1,5 @@
 package com.dbn.liquibase.action;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -17,14 +16,13 @@ public class ValidateChangelogAction extends LiquibaseSchemaAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        getManager(project).validateChangelog(getSchema(), null);
+        selectArtifact(e, project, artifact ->
+                getManager(project).validateChangelog(getSchema(), artifact, null));
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText(txt("app.liquibase.action.ValidateChangelog"));
-        presentation.setIcon(Icons.ACTION_CHECK);
-        presentation.setVisible(isWorkspaceAttached(project));
     }
 }

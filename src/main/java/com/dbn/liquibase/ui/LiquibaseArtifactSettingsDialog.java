@@ -17,9 +17,6 @@
 package com.dbn.liquibase.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
-import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.model.LiquibaseArtifact;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
 import lombok.Getter;
@@ -33,22 +30,18 @@ import static com.dbn.nls.NlsResources.txt;
 public class LiquibaseArtifactSettingsDialog extends DBNDialog<LiquibaseArtifactSettingsForm> {
     private final LiquibaseWorkspace workspace;
     private final LiquibaseArtifact artifact;
-    private final ConnectionRef connection;
     private final boolean newArtifact;
 
-    public LiquibaseArtifactSettingsDialog(LiquibaseWorkspace workspace, LiquibaseArtifact artifact, ConnectionHandler connection, boolean newArtifact) {
-        super(connection.getProject(), txt("msg.liquibase.title.ArtifactSettings"), true);
+    public LiquibaseArtifactSettingsDialog(
+            LiquibaseWorkspace workspace,
+            LiquibaseArtifact artifact,
+            boolean newArtifact) {
+        super(workspace.getProject(), txt("msg.liquibase.title.ArtifactSettings"), true);
         this.workspace = workspace;
         this.artifact = artifact.clone();
-        this.connection = connection.ref();
         this.newArtifact = newArtifact;
         setModal(true);
         init();
-    }
-
-    @NotNull
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
     }
 
     @NotNull
@@ -67,7 +60,7 @@ public class LiquibaseArtifactSettingsDialog extends DBNDialog<LiquibaseArtifact
     @Override
     public void doCancelAction() {
         if (newArtifact) {
-            DatabaseLiquibaseManager.getInstance(getProject()).detachWorkspace(getConnection());
+            workspace.removeArtifact(artifact.getId());
         }
         super.doCancelAction();
     }

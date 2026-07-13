@@ -134,6 +134,12 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
      */
     default void completeConnectorPasswordChange(@NotNull Connection connection, @NotNull char[] newPassword) throws SQLException {}
 
+    /**
+     * Initializes a JDBC session before it is used by Liquibase.
+     * Database implementations may use this hook to apply session settings required by Liquibase.
+     */
+    default void initializeLiquibaseConnection(@NotNull Connection connection) throws SQLException {}
+
     void initConnectorSession(ConnectorProperties properties, ConnectionSettings settings, SessionId sessionId);
 
     void initConnectorDebugger(ConnectorProperties properties, ConnectionSettings settings);

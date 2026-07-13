@@ -47,6 +47,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Dialogs.whenOk;
@@ -85,9 +86,9 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     }
 
     public void openArtifactSettings(@NotNull ConnectionHandler connection) {
-        boolean newArtifact = !workspace.hasArtifact(connection.getConnectionId());
-        LiquibaseArtifact artifact = workspace.ensureArtifact(connection.getConnectionId());
-        Dialogs.show(() -> new LiquibaseArtifactSettingsDialog(workspace, artifact, connection, newArtifact));
+        LiquibaseArtifact artifact = workspace.getArtifact(connection.getConnectionId());
+        if (artifact == null) return;
+        Dialogs.show(() -> new LiquibaseArtifactSettingsDialog(workspace, artifact, false));
     }
 
     public void openWorkspaceSettings() {
@@ -106,39 +107,39 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
 
     public void generateInitialChangelog(
             @NotNull DBSchema schema,
+            @NotNull LiquibaseArtifact artifact,
             @Nullable LiquibaseExecutionResult previousResult) {
-        execute(schema, INITIALIZE, previousResult);
+        execute(schema, INITIALIZE, artifact, previousResult);
     }
 
     public void validateChangelog(
             @NotNull DBSchema schema,
+            @NotNull LiquibaseArtifact artifact,
             @Nullable LiquibaseExecutionResult previousResult) {
-        execute(schema, VALIDATE, previousResult);
+        execute(schema, VALIDATE, artifact, previousResult);
     }
 
     public void rerun(@NotNull LiquibaseExecutionResult previousResult) {
         execute(
                 previousResult.getSchema(),
                 previousResult.getOperation(),
+                null,
                 previousResult);
     }
 
     private void execute(
             @NotNull DBSchema schema,
             @NotNull LiquibaseOperation operation,
+            @Nullable LiquibaseArtifact artifact,
             @Nullable LiquibaseExecutionResult previousResult) {
         ConnectionHandler connection = schema.getConnection();
         ConnectionId connectionId = schema.getConnectionId();
-        if (!workspace.hasArtifact(connectionId)) {
-            LiquibaseArtifact artifact = workspace.ensureArtifact(connectionId);
-            Dialogs.show(
-                    () -> new LiquibaseArtifactSettingsDialog(workspace, artifact, connection, true),
-                    whenOk(dialog -> execute(schema, operation, previousResult)));
+        if (artifact == null) artifact = workspace.getArtifact(connectionId);
+        if (artifact == null) {
+            promptArtifactCreation(connection,
+                    createdArtifact -> execute(schema, operation, createdArtifact, previousResult));
             return;
         }
-
-        LiquibaseArtifact artifact = workspace.getArtifacts().get(connectionId);
-        if (artifact == null) return;
 
         LiquibaseExecutionInput input = new LiquibaseExecutionInput(schema, operation, artifact);
 
@@ -156,6 +157,19 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
                 executionProcessors.remove(result);
             }
         });
+    }
+
+    public void promptArtifactCreation(
+            @NotNull ConnectionHandler connection,
+            @Nullable Consumer<LiquibaseArtifact> consumer) {
+
+        LiquibaseArtifact artifact = workspace.createArtifact();
+        Dialogs.show(
+                () -> new LiquibaseArtifactSettingsDialog(workspace, artifact, true),
+                whenOk(dialog -> {
+                    workspace.attachArtifact(connection.getConnectionId(), dialog.getArtifact().getId());
+                    if (consumer != null) consumer.accept(dialog.getArtifact());
+                }));
     }
 
     @Nullable

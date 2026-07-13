@@ -1,12 +1,13 @@
 package com.dbn.liquibase.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
-import com.dbn.connection.ConnectionManager;
+import com.dbn.common.util.Strings;
+import com.dbn.liquibase.model.LiquibaseArtifact;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
+import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.DefaultListModel;
@@ -14,104 +15,99 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
+import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 import static com.dbn.common.ui.util.UserInterface.repaint;
+import static com.dbn.nls.NlsResources.txt;
 
-/** Overview form containing one simple Liquibase settings card per connection. */
+/** Overview form for managing the named Liquibase artifacts in a project workspace. */
 public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
     private JPanel mainPanel;
+    private JPanel artifactsPanel;
     private JPanel detailsPanel;
-    private JList<ConnectionHandler> connectionsList;
+    private JList<LiquibaseArtifact> artifactsList;
 
     private final LiquibaseWorkspace workspace;
-    private final Map<ConnectionId, LiquibaseArtifactSettingsForm> artifactForms = DisposableContainers.map(this);
-    private final Map<ConnectionId, LiquibaseArtifactPlaceholderForm> placeholderForms = DisposableContainers.map(this);
-    private final Set<ConnectionId> newlyAttached = new HashSet<>();
+    private final Map<String, LiquibaseArtifactSettingsForm> artifactForms = DisposableContainers.map(this);
 
     LiquibaseWorkspaceSettingsForm(LiquibaseWorkspaceSettingsDialog parent) {
         super(parent);
         workspace = parent.getWorkspace();
-        connectionsList.setCellRenderer((list, value, index, selected, focus) -> {
-            JLabel label = new JLabel(value.getName(), value.getIcon(), JLabel.LEADING);
+        artifactsList.setCellRenderer((list, value, index, selected, focus) -> {
+            String name = Strings.isEmpty(value.getName()) ? txt("app.shared.placeholder.Unnamed") : value.getName();
+            JLabel label = new JLabel(name, Icons.DB_LIQUIBASE, JLabel.LEADING);
             label.setOpaque(true);
             label.setBackground(selected ? list.getSelectionBackground() : list.getBackground());
             label.setForeground(selected ? list.getSelectionForeground() : list.getForeground());
             return label;
         });
-        connectionsList.addListSelectionListener(e -> showSelectedConnection());
-        updateConnections();
-        if (connectionsList.getModel().getSize() > 0) connectionsList.setSelectedIndex(0);
+        artifactsList.addListSelectionListener(e -> showSelectedArtifact());
+        artifactsPanel.removeAll();
+        artifactsPanel.add(initArtifactsComponent());
+        updateArtifacts();
+        if (artifactsList.getModel().getSize() > 0) artifactsList.setSelectedIndex(0);
     }
 
-    private void updateConnections() {
-        DefaultListModel<ConnectionHandler> model = new DefaultListModel<>();
-        for (ConnectionHandler connection : ConnectionManager.getInstance(ensureProject()).getConnectionBundle().getConnections()) {
-            model.addElement(connection);
-        }
-        connectionsList.setModel(model);
+    private JPanel initArtifactsComponent() {
+        ToolbarDecorator decorator = createToolbarDecorator(artifactsList);
+        decorator.setAddAction(button -> addArtifact());
+        decorator.setRemoveAction(button -> removeArtifact());
+        decorator.setMoveUpAction(button -> moveArtifact(-1));
+        decorator.setMoveDownAction(button -> moveArtifact(1));
+        return createToolbarDecoratorComponent(decorator, artifactsList);
     }
 
-    private void showSelectedConnection() {
+    private void updateArtifacts() {
+        DefaultListModel<LiquibaseArtifact> model = new DefaultListModel<>();
+        workspace.getArtifactList().forEach(model::addElement);
+        artifactsList.setModel(model);
+    }
+
+    private void showSelectedArtifact() {
         detailsPanel.removeAll();
-        ConnectionHandler connection = connectionsList.getSelectedValue();
-        if (connection == null) return;
+        LiquibaseArtifact artifact = artifactsList.getSelectedValue();
+        if (artifact == null) return;
 
-        ConnectionId connectionId = connection.getConnectionId();
-        DBNForm artifactForm = workspace.hasArtifact(connectionId)
-                ? getArtifactForm(connection)
-                : getPlaceholderForm(connection);
+        DBNForm artifactForm = artifactForms.computeIfAbsent(artifact.getId(), id ->
+                new LiquibaseArtifactSettingsForm(this, workspace, artifact));
         detailsPanel.add(artifactForm.getComponent());
         repaint(detailsPanel);
     }
 
-    private LiquibaseArtifactSettingsForm getArtifactForm(ConnectionHandler connection) {
-        ConnectionId connectionId = connection.getConnectionId();
-        return artifactForms.computeIfAbsent(connectionId, id ->
-                new LiquibaseArtifactSettingsForm(this, workspace, workspace.ensureArtifact(id), connection));
+    private void addArtifact() {
+        LiquibaseArtifact artifact = workspace.createArtifact();
+        updateArtifacts();
+        artifactsList.setSelectedValue(artifact, true);
+        markFormChanged();
     }
 
-    private LiquibaseArtifactPlaceholderForm getPlaceholderForm(ConnectionHandler connection) {
-        ConnectionId connectionId = connection.getConnectionId();
-        return placeholderForms.computeIfAbsent(connectionId, id ->
-                new LiquibaseArtifactPlaceholderForm(this, workspace, connection));
+    private void removeArtifact() {
+        LiquibaseArtifact artifact = artifactsList.getSelectedValue();
+        if (artifact == null) return;
+        workspace.removeArtifact(artifact.getId());
+        artifactForms.remove(artifact.getId());
+        updateArtifacts();
+        if (!artifactsList.isSelectionEmpty()) showSelectedArtifact();
+        markFormChanged();
+    }
+
+    private void moveArtifact(int offset) {
+        LiquibaseArtifact artifact = artifactsList.getSelectedValue();
+        if (artifact == null) return;
+        workspace.moveArtifact(artifact, offset);
+        updateArtifacts();
+        artifactsList.setSelectedValue(artifact, true);
+        markFormChanged();
     }
 
     public void applyFormChanges() {
         artifactForms.values().forEach(LiquibaseArtifactSettingsForm::applyFormChanges);
-        newlyAttached.clear();
     }
 
     public void cancelFormChanges() {
-        newlyAttached.forEach(workspace::removeArtifact);
-    }
-
-    void detachArtifact(ConnectionId connectionId) {
-        newlyAttached.remove(connectionId);
-        workspace.removeArtifact(connectionId);
-        artifactDetached(connectionId);
-    }
-
-    void artifactAttached(ConnectionId connectionId) {
-        placeholderForms.remove(connectionId);
-        newlyAttached.add(connectionId);
-        getWorkspaceDialog().updateDialogButtons();
-        showSelectedConnection();
-        markFormChanged();
-    }
-
-    void artifactDetached(ConnectionId connectionId) {
-        artifactForms.remove(connectionId);
-        placeholderForms.remove(connectionId);
-        getWorkspaceDialog().updateDialogButtons();
-        showSelectedConnection();
-        markFormChanged();
-    }
-
-    private LiquibaseWorkspaceSettingsDialog getWorkspaceDialog() {
-        return getParentDialog();
+        // The dialog operates on a workspace clone, so cancellation needs no rollback.
     }
 
     @NotNull
@@ -122,6 +118,6 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
 
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return connectionsList;
+        return artifactsList;
     }
 }

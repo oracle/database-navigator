@@ -44,6 +44,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -99,6 +102,14 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     public static final QuoteDefinition IDENTIFIER_QUOTE_DEFINITION = new QuoteDefinition(new QuotePair('"', '"'));
     private static final int MIN_JDWP_PORT = 1024;
     private static final int MAX_JDWP_PORT = 65535;
+
+    @Override
+    public void initializeLiquibaseConnection(@NotNull Connection connection) throws SQLException {
+        if (!connection.getAutoCommit()) connection.rollback();
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("ALTER SESSION DISABLE PARALLEL DML");
+        }
+    }
 
     @NonNls
     private interface Property {

@@ -22,6 +22,7 @@ import com.dbn.connection.ConnectionContext;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.PooledConnection;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionLogService;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import liquibase.Scope;
@@ -35,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
@@ -115,9 +117,15 @@ public abstract class LiquibaseExecutionProcessor {
             boolean readonly,
             @NotNull ThrowableFunction<Database, T, Exception> operation) throws SQLException {
         return withPoolConnection(readonly, c -> {
-            Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(
-                    new JdbcConnection(DBNConnection.getInner(c)));
+            Connection connection = DBNConnection.getInner(c);
+            DatabaseCompatibilityInterface compatibilityInterface = input.getConnection().getCompatibilityInterface();
+            compatibilityInterface.initializeLiquibaseConnection(connection);
+
+            DatabaseFactory databaseFactory = DatabaseFactory.getInstance();
+            JdbcConnection jdbcConnection = new JdbcConnection(connection);
+            Database database = databaseFactory.findCorrectDatabaseImplementation(jdbcConnection);
             database.setDefaultSchemaName(input.getSchema().getName());
+
             return operation.apply(database);
         });
     }

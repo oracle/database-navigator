@@ -19,13 +19,10 @@ package com.dbn.liquibase.ui;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
-import com.dbn.common.ui.link.Hyperlinks;
 import com.dbn.common.ui.misc.ContentRootSelector;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.model.LiquibaseArtifact;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.intellij.ui.components.JBTextField;
@@ -45,7 +42,6 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Strings.isEmpty;
-import static com.dbn.connection.util.Connections.getName;
 import static com.dbn.liquibase.model.LiquibaseArtifact.DEFAULT_CHANGELOG_DIRECTORY;
 import static com.dbn.liquibase.model.LiquibaseArtifact.DEFAULT_MASTER_CHANGELOG;
 import static com.dbn.liquibase.model.LiquibaseArtifact.DEFAULT_PROPERTIES_FILE;
@@ -55,11 +51,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     private JPanel mainPanel;
-    private JPanel headerPanel;
     private JPanel hintPanel;
     private DBNHyperlinkLabel documentationLink;
-    private DBNHyperlinkLabel detachLink;
     private ContentRootSelector contentRootComboBox;
+    private JBTextField nameTextField;
     private JBTextField rootPathTextField;
     private JBTextField changelogDirectoryTextField;
     private JBTextField sqlDirectoryTextField;
@@ -73,22 +68,29 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     LiquibaseArtifactSettingsForm(@NotNull LiquibaseArtifactSettingsDialog parent) {
         this(parent,
                 parent.getWorkspace(),
-                parent.getArtifact(),
-                parent.getConnection());
+                parent.getArtifact());
     }
 
-    LiquibaseArtifactSettingsForm(@NotNull DBNComponent parent, @NotNull LiquibaseWorkspace workspace, @NotNull LiquibaseArtifact artifact, @NotNull ConnectionHandler connection) {
+    LiquibaseArtifactSettingsForm(
+            @NotNull DBNComponent parent,
+            @NotNull LiquibaseWorkspace workspace,
+            @NotNull LiquibaseArtifact artifact) {
         super(parent);
         this.workspace = workspace;
         this.artifact = artifact;
-        initHeaderPanel(connection);
+        initHeaderPanel();
         initHintPanel();
         initHyperlinksPanel();
         initFields();
     }
 
-    private void initHeaderPanel(@NotNull ConnectionHandler connection) {
-        headerPanel.add(new DBNHeaderForm(this, connection).getComponent());
+    private void initHeaderPanel() {
+/*
+        String title = isEmpty(artifact.getName())
+                ? txt("app.shared.placeholder.Unnamed")
+                : artifact.getName();
+        headerPanel.add(new DBNHeaderForm(this, title, Icons.DB_LIQUIBASE).getComponent());
+*/
     }
 
     private void initHintPanel() {
@@ -99,13 +101,6 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     private void initHyperlinksPanel() {
         documentationLink.setHyperlinkText(txt("cfg.liquibase.link.LiquibaseDocumentation"));
         documentationLink.setHyperlinkTarget("https://docs.liquibase.com/oss/reference-guide-4-33");
-
-        if (getParentComponent() instanceof LiquibaseWorkspaceSettingsForm workspaceForm) {
-            detachLink.setHyperlinkText(txt("cfg.liquibase.link.DetachWorkspace"));
-            Hyperlinks.onHyperlinkAccess(detachLink, e -> workspaceForm.detachArtifact(artifact.getConnectionId()));
-        } else {
-            detachLink.setVisible(false);
-        }
     }
 
     private void initFields() {
@@ -165,6 +160,8 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
+        addRequiredTextValidation(nameTextField, txt("msg.liquibase.error.ArtifactNameRequired"));
+        addValidation(nameTextField, field -> validateArtifactName());
         addSelectionValidation(contentRootComboBox,    txt("msg.liquibase.error.ContentRootRequired"));
         addValidation(rootPathTextField, field -> validateArtifactRoot());
 
@@ -181,16 +178,21 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
         addTextValidation(propertiesFileTextField,     v -> isValidFileName(v),     txt("msg.liquibase.error.InvalidFileName"));
     }
 
-    private String getConnectionName(LiquibaseArtifact artifact) {
-        return getName(artifact.getConnectionId());
-    }
-
     private String validateArtifactRoot() {
         String selectedPath = contentRootComboBox.getSelectedPath();
         if (selectedPath == null) return null;
 
         LiquibaseArtifact owner = workspace.findRootOwner(selectedPath, getText(rootPathTextField), artifact);
-        return owner == null ? null : txt("msg.liquibase.error.ContentRootAlreadyMapped", getConnectionName(owner));
+        return owner == null ? null : txt("msg.liquibase.error.ContentRootAlreadyMapped", getArtifactName(owner));
+    }
+
+    private String getArtifactName(LiquibaseArtifact artifact) {
+        return isEmpty(artifact.getName()) ? txt("app.shared.placeholder.Unnamed") : artifact.getName();
+    }
+
+    private String validateArtifactName() {
+        LiquibaseArtifact owner = workspace.findNameOwner(getText(nameTextField), artifact);
+        return owner == null ? null : txt("msg.liquibase.error.ArtifactNameAlreadyUsed");
     }
 
     private boolean isValidRelativePath(String value) {
@@ -214,6 +216,7 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     }
 
     public void resetFormChanges() {
+        setText(nameTextField, artifact.getName());
         setText(rootPathTextField, artifact.getRootPath());
         contentRootComboBox.setSelectedPath(artifact.getContentRootPath());
         setText(changelogDirectoryTextField, artifact.getChangelogDirectory());
@@ -223,6 +226,7 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     }
 
     public void applyFormChanges() {
+        artifact.setName(getText(nameTextField));
         artifact.setRootPath(getText(rootPathTextField));
         artifact.setContentRootPath(contentRootComboBox.getSelectedPath());
         artifact.setChangelogDirectory(getText(changelogDirectoryTextField));
@@ -232,6 +236,7 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     }
 
     public boolean isArtifactChanged() {
+        if (!Objects.equals(artifact.getName(), getText(nameTextField))) return true;
         if (!Objects.equals(artifact.getRootPath(), getText(rootPathTextField))) return true;
         if (!Objects.equals(artifact.getContentRootPath(), contentRootComboBox.getSelectedPath())) return true;
         if (!Objects.equals(artifact.getChangelogDirectory(), getText(changelogDirectoryTextField))) return true;
@@ -243,7 +248,7 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
 
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return contentRootComboBox;
+        return nameTextField;
     }
 
     @NotNull

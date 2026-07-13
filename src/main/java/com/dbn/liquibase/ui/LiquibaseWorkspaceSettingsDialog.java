@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 
 import static com.dbn.nls.NlsResources.txt;
 
-/** Project-level Liquibase workspace overview for all database connections. */
+/** Project-level Liquibase workspace overview for its named artifacts. */
 public class LiquibaseWorkspaceSettingsDialog extends DBNDialog<LiquibaseWorkspaceSettingsForm> {
     private final LiquibaseWorkspace workspace;
 

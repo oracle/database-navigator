@@ -18,7 +18,7 @@ package com.dbn.liquibase.model;
 
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
-import com.dbn.connection.ConnectionId;
+import com.dbn.common.util.UUIDs;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -27,13 +27,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
-import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 /**
- * Persisted Liquibase configuration associated with one database connection and content root.
+ * Persisted Liquibase configuration for a named Liquibase workspace artifact.
  */
 @Getter
 @Setter
@@ -44,8 +42,8 @@ public class LiquibaseArtifact implements PersistentStateElement, Cloneable<Liqu
     public static final String DEFAULT_MASTER_CHANGELOG = "db.changelog-master.yaml";
     public static final String DEFAULT_PROPERTIES_FILE = "liquibase.properties";
 
+    private String id = UUIDs.regular();
     private String name;
-    private ConnectionId connectionId;
     private String contentRootPath;
     private String rootPath = DEFAULT_ROOT_PATH;
     private String changelogDirectory = DEFAULT_CHANGELOG_DIRECTORY;
@@ -59,8 +57,8 @@ public class LiquibaseArtifact implements PersistentStateElement, Cloneable<Liqu
 
     @Override
     public void readState(@NotNull Element element) {
+        id = stringAttribute(element, "id", id);
         name = stringAttribute(element, "name", name);
-        connectionId = connectionIdAttribute(element, "connection-id");
         contentRootPath = stringAttribute(element, "content-root-path", contentRootPath);
         rootPath = stringAttribute(element, "root-path", rootPath);
         changelogDirectory = stringAttribute(element, "changelog-directory", changelogDirectory);
@@ -71,8 +69,8 @@ public class LiquibaseArtifact implements PersistentStateElement, Cloneable<Liqu
 
     @Override
     public void writeState(@NotNull Element element) {
+        setStringAttribute(element, "id", id);
         setStringAttribute(element, "name", name);
-        setConstantAttribute(element, "connection-id", connectionId);
         setStringAttribute(element, "content-root-path", contentRootPath);
         setStringAttribute(element, "root-path", rootPath);
         setStringAttribute(element, "changelog-directory", changelogDirectory);
