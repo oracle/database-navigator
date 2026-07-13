@@ -51,8 +51,6 @@ import java.util.function.Consumer;
 
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Dialogs.whenOk;
-import static com.dbn.liquibase.execution.LiquibaseOperation.INITIALIZE;
-import static com.dbn.liquibase.execution.LiquibaseOperation.VALIDATE;
 
 @State(
         name = DatabaseLiquibaseManager.COMPONENT_NAME,
@@ -90,7 +88,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         LiquibaseWorkspace workspace = workspaces.getWorkspace(connectionId);
         if (workspace == null) return;
 
-        Dialogs.show(() -> new LiquibaseWorkspaceSettingsDialog(workspaces, workspace, false));
+        Dialogs.show(() -> new LiquibaseWorkspaceSettingsDialog(workspaces, workspace, false, null));
     }
 
     public void openWorkspaceSettings() {
@@ -107,29 +105,15 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         if (processor != null) processor.cancel();
     }
 
-    public void generateInitialChangelog(
-            @NotNull DBSchema schema,
-            @NotNull LiquibaseWorkspace workspace,
-            @Nullable LiquibaseExecutionResult previousResult) {
-        execute(schema, INITIALIZE, workspace, previousResult);
-    }
-
-    public void validateChangelog(
-            @NotNull DBSchema schema,
-            @NotNull LiquibaseWorkspace workspace,
-            @Nullable LiquibaseExecutionResult previousResult) {
-        execute(schema, VALIDATE, workspace, previousResult);
-    }
-
     public void rerun(@NotNull LiquibaseExecutionResult previousResult) {
-        execute(
+        executeOperation(
                 previousResult.getSchema(),
                 previousResult.getOperation(),
                 null,
                 previousResult);
     }
 
-    private void execute(
+    public void executeOperation(
             @NotNull DBSchema schema,
             @NotNull LiquibaseOperation operation,
             @Nullable LiquibaseWorkspace workspace,
@@ -138,8 +122,8 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         ConnectionId connectionId = schema.getConnectionId();
         if (workspace == null) workspace = workspaces.getWorkspace(connectionId);
         if (workspace == null) {
-            promptWorkspaceCreation(connection,
-                    createdWorkspace -> execute(schema, operation, createdWorkspace, previousResult));
+            promptWorkspaceCreation(connection, operation,
+                    createdWorkspace -> executeOperation(schema, operation, createdWorkspace, previousResult));
             return;
         }
 
@@ -163,11 +147,12 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
 
     public void promptWorkspaceCreation(
             @NotNull ConnectionHandler connection,
+            @Nullable LiquibaseOperation operation,
             @Nullable Consumer<LiquibaseWorkspace> consumer) {
 
         LiquibaseWorkspace workspace = workspaces.createWorkspace();
         Dialogs.show(
-                () -> new LiquibaseWorkspaceSettingsDialog(workspaces, workspace, true),
+                () -> new LiquibaseWorkspaceSettingsDialog(workspaces, workspace, true, operation),
                 whenOk(dialog -> {
                     workspaces.attachWorkspace(connection.getConnectionId(), dialog.getWorkspace().getId());
                     if (consumer != null) consumer.accept(dialog.getWorkspace());

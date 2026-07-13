@@ -1,5 +1,6 @@
 package com.dbn.liquibase.action;
 
+import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -16,8 +17,7 @@ public class GenerateChangelogAction extends LiquibaseSchemaAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        selectWorkspace(e, project, w ->
-                getManager(project).generateInitialChangelog(getSchema(), w, null));
+        executeOperation(e, project, LiquibaseOperation.INITIALIZE);
     }
 
     @Override

@@ -33,7 +33,7 @@ public class AttachWorkspaceAction extends LiquibaseConnectionAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        selectLiquibaseWorkspace(e, project, getConnection(), w -> {});
+        selectLiquibaseWorkspace(e, project, getConnection(), null, w -> {});
     }
 
     @Override

@@ -24,12 +24,14 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
+import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -45,6 +47,7 @@ public final class LiquibaseWorkspaceSelector {
             @NotNull AnActionEvent event,
             @NotNull Project project,
             @NotNull ConnectionHandler connection,
+            @Nullable LiquibaseOperation operation,
             @NotNull Consumer<LiquibaseWorkspace> selectionConsumer) {
         DatabaseLiquibaseManager manager = DatabaseLiquibaseManager.getInstance(project);
         LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
@@ -56,7 +59,7 @@ public final class LiquibaseWorkspaceSelector {
             actionGroup.add(new SelectWorkspaceAction(workspaces, connectionId, workspace, selectionConsumer));
         }
         if (actionGroup.getChildrenCount() > 0) actionGroup.addSeparator();
-        actionGroup.add(new CreateWorkspaceAction(manager, connection, selectionConsumer));
+        actionGroup.add(new CreateWorkspaceAction(manager, connection, operation, selectionConsumer));
 
         Popups.popupBuilder(actionGroup, event)
                 .withTitle(txt("msg.liquibase.title.SelectWorkspace"))
@@ -107,21 +110,24 @@ public final class LiquibaseWorkspaceSelector {
     private static class CreateWorkspaceAction extends BasicAction {
         private final DatabaseLiquibaseManager manager;
         private final ConnectionHandler connection;
+        private final LiquibaseOperation operation;
         private final Consumer<LiquibaseWorkspace> selectionConsumer;
 
         private CreateWorkspaceAction(
                 DatabaseLiquibaseManager manager,
                 ConnectionHandler connection,
+                @Nullable LiquibaseOperation operation,
                 Consumer<LiquibaseWorkspace> selectionConsumer) {
             super(txt("app.liquibase.action.NewWorkspace"), null, Icons.ACTION_ADD);
             this.manager = manager;
             this.connection = connection;
+            this.operation = operation;
             this.selectionConsumer = selectionConsumer;
         }
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            manager.promptWorkspaceCreation(connection, selectionConsumer);
+            manager.promptWorkspaceCreation(connection, operation, selectionConsumer);
         }
     }
 }

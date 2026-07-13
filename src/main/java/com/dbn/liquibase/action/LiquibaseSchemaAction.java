@@ -20,6 +20,7 @@ import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
+import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.dbn.object.DBSchema;
@@ -66,6 +67,7 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
     protected void selectWorkspace(
             @NotNull AnActionEvent event,
             @NotNull Project project,
+            @NotNull LiquibaseOperation operation,
             @NotNull Consumer<LiquibaseWorkspace> selectionConsumer) {
         if (isWorkspaceAttached(project)) {
             DatabaseLiquibaseManager manager = getManager(project);
@@ -84,6 +86,14 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
                 txt("msg.liquibase.message.WorkspaceRequired"),
                 options(txt("msg.liquibase.button.Attach"), txt("msg.shared.button.Cancel")),
                 0,
-                whenOk(() -> selectLiquibaseWorkspace(event, project, getConnection(), selectionConsumer)));
+                whenOk(() -> selectLiquibaseWorkspace(event, project, getConnection(), operation, selectionConsumer)));
+    }
+
+    protected void executeOperation(
+            @NotNull AnActionEvent event,
+            @NotNull Project project,
+            @NotNull LiquibaseOperation operation) {
+        selectWorkspace(event, project, operation, workspace ->
+                getManager(project).executeOperation(getSchema(), operation, workspace, null));
     }
 }

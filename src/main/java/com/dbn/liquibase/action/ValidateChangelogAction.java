@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.liquibase.execution.LiquibaseOperation.VALIDATE;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Entry point for validating the Liquibase changelog for a schema. */
@@ -16,8 +17,7 @@ public class ValidateChangelogAction extends LiquibaseSchemaAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        selectWorkspace(e, project, w ->
-                getManager(project).validateChangelog(getSchema(), w, null));
+        executeOperation(e, project, VALIDATE);
     }
 
     @Override
