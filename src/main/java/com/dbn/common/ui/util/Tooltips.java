@@ -16,22 +16,26 @@
 
 package com.dbn.common.ui.util;
 
-import com.intellij.ide.HelpTooltipKt;
 import com.intellij.openapi.util.text.HtmlChunk;
+import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 
-public final class Tooltips {
-    private Tooltips() {
-    }
+import static com.dbn.common.util.Strings.isEmpty;
 
+@UtilityClass
+public final class Tooltips {
+
+    @SuppressWarnings("UseHtmlChunkToolTip")
     public static void setToolTipText(@NotNull JComponent component, @Nullable String text) {
-        if (text == null || text.isEmpty()) {
+        if (isEmpty(text)) {
             component.setToolTipText(null);
-        } else {
-            HelpTooltipKt.setToolTipText(component, HtmlChunk.text(text));
+            return;
         }
+
+        // HelpTooltipKt.setToolTipText(component, HtmlChunk.text(text));
+        component.setToolTipText(HtmlChunk.text(text).toString());
     }
 }
