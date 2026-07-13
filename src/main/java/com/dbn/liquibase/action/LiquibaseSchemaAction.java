@@ -20,7 +20,7 @@ import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
-import com.dbn.liquibase.model.LiquibaseArtifact;
+import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showQuestionDialog;
 import static com.dbn.common.util.Messages.whenOk;
-import static com.dbn.liquibase.action.LiquibaseArtifactSelector.selectLiquibaseArtifact;
+import static com.dbn.liquibase.action.LiquibaseWorkspaceSelector.selectLiquibaseWorkspace;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Base action for Liquibase operations scoped to one database schema. */
@@ -63,18 +63,18 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
         return getManager(project).isWorkspaceAttached(getSchema().getConnectionId());
     }
 
-    protected void selectArtifact(
+    protected void selectWorkspace(
             @NotNull AnActionEvent event,
             @NotNull Project project,
-            @NotNull Consumer<LiquibaseArtifact> selectionConsumer) {
+            @NotNull Consumer<LiquibaseWorkspace> selectionConsumer) {
         if (isWorkspaceAttached(project)) {
             DatabaseLiquibaseManager manager = getManager(project);
-            LiquibaseWorkspaceBundle workspace = manager.getWorkspace();
+            LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
 
             ConnectionId connectionId = getSchema().getConnectionId();
-            LiquibaseArtifact artifact = workspace.getArtifact(connectionId);
+            LiquibaseWorkspace workspace = workspaces.getWorkspace(connectionId);
 
-            selectionConsumer.accept(artifact);
+            selectionConsumer.accept(workspace);
             return;
         }
 
@@ -84,6 +84,6 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
                 txt("msg.liquibase.message.ArtifactRequired"),
                 options(txt("msg.liquibase.button.Attach"), txt("msg.shared.button.Cancel")),
                 0,
-                whenOk(() -> selectLiquibaseArtifact(event, project, getConnection(), selectionConsumer)));
+                whenOk(() -> selectLiquibaseWorkspace(event, project, getConnection(), selectionConsumer)));
     }
 }

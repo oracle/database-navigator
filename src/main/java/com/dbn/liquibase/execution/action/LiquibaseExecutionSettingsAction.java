@@ -18,7 +18,7 @@ public class LiquibaseExecutionSettingsAction extends AbstractLiquibaseExecution
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull LiquibaseExecutionResult target) {
-        DatabaseLiquibaseManager.getInstance(project).openArtifactSettings(target.getConnection());
+        DatabaseLiquibaseManager.getInstance(project).openWorkspaceSettings(target.getConnection());
     }
 
     @Override

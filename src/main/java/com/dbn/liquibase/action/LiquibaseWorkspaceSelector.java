@@ -24,7 +24,7 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
-import com.dbn.liquibase.model.LiquibaseArtifact;
+import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -39,80 +39,80 @@ import static com.dbn.nls.NlsResources.txt;
 
 /** Selects the Liquibase artifact used by a schema operation. */
 @UtilityClass
-public final class LiquibaseArtifactSelector {
+public final class LiquibaseWorkspaceSelector {
 
-    public static void selectLiquibaseArtifact(
+    public static void selectLiquibaseWorkspace(
             @NotNull AnActionEvent event,
             @NotNull Project project,
             @NotNull ConnectionHandler connection,
-            @NotNull Consumer<LiquibaseArtifact> selectionConsumer) {
+            @NotNull Consumer<LiquibaseWorkspace> selectionConsumer) {
         DatabaseLiquibaseManager manager = DatabaseLiquibaseManager.getInstance(project);
-        LiquibaseWorkspaceBundle workspace = manager.getWorkspace();
+        LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
         ConnectionId connectionId = connection.getConnectionId();
-        LiquibaseArtifact selectedArtifact = workspace.getArtifact(connectionId);
+        LiquibaseWorkspace selectedWorkspace = workspaces.getWorkspace(connectionId);
 
         DefaultActionGroup actionGroup = new DefaultActionGroup();
-        for (LiquibaseArtifact artifact : workspace.getArtifacts().values()) {
-            actionGroup.add(new SelectArtifactAction(workspace, connectionId, artifact, selectionConsumer));
+        for (LiquibaseWorkspace workspace : workspaces.getEntries().values()) {
+            actionGroup.add(new SelectWorkspaceAction(workspaces, connectionId, workspace, selectionConsumer));
         }
         if (actionGroup.getChildrenCount() > 0) actionGroup.addSeparator();
-        actionGroup.add(new NewArtifactAction(manager, connection, selectionConsumer));
+        actionGroup.add(new CreateWorkspaceAction(manager, connection, selectionConsumer));
 
         Popups.popupBuilder(actionGroup, event)
                 .withTitle(txt("msg.liquibase.title.SelectArtifact"))
                 .withSpeedSearch()
                 .withPreselectCondition(action ->
-                        action instanceof SelectArtifactAction selected &&
-                                selectedArtifact != null &&
-                                Objects.equals(selected.getArtifact().getId(), selectedArtifact.getId()))
+                        action instanceof SelectWorkspaceAction selected &&
+                                selectedWorkspace != null &&
+                                Objects.equals(selected.getWorkspace().getId(), selectedWorkspace.getId()))
                 .buildAndShowCentered();
     }
 
-    private static String getArtifactName(LiquibaseArtifact artifact) {
-        return Strings.isEmpty(artifact.getName())
+    private static String getWorkspaceName(LiquibaseWorkspace workspace) {
+        return Strings.isEmpty(workspace.getName())
                 ? txt("app.shared.placeholder.Unnamed")
-                : artifact.getName();
+                : workspace.getName();
     }
 
-    private static class SelectArtifactAction extends BasicAction {
-        private final LiquibaseWorkspaceBundle workspace;
+    private static class SelectWorkspaceAction extends BasicAction {
+        private final LiquibaseWorkspaceBundle workspaces;
+        private final LiquibaseWorkspace workspace;
         private final ConnectionId connectionId;
-        private final LiquibaseArtifact artifact;
-        private final Consumer<LiquibaseArtifact> selectionConsumer;
+        private final Consumer<LiquibaseWorkspace> selectionConsumer;
 
-        private SelectArtifactAction(
-                LiquibaseWorkspaceBundle workspace,
+        private SelectWorkspaceAction(
+                LiquibaseWorkspaceBundle workspaces,
                 ConnectionId connectionId,
-                LiquibaseArtifact artifact,
-                Consumer<LiquibaseArtifact> selectionConsumer) {
-            super(adjustActionName(getArtifactName(artifact)), null, Icons.DB_LIQUIBASE);
-            this.workspace = workspace;
+                LiquibaseWorkspace workspace,
+                Consumer<LiquibaseWorkspace> selectionConsumer) {
+            super(adjustActionName(getWorkspaceName(workspace)), null, Icons.DB_LIQUIBASE);
+            this.workspaces = workspaces;
             this.connectionId = connectionId;
-            this.artifact = artifact;
+            this.workspace = workspace;
             this.selectionConsumer = selectionConsumer;
         }
 
         @NotNull
-        public LiquibaseArtifact getArtifact() {
-            return artifact;
+        public LiquibaseWorkspace getWorkspace() {
+            return workspace;
         }
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            workspace.attachArtifact(connectionId, artifact.getId());
-            selectionConsumer.accept(artifact);
+            workspaces.attachWorkspace(connectionId, workspace.getId());
+            selectionConsumer.accept(workspace);
         }
     }
 
-    private static class NewArtifactAction extends BasicAction {
+    private static class CreateWorkspaceAction extends BasicAction {
         private final DatabaseLiquibaseManager manager;
         private final ConnectionHandler connection;
-        private final Consumer<LiquibaseArtifact> selectionConsumer;
+        private final Consumer<LiquibaseWorkspace> selectionConsumer;
 
-        private NewArtifactAction(
+        private CreateWorkspaceAction(
                 DatabaseLiquibaseManager manager,
                 ConnectionHandler connection,
-                Consumer<LiquibaseArtifact> selectionConsumer) {
+                Consumer<LiquibaseWorkspace> selectionConsumer) {
             super(txt("app.liquibase.action.NewArtifact"), null, Icons.ACTION_ADD);
             this.manager = manager;
             this.connection = connection;
@@ -121,7 +121,7 @@ public final class LiquibaseArtifactSelector {
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            manager.promptArtifactCreation(connection, selectionConsumer);
+            manager.promptWorkspaceCreation(connection, selectionConsumer);
         }
     }
 }

@@ -35,7 +35,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
  */
 @Getter
 @Setter
-public class LiquibaseArtifact implements PersistentStateElement, Cloneable<LiquibaseArtifact> {
+public class LiquibaseWorkspace implements PersistentStateElement, Cloneable<LiquibaseWorkspace> {
     public static final String DEFAULT_ROOT_PATH = "db/liquibase";
     public static final String DEFAULT_CHANGELOG_DIRECTORY = "changes";
     public static final String DEFAULT_SQL_DIRECTORY = "sql";
@@ -51,7 +51,7 @@ public class LiquibaseArtifact implements PersistentStateElement, Cloneable<Liqu
     private String masterChangelog = DEFAULT_MASTER_CHANGELOG;
     private String propertiesFile = DEFAULT_PROPERTIES_FILE;
 
-    public boolean usesSameContentRoot(@NotNull LiquibaseArtifact other) {
+    public boolean usesSameContentRoot(@NotNull LiquibaseWorkspace other) {
         return Objects.equals(contentRootPath, other.contentRootPath);
     }
 
@@ -81,7 +81,7 @@ public class LiquibaseArtifact implements PersistentStateElement, Cloneable<Liqu
 
     @Override
     @SneakyThrows
-    public LiquibaseArtifact clone() {
-        return (LiquibaseArtifact) super.clone();
+    public LiquibaseWorkspace clone() {
+        return (LiquibaseWorkspace) super.clone();
     }
 }

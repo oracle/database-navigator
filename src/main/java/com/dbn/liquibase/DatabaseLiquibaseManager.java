@@ -33,10 +33,10 @@ import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.processor.LiquibaseExecutionProcessorFactory;
-import com.dbn.liquibase.model.LiquibaseArtifact;
+import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.dbn.liquibase.ui.LiquibaseArtifactSettingsDialog;
-import com.dbn.liquibase.ui.LiquibaseWorkspaceSettingsDialog;
+import com.dbn.liquibase.ui.LiquibaseWorkspaceBundleSettingsDialog;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -62,14 +62,14 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseLiquibaseManager";
 
     private final StateContainer states = new StateContainer();
-    private final LiquibaseWorkspaceBundle workspace;
+    private final LiquibaseWorkspaceBundle workspaces;
     private final Map<LiquibaseExecutionResult, LiquibaseExecutionProcessor> executionProcessors = new ConcurrentHashMap<>();
 
     private DatabaseLiquibaseManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
-        workspace = new LiquibaseWorkspaceBundle(project);
+        workspaces = new LiquibaseWorkspaceBundle(project);
         ProjectEvents.subscribe(project, this, ConnectionConfigListener.TOPIC,
-                ConnectionConfigListener.whenRemoved(workspace::removeArtifact));
+                ConnectionConfigListener.whenRemoved(workspaces::removeWorkspace));
     }
 
     public static DatabaseLiquibaseManager getInstance(@NotNull Project project) {
@@ -77,27 +77,29 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     }
 
     @NotNull
-    public LiquibaseWorkspaceBundle getWorkspace() {
-        return workspace;
+    public LiquibaseWorkspaceBundle getWorkspaces() {
+        return workspaces;
     }
 
     public boolean isWorkspaceAttached(@NotNull ConnectionId connectionId) {
-        return workspace.hasArtifact(connectionId);
+        return workspaces.hasWorkspace(connectionId);
     }
 
-    public void openArtifactSettings(@NotNull ConnectionHandler connection) {
-        LiquibaseArtifact artifact = workspace.getArtifact(connection.getConnectionId());
-        if (artifact == null) return;
-        Dialogs.show(() -> new LiquibaseArtifactSettingsDialog(workspace, artifact, false));
+    public void openWorkspaceSettings(@NotNull ConnectionHandler connection) {
+        ConnectionId connectionId = connection.getConnectionId();
+        LiquibaseWorkspace workspace = workspaces.getWorkspace(connectionId);
+        if (workspace == null) return;
+
+        Dialogs.show(() -> new LiquibaseArtifactSettingsDialog(workspaces, workspace, false));
     }
 
     public void openWorkspaceSettings() {
-        Dialogs.show(() -> new LiquibaseWorkspaceSettingsDialog(workspace),
-                whenOk(d -> workspace.replaceArtifacts(d.getWorkspace())));
+        Dialogs.show(() -> new LiquibaseWorkspaceBundleSettingsDialog(workspaces),
+                whenOk(d -> workspaces.replaceWorkspaces(d.getWorkspace())));
     }
 
     public void detachWorkspace(@NotNull ConnectionHandler connection) {
-        workspace.removeArtifact(connection.getConnectionId());
+        workspaces.removeWorkspace(connection.getConnectionId());
     }
 
     public void cancelExecution(@NotNull LiquibaseExecutionResult result) {
@@ -107,16 +109,16 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
 
     public void generateInitialChangelog(
             @NotNull DBSchema schema,
-            @NotNull LiquibaseArtifact artifact,
+            @NotNull LiquibaseWorkspace workspace,
             @Nullable LiquibaseExecutionResult previousResult) {
-        execute(schema, INITIALIZE, artifact, previousResult);
+        execute(schema, INITIALIZE, workspace, previousResult);
     }
 
     public void validateChangelog(
             @NotNull DBSchema schema,
-            @NotNull LiquibaseArtifact artifact,
+            @NotNull LiquibaseWorkspace workspace,
             @Nullable LiquibaseExecutionResult previousResult) {
-        execute(schema, VALIDATE, artifact, previousResult);
+        execute(schema, VALIDATE, workspace, previousResult);
     }
 
     public void rerun(@NotNull LiquibaseExecutionResult previousResult) {
@@ -130,18 +132,18 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     private void execute(
             @NotNull DBSchema schema,
             @NotNull LiquibaseOperation operation,
-            @Nullable LiquibaseArtifact artifact,
+            @Nullable LiquibaseWorkspace workspace,
             @Nullable LiquibaseExecutionResult previousResult) {
         ConnectionHandler connection = schema.getConnection();
         ConnectionId connectionId = schema.getConnectionId();
-        if (artifact == null) artifact = workspace.getArtifact(connectionId);
-        if (artifact == null) {
-            promptArtifactCreation(connection,
-                    createdArtifact -> execute(schema, operation, createdArtifact, previousResult));
+        if (workspace == null) workspace = workspaces.getWorkspace(connectionId);
+        if (workspace == null) {
+            promptWorkspaceCreation(connection,
+                    createdWorkspace -> execute(schema, operation, createdWorkspace, previousResult));
             return;
         }
 
-        LiquibaseExecutionInput input = new LiquibaseExecutionInput(schema, operation, artifact);
+        LiquibaseExecutionInput input = new LiquibaseExecutionInput(schema, operation, workspace);
 
         LiquibaseExecutionProcessor processor = LiquibaseExecutionProcessorFactory.create(input);
         LiquibaseExecutionResult result = processor.prepareExecutionResult();
@@ -159,16 +161,16 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         });
     }
 
-    public void promptArtifactCreation(
+    public void promptWorkspaceCreation(
             @NotNull ConnectionHandler connection,
-            @Nullable Consumer<LiquibaseArtifact> consumer) {
+            @Nullable Consumer<LiquibaseWorkspace> consumer) {
 
-        LiquibaseArtifact artifact = workspace.createArtifact();
+        LiquibaseWorkspace workspace = workspaces.createWorkspace();
         Dialogs.show(
-                () -> new LiquibaseArtifactSettingsDialog(workspace, artifact, true),
+                () -> new LiquibaseArtifactSettingsDialog(workspaces, workspace, true),
                 whenOk(dialog -> {
-                    workspace.attachArtifact(connection.getConnectionId(), dialog.getArtifact().getId());
-                    if (consumer != null) consumer.accept(dialog.getArtifact());
+                    workspaces.attachWorkspace(connection.getConnectionId(), dialog.getWorkspace().getId());
+                    if (consumer != null) consumer.accept(dialog.getWorkspace());
                 }));
     }
 
@@ -177,13 +179,13 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     public Element getComponentState() {
         Element element = newStateElement();
         states.writeState(element);
-        workspace.writeState(element, "workspace");
+        workspaces.writeState(element, "workspace");
         return element;
     }
 
     @Override
     public void loadComponentState(@NotNull Element element) {
         states.readState(element);
-        workspace.readState(element, "workspace");
+        workspaces.readState(element, "workspace");
     }
 }

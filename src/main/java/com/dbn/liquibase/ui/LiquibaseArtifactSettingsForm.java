@@ -23,7 +23,7 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.ContentRootSelector;
-import com.dbn.liquibase.model.LiquibaseArtifact;
+import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +33,6 @@ import javax.swing.JPanel;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
@@ -42,11 +41,11 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Strings.isEmpty;
-import static com.dbn.liquibase.model.LiquibaseArtifact.DEFAULT_CHANGELOG_DIRECTORY;
-import static com.dbn.liquibase.model.LiquibaseArtifact.DEFAULT_MASTER_CHANGELOG;
-import static com.dbn.liquibase.model.LiquibaseArtifact.DEFAULT_PROPERTIES_FILE;
-import static com.dbn.liquibase.model.LiquibaseArtifact.DEFAULT_ROOT_PATH;
-import static com.dbn.liquibase.model.LiquibaseArtifact.DEFAULT_SQL_DIRECTORY;
+import static com.dbn.liquibase.model.LiquibaseWorkspace.DEFAULT_CHANGELOG_DIRECTORY;
+import static com.dbn.liquibase.model.LiquibaseWorkspace.DEFAULT_MASTER_CHANGELOG;
+import static com.dbn.liquibase.model.LiquibaseWorkspace.DEFAULT_PROPERTIES_FILE;
+import static com.dbn.liquibase.model.LiquibaseWorkspace.DEFAULT_ROOT_PATH;
+import static com.dbn.liquibase.model.LiquibaseWorkspace.DEFAULT_SQL_DIRECTORY;
 import static com.dbn.nls.NlsResources.txt;
 
 public class LiquibaseArtifactSettingsForm extends DBNFormBase {
@@ -62,22 +61,22 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     private JBTextField propertiesFileTextField;
     private DBNCommentLabel rootPathInfoLabel;
 
-    private final LiquibaseWorkspaceBundle workspace;
-    private final LiquibaseArtifact artifact;
+    private final LiquibaseWorkspaceBundle workspaces;
+    private final LiquibaseWorkspace workspace;
 
     LiquibaseArtifactSettingsForm(@NotNull LiquibaseArtifactSettingsDialog parent) {
         this(parent,
-                parent.getWorkspace(),
-                parent.getArtifact());
+                parent.getWorkspaces(),
+                parent.getWorkspace());
     }
 
     LiquibaseArtifactSettingsForm(
             @NotNull DBNComponent parent,
-            @NotNull LiquibaseWorkspaceBundle workspace,
-            @NotNull LiquibaseArtifact artifact) {
+            @NotNull LiquibaseWorkspaceBundle workspaces,
+            @NotNull LiquibaseWorkspace workspace) {
         super(parent);
+        this.workspaces = workspaces;
         this.workspace = workspace;
-        this.artifact = artifact;
         initHeaderPanel();
         initHintPanel();
         initHyperlinksPanel();
@@ -112,7 +111,7 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     }
 
     private void initContentRoots() {
-        contentRootComboBox.setContentRoots(workspace.getContentRoots());
+        contentRootComboBox.setContentRoots(workspaces.getContentRoots());
     }
 
     private void initPlaceholders() {
@@ -161,9 +160,9 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     @Override
     protected void initValidation() {
         addRequiredTextValidation(nameTextField, txt("msg.liquibase.error.ArtifactNameRequired"));
-        addValidation(nameTextField, field -> validateArtifactName());
+        addValidation(nameTextField, field -> validateWorkspaceName());
         addSelectionValidation(contentRootComboBox,    txt("msg.liquibase.error.ContentRootRequired"));
-        addValidation(rootPathTextField, field -> validateArtifactRoot());
+        addValidation(rootPathTextField, field -> validateWorkspaceRoot());
 
         addRequiredTextValidation(rootPathTextField,           txt("msg.liquibase.error.RootPathRequired"));
         addRequiredTextValidation(changelogDirectoryTextField, txt("msg.liquibase.error.ChangelogDirectoryRequired"));
@@ -178,20 +177,20 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
         addTextValidation(propertiesFileTextField,     v -> isValidFileName(v),     txt("msg.liquibase.error.InvalidFileName"));
     }
 
-    private String validateArtifactRoot() {
+    private String validateWorkspaceRoot() {
         String selectedPath = contentRootComboBox.getSelectedPath();
         if (selectedPath == null) return null;
 
-        LiquibaseArtifact owner = workspace.findRootOwner(selectedPath, getText(rootPathTextField), artifact);
-        return owner == null ? null : txt("msg.liquibase.error.ContentRootAlreadyMapped", getArtifactName(owner));
+        LiquibaseWorkspace owner = workspaces.findRootOwner(selectedPath, getText(rootPathTextField), workspace);
+        return owner == null ? null : txt("msg.liquibase.error.ContentRootAlreadyMapped", getWorkspaceName(owner));
     }
 
-    private String getArtifactName(LiquibaseArtifact artifact) {
-        return isEmpty(artifact.getName()) ? txt("app.shared.placeholder.Unnamed") : artifact.getName();
+    private String getWorkspaceName(LiquibaseWorkspace workspace) {
+        return isEmpty(workspace.getName()) ? txt("app.shared.placeholder.Unnamed") : workspace.getName();
     }
 
-    private String validateArtifactName() {
-        LiquibaseArtifact owner = workspace.findNameOwner(getText(nameTextField), artifact);
+    private String validateWorkspaceName() {
+        LiquibaseWorkspace owner = workspaces.findNameOwner(getText(nameTextField), workspace);
         return owner == null ? null : txt("msg.liquibase.error.ArtifactNameAlreadyUsed");
     }
 
@@ -216,34 +215,23 @@ public class LiquibaseArtifactSettingsForm extends DBNFormBase {
     }
 
     public void resetFormChanges() {
-        setText(nameTextField, artifact.getName());
-        setText(rootPathTextField, artifact.getRootPath());
-        contentRootComboBox.setSelectedPath(artifact.getContentRootPath());
-        setText(changelogDirectoryTextField, artifact.getChangelogDirectory());
-        setText(sqlDirectoryTextField, artifact.getSqlDirectory());
-        setText(masterChangelogTextField, artifact.getMasterChangelog());
-        setText(propertiesFileTextField, artifact.getPropertiesFile());
+        setText(nameTextField, workspace.getName());
+        setText(rootPathTextField, workspace.getRootPath());
+        contentRootComboBox.setSelectedPath(workspace.getContentRootPath());
+        setText(changelogDirectoryTextField, workspace.getChangelogDirectory());
+        setText(sqlDirectoryTextField, workspace.getSqlDirectory());
+        setText(masterChangelogTextField, workspace.getMasterChangelog());
+        setText(propertiesFileTextField, workspace.getPropertiesFile());
     }
 
     public void applyFormChanges() {
-        artifact.setName(getText(nameTextField));
-        artifact.setRootPath(getText(rootPathTextField));
-        artifact.setContentRootPath(contentRootComboBox.getSelectedPath());
-        artifact.setChangelogDirectory(getText(changelogDirectoryTextField));
-        artifact.setSqlDirectory(getText(sqlDirectoryTextField));
-        artifact.setMasterChangelog(getText(masterChangelogTextField));
-        artifact.setPropertiesFile(getText(propertiesFileTextField));
-    }
-
-    public boolean isArtifactChanged() {
-        if (!Objects.equals(artifact.getName(), getText(nameTextField))) return true;
-        if (!Objects.equals(artifact.getRootPath(), getText(rootPathTextField))) return true;
-        if (!Objects.equals(artifact.getContentRootPath(), contentRootComboBox.getSelectedPath())) return true;
-        if (!Objects.equals(artifact.getChangelogDirectory(), getText(changelogDirectoryTextField))) return true;
-        if (!Objects.equals(artifact.getSqlDirectory(), getText(sqlDirectoryTextField))) return true;
-        if (!Objects.equals(artifact.getMasterChangelog(), getText(masterChangelogTextField))) return true;
-        if (!Objects.equals(artifact.getPropertiesFile(), getText(propertiesFileTextField))) return true;
-        return false;
+        workspace.setName(getText(nameTextField));
+        workspace.setRootPath(getText(rootPathTextField));
+        workspace.setContentRootPath(contentRootComboBox.getSelectedPath());
+        workspace.setChangelogDirectory(getText(changelogDirectoryTextField));
+        workspace.setSqlDirectory(getText(sqlDirectoryTextField));
+        workspace.setMasterChangelog(getText(masterChangelogTextField));
+        workspace.setPropertiesFile(getText(propertiesFileTextField));
     }
 
     @Override

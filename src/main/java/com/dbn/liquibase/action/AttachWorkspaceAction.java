@@ -23,7 +23,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.liquibase.action.LiquibaseArtifactSelector.selectLiquibaseArtifact;
+import static com.dbn.liquibase.action.LiquibaseWorkspaceSelector.selectLiquibaseWorkspace;
 import static com.dbn.nls.NlsResources.txt;
 
 public class AttachWorkspaceAction extends LiquibaseConnectionAction {
@@ -33,7 +33,7 @@ public class AttachWorkspaceAction extends LiquibaseConnectionAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        selectLiquibaseArtifact(e, project, getConnection(), artifact -> {});
+        selectLiquibaseWorkspace(e, project, getConnection(), w -> {});
     }
 
     @Override

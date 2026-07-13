@@ -23,7 +23,7 @@ import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.model.LiquibaseArtifactPaths;
+import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.type.DBObjectType;
 import liquibase.CatalogAndSchema;
 import liquibase.command.CommandScope;
@@ -56,22 +56,22 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
 
     @Override
     protected void executeOperation(@NotNull LiquibaseExecutionResult result) throws Exception {
-        LiquibaseArtifactPaths artifactPaths = getInput().getArtifactPaths();
-        Path changelogFile = artifactPaths.getMasterChangelogPath();
+        LiquibaseWorkspacePaths paths = getInput().getWorkspacePaths();
+        Path changelogFile = paths.getMasterChangelogPath();
         result.setChangelogPath(changelogFile);
         if (Files.exists(changelogFile)) {
             throw new IllegalStateException("Changelog file already exists: " + changelogFile);
         }
         Files.createDirectories(changelogFile.getParent());
-        generateChangelog(artifactPaths, changelogFile, result);
+        generateChangelog(paths, changelogFile, result);
         result.appendConsoleOutput(txt("log.liquibase.info.InitialChangelogGenerated", changelogFile));
     }
 
     private void generateChangelog(
-        @NotNull LiquibaseArtifactPaths artifactPaths,
+        @NotNull LiquibaseWorkspacePaths workspacePaths,
         @NotNull Path changelogFile,
         @NotNull LiquibaseExecutionResult result) throws Exception {
-        Path contentRoot = artifactPaths.getContentRootPath();
+        Path contentRoot = workspacePaths.getContentRootPath();
 
         withLiquibaseDatabase(true, database -> {
             checkCanceled();

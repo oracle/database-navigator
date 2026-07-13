@@ -48,13 +48,13 @@ import static com.dbn.common.util.Strings.equalsIgnoreCase;
 import static com.dbn.common.util.Strings.isEmpty;
 
 /**
- * Project-level container for Liquibase artifacts and their connection mappings.
+ * Project-level container for Liquibase workspaces and their connection mappings.
  */
 @Getter
 public class LiquibaseWorkspaceBundle implements PersistentStateElement, Cloneable<LiquibaseWorkspaceBundle> {
     private final ProjectRef project;
-    private Map<String, LiquibaseArtifact> artifacts = new LinkedHashMap<>();
-    private Map<ConnectionId, String> artifactMappings = new LinkedHashMap<>();
+    private Map<String, LiquibaseWorkspace> entries = new LinkedHashMap<>();
+    private Map<ConnectionId, String> connectionMappings = new LinkedHashMap<>();
 
     public LiquibaseWorkspaceBundle(@NotNull Project project) {
         this.project = ProjectRef.of(project);
@@ -66,66 +66,66 @@ public class LiquibaseWorkspaceBundle implements PersistentStateElement, Cloneab
     }
 
     @NotNull
-    public LiquibaseArtifact createArtifact() {
-        LiquibaseArtifact artifact = new LiquibaseArtifact();
-        artifacts.put(artifact.getId(), artifact);
-        return artifact;
+    public LiquibaseWorkspace createWorkspace() {
+        LiquibaseWorkspace workspace = new LiquibaseWorkspace();
+        entries.put(workspace.getId(), workspace);
+        return workspace;
     }
 
     @NotNull
-    public List<LiquibaseArtifact> getArtifactList() {
-        return new ArrayList<>(artifacts.values());
+    public List<LiquibaseWorkspace> getWorkspaceList() {
+        return new ArrayList<>(entries.values());
     }
 
-    public void moveArtifact(@NotNull LiquibaseArtifact artifact, int offset) {
-        List<String> artifactIds = new ArrayList<>(artifacts.keySet());
-        int currentIndex = artifactIds.indexOf(artifact.getId());
+    public void moveWorkspace(@NotNull LiquibaseWorkspace workspace, int offset) {
+        List<String> workspaceIds = new ArrayList<>(entries.keySet());
+        int currentIndex = workspaceIds.indexOf(workspace.getId());
         int targetIndex = currentIndex + offset;
-        if (currentIndex < 0 || targetIndex < 0 || targetIndex >= artifactIds.size()) return;
+        if (currentIndex < 0 || targetIndex < 0 || targetIndex >= workspaceIds.size()) return;
 
-        String movedId = artifactIds.remove(currentIndex);
-        artifactIds.add(targetIndex, movedId);
-        Map<String, LiquibaseArtifact> reordered = new LinkedHashMap<>();
-        artifactIds.forEach(id -> reordered.put(id, artifacts.get(id)));
-        artifacts = reordered;
+        String movedId = workspaceIds.remove(currentIndex);
+        workspaceIds.add(targetIndex, movedId);
+        Map<String, LiquibaseWorkspace> reordered = new LinkedHashMap<>();
+        workspaceIds.forEach(id -> reordered.put(id, entries.get(id)));
+        entries = reordered;
     }
 
     @Nullable
-    public LiquibaseArtifact getArtifact(@NotNull ConnectionId connectionId) {
-        String artifactId = artifactMappings.get(connectionId);
-        return artifactId == null ? null : artifacts.get(artifactId);
+    public LiquibaseWorkspace getWorkspace(@NotNull ConnectionId connectionId) {
+        String workspaceId = connectionMappings.get(connectionId);
+        return workspaceId == null ? null : entries.get(workspaceId);
     }
 
-    public boolean hasArtifact(@NotNull ConnectionId connectionId) {
-        return getArtifact(connectionId) != null;
+    public boolean hasWorkspace(@NotNull ConnectionId connectionId) {
+        return getWorkspace(connectionId) != null;
     }
 
-    public void removeArtifact(@NotNull ConnectionId connectionId) {
-        artifactMappings.remove(connectionId);
+    public void removeWorkspace(@NotNull ConnectionId connectionId) {
+        connectionMappings.remove(connectionId);
     }
 
-    public void removeArtifact(@NotNull String artifactId) {
-        artifactMappings.values().removeIf(id -> Objects.equals(id, artifactId));
-        artifacts.remove(artifactId);
+    public void removeWorkspace(@NotNull String workspaceId) {
+        connectionMappings.values().removeIf(id -> Objects.equals(id, workspaceId));
+        entries.remove(workspaceId);
     }
 
-    public void attachArtifact(
+    public void attachWorkspace(
             @NotNull ConnectionId connectionId,
-            @NotNull String artifactId) {
-        if (!artifacts.containsKey(artifactId)) {
-            throw new IllegalArgumentException("Unknown Liquibase artifact: " + artifactId);
+            @NotNull String workspaceId) {
+        if (!entries.containsKey(workspaceId)) {
+            throw new IllegalArgumentException("Unknown Liquibase workspace: " + workspaceId);
         }
-        artifactMappings.put(connectionId, artifactId);
+        connectionMappings.put(connectionId, workspaceId);
     }
 
-    public void replaceArtifact(@NotNull LiquibaseArtifact artifact) {
-        artifacts.put(artifact.getId(), artifact);
+    public void replaceWorkspace(@NotNull LiquibaseWorkspace workspace) {
+        entries.put(workspace.getId(), workspace);
     }
 
-    public void replaceArtifacts(LiquibaseWorkspaceBundle workspace) {
-        artifacts = new LinkedHashMap<>();
-        workspace.artifacts.values().forEach(a -> artifacts.put(a.getId(), a));
-        artifactMappings = new LinkedHashMap<>(workspace.artifactMappings);
+    public void replaceWorkspaces(LiquibaseWorkspaceBundle workspaces) {
+        this.entries = new LinkedHashMap<>();
+        workspaces.entries.values().forEach(a -> this.entries.put(a.getId(), a));
+        connectionMappings = new LinkedHashMap<>(workspaces.connectionMappings);
     }
 
     @NotNull
@@ -134,29 +134,29 @@ public class LiquibaseWorkspaceBundle implements PersistentStateElement, Cloneab
     }
 
     @Nullable
-    public LiquibaseArtifact findRootOwner(
+    public LiquibaseWorkspace findRootOwner(
             @NotNull String contentRootPath,
             @NotNull String rootPath,
-            @NotNull LiquibaseArtifact currentArtifact) {
+            @NotNull LiquibaseWorkspace currentWorkspace) {
         Path resolvedRoot = resolveRootPath(contentRootPath, rootPath);
         if (resolvedRoot == null) return null;
 
-        return artifacts.values().stream()
-                .filter(artifact -> !Objects.equals(artifact.getId(), currentArtifact.getId()))
-                .filter(artifact -> resolvedRoot.equals(resolveRootPath(artifact.getContentRootPath(), artifact.getRootPath())))
+        return entries.values().stream()
+                .filter(w -> !Objects.equals(w.getId(), currentWorkspace.getId()))
+                .filter(w -> resolvedRoot.equals(resolveRootPath(w.getContentRootPath(), w.getRootPath())))
                 .findFirst()
                 .orElse(null);
     }
 
     @Nullable
-    public LiquibaseArtifact findNameOwner(
+    public LiquibaseWorkspace findNameOwner(
             @NotNull String name,
-            @NotNull LiquibaseArtifact currentArtifact) {
+            @NotNull LiquibaseWorkspace currentWorkspace) {
         if (isEmpty(name)) return null;
 
-        return artifacts.values().stream()
-                .filter(artifact -> !Objects.equals(artifact.getId(), currentArtifact.getId()))
-                .filter(artifact -> equalsIgnoreCase(artifact.getName(), name))
+        return entries.values().stream()
+                .filter(w -> !Objects.equals(w.getId(), currentWorkspace.getId()))
+                .filter(w -> equalsIgnoreCase(w.getName(), name))
                 .findFirst()
                 .orElse(null);
     }
@@ -176,32 +176,32 @@ public class LiquibaseWorkspaceBundle implements PersistentStateElement, Cloneab
 
     @Override
     public void readState(@NotNull Element element) {
-        artifacts.clear();
-        artifactMappings.clear();
-        for (Element artifactElement : childrenOf(element, "artifact")) {
-            LiquibaseArtifact artifact = new LiquibaseArtifact();
-            artifact.readState(artifactElement);
-            artifacts.put(artifact.getId(), artifact);
+        entries.clear();
+        connectionMappings.clear();
+        for (Element workspaceElement : childrenOf(element, "workspace")) {
+            LiquibaseWorkspace workspace = new LiquibaseWorkspace();
+            workspace.readState(workspaceElement);
+            entries.put(workspace.getId(), workspace);
         }
         for (Element mappingElement : childrenOf(element, "mapping")) {
             ConnectionId connectionId = connectionIdAttribute(mappingElement, "connection-id");
-            String artifactId = stringAttribute(mappingElement, "artifact-id");
-            if (connectionId != null && artifacts.containsKey(artifactId)) {
-                artifactMappings.put(connectionId, artifactId);
+            String workspaceId = stringAttribute(mappingElement, "workspace-id");
+            if (connectionId != null && entries.containsKey(workspaceId)) {
+                connectionMappings.put(connectionId, workspaceId);
             }
         }
     }
 
     @Override
     public void writeState(@NotNull Element element) {
-        for (LiquibaseArtifact artifact : artifacts.values()) {
-            Element artifactElement = newElement(element, "artifact");
-            artifact.writeState(artifactElement);
+        for (LiquibaseWorkspace workspace : entries.values()) {
+            Element workspaceElement = newElement(element, "workspace");
+            workspace.writeState(workspaceElement);
         }
-        artifactMappings.forEach((connectionId, artifactId) -> {
+        connectionMappings.forEach((connectionId, workspace) -> {
             Element mappingElement = newElement(element, "mapping");
             setConstantAttribute(mappingElement, "connection-id", connectionId);
-            setStringAttribute(mappingElement, "artifact-id", artifactId);
+            setStringAttribute(mappingElement, "workspace-id", workspace);
         });
     }
 
@@ -210,9 +210,9 @@ public class LiquibaseWorkspaceBundle implements PersistentStateElement, Cloneab
     @SneakyThrows
     public LiquibaseWorkspaceBundle clone() {
         LiquibaseWorkspaceBundle clone = (LiquibaseWorkspaceBundle) super.clone();
-        clone.artifacts = new LinkedHashMap<>();
-        clone.artifactMappings = new LinkedHashMap<>(artifactMappings);
-        artifacts.forEach((artifactId, artifact) -> clone.artifacts.put(artifactId, artifact.clone()));
+        clone.entries = new LinkedHashMap<>();
+        clone.connectionMappings = new LinkedHashMap<>(connectionMappings);
+        entries.forEach((workspaceId, workspace) -> clone.entries.put(workspaceId, workspace.clone()));
         return clone;
     }
 }

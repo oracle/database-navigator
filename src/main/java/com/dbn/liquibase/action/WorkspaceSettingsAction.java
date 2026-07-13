@@ -25,14 +25,14 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class ArtifactSettingsAction extends LiquibaseConnectionAction {
-    public ArtifactSettingsAction(@NotNull ConnectionHandler connection) {
+public class WorkspaceSettingsAction extends LiquibaseConnectionAction {
+    public WorkspaceSettingsAction(@NotNull ConnectionHandler connection) {
         super(connection);
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        getManager(project).openArtifactSettings(getConnection());
+        getManager(project).openWorkspaceSettings(getConnection());
     }
 
     @Override

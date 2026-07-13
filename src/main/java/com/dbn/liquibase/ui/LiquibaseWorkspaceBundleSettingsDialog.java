@@ -10,10 +10,10 @@ import javax.swing.JComponent;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Project-level Liquibase workspace overview for its named artifacts. */
-public class LiquibaseWorkspaceSettingsDialog extends DBNDialog<LiquibaseWorkspaceBundleSettingsForm> {
+public class LiquibaseWorkspaceBundleSettingsDialog extends DBNDialog<LiquibaseWorkspaceBundleSettingsForm> {
     private final LiquibaseWorkspaceBundle workspace;
 
-    public LiquibaseWorkspaceSettingsDialog(LiquibaseWorkspaceBundle workspace) {
+    public LiquibaseWorkspaceBundleSettingsDialog(LiquibaseWorkspaceBundle workspace) {
         super(workspace.getProject(), txt("msg.liquibase.title.WorkspaceSettings"), true);
         this.workspace = workspace.clone();
         init();

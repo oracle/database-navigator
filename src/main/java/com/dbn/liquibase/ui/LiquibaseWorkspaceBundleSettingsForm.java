@@ -5,7 +5,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Strings;
-import com.dbn.liquibase.model.LiquibaseArtifact;
+import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
@@ -25,17 +25,17 @@ import static com.dbn.nls.NlsResources.txt;
 /** Overview form for managing the named Liquibase artifacts in a project workspace. */
 public class LiquibaseWorkspaceBundleSettingsForm extends DBNFormBase {
     private JPanel mainPanel;
-    private JPanel artifactsPanel;
+    private JPanel workspacesPanel;
     private JPanel detailsPanel;
-    private JList<LiquibaseArtifact> artifactsList;
+    private JList<LiquibaseWorkspace> workspacesList;
 
-    private final LiquibaseWorkspaceBundle workspace;
-    private final Map<String, LiquibaseArtifactSettingsForm> artifactForms = DisposableContainers.map(this);
+    private final LiquibaseWorkspaceBundle workspaces;
+    private final Map<String, LiquibaseArtifactSettingsForm> workspaceForms = DisposableContainers.map(this);
 
-    LiquibaseWorkspaceBundleSettingsForm(LiquibaseWorkspaceSettingsDialog parent) {
+    LiquibaseWorkspaceBundleSettingsForm(LiquibaseWorkspaceBundleSettingsDialog parent) {
         super(parent);
-        workspace = parent.getWorkspace();
-        artifactsList.setCellRenderer((list, value, index, selected, focus) -> {
+        workspaces = parent.getWorkspace();
+        workspacesList.setCellRenderer((list, value, index, selected, focus) -> {
             String name = Strings.isEmpty(value.getName()) ? txt("app.shared.placeholder.Unnamed") : value.getName();
             JLabel label = new JLabel(name, Icons.DB_LIQUIBASE, JLabel.LEADING);
             label.setOpaque(true);
@@ -43,67 +43,67 @@ public class LiquibaseWorkspaceBundleSettingsForm extends DBNFormBase {
             label.setForeground(selected ? list.getSelectionForeground() : list.getForeground());
             return label;
         });
-        artifactsList.addListSelectionListener(e -> showSelectedArtifact());
-        artifactsPanel.removeAll();
-        artifactsPanel.add(initArtifactsComponent());
-        updateArtifacts();
-        if (artifactsList.getModel().getSize() > 0) artifactsList.setSelectedIndex(0);
+        workspacesList.addListSelectionListener(e -> showSelectedWorkspace());
+        workspacesPanel.removeAll();
+        workspacesPanel.add(initWorkspacesList());
+        updateWorkspaces();
+        if (workspacesList.getModel().getSize() > 0) workspacesList.setSelectedIndex(0);
     }
 
-    private JPanel initArtifactsComponent() {
-        ToolbarDecorator decorator = createToolbarDecorator(artifactsList);
-        decorator.setAddAction(button -> addArtifact());
-        decorator.setRemoveAction(button -> removeArtifact());
-        decorator.setMoveUpAction(button -> moveArtifact(-1));
-        decorator.setMoveDownAction(button -> moveArtifact(1));
-        return createToolbarDecoratorComponent(decorator, artifactsList);
+    private JPanel initWorkspacesList() {
+        ToolbarDecorator decorator = createToolbarDecorator(workspacesList);
+        decorator.setAddAction(button -> addWorkspace());
+        decorator.setRemoveAction(button -> removeWorkspace());
+        decorator.setMoveUpAction(button -> moveWorkspace(-1));
+        decorator.setMoveDownAction(button -> moveWorkspace(1));
+        return createToolbarDecoratorComponent(decorator, workspacesList);
     }
 
-    private void updateArtifacts() {
-        DefaultListModel<LiquibaseArtifact> model = new DefaultListModel<>();
-        workspace.getArtifactList().forEach(model::addElement);
-        artifactsList.setModel(model);
+    private void updateWorkspaces() {
+        DefaultListModel<LiquibaseWorkspace> model = new DefaultListModel<>();
+        workspaces.getWorkspaceList().forEach(model::addElement);
+        workspacesList.setModel(model);
     }
 
-    private void showSelectedArtifact() {
+    private void showSelectedWorkspace() {
         detailsPanel.removeAll();
-        LiquibaseArtifact artifact = artifactsList.getSelectedValue();
-        if (artifact == null) return;
+        LiquibaseWorkspace workspace = workspacesList.getSelectedValue();
+        if (workspace == null) return;
 
-        DBNForm artifactForm = artifactForms.computeIfAbsent(artifact.getId(), id ->
-                new LiquibaseArtifactSettingsForm(this, workspace, artifact));
-        detailsPanel.add(artifactForm.getComponent());
+        DBNForm workspaceForm = workspaceForms.computeIfAbsent(workspace.getId(), id ->
+                new LiquibaseArtifactSettingsForm(this, workspaces, workspace));
+        detailsPanel.add(workspaceForm.getComponent());
         repaint(detailsPanel);
     }
 
-    private void addArtifact() {
-        LiquibaseArtifact artifact = workspace.createArtifact();
-        updateArtifacts();
-        artifactsList.setSelectedValue(artifact, true);
+    private void addWorkspace() {
+        LiquibaseWorkspace workspace = workspaces.createWorkspace();
+        updateWorkspaces();
+        workspacesList.setSelectedValue(workspace, true);
         markFormChanged();
     }
 
-    private void removeArtifact() {
-        LiquibaseArtifact artifact = artifactsList.getSelectedValue();
-        if (artifact == null) return;
-        workspace.removeArtifact(artifact.getId());
-        artifactForms.remove(artifact.getId());
-        updateArtifacts();
-        if (!artifactsList.isSelectionEmpty()) showSelectedArtifact();
+    private void removeWorkspace() {
+        LiquibaseWorkspace workspace = workspacesList.getSelectedValue();
+        if (workspace == null) return;
+        workspaces.removeWorkspace(workspace.getId());
+        workspaceForms.remove(workspace.getId());
+        updateWorkspaces();
+        if (!workspacesList.isSelectionEmpty()) showSelectedWorkspace();
         markFormChanged();
     }
 
-    private void moveArtifact(int offset) {
-        LiquibaseArtifact artifact = artifactsList.getSelectedValue();
-        if (artifact == null) return;
-        workspace.moveArtifact(artifact, offset);
-        updateArtifacts();
-        artifactsList.setSelectedValue(artifact, true);
+    private void moveWorkspace(int offset) {
+        LiquibaseWorkspace workspace = workspacesList.getSelectedValue();
+        if (workspace == null) return;
+        workspaces.moveWorkspace(workspace, offset);
+        updateWorkspaces();
+        workspacesList.setSelectedValue(workspace, true);
         markFormChanged();
     }
 
     public void applyFormChanges() {
-        artifactForms.values().forEach(LiquibaseArtifactSettingsForm::applyFormChanges);
+        workspaceForms.values().forEach(f -> f.applyFormChanges());
     }
 
     public void cancelFormChanges() {
@@ -118,6 +118,6 @@ public class LiquibaseWorkspaceBundleSettingsForm extends DBNFormBase {
 
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return artifactsList;
+        return workspacesList;
     }
 }

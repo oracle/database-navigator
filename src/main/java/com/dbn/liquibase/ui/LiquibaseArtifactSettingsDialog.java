@@ -17,7 +17,7 @@
 package com.dbn.liquibase.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.liquibase.model.LiquibaseArtifact;
+import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -28,18 +28,18 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class LiquibaseArtifactSettingsDialog extends DBNDialog<LiquibaseArtifactSettingsForm> {
-    private final LiquibaseWorkspaceBundle workspace;
-    private final LiquibaseArtifact artifact;
-    private final boolean newArtifact;
+    private final LiquibaseWorkspaceBundle workspaces;
+    private final LiquibaseWorkspace workspace;
+    private final boolean newWorkspace;
 
     public LiquibaseArtifactSettingsDialog(
-            LiquibaseWorkspaceBundle workspace,
-            LiquibaseArtifact artifact,
-            boolean newArtifact) {
-        super(workspace.getProject(), txt("msg.liquibase.title.ArtifactSettings"), true);
-        this.workspace = workspace;
-        this.artifact = artifact.clone();
-        this.newArtifact = newArtifact;
+            LiquibaseWorkspaceBundle workspaces,
+            LiquibaseWorkspace workspace,
+            boolean newWorkspace) {
+        super(workspaces.getProject(), txt("msg.liquibase.title.ArtifactSettings"), true);
+        this.workspaces = workspaces;
+        this.workspace = workspace.clone();
+        this.newWorkspace = newWorkspace;
         setModal(true);
         init();
     }
@@ -53,14 +53,14 @@ public class LiquibaseArtifactSettingsDialog extends DBNDialog<LiquibaseArtifact
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), txt(newArtifact ? "msg.liquibase.button.Attach" : "msg.liquibase.button.Update"));
+        renameAction(getOKAction(), txt(newWorkspace ? "msg.liquibase.button.Attach" : "msg.liquibase.button.Update"));
         return actions(getOKAction(), getCancelAction());
     }
 
     @Override
     public void doCancelAction() {
-        if (newArtifact) {
-            workspace.removeArtifact(artifact.getId());
+        if (newWorkspace) {
+            workspaces.removeWorkspace(workspace.getId());
         }
         super.doCancelAction();
     }
@@ -68,7 +68,7 @@ public class LiquibaseArtifactSettingsDialog extends DBNDialog<LiquibaseArtifact
     @Override
     protected void doOKAction() {
         getForm().applyFormChanges();
-        workspace.replaceArtifact(artifact);
+        workspaces.replaceWorkspace(workspace);
         super.doOKAction();
     }
 }

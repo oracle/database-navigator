@@ -16,8 +16,8 @@ public class GenerateChangelogAction extends LiquibaseSchemaAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        selectArtifact(e, project, artifact ->
-                getManager(project).generateInitialChangelog(getSchema(), artifact, null));
+        selectWorkspace(e, project, w ->
+                getManager(project).generateInitialChangelog(getSchema(), w, null));
     }
 
     @Override

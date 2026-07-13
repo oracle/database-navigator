@@ -2,8 +2,8 @@ package com.dbn.liquibase.execution;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
-import com.dbn.liquibase.model.LiquibaseArtifact;
-import com.dbn.liquibase.model.LiquibaseArtifactPaths;
+import com.dbn.liquibase.model.LiquibaseWorkspace;
+import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import lombok.Getter;
@@ -15,18 +15,18 @@ public class LiquibaseExecutionInput {
     private final DBObjectRef<DBSchema> schema;
     private final ConnectionRef connection;
     private final LiquibaseOperation operation;
-    private final LiquibaseArtifact artifact;
-    private final LiquibaseArtifactPaths artifactPaths;
+    private final LiquibaseWorkspace workspace;
+    private final LiquibaseWorkspacePaths workspacePaths;
 
     public LiquibaseExecutionInput(
             @NotNull DBSchema schema,
             @NotNull LiquibaseOperation operation,
-            @NotNull LiquibaseArtifact artifact) {
+            @NotNull LiquibaseWorkspace workspace) {
         this.schema = DBObjectRef.of(schema);
         this.connection = schema.getConnection().ref();
         this.operation = operation;
-        this.artifact = artifact.clone();
-        this.artifactPaths = new LiquibaseArtifactPaths(this.artifact);
+        this.workspace = workspace.clone();
+        this.workspacePaths = new LiquibaseWorkspacePaths(this.workspace);
     }
 
     @NotNull

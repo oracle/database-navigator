@@ -16,8 +16,8 @@ public class ValidateChangelogAction extends LiquibaseSchemaAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        selectArtifact(e, project, artifact ->
-                getManager(project).validateChangelog(getSchema(), artifact, null));
+        selectWorkspace(e, project, w ->
+                getManager(project).validateChangelog(getSchema(), w, null));
     }
 
     @Override

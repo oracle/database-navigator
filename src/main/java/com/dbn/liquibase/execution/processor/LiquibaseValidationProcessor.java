@@ -4,7 +4,7 @@ import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.model.LiquibaseArtifactPaths;
+import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import liquibase.command.CommandScope;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,24 +26,24 @@ public class LiquibaseValidationProcessor extends LiquibaseExecutionProcessor {
 
     @Override
     protected void executeOperation(@NotNull LiquibaseExecutionResult result) throws Exception {
-        LiquibaseArtifactPaths artifactPaths = getInput().getArtifactPaths();
-        Path changelogFile = artifactPaths.getMasterChangelogPath();
+        LiquibaseWorkspacePaths paths = getInput().getWorkspacePaths();
+        Path changelogFile = paths.getMasterChangelogPath();
         result.setChangelogPath(changelogFile);
         if (!Files.isRegularFile(changelogFile)) {
             throw new IllegalStateException("Changelog file does not exist: " + changelogFile);
         }
 
-        validateChangelog(artifactPaths, artifactPaths.getRelativePath(changelogFile), result);
+        validateChangelog(paths, paths.getRelativePath(changelogFile), result);
         result.appendConsoleOutput(txt("log.liquibase.info.ChangelogValidated", changelogFile));
     }
 
     private void validateChangelog(
-            @NotNull LiquibaseArtifactPaths artifactPaths,
+            @NotNull LiquibaseWorkspacePaths paths,
             @NotNull String changelogFile,
             @NotNull LiquibaseExecutionResult result) throws Exception {
         withLiquibaseDatabase(true, database -> {
             checkCanceled();
-            withLiquibaseScope(artifactPaths.getContentRootPath(), result, output -> {
+            withLiquibaseScope(paths.getContentRootPath(), result, output -> {
                 new CommandScope("validate")
                         .addArgumentValue("database", database)
                         .addArgumentValue("changelogFile", changelogFile)

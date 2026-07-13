@@ -26,16 +26,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /** Resolves and validates filesystem paths derived from a Liquibase artifact. */
-public class LiquibaseArtifactPaths {
-    private final LiquibaseArtifact artifact;
+public class LiquibaseWorkspacePaths {
+    private final LiquibaseWorkspace workspace;
 
-    public LiquibaseArtifactPaths(@NotNull LiquibaseArtifact artifact) {
-        this.artifact = artifact;
+    public LiquibaseWorkspacePaths(@NotNull LiquibaseWorkspace workspace) {
+        this.workspace = workspace;
     }
 
     @NotNull
     public Path getContentRootPath() {
-        String contentRootPath = requirePath(artifact.getContentRootPath(), "Content root");
+        String contentRootPath = requirePath(workspace.getContentRootPath(), "Content root");
         try {
             Path contentRoot = Paths.get(contentRootPath).toAbsolutePath().normalize();
             if (!Files.isDirectory(contentRoot)) {
@@ -49,27 +49,27 @@ public class LiquibaseArtifactPaths {
 
     @NotNull
     public Path getLiquibaseRootPath() {
-        return resolvePath(getContentRootPath(), artifact.getRootPath(), "Root path");
+        return resolvePath(getContentRootPath(), workspace.getRootPath(), "Root path");
     }
 
     @NotNull
     public Path getChangelogDirectoryPath() {
-        return resolvePath(getLiquibaseRootPath(), artifact.getChangelogDirectory(), "Changelog directory");
+        return resolvePath(getLiquibaseRootPath(), workspace.getChangelogDirectory(), "Changelog directory");
     }
 
     @NotNull
     public Path getSqlDirectoryPath() {
-        return resolvePath(getLiquibaseRootPath(), artifact.getSqlDirectory(), "SQL directory");
+        return resolvePath(getLiquibaseRootPath(), workspace.getSqlDirectory(), "SQL directory");
     }
 
     @NotNull
     public Path getMasterChangelogPath() {
-        return resolvePath(getChangelogDirectoryPath(), artifact.getMasterChangelog(), "Master changelog");
+        return resolvePath(getChangelogDirectoryPath(), workspace.getMasterChangelog(), "Master changelog");
     }
 
     @NotNull
     public Path getPropertiesFilePath() {
-        return resolvePath(getContentRootPath(), artifact.getPropertiesFile(), "Properties file");
+        return resolvePath(getContentRootPath(), workspace.getPropertiesFile(), "Properties file");
     }
 
     @NotNull
