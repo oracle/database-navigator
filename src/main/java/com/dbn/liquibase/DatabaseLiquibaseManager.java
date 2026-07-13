@@ -95,7 +95,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
 
     public void openWorkspaceSettings() {
         Dialogs.show(() -> new LiquibaseWorkspaceBundleSettingsDialog(workspaces),
-                whenOk(d -> workspaces.replaceWorkspaces(d.getWorkspace())));
+                whenOk(d -> workspaces.replaceWorkspaces(d.getWorkspaces())));
     }
 
     public void detachWorkspace(@NotNull ConnectionHandler connection) {

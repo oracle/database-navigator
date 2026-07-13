@@ -11,17 +11,17 @@ import static com.dbn.nls.NlsResources.txt;
 
 /** Project-level Liquibase workspace overview for its named workspaces. */
 public class LiquibaseWorkspaceBundleSettingsDialog extends DBNDialog<LiquibaseWorkspaceBundleSettingsForm> {
-    private final LiquibaseWorkspaceBundle workspace;
+    private final LiquibaseWorkspaceBundle workspaces;
 
-    public LiquibaseWorkspaceBundleSettingsDialog(LiquibaseWorkspaceBundle workspace) {
-        super(workspace.getProject(), txt("msg.liquibase.title.WorkspaceSettings"), true);
-        this.workspace = workspace.clone();
+    public LiquibaseWorkspaceBundleSettingsDialog(LiquibaseWorkspaceBundle workspaces) {
+        super(workspaces.getProject(), txt("msg.liquibase.title.WorkspaceSettings"), true);
+        this.workspaces = workspaces.clone();
         init();
     }
 
     @NotNull
-    public LiquibaseWorkspaceBundle getWorkspace() {
-        return workspace;
+    public LiquibaseWorkspaceBundle getWorkspaces() {
+        return workspaces;
     }
 
     @NotNull
@@ -63,6 +63,6 @@ public class LiquibaseWorkspaceBundleSettingsDialog extends DBNDialog<LiquibaseW
     @Override
     public void doCancelAction() {
         getForm().cancelFormChanges();
-        close(0);
+        super.doCancelAction();
     }
 }

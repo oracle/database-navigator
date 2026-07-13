@@ -25,6 +25,7 @@ import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.ContentRootSelector;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
+import com.intellij.openapi.Disposable;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
 
@@ -123,12 +124,21 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
     }
 
     private void initPathListeners() {
+        onTextChange(nameTextField, e -> updateWorkspaceName());
         onSelectionChange(contentRootComboBox, root -> updatePathTooltips());
         onTextChange(rootPathTextField, e -> updatePathTooltips());
         onTextChange(changelogDirectoryTextField, e -> updatePathTooltips());
         onTextChange(sqlDirectoryTextField, e -> updatePathTooltips());
         onTextChange(masterChangelogTextField, e -> updatePathTooltips());
         onTextChange(propertiesFileTextField, e -> updatePathTooltips());
+    }
+
+    private void updateWorkspaceName() {
+        Disposable parent = ensureParentComponent();
+        if (parent instanceof LiquibaseWorkspaceBundleSettingsForm bundleForm) {
+            workspace.setName(getText(nameTextField));
+            bundleForm.refreshWorkspaceList();
+        }
     }
 
     private void updatePathTooltips() {

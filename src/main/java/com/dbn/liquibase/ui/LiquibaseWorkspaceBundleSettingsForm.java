@@ -34,7 +34,7 @@ public class LiquibaseWorkspaceBundleSettingsForm extends DBNFormBase {
 
     LiquibaseWorkspaceBundleSettingsForm(LiquibaseWorkspaceBundleSettingsDialog parent) {
         super(parent);
-        workspaces = parent.getWorkspace();
+        workspaces = parent.getWorkspaces();
         workspacesList.setCellRenderer((list, value, index, selected, focus) -> {
             String name = Strings.isEmpty(value.getName()) ? txt("app.shared.placeholder.Unnamed") : value.getName();
             JLabel label = new JLabel(name, Icons.DB_LIQUIBASE, JLabel.LEADING);
@@ -74,6 +74,10 @@ public class LiquibaseWorkspaceBundleSettingsForm extends DBNFormBase {
                 new LiquibaseWorkspaceSettingsForm(this, workspaces, workspace));
         detailsPanel.add(workspaceForm.getComponent());
         repaint(detailsPanel);
+    }
+
+    void refreshWorkspaceList() {
+        workspacesList.repaint();
     }
 
     private void addWorkspace() {
