@@ -17,15 +17,18 @@
 package com.dbn.liquibase.execution.processor;
 
 import com.dbn.common.task.TaskStatus;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionItem;
+import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionLogService;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.liquibase.model.LiquibaseArtifactPaths;
+import com.dbn.object.type.DBObjectType;
 import liquibase.CatalogAndSchema;
 import liquibase.Scope;
 import liquibase.command.CommandScope;
@@ -46,7 +49,7 @@ import java.nio.file.Path;
 import java.util.concurrent.CancellationException;
 
 import static com.dbn.common.util.TimeUtil.presentableDuration;
-import static com.dbn.liquibase.execution.logging.LiquibaseExecutionLogging.isLoggableObject;
+import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.resolveObjectType;
 import static com.dbn.nls.NlsResources.txt;
 import static liquibase.Scope.child;
 
@@ -138,32 +141,33 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             @Override
             public void willSnapshot(DatabaseObject object, Database database) {
                 if (object == null) return;
+
                 checkCanceled();
                 LiquibaseExecutionItem item = result.ensureExecutionItem(object);
                 item.startProcessing();
 
-                if (isLoggableObject(object)) {
-                    result.appendInfoOutput(txt("log.liquibase.info.ObjectProcessingStarted", describe(object)));
-                }
+                result.appendInfoOutput(txt(
+                        "log.liquibase.info.ObjectProcessingStarted",
+                        describe(item)));
             }
 
             @Override
             public void finishedSnapshot(DatabaseObject object, DatabaseObject snapshot, Database database) {
-                if (snapshot == null) return;
+                if (object == null) return;
+
                 checkCanceled();
-                LiquibaseExecutionItem item = result.ensureExecutionItem(snapshot);
+                LiquibaseExecutionItem item = result.ensureExecutionItem(object);
                 item.finishProcessing();
 
-                if (isLoggableObject(snapshot)) {
-                    result.appendInfoOutput(txt(
-                            "log.liquibase.info.ObjectProcessingFinished",
-                            describe(snapshot),
-                            presentableDuration(item.getProcessingDuration(), true)));
-                }
+                DatabaseObject processedObject = snapshot == null ? object : snapshot;
+                result.appendInfoOutput(txt(
+                        "log.liquibase.info.ObjectProcessingFinished",
+                        describe(item),
+                        presentableDuration(item.getProcessingDuration(), true)));
                 result.updateExecutionItem(
                         item,
-                        snapshot,
-                        "discovered",
+                        processedObject,
+                        LiquibaseExecutionItemStatus.DISCOVERED,
                         txt("log.liquibase.info.DatabaseObjectDiscovered"));
             }
         });
@@ -175,8 +179,22 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
     }
 
     @NotNull
-    private static String describe(@NotNull DatabaseObject object) {
-        return object.getObjectTypeName() + " \"" + object.getName() + "\"";
+    private static String describe(@NotNull DBObjectType objectType, String objectName) {
+        String name = Strings.isEmpty(objectName) ? txt("app.shared.placeholder.Unnamed") : objectName;
+        return objectType.getDisplayName() + " \"" + name + "\"";
+    }
+
+    @NotNull
+    private static String describe(@NotNull LiquibaseExecutionItem item) {
+        DatabaseObject containerObject = item.getContainerObject();
+        String description = describe(item.getObjectType(), item.getDatabaseObject().getName());
+        if (containerObject == null) return description;
+
+        String parentName = containerObject.getName();
+        DBObjectType parentType = resolveObjectType(containerObject);
+        String parentDesc = describe(parentType, parentName);
+
+        return txt("log.liquibase.info.ObjectInContainer", description, parentDesc);
     }
 
     @NotNull

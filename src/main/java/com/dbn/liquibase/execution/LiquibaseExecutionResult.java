@@ -76,7 +76,7 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     public void updateExecutionItem(
             @NotNull LiquibaseExecutionItem item,
             @NotNull DatabaseObject databaseObject,
-            @NotNull String status,
+            @NotNull LiquibaseExecutionItemStatus status,
             String message) {
         item.update(databaseObject, status, message);
         notifListeners();
