@@ -85,9 +85,9 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
 
     private void initHeaderPanel() {
 /*
-        String title = isEmpty(artifact.getName())
+        String title = isEmpty(workspace.getName())
                 ? txt("app.shared.placeholder.Unnamed")
-                : artifact.getName();
+                : workspace.getName();
         headerPanel.add(new DBNHeaderForm(this, title, Icons.DB_LIQUIBASE).getComponent());
 */
     }
@@ -159,7 +159,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addRequiredTextValidation(nameTextField, txt("msg.liquibase.error.ArtifactNameRequired"));
+        addRequiredTextValidation(nameTextField, txt("msg.liquibase.error.WorkspaceNameRequired"));
         addValidation(nameTextField, field -> validateWorkspaceName());
         addSelectionValidation(contentRootComboBox,    txt("msg.liquibase.error.ContentRootRequired"));
         addValidation(rootPathTextField, field -> validateWorkspaceRoot());
@@ -191,7 +191,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
 
     private String validateWorkspaceName() {
         LiquibaseWorkspace owner = workspaces.findNameOwner(getText(nameTextField), workspace);
-        return owner == null ? null : txt("msg.liquibase.error.ArtifactNameAlreadyUsed");
+        return owner == null ? null : txt("msg.liquibase.error.WorkspaceNameAlreadyUsed");
     }
 
     private boolean isValidRelativePath(String value) {

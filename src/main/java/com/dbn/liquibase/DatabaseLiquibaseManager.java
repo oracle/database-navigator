@@ -69,7 +69,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         super(project, COMPONENT_NAME);
         workspaces = new LiquibaseWorkspaceBundle(project);
         ProjectEvents.subscribe(project, this, ConnectionConfigListener.TOPIC,
-                ConnectionConfigListener.whenRemoved(workspaces::removeWorkspace));
+                ConnectionConfigListener.whenRemoved(id -> workspaces.removeWorkspaceMapping(id)));
     }
 
     public static DatabaseLiquibaseManager getInstance(@NotNull Project project) {
@@ -99,7 +99,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     }
 
     public void detachWorkspace(@NotNull ConnectionHandler connection) {
-        workspaces.removeWorkspace(connection.getConnectionId());
+        workspaces.removeWorkspaceMapping(connection.getConnectionId());
     }
 
     public void cancelExecution(@NotNull LiquibaseExecutionResult result) {

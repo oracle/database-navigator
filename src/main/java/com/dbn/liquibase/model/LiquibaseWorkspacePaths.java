@@ -25,7 +25,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-/** Resolves and validates filesystem paths derived from a Liquibase artifact. */
+/** Resolves and validates filesystem paths derived from a Liquibase workspace. */
 public class LiquibaseWorkspacePaths {
     private final LiquibaseWorkspace workspace;
 

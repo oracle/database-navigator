@@ -39,7 +39,7 @@ public class WorkspaceSettingsAction extends LiquibaseConnectionAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         boolean attached = isWorkspaceAttached(project);
         Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.liquibase.action.ArtifactSettings"));
+        presentation.setText(txt("app.liquibase.action.WorkspaceSettings"));
         presentation.setIcon(Icons.ACTION_OPTIONS);
         presentation.setVisible(attached);
     }

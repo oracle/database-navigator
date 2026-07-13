@@ -22,7 +22,7 @@ import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 import static com.dbn.common.ui.util.UserInterface.repaint;
 import static com.dbn.nls.NlsResources.txt;
 
-/** Overview form for managing the named Liquibase artifacts in a project workspace. */
+/** Overview form for managing the named Liquibase workspaces in a project. */
 public class LiquibaseWorkspaceBundleSettingsForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel workspacesPanel;

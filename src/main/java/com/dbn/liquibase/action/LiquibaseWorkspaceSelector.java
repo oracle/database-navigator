@@ -37,7 +37,7 @@ import java.util.function.Consumer;
 import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.nls.NlsResources.txt;
 
-/** Selects the Liquibase artifact used by a schema operation. */
+/** Selects the Liquibase workspace used by a schema operation. */
 @UtilityClass
 public final class LiquibaseWorkspaceSelector {
 
@@ -59,7 +59,7 @@ public final class LiquibaseWorkspaceSelector {
         actionGroup.add(new CreateWorkspaceAction(manager, connection, selectionConsumer));
 
         Popups.popupBuilder(actionGroup, event)
-                .withTitle(txt("msg.liquibase.title.SelectArtifact"))
+                .withTitle(txt("msg.liquibase.title.SelectWorkspace"))
                 .withSpeedSearch()
                 .withPreselectCondition(action ->
                         action instanceof SelectWorkspaceAction selected &&
@@ -113,7 +113,7 @@ public final class LiquibaseWorkspaceSelector {
                 DatabaseLiquibaseManager manager,
                 ConnectionHandler connection,
                 Consumer<LiquibaseWorkspace> selectionConsumer) {
-            super(txt("app.liquibase.action.NewArtifact"), null, Icons.ACTION_ADD);
+            super(txt("app.liquibase.action.NewWorkspace"), null, Icons.ACTION_ADD);
             this.manager = manager;
             this.connection = connection;
             this.selectionConsumer = selectionConsumer;

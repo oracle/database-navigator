@@ -36,7 +36,7 @@ public class LiquibaseWorkspaceSettingsDialog extends DBNDialog<LiquibaseWorkspa
             LiquibaseWorkspaceBundle workspaces,
             LiquibaseWorkspace workspace,
             boolean newWorkspace) {
-        super(workspaces.getProject(), txt("msg.liquibase.title.ArtifactSettings"), true);
+        super(workspaces.getProject(), txt("msg.liquibase.title.WorkspaceSettings"), true);
         this.workspaces = workspaces;
         this.workspace = workspace.clone();
         this.newWorkspace = newWorkspace;

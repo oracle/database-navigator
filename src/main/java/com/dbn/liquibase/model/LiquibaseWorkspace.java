@@ -31,7 +31,7 @@ import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 /**
- * Persisted Liquibase configuration for a named Liquibase workspace artifact.
+ * Persisted configuration for a named Liquibase workspace.
  */
 @Getter
 @Setter

@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 
 import static com.dbn.nls.NlsResources.txt;
 
-/** Project-level Liquibase workspace overview for its named artifacts. */
+/** Project-level Liquibase workspace overview for its named workspaces. */
 public class LiquibaseWorkspaceBundleSettingsDialog extends DBNDialog<LiquibaseWorkspaceBundleSettingsForm> {
     private final LiquibaseWorkspaceBundle workspace;
 

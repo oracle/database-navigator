@@ -80,8 +80,8 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
 
         showQuestionDialog(
                 project,
-                txt("msg.liquibase.title.ArtifactRequired"),
-                txt("msg.liquibase.message.ArtifactRequired"),
+                txt("msg.liquibase.title.WorkspaceRequired"),
+                txt("msg.liquibase.message.WorkspaceRequired"),
                 options(txt("msg.liquibase.button.Attach"), txt("msg.shared.button.Cancel")),
                 0,
                 whenOk(() -> selectLiquibaseWorkspace(event, project, getConnection(), selectionConsumer)));
