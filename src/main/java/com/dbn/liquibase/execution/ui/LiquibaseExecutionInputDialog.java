@@ -38,11 +38,18 @@ public class LiquibaseExecutionInputDialog extends DBNDialog<LiquibaseExecutionI
             @NotNull DBSchema schema,
             @NotNull LiquibaseOperation operation,
             @NotNull LiquibaseWorkspaceBundle workspaces) {
-        super(schema.getProject(), txt("msg.liquibase.title.OperationContext"), true);
-        executionInput = new LiquibaseExecutionInput(getProject(), operation);
-        executionInput.setSourceSchema(schema);
+        super(schema.getProject(), txt("cfg.liquibase.title.Operation_" + operation.name()), true);
+        this.executionInput = new LiquibaseExecutionInput(getProject(), operation);
         this.workspaces = workspaces;
+        if (operation.requiresSourceSchema()) executionInput.setSourceSchema(schema);
+        if (operation.requiresTargetSchema()) executionInput.setTargetSchema(schema);
+        setDefaultSize(600, 320);
         init();
+    }
+
+    @Override
+    protected String getDimensionServiceKey() {
+        return createDimensionSeviceKey(executionInput.getOperation());
     }
 
     @NotNull

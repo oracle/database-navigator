@@ -59,9 +59,9 @@ public class LiquibaseExecutionInput extends ProjectUnit {
 
     @NotNull
     public ConnectionHandler getRelevantConnection() {
-        ConnectionHandler connection = coalesce(
-                () -> getSourceConnection(),
-                () -> getTargetConnection());
+        ConnectionHandler connection = operation.requiresSourceSchema()
+                ? coalesce(() -> getSourceConnection(), () -> getTargetConnection())
+                : coalesce(() -> getTargetConnection(), () -> getSourceConnection());
 
         if (connection == null) throw new IllegalStateException("No connection available");
         return connection;
@@ -69,15 +69,15 @@ public class LiquibaseExecutionInput extends ProjectUnit {
 
     @NotNull
     public DBSchema getRelevantSchema() {
-        DBSchema schema = coalesce(
-                () -> getSourceSchema(),
-                () -> getTargetSchema());
+        DBSchema schema = operation.requiresSourceSchema()
+                ? coalesce(() -> getSourceSchema(), () -> getTargetSchema())
+                : coalesce(() -> getTargetSchema(), () -> getSourceSchema());
 
         if (schema == null) throw new IllegalStateException("No schema available");
         return schema;
     }
 
-    public void setSourceSchema(@NotNull DBSchema sourceSchema) {
+    public void setSourceSchema(@Nullable DBSchema sourceSchema) {
         this.sourceSchema = DBObjectRef.of(sourceSchema);
     }
 

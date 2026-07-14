@@ -14,9 +14,11 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.object.DBSchema;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -31,25 +33,39 @@ import static com.dbn.nls.NlsResources.txtOr;
 /** Summary panel for a Liquibase operation result. */
 public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private JPanel mainPanel;
-    private JLabel connectionLabel;
-    private JLabel schemaLabel;
+    private JLabel sourceConnectionCaptionLabel;
+    private JLabel sourceConnectionLabel;
+    private JLabel sourceSchemaCaptionLabel;
+    private JLabel sourceSchemaLabel;
+    private JLabel targetConnectionCaptionLabel;
+    private JLabel targetConnectionLabel;
+    private JLabel targetSchemaCaptionLabel;
+    private JLabel targetSchemaLabel;
     private JLabel operationLabel;
     private JLabel statusLabel;
     private JLabel durationLabel;
     private DBNHyperlinkLabel changelogLink;
     private JPanel messagePanel;
     private DBNMessageForm messageForm;
+    private final LiquibaseExecutionResult result;
 
-    LiquibaseExecutionSummaryForm(@NotNull LiquibaseExecutionResult result) {
-        super(null, result.getProject());
+    LiquibaseExecutionSummaryForm(Disposable parent, @NotNull LiquibaseExecutionResult result) {
+        super(parent, result.getProject());
+        this.result = result;
 
-        ConnectionHandler connection = result.getConnection();
-        connectionLabel.setIcon(connection.getIcon());
-        connectionLabel.setText(connection.getName());
-
-        DBSchema schema = result.getRelevantSchema();
-        schemaLabel.setIcon(schema.getIcon());
-        schemaLabel.setText(schema.getName());
+        initContextLabels(result);
+        setSchemaContext(
+                result.getSourceSchema(),
+                sourceConnectionCaptionLabel,
+                sourceConnectionLabel,
+                sourceSchemaCaptionLabel,
+                sourceSchemaLabel);
+        setSchemaContext(
+                result.getTargetSchema(),
+                targetConnectionCaptionLabel,
+                targetConnectionLabel,
+                targetSchemaCaptionLabel,
+                targetSchemaLabel);
 
         operationLabel.setText(result.getOperation().getName());
         setToolTipText(operationLabel, result.getOperation().getDescription());
@@ -57,7 +73,46 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         Hyperlinks.onHyperlinkAccess(changelogLink, e -> openChangelog(result));
         updateChangelogLink(result);
 
-        initMessageForm(result, schema);
+        initMessageForm(result, result.getRelevantSchema());
+    }
+
+    private void initContextLabels(@NotNull LiquibaseExecutionResult result) {
+        boolean sourceVisible = result.getSourceSchema() != null;
+        boolean targetVisible = result.getTargetSchema() != null;
+        boolean qualified = sourceVisible && targetVisible;
+
+        sourceConnectionCaptionLabel.setText(txt(qualified ?
+                "cfg.liquibase.label.SourceConnection" :
+                "app.object.label.Connection"));
+        sourceSchemaCaptionLabel.setText(txt(qualified ?
+                "cfg.liquibase.label.SourceSchema" :
+                "app.object.label.Schema"));
+        targetConnectionCaptionLabel.setText(txt(qualified ?
+                "cfg.liquibase.label.TargetConnection" :
+                "app.object.label.Connection"));
+        targetSchemaCaptionLabel.setText(txt(qualified ?
+                "cfg.liquibase.label.TargetSchema" :
+                "app.object.label.Schema"));
+    }
+
+    private void setSchemaContext(
+            @Nullable DBSchema schema,
+            @NotNull JLabel connectionCaptionLabel,
+            @NotNull JLabel connectionLabel,
+            @NotNull JLabel schemaCaptionLabel,
+            @NotNull JLabel schemaLabel) {
+        boolean visible = schema != null;
+        connectionCaptionLabel.setVisible(visible);
+        connectionLabel.setVisible(visible);
+        schemaCaptionLabel.setVisible(visible);
+        schemaLabel.setVisible(visible);
+        if (!visible) return;
+
+        ConnectionHandler connection = schema.getConnection();
+        connectionLabel.setIcon(connection.getIcon());
+        connectionLabel.setText(connection.getName());
+        schemaLabel.setIcon(schema.getIcon());
+        schemaLabel.setText(schema.getName());
     }
 
     private void initMessageForm(@NotNull LiquibaseExecutionResult result, @NotNull DBSchema schema) {

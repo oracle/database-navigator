@@ -5,6 +5,7 @@ import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
+import com.dbn.object.DBSchema;
 import liquibase.command.CommandScope;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,7 +42,9 @@ public class LiquibaseValidationProcessor extends LiquibaseExecutionProcessor {
             @NotNull LiquibaseWorkspacePaths paths,
             @NotNull String changelogFile,
             @NotNull LiquibaseExecutionResult result) throws Exception {
-        withLiquibaseDatabase(true, database -> {
+        DBSchema targetSchema = required("Target schema", getInput().getTargetSchema());
+
+        withLiquibaseDatabase(true, targetSchema, database -> {
             checkCanceled();
             withLiquibaseScope(paths.getContentRootPath(), result, output -> {
                 new CommandScope("validate")

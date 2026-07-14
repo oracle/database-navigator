@@ -20,18 +20,22 @@ import com.dbn.common.routine.ThrowableFunction;
 import com.dbn.common.task.TaskStatus;
 import com.dbn.connection.ConnectionContext;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.PooledConnection;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionLogService;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
+import com.dbn.object.DBSchema;
 import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.DirectoryResourceAccessor;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -113,16 +117,19 @@ public abstract class LiquibaseExecutionProcessor {
 
     protected final <T> T withLiquibaseDatabase(
             boolean readonly,
+            @NotNull DBSchema schema,
             @NotNull ThrowableFunction<Database, T, Exception> operation) throws SQLException {
-        return withPoolConnection(readonly, c -> {
-            Connection connection = DBNConnection.getInner(c);
-            DatabaseCompatibilityInterface compatibilityInterface = input.getSourceConnection().getCompatibilityInterface();
-            compatibilityInterface.initializeLiquibaseConnection(connection);
+        ConnectionHandler connection = schema.getConnection();
+
+        return withPoolConnection(readonly, connection, c -> {
+            Connection dbConnection = DBNConnection.getInner(c);
+            DatabaseCompatibilityInterface compatibilityInterface = connection.getCompatibilityInterface();
+            compatibilityInterface.initializeLiquibaseConnection(dbConnection);
 
             DatabaseFactory databaseFactory = DatabaseFactory.getInstance();
-            JdbcConnection jdbcConnection = new JdbcConnection(connection);
+            JdbcConnection jdbcConnection = new JdbcConnection(dbConnection);
             Database database = databaseFactory.findCorrectDatabaseImplementation(jdbcConnection);
-            database.setDefaultSchemaName(input.getSourceSchema().getName());
+            database.setDefaultSchemaName(schema.getName());
 
             return operation.apply(database);
         });
@@ -152,9 +159,11 @@ public abstract class LiquibaseExecutionProcessor {
         executionThread = null;
     }
 
-    protected <T> T withPoolConnection(boolean readonly, @NotNull ThrowableFunction<DBNConnection, T, Exception> operation) throws SQLException {
+    private <T> T withPoolConnection(
+            boolean readonly,
+            @NotNull ConnectionHandler connection,
+            @NotNull ThrowableFunction<DBNConnection, T, Exception> operation) throws SQLException {
         checkCanceled();
-        ConnectionHandler connection = input.getSourceConnection();
         ConnectionContext context = new ConnectionContext(
                 connection.getProject(),
                 connection.getConnectionId(),
@@ -171,6 +180,12 @@ public abstract class LiquibaseExecutionProcessor {
                         throw toSqlException(unwrap(e));
                     }
                 }));
+    }
+
+    @NotNull
+    public static <T extends DatabaseEntity> T required(@NonNls String name, @Nullable T entity) {
+        if (entity == null) throw new IllegalStateException(name + " not specified");
+        return entity;
     }
 
 }

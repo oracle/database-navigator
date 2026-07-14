@@ -24,6 +24,7 @@ import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
+import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 import liquibase.CatalogAndSchema;
 import liquibase.command.CommandScope;
@@ -73,9 +74,10 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
         @NotNull LiquibaseExecutionResult result) throws Exception {
         Path contentRoot = workspacePaths.getContentRootPath();
 
-        withLiquibaseDatabase(true, database -> {
+        DBSchema sourceSchema = required("Source schema", getInput().getSourceSchema());
+        withLiquibaseDatabase(true, sourceSchema, database -> {
             checkCanceled();
-            String schemaName = getInput().getSourceSchema().getName();
+            String schemaName = sourceSchema.getName();
             database.setDefaultSchemaName(schemaName);
 
             withLiquibaseScope(contentRoot, result, output -> {

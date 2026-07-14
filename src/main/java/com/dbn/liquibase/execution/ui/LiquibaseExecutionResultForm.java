@@ -17,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import java.awt.BorderLayout;
 import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
@@ -51,7 +50,8 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
 
     private void initSummaryPanel() {
         LiquibaseExecutionResult result = getExecutionResult();
-        summaryPanel.add(new LiquibaseExecutionSummaryForm(result).getComponent(), BorderLayout.CENTER);
+        LiquibaseExecutionSummaryForm summaryForm = new LiquibaseExecutionSummaryForm(this, result);
+        summaryPanel.add(summaryForm.getComponent());
     }
 
     private void initConsolePanel() {

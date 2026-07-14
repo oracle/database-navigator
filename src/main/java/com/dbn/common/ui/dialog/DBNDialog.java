@@ -282,7 +282,20 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
 
     @Override
     protected String getDimensionServiceKey() {
-        return autoSize || Diagnostics.isDialogSizingReset() ? null : "DBNavigator." + simpleClassName(this);
+        return createDimensionSeviceKey();
+    }
+
+    protected @NonNls String createDimensionSeviceKey(Object ... attributes) {
+        if (autoSize) return null;
+        if (Diagnostics.isDialogSizingReset()) return null;
+
+        @NonNls
+        StringBuilder key = new StringBuilder("DBNavigator." + simpleClassName(this));
+        for (Object attribute : attributes) {
+            key.append(".").append(attribute);
+        }
+
+        return key.toString();
     }
 
     protected static Action createAction(@NotNull @Button String name, @NotNull Runnable runnable) {
