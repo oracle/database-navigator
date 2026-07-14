@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.execution.processor;
 
+import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
@@ -37,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.resolveObjectType;
@@ -60,18 +62,29 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
         LiquibaseWorkspacePaths paths = getInput().getWorkspacePaths();
         Path changelogFile = paths.getMasterChangelogPath();
         result.setChangelogPath(changelogFile);
+        boolean overwrite = false;
         if (Files.exists(changelogFile)) {
-            throw new IllegalStateException("Changelog file already exists: " + changelogFile);
+            int option = Messages.showConfirmationDialog(
+                    getInput().getProject(),
+                    txt("msg.liquibase.title.OverwriteChangelog"),
+                    txt("msg.liquibase.question.OverwriteChangelog", changelogFile),
+                    Messages.options(
+                            txt("msg.liquibase.button.Overwrite"),
+                            txt("msg.shared.button.Cancel")),
+                    0);
+            if (option != 0) throw new CancellationException("Changelog overwrite canceled");
+            overwrite = true;
         }
         Files.createDirectories(changelogFile.getParent());
-        generateChangelog(paths, changelogFile, result);
+        generateChangelog(paths, changelogFile, result, overwrite);
         result.appendConsoleOutput(txt("log.liquibase.info.InitialChangelogGenerated", changelogFile));
     }
 
     private void generateChangelog(
         @NotNull LiquibaseWorkspacePaths workspacePaths,
         @NotNull Path changelogFile,
-        @NotNull LiquibaseExecutionResult result) throws Exception {
+        @NotNull LiquibaseExecutionResult result,
+        boolean overwrite) throws Exception {
         Path contentRoot = workspacePaths.getContentRootPath();
 
         DBSchema sourceSchema = required("Source schema", getInput().getSourceSchema());
@@ -87,7 +100,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
                         "database", database,
                         "schemas", schemaName,
                         "changelogFile", changelogFile.toString(),
-                        "overwriteOutputFile", false));
+                        "overwriteOutputFile", overwrite));
             });
             checkCanceled();
 
