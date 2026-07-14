@@ -1,5 +1,6 @@
 package com.dbn.liquibase.execution.processor;
 
+import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
@@ -14,45 +15,54 @@ import java.util.Map;
 
 import static com.dbn.nls.NlsResources.txt;
 
-/** Processor for validating a Liquibase changelog. */
+/**
+ * Validates the structure and references of the workspace's existing Liquibase changelog.
+ *
+ * <p>The processor requires a target schema and an existing master changelog, then executes
+ * Liquibase's {@code validate} command in the workspace content root. Validation checks that the
+ * changelog can be parsed and that its changesets and referenced resources are internally valid;
+ * it does not apply changes to the database or compare the database schema with the changelog.</p>
+ *
+ * <p>Liquibase output is forwarded to the execution result console, while failures are reported by
+ * the common execution processor as a failed operation.</p>
+ */
 public class LiquibaseValidationProcessor extends LiquibaseExecutionProcessor {
-    public LiquibaseValidationProcessor(@NotNull LiquibaseExecutionInput input) {
-        super(input);
-    }
-
     @Override
     public LiquibaseOperation getOperation() {
         return LiquibaseOperation.VALIDATE;
     }
 
     @Override
-    protected void executeOperation(@NotNull LiquibaseExecutionResult result) throws Exception {
-        LiquibaseWorkspacePaths paths = getInput().getWorkspacePaths();
+    protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+        LiquibaseExecutionInput input = context.getInput();
+        LiquibaseExecutionResult result = context.getResult();
+        LiquibaseWorkspacePaths paths = input.getWorkspacePaths();
         Path changelogFile = paths.getMasterChangelogPath();
         result.setChangelogPath(changelogFile);
         if (!Files.isRegularFile(changelogFile)) {
             throw new IllegalStateException("Changelog file does not exist: " + changelogFile);
         }
 
-        validateChangelog(paths, paths.getRelativePath(changelogFile), result);
+        validateChangelog(context, paths, paths.getRelativePath(changelogFile), result);
         result.appendConsoleOutput(txt("log.liquibase.info.ChangelogValidated", changelogFile));
     }
 
     private void validateChangelog(
+            @NotNull LiquibaseExecutionContext context,
             @NotNull LiquibaseWorkspacePaths paths,
             @NotNull String changelogFile,
             @NotNull LiquibaseExecutionResult result) throws Exception {
-        DBSchema targetSchema = required("Target schema", getInput().getTargetSchema());
+        DBSchema targetSchema = required("Target schema", context.getInput().getTargetSchema());
 
-        withLiquibaseDatabase(true, targetSchema, database -> {
-            checkCanceled();
+        withLiquibaseDatabase(context, true, targetSchema, database -> {
+            checkCanceled(context);
 
             Path rootPath = paths.getContentRootPath();
-            withLiquibaseScope(rootPath, result, output ->
+            withLiquibaseScope(context, rootPath, output ->
                     executeCommand("validate", output, Map.of(
                             "database", database,
                             "changelogFile", changelogFile)));
-            checkCanceled();
+            checkCanceled(context);
             return null;
         });
     }

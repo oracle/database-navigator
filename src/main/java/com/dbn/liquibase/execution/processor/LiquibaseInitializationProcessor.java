@@ -18,6 +18,7 @@ package com.dbn.liquibase.execution.processor;
 
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
+import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
@@ -41,16 +42,26 @@ import java.util.Map;
 import java.util.concurrent.CancellationException;
 
 import static com.dbn.common.util.TimeUtil.presentableDuration;
+import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.buildTrackingTableFilter;
+import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.isLiquibaseTrackingObject;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.resolveObjectType;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
- * Processor for generating an initial changelog from a database schema.
+ * Generates the baseline Liquibase changelog for the source schema selected in the execution input.
+ *
+ * <p>The processor opens the source database in read-only mode and asks Liquibase to snapshot the
+ * supported schema objects, including tables, columns, constraints, indexes, sequences, and views.
+ * Liquibase's own tracking tables and related objects are excluded from the generated model because
+ * they describe Liquibase bookkeeping rather than the application schema.</p>
+ *
+ * <p>The resulting changelog is written to the workspace master changelog path. If that file already
+ * exists, the user must explicitly approve overwriting it. Snapshot items are added to the execution
+ * result while the snapshot is being collected so the result form can display the operation's progress.</p>
  */
 public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcessor {
-    public LiquibaseInitializationProcessor(@NotNull LiquibaseExecutionInput input) {
-        super(input);
-    }
+    private static final String GENERATE_CHANGELOG_DIFF_TYPES =
+            "catalogs,columns,foreignkeys,indexes,primarykeys,sequences,tables,uniqueconstraints,views";
 
     @Override
     public LiquibaseOperation getOperation() {
@@ -58,14 +69,16 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
     }
 
     @Override
-    protected void executeOperation(@NotNull LiquibaseExecutionResult result) throws Exception {
-        LiquibaseWorkspacePaths paths = getInput().getWorkspacePaths();
+    protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+        LiquibaseExecutionInput input = context.getInput();
+        LiquibaseExecutionResult result = context.getResult();
+        LiquibaseWorkspacePaths paths = input.getWorkspacePaths();
         Path changelogFile = paths.getMasterChangelogPath();
         result.setChangelogPath(changelogFile);
         boolean overwrite = false;
         if (Files.exists(changelogFile)) {
             int option = Messages.showConfirmationDialog(
-                    getInput().getProject(),
+                    input.getProject(),
                     txt("msg.liquibase.title.OverwriteChangelog"),
                     txt("msg.liquibase.question.OverwriteChangelog", changelogFile),
                     Messages.options(
@@ -76,33 +89,36 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             overwrite = true;
         }
         Files.createDirectories(changelogFile.getParent());
-        generateChangelog(paths, changelogFile, result, overwrite);
+        generateChangelog(context, paths, changelogFile, result, overwrite);
         result.appendConsoleOutput(txt("log.liquibase.info.InitialChangelogGenerated", changelogFile));
     }
 
     private void generateChangelog(
+        @NotNull LiquibaseExecutionContext context,
         @NotNull LiquibaseWorkspacePaths workspacePaths,
         @NotNull Path changelogFile,
         @NotNull LiquibaseExecutionResult result,
         boolean overwrite) throws Exception {
         Path contentRoot = workspacePaths.getContentRootPath();
 
-        DBSchema sourceSchema = required("Source schema", getInput().getSourceSchema());
-        withLiquibaseDatabase(true, sourceSchema, database -> {
-            checkCanceled();
+        DBSchema sourceSchema = required("Source schema", context.getInput().getSourceSchema());
+        withLiquibaseDatabase(context, true, sourceSchema, database -> {
+            checkCanceled(context);
             String schemaName = sourceSchema.getName();
             database.setDefaultSchemaName(schemaName);
 
-            withLiquibaseScope(contentRoot, result, output -> {
-                collectDatabaseObjects(database, schemaName, result);
-                checkCanceled();
+            withLiquibaseScope(context, contentRoot, output -> {
+                collectDatabaseObjects(context, database, schemaName, result);
+                checkCanceled(context);
                 return executeCommand("generateChangelog", output, Map.of(
                         "database", database,
                         "schemas", schemaName,
+                        "diffTypes", GENERATE_CHANGELOG_DIFF_TYPES,
                         "changelogFile", changelogFile.toString(),
-                        "overwriteOutputFile", overwrite));
+                        "overwriteOutputFile", overwrite,
+                        "excludeObjects", buildTrackingTableFilter(database)));
             });
-            checkCanceled();
+            checkCanceled(context);
 
             if (!Files.isRegularFile(changelogFile)) {
                 throw new IllegalStateException("Liquibase did not create the changelog file: " + changelogFile);
@@ -112,6 +128,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
     }
 
     private void collectDatabaseObjects(
+            @NotNull LiquibaseExecutionContext context,
             @NotNull Database database,
             @NotNull String schemaName,
         @NotNull LiquibaseExecutionResult result) throws Exception {
@@ -119,9 +136,9 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
         snapshotControl.setSnapshotListener(new SnapshotListener() {
             @Override
             public void willSnapshot(DatabaseObject object, Database database) {
-                if (object == null) return;
+                if (object == null || isLiquibaseTrackingObject(object, database)) return;
 
-                checkCanceled();
+                checkCanceled(context);
                 LiquibaseSnapshotItem item = result.ensureSnapshotItem(object);
                 item.startProcessing();
 
@@ -133,8 +150,9 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             @Override
             public void finishedSnapshot(DatabaseObject object, DatabaseObject snapshot, Database database) {
                 if (object == null) return;
+                if (isLiquibaseTrackingObject(object, database)) return;
 
-                checkCanceled();
+                checkCanceled(context);
                 LiquibaseSnapshotItem item = result.ensureSnapshotItem(object);
                 item.finishProcessing();
 

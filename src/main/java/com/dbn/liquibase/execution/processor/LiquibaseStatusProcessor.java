@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.execution.processor;
 
+import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
@@ -30,36 +31,44 @@ import java.util.Map;
 
 import static com.dbn.nls.NlsResources.txt;
 
-/** Processor for displaying the Liquibase changelog status. */
+/**
+ * Reports the pending changesets in the workspace changelog for the selected target schema.
+ *
+ * <p>The processor executes Liquibase's {@code status} command in read-only mode. It resolves the
+ * master changelog relative to the workspace content root and forwards Liquibase's detailed status
+ * output to the execution result console.</p>
+ *
+ * <p>This operation is informational: it does not modify the database, changelog files, or
+ * Liquibase tracking tables. The target schema is still required because status is evaluated against
+ * the database's changelog history.</p>
+ */
 public class LiquibaseStatusProcessor extends LiquibaseExecutionProcessor {
-    public LiquibaseStatusProcessor(@NotNull LiquibaseExecutionInput input) {
-        super(input);
-    }
-
     @Override
     public LiquibaseOperation getOperation() {
         return LiquibaseOperation.STATUS;
     }
 
     @Override
-    protected void executeOperation(@NotNull LiquibaseExecutionResult result) throws Exception {
-        LiquibaseWorkspacePaths paths = getInput().getWorkspacePaths();
+    protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+        LiquibaseExecutionInput input = context.getInput();
+        LiquibaseExecutionResult result = context.getResult();
+        LiquibaseWorkspacePaths paths = input.getWorkspacePaths();
         Path changelogFile = paths.getMasterChangelogPath();
         result.setChangelogPath(changelogFile);
         if (!Files.isRegularFile(changelogFile)) {
             throw new IllegalStateException("Changelog file does not exist: " + changelogFile);
         }
 
-        DBSchema targetSchema = required("Target schema", getInput().getTargetSchema());
+        DBSchema targetSchema = required("Target schema", input.getTargetSchema());
         String relativeChangelog = paths.getRelativePath(changelogFile);
-        withLiquibaseDatabase(true, targetSchema, database -> {
-            checkCanceled();
-            withLiquibaseScope(paths.getContentRootPath(), result, output ->
+        withLiquibaseDatabase(context, true, targetSchema, database -> {
+            checkCanceled(context);
+            withLiquibaseScope(context, paths.getContentRootPath(), output ->
                     executeCommand("status", output, Map.of(
                             "database", database,
                             "changelogFile", relativeChangelog,
                             "verbose", true)));
-            checkCanceled();
+            checkCanceled(context);
             return null;
         });
         result.appendConsoleOutput(txt("log.liquibase.info.ChangelogStatusDisplayed", changelogFile));

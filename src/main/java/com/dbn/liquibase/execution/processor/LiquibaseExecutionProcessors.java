@@ -16,23 +16,21 @@
 
 package com.dbn.liquibase.execution.processor;
 
-import com.dbn.liquibase.execution.LiquibaseExecutionInput;
+import com.dbn.common.extension.ExtensionPointCache;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
+import com.dbn.liquibase.execution.LiquibaseOperation;
 import org.jetbrains.annotations.NotNull;
 
 /** Creates the specialized processor for a Liquibase operation. */
-public final class LiquibaseExecutionProcessorFactory {
-    private LiquibaseExecutionProcessorFactory() {}
+public final class LiquibaseExecutionProcessors extends ExtensionPointCache<LiquibaseOperation, LiquibaseExecutionProcessor> {
+    private static final LiquibaseExecutionProcessors INSTANCE = new LiquibaseExecutionProcessors();
+
+    private LiquibaseExecutionProcessors() {
+        super(LiquibaseExecutionProcessor.EP, p -> p.getOperation());
+    }
 
     @NotNull
-    public static LiquibaseExecutionProcessor create(@NotNull LiquibaseExecutionInput input) {
-        return switch (input.getOperation()) {
-            case INITIALIZE -> new LiquibaseInitializationProcessor(input);
-            case VALIDATE -> new LiquibaseValidationProcessor(input);
-            case STATUS -> new LiquibaseStatusProcessor(input);
-            case UPDATE -> new LiquibaseUpdateProcessor(input);
-            case COMPARE, ROLLBACK ->
-                throw new UnsupportedOperationException("Unsupported Liquibase operation: " + input.getOperation());
-        };
+    public static LiquibaseExecutionProcessor get(@NotNull LiquibaseOperation operation) {
+        return INSTANCE.find(operation);
     }
 }

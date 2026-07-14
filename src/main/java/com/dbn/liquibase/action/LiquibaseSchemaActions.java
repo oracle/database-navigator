@@ -29,6 +29,7 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         super(txt("app.liquibase.action.Liquibase"), true);
         getTemplatePresentation().setIcon(Icons.DB_LIQUIBASE);
         add(new GenerateChangelogAction(schema));
+        add(new CompareSchemasAction(schema));
         add(new ValidateChangelogAction(schema));
         add(new ShowChangelogStatusAction(schema));
         add(new UpdateDatabaseAction(schema));

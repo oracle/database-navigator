@@ -247,6 +247,7 @@
         <extensionPoint name="userApprovalAdapter" qualifiedName="com.dbn.userApprovalAdapter" interface="com.dbn.common.approval.UserApprovalAdapter" dynamic="true"/>
         <extensionPoint name="presentationProvider" qualifiedName="com.dbn.presentationProvider" interface="com.dbn.common.presentation.PresentationProvider" dynamic="true"/>
         <extensionPoint name="dataExportProcessor" qualifiedName="com.dbn.dataExportProcessor" interface="com.dbn.data.export.processor.DataExportProcessor" dynamic="true"/>
+        <extensionPoint name="liquibaseExecutionProcessor" qualifiedName="com.dbn.liquibaseExecutionProcessor" interface="com.dbn.liquibase.execution.LiquibaseExecutionProcessor" dynamic="true"/>
 
         <extensionPoint name="prerequisiteDefinitionProvider" qualifiedName="com.dbn.prerequisiteDefinitionProvider" interface="com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider" dynamic="true"/>
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
@@ -262,6 +263,13 @@
         <dataExportProcessor implementation="com.dbn.data.export.processor.JIRAMarkupDataExportProcessor"/>
         <dataExportProcessor implementation="com.dbn.data.export.processor.MarkdownDataExportProcessor"/>
         <dataExportProcessor implementation="com.dbn.data.export.processor.CustomDataExportProcessor"/>
+
+        <!-- Liquibase execution processors -->
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseInitializationProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseValidationProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseCompareProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseStatusProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUpdateProcessor"/>
 
         <!--object filters-->
         <objectFilter implementation="com.dbn.vector.model.request.EmbeddingStagingTableFilter"/>

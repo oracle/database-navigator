@@ -17,18 +17,22 @@
 package com.dbn.liquibase.execution;
 
 import com.dbn.object.type.DBObjectType;
+import liquibase.database.Database;
 import liquibase.structure.DatabaseObject;
+import liquibase.structure.core.Table;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
+import static com.dbn.common.util.Strings.endsWithIgnoreCase;
 import static com.dbn.object.type.DBObjectType.CONSTRAINT;
 import static com.dbn.object.type.DBObjectType.UNKNOWN;
 
-/** Utilities for mapping Liquibase database objects to DBN object types. */
+/** Utilities for mapping and filtering Liquibase database objects. */
 @UtilityClass
 public final class LiquibaseDatabaseObjects {
     private static final Map<String, DBObjectType> TYPE_ALIASES = Map.of(
@@ -58,5 +62,41 @@ public final class LiquibaseDatabaseObjects {
         if (objectType != null) return objectType;
 
         return UNKNOWN;
+    }
+
+    @NotNull
+    public static String buildTrackingTableFilter(@NotNull Database database) {
+        return "table:(?i)" + Pattern.quote(database.getDatabaseChangeLogTableName()) +
+                ",table:(?i)" + Pattern.quote(database.getDatabaseChangeLogLockTableName());
+    }
+
+    public static boolean isLiquibaseTrackingObject(
+            @NotNull DatabaseObject object,
+            @NotNull Database database) {
+        if (isLiquibaseTrackingTable(object, database)) return true;
+
+        String name = object.getName();
+        String changeLogTableName = database.getDatabaseChangeLogTableName();
+        String changeLogLockTableName = database.getDatabaseChangeLogLockTableName();
+        if (name != null && (endsWithIgnoreCase(name, changeLogTableName) ||
+                endsWithIgnoreCase(name, changeLogLockTableName))) return true;
+
+        DatabaseObject[] parentObjects = object.getContainingObjects();
+        if (parentObjects == null) return false;
+
+        for (DatabaseObject parentObject : parentObjects) {
+            if (parentObject != null && isLiquibaseTrackingTable(parentObject, database)) return true;
+        }
+        return false;
+    }
+
+    private static boolean isLiquibaseTrackingTable(
+            @NotNull DatabaseObject object,
+            @NotNull Database database) {
+        if (!(object instanceof Table)) return false;
+
+        String name = object.getName();
+        return name != null && (name.equalsIgnoreCase(database.getDatabaseChangeLogTableName()) ||
+                name.equalsIgnoreCase(database.getDatabaseChangeLogLockTableName()));
     }
 }

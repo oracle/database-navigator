@@ -17,6 +17,7 @@
 package com.dbn.liquibase.execution.processor;
 
 import com.dbn.liquibase.execution.LiquibaseChangeSetItem;
+import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
@@ -24,6 +25,7 @@ import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
+import com.dbn.object.event.ObjectChangeEvent;
 import liquibase.changelog.ChangeSet;
 import liquibase.changelog.DatabaseChangeLog;
 import liquibase.changelog.visitor.AbstractChangeExecListener;
@@ -35,41 +37,64 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
+import static com.dbn.object.type.DBObjectType.BROWSABLE_TYPES;
 
-/** Processor for applying pending changesets from a Liquibase changelog. */
+/**
+ * Applies pending changesets from the workspace changelog to the selected target schema.
+ *
+ * <p>The processor executes Liquibase's {@code update} command against a writable database
+ * connection. A change execution listener creates and updates changeset execution items so the
+ * result form can show each processed changeset, its status, details, and duration while the
+ * operation is running.</p>
+ *
+ * <p>After a successful update, schema-level object change events are emitted for the affected
+ * browsable object types so the DBN browser can refresh its database model. The processor also
+ * observes cancellation requests between database operations and delegates final result state
+ * handling to the common execution processor.</p>
+ */
 public class LiquibaseUpdateProcessor extends LiquibaseExecutionProcessor {
-    public LiquibaseUpdateProcessor(@NotNull LiquibaseExecutionInput input) {
-        super(input);
-    }
-
     @Override
     public LiquibaseOperation getOperation() {
         return LiquibaseOperation.UPDATE;
     }
 
     @Override
-    protected void executeOperation(@NotNull LiquibaseExecutionResult result) throws Exception {
-        LiquibaseWorkspacePaths paths = getInput().getWorkspacePaths();
+    protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+        LiquibaseExecutionInput input = context.getInput();
+        LiquibaseExecutionResult result = context.getResult();
+        LiquibaseWorkspacePaths paths = input.getWorkspacePaths();
         Path changelogFile = paths.getMasterChangelogPath();
         result.setChangelogPath(changelogFile);
         if (!Files.isRegularFile(changelogFile)) {
             throw new IllegalStateException("Changelog file does not exist: " + changelogFile);
         }
 
-        DBSchema targetSchema = required("Target schema", getInput().getTargetSchema());
+        DBSchema targetSchema = required("Target schema", input.getTargetSchema());
         String relativeChangelog = paths.getRelativePath(changelogFile);
-        withLiquibaseDatabase(false, targetSchema, database -> {
-            checkCanceled();
+        withLiquibaseDatabase(context, false, targetSchema, database -> {
+            checkCanceled(context);
             Path rootPath = paths.getContentRootPath();
-            withLiquibaseScope(rootPath, result, output ->
+            withLiquibaseScope(context, rootPath, output ->
                     executeCommand("update", output, Map.of(
                             "database", database,
                             "changelogFile", relativeChangelog,
                             "changeExecListener", new ChangeSetListener(result))));
-            checkCanceled();
+            notifySchemaObjectChanges(targetSchema);
+            checkCanceled(context);
             return null;
         });
         result.appendConsoleOutput(txt("log.liquibase.info.ChangelogUpdated", changelogFile));
+    }
+
+    private static void notifySchemaObjectChanges(@NotNull DBSchema schema) {
+        BROWSABLE_TYPES.stream()
+                .filter(t -> t.isSchemaObject())
+                .forEach(t -> ObjectChangeEvent.notify(
+                        UNSPECIFIED,
+                        t,
+                        schema.getConnectionId(),
+                        schema.getSchemaId()));
     }
 
     private static class ChangeSetListener extends AbstractChangeExecListener {

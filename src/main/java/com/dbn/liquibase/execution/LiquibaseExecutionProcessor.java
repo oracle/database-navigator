@@ -16,17 +16,20 @@
 
 package com.dbn.liquibase.execution;
 
+import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.common.routine.ThrowableFunction;
 import com.dbn.common.task.TaskStatus;
 import com.dbn.connection.ConnectionContext;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.PooledConnection;
+import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionLogService;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.object.DBSchema;
+import com.intellij.openapi.extensions.ExtensionPointName;
 import liquibase.Scope;
 import liquibase.command.CommandScope;
 import liquibase.database.Database;
@@ -34,7 +37,6 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.CommandExecutionException;
 import liquibase.resource.DirectoryResourceAccessor;
-import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,62 +54,48 @@ import static com.dbn.common.exception.Exceptions.unwrap;
 import static com.dbn.common.util.Classes.withClassLoader;
 import static liquibase.Scope.child;
 
-/** Coordinates execution of a Liquibase input and publishes its execution result. */
-@Getter
-public abstract class LiquibaseExecutionProcessor {
-    private final LiquibaseExecutionInput input;
-    private LiquibaseExecutionResult result;
-    private volatile Thread executionThread;
-    private volatile boolean cancellationRequested;
-
-    public LiquibaseExecutionProcessor(@NotNull LiquibaseExecutionInput input) {
-        this.input = input;
-        if (input.getOperation() != getOperation()) {
-            throw new IllegalArgumentException("Invalid operation for Liquibase processor");
-        }
+/**
+ * Base class for state-independent processors that execute a single Liquibase operation.
+ *
+ * <p>A processor instance is registered as an extension-point prototype and receives the mutable
+ * execution state through {@link LiquibaseExecutionContext}. This keeps operation-specific logic
+ * reusable while allowing cancellation, logging, timing, and result publication to remain shared
+ * across all Liquibase operations.</p>
+ *
+ * <p>The base implementation establishes the execution lifecycle, creates Liquibase database and
+ * resource scopes, forwards Liquibase output to the DBN execution result, translates cancellation
+ * and failures into {@link com.dbn.common.task.TaskStatus} values, and provides the common database
+ * connection helpers used by specialized processors.</p>
+ */
+public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
+    public static final ExtensionPointName<LiquibaseExecutionProcessor> EP =
+            ExtensionPointName.create("com.dbn.liquibaseExecutionProcessor");
+    protected LiquibaseExecutionProcessor() {
     }
 
     public abstract LiquibaseOperation getOperation();
 
     @NotNull
-    public LiquibaseExecutionResult prepareExecutionResult() {
-        if (result == null) {
-            result = new LiquibaseExecutionResult(input);
-        }
-        return result;
-    }
-
-    @NotNull
-    public final LiquibaseExecutionResult execute() {
-        LiquibaseExecutionResult result = prepareExecutionResult();
-        executionThread = Thread.currentThread();
+    public final LiquibaseExecutionResult execute(@NotNull LiquibaseExecutionContext context) {
+        LiquibaseExecutionResult result = context.prepareExecutionResult();
+        context.setExecutionThread(Thread.currentThread());
         result.notifyStarted();
         try {
-            executeOperation(result);
-            finishResult(TaskStatus.DONE);
+            executeOperation(context);
+            finishResult(context, TaskStatus.DONE);
         } catch (CancellationException e) {
-            finishResult(TaskStatus.CANCELLED);
+            finishResult(context, TaskStatus.CANCELLED);
         } catch (Exception e) {
             result.appendErrorOutput(formatException(e));
-            finishResult(TaskStatus.FAILED);
+            finishResult(context, TaskStatus.FAILED);
         }
         return result;
     }
 
-    protected abstract void executeOperation(@NotNull LiquibaseExecutionResult result) throws Exception;
+    protected abstract void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception;
 
-    public void cancel() {
-        cancellationRequested = true;
-        Thread thread = executionThread;
-        if (thread != null) thread.interrupt();
-    }
-
-    protected final boolean isCancellationRequested() {
-        return cancellationRequested || Thread.currentThread().isInterrupted();
-    }
-
-    protected final void checkCanceled() {
-        if (isCancellationRequested()) throw new CancellationException("Liquibase execution canceled");
+    protected final void checkCanceled(@NotNull LiquibaseExecutionContext context) {
+        if (context.isCancellationRequested()) throw new CancellationException("Liquibase execution canceled");
     }
 
     @NotNull
@@ -118,12 +106,13 @@ public abstract class LiquibaseExecutionProcessor {
     }
 
     protected final <T> T withLiquibaseDatabase(
+            @NotNull LiquibaseExecutionContext context,
             boolean readonly,
             @NotNull DBSchema schema,
             @NotNull ThrowableFunction<Database, T, Exception> operation) throws SQLException {
         ConnectionHandler connection = schema.getConnection();
 
-        return withPoolConnection(readonly, connection, c -> {
+        return withPoolConnection(context, readonly, connection, schema.getSchemaId(), c -> {
             Connection dbConnection = DBNConnection.getInner(c);
             DatabaseCompatibilityInterface compatibilityInterface = connection.getCompatibilityInterface();
             compatibilityInterface.initializeLiquibaseConnection(dbConnection);
@@ -138,9 +127,10 @@ public abstract class LiquibaseExecutionProcessor {
     }
 
     protected final <T> T withLiquibaseScope(
+            @NotNull LiquibaseExecutionContext context,
             @NotNull Path contentRoot,
-            @NotNull LiquibaseExecutionResult result,
             @NotNull ThrowableFunction<LiquibaseExecutionOutputStream, T, Exception> operation) throws Exception {
+        LiquibaseExecutionResult result = context.getResult();
         Map<String, Object> scopeValues = Map.of(
                 Scope.Attr.logService.name(), new LiquibaseExecutionLogService(result),
                 Scope.Attr.resourceAccessor.name(), new DirectoryResourceAccessor(contentRoot));
@@ -151,31 +141,33 @@ public abstract class LiquibaseExecutionProcessor {
         });
     }
 
-    protected final void finishResult(@NotNull TaskStatus status) {
-        LiquibaseExecutionResult result = prepareExecutionResult();
-        if (cancellationRequested) {
+    protected final void finishResult(@NotNull LiquibaseExecutionContext context, @NotNull TaskStatus status) {
+        LiquibaseExecutionResult result = context.getResult();
+        if (context.isCancellationRequested()) {
             result.notifyCancelled();
         } else {
             result.notifyFinished(status);
         }
-        executionThread = null;
+        context.clearExecutionThread();
     }
 
     private <T> T withPoolConnection(
+            @NotNull LiquibaseExecutionContext context,
             boolean readonly,
             @NotNull ConnectionHandler connection,
+            @Nullable SchemaId schemaId,
             @NotNull ThrowableFunction<DBNConnection, T, Exception> operation) throws SQLException {
-        checkCanceled();
-        ConnectionContext context = new ConnectionContext(
+        checkCanceled(context);
+        ConnectionContext connectionContext = new ConnectionContext(
                 connection.getProject(),
                 connection.getConnectionId(),
-                null);
-        return PooledConnection.call(context, readonly, c ->
+                schemaId);
+        return PooledConnection.call(connectionContext, readonly, c ->
                 withClassLoader(LiquibaseExecutionProcessor.class, () -> {
                     try {
-                        checkCanceled();
+                        checkCanceled(context);
                         T result = operation.apply(c);
-                        checkCanceled();
+                        checkCanceled(context);
                         return result;
                     } catch (Throwable e) {
                         if (e instanceof CancellationException cancellationException) throw cancellationException;

@@ -25,10 +25,12 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.DatabaseType;
 import com.dbn.execution.ExecutionManager;
+import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
-import com.dbn.liquibase.execution.processor.LiquibaseExecutionProcessorFactory;
+import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.execution.processor.LiquibaseExecutionProcessors;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.dbn.liquibase.ui.LiquibaseWorkspaceBundleSettingsDialog;
@@ -56,7 +58,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
 
     private final StateContainer states = new StateContainer();
     private final LiquibaseWorkspaceBundle workspaces;
-    private final Map<LiquibaseExecutionResult, LiquibaseExecutionProcessor> executionProcessors = new ConcurrentHashMap<>();
+    private final Map<LiquibaseExecutionResult, LiquibaseExecutionContext> executionContexts = new ConcurrentHashMap<>();
 
     private DatabaseLiquibaseManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
@@ -78,8 +80,8 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     }
 
     public void cancelExecution(@NotNull LiquibaseExecutionResult result) {
-        LiquibaseExecutionProcessor processor = executionProcessors.get(result);
-        if (processor != null) processor.cancel();
+        LiquibaseExecutionContext context = executionContexts.get(result);
+        if (context != null) context.cancel();
     }
 
     public void rerunOperation(@NotNull LiquibaseExecutionResult previousResult) {
@@ -90,18 +92,20 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
             @NotNull LiquibaseExecutionInput input,
             @Nullable LiquibaseExecutionResult previousResult) {
 
-        LiquibaseExecutionProcessor processor = LiquibaseExecutionProcessorFactory.create(input);
-        LiquibaseExecutionResult result = processor.prepareExecutionResult();
+        LiquibaseOperation operation = input.getOperation();
+        LiquibaseExecutionProcessor processor = LiquibaseExecutionProcessors.get(operation);
+        LiquibaseExecutionContext context = new LiquibaseExecutionContext(input);
+        LiquibaseExecutionResult result = context.prepareExecutionResult();
         result.setPrevious(previousResult);
-        executionProcessors.put(result, processor);
+        executionContexts.put(result, context);
 
         ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
         executionManager.addExecutionResult(result);
         Background.run(() -> {
             try {
-                processor.execute();
+                processor.execute(context);
             } finally {
-                executionProcessors.remove(result);
+                executionContexts.remove(result);
             }
         });
     }
