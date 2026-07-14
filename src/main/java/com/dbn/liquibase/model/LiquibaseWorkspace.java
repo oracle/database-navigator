@@ -16,7 +16,9 @@
 
 package com.dbn.liquibase.model;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.UUIDs;
 import lombok.Getter;
@@ -25,6 +27,7 @@ import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.Icon;
 import java.util.Objects;
 
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
@@ -35,7 +38,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
  */
 @Getter
 @Setter
-public class LiquibaseWorkspace implements PersistentStateElement, Cloneable<LiquibaseWorkspace> {
+public class LiquibaseWorkspace implements PersistentStateElement, Presentable, Cloneable<LiquibaseWorkspace> {
     public static final String DEFAULT_ROOT_PATH = "db/liquibase";
     public static final String DEFAULT_CHANGELOG_DIRECTORY = "changes";
     public static final String DEFAULT_SQL_DIRECTORY = "sql";
@@ -53,6 +56,11 @@ public class LiquibaseWorkspace implements PersistentStateElement, Cloneable<Liq
 
     public boolean usesSameContentRoot(@NotNull LiquibaseWorkspace other) {
         return Objects.equals(contentRootPath, other.contentRootPath);
+    }
+
+    @Override
+    public Icon getIcon() {
+        return Icons.DB_LIQUIBASE;
     }
 
     @Override

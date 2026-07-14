@@ -17,7 +17,7 @@ public class GenerateChangelogAction extends LiquibaseSchemaAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        executeOperation(e, project, LiquibaseOperation.INITIALIZE);
+        executeOperation(project, LiquibaseOperation.INITIALIZE);
     }
 
     @Override

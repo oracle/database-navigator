@@ -20,6 +20,7 @@ import com.dbn.common.project.ProjectRef;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.SchemaId;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -40,6 +41,7 @@ import java.util.Objects;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
+import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
@@ -48,13 +50,13 @@ import static com.dbn.common.util.Strings.equalsIgnoreCase;
 import static com.dbn.common.util.Strings.isEmpty;
 
 /**
- * Project-level container for Liquibase workspaces and their connection mappings.
+ * Project-level container for Liquibase workspaces and schema selection preferences.
  */
 @Getter
 public class LiquibaseWorkspaceBundle implements PersistentStateElement, Cloneable<LiquibaseWorkspaceBundle> {
     private final ProjectRef project;
     private Map<String, LiquibaseWorkspace> entries = new LinkedHashMap<>();
-    private Map<ConnectionId, String> mappings = new LinkedHashMap<>();
+    private Map<ConnectionId, Map<SchemaId, String>> selections = new LinkedHashMap<>();
 
     public LiquibaseWorkspaceBundle(@NotNull Project project) {
         this.project = ProjectRef.of(project);
@@ -90,32 +92,27 @@ public class LiquibaseWorkspaceBundle implements PersistentStateElement, Cloneab
         entries = reordered;
     }
 
-    @Nullable
-    public LiquibaseWorkspace getWorkspace(@NotNull ConnectionId connectionId) {
-        String workspaceId = mappings.get(connectionId);
-        return workspaceId == null ? null : entries.get(workspaceId);
-    }
-
-    public boolean hasWorkspace(@NotNull ConnectionId connectionId) {
-        return getWorkspace(connectionId) != null;
-    }
-
-    public void removeWorkspaceMapping(@NotNull ConnectionId connectionId) {
-        mappings.remove(connectionId);
-    }
-
     public void removeWorkspace(@NotNull String workspaceId) {
-        mappings.values().removeIf(id -> Objects.equals(id, workspaceId));
+        selections.values().forEach(connectionSelections ->
+                connectionSelections.values().removeIf(id -> Objects.equals(id, workspaceId)));
         entries.remove(workspaceId);
     }
 
-    public void attachWorkspace(
+    @Nullable
+    public LiquibaseWorkspace getSelectedWorkspace(
             @NotNull ConnectionId connectionId,
-            @NotNull String workspaceId) {
-        if (!entries.containsKey(workspaceId)) {
-            throw new IllegalArgumentException("Unknown Liquibase workspace: " + workspaceId);
-        }
-        mappings.put(connectionId, workspaceId);
+            @NotNull SchemaId schemaId) {
+        Map<SchemaId, String> connectionSelections = selections.get(connectionId);
+        String workspaceId = connectionSelections == null ? null : connectionSelections.get(schemaId);
+        return workspaceId == null ? null : entries.get(workspaceId);
+    }
+
+    public void rememberWorkspace(
+            @NotNull ConnectionId connectionId,
+            @NotNull SchemaId schemaId,
+            @NotNull LiquibaseWorkspace workspace) {
+        selections.computeIfAbsent(connectionId, id -> new LinkedHashMap<>())
+                .put(schemaId, workspace.getId());
     }
 
     public void replaceWorkspace(@NotNull LiquibaseWorkspace workspace) {
@@ -125,7 +122,9 @@ public class LiquibaseWorkspaceBundle implements PersistentStateElement, Cloneab
     public void replaceWorkspaces(LiquibaseWorkspaceBundle workspaces) {
         this.entries = new LinkedHashMap<>();
         workspaces.entries.values().forEach(a -> this.entries.put(a.getId(), a));
-        mappings = new LinkedHashMap<>(workspaces.mappings);
+        selections = new LinkedHashMap<>();
+        workspaces.selections.forEach((connectionId, connectionSelections) ->
+                selections.put(connectionId, new LinkedHashMap<>(connectionSelections)));
     }
 
     @NotNull
@@ -177,17 +176,19 @@ public class LiquibaseWorkspaceBundle implements PersistentStateElement, Cloneab
     @Override
     public void readState(@NotNull Element element) {
         entries.clear();
-        mappings.clear();
+        selections.clear();
         for (Element workspaceElement : childrenOf(element, "workspace")) {
             LiquibaseWorkspace workspace = new LiquibaseWorkspace();
             workspace.readState(workspaceElement);
             entries.put(workspace.getId(), workspace);
         }
-        for (Element mappingElement : childrenOf(element, "mapping")) {
-            ConnectionId connectionId = connectionIdAttribute(mappingElement, "connection-id");
-            String workspaceId = stringAttribute(mappingElement, "workspace-id");
-            if (connectionId != null && entries.containsKey(workspaceId)) {
-                mappings.put(connectionId, workspaceId);
+        for (Element selectionElement : childrenOf(element, "selection")) {
+            ConnectionId connectionId = connectionIdAttribute(selectionElement, "connection-id");
+            SchemaId schemaId = constantAttribute(selectionElement, "schema-id", SchemaId.class);
+            String workspaceId = stringAttribute(selectionElement, "workspace-id");
+            if (connectionId != null && schemaId != null && entries.containsKey(workspaceId)) {
+                selections.computeIfAbsent(connectionId, id -> new LinkedHashMap<>())
+                        .put(schemaId, workspaceId);
             }
         }
     }
@@ -198,11 +199,12 @@ public class LiquibaseWorkspaceBundle implements PersistentStateElement, Cloneab
             Element workspaceElement = newElement(element, "workspace");
             workspace.writeState(workspaceElement);
         }
-        mappings.forEach((connectionId, workspace) -> {
-            Element mappingElement = newElement(element, "mapping");
-            setConstantAttribute(mappingElement, "connection-id", connectionId);
-            setStringAttribute(mappingElement, "workspace-id", workspace);
-        });
+        selections.forEach((connectionId, connectionSelections) -> connectionSelections.forEach((schemaId, workspaceId) -> {
+            Element selectionElement = newElement(element, "selection");
+            setConstantAttribute(selectionElement, "connection-id", connectionId);
+            setConstantAttribute(selectionElement, "schema-id", schemaId);
+            setStringAttribute(selectionElement, "workspace-id", workspaceId);
+        }));
     }
 
 
@@ -211,8 +213,11 @@ public class LiquibaseWorkspaceBundle implements PersistentStateElement, Cloneab
     public LiquibaseWorkspaceBundle clone() {
         LiquibaseWorkspaceBundle clone = (LiquibaseWorkspaceBundle) super.clone();
         clone.entries = new LinkedHashMap<>();
-        clone.mappings = new LinkedHashMap<>(mappings);
+        clone.selections = new LinkedHashMap<>();
+        selections.forEach((connectionId, connectionSelections) ->
+                clone.selections.put(connectionId, new LinkedHashMap<>(connectionSelections)));
         entries.forEach((workspaceId, workspace) -> clone.entries.put(workspaceId, workspace.clone()));
         return clone;
     }
+
 }

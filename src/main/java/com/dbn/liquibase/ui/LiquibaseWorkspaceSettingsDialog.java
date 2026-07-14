@@ -17,12 +17,10 @@
 package com.dbn.liquibase.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
@@ -33,18 +31,15 @@ public class LiquibaseWorkspaceSettingsDialog extends DBNDialog<LiquibaseWorkspa
     private final LiquibaseWorkspaceBundle workspaces;
     private final LiquibaseWorkspace workspace;
     private final boolean newWorkspace;
-    private final LiquibaseOperation operation;
 
     public LiquibaseWorkspaceSettingsDialog(
             LiquibaseWorkspaceBundle workspaces,
             LiquibaseWorkspace workspace,
-            boolean newWorkspace,
-            @Nullable LiquibaseOperation operation) {
+            boolean newWorkspace) {
         super(workspaces.getProject(), txt("msg.liquibase.title.WorkspaceSettings"), true);
         this.workspaces = workspaces;
         this.workspace = workspace.clone();
         this.newWorkspace = newWorkspace;
-        this.operation = operation;
         setModal(true);
         init();
     }
@@ -58,9 +53,7 @@ public class LiquibaseWorkspaceSettingsDialog extends DBNDialog<LiquibaseWorkspa
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        String caption = newWorkspace && operation != null
-                ? txt("msg.liquibase.button.AttachAnd_" + operation.name())
-                : txt(newWorkspace ? "msg.liquibase.button.CreateAndAttach" : "msg.liquibase.button.Update");
+        String caption = txt(newWorkspace ? "msg.shared.button.Create" : "msg.liquibase.button.Update");
         renameAction(getOKAction(), caption);
         return actions(getOKAction(), getCancelAction());
     }

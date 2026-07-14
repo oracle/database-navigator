@@ -20,7 +20,7 @@ public class LiquibaseExecutionRerunAction extends AbstractLiquibaseExecutionRes
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull LiquibaseExecutionResult target) {
         DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
-        liquibaseManager.rerun(target);
+        liquibaseManager.rerunOperation(target);
     }
 
     @Override

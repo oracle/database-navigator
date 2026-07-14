@@ -3,13 +3,14 @@ package com.dbn.liquibase.execution.ui;
 import com.dbn.common.ui.table.DBNDynamicTableModel;
 import com.dbn.liquibase.execution.LiquibaseExecutionItem;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
-import com.dbn.object.DBSchema;
 import liquibase.structure.core.Schema;
+import lombok.Getter;
 
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Table model for items processed by a Liquibase operation. */
+@Getter
 public class LiquibaseExecutionItemsTableModel extends DBNDynamicTableModel<LiquibaseExecutionItem> {
     private final LiquibaseExecutionResult result;
 
@@ -27,10 +28,6 @@ public class LiquibaseExecutionItemsTableModel extends DBNDynamicTableModel<Liqu
 
     public void refresh() {
         setData(result.getExecutionItems());
-    }
-
-    DBSchema getSchema() {
-        return result.getSchema();
     }
 
     private static String getSchemaName(LiquibaseExecutionItem item) {

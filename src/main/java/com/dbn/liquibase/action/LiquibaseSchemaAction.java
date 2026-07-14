@@ -18,24 +18,18 @@ package com.dbn.liquibase.action;
 
 import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
+import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.model.LiquibaseWorkspace;
+import com.dbn.liquibase.execution.ui.LiquibaseExecutionInputDialog;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Consumer;
-
-import static com.dbn.common.util.Messages.options;
-import static com.dbn.common.util.Messages.showQuestionDialog;
-import static com.dbn.common.util.Messages.whenOk;
-import static com.dbn.liquibase.action.LiquibaseWorkspaceSelector.selectLiquibaseWorkspace;
-import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.common.util.Dialogs.show;
+import static com.dbn.common.util.Dialogs.whenOk;
 
 /** Base action for Liquibase operations scoped to one database schema. */
 public abstract class LiquibaseSchemaAction extends ProjectAction {
@@ -60,40 +54,18 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
         return DatabaseLiquibaseManager.getInstance(project);
     }
 
-    protected boolean isWorkspaceAttached(@NotNull Project project) {
-        return getManager(project).isWorkspaceAttached(getSchema().getConnectionId());
-    }
-
-    protected void selectWorkspace(
-            @NotNull AnActionEvent event,
-            @NotNull Project project,
-            @NotNull LiquibaseOperation operation,
-            @NotNull Consumer<LiquibaseWorkspace> selectionConsumer) {
-        if (isWorkspaceAttached(project)) {
-            DatabaseLiquibaseManager manager = getManager(project);
-            LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
-
-            ConnectionId connectionId = getSchema().getConnectionId();
-            LiquibaseWorkspace workspace = workspaces.getWorkspace(connectionId);
-
-            selectionConsumer.accept(workspace);
-            return;
-        }
-
-        showQuestionDialog(
-                project,
-                txt("msg.liquibase.title.WorkspaceRequired"),
-                txt("msg.liquibase.message.WorkspaceRequired"),
-                options(txt("msg.liquibase.button.Attach"), txt("msg.shared.button.Cancel")),
-                0,
-                whenOk(() -> selectLiquibaseWorkspace(event, project, getConnection(), operation, selectionConsumer)));
-    }
-
     protected void executeOperation(
-            @NotNull AnActionEvent event,
             @NotNull Project project,
             @NotNull LiquibaseOperation operation) {
-        selectWorkspace(event, project, operation, workspace ->
-                getManager(project).executeOperation(getSchema(), operation, workspace, null));
+
+        DBSchema schema = getSchema();
+        DatabaseLiquibaseManager manager = getManager(project);
+        LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
+
+        show(() -> new LiquibaseExecutionInputDialog(schema, operation, workspaces),
+                whenOk(dialog -> {
+                    LiquibaseExecutionInput input = dialog.getExecutionInput();
+                    manager.executeOperation(input, null);
+                }));
     }
 }

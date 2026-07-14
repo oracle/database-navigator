@@ -66,9 +66,7 @@ public abstract class LiquibaseExecutionProcessor {
     @NotNull
     public LiquibaseExecutionResult prepareExecutionResult() {
         if (result == null) {
-            result = new LiquibaseExecutionResult(
-                    input.getSchema(),
-                    input.getOperation());
+            result = new LiquibaseExecutionResult(input);
         }
         return result;
     }
@@ -118,13 +116,13 @@ public abstract class LiquibaseExecutionProcessor {
             @NotNull ThrowableFunction<Database, T, Exception> operation) throws SQLException {
         return withPoolConnection(readonly, c -> {
             Connection connection = DBNConnection.getInner(c);
-            DatabaseCompatibilityInterface compatibilityInterface = input.getConnection().getCompatibilityInterface();
+            DatabaseCompatibilityInterface compatibilityInterface = input.getSourceConnection().getCompatibilityInterface();
             compatibilityInterface.initializeLiquibaseConnection(connection);
 
             DatabaseFactory databaseFactory = DatabaseFactory.getInstance();
             JdbcConnection jdbcConnection = new JdbcConnection(connection);
             Database database = databaseFactory.findCorrectDatabaseImplementation(jdbcConnection);
-            database.setDefaultSchemaName(input.getSchema().getName());
+            database.setDefaultSchemaName(input.getSourceSchema().getName());
 
             return operation.apply(database);
         });
@@ -156,7 +154,7 @@ public abstract class LiquibaseExecutionProcessor {
 
     protected <T> T withPoolConnection(boolean readonly, @NotNull ThrowableFunction<DBNConnection, T, Exception> operation) throws SQLException {
         checkCanceled();
-        ConnectionHandler connection = input.getConnection();
+        ConnectionHandler connection = input.getSourceConnection();
         ConnectionContext context = new ConnectionContext(
                 connection.getProject(),
                 connection.getConnectionId(),

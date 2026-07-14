@@ -21,6 +21,7 @@ import com.dbn.connection.SchemaId;
 import com.dbn.object.common.DBRootObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Set;
@@ -87,4 +88,8 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     SchemaId getIdentifier();
 
     Set<DatabaseEntity> resetObjectsStatus();
+
+    @Override
+    @NotNull
+    SchemaId getSchemaId();
 }

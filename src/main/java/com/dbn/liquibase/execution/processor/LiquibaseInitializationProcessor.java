@@ -75,7 +75,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
 
         withLiquibaseDatabase(true, database -> {
             checkCanceled();
-            String schemaName = getInput().getSchema().getName();
+            String schemaName = getInput().getSourceSchema().getName();
             database.setDefaultSchemaName(schemaName);
 
             withLiquibaseScope(contentRoot, result, output -> {

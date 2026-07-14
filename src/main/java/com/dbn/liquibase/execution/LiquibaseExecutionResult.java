@@ -6,17 +6,15 @@ import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.util.ExecutionTiming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.execution.ExecutionResultBase;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.liquibase.execution.logging.LogOutputBuffer;
 import com.dbn.liquibase.execution.ui.LiquibaseExecutionResultForm;
-import com.dbn.object.DBSchema;
-import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import liquibase.structure.DatabaseObject;
 import lombok.Getter;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,10 +30,9 @@ import java.util.Map;
 /** Execution-console result for a Liquibase operation and its console output. */
 @Getter
 public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecutionResultForm> {
-    private final DBObjectRef<DBSchema> schema;
-    private final ConnectionRef connection;
-    private final LiquibaseOperation operation;
-    @Nullable
+    @Delegate
+    private final LiquibaseExecutionInput input;
+
     private Path changelogPath;
     private final Listeners<Runnable> listeners = Listeners.create(this);
     private final LogOutputBuffer output;
@@ -91,21 +88,13 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     }
 
     public LiquibaseExecutionResult(
-            @NotNull DBSchema schema,
-            @NotNull LiquibaseOperation operation) {
-        this.schema = DBObjectRef.of(schema);
-        this.connection = schema.getConnection().ref();
-        this.operation = operation;
-        this.output = new LogOutputBuffer(schema.getProject());
+            @NotNull LiquibaseExecutionInput input) {
+        this.input = input;
+        this.output = new LogOutputBuffer(input.getProject());
     }
 
     public void setChangelogPath(@Nullable Path changelogPath) {
         this.changelogPath = changelogPath;
-    }
-
-    @NotNull
-    public DBSchema getSchema() {
-        return DBObjectRef.ensure(schema);
     }
 
     public void notifyStarted() {
@@ -163,7 +152,7 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     @NotNull
     @Override
     public String getName() {
-        return getConnection().getName() + " - " + getSchema().getName() + " - " + operation.name();
+        return getConnection().getName() + " - " + input.getRelevantSchema().getName() + " - " + input.getOperation().getName();
     }
 
     @Override
@@ -185,7 +174,7 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     @NotNull
     @Override
     public ConnectionHandler getConnection() {
-        return connection.ensure();
+        return input.getRelevantConnection();
     }
 
     @Override

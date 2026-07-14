@@ -47,7 +47,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         connectionLabel.setIcon(connection.getIcon());
         connectionLabel.setText(connection.getName());
 
-        DBSchema schema = result.getSchema();
+        DBSchema schema = result.getRelevantSchema();
         schemaLabel.setIcon(schema.getIcon());
         schemaLabel.setText(schema.getName());
 
@@ -72,7 +72,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private void updateMessageForm(@NotNull LiquibaseExecutionResult result) {
         updateStatus(result);
         updateChangelogLink(result);
-        messageForm.setMessage(createMessage(result, result.getSchema()));
+        messageForm.setMessage(createMessage(result, result.getRelevantSchema()));
     }
 
     private void updateChangelogLink(@NotNull LiquibaseExecutionResult result) {

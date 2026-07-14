@@ -17,7 +17,7 @@ public class ValidateChangelogAction extends LiquibaseSchemaAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        executeOperation(e, project, VALIDATE);
+        executeOperation(project, VALIDATE);
     }
 
     @Override

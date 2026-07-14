@@ -6,6 +6,7 @@ import static com.dbn.nls.NlsResources.txt;
 public enum LiquibaseOperation {
     INITIALIZE,
     VALIDATE,
+    COMPARE,
     STATUS,
     UPDATE,
     ROLLBACK;
@@ -16,6 +17,10 @@ public enum LiquibaseOperation {
 
     public String getDescription() {
         return txt("cfg.liquibase.text.OperationDescription_" + name());
+    }
+
+    public String getHint() {
+        return txt("cfg.liquibase.hint.Operation_" + name());
     }
 
     public boolean supportsProcessedItems() {

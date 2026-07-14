@@ -52,7 +52,7 @@ public class LiquibaseExecutionItemsTable extends DBNTableWithGutter<LiquibaseEx
         if (modelRow < 0 || modelRow >= getModel().getRowCount()) return;
 
         LiquibaseExecutionItem item = getModel().getData(modelRow);
-        DBSchema schema = getModel().getSchema();
+        DBSchema schema = getModel().getResult().getRelevantSchema();
         Progress.prompt(
                 schema.getProject(),
                 schema,
