@@ -1,21 +1,21 @@
 package com.dbn.liquibase.execution.ui;
 
 import com.dbn.common.ui.table.DBNDynamicTableModel;
-import com.dbn.liquibase.execution.LiquibaseExecutionItem;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.execution.LiquibaseSnapshotItem;
 import liquibase.structure.core.Schema;
 import lombok.Getter;
 
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.nls.NlsResources.txt;
 
-/** Table model for items processed by a Liquibase operation. */
+/** Table model for database objects discovered during a Liquibase snapshot. */
 @Getter
-public class LiquibaseExecutionItemsTableModel extends DBNDynamicTableModel<LiquibaseExecutionItem> {
+public class LiquibaseSnapshotItemsTableModel extends DBNDynamicTableModel<LiquibaseSnapshotItem> {
     private final LiquibaseExecutionResult result;
 
-    LiquibaseExecutionItemsTableModel(LiquibaseExecutionResult result) {
-        super(LiquibaseExecutionItem.class, result.getExecutionItems());
+    LiquibaseSnapshotItemsTableModel(LiquibaseExecutionResult result) {
+        super(LiquibaseSnapshotItem.class, result.getSnapshotItems());
         this.result = result;
         addColumn(txt("app.liquibase.column.DiscoveryOrder"), e -> getData().indexOf(e) + 1);
         addColumn(txt("app.liquibase.column.Schema"), e -> getSchemaName(e));
@@ -27,10 +27,10 @@ public class LiquibaseExecutionItemsTableModel extends DBNDynamicTableModel<Liqu
     }
 
     public void refresh() {
-        setData(result.getExecutionItems());
+        setData(result.getSnapshotItems());
     }
 
-    private static String getSchemaName(LiquibaseExecutionItem item) {
+    private static String getSchemaName(LiquibaseSnapshotItem item) {
         Schema schema = item.getDatabaseObject().getSchema();
         return schema == null ? null : schema.getName();
     }

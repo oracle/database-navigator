@@ -8,7 +8,7 @@ import com.dbn.common.ui.table.DBNTableTransferHandler;
 import com.dbn.common.ui.table.DBNTableWithGutter;
 import com.dbn.common.ui.util.Keyboard;
 import com.dbn.common.ui.util.Mouse;
-import com.dbn.liquibase.execution.LiquibaseExecutionItem;
+import com.dbn.liquibase.execution.LiquibaseSnapshotItem;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import org.jetbrains.annotations.NotNull;
@@ -20,16 +20,16 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Borderless.markBorderless;
 import static com.dbn.nls.NlsResources.txt;
 
-/** Table displaying structured items processed by a Liquibase operation. */
-public class LiquibaseExecutionItemsTable extends DBNTableWithGutter<LiquibaseExecutionItemsTableModel> {
-    public LiquibaseExecutionItemsTable(@NotNull DBNComponent parent, LiquibaseExecutionItemsTableModel model) {
+/** Table displaying database objects discovered during a Liquibase snapshot. */
+public class LiquibaseSnapshotItemsTable extends DBNTableWithGutter<LiquibaseSnapshotItemsTableModel> {
+    public LiquibaseSnapshotItemsTable(@NotNull DBNComponent parent, LiquibaseSnapshotItemsTableModel model) {
         super(parent, model, true);
         setCellSelectionEnabled(true);
         setDefaultRenderer(Object.class, new DBNDynamicTableCellRenderer());
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
         initTableSorter();
         markBorderless(this);
-        setAccessibleName(this, txt("app.liquibase.aria.ProcessedItems"));
+        setAccessibleName(this, txt("app.liquibase.aria.SnapshotItems"));
         Mouse.onMouseDoubleClick(this, event -> navigateToRow(rowAtPoint(event.getPoint())));
         Keyboard.onKeyPress(this, KeyEvent.VK_SPACE, event -> navigateToSelectedRow());
     }
@@ -51,7 +51,7 @@ public class LiquibaseExecutionItemsTable extends DBNTableWithGutter<LiquibaseEx
         int modelRow = convertRowIndexToModel(viewRow);
         if (modelRow < 0 || modelRow >= getModel().getRowCount()) return;
 
-        LiquibaseExecutionItem item = getModel().getData(modelRow);
+        LiquibaseSnapshotItem item = getModel().getData(modelRow);
         DBSchema schema = getModel().getResult().getRelevantSchema();
         Progress.prompt(
                 schema.getProject(),

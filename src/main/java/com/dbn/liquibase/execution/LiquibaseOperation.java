@@ -45,7 +45,11 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
         return getTargetContextState().isVisible();
     }
 
-    public boolean supportsProcessedItems() {
+    public boolean supportsSnapshotItems() {
         return this == INITIALIZE;
+    }
+
+    public boolean supportsChangeSetItems() {
+        return this == UPDATE;
     }
 }

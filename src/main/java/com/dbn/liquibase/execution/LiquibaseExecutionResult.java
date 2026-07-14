@@ -12,6 +12,7 @@ import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.liquibase.execution.logging.LogOutputBuffer;
 import com.dbn.liquibase.execution.ui.LiquibaseExecutionResultForm;
 import com.intellij.openapi.project.Project;
+import liquibase.changelog.ChangeSet;
 import liquibase.structure.DatabaseObject;
 import lombok.Getter;
 import lombok.experimental.Delegate;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /** Execution-console result for a Liquibase operation and its console output. */
 @Getter
@@ -37,53 +39,82 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     private final Listeners<Runnable> listeners = Listeners.create(this);
     private final LogOutputBuffer output;
     private final ExecutionTiming timing = new ExecutionTiming();
-    private final Map<String, LiquibaseExecutionItem> executionItems = new LinkedHashMap<>();
+    private final Map<String, LiquibaseSnapshotItem> snapshotItems = new LinkedHashMap<>();
+    private final Map<String, LiquibaseChangeSetItem> changeSetItems = new LinkedHashMap<>();
     private volatile TaskStatus status = TaskStatus.NEW;
 
     @NotNull
-    public List<LiquibaseExecutionItem> getExecutionItems() {
-        synchronized (executionItems) {
-            return new ArrayList<>(executionItems.values());
+    public List<LiquibaseSnapshotItem> getSnapshotItems() {
+        synchronized (snapshotItems) {
+            return new ArrayList<>(snapshotItems.values());
         }
     }
 
     @NotNull
-    public LiquibaseExecutionItem ensureExecutionItem(@NotNull DatabaseObject databaseObject) {
-        String key = getDatabaseObjectKey(databaseObject);
-        LiquibaseExecutionItem item;
+    public List<LiquibaseChangeSetItem> getChangeSetItems() {
+        synchronized (changeSetItems) {
+            return new ArrayList<>(changeSetItems.values());
+        }
+    }
+
+    @NotNull
+    public LiquibaseSnapshotItem ensureSnapshotItem(@NotNull DatabaseObject databaseObject) {
+        return ensureItem(snapshotItems,
+                buildDatabaseObjectKey(databaseObject),
+                () -> new LiquibaseSnapshotItem(databaseObject));
+    }
+
+    @NotNull
+    public LiquibaseChangeSetItem ensureChangeSetItem(@NotNull ChangeSet changeSet) {
+        return ensureItem(changeSetItems,
+                buildChangeSetKey(changeSet),
+                () -> new LiquibaseChangeSetItem(changeSet));
+    }
+
+    @NotNull
+    private <I extends LiquibaseExecutionItem> I ensureItem(
+            @NotNull Map<String, I> items,
+            @NotNull String key,
+            @NotNull Supplier<I> factory) {
+        I item;
         boolean created = false;
-        synchronized (executionItems) {
-            item = executionItems.get(key);
+        synchronized (items) {
+            item = items.get(key);
             if (item == null) {
-                item = new LiquibaseExecutionItem(databaseObject);
-                executionItems.put(key, item);
+                item = factory.get();
+                items.put(key, item);
                 created = true;
             }
         }
-        if (created) notifListeners();
+        if (created) notifyItemsChanged();
         return item;
     }
 
     @NotNull
-    private String getDatabaseObjectKey(@NotNull DatabaseObject databaseObject) {
+    public static String buildDatabaseObjectKey(@NotNull DatabaseObject databaseObject) {
         String schemaName = databaseObject.getSchema() == null ? "" : databaseObject.getSchema().getName();
         return databaseObject.getObjectTypeName() + ':' + schemaName + ':' + databaseObject.getName();
     }
 
+    @NotNull
+    public static String buildChangeSetKey(@NotNull ChangeSet changeSet) {
+        return changeSet.getFilePath() + ':' + changeSet.getAuthor() + ':' + changeSet.getId();
+    }
+
     public void updateExecutionItem(
-            @NotNull LiquibaseExecutionItem item,
+            @NotNull LiquibaseSnapshotItem item,
             @NotNull DatabaseObject databaseObject,
             @NotNull LiquibaseExecutionItemStatus status,
             String message) {
         item.update(databaseObject, status, message);
-        notifListeners();
+        notifyItemsChanged();
     }
 
     public void addListener(@NotNull Runnable listener) {
         listeners.add(listener);
     }
 
-    private void notifListeners() {
+    public void notifyItemsChanged() {
         listeners.notify(Runnable::run);
     }
 
@@ -100,19 +131,19 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     public void notifyStarted() {
         status = TaskStatus.RUNNING;
         timing.start();
-        notifListeners();
+        notifyItemsChanged();
     }
 
     public void notifyFinished(@NotNull TaskStatus status) {
         this.status = status;
         timing.finish();
-        notifListeners();
+        notifyItemsChanged();
     }
 
     public void notifyCancelled() {
         status = TaskStatus.CANCELLED;
         timing.finish();
-        notifListeners();
+        notifyItemsChanged();
     }
 
     @NotNull
@@ -123,19 +154,19 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     public void appendConsoleOutput(@Nullable @Nls String output) {
         if (output == null) return;
         this.output.appendStdOutput(output);
-        notifListeners();
+        notifyItemsChanged();
     }
 
     public void appendErrorOutput(@Nullable @Nls String output) {
         if (output == null) return;
         this.output.appendErrOutput(output);
-        notifListeners();
+        notifyItemsChanged();
     }
 
     public void appendInfoOutput(@Nullable @Nls String output) {
         if (output == null) return;
         this.output.appendSysOutput(getConnection(), output);
-        notifListeners();
+        notifyItemsChanged();
     }
 
     @NotNull

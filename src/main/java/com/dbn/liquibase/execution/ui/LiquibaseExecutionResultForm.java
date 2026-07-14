@@ -29,7 +29,8 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
     private JTabbedPane contentTabbedPane;
 
     private ExecutionResultLogConsole console;
-    private LiquibaseExecutionItemsTableModel executionItemsTableModel;
+    private LiquibaseSnapshotItemsTableModel snapshotItemsTableModel;
+    private LiquibaseChangeSetItemsTableModel changeSetItemsTableModel;
     private int outputOffset;
 
     public LiquibaseExecutionResultForm(@NotNull LiquibaseExecutionResult result) {
@@ -37,9 +38,9 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
         initActionsPanel();
         initSummaryPanel();
         initConsolePanel();
-        initExecutionItemsPanel();
+        initContentItemsPanel();
         initResultListeners();
-        updateResult(result, executionItemsTableModel);
+        updateResult(result, snapshotItemsTableModel, changeSetItemsTableModel);
     }
 
     private void initActionsPanel() {
@@ -61,26 +62,45 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
         Disposer.register(this, console);
     }
 
-    private void initExecutionItemsPanel() {
+    private void initContentItemsPanel() {
         LiquibaseExecutionResult result = getExecutionResult();
-        if (!result.getOperation().supportsProcessedItems()) return;
+        if (result.getOperation().supportsSnapshotItems()) {
+            initSnapshotItemsPanel(result);
+        } else if (result.getOperation().supportsChangeSetItems()) {
+            initChangeSetItemsPanel(result);
+        }
+    }
 
-        executionItemsTableModel = new LiquibaseExecutionItemsTableModel(result);
+    private void initSnapshotItemsPanel(@NotNull LiquibaseExecutionResult result) {
+        snapshotItemsTableModel = new LiquibaseSnapshotItemsTableModel(result);
 
-        LiquibaseExecutionItemsTable executionItemsTable = new LiquibaseExecutionItemsTable(this, executionItemsTableModel);
-        contentTabbedPane.addTab("Processed Items", new DBNScrollPane(executionItemsTable));
+        LiquibaseSnapshotItemsTable snapshotItemsTable = new LiquibaseSnapshotItemsTable(this, snapshotItemsTableModel);
+        contentTabbedPane.addTab(txt("app.liquibase.title.SnapshotItems"), new DBNScrollPane(snapshotItemsTable));
+    }
+
+    private void initChangeSetItemsPanel(@NotNull LiquibaseExecutionResult result) {
+        changeSetItemsTableModel = new LiquibaseChangeSetItemsTableModel(result);
+
+        LiquibaseChangeSetItemsTable changeSetItemsTable =
+                new LiquibaseChangeSetItemsTable(this, changeSetItemsTableModel);
+        contentTabbedPane.addTab(txt("app.liquibase.title.ChangeSetItems"), new DBNScrollPane(changeSetItemsTable));
     }
 
     private void initResultListeners() {
         LiquibaseExecutionResult result = getExecutionResult();
-        result.addListener(() -> Dispatch.run(false, () -> updateResult(result, executionItemsTableModel)));
+        result.addListener(() -> Dispatch.run(false, () -> updateResult(
+                result,
+                snapshotItemsTableModel,
+                changeSetItemsTableModel)));
     }
 
     private void updateResult(
             @NotNull LiquibaseExecutionResult result,
-            @Nullable LiquibaseExecutionItemsTableModel tableModel) {
+            @Nullable LiquibaseSnapshotItemsTableModel snapshotTableModel,
+            @Nullable LiquibaseChangeSetItemsTableModel changeSetTableModel) {
         boolean outputChanged = updateConsoleOutput(result);
-        if (tableModel != null) tableModel.refresh();
+        if (snapshotTableModel != null) snapshotTableModel.refresh();
+        if (changeSetTableModel != null) changeSetTableModel.refresh();
         if (outputChanged) console.markOutputUnread();
     }
 
@@ -103,9 +123,9 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
 
         initSummaryPanel();
         initConsolePanel();
-        initExecutionItemsPanel();
+        initContentItemsPanel();
         initResultListeners();
-        updateResult(getExecutionResult(), executionItemsTableModel);
+        updateResult(getExecutionResult(), snapshotItemsTableModel, changeSetItemsTableModel);
 
         mainPanel.revalidate();
         mainPanel.repaint();

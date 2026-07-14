@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -48,10 +49,13 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private JPanel messagePanel;
     private DBNMessageForm messageForm;
     private final LiquibaseExecutionResult result;
+    private final Timer durationTimer;
 
     LiquibaseExecutionSummaryForm(Disposable parent, @NotNull LiquibaseExecutionResult result) {
         super(parent, result.getProject());
         this.result = result;
+        durationTimer = new Timer(1000, e -> updateDuration(result));
+        durationTimer.setRepeats(true);
 
         initContextLabels(result);
         setSchemaContext(
@@ -125,9 +129,10 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     }
 
     private void updateMessageForm(@NotNull LiquibaseExecutionResult result) {
-        updateStatus(result);
+        updateStatusLabel(result);
         updateChangelogLink(result);
         messageForm.setMessage(createMessage(result, result.getRelevantSchema()));
+        updateDuration(result);
     }
 
     private void updateChangelogLink(@NotNull LiquibaseExecutionResult result) {
@@ -157,8 +162,27 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     }
 
     private void updateStatus(@NotNull LiquibaseExecutionResult result) {
+        updateStatusLabel(result);
+        updateDuration(result);
+    }
+
+    private void updateStatusLabel(@NotNull LiquibaseExecutionResult result) {
         statusLabel.setText(result.getStatus().getName());
+    }
+
+    private void updateDuration(@NotNull LiquibaseExecutionResult result) {
         durationLabel.setText(presentableDuration(result.getExecutionDuration(), true));
+        if (result.getStatus() == TaskStatus.RUNNING) {
+            if (!durationTimer.isRunning()) durationTimer.start();
+        } else {
+            durationTimer.stop();
+        }
+    }
+
+    @Override
+    public void disposeInner() {
+        durationTimer.stop();
+        super.disposeInner();
     }
 
     @NotNull

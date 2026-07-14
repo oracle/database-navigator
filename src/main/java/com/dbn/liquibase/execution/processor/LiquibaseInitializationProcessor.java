@@ -18,11 +18,11 @@ package com.dbn.liquibase.execution.processor;
 
 import com.dbn.common.util.Strings;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
-import com.dbn.liquibase.execution.LiquibaseExecutionItem;
 import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.execution.LiquibaseSnapshotItem;
 import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
@@ -109,7 +109,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
                 if (object == null) return;
 
                 checkCanceled();
-                LiquibaseExecutionItem item = result.ensureExecutionItem(object);
+                LiquibaseSnapshotItem item = result.ensureSnapshotItem(object);
                 item.startProcessing();
 
                 result.appendInfoOutput(txt(
@@ -122,7 +122,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
                 if (object == null) return;
 
                 checkCanceled();
-                LiquibaseExecutionItem item = result.ensureExecutionItem(object);
+                LiquibaseSnapshotItem item = result.ensureSnapshotItem(object);
                 item.finishProcessing();
 
                 DatabaseObject processedObject = snapshot == null ? object : snapshot;
@@ -151,7 +151,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
     }
 
     @NotNull
-    private static String describe(@NotNull LiquibaseExecutionItem item) {
+    private static String describe(@NotNull LiquibaseSnapshotItem item) {
         DatabaseObject containerObject = item.getContainerObject();
         String description = describe(item.getObjectType(), item.getDatabaseObject().getName());
         if (containerObject == null) return description;
