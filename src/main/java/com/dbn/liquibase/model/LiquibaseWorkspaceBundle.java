@@ -20,6 +20,7 @@ import com.dbn.common.project.ProjectRef;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.DatabaseType;
 import com.dbn.connection.SchemaId;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -46,6 +47,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.equalsIgnoreCase;
 import static com.dbn.common.util.Strings.isEmpty;
 
@@ -75,8 +77,21 @@ public class LiquibaseWorkspaceBundle implements PersistentStateElement, Cloneab
     }
 
     @NotNull
-    public List<LiquibaseWorkspace> getWorkspaceList() {
+    public List<LiquibaseWorkspace> getWorkspaces() {
         return new ArrayList<>(entries.values());
+    }
+
+    public List<LiquibaseWorkspace> getWorkspaces(DatabaseType databaseType) {
+        return filter(getWorkspaces(), w -> isCompatible(w, databaseType));
+    };
+
+    private static boolean isCompatible(
+            @NotNull LiquibaseWorkspace workspace,
+            @NotNull DatabaseType databaseType) {
+        DatabaseType workspaceType = workspace.getDatabaseType();
+        if (workspaceType == null || workspaceType == DatabaseType.GENERIC) return true;
+        DatabaseType contextType = databaseType == DatabaseType.UNKNOWN ? DatabaseType.GENERIC : databaseType;
+        return workspaceType == contextType;
     }
 
     public void moveWorkspace(@NotNull LiquibaseWorkspace workspace, int offset) {

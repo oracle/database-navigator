@@ -21,6 +21,7 @@ import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.UUIDs;
+import com.dbn.connection.DatabaseType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -30,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 import java.util.Objects;
 
+import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
@@ -47,6 +50,7 @@ public class LiquibaseWorkspace implements PersistentStateElement, Presentable, 
 
     private String id = UUIDs.regular();
     private String name;
+    private DatabaseType databaseType;
     private String contentRootPath;
     private String rootPath = DEFAULT_ROOT_PATH;
     private String changelogDirectory = DEFAULT_CHANGELOG_DIRECTORY;
@@ -67,6 +71,7 @@ public class LiquibaseWorkspace implements PersistentStateElement, Presentable, 
     public void readState(@NotNull Element element) {
         id = stringAttribute(element, "id", id);
         name = stringAttribute(element, "name", name);
+        databaseType = enumAttribute(element, "database-type", DatabaseType.GENERIC);
         contentRootPath = stringAttribute(element, "content-root-path", contentRootPath);
         rootPath = stringAttribute(element, "root-path", rootPath);
         changelogDirectory = stringAttribute(element, "changelog-directory", changelogDirectory);
@@ -79,6 +84,7 @@ public class LiquibaseWorkspace implements PersistentStateElement, Presentable, 
     public void writeState(@NotNull Element element) {
         setStringAttribute(element, "id", id);
         setStringAttribute(element, "name", name);
+        setEnumAttribute(element, "database-type", databaseType);
         setStringAttribute(element, "content-root-path", contentRootPath);
         setStringAttribute(element, "root-path", rootPath);
         setStringAttribute(element, "changelog-directory", changelogDirectory);

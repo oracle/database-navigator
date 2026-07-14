@@ -16,6 +16,7 @@ public class LiquibaseWorkspaceBundleSettingsDialog extends DBNDialog<LiquibaseW
     public LiquibaseWorkspaceBundleSettingsDialog(LiquibaseWorkspaceBundle workspaces) {
         super(workspaces.getProject(), txt("msg.liquibase.title.WorkspaceSettings"), true);
         this.workspaces = workspaces.clone();
+        setDefaultSize(800, 600);
         init();
     }
 
@@ -33,7 +34,7 @@ public class LiquibaseWorkspaceBundleSettingsDialog extends DBNDialog<LiquibaseW
     @Override
     @NotNull
     protected Action[] initializeActions() {
-        renameAction(getOKAction(), txt("msg.liquibase.button.Update"));
+        renameAction(getOKAction(), txt("msg.shared.button.OK"));
         updateDialogButtons();
         return actions(
                 getOKAction(),

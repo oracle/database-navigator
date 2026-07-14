@@ -23,6 +23,7 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Background;
 import com.dbn.common.util.Dialogs;
+import com.dbn.connection.DatabaseType;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
@@ -105,9 +106,17 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         });
     }
 
-    public void openWorkspaceCreationDialog(@Nullable Consumer<LiquibaseWorkspace> consumer) {
+    public void openWorkspaceCreationDialog(
+            @Nullable DatabaseType databaseType,
+            @Nullable Consumer<LiquibaseWorkspace> consumer) {
+        LiquibaseWorkspace workspace = new LiquibaseWorkspace();
+        workspace.setDatabaseType(databaseType);
+
         Dialogs.show(
-                () -> new LiquibaseWorkspaceSettingsDialog(workspaces, new LiquibaseWorkspace(), true),
+                () -> new LiquibaseWorkspaceSettingsDialog(
+                        workspaces,
+                        workspace,
+                        databaseType, true),
                 whenOk(dialog -> {
                     if (consumer != null) consumer.accept(dialog.getWorkspace());
                 }));

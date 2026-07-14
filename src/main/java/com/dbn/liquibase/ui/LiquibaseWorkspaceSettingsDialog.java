@@ -17,10 +17,12 @@
 package com.dbn.liquibase.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.connection.DatabaseType;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
@@ -31,15 +33,18 @@ public class LiquibaseWorkspaceSettingsDialog extends DBNDialog<LiquibaseWorkspa
     private final LiquibaseWorkspaceBundle workspaces;
     private final LiquibaseWorkspace workspace;
     private final boolean newWorkspace;
+    private final DatabaseType databaseType;
 
     public LiquibaseWorkspaceSettingsDialog(
             LiquibaseWorkspaceBundle workspaces,
             LiquibaseWorkspace workspace,
+            @Nullable DatabaseType databaseType,
             boolean newWorkspace) {
         super(workspaces.getProject(), txt("msg.liquibase.title.WorkspaceSettings"), true);
         this.workspaces = workspaces;
         this.workspace = workspace.clone();
         this.newWorkspace = newWorkspace;
+        this.databaseType = databaseType;
         setModal(true);
         init();
     }

@@ -23,20 +23,27 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.ContentRootSelector;
+import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.connection.DatabaseType;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.intellij.openapi.Disposable;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
@@ -55,6 +62,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
     private DBNHyperlinkLabel documentationLink;
     private ContentRootSelector contentRootComboBox;
     private JBTextField nameTextField;
+    private DBNComboBox<DatabaseType> databaseTypeSelector;
     private JBTextField rootPathTextField;
     private JBTextField changelogDirectoryTextField;
     private JBTextField sqlDirectoryTextField;
@@ -64,20 +72,31 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
 
     private final LiquibaseWorkspaceBundle workspaces;
     private final LiquibaseWorkspace workspace;
+    private final DatabaseType databaseType;
 
     LiquibaseWorkspaceSettingsForm(@NotNull LiquibaseWorkspaceSettingsDialog parent) {
         this(parent,
                 parent.getWorkspaces(),
-                parent.getWorkspace());
+                parent.getWorkspace(),
+                parent.getDatabaseType());
     }
 
     LiquibaseWorkspaceSettingsForm(
             @NotNull DBNComponent parent,
             @NotNull LiquibaseWorkspaceBundle workspaces,
             @NotNull LiquibaseWorkspace workspace) {
+        this(parent, workspaces, workspace, null);
+    }
+
+    LiquibaseWorkspaceSettingsForm(
+            @NotNull DBNComponent parent,
+            @NotNull LiquibaseWorkspaceBundle workspaces,
+            @NotNull LiquibaseWorkspace workspace,
+            @Nullable DatabaseType databaseType) {
         super(parent);
         this.workspaces = workspaces;
         this.workspace = workspace;
+        this.databaseType = databaseType;
         initHeaderPanel();
         initHintPanel();
         initHyperlinksPanel();
@@ -105,6 +124,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
 
     private void initFields() {
         initContentRoots();
+        initDatabaseTypes();
         initPlaceholders();
         resetFormChanges();
         initPathListeners();
@@ -113,6 +133,20 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
 
     private void initContentRoots() {
         contentRootComboBox.setContentRoots(workspaces.getContentRoots());
+    }
+
+    private void initDatabaseTypes() {
+        List<DatabaseType> values = getDatabaseTypeValues();
+        databaseTypeSelector.setValues(values);
+        setSelection(databaseTypeSelector, workspace.getDatabaseType());
+    }
+
+    @NotNull
+    private List<DatabaseType> getDatabaseTypeValues() {
+        if (databaseType == null) return Arrays.asList(DatabaseType.supported());
+        DatabaseType sourceType = databaseType == DatabaseType.UNKNOWN ? DatabaseType.GENERIC : databaseType;
+        if (sourceType == DatabaseType.GENERIC) return List.of(DatabaseType.GENERIC);
+        return List.of(DatabaseType.GENERIC, sourceType);
     }
 
     private void initPlaceholders() {
@@ -170,6 +204,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
     @Override
     protected void initValidation() {
         addRequiredTextValidation(nameTextField, txt("msg.liquibase.error.WorkspaceNameRequired"));
+        addSelectionValidation(databaseTypeSelector, txt("msg.liquibase.error.DatabaseTypeRequired"));
         addValidation(nameTextField, field -> validateWorkspaceName());
         addSelectionValidation(contentRootComboBox,    txt("msg.liquibase.error.ContentRootRequired"));
         addValidation(rootPathTextField, field -> validateWorkspaceRoot());
@@ -226,6 +261,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
 
     public void resetFormChanges() {
         setText(nameTextField, workspace.getName());
+        setSelection(databaseTypeSelector, workspace.getDatabaseType());
         setText(rootPathTextField, workspace.getRootPath());
         contentRootComboBox.setSelectedPath(workspace.getContentRootPath());
         setText(changelogDirectoryTextField, workspace.getChangelogDirectory());
@@ -236,6 +272,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
 
     public void applyFormChanges() {
         workspace.setName(getText(nameTextField));
+        workspace.setDatabaseType(getSelection(databaseTypeSelector));
         workspace.setRootPath(getText(rootPathTextField));
         workspace.setContentRootPath(contentRootComboBox.getSelectedPath());
         workspace.setChangelogDirectory(getText(changelogDirectoryTextField));

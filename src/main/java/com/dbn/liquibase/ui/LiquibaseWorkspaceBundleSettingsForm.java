@@ -61,7 +61,7 @@ public class LiquibaseWorkspaceBundleSettingsForm extends DBNFormBase {
 
     private void updateWorkspaces() {
         DefaultListModel<LiquibaseWorkspace> model = new DefaultListModel<>();
-        workspaces.getWorkspaceList().forEach(model::addElement);
+        workspaces.getWorkspaces().forEach(model::addElement);
         workspacesList.setModel(model);
     }
 

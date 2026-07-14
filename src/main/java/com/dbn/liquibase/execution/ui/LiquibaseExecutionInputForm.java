@@ -27,6 +27,7 @@ import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
+import com.dbn.connection.DatabaseType;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseOperation;
@@ -118,20 +119,26 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
     private void initWorkspaceSelector() {
         LiquibaseWorkspaceBundle workspaces = parent.getWorkspaces();
+        ConnectionHandler connection = executionInput.getRelevantConnection();
         DBSchema schema = executionInput.getRelevantSchema();
+
+        DatabaseType databaseType = connection.getDatabaseType();
+        List<LiquibaseWorkspace> availableWorkspaces = workspaces.getWorkspaces(databaseType);
 
         LiquibaseWorkspace selectedWorkspace = workspaces.getSelectedWorkspace(
                 schema.getConnectionId(),
                 schema.getSchemaId());
-        workspaceSelector.setValues(workspaces.getWorkspaceList());
-        workspaceSelector.setSelectedValue(selectedWorkspace);
+        workspaceSelector.setValues(availableWorkspaces);
+        workspaceSelector.setSelectedValue(availableWorkspaces.contains(selectedWorkspace) ? selectedWorkspace : null);
         updateWorkspacePath();
         workspaceSelector.withValueFactory(new ValueFactory<>(txt("app.liquibase.action.NewWorkspace")) {
             @Override
             public void createValue(Consumer<LiquibaseWorkspace> consumer) {
                 Project project = executionInput.getProject();
                 DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
-                liquibaseManager.openWorkspaceCreationDialog(consumer);
+                liquibaseManager.openWorkspaceCreationDialog(
+                        connection.getDatabaseType(),
+                        consumer);
             }
         });
         onSelectionChange(workspaceSelector, value -> {
