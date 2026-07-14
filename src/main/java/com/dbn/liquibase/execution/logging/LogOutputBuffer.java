@@ -17,7 +17,6 @@
 package com.dbn.liquibase.execution.logging;
 
 import com.dbn.common.project.ProjectRef;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
@@ -29,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.dbn.common.util.Strings.isEmpty;
 
 /** Thread-safe ordered buffer for Liquibase console output. */
 @Getter
@@ -52,7 +53,7 @@ public class LogOutputBuffer {
     }
 
     public void appendStdOutput(@Nullable String text) {
-        if (Strings.isEmpty(text)) return;
+        if (isEmpty(text)) return;
 
         LogOutput logOutput = LogOutput.createStdOutput(text);
         decorate(logOutput);
@@ -60,7 +61,7 @@ public class LogOutputBuffer {
     }
 
     public void appendErrOutput(@Nullable String text) {
-        if (Strings.isEmpty(text)) return;
+        if (isEmpty(text)) return;
 
         LogOutput logOutput = LogOutput.createErrOutput(text);
         decorate(logOutput);
@@ -68,7 +69,7 @@ public class LogOutputBuffer {
     }
 
     public void appendSysOutput(@NotNull ConnectionHandler connection, @Nullable String text) {
-        if (Strings.isEmpty(text)) return;
+        if (isEmpty(text)) return;
 
         LogOutput logOutput = timestampsEnabled ?
                 LogOutput.createSysOutput(new LogOutputContext(connection), System.currentTimeMillis(), text, false) :

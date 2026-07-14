@@ -13,6 +13,7 @@ import com.dbn.liquibase.execution.logging.LogOutputBuffer;
 import com.dbn.liquibase.execution.ui.LiquibaseExecutionResultForm;
 import com.intellij.openapi.project.Project;
 import liquibase.changelog.ChangeSet;
+import liquibase.diff.ObjectDifferences;
 import liquibase.structure.DatabaseObject;
 import lombok.Getter;
 import lombok.experimental.Delegate;
@@ -41,6 +42,7 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     private final ExecutionTiming timing = new ExecutionTiming();
     private final Map<String, LiquibaseSnapshotItem> snapshotItems = new LinkedHashMap<>();
     private final Map<String, LiquibaseChangeSetItem> changeSetItems = new LinkedHashMap<>();
+    private final Map<String, LiquibaseComparisonItem> comparisonItems = new LinkedHashMap<>();
     private volatile TaskStatus status = TaskStatus.NEW;
 
     @NotNull
@@ -58,6 +60,13 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     }
 
     @NotNull
+    public List<LiquibaseComparisonItem> getComparisonItems() {
+        synchronized (comparisonItems) {
+            return new ArrayList<>(comparisonItems.values());
+        }
+    }
+
+    @NotNull
     public LiquibaseSnapshotItem ensureSnapshotItem(@NotNull DatabaseObject databaseObject) {
         return ensureItem(snapshotItems,
                 buildDatabaseObjectKey(databaseObject),
@@ -69,6 +78,22 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
         return ensureItem(changeSetItems,
                 buildChangeSetKey(changeSet),
                 () -> new LiquibaseChangeSetItem(changeSet));
+    }
+
+    @NotNull
+    public LiquibaseComparisonItem ensureComparisonItem(
+            @Nullable DatabaseObject sourceObject,
+            @Nullable DatabaseObject targetObject,
+            @NotNull LiquibaseComparisonItemStatus status,
+            @Nullable ObjectDifferences differences) {
+        LiquibaseComparisonItem item = new LiquibaseComparisonItem(sourceObject, targetObject, status, differences);
+        synchronized (comparisonItems) {
+            LiquibaseComparisonItem existing = comparisonItems.get(item.getKey());
+            if (existing != null) return existing;
+            comparisonItems.put(item.getKey(), item);
+        }
+        notifyItemsChanged();
+        return item;
     }
 
     @NotNull

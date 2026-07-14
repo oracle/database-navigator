@@ -17,6 +17,7 @@
 package com.dbn.execution.logging;
 
 import com.dbn.common.locale.Formatter;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.openapi.project.Project;
@@ -58,7 +59,7 @@ public class LogOutput {
         this(text, type, false, false);
     }
     private LogOutput(String text, Type type, boolean scrollToEnd, boolean clearBuffer) {
-        this.text = text;
+        this.text = Strings.trim(text);
         this.type = type;
         this.scrollToEnd = scrollToEnd;
         this.clearBuffer = clearBuffer;

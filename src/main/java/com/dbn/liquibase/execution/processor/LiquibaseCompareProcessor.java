@@ -23,9 +23,15 @@ import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
+import liquibase.CatalogAndSchema;
+import liquibase.diff.DiffGeneratorFactory;
+import liquibase.diff.DiffResult;
+import liquibase.diff.compare.CompareControl;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
+import static com.dbn.liquibase.execution.LiquibaseComparisonItemStatus.CHANGED;
+import static com.dbn.liquibase.execution.LiquibaseComparisonItemStatus.MISSING;
+import static com.dbn.liquibase.execution.LiquibaseComparisonItemStatus.UNEXPECTED;
 
 /**
  * Compares the source and target schemas supplied by the execution input through Liquibase's
@@ -60,12 +66,23 @@ public class LiquibaseCompareProcessor extends LiquibaseExecutionProcessor {
                 withLiquibaseDatabase(context, true, targetSchema, targetDatabase ->
                         withLiquibaseScope(context, paths.getContentRootPath(), output -> {
                             checkCanceled(context);
-                            return executeCommand("diff", output, Map.of(
-                                    "referenceDatabase", sourceDatabase,
-                                    "database", targetDatabase,
-                                    "referenceSchemas", sourceSchema.getName(),
-                                    "schemas", targetSchema.getName(),
-                                    "diffTypes", DIFF_TYPES));
+                            CompareControl compareControl = new CompareControl(
+                                    new CompareControl.SchemaComparison[]{new CompareControl.SchemaComparison(
+                                            new CatalogAndSchema(sourceDatabase.getDefaultCatalogName(), sourceSchema.getName()),
+                                            new CatalogAndSchema(targetDatabase.getDefaultCatalogName(), targetSchema.getName()))},
+                                    DIFF_TYPES);
+                            DiffResult diffResult = DiffGeneratorFactory.getInstance().compare(
+                                    sourceDatabase, targetDatabase, compareControl);
+                            populateComparisonItems(result, diffResult);
+                            return diffResult;
                         })));
+    }
+
+    private static void populateComparisonItems(
+            @NotNull LiquibaseExecutionResult result,
+            @NotNull DiffResult diffResult) {
+        diffResult.getMissingObjects().forEach(o -> result.ensureComparisonItem(o, null, MISSING, null));
+        diffResult.getUnexpectedObjects().forEach(o -> result.ensureComparisonItem(null, o, UNEXPECTED, null));
+        diffResult.getChangedObjects().forEach((o, d) -> result.ensureComparisonItem(o, null, CHANGED, d));
     }
 }

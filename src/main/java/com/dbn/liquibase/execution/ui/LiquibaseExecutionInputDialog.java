@@ -42,7 +42,9 @@ public class LiquibaseExecutionInputDialog extends DBNDialog<LiquibaseExecutionI
         this.executionInput = new LiquibaseExecutionInput(getProject(), operation);
         this.workspaces = workspaces;
         if (operation.requiresSourceSchema()) executionInput.setSourceSchema(schema);
-        if (operation.requiresTargetSchema()) executionInput.setTargetSchema(schema);
+        if (operation.requiresTargetSchema() && !operation.requiresSourceSchema()) {
+            executionInput.setTargetSchema(schema);
+        }
         setDefaultSize(600, 320);
         init();
     }
