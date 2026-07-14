@@ -42,6 +42,8 @@ import javax.swing.JLabel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
+import static com.dbn.common.color.Colors.getLabelErrorForeground;
+import static com.dbn.common.color.Colors.getLabelSuccessForeground;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -114,8 +116,8 @@ public class AutoCommitLabel extends DBNPanelImpl implements Disposable {
                         Fonts.regularBold());
 
                 autoCommitLabel.setForeground(autoCommit ?
-                        com.dbn.common.color.Colors.FAILURE_COLOR :
-                        com.dbn.common.color.Colors.SUCCESS_COLOR);
+                        getLabelErrorForeground() :
+                        getLabelSuccessForeground());
                 autoCommitLabel.setText(
                         autoCommit ?
                                 txt("app.connection.label.AutoCommitOn") :

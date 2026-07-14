@@ -37,6 +37,8 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     private final LiquibaseExecutionInput input;
 
     private Path changelogPath;
+    private String databaseChangeLogTableName = "DATABASECHANGELOG";
+    private String databaseChangeLogLockTableName = "DATABASECHANGELOGLOCK";
     private final Listeners<Runnable> listeners = Listeners.create(this);
     private final LogOutputBuffer output;
     private final ExecutionTiming timing = new ExecutionTiming();
@@ -151,6 +153,16 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
 
     public void setChangelogPath(@Nullable Path changelogPath) {
         this.changelogPath = changelogPath;
+    }
+
+    public void setLiquibaseTableNames(
+            @NotNull String databaseChangeLogTableName,
+            @NotNull String databaseChangeLogLockTableName) {
+        boolean changed = !databaseChangeLogTableName.equals(this.databaseChangeLogTableName) ||
+                !databaseChangeLogLockTableName.equals(this.databaseChangeLogLockTableName);
+        this.databaseChangeLogTableName = databaseChangeLogTableName;
+        this.databaseChangeLogLockTableName = databaseChangeLogLockTableName;
+        if (changed) notifyItemsChanged();
     }
 
     public void notifyStarted() {

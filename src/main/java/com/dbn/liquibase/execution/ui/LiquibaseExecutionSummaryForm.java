@@ -1,11 +1,14 @@
 package com.dbn.liquibase.execution.ui;
 
+import com.dbn.common.color.Colors;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
 import com.dbn.common.task.TaskStatus;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.link.Hyperlinks;
 import com.dbn.common.ui.messages.DBNMessageForm;
@@ -14,18 +17,23 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.object.DBSchema;
+import com.dbn.object.common.DBObject;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import java.awt.Color;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.nls.NlsResources.txt;
@@ -45,7 +53,13 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private JLabel operationLabel;
     private JLabel statusLabel;
     private JLabel durationLabel;
+    private JLabel databaseChangeLogLabel;
+    private JLabel databaseChangeLogLockLabel;
     private DBNHyperlinkLabel changelogLink;
+    private DBNHyperlinkLabel databaseChangeLogLink;
+    private DBNHyperlinkLabel databaseChangeLogLockLink;
+    private DBNInfoLabel databaseChangeLogInfoLabel;
+    private DBNInfoLabel databaseChangeLogLockInfoLabel;
     private JPanel messagePanel;
     private DBNMessageForm messageForm;
     private final LiquibaseExecutionResult result;
@@ -75,7 +89,14 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         setToolTipText(operationLabel, result.getOperation().getDescription());
         updateStatus(result);
         Hyperlinks.onHyperlinkAccess(changelogLink, e -> openChangelog(result));
+        Hyperlinks.onHyperlinkAccess(databaseChangeLogLink,
+                e -> navigateToTable(result, result.getDatabaseChangeLogTableName()));
+        Hyperlinks.onHyperlinkAccess(databaseChangeLogLockLink,
+                e -> navigateToTable(result, result.getDatabaseChangeLogLockTableName()));
+        databaseChangeLogInfoLabel.setContent(plain(txt("cfg.liquibase.hint.DatabaseChangeLogTable")));
+        databaseChangeLogLockInfoLabel.setContent(plain(txt("cfg.liquibase.hint.DatabaseChangeLogLockTable")));
         updateChangelogLink(result);
+        updateLiquibaseTableLinks(result);
 
         initMessageForm(result, result.getRelevantSchema());
     }
@@ -131,6 +152,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private void updateMessageForm(@NotNull LiquibaseExecutionResult result) {
         updateStatusLabel(result);
         updateChangelogLink(result);
+        updateLiquibaseTableLinks(result);
         messageForm.setMessage(createMessage(result, result.getRelevantSchema()));
         updateDuration(result);
     }
@@ -161,6 +183,62 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         });
     }
 
+    private void updateLiquibaseTableLinks(@NotNull LiquibaseExecutionResult result) {
+        LiquibaseOperation operation = result.getOperation();
+        if (!operation.supportsTrackingTables()) {
+            databaseChangeLogLabel.setVisible(false);
+            databaseChangeLogLink.setVisible(false);
+            databaseChangeLogInfoLabel.setVisible(false);
+            databaseChangeLogLockLabel.setVisible(false);
+            databaseChangeLogLockLink.setVisible(false);
+            databaseChangeLogLockInfoLabel.setVisible(false);
+            return;
+        }
+
+        DBSchema schema = result.getTargetSchema();
+        if (schema == null) schema = result.getRelevantSchema();
+
+        updateLiquibaseTableLink(
+                schema,
+                result.getDatabaseChangeLogTableName(),
+                databaseChangeLogLabel,
+                databaseChangeLogLink);
+        updateLiquibaseTableLink(
+                schema,
+                result.getDatabaseChangeLogLockTableName(),
+                databaseChangeLogLockLabel,
+                databaseChangeLogLockLink);
+    }
+
+    private static void updateLiquibaseTableLink(
+            @NotNull DBSchema schema,
+            @NotNull String tableName,
+            @NotNull JLabel label,
+            @NotNull DBNHyperlinkLabel link) {
+        DBObject table = schema.getChildObject(DBObjectType.TABLE, tableName);
+        if (table == null) {
+            label.setVisible(false);
+            link.setVisible(false);
+            link.setHyperlinkText("");
+            return;
+        }
+
+        label.setVisible(true);
+        link.setIcon(Icons.DBO_TABLE);
+        link.setHyperlinkText(table.getName());
+        link.setVisible(true);
+    }
+
+    private void navigateToTable(
+            @NotNull LiquibaseExecutionResult result,
+            @NotNull String tableName) {
+        DBSchema schema = result.getTargetSchema();
+        if (schema == null) schema = result.getRelevantSchema();
+
+        DBObject table = schema.getChildObject(DBObjectType.TABLE, tableName);
+        if (table != null) table.navigate(true);
+    }
+
     private void updateStatus(@NotNull LiquibaseExecutionResult result) {
         updateStatusLabel(result);
         updateDuration(result);
@@ -168,6 +246,19 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
 
     private void updateStatusLabel(@NotNull LiquibaseExecutionResult result) {
         statusLabel.setText(result.getStatus().getName());
+        statusLabel.setForeground(getStatusColor(result.getStatus()));
+    }
+
+    @NotNull
+    private static Color getStatusColor(@NotNull TaskStatus status) {
+        if (true) return UIUtil.getLabelForeground();
+        // todo cleanup (too colorful)
+        return switch (status) {
+            case DONE -> Colors.getLabelSuccessForeground();
+            case FAILED -> Colors.getLabelErrorForeground();
+            case CANCELLED, SKIPPED -> Colors.getLabelWarningForeground();
+            default -> UIUtil.getLabelForeground();
+        };
     }
 
     private void updateDuration(@NotNull LiquibaseExecutionResult result) {

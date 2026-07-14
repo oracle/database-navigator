@@ -56,4 +56,8 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     public boolean supportsComparisonItems() {
         return this == COMPARE;
     }
+
+    public boolean supportsTrackingTables() {
+        return isOneOf(STATUS, UPDATE, ROLLBACK);
+    }
 }

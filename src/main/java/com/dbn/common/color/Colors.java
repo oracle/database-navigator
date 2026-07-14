@@ -206,21 +206,28 @@ public final class Colors {
         return cached(33, () -> JBColor.namedColor("Label.errorForeground", new JBColor(new Color(0xC7222D), JBColor.RED)));
     }
 
+    public static Color getLabelSuccessForeground() {
+        return cached(34, () -> JBColor.namedColor("Label.successForeground", SUCCESS_COLOR));
+    }
+
+    public static Color getLabelWarningForeground() {
+        return cached(35, () -> JBColor.namedColor("Label.warningForeground", JBColor.ORANGE));
+    }
 
     public static Color getWarningHintColor() {
-        return cached(34, () -> HintUtil.getWarningColor());
+        return cached(36, () -> HintUtil.getWarningColor());
     }
 
     public static Color getErrorHintColor() {
-        return cached(35, () -> HintUtil.getErrorColor());
+        return cached(37, () -> HintUtil.getErrorColor());
     }
 
     public static Color getOutlineColor() {
-        return cached(36, () -> DarculaUIUtil.getOutlineColor(true, false));
+        return cached(38, () -> DarculaUIUtil.getOutlineColor(true, false));
     }
 
     public static Color getTextFieldInactiveForeground() {
-        return cached(37, () -> UIManager.getColor("TextField.inactiveForeground"));
+        return cached(39, () -> UIManager.getColor("TextField.inactiveForeground"));
     }
 
 

@@ -121,6 +121,9 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
             JdbcConnection jdbcConnection = new JdbcConnection(dbConnection);
             Database database = databaseFactory.findCorrectDatabaseImplementation(jdbcConnection);
             database.setDefaultSchemaName(schema.getName());
+            context.getResult().setLiquibaseTableNames(
+                    database.getDatabaseChangeLogTableName(),
+                    database.getDatabaseChangeLogLockTableName());
 
             return operation.apply(database);
         });

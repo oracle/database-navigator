@@ -30,8 +30,10 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         getTemplatePresentation().setIcon(Icons.DB_LIQUIBASE);
         add(new GenerateChangelogAction(schema));
         add(new CompareSchemasAction(schema));
+        addSeparator();
         add(new ValidateChangelogAction(schema));
         add(new ShowChangelogStatusAction(schema));
+        addSeparator();
         add(new UpdateDatabaseAction(schema));
     }
 }
