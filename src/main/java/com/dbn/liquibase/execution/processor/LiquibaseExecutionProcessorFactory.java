@@ -30,7 +30,8 @@ public final class LiquibaseExecutionProcessorFactory {
             case INITIALIZE -> new LiquibaseInitializationProcessor(input);
             case VALIDATE -> new LiquibaseValidationProcessor(input);
             case STATUS -> new LiquibaseStatusProcessor(input);
-            case COMPARE, UPDATE, ROLLBACK ->
+            case UPDATE -> new LiquibaseUpdateProcessor(input);
+            case COMPARE, ROLLBACK ->
                 throw new UnsupportedOperationException("Unsupported Liquibase operation: " + input.getOperation());
         };
     }

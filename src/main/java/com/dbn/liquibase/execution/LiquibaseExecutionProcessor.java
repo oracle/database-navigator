@@ -28,9 +28,11 @@ import com.dbn.liquibase.execution.logging.LiquibaseExecutionLogService;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.object.DBSchema;
 import liquibase.Scope;
+import liquibase.command.CommandScope;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.CommandExecutionException;
 import liquibase.resource.DirectoryResourceAccessor;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
@@ -180,6 +182,20 @@ public abstract class LiquibaseExecutionProcessor {
                         throw toSqlException(unwrap(e));
                     }
                 }));
+    }
+
+    protected static Object executeCommand(String commandName, LiquibaseExecutionOutputStream output, @NonNls Map<String, Object> arguments) throws CommandExecutionException {
+        CommandScope command = new CommandScope(commandName);
+
+        for (String argument : arguments.keySet()) {
+            Object value = arguments.get(argument);
+            command.addArgumentValue(argument, value);
+        }
+
+        command.setOutput(output);
+        command.execute();
+
+        return null;
     }
 
     @NotNull

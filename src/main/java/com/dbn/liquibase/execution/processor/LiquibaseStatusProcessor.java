@@ -22,11 +22,11 @@ import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
-import liquibase.command.CommandScope;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -54,15 +54,11 @@ public class LiquibaseStatusProcessor extends LiquibaseExecutionProcessor {
         String relativeChangelog = paths.getRelativePath(changelogFile);
         withLiquibaseDatabase(true, targetSchema, database -> {
             checkCanceled();
-            withLiquibaseScope(paths.getContentRootPath(), result, output -> {
-                new CommandScope("status")
-                        .addArgumentValue("database", database)
-                        .addArgumentValue("changelogFile", relativeChangelog)
-                        .addArgumentValue("verbose", true)
-                        .setOutput(output)
-                        .execute();
-                return null;
-            });
+            withLiquibaseScope(paths.getContentRootPath(), result, output ->
+                    executeCommand("status", output, Map.of(
+                            "database", database,
+                            "changelogFile", relativeChangelog,
+                            "verbose", true)));
             checkCanceled();
             return null;
         });

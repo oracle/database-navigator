@@ -27,7 +27,6 @@ import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 import liquibase.CatalogAndSchema;
-import liquibase.command.CommandScope;
 import liquibase.database.Database;
 import liquibase.snapshot.SnapshotControl;
 import liquibase.snapshot.SnapshotGeneratorFactory;
@@ -37,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.resolveObjectType;
@@ -83,14 +83,11 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             withLiquibaseScope(contentRoot, result, output -> {
                 collectDatabaseObjects(database, schemaName, result);
                 checkCanceled();
-                new CommandScope("generateChangelog")
-                        .addArgumentValue("database", database)
-                        .addArgumentValue("schemas", schemaName)
-                        .addArgumentValue("changelogFile", changelogFile.toString())
-                        .addArgumentValue("overwriteOutputFile", false)
-                        .setOutput(output)
-                        .execute();
-                return null;
+                return executeCommand("generateChangelog", output, Map.of(
+                        "database", database,
+                        "schemas", schemaName,
+                        "changelogFile", changelogFile.toString(),
+                        "overwriteOutputFile", false));
             });
             checkCanceled();
 

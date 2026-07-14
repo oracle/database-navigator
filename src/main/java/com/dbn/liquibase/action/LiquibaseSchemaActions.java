@@ -31,5 +31,6 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         add(new GenerateChangelogAction(schema));
         add(new ValidateChangelogAction(schema));
         add(new ShowChangelogStatusAction(schema));
+        add(new UpdateDatabaseAction(schema));
     }
 }
