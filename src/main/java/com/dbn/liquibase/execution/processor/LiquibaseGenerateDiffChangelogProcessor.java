@@ -16,8 +16,8 @@
 
 package com.dbn.liquibase.execution.processor;
 
+import com.dbn.common.exception.ElementSkippedException;
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
-import com.dbn.liquibase.execution.LiquibaseExecutionSkippedException;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.object.DBSchema;
@@ -71,7 +71,7 @@ public class LiquibaseGenerateDiffChangelogProcessor extends LiquibaseDiffExecut
                                         output))));
 
         if (!Files.isRegularFile(changelogFile)) {
-            if (result.getComparisonItems().isEmpty()) throw new LiquibaseExecutionSkippedException();
+            if (result.getComparisonItems().isEmpty()) throw ElementSkippedException.INSTANCE;
             throw new IllegalStateException("Liquibase did not create the diff changelog file: " + changelogFile);
         }
         result.appendConsoleOutput(txt("log.liquibase.info.DiffChangelogGenerated", changelogFile));

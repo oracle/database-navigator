@@ -16,6 +16,8 @@
 
 package com.dbn.liquibase.execution;
 
+import com.dbn.common.exception.ElementSkippedException;
+import com.dbn.common.exception.RequestCancelledException;
 import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.common.routine.ThrowableConsumer;
 import com.dbn.common.task.TaskStatus;
@@ -62,7 +64,6 @@ import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.concurrent.CancellationException;
 import java.util.function.Consumer;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
@@ -171,7 +172,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
         Path changelogFile = input.getWorkspacePaths().getMasterChangelogPath();
         boolean overwrite = input.isOverwriteConfirmed();
         if (Files.exists(changelogFile) && !overwrite) {
-            if (!confirmOverwrite(input)) throw new CancellationException("Changelog overwrite canceled");
+            if (!confirmOverwrite(input)) throw new RequestCancelledException("Changelog overwrite canceled");
             overwrite = true;
         }
         if (overwrite) Files.deleteIfExists(changelogFile);
@@ -199,9 +200,9 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
         try {
             executeOperation(context);
             finishResult(context, TaskStatus.DONE);
-        } catch (LiquibaseExecutionSkippedException e) {
+        } catch (ElementSkippedException e) {
             finishResult(context, TaskStatus.SKIPPED);
-        } catch (CancellationException e) {
+        } catch (RequestCancelledException e) {
             finishResult(context, TaskStatus.CANCELLED);
         } catch (Exception e) {
             result.appendErrorOutput(formatException(e));
@@ -213,7 +214,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     protected abstract void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception;
 
     protected final void checkCanceled(@NotNull LiquibaseExecutionContext context) {
-        if (context.isCancellationRequested()) throw new CancellationException("Liquibase execution canceled");
+        if (context.isCancellationRequested()) throw new RequestCancelledException("Liquibase execution canceled");
     }
 
     @NotNull
@@ -300,7 +301,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
                         checkCanceled(context);
                         return null;
                     } catch (Throwable e) {
-                        if (e instanceof CancellationException cancellationException) throw cancellationException;
+                        if (e instanceof RequestCancelledException requestCancelledException) throw requestCancelledException;
                         throw toSqlException(unwrap(e));
                     }
                 }));
