@@ -17,6 +17,7 @@
 package com.dbn.liquibase.action;
 
 import com.dbn.object.DBSchema;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -40,5 +41,6 @@ public class GenerateDiffChangelogAction extends LiquibaseSchemaAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText(txt("app.liquibase.action.Operation_GENERATE_DIFF_CHANGELOG"));
+        presentation.setIcon(AllIcons.Actions.Diff);
     }
 }

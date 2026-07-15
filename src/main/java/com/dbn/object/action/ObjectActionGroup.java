@@ -97,9 +97,9 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         addNavigationActions(object);
         addConsoleActions(object);
         addCodeGeneratorActions(object);
-        addLiquibaseActions(object);
         addObjectListActions(object);
         addObjectPropertiesActions(object);
+        addLiquibaseActions(object);
     }
 
     private void addTableActions(DBObject object) {
