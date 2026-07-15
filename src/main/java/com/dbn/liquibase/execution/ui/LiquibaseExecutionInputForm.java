@@ -26,7 +26,6 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.form.field.FieldState;
-import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
@@ -70,6 +69,7 @@ import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setEmptyOptionsText;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
+import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseRollbackType.COUNT;
@@ -108,7 +108,6 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     private DBNComboBox<ConnectionHandler> targetConnectionSelector;
     private DBNComboBox<LiquibaseWorkspace> workspaceSelector;
     private DBNComboBox<LiquibaseRollbackType> rollbackTypeSelector;
-    private DBNCommentLabel workspacePathLabel;
     private DBNInfoLabel rollbackCountInfoLabel;
     private DBNInfoLabel rollbackTagInfoLabel;
     private DBNInfoLabel rollbackDateInfoLabel;
@@ -300,7 +299,6 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         boolean visible = executionInput.getOperation().getSupport().requiresWorkspace();
         workspaceLabel.setVisible(visible);
         workspaceSelector.setVisible(visible);
-        workspacePathLabel.setVisible(visible);
         if (!visible) return;
 
         LiquibaseWorkspaceBundle workspaces = parent.getWorkspaces();
@@ -341,17 +339,14 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     private void updateWorkspacePath() {
         LiquibaseWorkspace workspace = workspaceSelector.getSelectedValue();
         if (workspace == null) {
-            String message = workspaceSelector.getItemCount() == 0 &&
-                    !executionInput.getOperation().getSupport().supportsWorkspaceCreation() ?
-                    getNoWorkspacesMessage() : null;
-            workspacePathLabel.setText(message == null ? "" : message);
+            setToolTipText(workspaceSelector, null);
             return;
         }
 
         try {
-            workspacePathLabel.setText(new LiquibaseWorkspacePaths(workspace).getLiquibaseRootPath().toString());
+            setToolTipText(workspaceSelector, new LiquibaseWorkspacePaths(workspace).getLiquibaseRootPath().toString());
         } catch (IllegalArgumentException e) {
-            workspacePathLabel.setText("");
+            setToolTipText(workspaceSelector, null);
         }
     }
 

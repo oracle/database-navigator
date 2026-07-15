@@ -28,18 +28,28 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
     public LiquibaseSchemaActions(@NotNull DBSchema schema) {
         super(txt("app.liquibase.action.Liquibase"), true);
         getTemplatePresentation().setIcon(Icons.DB_LIQUIBASE);
-        add(new GenerateChangelogAction(schema));
-        add(new ValidateChangelogAction(schema));
-        add(new ShowChangelogStatusAction(schema));
-        add(new SynchronizeChangelogAction(schema));
+
+        DefaultActionGroup changelogActions = new DefaultActionGroup(txt("app.liquibase.group.Changelog"), true);
+        changelogActions.add(new GenerateChangelogAction(schema));
+        changelogActions.add(new GenerateDiffChangelogAction(schema));
+        changelogActions.add(new ValidateChangelogAction(schema));
+        changelogActions.add(new ShowChangelogStatusAction(schema));
+        add(changelogActions);
+
+        DefaultActionGroup databaseActions = new DefaultActionGroup(txt("app.liquibase.group.Database"), true);
+        databaseActions.add(new UpdateDatabaseAction(schema));
+        databaseActions.add(new RollbackDatabaseAction(schema));
+        databaseActions.addSeparator();
+        databaseActions.add(new SynchronizeChangelogAction(schema));
+        databaseActions.add(new TagDatabaseAction(schema));
+        add(databaseActions);
+
+        DefaultActionGroup sqlPreviewActions = new DefaultActionGroup(txt("app.liquibase.group.PreviewSql"), true);
+        sqlPreviewActions.add(new UpdateSqlAction(schema));
+        sqlPreviewActions.add(new RollbackSqlAction(schema));
+        add(sqlPreviewActions);
+
         addSeparator();
-        add(new TagDatabaseAction(schema));
-        add(new UpdateDatabaseAction(schema));
-        add(new UpdateSqlAction(schema));
-        add(new RollbackDatabaseAction(schema));
-        add(new RollbackSqlAction(schema));
-        addSeparator();
-        add(new GenerateDiffChangelogAction(schema));
         add(new CompareSchemasAction(schema));
     }
 }
