@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.action;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -40,5 +41,6 @@ public class RollbackDatabaseAction extends LiquibaseSchemaAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText(txt("app.liquibase.action.RollbackDatabase"));
+        presentation.setIcon(Icons.ACTION_REVERT);
     }
 }

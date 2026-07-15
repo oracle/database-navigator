@@ -20,6 +20,8 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.state.StateAttributes;
+import com.dbn.common.state.StateCategory;
 import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Background;
 import com.dbn.common.util.Dialogs;
@@ -39,6 +41,7 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,6 +75,11 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     @NotNull
     public LiquibaseWorkspaceBundle getWorkspaces() {
         return workspaces;
+    }
+
+    @NotNull
+    public StateAttributes getState(@NonNls @NotNull String category) {
+        return states.ensureAttributes(StateCategory.get(category));
     }
 
     public void openWorkspaceSettings() {

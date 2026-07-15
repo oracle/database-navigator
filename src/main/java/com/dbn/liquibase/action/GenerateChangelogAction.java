@@ -1,5 +1,6 @@
 package com.dbn.liquibase.action;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -24,5 +25,6 @@ public class GenerateChangelogAction extends LiquibaseSchemaAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText(txt("app.liquibase.action.GenerateChangelog"));
+        presentation.setIcon(Icons.ACTION_DOWNLOAD);
     }
 }

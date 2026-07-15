@@ -18,6 +18,7 @@ package com.dbn.liquibase.execution.ui;
 
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -31,6 +32,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.DatabaseType;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
+import com.dbn.data.editor.ui.calendar.CalendarPopupType;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseOperation;
@@ -41,6 +43,7 @@ import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,6 +58,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.setFormFieldEnabled;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -70,6 +74,8 @@ import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
 
 public class LiquibaseExecutionInputForm extends DBNFormBase {
+    private static final @NonNls String ATTR_ROLLBACK_TYPE = "rollback-type";
+
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
@@ -115,15 +121,21 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     }
 
     private void initRollbackFields() {
-        rollbackDateField = new TextFieldWithPopup<>(executionInput.getProject());
+        Project project = executionInput.getProject();
+        rollbackDateField = new TextFieldWithPopup<>(project);
         rollbackDateFieldPanel.add(rollbackDateField);
 
         boolean visible = executionInput.getOperation() == ROLLBACK;
         if (!visible) return;
 
-        rollbackDateField.createCalendarPopup(false);
+        rollbackDateField.createCalendarPopup(false, CalendarPopupType.DATE);
+
+        DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
+        StateAttributes state = liquibaseManager.getState("EXECUTION_INPUT");
         rollbackTypeSelector.setValues(List.of(LiquibaseRollbackType.values()));
-        rollbackTypeSelector.setSelectedValue(executionInput.getRollbackType());
+        initPersistence(rollbackTypeSelector, state, ATTR_ROLLBACK_TYPE);
+
+        executionInput.setRollbackType(rollbackTypeSelector.getSelectedValue());
         rollbackCountLabel.setVisible(visible);
         rollbackCountSpinner.setVisible(visible);
         rollbackCountSpinner.setModel(new SpinnerNumberModel(executionInput.getRollbackCount(), 1, Integer.MAX_VALUE, 1));
