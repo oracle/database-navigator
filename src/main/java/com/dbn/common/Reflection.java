@@ -68,7 +68,7 @@ public class Reflection {
     }
 
     @SneakyThrows
-    public static <T> T invokeMethod(Object object, String methodName, Object... args) {
+    public static <T> T invokeMethod(Object object, @NonNls String methodName, Object... args) {
         args = nvl(args, () -> new Object[0]);
         Class[] parameterTypes = Arrays.stream(args).map(Object::getClass).toArray(Class[]::new);
         Class<?> objectClass = object instanceof Class ? (Class) object : object.getClass();
@@ -79,7 +79,7 @@ public class Reflection {
     }
 
     @SneakyThrows
-    public static <T> T invokeMethod(String className, String methodName, Object... args) {
+    public static <T> T invokeMethod(String className, @NonNls String methodName, Object... args) {
         args = nvl(args, () -> new Object[0]);
         Class[] parameterTypes = Arrays.stream(args).map(Object::getClass).toArray(Class[]::new);
         Class<?> objectClass = findClass(className);
@@ -92,7 +92,7 @@ public class Reflection {
     }
 
     @Nullable
-    public static Method findMethod(Class<?> objectClass, String methodName, Class... parameterTypes) {
+    public static Method findMethod(Class<?> objectClass, @NonNls String methodName, Class... parameterTypes) {
         for (Method method : objectClass.getMethods()) {
             if (!method.getName().equals(methodName)) continue;
             if (matchesParameterTypes(method, parameterTypes)) return method;

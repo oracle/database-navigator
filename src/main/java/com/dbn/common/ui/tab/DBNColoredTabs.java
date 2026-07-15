@@ -50,6 +50,7 @@ import javax.swing.JComponent;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.InputEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collections;
 import java.util.List;
@@ -69,6 +70,24 @@ public class DBNColoredTabs<T extends DBNForm> extends JBEditorTabs {
         super(parentForm.ensureProject(), IdeFocusManager.getGlobalInstance(), parentForm);
 
         initTabsPresentation();
+        initTabMouseListener();
+    }
+
+    private void initTabMouseListener() {
+        MouseAdapter listener = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (!closeable || e.getButton() != MouseEvent.BUTTON2 || e.getClickCount() != 1) return;
+
+                //TabInfo tabInfo = findInfo(e);
+                TabInfo tabInfo = invokeMethod(DBNColoredTabs.this, "findInfo", e);
+                if (tabInfo == null) return;
+
+                closeTab(tabInfo);
+                e.consume();
+            }
+        };
+        invokeMethod(this, "addTabMouseListener", listener);
     }
 
     private void initTabsPresentation() {
