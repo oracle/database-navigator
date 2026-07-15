@@ -168,4 +168,9 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
         properties.add("requireSSL", "true");
         properties.add("verifyServerCertificate", "true");
     }
+
+    @Override
+    public String getLiquibaseCatalogName(@NotNull String schemaName) {
+        return schemaName;
+    }
 }

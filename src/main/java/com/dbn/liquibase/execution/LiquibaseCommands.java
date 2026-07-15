@@ -21,6 +21,7 @@ import liquibase.command.core.RollbackCommandStep;
 import liquibase.command.core.RollbackCountCommandStep;
 import liquibase.command.core.RollbackToDateCommandStep;
 import liquibase.command.core.StatusCommandStep;
+import liquibase.command.core.TagCommandStep;
 import liquibase.command.core.UpdateCommandStep;
 import liquibase.command.core.ValidateCommandStep;
 import lombok.experimental.UtilityClass;
@@ -31,6 +32,7 @@ public class LiquibaseCommands {
     public static final String GENERATE_CHANGELOG = GenerateChangelogCommandStep.COMMAND_NAME[0];
     public static final String VALIDATE = ValidateCommandStep.COMMAND_NAME[0];
     public static final String STATUS = StatusCommandStep.COMMAND_NAME[0];
+    public static final String TAG = TagCommandStep.COMMAND_NAME[0];
     public static final String UPDATE = UpdateCommandStep.COMMAND_NAME[0];
     public static final String ROLLBACK_COUNT = RollbackCountCommandStep.COMMAND_NAME[0];
     public static final String ROLLBACK_TAG = RollbackCommandStep.COMMAND_NAME[0];

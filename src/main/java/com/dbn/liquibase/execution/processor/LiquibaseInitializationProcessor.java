@@ -41,8 +41,10 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.liquibase.execution.LiquibaseCommands.GENERATE_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseCommands.TAG;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.buildTrackingTableFilter;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.isLiquibaseTrackingObject;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.resolveObjectType;
@@ -113,8 +115,9 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
         @NotNull LiquibaseExecutionResult result,
         boolean overwrite) throws Exception {
         Path contentRoot = workspacePaths.getContentRootPath();
+        LiquibaseExecutionInput input = context.getInput();
 
-        DBSchema sourceSchema = required("Source schema", context.getInput().getSourceSchema());
+        DBSchema sourceSchema = required("Source schema", input.getSourceSchema());
         withLiquibaseDatabase(context, true, sourceSchema, database -> {
             checkCanceled(context);
             String schemaName = sourceSchema.getName();
@@ -123,13 +126,22 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             withLiquibaseScope(context, contentRoot, output -> {
                 collectDatabaseObjects(context, database, schemaName, result);
                 checkCanceled(context);
-                return executeCommand(GENERATE_CHANGELOG, output, Map.of(
+                executeCommand(GENERATE_CHANGELOG, output, Map.of(
                         "database", database,
                         "schemas", schemaName,
                         "diffTypes", GENERATE_CHANGELOG_DIFF_TYPES,
                         "changelogFile", changelogFile.toString(),
                         "overwriteOutputFile", overwrite,
-                        "excludeObjects", buildTrackingTableFilter(database)));
+                        "excludeObjects", buildTrackingTableFilter(database),
+                        "author", input.getChangelogAuthor()));
+
+                String databaseTag = input.getDatabaseTag();
+                if (isNotEmpty(databaseTag)) {
+                    executeCommand(TAG, output, Map.of(
+                            "database", database,
+                            "tag", databaseTag));
+                }
+                return null;
             });
             checkCanceled(context);
 

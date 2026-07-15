@@ -44,6 +44,7 @@ import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.intellij.openapi.project.Project;
+import org.apache.commons.lang3.SystemProperties;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -78,6 +79,7 @@ import static java.util.Collections.emptyList;
 
 public class LiquibaseExecutionInputForm extends DBNFormBase {
     private static final @NonNls String ATTR_ROLLBACK_TYPE = "rollback-type";
+    private static final @NonNls String ATTR_CHANGELOG_AUTHOR = "changelog-author";
 
     private JPanel mainPanel;
     private JPanel headerPanel;
@@ -91,8 +93,12 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     private JLabel rollbackTagLabel;
     private JLabel rollbackDateLabel;
     private JLabel rollbackCountLabel;
+    private JLabel changelogAuthorLabel;
+    private JLabel databaseTagLabel;
     private JSpinner rollbackCountSpinner;
     private JTextField rollbackTagTextField;
+    private JTextField changelogAuthorTextField;
+    private JTextField databaseTagTextField;
     private DBNComboBox<ConnectionHandler> sourceConnectionSelector;
     private DBNComboBox<ConnectionHandler> targetConnectionSelector;
     private DBNComboBox<LiquibaseWorkspace> workspaceSelector;
@@ -117,10 +123,25 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         initHintPanel();
         initContextLabels();
         initWorkspaceSelector();
+        initInitializationFields();
         initRollbackFields();
         initSourceContextSelectors();
         initTargetContextSelectors();
         executionInput.setWorkspace(workspaceSelector.getSelectedValue());
+    }
+
+    private void initInitializationFields() {
+        boolean visible = executionInput.getOperation() == LiquibaseOperation.INITIALIZE;
+        changelogAuthorLabel.setVisible(visible);
+        changelogAuthorTextField.setVisible(visible);
+        databaseTagLabel.setVisible(visible);
+        databaseTagTextField.setVisible(visible);
+        if (!visible) return;
+
+        DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(executionInput.getProject());
+        StateAttributes state = liquibaseManager.getState("EXECUTION_INPUT");
+        initPersistence(changelogAuthorTextField, state, ATTR_CHANGELOG_AUTHOR, SystemProperties.getUserName());
+        setText(databaseTagTextField, executionInput.getDatabaseTag());
     }
 
     private void initRollbackFields() {
@@ -136,7 +157,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
         StateAttributes state = liquibaseManager.getState("EXECUTION_INPUT");
         rollbackTypeSelector.setValues(List.of(LiquibaseRollbackType.values()));
-        initPersistence(rollbackTypeSelector, state, ATTR_ROLLBACK_TYPE);
+        initPersistence(rollbackTypeSelector, state, ATTR_ROLLBACK_TYPE, COUNT.id());
 
         executionInput.setRollbackType(rollbackTypeSelector.getSelectedValue());
         rollbackCountLabel.setVisible(visible);
@@ -433,8 +454,10 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         executionInput.setWorkspace(workspace);
         executionInput.setRollbackType(getSelection(rollbackTypeSelector));
         executionInput.setRollbackCount((Integer) rollbackCountSpinner.getValue());
-        executionInput.setRollbackTag(rollbackTagTextField.getText().trim());
+        executionInput.setRollbackTag(getText(rollbackTagTextField));
         executionInput.setRollbackDate(getText(rollbackDateField.getTextField()));
+        executionInput.setChangelogAuthor(getText(changelogAuthorTextField));
+        executionInput.setDatabaseTag(getText(databaseTagTextField));
 
         if (workspace == null) return;
         if (sourceSchema == null && targetSchema == null) return;

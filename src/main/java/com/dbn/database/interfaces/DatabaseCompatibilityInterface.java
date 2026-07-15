@@ -140,6 +140,14 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
      */
     default void initializeLiquibaseConnection(@NotNull Connection connection) throws SQLException {}
 
+    /**
+     * Returns the Liquibase catalog corresponding to a DBN schema, when the database uses schemas as catalogs.
+     */
+    @Nullable
+    default String getLiquibaseCatalogName(@NotNull String schemaName) {
+        return null;
+    }
+
     void initConnectorSession(ConnectorProperties properties, ConnectionSettings settings, SessionId sessionId);
 
     void initConnectorDebugger(ConnectorProperties properties, ConnectionSettings settings);

@@ -35,6 +35,8 @@ public class LiquibaseExecutionInput extends ProjectUnit {
     private int rollbackCount = 1;
     private String rollbackTag;
     private String rollbackDate;
+    private String changelogAuthor;
+    private String databaseTag;
     private boolean overwriteConfirmed;
 
     private LiquibaseWorkspace workspace;

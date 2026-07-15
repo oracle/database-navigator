@@ -120,6 +120,8 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
             DatabaseFactory databaseFactory = DatabaseFactory.getInstance();
             JdbcConnection jdbcConnection = new JdbcConnection(dbConnection);
             Database database = databaseFactory.findCorrectDatabaseImplementation(jdbcConnection);
+            String catalogName = compatibilityInterface.getLiquibaseCatalogName(schema.getName());
+            if (catalogName != null) database.setDefaultCatalogName(catalogName);
             database.setDefaultSchemaName(schema.getName());
             context.getResult().setLiquibaseTableNames(
                     database.getDatabaseChangeLogTableName(),
@@ -184,6 +186,8 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
 
         for (String argument : arguments.keySet()) {
             Object value = arguments.get(argument);
+            if (value == null) continue;
+
             command.addArgumentValue(argument, value);
         }
 
