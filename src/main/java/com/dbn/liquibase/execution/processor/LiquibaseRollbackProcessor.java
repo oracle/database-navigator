@@ -23,6 +23,7 @@ import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.execution.LiquibaseRollbackInstruction;
 import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
@@ -36,7 +37,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
-import static com.dbn.liquibase.execution.LiquibaseCommands.ROLLBACK_COUNT;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
 import static com.dbn.object.type.DBObjectType.BROWSABLE_TYPES;
@@ -63,11 +63,13 @@ public class LiquibaseRollbackProcessor extends LiquibaseExecutionProcessor {
         String relativeChangelog = paths.getRelativePath(changelogFile);
         withLiquibaseDatabase(context, false, targetSchema, database -> {
             checkCanceled(context);
+            LiquibaseRollbackInstruction instruction = input.getRollbackInstruction();
+
             withLiquibaseScope(context, paths.getContentRootPath(), output ->
-                    executeCommand(ROLLBACK_COUNT, output, Map.of(
+                    executeCommand(instruction.command(), output, Map.of(
                             "database", database,
                             "changelogFile", relativeChangelog,
-                            "count", input.getRollbackCount(),
+                            instruction.parameter(), instruction.value(),
                             "changeExecListener", new ChangeSetListener(result))));
             notifySchemaObjectChanges(targetSchema);
             checkCanceled(context);
