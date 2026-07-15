@@ -30,6 +30,7 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
     private JTabbedPane contentTabbedPane;
 
     private ExecutionResultLogConsole console;
+    private LiquibaseExecutionSqlPanel sqlPanel;
     private LiquibaseSnapshotItemsTableModel snapshotItemsTableModel;
     private LiquibaseChangeSetItemsTableModel changeSetItemsTableModel;
     private LiquibaseComparisonItemsTableModel comparisonItemsTableModel;
@@ -41,6 +42,7 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
         initSummaryPanel();
         initConsolePanel();
         initContentItemsPanel();
+        initSqlOutputPanel();
         initResultListeners();
         updateResult(result, snapshotItemsTableModel, changeSetItemsTableModel, comparisonItemsTableModel);
     }
@@ -62,6 +64,15 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
         console = new ExecutionResultLogConsole(result.getConnection(), "Console", false);
         console.installOn(contentTabbedPane);
         Disposer.register(this, console);
+    }
+
+    private void initSqlOutputPanel() {
+        LiquibaseExecutionResult result = getExecutionResult();
+        if (!result.getOperation().getSupport().supportsSqlOutput()) return;
+
+        sqlPanel = new LiquibaseExecutionSqlPanel(this, result);
+        Disposer.register(this, sqlPanel);
+        contentTabbedPane.addTab(txt("app.liquibase.title.SqlOutput"), sqlPanel.getComponent());
     }
 
     private void initContentItemsPanel() {
@@ -113,10 +124,15 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
             @Nullable LiquibaseChangeSetItemsTableModel changeSetTableModel,
             @Nullable LiquibaseComparisonItemsTableModel comparisonTableModel) {
         boolean outputChanged = updateConsoleOutput(result);
+        updateSqlOutput(result);
         if (snapshotTableModel != null) snapshotTableModel.refresh();
         if (changeSetTableModel != null) changeSetTableModel.refresh();
         if (comparisonTableModel != null) comparisonTableModel.refresh();
         if (outputChanged) console.markOutputUnread();
+    }
+
+    private void updateSqlOutput(@NotNull LiquibaseExecutionResult result) {
+        if (sqlPanel != null) sqlPanel.setText(result.getSqlOutput());
     }
 
     private boolean updateConsoleOutput(@NotNull LiquibaseExecutionResult result) {
@@ -132,12 +148,15 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
     @Override
     public void rebuildForm() {
         Disposer.dispose(console);
+        Disposer.dispose(sqlPanel);
+        sqlPanel = null;
         summaryPanel.removeAll();
         contentTabbedPane.removeAll();
         outputOffset = 0;
 
         initSummaryPanel();
         initConsolePanel();
+        initSqlOutputPanel();
         initContentItemsPanel();
         initResultListeners();
         updateResult(getExecutionResult(), snapshotItemsTableModel, changeSetItemsTableModel, comparisonItemsTableModel);

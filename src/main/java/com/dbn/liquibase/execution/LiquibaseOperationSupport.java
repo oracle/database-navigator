@@ -114,6 +114,10 @@ public final class LiquibaseOperationSupport {
                 ROLLBACK_SQL);
     }
 
+    public boolean supportsSqlOutput() {
+        return operation.isOneOf(UPDATE_SQL, ROLLBACK_SQL);
+    }
+
     public boolean supportsComparisonItems() {
         return operation.isOneOf(
                 COMPARE_SCHEMAS,
