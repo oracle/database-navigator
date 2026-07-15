@@ -40,6 +40,7 @@ import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
+import static com.dbn.liquibase.execution.LiquibaseRollbackType.COUNT;
 import static com.dbn.liquibase.execution.LiquibaseRollbackType.TAG;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.nls.NlsResources.txtOr;
@@ -60,6 +61,8 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private JLabel changeSetCountLabel;
     private JLabel statusLabel;
     private JLabel durationLabel;
+    private JLabel rollbackTypeCaptionLabel;
+    private JLabel rollbackTypeLabel;
     private JLabel tagCaptionLabel;
     private JLabel tagLabel;
     private JLabel changelogLabel;
@@ -102,6 +105,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         setToolTipText(operationLabel, result.getOperation().getDescription());
         updateStatus(result);
         updateChangeSetCount(result);
+        updateRollbackInfo(result);
         updateTagInfo(result);
         Hyperlinks.onHyperlinkAccess(changelogLink, e -> openChangelog(result));
         Hyperlinks.onHyperlinkAccess(databaseChangeLogLink,
@@ -182,6 +186,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private void updateMessageForm(@NotNull LiquibaseExecutionResult result) {
         updateStatusLabel(result);
         updateChangeSetCount(result);
+        updateRollbackInfo(result);
         updateTagInfo(result);
         updateChangelogLink(result);
         updateLiquibaseTableLinks(result);
@@ -303,6 +308,15 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         if (visible) changeSetCountLabel.setText(Integer.toString(result.getChangeSetItems().size()));
     }
 
+    private void updateRollbackInfo(@NotNull LiquibaseExecutionResult result) {
+        boolean visible = result.getOperation().getSupport().supportsRollback();
+        rollbackTypeCaptionLabel.setVisible(visible);
+        rollbackTypeLabel.setVisible(visible);
+        if (!visible) return;
+
+        rollbackTypeLabel.setText(result.getRollbackType().getName());
+    }
+
     private void updateTagInfo(@NotNull LiquibaseExecutionResult result) {
         String tag = null;
         String captionKey = null;
@@ -318,6 +332,10 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         } else if (support.supportsRollbackTag() && result.getRollbackType() == TAG) {
             tag = result.getRollbackTag();
             captionKey = "cfg.liquibase.label.RollbackTag";
+        } else if (support.supportsRollback()) {
+            boolean count = result.getRollbackType() == COUNT;
+            tag = count ? Integer.toString(result.getRollbackCount()) : result.getRollbackDate();
+            captionKey = count ? "cfg.liquibase.label.RollbackCount" : "cfg.liquibase.label.RollbackDate";
         }
 
         boolean visible = isNotEmpty(tag);

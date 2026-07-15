@@ -3,7 +3,7 @@
   <grid id="1" binding="mainPanel" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="501" height="429"/>
+      <xy x="20" y="20" width="501" height="454"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -19,7 +19,7 @@
         </constraints>
         <properties/>
       </component>
-      <grid id="1c16c" layout-manager="GridLayoutManager" row-count="13" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="8" vgap="-1">
+      <grid id="1c16c" layout-manager="GridLayoutManager" row-count="14" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="8" vgap="-1">
         <margin top="8" left="8" bottom="8" right="8"/>
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -78,26 +78,9 @@
               <text value="[operation]"/>
             </properties>
           </component>
-          <component id="8" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="Status"/>
-            </properties>
-          </component>
-          <component id="9" class="javax.swing.JLabel" binding="statusLabel">
-            <constraints>
-              <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <font style="1"/>
-              <text value="[status]"/>
-            </properties>
-          </component>
           <component id="24" class="javax.swing.JLabel" binding="changeSetCountCaptionLabel">
             <constraints>
-              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.ChangeSetCount"/>
@@ -105,33 +88,16 @@
           </component>
           <component id="25" class="javax.swing.JLabel" binding="changeSetCountLabel">
             <constraints>
-              <grid row="5" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="7" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <font style="1"/>
               <text value="[changesets]"/>
             </properties>
           </component>
-          <component id="10" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="Duration"/>
-            </properties>
-          </component>
-          <component id="11" class="javax.swing.JLabel" binding="durationLabel">
-            <constraints>
-              <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <font style="1"/>
-              <text value="[duration]"/>
-            </properties>
-          </component>
           <component id="12" class="javax.swing.JLabel" binding="changelogLabel">
             <constraints>
-              <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.MasterChangelog"/>
@@ -139,7 +105,7 @@
           </component>
           <component id="13" class="com.dbn.common.ui.link.DBNHyperlinkLabel" binding="changelogLink">
             <constraints>
-              <grid row="9" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="10" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value=""/>
@@ -147,7 +113,7 @@
           </component>
           <component id="18" class="javax.swing.JLabel" binding="databaseChangeLogLabel">
             <constraints>
-              <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.DatabaseChangeLogTable"/>
@@ -155,7 +121,7 @@
           </component>
           <component id="19" class="com.dbn.common.ui.link.DBNHyperlinkLabel" binding="databaseChangeLogLink">
             <constraints>
-              <grid row="11" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="12" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value=""/>
@@ -163,7 +129,7 @@
           </component>
           <component id="20" class="javax.swing.JLabel" binding="databaseChangeLogLockLabel">
             <constraints>
-              <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="13" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.DatabaseChangeLogLockTable"/>
@@ -171,7 +137,7 @@
           </component>
           <component id="21" class="com.dbn.common.ui.link.DBNHyperlinkLabel" binding="databaseChangeLogLockLink">
             <constraints>
-              <grid row="12" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="13" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value=""/>
@@ -218,26 +184,26 @@
           </component>
           <component id="22" class="com.dbn.common.ui.info.DBNInfoLabel" binding="databaseChangeLogInfoLabel">
             <constraints>
-              <grid row="11" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="12" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
           </component>
           <component id="23" class="com.dbn.common.ui.info.DBNInfoLabel" binding="databaseChangeLogLockInfoLabel">
             <constraints>
-              <grid row="12" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="13" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
           </component>
           <vspacer id="3fad">
             <constraints>
-              <grid row="10" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
+              <grid row="11" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
                 <preferred-size width="-1" height="16"/>
               </grid>
             </constraints>
           </vspacer>
           <component id="26" class="javax.swing.JLabel" binding="tagCaptionLabel">
             <constraints>
-              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="Tag"/>
@@ -245,11 +211,62 @@
           </component>
           <component id="27" class="javax.swing.JLabel" binding="tagLabel">
             <constraints>
-              <grid row="8" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="9" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <font style="1"/>
               <text value="[tag]"/>
+            </properties>
+          </component>
+          <component id="28" class="javax.swing.JLabel" binding="rollbackTypeCaptionLabel">
+            <constraints>
+              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.RollbackType"/>
+            </properties>
+          </component>
+          <component id="29" class="javax.swing.JLabel" binding="rollbackTypeLabel">
+            <constraints>
+              <grid row="8" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <font style="1"/>
+              <text value="[rollback type]"/>
+            </properties>
+          </component>
+          <component id="8" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Status"/>
+            </properties>
+          </component>
+          <component id="9" class="javax.swing.JLabel" binding="statusLabel">
+            <constraints>
+              <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <font style="1"/>
+              <text value="[status]"/>
+            </properties>
+          </component>
+          <component id="10" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Duration"/>
+            </properties>
+          </component>
+          <component id="11" class="javax.swing.JLabel" binding="durationLabel">
+            <constraints>
+              <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <font style="1"/>
+              <text value="[duration]"/>
             </properties>
           </component>
         </children>
