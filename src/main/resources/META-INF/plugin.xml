@@ -272,8 +272,10 @@
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseShowChangelogStatusProcessor"/>
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseSynchronizeChangelogProcessor"/>
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUpdateDatabaseProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUpdateSqlProcessor"/>
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseTagDatabaseProcessor"/>
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseRollbackChangesetsProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseRollbackSqlProcessor"/>
 
         <!--object filters-->
         <objectFilter implementation="com.dbn.vector.model.request.EmbeddingStagingTableFilter"/>

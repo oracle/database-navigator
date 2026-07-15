@@ -17,10 +17,8 @@
 package com.dbn.liquibase.execution.processor;
 
 import com.dbn.liquibase.DatabaseLiquibaseManager;
-import com.dbn.liquibase.execution.LiquibaseChangeSetItem;
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
-import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
@@ -28,10 +26,6 @@ import com.dbn.liquibase.execution.LiquibaseRollbackInstruction;
 import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
-import liquibase.changelog.ChangeSet;
-import liquibase.changelog.DatabaseChangeLog;
-import liquibase.changelog.visitor.AbstractChangeExecListener;
-import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -70,7 +64,7 @@ public class LiquibaseRollbackChangesetsProcessor extends LiquibaseExecutionProc
                             "database", database,
                             "changelogFile", relativeChangelog,
                             instruction.parameter(), instruction.value(),
-                            "changeExecListener", new ChangeSetListener(result))));
+                            "changeExecListener", new LiquibaseChangeSetRollbackListener(result, "Rolled back"))));
             notifySchemaObjectChanges(targetSchema);
             checkCanceled(context);
             return null;
@@ -95,44 +89,4 @@ public class LiquibaseRollbackChangesetsProcessor extends LiquibaseExecutionProc
                         schema.getSchemaId()));
     }
 
-    private static class ChangeSetListener extends AbstractChangeExecListener {
-        private final LiquibaseExecutionResult result;
-
-        private ChangeSetListener(@NotNull LiquibaseExecutionResult result) {
-            this.result = result;
-        }
-
-        @Override
-        public void willRollback(
-                ChangeSet changeSet,
-                DatabaseChangeLog changeLog,
-                Database database) {
-            LiquibaseChangeSetItem item = result.ensureChangeSetItem(changeSet);
-            item.startProcessing();
-            result.notifyItemsChanged();
-        }
-
-        @Override
-        public void rolledBack(
-                ChangeSet changeSet,
-                DatabaseChangeLog changeLog,
-                Database database) {
-            LiquibaseChangeSetItem item = result.ensureChangeSetItem(changeSet);
-            item.finishProcessing();
-            item.updateStatus(LiquibaseExecutionItemStatus.EXECUTED, "Rolled back");
-            result.notifyItemsChanged();
-        }
-
-        @Override
-        public void rollbackFailed(
-                ChangeSet changeSet,
-                DatabaseChangeLog changeLog,
-                Database database,
-                Exception exception) {
-            LiquibaseChangeSetItem item = result.ensureChangeSetItem(changeSet);
-            item.finishProcessing();
-            item.updateStatus(LiquibaseExecutionItemStatus.FAILED, exception.getMessage());
-            result.notifyItemsChanged();
-        }
-    }
 }

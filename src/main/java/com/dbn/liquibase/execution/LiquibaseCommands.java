@@ -21,10 +21,14 @@ import liquibase.command.core.DiffChangelogCommandStep;
 import liquibase.command.core.GenerateChangelogCommandStep;
 import liquibase.command.core.RollbackCommandStep;
 import liquibase.command.core.RollbackCountCommandStep;
+import liquibase.command.core.RollbackCountSqlCommandStep;
+import liquibase.command.core.RollbackSqlCommandStep;
 import liquibase.command.core.RollbackToDateCommandStep;
+import liquibase.command.core.RollbackToDateSqlCommandStep;
 import liquibase.command.core.StatusCommandStep;
 import liquibase.command.core.TagCommandStep;
 import liquibase.command.core.UpdateCommandStep;
+import liquibase.command.core.UpdateSqlCommandStep;
 import liquibase.command.core.ValidateCommandStep;
 import lombok.experimental.UtilityClass;
 
@@ -37,8 +41,12 @@ public class LiquibaseCommands {
     public static final String SHOW_CHANGELOG_STATUS = StatusCommandStep.COMMAND_NAME[0];
     public static final String TAG = TagCommandStep.COMMAND_NAME[0];
     public static final String UPDATE_DATABASE = UpdateCommandStep.COMMAND_NAME[0];
+    public static final String UPDATE_SQL = UpdateSqlCommandStep.COMMAND_NAME[0];
     public static final String SYNCHRONIZE_CHANGELOG = ChangelogSyncCommandStep.COMMAND_NAME[0];
     public static final String ROLLBACK_COUNT = RollbackCountCommandStep.COMMAND_NAME[0];
     public static final String ROLLBACK_TAG = RollbackCommandStep.COMMAND_NAME[0];
     public static final String ROLLBACK_DATE = RollbackToDateCommandStep.COMMAND_NAME[0];
+    public static final String ROLLBACK_COUNT_SQL = RollbackCountSqlCommandStep.COMMAND_NAME[0];
+    public static final String ROLLBACK_TAG_SQL = RollbackSqlCommandStep.COMMAND_NAME[0];
+    public static final String ROLLBACK_DATE_SQL = RollbackToDateSqlCommandStep.COMMAND_NAME[0];
 }

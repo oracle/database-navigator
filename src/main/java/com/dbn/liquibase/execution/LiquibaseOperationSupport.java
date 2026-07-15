@@ -23,10 +23,12 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_SQL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_STATUS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
+import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_SQL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.VALIDATE_CHANGELOG;
 
 /** Defines the context and result capabilities of a Liquibase operation. */
@@ -56,8 +58,10 @@ public final class LiquibaseOperationSupport {
                 SHOW_CHANGELOG_STATUS,
                 SYNCHRONIZE_CHANGELOG,
                 UPDATE_DATABASE,
+                UPDATE_SQL,
                 TAG_DATABASE,
-                ROLLBACK_CHANGESETS)) return FieldState.VISIBLE;
+                ROLLBACK_CHANGESETS,
+                ROLLBACK_SQL)) return FieldState.VISIBLE;
 
         return FieldState.HIDDEN;
     }
@@ -94,18 +98,20 @@ public final class LiquibaseOperationSupport {
     }
 
     public boolean supportsRollbackTag() {
-        return operation == ROLLBACK_CHANGESETS;
+        return operation.isOneOf(ROLLBACK_CHANGESETS, ROLLBACK_SQL);
     }
 
     public boolean supportsRollback() {
-        return operation == ROLLBACK_CHANGESETS;
+        return operation.isOneOf(ROLLBACK_CHANGESETS, ROLLBACK_SQL);
     }
 
     public boolean supportsChangeSetItems() {
         return operation.isOneOf(
                 UPDATE_DATABASE,
+                UPDATE_SQL,
                 SYNCHRONIZE_CHANGELOG,
-                ROLLBACK_CHANGESETS);
+                ROLLBACK_CHANGESETS,
+                ROLLBACK_SQL);
     }
 
     public boolean supportsComparisonItems() {
@@ -131,7 +137,9 @@ public final class LiquibaseOperationSupport {
                 SHOW_CHANGELOG_STATUS,
                 SYNCHRONIZE_CHANGELOG,
                 UPDATE_DATABASE,
-                ROLLBACK_CHANGESETS);
+                ROLLBACK_CHANGESETS,
+                UPDATE_SQL,
+                ROLLBACK_SQL);
     }
 
     public boolean supportsWorkspaceCreation() {

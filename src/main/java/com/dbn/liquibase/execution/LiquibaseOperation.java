@@ -15,8 +15,10 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     SHOW_CHANGELOG_STATUS,
     SYNCHRONIZE_CHANGELOG,
     UPDATE_DATABASE,
+    UPDATE_SQL,
     TAG_DATABASE,
-    ROLLBACK_CHANGESETS;
+    ROLLBACK_CHANGESETS,
+    ROLLBACK_SQL;
 
     private final LiquibaseOperationSupport support = new LiquibaseOperationSupport(this);
 
