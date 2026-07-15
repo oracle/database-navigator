@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.liquibase.execution.processor.LiquibaseInitializationProcessor.confirmOverwrite;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Input dialog shown before executing a Liquibase operation for a database schema. */
@@ -72,6 +73,10 @@ public class LiquibaseExecutionInputDialog extends DBNDialog<LiquibaseExecutionI
     @Override
     protected void doOKAction() {
         applyFormChanges();
+        boolean checkOverride = executionInput.getOperation() == LiquibaseOperation.INITIALIZE;
+        if (checkOverride && !confirmOverwrite(executionInput)) {
+            return;
+        }
         super.doOKAction();
     }
 

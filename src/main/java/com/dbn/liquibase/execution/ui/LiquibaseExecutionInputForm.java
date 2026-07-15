@@ -67,6 +67,7 @@ import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setEmptyOptionsText;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
+import static com.dbn.common.util.Lists.filter;
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK;
 import static com.dbn.liquibase.execution.LiquibaseRollbackType.COUNT;
 import static com.dbn.liquibase.execution.LiquibaseRollbackType.DATE;
@@ -239,6 +240,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         updateWorkspacePath();
         onSelectionChange(workspaceSelector, value -> {
             updateWorkspacePath();
+            updateTargetConnections();
             markFormChanged();
         });
     }
@@ -302,6 +304,29 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
                 state);
     }
 
+    private void updateTargetConnections() {
+        if (executionInput.getOperation() != LiquibaseOperation.COMPARE) return;
+
+        ConnectionHandler targetConnection = getTargetConnection();
+        FieldState state = executionInput.getOperation().getSupport().getTargetContextState();
+        List<ConnectionHandler> connections = getSupportedConnections(getConnections(), state);
+        targetConnectionSelector.setValues(connections);
+        targetConnectionSelector.setSelectedValue(connections.contains(targetConnection) ? targetConnection : null);
+        targetSchemaSelector.reloadValues();
+    }
+
+    @NotNull
+    private List<ConnectionHandler> getSupportedConnections(
+            @NotNull List<ConnectionHandler> connections,
+            @NotNull FieldState state) {
+        if (!state.isEditable()) return connections;
+        LiquibaseWorkspace workspace = workspaceSelector.getSelectedValue();
+        if (workspace == null) return connections;
+
+        LiquibaseWorkspaceBundle workspaces = parent.getWorkspaces();
+        return filter(connections, c -> workspaces.isCompatible(workspace, c.getDatabaseType()));
+    }
+
     private void initConnectionSelector(
             @NotNull JLabel label,
             @NotNull DBNComboBox<ConnectionHandler> selector,
@@ -315,8 +340,9 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         selector.setVisible(visible);
         if (!visible) return;
 
-        selector.setValues(values);
-        selector.setSelectedValue(selectedValue);
+        List<ConnectionHandler> supportedValues = getSupportedConnections(values, state);
+        selector.setValues(supportedValues);
+        selector.setSelectedValue(supportedValues.contains(selectedValue) ? selectedValue : null);
 
         if (enabled) {
             onSelectionChange(selector, value -> {

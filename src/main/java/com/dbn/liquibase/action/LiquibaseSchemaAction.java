@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Dialogs.show;
 import static com.dbn.common.util.Dialogs.whenOk;
-import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Base action for Liquibase operations scoped to one database schema. */
@@ -66,7 +66,7 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
 
         if (!operation.getSupport().supportsWorkspaceCreation() &&
                 workspaces.getWorkspaces(getConnection().getDatabaseType()).isEmpty()) {
-            showErrorDialog(
+            showInfoDialog(
                     project,
                     txt("msg.liquibase.title.WorkspaceRequired"),
                     txt("msg.liquibase.message.NoWorkspacesAvailable", getConnection().getDatabaseType().getName()),

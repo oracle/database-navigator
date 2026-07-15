@@ -77,22 +77,33 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
         Path changelogFile = paths.getMasterChangelogPath();
         result.setChangelogPath(changelogFile);
         boolean overwrite = false;
-        if (Files.exists(changelogFile)) {
-            int option = Messages.showAcknowledgementDialog(
-                    input.getProject(),
-                    txt("msg.liquibase.title.OverwriteChangelog"),
-                    txt("msg.liquibase.question.OverwriteChangelog", changelogFile),
-                    Messages.options(
-                            txt("msg.liquibase.button.Overwrite"),
-                            txt("msg.shared.button.Cancel")),
-                    0,
-                    null);
-            if (option != 0) throw new CancellationException("Changelog overwrite canceled");
+        if (Files.exists(changelogFile) && !input.isOverwriteConfirmed()) {
+            if (!confirmOverwrite(input)) throw new CancellationException("Changelog overwrite canceled");
             overwrite = true;
         }
+        overwrite |= input.isOverwriteConfirmed();
         Files.createDirectories(changelogFile.getParent());
         generateChangelog(context, paths, changelogFile, result, overwrite);
         result.appendConsoleOutput(txt("log.liquibase.info.InitialChangelogGenerated", changelogFile));
+    }
+
+    public static boolean confirmOverwrite(@NotNull LiquibaseExecutionInput input) {
+        Path changelogFile = input.getWorkspacePaths().getMasterChangelogPath();
+        if (!Files.exists(changelogFile)) return true;
+
+        int option = Messages.showAcknowledgementDialog(
+                input.getProject(),
+                txt("msg.liquibase.title.OverwriteChangelog"),
+                txt("msg.liquibase.question.OverwriteChangelog", changelogFile),
+                Messages.options(
+                        txt("msg.liquibase.button.Overwrite"),
+                        txt("msg.shared.button.Cancel")),
+                0,
+                null);
+        if (option != 0) return false;
+
+        input.setOverwriteConfirmed(true);
+        return true;
     }
 
     private void generateChangelog(

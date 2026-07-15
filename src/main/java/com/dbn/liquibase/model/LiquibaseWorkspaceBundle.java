@@ -85,7 +85,7 @@ public class LiquibaseWorkspaceBundle implements PersistentStateElement, Cloneab
         return filter(getWorkspaces(), w -> isCompatible(w, databaseType));
     };
 
-    private static boolean isCompatible(
+    public static boolean isCompatible(
             @NotNull LiquibaseWorkspace workspace,
             @NotNull DatabaseType databaseType) {
         DatabaseType workspaceType = workspace.getDatabaseType();
