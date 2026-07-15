@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.concurrent.CancellationException;
 
 import static com.dbn.common.util.TimeUtil.presentableDuration;
+import static com.dbn.liquibase.execution.LiquibaseCommands.GENERATE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.buildTrackingTableFilter;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.isLiquibaseTrackingObject;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.resolveObjectType;
@@ -110,7 +111,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             withLiquibaseScope(context, contentRoot, output -> {
                 collectDatabaseObjects(context, database, schemaName, result);
                 checkCanceled(context);
-                return executeCommand("generateChangelog", output, Map.of(
+                return executeCommand(GENERATE_CHANGELOG, output, Map.of(
                         "database", database,
                         "schemas", schemaName,
                         "diffTypes", GENERATE_CHANGELOG_DIFF_TYPES,

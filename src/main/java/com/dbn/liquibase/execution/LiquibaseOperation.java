@@ -50,7 +50,7 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     }
 
     public boolean supportsChangeSetItems() {
-        return this == UPDATE;
+        return isOneOf(UPDATE, ROLLBACK);
     }
 
     public boolean supportsComparisonItems() {

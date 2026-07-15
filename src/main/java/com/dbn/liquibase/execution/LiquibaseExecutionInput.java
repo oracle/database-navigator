@@ -23,6 +23,7 @@ public class LiquibaseExecutionInput extends ProjectUnit {
 
     private DBObjectRef<DBSchema> sourceSchema;
     private DBObjectRef<DBSchema> targetSchema;
+    private int rollbackCount = 1;
 
     private LiquibaseWorkspace workspace;
     private LiquibaseWorkspacePaths workspacePaths;
@@ -83,6 +84,10 @@ public class LiquibaseExecutionInput extends ProjectUnit {
 
     public void setTargetSchema(@Nullable DBSchema targetSchema) {
         this.targetSchema = DBObjectRef.of(targetSchema);
+    }
+
+    public void setRollbackCount(int rollbackCount) {
+        this.rollbackCount = rollbackCount;
     }
 
     public void setWorkspace(@Nullable LiquibaseWorkspace workspace) {

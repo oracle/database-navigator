@@ -95,6 +95,23 @@
               <text value="[status]"/>
             </properties>
           </component>
+          <component id="24" class="javax.swing.JLabel" binding="changeSetCountCaptionLabel">
+            <constraints>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.ChangeSetCount"/>
+            </properties>
+          </component>
+          <component id="25" class="javax.swing.JLabel" binding="changeSetCountLabel">
+            <constraints>
+              <grid row="5" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <font style="1"/>
+              <text value="[changesets]"/>
+            </properties>
+          </component>
           <component id="10" class="javax.swing.JLabel">
             <constraints>
               <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -214,13 +231,6 @@
           <vspacer id="3fad">
             <constraints>
               <grid row="9" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
-                <preferred-size width="-1" height="16"/>
-              </grid>
-            </constraints>
-          </vspacer>
-          <vspacer id="f3eb8">
-            <constraints>
-              <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
                 <preferred-size width="-1" height="16"/>
               </grid>
             </constraints>

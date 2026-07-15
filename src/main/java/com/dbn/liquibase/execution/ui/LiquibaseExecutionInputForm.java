@@ -43,6 +43,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -66,6 +68,8 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     private DBNComboBox<ConnectionHandler> targetConnectionSelector;
     private DBNComboBox<LiquibaseWorkspace> workspaceSelector;
     private DBNCommentLabel workspacePathLabel;
+    private JLabel rollbackCountLabel;
+    private JSpinner rollbackCountSpinner;
     private DBObjectSelector<DBSchema> sourceSchemaSelector;
     private DBObjectSelector<DBSchema> targetSchemaSelector;
 
@@ -81,9 +85,17 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         initHintPanel();
         initContextLabels();
         initWorkspaceSelector();
+        initRollbackCount();
         initSourceContextSelectors();
         initTargetContextSelectors();
         executionInput.setWorkspace(workspaceSelector.getSelectedValue());
+    }
+
+    private void initRollbackCount() {
+        boolean visible = executionInput.getOperation() == LiquibaseOperation.ROLLBACK;
+        rollbackCountLabel.setVisible(visible);
+        rollbackCountSpinner.setVisible(visible);
+        rollbackCountSpinner.setModel(new SpinnerNumberModel(executionInput.getRollbackCount(), 1, Integer.MAX_VALUE, 1));
     }
 
     private void initHeaderPanel() {
@@ -274,6 +286,9 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         addValidation(targetSchemaSelector,
                 selector -> !operation.requiresTargetSchema() || selector.getSelectedItem() != null,
                 txt("msg.shared.error.SelectTargetSchema"));
+        addValidation(rollbackCountSpinner,
+                spinner -> operation != LiquibaseOperation.ROLLBACK || (Integer) spinner.getValue() > 0,
+                txt("msg.liquibase.error.RollbackCountRequired"));
     }
 
     @NotNull
@@ -290,6 +305,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         executionInput.setSourceSchema(sourceSchema);
         executionInput.setTargetSchema(targetSchema);
         executionInput.setWorkspace(workspace);
+        executionInput.setRollbackCount((Integer) rollbackCountSpinner.getValue());
 
         if (workspace == null) return;
         if (sourceSchema == null && targetSchema == null) return;
@@ -323,6 +339,6 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return workspaceSelector;
+        return executionInput.getOperation() == LiquibaseOperation.ROLLBACK ? rollbackCountSpinner : workspaceSelector;
     }
 }

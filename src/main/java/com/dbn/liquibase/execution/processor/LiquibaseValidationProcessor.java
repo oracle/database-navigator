@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
+import static com.dbn.liquibase.execution.LiquibaseCommands.VALIDATE;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -59,7 +60,7 @@ public class LiquibaseValidationProcessor extends LiquibaseExecutionProcessor {
 
             Path rootPath = paths.getContentRootPath();
             withLiquibaseScope(context, rootPath, output ->
-                    executeCommand("validate", output, Map.of(
+                    executeCommand(VALIDATE, output, Map.of(
                             "database", database,
                             "changelogFile", changelogFile)));
             checkCanceled(context);

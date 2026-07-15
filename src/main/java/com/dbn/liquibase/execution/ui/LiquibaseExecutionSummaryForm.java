@@ -51,6 +51,8 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private JLabel targetSchemaCaptionLabel;
     private JLabel targetSchemaLabel;
     private JLabel operationLabel;
+    private JLabel changeSetCountCaptionLabel;
+    private JLabel changeSetCountLabel;
     private JLabel statusLabel;
     private JLabel durationLabel;
     private JLabel databaseChangeLogLabel;
@@ -88,6 +90,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         operationLabel.setText(result.getOperation().getName());
         setToolTipText(operationLabel, result.getOperation().getDescription());
         updateStatus(result);
+        updateChangeSetCount(result);
         Hyperlinks.onHyperlinkAccess(changelogLink, e -> openChangelog(result));
         Hyperlinks.onHyperlinkAccess(databaseChangeLogLink,
                 e -> navigateToTable(result, result.getDatabaseChangeLogTableName()));
@@ -151,6 +154,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
 
     private void updateMessageForm(@NotNull LiquibaseExecutionResult result) {
         updateStatusLabel(result);
+        updateChangeSetCount(result);
         updateChangelogLink(result);
         updateLiquibaseTableLinks(result);
         messageForm.setMessage(createMessage(result, result.getRelevantSchema()));
@@ -202,23 +206,27 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
                 schema,
                 result.getDatabaseChangeLogTableName(),
                 databaseChangeLogLabel,
-                databaseChangeLogLink);
+                databaseChangeLogLink,
+                databaseChangeLogInfoLabel);
         updateLiquibaseTableLink(
                 schema,
                 result.getDatabaseChangeLogLockTableName(),
                 databaseChangeLogLockLabel,
-                databaseChangeLogLockLink);
+                databaseChangeLogLockLink,
+                databaseChangeLogLockInfoLabel);
     }
 
     private static void updateLiquibaseTableLink(
             @NotNull DBSchema schema,
             @NotNull String tableName,
             @NotNull JLabel label,
-            @NotNull DBNHyperlinkLabel link) {
+            @NotNull DBNHyperlinkLabel link,
+            @NotNull DBNInfoLabel infoLabel) {
         DBObject table = schema.getChildObject(DBObjectType.TABLE, tableName);
         if (table == null) {
             label.setVisible(false);
             link.setVisible(false);
+            infoLabel.setVisible(false);
             link.setHyperlinkText("");
             return;
         }
@@ -227,6 +235,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         link.setIcon(Icons.DBO_TABLE);
         link.setHyperlinkText(table.getName());
         link.setVisible(true);
+        infoLabel.setVisible(true);
     }
 
     private void navigateToTable(
@@ -247,6 +256,13 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private void updateStatusLabel(@NotNull LiquibaseExecutionResult result) {
         statusLabel.setText(result.getStatus().getName());
         statusLabel.setForeground(getStatusColor(result.getStatus()));
+    }
+
+    private void updateChangeSetCount(@NotNull LiquibaseExecutionResult result) {
+        boolean visible = result.getOperation().supportsChangeSetItems();
+        changeSetCountCaptionLabel.setVisible(visible);
+        changeSetCountLabel.setVisible(visible);
+        if (visible) changeSetCountLabel.setText(Integer.toString(result.getChangeSetItems().size()));
     }
 
     @NotNull
@@ -320,8 +336,8 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
             @NotNull LiquibaseOperation operation,
             @NotNull TaskStatus status) {
         String suffix = operation.name() + '_' + status.name();
-        String operationKey = "prc.liquibase." + category + ".Operation_" + suffix;
-        String fallbackKey = "prc.liquibase." + category + ".Operation_ANY_" + status.name();
+        String operationKey = "msg.liquibase." + category + ".Operation_" + suffix;
+        String fallbackKey = "msg.liquibase." + category + ".Operation_ANY_" + status.name();
         return txtOr(operationKey, fallbackKey);
     }
 
