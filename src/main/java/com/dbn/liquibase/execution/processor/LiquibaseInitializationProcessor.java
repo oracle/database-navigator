@@ -29,22 +29,33 @@ import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 import liquibase.CatalogAndSchema;
+import liquibase.change.core.TagDatabaseChange;
+import liquibase.changelog.ChangeLogParameters;
+import liquibase.changelog.ChangeSet;
+import liquibase.changelog.DatabaseChangeLog;
 import liquibase.database.Database;
+import liquibase.parser.ChangeLogParserFactory;
+import liquibase.resource.DirectoryResourceAccessor;
+import liquibase.resource.ResourceAccessor;
+import liquibase.serializer.ChangeLogSerializer;
+import liquibase.serializer.ChangeLogSerializerFactory;
 import liquibase.snapshot.SnapshotControl;
 import liquibase.snapshot.SnapshotGeneratorFactory;
 import liquibase.snapshot.SnapshotListener;
 import liquibase.structure.DatabaseObject;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.liquibase.execution.LiquibaseCommands.GENERATE_CHANGELOG;
-import static com.dbn.liquibase.execution.LiquibaseCommands.TAG;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.buildTrackingTableFilter;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.isLiquibaseTrackingObject;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.resolveObjectType;
@@ -126,20 +137,19 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             withLiquibaseScope(context, contentRoot, output -> {
                 collectDatabaseObjects(context, database, schemaName, result);
                 checkCanceled(context);
-                executeCommand(GENERATE_CHANGELOG, output, Map.of(
+                Map<String, Object> arguments = new HashMap<>(Map.of(
                         "database", database,
                         "schemas", schemaName,
                         "diffTypes", GENERATE_CHANGELOG_DIFF_TYPES,
                         "changelogFile", changelogFile.toString(),
                         "overwriteOutputFile", overwrite,
-                        "excludeObjects", buildTrackingTableFilter(database),
-                        "author", input.getChangelogAuthor()));
+                        "excludeObjects", buildTrackingTableFilter(database)));
+                arguments.put("author", input.getChangelogAuthor());
+                executeCommand(GENERATE_CHANGELOG, output, arguments);
 
                 String databaseTag = input.getDatabaseTag();
                 if (isNotEmpty(databaseTag)) {
-                    executeCommand(TAG, output, Map.of(
-                            "database", database,
-                            "tag", databaseTag));
+                    appendDatabaseTag(contentRoot, changelogFile, input.getChangelogAuthor(), databaseTag);
                 }
                 return null;
             });
@@ -150,6 +160,41 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             }
             return null;
         });
+    }
+
+    private void appendDatabaseTag(
+            @NotNull Path contentRoot,
+            @NotNull Path changelogFile,
+            @Nullable String author,
+            @NotNull String tag) throws Exception {
+        ResourceAccessor resourceAccessor = new DirectoryResourceAccessor(contentRoot);
+        String changelogPath = contentRoot.relativize(changelogFile).toString().replace('\\', '/');
+        DatabaseChangeLog changeLog = ChangeLogParserFactory.getInstance()
+                .getParser(changelogPath, resourceAccessor)
+                .parse(changelogPath, new ChangeLogParameters(), resourceAccessor);
+
+        ChangeSet changeSet = new ChangeSet(
+                "baseline-tag-" + tag,
+                isNotEmpty(author) ? author : "liquibase",
+                false,
+                false,
+                changelogFile.toString(),
+                null,
+                null,
+                changeLog);
+        TagDatabaseChange tagChange = new TagDatabaseChange();
+        tagChange.setTag(tag);
+        changeSet.addChange(tagChange);
+        changeLog.addChangeSet(changeSet);
+
+        ChangeLogSerializer serializer = ChangeLogSerializerFactory.getInstance()
+                .getSerializer(changelogPath);
+        try (var output = Files.newOutputStream(
+                changelogFile,
+                StandardOpenOption.WRITE,
+                StandardOpenOption.TRUNCATE_EXISTING)) {
+            serializer.write(changeLog.getChangeSets(), output);
+        }
     }
 
     private void collectDatabaseObjects(

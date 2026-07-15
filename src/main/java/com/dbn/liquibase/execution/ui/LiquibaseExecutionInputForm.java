@@ -27,6 +27,7 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.form.field.FieldState;
 import com.dbn.common.ui.info.DBNCommentLabel;
+import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
@@ -95,18 +96,21 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     private JLabel rollbackCountLabel;
     private JLabel changelogAuthorLabel;
     private JLabel databaseTagLabel;
+    private JLabel checkpointTagLabel;
     private JSpinner rollbackCountSpinner;
     private JTextField rollbackTagTextField;
     private JTextField changelogAuthorTextField;
     private JTextField databaseTagTextField;
+    private JTextField checkpointTagTextField;
     private DBNComboBox<ConnectionHandler> sourceConnectionSelector;
     private DBNComboBox<ConnectionHandler> targetConnectionSelector;
     private DBNComboBox<LiquibaseWorkspace> workspaceSelector;
     private DBNComboBox<LiquibaseRollbackType> rollbackTypeSelector;
     private DBNCommentLabel workspacePathLabel;
-    private DBNCommentLabel rollbackCountInfoLabel;
-    private DBNCommentLabel rollbackTagInfoLabel;
-    private DBNCommentLabel rollbackDateInfoLabel;
+    private DBNInfoLabel rollbackCountInfoLabel;
+    private DBNInfoLabel rollbackTagInfoLabel;
+    private DBNInfoLabel rollbackDateInfoLabel;
+    private DBNInfoLabel checkpointTagInfoLabel;
     private TextFieldWithPopup<?> rollbackDateField;
     private DBObjectSelector<DBSchema> sourceSchemaSelector;
     private DBObjectSelector<DBSchema> targetSchemaSelector;
@@ -121,22 +125,41 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
         initHeaderPanel();
         initHintPanel();
+        initInfoLabels();
         initContextLabels();
         initWorkspaceSelector();
-        initInitializationFields();
+        initOperationTagField();
         initRollbackFields();
         initSourceContextSelectors();
         initTargetContextSelectors();
         executionInput.setWorkspace(workspaceSelector.getSelectedValue());
     }
 
-    private void initInitializationFields() {
-        boolean visible = executionInput.getOperation() == LiquibaseOperation.INITIALIZE;
-        changelogAuthorLabel.setVisible(visible);
-        changelogAuthorTextField.setVisible(visible);
-        databaseTagLabel.setVisible(visible);
-        databaseTagTextField.setVisible(visible);
+    private void initInfoLabels() {
+        rollbackCountInfoLabel.setContent(plain(txt("cfg.liquibase.hint.RollbackCount")));
+        rollbackTagInfoLabel.setContent(plain(txt("cfg.liquibase.hint.RollbackTag")));
+        rollbackDateInfoLabel.setContent(plain(txt("cfg.liquibase.hint.RollbackDate")));
+        checkpointTagInfoLabel.setContent(plain(txt("cfg.liquibase.hint.CheckpointTag")));
+    }
+
+    private void initOperationTagField() {
+        LiquibaseOperation operation = executionInput.getOperation();
+        boolean initialize = operation == LiquibaseOperation.INITIALIZE;
+        boolean update = operation == LiquibaseOperation.UPDATE;
+        boolean visible = initialize || update;
+        changelogAuthorLabel.setVisible(initialize);
+        changelogAuthorTextField.setVisible(initialize);
+        databaseTagLabel.setVisible(initialize);
+        databaseTagTextField.setVisible(initialize);
+        checkpointTagLabel.setVisible(update);
+        checkpointTagTextField.setVisible(update);
+        checkpointTagInfoLabel.setVisible(update);
         if (!visible) return;
+
+        if (update) {
+            setText(checkpointTagTextField, executionInput.getCheckpointTag());
+            return;
+        }
 
         DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(executionInput.getProject());
         StateAttributes state = liquibaseManager.getState("EXECUTION_INPUT");
@@ -269,9 +292,10 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     private void updateWorkspacePath() {
         LiquibaseWorkspace workspace = workspaceSelector.getSelectedValue();
         if (workspace == null) {
-            workspacePathLabel.setText(workspaceSelector.getItemCount() == 0 &&
+            String message = workspaceSelector.getItemCount() == 0 &&
                     !executionInput.getOperation().getSupport().supportsWorkspaceCreation() ?
-                    getNoWorkspacesMessage() : "");
+                    getNoWorkspacesMessage() : null;
+            workspacePathLabel.setText(message == null ? "" : message);
             return;
         }
 
@@ -458,6 +482,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         executionInput.setRollbackDate(getText(rollbackDateField.getTextField()));
         executionInput.setChangelogAuthor(getText(changelogAuthorTextField));
         executionInput.setDatabaseTag(getText(databaseTagTextField));
+        executionInput.setCheckpointTag(getText(checkpointTagTextField));
 
         if (workspace == null) return;
         if (sourceSchema == null && targetSchema == null) return;

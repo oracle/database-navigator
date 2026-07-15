@@ -36,6 +36,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
+import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.liquibase.execution.LiquibaseCommands.TAG;
 import static com.dbn.liquibase.execution.LiquibaseCommands.UPDATE;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
@@ -76,11 +78,19 @@ public class LiquibaseUpdateProcessor extends LiquibaseExecutionProcessor {
         withLiquibaseDatabase(context, false, targetSchema, database -> {
             checkCanceled(context);
             Path rootPath = paths.getContentRootPath();
-            withLiquibaseScope(context, rootPath, output ->
-                    executeCommand(UPDATE, output, Map.of(
+            withLiquibaseScope(context, rootPath, output -> {
+                String checkpointTag = input.getCheckpointTag();
+                if (isNotEmpty(checkpointTag)) {
+                    executeCommand(TAG, output, Map.of(
                             "database", database,
-                            "changelogFile", relativeChangelog,
-                            "changeExecListener", new ChangeSetListener(result))));
+                            "tag", checkpointTag));
+                }
+                executeCommand(UPDATE, output, Map.of(
+                        "database", database,
+                        "changelogFile", relativeChangelog,
+                        "changeExecListener", new ChangeSetListener(result)));
+                return null;
+            });
             notifySchemaObjectChanges(targetSchema);
             checkCanceled(context);
             return null;
