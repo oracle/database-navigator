@@ -84,6 +84,11 @@ public class LiquibaseUpdateProcessor extends LiquibaseExecutionProcessor {
                     executeCommand(TAG, output, Map.of(
                             "database", database,
                             "tag", checkpointTag));
+                    input.getWorkspaces().rememberCheckpointTag(
+                            input.getWorkspace(),
+                            targetSchema.getConnectionId(),
+                            targetSchema.getSchemaId(),
+                            checkpointTag);
                 }
                 executeCommand(UPDATE, output, Map.of(
                         "database", database,

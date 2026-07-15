@@ -32,6 +32,7 @@ import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.DatabaseType;
+import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.editor.ui.calendar.CalendarPopupType;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
@@ -86,6 +87,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     private JPanel headerPanel;
     private JPanel hintPanel;
     private JPanel rollbackDateFieldPanel;
+    private JPanel rollbackTagFieldPanel;
     private JLabel sourceConnectionLabel;
     private JLabel sourceSchemaLabel;
     private JLabel targetConnectionLabel;
@@ -98,7 +100,6 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     private JLabel databaseTagLabel;
     private JLabel checkpointTagLabel;
     private JSpinner rollbackCountSpinner;
-    private JTextField rollbackTagTextField;
     private JTextField changelogAuthorTextField;
     private JTextField databaseTagTextField;
     private JTextField checkpointTagTextField;
@@ -114,6 +115,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     private TextFieldWithPopup<?> rollbackDateField;
     private DBObjectSelector<DBSchema> sourceSchemaSelector;
     private DBObjectSelector<DBSchema> targetSchemaSelector;
+    private TextFieldWithPopup<?> rollbackTagField;
 
     private final LiquibaseExecutionInputDialog parent;
     private final LiquibaseExecutionInput executionInput;
@@ -169,6 +171,19 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
     private void initRollbackFields() {
         Project project = executionInput.getProject();
+        rollbackTagField = new TextFieldWithPopup<>(project);
+        rollbackTagFieldPanel.add(rollbackTagField);
+        rollbackTagField.createValuesListPopup(new ListPopupValuesProvider() {
+            @Override
+            public String getName() {
+                return txt("cfg.liquibase.label.RollbackTag");
+            }
+
+            @Override
+            public List<String> getValues() {
+                return getRollbackTagValues();
+            }
+        }, null, true);
         rollbackDateField = new TextFieldWithPopup<>(project);
         rollbackDateFieldPanel.add(rollbackDateField);
 
@@ -186,12 +201,23 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         rollbackCountLabel.setVisible(visible);
         rollbackCountSpinner.setVisible(visible);
         rollbackCountSpinner.setModel(new SpinnerNumberModel(executionInput.getRollbackCount(), 1, Integer.MAX_VALUE, 1));
-        rollbackTagTextField.setText(executionInput.getRollbackTag());
+        setText(rollbackTagField.getTextField(), executionInput.getRollbackTag());
         setText(rollbackDateField.getTextField(), executionInput.getRollbackDate());
         onSelectionChange(rollbackTypeSelector, value -> {
             updateFieldAvailability();
             markFormChanged();
         });
+    }
+
+    private List<String> getRollbackTagValues() {
+        LiquibaseWorkspace workspace = workspaceSelector.getSelectedValue();
+        DBSchema schema = executionInput.getTargetSchema();
+        return workspace == null || schema == null ?
+                emptyList() :
+                parent.getWorkspaces().getCheckpointTags(
+                        workspace,
+                        schema.getConnectionId(),
+                        schema.getSchemaId());
     }
 
     @Override
@@ -205,7 +231,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
         fieldAdapter.initFieldsVisibility(() -> isRollbackType(TAG), array(
                 rollbackTagLabel,
-                rollbackTagTextField,
+                rollbackTagFieldPanel,
                 rollbackTagInfoLabel));
 
         fieldAdapter.initFieldsVisibility(() -> isRollbackType(DATE), array(
@@ -453,8 +479,8 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         addValidation(rollbackCountSpinner,
                 spinner -> operation != ROLLBACK || getSelection(rollbackTypeSelector) != COUNT || (Integer) spinner.getValue() > 0,
                 txt("msg.liquibase.error.RollbackCountRequired"));
-        addValidation(rollbackTagTextField,
-                textField -> operation != ROLLBACK || getSelection(rollbackTypeSelector) != TAG || !textField.getText().trim().isEmpty(),
+        addTextValidation(rollbackTagField.getTextField(),
+                text -> operation != ROLLBACK || getSelection(rollbackTypeSelector) != TAG || !text.trim().isEmpty(),
                 txt("msg.liquibase.error.RollbackTagRequired"));
         addTextValidation(rollbackDateField.getTextField(),
                 text -> !isRollbackType(DATE) || !text.trim().isEmpty(),
@@ -478,7 +504,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         executionInput.setWorkspace(workspace);
         executionInput.setRollbackType(getSelection(rollbackTypeSelector));
         executionInput.setRollbackCount((Integer) rollbackCountSpinner.getValue());
-        executionInput.setRollbackTag(getText(rollbackTagTextField));
+        executionInput.setRollbackTag(getText(rollbackTagField.getTextField()));
         executionInput.setRollbackDate(getText(rollbackDateField.getTextField()));
         executionInput.setChangelogAuthor(getText(changelogAuthorTextField));
         executionInput.setDatabaseTag(getText(databaseTagTextField));
