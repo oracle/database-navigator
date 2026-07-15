@@ -9,7 +9,6 @@ import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -27,7 +26,7 @@ import static com.dbn.nls.NlsResources.txt;
  * <p>Liquibase output is forwarded to the execution result console, while failures are reported by
  * the common execution processor as a failed operation.</p>
  */
-public class LiquibaseValidationProcessor extends LiquibaseExecutionProcessor {
+public class LiquibaseValidateChangelogProcessor extends LiquibaseExecutionProcessor {
     @Override
     public LiquibaseOperation getOperation() {
         return LiquibaseOperation.VALIDATE_CHANGELOG;
@@ -35,15 +34,13 @@ public class LiquibaseValidationProcessor extends LiquibaseExecutionProcessor {
 
     @Override
     protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+        prepareChangelogContext(context, true);
+
         LiquibaseExecutionInput input = context.getInput();
         LiquibaseExecutionResult result = context.getResult();
         LiquibaseWorkspacePaths paths = input.getWorkspacePaths();
-        Path changelogFile = paths.getMasterChangelogPath();
-        result.setChangelogPath(changelogFile);
-        if (!Files.isRegularFile(changelogFile)) {
-            throw new IllegalStateException("Changelog file does not exist: " + changelogFile);
-        }
 
+        Path changelogFile = paths.getMasterChangelogPath();
         validateChangelog(context, paths, paths.getRelativePath(changelogFile), result);
         result.appendConsoleOutput(txt("log.liquibase.info.ChangelogValidated", changelogFile));
     }
@@ -53,7 +50,7 @@ public class LiquibaseValidationProcessor extends LiquibaseExecutionProcessor {
             @NotNull LiquibaseWorkspacePaths paths,
             @NotNull String changelogFile,
             @NotNull LiquibaseExecutionResult result) throws Exception {
-        DBSchema targetSchema = required("Target schema", context.getInput().getTargetSchema());
+        DBSchema targetSchema = context.getTargetSchema();
 
         withLiquibaseDatabase(context, true, targetSchema, database -> {
             checkCanceled(context);

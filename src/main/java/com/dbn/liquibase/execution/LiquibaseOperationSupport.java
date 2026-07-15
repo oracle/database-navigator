@@ -77,7 +77,9 @@ public final class LiquibaseOperationSupport {
     }
 
     public boolean supportsComparisonItems() {
-        return operation == COMPARE_SCHEMAS;
+        return operation.isOneOf(
+                COMPARE_SCHEMAS,
+                GENERATE_DIFF_CHANGELOG);
     }
 
     public boolean supportsTrackingTables() {

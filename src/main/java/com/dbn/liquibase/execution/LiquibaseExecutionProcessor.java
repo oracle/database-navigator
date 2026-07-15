@@ -19,15 +19,16 @@ package com.dbn.liquibase.execution;
 import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.common.routine.ThrowableFunction;
 import com.dbn.common.task.TaskStatus;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionContext;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.PooledConnection;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionLogService;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
+import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.extensions.ExtensionPointName;
 import liquibase.Scope;
@@ -44,6 +45,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -53,6 +55,7 @@ import java.util.concurrent.CancellationException;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.exception.Exceptions.unwrap;
 import static com.dbn.common.util.Classes.withClassLoader;
+import static com.dbn.nls.NlsResources.txt;
 import static liquibase.Scope.child;
 
 /**
@@ -72,6 +75,48 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     public static final ExtensionPointName<LiquibaseExecutionProcessor> EP =
             ExtensionPointName.create("com.dbn.liquibaseExecutionProcessor");
     protected LiquibaseExecutionProcessor() {
+    }
+
+    public static boolean confirmOverwrite(@NotNull LiquibaseExecutionInput input) {
+        Path changelogFile = input.getWorkspacePaths().getMasterChangelogPath();
+        if (!Files.exists(changelogFile)) return true;
+
+        int option = Messages.showAcknowledgementDialog(
+                input.getProject(),
+                txt("msg.liquibase.title.OverwriteChangelog"),
+                txt("msg.liquibase.question.OverwriteChangelog", changelogFile),
+                Messages.options(
+                        txt("msg.liquibase.button.Overwrite"),
+                        txt("msg.shared.button.Cancel")),
+                0,
+                null);
+        if (option != 0) return false;
+
+        input.setOverwriteConfirmed(true);
+        return true;
+    }
+
+    protected final void prepareChangelogOutput(@NotNull LiquibaseExecutionContext context) throws Exception {
+        LiquibaseExecutionInput input = context.getInput();
+        Path changelogFile = input.getWorkspacePaths().getMasterChangelogPath();
+        boolean overwrite = input.isOverwriteConfirmed();
+        if (Files.exists(changelogFile) && !overwrite) {
+            if (!confirmOverwrite(input)) throw new CancellationException("Changelog overwrite canceled");
+            overwrite = true;
+        }
+        if (overwrite) Files.deleteIfExists(changelogFile);
+        Files.createDirectories(changelogFile.getParent());
+    }
+
+    protected final void prepareChangelogContext(
+            @NotNull LiquibaseExecutionContext context,
+            boolean requireExistingChangelog) {
+        LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
+        Path changelogFile = paths.getMasterChangelogPath();
+        context.getResult().setChangelogPath(changelogFile);
+        if (requireExistingChangelog && !Files.isRegularFile(changelogFile)) {
+            throw new IllegalStateException("Changelog file does not exist: " + changelogFile);
+        }
     }
 
     public abstract LiquibaseOperation getOperation();
@@ -215,12 +260,6 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
         command.execute();
 
         return null;
-    }
-
-    @NotNull
-    public static <T extends DatabaseEntity> T required(@NonNls String name, @Nullable T entity) {
-        if (entity == null) throw new IllegalStateException(name + " not specified");
-        return entity;
     }
 
 }

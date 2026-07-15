@@ -25,7 +25,6 @@ import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -43,7 +42,7 @@ import static com.dbn.nls.NlsResources.txt;
  * Liquibase tracking tables. The target schema is still required because status is evaluated against
  * the database's changelog history.</p>
  */
-public class LiquibaseStatusProcessor extends LiquibaseExecutionProcessor {
+public class LiquibaseShowChangelogStatusProcessor extends LiquibaseExecutionProcessor {
     @Override
     public LiquibaseOperation getOperation() {
         return LiquibaseOperation.SHOW_CHANGELOG_STATUS;
@@ -51,17 +50,16 @@ public class LiquibaseStatusProcessor extends LiquibaseExecutionProcessor {
 
     @Override
     protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+        prepareChangelogContext(context, true);
+
         LiquibaseExecutionInput input = context.getInput();
         LiquibaseExecutionResult result = context.getResult();
         LiquibaseWorkspacePaths paths = input.getWorkspacePaths();
-        Path changelogFile = paths.getMasterChangelogPath();
-        result.setChangelogPath(changelogFile);
-        if (!Files.isRegularFile(changelogFile)) {
-            throw new IllegalStateException("Changelog file does not exist: " + changelogFile);
-        }
 
-        DBSchema targetSchema = required("Target schema", input.getTargetSchema());
+        Path changelogFile = paths.getMasterChangelogPath();
+        DBSchema targetSchema = context.getTargetSchema();
         String relativeChangelog = paths.getRelativePath(changelogFile);
+
         withLiquibaseDatabase(context, true, targetSchema, database -> {
             checkCanceled(context);
             withLiquibaseScope(context, paths.getContentRootPath(), output ->

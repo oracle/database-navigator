@@ -265,13 +265,13 @@
         <dataExportProcessor implementation="com.dbn.data.export.processor.CustomDataExportProcessor"/>
 
         <!-- Liquibase execution processors -->
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseInitializationProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseValidationProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseCompareProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseDiffChangelogProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseStatusProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUpdateProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseRollbackProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseGenerateChangelogProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseValidateChangelogProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseCompareSchemasProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseGenerateDiffChangelogProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseShowChangelogStatusProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUpdateDatabaseProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseRollbackChangesetsProcessor"/>
 
         <!--object filters-->
         <objectFilter implementation="com.dbn.vector.model.request.EmbeddingStagingTableFilter"/>

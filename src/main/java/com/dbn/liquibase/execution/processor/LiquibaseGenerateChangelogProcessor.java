@@ -16,7 +16,6 @@
 
 package com.dbn.liquibase.execution.processor;
 
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
@@ -49,9 +48,7 @@ import org.jetbrains.annotations.Nullable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CancellationException;
 
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
@@ -73,7 +70,7 @@ import static com.dbn.nls.NlsResources.txt;
  * exists, the user must explicitly approve overwriting it. Snapshot items are added to the execution
  * result while the snapshot is being collected so the result form can display the operation's progress.</p>
  */
-public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcessor {
+public class LiquibaseGenerateChangelogProcessor extends LiquibaseExecutionProcessor {
     private static final String GENERATE_CHANGELOG_DIFF_TYPES =
             "catalogs,columns,foreignkeys,indexes,primarykeys,sequences,tables,uniqueconstraints,views";
 
@@ -84,51 +81,27 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
 
     @Override
     protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+        prepareChangelogContext(context, false);
+        prepareChangelogOutput(context);
+
         LiquibaseExecutionInput input = context.getInput();
         LiquibaseExecutionResult result = context.getResult();
         LiquibaseWorkspacePaths paths = input.getWorkspacePaths();
+
         Path changelogFile = paths.getMasterChangelogPath();
-        result.setChangelogPath(changelogFile);
-        boolean overwrite = false;
-        if (Files.exists(changelogFile) && !input.isOverwriteConfirmed()) {
-            if (!confirmOverwrite(input)) throw new CancellationException("Changelog overwrite canceled");
-            overwrite = true;
-        }
-        overwrite |= input.isOverwriteConfirmed();
-        Files.createDirectories(changelogFile.getParent());
-        generateChangelog(context, paths, changelogFile, result, overwrite);
+        generateChangelog(context, paths, changelogFile, result);
         result.appendConsoleOutput(txt("log.liquibase.info.InitialChangelogGenerated", changelogFile));
-    }
-
-    public static boolean confirmOverwrite(@NotNull LiquibaseExecutionInput input) {
-        Path changelogFile = input.getWorkspacePaths().getMasterChangelogPath();
-        if (!Files.exists(changelogFile)) return true;
-
-        int option = Messages.showAcknowledgementDialog(
-                input.getProject(),
-                txt("msg.liquibase.title.OverwriteChangelog"),
-                txt("msg.liquibase.question.OverwriteChangelog", changelogFile),
-                Messages.options(
-                        txt("msg.liquibase.button.Overwrite"),
-                        txt("msg.shared.button.Cancel")),
-                0,
-                null);
-        if (option != 0) return false;
-
-        input.setOverwriteConfirmed(true);
-        return true;
     }
 
     private void generateChangelog(
         @NotNull LiquibaseExecutionContext context,
         @NotNull LiquibaseWorkspacePaths workspacePaths,
         @NotNull Path changelogFile,
-        @NotNull LiquibaseExecutionResult result,
-        boolean overwrite) throws Exception {
+        @NotNull LiquibaseExecutionResult result) throws Exception {
         Path contentRoot = workspacePaths.getContentRootPath();
         LiquibaseExecutionInput input = context.getInput();
 
-        DBSchema sourceSchema = required("Source schema", input.getSourceSchema());
+        DBSchema sourceSchema = context.getSourceSchema();
         withLiquibaseDatabase(context, true, sourceSchema, database -> {
             checkCanceled(context);
             String schemaName = sourceSchema.getName();
@@ -137,15 +110,14 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
             withLiquibaseScope(context, contentRoot, output -> {
                 collectDatabaseObjects(context, database, schemaName, result);
                 checkCanceled(context);
-                Map<String, Object> arguments = new HashMap<>(Map.of(
+
+                executeCommand(GENERATE_CHANGELOG, output, Map.of(
                         "database", database,
                         "schemas", schemaName,
                         "diffTypes", GENERATE_CHANGELOG_DIFF_TYPES,
                         "changelogFile", changelogFile.toString(),
-                        "overwriteOutputFile", overwrite,
-                        "excludeObjects", buildTrackingTableFilter(database)));
-                arguments.put("author", input.getChangelogAuthor());
-                executeCommand(GENERATE_CHANGELOG, output, arguments);
+                        "excludeObjects", buildTrackingTableFilter(database),
+                        "author", input.getChangelogAuthor()));
 
                 String databaseTag = input.getDatabaseTag();
                 if (isNotEmpty(databaseTag)) {

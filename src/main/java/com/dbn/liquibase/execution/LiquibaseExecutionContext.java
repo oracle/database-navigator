@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.execution;
 
+import com.dbn.object.DBSchema;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,6 +46,20 @@ public class LiquibaseExecutionContext {
 
     public boolean isCancellationRequested() {
         return cancellationRequested || Thread.currentThread().isInterrupted();
+    }
+
+    @NotNull
+    public DBSchema getSourceSchema() {
+        DBSchema schema = input.getSourceSchema();
+        if (schema == null) throw new IllegalStateException("Source schema not specified");
+        return schema;
+    }
+
+    @NotNull
+    public DBSchema getTargetSchema() {
+        DBSchema schema = input.getTargetSchema();
+        if (schema == null) throw new IllegalStateException("Target schema not specified");
+        return schema;
     }
 
     void setExecutionThread(@NotNull Thread executionThread) {

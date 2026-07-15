@@ -14,6 +14,7 @@ import com.dbn.common.ui.link.Hyperlinks;
 import com.dbn.common.ui.messages.DBNMessageForm;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.LiquibaseOperationSupport;
@@ -33,6 +34,7 @@ import javax.swing.Timer;
 import java.awt.Color;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.util.Tooltips.setToolTipText;
@@ -75,18 +77,21 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         durationTimer.setRepeats(true);
 
         initContextLabels(result);
+        boolean sameConnection = hasSameConnection(result);
         setSchemaContext(
                 result.getSourceSchema(),
                 sourceConnectionCaptionLabel,
                 sourceConnectionLabel,
                 sourceSchemaCaptionLabel,
-                sourceSchemaLabel);
+                sourceSchemaLabel,
+                true);
         setSchemaContext(
                 result.getTargetSchema(),
                 targetConnectionCaptionLabel,
                 targetConnectionLabel,
                 targetSchemaCaptionLabel,
-                targetSchemaLabel);
+                targetSchemaLabel,
+                !sameConnection);
 
         operationLabel.setText(result.getOperation().getName());
         setToolTipText(operationLabel, result.getOperation().getDescription());
@@ -106,11 +111,14 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     }
 
     private void initContextLabels(@NotNull LiquibaseExecutionResult result) {
-        boolean sourceVisible = result.getSourceSchema() != null;
-        boolean targetVisible = result.getTargetSchema() != null;
+        DBSchema sourceSchema = result.getSourceSchema();
+        DBSchema targetSchema = result.getTargetSchema();
+        boolean sourceVisible = sourceSchema != null;
+        boolean targetVisible = targetSchema != null;
+        boolean sameConnection = hasSameConnection(result);
         boolean qualified = sourceVisible && targetVisible;
 
-        sourceConnectionCaptionLabel.setText(txt(qualified ?
+        sourceConnectionCaptionLabel.setText(txt(qualified && !sameConnection ?
                 "cfg.liquibase.label.SourceConnection" :
                 "app.object.label.Connection"));
         sourceSchemaCaptionLabel.setText(txt(qualified ?
@@ -129,10 +137,11 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
             @NotNull JLabel connectionCaptionLabel,
             @NotNull JLabel connectionLabel,
             @NotNull JLabel schemaCaptionLabel,
-            @NotNull JLabel schemaLabel) {
+            @NotNull JLabel schemaLabel,
+            boolean connectionVisible) {
         boolean visible = schema != null;
-        connectionCaptionLabel.setVisible(visible);
-        connectionLabel.setVisible(visible);
+        connectionCaptionLabel.setVisible(visible && connectionVisible);
+        connectionLabel.setVisible(visible && connectionVisible);
         schemaCaptionLabel.setVisible(visible);
         schemaLabel.setVisible(visible);
         if (!visible) return;
@@ -142,6 +151,17 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         connectionLabel.setText(connection.getName());
         schemaLabel.setIcon(schema.getIcon());
         schemaLabel.setText(schema.getName());
+    }
+
+    private static boolean hasSameConnection(@NotNull LiquibaseExecutionResult result) {
+        DBSchema sourceSchema = result.getSourceSchema();
+        DBSchema targetSchema = result.getTargetSchema();
+        if (sourceSchema == null) return false;
+        if (targetSchema == null) return false;
+
+        ConnectionId sourceConnectionId = sourceSchema.getConnection().getConnectionId();
+        ConnectionId targetConnectionId = targetSchema.getConnection().getConnectionId();
+        return Objects.equals(sourceConnectionId, targetConnectionId);
     }
 
     private void initMessageForm(@NotNull LiquibaseExecutionResult result, @NotNull DBSchema schema) {

@@ -17,20 +17,11 @@
 package com.dbn.liquibase.execution.processor;
 
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
-import com.dbn.liquibase.execution.LiquibaseExecutionInput;
-import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.object.DBSchema;
-import liquibase.CatalogAndSchema;
-import liquibase.diff.DiffGeneratorFactory;
 import liquibase.diff.DiffResult;
-import liquibase.diff.compare.CompareControl;
 import org.jetbrains.annotations.NotNull;
-
-import static com.dbn.liquibase.execution.LiquibaseComparisonItemStatus.CHANGED;
-import static com.dbn.liquibase.execution.LiquibaseComparisonItemStatus.MISSING;
-import static com.dbn.liquibase.execution.LiquibaseComparisonItemStatus.UNEXPECTED;
 
 /**
  * Compares the source and target schemas supplied by the execution input through Liquibase's
@@ -44,10 +35,7 @@ import static com.dbn.liquibase.execution.LiquibaseComparisonItemStatus.UNEXPECT
  * <p>The operation produces Liquibase's comparison output in the execution result console and does
  * not modify either database or the workspace changelog.</p>
  */
-public class LiquibaseCompareProcessor extends LiquibaseExecutionProcessor {
-    private static final String DIFF_TYPES =
-            "catalogs,columns,foreignkeys,indexes,primarykeys,sequences,tables,uniqueconstraints,views";
-
+public class LiquibaseCompareSchemasProcessor extends LiquibaseDiffExecutionProcessor {
     @Override
     public LiquibaseOperation getOperation() {
         return LiquibaseOperation.COMPARE_SCHEMAS;
@@ -55,31 +43,16 @@ public class LiquibaseCompareProcessor extends LiquibaseExecutionProcessor {
 
     @Override
     protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
-        LiquibaseExecutionInput input = context.getInput();
         LiquibaseExecutionResult result = context.getResult();
-        DBSchema sourceSchema = required("Source schema", input.getSourceSchema());
-        DBSchema targetSchema = required("Target schema", input.getTargetSchema());
+        DBSchema sourceSchema = context.getSourceSchema();
+        DBSchema targetSchema = context.getTargetSchema();
         withLiquibaseDatabase(context, true, sourceSchema, sourceDatabase ->
                 withLiquibaseDatabase(context, true, targetSchema, targetDatabase ->
                         withLiquibaseScope(context, output -> {
                             checkCanceled(context);
-                            CompareControl compareControl = new CompareControl(
-                                    new CompareControl.SchemaComparison[]{new CompareControl.SchemaComparison(
-                                            new CatalogAndSchema(sourceDatabase.getDefaultCatalogName(), sourceSchema.getName()),
-                                            new CatalogAndSchema(targetDatabase.getDefaultCatalogName(), targetSchema.getName()))},
-                                    DIFF_TYPES);
-                            DiffResult diffResult = DiffGeneratorFactory.getInstance().compare(
-                                    sourceDatabase, targetDatabase, compareControl);
+                            DiffResult diffResult = compareSchemas(sourceSchema, sourceDatabase, targetSchema, targetDatabase);
                             populateComparisonItems(result, diffResult);
                             return diffResult;
                         })));
-    }
-
-    private static void populateComparisonItems(
-            @NotNull LiquibaseExecutionResult result,
-            @NotNull DiffResult diffResult) {
-        diffResult.getMissingObjects().forEach(o -> result.ensureComparisonItem(o, null, MISSING, null));
-        diffResult.getUnexpectedObjects().forEach(o -> result.ensureComparisonItem(null, o, UNEXPECTED, null));
-        diffResult.getChangedObjects().forEach((o, d) -> result.ensureComparisonItem(o, null, CHANGED, d));
     }
 }
