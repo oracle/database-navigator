@@ -51,7 +51,6 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -72,9 +71,6 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
-import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
-import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS;
-import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseRollbackType.COUNT;
 import static com.dbn.liquibase.execution.LiquibaseRollbackType.DATE;
 import static com.dbn.liquibase.execution.LiquibaseRollbackType.TAG;
@@ -150,33 +146,49 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
     private void initOperationTagField() {
         LiquibaseOperation operation = executionInput.getOperation();
-        boolean initialize = operation == GENERATE_CHANGELOG;
-        boolean update = operation == UPDATE_DATABASE;
-        boolean visible = initialize || update;
-        changelogAuthorLabel.setVisible(initialize);
-        changelogAuthorTextField.setVisible(initialize);
-        databaseTagLabel.setVisible(initialize);
-        databaseTagTextField.setVisible(initialize);
-        checkpointTagLabel.setVisible(update);
-        checkpointTagTextField.setVisible(update);
-        checkpointTagInfoLabel.setVisible(update);
-        if (!visible) return;
+        LiquibaseOperationSupport support = operation.getSupport();
+        initChangelogAuthorField(support);
+        initDatabaseTagField(support);
+        initCheckpointTagField(support);
+    }
 
-        if (update) {
-            setText(checkpointTagTextField, executionInput.getCheckpointTag());
-            return;
+    private void initChangelogAuthorField(LiquibaseOperationSupport support) {
+        boolean supported = support.supportsChangelogAuthor();
+        changelogAuthorLabel.setVisible(supported);
+        changelogAuthorTextField.setVisible(supported);
+        if (supported) {
+            DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(executionInput.getProject());
+            StateAttributes state = liquibaseManager.getState("EXECUTION_INPUT");
+            initPersistence(changelogAuthorTextField, state, ATTR_CHANGELOG_AUTHOR, SystemProperties.getUserName());
         }
+    }
 
-        DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(executionInput.getProject());
-        StateAttributes state = liquibaseManager.getState("EXECUTION_INPUT");
-        initPersistence(changelogAuthorTextField, state, ATTR_CHANGELOG_AUTHOR, SystemProperties.getUserName());
-        setText(databaseTagTextField, executionInput.getDatabaseTag());
+    private void initDatabaseTagField(LiquibaseOperationSupport support) {
+        boolean supported = support.supportsDatabaseTag();
+        databaseTagLabel.setVisible(supported);
+        databaseTagTextField.setVisible(supported);
+        if (supported) setText(databaseTagTextField, executionInput.getDatabaseTag());
+    }
+
+    private void initCheckpointTagField(LiquibaseOperationSupport support) {
+        boolean supported = support.supportsCheckpointTag();
+        checkpointTagLabel.setVisible(supported);
+        checkpointTagTextField.setVisible(supported);
+        checkpointTagInfoLabel.setVisible(supported);
+        if (supported) setText(checkpointTagTextField, executionInput.getCheckpointTag());
     }
 
     private void initRollbackFields() {
+        LiquibaseOperationSupport support = executionInput.getOperation().getSupport();
+        if (!support.supportsRollback()) return;
+
         Project project = executionInput.getProject();
         rollbackTagField = new TextFieldWithPopup<>(project);
         rollbackTagFieldPanel.add(rollbackTagField);
+
+        rollbackDateField = new TextFieldWithPopup<>(project);
+        rollbackDateFieldPanel.add(rollbackDateField);
+
         rollbackTagField.createValuesListPopup(new ListPopupValuesProvider() {
             @Override
             public String getName() {
@@ -188,12 +200,6 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
                 return getRollbackTagValues();
             }
         }, null, true);
-        rollbackDateField = new TextFieldWithPopup<>(project);
-        rollbackDateFieldPanel.add(rollbackDateField);
-
-        boolean visible = executionInput.getOperation() == ROLLBACK_CHANGESETS;
-        if (!visible) return;
-
         rollbackDateField.createCalendarPopup(false, CalendarPopupType.DATE);
 
         DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
@@ -202,8 +208,8 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         initPersistence(rollbackTypeSelector, state, ATTR_ROLLBACK_TYPE, COUNT.id());
 
         executionInput.setRollbackType(rollbackTypeSelector.getSelectedValue());
-        rollbackCountLabel.setVisible(visible);
-        rollbackCountSpinner.setVisible(visible);
+        rollbackCountLabel.setVisible(true);
+        rollbackCountSpinner.setVisible(true);
         rollbackCountSpinner.setModel(new SpinnerNumberModel(executionInput.getRollbackCount(), 1, Integer.MAX_VALUE, 1));
         setText(rollbackTagField.getTextField(), executionInput.getRollbackTag());
         setText(rollbackDateField.getTextField(), executionInput.getRollbackDate());
@@ -245,7 +251,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     }
 
     private boolean isRollbackOperation() {
-        return executionInput.getOperation() == ROLLBACK_CHANGESETS;
+        return executionInput.getOperation().getSupport().supportsRollback();
     }
 
     private boolean isRollbackType(@NotNull LiquibaseRollbackType type) {
@@ -284,7 +290,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     }
 
     private void initWorkspaceSelector() {
-        boolean visible = executionInput.getOperation() != COMPARE_SCHEMAS;
+        boolean visible = executionInput.getOperation().getSupport().requiresWorkspace();
         workspaceLabel.setVisible(visible);
         workspaceSelector.setVisible(visible);
         workspacePathLabel.setVisible(visible);
@@ -451,7 +457,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         selector.withConnectionContext(connectionSupplier);
         selector.withValueLoader(() -> {
                     ConnectionHandler connection = connectionSupplier.get();
-                    return connection == null ? emptyList() : connection.getObjectBundle().getSchemas();
+                    return connection == null ? emptyList() : filter(connection.getObjectBundle().getSchemas(), s -> !s.isSystemSchema());
                 });
         selector.withValuePreselector(() -> {
                     DBSchema schema = schemaSupplier.get();
@@ -476,28 +482,37 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     @Override
     protected void initValidation() {
         LiquibaseOperation operation = executionInput.getOperation();
-        if (operation != COMPARE_SCHEMAS) {
+        LiquibaseOperationSupport support = operation.getSupport();
+
+        if (support.requiresWorkspace()) {
             addSelectionValidation(workspaceSelector, txt("msg.liquibase.error.WorkspaceRequired"));
         }
         addValidation(sourceSchemaSelector,
-                selector -> !operation.getSupport().requiresSourceSchema() || selector.getSelectedItem() != null,
+                selector -> !support.requiresSourceSchema() || selector.getSelectedItem() != null,
                 txt("msg.shared.error.SelectSchema"));
         addValidation(targetConnectionSelector,
-                selector -> !operation.getSupport().requiresTargetSchema() || selector.getSelectedItem() != null,
+                selector -> !support.requiresTargetSchema() || selector.getSelectedItem() != null,
                 txt("msg.shared.error.SelectTargetConnection"));
         addValidation(targetSchemaSelector,
-                selector -> !operation.getSupport().requiresTargetSchema() || selector.getSelectedItem() != null,
+                selector -> !support.requiresTargetSchema() || selector.getSelectedItem() != null,
                 txt("msg.shared.error.SelectTargetSchema"));
-        addValidation(rollbackCountSpinner,
-                spinner -> operation != ROLLBACK_CHANGESETS || getSelection(rollbackTypeSelector) != COUNT || (Integer) spinner.getValue() > 0,
-                txt("msg.liquibase.error.RollbackCountRequired"));
-        addTextValidation(rollbackTagField.getTextField(),
-                text -> operation != ROLLBACK_CHANGESETS || getSelection(rollbackTypeSelector) != TAG || !text.trim().isEmpty(),
-                txt("msg.liquibase.error.RollbackTagRequired"));
-        addTextValidation(rollbackDateField.getTextField(),
-                text -> !isRollbackType(DATE) || !text.trim().isEmpty(),
-                txt("msg.liquibase.error.RollbackDateRequired"));
-        addTextValidation(rollbackDateField.getTextField(), textField -> validateRollbackDateFormat(textField.getText()));
+
+        if (support.supportsRollback()) {
+            addValidation(rollbackCountSpinner,
+                    spinner -> getSelection(rollbackTypeSelector) != COUNT || (Integer) spinner.getValue() > 0,
+                    txt("msg.liquibase.error.RollbackCountRequired"));
+            addTextValidation(rollbackTagField.getTextField(),
+                    text -> getSelection(rollbackTypeSelector) != TAG || !text.trim().isEmpty(),
+                    txt("msg.liquibase.error.RollbackTagRequired"));
+            addTextValidation(rollbackDateField.getTextField(),
+                    text -> !isRollbackType(DATE) || !text.trim().isEmpty(),
+                    txt("msg.liquibase.error.RollbackDateRequired"));
+            addTextValidation(rollbackDateField.getTextField(), textField -> validateRollbackDateFormat(textField.getText()));
+        }
+
+        addTextValidation(databaseTagTextField,
+                text -> !support.requiresDatabaseTag() || !text.trim().isEmpty(),
+                txt("msg.liquibase.error.DatabaseTagRequired"));
     }
 
     @NotNull
@@ -507,6 +522,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
     @Override
     public void applyFormChanges() {
+        LiquibaseOperationSupport support = executionInput.getOperation().getSupport();
         DBSchema sourceSchema = getSourceSchema();
         DBSchema targetSchema = getTargetSchema();
         LiquibaseWorkspace workspace = getSelection(workspaceSelector);
@@ -514,10 +530,13 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         executionInput.setSourceSchema(sourceSchema);
         executionInput.setTargetSchema(targetSchema);
         executionInput.setWorkspace(workspace);
-        executionInput.setRollbackType(getSelection(rollbackTypeSelector));
-        executionInput.setRollbackCount((Integer) rollbackCountSpinner.getValue());
-        executionInput.setRollbackTag(getText(rollbackTagField.getTextField()));
-        executionInput.setRollbackDate(getText(rollbackDateField.getTextField()));
+
+        if (support.supportsRollback()) {
+            executionInput.setRollbackType(getSelection(rollbackTypeSelector));
+            executionInput.setRollbackCount((Integer) rollbackCountSpinner.getValue());
+            executionInput.setRollbackTag(getText(rollbackTagField.getTextField()));
+            executionInput.setRollbackDate(getText(rollbackDateField.getTextField()));
+        }
         executionInput.setChangelogAuthor(getText(changelogAuthorTextField));
         executionInput.setDatabaseTag(getText(databaseTagTextField));
         executionInput.setCheckpointTag(getText(checkpointTagTextField));
@@ -566,13 +585,5 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     @Override
     public JPanel getMainComponent() {
         return mainPanel;
-    }
-
-    @Override
-    public JComponent getPreferredFocusedComponent() {
-        LiquibaseOperation operation = executionInput.getOperation();
-        if (operation == ROLLBACK_CHANGESETS) return rollbackTypeSelector;
-        if (operation == COMPARE_SCHEMAS) return sourceConnectionSelector;
-        return workspaceSelector;
     }
 }

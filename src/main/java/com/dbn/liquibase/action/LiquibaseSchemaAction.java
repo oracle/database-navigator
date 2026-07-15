@@ -21,6 +21,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.execution.LiquibaseOperationSupport;
 import com.dbn.liquibase.execution.ui.LiquibaseExecutionInputDialog;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.dbn.object.DBSchema;
@@ -79,8 +80,10 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
             @NotNull Project project,
             @NotNull LiquibaseOperation operation,
             @NotNull LiquibaseWorkspaceBundle workspaces) {
-        if (operation == LiquibaseOperation.COMPARE_SCHEMAS) return true;
-        if (operation.getSupport().supportsWorkspaceCreation()) return true;
+
+        LiquibaseOperationSupport support = operation.getSupport();
+        if (!support.requiresWorkspace()) return true;
+        if (support.supportsWorkspaceCreation()) return true;
         if (workspaces.containsWorkspaces(getConnection().getDatabaseType())) return true;
 
         DatabaseLiquibaseManager manager = getManager(project);

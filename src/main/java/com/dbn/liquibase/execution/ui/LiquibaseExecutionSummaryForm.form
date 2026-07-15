@@ -19,7 +19,7 @@
         </constraints>
         <properties/>
       </component>
-      <grid id="1c16c" layout-manager="GridLayoutManager" row-count="12" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="8" vgap="-1">
+    <grid id="1c16c" layout-manager="GridLayoutManager" row-count="12" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="8" vgap="-1">
         <margin top="8" left="8" bottom="8" right="8"/>
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -129,7 +129,7 @@
               <text value="[duration]"/>
             </properties>
           </component>
-          <component id="12" class="javax.swing.JLabel">
+          <component id="12" class="javax.swing.JLabel" binding="changelogLabel">
             <constraints>
               <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -143,6 +143,23 @@
             </constraints>
             <properties>
               <text value=""/>
+            </properties>
+          </component>
+          <component id="26" class="javax.swing.JLabel" binding="tagCaptionLabel">
+            <constraints>
+              <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Tag"/>
+            </properties>
+          </component>
+          <component id="27" class="javax.swing.JLabel" binding="tagLabel">
+            <constraints>
+              <grid row="9" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <font style="1"/>
+              <text value="[tag]"/>
             </properties>
           </component>
           <component id="18" class="javax.swing.JLabel" binding="databaseChangeLogLabel">

@@ -24,6 +24,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_STATUS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.VALIDATE_CHANGELOG;
 
@@ -53,6 +54,7 @@ public final class LiquibaseOperationSupport {
                 VALIDATE_CHANGELOG,
                 SHOW_CHANGELOG_STATUS,
                 UPDATE_DATABASE,
+                TAG_DATABASE,
                 ROLLBACK_CHANGESETS)) return FieldState.VISIBLE;
 
         return FieldState.HIDDEN;
@@ -70,6 +72,28 @@ public final class LiquibaseOperationSupport {
         return operation == GENERATE_CHANGELOG;
     }
 
+    public boolean supportsChangelogAuthor() {
+        return operation == GENERATE_CHANGELOG;
+    }
+
+    public boolean supportsDatabaseTag() {
+        return operation.isOneOf(
+                GENERATE_CHANGELOG,
+                TAG_DATABASE);
+    }
+
+    public boolean requiresDatabaseTag() {
+        return operation == TAG_DATABASE;
+    }
+
+    public boolean supportsCheckpointTag() {
+        return operation == UPDATE_DATABASE;
+    }
+
+    public boolean supportsRollback() {
+        return operation == ROLLBACK_CHANGESETS;
+    }
+
     public boolean supportsChangeSetItems() {
         return operation.isOneOf(
                 UPDATE_DATABASE,
@@ -84,6 +108,17 @@ public final class LiquibaseOperationSupport {
 
     public boolean supportsTrackingTables() {
         return operation.isOneOf(
+                SHOW_CHANGELOG_STATUS,
+                UPDATE_DATABASE,
+                TAG_DATABASE,
+                ROLLBACK_CHANGESETS);
+    }
+
+    public boolean requiresWorkspace() {
+        return operation.isOneOf(
+                GENERATE_CHANGELOG,
+                VALIDATE_CHANGELOG,
+                GENERATE_DIFF_CHANGELOG,
                 SHOW_CHANGELOG_STATUS,
                 UPDATE_DATABASE,
                 ROLLBACK_CHANGESETS);

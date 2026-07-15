@@ -38,7 +38,12 @@ import java.util.Objects;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.util.Tooltips.setToolTipText;
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
+import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
+import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
+import static com.dbn.liquibase.execution.LiquibaseRollbackType.TAG;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.nls.NlsResources.txtOr;
 
@@ -58,6 +63,9 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private JLabel changeSetCountLabel;
     private JLabel statusLabel;
     private JLabel durationLabel;
+    private JLabel tagCaptionLabel;
+    private JLabel tagLabel;
+    private JLabel changelogLabel;
     private JLabel databaseChangeLogLabel;
     private JLabel databaseChangeLogLockLabel;
     private DBNHyperlinkLabel changelogLink;
@@ -97,6 +105,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         setToolTipText(operationLabel, result.getOperation().getDescription());
         updateStatus(result);
         updateChangeSetCount(result);
+        updateTagInfo(result);
         Hyperlinks.onHyperlinkAccess(changelogLink, e -> openChangelog(result));
         Hyperlinks.onHyperlinkAccess(databaseChangeLogLink,
                 e -> navigateToTable(result, result.getDatabaseChangeLogTableName()));
@@ -176,6 +185,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private void updateMessageForm(@NotNull LiquibaseExecutionResult result) {
         updateStatusLabel(result);
         updateChangeSetCount(result);
+        updateTagInfo(result);
         updateChangelogLink(result);
         updateLiquibaseTableLinks(result);
         messageForm.setMessage(createMessage(result, result.getRelevantSchema()));
@@ -183,6 +193,15 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     }
 
     private void updateChangelogLink(@NotNull LiquibaseExecutionResult result) {
+        LiquibaseOperationSupport support = result.getOperation().getSupport();
+        boolean relevant = support.requiresWorkspace();
+        changelogLabel.setVisible(relevant);
+        if (!relevant) {
+            changelogLink.setVisible(false);
+            setToolTipText(changelogLink, null);
+            return;
+        }
+
         Path changelogPath = result.getChangelogPath();
         if (changelogPath == null || !Files.isRegularFile(changelogPath)) {
             changelogLink.setVisible(false);
@@ -285,6 +304,30 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         changeSetCountCaptionLabel.setVisible(visible);
         changeSetCountLabel.setVisible(visible);
         if (visible) changeSetCountLabel.setText(Integer.toString(result.getChangeSetItems().size()));
+    }
+
+    private void updateTagInfo(@NotNull LiquibaseExecutionResult result) {
+        String tag = null;
+        String captionKey = null;
+        LiquibaseOperation operation = result.getOperation();
+        if (operation == TAG_DATABASE) {
+            tag = result.getDatabaseTag();
+            captionKey = "cfg.liquibase.label.DatabaseTag";
+        } else if (operation == UPDATE_DATABASE) {
+            tag = result.getCheckpointTag();
+            captionKey = "cfg.liquibase.label.CheckpointTag";
+        } else if (operation == ROLLBACK_CHANGESETS && result.getRollbackType() == TAG) {
+            tag = result.getRollbackTag();
+            captionKey = "cfg.liquibase.label.RollbackTag";
+        }
+
+        boolean visible = isNotEmpty(tag);
+        tagCaptionLabel.setVisible(visible);
+        tagLabel.setVisible(visible);
+        if (visible) {
+            tagCaptionLabel.setText(txt(captionKey));
+            tagLabel.setText(tag);
+        }
     }
 
     @NotNull
