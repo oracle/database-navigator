@@ -21,8 +21,10 @@ import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
+import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -58,18 +60,25 @@ public class LiquibaseShowChangelogStatusProcessor extends LiquibaseExecutionPro
 
         Path changelogFile = paths.getMasterChangelogPath();
         DBSchema targetSchema = context.getTargetSchema();
-        String relativeChangelog = paths.getRelativePath(changelogFile);
 
-        withLiquibaseDatabase(context, true, targetSchema, database -> {
-            checkCanceled(context);
-            withLiquibaseScope(context, paths.getContentRootPath(), output ->
-                    executeCommand(SHOW_CHANGELOG_STATUS, output, Map.of(
-                            "database", database,
-                            "changelogFile", relativeChangelog,
-                            "verbose", true)));
-            checkCanceled(context);
-            return null;
-        });
+        withLiquibaseDatabase(context, true, targetSchema, database ->
+                withLiquibaseScope(context, contentRootAccessor(context), null,
+                        output -> executeStatus(
+                                context,
+                                database,
+                                output)));
+
         result.appendConsoleOutput(txt("log.liquibase.info.ChangelogStatusDisplayed", changelogFile));
+    }
+
+    private void executeStatus(
+            @NotNull LiquibaseExecutionContext context,
+            @NotNull Database database,
+            @NotNull LiquibaseExecutionOutputStream output) throws Exception {
+        LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
+        executeCommand(SHOW_CHANGELOG_STATUS, output, Map.of(
+                "database", database,
+                "changelogFile", paths.getMasterChangelogRelativePath(),
+                "verbose", true));
     }
 }

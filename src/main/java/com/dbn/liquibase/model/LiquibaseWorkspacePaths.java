@@ -68,6 +68,11 @@ public class LiquibaseWorkspacePaths {
     }
 
     @NotNull
+    public String getMasterChangelogRelativePath() {
+        return getRelativePath(getMasterChangelogPath());
+    }
+
+    @NotNull
     public Path getPropertiesFilePath() {
         return resolvePath(getContentRootPath(), workspace.getPropertiesFile(), "Properties file");
     }

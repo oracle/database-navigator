@@ -20,12 +20,11 @@ import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.execution.LiquibaseRollbackInstruction;
-import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
+import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
+import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -47,36 +46,52 @@ public class LiquibaseRollbackChangesetsProcessor extends LiquibaseExecutionProc
     protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
         prepareChangelogContext(context, true);
 
-        LiquibaseExecutionInput input = context.getInput();
-        LiquibaseExecutionResult result = context.getResult();
-        LiquibaseWorkspacePaths paths = input.getWorkspacePaths();
+        var input = context.getInput();
+        var result = context.getResult();
+        var paths = input.getWorkspacePaths();
 
         Path changelogFile = paths.getMasterChangelogPath();
         DBSchema targetSchema = context.getTargetSchema();
-        String relativeChangelog = paths.getRelativePath(changelogFile);
 
-        withLiquibaseDatabase(context, false, targetSchema, database -> {
-            checkCanceled(context);
-            LiquibaseRollbackInstruction instruction = input.getRollbackInstruction();
+        withLiquibaseDatabase(context, false, targetSchema, database ->
+                withLiquibaseScope(context, contentRootAccessor(context), null,
+                        output -> executeRollback(
+                                context, 
+                                database, 
+                                output)));
 
-            withLiquibaseScope(context, paths.getContentRootPath(), output ->
-                    executeCommand(instruction.command(), output, Map.of(
-                            "database", database,
-                            "changelogFile", relativeChangelog,
-                            instruction.parameter(), instruction.value(),
-                            "changeExecListener", new LiquibaseChangeSetRollbackListener(result, "Rolled back"))));
-            notifySchemaObjectChanges(targetSchema);
-            checkCanceled(context);
-            return null;
-        });
+        notifySchemaObjectChanges(targetSchema);
+        removeTagHistory(context);
+        result.appendConsoleOutput(txt("log.liquibase.info.ChangelogRolledBack", changelogFile, input.getRollbackCount()));
+    }
+
+    private static void removeTagHistory(@NotNull LiquibaseExecutionContext context) {
+        LiquibaseExecutionInput input = context.getInput();
         if (input.getRollbackType() == TAG) {
+            DBSchema targetSchema = context.getTargetSchema();
             DatabaseLiquibaseManager liquibaseManager = context.getLiquibaseManager();
             liquibaseManager.removeTag(
                     targetSchema.getConnectionId(),
                     targetSchema.getSchemaId(),
                     input.getRollbackTag());
         }
-        result.appendConsoleOutput(txt("log.liquibase.info.ChangelogRolledBack", changelogFile, input.getRollbackCount()));
+    }
+
+    private void executeRollback(
+            @NotNull LiquibaseExecutionContext context,
+            @NotNull Database database,
+            @NotNull LiquibaseExecutionOutputStream output) throws Exception {
+        var input = context.getInput();
+        var result = context.getResult();
+        var paths = input.getWorkspacePaths();
+        var instruction = input.getRollbackInstruction();
+
+        executeCommand(instruction.command(), output, Map.of(
+                "database", database,
+                "changelogFile", paths.getMasterChangelogRelativePath(),
+                instruction.parameter(), instruction.value(),
+                "changeExecListener", new LiquibaseChangeSetRollbackListener(result, "Rolled back")));
+
     }
 
     private static void notifySchemaObjectChanges(@NotNull DBSchema schema) {

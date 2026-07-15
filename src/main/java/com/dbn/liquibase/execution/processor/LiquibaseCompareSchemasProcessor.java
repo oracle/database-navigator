@@ -19,7 +19,9 @@ package com.dbn.liquibase.execution.processor;
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.object.DBSchema;
+import liquibase.database.Database;
 import liquibase.diff.DiffResult;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,16 +45,34 @@ public class LiquibaseCompareSchemasProcessor extends LiquibaseDiffExecutionProc
 
     @Override
     protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+        DBSchema sourceSchema = context.getSourceSchema();
+        DBSchema targetSchema = context.getTargetSchema();
+
+        withLiquibaseDatabase(context, true, sourceSchema, sourceDatabase ->
+                withLiquibaseDatabase(context, true, targetSchema, targetDatabase ->
+                        withLiquibaseScope(context, classLoaderAccessor(), null,
+                                output -> executeComparison(
+                                        context,
+                                        sourceDatabase,
+                                        targetDatabase,
+                                        output))));
+    }
+
+    private void executeComparison(
+            @NotNull LiquibaseExecutionContext context,
+            @NotNull Database sourceDatabase,
+            @NotNull Database targetDatabase,
+            @NotNull LiquibaseExecutionOutputStream output) throws Exception {
         LiquibaseExecutionResult result = context.getResult();
         DBSchema sourceSchema = context.getSourceSchema();
         DBSchema targetSchema = context.getTargetSchema();
-        withLiquibaseDatabase(context, true, sourceSchema, sourceDatabase ->
-                withLiquibaseDatabase(context, true, targetSchema, targetDatabase ->
-                        withLiquibaseScope(context, output -> {
-                            checkCanceled(context);
-                            DiffResult diffResult = compareSchemas(sourceSchema, sourceDatabase, targetSchema, targetDatabase);
-                            populateComparisonItems(result, diffResult);
-                            return diffResult;
-                        })));
+
+        DiffResult diffResult = compareSchemas(
+                sourceSchema,
+                sourceDatabase,
+                targetSchema,
+                targetDatabase);
+
+        populateComparisonItems(result, diffResult);
     }
 }

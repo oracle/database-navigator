@@ -17,7 +17,7 @@
 package com.dbn.liquibase.execution;
 
 import com.dbn.common.extension.ExtensionPoint;
-import com.dbn.common.routine.ThrowableFunction;
+import com.dbn.common.routine.ThrowableConsumer;
 import com.dbn.common.task.TaskStatus;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionContext;
@@ -52,6 +52,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -62,6 +63,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
+import java.util.function.Consumer;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.exception.Exceptions.unwrap;
@@ -114,6 +116,19 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
                 targetSchema.getConnectionId(),
                 targetSchema.getSchemaId(),
                 tag);
+    }
+
+    protected static @NotNull DirectoryResourceAccessor contentRootAccessor(LiquibaseExecutionContext context) throws FileNotFoundException {
+        LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
+        return new DirectoryResourceAccessor(paths.getContentRootPath());
+    }
+
+    protected static @NotNull ClassLoaderResourceAccessor classLoaderAccessor() {
+        return new ClassLoaderResourceAccessor(LiquibaseExecutionProcessor.class.getClassLoader());
+    }
+
+    protected static @NotNull Consumer<String> sqlOutputBuilder(@NotNull LiquibaseExecutionContext context) {
+        return sql -> context.getResult().appendSqlOutput(sql);
     }
 
     protected final void appendDatabaseTag(
@@ -206,14 +221,15 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
         return output.toString();
     }
 
-    protected final <T> T withLiquibaseDatabase(
+    protected final void withLiquibaseDatabase(
             @NotNull LiquibaseExecutionContext context,
             boolean readonly,
             @NotNull DBSchema schema,
-            @NotNull ThrowableFunction<Database, T, Exception> operation) throws SQLException {
+            @NotNull ThrowableConsumer<Database, Exception> operation) throws SQLException {
+        checkCanceled(context);
         ConnectionHandler connection = schema.getConnection();
 
-        return withPoolConnection(context, readonly, connection, schema.getSchemaId(), c -> {
+        withPoolConnection(context, readonly, connection, schema.getSchemaId(), c -> {
             Connection dbConnection = DBNConnection.getInner(c);
             DatabaseCompatibilityInterface compatibilityInterface = connection.getCompatibilityInterface();
             compatibilityInterface.initializeLiquibaseConnection(dbConnection);
@@ -228,42 +244,29 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
                     database.getDatabaseChangeLogTableName(),
                     database.getDatabaseChangeLogLockTableName());
 
-            return operation.apply(database);
+            operation.accept(database);
+            checkCanceled(context);
         });
     }
 
-    protected final <T> T withLiquibaseScope(
+    protected final void withLiquibaseScope(
             @NotNull LiquibaseExecutionContext context,
-            @NotNull Path contentRoot,
-            @NotNull ThrowableFunction<LiquibaseExecutionOutputStream, T, Exception> operation) throws Exception {
-        return withLiquibaseScope(
-                context,
-                new DirectoryResourceAccessor(contentRoot),
-                operation);
-    }
-
-    protected final <T> T withLiquibaseScope(
-            @NotNull LiquibaseExecutionContext context,
-            @NotNull ThrowableFunction<LiquibaseExecutionOutputStream, T, Exception> operation) throws Exception {
-        return withLiquibaseScope(
-                context,
-                new ClassLoaderResourceAccessor(LiquibaseExecutionProcessor.class.getClassLoader()),
-                operation);
-    }
-
-    private <T> T withLiquibaseScope(
-            @NotNull LiquibaseExecutionContext context,
-            @NotNull liquibase.resource.ResourceAccessor resourceAccessor,
-            @NotNull ThrowableFunction<LiquibaseExecutionOutputStream, T, Exception> operation) throws Exception {
+            @NotNull ResourceAccessor resourceAccessor,
+            @Nullable Consumer<String> sqlConsumer,
+            @NotNull ThrowableConsumer<LiquibaseExecutionOutputStream, Exception> operation) throws Exception {
+        checkCanceled(context);
         LiquibaseExecutionResult result = context.getResult();
         Map<String, Object> scopeValues = Map.of(
                 Scope.Attr.logService.name(), new LiquibaseExecutionLogService(result),
                 Scope.Attr.resourceAccessor.name(), resourceAccessor);
-        return child(scopeValues, () -> {
-            try (LiquibaseExecutionOutputStream output = new LiquibaseExecutionOutputStream(result)) {
-                return operation.apply(output);
+        child(scopeValues, () -> {
+            try (LiquibaseExecutionOutputStream output = new LiquibaseExecutionOutputStream(result, sqlConsumer)) {
+                checkCanceled(context);
+                operation.accept(output);
+                checkCanceled(context);
             }
         });
+        checkCanceled(context);
     }
 
     protected final void finishResult(@NotNull LiquibaseExecutionContext context, @NotNull TaskStatus status) {
@@ -276,24 +279,24 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
         context.clearExecutionThread();
     }
 
-    private <T> T withPoolConnection(
+    private void withPoolConnection(
             @NotNull LiquibaseExecutionContext context,
             boolean readonly,
             @NotNull ConnectionHandler connection,
             @Nullable SchemaId schemaId,
-            @NotNull ThrowableFunction<DBNConnection, T, Exception> operation) throws SQLException {
+            @NotNull ThrowableConsumer<DBNConnection, Exception> operation) throws SQLException {
         checkCanceled(context);
         ConnectionContext connectionContext = new ConnectionContext(
                 connection.getProject(),
                 connection.getConnectionId(),
                 schemaId);
-        return PooledConnection.call(connectionContext, readonly, c ->
+        PooledConnection.call(connectionContext, readonly, c ->
                 withClassLoader(LiquibaseExecutionProcessor.class, () -> {
                     try {
                         checkCanceled(context);
-                        T result = operation.apply(c);
+                        operation.accept(c);
                         checkCanceled(context);
-                        return result;
+                        return null;
                     } catch (Throwable e) {
                         if (e instanceof CancellationException cancellationException) throw cancellationException;
                         throw toSqlException(unwrap(e));

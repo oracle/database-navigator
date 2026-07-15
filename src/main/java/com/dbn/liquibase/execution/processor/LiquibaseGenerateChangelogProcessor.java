@@ -18,13 +18,12 @@ package com.dbn.liquibase.execution.processor;
 
 import com.dbn.common.util.Strings;
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
-import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.LiquibaseSnapshotItem;
-import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
+import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 import liquibase.CatalogAndSchema;
@@ -73,54 +72,63 @@ public class LiquibaseGenerateChangelogProcessor extends LiquibaseExecutionProce
         prepareChangelogContext(context, false);
         prepareChangelogOutput(context);
 
-        LiquibaseExecutionInput input = context.getInput();
         LiquibaseExecutionResult result = context.getResult();
-        LiquibaseWorkspacePaths paths = input.getWorkspacePaths();
-
-        Path changelogFile = paths.getMasterChangelogPath();
-        generateChangelog(context, paths, changelogFile, result);
+        Path changelogFile = context.getInput().getWorkspacePaths().getMasterChangelogPath();
+        generateChangelog(context);
         result.appendConsoleOutput(txt("log.liquibase.info.InitialChangelogGenerated", changelogFile));
     }
 
-    private void generateChangelog(
-        @NotNull LiquibaseExecutionContext context,
-        @NotNull LiquibaseWorkspacePaths workspacePaths,
-        @NotNull Path changelogFile,
-        @NotNull LiquibaseExecutionResult result) throws Exception {
-        Path contentRoot = workspacePaths.getContentRootPath();
-        LiquibaseExecutionInput input = context.getInput();
+    private void generateChangelog(@NotNull LiquibaseExecutionContext context) throws Exception {
+        Path changelogFile = context.getInput().getWorkspacePaths().getMasterChangelogPath();
 
         DBSchema sourceSchema = context.getSourceSchema();
-        withLiquibaseDatabase(context, true, sourceSchema, database -> {
-            checkCanceled(context);
-            String schemaName = sourceSchema.getName();
-            database.setDefaultSchemaName(schemaName);
+        withLiquibaseDatabase(context, true, sourceSchema, database ->
+                withLiquibaseScope(context, contentRootAccessor(context), null, output ->
+                        executeGeneration(
+                                context,
+                                database,
+                                output)));
 
-            withLiquibaseScope(context, contentRoot, output -> {
-                collectDatabaseObjects(context, database, schemaName, result);
-                checkCanceled(context);
+        if (!Files.isRegularFile(changelogFile)) {
+            throw new IllegalStateException("Liquibase did not create the changelog file: " + changelogFile);
+        }
 
-                executeCommand(GENERATE_CHANGELOG, output, Map.of(
-                        "database", database,
-                        "schemas", schemaName,
-                        "diffTypes", GENERATE_CHANGELOG_DIFF_TYPES,
-                        "changelogFile", changelogFile.toString(),
-                        "excludeObjects", buildTrackingTableFilter(database),
-                        "author", input.getChangelogAuthor()));
+    }
 
-                String databaseTag = input.getDatabaseTag();
-                if (isNotEmpty(databaseTag)) {
-                    appendDatabaseTag(contentRoot, changelogFile, input.getChangelogAuthor(), databaseTag);
-                }
-                return null;
-            });
-            checkCanceled(context);
+    private void executeGeneration(
+            @NotNull LiquibaseExecutionContext context,
+            @NotNull Database database,
+            @NotNull LiquibaseExecutionOutputStream output) throws Exception {
 
-            if (!Files.isRegularFile(changelogFile)) {
-                throw new IllegalStateException("Liquibase did not create the changelog file: " + changelogFile);
-            }
-            return null;
-        });
+
+        var input = context.getInput();
+        var result = context.getResult();
+        var paths = input.getWorkspacePaths();
+
+        Path changelogFile = paths.getMasterChangelogPath();
+        String schemaName = context.getSourceSchema().getName();
+        database.setDefaultSchemaName(schemaName);
+
+
+        collectDatabaseObjects(context, database, schemaName, result);
+        checkCanceled(context);
+        executeCommand(GENERATE_CHANGELOG, output, Map.of(
+                "database", database,
+                "schemas", schemaName,
+                "diffTypes", GENERATE_CHANGELOG_DIFF_TYPES,
+                "changelogFile", changelogFile.toString(),
+                "excludeObjects", buildTrackingTableFilter(database),
+                "author", input.getChangelogAuthor()));
+
+        String databaseTag = input.getDatabaseTag();
+        if (isNotEmpty(databaseTag)) {
+            Path contentRootPath = paths.getContentRootPath();
+            appendDatabaseTag(
+                    contentRootPath,
+                    changelogFile,
+                    input.getChangelogAuthor(),
+                    databaseTag);
+        }
     }
 
     private void collectDatabaseObjects(

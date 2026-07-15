@@ -24,14 +24,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 
 /** Forwards Liquibase command output to a DBN execution result. */
 public class LiquibaseExecutionOutputStream extends OutputStream {
     private final LiquibaseExecutionResult result;
+    private final Consumer<String> sqlConsumer;
     private final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-    public LiquibaseExecutionOutputStream(@NotNull LiquibaseExecutionResult result) {
+    public LiquibaseExecutionOutputStream(
+            @NotNull LiquibaseExecutionResult result,
+            Consumer<String> sqlConsumer) {
         this.result = result;
+        this.sqlConsumer = sqlConsumer;
     }
 
     @Override
@@ -67,13 +72,18 @@ public class LiquibaseExecutionOutputStream extends OutputStream {
         System.arraycopy(bytes, 0, line, 0, line.length);
         buffer.reset();
         buffer.write(bytes, lineEnd + 1, bytes.length - lineEnd - 1);
-        result.appendConsoleOutput(new String(line, StandardCharsets.UTF_8));
+        appendOutput(new String(line, StandardCharsets.UTF_8));
     }
 
     private void flushBuffer() {
         if (buffer.size() == 0) return;
         String text = buffer.toString(StandardCharsets.UTF_8);
         buffer.reset();
+        appendOutput(text);
+    }
+
+    private void appendOutput(@NotNull String text) {
+        if (sqlConsumer != null) sqlConsumer.accept(text);
         result.appendConsoleOutput(text);
     }
 

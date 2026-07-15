@@ -3,13 +3,11 @@ package com.dbn.liquibase.execution.processor;
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.execution.LiquibaseRollbackInstruction;
-import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
+import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
+import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.file.Path;
 import java.util.Map;
 
 import static com.dbn.liquibase.execution.LiquibaseCommands.ROLLBACK_COUNT_SQL;
@@ -27,19 +25,28 @@ public class LiquibaseRollbackSqlProcessor extends LiquibaseExecutionProcessor {
     protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
         prepareChangelogContext(context, true);
 
-        LiquibaseExecutionInput input = context.getInput();
-        LiquibaseExecutionResult result = context.getResult();
-        LiquibaseWorkspacePaths paths = input.getWorkspacePaths();
-        Path changelogFile = paths.getMasterChangelogPath();
-        LiquibaseRollbackInstruction instruction = input.getRollbackInstruction();
-
         withLiquibaseDatabase(context, true, context.getTargetSchema(), database ->
-                withLiquibaseScope(context, paths.getContentRootPath(), output ->
-                        executeCommand(getCommand(input), output, Map.of(
-                                "database", database,
-                                "changelogFile", paths.getRelativePath(changelogFile),
-                                instruction.parameter(), instruction.value(),
-                                "changeExecListener", new LiquibaseChangeSetRollbackListener(result, "SQL generated")))));
+                withLiquibaseScope(context, contentRootAccessor(context), sqlOutputBuilder(context),
+                        output -> executeRollbackSql(
+                                context,
+                                database,
+                                output)));
+    }
+
+    private void executeRollbackSql(
+            @NotNull LiquibaseExecutionContext context,
+            @NotNull Database database,
+            @NotNull LiquibaseExecutionOutputStream output) throws Exception {
+        var input = context.getInput();
+        var result = context.getResult();
+        var paths = input.getWorkspacePaths();
+        var instruction = input.getRollbackInstruction();
+
+        executeCommand(getCommand(input), output, Map.of(
+                "database", database,
+                "changelogFile", paths.getMasterChangelogRelativePath(),
+                instruction.parameter(), instruction.value(),
+                "changeExecListener", new LiquibaseChangeSetRollbackListener(result, "SQL generated")));
     }
 
     @NotNull

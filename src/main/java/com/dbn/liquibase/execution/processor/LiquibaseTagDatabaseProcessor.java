@@ -17,11 +17,11 @@
 package com.dbn.liquibase.execution.processor;
 
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
-import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.object.DBSchema;
+import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -39,23 +39,32 @@ public class LiquibaseTagDatabaseProcessor extends LiquibaseExecutionProcessor {
 
     @Override
     protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
-        LiquibaseExecutionInput input = context.getInput();
-        LiquibaseExecutionResult result = context.getResult();
+        var input = context.getInput();
+        var result = context.getResult();
+
         DBSchema targetSchema = context.getTargetSchema();
         String tag = input.getDatabaseTag();
         if (!isNotEmpty(tag)) throw new IllegalStateException("Database tag not specified");
 
         withLiquibaseDatabase(context, false, targetSchema, database ->
-                withLiquibaseScope(context, output -> {
-                    executeCommand(TAG, output, Map.of(
-                            "database", database,
-                            "tag", tag));
-                    return null;
-                }));
+                withLiquibaseScope(context, classLoaderAccessor(), null,
+                        output -> executeTag(
+                                context,
+                                database,
+                                output)));
 
         rememberTag(context, targetSchema, tag);
-
         result.appendConsoleOutput(txt("log.liquibase.info.DatabaseTagged", tag));
+    }
+
+    private void executeTag(
+            @NotNull LiquibaseExecutionContext context,
+            @NotNull Database database,
+            @NotNull LiquibaseExecutionOutputStream output) throws Exception {
+        String tag = context.getInput().getDatabaseTag();
+        executeCommand(TAG, output, Map.of(
+                "database", database,
+                "tag", tag));
     }
 
 }

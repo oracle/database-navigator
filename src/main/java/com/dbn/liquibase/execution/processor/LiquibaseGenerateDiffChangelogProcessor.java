@@ -17,11 +17,10 @@
 package com.dbn.liquibase.execution.processor;
 
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
-import com.dbn.liquibase.execution.LiquibaseExecutionInput;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
+import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.object.DBSchema;
+import liquibase.database.Database;
 import liquibase.diff.DiffResult;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,42 +51,60 @@ public class LiquibaseGenerateDiffChangelogProcessor extends LiquibaseDiffExecut
         prepareChangelogContext(context, false);
         prepareChangelogOutput(context);
 
-        LiquibaseExecutionInput input = context.getInput();
-        LiquibaseExecutionResult result = context.getResult();
-        LiquibaseWorkspacePaths paths = input.getWorkspacePaths();
+        var input = context.getInput();
+        var result = context.getResult();
+        var paths = input.getWorkspacePaths();
 
         Path changelogFile = paths.getMasterChangelogPath();
+
         DBSchema sourceSchema = context.getSourceSchema();
         DBSchema targetSchema = context.getTargetSchema();
 
         withLiquibaseDatabase(context, true, sourceSchema, sourceDatabase ->
                 withLiquibaseDatabase(context, true, targetSchema, targetDatabase ->
-                        withLiquibaseScope(context, paths.getContentRootPath(), output -> {
-                            checkCanceled(context);
-                            DiffResult diffResult = compareSchemas(sourceSchema, sourceDatabase, targetSchema, targetDatabase);
-                            populateComparisonItems(result, diffResult);
+                        withLiquibaseScope(context, contentRootAccessor(context), null,
+                                output -> executeDiffChangelog(
+                                        context,
+                                        sourceDatabase,
+                                        targetDatabase,
+                                        output))));
 
-                            checkCanceled(context);
-                            executeCommand(GENERATE_DIFF_CHANGELOG, output, Map.of(
-                                    "referenceDatabase", sourceDatabase,
-                                    "database", targetDatabase,
-                                    "diffTypes", DIFF_TYPES,
-                                    "excludeObjects", buildTrackingTableFilter(targetDatabase),
-                                    "changelogFile", changelogFile.toString(),
-                                    "author", input.getChangelogAuthor()));
-
-                            String databaseTag = input.getDatabaseTag();
-                            if (isNotEmpty(databaseTag)) {
-                                appendDatabaseTag(paths.getContentRootPath(), changelogFile,
-                                        input.getChangelogAuthor(), databaseTag);
-                            }
-                            return null;
-                        })));
-
-        checkCanceled(context);
         if (!Files.isRegularFile(changelogFile)) {
             throw new IllegalStateException("Liquibase did not create the diff changelog file: " + changelogFile);
         }
         result.appendConsoleOutput(txt("log.liquibase.info.DiffChangelogGenerated", changelogFile));
     }
+
+    private void executeDiffChangelog(
+            @NotNull LiquibaseExecutionContext context,
+            @NotNull Database sourceDatabase,
+            @NotNull Database targetDatabase,
+            @NotNull LiquibaseExecutionOutputStream output) throws Exception {
+        var input = context.getInput();
+        var result = context.getResult();
+        var paths = input.getWorkspacePaths();
+
+        Path changelogFile = paths.getMasterChangelogPath();
+        DBSchema sourceSchema = context.getSourceSchema();
+        DBSchema targetSchema = context.getTargetSchema();
+
+        DiffResult diffResult = compareSchemas(sourceSchema, sourceDatabase, targetSchema, targetDatabase);
+        populateComparisonItems(result, diffResult);
+
+        checkCanceled(context);
+        executeCommand(GENERATE_DIFF_CHANGELOG, output, Map.of(
+                "referenceDatabase", sourceDatabase,
+                "database", targetDatabase,
+                "diffTypes", DIFF_TYPES,
+                "excludeObjects", buildTrackingTableFilter(targetDatabase),
+                "changelogFile", changelogFile.toString(),
+                "author", input.getChangelogAuthor()));
+
+        String databaseTag = input.getDatabaseTag();
+        if (isNotEmpty(databaseTag)) {
+            appendDatabaseTag(paths.getContentRootPath(), changelogFile,
+                    input.getChangelogAuthor(), databaseTag);
+        }
+    }
+
 }

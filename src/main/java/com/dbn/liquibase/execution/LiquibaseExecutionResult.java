@@ -41,6 +41,7 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     private String databaseChangeLogLockTableName = "DATABASECHANGELOGLOCK";
     private final Listeners<Runnable> listeners = Listeners.create(this);
     private final LogOutputBuffer output;
+    private final StringBuilder sqlOutput = new StringBuilder();
     private final ExecutionTiming timing = new ExecutionTiming();
     private final Map<String, LiquibaseSnapshotItem> snapshotItems = new LinkedHashMap<>();
     private final Map<String, LiquibaseChangeSetItem> changeSetItems = new LinkedHashMap<>();
@@ -192,6 +193,22 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
         if (output == null) return;
         this.output.appendStdOutput(output);
         notifyItemsChanged();
+    }
+
+    public void appendSqlOutput(@Nullable String output) {
+        if (output == null || output.isEmpty()) return;
+        synchronized (sqlOutput) {
+            sqlOutput.append(output);
+            if (!output.endsWith("\n")) sqlOutput.append('\n');
+        }
+        notifyItemsChanged();
+    }
+
+    @NotNull
+    public String getSqlOutput() {
+        synchronized (sqlOutput) {
+            return sqlOutput.toString();
+        }
     }
 
     public void appendErrorOutput(@Nullable @Nls String output) {
