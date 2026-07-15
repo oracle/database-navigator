@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.liquibase.execution.LiquibaseCommands.GENERATE_DIFF_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.buildTrackingTableFilter;
 import static com.dbn.nls.NlsResources.txt;
@@ -74,6 +75,12 @@ public class LiquibaseGenerateDiffChangelogProcessor extends LiquibaseDiffExecut
                                     "excludeObjects", buildTrackingTableFilter(targetDatabase),
                                     "changelogFile", changelogFile.toString(),
                                     "author", input.getChangelogAuthor()));
+
+                            String databaseTag = input.getDatabaseTag();
+                            if (isNotEmpty(databaseTag)) {
+                                appendDatabaseTag(paths.getContentRootPath(), changelogFile,
+                                        input.getChangelogAuthor(), databaseTag);
+                            }
                             return null;
                         })));
 

@@ -8,12 +8,11 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 
-package com.dbn.liquibase.model;
+package com.dbn.liquibase.execution;
 
-import com.dbn.common.util.Cloneable;
+import com.dbn.common.state.PersistentStateElement;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
-import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,11 +30,11 @@ import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.isEmpty;
 
-/** Persistent execution history associated with a Liquibase workspace. */
-public class LiquibaseWorkspaceHistory implements Cloneable<LiquibaseWorkspaceHistory> {
+/** Persistent Liquibase execution history associated with database connection schemas. */
+public class LiquibaseExecutionHistory implements PersistentStateElement {
     private static final int MAX_CHECKPOINT_TAGS = 10;
 
-    private Map<ConnectionId, Map<SchemaId, List<String>>> checkpointTags = new LinkedHashMap<>();
+    private final Map<ConnectionId, Map<SchemaId, List<String>>> checkpointTags = new LinkedHashMap<>();
 
     @NotNull
     public List<String> getCheckpointTags(
@@ -60,6 +59,10 @@ public class LiquibaseWorkspaceHistory implements Cloneable<LiquibaseWorkspaceHi
         if (tags.size() > MAX_CHECKPOINT_TAGS) tags.remove(tags.size() - 1);
     }
 
+    public void removeConnection(@NotNull ConnectionId connectionId) {
+        checkpointTags.remove(connectionId);
+    }
+
     public void readState(@NotNull Element element) {
         checkpointTags.clear();
         for (Element tagElement : childrenOf(element, "checkpoint-tag")) {
@@ -80,18 +83,5 @@ public class LiquibaseWorkspaceHistory implements Cloneable<LiquibaseWorkspaceHi
                     setConstantAttribute(tagElement, "schema-id", schemaId);
                     setStringAttribute(tagElement, "value", tag);
                 })));
-    }
-
-    @Override
-    @SneakyThrows
-    public LiquibaseWorkspaceHistory clone() {
-        LiquibaseWorkspaceHistory clone = (LiquibaseWorkspaceHistory) super.clone();
-        clone.checkpointTags = new LinkedHashMap<>();
-        checkpointTags.forEach((connectionId, schemaTags) -> {
-            Map<SchemaId, List<String>> tags = new LinkedHashMap<>();
-            schemaTags.forEach((schemaId, values) -> tags.put(schemaId, new ArrayList<>(values)));
-            clone.checkpointTags.put(connectionId, tags);
-        });
-        return clone;
     }
 }

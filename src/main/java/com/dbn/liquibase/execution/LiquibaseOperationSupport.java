@@ -79,6 +79,7 @@ public final class LiquibaseOperationSupport {
     public boolean supportsDatabaseTag() {
         return operation.isOneOf(
                 GENERATE_CHANGELOG,
+                GENERATE_DIFF_CHANGELOG,
                 TAG_DATABASE);
     }
 

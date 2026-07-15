@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.execution.processor;
 
+import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.LiquibaseChangeSetItem;
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
@@ -82,8 +83,9 @@ public class LiquibaseUpdateDatabaseProcessor extends LiquibaseExecutionProcesso
                     executeCommand(TAG, output, Map.of(
                             "database", database,
                             "tag", checkpointTag));
-                    input.getWorkspaces().rememberCheckpointTag(
-                            input.getWorkspace(),
+
+                    DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(input.getProject());
+                    liquibaseManager.rememberCheckpointTag(
                             targetSchema.getConnectionId(),
                             targetSchema.getSchemaId(),
                             checkpointTag);

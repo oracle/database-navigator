@@ -111,6 +111,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     private DBNInfoLabel rollbackCountInfoLabel;
     private DBNInfoLabel rollbackTagInfoLabel;
     private DBNInfoLabel rollbackDateInfoLabel;
+    private DBNInfoLabel databaseTagInfoLabel;
     private DBNInfoLabel checkpointTagInfoLabel;
     private TextFieldWithPopup<?> rollbackDateField;
     private DBObjectSelector<DBSchema> sourceSchemaSelector;
@@ -141,6 +142,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         rollbackCountInfoLabel.setContent(plain(txt("cfg.liquibase.hint.RollbackCount")));
         rollbackTagInfoLabel.setContent(plain(txt("cfg.liquibase.hint.RollbackTag")));
         rollbackDateInfoLabel.setContent(plain(txt("cfg.liquibase.hint.RollbackDate")));
+        databaseTagInfoLabel.setContent(plain(txt("cfg.liquibase.hint.DatabaseTag")));
         checkpointTagInfoLabel.setContent(plain(txt("cfg.liquibase.hint.CheckpointTag")));
     }
 
@@ -167,6 +169,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         boolean supported = support.supportsDatabaseTag();
         databaseTagLabel.setVisible(supported);
         databaseTagTextField.setVisible(supported);
+        databaseTagInfoLabel.setVisible(supported);
         if (supported) setText(databaseTagTextField, executionInput.getDatabaseTag());
     }
 
@@ -220,14 +223,13 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     }
 
     private List<String> getRollbackTagValues() {
-        LiquibaseWorkspace workspace = workspaceSelector.getSelectedValue();
         DBSchema schema = executionInput.getTargetSchema();
-        return workspace == null || schema == null ?
-                emptyList() :
-                parent.getWorkspaces().getCheckpointTags(
-                        workspace,
-                        schema.getConnectionId(),
-                        schema.getSchemaId());
+        if (schema == null) return emptyList();
+
+        DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(executionInput.getProject());
+        return liquibaseManager.getCheckpointTags(
+                schema.getConnectionId(),
+                schema.getSchemaId());
     }
 
     @Override

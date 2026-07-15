@@ -32,21 +32,31 @@ import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.extensions.ExtensionPointName;
 import liquibase.Scope;
+import liquibase.change.core.TagDatabaseChange;
+import liquibase.changelog.ChangeLogParameters;
+import liquibase.changelog.ChangeSet;
+import liquibase.changelog.DatabaseChangeLog;
 import liquibase.command.CommandScope;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.CommandExecutionException;
+import liquibase.parser.ChangeLogParserFactory;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.resource.DirectoryResourceAccessor;
+import liquibase.resource.ResourceAccessor;
+import liquibase.serializer.ChangeLogSerializer;
+import liquibase.serializer.ChangeLogSerializerFactory;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
@@ -55,6 +65,7 @@ import java.util.concurrent.CancellationException;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.exception.Exceptions.unwrap;
 import static com.dbn.common.util.Classes.withClassLoader;
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.nls.NlsResources.txt;
 import static liquibase.Scope.child;
 
@@ -94,6 +105,41 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
 
         input.setOverwriteConfirmed(true);
         return true;
+    }
+
+    protected final void appendDatabaseTag(
+            @NotNull Path contentRoot,
+            @NotNull Path changelogFile,
+            @Nullable String author,
+            @NotNull String tag) throws Exception {
+        ResourceAccessor resourceAccessor = new DirectoryResourceAccessor(contentRoot);
+        String changelogPath = contentRoot.relativize(changelogFile).toString().replace('\\', '/');
+        DatabaseChangeLog changeLog = ChangeLogParserFactory.getInstance()
+                .getParser(changelogPath, resourceAccessor)
+                .parse(changelogPath, new ChangeLogParameters(), resourceAccessor);
+
+        ChangeSet changeSet = new ChangeSet(
+                "baseline-tag-" + tag,
+                isNotEmpty(author) ? author : "liquibase",
+                false,
+                false,
+                changelogFile.toString(),
+                null,
+                null,
+                changeLog);
+        TagDatabaseChange tagChange = new TagDatabaseChange();
+        tagChange.setTag(tag);
+        changeSet.addChange(tagChange);
+        changeLog.addChangeSet(changeSet);
+
+        ChangeLogSerializer serializer = ChangeLogSerializerFactory.getInstance()
+                .getSerializer(changelogPath);
+        try (OutputStream output = Files.newOutputStream(
+                changelogFile,
+                StandardOpenOption.WRITE,
+                StandardOpenOption.TRUNCATE_EXISTING)) {
+            serializer.write(changeLog.getChangeSets(), output);
+        }
     }
 
     protected final void prepareChangelogOutput(@NotNull LiquibaseExecutionContext context) throws Exception {
