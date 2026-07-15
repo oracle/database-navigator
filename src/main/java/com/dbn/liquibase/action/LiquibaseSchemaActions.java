@@ -47,6 +47,7 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         DefaultActionGroup sqlPreviewActions = new DefaultActionGroup(txt("app.liquibase.group.PreviewSql"), true);
         sqlPreviewActions.add(new UpdateSqlAction(schema));
         sqlPreviewActions.add(new RollbackSqlAction(schema));
+        sqlPreviewActions.add(new SynchronizeChangelogSqlAction(schema));
         add(sqlPreviewActions);
 
         addSeparator();

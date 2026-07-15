@@ -26,6 +26,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_SQL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_STATUS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_SQL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_SQL;
@@ -57,6 +58,7 @@ public final class LiquibaseOperationSupport {
                 VALIDATE_CHANGELOG,
                 SHOW_CHANGELOG_STATUS,
                 SYNCHRONIZE_CHANGELOG,
+                SYNCHRONIZE_CHANGELOG_SQL,
                 UPDATE_DATABASE,
                 UPDATE_SQL,
                 TAG_DATABASE,
@@ -110,12 +112,13 @@ public final class LiquibaseOperationSupport {
                 UPDATE_DATABASE,
                 UPDATE_SQL,
                 SYNCHRONIZE_CHANGELOG,
+                SYNCHRONIZE_CHANGELOG_SQL,
                 ROLLBACK_CHANGESETS,
                 ROLLBACK_SQL);
     }
 
     public boolean supportsSqlOutput() {
-        return operation.isOneOf(UPDATE_SQL, ROLLBACK_SQL);
+        return operation.isOneOf(UPDATE_SQL, SYNCHRONIZE_CHANGELOG_SQL, ROLLBACK_SQL);
     }
 
     public boolean supportsComparisonItems() {
@@ -140,6 +143,7 @@ public final class LiquibaseOperationSupport {
                 GENERATE_DIFF_CHANGELOG,
                 SHOW_CHANGELOG_STATUS,
                 SYNCHRONIZE_CHANGELOG,
+                SYNCHRONIZE_CHANGELOG_SQL,
                 UPDATE_DATABASE,
                 ROLLBACK_CHANGESETS,
                 UPDATE_SQL,

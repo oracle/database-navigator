@@ -14,6 +14,7 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     GENERATE_DIFF_CHANGELOG,
     SHOW_CHANGELOG_STATUS,
     SYNCHRONIZE_CHANGELOG,
+    SYNCHRONIZE_CHANGELOG_SQL,
     UPDATE_DATABASE,
     UPDATE_SQL,
     TAG_DATABASE,
