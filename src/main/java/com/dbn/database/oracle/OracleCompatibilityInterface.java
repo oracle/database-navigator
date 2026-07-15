@@ -330,7 +330,8 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     }
 
     @Override
-    public void initConnectorPasswordChange(@NotNull ConnectorProperties properties, @NotNull char[] newPassword) {
+    public void initConnectorPasswordChange(@NotNull ConnectorProperties properties, @Nullable char[] newPassword) {
+        if (newPassword == null) return;
         properties.add(Property.ORACLE_JDBC_NEW_PASSWORD, Chars.toStringAcceptEmpty(newPassword));
     }
 

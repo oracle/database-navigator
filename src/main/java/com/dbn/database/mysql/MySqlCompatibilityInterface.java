@@ -30,6 +30,7 @@ import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -55,6 +56,13 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
 
     private interface Property {
         String DISCONNECT_ON_EXPIRED_PASSWORDS = "disconnectOnExpiredPasswords";
+    }
+
+    @Override
+    public void initializeTransactionIsolation(@NotNull Connection connection) throws SQLException {
+        if (connection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
+            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        }
     }
 
     @Override
@@ -143,12 +151,14 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
     }
 
     @Override
-    public void initConnectorPasswordChange(@NotNull ConnectorProperties properties, @NotNull char[] newPassword) {
+    public void initConnectorPasswordChange(@NotNull ConnectorProperties properties, @Nullable char[] newPassword) {
+        if (newPassword == null) return;
         properties.add(Property.DISCONNECT_ON_EXPIRED_PASSWORDS, "false");
     }
 
     @Override
-    public void completeConnectorPasswordChange(@NotNull Connection connection, @NotNull char[] newPassword) throws SQLException {
+    public void completeConnectorPasswordChange(@NotNull Connection connection, @Nullable char[] newPassword) throws SQLException {
+        if (newPassword == null) return;
         try (PreparedStatement statement = connection.prepareStatement("SET PASSWORD = ?")) {
             statement.setString(1, Chars.toStringAcceptEmpty(newPassword));
             statement.execute();
