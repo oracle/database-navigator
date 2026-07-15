@@ -77,7 +77,9 @@ public class DBNColoredTabs<T extends DBNForm> extends JBEditorTabs {
         MouseAdapter listener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (!closeable || e.getButton() != MouseEvent.BUTTON2 || e.getClickCount() != 1) return;
+                if (!closeable) return;
+                if (e.getButton() != MouseEvent.BUTTON2) return;
+                if ( e.getClickCount() != 1) return;
 
                 //TabInfo tabInfo = findInfo(e);
                 TabInfo tabInfo = invokeMethod(DBNColoredTabs.this, "findInfo", e);
