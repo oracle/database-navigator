@@ -36,6 +36,7 @@ import com.dbn.data.editor.ui.calendar.CalendarPopupType;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.execution.LiquibaseOperationSupport;
 import com.dbn.liquibase.execution.LiquibaseRollbackType;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
@@ -63,6 +64,7 @@ import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.setFormFieldEnab
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.common.ui.util.ComboBoxes.setEmptyOptionsText;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK;
@@ -188,8 +190,8 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
     private void initContextLabels() {
         LiquibaseOperation operation = executionInput.getOperation();
-        boolean sourceVisible = operation.getSourceContextState().isVisible();
-        boolean targetVisible = operation.getTargetContextState().isVisible();
+        boolean sourceVisible = operation.getSupport().getSourceContextState().isVisible();
+        boolean targetVisible = operation.getSupport().getTargetContextState().isVisible();
         boolean qualified = sourceVisible && targetVisible;
 
         sourceConnectionLabel.setText(txt(qualified ?
@@ -219,17 +221,22 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
                 schema.getSchemaId());
         workspaceSelector.setValues(availableWorkspaces);
         workspaceSelector.setSelectedValue(availableWorkspaces.contains(selectedWorkspace) ? selectedWorkspace : null);
+        LiquibaseOperationSupport support = executionInput.getOperation().getSupport();
+        if (support.supportsWorkspaceCreation()) {
+            workspaceSelector.withValueFactory(new ValueFactory<>(txt("app.liquibase.action.NewWorkspace")) {
+                @Override
+                public void createValue(Consumer<LiquibaseWorkspace> consumer) {
+                    Project project = executionInput.getProject();
+                    DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
+                    liquibaseManager.openWorkspaceCreationDialog(
+                            connection.getDatabaseType(),
+                            consumer);
+                }
+            });
+        } else if (availableWorkspaces.isEmpty()) {
+            setEmptyOptionsText(workspaceSelector, getNoWorkspacesMessage());
+        }
         updateWorkspacePath();
-        workspaceSelector.withValueFactory(new ValueFactory<>(txt("app.liquibase.action.NewWorkspace")) {
-            @Override
-            public void createValue(Consumer<LiquibaseWorkspace> consumer) {
-                Project project = executionInput.getProject();
-                DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
-                liquibaseManager.openWorkspaceCreationDialog(
-                        connection.getDatabaseType(),
-                        consumer);
-            }
-        });
         onSelectionChange(workspaceSelector, value -> {
             updateWorkspacePath();
             markFormChanged();
@@ -239,7 +246,9 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     private void updateWorkspacePath() {
         LiquibaseWorkspace workspace = workspaceSelector.getSelectedValue();
         if (workspace == null) {
-            workspacePathLabel.setText("");
+            workspacePathLabel.setText(workspaceSelector.getItemCount() == 0 &&
+                    !executionInput.getOperation().getSupport().supportsWorkspaceCreation() ?
+                    getNoWorkspacesMessage() : "");
             return;
         }
 
@@ -250,9 +259,16 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         }
     }
 
+    @NotNull
+    private String getNoWorkspacesMessage() {
+        return txt(
+                "msg.liquibase.message.NoWorkspacesAvailable",
+                executionInput.getRelevantConnection().getDatabaseType().getName());
+    }
+
     private void initSourceContextSelectors() {
         ConnectionHandler sourceConnection = executionInput.getSourceConnection();
-        FieldState state = executionInput.getOperation().getSourceContextState();
+        FieldState state = executionInput.getOperation().getSupport().getSourceContextState();
         initConnectionSelector(
                 sourceConnectionLabel,
                 sourceConnectionSelector,
@@ -270,7 +286,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
     private void initTargetContextSelectors() {
         ConnectionHandler targetConnection = executionInput.getTargetConnection();
-        FieldState state = executionInput.getOperation().getTargetContextState();
+        FieldState state = executionInput.getOperation().getSupport().getTargetContextState();
         initConnectionSelector(
                 targetConnectionLabel,
                 targetConnectionSelector,
@@ -355,13 +371,13 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         LiquibaseOperation operation = executionInput.getOperation();
         addSelectionValidation(workspaceSelector, txt("msg.liquibase.error.WorkspaceRequired"));
         addValidation(sourceSchemaSelector,
-                selector -> !operation.requiresSourceSchema() || selector.getSelectedItem() != null,
+                selector -> !operation.getSupport().requiresSourceSchema() || selector.getSelectedItem() != null,
                 txt("msg.shared.error.SelectSchema"));
         addValidation(targetConnectionSelector,
-                selector -> !operation.requiresTargetSchema() || selector.getSelectedItem() != null,
+                selector -> !operation.getSupport().requiresTargetSchema() || selector.getSelectedItem() != null,
                 txt("msg.shared.error.SelectTargetConnection"));
         addValidation(targetSchemaSelector,
-                selector -> !operation.requiresTargetSchema() || selector.getSelectedItem() != null,
+                selector -> !operation.getSupport().requiresTargetSchema() || selector.getSelectedItem() != null,
                 txt("msg.shared.error.SelectTargetSchema"));
         addValidation(rollbackCountSpinner,
                 spinner -> operation != ROLLBACK || getSelection(rollbackTypeSelector) != COUNT || (Integer) spinner.getValue() > 0,

@@ -1,11 +1,12 @@
 package com.dbn.liquibase.execution;
 
 import com.dbn.common.constant.Constant;
-import com.dbn.common.ui.form.field.FieldState;
+import lombok.Getter;
 
 import static com.dbn.nls.NlsResources.txt;
 
 /** Liquibase operation represented in the DBN execution console. */
+@Getter
 public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     INITIALIZE,
     VALIDATE,
@@ -13,6 +14,8 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     STATUS,
     UPDATE,
     ROLLBACK;
+
+    private final LiquibaseOperationSupport support = new LiquibaseOperationSupport(this);
 
     public String getName() {
         return txt("cfg.liquibase.const.Operation_" + name());
@@ -24,40 +27,5 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
 
     public String getHint() {
         return /*txt("cfg.liquibase.title.Operation_" + name()) + "\n\n" +*/ txt("cfg.liquibase.hint.Operation_" + name());
-    }
-
-    public FieldState getSourceContextState() {
-        if (isOneOf(INITIALIZE, COMPARE)) return FieldState.VISIBLE;
-        return FieldState.HIDDEN;
-    }
-
-    public FieldState getTargetContextState() {
-        if (this == COMPARE) return FieldState.EDITABLE;
-        if (isOneOf(VALIDATE, STATUS, UPDATE, ROLLBACK)) return FieldState.VISIBLE;
-        return FieldState.HIDDEN;
-    }
-
-    public boolean requiresSourceSchema() {
-        return getSourceContextState().isVisible();
-    }
-
-    public boolean requiresTargetSchema() {
-        return getTargetContextState().isVisible();
-    }
-
-    public boolean supportsSnapshotItems() {
-        return this == INITIALIZE;
-    }
-
-    public boolean supportsChangeSetItems() {
-        return isOneOf(UPDATE, ROLLBACK);
-    }
-
-    public boolean supportsComparisonItems() {
-        return this == COMPARE;
-    }
-
-    public boolean supportsTrackingTables() {
-        return isOneOf(STATUS, UPDATE, ROLLBACK);
     }
 }

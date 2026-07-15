@@ -11,6 +11,7 @@ import com.dbn.execution.common.result.ui.ExecutionResultLogConsole;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.execution.LiquibaseOperationSupport;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -65,11 +66,12 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
 
     private void initContentItemsPanel() {
         LiquibaseExecutionResult result = getExecutionResult();
-        if (result.getOperation().supportsComparisonItems()) {
+        LiquibaseOperationSupport support = result.getOperation().getSupport();
+        if (support.supportsComparisonItems()) {
             initComparisonItemsPanel(result);
-        } else if (result.getOperation().supportsSnapshotItems()) {
+        } else if (support.supportsSnapshotItems()) {
             initSnapshotItemsPanel(result);
-        } else if (result.getOperation().supportsChangeSetItems()) {
+        } else if (support.supportsChangeSetItems()) {
             initChangeSetItemsPanel(result);
         }
     }

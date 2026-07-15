@@ -71,7 +71,7 @@ public class LiquibaseExecutionInput extends ProjectUnit {
 
     @NotNull
     public ConnectionHandler getRelevantConnection() {
-        ConnectionHandler connection = operation.requiresSourceSchema()
+        ConnectionHandler connection = operation.getSupport().requiresSourceSchema()
                 ? coalesce(() -> getSourceConnection(), () -> getTargetConnection())
                 : coalesce(() -> getTargetConnection(), () -> getSourceConnection());
 
@@ -81,7 +81,7 @@ public class LiquibaseExecutionInput extends ProjectUnit {
 
     @NotNull
     public DBSchema getRelevantSchema() {
-        DBSchema schema = operation.requiresSourceSchema()
+        DBSchema schema = operation.getSupport().requiresSourceSchema()
                 ? coalesce(() -> getSourceSchema(), () -> getTargetSchema())
                 : coalesce(() -> getTargetSchema(), () -> getSourceSchema());
 

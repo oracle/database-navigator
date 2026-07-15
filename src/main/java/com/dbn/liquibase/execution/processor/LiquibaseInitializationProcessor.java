@@ -78,14 +78,15 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
         result.setChangelogPath(changelogFile);
         boolean overwrite = false;
         if (Files.exists(changelogFile)) {
-            int option = Messages.showConfirmationDialog(
+            int option = Messages.showAcknowledgementDialog(
                     input.getProject(),
                     txt("msg.liquibase.title.OverwriteChangelog"),
                     txt("msg.liquibase.question.OverwriteChangelog", changelogFile),
                     Messages.options(
                             txt("msg.liquibase.button.Overwrite"),
                             txt("msg.shared.button.Cancel")),
-                    0);
+                    0,
+                    null);
             if (option != 0) throw new CancellationException("Changelog overwrite canceled");
             overwrite = true;
         }

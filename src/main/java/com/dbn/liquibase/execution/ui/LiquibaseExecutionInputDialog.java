@@ -19,6 +19,7 @@ package com.dbn.liquibase.execution.ui;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.execution.LiquibaseOperationSupport;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.dbn.object.DBSchema;
 import lombok.Getter;
@@ -41,8 +42,9 @@ public class LiquibaseExecutionInputDialog extends DBNDialog<LiquibaseExecutionI
         super(schema.getProject(), txt("cfg.liquibase.title.Operation_" + operation.name()), true);
         this.executionInput = new LiquibaseExecutionInput(getProject(), operation);
         this.workspaces = workspaces;
-        if (operation.requiresSourceSchema()) executionInput.setSourceSchema(schema);
-        if (operation.requiresTargetSchema() && !operation.requiresSourceSchema()) {
+        LiquibaseOperationSupport support = operation.getSupport();
+        if (support.requiresSourceSchema()) executionInput.setSourceSchema(schema);
+        if (support.requiresTargetSchema() && !support.requiresSourceSchema()) {
             executionInput.setTargetSchema(schema);
         }
         setDefaultSize(600, 320);

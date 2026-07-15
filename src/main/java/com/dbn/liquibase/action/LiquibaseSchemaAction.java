@@ -30,6 +30,8 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Dialogs.show;
 import static com.dbn.common.util.Dialogs.whenOk;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 /** Base action for Liquibase operations scoped to one database schema. */
 public abstract class LiquibaseSchemaAction extends ProjectAction {
@@ -61,6 +63,22 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
         DBSchema schema = getSchema();
         DatabaseLiquibaseManager manager = getManager(project);
         LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
+
+        if (!operation.getSupport().supportsWorkspaceCreation() &&
+                workspaces.getWorkspaces(getConnection().getDatabaseType()).isEmpty()) {
+            showErrorDialog(
+                    project,
+                    txt("msg.liquibase.title.WorkspaceRequired"),
+                    txt("msg.liquibase.message.NoWorkspacesAvailable", getConnection().getDatabaseType().getName()),
+                    new String[]{
+                            txt("msg.liquibase.button.OpenWorkspaces"),
+                            txt("msg.shared.button.Cancel")},
+                    0,
+                    option -> {
+                        if (option == 0) manager.openWorkspaceSettings();
+                    });
+            return;
+        }
 
         show(() -> new LiquibaseExecutionInputDialog(schema, operation, workspaces),
                 whenOk(dialog -> {

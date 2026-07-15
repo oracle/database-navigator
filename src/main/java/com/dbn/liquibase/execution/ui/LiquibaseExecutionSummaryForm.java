@@ -16,6 +16,7 @@ import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.execution.LiquibaseOperationSupport;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
@@ -189,7 +190,8 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
 
     private void updateLiquibaseTableLinks(@NotNull LiquibaseExecutionResult result) {
         LiquibaseOperation operation = result.getOperation();
-        if (!operation.supportsTrackingTables()) {
+        LiquibaseOperationSupport support = operation.getSupport();
+        if (!support.supportsTrackingTables()) {
             databaseChangeLogLabel.setVisible(false);
             databaseChangeLogLink.setVisible(false);
             databaseChangeLogInfoLabel.setVisible(false);
@@ -259,7 +261,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     }
 
     private void updateChangeSetCount(@NotNull LiquibaseExecutionResult result) {
-        boolean visible = result.getOperation().supportsChangeSetItems();
+        boolean visible = result.getOperation().getSupport().supportsChangeSetItems();
         changeSetCountCaptionLabel.setVisible(visible);
         changeSetCountLabel.setVisible(visible);
         if (visible) changeSetCountLabel.setText(Integer.toString(result.getChangeSetItems().size()));
