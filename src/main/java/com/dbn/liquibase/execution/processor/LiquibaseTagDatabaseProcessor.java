@@ -53,6 +53,9 @@ public class LiquibaseTagDatabaseProcessor extends LiquibaseExecutionProcessor {
                     return null;
                 }));
 
+        rememberTag(context, targetSchema, tag);
+
         result.appendConsoleOutput(txt("log.liquibase.info.DatabaseTagged", tag));
     }
+
 }

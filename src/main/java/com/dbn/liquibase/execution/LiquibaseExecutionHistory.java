@@ -32,12 +32,12 @@ import static com.dbn.common.util.Strings.isEmpty;
 
 /** Persistent Liquibase execution history associated with database connection schemas. */
 public class LiquibaseExecutionHistory implements PersistentStateElement {
-    private static final int MAX_CHECKPOINT_TAGS = 10;
+    private static final int MAX_TAGS = 10;
 
     private final Map<ConnectionId, Map<SchemaId, List<String>>> checkpointTags = new LinkedHashMap<>();
 
     @NotNull
-    public List<String> getCheckpointTags(
+    public List<String> getTags(
             @NotNull ConnectionId connectionId,
             @NotNull SchemaId schemaId) {
         Map<SchemaId, List<String>> schemaTags = checkpointTags.get(connectionId);
@@ -45,7 +45,7 @@ public class LiquibaseExecutionHistory implements PersistentStateElement {
         return tags == null ? List.of() : new ArrayList<>(tags);
     }
 
-    public void rememberCheckpointTag(
+    public void rememberTag(
             @NotNull ConnectionId connectionId,
             @NotNull SchemaId schemaId,
             @NotNull String tag) {
@@ -56,7 +56,22 @@ public class LiquibaseExecutionHistory implements PersistentStateElement {
                 .computeIfAbsent(schemaId, id -> new ArrayList<>());
         tags.remove(tag);
         tags.add(0, tag);
-        if (tags.size() > MAX_CHECKPOINT_TAGS) tags.remove(tags.size() - 1);
+        if (tags.size() > MAX_TAGS) tags.remove(tags.size() - 1);
+    }
+
+    public void removeTag(
+            @NotNull ConnectionId connectionId,
+            @NotNull SchemaId schemaId,
+            @NotNull String tag) {
+        Map<SchemaId, List<String>> schemaTags = checkpointTags.get(connectionId);
+        if (schemaTags == null) return;
+
+        List<String> tags = schemaTags.get(schemaId);
+        if (tags == null) return;
+
+        tags.remove(tag);
+        if (tags.isEmpty()) schemaTags.remove(schemaId);
+        if (schemaTags.isEmpty()) checkpointTags.remove(connectionId);
     }
 
     public void removeConnection(@NotNull ConnectionId connectionId) {
@@ -70,7 +85,7 @@ public class LiquibaseExecutionHistory implements PersistentStateElement {
             SchemaId schemaId = constantAttribute(tagElement, "schema-id", SchemaId.class);
             String tag = stringAttribute(tagElement, "value");
             if (connectionId != null && schemaId != null && !isEmpty(tag)) {
-                rememberCheckpointTag(connectionId, schemaId, tag);
+                rememberTag(connectionId, schemaId, tag);
             }
         }
     }

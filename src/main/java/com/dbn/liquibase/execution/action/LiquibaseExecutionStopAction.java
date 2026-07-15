@@ -19,7 +19,8 @@ public class LiquibaseExecutionStopAction extends AbstractLiquibaseExecutionResu
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull LiquibaseExecutionResult target) {
-        DatabaseLiquibaseManager.getInstance(project).cancelExecution(target);
+        DatabaseLiquibaseManager liquibaseManager = getLiquibaseManager(project);
+        liquibaseManager.cancelExecution(target);
     }
 
     @Override

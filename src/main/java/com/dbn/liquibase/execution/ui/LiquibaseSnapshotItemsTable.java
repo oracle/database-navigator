@@ -27,6 +27,7 @@ public class LiquibaseSnapshotItemsTable extends DBNTableWithGutter<LiquibaseSna
         setCellSelectionEnabled(true);
         setDefaultRenderer(Object.class, new DBNDynamicTableCellRenderer());
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
+        setProportionalColumnWidth(model.getColumnCount() - 1, 30);
         initTableSorter();
         markBorderless(this);
         setAccessibleName(this, txt("app.liquibase.aria.SnapshotItems"));

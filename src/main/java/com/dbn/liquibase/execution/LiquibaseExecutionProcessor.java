@@ -26,6 +26,7 @@ import com.dbn.connection.PooledConnection;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
+import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionLogService;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
@@ -105,6 +106,14 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
 
         input.setOverwriteConfirmed(true);
         return true;
+    }
+
+    protected static void rememberTag(@NotNull LiquibaseExecutionContext context, DBSchema targetSchema, String tag) {
+        DatabaseLiquibaseManager liquibaseManager = context.getLiquibaseManager();
+        liquibaseManager.rememberTag(
+                targetSchema.getConnectionId(),
+                targetSchema.getSchemaId(),
+                tag);
     }
 
     protected final void appendDatabaseTag(

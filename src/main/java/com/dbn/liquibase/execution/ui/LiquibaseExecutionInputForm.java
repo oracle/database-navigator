@@ -160,10 +160,14 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         changelogAuthorLabel.setVisible(supported);
         changelogAuthorTextField.setVisible(supported);
         if (supported) {
-            DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(executionInput.getProject());
+            DatabaseLiquibaseManager liquibaseManager = getLiquibaseManager();
             StateAttributes state = liquibaseManager.getState("EXECUTION_INPUT");
             initPersistence(changelogAuthorTextField, state, ATTR_CHANGELOG_AUTHOR, SystemProperties.getUserName());
         }
+    }
+
+    private @NotNull DatabaseLiquibaseManager getLiquibaseManager() {
+        return DatabaseLiquibaseManager.getInstance(executionInput.getProject());
     }
 
     private void initDatabaseTagField(LiquibaseOperationSupport support) {
@@ -206,7 +210,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         }, null, true);
         rollbackDateField.createCalendarPopup(false, CalendarPopupType.DATE);
 
-        DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
+        DatabaseLiquibaseManager liquibaseManager = getLiquibaseManager();
         StateAttributes state = liquibaseManager.getState("EXECUTION_INPUT");
         rollbackTypeSelector.setValues(List.of(LiquibaseRollbackType.values()));
         initPersistence(rollbackTypeSelector, state, ATTR_ROLLBACK_TYPE, COUNT.id());
@@ -227,8 +231,8 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         DBSchema schema = executionInput.getTargetSchema();
         if (schema == null) return emptyList();
 
-        DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(executionInput.getProject());
-        return liquibaseManager.getCheckpointTags(
+        DatabaseLiquibaseManager liquibaseManager = getLiquibaseManager();
+                return liquibaseManager.getTags(
                 schema.getConnectionId(),
                 schema.getSchemaId());
     }
@@ -317,7 +321,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
                 @Override
                 public void createValue(Consumer<LiquibaseWorkspace> consumer) {
                     Project project = executionInput.getProject();
-                    DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
+                    DatabaseLiquibaseManager liquibaseManager = getLiquibaseManager();
                     liquibaseManager.openWorkspaceCreationDialog(
                             connection.getDatabaseType(),
                             consumer);

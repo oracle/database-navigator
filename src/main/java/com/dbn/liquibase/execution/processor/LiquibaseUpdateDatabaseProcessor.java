@@ -16,7 +16,6 @@
 
 package com.dbn.liquibase.execution.processor;
 
-import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.LiquibaseChangeSetItem;
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
@@ -84,11 +83,7 @@ public class LiquibaseUpdateDatabaseProcessor extends LiquibaseExecutionProcesso
                             "database", database,
                             "tag", checkpointTag));
 
-                    DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(input.getProject());
-                    liquibaseManager.rememberCheckpointTag(
-                            targetSchema.getConnectionId(),
-                            targetSchema.getSchemaId(),
-                            checkpointTag);
+                    rememberTag(context, targetSchema, checkpointTag);
                 }
                 executeCommand(UPDATE_DATABASE, output, Map.of(
                         "database", database,
@@ -102,6 +97,7 @@ public class LiquibaseUpdateDatabaseProcessor extends LiquibaseExecutionProcesso
         });
         result.appendConsoleOutput(txt("log.liquibase.info.ChangelogUpdated", changelogFile));
     }
+
 
     private static void notifySchemaObjectChanges(@NotNull DBSchema schema) {
         BROWSABLE_TYPES.stream()

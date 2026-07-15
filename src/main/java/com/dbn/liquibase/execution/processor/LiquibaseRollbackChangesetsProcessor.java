@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.execution.processor;
 
+import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.LiquibaseChangeSetItem;
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
@@ -36,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 import java.util.Map;
 
+import static com.dbn.liquibase.execution.LiquibaseRollbackType.TAG;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
 import static com.dbn.object.type.DBObjectType.BROWSABLE_TYPES;
@@ -73,6 +75,13 @@ public class LiquibaseRollbackChangesetsProcessor extends LiquibaseExecutionProc
             checkCanceled(context);
             return null;
         });
+        if (input.getRollbackType() == TAG) {
+            DatabaseLiquibaseManager liquibaseManager = context.getLiquibaseManager();
+            liquibaseManager.removeTag(
+                    targetSchema.getConnectionId(),
+                    targetSchema.getSchemaId(),
+                    input.getRollbackTag());
+        }
         result.appendConsoleOutput(txt("log.liquibase.info.ChangelogRolledBack", changelogFile, input.getRollbackCount()));
     }
 

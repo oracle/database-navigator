@@ -93,17 +93,24 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     }
 
     @NotNull
-    public List<String> getCheckpointTags(
+    public List<String> getTags(
             @NotNull ConnectionId connectionId,
             @NotNull SchemaId schemaId) {
-        return executionHistory.getCheckpointTags(connectionId, schemaId);
+        return executionHistory.getTags(connectionId, schemaId);
     }
 
-    public void rememberCheckpointTag(
+    public void rememberTag(
             @NotNull ConnectionId connectionId,
             @NotNull SchemaId schemaId,
             @NotNull String tag) {
-        executionHistory.rememberCheckpointTag(connectionId, schemaId, tag);
+        executionHistory.rememberTag(connectionId, schemaId, tag);
+    }
+
+    public void removeTag(
+            @NotNull ConnectionId connectionId,
+            @NotNull SchemaId schemaId,
+            @NotNull String tag) {
+        executionHistory.removeTag(connectionId, schemaId, tag);
     }
 
     public void openWorkspaceSettings() {

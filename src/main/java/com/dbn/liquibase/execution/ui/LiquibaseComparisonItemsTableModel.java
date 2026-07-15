@@ -17,10 +17,10 @@ public class LiquibaseComparisonItemsTableModel extends DBNDynamicTableModel<Liq
         super(LiquibaseComparisonItem.class, result.getComparisonItems());
         this.result = result;
         addColumn(txt("app.liquibase.column.DiscoveryOrder"), e -> getData().indexOf(e) + 1);
-        addColumn(txt("app.liquibase.column.ComparisonStatus"), e -> e.getComparisonStatus().getName());
         addColumn(txt("app.liquibase.column.ObjectType"), e -> getObjectType(e));
         addColumn(txt("app.liquibase.column.SourceObject"), e -> getObjectName(e.getSourceObject()));
         addColumn(txt("app.liquibase.column.TargetObject"), e -> getObjectName(e.getTargetObject()));
+        addColumn(txt("app.liquibase.column.ComparisonStatus"), e -> e.getComparisonStatus().getName());
         addColumn(txt("app.liquibase.column.Details"), LiquibaseComparisonItem::getMessage);
     }
 

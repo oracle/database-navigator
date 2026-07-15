@@ -55,7 +55,8 @@ public class LiquibaseExecutionCloseAction extends AbstractLiquibaseExecutionRes
             close(project, target);
             return;
         }
-        DatabaseLiquibaseManager.getInstance(project).cancelExecution(target);
+        DatabaseLiquibaseManager liquibaseManager = getLiquibaseManager(project);
+        liquibaseManager.cancelExecution(target);
     }
 
     private static void close(@NotNull Project project, @NotNull LiquibaseExecutionResult target) {

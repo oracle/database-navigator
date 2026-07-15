@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.execution;
 
+import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.object.DBSchema;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +31,10 @@ public class LiquibaseExecutionContext {
 
     public LiquibaseExecutionContext(@NotNull LiquibaseExecutionInput input) {
         this.input = input;
+    }
+
+    public @NotNull DatabaseLiquibaseManager getLiquibaseManager() {
+        return DatabaseLiquibaseManager.getInstance(input.getProject());
     }
 
     @NotNull
