@@ -64,19 +64,7 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
         DatabaseLiquibaseManager manager = getManager(project);
         LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
 
-        if (!operation.getSupport().supportsWorkspaceCreation() &&
-                workspaces.getWorkspaces(getConnection().getDatabaseType()).isEmpty()) {
-            showInfoDialog(
-                    project,
-                    txt("msg.liquibase.title.WorkspaceRequired"),
-                    txt("msg.liquibase.message.NoWorkspacesAvailable", getConnection().getDatabaseType().getName()),
-                    new String[]{
-                            txt("msg.liquibase.button.OpenWorkspaces"),
-                            txt("msg.shared.button.Cancel")},
-                    0,
-                    option -> {
-                        if (option == 0) manager.openWorkspaceSettings();
-                    });
+        if (!confirmWorkspaceAvailable(project, operation, workspaces)) {
             return;
         }
 
@@ -85,5 +73,26 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
                     LiquibaseExecutionInput input = dialog.getExecutionInput();
                     manager.executeOperation(input, null);
                 }));
+    }
+
+    private boolean confirmWorkspaceAvailable(
+            @NotNull Project project,
+            @NotNull LiquibaseOperation operation,
+            @NotNull LiquibaseWorkspaceBundle workspaces) {
+        if (operation == LiquibaseOperation.COMPARE_SCHEMAS) return true;
+        if (operation.getSupport().supportsWorkspaceCreation()) return true;
+        if (workspaces.containsWorkspaces(getConnection().getDatabaseType())) return true;
+
+        DatabaseLiquibaseManager manager = getManager(project);
+        showInfoDialog(
+                project,
+                txt("msg.liquibase.title.WorkspaceRequired"),
+                txt("msg.liquibase.message.NoWorkspacesAvailable", getConnection().getDatabaseType().getName()),
+                new String[]{
+                        txt("msg.liquibase.button.OpenWorkspaces"),
+                        txt("msg.shared.button.Cancel")},
+                0,
+                option -> { if (option == 0) manager.openWorkspaceSettings(); });
+        return false;
     }
 }

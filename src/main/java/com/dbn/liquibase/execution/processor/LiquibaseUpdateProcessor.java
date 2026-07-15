@@ -38,7 +38,7 @@ import java.util.Map;
 
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.liquibase.execution.LiquibaseCommands.TAG;
-import static com.dbn.liquibase.execution.LiquibaseCommands.UPDATE;
+import static com.dbn.liquibase.execution.LiquibaseCommands.UPDATE_DATABASE;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
 import static com.dbn.object.type.DBObjectType.BROWSABLE_TYPES;
@@ -59,7 +59,7 @@ import static com.dbn.object.type.DBObjectType.BROWSABLE_TYPES;
 public class LiquibaseUpdateProcessor extends LiquibaseExecutionProcessor {
     @Override
     public LiquibaseOperation getOperation() {
-        return LiquibaseOperation.UPDATE;
+        return LiquibaseOperation.UPDATE_DATABASE;
     }
 
     @Override
@@ -90,7 +90,7 @@ public class LiquibaseUpdateProcessor extends LiquibaseExecutionProcessor {
                             targetSchema.getSchemaId(),
                             checkpointTag);
                 }
-                executeCommand(UPDATE, output, Map.of(
+                executeCommand(UPDATE_DATABASE, output, Map.of(
                         "database", database,
                         "changelogFile", relativeChangelog,
                         "changeExecListener", new ChangeSetListener(result)));

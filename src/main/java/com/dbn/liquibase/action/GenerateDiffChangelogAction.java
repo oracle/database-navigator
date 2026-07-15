@@ -16,31 +16,29 @@
 
 package com.dbn.liquibase.action;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
 import static com.dbn.nls.NlsResources.txt;
 
-/** Entry point for rolling back Liquibase changesets in a schema. */
-public class RollbackDatabaseAction extends LiquibaseSchemaAction {
-    public RollbackDatabaseAction(@NotNull DBSchema schema) {
+/** Entry point for generating a migration changelog from two database schemas. */
+public class GenerateDiffChangelogAction extends LiquibaseSchemaAction {
+    public GenerateDiffChangelogAction(@NotNull DBSchema schema) {
         super(schema);
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        executeOperation(project, ROLLBACK_CHANGESETS);
+        executeOperation(project, GENERATE_DIFF_CHANGELOG);
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.liquibase.action.Operation_ROLLBACK_CHANGESETS"));
-        presentation.setIcon(Icons.ACTION_REVERT);
+        presentation.setText(txt("app.liquibase.action.Operation_GENERATE_DIFF_CHANGELOG"));
     }
 }

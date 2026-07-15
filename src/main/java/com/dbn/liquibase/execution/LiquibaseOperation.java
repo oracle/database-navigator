@@ -8,12 +8,13 @@ import static com.dbn.nls.NlsResources.txt;
 /** Liquibase operation represented in the DBN execution console. */
 @Getter
 public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
-    INITIALIZE,
-    VALIDATE,
-    COMPARE,
-    STATUS,
-    UPDATE,
-    ROLLBACK;
+    GENERATE_CHANGELOG,
+    VALIDATE_CHANGELOG,
+    COMPARE_SCHEMAS,
+    GENERATE_DIFF_CHANGELOG,
+    SHOW_CHANGELOG_STATUS,
+    UPDATE_DATABASE,
+    ROLLBACK_CHANGESETS;
 
     private final LiquibaseOperationSupport support = new LiquibaseOperationSupport(this);
 

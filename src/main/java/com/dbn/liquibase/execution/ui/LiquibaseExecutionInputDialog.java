@@ -27,6 +27,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
 import static com.dbn.liquibase.execution.processor.LiquibaseInitializationProcessor.confirmOverwrite;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -73,7 +75,10 @@ public class LiquibaseExecutionInputDialog extends DBNDialog<LiquibaseExecutionI
     @Override
     protected void doOKAction() {
         applyFormChanges();
-        boolean checkOverride = executionInput.getOperation() == LiquibaseOperation.INITIALIZE;
+        LiquibaseOperation operation = executionInput.getOperation();
+        boolean checkOverride = operation.isOneOf(
+                GENERATE_CHANGELOG,
+                GENERATE_DIFF_CHANGELOG);
         if (checkOverride && !confirmOverwrite(executionInput)) {
             return;
         }

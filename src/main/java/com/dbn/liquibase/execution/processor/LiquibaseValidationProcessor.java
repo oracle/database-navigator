@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
-import static com.dbn.liquibase.execution.LiquibaseCommands.VALIDATE;
+import static com.dbn.liquibase.execution.LiquibaseCommands.VALIDATE_CHANGELOG;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -30,7 +30,7 @@ import static com.dbn.nls.NlsResources.txt;
 public class LiquibaseValidationProcessor extends LiquibaseExecutionProcessor {
     @Override
     public LiquibaseOperation getOperation() {
-        return LiquibaseOperation.VALIDATE;
+        return LiquibaseOperation.VALIDATE_CHANGELOG;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class LiquibaseValidationProcessor extends LiquibaseExecutionProcessor {
 
             Path rootPath = paths.getContentRootPath();
             withLiquibaseScope(context, rootPath, output ->
-                    executeCommand(VALIDATE, output, Map.of(
+                    executeCommand(VALIDATE_CHANGELOG, output, Map.of(
                             "database", database,
                             "changelogFile", changelogFile)));
             checkCanceled(context);

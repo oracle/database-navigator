@@ -19,6 +19,14 @@ package com.dbn.liquibase.execution;
 import com.dbn.common.ui.form.field.FieldState;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_STATUS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
+import static com.dbn.liquibase.execution.LiquibaseOperation.VALIDATE_CHANGELOG;
+
 /** Defines the context and result capabilities of a Liquibase operation. */
 public final class LiquibaseOperationSupport {
     private final LiquibaseOperation operation;
@@ -28,17 +36,25 @@ public final class LiquibaseOperationSupport {
     }
 
     public FieldState getSourceContextState() {
-        if (operation.isOneOf(LiquibaseOperation.INITIALIZE, LiquibaseOperation.COMPARE)) return FieldState.VISIBLE;
+        if (operation.isOneOf(
+                GENERATE_CHANGELOG,
+                COMPARE_SCHEMAS,
+                GENERATE_DIFF_CHANGELOG)) return FieldState.VISIBLE;
+
         return FieldState.HIDDEN;
     }
 
     public FieldState getTargetContextState() {
-        if (operation == LiquibaseOperation.COMPARE) return FieldState.EDITABLE;
         if (operation.isOneOf(
-                LiquibaseOperation.VALIDATE,
-                LiquibaseOperation.STATUS,
-                LiquibaseOperation.UPDATE,
-                LiquibaseOperation.ROLLBACK)) return FieldState.VISIBLE;
+                COMPARE_SCHEMAS,
+                GENERATE_DIFF_CHANGELOG)) return FieldState.EDITABLE;
+
+        if (operation.isOneOf(
+                VALIDATE_CHANGELOG,
+                SHOW_CHANGELOG_STATUS,
+                UPDATE_DATABASE,
+                ROLLBACK_CHANGESETS)) return FieldState.VISIBLE;
+
         return FieldState.HIDDEN;
     }
 
@@ -51,25 +67,29 @@ public final class LiquibaseOperationSupport {
     }
 
     public boolean supportsSnapshotItems() {
-        return operation == LiquibaseOperation.INITIALIZE;
+        return operation == GENERATE_CHANGELOG;
     }
 
     public boolean supportsChangeSetItems() {
-        return operation.isOneOf(LiquibaseOperation.UPDATE, LiquibaseOperation.ROLLBACK);
+        return operation.isOneOf(
+                UPDATE_DATABASE,
+                ROLLBACK_CHANGESETS);
     }
 
     public boolean supportsComparisonItems() {
-        return operation == LiquibaseOperation.COMPARE;
+        return operation == COMPARE_SCHEMAS;
     }
 
     public boolean supportsTrackingTables() {
         return operation.isOneOf(
-                LiquibaseOperation.STATUS,
-                LiquibaseOperation.UPDATE,
-                LiquibaseOperation.ROLLBACK);
+                SHOW_CHANGELOG_STATUS,
+                UPDATE_DATABASE,
+                ROLLBACK_CHANGESETS);
     }
 
     public boolean supportsWorkspaceCreation() {
-        return operation.isOneOf(LiquibaseOperation.INITIALIZE, LiquibaseOperation.COMPARE);
+        return operation.isOneOf(
+                GENERATE_CHANGELOG,
+                GENERATE_DIFF_CHANGELOG);
     }
 }

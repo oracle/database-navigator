@@ -29,7 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
-import static com.dbn.liquibase.execution.LiquibaseCommands.STATUS;
+import static com.dbn.liquibase.execution.LiquibaseCommands.SHOW_CHANGELOG_STATUS;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -46,7 +46,7 @@ import static com.dbn.nls.NlsResources.txt;
 public class LiquibaseStatusProcessor extends LiquibaseExecutionProcessor {
     @Override
     public LiquibaseOperation getOperation() {
-        return LiquibaseOperation.STATUS;
+        return LiquibaseOperation.SHOW_CHANGELOG_STATUS;
     }
 
     @Override
@@ -65,7 +65,7 @@ public class LiquibaseStatusProcessor extends LiquibaseExecutionProcessor {
         withLiquibaseDatabase(context, true, targetSchema, database -> {
             checkCanceled(context);
             withLiquibaseScope(context, paths.getContentRootPath(), output ->
-                    executeCommand(STATUS, output, Map.of(
+                    executeCommand(SHOW_CHANGELOG_STATUS, output, Map.of(
                             "database", database,
                             "changelogFile", relativeChangelog,
                             "verbose", true)));

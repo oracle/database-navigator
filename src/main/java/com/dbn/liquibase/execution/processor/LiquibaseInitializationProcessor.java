@@ -79,7 +79,7 @@ public class LiquibaseInitializationProcessor extends LiquibaseExecutionProcesso
 
     @Override
     public LiquibaseOperation getOperation() {
-        return LiquibaseOperation.INITIALIZE;
+        return LiquibaseOperation.GENERATE_CHANGELOG;
     }
 
     @Override

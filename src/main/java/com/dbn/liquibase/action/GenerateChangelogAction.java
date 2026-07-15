@@ -18,13 +18,13 @@ public class GenerateChangelogAction extends LiquibaseSchemaAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        executeOperation(project, LiquibaseOperation.INITIALIZE);
+        executeOperation(project, LiquibaseOperation.GENERATE_CHANGELOG);
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.liquibase.action.GenerateChangelog"));
+        presentation.setText(txt("app.liquibase.action.Operation_GENERATE_CHANGELOG"));
         presentation.setIcon(Icons.ACTION_DOWNLOAD);
     }
 }

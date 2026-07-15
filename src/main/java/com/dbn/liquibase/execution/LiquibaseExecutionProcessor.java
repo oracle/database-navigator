@@ -36,6 +36,7 @@ import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.CommandExecutionException;
+import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.resource.DirectoryResourceAccessor;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -135,10 +136,29 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
             @NotNull LiquibaseExecutionContext context,
             @NotNull Path contentRoot,
             @NotNull ThrowableFunction<LiquibaseExecutionOutputStream, T, Exception> operation) throws Exception {
+        return withLiquibaseScope(
+                context,
+                new DirectoryResourceAccessor(contentRoot),
+                operation);
+    }
+
+    protected final <T> T withLiquibaseScope(
+            @NotNull LiquibaseExecutionContext context,
+            @NotNull ThrowableFunction<LiquibaseExecutionOutputStream, T, Exception> operation) throws Exception {
+        return withLiquibaseScope(
+                context,
+                new ClassLoaderResourceAccessor(LiquibaseExecutionProcessor.class.getClassLoader()),
+                operation);
+    }
+
+    private <T> T withLiquibaseScope(
+            @NotNull LiquibaseExecutionContext context,
+            @NotNull liquibase.resource.ResourceAccessor resourceAccessor,
+            @NotNull ThrowableFunction<LiquibaseExecutionOutputStream, T, Exception> operation) throws Exception {
         LiquibaseExecutionResult result = context.getResult();
         Map<String, Object> scopeValues = Map.of(
                 Scope.Attr.logService.name(), new LiquibaseExecutionLogService(result),
-                Scope.Attr.resourceAccessor.name(), new DirectoryResourceAccessor(contentRoot));
+                Scope.Attr.resourceAccessor.name(), resourceAccessor);
         return child(scopeValues, () -> {
             try (LiquibaseExecutionOutputStream output = new LiquibaseExecutionOutputStream(result)) {
                 return operation.apply(output);

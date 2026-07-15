@@ -36,5 +36,6 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         add(new RollbackDatabaseAction(schema));
         addSeparator();
         add(new CompareSchemasAction(schema));
+        add(new GenerateDiffChangelogAction(schema));
     }
 }

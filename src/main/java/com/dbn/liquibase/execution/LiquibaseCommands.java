@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.execution;
 
+import liquibase.command.core.DiffChangelogCommandStep;
 import liquibase.command.core.GenerateChangelogCommandStep;
 import liquibase.command.core.RollbackCommandStep;
 import liquibase.command.core.RollbackCountCommandStep;
@@ -30,10 +31,11 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class LiquibaseCommands {
     public static final String GENERATE_CHANGELOG = GenerateChangelogCommandStep.COMMAND_NAME[0];
-    public static final String VALIDATE = ValidateCommandStep.COMMAND_NAME[0];
-    public static final String STATUS = StatusCommandStep.COMMAND_NAME[0];
+    public static final String GENERATE_DIFF_CHANGELOG = DiffChangelogCommandStep.COMMAND_NAME[0];
+    public static final String VALIDATE_CHANGELOG = ValidateCommandStep.COMMAND_NAME[0];
+    public static final String SHOW_CHANGELOG_STATUS = StatusCommandStep.COMMAND_NAME[0];
     public static final String TAG = TagCommandStep.COMMAND_NAME[0];
-    public static final String UPDATE = UpdateCommandStep.COMMAND_NAME[0];
+    public static final String UPDATE_DATABASE = UpdateCommandStep.COMMAND_NAME[0];
     public static final String ROLLBACK_COUNT = RollbackCountCommandStep.COMMAND_NAME[0];
     public static final String ROLLBACK_TAG = RollbackCommandStep.COMMAND_NAME[0];
     public static final String ROLLBACK_DATE = RollbackToDateCommandStep.COMMAND_NAME[0];

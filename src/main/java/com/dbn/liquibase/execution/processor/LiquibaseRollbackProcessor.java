@@ -45,7 +45,7 @@ import static com.dbn.object.type.DBObjectType.BROWSABLE_TYPES;
 public class LiquibaseRollbackProcessor extends LiquibaseExecutionProcessor {
     @Override
     public LiquibaseOperation getOperation() {
-        return LiquibaseOperation.ROLLBACK;
+        return LiquibaseOperation.ROLLBACK_CHANGESETS;
     }
 
     @Override

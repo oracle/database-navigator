@@ -21,7 +21,6 @@ import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import liquibase.CatalogAndSchema;
 import liquibase.diff.DiffGeneratorFactory;
@@ -51,7 +50,7 @@ public class LiquibaseCompareProcessor extends LiquibaseExecutionProcessor {
 
     @Override
     public LiquibaseOperation getOperation() {
-        return LiquibaseOperation.COMPARE;
+        return LiquibaseOperation.COMPARE_SCHEMAS;
     }
 
     @Override
@@ -60,11 +59,9 @@ public class LiquibaseCompareProcessor extends LiquibaseExecutionProcessor {
         LiquibaseExecutionResult result = context.getResult();
         DBSchema sourceSchema = required("Source schema", input.getSourceSchema());
         DBSchema targetSchema = required("Target schema", input.getTargetSchema());
-        LiquibaseWorkspacePaths paths = input.getWorkspacePaths();
-
         withLiquibaseDatabase(context, true, sourceSchema, sourceDatabase ->
                 withLiquibaseDatabase(context, true, targetSchema, targetDatabase ->
-                        withLiquibaseScope(context, paths.getContentRootPath(), output -> {
+                        withLiquibaseScope(context, output -> {
                             checkCanceled(context);
                             CompareControl compareControl = new CompareControl(
                                     new CompareControl.SchemaComparison[]{new CompareControl.SchemaComparison(
