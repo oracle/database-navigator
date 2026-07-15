@@ -7,10 +7,10 @@ import com.dbn.common.message.TitledMessage;
 import com.dbn.common.task.TaskStatus;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
-import com.dbn.common.ui.link.Hyperlinks;
 import com.dbn.common.ui.messages.DBNMessageForm;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
@@ -20,7 +20,6 @@ import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.LiquibaseOperationSupport;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -37,6 +36,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
@@ -57,8 +57,8 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private JLabel targetSchemaCaptionLabel;
     private JLabel targetSchemaLabel;
     private JLabel operationLabel;
-    private JLabel changeSetCountCaptionLabel;
-    private JLabel changeSetCountLabel;
+    private JLabel processedItemsCaptionLabel;
+    private JLabel processedItemsLabel;
     private JLabel statusLabel;
     private JLabel durationLabel;
     private JLabel rollbackTypeCaptionLabel;
@@ -104,14 +104,14 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         operationLabel.setText(result.getOperation().getName());
         setToolTipText(operationLabel, result.getOperation().getDescription());
         updateStatus(result);
-        updateChangeSetCount(result);
+        updateProcessedItems(result);
         updateRollbackInfo(result);
         updateTagInfo(result);
-        Hyperlinks.onHyperlinkAccess(changelogLink, e -> openChangelog(result));
-        Hyperlinks.onHyperlinkAccess(databaseChangeLogLink,
-                e -> navigateToTable(result, result.getDatabaseChangeLogTableName()));
-        Hyperlinks.onHyperlinkAccess(databaseChangeLogLockLink,
-                e -> navigateToTable(result, result.getDatabaseChangeLogLockTableName()));
+
+        onHyperlinkAccess(changelogLink, e -> openChangelog(result));
+        onHyperlinkAccess(databaseChangeLogLink,e -> navigateToTable(result, result.getDatabaseChangeLogTableName()));
+        onHyperlinkAccess(databaseChangeLogLockLink,e -> navigateToTable(result, result.getDatabaseChangeLogLockTableName()));
+
         databaseChangeLogInfoLabel.setContent(plain(txt("cfg.liquibase.hint.DatabaseChangeLogTable")));
         databaseChangeLogLockInfoLabel.setContent(plain(txt("cfg.liquibase.hint.DatabaseChangeLogLockTable")));
         updateChangelogLink(result);
@@ -185,7 +185,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
 
     private void updateMessageForm(@NotNull LiquibaseExecutionResult result) {
         updateStatusLabel(result);
-        updateChangeSetCount(result);
+        updateProcessedItems(result);
         updateRollbackInfo(result);
         updateTagInfo(result);
         updateChangelogLink(result);
@@ -242,17 +242,12 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
             return;
         }
 
-        DBSchema schema = result.getTargetSchema();
-        if (schema == null) schema = result.getRelevantSchema();
-
         updateLiquibaseTableLink(
-                schema,
                 result.getDatabaseChangeLogTableName(),
                 databaseChangeLogLabel,
                 databaseChangeLogLink,
                 databaseChangeLogInfoLabel);
         updateLiquibaseTableLink(
-                schema,
                 result.getDatabaseChangeLogLockTableName(),
                 databaseChangeLogLockLabel,
                 databaseChangeLogLockLink,
@@ -260,23 +255,13 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     }
 
     private static void updateLiquibaseTableLink(
-            @NotNull DBSchema schema,
             @NotNull String tableName,
             @NotNull JLabel label,
             @NotNull DBNHyperlinkLabel link,
             @NotNull DBNInfoLabel infoLabel) {
-        DBObject table = schema.getChildObject(DBObjectType.TABLE, tableName);
-        if (table == null) {
-            label.setVisible(false);
-            link.setVisible(false);
-            infoLabel.setVisible(false);
-            link.setHyperlinkText("");
-            return;
-        }
-
         label.setVisible(true);
         link.setIcon(Icons.DBO_TABLE);
-        link.setHyperlinkText(table.getName());
+        link.setHyperlinkText(tableName);
         link.setVisible(true);
         infoLabel.setVisible(true);
     }
@@ -285,10 +270,20 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
             @NotNull LiquibaseExecutionResult result,
             @NotNull String tableName) {
         DBSchema schema = result.getTargetSchema();
-        if (schema == null) schema = result.getRelevantSchema();
+        DBSchema navigationSchema = schema == null ? result.getRelevantSchema() : schema;
 
-        DBObject table = schema.getChildObject(DBObjectType.TABLE, tableName);
-        if (table != null) table.navigate(true);
+        Progress.prompt(
+                result.getProject(),
+                navigationSchema,
+                true,
+                txt("prc.objects.title.LoadingObjects"),
+                txt("prc.objects.text.LoadingObjects", tableName),
+                progress -> {
+                    progress.checkCanceled();
+                    DBObject table = navigationSchema.getTable(tableName);
+                    progress.checkCanceled();
+                    if (table != null) table.navigate(true);
+                });
     }
 
     private void updateStatus(@NotNull LiquibaseExecutionResult result) {
@@ -301,11 +296,19 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         statusLabel.setForeground(getStatusColor(result.getStatus()));
     }
 
-    private void updateChangeSetCount(@NotNull LiquibaseExecutionResult result) {
-        boolean visible = result.getOperation().getSupport().supportsChangeSetItems();
-        changeSetCountCaptionLabel.setVisible(visible);
-        changeSetCountLabel.setVisible(visible);
-        if (visible) changeSetCountLabel.setText(Integer.toString(result.getChangeSetItems().size()));
+    private void updateProcessedItems(@NotNull LiquibaseExecutionResult result) {
+        LiquibaseOperationSupport support = result.getOperation().getSupport();
+        boolean visible = support.supportsSnapshotItems() ||
+                support.supportsComparisonItems() ||
+                support.supportsChangeSetItems();
+        processedItemsCaptionLabel.setVisible(visible);
+        processedItemsLabel.setVisible(visible);
+        if (!visible) return;
+
+        int count = support.supportsSnapshotItems() ? result.getSnapshotItems().size() :
+                support.supportsComparisonItems() ? result.getComparisonItems().size() :
+                result.getChangeSetItems().size();
+        processedItemsLabel.setText(Integer.toString(count));
     }
 
     private void updateRollbackInfo(@NotNull LiquibaseExecutionResult result) {
