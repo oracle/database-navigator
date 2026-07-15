@@ -93,6 +93,10 @@ public final class LiquibaseOperationSupport {
         return operation == UPDATE_DATABASE;
     }
 
+    public boolean supportsRollbackTag() {
+        return operation == ROLLBACK_CHANGESETS;
+    }
+
     public boolean supportsRollback() {
         return operation == ROLLBACK_CHANGESETS;
     }

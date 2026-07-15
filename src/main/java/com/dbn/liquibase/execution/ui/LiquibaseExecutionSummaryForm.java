@@ -40,9 +40,6 @@ import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
-import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS;
-import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
-import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseRollbackType.TAG;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.nls.NlsResources.txtOr;
@@ -310,13 +307,15 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         String tag = null;
         String captionKey = null;
         LiquibaseOperation operation = result.getOperation();
-        if (operation == TAG_DATABASE) {
+        LiquibaseOperationSupport support = operation.getSupport();
+
+        if (support.supportsDatabaseTag()) {
             tag = result.getDatabaseTag();
             captionKey = "cfg.liquibase.label.DatabaseTag";
-        } else if (operation == UPDATE_DATABASE) {
+        } else if (support.supportsCheckpointTag()) {
             tag = result.getCheckpointTag();
             captionKey = "cfg.liquibase.label.CheckpointTag";
-        } else if (operation == ROLLBACK_CHANGESETS && result.getRollbackType() == TAG) {
+        } else if (support.supportsRollbackTag() && result.getRollbackType() == TAG) {
             tag = result.getRollbackTag();
             captionKey = "cfg.liquibase.label.RollbackTag";
         }
