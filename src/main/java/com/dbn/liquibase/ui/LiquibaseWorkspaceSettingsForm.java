@@ -168,11 +168,25 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
     }
 
     private void updateWorkspaceName() {
+        String oldName = workspace.getName();
+        String newName = getText(nameTextField);
+        if (getGeneratedRootPath(oldName).equals(getText(rootPathTextField))) {
+            setText(rootPathTextField, getGeneratedRootPath(newName));
+        }
+        workspace.setName(newName);
+
         Disposable parent = ensureParentComponent();
         if (parent instanceof LiquibaseWorkspaceBundleSettingsForm bundleForm) {
-            workspace.setName(getText(nameTextField));
             bundleForm.refreshWorkspaceList();
         }
+    }
+
+    @NotNull
+    private static String getGeneratedRootPath(@Nullable String workspaceName) {
+        if (isEmpty(workspaceName)) return DEFAULT_ROOT_PATH;
+
+        String pathName = workspaceName.trim().replaceAll("[\\\\/:*?\"<>|]", "_");
+        return DEFAULT_ROOT_PATH + "/" + (pathName.equals(".") || pathName.equals("..") ? "_" : pathName);
     }
 
     private void updatePathTooltips() {

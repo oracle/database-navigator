@@ -58,6 +58,7 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import static com.dbn.common.text.TextContent.plain;
@@ -372,7 +373,8 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
                 sourceSchemaSelector,
                 () -> getSourceConnection(),
                 () -> executionInput.getSourceSchema(),
-                state);
+                state,
+                null);
     }
 
     private void initTargetContextSelectors() {
@@ -390,7 +392,8 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
                 targetSchemaSelector,
                 () -> getTargetConnection(),
                 () -> executionInput.getTargetSchema(),
-                state);
+                state,
+                () -> executionInput.getSourceSchema());
     }
 
     private void updateTargetConnections() {
@@ -448,7 +451,8 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
             @NotNull DBObjectSelector<DBSchema> selector,
             @NotNull Supplier<ConnectionHandler> connectionSupplier,
             @NotNull Supplier<DBSchema> schemaSupplier,
-            @NotNull FieldState state) {
+            @NotNull FieldState state,
+            @Nullable Supplier<DBSchema> excludedSchemaSupplier) {
         boolean visible = state.isVisible();
         boolean enabled = state.isEditable();
         label.setVisible(visible);
@@ -459,7 +463,9 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         selector.withConnectionContext(connectionSupplier);
         selector.withValueLoader(() -> {
                     ConnectionHandler connection = connectionSupplier.get();
-                    return connection == null ? emptyList() : filter(connection.getObjectBundle().getSchemas(), s -> !s.isSystemSchema());
+                    DBSchema excludedSchema = excludedSchemaSupplier == null ? null : excludedSchemaSupplier.get();
+                    return connection == null ? emptyList() : filter(connection.getObjectBundle().getSchemas(), s ->
+                            !s.isSystemSchema() && !isSameSchema(s, excludedSchema));
                 });
         selector.withValuePreselector(() -> {
                     DBSchema schema = schemaSupplier.get();
@@ -469,6 +475,12 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         selector.triggerLoad();
         setFormFieldEnabled(selector, "CONDITIONAL_AVAILABILITY", enabled);
         //selector.setEnabled(enabled);
+    }
+
+    private static boolean isSameSchema(@NotNull DBSchema schema, @Nullable DBSchema other) {
+        return other != null &&
+                Objects.equals(schema.getConnectionId(), other.getConnectionId()) &&
+                Objects.equals(schema.getSchemaId(), other.getSchemaId());
     }
 
     @NotNull
