@@ -199,6 +199,8 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
         try {
             executeOperation(context);
             finishResult(context, TaskStatus.DONE);
+        } catch (LiquibaseExecutionSkippedException e) {
+            finishResult(context, TaskStatus.SKIPPED);
         } catch (CancellationException e) {
             finishResult(context, TaskStatus.CANCELLED);
         } catch (Exception e) {

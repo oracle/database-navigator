@@ -393,7 +393,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         }
 
         MessageType messageType =
-                status == TaskStatus.CANCELLED ? MessageType.WARNING :
+                status == TaskStatus.CANCELLED || status == TaskStatus.SKIPPED ? MessageType.WARNING :
                 status == TaskStatus.DONE ? MessageType.SUCCESS : MessageType.ERROR;
         return new TitledMessage(
                 messageType,
