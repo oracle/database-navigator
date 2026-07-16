@@ -192,6 +192,10 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
 
     public FileType resolveFileType(DBObjectRef object, DBContentType contentType) {
         DBObjectType objectType = object.getObjectType();
+        if (objectType == DBObjectType.DATASOURCE_CONFIG) {
+            return FileTypes.getJsonFileType();
+        }
+
         if (objectType == DBObjectType.JAVA_CLASS) {
             // java module may not be present in the IDE (if not IntelliJ)
             // (fallback to plain text)
