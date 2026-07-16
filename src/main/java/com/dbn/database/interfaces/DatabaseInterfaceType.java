@@ -31,5 +31,6 @@ public enum DatabaseInterfaceType {
     VECTOR,
     MACHINE_LEARNING,
     SCHEDULER,
+    DATA_SOURCE_CONFIG,
     JAVA
 }
