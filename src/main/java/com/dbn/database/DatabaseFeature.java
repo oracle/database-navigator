@@ -63,6 +63,7 @@ public enum DatabaseFeature {
     VECTOR_EMBEDDING(txt("app.database.const.DatabaseFeature_VECTOR_EMBEDDING")),
     VECTOR_SEARCH(txt("app.database.const.DatabaseFeature_VECTOR_SEARCH")),
     MCP_SERVER_BUILDER(txt("app.database.const.DatabaseFeature_MCP_SERVER_BUILDER")),
+    DATASOURCE_CONFIG(txt("app.database.const.DatabaseFeature_DATASOURCE_CONFIG")),
     SCHEDULER_JOBS(txt("app.database.const.DatabaseFeature_SCHEDULER_JOBS")),
 
     // OJVM

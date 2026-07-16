@@ -234,6 +234,10 @@ public class DBNMessageForm extends DBNFormBase {
     }
 
     private static TextContent createDetailsContent(String message) {
+        if (isHtmlMessage(message)) {
+            return TextContent.html(message);
+        }
+
         return URL_PATTERN.matcher(message).find() ?
                 TextContent.htmlMessage(linkify(message)) :
                 TextContent.plain(message);

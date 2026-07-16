@@ -32,6 +32,7 @@ import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBSchema;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
@@ -159,7 +160,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
     }
 
-    public void dropObject(DBSchemaObject object) {
+    public void dropObject(DBObject object) {
         Project project = getProject();
         showQuestionDialog(
                 project,
@@ -168,8 +169,10 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                 Messages.OPTIONS_YES_NO, 0,
                 option -> when(option == 0, () ->
                         ConnectionAction.invoke(txt("msg.objects.title.DroppingObject"), false, object, action -> {
-                            DatabaseFileManager databaseFileManager = DatabaseFileManager.getInstance(project);
-                            databaseFileManager.closeFile(object);
+                            if (object instanceof DBSchemaObject schemaObject) {
+                                DatabaseFileManager databaseFileManager = DatabaseFileManager.getInstance(project);
+                                databaseFileManager.closeFile(schemaObject);
+                            }
 
                             ObjectManagementService objectManagementService = ObjectManagementService.getInstance(project);
                             if (objectManagementService.supports(object)) {
@@ -177,11 +180,16 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                                 return;
                             }
 
+                            if (!(object instanceof DBSchemaObject schemaObject)) {
+                                showErrorDialog(project, txt("msg.objects.error.CouldNotDropObject", object.getQualifiedNameWithType()));
+                                return;
+                            }
+
                             // TODO old implementation (implement appropriate ObjectManagementServices and cleanup)
-                            Progress.prompt(project, object, false,
+                            Progress.prompt(project, schemaObject, false,
                                     txt("prc.objects.title.DroppingObject"),
                                      txt("prc.objects.text.DroppingObject", object.getQualifiedNameWithType()),
-                                    progress -> doDropObject(object));
+                                    progress -> doDropObject(schemaObject));
                         })));
 
     }

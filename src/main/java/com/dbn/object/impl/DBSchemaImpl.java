@@ -38,6 +38,7 @@ import com.dbn.object.DBDatabaseLink;
 import com.dbn.object.DBDatabaseTrigger;
 import com.dbn.object.DBDataset;
 import com.dbn.object.DBDatasetTrigger;
+import com.dbn.object.DBDatasourceConfig;
 import com.dbn.object.DBDimension;
 import com.dbn.object.DBFunction;
 import com.dbn.object.DBIndex;
@@ -108,6 +109,7 @@ import static com.dbn.object.type.DBObjectType.CONSTRAINT;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.object.type.DBObjectType.DATABASE_TRIGGER;
 import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
+import static com.dbn.object.type.DBObjectType.DATASOURCE_CONFIG;
 import static com.dbn.object.type.DBObjectType.DBLINK;
 import static com.dbn.object.type.DBObjectType.DIMENSION;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
@@ -179,6 +181,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(CREDENTIAL,        this);
         childObjects.createObjectList(AI_PROFILE,        this);
         childObjects.createObjectList(AI_MODEL,          this);
+        childObjects.createObjectList(DATASOURCE_CONFIG, this);
         DBObjectList<DBConstraint> constraints = childObjects.createObjectList(CONSTRAINT, this, INTERNAL, GROUPED);
         DBObjectList<DBIndex> indexes          = childObjects.createObjectList(INDEX,      this, INTERNAL, GROUPED);
         DBObjectList<DBColumn> columns         = childObjects.createObjectList(COLUMN,     this, INTERNAL, GROUPED, HIDDEN);
@@ -377,6 +380,11 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
+    public List<DBDatasourceConfig> getDatasourceConfigs() {
+        return getChildObjects(DATASOURCE_CONFIG);
+    }
+
+    @Override
     public List<DBAIProfile> getAIProfiles() {
         return getChildObjects(AI_PROFILE);
     }
@@ -446,6 +454,11 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     @Override
     public DBCredential getCredential(String name) {
         return getChildObject(CREDENTIAL, name);
+    }
+
+    @Override
+    public DBDatasourceConfig getDatasourceConfig(String name) {
+        return getChildObject(DATASOURCE_CONFIG, name);
     }
 
     @Override
@@ -675,7 +688,8 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
                 getChildObjectList(DBLINK),
                 getChildObjectList(CREDENTIAL),
                 getChildObjectList(AI_PROFILE),
-                getChildObjectList(AI_MODEL));
+                getChildObjectList(AI_MODEL),
+                getChildObjectList(DATASOURCE_CONFIG));
     }
 
     @Override
@@ -700,6 +714,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
             settings.isVisible(DBLINK) ||
             settings.isVisible(CREDENTIAL) ||
             settings.isVisible(AI_PROFILE) ||
-            settings.isVisible(AI_MODEL);
+            settings.isVisible(AI_MODEL) ||
+            settings.isVisible(DATASOURCE_CONFIG);
     }
 }
