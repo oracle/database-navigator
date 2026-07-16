@@ -239,6 +239,7 @@
         <extensionPoint name="objectNavigationInfoProvider" qualifiedName="com.dbn.objectNavigationInfoProvider" interface="com.dbn.object.navigation.DBObjectNavigationInfoProvider" dynamic="true"/>
         <extensionPoint name="objectFactoryAdapter" qualifiedName="com.dbn.objectFactoryAdapter" interface="com.dbn.object.factory.ObjectFactoryAdapter" dynamic="true"/>
         <extensionPoint name="objectManagementAdapter" qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterExtension" dynamic="true"/>
+        <extensionPoint name="objectEditorProvider" qualifiedName="com.dbn.objectEditorProvider" interface="com.dbn.object.editor.ObjectEditorProvider" dynamic="true"/>
 
         <extensionPoint name="assistantAdapter" qualifiedName="com.dbn.assistantAdapter" interface="com.dbn.assistant.adapter.AssistantAdapter" dynamic="true"/>
         <extensionPoint name="assistantModelFactory" qualifiedName="com.dbn.assistantModelFactory" interface="com.dbn.assistant.service.generic.model.AssistantModelFactory" dynamic="true"/>
@@ -313,14 +314,19 @@
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBTableFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBColumnFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBCredentialFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBDatasourceConfigFactoryAdapter"/>
 
         <!--object management adapters-->
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBCredentialManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBDatasourceConfigManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBAIProfileManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBAIModelManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBTriggerManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBJsonViewManagementAdapter"/>
+
+        <!--object editor providers-->
+        <objectEditorProvider implementation="com.dbn.object.datasource.DatasourceConfigEditorProvider"/>
 
         <!--presentation providers-->
         <presentationProvider implementation="com.dbn.common.presentation.provider.ConnectionPresentationProvider"/>
@@ -371,6 +377,13 @@
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.ObjectPrivilege_EXECUTE_DBMS_VECTOR"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.ObjectPrivilege_EXECUTE_DBMS_VECTOR_CHAIN"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.DatabaseVersion_VECTOR_SUPPORT"/>
+
+        <!--data source configuration prerequisites-->
+        <prerequisiteRequirementEvaluator implementation="com.dbn.object.datasource.prerequisite.DatasourceConfigPrerequisitesEvaluator"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.object.datasource.prerequisite.DatabaseVersion_DATA_SOURCE_CONFIG"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.object.datasource.prerequisite.SystemPrivilege_CREATE_DATA_SOURCE_CONFIG"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.object.datasource.prerequisite.SystemPrivilege_CREATE_ANY_DATA_SOURCE_CONFIG"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.object.datasource.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DATA_SOURCE_CONFIG"/>
 
         <!--database assistant extensions-->
         <assistantAdapter implementation="com.dbn.assistant.service.selectai.SelectAiAssistantAdapter"/>

@@ -64,6 +64,7 @@ import static com.dbn.database.DatabaseFeature.CONNECTION_ERROR_RECOVERY;
 import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
 import static com.dbn.database.DatabaseFeature.CURRENT_SCHEMA;
 import static com.dbn.database.DatabaseFeature.DATABASE_LOGGING;
+import static com.dbn.database.DatabaseFeature.DATASOURCE_CONFIG;
 import static com.dbn.database.DatabaseFeature.DATA_CHANGE_NOTIFICATION;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.EXPLAIN_PLAN;
@@ -185,6 +186,18 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     }
 
     @Override
+    public boolean supportsObjectType(DatabaseObjectTypeId objectTypeId, double databaseVersion) {
+        return switch (objectTypeId) {
+            case CREDENTIAL -> databaseVersion >= 12.1;
+            case JSON_VIEW -> databaseVersion >= 23.0;
+            case AI_PROFILE -> databaseVersion >= 19.0;
+            case AI_MODEL -> databaseVersion >= 23.0;
+            case DATASOURCE_CONFIG -> databaseVersion >= 26.0;
+            default -> supportsObjectType(objectTypeId);
+        };
+    }
+
+    @Override
     public List<DatabaseObjectTypeId> getSupportedObjectTypes() {
         return Collections.emptyList(); // default implementation not used (all object types are supported)
     }
@@ -222,6 +235,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 VECTOR_EMBEDDING,
                 VECTOR_SEARCH,
                 MCP_SERVER_BUILDER,
+                DATASOURCE_CONFIG,
                 SCHEDULER_JOBS,
                 JAVA_VIRTUAL_MACHINE
                 //EMPTY_SCHEMA_EVALUATION // TODO disabled due to performance reasons

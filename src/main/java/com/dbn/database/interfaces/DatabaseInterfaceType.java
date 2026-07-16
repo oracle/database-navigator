@@ -31,5 +31,6 @@ public enum DatabaseInterfaceType {
     ASSISTANT,
     VECTOR,
     SCHEDULER,
+    DATA_SOURCE_CONFIG,
     JAVA
 }
