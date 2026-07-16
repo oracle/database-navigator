@@ -63,6 +63,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -126,6 +128,66 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
 
     protected static @NotNull ClassLoaderResourceAccessor classLoaderAccessor() {
         return new ClassLoaderResourceAccessor(LiquibaseExecutionProcessor.class.getClassLoader());
+    }
+
+    @NotNull
+    protected final List<ChangeSet> discoverPendingChangeSets(
+            @NotNull LiquibaseExecutionContext context,
+            @NotNull Database database) throws Exception {
+        LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
+        ResourceAccessor resourceAccessor = contentRootAccessor(context);
+        DatabaseChangeLog changeLog = ChangeLogParserFactory.getInstance()
+                .getParser(paths.getMasterChangelogRelativePath(), resourceAccessor)
+                .parse(paths.getMasterChangelogRelativePath(), new ChangeLogParameters(), resourceAccessor);
+
+        List<ChangeSet> changeSets = new ArrayList<>();
+        for (ChangeSet changeSet : changeLog.getChangeSets()) {
+            if (database.getRunStatus(changeSet) == ChangeSet.RunStatus.NOT_RAN) {
+                changeSets.add(changeSet);
+            }
+        }
+        return changeSets;
+    }
+
+    @NotNull
+    protected final List<LiquibaseChangeSetItem> discoverChangeSetItems(
+            @NotNull LiquibaseExecutionContext context,
+            @NotNull Database database,
+            @NotNull String messageKey) throws Exception {
+        List<LiquibaseChangeSetItem> items = new ArrayList<>();
+        for (ChangeSet changeSet : discoverPendingChangeSets(context, database)) {
+            items.add(context.getResult().ensureChangeSetItem(
+                    changeSet,
+                    LiquibaseExecutionItemStatus.DISCOVERED,
+                    txt(messageKey, changeSet.getId())));
+        }
+        return items;
+    }
+
+    protected final void completeChangeSetItems(
+            @NotNull LiquibaseExecutionContext context,
+            @NotNull List<LiquibaseChangeSetItem> items,
+            @NotNull String messageKey,
+            @Nullable String executionType) {
+        LiquibaseExecutionResult result = context.getResult();
+        for (LiquibaseChangeSetItem item : items) {
+            String message = executionType == null
+                    ? txt(messageKey, item.getId())
+                    : txt(messageKey, item.getId(), executionType);
+            item.updateStatus(LiquibaseExecutionItemStatus.EXECUTED, message);
+        }
+        if (!items.isEmpty()) result.notifyItemsChanged();
+    }
+
+    protected final void completeChangeSetItems(
+            @NotNull LiquibaseExecutionContext context,
+            @NotNull List<LiquibaseChangeSetItem> items,
+            @NotNull String messageKey) {
+        LiquibaseExecutionResult result = context.getResult();
+        for (LiquibaseChangeSetItem item : items) {
+            item.updateStatus(LiquibaseExecutionItemStatus.EXECUTED, txt(messageKey));
+        }
+        if (!items.isEmpty()) result.notifyItemsChanged();
     }
 
     protected static @NotNull Consumer<String> sqlOutputBuilder(@NotNull LiquibaseExecutionContext context) {

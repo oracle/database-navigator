@@ -14,6 +14,7 @@ public class LiquibaseChangeSetItem extends LiquibaseExecutionItem {
     private final String id;
     private final String author;
     private final String filePath;
+    private final String description;
 
     public LiquibaseChangeSetItem(@NotNull ChangeSet changeSet) {
         this(changeSet, DEFAULT_STATUS, DEFAULT_MESSAGE);
@@ -28,6 +29,7 @@ public class LiquibaseChangeSetItem extends LiquibaseExecutionItem {
         this.id = changeSet.getId();
         this.author = changeSet.getAuthor();
         this.filePath = changeSet.getFilePath();
+        this.description = changeSet.getDescription();
     }
 
     @NotNull

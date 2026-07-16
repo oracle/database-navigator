@@ -6,13 +6,17 @@
 
 package com.dbn.liquibase.execution.processor;
 
+import com.dbn.liquibase.execution.LiquibaseChangeSetItem;
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
+import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
+import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.dbn.liquibase.execution.LiquibaseCommands.SYNCHRONIZE_CHANGELOG_SQL;
@@ -30,22 +34,28 @@ public class LiquibaseSynchronizeChangelogSqlProcessor extends LiquibaseExecutio
 
         withLiquibaseDatabase(context, true, context.getTargetSchema(), database ->
                 withLiquibaseScope(context, contentRootAccessor(context), sqlOutputBuilder(context),
-                        output -> executeSynchronizeSql(
-                                context,
-                                database,
-                                output)));
+                        output -> executeSynchronizeSql(context, database, output)));
     }
 
     private void executeSynchronizeSql(
             @NotNull LiquibaseExecutionContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
-        var result = context.getResult();
-        var paths = context.getInput().getWorkspacePaths();
+        LiquibaseExecutionResult result = context.getResult();
+        LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
+        List<LiquibaseChangeSetItem> items = discoverChangeSetItems(
+                context,
+                database,
+                "msg.liquibase.text.ChangeSetSyncSqlPending");
 
         executeCommand(SYNCHRONIZE_CHANGELOG_SQL, output, Map.of(
                 "database", database,
                 "changelogFile", paths.getMasterChangelogRelativePath(),
-                "changeExecListener", new LiquibaseChangeSetRunListener(result)));
+                "changeExecListener", new LiquibaseChangeSetSynchronizeListener(result)));
+
+        completeChangeSetItems(
+                context,
+                items,
+                "msg.liquibase.text.ChangeSetSyncSqlGenerated");
     }
 }

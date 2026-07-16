@@ -10,8 +10,8 @@
 
 package com.dbn.liquibase.execution.processor;
 
+import com.dbn.liquibase.execution.LiquibaseChangeSetItem;
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
-import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
@@ -23,6 +23,7 @@ import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 import static com.dbn.liquibase.execution.LiquibaseCommands.SYNCHRONIZE_CHANGELOG;
@@ -41,18 +42,14 @@ public class LiquibaseSynchronizeChangelogProcessor extends LiquibaseExecutionPr
     protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
         prepareChangelogContext(context, true);
 
-        LiquibaseExecutionInput input = context.getInput();
+        LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
         LiquibaseExecutionResult result = context.getResult();
-        LiquibaseWorkspacePaths paths = input.getWorkspacePaths();
         Path changelogFile = paths.getMasterChangelogPath();
         DBSchema targetSchema = context.getTargetSchema();
 
         withLiquibaseDatabase(context, false, targetSchema, database ->
                 withLiquibaseScope(context, contentRootAccessor(context), null,
-                        output -> executeSynchronize(
-                                context,
-                                database,
-                                output)));
+                        output -> executeSynchronize(context, database, output)));
 
         notifySchemaObjectChanges(targetSchema);
         result.appendConsoleOutput(txt("log.liquibase.info.ChangelogSynchronized", changelogFile));
@@ -62,14 +59,23 @@ public class LiquibaseSynchronizeChangelogProcessor extends LiquibaseExecutionPr
             @NotNull LiquibaseExecutionContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
-        var result = context.getResult();
-        var paths = context.getInput().getWorkspacePaths();
+        LiquibaseExecutionResult result = context.getResult();
+        LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
+        List<LiquibaseChangeSetItem> items = discoverChangeSetItems(
+                context,
+                database,
+                "msg.liquibase.text.ChangeSetSyncPending");
 
         executeCommand(SYNCHRONIZE_CHANGELOG, output, Map.of(
                 "database", database,
                 "changelogFile", paths.getMasterChangelogRelativePath(),
-                "changeExecListener", new LiquibaseChangeSetRunListener(result)));
+                "changeExecListener", new LiquibaseChangeSetSynchronizeListener(result)));
 
+        completeChangeSetItems(
+                context,
+                items,
+                "msg.liquibase.text.ChangeSetSynchronized",
+                "MARK_RAN");
     }
 
     private static void notifySchemaObjectChanges(@NotNull DBSchema schema) {
