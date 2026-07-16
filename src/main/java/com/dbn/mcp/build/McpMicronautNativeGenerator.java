@@ -42,16 +42,17 @@ import static com.dbn.nls.NlsResources.txt;
 class McpMicronautNativeGenerator implements McpServerGenerator {
     private static final @NonNls String POM_TEMPLATE = "DBN - MCP Micronaut POM.xml";
     private static final @NonNls String METADATA_TEMPLATE = "DBN - MCP Micronaut Reachability Metadata.json";
+    private static final @NonNls String APPLICATION_YML_TEMPLATE = "DBN - MCP Micronaut Application Config.yaml";
 
     // generated class name -> file template name (one source file per class)
     private static final @NonNls Map<String, String> SOURCE_TEMPLATES = new LinkedHashMap<>();
     static {
         SOURCE_TEMPLATES.put("Application", "DBN - MCP Micronaut Application");
-        SOURCE_TEMPLATES.put("McpConfig", "DBN - MCP Micronaut McpConfig");
+        SOURCE_TEMPLATES.put("McpConfigLoader", "DBN - MCP Micronaut McpConfigLoader");
         SOURCE_TEMPLATES.put("DataSourceConfig", "DBN - MCP Micronaut DataSourceConfig");
         SOURCE_TEMPLATES.put("ToolConfig", "DBN - MCP Micronaut ToolConfig");
         SOURCE_TEMPLATES.put("ToolParameterConfig", "DBN - MCP Micronaut ToolParameterConfig");
-        SOURCE_TEMPLATES.put("McpToolFactory", "DBN - MCP Micronaut McpToolFactory");
+        SOURCE_TEMPLATES.put("McpBeanFactory", "DBN - MCP Micronaut McpBeanFactory");
         SOURCE_TEMPLATES.put("SqlToolExecutor", "DBN - MCP Micronaut SqlToolExecutor");
     }
 
@@ -61,23 +62,21 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
     private static final @NonNls String JDBC_VERSION = "23.26.2.0.0";
     private static final @NonNls String ORACLE_PKI_VERSION = "23.26.2.0.0";
     private static final @NonNls String ORACLE_OSDT_VERSION = "21.18.0.0";
-    private static final @NonNls String SNAKEYAML_VERSION = "2.5";
 
     private static final @NonNls String SOURCE_ROOT = "src/main/java/com/dbn/mcp/server/";
     private static final @NonNls String LOGBACK_FILE = "src/main/resources/logback.xml";
+    private static final @NonNls String APPLICATION_YML_FILE = "src/main/resources/application.yml";
     private static final @NonNls String METADATA_FILE = "src/main/resources/META-INF/native-image/com.dbn.mcp/mcp-server/reachability-metadata.json";
 
-    // MCP stdio transport owns stdout; all logging must go to stderr
     private static final @NonNls String LOGBACK_XML = """
             <configuration>
-                <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
-                    <target>System.err</target>
+                <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
                     <encoder>
                         <pattern>%d{HH:mm:ss.SSS} %-5level %logger{24} - %msg%n</pattern>
                     </encoder>
                 </appender>
                 <root level="INFO">
-                    <appender-ref ref="STDERR"/>
+                    <appender-ref ref="STDOUT"/>
                 </root>
             </configuration>
             """;
@@ -87,6 +86,7 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
 
     private final Map<String, String> sourceContents = new LinkedHashMap<>();
     private String metadataContent;
+    private String applicationYmlContent;
 
     McpMicronautNativeGenerator(@NotNull Project project, @NotNull McpServerDefinition definition) {
         this.project = project;
@@ -100,21 +100,24 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
 
     @Override
     public void prepareContent() {
-        Properties properties = new Properties();
-        properties.setProperty("SERVER_NAME", definition.getServerName());
+        @NonNls Map<String, Object> attributes = new LinkedHashMap<>();
+        attributes.put("SERVER_NAME", definition.getServerName());
+        attributes.put("HTTP_PORT", definition.getHttpPort());
 
         sourceContents.clear();
         for (Map.Entry<String, String> entry : SOURCE_TEMPLATES.entrySet()) {
-            String content = TemplateUtilities.generateCode(project, entry.getValue(), properties);
+            String content = TemplateUtilities.generateCode(project, entry.getValue(), attributes);
             sourceContents.put(SOURCE_ROOT + entry.getKey() + ".java", content);
         }
         metadataContent = TemplateUtilities.generateCode(project, METADATA_TEMPLATE, new Properties());
+        applicationYmlContent = TemplateUtilities.generateCode(project, APPLICATION_YML_TEMPLATE, attributes);
     }
 
     @Override
     public Map<String, String> getSourceFiles() {
         Map<String, String> files = new LinkedHashMap<>(sourceContents);
         files.put(LOGBACK_FILE, LOGBACK_XML);
+        files.put(APPLICATION_YML_FILE, applicationYmlContent);
         files.put(METADATA_FILE, metadataContent);
         return files;
     }
@@ -134,7 +137,6 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
         properties.setProperty("JDBC_VERSION", JDBC_VERSION);
         properties.setProperty("ORACLE_PKI_VERSION", ORACLE_PKI_VERSION);
         properties.setProperty("ORACLE_OSDT_VERSION", ORACLE_OSDT_VERSION);
-        properties.setProperty("SNAKEYAML_VERSION", SNAKEYAML_VERSION);
         return properties;
     }
 

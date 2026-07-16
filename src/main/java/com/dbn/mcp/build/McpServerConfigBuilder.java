@@ -31,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -42,8 +43,8 @@ final class McpServerConfigBuilder {
     private final ConnectionHandler connection;
     private final McpServerDefinition definition;
 
-    String build() {
-        return build(definition, getRedactedConnectionUrl());
+    String build(Path walletDirectory) {
+        return build(definition, getRedactedConnectionUrl(), walletDirectory);
     }
 
     String getRedactedConnectionUrl() {
@@ -94,13 +95,28 @@ final class McpServerConfigBuilder {
     }
 
     static String build(McpServerDefinition definition, String connectionUrl) {
+        return build(definition, connectionUrl, null);
+    }
+
+    private static String build(McpServerDefinition definition, String connectionUrl, Path walletDirectory) {
         @NonNls StringBuilder sb = new StringBuilder();
 
-        appendYamlField(sb, "", "transport", definition.getTransportType().isHttp() ? "http" : "stdio");
-        sb.append("httpPort: ").append(definition.getHttpPort()).append("  # used when transport is http").append('\n');
-        sb.append('\n');
+        if (!definition.getImplementation().isNative()) {
+            // Micronaut Native servers are HTTP-only with the port fixed in application.yml;
+            // transport and port only apply to the Standard Java implementation
+            appendYamlField(sb, "", "transport", definition.getTransportType().isHttp() ? "http" : "stdio");
+            sb.append("httpPort: ").append(definition.getHttpPort()).append("  # used when transport is http").append('\n');
+            sb.append('\n');
+        }
 
-        sb.append("dataSource:\n");
+        boolean nativeImplementation = definition.getImplementation().isNative();
+        sb.append(nativeImplementation ? "datasource:\n" : "dataSource:\n");
+        if (nativeImplementation) {
+            if (walletDirectory == null) {
+                throw new IllegalArgumentException("Wallet directory is required for a Micronaut Native server");
+            }
+            appendYamlField(sb, "  ", "wallet-dir", walletDirectory.toAbsolutePath().toString());
+        }
         appendYamlField(sb, "  ", "url", redactSensitiveParameters(connectionUrl));
         sb.append("  # username: YOUR_USER  # uncomment to override wallet credentials\n");
         sb.append("  # password: YOUR_PASS  # uncomment to override wallet credentials\n");

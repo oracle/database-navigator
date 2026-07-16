@@ -136,6 +136,24 @@ public class McpServerDefinitionForm extends DBNFormBase {
             updateFieldAvailability();
             validateFormFields();
         });
+        onSelectionChange(implementationComboBox, implementation -> {
+            updateTransportAvailability();
+            updateFieldAvailability();
+            validateFormFields();
+        });
+    }
+
+    /**
+     * The Micronaut Native server is HTTP-only: force the transport selection
+     * and prevent changing it while that implementation is selected.
+     */
+    private void updateTransportAvailability() {
+        McpServerImplementation implementation = getSelection(implementationComboBox);
+        boolean nativeImplementation = implementation != null && implementation.isNative();
+        if (nativeImplementation) {
+            setSelection(transportTypeComboBox, McpTransportType.HTTP);
+        }
+        transportTypeComboBox.setEnabled(!nativeImplementation);
     }
 
     private void initToolDefinitionsPanel() {
@@ -251,6 +269,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
         setSelection(implementationComboBox, serverDefinition.getImplementation());
         setSelection(transportTypeComboBox, serverDefinition.getTransportType());
         setText(httpPortField, serverDefinition.getHttpPort());
+        updateTransportAvailability();
     }
 
     @Override

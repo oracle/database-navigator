@@ -176,7 +176,8 @@ public class McpBuildTask {
     private void initServerConfig() {
         try {
             Path baseDirectory = resolveBasePath();
-            String yaml = serverConfigBuilder.build();
+            Path walletDirectory = result.getOutputDirectory().resolve("wallet");
+            String yaml = serverConfigBuilder.build(walletDirectory);
             Path configFile = baseDirectory.resolve(CONFIG);
 
             Files.createDirectories(baseDirectory);

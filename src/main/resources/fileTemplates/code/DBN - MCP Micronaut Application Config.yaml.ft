@@ -1,0 +1,13 @@
+micronaut:
+  application:
+    name: ${SERVER_NAME}
+  server:
+    host: 127.0.0.1
+    port: ${HTTP_PORT}
+  mcp:
+    server:
+      transport: HTTP
+      endpoint: /mcp
+      info:
+        name: ${SERVER_NAME}
+        version: 1.0.0
