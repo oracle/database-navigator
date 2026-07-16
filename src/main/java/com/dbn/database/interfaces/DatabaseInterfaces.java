@@ -51,6 +51,8 @@ public interface DatabaseInterfaces {
 
     DatabaseVectorInterface getVectorInterface();
 
+    DatabaseSchedulerInterface getSchedulerInterface();
+
     DatabaseJavaInterface getJavaInterface();
 
 

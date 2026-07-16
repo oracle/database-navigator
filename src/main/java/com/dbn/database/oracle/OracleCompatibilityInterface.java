@@ -78,6 +78,7 @@ import static com.dbn.database.DatabaseFeature.OBJECT_INVALIDATION;
 import static com.dbn.database.DatabaseFeature.OBJECT_REPLACING;
 import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
 import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
+import static com.dbn.database.DatabaseFeature.SCHEDULER_JOBS;
 import static com.dbn.database.DatabaseFeature.SESSION_BROWSING;
 import static com.dbn.database.DatabaseFeature.SESSION_CURRENT_SQL;
 import static com.dbn.database.DatabaseFeature.SESSION_DISCONNECT;
@@ -221,6 +222,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 VECTOR_EMBEDDING,
                 VECTOR_SEARCH,
                 MCP_SERVER_BUILDER,
+                SCHEDULER_JOBS,
                 JAVA_VIRTUAL_MACHINE
                 //EMPTY_SCHEMA_EVALUATION // TODO disabled due to performance reasons
                 );
