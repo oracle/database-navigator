@@ -26,10 +26,10 @@ import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Json;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.object.DBConnectionConfiguration;
+import com.dbn.object.DBDatasourceConfig;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
-import com.dbn.object.impl.DBConnectionConfigurationImpl;
+import com.dbn.object.impl.DBDatasourceConfigImpl;
 import com.dbn.object.management.ObjectManagementService;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
@@ -56,7 +56,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 
-public class ConnectionConfigurationForm extends DBNFormBase {
+public class DatasourceConfigForm extends DBNFormBase {
     private static final String READ_ONLY = "READ_ONLY";
     private static final Pattern CONFIG_NAME_PATTERN = Pattern.compile("^[A-Za-z][A-Za-z0-9_-]*$");
     private static final int IDENTIFIER_MAX_LENGTH = 128;
@@ -81,35 +81,35 @@ public class ConnectionConfigurationForm extends DBNFormBase {
     private JPanel editorPanel;
 
     private final ConnectionHandler connection;
-    @Nullable private final DBConnectionConfiguration entry;
+    @Nullable private final DBDatasourceConfig entry;
     private final boolean canCreateInAnySchema;
     private EditorEx jsonEditor;
     private DBNHeaderForm headerForm;
 
-    ConnectionConfigurationForm(
+    DatasourceConfigForm(
             @Nullable Disposable parent,
             @NotNull ConnectionHandler connection) {
         this(parent, connection, null, null, false);
     }
 
-    ConnectionConfigurationForm(
+    DatasourceConfigForm(
             @Nullable Disposable parent,
             @NotNull ConnectionHandler connection,
             boolean canCreateInAnySchema) {
         this(parent, connection, null, null, canCreateInAnySchema);
     }
 
-    ConnectionConfigurationForm(
+    DatasourceConfigForm(
             @Nullable Disposable parent,
-            @NotNull DBConnectionConfiguration entry,
+            @NotNull DBDatasourceConfig entry,
             @NotNull String value) {
         this(parent, entry.getConnection(), entry, value, false);
     }
 
-    private ConnectionConfigurationForm(
+    private DatasourceConfigForm(
             @Nullable Disposable parent,
             @NotNull ConnectionHandler connection,
-            @Nullable DBConnectionConfiguration entry,
+            @Nullable DBDatasourceConfig entry,
             @Nullable String value,
             boolean canCreateInAnySchema) {
         super(parent, connection.getProject());
@@ -129,12 +129,12 @@ public class ConnectionConfigurationForm extends DBNFormBase {
     }
 
     private void initFeatureInfo() {
-        DBNHintForm hintForm = new DBNHintForm(this, TextContent.plain(txt("cfg.connectionConfig.hint.Feature")), null, true);
+        DBNHintForm hintForm = new DBNHintForm(this, TextContent.plain(txt("cfg.datasourceConfig.hint.Feature")), null, true);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
 
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
-                txt("cfg.connectionConfig.link.Documentation"),
-                txt("cfg.connectionConfig.link.ConfigProvider"),
+                txt("cfg.datasourceConfig.link.Documentation"),
+                txt("cfg.datasourceConfig.link.ConfigProvider"),
                 DOCUMENTATION_URL);
         hyperlinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
     }
@@ -175,8 +175,8 @@ public class ConnectionConfigurationForm extends DBNFormBase {
             disableFormField(ownerComboBox, READ_ONLY);
         }
         configNameTextField.setEnabled(creating);
-        ownerComboBox.setToolTipText(txt("cfg.connectionConfig.text.OwnerFieldTooltip"));
-        configNameTextField.setToolTipText(txt("cfg.connectionConfig.text.ConfigNameFieldTooltip"));
+        ownerComboBox.setToolTipText(txt("cfg.datasourceConfig.text.OwnerFieldTooltip"));
+        configNameTextField.setToolTipText(txt("cfg.datasourceConfig.text.ConfigNameFieldTooltip"));
         if (entry != null && value != null) {
             Documents.setText(getProject(), jsonEditor.getDocument(), value);
         }
@@ -184,10 +184,10 @@ public class ConnectionConfigurationForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addSelectionValidation(ownerComboBox, txt("cfg.connectionConfig.error.OwnerRequired"));
-        addTextValidation(configNameTextField, c -> isNotEmpty(c.trim()), txt("cfg.connectionConfig.error.ConfigNameRequired"));
-        addTextValidation(configNameTextField, c -> c.trim().isEmpty() || c.trim().length() <= IDENTIFIER_MAX_LENGTH, txt("cfg.connectionConfig.error.ConfigNameTooLong", IDENTIFIER_MAX_LENGTH));
-        addTextValidation(configNameTextField, c -> c.trim().isEmpty() || CONFIG_NAME_PATTERN.matcher(c.trim()).matches(), txt("cfg.connectionConfig.error.ConfigNameInvalid"));
+        addSelectionValidation(ownerComboBox, txt("cfg.datasourceConfig.error.OwnerRequired"));
+        addTextValidation(configNameTextField, c -> isNotEmpty(c.trim()), txt("cfg.datasourceConfig.error.ConfigNameRequired"));
+        addTextValidation(configNameTextField, c -> c.trim().isEmpty() || c.trim().length() <= IDENTIFIER_MAX_LENGTH, txt("cfg.datasourceConfig.error.ConfigNameTooLong", IDENTIFIER_MAX_LENGTH));
+        addTextValidation(configNameTextField, c -> c.trim().isEmpty() || CONFIG_NAME_PATTERN.matcher(c.trim()).matches(), txt("cfg.datasourceConfig.error.ConfigNameInvalid"));
         addValidation(editorPanel, c -> validateJson());
     }
 
@@ -199,12 +199,12 @@ public class ConnectionConfigurationForm extends DBNFormBase {
         getManagementService().updateObject(inputsToEntry(), successHandler);
     }
 
-    private DBConnectionConfigurationImpl inputsToEntry() {
+    private DBDatasourceConfigImpl inputsToEntry() {
         DBSchema owner = getSelection(ownerComboBox);
         String ownerName = owner == null ? "" : owner.getName();
         String configName = getText(configNameTextField).trim();
         String value = readEditorText().trim();
-        return new DBConnectionConfigurationImpl(connection, ownerName, configName, value);
+        return new DBDatasourceConfigImpl(connection, ownerName, configName, value);
     }
 
     @NotNull
@@ -214,13 +214,13 @@ public class ConnectionConfigurationForm extends DBNFormBase {
 
     private @Nullable String validateJson() {
         String value = readEditorText().trim();
-        if (value.isBlank()) return txt("cfg.connectionConfig.error.JsonRequired");
+        if (value.isBlank()) return txt("cfg.datasourceConfig.error.JsonRequired");
 
         try {
             Json.readAsMap(value);
             return null;
         } catch (Exception e) {
-            return txt("cfg.connectionConfig.error.JsonInvalid");
+            return txt("cfg.datasourceConfig.error.JsonInvalid");
         }
     }
 

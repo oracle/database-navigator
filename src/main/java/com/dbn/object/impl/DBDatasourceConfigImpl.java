@@ -17,8 +17,8 @@
 package com.dbn.object.impl;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.database.common.metadata.def.DBConnectionConfigurationMetadata;
-import com.dbn.object.DBConnectionConfiguration;
+import com.dbn.database.common.metadata.def.DBDatasourceConfigMetadata;
+import com.dbn.object.DBDatasourceConfig;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBRootObjectImpl;
 import com.dbn.object.type.DBObjectType;
@@ -28,30 +28,30 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 
 @Getter
-public class DBConnectionConfigurationImpl extends DBRootObjectImpl<DBConnectionConfigurationMetadata> implements DBConnectionConfiguration {
+public class DBDatasourceConfigImpl extends DBRootObjectImpl<DBDatasourceConfigMetadata> implements DBDatasourceConfig {
     private String ownerName;
     private String configName;
     private String lastUpdated;
     private String value;
 
-    public DBConnectionConfigurationImpl(
+    public DBDatasourceConfigImpl(
             @NotNull ConnectionHandler connection,
             @NotNull String ownerName,
             @NotNull String configName,
             @NotNull String value) {
-        super(connection, DBObjectType.CONNECTION_CONFIGURATION, qualifiedName(ownerName, configName));
+        super(connection, DBObjectType.DATASOURCE_CONFIG, qualifiedName(ownerName, configName));
         this.ownerName = ownerName;
         this.configName = configName;
         this.lastUpdated = "";
         this.value = value;
     }
 
-    DBConnectionConfigurationImpl(ConnectionHandler connection, DBConnectionConfigurationMetadata metadata) throws SQLException {
+    DBDatasourceConfigImpl(ConnectionHandler connection, DBDatasourceConfigMetadata metadata) throws SQLException {
         super(connection, metadata);
     }
 
     @Override
-    protected String initObject(ConnectionHandler connection, DBObject parentObject, DBConnectionConfigurationMetadata metadata) throws SQLException {
+    protected String initObject(ConnectionHandler connection, DBObject parentObject, DBDatasourceConfigMetadata metadata) throws SQLException {
         ownerName = metadata.getOwnerName();
         configName = metadata.getConfigName();
         lastUpdated = metadata.getLastUpdated();
@@ -76,7 +76,7 @@ public class DBConnectionConfigurationImpl extends DBRootObjectImpl<DBConnection
     @NotNull
     @Override
     public DBObjectType getObjectType() {
-        return DBObjectType.CONNECTION_CONFIGURATION;
+        return DBObjectType.DATASOURCE_CONFIG;
     }
 
     private static String qualifiedName(String ownerName, String configName) {

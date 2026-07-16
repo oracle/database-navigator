@@ -16,7 +16,7 @@
 
 package com.dbn.database.interfaces;
 
-public enum ConnectionConfigurationCreationScope {
+public enum DatasourceConfigCreationScope {
     OWN_SCHEMA,
     ANY_SCHEMA,
     NONE

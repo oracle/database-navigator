@@ -18,8 +18,8 @@ package com.dbn.database.common;
 
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
-import com.dbn.database.interfaces.DatabaseConnectionConfigurationInterface;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
+import com.dbn.database.interfaces.DatabaseDatasourceConfigInterface;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.database.interfaces.DatabaseEnvironmentInterface;
 import com.dbn.database.interfaces.DatabaseExecutionInterface;
@@ -44,8 +44,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.database.interfaces.DatabaseInterfaceType.ASSISTANT;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.COMPATIBILITY;
-import static com.dbn.database.interfaces.DatabaseInterfaceType.DATA_SOURCE_CONFIG;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.DATA_DEFINITION;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.DATA_SOURCE_CONFIG;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.DEBUGGER;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.ENVIRONMENT;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.EXECUTION;
@@ -121,7 +121,7 @@ public abstract class DatabaseInterfacesBase implements DatabaseInterfaces {
     }
 
     @Override
-    public DatabaseConnectionConfigurationInterface getConnectionConfigurationInterface() {
+    public DatabaseDatasourceConfigInterface getDatasourceConfigInterface() {
         return getInterface(DATA_SOURCE_CONFIG);
     }
 

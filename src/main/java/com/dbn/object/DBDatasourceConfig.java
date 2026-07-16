@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package com.dbn.database.common.metadata.def;
+package com.dbn.object;
 
-import com.dbn.database.common.metadata.DBObjectMetadata;
-import com.dbn.database.common.security.ObjectIdentifier;
+import com.dbn.object.common.DBRootObject;
+import org.jetbrains.annotations.Nullable;
 
-import java.sql.SQLException;
+public interface DBDatasourceConfig extends DBRootObject {
+    String getOwnerName();
 
-public interface DBConnectionConfigurationMetadata extends DBObjectMetadata {
+    String getConfigName();
 
-    @ObjectIdentifier
-    String getOwnerName() throws SQLException;
+    String getQualifiedConfigName();
 
-    @ObjectIdentifier
-    String getConfigName() throws SQLException;
+    String getLastUpdated();
 
-    String getLastUpdated() throws SQLException;
+    @Nullable
+    String getValue();
 }

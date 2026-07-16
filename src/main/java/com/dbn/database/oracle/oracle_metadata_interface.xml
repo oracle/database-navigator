@@ -137,7 +137,7 @@
             where PARAMETER = 'CHARACTERSET'
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="connection-configurations">
+    <statement-execution-processor id="datasource-configs">
         <statement prefixes="DBA, ALL">
             select
                 owner,

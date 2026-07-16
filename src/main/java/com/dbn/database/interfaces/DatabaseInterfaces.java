@@ -49,7 +49,7 @@ public interface DatabaseInterfaces {
 
     DatabaseVectorInterface getVectorInterface();
 
-    DatabaseConnectionConfigurationInterface getConnectionConfigurationInterface();
+    DatabaseDatasourceConfigInterface getDatasourceConfigInterface();
 
     DatabaseSchedulerInterface getSchedulerInterface();
 

@@ -49,7 +49,7 @@ import com.dbn.execution.compiler.CompileManagerListener;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.DBCharset;
 import com.dbn.object.DBConsole;
-import com.dbn.object.DBConnectionConfiguration;
+import com.dbn.object.DBDatasourceConfig;
 import com.dbn.object.DBObjectPrivilege;
 import com.dbn.object.DBPrivilege;
 import com.dbn.object.DBRole;
@@ -91,7 +91,7 @@ import static com.dbn.object.type.DBObjectRelationType.USER_ROLE;
 import static com.dbn.object.type.DBObjectType.CHARSET;
 import static com.dbn.object.type.DBObjectType.CONNECTION;
 import static com.dbn.object.type.DBObjectType.CONSOLE;
-import static com.dbn.object.type.DBObjectType.CONNECTION_CONFIGURATION;
+import static com.dbn.object.type.DBObjectType.DATASOURCE_CONFIG;
 import static com.dbn.object.type.DBObjectType.ROLE;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static com.dbn.object.type.DBObjectType.SYNONYM;
@@ -114,7 +114,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
     private final DBObjectList<DBSystemPrivilege> systemPrivileges;
     private final DBObjectList<DBObjectPrivilege> objectPrivileges = null; // TODO
     private final DBObjectList<DBCharset> charsets;
-    private final DBObjectList<DBConnectionConfiguration> connectionConfigurations;
+    private final DBObjectList<DBDatasourceConfig> datasourceConfigs;
 
     private final DBDataTypeBundle dataTypes;
 
@@ -138,8 +138,8 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         this.roles = objectLists.createObjectList(ROLE, this);
         this.systemPrivileges = objectLists.createObjectList(SYSTEM_PRIVILEGE, this);
         this.charsets = objectLists.createObjectList(CHARSET, this);
-        this.connectionConfigurations = objectLists.createObjectList(CONNECTION_CONFIGURATION, this);
-        this.allPossibleTreeChildren = DatabaseBrowserUtils.createList(consoles, schemas, users, roles, systemPrivileges, charsets, connectionConfigurations);
+        this.datasourceConfigs = objectLists.createObjectList(DATASOURCE_CONFIG, this);
+        this.allPossibleTreeChildren = DatabaseBrowserUtils.createList(consoles, schemas, users, roles, systemPrivileges, charsets, datasourceConfigs);
 
         this.objectLists.createObjectRelationList(USER_ROLE, this, users, roles, GROUPED);
         this.objectLists.createObjectRelationList(USER_PRIVILEGE, this, users, systemPrivileges, GROUPED);
@@ -271,8 +271,8 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
 
     @Override
     @Nullable
-    public List<DBConnectionConfiguration> getConnectionConfigurations() {
-        return DBObjectListImpl.getObjects(connectionConfigurations);
+    public List<DBDatasourceConfig> getDatasourceConfigs() {
+        return DBObjectListImpl.getObjects(datasourceConfigs);
     }
 
     @Override
@@ -580,7 +580,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         if (objectType == ROLE) return getRole(name);
         if (objectType == CHARSET) return getCharset(name);
         if (objectType == SYSTEM_PRIVILEGE) return getSystemPrivilege(name);
-        if (objectType == CONNECTION_CONFIGURATION) return DBObjectListImpl.getObject(connectionConfigurations, name);
+        if (objectType == DATASOURCE_CONFIG) return DBObjectListImpl.getObject(datasourceConfigs, name);
 
         if (objectType.isSchemaObject()) {
             for (DBSchema schema : getPublicSchemas()) {
@@ -606,7 +606,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         if (objectType == ROLE) consumer.acceptAll(getRoles()); else
         if (objectType == CHARSET) consumer.acceptAll(getCharsets());
         if (objectType == SYSTEM_PRIVILEGE) consumer.acceptAll(getSystemPrivileges()); else
-        if (objectType == CONNECTION_CONFIGURATION) consumer.acceptAll(getConnectionConfigurations());
+        if (objectType == DATASOURCE_CONFIG) consumer.acceptAll(getDatasourceConfigs());
     }
 
     @Override

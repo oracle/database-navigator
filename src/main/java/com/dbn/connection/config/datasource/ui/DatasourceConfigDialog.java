@@ -20,7 +20,7 @@ import com.dbn.common.outcome.DialogCloseOutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.object.DBConnectionConfiguration;
+import com.dbn.object.DBDatasourceConfig;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
@@ -30,12 +30,12 @@ import javax.swing.Action;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class ConnectionConfigurationDialog extends DBNDialog<ConnectionConfigurationForm> {
-    @Nullable private final DBObjectRef<DBConnectionConfiguration> entry;
+public class DatasourceConfigDialog extends DBNDialog<DatasourceConfigForm> {
+    @Nullable private final DBObjectRef<DBDatasourceConfig> entry;
     @Nullable private final String value;
     private final boolean canCreateInAnySchema;
 
-    public ConnectionConfigurationDialog(@NotNull ConnectionHandler connection, boolean canCreateInAnySchema) {
+    public DatasourceConfigDialog(@NotNull ConnectionHandler connection, boolean canCreateInAnySchema) {
         super(connection, txt("msg.objects.title.CreateObject", entryTypeName()), true);
         this.entry = null;
         this.value = null;
@@ -43,7 +43,7 @@ public class ConnectionConfigurationDialog extends DBNDialog<ConnectionConfigura
         initDialog();
     }
 
-    public ConnectionConfigurationDialog(@NotNull DBConnectionConfiguration entry, @NotNull String value) {
+    public DatasourceConfigDialog(@NotNull DBDatasourceConfig entry, @NotNull String value) {
         super(entry.getConnection(), txt("msg.objects.title.EditObject", entryTypeName()), true);
         this.entry = DBObjectRef.of(entry);
         this.value = value;
@@ -52,7 +52,7 @@ public class ConnectionConfigurationDialog extends DBNDialog<ConnectionConfigura
     }
 
     private static String entryTypeName() {
-        return DBObjectType.CONNECTION_CONFIGURATION.getTitleCasedDisplayName();
+        return DBObjectType.DATASOURCE_CONFIG.getTitleCasedDisplayName();
     }
 
     private void initDialog() {
@@ -63,11 +63,11 @@ public class ConnectionConfigurationDialog extends DBNDialog<ConnectionConfigura
     }
 
     @Override
-    protected @NotNull ConnectionConfigurationForm createForm() {
-        DBConnectionConfiguration entry = getEntry();
+    protected @NotNull DatasourceConfigForm createForm() {
+        DBDatasourceConfig entry = getEntry();
         return entry == null ?
-                new ConnectionConfigurationForm(this, ensureConnection(), canCreateInAnySchema) :
-                new ConnectionConfigurationForm(this, entry, value);
+                new DatasourceConfigForm(this, ensureConnection(), canCreateInAnySchema) :
+                new DatasourceConfigForm(this, entry, value);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class ConnectionConfigurationDialog extends DBNDialog<ConnectionConfigura
         return getEntry() != null;
     }
 
-    private @Nullable DBConnectionConfiguration getEntry() {
+    private @Nullable DBDatasourceConfig getEntry() {
         return DBObjectRef.get(entry);
     }
 }

@@ -23,21 +23,21 @@ import java.sql.SQLException;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.DATA_SOURCE_CONFIG;
 
 /**
- * Provides database-specific operations for connection configurations.
+ * Provides database-specific operations for datasource configurations.
  */
-public interface DatabaseConnectionConfigurationInterface extends DatabaseInterface {
+public interface DatabaseDatasourceConfigInterface extends DatabaseInterface {
     @Override
     default DatabaseInterfaceType getInterfaceType() {
         return DATA_SOURCE_CONFIG;
     }
 
-    String loadConnectionConfigurationValue(String ownerName, String configName, DBNConnection connection) throws SQLException;
+    String loadDatasourceConfigValue(String ownerName, String configName, DBNConnection connection) throws SQLException;
 
-    ConnectionConfigurationCreationScope loadConnectionConfigurationCreationScope(DBNConnection connection) throws SQLException;
+    DatasourceConfigCreationScope loadDatasourceConfigCreationScope(DBNConnection connection) throws SQLException;
 
-    void createConnectionConfiguration(String qualifiedConfigName, String value, DBNConnection connection) throws SQLException;
+    void createDatasourceConfig(String qualifiedConfigName, String value, DBNConnection connection) throws SQLException;
 
-    void updateConnectionConfiguration(String qualifiedConfigName, String value, DBNConnection connection) throws SQLException;
+    void updateDatasourceConfig(String qualifiedConfigName, String value, DBNConnection connection) throws SQLException;
 
-    void deleteConnectionConfiguration(String qualifiedConfigName, DBNConnection connection) throws SQLException;
+    void deleteDatasourceConfig(String qualifiedConfigName, DBNConnection connection) throws SQLException;
 }

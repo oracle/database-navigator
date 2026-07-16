@@ -27,7 +27,7 @@ import com.dbn.data.type.DBNativeDataType;
 import com.dbn.database.DatabaseObjectIdentifier;
 import com.dbn.object.DBCharset;
 import com.dbn.object.DBConsole;
-import com.dbn.object.DBConnectionConfiguration;
+import com.dbn.object.DBDatasourceConfig;
 import com.dbn.object.DBPrivilege;
 import com.dbn.object.DBRole;
 import com.dbn.object.DBSchema;
@@ -111,7 +111,7 @@ public class DBVirtualObjectBundle extends StatefulDisposableBase implements DBO
 
     @Nullable
     @Override
-    public List<DBConnectionConfiguration> getConnectionConfigurations() {
+    public List<DBDatasourceConfig> getDatasourceConfigs() {
         return Collections.emptyList();
     }
 

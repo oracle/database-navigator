@@ -21,10 +21,10 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.config.datasource.ui.ConnectionConfigurationDialog;
+import com.dbn.connection.config.datasource.ui.DatasourceConfigDialog;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.ConnectionConfigurationCreationScope;
-import com.dbn.object.DBConnectionConfiguration;
+import com.dbn.database.interfaces.DatasourceConfigCreationScope;
+import com.dbn.object.DBDatasourceConfig;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.editor.ObjectEditorProvider;
@@ -35,75 +35,75 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
-import static com.dbn.common.operation.DatabaseOperation.CREATE_CONNECTION_CONFIGURATION;
-import static com.dbn.common.operation.DatabaseOperation.MANAGE_CONNECTION_CONFIGURATIONS;
+import static com.dbn.common.operation.DatabaseOperation.CREATE_DATASOURCE_CONFIG;
+import static com.dbn.common.operation.DatabaseOperation.MANAGE_DATASOURCE_CONFIGS;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.type.DBObjectType.CONNECTION_CONFIGURATION;
+import static com.dbn.object.type.DBObjectType.DATASOURCE_CONFIG;
 
 /**
- * {@link ObjectEditorProvider} for {@link DBConnectionConfiguration} (a connection-root configuration).
+ * {@link ObjectEditorProvider} for {@link DBDatasourceConfig} (a connection-root configuration).
  * Owns the create/edit input dialog; the entry lifecycle runs through {@link com.dbn.object.management.ObjectManagementService}.
  */
-public class ConnectionConfigurationEditorProvider implements ObjectEditorProvider {
+public class DatasourceConfigEditorProvider implements ObjectEditorProvider {
 
     @Override
     public DBObjectType getObjectType() {
-        return CONNECTION_CONFIGURATION;
+        return DATASOURCE_CONFIG;
     }
 
     @Override
     public void openCreateDialog(DBObjectList objectList) {
         ConnectionHandler connection = objectList.getConnection();
-        CREATE_CONNECTION_CONFIGURATION.start(
+        CREATE_DATASOURCE_CONFIG.start(
                 connection,
                 () -> openCreateDialog(connection));
     }
 
     private static void openCreateDialog(@NotNull ConnectionHandler connection) {
         try {
-            ConnectionConfigurationCreationScope scope = DatabaseInterfaceInvoker.load(
+            DatasourceConfigCreationScope scope = DatabaseInterfaceInvoker.load(
                     Priority.HIGH,
                     connection.getProject(),
                     connection.getConnectionId(),
-                    conn -> connection.getConnectionConfigurationInterface().loadConnectionConfigurationCreationScope(conn));
-            Dialogs.show(() -> new ConnectionConfigurationDialog(connection, scope == ConnectionConfigurationCreationScope.ANY_SCHEMA));
+                    conn -> connection.getDatasourceConfigInterface().loadDatasourceConfigCreationScope(conn));
+            Dialogs.show(() -> new DatasourceConfigDialog(connection, scope == DatasourceConfigCreationScope.ANY_SCHEMA));
         } catch (SQLException e) {
-            Messages.showErrorDialog(connection.getProject(), txt("msg.connectionConfig.error.LoadFailed"), e);
+            Messages.showErrorDialog(connection.getProject(), txt("msg.datasourceConfig.error.LoadFailed"), e);
         }
     }
 
     @Override
     public void openEditDialog(DBObject object) {
-        DBConnectionConfiguration entry = (DBConnectionConfiguration) object;
+        DBDatasourceConfig entry = (DBDatasourceConfig) object;
         Project project = entry.getProject();
-        MANAGE_CONNECTION_CONFIGURATIONS.start(
+        MANAGE_DATASOURCE_CONFIGS.start(
                 entry.getConnection(),
                 () -> openEditor(project, entry));
     }
 
-    private static void openEditor(@NotNull Project project, @NotNull DBConnectionConfiguration entry) {
+    private static void openEditor(@NotNull Project project, @NotNull DBDatasourceConfig entry) {
         try {
             String value = loadValue(project, entry);
-            Dispatch.run((ModalityState) null, () -> Dialogs.show(() -> new ConnectionConfigurationDialog(entry, value)));
+            Dispatch.run((ModalityState) null, () -> Dialogs.show(() -> new DatasourceConfigDialog(entry, value)));
         } catch (Exception e) {
-            Dispatch.run((ModalityState) null, () -> Messages.showErrorDialog(project, txt("msg.connectionConfig.error.LoadFailed"), e));
+            Dispatch.run((ModalityState) null, () -> Messages.showErrorDialog(project, txt("msg.datasourceConfig.error.LoadFailed"), e));
         }
     }
 
-    private static @NotNull String loadValue(@NotNull Project project, @NotNull DBConnectionConfiguration entry) throws SQLException {
+    private static @NotNull String loadValue(@NotNull Project project, @NotNull DBDatasourceConfig entry) throws SQLException {
         String value = DatabaseInterfaceInvoker.load(
                 Priority.HIGHEST,
-                txt("prc.connectionConfig.title.Loading"),
-                txt("prc.connectionConfig.text.Loading", entry.getName()),
+                txt("prc.datasourceConfig.title.Loading"),
+                txt("prc.datasourceConfig.text.Loading", entry.getName()),
                 project,
                 entry.getConnectionId(),
-                conn -> entry.getConnection().getConnectionConfigurationInterface().loadConnectionConfigurationValue(
+                conn -> entry.getConnection().getDatasourceConfigInterface().loadDatasourceConfigValue(
                         entry.getOwnerName(),
                         entry.getConfigName(),
                         conn));
 
         if (value == null) {
-            throw new SQLException(txt("msg.connectionConfig.error.NotFound", entry.getQualifiedConfigName()));
+            throw new SQLException(txt("msg.datasourceConfig.error.NotFound", entry.getQualifiedConfigName()));
         }
         return value;
     }

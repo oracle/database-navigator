@@ -72,13 +72,13 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
     ResultSet loadObjectPrivileges(DBNConnection connection) throws SQLException;
 
     /**
-     * Load all connection configurations visible to the current user
+     * Load all datasource configurations visible to the current user
      * Column names of the returned ResultSet
      *  <li> OWNER (char)
      *  <li> CONFIG_NAME (char)
      *  <li> LAST_UPDATED (char)
      */
-    ResultSet loadConnectionConfigurations(DBNConnection connection) throws SQLException;
+    ResultSet loadDatasourceConfigs(DBNConnection connection) throws SQLException;
 
     /**
      * Load all user roles

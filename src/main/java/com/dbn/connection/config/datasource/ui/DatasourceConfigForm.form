@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dbn.connection.config.datasource.ui.ConnectionConfigurationForm">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dbn.connection.config.datasource.ui.DatasourceConfigForm">
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="8" left="8" bottom="8" right="8"/>
     <constraints>
@@ -30,7 +30,7 @@
             </constraints>
             <properties>
               <labelFor value="owner-field"/>
-              <text resource-bundle="messages/DBNResources" key="cfg.connectionConfig.label.Owner"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.datasourceConfig.label.Owner"/>
             </properties>
           </component>
           <component id="owner-field" class="com.dbn.object.common.ui.DBObjectSelector" binding="ownerComboBox">
@@ -45,7 +45,7 @@
             </constraints>
             <properties>
               <labelFor value="config-name-field"/>
-              <text resource-bundle="messages/DBNResources" key="cfg.connectionConfig.label.ConfigName"/>
+              <text resource-bundle="messages/DBNResources" key="cfg.datasourceConfig.label.ConfigName"/>
             </properties>
           </component>
           <component id="config-name-field" class="javax.swing.JTextField" binding="configNameTextField">

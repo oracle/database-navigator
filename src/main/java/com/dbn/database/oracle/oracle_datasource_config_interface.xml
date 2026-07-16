@@ -26,7 +26,7 @@
                 prefixes CDATA #IMPLIED>
         ]>
 <data-dictionary>
-    <statement-execution-processor id="connection-configuration-creation-scope">
+    <statement-execution-processor id="datasource-config-creation-scope">
         <statement>
             select case
                 when exists (
@@ -43,7 +43,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="connection-configuration">
+    <statement-execution-processor id="datasource-config">
         <statement prefixes="DBA, ALL">
             select
                 json_serialize(value returning clob pretty) as value
@@ -66,7 +66,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="create-connection-configuration">
+    <statement-execution-processor id="create-datasource-config">
         <statement>
             begin SYS.DBMS_DATA_SOURCE_CONFIG.CREATE_CONFIG(
                 p_config_name => {#0},
@@ -74,7 +74,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="update-connection-configuration">
+    <statement-execution-processor id="update-datasource-config">
         <statement>
             begin SYS.DBMS_DATA_SOURCE_CONFIG.ALTER_CONFIG(
                 p_config_name => {#0},
@@ -82,7 +82,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="delete-connection-configuration">
+    <statement-execution-processor id="delete-datasource-config">
         <statement>
             begin SYS.DBMS_DATA_SOURCE_CONFIG.DROP_CONFIG(
                 p_config_name => {#0}); end;
