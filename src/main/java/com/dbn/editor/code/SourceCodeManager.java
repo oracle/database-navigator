@@ -123,6 +123,9 @@ import static com.dbn.database.common.DatabaseContentLimits.checkSourceLineCount
 import static com.dbn.database.common.DatabaseContentLimits.checkSourceTextLength;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.type.DBObjectType.DATASOURCE_CONFIG;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
+import static com.dbn.object.type.DBObjectType.JAVA_RESOURCE;
 import static com.dbn.vfs.file.status.DBFileStatus.LOADING;
 import static com.dbn.vfs.file.status.DBFileStatus.SAVING;
 import static com.intellij.openapi.fileEditor.FileEditorManagerListener.FILE_EDITOR_MANAGER;
@@ -328,13 +331,14 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         DBContentType contentType = sourceCodeFile.getContentType();
         PsiFile psiFile = sourceCodeFile.getPsiFile();
 
-        if (psiFile != null && psiFile.getFirstChild() != null && !isValidObjectTypeAndName(psiFile, object, contentType)) {
-            String message = txt("msg.codeEditor.error.IllegalObjectHeaderChange");
-            sourceCodeFile.set(SAVING, false);
-            showErrorDialog(getProject(), txt("msg.codeEditor.title.IllegalAction"), message);
-            return false;
-        }
-        return true;
+        if (psiFile == null) return true;
+        if (psiFile.getFirstChild() == null) return true;
+        if (isValidObjectTypeAndName(psiFile, object, contentType)) return true;
+
+        String message = txt("msg.codeEditor.error.IllegalObjectHeaderChange");
+        sourceCodeFile.set(SAVING, false);
+        showErrorDialog(getProject(), txt("msg.codeEditor.title.IllegalAction"), message);
+        return false;
     }
 
     @ThreadContext(ThreadProperty.CODE_LOAD)
@@ -377,14 +381,14 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                 buffer.append(codeLine);
             }
 
-            if (buffer.isEmpty() && object.getObjectType() == DBObjectType.JAVA_CLASS) {
+            if (buffer.isEmpty() && object.getObjectType() == JAVA_CLASS) {
                 CharSequence code = loadJavaDecompiledCode(object, conn, metadata);
                 checkSourceTextLength(code.length());
                 buffer.append(code);
                 writable = false;
             }
 
-            if (buffer.isEmpty() && object.getObjectType() == DBObjectType.JAVA_RESOURCE) {
+            if (buffer.isEmpty() && object.getObjectType() == JAVA_RESOURCE) {
                 String code = loadJavaResourceCode(object, conn, metadata);
                 checkSourceTextLength(code.length());
                 buffer.append(code);
@@ -541,6 +545,12 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                     objectName,
                     "JAVA SOURCE",
                     connection);
+
+            case DATASOURCE_CONFIG:
+                return metadata.loadDatasourceConfigSourceCode(
+                        schemaName,
+                        objectName,
+                        connection);
             default:
                 return null;
         }
@@ -604,11 +614,16 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     private boolean isValidObjectTypeAndName(@NotNull PsiFile psiFile, @NotNull DBSchemaObject object, DBContentType contentType) {
-        if (object.getObjectType() == DBObjectType.JAVA_CLASS || object.getObjectType() == DBObjectType.JAVA_RESOURCE) return true;
+        DBObjectType objectType = object.getObjectType();
+
+        if (objectType.isOneOf(
+                JAVA_CLASS,
+                JAVA_RESOURCE,
+                DATASOURCE_CONFIG)) return true;
 
         ConnectionHandler connection = object.getConnection();
         DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
-        if (dataDefinition.includesTypeAndNameInSourceContent(object.getObjectType().getTypeId())) {
+        if (dataDefinition.includesTypeAndNameInSourceContent(objectType.getTypeId())) {
             PsiElement psiElement = PsiUtil.getFirstLeaf(psiFile);
 
             String typeName = object.getTypeName();

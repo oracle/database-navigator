@@ -34,6 +34,7 @@ import com.dbn.database.common.metadata.def.DBConstraintColumnMetadata;
 import com.dbn.database.common.metadata.def.DBConstraintMetadata;
 import com.dbn.database.common.metadata.def.DBCredentialMetadata;
 import com.dbn.database.common.metadata.def.DBDatabaseLinkMetadata;
+import com.dbn.database.common.metadata.def.DBDatasourceConfigMetadata;
 import com.dbn.database.common.metadata.def.DBDimensionMetadata;
 import com.dbn.database.common.metadata.def.DBFunctionMetadata;
 import com.dbn.database.common.metadata.def.DBGrantedPrivilegeMetadata;
@@ -74,6 +75,7 @@ import com.dbn.object.DBDatabaseLink;
 import com.dbn.object.DBDatabaseTrigger;
 import com.dbn.object.DBDataset;
 import com.dbn.object.DBDatasetTrigger;
+import com.dbn.object.DBDatasourceConfig;
 import com.dbn.object.DBDimension;
 import com.dbn.object.DBFunction;
 import com.dbn.object.DBGrantedPrivilege;
@@ -142,6 +144,7 @@ import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.object.type.DBObjectType.DATABASE_TRIGGER;
 import static com.dbn.object.type.DBObjectType.DATASET;
 import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
+import static com.dbn.object.type.DBObjectType.DATASOURCE_CONFIG;
 import static com.dbn.object.type.DBObjectType.DBLINK;
 import static com.dbn.object.type.DBObjectType.DIMENSION;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
@@ -384,6 +387,11 @@ public class DBObjectLoaders {
                 "CREDENTIALS", SCHEMA, CREDENTIAL, true, true,
                 (content, conn, mdi) -> mdi.loadCredentials(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBCredentialImpl(content.getParentEntity(), md));
+
+        DynamicContentResultSetLoader.<DBDatasourceConfig, DBDatasourceConfigMetadata>create(
+                "DATASOURCE_CONFIGS", SCHEMA, DATASOURCE_CONFIG, true, true,
+                (content, conn, mdi) -> mdi.loadDatasourceConfigs(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> new DBDatasourceConfigImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBAIProfileImpl, DBAIProfileMetadata>create(
                 "AI_PROFILES", SCHEMA, AI_PROFILE, true, true,

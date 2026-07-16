@@ -19,7 +19,7 @@ package com.dbn.object.management.adapter;
 import com.dbn.common.Priority;
 import com.dbn.common.outcome.BasicOutcomeHandler;
 import com.dbn.common.outcome.OutcomeType;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
 import org.jetbrains.annotations.Nls;
 
@@ -36,7 +36,7 @@ import static com.intellij.openapi.util.NlsContexts.ProgressTitle;
  *
  * @author Dan Cioca (Oracle)
  */
-public final class DBObjectEnableAdapter<T extends DBSchemaObject> extends ObjectManagementAdapterBase<T> {
+public final class DBObjectEnableAdapter<T extends DBObject> extends ObjectManagementAdapterBase<T> {
 
     public DBObjectEnableAdapter(T object, InterfaceInvoker<T> invoker) {
         super(object, ObjectChangeAction.ENABLE, invoker);
