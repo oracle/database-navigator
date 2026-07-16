@@ -28,7 +28,9 @@ import com.dbn.connection.ConnectionExceptionInfo;
 import com.dbn.connection.ConnectionType;
 import com.dbn.connection.ConnectorProperties;
 import com.dbn.connection.SessionId;
+import com.dbn.connection.config.ConnectionDebuggerSettings;
 import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.config.ConnectionSslSettings;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
@@ -38,6 +40,7 @@ import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
@@ -55,6 +58,8 @@ import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
 import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
 import static com.dbn.database.DatabaseFeature.AUTHID_METHOD_EXECUTION;
+import static com.dbn.database.DatabaseFeature.CHANGE_EXPIRED_PASSWORD;
+import static com.dbn.database.DatabaseFeature.CHANGE_PASSWORD;
 import static com.dbn.database.DatabaseFeature.CONNECTION_ERROR_RECOVERY;
 import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
 import static com.dbn.database.DatabaseFeature.CURRENT_SCHEMA;
@@ -73,6 +78,7 @@ import static com.dbn.database.DatabaseFeature.OBJECT_INVALIDATION;
 import static com.dbn.database.DatabaseFeature.OBJECT_REPLACING;
 import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
 import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
+import static com.dbn.database.DatabaseFeature.SCHEDULER_JOBS;
 import static com.dbn.database.DatabaseFeature.SESSION_BROWSING;
 import static com.dbn.database.DatabaseFeature.SESSION_CURRENT_SQL;
 import static com.dbn.database.DatabaseFeature.SESSION_DISCONNECT;
@@ -92,6 +98,8 @@ import static com.dbn.nls.NlsResources.txt;
 @Slf4j
 public class OracleCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
     public static final QuoteDefinition IDENTIFIER_QUOTE_DEFINITION = new QuoteDefinition(new QuotePair('"', '"'));
+    private static final int MIN_JDWP_PORT = 1024;
+    private static final int MAX_JDWP_PORT = 65535;
 
     @NonNls
     private interface Property {
@@ -111,6 +119,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         String ORACLE_JDBC_AZURE_CLIENT_SECRET = "oracle.jdbc.clientSecret";
         String ORACLE_JDBC_AZURE_CLIENT_ID = "oracle.jdbc.clientId";
         String ORACLE_JDBC_AZURE_TENANT_ID = "oracle.jdbc.tenantId";
+        String ORACLE_JDBC_NEW_PASSWORD = "oracle.jdbc.newPassword";
         String ORACLE_JDBC_SSL_SERVER_DN_MATCH = "oracle.net.ssl_server_dn_match";
     }
 
@@ -201,6 +210,8 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 SESSION_KILL,
                 SESSION_CURRENT_SQL,
                 CONNECTION_ERROR_RECOVERY,
+                CHANGE_PASSWORD,
+                CHANGE_EXPIRED_PASSWORD,
                 UPDATABLE_RESULT_SETS,
                 CURRENT_SCHEMA,
                 USER_SCHEMA,
@@ -211,6 +222,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 VECTOR_EMBEDDING,
                 VECTOR_SEARCH,
                 MCP_SERVER_BUILDER,
+                SCHEDULER_JOBS,
                 JAVA_VIRTUAL_MACHINE
                 //EMPTY_SCHEMA_EVALUATION // TODO disabled due to performance reasons
                 );
@@ -309,6 +321,11 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     }
 
     @Override
+    public void initConnectorPasswordChange(@NotNull ConnectorProperties properties, @NotNull char[] newPassword) {
+        properties.add(Property.ORACLE_JDBC_NEW_PASSWORD, Chars.toStringAcceptEmpty(newPassword));
+    }
+
+    @Override
     public void initConnectorSession(ConnectorProperties properties, ConnectionSettings settings, SessionId sessionId) {
         super.initConnectorSession(properties, settings, sessionId);
 
@@ -318,14 +335,47 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     }
 
     @Override
-    public void initConnectorDebugger(ConnectorProperties properties, ConnectionSettings settings) {
-        Map<String, String> configProperties = settings.getPropertiesSettings().getProperties();
+    public void initConnectorSslConnection(ConnectorProperties properties, ConnectionSettings settings) {
+        ConnectionSslSettings sslSettings = settings.getSslSettings();
+        if (!sslSettings.isActive()) return;
 
-        // i check if we have got jdwpHostPort if yes i get a connection using CONNECTION_PROPERTY_THIN_DEBUG_JDWP property
-        // TODO jdwpHostPort may remain resident if this stage is not reached for any reason... (maybe add transient properties container to settings)
-        String jdwpHostPort = configProperties.remove("jdwpHostPort");
-        if (Strings.isNotEmpty(jdwpHostPort)) {
+        super.initConnectorSslConnection(properties, settings);
+        properties.add(Property.ORACLE_JDBC_SSL_SERVER_DN_MATCH, "yes");
+    }
+
+    @Override
+    public void initConnectorDebugger(ConnectorProperties properties, ConnectionSettings settings) {
+        ConnectionDebuggerSettings debuggerSettings = settings.getDebuggerSettings();
+        String jdwpHostPort = debuggerSettings.consumeJdwpHostPort();
+        if (Strings.isNotEmpty(jdwpHostPort) && isValidJdwpHostPort(jdwpHostPort)) {
             properties.add(Property.ORACLE_JDBC_DEBUG_JDWP, jdwpHostPort);
+        }
+    }
+
+    /**
+     * Accepts only transient JDWP tunnel endpoints on the local host before forwarding them to the Oracle JDBC driver.
+     * Supports both {@code host=127.0.0.1;port=5005} and {@code 127.0.0.1:5005} formats.
+     */
+    static boolean isValidJdwpHostPort(String jdwpHostPort) {
+        if (Strings.isEmpty(jdwpHostPort)) return false;
+
+        int portSeparatorIndex = jdwpHostPort.indexOf(";port=");
+        int hostPortSeparatorIndex = portSeparatorIndex > -1 ? portSeparatorIndex : jdwpHostPort.lastIndexOf(':');
+        if (hostPortSeparatorIndex < 1) return false;
+        if (portSeparatorIndex > -1 && !jdwpHostPort.startsWith("host=")) return false;
+
+        String host = portSeparatorIndex > -1 ?
+                jdwpHostPort.substring(5, portSeparatorIndex) :
+                jdwpHostPort.substring(0, hostPortSeparatorIndex);
+        if (!host.equals("127.0.0.1") && !host.equals("localhost")) return false;
+
+        String portString = jdwpHostPort.substring(hostPortSeparatorIndex + (portSeparatorIndex > -1 ? 6 : 1));
+        try {
+            int port = Integer.parseInt(portString);
+            return port >= MIN_JDWP_PORT && port <= MAX_JDWP_PORT;
+        } catch (NumberFormatException e) {
+            conditionallyLog(e);
+            return false;
         }
     }
 

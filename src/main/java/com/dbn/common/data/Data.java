@@ -21,6 +21,7 @@ import com.dbn.common.util.Csvs;
 import com.dbn.common.util.Strings;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
@@ -287,6 +288,20 @@ public final class Data {
             return list;
         }
         return singletonList(converter.apply(object));
+    }
+
+    @NotNull
+    public static <T> Iterable<T> asIterable(@Nullable Object object) {
+        if (object == null) return List.of();
+        if (object instanceof Iterable<?> iterable) return cast(iterable);
+        if (!object.getClass().isArray()) return singletonList(cast(object));
+
+        int length = Array.getLength(object);
+        List<T> iterable = new ArrayList<>(length);
+        for (int i = 0; i < length; i++) {
+            iterable.add(cast(Array.get(object, i)));
+        }
+        return iterable;
     }
 
     public static <S, T> T[] convert(S[] array, Class<T> type) {

@@ -18,6 +18,8 @@ package com.dbn.database.interfaces;
 
 import com.dbn.database.DatabaseMessage;
 import com.dbn.database.DatabaseObjectIdentifier;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
@@ -40,6 +42,10 @@ public interface DatabaseMessageParserInterface extends DatabaseInterface {
 
     boolean isAuthenticationException(SQLException e);
 
+    default boolean isPasswordExpiredException(SQLException e) {
+        return false;
+    }
+
     boolean isSuccessException(SQLException exception);
 
     default DatabaseMessage parseExceptionMessage(SQLException exception) {
@@ -48,5 +54,13 @@ public interface DatabaseMessageParserInterface extends DatabaseInterface {
 
     default String convertToPresentable(String message) {
         return message;
+    }
+
+    /**
+     * Formats a database-specific error number for display.
+     */
+    @NonNls
+    default String formatErrorCode(@NotNull String errorCode) {
+        return "error code " + errorCode;
     }
 }

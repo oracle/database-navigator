@@ -26,31 +26,29 @@
     <depends optional="true" config-file="dbn-maven-support.xml">org.jetbrains.idea.maven</depends>
     <depends optional="true" config-file="dbn-debugger-support.xml">com.intellij.modules.xdebugger</depends>
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
+    <depends optional="true" config-file="dbn-diagram-support.xml">com.intellij.diagram</depends>
     <depends optional="true" config-file="dbn-oci-toolkit-support.xml">com.oracle.ocidbtest</depends>
     <vendor email="dan.cioca@oracle.com" url="https://www.oracle.com">Dan Cioca (Oracle)</vendor>
-    <idea-version since-build="201.6668.113" until-build="262.*"/>
+    <idea-version since-build="231.9423.9" until-build="262.*"/>   <!--2023.1.7 - 2026.2.*-->
     <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
-            <b>Database Development and Management Tool</b><br></br>
-            This software solution extends the capabilities of IntelliJ IDEA and related products
-            by providing a set of practical tools for database development and management.
-            It includes a user-friendly SQL and PL/SQL editor that matches the IDE's standards,
-            along with features for managing database connections, running scripts,
-            viewing and editing database objects, and updating data and code.
-            The tool also supports database compiler tasks, method execution, debugging, and the creation of database objects.
-            Additionally, it offers integrated navigation features across all components,
-            making it a reliable and efficient choice for database development and administration.<br><br>
+        <h3>Database Navigator</h3>
+        A Database Development and Management Tool
 
-            This product is developed and maintained by <a href="https://www.oracle.com/">Oracle</a><br><br>
+        <p>
+            Database Navigator is a database development and management plugin for JetBrains IDEs. It brings database connections,
+            object browsing, data editing, SQL and source-code editing, execution, debugging, transaction control, and AI-assisted workflows
+            directly into your IDE.
+        </p>
 
-            <b>Supported Databases:</b>
-            <ul>
-                <li>Oracle
-                <li>MySQL
-                <li>SQLite
-                <li>PostgreSQL
-                <li>Any JDBC compliant database (EXPERIMENTAL)
-            </ul><br>
+        <p><b>Explore and edit</b> - Browse schemas, tables, views, procedures, packages, dependencies, metadata, source, and DDL from the integrated Database Browser. Inspect, filter, sort, export, and edit data in rich table editors and result grids with transaction-aware commit and rollback support.</p>
+        <p><b>Code and run</b> - Write, execute, compile, and debug SQL, PL/SQL, scripts, DDL files, stored programs, and database Java code from context-aware editors. Use execution history, output consoles, logging, reusable run configurations, session monitoring, and transaction monitoring.</p>
+        <p><b>Integrate and automate</b> - Synchronize local DDL files, map project files to database connections, and apply environment-aware safeguards for sensitive targets. Use Database Assistant workflows, Oracle Select AI integration, vector embeddings, semantic search, RAG-assisted querying, and MCP Server Builder for SQL-backed tools.</p>
+        <p>This product is developed and maintained by <a href="https://www.oracle.com/">Oracle</a>.</p>
+
+        <br>
+        <b>Supported Databases</b><br>
+        Oracle, MySQL, SQLite, PostgreSQL, and any JDBC-compliant database (experimental).
     ]]></description>
     <change-notes><![CDATA[
         <ul>
@@ -65,7 +63,12 @@
                     <li>Support for java expressions as inputs to execution engine
                     <li>DB Assistant integration (tools)
                 </ul>
-                <li>Bug fixes and performance improvements
+                <li>DB Assistant enhancements<ul>
+                    <li>MCP server support
+                    <li>IDE MCP server integration
+                </ul>
+                <li>MCP Server Builder
+                <li>Security fixes and performance improvements
             </ul>
             <li><b>3.7.4</b>
             <ul>
@@ -144,20 +147,8 @@
             </ul>
         </ul>
      ]]></change-notes>
-
-    <application-components>
-        <component><implementation-class>com.dbn.DatabaseNavigator</implementation-class></component>
-    </application-components>
-    <project-components>
-        <component><implementation-class>com.dbn.project.ProjectComponentsInitializer</implementation-class></component>
-    </project-components>
-
     <extensions defaultExtensionNs="com.intellij">
-<!--
-        <languageBundle locale="en"/>
-        <languageBundle locale="de"/>
--->
-
+        <applicationService serviceImplementation="com.dbn.DatabaseNavigator"/>
         <applicationService serviceImplementation="com.dbn.plugin.PluginStatusManager"/>
         <applicationService serviceImplementation="com.dbn.plugin.PluginConflictManager"/>
         <applicationService serviceImplementation="com.dbn.common.file.FileTypeService"/>
@@ -173,6 +164,7 @@
 
         <!--<projectService serviceImplementation="com.dbn.options.GlobalProjectSettings"/>-->
         <projectService serviceImplementation="com.dbn.project.ProjectStateManager"/>
+        <projectService serviceImplementation="com.dbn.project.ProjectComponentsInitializer"/>
         <projectService serviceImplementation="com.dbn.diagnostics.DiagnosticsManager"/>
         <projectService serviceImplementation="com.dbn.diagnostics.ParserDiagnosticsManager"/>
         <projectService serviceImplementation="com.dbn.batch.DatabaseBatchManager"/>
@@ -210,6 +202,7 @@
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.vector.DatabaseVectorManager"/>
         <projectService serviceImplementation="com.dbn.ml.DatabaseMLManager"/>
+        <projectService serviceImplementation="com.dbn.scheduler.DatabaseSchedulerManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.SourceCodeManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.diff.SourceCodeDiffManager"/>
         <projectService serviceImplementation="com.dbn.editor.data.DatasetEditorManager"/>
@@ -340,11 +333,14 @@
         <!--user approval adapters-->
         <userApprovalAdapter implementation="com.dbn.assistant.mcp.AssistantMcpServerApprovalAdapter"/>
         <userApprovalAdapter implementation="com.dbn.common.state.StateEncryptionApprovalAdapter"/>
-        <userApprovalAdapter implementation="com.dbn.execution.script.CmdLineInterfaceApprovalAdapter"/>
+        <userApprovalAdapter implementation="com.dbn.connection.ConnectionHandlerApprovalAdapter"/>
+        <userApprovalAdapter implementation="com.dbn.execution.script.CmdLineExecutionApprovalAdapter"/>
+        <userApprovalAdapter implementation="com.dbn.execution.script.CmdLineEnvPasswordApprovalAdapter"/>
         <userApprovalAdapter implementation="com.dbn.driver.approval.DriverLibraryApprovalAdapter"/>
 
         <!--shared prerequisites-->
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_TABLE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_JOB"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_PROCEDURE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_TYPE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_TABLE"/>
@@ -904,6 +900,7 @@
         <notificationGroup id="DBNavigator.NotificationGroup.Diagnostics" displayType="BALLOON" key="ntf.shared.title.DBNavigatorDiagnostics" toolWindowId="DB Diagnostics"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Events" displayType="BALLOON" key="ntf.shared.title.DBNavigatorEvents" toolWindowId="DB Events"/>
         <postStartupActivity implementation="com.dbn.project.ProjectStartupActivity"/>
+
         <!--<postStartupActivity implementation="com.dbn.project.ProjectComponentsInitializer" order="last"/>-->
         <!--<applicationInitializedListener implementation="com.dbn.init.DatabaseNavigatorInitializer"/>-->
         <virtualFileSystem implementationClass="com.dbn.vfs.DatabaseFileSystem" key="db" physical="false"/>
@@ -1020,6 +1017,7 @@
         <editorNotificationProvider implementation="com.dbn.editor.session.SessionBrowserNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.connection.mapping.FileConnectionContextNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.assistant.service.selectai.editor.SelectAiEditorNotificationProvider"/>
+        <editorNotificationProvider implementation="com.dbn.diagnostics.ParserIssueEditorNotificationProvider"/>
 
         <additionalTextAttributes scheme="Dark" file="textAttributes/DBNDarkColors.xml" id="DBN-Dark"/>
         <additionalTextAttributes scheme="Light" file="textAttributes/DBNLightColors.xml" id="DBN-Light"/>
@@ -1043,6 +1041,11 @@
         <fileTemplateGroup implementation="com.dbn.common.file.DBNFileTemplateGroupDescriptorFactory"/>
         <statusBarWidgetFactory implementation="com.dbn.editor.data.statusbar.DatasetEditorStatusBarWidgetFactory" id="DBNavigator.Project.DatasetEditorStatusBarWidgetFactory"/>
 
+        <intentionAction>
+            <className>com.dbn.code.common.intention.SubmitParserIssueIntentionAction</className>
+            <categoryKey>app.codeEditor.category.Diagnostics</categoryKey>
+            <skipBeforeAfter>true</skipBeforeAfter>
+        </intentionAction>
         <intentionAction>
             <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.ExecuteScriptIntentionAction</className>

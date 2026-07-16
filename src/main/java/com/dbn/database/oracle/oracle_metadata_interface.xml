@@ -1216,6 +1216,42 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="all-column-relations" timeout="90">
+        <statement prefixes="DBA, ALL">
+            select
+                fk.OWNER as SOURCE_SCHEMA_NAME,
+                fk.TABLE_NAME as SOURCE_DATASET_NAME,
+                fkc.COLUMN_NAME as SOURCE_COLUMN_NAME,
+                pk.OWNER as TARGET_SCHEMA_NAME,
+                pk.TABLE_NAME as TARGET_DATASET_NAME,
+                pkc.COLUMN_NAME as TARGET_COLUMN_NAME
+            from [PREFIX]_CONSTRAINTS fk
+                join [PREFIX]_CONS_COLUMNS fkc on fkc.OWNER = fk.OWNER and fkc.CONSTRAINT_NAME = fk.CONSTRAINT_NAME
+                join [PREFIX]_CONSTRAINTS pk on pk.OWNER = fk.R_OWNER and pk.CONSTRAINT_NAME = fk.R_CONSTRAINT_NAME
+                join [PREFIX]_CONS_COLUMNS pkc on pkc.OWNER = pk.OWNER and pkc.CONSTRAINT_NAME = pk.CONSTRAINT_NAME and pkc.POSITION = fkc.POSITION
+            where pk.OWNER = {#0} and fk.CONSTRAINT_TYPE = 'R'
+            order by fk.TABLE_NAME asc
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="column-relations">
+        <statement prefixes="DBA, ALL">
+            select
+                fk.OWNER as SOURCE_SCHEMA_NAME,
+                fk.TABLE_NAME as SOURCE_DATASET_NAME,
+                fkc.COLUMN_NAME as SOURCE_COLUMN_NAME,
+                pk.OWNER as TARGET_SCHEMA_NAME,
+                pk.TABLE_NAME as TARGET_DATASET_NAME,
+                pkc.COLUMN_NAME as TARGET_COLUMN_NAME
+            from [PREFIX]_CONSTRAINTS fk
+                join [PREFIX]_CONS_COLUMNS fkc on fkc.OWNER = fk.OWNER and fkc.CONSTRAINT_NAME = fk.CONSTRAINT_NAME
+                join [PREFIX]_CONSTRAINTS pk on pk.OWNER = fk.R_OWNER and pk.CONSTRAINT_NAME = fk.R_CONSTRAINT_NAME
+                join [PREFIX]_CONS_COLUMNS pkc on pkc.OWNER = pk.OWNER and pkc.CONSTRAINT_NAME = pk.CONSTRAINT_NAME and pkc.POSITION = fkc.POSITION
+            where pk.OWNER = {#0} and pk.TABLE_NAME = {#1} and fk.CONSTRAINT_TYPE = 'R'
+            order by fkc.COLUMN_NAME asc
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="column-index-relations" >
         <statement prefixes="DBA, ALL">
             select
@@ -3002,7 +3038,11 @@
 
     <statement-execution-processor id="load-distinct-values">
         <statement>
-            select distinct {2} from {0}.{1} where {2} is not null order by {2}
+            select VALUE from (
+                select VALUE from (
+                    select distinct {2} as VALUE from {0}.{1} where {2} is not null
+                ) where rownum &lt;= {3}
+            ) order by VALUE
         </statement>
     </statement-execution-processor>
 

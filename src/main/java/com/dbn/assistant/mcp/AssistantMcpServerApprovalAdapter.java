@@ -18,28 +18,37 @@ package com.dbn.assistant.mcp;
 
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.mcp.model.AssistantMcpServerType;
+import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.approval.UserApprovalAdapter;
+import com.dbn.common.approval.UserApprovalOption;
 import com.dbn.common.checksum.Checksum;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Sockets;
-import org.jetbrains.annotations.Nullable;
 
 import java.net.URI;
 import java.net.UnknownHostException;
-import java.time.Duration;
 
+import static com.dbn.common.approval.UserApprovalAction.MCP_SERVER_ACCESS;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.nls.NlsResources.txt;
 
+/**
+ * Prepares user approval information for allowing the assistant to connect to configured
+ * MCP servers and exchange tool requests with them.
+ */
 public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<AssistantMcpServer> {
-    private static final String[] APPROVAL_OPTIONS = Messages.options(
-            txt("msg.shared.button.TrustAndConnect"),
-            txt("msg.shared.button.Cancel"));
+    private static final UserApprovalOption[] APPROVAL_OPTIONS = {
+            UserApprovalOption.one(txt("msg.shared.button.TrustAndConnect")),
+            UserApprovalOption.none(txt("msg.shared.button.Cancel"))};
 
     @Override
     public Class<AssistantMcpServer> getApprovalClass() {
         return AssistantMcpServer.class;
+    }
+
+    @Override
+    public UserApprovalAction getApprovalAction() {
+        return MCP_SERVER_ACCESS;
     }
 
     @Override
@@ -62,7 +71,7 @@ public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<As
     }
 
     @Override
-    public String[] getApprovalOptions(AssistantMcpServer approvable) {
+    public UserApprovalOption[] getApprovalOptions(AssistantMcpServer approvable) {
         return APPROVAL_OPTIONS;
     }
 
@@ -101,11 +110,5 @@ public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<As
         } catch (IllegalArgumentException | UnknownHostException e) {
             return "";
         }
-    }
-
-    @Override
-    @Nullable
-    public Duration getRejectionCooldown(AssistantMcpServer approvable, int option) {
-        return Duration.ofSeconds(10);
     }
 }

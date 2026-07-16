@@ -124,6 +124,41 @@ public class StatementDefinitionTest {
                 statementText);
     }
 
+    @Test
+    public void prepareStatementTextRendersTypedValueLiterals() throws SQLException {
+        StatementDefinition definition = new StatementDefinition(
+                "BEGIN MY_PKG.RUN(name => {$0}, threshold => {$1}, run_date => {$2}, target => {@3}); END;",
+                null,
+                null,
+                0.0);
+
+        String statementText = definition.prepareStatementText(
+                StatementDefinitionTest::enquoteSqliteIdentifier,
+                "O'Brien'; DROP TABLE users; --",
+                0.75,
+                java.time.LocalDate.of(2026, 7, 9),
+                "ML_TRAIN");
+
+        assertEquals(
+                "BEGIN MY_PKG.RUN(name => 'O''Brien''; DROP TABLE users; --', threshold => 0.75, run_date => DATE '2026-07-09', target => \"ML_TRAIN\"); END;",
+                statementText);
+    }
+
+    @Test
+    public void prepareStatementTextRendersNullLiterals() throws SQLException {
+        StatementDefinition definition = new StatementDefinition(
+                "BEGIN MY_PKG.RUN(comment_text => {$0}); END;",
+                null,
+                null,
+                0.0);
+
+        String statementText = definition.prepareStatementText(
+                StatementDefinitionTest::enquoteSqliteIdentifier,
+                (Object) null);
+
+        assertEquals("BEGIN MY_PKG.RUN(comment_text => NULL); END;", statementText);
+    }
+
     private static String enquoteSqliteIdentifier(String identifier) {
         if (SQLITE_QUOTE_DEFINITION.isQuoted(identifier)) return identifier;
         return SQLITE_QUOTES.quote(identifier, DATABASE);

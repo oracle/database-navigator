@@ -16,13 +16,23 @@
 
 package com.dbn.database.common;
 
+import com.dbn.common.approval.UserApprovalManager;
+import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.connection.AuthenticationType;
 import com.dbn.database.common.execution.MethodExecutionProcessor;
 import com.dbn.database.common.execution.SimpleFunctionExecutionProcessor;
 import com.dbn.database.common.execution.SimpleProcedureExecutionProcessor;
 import com.dbn.database.interfaces.DatabaseExecutionInterface;
+import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.execution.script.ScriptExecutionInput;
+import com.dbn.execution.script.ScriptPasswordDelivery;
 import com.dbn.object.DBFunction;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBProcedure;
+
+import static com.dbn.common.approval.UserApprovalAction.PASSWORD_ENVIRONMENT_VARIABLE;
+import static com.dbn.execution.script.ScriptPasswordDelivery.CREDENTIAL_FILE;
+import static com.dbn.execution.script.ScriptPasswordDelivery.ENVIRONMENT_VARIABLE;
 
 public abstract class DatabaseExecutionInterfaceImpl implements DatabaseExecutionInterface {
 
@@ -35,6 +45,25 @@ public abstract class DatabaseExecutionInterfaceImpl implements DatabaseExecutio
 
         }
         return null;
+    }
+
+    protected static void verifyEnvironmentPasswordApproval(ScriptExecutionInput executionInput) {
+        AuthenticationInfo authenticationInfo = executionInput.getConnection().getAuthenticationInfo();
+
+        AuthenticationType authType = authenticationInfo.getType();
+        if (authType != AuthenticationType.USER_PASSWORD) return;
+
+        UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+        CmdLineInterface cmdLineInterface = executionInput.getCmdLineInterface();
+
+        ScriptPasswordDelivery passwordDelivery = executionInput.getPasswordDelivery();
+        if (passwordDelivery == ENVIRONMENT_VARIABLE) {
+            // Environment-based password delivery exposes credentials to the child process environment.
+            approvalManager.ensureApproved(PASSWORD_ENVIRONMENT_VARIABLE, cmdLineInterface);
+        } else if (passwordDelivery == CREDENTIAL_FILE) {
+            // File-based execution supersedes any previously stored approval for the environment fallback.
+            approvalManager.revoke(PASSWORD_ENVIRONMENT_VARIABLE, cmdLineInterface);
+        }
     }
 
 }

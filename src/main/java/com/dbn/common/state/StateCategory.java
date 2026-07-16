@@ -19,6 +19,7 @@ package com.dbn.common.state;
 import com.dbn.common.constant.Constant;
 import com.dbn.common.constant.PseudoConstant;
 import com.dbn.common.constant.PseudoConstantConverter;
+import org.jetbrains.annotations.NonNls;
 
 public final class StateCategory extends PseudoConstant<StateCategory> {
 
@@ -28,7 +29,7 @@ public final class StateCategory extends PseudoConstant<StateCategory> {
         super(id);
     }
 
-    public static StateCategory get(String id) {
+    public static StateCategory get(@NonNls String id) {
         return PseudoConstant.get(StateCategory.class, id);
     }
 

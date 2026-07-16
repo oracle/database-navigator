@@ -23,8 +23,6 @@ import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.intellij.icons.AllIcons;
-import com.intellij.ide.IdeBundle;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -58,6 +56,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static com.dbn.common.Reflection.invokeMethod;
+import static com.dbn.nls.NlsResources.txt;
 import static org.jetbrains.annotations.Nls.Capitalization.Title;
 
 @Getter
@@ -66,8 +65,8 @@ import static org.jetbrains.annotations.Nls.Capitalization.Title;
 public class DBNColoredTabs<T extends DBNForm> extends JBEditorTabs {
     private boolean closeable;
 
-    public DBNColoredTabs(@NotNull Disposable parentDisposable) {
-        super(null, IdeFocusManager.getGlobalInstance(), parentDisposable);
+    public DBNColoredTabs(@NotNull DBNForm parentForm) {
+        super(parentForm.ensureProject(), IdeFocusManager.getGlobalInstance(), parentForm);
 
         initTabsPresentation();
     }
@@ -304,7 +303,7 @@ public class DBNColoredTabs<T extends DBNForm> extends JBEditorTabs {
             presentation.setIcon(AllIcons.Actions.Close);
             presentation.setHoveredIcon(AllIcons.Actions.CloseHovered);
             presentation.setVisible(true);
-            presentation.setText(IdeBundle.messagePointer("action.presentation.LightEditTabs.text", SystemInfo.isMac ? "⌥" : "Alt+"));
+            presentation.setText(txt("app.shared.action.CloseTab", SystemInfo.isMac ? "⌥" : "Alt+"));
         }
 
         @Override

@@ -24,7 +24,6 @@ import com.dbn.common.ui.list.ListProperty;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.TextAttributes;
 import com.dbn.data.editor.ui.TextFieldPopupProviderForm;
 import com.dbn.data.editor.ui.TextFieldPopupType;
@@ -57,6 +56,7 @@ import java.util.List;
 
 import static com.dbn.common.util.Actions.createActionToolbar;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
@@ -152,7 +152,7 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
         } catch (SQLException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(project, e.getLocalizedMessage(), e);
+            showErrorDialog(project, null, txt("msg.dataEditor.error.ContentLoadError", "array"), e);
             return null;
         }
         list.setStringValues(stringValues);

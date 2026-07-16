@@ -38,9 +38,12 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CancellationException;
 
+import static com.dbn.assistant.mcp.AssistantMcpServerToolVerifier.validateIdeMcpArguments;
+import static com.dbn.assistant.tool.AssistantToolContents.getMaxToolResponseLength;
+import static com.dbn.assistant.tool.AssistantToolContents.isToolResponseContentOversized;
+import static com.dbn.assistant.tool.AssistantToolContents.prepareToolResponseContent;
 import static com.dbn.assistant.tool.event.AssistantToolStatus.CANCELLED;
 import static com.dbn.assistant.tool.event.AssistantToolStatus.COMPLETED;
 import static com.dbn.assistant.tool.event.AssistantToolStatus.EXECUTING;
@@ -69,6 +72,7 @@ public class AssistantMcpServerToolInterceptor extends AssistantStateExtension {
 
         Project project = getProject();
         try {
+            invocation.getRequest().assertExecutable();
             validateRequestContext(request);
 
             // initiate request
@@ -81,6 +85,12 @@ public class AssistantMcpServerToolInterceptor extends AssistantStateExtension {
             // start execution
             handleEvent(project, invocation, EXECUTING, null);
             String result = monitor.executeTool(() -> executor.execute(request, memoryId));
+            if (isToolResponseContentOversized(result)) {
+                throw new IllegalStateException(
+                        "Tool result exceeded the maximum allowed size of " + getMaxToolResponseLength() +
+                                " characters. Retry with a narrower request, more specific filters, or a smaller result limit.");
+            }
+            result = prepareToolResponseContent(result);
 
             // confirm execution
             handleEvent(project, invocation, COMPLETED, null);
@@ -114,17 +124,7 @@ public class AssistantMcpServerToolInterceptor extends AssistantStateExtension {
 
         String argumentsString = request.arguments();
         Map<String, Object> arguments = Json.readAsMap(argumentsString);
-
-        // check if project path argument is required
-        Object projectPathArgument = arguments.get("projectPath");
-        if (projectPathArgument == null) return;
-
-        // check if project path argument is matching the current project path
-        String projectPath = project.getBasePath();
-        if (Objects.equals(projectPathArgument.toString(), projectPath)) return;
-
-        throw new AssistantToolApprovalException(
-                "IDE MCP request projectPath does not match the current project path");
+        validateIdeMcpArguments(arguments, project.getBasePath());
     }
 
     public static void handleEvent(Project project, AssistantToolInvocation invocation, AssistantToolStatus status, Throwable exception) {

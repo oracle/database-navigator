@@ -19,6 +19,7 @@ import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.ReportRenderer
 import com.github.jk1.license.render.TextReportRenderer
 import org.gradle.kotlin.dsl.register
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 
 // https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 plugins {
@@ -35,6 +36,12 @@ val bundledJdbcSqlite: Configuration by configurations.creating
 
 group = "com.dbn"
 version = "4.0.0.0"
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
 
 repositories {
     // locally built 3rd party dependencies
@@ -60,6 +67,7 @@ dependencies {
             "com.intellij.java",
             "com.intellij.modules.json",
             "com.intellij.copyright",
+            "com.intellij.diagram",
             "org.jetbrains.idea.maven"
         )
     }
@@ -67,27 +75,27 @@ dependencies {
     // ********** DEPENDENCY TREE MODEL **********
 /*
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.21.1")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.1")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.1")
-    implementation("com.fasterxml.jackson.module:jackson-modules-base:2.21.1")
-    implementation("com.fasterxml.jackson.module:jackson-modules-java8:2.21.1")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.21.4")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.4")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.4")
+    implementation("com.fasterxml.jackson.module:jackson-modules-base:2.21.4")
+    implementation("com.fasterxml.jackson.module:jackson-modules-java8:2.21.4")
     implementation("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.76.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.76.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.76.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common:3.76.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-generativeaiinference:3.76.1")
     implementation("commons-io:commons-io:2.18.0")
-    implementation("dev.langchain4j:langchain4j-anthropic:1.12.2")
-    implementation("dev.langchain4j:langchain4j-community-oci-genai:1.12.2-beta17")
-    implementation("dev.langchain4j:langchain4j-core:1.12.2")
-    implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.12.2")
-    implementation("dev.langchain4j:langchain4j-http-client:1.12.2")
-    implementation("dev.langchain4j:langchain4j-mcp:1.12.2-beta17")
-    implementation("dev.langchain4j:langchain4j-mistral-ai:1.12.2")
-    implementation("dev.langchain4j:langchain4j-ollama:1.12.2")
-    implementation("dev.langchain4j:langchain4j-open-ai:1.12.2")
-    implementation("dev.langchain4j:langchain4j:1.12.2")
+    implementation("dev.langchain4j:langchain4j-anthropic:1.16.2")
+    implementation("dev.langchain4j:langchain4j-community-oci-genai:1.16.2-beta17")
+    implementation("dev.langchain4j:langchain4j-core:1.16.2")
+    implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.16.2")
+    implementation("dev.langchain4j:langchain4j-http-client:1.16.2")
+    implementation("dev.langchain4j:langchain4j-mcp:1.16.2-beta17")
+    implementation("dev.langchain4j:langchain4j-mistral-ai:1.16.2")
+    implementation("dev.langchain4j:langchain4j-ollama:1.16.2")
+    implementation("dev.langchain4j:langchain4j-open-ai:1.16.2")
+    implementation("dev.langchain4j:langchain4j:1.16.2")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.apache.commons:commons-compress:1.27.1")
     implementation("org.apache.commons:commons-lang3:3.18.0")
@@ -108,13 +116,13 @@ dependencies {
     // ********** DEPENDENCY FLAT MODEL **********
     implementation("joda-time:joda-time:2.14.2@jar")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.21@jar")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.21.1@jar")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.1@jar")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.1@jar")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-joda:2.21.1@jar")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.21.1@jar")
-    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.21.1@jar")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.1@jar")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.21.4@jar")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.4@jar")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.4@jar")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-joda:2.21.4@jar")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.21.4@jar")
+    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.21.4@jar")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.4@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.76.1@jar")
@@ -122,16 +130,16 @@ dependencies {
     implementation("com.oracle.oci.sdk:oci-java-sdk-generativeaiinference:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-identity:3.76.1@jar")
     implementation("commons-io:commons-io:2.18.0@jar")
-    implementation("dev.langchain4j:langchain4j-anthropic:1.12.2@jar")
-    implementation("dev.langchain4j:langchain4j-community-oci-genai:1.12.2-beta22@jar")
-    implementation("dev.langchain4j:langchain4j-core:1.12.2@jar")
-    implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.12.2@jar")
-    implementation("dev.langchain4j:langchain4j-http-client:1.12.2@jar")
-    implementation("dev.langchain4j:langchain4j-mcp:1.12.2-beta22@jar")
-    implementation("dev.langchain4j:langchain4j-mistral-ai:1.12.2@jar")
-    implementation("dev.langchain4j:langchain4j-ollama:1.12.2@jar")
-    implementation("dev.langchain4j:langchain4j-open-ai:1.12.2@jar")
-    implementation("dev.langchain4j:langchain4j:1.12.2@jar")
+    implementation("dev.langchain4j:langchain4j-anthropic:1.16.2@jar")
+    implementation("dev.langchain4j:langchain4j-community-oci-genai:1.16.0-beta26@jar")
+    implementation("dev.langchain4j:langchain4j-core:1.16.2@jar")
+    implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.16.2@jar")
+    implementation("dev.langchain4j:langchain4j-http-client:1.16.2@jar")
+    implementation("dev.langchain4j:langchain4j-mcp:1.16.2-beta26@jar")
+    implementation("dev.langchain4j:langchain4j-mistral-ai:1.16.2@jar")
+    implementation("dev.langchain4j:langchain4j-ollama:1.16.2@jar")
+    implementation("dev.langchain4j:langchain4j-open-ai:1.16.2@jar")
+    implementation("dev.langchain4j:langchain4j:1.16.2@jar")
     implementation("io.github.resilience4j:resilience4j-circuitbreaker:1.7.1@jar")
     implementation("io.github.resilience4j:resilience4j-core:1.7.1@jar")
     implementation("io.vavr:vavr:0.10.2@jar")
@@ -181,37 +189,33 @@ dependencies {
     compileOnly("com.oracle:oci-intellij-plugin-api:" + project.properties["oci.ext.api.version"] + "@jar")
 
     // Oracle
-    bundledJdbcOracle("javax.resource:connector-api:1.5@jar")
     bundledJdbcOracle("org.glassfish.hk2:hk2-api:2.6.1@jar")
     bundledJdbcOracle("org.glassfish.hk2:hk2-locator:2.6.1@jar")
     bundledJdbcOracle("org.glassfish.hk2:hk2-utils:2.6.1@jar")
     bundledJdbcOracle("com.fasterxml.jackson.core:jackson-annotations:2.21@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-core:2.21.1@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-databind:2.21.1@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.1@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-core:2.21.4@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-databind:2.21.4@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.4@jar")
     bundledJdbcOracle("org.glassfish.hk2.external:jakarta.inject:2.6.1@jar")
     bundledJdbcOracle("jakarta.ws.rs:jakarta.ws.rs-api:2.1.6@jar")
-    bundledJdbcOracle("jakarta.xml.bind:jakarta.xml.bind-api:2.3.3@jar")
-    bundledJdbcOracle("javax.json:javax.json-api:1.1.4@jar")
-    bundledJdbcOracle("org.glassfish.jersey.core:jersey-client:2.48@jar")
-    bundledJdbcOracle("org.glassfish.jersey.core:jersey-common:2.48@jar")
-    bundledJdbcOracle("org.glassfish.jersey.inject:jersey-hk2:2.48@jar")
-    bundledJdbcOracle("org.glassfish.jersey.media:jersey-media-json-jackson:2.48@jar")
-    bundledJdbcOracle("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.37.0@jar")
-    bundledJdbcOracle("com.oracle.oci.sdk:oci-java-sdk-common:3.37.0@jar")
-    bundledJdbcOracle("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.37.0@jar")
-    bundledJdbcOracle("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.37.0@jar")
-    bundledJdbcOracle("com.oracle.oci.sdk:oci-java-sdk-identitydataplane:3.37.0@jar")
-    bundledJdbcOracle("com.oracle.database.jdbc:ojdbc8:23.4.0.24.05@jar")
-    bundledJdbcOracle("com.oracle.database.security:oraclepki:23.4.0.24.05@jar")
-    bundledJdbcOracle("com.oracle.database.nls:orai18n:23.4.0.24.05@jar")
-    bundledJdbcOracle("com.oracle.database.xml:xdb:23.4.0.24.05@jar")
-    bundledJdbcOracle("com.oracle.database.xml:xmlparserv2:23.4.0.24.05@jar")
-    bundledJdbcOracle("com.oracle.database.jdbc:ojdbc-provider-common:1.0.1@jar")
-    bundledJdbcOracle("com.oracle.database.jdbc:ojdbc-provider-oci:1.0.0@jar")
+    bundledJdbcOracle("org.glassfish.jersey.core:jersey-client:2.47@jar")
+    bundledJdbcOracle("org.glassfish.jersey.core:jersey-common:2.47@jar")
+    bundledJdbcOracle("org.glassfish.jersey.inject:jersey-hk2:2.47@jar")
+    bundledJdbcOracle("org.glassfish.jersey.media:jersey-media-json-jackson:2.47@jar")
+    bundledJdbcOracle("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.86.2@jar")
+    bundledJdbcOracle("com.oracle.oci.sdk:oci-java-sdk-common:3.86.2@jar")
+    bundledJdbcOracle("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.86.2@jar")
+    bundledJdbcOracle("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.86.2@jar")
+    bundledJdbcOracle("com.oracle.oci.sdk:oci-java-sdk-identitydataplane:3.86.2@jar")
+    bundledJdbcOracle("com.oracle.database.jdbc:ojdbc8:23.26.2.0.0@jar")
+    bundledJdbcOracle("com.oracle.database.security:oraclepki:23.26.2.0.0@jar")
+    bundledJdbcOracle("com.oracle.database.nls:orai18n:23.26.2.0.0@jar")
+    bundledJdbcOracle("com.oracle.database.xml:xdb:23.26.2.0.0@jar")
+    bundledJdbcOracle("com.oracle.database.xml:xmlparserv2:23.26.2.0.0@jar")
+    bundledJdbcOracle("com.oracle.database.jdbc:ojdbc-provider-common:1.1.0@jar")
+    bundledJdbcOracle("com.oracle.database.jdbc:ojdbc-provider-oci:1.1.0@jar")
     bundledJdbcOracle("io.github.resilience4j:resilience4j-circuitbreaker:1.7.1@jar")
     bundledJdbcOracle("io.github.resilience4j:resilience4j-core:1.7.1@jar")
-    bundledJdbcOracle("javax.servlet:servlet-api:2.5@jar")
     bundledJdbcOracle("io.vavr:vavr:0.10.2@jar")
 
     // MySQL
@@ -221,7 +225,7 @@ dependencies {
     bundledJdbcPostgres("org.postgresql:postgresql:42.7.11@jar")
 
     // SQLite
-    bundledJdbcSqlite("org.xerial:sqlite-jdbc:3.51.1.0@jar")
+    bundledJdbcSqlite("org.xerial:sqlite-jdbc:3.53.2.0@jar")
 }
 
 licenseReport {
@@ -257,6 +261,17 @@ intellijPlatform {
     pluginConfiguration {
         ideaVersion {
             untilBuild = provider { null }
+        }
+    }
+
+    pluginVerification {
+        ides {
+            select {
+                // Keep verifier targets aligned with src/main/resources/META-INF/plugin.xml.
+                sinceBuild.set("231.9423.9")
+                untilBuild.set("262.*")
+                types.set(listOf(IntelliJPlatformType.IntellijIdea))
+            }
         }
     }
 

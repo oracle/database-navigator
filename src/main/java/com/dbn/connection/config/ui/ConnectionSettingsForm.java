@@ -25,7 +25,6 @@ import com.dbn.common.options.ui.CompositeConfigurationEditorForm;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.TabbedPanes;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Safe;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
@@ -55,7 +54,9 @@ import java.awt.Color;
 import java.awt.event.ActionListener;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.options.ConfigActivity.CLONING;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -195,7 +196,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
                     refreshConnectionList(configuration);
                 } catch (ConfigurationException e1) {
                     conditionallyLog(e1);
-                    Messages.showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), e1.getMessage());
+                    showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), getLocalizedMessage(e1));
                 }
             }
         };

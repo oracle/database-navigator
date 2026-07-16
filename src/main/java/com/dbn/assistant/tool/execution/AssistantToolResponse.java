@@ -16,17 +16,38 @@
 
 package com.dbn.assistant.tool.execution;
 
-import lombok.Getter;
+import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.state.ProtectedContent;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.jdom.Element;
 
-@Getter
-@Setter
+import static com.dbn.assistant.tool.AssistantToolContents.prepareToolResponseContent;
+import static com.dbn.common.state.StateEncryptionScopes.ASSISTANT_TOOL_RESPONSE;
+
 @NoArgsConstructor
-public class AssistantToolResponse {
-    private String content;
+public class AssistantToolResponse implements PersistentStateElement {
+    private final ProtectedContent content = new ProtectedContent(ASSISTANT_TOOL_RESPONSE);
 
     public AssistantToolResponse(String content) {
-        this.content = content;
+        setContent(content);
     }
+
+    public String getContent() {
+        return content.get();
+    }
+
+    public void setContent(String content) {
+        this.content.set(prepareToolResponseContent(content));
+    }
+
+    @Override
+    public void readState(Element element) {
+        content.readState(element);
+    }
+
+    @Override
+    public void writeState(Element element) {
+        content.writeState(element);
+    }
+
 }

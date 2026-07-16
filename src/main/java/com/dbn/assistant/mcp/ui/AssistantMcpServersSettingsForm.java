@@ -22,13 +22,13 @@ import com.dbn.assistant.mcp.AssistantMcpServerSettings;
 import com.dbn.assistant.mcp.ide.IdeMcpServerManager;
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.mcp.model.AssistantMcpServerBundle;
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Dialogs;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Separator;
@@ -38,8 +38,10 @@ import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
+import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.approval.UserApprovalAction.MCP_SERVER_ACCESS;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 import static com.dbn.nls.NlsResources.txt;
@@ -51,6 +53,7 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
 
     private final AssistantMcpServersTable mcpServersTable;
     private final UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+    private final List<AssistantMcpServer> acknowledgedMcpServers = new ArrayList<>();
     private AssistantIdeMcpServerForm ideMcpServerForm;
 
     public AssistantMcpServersSettingsForm(AssistantMcpServerSettings settings) {
@@ -77,7 +80,7 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
         decorator.setMoveDownAction(b -> mcpServersTable.moveRowDown());
         decorator.setEditAction(b -> openMcpServerEditor(false));
         decorator.addExtraAction(Separator.getInstance());
-        decorator.addExtraAction(new AnAction() {
+        decorator.addExtraAction(new BasicAction() {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 Dialogs.show(() -> new AssistantMcpToolApprovalDialog(getProject(), getSelectedMcpServer()));
@@ -117,7 +120,8 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
             AssistantMcpServersTableModel model = mcpServersTable.getModel();
             model.addElement(mcpServer);
         }
-        mcpServer.setAcknowledged(true);
+        acknowledgedMcpServers.add(mcpServer);
+
         mackConfigModified();
         mcpServersTable.revalidate();
         mcpServersTable.repaint();
@@ -149,7 +153,8 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
         List<AssistantMcpServer> newMcpServers = model.getElements();
         configuration.setMcpServers(new AssistantMcpServerBundle(getProject(), newMcpServers));
 
-        approvalManager.updateApprovals(oldMcpServers, newMcpServers);
+        approvalManager.updateApprovals(MCP_SERVER_ACCESS, oldMcpServers, newMcpServers, acknowledgedMcpServers);
+        acknowledgedMcpServers.clear();
 
         if (configuration.isModified()) {
             refreshAssistantStates();
@@ -167,6 +172,7 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
 
     @Override
     public void resetFormChanges() {
+        acknowledgedMcpServers.clear();
         mcpServersTable.getModel().resetChanges();
     }
 }

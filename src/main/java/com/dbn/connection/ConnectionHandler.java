@@ -20,6 +20,8 @@ import com.dbn.api.database.Database;
 import com.dbn.api.database.DatabaseMetadata;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.Referenceable;
+import com.dbn.common.approval.UserApprovable;
+import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.cache.Cache;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
@@ -55,11 +57,18 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
+import static com.dbn.common.approval.UserApprovalAction.CONNECTION_WORKSPACE_RESTORE;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.nls.NlsResources.txt;
 
-public interface ConnectionHandler extends StatefulDisposable, EnvironmentTypeProvider, DatabaseContextBase, Presentable, Referenceable<ConnectionRef>, Database {
+public interface ConnectionHandler extends StatefulDisposable, EnvironmentTypeProvider, DatabaseContextBase, Presentable, Referenceable<ConnectionRef>, Database, UserApprovable {
+
+    @Override
+    default Set<UserApprovalAction> getApprovalActions() {
+        return Set.of(CONNECTION_WORKSPACE_RESTORE);
+    }
 
     @NotNull
     Project getProject();
@@ -101,6 +110,12 @@ public interface ConnectionHandler extends StatefulDisposable, EnvironmentTypePr
     void setCurrentSchema(DBNConnection connection, @Nullable SchemaId schema) throws SQLException;
 
     void closeConnection(DBNConnection connection);
+
+    default void closeAllConnections() {
+        for (DBNConnection connection : getConnections()) {
+            closeConnection(connection);
+        }
+    }
 
     void freePoolConnection(DBNConnection connection);
 

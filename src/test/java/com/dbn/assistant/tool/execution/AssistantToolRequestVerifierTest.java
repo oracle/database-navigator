@@ -25,6 +25,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_TOOL_REQUEST_ARGUMENT_LENGTH;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_TOOL_REQUEST_PREVIEW_LENGTH;
+
 public class AssistantToolRequestVerifierTest {
     @Test
     public void verifyParameterNamesAcceptsAllExpectedArguments() {
@@ -102,6 +105,32 @@ public class AssistantToolRequestVerifierTest {
         Assert.assertTrue(exception.getMessage().contains("expected argument type at index 3"));
         Assert.assertTrue(exception.getMessage().contains("interface java.util.Collection"));
         Assert.assertTrue(exception.getMessage().contains("interface java.lang.CharSequence"));
+    }
+
+    @Test
+    public void oversizedToolArgumentsAreCappedAndRejected() {
+        AssistantToolRequest request = request(nameMethod(), "x".repeat(MAX_TOOL_REQUEST_ARGUMENT_LENGTH + 1));
+
+        Assert.assertTrue(request.isToolArgumentsTruncated());
+        Assert.assertEquals(MAX_TOOL_REQUEST_ARGUMENT_LENGTH + 1, request.getToolArgumentsLength());
+        Assert.assertTrue(request.getToolArguments().length() <= MAX_TOOL_REQUEST_PREVIEW_LENGTH);
+        Assert.assertTrue(request.getToolArguments().contains("Tool request arguments truncated"));
+
+        IllegalStateException exception = Assert.assertThrows(
+                IllegalStateException.class,
+                request::assertExecutable);
+
+        Assert.assertTrue(exception.getMessage().contains("exceeded the maximum allowed size"));
+    }
+
+    @Test
+    public void boundedToolArgumentsRemainExecutable() {
+        AssistantToolRequest request = request(nameMethod(), "{\"arg0\":\"schema\",\"arg1\":true}");
+
+        Assert.assertFalse(request.isToolArgumentsTruncated());
+        Assert.assertEquals("{\"arg0\":\"schema\",\"arg1\":true}", request.getToolArguments());
+
+        request.assertExecutable();
     }
 
     @SneakyThrows

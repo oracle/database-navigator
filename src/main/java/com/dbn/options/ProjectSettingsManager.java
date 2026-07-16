@@ -23,10 +23,10 @@ import com.dbn.code.common.completion.options.CodeCompletionSettings;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.project.Projects;
+import com.dbn.common.state.StateContainer;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Dialogs.DialogCallback;
 import com.dbn.common.util.Messages;
@@ -35,11 +35,9 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.config.ConnectionConfigType;
-import com.dbn.connection.config.ConnectionSettings;
-import com.dbn.connection.config.ConnectionSshTunnelSettings;
-import com.dbn.connection.config.ReverseSshTunnelConfiguration;
 import com.dbn.connection.config.tns.TnsImportData;
 import com.dbn.connection.operation.options.OperationSettings;
+import com.dbn.credentials.LegacyCredentialMigrator;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.data.options.DataEditorSettings;
@@ -76,18 +74,19 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
     public static final String COMPONENT_NAME = "DBNavigator.Project.Settings";
 
     private final ProjectSettings projectSettings;
+    private final LegacyCredentialMigrator credentialMigrator;
+    private final StateContainer states = new StateContainer();
     private ConfigId lastConfigId;
 
     private ProjectSettingsManager(Project project) {
         super(project, COMPONENT_NAME);
         projectSettings = new ProjectSettings(project);
+        credentialMigrator = new LegacyCredentialMigrator(this);
     }
 
     public static ProjectSettingsManager getInstance(@NotNull Project project) {
         return Components.projectService(project, ProjectSettingsManager.class);
     }
-
-
 
     public ProjectSettings getProjectSettings() {
         return nd(projectSettings);
@@ -167,32 +166,6 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData, connectionData), callback);
     }
 
-    @Override
-    public void initializeComponent() {
-        restoreKeychainSecrets();
-    }
-
-    /**
-     * Restores authentication passwords from the IDE keychain
-     * (to be used once on component initialization)
-     */
-    private void restoreKeychainSecrets() {
-        ConnectionBundleSettings connectionSettings = getConnectionSettings();
-        for (ConnectionSettings connection : connectionSettings.getConnections()) {
-            // CONNECTION PASSWORDS
-            AuthenticationInfo authenticationInfo = connection.getDatabaseSettings().getAuthenticationInfo();
-            authenticationInfo.initSecrets();
-
-            // SSH TUNNEL PASSWORDS
-            ConnectionSshTunnelSettings sshTunnelSettings = connection.getSshTunnelSettings();
-            sshTunnelSettings.initSecrets();
-
-            // DEBUGGER REVERSE SSH TUNNEL PASSWORDS
-            ReverseSshTunnelConfiguration reverseTunnelSettings = connection.getDebuggerSettings().getReverseSshTunnelConfig();
-            reverseTunnelSettings.initSecrets();
-        }
-    }
-
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
@@ -200,6 +173,7 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
     @Override
     public Element getComponentState() {
         Element element = newStateElement();
+        states.writeState(element, "states");
         projectSettings.writeConfiguration(element);
         return element;
     }
@@ -209,8 +183,10 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         if (areSettingsLoaded()) return;
         try {
             ConfigMonitor.set(INITIALIZING, true);
+            states.readState(element, "states");
             projectSettings.readConfiguration(element);
             markSettingsLoaded();
+            credentialMigrator.promptCredentialRestore();
         } finally {
             ConfigMonitor.set(INITIALIZING, false);
         }
@@ -225,8 +201,6 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         Project project = getProject();
         setUserData(project, PROJECT_SETTINGS_LOADED, true);
     }
-
-
 
     public void exportToDefaultSettings() {
         Project project = getProject();

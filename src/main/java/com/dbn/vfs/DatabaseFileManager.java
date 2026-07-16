@@ -17,6 +17,8 @@
 package com.dbn.vfs;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.approval.UserApprovalCancelledException;
+import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
@@ -37,7 +39,6 @@ import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.diff.SourceCodeDiffManager;
 import com.dbn.editor.code.options.CodeEditorChangesOption;
 import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
-import com.dbn.editor.code.options.CodeEditorSettings;
 import com.dbn.object.DBConsole;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
@@ -69,6 +70,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.dbn.common.approval.UserApprovalAction.CONNECTION_WORKSPACE_RESTORE;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Lists.anyMatch;
@@ -149,8 +151,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
                 String objectDescription = object.getQualifiedNameWithType();
                 Project project = getProject();
 
-                CodeEditorSettings editorSettings = CodeEditorSettings.getInstance(project);
-                CodeEditorConfirmationSettings confirmationSettings = editorSettings.getConfirmationSettings();
+                CodeEditorConfirmationSettings confirmationSettings = CodeEditorConfirmationSettings.get(project);
                 confirmationSettings.getExitOnChanges().resolve(project,
                         array(objectDescription),
                         option -> processCodeChangeOption(databaseFile, option));
@@ -275,8 +276,21 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
 
             var connectionDetailSettings = connection.getSettings().getDetailSettings();
             if (!connectionDetailSettings.isRestoreWorkspace()) continue;
+            if (!isApprovedForWorkspaceRestore(connection)) continue;
 
             reopenDatabaseEditors(entry.getValue(), connection);
+        }
+    }
+
+    private static boolean isApprovedForWorkspaceRestore(@NotNull ConnectionHandler connection) {
+        if (connection.isVirtual()) return true;
+
+        try {
+            UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+            approvalManager.ensureApproved(CONNECTION_WORKSPACE_RESTORE, connection);
+            return true;
+        } catch (UserApprovalCancelledException e) {
+            return false;
         }
     }
 
@@ -304,7 +318,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
 
             progress.setText2(txt("prc.workspace.text.RestoringDatabaseEditor", connection.getName(), objectRef.getQualifiedNameWithType()));
             if (object instanceof DBConsole console) {
-                editorManager.openDatabaseConsole(console, false, false);
+                editorManager.openDatabaseConsole(console, false);
             } else {
                 editorManager.openEditor(object, null, false, false);
             }

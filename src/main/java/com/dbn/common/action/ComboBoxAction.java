@@ -54,6 +54,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
 
+import static com.dbn.common.text.TextContent.htmlTooltip;
+
 @NoArgsConstructor
 public abstract class ComboBoxAction
         extends com.intellij.openapi.actionSystem.ex.ComboBoxAction
@@ -81,10 +83,22 @@ public abstract class ComboBoxAction
 
     @Override
     protected ListPopup createActionPopup(DefaultActionGroup group, @NotNull DataContext context, @Nullable Runnable disposeCallback) {
-        ListPopupImpl actionPopup = (ListPopupImpl) super.createActionPopup(group, context, disposeCallback);
+        ListPopup actionPopup = JBPopupFactory.getInstance().createActionGroupPopup(
+                myPopupTitle,
+                group,
+                context,
+                false,
+                shouldShowDisabledActions(),
+                false,
+                disposeCallback,
+                getMaxRows(),
+                getPreselectCondition());
+        actionPopup.setMinimumSize(new Dimension(getMinWidth(), getMinHeight()));
 
-        JList list = actionPopup.getList();
-        list.addListSelectionListener(e -> showDescriptionPopup(context, e, actionPopup));
+        if (actionPopup instanceof ListPopupImpl actionPopupImpl) {
+            JList list = actionPopupImpl.getList();
+            list.addListSelectionListener(e -> showDescriptionPopup(context, e, actionPopupImpl));
+        }
 
         return actionPopup;
     }
@@ -150,7 +164,7 @@ public abstract class ComboBoxAction
     private static JPanel createPopupComponent(String content) {
         if (!Strings.containsIgnoreCase(content, "<html")) {
             int width = content.length() > 60 ? 200 : 150;
-            content = TextContent.tooltip(content, "width: " + width + "px").getText();
+            content = htmlTooltip(content, "width: " + width + "px").getText();
         }
 
         TextContent textContent = TextContent.html(content);

@@ -34,6 +34,7 @@ public class CodeEditorGeneralSettingsForm extends ConfigurationEditorForm<CodeE
     private JPanel mainPanel;
     private JCheckBox enableSpellchecking;
     private JCheckBox enableReferenceSpellchecking;
+    private JCheckBox showParserIssueNotifications;
 
     public CodeEditorGeneralSettingsForm(CodeEditorGeneralSettings settings) {
         super(settings);
@@ -61,6 +62,7 @@ public class CodeEditorGeneralSettingsForm extends ConfigurationEditorForm<CodeE
 
         configuration.setEnableSpellchecking(enableSpellchecking);
         configuration.setEnableReferenceSpellchecking(enableReferenceSpellchecking);
+        configuration.setShowParserIssueNotifications(showParserIssueNotifications.isSelected());
 
         Project project = configuration.getProject();
         if (spellcheckingSettingsChanged) {
@@ -78,5 +80,6 @@ public class CodeEditorGeneralSettingsForm extends ConfigurationEditorForm<CodeE
         specDeclarationGutterCheckBox.setSelected(settings.isShowSpecDeclarationNavigationGutter());
         enableSpellchecking.setSelected(settings.isEnableSpellchecking());
         enableReferenceSpellchecking.setSelected(settings.isEnableReferenceSpellchecking());
+        showParserIssueNotifications.setSelected(settings.isShowParserIssueNotifications());
     }
 }

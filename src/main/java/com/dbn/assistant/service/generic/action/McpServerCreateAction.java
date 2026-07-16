@@ -34,6 +34,7 @@ import com.intellij.openapi.project.Project;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.approval.UserApprovalAction.MCP_SERVER_ACCESS;
 import static com.dbn.nls.NlsResources.txt;
 
 @Setter
@@ -56,7 +57,7 @@ public class McpServerCreateAction extends AbstractChatBoxAction {
                 .mcpServers(mcpServers)
                 .saveConsumer(s -> {
                     mcpServers.addMcpServer(s);
-                    UserApprovalManager.getInstance().approve(s);
+                    UserApprovalManager.getInstance().approve(MCP_SERVER_ACCESS, s);
                     mcpServerState.setSelected(s.getId(), true);
                 })
                 .build();

@@ -21,8 +21,8 @@ import com.dbn.assistant.mcp.model.AssistantMcpServerType;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.util.Environment;
+import com.dbn.common.util.Plugins;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.extensions.PluginId;
 import lombok.Getter;
@@ -130,7 +130,7 @@ public class IdeMcpServerManager extends ApplicationComponentBase {
 
     @Nullable
     private static ClassLoader getPluginClassLoader() {
-        IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(MCP_SERVER_PLUGIN_ID);
+        IdeaPluginDescriptor plugin = Plugins.getPlugin(MCP_SERVER_PLUGIN_ID);
         return plugin == null ? null : plugin.getPluginClassLoader();
     }
 
@@ -150,8 +150,12 @@ public class IdeMcpServerManager extends ApplicationComponentBase {
     @NonNls
     private static final Set<String> IDE_DB_TOOL_NAMES = Set.of(
             "cancel_sql_query",
+            "create_database_connection",
+            "edit_database_connection",
             "execute_sql_query",
+            "fetch_query_result",
             "get_database_object_description",
+            "introspect_schema",
             "list_database_connections",
             "list_database_schemas",
             "list_recent_sql_queries",

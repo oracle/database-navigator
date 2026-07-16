@@ -17,16 +17,15 @@
 package com.dbn;
 
 import com.dbn.common.component.ApplicationComponentBase;
-import com.dbn.common.component.EagerService;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.file.FileTypeService;
 import com.dbn.common.options.setting.Settings;
+import com.dbn.common.util.Plugins;
 import com.dbn.common.util.UUIDs;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.plugin.DBNPluginStateListener;
 import com.dbn.plugin.PluginConflictManager;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.ide.plugins.PluginStateManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -53,7 +52,7 @@ import static com.dbn.common.util.FileChoosers.nativeFileChoosers;
     name = DatabaseNavigator.COMPONENT_NAME,
     storages = @Storage(DatabaseNavigator.STORAGE_FILE)
 )
-public class DatabaseNavigator extends ApplicationComponentBase implements PersistentState, EagerService {
+public class DatabaseNavigator extends ApplicationComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Application.Settings";
     public static final String STORAGE_FILE = "dbnavigator.xml";
 
@@ -95,7 +94,7 @@ public class DatabaseNavigator extends ApplicationComponentBase implements Persi
 
     @NotNull
     public static IdeaPluginDescriptor getPluginDescriptor() {
-        return Objects.requireNonNull(PluginManagerCore.getPlugin(DBN_PLUGIN_ID));
+        return Objects.requireNonNull(Plugins.getPlugin(DBN_PLUGIN_ID));
     }
 
     private static String loadPluginVersion() {
@@ -133,4 +132,3 @@ public class DatabaseNavigator extends ApplicationComponentBase implements Persi
 
     }
 }
-

@@ -275,7 +275,7 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
                     virtualFile,
                     dataContext,
                     () -> ConnectionAction.invoke(
-                            txt("msg.execution.title.StatementExecution"), false,
+                            txt("msg.execution.title.StatementExecution"), true,
                             contextManager.getConnection(virtualFile),
                             action -> promptExecutionDialogs(executionProcessors, DBDebuggerType.NONE,
                                     () -> executeStatements(executionProcessors))));

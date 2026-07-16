@@ -38,20 +38,53 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.impl.PsiManagerEx;
 import com.intellij.psi.impl.file.impl.FileManager;
+import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Iterator;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Unsafe.cast;
 
+@UtilityClass
 public class PsiUtil {
+    // TODO: check if any other visitor relevant
+    public static final PsiElementVisitors SUPPORTED_VISITORS = PsiElementVisitors.create(
+            //com.intellij.spellchecker.inspections.SpellCheckingInspection;
+            //com.maddyhome.idea.copyright.actions.UpdateCopyrightAction;
+            //com.dbn.diagnostics.data.ParserDiagnosticsUtil;
+            "SpellCheckingInspection",
+            "ParserDiagnosticsUtil",
+            "UpdateCopyrightAction");
+
+    public static boolean hasErrors(@NotNull PsiFile psiFile) {
+        return Read.call(psiFile, file -> {
+            Deque<PsiElement> elements = new ArrayDeque<>();
+            elements.push(file);
+            while (!elements.isEmpty()) {
+                PsiElement element = elements.pop();
+
+                for (PsiElement child = element.getFirstChild(); child != null; child = child.getNextSibling()) {
+                    if (child instanceof PsiWhiteSpace) continue;
+                    if (child instanceof PsiComment) continue;
+                    if (child instanceof PsiErrorElement) return true;
+
+                    elements.push(child);
+                }
+            }
+            return false;
+        });
+    }
+
 
     public static DBSchema getDatabaseSchema(PsiElement psiElement) {
         DBSchema currentSchema = null;

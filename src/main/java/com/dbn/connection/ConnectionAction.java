@@ -21,8 +21,10 @@ import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.ThreadInfo;
 import com.dbn.common.thread.ThreadMonitor;
+import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.connection.context.DatabaseContextBase;
+import com.dbn.options.ProjectSettingsManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import org.jetbrains.annotations.NotNull;
@@ -75,17 +77,18 @@ public abstract class ConnectionAction implements DatabaseContextBase {
             if (interactive || connection.isValid()) {
                 guarded(this, a -> a.execute());
             } else {
-                String connectionName = connection.getName();
+                ConnectionSettings connectionSettings = connection.getSettings();
                 Throwable connectionException = connection.getConnectionStatus().getConnectionException();
+
                 ConnectionManager connectionManager = getConnectionManager(connection);
-                connectionManager.showErrorConnectionMessage(getProject(), connectionName, connectionException);
+                connectionManager.showConnectionErrorMessage(connectionSettings, connectionException);
             }
         } else {
             if (connection.isDatabaseInitialized()) {
                 if (connection.isAuthenticationProvided()) {
                     promptConnectDialog();
                 } else {
-                    promptAuthenticationDialog();
+                    ensureAuthenticationAvailable();
                 }
             } else {
                 promptDatabaseInitDialog();
@@ -106,12 +109,26 @@ public abstract class ConnectionAction implements DatabaseContextBase {
                         if (connection.isAuthenticationProvided()) {
                             guarded(this, r -> r.execute());
                         } else {
-                            promptAuthenticationDialog();
+                            ensureAuthenticationAvailable();
                         }
                     } else {
                         cancel();
                     }
                 });
+    }
+
+    private void ensureAuthenticationAvailable() {
+        if (!interactive) {
+            cancel();
+            return;
+        }
+
+        ConnectionHandler connection = getConnection();
+        ProjectSettingsManager.getInstance(connection.getProject()).getCredentialMigrator().ensureAuthenticationAvailable(
+                connection,
+                () -> guarded(() -> execute()),
+                () -> promptAuthenticationDialog(),
+                () -> cancel());
     }
 
     private void promptAuthenticationDialog() {

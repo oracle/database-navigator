@@ -142,8 +142,8 @@ public class StatementExecutionProcessor {
         return StatementExecutor.execute(context,
                 () -> {
                     DBNConnection connection = context.getConnection();
-                    String statementText = definition.prepareStatementText(connection, arguments);
-                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
+                    String statementLogText = definition.prepareStatementLogText();
+                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementLogText);
 
                     DBNPreparedStatement statement = null;
                     ResultSet resultSet = null;
@@ -165,7 +165,7 @@ public class StatementExecutionProcessor {
                         Resources.close(statement);
                         String message = e.getMessage();
                         if (isDatabaseAccessDebug())
-                            log.warn("[DBN] Error executing statement: {}\nCause: {}", statementText, message);
+                            log.warn("[DBN] Error executing statement: {}\nCause: {}", statementLogText, message);
 
                         boolean unsupported = interfaces.getMessageParserInterface().isModelException(e);
                         String traceMessage = unsupported ?
@@ -217,8 +217,8 @@ public class StatementExecutionProcessor {
         return StatementExecutor.execute(context,
                 () -> {
                     DBNConnection connection = context.getConnection();
-                    String statementText = definition.prepareStatementText(connection, arguments);
-                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
+                    String statementLogText = definition.prepareStatementLogText();
+                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementLogText);
 
                     DBNCallableStatement statement = null;
                     try {
@@ -232,7 +232,7 @@ public class StatementExecutionProcessor {
                         invokeOutputReader(outputReader, statement);
                         return outputReader;
                     } catch (SQLException e) {
-                        handleException(e, statementText);
+                        handleException(e, statementLogText);
                         return outputReader;
                     } finally {
                         Resources.close(statement);
@@ -250,6 +250,30 @@ public class StatementExecutionProcessor {
     private static <T extends CallableStatementOutput> void invokeOutputReader(@Nullable T outputReader, DBNCallableStatement statement) throws SQLException {
         if (outputReader == null) return;
         outputReader.read(statement);
+    }
+
+    /**
+     * Renders the statement text with identifiers and value literals inlined, without executing it.
+     * Intended for deferred execution contexts (e.g. a DBMS_SCHEDULER job action) where the finished
+     * statement text must be handed to the database instead of run as a JDBC prepared statement.
+     * <p>
+     * Safe dynamic markers for rendered templates:
+     * <ul>
+     * <li>{@code {@N}} - identifiers (table/column/object names), safely quoted</li>
+     * <li>{@code {$N}} - typed value literals (strings escaped, numbers validated, dates as ANSI
+     *     literals), rendered by {@link SqlLiterals} with a strict fail-closed type whitelist</li>
+     * </ul>
+     * A template carrying {@code {#N}} JDBC bind parameters is rejected, because those cannot be bound
+     * in a deferred session. {@code {N}} placeholders are inlined verbatim (no escaping), so they must
+     * only ever carry trusted tokens - never untrusted values.
+     */
+    public String prepareStatementText(@NotNull DBNConnection connection, Object... arguments) throws SQLException {
+        for (StatementDefinition definition : getStatementDefinitions(connection)) {
+            if (definition.getParameterCount() > 0)
+                throw new SQLException("Statement '" + id + "' cannot be rendered for deferred execution: it declares {#N} bind parameters. Use {@N} identifiers or literal text instead.");
+            return definition.prepareStatementText(connection, arguments);
+        }
+        throw NO_STATEMENT_DEFINITION_EXCEPTION;
     }
 
     public int executeUpdate(DBNConnection connection, Object... arguments) throws SQLException {
@@ -275,8 +299,8 @@ public class StatementExecutionProcessor {
         return StatementExecutor.execute(context,
                 () -> {
                     DBNConnection connection = context.getConnection();
-                    String statementText = definition.prepareStatementText(connection, arguments);
-                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
+                    String statementLogText = definition.prepareStatementLogText();
+                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementLogText);
 
                     DBNPreparedStatement statement = null;
                     try {
@@ -287,7 +311,7 @@ public class StatementExecutionProcessor {
                         statement.executeUpdate();
                         return statement.getUpdateCount();
                     } catch (SQLException e) {
-                        handleException(e, statementText);
+                        handleException(e, statementLogText);
                     } finally {
                         Resources.close(statement);
                     }
@@ -319,7 +343,8 @@ public class StatementExecutionProcessor {
                 () -> {
                     DBNConnection connection = context.getConnection();
                     String statementText = definition.prepareStatementText(connection, arguments);
-                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
+                    String statementLogText = definition.prepareStatementLogText();
+                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementLogText);
 
                     DBNStatement statement = connection.createStatement();
                     context.setStatement(statement);
@@ -328,7 +353,7 @@ public class StatementExecutionProcessor {
                         statement.execute(statementText);
                         return statement.getUpdateCount();
                     } catch (SQLException e) {
-                        handleException(e, statementText);
+                        handleException(e, statementLogText);
                         return 0;
                     } finally {
                         Resources.close(statement);
@@ -336,15 +361,15 @@ public class StatementExecutionProcessor {
                 });
     }
 
-    private void handleException(SQLException e, String statementText) throws SQLException {
+    private void handleException(SQLException e, String statementLogText) throws SQLException {
         conditionallyLog(e);
         if (isSuccessException(e)) {
-            log.warn("[DBN] Success exception received while executing statement \"{}\"\nDetails: {}", statementText, e.getMessage());
+            log.warn("[DBN] Success exception received while executing statement \"{}\"\nDetails: {}", statementLogText, e.getMessage());
             return;
         }
 
         if (isDatabaseAccessDebug()) {
-            log.warn("[DBN] Error executing statement: {}\nDetails: {}", statementText, e.getMessage());
+            log.warn("[DBN] Error executing statement: {}\nDetails: {}", statementLogText, e.getMessage());
         }
         throw e;
     }

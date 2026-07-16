@@ -40,6 +40,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.Dimension;
 
+import static com.dbn.common.approval.UserApprovalAction.COMMAND_LINE_EXECUTION;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
@@ -136,8 +137,10 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
 
         UserApprovalManager approvalManager = UserApprovalManager.getInstance();
         approvalManager.updateApprovals(
+                COMMAND_LINE_EXECUTION,
                 oldExecutorBundle.getInterfaces(),
-                executorBundle.getInterfaces());
+                executorBundle.getInterfaces(),
+                executorBundle.getDefaultInterfaces());
     }
 
     @Override

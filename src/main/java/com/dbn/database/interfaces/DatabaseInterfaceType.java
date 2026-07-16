@@ -30,5 +30,6 @@ public enum DatabaseInterfaceType {
     ASSISTANT,
     VECTOR,
     MACHINE_LEARNING,
+    SCHEDULER,
     JAVA
 }

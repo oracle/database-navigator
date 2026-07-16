@@ -10,8 +10,8 @@ import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionUtil;
-import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
+import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.dbn.connection.config.tns.TnsProfile;
 import com.dbn.mcp.model.McpServerDefinition;
@@ -40,15 +40,16 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.SecureRandom;
 import java.sql.Driver;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.util.JdbcUrls.redactSensitiveParameters;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Passwords.clearPassword;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.mcp.build.McpJavaVersionManager.MIN_JAVA_VERSION;
 import static com.dbn.mcp.build.McpMavenPluginSupport.verifyMavenAvailability;
@@ -152,7 +153,7 @@ public class McpBuildTask {
 
     private void verifyConnectionUrl() {
         try {
-            resolveConnectionUrl(); // fail fast before any dialog or file writing
+            getRedactedConnectionUrl(); // fail fast before any dialog or file writing
         } catch (UnsupportedOperationException e) {
             showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), e);
             cancelProcess();
@@ -189,7 +190,7 @@ public class McpBuildTask {
             Path configFile = baseDirectory.resolve(CONFIG);
 
             Files.createDirectories(baseDirectory);
-            Files.write(configFile, yaml.getBytes(StandardCharsets.UTF_8));
+            Files.writeString(configFile, yaml, StandardCharsets.UTF_8);
 
             result.setBaseDirectory(baseDirectory);
             result.setConfigFile(configFile);
@@ -221,19 +222,16 @@ public class McpBuildTask {
                 : Paths.get(System.getProperty("user.home"));
     }
 
-    private String resolveConnectionUrl() {
+    private String getRedactedConnectionUrl() {
+        ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
         DatabaseInfo info = connection.getDatabaseInfo();
         DatabaseUrlType urlType = info.getUrlType();
 
         if (urlType == DatabaseUrlType.TNS) {
-            return resolveTnsDescriptorUrl(info);
-        }
-        if (urlType == DatabaseUrlType.CUSTOM) {
-            return safe(info.getUrl());
+            return redactSensitiveParameters(resolveTnsDescriptorUrl(info));
         }
 
-        DatabaseUrlPattern pattern = DatabaseUrlPattern.get(connection.getDatabaseType(), urlType);
-        return pattern.buildUrl(info);
+        return redactSensitiveParameters(databaseSettings.getConnectionUrl());
     }
 
     private String resolveTnsDescriptorUrl(DatabaseInfo info) {
@@ -272,6 +270,10 @@ public class McpBuildTask {
     }
 
     private String buildYaml() {
+        return buildYaml(definition, getRedactedConnectionUrl());
+    }
+
+    static String buildYaml(McpServerDefinition definition, String connectionUrl) {
         @NonNls
         StringBuilder sb = new StringBuilder();
 
@@ -280,7 +282,7 @@ public class McpBuildTask {
         sb.append('\n');
 
         sb.append("dataSource:\n");
-        appendYamlField(sb, "  ", "url", resolveConnectionUrl());
+        appendYamlField(sb, "  ", "url", redactSensitiveParameters(connectionUrl));
         sb.append("  # username: YOUR_USER  # uncomment to override wallet credentials\n");
         sb.append("  # password: YOUR_PASS  # uncomment to override wallet credentials\n");
         sb.append('\n');
@@ -388,7 +390,7 @@ public class McpBuildTask {
         Files.createDirectories(walletDir);
 
         char[] user = safe(connection.getUserName()).toCharArray();
-        char[] pwd = getPassword(connection);
+        char[] password = getPassword(connection);
 
         // Random password — used only to create ewallet.p12, never stored or shown.
         // cwallet.sso (used at runtime) needs no password.
@@ -403,7 +405,7 @@ public class McpBuildTask {
             OracleSecretStore store = wallet.getSecretStore();
             // Use documented default SEPS keys to avoid connect-string lookup mismatches.
             store.setSecret(DEFAULT_SEPS_USERNAME, user);
-            store.setSecret(DEFAULT_SEPS_PASSWORD, pwd);
+            store.setSecret(DEFAULT_SEPS_PASSWORD, password);
             wallet.setSecretStore(store);
 
             wallet.save();
@@ -415,9 +417,9 @@ public class McpBuildTask {
                     : e.getClass().getSimpleName();
             throw new IOException(txt("msg.mcp.exception.OracleSepsWalletCreationFailed", message), e);
         } finally {
-            Arrays.fill(walletPassword, '\0');
-            Arrays.fill(user, '\0');
-            Arrays.fill(pwd, '\0');
+            clearPassword(user); // TODO do we need this?
+            clearPassword(password);
+            clearPassword(walletPassword);
         }
     }
 
@@ -508,8 +510,8 @@ public class McpBuildTask {
         return pwd != null ? pwd.clone() : new char[0];
     }
 
-    private String safe(String v) { return v != null ? v : ""; }
-    private String safe(String v, String d) { return v != null && !v.isEmpty() ? v : d; }
+    private static String safe(String v) { return v != null ? v : ""; }
+    private static String safe(String v, String d) { return v != null && !v.isEmpty() ? v : d; }
 
     private String buildClaudeJson(String name, String jar) {
         String command;

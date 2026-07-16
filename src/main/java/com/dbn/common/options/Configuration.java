@@ -59,7 +59,7 @@ public interface Configuration<P extends Configuration, E extends ConfigurationE
 
     HelpTopic getConfigHelpTopic();
 
-    default boolean isWorkspaceConfig() {
-        return getClass().getAnnotation(WorkspaceConfig.class) != null;
+    default boolean isWorkspaceStorage() {
+        return getClass().getAnnotation(WorkspaceStorage.class) != null;
     }
 }

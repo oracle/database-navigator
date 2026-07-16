@@ -19,6 +19,7 @@ package com.dbn.driver.download.metadata;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.TimeUtil;
+import com.dbn.connection.DatabaseType;
 import com.dbn.driver.download.DownloadSession;
 import com.dbn.driver.download.DownloadStatus;
 import com.dbn.driver.download.DriverDownloadManager;
@@ -34,12 +35,17 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.longAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setLongAttribute;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 /**
@@ -66,35 +72,45 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
  */
 @Setter
 public class DriverPackageMetadata implements PersistentStateElement {
-    private long lastRefresh = 0;
+    private static final int REFRESH_INTERVAL = 7;
+    private static final TimeUnit REFRESH_INTERVAL_UNIT = TimeUnit.DAYS;
+
+    private final Map<DatabaseType, Long> lastRefresh = new ConcurrentHashMap<>();
     private final Map<String, DriverPackage> driverPackages = new ConcurrentHashMap<>();
 
     @SneakyThrows
-    public synchronized void refreshDriverPackages() {
-        if (!isOutdated()) return;
+    public synchronized void refreshDriverPackages(DatabaseType databaseType) {
+        if (!isOutdated(databaseType)) return;
 
         ProgressIndicator indicator = ProgressMonitor.getProgressIndicator();
         DownloadSession session = new DownloadSession(indicator);
 
         DriverPackageMetadataDownloader downloader = new DriverPackageMetadataDownloader();
-        Map<String, DriverPackage> driverPackages = downloader.createDriverPackages(session);
+        Map<String, DriverPackage> driverPackages = downloader.createDriverPackages(session, databaseType);
         Set<String> packageIds = driverPackages.keySet();
 
-        // mark packages obsolete all packages which are no longer part of the current "offering"
-        this.driverPackages.values().forEach(p -> p.setObsolete(!packageIds.contains(p.getId())));
+        // Mark packages obsolete only for the refreshed database type.
+        this.driverPackages.values().stream()
+                .filter(p -> p.matches(databaseType))
+                .forEach(p -> p.setObsolete(!packageIds.contains(p.getId())));
         this.driverPackages.putAll(driverPackages);
 
         verifyDriverPackages();
-        lastRefresh = System.currentTimeMillis();
+        lastRefresh.put(databaseType, System.currentTimeMillis());
     }
 
-    public boolean isOutdated() {
-        return TimeUtil.isOlderThan(lastRefresh, 1, TimeUnit.HOURS);
+    public boolean isOutdated(DatabaseType databaseType) {
+        long refreshTime = lastRefresh.getOrDefault(databaseType, 0L);
+        return TimeUtil.isOlderThan(refreshTime, REFRESH_INTERVAL, REFRESH_INTERVAL_UNIT);
     }
 
-    public List<DriverPackage> getDriverPackages(Predicate<DriverPackage> predicate) {
-        refreshDriverPackages();
-        return driverPackages.values().stream().sorted().filter(predicate).collect(Collectors.toList());
+    public List<DriverPackage> getDriverPackages(DatabaseType databaseType, Predicate<DriverPackage> predicate) {
+        refreshDriverPackages(databaseType);
+        return driverPackages.values().stream()
+                .sorted()
+                .filter(p -> p.matches(databaseType))
+                .filter(predicate)
+                .collect(Collectors.toList());
     }
 
 
@@ -134,17 +150,18 @@ public class DriverPackageMetadata implements PersistentStateElement {
 
         File packageDir = new File(downloadPath);
         PackageChecksumData checksumData = downloadManager.getChecksumData(packageId);
+        List<String> libraryIds = driverPackage.getLibraryIds();
+        downloadManager.reconcilePackageStatus(driverPackage);
 
         // If no checksum file exists, all libraries are set to NEW
         if (checksumData.fileExists()) {
             checksumData.readChecksums();
-            boolean checksumsValid = checksumData.verifyChecksums(packageDir);
+            boolean checksumsValid = checksumData.verifyChecksums(packageDir, libraryIds);
             if (!checksumsValid) {
                 downloadManager.cleanupPackage(packageId);
             }
         } else {
-            for (Library library : driverPackage.getLibraries()) {
-                String libraryId = library.getLibraryId();
+            for (String libraryId : libraryIds) {
                 downloadManager.setDownloadStatus(packageId, libraryId, DownloadStatus.NEW);
             }
 
@@ -153,7 +170,16 @@ public class DriverPackageMetadata implements PersistentStateElement {
 
     @Override
     public void readState(Element element) {
-        for (Element packageElement : element.getChildren("package")) {
+        if (element == null) return;
+
+        Element refreshesElement = element.getChild("last-refresh");
+        for (Element refreshElement : childrenOf(refreshesElement, "database-type")) {
+            DatabaseType databaseType = DatabaseType.valueOf(stringAttribute(refreshElement, "id"));
+            long refreshTime = longAttribute(refreshElement, "timestamp", 0L);
+            lastRefresh.put(databaseType, refreshTime);
+        }
+
+        for (Element packageElement : childrenOf(element, "package")) {
             String packageId = stringAttribute(packageElement, "id");
             DriverPackage driverPackage = ensureDriverPackage(packageId);
             driverPackage.readState(packageElement);
@@ -162,6 +188,14 @@ public class DriverPackageMetadata implements PersistentStateElement {
 
     @Override
     public void writeState(Element element) {
+        Element refreshesElement = newElement(element, "last-refresh");
+        Map<DatabaseType, Long> refreshes = new TreeMap<>(lastRefresh);
+        for (Map.Entry<DatabaseType, Long> entry : refreshes.entrySet()) {
+            Element refreshElement = newElement(refreshesElement, "database-type");
+            setStringAttribute(refreshElement, "id", entry.getKey().name());
+            setLongAttribute(refreshElement, "timestamp", entry.getValue());
+        }
+
         for (DriverPackage driverPackage : driverPackages.values()) {
             Element packageElement = newElement(element, "package");
             driverPackage.writeState(packageElement);

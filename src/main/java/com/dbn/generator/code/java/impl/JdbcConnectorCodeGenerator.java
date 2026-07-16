@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.util.JdbcUrls.redactSensitiveParameters;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showAcknowledgementDialog;
 import static com.dbn.common.util.Parameters.toParameterString;
@@ -61,6 +62,8 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
     private static final @NonNls String PLACEHOLDER_TOKEN_PROFILE = "<oci-token-profile>";
     private static final @NonNls String PLACEHOLDER_OCI_COMPARTMENT = "<oci-compartment-ocid>";
     private static final @NonNls String PLACEHOLDER_OCI_DATABASE = "<oci-database-ocid>";
+    private static final @NonNls String JAVA_IDENTIFIER = "[A-Za-z_$][A-Za-z\\d_$]*";
+    private static final @NonNls String JAVA_QUALIFIED_IDENTIFIER = JAVA_IDENTIFIER + "(\\." + JAVA_IDENTIFIER + ")*";
 
     public JdbcConnectorCodeGenerator(CodeGeneratorType type) {
         super(type);
@@ -145,8 +148,8 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
 
         ConnectionDatabaseSettings databaseSettings = settings.getDatabaseSettings();
         addProperty(properties, "DATABASE_TYPE", databaseSettings.getDatabaseType());
-        addProperty(properties, "JDBC_URL", databaseSettings.getConnectionUrl());
-        addProperty(properties, "JDBC_DRIVER", databaseSettings.getDriver());
+        addProperty(properties, "JDBC_URL", redactSensitiveParameters(databaseSettings.getConnectionUrl()));
+        addProperty(properties, "JDBC_DRIVER", getValidDriverClassName(databaseSettings.getDriver()));
         addProperty(properties, "JDBC_URL_PATTERN", databaseSettings.getUrlPattern().getUrlTemplate());
 
         DatabaseInfo databaseInfo = databaseSettings.getDatabaseInfo();
@@ -157,11 +160,9 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         addProperty(properties, "DATABASE", databaseInfo.getDatabase());
         addProperty(properties, "PROTOCOL", databaseInfo.getProtocol());
         addProperty(properties, "SERVER_TYPE", databaseInfo.getServerType());
-        // ensure the quoted parameters are jave-escaped  because
-        // they will be added to Java code.
         addProperty(properties, "PARAMETERS",
                 toParameterString(EasyConnectParameters.ensureParametersIfEasyConnect(
-                        databaseInfo.getParameters(), databaseInfo, true)));
+                        databaseInfo.getParameters(), databaseInfo, false)));
         addProperty(properties, "TNS_FOLDER", databaseInfo.getTnsFolder());
         addProperty(properties, "TNS_PROFILE", databaseInfo.getTnsProfile());
 
@@ -192,14 +193,8 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         }
         addProperty(properties, "AZURE_TOKEN_CLIENT_SECRET_TOKEN", authenticationInfo.getAzureClientSecret());
 
-        // custom properties as csv
         Map<String, String> props = settings.getPropertiesSettings().getProperties();
-        String propsCsv = props
-                .entrySet()
-                .stream()
-                .map(e -> e.getKey() + "=" + e.getValue())
-                .collect(Collectors.joining(","));
-        addProperty(properties, "PROPERTIES", propsCsv);
+        addRawProperty(properties, "PROPERTIES", toPropertiesSource(props));
     }
 
     @Nullable
@@ -254,7 +249,59 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
 
     private static void addProperty(Properties properties, @NonNls String key, Object value) {
         if (value == null) return;
+        properties.put(key, toJavaStringLiteralContent(value.toString()));
+    }
+
+    private static void addRawProperty(Properties properties, @NonNls String key, Object value) {
+        if (value == null) return;
         properties.put(key, value.toString());
+    }
+
+    @Nullable
+    static String getValidDriverClassName(@Nullable String driverClassName) {
+        if (isEmpty(driverClassName)) return null;
+        if (!driverClassName.matches(JAVA_QUALIFIED_IDENTIFIER)) return null;
+
+        return driverClassName;
+    }
+
+    @NotNull
+    static String toPropertiesSource(@NotNull Map<String, String> properties) {
+        return properties.entrySet().stream()
+                .filter(e -> isNotEmpty(e.getKey()))
+                .filter(e -> isNotEmpty(e.getValue()))
+                .map(e -> "properties.put(\"" +
+                          toJavaStringLiteralContent(e.getKey()) +
+                          "\", \"" +
+                          toJavaStringLiteralContent(e.getValue()) +
+                          "\");")
+                .collect(Collectors.joining("\n"));
+    }
+
+    @NotNull
+    static String toJavaStringLiteralContent(@NotNull String value) {
+        StringBuilder builder = new StringBuilder(value.length());
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            switch (c) {
+                case '\b' -> builder.append("\\b");
+                case '\t' -> builder.append("\\t");
+                case '\n' -> builder.append("\\n");
+                case '\f' -> builder.append("\\f");
+                case '\r' -> builder.append("\\r");
+                case '"' -> builder.append("\\\"");
+                case '\'' -> builder.append("\\'");
+                case '\\' -> builder.append("\\\\");
+                default -> {
+                    if (c < 0x20) {
+                        builder.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        builder.append(c);
+                    }
+                }
+            }
+        }
+        return builder.toString();
     }
 
     @Override

@@ -85,10 +85,4 @@ public class AssistantCredentialBundle extends ProjectUnit {
     public AssistantCredential getCredential(int index) {
         return elements.get(index);
     }
-
-    public void initSecrets() {
-        for (AssistantCredential element : elements) {
-            element.initSecrets();
-        }
-    }
 }

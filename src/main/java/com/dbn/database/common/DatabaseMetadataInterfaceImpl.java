@@ -30,6 +30,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 
+import static com.dbn.database.common.DatabaseContentLimits.MAX_JAVA_BINARY_LENGTH;
+import static com.dbn.database.common.DatabaseContentLimits.MAX_SOURCE_TEXT_LENGTH;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBase implements DatabaseMetadataInterface {
@@ -40,8 +42,8 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
-    public ResultSet getDistinctValues(String ownerName, String datasetName, String columnName, DBNConnection connection) throws SQLException {
-        return executeQuery(connection, "load-distinct-values", ownerName, datasetName, columnName);
+    public ResultSet getDistinctValues(String ownerName, String datasetName, String columnName, int maxValues, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "load-distinct-values", ownerName, datasetName, columnName, maxValues);
     }
 
     @Override
@@ -158,6 +160,16 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public ResultSet loadAllConstraintRelations(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "all-column-constraint-relations", ownerName);
+    }
+
+    @Override
+    public ResultSet loadAllColumnRelations(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-column-relations", ownerName);
+    }
+
+    @Override
+    public ResultSet loadColumnRelations(String ownerName, String datasetName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "column-relations", ownerName, datasetName);
     }
 
     @Override
@@ -494,12 +506,12 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
 
     @Override
     public String loadJavaResourceSourceCode(String ownerName, String objectName, DBNConnection connection) throws SQLException {
-        return executeCall(connection, new ClobOutput(), "java-resource-source-code", ownerName, objectName).getValue();
+        return executeCall(connection, new ClobOutput("Database Java resource", MAX_SOURCE_TEXT_LENGTH), "java-resource-source-code", ownerName, objectName).getValue();
     }
 
     @Override
     public byte[] loadJavaBinaryCode(String ownerName, String objectName, DBNConnection connection) throws SQLException {
-        return executeCall(connection, new BlobOutput(), "java-binary-code", ownerName, objectName).getValue();
+        return executeCall(connection, new BlobOutput("Database Java binary", MAX_JAVA_BINARY_LENGTH), "java-binary-code", ownerName, objectName).getValue();
     }
 
     /*********************************************************
