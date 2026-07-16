@@ -16,16 +16,10 @@
 
 package com.dbn.object;
 
-import com.dbn.object.common.DBRootObject;
+import com.dbn.object.common.DBSchemaObject;
 import org.jetbrains.annotations.Nullable;
 
-public interface DBDatasourceConfig extends DBRootObject {
-    String getOwnerName();
-
-    String getConfigName();
-
-    String getQualifiedConfigName();
-
+public interface DBDatasourceConfig extends DBSchemaObject {
     String getLastUpdated();
 
     @Nullable

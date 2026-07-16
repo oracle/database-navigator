@@ -114,7 +114,6 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
     private final DBObjectList<DBSystemPrivilege> systemPrivileges;
     private final DBObjectList<DBObjectPrivilege> objectPrivileges = null; // TODO
     private final DBObjectList<DBCharset> charsets;
-    private final DBObjectList<DBDatasourceConfig> datasourceConfigs;
 
     private final DBDataTypeBundle dataTypes;
 
@@ -138,8 +137,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         this.roles = objectLists.createObjectList(ROLE, this);
         this.systemPrivileges = objectLists.createObjectList(SYSTEM_PRIVILEGE, this);
         this.charsets = objectLists.createObjectList(CHARSET, this);
-        this.datasourceConfigs = objectLists.createObjectList(DATASOURCE_CONFIG, this);
-        this.allPossibleTreeChildren = DatabaseBrowserUtils.createList(consoles, schemas, users, roles, systemPrivileges, charsets, datasourceConfigs);
+        this.allPossibleTreeChildren = DatabaseBrowserUtils.createList(consoles, schemas, users, roles, systemPrivileges, charsets);
 
         this.objectLists.createObjectRelationList(USER_ROLE, this, users, roles, GROUPED);
         this.objectLists.createObjectRelationList(USER_PRIVILEGE, this, users, systemPrivileges, GROUPED);
@@ -272,7 +270,11 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
     @Override
     @Nullable
     public List<DBDatasourceConfig> getDatasourceConfigs() {
-        return DBObjectListImpl.getObjects(datasourceConfigs);
+        List<DBDatasourceConfig> datasourceConfigs = new ArrayList<>();
+        for (DBSchema schema : getSchemas()) {
+            datasourceConfigs.addAll(schema.getDatasourceConfigs());
+        }
+        return datasourceConfigs;
     }
 
     @Override
@@ -580,8 +582,6 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         if (objectType == ROLE) return getRole(name);
         if (objectType == CHARSET) return getCharset(name);
         if (objectType == SYSTEM_PRIVILEGE) return getSystemPrivilege(name);
-        if (objectType == DATASOURCE_CONFIG) return DBObjectListImpl.getObject(datasourceConfigs, name);
-
         if (objectType.isSchemaObject()) {
             for (DBSchema schema : getPublicSchemas()) {
                 DBObject childObject = schema.getChildObject(objectType, name, overload, true);

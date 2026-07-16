@@ -228,11 +228,6 @@ public class DBObjectLoaders {
                 (content, conn, mdi) -> mdi.loadCharsets(conn),
                 (content, cache, md) -> new DBCharsetImpl(content.getConnection(), md));
 
-        DynamicContentResultSetLoader.<DBDatasourceConfig, DBDatasourceConfigMetadata>create(
-                "DATASOURCE_CONFIGS", null, DATASOURCE_CONFIG, true, true,
-                (content, conn, mdi) -> mdi.loadDatasourceConfigs(conn),
-                (content, cache, md) -> new DBDatasourceConfigImpl(content.getConnection(), md));
-
         DynamicContentResultSetLoader.<DBUserRoleRelation, DBGrantedRoleMetadata>create(
                 "USER_ROLES", null, USER_ROLE, true, true,
                 (content, conn, mdi) -> mdi.loadAllUserRoles(conn),
@@ -392,6 +387,11 @@ public class DBObjectLoaders {
                 "CREDENTIALS", SCHEMA, CREDENTIAL, true, true,
                 (content, conn, mdi) -> mdi.loadCredentials(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBCredentialImpl(content.getParentEntity(), md));
+
+        DynamicContentResultSetLoader.<DBDatasourceConfig, DBDatasourceConfigMetadata>create(
+                "DATASOURCE_CONFIGS", SCHEMA, DATASOURCE_CONFIG, true, true,
+                (content, conn, mdi) -> mdi.loadDatasourceConfigs(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> new DBDatasourceConfigImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBAIProfileImpl, DBAIProfileMetadata>create(
                 "AI_PROFILES", SCHEMA, AI_PROFILE, true, true,

@@ -18,6 +18,8 @@ package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
 import com.dbn.database.common.security.ObjectIdentifier;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.sql.SQLException;
 
@@ -30,4 +32,12 @@ public interface DBDatasourceConfigMetadata extends DBObjectMetadata {
     String getConfigName() throws SQLException;
 
     String getLastUpdated() throws SQLException;
+
+    @Getter
+    @Builder
+    class Record implements DBDatasourceConfigMetadata {
+        private final String ownerName;
+        private final String configName;
+        private final String lastUpdated;
+    }
 }

@@ -465,6 +465,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         ARGUMENT.addParent(PACKAGE_PROCEDURE);
         CLUSTER.addParent(SCHEMA);
         CREDENTIAL.addParent(SCHEMA);
+        DATASOURCE_CONFIG.addParent(SCHEMA);
         COLUMN.addParent(DATASET);
         COLUMN.addParent(TABLE);
         COLUMN.addParent(VIEW);

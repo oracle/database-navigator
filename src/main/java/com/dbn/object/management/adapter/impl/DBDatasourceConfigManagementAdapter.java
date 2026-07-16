@@ -36,7 +36,7 @@ public class DBDatasourceConfigManagementAdapter extends ObjectManagementAdapter
     @Override
     protected void createObject(ConnectionHandler connection, DBNConnection conn, DBDatasourceConfig object) throws SQLException {
         connection.getDatasourceConfigInterface().createDatasourceConfig(
-                object.getQualifiedConfigName(),
+                object.getQualifiedName(),
                 object.getValue(),
                 conn);
     }
@@ -44,13 +44,13 @@ public class DBDatasourceConfigManagementAdapter extends ObjectManagementAdapter
     @Override
     protected void updateObject(ConnectionHandler connection, DBNConnection conn, DBDatasourceConfig object) throws SQLException {
         connection.getDatasourceConfigInterface().updateDatasourceConfig(
-                object.getQualifiedConfigName(),
+                object.getQualifiedName(),
                 object.getValue(),
                 conn);
     }
 
     @Override
     protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBDatasourceConfig object) throws SQLException {
-        connection.getDatasourceConfigInterface().deleteDatasourceConfig(object.getQualifiedConfigName(), conn);
+        connection.getDatasourceConfigInterface().deleteDatasourceConfig(object.getQualifiedName(), conn);
     }
 }

@@ -78,7 +78,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> CONFIG_NAME (char)
      *  <li> LAST_UPDATED (char)
      */
-    ResultSet loadDatasourceConfigs(DBNConnection connection) throws SQLException;
+    ResultSet loadDatasourceConfigs(String ownerName, DBNConnection connection) throws SQLException;
 
     /**
      * Load all user roles

@@ -98,12 +98,12 @@ public class DatasourceConfigEditorProvider implements ObjectEditorProvider {
                 project,
                 entry.getConnectionId(),
                 conn -> entry.getConnection().getDatasourceConfigInterface().loadDatasourceConfigValue(
-                        entry.getOwnerName(),
-                        entry.getConfigName(),
+                        entry.getSchema().getName(),
+                        entry.getName(),
                         conn));
 
         if (value == null) {
-            throw new SQLException(txt("msg.datasourceConfig.error.NotFound", entry.getQualifiedConfigName()));
+            throw new SQLException(txt("msg.datasourceConfig.error.NotFound", entry.getQualifiedName()));
         }
         return value;
     }

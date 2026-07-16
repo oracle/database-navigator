@@ -31,6 +31,7 @@ import com.dbn.sync.java.action.JavaResourceDownloadAction;
 
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
+import static com.dbn.object.type.DBObjectType.DATASOURCE_CONFIG;
 import static com.dbn.vfs.DBConsoleType.DEBUG;
 import static com.dbn.vfs.DBConsoleType.SEARCH;
 import static com.dbn.vfs.DBConsoleType.STANDARD;
@@ -64,7 +65,11 @@ public class ObjectListActionGroup extends DefaultActionGroup {
                 add(new JavaResourceDownloadAction(schema));
             }
 
-            add(new CreateObjectAction(objectList));
+            if (objectType == DATASOURCE_CONFIG) {
+                add(new ObjectCreateAction(objectList));
+            } else {
+                add(new CreateObjectAction(objectList));
+            }
         }
 
     }

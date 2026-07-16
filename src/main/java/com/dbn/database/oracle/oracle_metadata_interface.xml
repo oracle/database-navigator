@@ -144,7 +144,8 @@
                 config_name,
                 to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
             from [PREFIX]_DATA_SOURCE_CONFIGS
-            order by owner, config_name
+                where owner = {#0}
+                order by config_name
         </statement>
         <statement prefixes="USER">
             select
@@ -152,6 +153,7 @@
                 config_name,
                 to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
             from USER_DATA_SOURCE_CONFIGS
+            where USER = {#0}
             order by config_name
         </statement>
         <statement>

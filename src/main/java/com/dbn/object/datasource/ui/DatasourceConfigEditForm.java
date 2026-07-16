@@ -16,6 +16,7 @@
 
 package com.dbn.object.datasource.ui;
 
+import com.dbn.common.exception.Exceptions;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -44,6 +45,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
+import java.sql.SQLException;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.file.FileTypes.getJsonFileType;
@@ -159,8 +161,8 @@ public class DatasourceConfigEditForm extends DBNFormBase {
     }
 
     private void initInputs(@Nullable String value) {
-        String ownerName = entry == null ? connection.getUserName() : entry.getOwnerName();
-        setText(configNameTextField, entry == null ? DEFAULT_CONFIG_NAME : entry.getConfigName());
+        String ownerName = entry == null ? connection.getUserName() : entry.getSchema().getName();
+        setText(configNameTextField, entry == null ? DEFAULT_CONFIG_NAME : entry.getName());
 
         boolean creating = entry == null;
         ownerComboBox
@@ -201,10 +203,13 @@ public class DatasourceConfigEditForm extends DBNFormBase {
 
     private DBDatasourceConfigImpl inputsToEntry() {
         DBSchema owner = getSelection(ownerComboBox);
-        String ownerName = owner == null ? "" : owner.getName();
         String configName = getText(configNameTextField).trim();
         String value = readEditorText().trim();
-        return new DBDatasourceConfigImpl(connection, ownerName, configName, value);
+        try {
+            return new DBDatasourceConfigImpl(owner, configName, value);
+        } catch (SQLException e) {
+            throw Exceptions.toRuntimeException(e);
+        }
     }
 
     @NotNull
