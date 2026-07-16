@@ -21,7 +21,7 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.thread.ThreadPropertyGate;
+import com.dbn.common.thread.ThreadContext;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -454,7 +454,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         Messages.showErrorDialog(getProject(), txt("msg.debugger.error.CouldNotPerformOperation"), e);
     }
 
-    @ThreadPropertyGate(DEBUGGER_NAVIGATION)
+    @ThreadContext(DEBUGGER_NAVIGATION)
     private void suspendSession() {
         if (is(PROCESS_TERMINATING) || is(PROCESS_TERMINATED)) return;
 

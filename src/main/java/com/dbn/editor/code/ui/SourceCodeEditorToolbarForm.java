@@ -23,9 +23,9 @@ import com.dbn.common.ui.form.DBNToolbarForm;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.editor.code.SourceCodeEditor;
-import com.dbn.editor.code.SourceCodeManagerListener;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.dbn.vfs.file.status.DBFileStatus;
+import com.dbn.vfs.file.status.DBFileStatusListener;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.util.ui.AsyncProcessIcon;
@@ -60,27 +60,18 @@ public class SourceCodeEditorToolbarForm extends DBNToolbarForm {
         this.loadingDataPanel.setVisible(sourceCodeFile.is(DBFileStatus.LOADING));
         this.loadingDataPanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
 
-        ProjectEvents.subscribe(ensureProject(), this, SourceCodeManagerListener.TOPIC, sourceCodeManagerListener());
+        ProjectEvents.subscribe(ensureProject(), this, DBFileStatusListener.TOPIC, fileStatusListener());
         Disposer.register(sourceCodeEditor, this);
     }
 
     @NotNull
-    private SourceCodeManagerListener sourceCodeManagerListener() {
-        return new SourceCodeManagerListener() {
-            @Override
-            public void sourceCodeLoading(@NotNull DBSourceCodeVirtualFile sourceCodeFile) {
-                DBSourceCodeVirtualFile virtualFile = getVirtualFile();
-                if (virtualFile.equals(sourceCodeFile)) {
-                    dispatch(() -> loadingDataPanel.setVisible(true));
-                }
-            }
+    private DBFileStatusListener fileStatusListener() {
+        return (sourceCodeFile, status, value) -> {
+            if (status != DBFileStatus.LOADING) return;
 
-            @Override
-            public void sourceCodeLoaded(@NotNull DBSourceCodeVirtualFile sourceCodeFile, boolean initialLoad) {
-                DBSourceCodeVirtualFile virtualFile = getVirtualFile();
-                if (virtualFile.equals(sourceCodeFile)) {
-                    dispatch(() -> loadingDataPanel.setVisible(false));
-                }
+            DBSourceCodeVirtualFile virtualFile = getVirtualFile();
+            if (virtualFile.equals(sourceCodeFile)) {
+                dispatch(() -> loadingDataPanel.setVisible(virtualFile.is(DBFileStatus.LOADING)));
             }
         };
     }

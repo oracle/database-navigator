@@ -18,8 +18,6 @@ package com.dbn.object.impl;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBDatasourceConfigMetadata;
-import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.editor.DBContentType;
 import com.dbn.object.DBDatasourceConfig;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
@@ -29,8 +27,6 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
-
-import static com.dbn.common.Priority.HIGHEST;
 
 @Getter
 public class DBDatasourceConfigImpl extends DBSchemaObjectImpl<DBDatasourceConfigMetadata> implements DBDatasourceConfig {
@@ -66,12 +62,8 @@ public class DBDatasourceConfigImpl extends DBSchemaObjectImpl<DBDatasourceConfi
         return DBObjectType.DATASOURCE_CONFIG;
     }
 
-    @Override
-    public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
-        DatabaseInterfaceInvoker.execute(HIGHEST, getProject(), getConnectionId(),
-                conn -> getConnection().getDatasourceConfigInterface().updateDatasourceConfig(
-                        getSchema().getName(), getName(), newCode, conn));
-        value = newCode;
+    public void updateValue(String newValue) {
+        this.value = newValue;
     }
 
 }

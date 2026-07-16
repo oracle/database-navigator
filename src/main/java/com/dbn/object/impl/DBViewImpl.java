@@ -20,8 +20,6 @@ import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBViewMetadata;
-import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
-import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DBContentType;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.sql.SQLLanguage;
@@ -38,8 +36,6 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 import java.util.List;
 
-import static com.dbn.common.Priority.HIGHEST;
-import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.EDITIONABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_OBJECT;
 
@@ -111,30 +107,6 @@ class DBViewImpl<M extends DBViewMetadata> extends DBDatasetImpl<M> implements D
     @Override
     public boolean isEditionable() {
         return is(EDITIONABLE);
-    }
-
-    /*********************************************************
-     *                  DBEditableCodeObject                 *
-     ********************************************************/
-
-    @Override
-    public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
-        DatabaseInterfaceInvoker.execute(HIGHEST,
-                txt("prc.object.title.UpdatingSourceCode"),
-                txt("prc.object.text.UpdatingSources", getQualifiedNameWithType()),
-                getProject(),
-                getConnectionId(),
-                getSchemaId(),
-                conn -> {
-                    ConnectionHandler connection = getConnection();
-                    DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
-                    dataDefinition.updateView(
-                            getSchemaName(true),
-                            getName(true),
-                            newCode,
-                            isEditionable(),
-                            conn);
-        });
     }
 
     @Override

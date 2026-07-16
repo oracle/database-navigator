@@ -25,8 +25,8 @@ import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.navigation.NavigationInstructions;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.thread.ThreadContext;
 import com.dbn.common.thread.ThreadInfo;
-import com.dbn.common.thread.ThreadPropertyGate;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
@@ -123,7 +123,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
         return editorManager.isFileOpen(databaseFile);
     }
 
-    @ThreadPropertyGate(EDITOR_LOAD)
+    @ThreadContext(EDITOR_LOAD)
     public void connectAndOpenEditor(@NotNull DBObject object, @Nullable EditorProviderId editorProviderId, boolean scrollBrowser, boolean focusEditor) {
         if (!isEditable(object)) return;
         approveWorkspaceRestore(object);

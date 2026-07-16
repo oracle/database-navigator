@@ -17,7 +17,7 @@
 package com.dbn.common.component;
 
 import com.dbn.common.state.StateEncryptionCache;
-import com.dbn.common.thread.ThreadPropertyGate;
+import com.dbn.common.thread.ThreadContext;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
@@ -41,7 +41,7 @@ public interface PersistentState extends PersistentStateComponent<Element> {
 
     @Override
     @Nullable
-    @ThreadPropertyGate(COMPONENT_STATE)
+    @ThreadContext(COMPONENT_STATE)
     default Element getState() {
         return PersistentStateContext.surround(
                 getProject(),
@@ -50,7 +50,7 @@ public interface PersistentState extends PersistentStateComponent<Element> {
     }
 
     @Override
-    @ThreadPropertyGate(COMPONENT_STATE)
+    @ThreadContext(COMPONENT_STATE)
     default void loadState(@NotNull Element state) {
         PersistentStateContext.surround(
                 getProject(),
