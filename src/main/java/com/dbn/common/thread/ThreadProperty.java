@@ -22,6 +22,8 @@ public enum ThreadProperty implements Property.IntBase {
     CODE_COMPLETION (true),
     CODE_ANNOTATING (true),
     EDITOR_LOAD(true),
+    CODE_LOAD(true),
+    CODE_SAVE(true),
     COMPONENT_STATE(true),
     DATABASE_INTERFACE(true),
     WORKSPACE_RESTORE(true),
