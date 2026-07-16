@@ -22,6 +22,7 @@ import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Characters;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
@@ -30,6 +31,7 @@ import com.dbn.editor.DBContentType;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,6 +71,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     COLUMN(DatabaseObjectTypeId.COLUMN, "column", "columns", Icons.DBO_COLUMN, null, Icons.DBO_COLUMNS, false),
     CONSTRAINT(DatabaseObjectTypeId.CONSTRAINT, "constraint", "constraints", Icons.DBO_CONSTRAINT, Icons.DBO_CONSTRAINT_DISABLED, Icons.DBO_CONSTRAINTS, false),
     CREDENTIAL(DatabaseObjectTypeId.CREDENTIAL, "credential", "credentials", Icons.DBO_CREDENTIAL, Icons.DBO_CREDENTIAL_DISABLED, Icons.DBO_CREDENTIALS, false),
+    DATASOURCE_CONFIG(DatabaseObjectTypeId.DATASOURCE_CONFIG, "datasource config", "datasource configs", Icons.DBO_DATASOURCE_CONFIG, null, Icons.DBO_DATASOURCE_CONFIGS, false),
     DATABASE(DatabaseObjectTypeId.DATABASE, "database", "databases", null, null, null, false),
     DATASET(DatabaseObjectTypeId.DATASET, "dataset", "datasets", null, null, null, true),
     DIRECTORY(DatabaseObjectTypeId.DIRECTORY, "directory", "directories", null, null, null, true),
@@ -235,9 +238,10 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
             DBObjectType.DBLINK,
             DBObjectType.CREDENTIAL,
             DBObjectType.AI_PROFILE,
-            DBObjectType.AI_MODEL));
+            DBObjectType.AI_MODEL,
+            DBObjectType.DATASOURCE_CONFIG));
 
-    DBObjectType(DatabaseObjectTypeId typeId, String name, String listName, Icon icon, Icon disabledIcon, Icon listIcon, boolean generic) {
+    DBObjectType(DatabaseObjectTypeId typeId, @NonNls String name, @NonNls String listName, Icon icon, Icon disabledIcon, Icon listIcon, boolean generic) {
         this.typeId = typeId;
         this.name = name.intern();
         this.listName = listName;
@@ -341,6 +345,10 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     @Nullable
     public DDLFileTypeId getDdlFileTypeId(@Nullable DBContentType contentType) {
         return ddlFileTypeIds == null ? null : ddlFileTypeIds.get(contentType);
+    }
+
+    public boolean supportsDdl(@Nullable DBContentType contentType) {
+        return getDdlFileTypeId(contentType) != null;
     }
 
     @Nullable
@@ -468,6 +476,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         ARGUMENT.addParent(PACKAGE_PROCEDURE);
         CLUSTER.addParent(SCHEMA);
         CREDENTIAL.addParent(SCHEMA);
+        DATASOURCE_CONFIG.addParent(SCHEMA);
         COLUMN.addParent(DATASET);
         COLUMN.addParent(TABLE);
         COLUMN.addParent(VIEW);
@@ -538,6 +547,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         VIEW.contentType = DBContentType.CODE_AND_DATA;
         MATERIALIZED_VIEW.contentType = DBContentType.CODE_AND_DATA;
         JSON_VIEW.contentType = DBContentType.CODE_AND_JSON;
+        DATASOURCE_CONFIG.contentType = DBContentType.CODE;
         TYPE.contentType = DBContentType.CODE_SPEC_AND_BODY;
         PACKAGE.contentType = DBContentType.CODE_SPEC_AND_BODY;
         TRIGGER.contentType = DBContentType.CODE;
@@ -710,7 +720,10 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         if (connectionProvider == null) return false;
 
         DatabaseCompatibilityInterface compatibility = connectionProvider.getCompatibilityInterface();
-        return compatibility.supportsObjectType(getTypeId());
+        ConnectionHandler connection = connectionProvider.getConnection();
+        return connection == null ?
+                compatibility.supportsObjectType(getTypeId()) :
+                compatibility.supportsObjectType(getTypeId(), connection.getDatabaseVersion());
     }
 
     public boolean isBrowsable() {

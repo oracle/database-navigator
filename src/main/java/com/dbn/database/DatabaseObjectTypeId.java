@@ -35,6 +35,7 @@ public enum DatabaseObjectTypeId implements Constant<DatabaseObjectTypeId> {
     COLUMN,
     CONSTRAINT,
     CREDENTIAL,
+    DATASOURCE_CONFIG,
     DATABASE,
     DATASET,
     DIRECTORY,

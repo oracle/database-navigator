@@ -51,6 +51,7 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.util.Unsafe.cast;
+import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
 
 @Getter
@@ -72,6 +73,10 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
     @NotNull
     private DatabaseEntity getOwner() {
         return Failsafe.nn(owner);
+    }
+
+    private int size() {
+        return this.objects == null ? 0 : this.objects.length;
     }
 
     public void visit(DBObjectListVisitor visitor, boolean visitInternal) {
@@ -408,7 +413,7 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
         if (objects == null) return;
 
         int index = objectsIndex(objects.getObjectType());
-        int length = index + 1;
+        int length = max(index + 1, size());
 
         if (this.objects == null)
             this.objects = new DBObjectList[length]; else
@@ -419,7 +424,7 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
 
     private void addRelations(DBObjectRelationList relations) {
         int index = relationsIndex(relations.getRelationType());
-        int length = index + 1;
+        int length = max(index + 1, size());
 
         if (this.relations == null)
             this.relations = new DBObjectRelationList[length]; else
