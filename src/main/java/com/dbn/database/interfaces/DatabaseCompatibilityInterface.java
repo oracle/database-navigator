@@ -64,6 +64,10 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
 
     boolean supportsObjectType(DatabaseObjectTypeId objectTypeId);
 
+    default boolean supportsObjectType(DatabaseObjectTypeId objectTypeId, double databaseVersion) {
+        return supportsObjectType(objectTypeId);
+    }
+
     boolean supportsFeature(DatabaseFeature feature);
 
     boolean supportsFeature(DatabaseFeature feature, DatabaseObjectTypeId objectTypeId);

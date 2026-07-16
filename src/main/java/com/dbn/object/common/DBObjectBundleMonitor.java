@@ -71,7 +71,9 @@ class DBObjectBundleMonitor implements ObjectChangeListener {
     }
 
     private void refreshRootObjects(DBObjectType objectType, ObjectChangeAction action) {
-        if (action.isOneOf(CREATE, DELETE, UNSPECIFIED)) {
+        // root-object change events do not carry the object instance, so UPDATE cannot be handled by the
+        // object.refresh() path above; reload the root list instead so metadata (e.g. lastUpdated) stays current
+        if (action.isOneOf(CREATE, UPDATE, DELETE, UNSPECIFIED)) {
             DBObjectBundle objectBundle = getObjectBundle();
             DBObjectList<DBObject> objectList = objectBundle.getObjectLists().getObjectList(objectType);
             markDirty(objectList);

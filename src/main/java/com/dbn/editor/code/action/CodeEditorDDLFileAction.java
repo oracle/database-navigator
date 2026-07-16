@@ -24,6 +24,7 @@ import com.dbn.ddl.action.DDLFileAttachAction;
 import com.dbn.ddl.action.DDLFileCreateAction;
 import com.dbn.ddl.action.DDLFileDetachAction;
 import com.dbn.ddl.action.DDLFileSettingsAction;
+import com.dbn.editor.DBContentType;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
@@ -45,29 +46,41 @@ public class CodeEditorDDLFileAction extends ProjectPopupAction {
 
     @Override
     public void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
-        DBObjectType objectType = sourceCodeFile == null ? null : sourceCodeFile.getObjectType();
-
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.CODE_EDITOR_DDL_FILE);
         presentation.setText(txt("app.codeEditor.action.DdlFiles"));
-        presentation.setEnabled(objectType != null);
+
+        boolean supported = isSupported(e);
+        presentation.setVisible(supported);
+        presentation.setEnabled(supported);
     }
 
     @Override
     public AnAction[] getChildren(AnActionEvent e) {
+        if (!isSupported(e)) return AnAction.EMPTY_ARRAY;
+
         DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
-        if (sourceCodeFile != null) {
-            DBSchemaObject object = sourceCodeFile.getObject();
-            return new AnAction[]{
-                    new DDLFileCreateAction(object),
-                    new DDLFileAttachAction(object),
-                    new DDLFileDetachAction(object),
-                    Separator.getInstance(),
-                    new DDLFileSettingsAction()
-            };
-        }
-        return AnAction.EMPTY_ARRAY;
+        if (sourceCodeFile == null) return AnAction.EMPTY_ARRAY;
+
+        DBSchemaObject object = sourceCodeFile.getObject();
+        return new AnAction[]{
+                new DDLFileCreateAction(object),
+                new DDLFileAttachAction(object),
+                new DDLFileDetachAction(object),
+                Separator.getInstance(),
+                new DDLFileSettingsAction()
+        };
+    }
+
+    private static boolean isSupported(AnActionEvent e) {
+        DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
+        if (sourceCodeFile == null) return false;
+
+        DBSchemaObject object = sourceCodeFile.getObject();
+        DBContentType contentType = sourceCodeFile.getContentType();
+        DBObjectType objectType = object.getObjectType();
+
+        return objectType.supportsDdl(contentType);
     }
 
     protected static DBSourceCodeVirtualFile getSourcecodeFile(AnActionEvent e) {
