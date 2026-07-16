@@ -22,6 +22,7 @@ import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Characters;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
@@ -714,7 +715,10 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         if (connectionProvider == null) return false;
 
         DatabaseCompatibilityInterface compatibility = connectionProvider.getCompatibilityInterface();
-        return compatibility.supportsObjectType(getTypeId());
+        ConnectionHandler connection = connectionProvider.getConnection();
+        return connection == null ?
+                compatibility.supportsObjectType(getTypeId()) :
+                compatibility.supportsObjectType(getTypeId(), connection.getDatabaseVersion());
     }
 
     public boolean isBrowsable() {

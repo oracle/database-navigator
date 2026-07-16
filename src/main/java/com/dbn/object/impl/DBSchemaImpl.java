@@ -179,9 +179,9 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(CLUSTER,           this);
         childObjects.createObjectList(DBLINK,            this);
         childObjects.createObjectList(CREDENTIAL,        this);
-        childObjects.createObjectList(DATASOURCE_CONFIG, this);
         childObjects.createObjectList(AI_PROFILE,        this);
         childObjects.createObjectList(AI_MODEL,          this);
+        childObjects.createObjectList(DATASOURCE_CONFIG, this);
         DBObjectList<DBConstraint> constraints = childObjects.createObjectList(CONSTRAINT, this, INTERNAL, GROUPED);
         DBObjectList<DBIndex> indexes          = childObjects.createObjectList(INDEX,      this, INTERNAL, GROUPED);
         DBObjectList<DBColumn> columns         = childObjects.createObjectList(COLUMN,     this, INTERNAL, GROUPED, HIDDEN);
