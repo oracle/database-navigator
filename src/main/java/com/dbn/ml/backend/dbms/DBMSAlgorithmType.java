@@ -166,16 +166,4 @@ public enum DBMSAlgorithmType {
             case XGBOOST_REGRESSION -> XGBOOST_REGRESSION;
         };
     }
-
-    /**
-     * Finds algorithm by display name.
-     */
-    public static DBMSAlgorithmType fromDisplayName(@Nls String displayName) {
-        for (DBMSAlgorithmType type : values()) {
-            if (type.getDisplayName().equalsIgnoreCase(displayName)) {
-                return type;
-            }
-        }
-        throw new IllegalArgumentException(txt("msg.machineLearning.exception.UnknownDBMSAlgorithm", displayName));
-    }
 }

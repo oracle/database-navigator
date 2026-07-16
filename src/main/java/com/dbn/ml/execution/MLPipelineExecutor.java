@@ -17,16 +17,19 @@
 package com.dbn.ml.execution;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.object.DBSchema;
-import com.dbn.object.DBView;
-import com.dbn.object.common.list.DBObjectList;
-import com.dbn.object.type.DBObjectType;
 import com.dbn.ml.backend.dbms.DBMSBackend;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.backend.model.MLTrainingContext;
-import com.dbn.ml.model.*;
+import com.dbn.ml.model.MLRequest;
+import com.dbn.ml.model.MLResult;
+import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLSourceNames;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBView;
+import com.dbn.object.common.DBObjectUtil;
+import com.dbn.object.common.list.DBObjectList;
+import com.dbn.object.type.DBObjectType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -41,38 +44,8 @@ import java.util.Objects;
 public class MLPipelineExecutor {
 
     /**
-     * Execute ML training pipeline.
-     *
-     * @param request MLRequest containing all configuration
-     * @param connectionHandler Connection handler for database operations
-     * @return MLResult containing trained model and evaluation metrics
-     * @throws Exception if training fails
-     */
-    public MLResult execute(MLRequest request, ConnectionHandler connectionHandler) throws Exception {
-        MLTrainingContext context = buildContext(request);
-        DBMSBackend backend = new DBMSBackend(connectionHandler);
-        long startTime = System.currentTimeMillis();
-
-        try {
-            DBMSModelHandle modelHandle = backend.train(context);
-            return buildResult(request, connectionHandler, context, backend, modelHandle, startTime);
-
-        } finally {
-            try {
-                backend.cleanup(context);
-            } catch (Exception e) {
-                log.warn("Failed to cleanup backend resources", e);
-            }
-        }
-    }
-
-    /**
      * Prepares training data and submits CREATE_MODEL as an Oracle Scheduler job.
      * Returns immediately with a pending job descriptor — training continues server-side.
-     */
-    /**
-     * Prepares training data and submits CREATE_MODEL as an Oracle Scheduler job.
-     * Returns the model name. Training continues on the DB server — client can disconnect.
      */
     public MLTrainingJobSubmission submitAsync(MLRequest request, ConnectionHandler connectionHandler) throws Exception {
         MLTrainingContext context = buildContext(request);
@@ -130,6 +103,9 @@ public class MLPipelineExecutor {
         result.setConnection(context.getConnection());
         result.setAlgorithmName(context.getAlgorithmName());
         result.setModelHandle(modelHandle);
+
+        // Notify browser to refresh AI models
+        DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.AI_MODEL);
 
         // Oracle creates DM$V* views when a model is trained - reload schema views so they appear in the browser.
         DBSchema schema = connectionHandler.getUserSchema();

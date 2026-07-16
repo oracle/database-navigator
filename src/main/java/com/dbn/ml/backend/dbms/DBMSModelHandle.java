@@ -47,9 +47,6 @@ public class DBMSModelHandle {
     private String testTableName;            // Test table for evaluation
 
     @Setter
-    private String sourceTableName;          // Original source table (before split)
-
-    @Setter
     private List<String> classValues;        // Distinct class values (for classification)
 
     public DBMSModelHandle(
