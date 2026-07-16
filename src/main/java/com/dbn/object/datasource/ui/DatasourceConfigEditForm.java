@@ -151,13 +151,15 @@ public class DatasourceConfigEditForm extends DBNFormBase {
         jsonEditor.setPlaceholder(DEFAULT_JSON_TEMPLATE);
 
         EditorSettings settings = jsonEditor.getSettings();
-        settings.setLineNumbersShown(true);
-        settings.setFoldingOutlineShown(true);
+        settings.setLineNumbersShown(false);
+        settings.setGutterIconsShown(false);
+        settings.setFoldingOutlineShown(false);
         settings.setLineMarkerAreaShown(false);
+        settings.setCaretRowShown(false);
         settings.setRightMarginShown(false);
 
         Editors.updateEditorScrollPane(jsonEditor);
-        editorPanel.add(jsonEditor.getComponent(), BorderLayout.CENTER);
+        editorPanel.add(jsonEditor.getComponent());
     }
 
     private void initInputs(@Nullable String value) {

@@ -35,9 +35,9 @@ public interface DatabaseDatasourceConfigInterface extends DatabaseInterface {
 
     DatasourceConfigCreationScope loadDatasourceConfigCreationScope(DBNConnection connection) throws SQLException;
 
-    void createDatasourceConfig(String qualifiedConfigName, String value, DBNConnection connection) throws SQLException;
+    void createDatasourceConfig(String ownerName, String configName, String value, DBNConnection connection) throws SQLException;
 
-    void updateDatasourceConfig(String qualifiedConfigName, String value, DBNConnection connection) throws SQLException;
+    void updateDatasourceConfig(String ownerName, String configName, String value, DBNConnection connection) throws SQLException;
 
-    void deleteDatasourceConfig(String qualifiedConfigName, DBNConnection connection) throws SQLException;
+    void deleteDatasourceConfig(String ownerName, String configName, DBNConnection connection) throws SQLException;
 }

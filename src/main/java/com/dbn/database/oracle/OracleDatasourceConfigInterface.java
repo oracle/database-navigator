@@ -41,17 +41,21 @@ public class OracleDatasourceConfigInterface extends DatabaseInterfaceBase imple
     }
 
     @Override
-    public void createDatasourceConfig(String qualifiedConfigName, String value, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "create-datasource-config", qualifiedConfigName, value);
+    public void createDatasourceConfig(String ownerName, String configName, String value, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "create-datasource-config", qualifiedName(ownerName, configName), value);
     }
 
     @Override
-    public void updateDatasourceConfig(String qualifiedConfigName, String value, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "update-datasource-config", qualifiedConfigName, value);
+    public void updateDatasourceConfig(String ownerName, String configName, String value, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "update-datasource-config", qualifiedName(ownerName, configName), value);
     }
 
     @Override
-    public void deleteDatasourceConfig(String qualifiedConfigName, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "delete-datasource-config", qualifiedConfigName);
+    public void deleteDatasourceConfig(String ownerName, String configName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "delete-datasource-config", qualifiedName(ownerName, configName));
+    }
+
+    private static String qualifiedName(String ownerName, String configName) {
+        return ownerName + "." + configName;
     }
 }
