@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.connection.config.datasource.prerequisite;
+package com.dbn.object.datasource.prerequisite;
 
 import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluatorBase;

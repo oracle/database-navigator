@@ -324,7 +324,7 @@
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBJsonViewManagementAdapter"/>
 
         <!--object editor providers-->
-        <objectEditorProvider implementation="com.dbn.connection.config.datasource.DatasourceConfigEditorProvider"/>
+        <objectEditorProvider implementation="com.dbn.object.datasource.DatasourceConfigEditorProvider"/>
 
         <!--presentation providers-->
         <presentationProvider implementation="com.dbn.common.presentation.provider.ConnectionPresentationProvider"/>
@@ -377,11 +377,11 @@
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.DatabaseVersion_VECTOR_SUPPORT"/>
 
         <!--data source configuration prerequisites-->
-        <prerequisiteRequirementEvaluator implementation="com.dbn.connection.config.datasource.prerequisite.DatasourceConfigPrerequisitesEvaluator"/>
-        <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.DatabaseVersion_DATA_SOURCE_CONFIG"/>
-        <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.SystemPrivilege_CREATE_DATA_SOURCE_CONFIG"/>
-        <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.SystemPrivilege_CREATE_ANY_DATA_SOURCE_CONFIG"/>
-        <prerequisiteDefinitionProvider implementation="com.dbn.connection.config.datasource.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DATA_SOURCE_CONFIG"/>
+        <prerequisiteRequirementEvaluator implementation="com.dbn.object.datasource.prerequisite.DatasourceConfigPrerequisitesEvaluator"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.object.datasource.prerequisite.DatabaseVersion_DATA_SOURCE_CONFIG"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.object.datasource.prerequisite.SystemPrivilege_CREATE_DATA_SOURCE_CONFIG"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.object.datasource.prerequisite.SystemPrivilege_CREATE_ANY_DATA_SOURCE_CONFIG"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.object.datasource.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DATA_SOURCE_CONFIG"/>
 
         <!--database assistant extensions-->
         <assistantAdapter implementation="com.dbn.assistant.service.selectai.SelectAiAssistantAdapter"/>

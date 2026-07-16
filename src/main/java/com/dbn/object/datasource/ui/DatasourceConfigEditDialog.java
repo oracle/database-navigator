@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.connection.config.datasource.ui;
+package com.dbn.object.datasource.ui;
 
 import com.dbn.common.outcome.DialogCloseOutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandler;
@@ -30,12 +30,12 @@ import javax.swing.Action;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class DatasourceConfigDialog extends DBNDialog<DatasourceConfigForm> {
+public class DatasourceConfigEditDialog extends DBNDialog<DatasourceConfigEditForm> {
     @Nullable private final DBObjectRef<DBDatasourceConfig> entry;
     @Nullable private final String value;
     private final boolean canCreateInAnySchema;
 
-    public DatasourceConfigDialog(@NotNull ConnectionHandler connection, boolean canCreateInAnySchema) {
+    public DatasourceConfigEditDialog(@NotNull ConnectionHandler connection, boolean canCreateInAnySchema) {
         super(connection, txt("msg.objects.title.CreateObject", entryTypeName()), true);
         this.entry = null;
         this.value = null;
@@ -43,7 +43,7 @@ public class DatasourceConfigDialog extends DBNDialog<DatasourceConfigForm> {
         initDialog();
     }
 
-    public DatasourceConfigDialog(@NotNull DBDatasourceConfig entry, @NotNull String value) {
+    public DatasourceConfigEditDialog(@NotNull DBDatasourceConfig entry, @NotNull String value) {
         super(entry.getConnection(), txt("msg.objects.title.EditObject", entryTypeName()), true);
         this.entry = DBObjectRef.of(entry);
         this.value = value;
@@ -63,11 +63,11 @@ public class DatasourceConfigDialog extends DBNDialog<DatasourceConfigForm> {
     }
 
     @Override
-    protected @NotNull DatasourceConfigForm createForm() {
+    protected @NotNull DatasourceConfigEditForm createForm() {
         DBDatasourceConfig entry = getEntry();
         return entry == null ?
-                new DatasourceConfigForm(this, ensureConnection(), canCreateInAnySchema) :
-                new DatasourceConfigForm(this, entry, value);
+                new DatasourceConfigEditForm(this, ensureConnection(), canCreateInAnySchema) :
+                new DatasourceConfigEditForm(this, entry, value);
     }
 
     @Override

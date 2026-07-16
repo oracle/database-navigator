@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.dbn.connection.config.datasource;
+package com.dbn.object.datasource;
 
 import com.dbn.common.Priority;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.config.datasource.ui.DatasourceConfigDialog;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatasourceConfigCreationScope;
 import com.dbn.object.DBDatasourceConfig;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectList;
+import com.dbn.object.datasource.ui.DatasourceConfigEditDialog;
 import com.dbn.object.editor.ObjectEditorProvider;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.application.ModalityState;
@@ -66,7 +66,7 @@ public class DatasourceConfigEditorProvider implements ObjectEditorProvider {
                     connection.getProject(),
                     connection.getConnectionId(),
                     conn -> connection.getDatasourceConfigInterface().loadDatasourceConfigCreationScope(conn));
-            Dialogs.show(() -> new DatasourceConfigDialog(connection, scope == DatasourceConfigCreationScope.ANY_SCHEMA));
+            Dialogs.show(() -> new DatasourceConfigEditDialog(connection, scope == DatasourceConfigCreationScope.ANY_SCHEMA));
         } catch (SQLException e) {
             Messages.showErrorDialog(connection.getProject(), txt("msg.datasourceConfig.error.LoadFailed"), e);
         }
@@ -84,7 +84,7 @@ public class DatasourceConfigEditorProvider implements ObjectEditorProvider {
     private static void openEditor(@NotNull Project project, @NotNull DBDatasourceConfig entry) {
         try {
             String value = loadValue(project, entry);
-            Dispatch.run((ModalityState) null, () -> Dialogs.show(() -> new DatasourceConfigDialog(entry, value)));
+            Dispatch.run((ModalityState) null, () -> Dialogs.show(() -> new DatasourceConfigEditDialog(entry, value)));
         } catch (Exception e) {
             Dispatch.run((ModalityState) null, () -> Messages.showErrorDialog(project, txt("msg.datasourceConfig.error.LoadFailed"), e));
         }

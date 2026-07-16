@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.connection.config.datasource.ui;
+package com.dbn.object.datasource.ui;
 
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.text.TextContent;
@@ -56,7 +56,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 
-public class DatasourceConfigForm extends DBNFormBase {
+public class DatasourceConfigEditForm extends DBNFormBase {
     private static final String READ_ONLY = "READ_ONLY";
     private static final Pattern CONFIG_NAME_PATTERN = Pattern.compile("^[A-Za-z][A-Za-z0-9_-]*$");
     private static final int IDENTIFIER_MAX_LENGTH = 128;
@@ -86,27 +86,27 @@ public class DatasourceConfigForm extends DBNFormBase {
     private EditorEx jsonEditor;
     private DBNHeaderForm headerForm;
 
-    DatasourceConfigForm(
+    DatasourceConfigEditForm(
             @Nullable Disposable parent,
             @NotNull ConnectionHandler connection) {
         this(parent, connection, null, null, false);
     }
 
-    DatasourceConfigForm(
+    DatasourceConfigEditForm(
             @Nullable Disposable parent,
             @NotNull ConnectionHandler connection,
             boolean canCreateInAnySchema) {
         this(parent, connection, null, null, canCreateInAnySchema);
     }
 
-    DatasourceConfigForm(
+    DatasourceConfigEditForm(
             @Nullable Disposable parent,
             @NotNull DBDatasourceConfig entry,
             @NotNull String value) {
         this(parent, entry.getConnection(), entry, value, false);
     }
 
-    private DatasourceConfigForm(
+    private DatasourceConfigEditForm(
             @Nullable Disposable parent,
             @NotNull ConnectionHandler connection,
             @Nullable DBDatasourceConfig entry,
