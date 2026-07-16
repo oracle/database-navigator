@@ -79,24 +79,35 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
                                 SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
                                 SourceCodeContent sourceCodeContent = sourceCodeManager.loadSourceFromDatabase(object, sourceCodeFile.getContentType());
                                 String databaseContent = sourceCodeContent.getRawContent();
-                                if (action.isCancelled()) return;
+                                if (action.isCancelled()) {
+                                    if (mergeAction == MergeAction.SAVE) {
+                                        sourceCodeFile.set(SAVING, false);
+                                    }
+                                    return;
+                                }
 
                                 openCodeMergeDialog(databaseContent, sourceCodeFile, fileEditor, mergeAction);
                             } catch (Exception e1) {
                                 conditionallyLog(e1);
+                                if (mergeAction == MergeAction.SAVE) {
+                                    sourceCodeFile.set(SAVING, false);
+                                }
                                 showErrorDialog(
                                         project, txt("msg.codeEditor.error.CouldNotLoadSourceCode", object.getQualifiedNameWithType()), e1);
                             }
                         }));
     }
 
-    private void openCodeMergeDialog(String databaseContent, DBSourceCodeVirtualFile sourceCodeFile, SourceCodeEditor fileEditor, MergeAction action) {
+    private void openCodeMergeDialog(String databaseContent, DBSourceCodeVirtualFile sourceCodeFile, SourceCodeEditor fileEditor, MergeAction mergeAction) {
         try {
             Project project = getProject();
-            MergeRequest mergeRequest = createMergeRequest(databaseContent, sourceCodeFile, fileEditor, action, project);
+            MergeRequest mergeRequest = createMergeRequest(databaseContent, sourceCodeFile, fileEditor, mergeAction, project);
             Dispatch.run(nonModal(), () -> DiffManager.getInstance().showMerge(project, mergeRequest));
         } catch (InvalidDiffRequestException e) {
             conditionallyLog(e);
+            if (mergeAction == MergeAction.SAVE) {
+                sourceCodeFile.set(SAVING, false);
+            }
         }
     }
 

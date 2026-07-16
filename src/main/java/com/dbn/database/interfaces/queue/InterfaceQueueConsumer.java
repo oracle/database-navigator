@@ -39,6 +39,7 @@ public class InterfaceQueueConsumer implements Consumer<InterfaceTask<?>>{
     @Override
     public void accept(InterfaceTask<?> task) {
         ThreadMonitor.surround(
+                task.getSource().getThreadInfo(),
                 ThreadProperty.DATABASE_INTERFACE,
                 () -> schedule(task, getQueue()));
     }
