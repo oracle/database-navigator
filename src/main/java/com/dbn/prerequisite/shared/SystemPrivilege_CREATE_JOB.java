@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.database.interfaces;
+package com.dbn.prerequisite.shared;
 
-/**
- * Identifies the database interface contract implemented by a database-specific interface instance.
- */
-public enum DatabaseInterfaceType {
-    ENVIRONMENT,
-    COMPATIBILITY,
-    MESSAGE_PARSER,
-    METADATA,
-    DATA_DEFINITION,
-    EXECUTION,
-    DEBUGGER,
-    ASSISTANT,
-    VECTOR,
-    SCHEDULER,
-    JAVA
+import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
+
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_JOB;
+
+public class SystemPrivilege_CREATE_JOB extends SystemPrivilegePrerequisite {
+    public SystemPrivilege_CREATE_JOB() {
+        super(CREATE_JOB, "CREATE JOB");
+    }
 }
