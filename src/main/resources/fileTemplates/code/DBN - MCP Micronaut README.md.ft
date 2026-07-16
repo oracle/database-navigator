@@ -13,44 +13,59 @@ Unlike the Standard Java server, this executable requires **no Java installation
 It starts near-instantly and is specific to the operating system and CPU architecture it was built on
 (it will not run on a different platform — rebuild it there instead).
 
-Transport is configured in `mcp-config.yaml` and supports:
-- `stdio` (default)
-- `http` (streamable HTTP)
+The server communicates over **streamable HTTP**: the MCP endpoint is served on
+`http://127.0.0.1:${HTTP_PORT}/mcp`.
 
 ---
 
 $h2 2. Running the server
 
-$h3 2.1. STDIO (default)
-
-Run the executable directly; the MCP client starts and owns the process:
+Start the executable directly:
 
 ```
 ./${EXECUTABLE_NAME}
 ```
 
-An optional first argument overrides the configuration file location:
+Use `--config=` to load a configuration file from another location:
 
 ```
-./${EXECUTABLE_NAME} /path/to/mcp-config.yaml
+./${EXECUTABLE_NAME} --config=/path/to/mcp-config.yml
 ```
 
-By default `mcp-config.yaml` is expected next to the executable, along with the `wallet/` directory.
-
-$h3 2.2. HTTP
-
-Set `transport: http` in `mcp-config.yaml`, then start the executable.
-The MCP endpoint is served on `http://127.0.0.1:${HTTP_PORT}/mcp`.
-
-After changing `mcp-config.yaml`, restart the executable and reconnect your MCP client.
+By default, the native executable loads `mcp-config.yml` from beside the executable.
+When running the generated JAR, it loads the same file from the working directory.
+`mcp-config.yaml` is also accepted if no `.yml` file is present. Restart the server after
+editing the YAML. The HTTP port is part of `application.yml`, which is baked into the executable;
+change the server definition and rebuild to use a different port.
 
 ---
 
 $h2 3. Custom Tool Framework
 
-The server loads datasource and tool definitions from `mcp-config.yaml`.
+The server loads datasource and tool definitions from `mcp-config.yml`.
 You can edit this file after generation to adjust SQL, descriptions, and parameters — no rebuild needed.
-`dataSource` is required.
+`datasource` and `tools` are top-level sections:
+
+```yaml
+datasource:
+  wallet-dir: /path/to/wallet
+  url: jdbc:oracle:thin:@database_high
+  # username: optional_user
+  # password: optional_password
+
+tools:
+  countries-in-region:
+    description: List countries in a region
+    statement: |
+      select country_id, country_name
+      from countries
+      where region_id = :region_id
+    parameters:
+      - name: region_id
+        type: integer
+        description: Region ID
+        required: true
+```
 
 A tool entry supports:
 - `description`: tool description
@@ -79,8 +94,8 @@ $h2 4. Credentials and Security
 
 Database credentials are stored in the `wallet/` directory (Oracle auto-login wallet, `cwallet.sso`).
 - Keep the `wallet/` directory private; it is protected only by file-system permissions.
-- To use different credentials without the wallet, uncomment `username`/`password` under `dataSource`
-  in `mcp-config.yaml`. Values placed there take precedence over the wallet.
+- To use different credentials without the wallet, uncomment `username`/`password` under `datasource`
+  in `mcp-config.yml`. Values placed there take precedence over the wallet.
 
 ---
 
