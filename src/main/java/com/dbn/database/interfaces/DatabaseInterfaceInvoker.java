@@ -49,9 +49,11 @@ public final class DatabaseInterfaceInvoker {
         ConnectionHandler connection = request.getConnection();
         DatabaseInterfaceQueue interfaceQueue = connection.getInterfaceQueue();
 
+        ThreadInfo threadInfo = ThreadInfo.copy();
         interfaceQueue.scheduleAndForget(request,
                 () -> ConnectionContext.surround(request,
-                        () -> PooledConnection.run(request, runnable)));
+                    () -> ThreadMonitor.surround(threadInfo, null,
+                        () -> PooledConnection.run(request, runnable))));
     }
 
 

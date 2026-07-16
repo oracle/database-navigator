@@ -18,7 +18,9 @@ package com.dbn.vfs.file;
 
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.thread.Background;
+import com.dbn.common.thread.ThreadContext;
 import com.dbn.common.thread.ThreadMonitor;
+import com.dbn.common.thread.ThreadProperty;
 import com.dbn.common.thread.Write;
 import com.dbn.common.util.ChangeTimestamp;
 import com.dbn.common.util.Documents;
@@ -232,16 +234,23 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
 	}
 
 
+    @ThreadContext(ThreadProperty.CODE_SAVE)
     public void saveSourceToDatabase() throws SQLException {
         DBSchemaObject object = getObject();
         Project project = object.getProject();
 
         String oldContent = getOriginalContent().toString();
         String newContent = getContent().toString();
-        object.executeUpdateDDL(contentType, oldContent, newContent);
-
         SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
-        databaseTimestamp = sourceCodeManager.loadChangeTimestamp(object, contentType);
+        sourceCodeManager.saveSourceToDatabase(
+                object,
+                contentType,
+                oldContent,
+                newContent);
+        databaseTimestamp = sourceCodeManager.loadChangeTimestamp(
+                object,
+                contentType);
+
         originalContent.setText(newContent);
 
         databaseContent = null;

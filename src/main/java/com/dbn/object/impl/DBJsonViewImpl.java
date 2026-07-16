@@ -20,8 +20,6 @@ import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJsonViewMetadata;
-import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
-import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBJsonView;
 import com.dbn.object.DBSchema;
@@ -41,8 +39,6 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
-import static com.dbn.common.Priority.HIGHEST;
-import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectRelationType.JSON_VIEW_TABLE;
 import static com.dbn.object.type.DBObjectType.TABLE;
 
@@ -134,30 +130,6 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
     @Nullable
     public DBTable getRootTable() {
         return DBObjectRef.get(rootTable);
-    }
-
-    /*********************************************************
-     *                  DBEditableCodeObject                 *
-     ********************************************************/
-
-    @Override
-    public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
-        DatabaseInterfaceInvoker.execute(HIGHEST,
-                txt("prc.object.title.UpdatingSourceCode"),
-                txt("prc.object.text.UpdatingSource", getQualifiedNameWithType()),
-                getProject(),
-                getConnectionId(),
-                getSchemaId(),
-                conn -> {
-                    ConnectionHandler connection = getConnection();
-                    DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
-                    dataDefinition.updateJsonView(
-                            getSchemaName(true),
-                            getName(true),
-                            newCode,
-                            isEditionable(),
-                            conn);
-                });
     }
 
     @Override
