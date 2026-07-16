@@ -238,10 +238,16 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
 
         String oldContent = getOriginalContent().toString();
         String newContent = getContent().toString();
-        object.executeUpdateDDL(contentType, oldContent, newContent);
-
         SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
-        databaseTimestamp = sourceCodeManager.loadChangeTimestamp(object, contentType);
+        sourceCodeManager.saveSourceToDatabase(
+                object,
+                contentType,
+                oldContent,
+                newContent);
+        databaseTimestamp = sourceCodeManager.loadChangeTimestamp(
+                object,
+                contentType);
+
         originalContent.setText(newContent);
 
         databaseContent = null;
