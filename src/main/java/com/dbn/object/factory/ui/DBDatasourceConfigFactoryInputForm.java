@@ -7,8 +7,11 @@
 package com.dbn.object.factory.ui;
 
 import com.dbn.common.state.StateAttributes;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.component.DBNComponent;
+import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.info.DBNInfoLabel;
+import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
@@ -41,11 +44,14 @@ import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
 
 public class DBDatasourceConfigFactoryInputForm extends DBSchemaObjectFactoryInputForm {
+    private static final String DOCUMENTATION_URL = "https://docs.oracle.com/en/database/oracle/oracle-database/23/netag/configuring-centralized-configuration-provider-naming-method.html";
     private static final Pattern CONFIG_NAME_PATTERN = Pattern.compile("^[A-Za-z][A-Za-z0-9_-]*$");
     private static final int IDENTIFIER_MAX_LENGTH = 128;
 
     private JPanel mainPanel;
     private JPanel headerPanel;
+    private JPanel hintPanel;
+    private JPanel hyperlinkPanel;
     private JPanel editorPanel;
     private DBNComboBox<ConnectionHandler> connectionComboBox;
     private DBNComboBox<SchemaId> schemaComboBox;
@@ -59,10 +65,23 @@ public class DBDatasourceConfigFactoryInputForm extends DBSchemaObjectFactoryInp
         super(parent, input);
 
         initHeaderForm();
+        initFeatureInfo();
         initContextComponents();
         initEditor();
         initPreserveCaseFields();
         resetFormChanges();
+    }
+
+    private void initFeatureInfo() {
+        DBNHintForm hintForm = new DBNHintForm(this,
+                TextContent.plain(txt("cfg.datasourceConfig.hint.Feature")), null, true);
+        hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+
+        HyperLinkForm hyperLinkForm = HyperLinkForm.create(
+                txt("cfg.datasourceConfig.link.Documentation"),
+                txt("cfg.datasourceConfig.link.ConfigProvider"),
+                DOCUMENTATION_URL);
+        hyperlinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
     }
 
     private void initPreserveCaseFields() {

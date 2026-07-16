@@ -687,9 +687,9 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
                 getChildObjectList(CLUSTER),
                 getChildObjectList(DBLINK),
                 getChildObjectList(CREDENTIAL),
-                getChildObjectList(DATASOURCE_CONFIG),
                 getChildObjectList(AI_PROFILE),
-                getChildObjectList(AI_MODEL));
+                getChildObjectList(AI_MODEL),
+                getChildObjectList(DATASOURCE_CONFIG));
     }
 
     @Override
@@ -713,8 +713,8 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
             settings.isVisible(CLUSTER) ||
             settings.isVisible(DBLINK) ||
             settings.isVisible(CREDENTIAL) ||
-            settings.isVisible(DATASOURCE_CONFIG) ||
             settings.isVisible(AI_PROFILE) ||
-            settings.isVisible(AI_MODEL);
+            settings.isVisible(AI_MODEL) ||
+            settings.isVisible(DATASOURCE_CONFIG);
     }
 }

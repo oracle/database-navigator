@@ -81,6 +81,13 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
     ResultSet loadDatasourceConfigs(String ownerName, DBNConnection connection) throws SQLException;
 
     /**
+     * Load the JSON source content of a datasource configuration.
+     * Column names of the returned ResultSet
+     *  <li> SOURCE_CODE (clob)
+     */
+    ResultSet loadDatasourceConfigSourceCode(String ownerName, String configName, DBNConnection connection) throws SQLException;
+
+    /**
      * Load all user roles
      * Column names of the returned ResultSet
      *  <li> USER_NAME (char)
