@@ -52,7 +52,6 @@ import com.dbn.object.common.list.action.ObjectListActionGroup;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.navigation.DBObjectNavigationInfoProvider;
 import com.dbn.object.navigation.DBObjectNavigationInfoProviderCache;
-import com.dbn.object.editor.ObjectEditorProviders;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -276,10 +275,6 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
 
             } else if (object.is(DBObjectProperty.NAVIGABLE)) {
                 editorManager.connectAndOpenEditor(object, null, false, deliberate);
-                event.consume();
-
-            } else if (deliberate && ObjectEditorProviders.isSupported(object.getObjectType())) {
-                ObjectEditorProviders.get(object.getObjectType()).openEditDialog(object);
                 event.consume();
 
             } else if (deliberate) {
