@@ -49,6 +49,7 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     List<DBDimension> getDimensions();
     List<DBCluster> getClusters();
     List<DBCredential> getCredentials();
+    List<DBDatasourceConfig> getDatasourceConfigs();
     List<DBAIProfile> getAIProfiles();
     List<DBAIModel> getAIModels();
 
@@ -76,6 +77,7 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     DBSynonym getSynonym(String name);
     DBCluster getCluster(String name);
     DBCredential getCredential(String name);
+    DBDatasourceConfig getDatasourceConfig(String name);
     DBCredential getAIProfile(String name);
     DBAIModel getAIModel(String name);
     DBDatabaseLink getDatabaseLink(String name);

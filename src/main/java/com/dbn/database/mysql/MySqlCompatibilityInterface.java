@@ -87,6 +87,14 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
     }
 
     @Override
+    public boolean supportsObjectType(DatabaseObjectTypeId objectTypeId, double databaseVersion) {
+        return switch (objectTypeId) {
+            case JSON_VIEW -> databaseVersion >= 9.0;
+            default -> supportsObjectType(objectTypeId);
+        };
+    }
+
+    @Override
     public List<DatabaseFeature> getSupportedFeatures() {
         return Arrays.asList(
                 SESSION_BROWSING,

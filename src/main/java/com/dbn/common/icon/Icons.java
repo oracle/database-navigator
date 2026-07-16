@@ -492,6 +492,8 @@ public class Icons {
     public static final Icon DBO_DATABASE_TRIGGER_DEBUG          = load("/img/object/trigger/DatabaseTriggerDebug.svg");
     public static final Icon DBO_DATABASE_TRIGGER_DEBUG_DISABLED = load("/img/object/trigger/DatabaseTriggerDebugDisabled.svg");
     public static final Icon DBO_DATABASE_TRIGGERS               = load("/img/object/trigger/DatabaseTriggers.svg");
+    public static final Icon DBO_DATASOURCE_CONFIG               = load("/img/object/datasource/DataSourceConfig.svg");
+    public static final Icon DBO_DATASOURCE_CONFIGS              = load("/img/object/datasource/DataSourceConfigs.svg");
     public static final Icon DBO_TYPE                            = load("/img/object/type/Type.svg");
     public static final Icon DBO_TYPE_COLLECTION                 = load("/img/object/type/TypeCollection.svg");
     public static final Icon DBO_TYPE_COLLECTION_ERR             = load("/img/object/type/TypeCollectionErr.svg");

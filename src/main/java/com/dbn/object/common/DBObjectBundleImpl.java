@@ -49,6 +49,7 @@ import com.dbn.execution.compiler.CompileManagerListener;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.DBCharset;
 import com.dbn.object.DBConsole;
+import com.dbn.object.DBDatasourceConfig;
 import com.dbn.object.DBObjectPrivilege;
 import com.dbn.object.DBPrivilege;
 import com.dbn.object.DBRole;
@@ -91,6 +92,7 @@ import static com.dbn.object.type.DBObjectRelationType.USER_ROLE;
 import static com.dbn.object.type.DBObjectType.CHARSET;
 import static com.dbn.object.type.DBObjectType.CONNECTION;
 import static com.dbn.object.type.DBObjectType.CONSOLE;
+import static com.dbn.object.type.DBObjectType.DATASOURCE_CONFIG;
 import static com.dbn.object.type.DBObjectType.ROLE;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static com.dbn.object.type.DBObjectType.SYNONYM;
@@ -264,6 +266,16 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
     @Nullable
     public List<DBCharset> getCharsets() {
         return DBObjectListImpl.getObjects(charsets);
+    }
+
+    @Override
+    @Nullable
+    public List<DBDatasourceConfig> getDatasourceConfigs() {
+        List<DBDatasourceConfig> datasourceConfigs = new ArrayList<>();
+        for (DBSchema schema : getSchemas()) {
+            datasourceConfigs.addAll(schema.getDatasourceConfigs());
+        }
+        return datasourceConfigs;
     }
 
     @Override
@@ -571,7 +583,6 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         if (objectType == ROLE) return getRole(name);
         if (objectType == CHARSET) return getCharset(name);
         if (objectType == SYSTEM_PRIVILEGE) return getSystemPrivilege(name);
-
         if (objectType.isSchemaObject()) {
             for (DBSchema schema : getPublicSchemas()) {
                 DBObject childObject = schema.getChildObject(objectType, name, overload, true);
@@ -595,7 +606,8 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         if (objectType == USER) consumer.acceptAll(getUsers()); else
         if (objectType == ROLE) consumer.acceptAll(getRoles()); else
         if (objectType == CHARSET) consumer.acceptAll(getCharsets());
-        if (objectType == SYSTEM_PRIVILEGE) consumer.acceptAll(getSystemPrivileges());
+        if (objectType == SYSTEM_PRIVILEGE) consumer.acceptAll(getSystemPrivileges()); else
+        if (objectType == DATASOURCE_CONFIG) consumer.acceptAll(getDatasourceConfigs());
     }
 
     @Override
