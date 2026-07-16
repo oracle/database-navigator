@@ -19,9 +19,11 @@ package com.dbn.liquibase.execution;
 import com.dbn.common.ui.form.field.FieldState;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.liquibase.execution.LiquibaseOperation.CLEAR_CHECKSUMS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseOperation.RELEASE_LOCKS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_SQL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_HISTORY;
@@ -64,6 +66,8 @@ public final class LiquibaseOperationSupport {
                 UPDATE_DATABASE,
                 UPDATE_SQL,
                 TAG_DATABASE,
+                RELEASE_LOCKS,
+                CLEAR_CHECKSUMS,
                 ROLLBACK_CHANGESETS,
                 ROLLBACK_SQL)) return FieldState.VISIBLE;
 
@@ -137,6 +141,8 @@ public final class LiquibaseOperationSupport {
                 SYNCHRONIZE_CHANGELOG,
                 UPDATE_DATABASE,
                 TAG_DATABASE,
+                RELEASE_LOCKS,
+                CLEAR_CHECKSUMS,
                 ROLLBACK_CHANGESETS);
     }
 

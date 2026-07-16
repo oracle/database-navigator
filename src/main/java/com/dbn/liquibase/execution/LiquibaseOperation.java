@@ -1,7 +1,12 @@
 package com.dbn.liquibase.execution;
 
 import com.dbn.common.constant.Constant;
+import com.dbn.common.icon.Icons;
+import com.intellij.icons.AllIcons;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.Icon;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -19,6 +24,8 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     UPDATE_DATABASE,
     UPDATE_SQL,
     TAG_DATABASE,
+    RELEASE_LOCKS,
+    CLEAR_CHECKSUMS,
     ROLLBACK_CHANGESETS,
     ROLLBACK_SQL;
 
@@ -34,5 +41,16 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
 
     public String getHint() {
         return /*txt("cfg.liquibase.title.Operation_" + name()) + "\n\n" +*/ txt("cfg.liquibase.hint.Operation_" + name());
+    }
+
+    @Nullable
+    public Icon getActionIcon() {
+        return switch (this) {
+            case GENERATE_CHANGELOG -> Icons.ACTION_DOWNLOAD;
+            case GENERATE_DIFF_CHANGELOG -> AllIcons.Actions.Diff;
+            case UPDATE_DATABASE -> Icons.ACTION_UPLOAD;
+            case ROLLBACK_CHANGESETS -> Icons.ACTION_REVERT;
+            default -> null;
+        };
     }
 }

@@ -18,9 +18,25 @@ package com.dbn.liquibase.action;
 
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.icon.Icons;
+import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.object.DBSchema;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.liquibase.execution.LiquibaseOperation.CLEAR_CHECKSUMS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseOperation.RELEASE_LOCKS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_SQL;
+import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_HISTORY;
+import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_STATUS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_SQL;
+import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
+import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
+import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_SQL;
+import static com.dbn.liquibase.execution.LiquibaseOperation.VALIDATE_CHANGELOG;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Liquibase operations available for a single database schema. */
@@ -30,28 +46,37 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         getTemplatePresentation().setIcon(Icons.DB_LIQUIBASE);
 
         DefaultActionGroup changelogActions = new DefaultActionGroup(txt("app.liquibase.group.Changelog"), true);
-        changelogActions.add(new GenerateChangelogAction(schema));
-        changelogActions.add(new GenerateDiffChangelogAction(schema));
-        changelogActions.add(new ValidateChangelogAction(schema));
-        changelogActions.add(new ShowChangelogStatusAction(schema));
-        changelogActions.add(new ShowChangelogHistoryAction(schema));
+        changelogActions.add(action(schema, GENERATE_CHANGELOG));
+        changelogActions.add(action(schema, GENERATE_DIFF_CHANGELOG));
+        changelogActions.add(action(schema, VALIDATE_CHANGELOG));
+        changelogActions.add(action(schema, SHOW_CHANGELOG_STATUS));
+        changelogActions.add(action(schema, SHOW_CHANGELOG_HISTORY));
         add(changelogActions);
 
         DefaultActionGroup databaseActions = new DefaultActionGroup(txt("app.liquibase.group.Database"), true);
-        databaseActions.add(new UpdateDatabaseAction(schema));
-        databaseActions.add(new RollbackDatabaseAction(schema));
+        databaseActions.add(action(schema, UPDATE_DATABASE));
+        databaseActions.add(action(schema, ROLLBACK_CHANGESETS));
         databaseActions.addSeparator();
-        databaseActions.add(new SynchronizeChangelogAction(schema));
-        databaseActions.add(new TagDatabaseAction(schema));
+        databaseActions.add(action(schema, SYNCHRONIZE_CHANGELOG));
+        databaseActions.add(action(schema, TAG_DATABASE));
+        databaseActions.addSeparator();
+        databaseActions.add(action(schema, RELEASE_LOCKS));
+        databaseActions.add(action(schema, CLEAR_CHECKSUMS));
         add(databaseActions);
 
         DefaultActionGroup sqlPreviewActions = new DefaultActionGroup(txt("app.liquibase.group.PreviewSql"), true);
-        sqlPreviewActions.add(new UpdateSqlAction(schema));
-        sqlPreviewActions.add(new RollbackSqlAction(schema));
-        sqlPreviewActions.add(new SynchronizeChangelogSqlAction(schema));
+        sqlPreviewActions.add(action(schema, UPDATE_SQL));
+        sqlPreviewActions.add(action(schema, ROLLBACK_SQL));
+        sqlPreviewActions.add(action(schema, SYNCHRONIZE_CHANGELOG_SQL));
         add(sqlPreviewActions);
 
         addSeparator();
-        add(new CompareSchemasAction(schema));
+        add(action(schema, COMPARE_SCHEMAS));
+    }
+
+    private static LiquibaseOperationAction action(
+            @NotNull DBSchema schema,
+            @NotNull LiquibaseOperation operation) {
+        return new LiquibaseOperationAction(schema, operation);
     }
 }

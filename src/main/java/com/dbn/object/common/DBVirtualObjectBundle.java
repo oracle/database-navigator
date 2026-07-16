@@ -113,7 +113,7 @@ public class DBVirtualObjectBundle extends StatefulDisposableBase implements DBO
     @Nullable
     @Override
     public List<DBDatasourceConfig> getDatasourceConfigs() {
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Nullable
