@@ -51,6 +51,8 @@ public interface DatabaseInterfaces {
 
     DatabaseConnectionConfigurationInterface getConnectionConfigurationInterface();
 
+    DatabaseSchedulerInterface getSchedulerInterface();
+
     DatabaseJavaInterface getJavaInterface();
 
 

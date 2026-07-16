@@ -42,6 +42,10 @@ public interface DatabaseInterfacesProvider {
         return getInterfaces().getConnectionConfigurationInterface();
     }
 
+    default DatabaseSchedulerInterface getSchedulerInterface() {
+        return getInterfaces().getSchedulerInterface();
+    }
+
     default DatabaseMessageParserInterface getMessageParserInterface() {
         return getInterfaces().getMessageParserInterface();
     }

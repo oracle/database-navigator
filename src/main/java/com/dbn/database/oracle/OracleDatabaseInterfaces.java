@@ -53,6 +53,7 @@ public class OracleDatabaseInterfaces extends DatabaseInterfacesBase {
             case ASSISTANT -> new OracleAssistantInterface(this);
             case VECTOR -> new OracleVectorInterface(this);
             case DATA_SOURCE_CONFIG -> new OracleConnectionConfigurationInterface(this);
+            case SCHEDULER -> new OracleSchedulerInterface(this);
             case JAVA -> new OracleJavaInterface(this);
             default -> null;
         };

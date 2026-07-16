@@ -64,6 +64,7 @@ public enum DatabaseFeature {
     VECTOR_SEARCH(txt("app.database.const.DatabaseFeature_VECTOR_SEARCH")),
     MCP_SERVER_BUILDER(txt("app.database.const.DatabaseFeature_MCP_SERVER_BUILDER")),
     CONNECTION_CONFIGURATION("Connection configurations"),
+    SCHEDULER_JOBS(txt("app.database.const.DatabaseFeature_SCHEDULER_JOBS")),
 
     // OJVM
     JAVA_VIRTUAL_MACHINE(txt("app.database.const.DatabaseFeature_JAVA_VIRTUAL_MACHINE")),

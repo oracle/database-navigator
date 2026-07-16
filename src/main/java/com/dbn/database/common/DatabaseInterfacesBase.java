@@ -29,6 +29,7 @@ import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
+import com.dbn.database.interfaces.DatabaseSchedulerInterface;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
@@ -51,6 +52,7 @@ import static com.dbn.database.interfaces.DatabaseInterfaceType.EXECUTION;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.JAVA;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.MESSAGE_PARSER;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.METADATA;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.SCHEDULER;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.VECTOR;
 
 public abstract class DatabaseInterfacesBase implements DatabaseInterfaces {
@@ -121,6 +123,11 @@ public abstract class DatabaseInterfacesBase implements DatabaseInterfaces {
     @Override
     public DatabaseConnectionConfigurationInterface getConnectionConfigurationInterface() {
         return getInterface(DATA_SOURCE_CONFIG);
+    }
+
+    @Override
+    public DatabaseSchedulerInterface getSchedulerInterface() {
+        return getInterface(SCHEDULER);
     }
 
     @Override
