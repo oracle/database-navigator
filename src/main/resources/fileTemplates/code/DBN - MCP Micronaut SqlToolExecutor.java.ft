@@ -3,9 +3,10 @@ package com.dbn.mcp.server;
 import io.modelcontextprotocol.json.McpJsonDefaults;
 import io.modelcontextprotocol.json.McpJsonMapper;
 import io.modelcontextprotocol.spec.McpSchema;
+import jakarta.inject.Singleton;
 import oracle.jdbc.OraclePreparedStatement;
+import oracle.ucp.jdbc.PoolDataSource;
 
-import java.nio.file.Path;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -18,17 +19,16 @@ import java.util.Map;
 
 /**
  * Executes tool SQL statements against the configured database.
- * Opens one connection per tool call: no shared state across concurrent HTTP requests.
+ * Borrows one isolated UCP connection per tool call: no shared state across concurrent HTTP requests.
  */
+@Singleton
 public class SqlToolExecutor {
     private static final McpJsonMapper MAPPER = McpJsonDefaults.getMapper();
 
-    private final DataSourceConfig dataSource;
-    private final Path walletDir;
+    private final PoolDataSource dataSource;
 
-    public SqlToolExecutor(DataSourceConfig dataSource, Path walletDir) {
+    public SqlToolExecutor(PoolDataSource dataSource) {
         this.dataSource = dataSource;
-        this.walletDir = walletDir;
     }
 
     public McpSchema.CallToolResult execute(ToolConfig toolConfig, Map<String, Object> arguments) {
@@ -44,13 +44,11 @@ public class SqlToolExecutor {
     }
 
     private McpSchema.CallToolResult executeQuery(ToolConfig toolConfig, Map<String, Object> arguments) throws Exception {
-        try (Connection connection = dataSource.connect(walletDir);
-             OraclePreparedStatement statement = (OraclePreparedStatement) connection.prepareStatement(toolConfig.statement)) {
+        try (Connection connection = dataSource.getConnection();
+             OraclePreparedStatement statement = (OraclePreparedStatement) connection.prepareStatement(toolConfig.getStatement())) {
 
-            if (toolConfig.parameters != null) {
-                for (ToolParameterConfig parameter : toolConfig.parameters) {
-                    statement.setObjectAtName(parameter.name, arguments == null ? null : arguments.get(parameter.name));
-                }
+            for (ToolParameterConfig parameter : toolConfig.getParameters()) {
+                statement.setObjectAtName(parameter.getName(), arguments == null ? null : arguments.get(parameter.getName()));
             }
 
             try (ResultSet resultSet = statement.executeQuery()) {

@@ -1,5 +1,8 @@
 package com.dbn.mcp.server;
 
+import io.micronaut.context.annotation.EachProperty;
+import io.micronaut.context.annotation.Parameter;
+import io.micronaut.core.annotation.Introspected;
 import io.modelcontextprotocol.json.McpJsonMapper;
 
 import java.util.ArrayList;
@@ -8,31 +11,47 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A single MCP tool definition: description, SQL statement and bind parameters.
+ * A single MCP tool definition, bound from its entry under the tools section of
+ * the external mcp-config.yml.
  */
+@EachProperty("tools")
+@Introspected
 public class ToolConfig {
-    public String description;
-    public String statement;
-    public List<ToolParameterConfig> parameters;
+    private final String name;
+    private String description;
+    private String statement;
+    private List<ToolParameterConfig> parameters = new ArrayList<>();
 
-    static ToolConfig parse(Map<String, Object> source) {
-        ToolConfig config = new ToolConfig();
-        if (source == null) return config;
+    public ToolConfig(@Parameter String name) {
+        this.name = name;
+    }
 
-        config.description = McpConfig.str(source.get("description"), null);
-        config.statement = McpConfig.str(source.get("statement"), null);
+    public String getName() {
+        return name;
+    }
 
-        Object parameters = source.get("parameters");
-        if (parameters instanceof List<?> list) {
-            config.parameters = new ArrayList<>();
-            for (Object entry : list) {
-                ToolParameterConfig parameter = ToolParameterConfig.parse(McpConfig.map(entry));
-                if (parameter != null) {
-                    config.parameters.add(parameter);
-                }
-            }
-        }
-        return config;
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getStatement() {
+        return statement;
+    }
+
+    public void setStatement(String statement) {
+        this.statement = statement;
+    }
+
+    public List<ToolParameterConfig> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(List<ToolParameterConfig> parameters) {
+        this.parameters = parameters;
     }
 
     public String buildInputSchemaJson(McpJsonMapper mapper) {
@@ -42,23 +61,24 @@ public class ToolConfig {
         Map<String, Object> properties = new LinkedHashMap<>();
         List<String> required = new ArrayList<>();
 
-        if (parameters != null) {
-            for (ToolParameterConfig param : parameters) {
-                Map<String, Object> property = new LinkedHashMap<>();
-                property.put("type", param.type);
-                if (param.format != null && !param.format.isBlank()) {
-                    property.put("format", param.format);
-                }
-                property.put("description", param.description);
-                properties.put(param.name, property);
+        for (ToolParameterConfig param : parameters) {
+            Map<String, Object> property = new LinkedHashMap<>();
+            property.put("type", param.getType());
+            if (param.getFormat() != null && !param.getFormat().isBlank()) {
+                property.put("format", param.getFormat());
+            }
+            if (param.getDescription() != null && !param.getDescription().isBlank()) {
+                property.put("description", param.getDescription());
+            }
+            properties.put(param.getName(), property);
 
-                if (param.required) {
-                    required.add(param.name);
-                }
+            if (param.isRequired()) {
+                required.add(param.getName());
             }
         }
 
         schema.put("properties", properties);
+        schema.put("additionalProperties", false);
         if (!required.isEmpty()) {
             schema.put("required", required);
         }

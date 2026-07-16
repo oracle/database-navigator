@@ -1,26 +1,55 @@
 package com.dbn.mcp.server;
 
-import java.util.Map;
+import io.micronaut.core.annotation.Introspected;
 
 /**
- * A single bind parameter of an MCP tool: JSON schema attributes and the SQL bind name.
+ * A single bind parameter of an MCP tool.
  */
+@Introspected
 public class ToolParameterConfig {
-    public String name;
-    public String type = "string";
-    public String format;
-    public String description;
-    public boolean required;
+    private String name;
+    private String type = "string";
+    private String format;
+    private String description;
+    private boolean required;
 
-    static ToolParameterConfig parse(Map<String, Object> source) {
-        if (source == null) return null;
+    public String getName() {
+        return name;
+    }
 
-        ToolParameterConfig parameter = new ToolParameterConfig();
-        parameter.name = McpConfig.str(source.get("name"), null);
-        parameter.type = McpConfig.str(source.get("type"), "string");
-        parameter.format = McpConfig.str(source.get("format"), null);
-        parameter.description = McpConfig.str(source.get("description"), null);
-        parameter.required = Boolean.parseBoolean(McpConfig.str(source.get("required"), "false"));
-        return parameter;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
     }
 }

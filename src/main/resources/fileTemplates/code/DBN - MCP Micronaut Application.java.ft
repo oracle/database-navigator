@@ -1,92 +1,22 @@
 package com.dbn.mcp.server;
 
-import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.Micronaut;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Locale;
 
 public class Application {
-
-    private static final String SERVER_NAME = "${SERVER_NAME}";
-    private static final String CONFIG_FILE_NAME = "mcp-config.yaml";
-    private static final String WALLET_DIR_NAME = "wallet";
-    private static final String MCP_ENDPOINT = "/mcp";
-
-    public static void main(String[] args) throws Exception {
-        Path baseDir = resolveBaseDir();
-        Path configFile = resolveConfigFile(args, baseDir);
-        McpConfig config = McpConfig.load(configFile);
-        Path walletDir = resolveWalletDir(baseDir);
-
-        SqlToolExecutor toolExecutor = new SqlToolExecutor(config.dataSource, walletDir);
-        McpToolFactory toolFactory = new McpToolFactory(toolExecutor);
-
-        boolean http = config.isHttpTransport();
-        Map<String, Object> properties = buildMicronautProperties(config, http);
-
-        if (http) {
-            Micronaut.build(args)
-                    .banner(false)
-                    .properties(properties)
-                    .singletons(toolFactory.createStatelessToolSpecifications(config.tools).toArray())
-                    .start();
-        } else {
-            ApplicationContext.builder()
-                    .banner(false)
-                    .properties(properties)
-                    .singletons(toolFactory.createToolSpecifications(config.tools).toArray())
-                    .start();
-            // stdio transport is served by SDK reader threads; keep the main thread alive
-            Thread.currentThread().join();
+    public static void main(String[] args) {
+        // GraalVM native images can derive an invalid locale (e.g. language "utf-8")
+        // from a malformed LC_CTYPE env var; ojdbc then fails at logon (ORA-00604/01756).
+        // Repair only clearly-invalid derivations; leave real locales untouched.
+        Locale format = Locale.getDefault(Locale.Category.FORMAT);
+        if (!format.getLanguage().matches("[a-z]{2,3}")) {
+            Locale.setDefault(Locale.Category.FORMAT, Locale.US);
         }
-    }
 
-    private static Map<String, Object> buildMicronautProperties(McpConfig config, boolean http) {
-        Map<String, Object> properties = new LinkedHashMap<>();
-        properties.put("micronaut.application.name", SERVER_NAME);
-        properties.put("micronaut.mcp.server.transport", http ? "HTTP" : "STDIO");
-        properties.put("micronaut.mcp.server.endpoint", MCP_ENDPOINT);
-        properties.put("micronaut.mcp.server.info.name", SERVER_NAME);
-        properties.put("micronaut.mcp.server.info.version", "1.0.0");
-        if (http) {
-            properties.put("micronaut.server.host", "127.0.0.1");
-            properties.put("micronaut.server.port", config.resolveHttpPort());
-        }
-        return properties;
-    }
-
-    private static Path resolveBaseDir() throws Exception {
-        if (System.getProperty("org.graalvm.nativeimage.imagecode") != null) {
-            // native executable: resolve the directory of the running binary
-            return ProcessHandle.current().info().command()
-                    .map(Paths::get)
-                    .map(Path::toAbsolutePath)
-                    .map(Path::getParent)
-                    .orElseGet(() -> Paths.get(System.getProperty("user.dir")));
-        }
-        return Paths.get(Application.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
-    }
-
-    private static Path resolveConfigFile(String[] args, Path baseDir) {
-        Path configFile = args.length > 0
-                ? Paths.get(args[0])
-                : baseDir.resolve(CONFIG_FILE_NAME);
-
-        if (!Files.exists(configFile)) {
-            throw new IllegalStateException(CONFIG_FILE_NAME + " not found at: " + configFile);
-        }
-        return configFile;
-    }
-
-    private static Path resolveWalletDir(Path baseDir) {
-        Path walletDir = baseDir.resolve(WALLET_DIR_NAME);
-        if (!Files.isDirectory(walletDir)) {
-            throw new IllegalStateException("Wallet directory not found at: " + walletDir);
-        }
-        return walletDir;
+        Micronaut.build(args)
+                .mainClass(Application.class)
+                .propertySources(McpConfigLoader.load(args))
+                .start();
     }
 }

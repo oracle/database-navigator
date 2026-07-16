@@ -1,0 +1,56 @@
+package com.dbn.mcp.server;
+
+import io.micronaut.context.annotation.Context;
+import io.micronaut.context.annotation.EachBean;
+import io.micronaut.context.annotation.Factory;
+import io.modelcontextprotocol.json.McpJsonDefaults;
+import io.modelcontextprotocol.json.McpJsonMapper;
+import io.modelcontextprotocol.server.McpStatelessServerFeatures;
+import io.modelcontextprotocol.spec.McpSchema;
+import jakarta.inject.Singleton;
+import oracle.jdbc.OracleConnection;
+import oracle.ucp.jdbc.PoolDataSource;
+import oracle.ucp.jdbc.PoolDataSourceFactory;
+
+import java.nio.file.Path;
+import java.sql.SQLException;
+
+/** Produces the UCP datasource and MCP tools configured in mcp-config.yml. */
+@Factory
+public class McpBeanFactory {
+    private static final McpJsonMapper MAPPER = McpJsonDefaults.getMapper();
+
+    @Singleton
+    PoolDataSource dataSource(DataSourceConfig config) throws SQLException {
+        PoolDataSource pool = PoolDataSourceFactory.getPoolDataSource();
+        pool.setConnectionFactoryClassName("oracle.jdbc.pool.OracleDataSource");
+        pool.setURL(config.getUrl());
+
+        if (config.usesExplicitCredentials()) {
+            pool.setUser(config.getUsername());
+            pool.setPassword(config.getPassword());
+        } else {
+            pool.setConnectionProperty(
+                    OracleConnection.CONNECTION_PROPERTY_SEPS_WALLET_LOCATION,
+                    Path.of(config.getWalletDir()).toAbsolutePath().toString());
+        }
+        return pool;
+    }
+
+    @Singleton
+    @Context
+    @EachBean(ToolConfig.class)
+    McpStatelessServerFeatures.SyncToolSpecification toolSpecification(
+            ToolConfig toolConfig, SqlToolExecutor toolExecutor) {
+
+        McpSchema.Tool tool = McpSchema.Tool.builder()
+                .name(toolConfig.getName())
+                .description(toolConfig.getDescription())
+                .inputSchema(MAPPER, toolConfig.buildInputSchemaJson(MAPPER))
+                .build();
+        return McpStatelessServerFeatures.SyncToolSpecification.builder()
+                .tool(tool)
+                .callHandler((context, request) -> toolExecutor.execute(toolConfig, request.arguments()))
+                .build();
+    }
+}

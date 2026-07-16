@@ -1,45 +1,48 @@
 package com.dbn.mcp.server;
 
-import oracle.jdbc.OracleConnection;
+import io.micronaut.context.annotation.ConfigurationProperties;
 
-import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.Properties;
-
-/**
- * Database connection settings. Credentials come from the Oracle SEPS wallet by default;
- * a username/password pair in mcp-config.yaml takes precedence when present.
- */
+/** Database settings under datasource in the external mcp-config.yml. */
+@ConfigurationProperties("datasource")
 public class DataSourceConfig {
-    public String url;
-    public String username; // optional — overrides wallet if set
-    public String password; // optional — overrides wallet if set
+    private String walletDir;
+    private String url;
+    private String username;
+    private String password;
 
-    static DataSourceConfig parse(Map<String, Object> source) {
-        DataSourceConfig config = new DataSourceConfig();
-        config.url = McpConfig.str(source.get("url"), null);
-        config.username = McpConfig.str(source.get("username"), null);
-        config.password = McpConfig.str(source.get("password"), null);
-        return config;
+    public String getWalletDir() {
+        return walletDir;
     }
 
-    public Connection connect(Path walletDir) throws SQLException {
-        try {
-            if (username != null && !username.isBlank()) {
-                return DriverManager.getConnection(url, username, password);
-            }
+    public void setWalletDir(String walletDir) {
+        this.walletDir = walletDir;
+    }
 
-            // Let Oracle JDBC resolve default SEPS credentials from the wallet for this connection.
-            Properties properties = new Properties();
-            properties.setProperty(
-                    OracleConnection.CONNECTION_PROPERTY_SEPS_WALLET_LOCATION,
-                    walletDir.toAbsolutePath().toString());
-            return DriverManager.getConnection(url, properties);
-        } catch (SQLException e) {
-            throw new IllegalStateException("Could not connect to database: " + e.getMessage(), e);
-        }
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean usesExplicitCredentials() {
+        return username != null && !username.isBlank();
     }
 }

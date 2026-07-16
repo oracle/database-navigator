@@ -1,0 +1,49 @@
+package com.dbn.mcp.server;
+
+import io.micronaut.context.env.PropertySource;
+import io.micronaut.context.env.yaml.YamlPropertySourceLoader;
+
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+final class McpConfigLoader {
+    private static final String CONFIG_YML = "mcp-config.yml";
+    private static final String CONFIG_YAML = "mcp-config.yaml";
+
+    private McpConfigLoader() {
+    }
+
+    static PropertySource load(String[] args) {
+        Path configFile = configFile(args).toAbsolutePath();
+        try (InputStream input = Files.newInputStream(configFile)) {
+            return PropertySource.of("mcp-config", new YamlPropertySourceLoader().read(CONFIG_YML, input));
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not load " + configFile, e);
+        }
+    }
+
+    private static Path configFile(String[] args) {
+        for (String arg : args) {
+            if (arg.startsWith("--config=")) {
+                return Path.of(arg.substring("--config=".length()));
+            }
+        }
+
+        Path directory = isNativeImage() ? executableDirectory() : Path.of("");
+        Path yml = directory.resolve(CONFIG_YML);
+        return Files.isRegularFile(yml) ? yml : directory.resolve(CONFIG_YAML);
+    }
+
+    private static boolean isNativeImage() {
+        return System.getProperty("org.graalvm.nativeimage.imagecode") != null;
+    }
+
+    private static Path executableDirectory() {
+        return ProcessHandle.current().info().command()
+                .map(Path::of)
+                .map(Path::toAbsolutePath)
+                .map(Path::getParent)
+                .orElse(Path.of(""));
+    }
+}
