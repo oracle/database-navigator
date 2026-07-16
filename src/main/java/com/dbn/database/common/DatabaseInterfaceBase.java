@@ -118,6 +118,22 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
         Unsafe.warned(() -> executeUpdate(connection, statementId, arguments));
     }
 
+    /**
+     * Renders the statement identified by {@code statementId} into finished text without executing it,
+     * for deferred-execution scenarios such as building a DBMS_SCHEDULER {@code job_action} from a
+     * readable template kept in this interface's XML.
+     * <p>
+     * Templates for rendering must express dynamic parts as {@code {@N}} identifiers (safely quoted)
+     * or {@code {$N}} typed value literals (escaped/validated, fail-closed type whitelist). Templates
+     * carrying {@code {#N}} JDBC binds are rejected. Do not feed untrusted values through raw {@code {N}}
+     * placeholders - they are inlined verbatim.
+     */
+    @NonNls
+    protected String renderStatementText(@NotNull DBNConnection connection, @NonNls String statementId, @Nullable Object... arguments) throws SQLException {
+        StatementExecutionProcessor executionProcessor = getExecutionProcessor(statementId);
+        return executionProcessor.prepareStatementText(connection, arguments);
+    }
+
 
     @NotNull
     private StatementExecutionProcessor getExecutionProcessor(@NonNls String statementId) throws SQLException {
