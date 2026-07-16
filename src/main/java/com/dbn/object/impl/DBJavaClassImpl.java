@@ -23,8 +23,6 @@ import com.dbn.common.util.Java;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
-import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
@@ -50,7 +48,6 @@ import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.List;
 
-import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
@@ -287,39 +284,6 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	public DBJavaClass getOuterClass() {
 		return isInner() ? DBObjectRef.get(outerClass) : null;
 	}
-
-	/*********************************************************
-	 *                  DBEditableCodeObject                 *
-	 ********************************************************/
-
-	@Override
-	public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
-
-		DatabaseInterfaceInvoker.execute(HIGHEST,
-				txt("prc.object.title.UpdatingSourceCode"),
-				txt("prc.object.text.UpdatingSources", getQualifiedNameWithType()),
-				getProject(),
-				getConnectionId(),
-				conn -> {
-					ConnectionHandler connection = getConnection();
-					String schemaName = getSchemaName(true);
-					String name = getName(true);
-
-					DatabaseJavaInterface javaInterface = connection.getJavaInterface();
-					javaInterface.updateJavaSource(
-							schemaName,
-							name,
-							newCode.getBytes(),
-							conn);
-
-					javaInterface.compileJavaClass(
-							schemaName,
-							name,
-							conn);
-				});
-
-	}
-
 
 	/*********************************************************
 	 *                     TreeElement                       *

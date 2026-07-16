@@ -23,8 +23,6 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.action.ConsoleCreateAction;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.list.DBObjectList;
-import com.dbn.object.editor.ObjectEditorProviders;
-import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.sync.java.action.JavaObjectDownloadAction;
 import com.dbn.sync.java.action.JavaResourceDownloadAction;
@@ -84,13 +82,6 @@ public class ObjectListActionGroup extends DefaultActionGroup {
                 }
                 if (VECTOR_SEARCH.isSupported(connection)) {
                     add(new ConsoleCreateAction(connection, SEARCH));
-                }
-            } else {
-                // create is available only when both a management adapter (DB) and an editor provider (UI) exist
-                ObjectManagementService managementService = ObjectManagementService.getInstance(objectList.getConnection().getProject());
-                if (ObjectEditorProviders.isSupported(objectType) && managementService.supports(objectType)) {
-                    addSeparator();
-                    add(new ObjectCreateAction(objectList));
                 }
             }
         }

@@ -24,4 +24,6 @@ public interface DBDatasourceConfig extends DBSchemaObject {
 
     @Nullable
     String getValue();
+
+    void updateValue(String value);
 }

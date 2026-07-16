@@ -27,8 +27,8 @@ import com.dbn.common.navigation.NavigationInstructions;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Read;
+import com.dbn.common.thread.ThreadContext;
 import com.dbn.common.thread.ThreadProperty;
-import com.dbn.common.thread.ThreadPropertyGate;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNToolbarForm;
 import com.dbn.common.ui.util.Borderless;
@@ -549,7 +549,7 @@ public class Editors {
         return fileEditors.get();
     }
 
-    @ThreadPropertyGate(ThreadProperty.EDITOR_LOAD)
+    @ThreadContext(ThreadProperty.EDITOR_LOAD)
     public static void openFileEditor(Project project, VirtualFile file, boolean focus, @Nullable Consumer<FileEditor[]> callback) {
         if (!file.exists()) return;
 

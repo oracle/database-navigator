@@ -24,22 +24,24 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.StackWalker.StackFrame;
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 @Getter
 @Setter
 public class ThreadInfo extends PropertyHolderBase.IntStore<ThreadProperty> implements Consumer<ThreadProperty> {
     private static final ThreadLocal<ThreadInfo> THREAD_INFO = new ThreadLocal<>();
+    private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+    private static final ConcurrentMap<Class<?>, Map<String, ThreadProperty>> THREAD_PROPERTIES = new ConcurrentHashMap<>();
 
     public static ThreadInfo copy() {
         ThreadInfo current = current();
         ThreadInfo copy = new ThreadInfo();
         copy.inherit(current);
 
-        // TODO this never worked properly due to wrong "takeWhile" condition
-        //  (disabled for now as identified as performance issue during profiling)
-        //  consider implementing with JDBC-4452
-        //collectThreadProperties(copy);
+        collectThreadProperties(copy);
         return copy;
     }
 
@@ -80,31 +82,35 @@ public class ThreadInfo extends PropertyHolderBase.IntStore<ThreadProperty> impl
     }
 
     /**
-     * Walk the call stack and collect all {@link ThreadProperty} from methods annotated with {@link ThreadPropertyGate}
+     * Walk the call stack and collect all {@link ThreadProperty} from methods annotated with {@link ThreadContext}
      * @param consumer the consumer for the collected thread properties
      */
     private static void collectThreadProperties(Consumer<ThreadProperty> consumer) {
-        StackWalker stackWalker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
-        stackWalker.walk(frames -> {
+        STACK_WALKER.walk(frames -> {
             frames.takeWhile(frame -> frame.getClassName().startsWith("com.dbn"))
-                    .map(f -> collectThreadProperty(f))
+                    .map(f -> resolveThreadProperty(f))
                     .filter(p -> p != null)
                     .forEach(consumer);
             return null;
         });
     }
 
-    private static ThreadProperty collectThreadProperty(StackFrame frame) {
+    private static ThreadProperty resolveThreadProperty(StackFrame frame) {
         Class<?> declaringClass = frame.getDeclaringClass();
         String methodName = frame.getMethodName();
+        Map<String, ThreadProperty> properties = THREAD_PROPERTIES.computeIfAbsent(declaringClass, ThreadInfo::resolveThreadProperties);
+        return properties.get(methodName);
+    }
 
+    private static Map<String, ThreadProperty> resolveThreadProperties(Class<?> declaringClass) {
+        Map<String, ThreadProperty> properties = new ConcurrentHashMap<>();
         for (Method method : declaringClass.getDeclaredMethods()) {
-            if (method.getName().equals(methodName)) {
-                ThreadPropertyGate propertyGate = method.getAnnotation(ThreadPropertyGate.class);
-                return propertyGate == null ? null : propertyGate.value();
+            ThreadContext threadContext = method.getAnnotation(ThreadContext.class);
+            if (threadContext != null) {
+                properties.putIfAbsent(method.getName(), threadContext.value());
             }
         }
-        return null;
+        return properties;
     }
 
     @Override
