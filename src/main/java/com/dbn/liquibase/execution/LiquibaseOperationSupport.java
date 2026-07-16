@@ -24,6 +24,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_SQL;
+import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_HISTORY;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_STATUS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_SQL;
@@ -57,6 +58,7 @@ public final class LiquibaseOperationSupport {
         if (operation.isOneOf(
                 VALIDATE_CHANGELOG,
                 SHOW_CHANGELOG_STATUS,
+                SHOW_CHANGELOG_HISTORY,
                 SYNCHRONIZE_CHANGELOG,
                 SYNCHRONIZE_CHANGELOG_SQL,
                 UPDATE_DATABASE,
@@ -111,6 +113,7 @@ public final class LiquibaseOperationSupport {
         return operation.isOneOf(
                 UPDATE_DATABASE,
                 UPDATE_SQL,
+                SHOW_CHANGELOG_HISTORY,
                 SYNCHRONIZE_CHANGELOG,
                 SYNCHRONIZE_CHANGELOG_SQL,
                 ROLLBACK_CHANGESETS,
@@ -130,6 +133,7 @@ public final class LiquibaseOperationSupport {
     public boolean supportsTrackingTables() {
         return operation.isOneOf(
                 SHOW_CHANGELOG_STATUS,
+                SHOW_CHANGELOG_HISTORY,
                 SYNCHRONIZE_CHANGELOG,
                 UPDATE_DATABASE,
                 TAG_DATABASE,
@@ -142,6 +146,7 @@ public final class LiquibaseOperationSupport {
                 VALIDATE_CHANGELOG,
                 GENERATE_DIFF_CHANGELOG,
                 SHOW_CHANGELOG_STATUS,
+                SHOW_CHANGELOG_HISTORY,
                 SYNCHRONIZE_CHANGELOG,
                 SYNCHRONIZE_CHANGELOG_SQL,
                 UPDATE_DATABASE,

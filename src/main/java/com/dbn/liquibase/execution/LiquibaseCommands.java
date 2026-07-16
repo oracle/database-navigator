@@ -20,6 +20,7 @@ import liquibase.command.core.ChangelogSyncCommandStep;
 import liquibase.command.core.ChangelogSyncSqlCommandStep;
 import liquibase.command.core.DiffChangelogCommandStep;
 import liquibase.command.core.GenerateChangelogCommandStep;
+import liquibase.command.core.HistoryCommandStep;
 import liquibase.command.core.RollbackCommandStep;
 import liquibase.command.core.RollbackCountCommandStep;
 import liquibase.command.core.RollbackCountSqlCommandStep;
@@ -40,6 +41,7 @@ public class LiquibaseCommands {
     public static final String GENERATE_DIFF_CHANGELOG = DiffChangelogCommandStep.COMMAND_NAME[0];
     public static final String VALIDATE_CHANGELOG = ValidateCommandStep.COMMAND_NAME[0];
     public static final String SHOW_CHANGELOG_STATUS = StatusCommandStep.COMMAND_NAME[0];
+    public static final String SHOW_CHANGELOG_HISTORY = HistoryCommandStep.COMMAND_NAME[0];
     public static final String TAG = TagCommandStep.COMMAND_NAME[0];
     public static final String UPDATE_DATABASE = UpdateCommandStep.COMMAND_NAME[0];
     public static final String UPDATE_SQL = UpdateSqlCommandStep.COMMAND_NAME[0];

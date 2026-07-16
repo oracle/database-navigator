@@ -84,6 +84,16 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     }
 
     @NotNull
+    public LiquibaseChangeSetItem ensureChangeSetItem(
+            @NotNull ChangeSet changeSet,
+            @NotNull LiquibaseExecutionItemStatus status,
+            @Nullable String message) {
+        return ensureItem(changeSetItems,
+                buildChangeSetKey(changeSet),
+                () -> new LiquibaseChangeSetItem(changeSet, status, message));
+    }
+
+    @NotNull
     public LiquibaseComparisonItem ensureComparisonItem(
             @Nullable DatabaseObject sourceObject,
             @Nullable DatabaseObject targetObject,

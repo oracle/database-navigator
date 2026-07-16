@@ -34,6 +34,7 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         changelogActions.add(new GenerateDiffChangelogAction(schema));
         changelogActions.add(new ValidateChangelogAction(schema));
         changelogActions.add(new ShowChangelogStatusAction(schema));
+        changelogActions.add(new ShowChangelogHistoryAction(schema));
         add(changelogActions);
 
         DefaultActionGroup databaseActions = new DefaultActionGroup(txt("app.liquibase.group.Database"), true);
