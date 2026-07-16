@@ -24,6 +24,7 @@ public class PrerequisiteTypes {
     public static final PrerequisiteType CREATE_TABLE = PrerequisiteType.get("CREATE_TABLE");
     public static final PrerequisiteType CREATE_PROCEDURE = PrerequisiteType.get("CREATE_PROCEDURE");
     public static final PrerequisiteType CREATE_TYPE = PrerequisiteType.get("CREATE_TYPE");
+    public static final PrerequisiteType CREATE_JOB = PrerequisiteType.get("CREATE_JOB");
     public static final PrerequisiteType CREATE_ANY_TABLE = PrerequisiteType.get("CREATE_ANY_TABLE");
     public static final PrerequisiteType CREATE_ANY_PROCEDURE = PrerequisiteType.get("CREATE_ANY_PROCEDURE");
     public static final PrerequisiteType CREATE_ANY_TYPE = PrerequisiteType.get("CREATE_ANY_TYPE");
