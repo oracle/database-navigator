@@ -16,19 +16,30 @@
 
 package com.dbn.scheduler.model;
 
+import com.dbn.common.ui.Presentable;
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
-public enum SchedulerJobStatus {
-    SCHEDULED,
-    RUNNING,
-    COMPLETED,
-    SUCCEEDED,
-    FAILED,
-    BROKEN,
-    STOPPED,
-    UNKNOWN;
+import static com.dbn.nls.NlsResources.txt;
+
+@Getter
+public enum SchedulerJobStatus implements Presentable {
+    SCHEDULED(txt("app.scheduler.const.SchedulerJobStatus_SCHEDULED")),
+    RUNNING(txt("app.scheduler.const.SchedulerJobStatus_RUNNING")),
+    COMPLETED(txt("app.scheduler.const.SchedulerJobStatus_COMPLETED")),
+    SUCCEEDED(txt("app.scheduler.const.SchedulerJobStatus_SUCCEEDED")),
+    FAILED(txt("app.scheduler.const.SchedulerJobStatus_FAILED")),
+    BROKEN(txt("app.scheduler.const.SchedulerJobStatus_BROKEN")),
+    STOPPED(txt("app.scheduler.const.SchedulerJobStatus_STOPPED")),
+    UNKNOWN(txt("app.scheduler.const.SchedulerJobStatus_UNKNOWN"));
+
+    private final String name;
+
+    SchedulerJobStatus(String name) {
+        this.name = name;
+    }
 
     public boolean isTerminal() {
         return isOneOf(SUCCEEDED, FAILED, BROKEN, STOPPED);

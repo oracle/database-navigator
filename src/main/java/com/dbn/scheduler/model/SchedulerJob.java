@@ -32,4 +32,9 @@ public class SchedulerJob {
         this.connection = ConnectionRef.of(connection);
         this.name = name;
     }
+
+    @NotNull
+    public ConnectionHandler getConnection() {
+        return connection.ensure();
+    }
 }

@@ -79,7 +79,7 @@ public class DatabaseSchedulerManager extends ProjectComponentBase {
             @NotNull SchedulerJob job,
             @NotNull SchedulerJobMonitor monitor,
             @NotNull OutcomeHandlers outcomeHandlers) {
-        ConnectionHandler connection = job.getConnection().ensure();
+        ConnectionHandler connection = job.getConnection();
         Progress.background(getProject(), connection, true, monitor.getTitle(), monitor.getInitialText(), progress -> {
             SchedulerJobSnapshot snapshot = SchedulerJobSnapshot.notFound();
             try {
@@ -118,14 +118,14 @@ public class DatabaseSchedulerManager extends ProjectComponentBase {
 
     @NotNull
     public SchedulerJobSnapshot loadJobSnapshot(@NotNull SchedulerJob job) throws SQLException {
-        ConnectionHandler connection = job.getConnection().ensure();
+        ConnectionHandler connection = job.getConnection();
         return DatabaseInterfaceInvoker.load(Priority.LOW,
                 getProject(), connection.getConnectionId(),
                 conn -> connection.getSchedulerInterface().loadJobSnapshot(conn, job.getName()));
     }
 
     public void stopAndDropJob(@NotNull SchedulerJob job) throws SQLException {
-        ConnectionHandler connection = job.getConnection().ensure();
+        ConnectionHandler connection = job.getConnection();
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
                 getProject(), connection.getConnectionId(),
                 conn -> {
@@ -151,7 +151,7 @@ public class DatabaseSchedulerManager extends ProjectComponentBase {
 
     private void dropJobQuietly(SchedulerJob job, boolean force) {
         try {
-            ConnectionHandler connection = job.getConnection().ensure();
+            ConnectionHandler connection = job.getConnection();
             DatabaseInterfaceInvoker.execute(Priority.LOW,
                     getProject(), connection.getConnectionId(),
                     conn -> connection.getSchedulerInterface().dropJob(conn, job.getName(), force));
@@ -161,13 +161,21 @@ public class DatabaseSchedulerManager extends ProjectComponentBase {
     }
 
     @NotNull
-    private static Outcome createCompletionOutcome(SchedulerJob job, SchedulerJobSnapshot snapshot) {
+    private static Outcome createCompletionOutcome(
+            SchedulerJob job,
+            SchedulerJobSnapshot snapshot) {
         SchedulerJobCompletion completion = new SchedulerJobCompletion(job, snapshot);
         if (snapshot.getStatus().isSuccessful()) return Outcome.success().withData(completion);
 
-        String message = snapshot.getErrorNumber() == null ?
-                txt("msg.scheduler.error.JobFailed", job.getName(), snapshot.getStatus()) :
-                txt("msg.scheduler.error.JobFailedWithError", job.getName(), snapshot.getStatus(), snapshot.getErrorNumber());
+        String jobName = job.getName();
+        String status = snapshot.getStatus().getName();
+        String errorCode = snapshot.getErrorNumber();
+
+        ConnectionHandler connection = job.getConnection();
+        String message = errorCode == null ?
+                txt("msg.scheduler.error.JobFailed", jobName, status) :
+                txt("msg.scheduler.error.JobFailedWithError", jobName, status,
+                        connection.getMessageParserInterface().formatErrorCode(errorCode));
         return Outcome.failure()
                 .withException(new IllegalStateException(message))
                 .withData(completion);
