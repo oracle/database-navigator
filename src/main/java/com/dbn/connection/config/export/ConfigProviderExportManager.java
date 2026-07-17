@@ -28,6 +28,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.dbn.common.component.Components.applicationService;
+import static com.dbn.connection.config.export.JsonExistingContentWriteMode.NONE;
+import static com.dbn.connection.config.export.JsonExistingContentWriteMode.REPLACE_ROOT;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -73,6 +75,7 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
                     if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
 
                     ConfigProviderExportRequest request = dialog.getExportRequest();
+                    if (!confirmFileReplacement(project, request)) return;
 
                     Progress.modal(project, null, true,
                             "Exporting configuration",
@@ -80,6 +83,38 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
                             progress -> doExport(project, settings, request));
                 }
         );
+    }
+
+    private static boolean confirmFileReplacement(@NotNull Project project, @NotNull ConfigProviderExportRequest request) {
+        if (request.getDestination() == ConfigProviderExportRequest.Destination.CLIPBOARD) return true;
+
+        Path outputFile = request.getOutputFile();
+        if (outputFile == null) return true;
+
+        try {
+            ConfigProviderFormatProcessor processor =
+                    ConfigProviderFormatRegistry.getInstance().get(request.getFormatId());
+            if (!(processor instanceof JsonConfigProviderProcessor jsonProcessor)) return true;
+
+            JsonExistingContentWriteMode writeMode =
+                    jsonProcessor.getExistingContentWriteMode(outputFile, request.getWrapperKey());
+            if (writeMode == NONE) return true;
+
+            String question = writeMode == REPLACE_ROOT
+                    ? txt("msg.connection.question.ReplaceExportFile", outputFile)
+                    : txt("msg.connection.question.ReplaceExportEntry", outputFile, request.getWrapperKey().trim());
+            int option = Messages.showConfirmationDialog(
+                    project,
+                    txt("msg.connection.title.ExportConfiguration"),
+                    question,
+                    Messages.OPTIONS_YES_NO,
+                    1);
+            return option == 0;
+        } catch (Exception e) {
+            conditionallyLog(e);
+            Messages.showErrorDialog(project, txt("msg.connection.title.ExportFailed"), userMessage(e));
+            return false;
+        }
     }
 
     public @NotNull StateAttributes getExportFormState() {

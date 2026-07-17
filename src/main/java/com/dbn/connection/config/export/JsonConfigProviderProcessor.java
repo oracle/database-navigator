@@ -42,10 +42,7 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
             Files.writeString(file, render(payload, wrapperKey), StandardCharsets.UTF_8);
             return;
         }
-        JsonNode existing = MAPPER.readTree(Files.readString(file, StandardCharsets.UTF_8));
-        if (!(existing instanceof ObjectNode root)) {
-            throw new IllegalArgumentException("Existing export file must contain a JSON object.");
-        }
+        ObjectNode root = readExistingRoot(file);
         if (!hasWrapperKey) {
             Files.writeString(file, render(payload, wrapperKey), StandardCharsets.UTF_8);
             return;
@@ -57,6 +54,16 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
 
         root.set(wrapperKey.trim(), toJson(payload));
         Files.writeString(file, MAPPER.writeValueAsString(root), StandardCharsets.UTF_8);
+    }
+
+    JsonExistingContentWriteMode getExistingContentWriteMode(Path file, String wrapperKey) throws Exception {
+        if (file == null || !Files.exists(file) || Files.size(file) == 0) return JsonExistingContentWriteMode.NONE;
+
+        ObjectNode root = readExistingRoot(file);
+        if (wrapperKey == null || wrapperKey.isBlank() || containsRootConfiguration(root)) {
+            return JsonExistingContentWriteMode.REPLACE_ROOT;
+        }
+        return root.has(wrapperKey.trim()) ? JsonExistingContentWriteMode.REPLACE_WRAPPER : JsonExistingContentWriteMode.NONE;
     }
 
     @Override
@@ -95,6 +102,13 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
 
     private static boolean containsRootConfiguration(ObjectNode root) {
         return root.has("connect_descriptor");
+    }
+
+    private static ObjectNode readExistingRoot(Path file) throws Exception {
+        JsonNode existing = MAPPER.readTree(Files.readString(file, StandardCharsets.UTF_8));
+        if (existing instanceof ObjectNode root) return root;
+
+        throw new IllegalArgumentException("Existing export file must contain a JSON object.");
     }
 
     private static JsonNode toSecretRefJson(SecretRef ref, boolean includeEmptyTypeAndValue) {
@@ -145,4 +159,10 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
             node.put(key, trimmedValue);
         }
     }
+}
+
+enum JsonExistingContentWriteMode {
+    NONE,
+    REPLACE_WRAPPER,
+    REPLACE_ROOT
 }
