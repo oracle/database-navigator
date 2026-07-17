@@ -1107,8 +1107,15 @@
 
 
         <!-- MARKER_BEGIN_PARAMETERS -->
-        <token index="0" id="PRM_CHECK_OPTION" value="check_option" category="parameter"/>
-        <token index="1" id="PRM_SECURITY_BARRIER" value="security_barrier" category="parameter"/>
+        <token index="0" id="PRM_ALLOW_CONNECTIONS" value="allow_connections" category="parameter"/>
+        <token index="1" id="PRM_BUFFERING" value="buffering" category="parameter"/>
+        <token index="2" id="PRM_CHECK_OPTION" value="check_option" category="parameter"/>
+        <token index="3" id="PRM_FASTUPDATE" value="fastupdate" category="parameter"/>
+        <token index="4" id="PRM_FILLFACTOR" value="fillfactor" category="parameter"/>
+        <token index="5" id="PRM_GIN_PENDING_LIST_LIMIT" value="gin_pending_list_limit" category="parameter"/>
+        <token index="6" id="PRM_IS_TEMPLATE" value="is_template" category="parameter"/>
+        <token index="7" id="PRM_PAGES_PER_RANGE" value="pages_per_range" category="parameter"/>
+        <token index="8" id="PRM_SECURITY_BARRIER" value="security_barrier" category="parameter"/>
         <!-- MARKER_END_PARAMETERS -->
 
 

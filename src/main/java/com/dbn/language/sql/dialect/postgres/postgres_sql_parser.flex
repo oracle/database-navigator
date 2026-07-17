@@ -1212,8 +1212,15 @@ VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 
 
 // MARKER_BEGIN_PARAMETERS
-"check_option" {return tt.ptt(0);}
-"security_barrier" {return tt.ptt(1);}
+"allow_connections" {return tt.ptt(0);}
+"buffering" {return tt.ptt(1);}
+"check_option" {return tt.ptt(2);}
+"fastupdate" {return tt.ptt(3);}
+"fillfactor" {return tt.ptt(4);}
+"gin_pending_list_limit" {return tt.ptt(5);}
+"is_template" {return tt.ptt(6);}
+"pages_per_range" {return tt.ptt(7);}
+"security_barrier" {return tt.ptt(8);}
 // MARKER_END_PARAMETERS
 
 
