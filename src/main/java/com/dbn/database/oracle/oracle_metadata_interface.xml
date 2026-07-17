@@ -137,6 +137,57 @@
             where PARAMETER = 'CHARACTERSET'
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="datasource-configs">
+        <statement prefixes="DBA, ALL">
+            select
+                owner,
+                config_name,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from [PREFIX]_DATA_SOURCE_CONFIGS
+                where owner = {#0}
+                order by config_name
+        </statement>
+        <statement prefixes="USER">
+            select
+                USER as owner,
+                config_name,
+                to_char(last_updated, 'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM') as last_updated
+            from USER_DATA_SOURCE_CONFIGS
+            where USER = {#0}
+            order by config_name
+        </statement>
+        <statement>
+            <!--empty fallback for databases without data source config store-->
+            select
+                null as owner,
+                null as config_name,
+                null as last_updated
+            from dual
+            where 1 = 0
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="datasource-config-source-code">
+        <statement prefixes="DBA, ALL">
+            select
+                json_serialize(VALUE returning clob pretty) as SOURCE_CODE
+            from [PREFIX]_DATA_SOURCE_CONFIGS
+            where upper(OWNER) = upper({#0})
+              and upper(CONFIG_NAME) = upper({#1})
+        </statement>
+        <statement prefixes="USER">
+            select
+                json_serialize(VALUE returning clob pretty) as SOURCE_CODE
+            from USER_DATA_SOURCE_CONFIGS
+            where upper(CONFIG_NAME) = upper({#1})
+        </statement>
+        <statement>
+            select
+                cast(NULL as clob) as SOURCE_CODE
+            from dual
+            where 1 = 0
+        </statement>
+    </statement-execution-processor>
 
     <statement-execution-processor id="schemas">
         <statement prefixes="DBA, ALL, USER">
@@ -3481,4 +3532,5 @@
              where DBMS_TRANSACTION.LOCAL_TRANSACTION_ID is not null;
         </statement>
     </statement-execution-processor>
+
 </data-dictionary>

@@ -24,6 +24,7 @@ public class PrerequisiteTypes {
     public static final PrerequisiteType CREATE_TABLE = PrerequisiteType.get("CREATE_TABLE");
     public static final PrerequisiteType CREATE_PROCEDURE = PrerequisiteType.get("CREATE_PROCEDURE");
     public static final PrerequisiteType CREATE_TYPE = PrerequisiteType.get("CREATE_TYPE");
+    public static final PrerequisiteType CREATE_JOB = PrerequisiteType.get("CREATE_JOB");
     public static final PrerequisiteType CREATE_ANY_TABLE = PrerequisiteType.get("CREATE_ANY_TABLE");
     public static final PrerequisiteType CREATE_ANY_PROCEDURE = PrerequisiteType.get("CREATE_ANY_PROCEDURE");
     public static final PrerequisiteType CREATE_ANY_TYPE = PrerequisiteType.get("CREATE_ANY_TYPE");
@@ -45,4 +46,10 @@ public class PrerequisiteTypes {
     public static final PrerequisiteType EXECUTE_DBMS_VECTOR = PrerequisiteType.get("EXECUTE_DBMS_VECTOR");
     public static final PrerequisiteType EXECUTE_DBMS_VECTOR_CHAIN = PrerequisiteType.get("EXECUTE_DBMS_VECTOR_CHAIN");
     public static final PrerequisiteType DATABASE_VERSION_23_1 = PrerequisiteType.get("DATABASE_VERSION_23_1");
+
+    // data source configuration prerequisites
+    public static final PrerequisiteType DATABASE_VERSION_26_0 = PrerequisiteType.get("DATABASE_VERSION_26_0");
+    public static final PrerequisiteType CREATE_DATA_SOURCE_CONFIG = PrerequisiteType.get("CREATE_DATA_SOURCE_CONFIG");
+    public static final PrerequisiteType CREATE_ANY_DATA_SOURCE_CONFIG = PrerequisiteType.get("CREATE_ANY_DATA_SOURCE_CONFIG");
+    public static final PrerequisiteType EXECUTE_DBMS_DATA_SOURCE_CONFIG = PrerequisiteType.get("EXECUTE_DBMS_DATA_SOURCE_CONFIG");
 }

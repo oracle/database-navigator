@@ -19,6 +19,7 @@ package com.dbn.database.common;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
+import com.dbn.database.interfaces.DatabaseDatasourceConfigInterface;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.database.interfaces.DatabaseEnvironmentInterface;
 import com.dbn.database.interfaces.DatabaseExecutionInterface;
@@ -28,6 +29,7 @@ import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
+import com.dbn.database.interfaces.DatabaseSchedulerInterface;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
@@ -43,12 +45,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.ASSISTANT;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.COMPATIBILITY;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.DATA_DEFINITION;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.DATA_SOURCE_CONFIG;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.DEBUGGER;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.ENVIRONMENT;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.EXECUTION;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.JAVA;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.MESSAGE_PARSER;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.METADATA;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.SCHEDULER;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.VECTOR;
 
 public abstract class DatabaseInterfacesBase implements DatabaseInterfaces {
@@ -114,6 +118,16 @@ public abstract class DatabaseInterfacesBase implements DatabaseInterfaces {
     @Override
     public DatabaseVectorInterface getVectorInterface() {
         return getInterface(VECTOR);
+    }
+
+    @Override
+    public DatabaseDatasourceConfigInterface getDatasourceConfigInterface() {
+        return getInterface(DATA_SOURCE_CONFIG);
+    }
+
+    @Override
+    public DatabaseSchedulerInterface getSchedulerInterface() {
+        return getInterface(SCHEDULER);
     }
 
     @Override

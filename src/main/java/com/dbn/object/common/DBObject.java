@@ -23,6 +23,7 @@ import com.dbn.common.content.DynamicContentElement;
 import com.dbn.common.content.DynamicContentType;
 import com.dbn.common.dispose.UnlistedDisposable;
 import com.dbn.common.environment.EnvironmentTypeProvider;
+import com.dbn.common.exception.Exceptions;
 import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.Presentable;
@@ -37,6 +38,7 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectListVisitor;
 import com.dbn.object.common.property.DBObjectProperty;
+import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBObjectVirtualFile;
@@ -169,5 +171,9 @@ public interface DBObject extends
 
     default boolean matches(DBObjectType objectType) {
         return getObjectType().matches(objectType);
+    };
+
+    default DBObjectStatusHolder getStatus() {
+        return Exceptions.unsupported();
     };
 }

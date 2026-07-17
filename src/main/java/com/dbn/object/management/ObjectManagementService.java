@@ -20,6 +20,7 @@ import com.dbn.common.component.ProjectComponent;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,6 +33,9 @@ public interface ObjectManagementService extends ProjectComponent {
     }
 
     boolean supports(DBObject object);
+
+    /** Whether a management adapter (DB lifecycle) is registered for the given type. */
+    boolean supports(DBObjectType objectType);
 
     void createObject(DBObject object, OutcomeHandler successHandler);
 
