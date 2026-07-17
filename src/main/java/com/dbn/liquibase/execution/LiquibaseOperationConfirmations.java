@@ -72,7 +72,7 @@ public final class LiquibaseOperationConfirmations {
                 Messages.options(
                         txt("msg.liquibase.button.Overwrite"),
                         txt("msg.shared.button.Cancel")),
-                0,
+                1,
                 null);
         if (option != 0) return false;
 
