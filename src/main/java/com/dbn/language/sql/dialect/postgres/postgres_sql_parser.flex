@@ -1241,13 +1241,16 @@ VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 // MARKER_BEGIN_PARAMETERS
 "allow_connections" {return tt.ptt(0);}
 "buffering" {return tt.ptt(1);}
-"check_option" {return tt.ptt(2);}
-"fastupdate" {return tt.ptt(3);}
-"fillfactor" {return tt.ptt(4);}
-"gin_pending_list_limit" {return tt.ptt(5);}
-"is_template" {return tt.ptt(6);}
-"pages_per_range" {return tt.ptt(7);}
-"security_barrier" {return tt.ptt(8);}
+"buffer_usage_limit" {return tt.ptt(2);}
+"check_option" {return tt.ptt(3);}
+"fastupdate" {return tt.ptt(4);}
+"fillfactor" {return tt.ptt(5);}
+"gin_pending_list_limit" {return tt.ptt(6);}
+"is_template" {return tt.ptt(7);}
+"pages_per_range" {return tt.ptt(8);}
+"security_barrier" {return tt.ptt(9);}
+"security_invoker" {return tt.ptt(10);}
+"skip_locked" {return tt.ptt(11);}
 // MARKER_END_PARAMETERS
 
 
