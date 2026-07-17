@@ -21,7 +21,6 @@ import com.dbn.common.exception.RequestCancelledException;
 import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.common.routine.ThrowableConsumer;
 import com.dbn.common.task.TaskStatus;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionContext;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.PooledConnection;
@@ -73,7 +72,7 @@ import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.exception.Exceptions.unwrap;
 import static com.dbn.common.util.Classes.withClassLoader;
 import static com.dbn.common.util.Strings.isNotEmpty;
-import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.liquibase.execution.LiquibaseOperationConfirmations.ensureConfirmed;
 import static liquibase.Scope.child;
 
 /**
@@ -93,25 +92,6 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     public static final ExtensionPointName<LiquibaseExecutionProcessor> EP =
             ExtensionPointName.create("com.dbn.liquibaseExecutionProcessor");
     protected LiquibaseExecutionProcessor() {
-    }
-
-    public static boolean confirmOverwrite(@NotNull LiquibaseExecutionInput input) {
-        Path changelogFile = input.getWorkspacePaths().getMasterChangelogPath();
-        if (!Files.exists(changelogFile)) return true;
-
-        int option = Messages.showAcknowledgementDialog(
-                input.getProject(),
-                txt("msg.liquibase.title.OverwriteChangelog"),
-                txt("msg.liquibase.question.OverwriteChangelog", changelogFile),
-                Messages.options(
-                        txt("msg.liquibase.button.Overwrite"),
-                        txt("msg.shared.button.Cancel")),
-                0,
-                null);
-        if (option != 0) return false;
-
-        input.setOverwriteConfirmed(true);
-        return true;
     }
 
     protected static void rememberTag(@NotNull LiquibaseExecutionContext context, DBSchema targetSchema, String tag) {
@@ -218,11 +198,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     protected final void prepareChangelogOutput(@NotNull LiquibaseExecutionContext context) throws Exception {
         LiquibaseExecutionInput input = context.getInput();
         Path changelogFile = input.getWorkspacePaths().getMasterChangelogPath();
-        boolean overwrite = input.isOverwriteConfirmed();
-        if (Files.exists(changelogFile) && !overwrite) {
-            if (!confirmOverwrite(input)) throw new RequestCancelledException("Changelog overwrite canceled");
-            overwrite = true;
-        }
+        boolean overwrite = input.isConfirmed();
         if (overwrite) Files.deleteIfExists(changelogFile);
         Files.createDirectories(changelogFile.getParent());
     }
@@ -246,6 +222,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
         context.setExecutionThread(Thread.currentThread());
         result.notifyStarted();
         try {
+            ensureConfirmed(context.getInput());
             executeOperation(context);
             finishResult(context, TaskStatus.DONE);
         } catch (ElementSkippedException e) {

@@ -10,8 +10,6 @@
 
 package com.dbn.liquibase.execution.processor;
 
-import com.dbn.common.exception.RequestCancelledException;
-import com.dbn.common.util.Messages;
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseOperation;
@@ -40,7 +38,6 @@ public class LiquibaseDropAllProcessor extends LiquibaseExecutionProcessor {
     @Override
     protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
         DBSchema targetSchema = context.getTargetSchema();
-        confirmDropAll(context, targetSchema);
 
         withLiquibaseDatabase(context, false, targetSchema, database ->
                 withLiquibaseScope(context, classLoaderAccessor(), null,
@@ -48,21 +45,6 @@ public class LiquibaseDropAllProcessor extends LiquibaseExecutionProcessor {
 
         notifySchemaObjectChanges(targetSchema);
         context.getResult().appendConsoleOutput(txt("log.liquibase.info.DropAllCompleted", targetSchema.getName()));
-    }
-
-    private static void confirmDropAll(
-            @NotNull LiquibaseExecutionContext context,
-            @NotNull DBSchema schema) throws RequestCancelledException {
-        int option = Messages.showAcknowledgementDialog(
-                context.getProject(),
-                txt("msg.liquibase.title.DropAll"),
-                txt("msg.liquibase.question.DropAll", schema.getName()),
-                Messages.options(
-                        txt("msg.liquibase.button.DropAll"),
-                        txt("msg.shared.button.Cancel")),
-                1,
-                null);
-        if (option != 0) throw new RequestCancelledException("Drop all canceled");
     }
 
     private static void executeDropAll(

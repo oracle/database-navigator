@@ -38,7 +38,7 @@ public class LiquibaseExecutionInput extends ProjectUnit {
     private String changelogAuthor;
     private String databaseTag;
     private String checkpointTag;
-    private boolean overwriteConfirmed;
+    private boolean confirmed;
 
     private LiquibaseWorkspace workspace;
     private LiquibaseWorkspacePaths workspacePaths;
