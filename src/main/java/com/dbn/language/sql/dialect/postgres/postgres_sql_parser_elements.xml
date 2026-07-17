@@ -37,6 +37,9 @@
             <element ref-id="fetch_statement" version="7.3" />
             <element ref-id="grant_statement" />
             <element ref-id="import_foreign_schema_statement" version="9.1" />
+            <element ref-id="listen_statement" version="7.3" />
+            <element ref-id="load_statement" version="7.3" />
+            <element ref-id="lock_statement" version="7.3" />
             <element ref-id="explain_statement" />
             <element ref-id="savepoint_statement" />
             <element ref-id="comment_on_statement" />
@@ -4108,7 +4111,7 @@
         </qualified-identifier>
         <one-of id="02459" ambiguous="true">
             <iteration optional="true" id="02460">
-                <one-of id="02461" ambiguous="true">
+                <one-of ambiguous="true" id="02461">
                     <sequence id="02462">
                         <token type-id="KW_AS" id="02463" />
                         <element ref-id="data_type" />
@@ -6474,9 +6477,74 @@
         </sequence>
     </element-def>
 
+    <!-- ========= listen ========= -->
+    <element-def attributes="SESSION_CONTROL, SPECIFIC" description="LISTEN statement" id="listen_statement">
+        <token type-id="KW_LISTEN" id="04057" />
+        <object-def attributes="SUBJECT" type="ANY" id="04058" />
+    </element-def>
+
+    <!-- ========= load ========= -->
+    <element-def attributes="SESSION_CONTROL, SPECIFIC" description="LOAD statement" id="load_statement">
+        <token type-id="KW_LOAD" id="04059" />
+        <token original-name="filename" type-id="STRING" id="04060" />
+    </element-def>
+
+    <!-- ========= lock ========= -->
+    <element-def attributes="TRANSACTION_CONTROL, DATA_MANIPULATION, SPECIFIC" description="LOCK statement" id="lock_statement">
+        <token type-id="KW_LOCK" id="04061" />
+        <token optional="true" type-id="KW_TABLE" id="04062" />
+        <token optional="true" type-id="KW_ONLY" id="04063" />
+        <iteration separator="CHR_COMMA" id="04064">
+            <sequence id="04065">
+                <qualified-identifier separator="CHR_DOT" id="04066">
+                    <variant>
+                        <object-ref optional="true" type="SCHEMA" id="04067" />
+                        <object-ref attributes="SUBJECT" type="TABLE" id="04068" />
+                    </variant>
+                </qualified-identifier>
+                <token optional="true" type-id="CHR_STAR" id="04069" />
+            </sequence>
+        </iteration>
+        <sequence optional="true" id="04070">
+            <token type-id="KW_IN" id="04071" />
+            <one-of id="04072" ambiguous="true">
+                <sequence id="04073">
+                    <token type-id="KW_ACCESS" id="04074" />
+                    <token type-id="KW_SHARE" id="04075" />
+                </sequence>
+                <sequence id="04076">
+                    <token type-id="KW_ROW" id="04077" />
+                    <token type-id="KW_SHARE" id="04078" />
+                </sequence>
+                <sequence id="04079">
+                    <token type-id="KW_ROW" id="04080" />
+                    <token type-id="KW_EXCLUSIVE" id="04081" />
+                </sequence>
+                <sequence id="04082">
+                    <token type-id="KW_SHARE" id="04083" />
+                    <token type-id="KW_UPDATE" id="04084" />
+                    <token type-id="KW_EXCLUSIVE" id="04085" />
+                </sequence>
+                <token type-id="KW_SHARE" id="04086" />
+                <sequence id="04087">
+                    <token type-id="KW_SHARE" id="04088" />
+                    <token type-id="KW_ROW" id="04089" />
+                    <token type-id="KW_EXCLUSIVE" id="04090" />
+                </sequence>
+                <token type-id="KW_EXCLUSIVE" id="04091" />
+                <sequence id="04092">
+                    <token type-id="KW_ACCESS" id="04093" />
+                    <token type-id="KW_EXCLUSIVE" id="04094" />
+                </sequence>
+            </one-of>
+            <token type-id="KW_MODE" id="04095" />
+        </sequence>
+        <token optional="true" type-id="KW_NOWAIT" id="04096" />
+    </element-def>
+
     <!-- ========= drop ========= -->
     <element-def attributes="SCOPE_ISOLATION" description="DROP statement" id="drop_statement">
-        <one-of id="04057" ambiguous="true">
+        <one-of id="04097" ambiguous="true">
             <element ref-id="drop_access_method_statement" version="9.6" />
             <element ref-id="drop_aggregate_statement" version="7.3" />
             <element ref-id="drop_cast_statement" version="7.3" />
@@ -6524,30 +6592,30 @@
     </element-def>
 
     <element-def description="DROP behavior" id="drop_behavior">
-        <one-of optional="true" id="04058">
-            <token type-id="KW_CASCADE" id="04059" />
-            <token type-id="KW_RESTRICT" id="04060" />
+        <one-of optional="true" id="04098">
+            <token type-id="KW_CASCADE" id="04099" />
+            <token type-id="KW_RESTRICT" id="04100" />
         </one-of>
     </element-def>
 
     <!-- ========= drop access method ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP ACCESS METHOD statement" id="drop_access_method_statement">
-        <token type-id="KW_DROP" id="04061" />
-        <token type-id="KW_ACCESS" id="04062" />
-        <token type-id="KW_METHOD" id="04063" />
+        <token type-id="KW_DROP" id="04101" />
+        <token type-id="KW_ACCESS" id="04102" />
+        <token type-id="KW_METHOD" id="04103" />
         <element optional="true" ref-id="if_exists_clause" version="9.6" />
-        <object-def attributes="SUBJECT" type="ANY" id="04064" />
+        <object-def attributes="SUBJECT" type="ANY" id="04104" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop aggregate ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP AGGREGATE statement" id="drop_aggregate_statement">
-        <token type-id="KW_DROP" id="04065" />
-        <token type-id="KW_AGGREGATE" id="04066" />
+        <token type-id="KW_DROP" id="04105" />
+        <token type-id="KW_AGGREGATE" id="04106" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="FUNCTION" id="04067" />
-        <wrapper template="PARENTHESES" id="04068">
-            <iteration optional="true" separator="CHR_COMMA" id="04069">
+        <object-def attributes="SUBJECT" type="FUNCTION" id="04107" />
+        <wrapper template="PARENTHESES" id="04108">
+            <iteration optional="true" separator="CHR_COMMA" id="04109">
                 <element ref-id="data_type" />
             </iteration>
         </wrapper>
@@ -6556,12 +6624,12 @@
 
     <!-- ========= drop cast ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP CAST statement" id="drop_cast_statement">
-        <token type-id="KW_DROP" id="04070" />
-        <token type-id="KW_CAST" id="04071" />
-        <wrapper template="PARENTHESES" id="04072">
-            <sequence id="04073">
+        <token type-id="KW_DROP" id="04110" />
+        <token type-id="KW_CAST" id="04111" />
+        <wrapper template="PARENTHESES" id="04112">
+            <sequence id="04113">
                 <element ref-id="data_type" />
-                <token type-id="KW_AS" id="04074" />
+                <token type-id="KW_AS" id="04114" />
                 <element ref-id="data_type" />
             </sequence>
         </wrapper>
@@ -6569,87 +6637,87 @@
 
     <!-- ========= drop collation ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP COLLATION statement" id="drop_collation_statement">
-        <token type-id="KW_DROP" id="04075" />
-        <token type-id="KW_COLLATION" id="04076" />
+        <token type-id="KW_DROP" id="04115" />
+        <token type-id="KW_COLLATION" id="04116" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="COLLATION" id="04077" />
+        <object-def attributes="SUBJECT" type="COLLATION" id="04117" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop conversion ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP CONVERSION statement" id="drop_conversion_statement">
-        <token type-id="KW_DROP" id="04078" />
-        <token type-id="KW_CONVERSION" id="04079" />
+        <token type-id="KW_DROP" id="04118" />
+        <token type-id="KW_CONVERSION" id="04119" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="CONVERSION" id="04080" />
+        <object-def attributes="SUBJECT" type="CONVERSION" id="04120" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop database ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP DATABASE statement" id="drop_database_statement">
-        <token type-id="KW_DROP" id="04081" />
-        <token type-id="KW_DATABASE" id="04082" />
+        <token type-id="KW_DROP" id="04121" />
+        <token type-id="KW_DATABASE" id="04122" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="DATABASE" id="04083" />
+        <object-def attributes="SUBJECT" type="DATABASE" id="04123" />
     </element-def>
 
     <!-- ========= drop domain ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP DOMAIN statement" id="drop_domain_statement">
-        <token type-id="KW_DROP" id="04084" />
-        <token type-id="KW_DOMAIN" id="04085" />
+        <token type-id="KW_DROP" id="04124" />
+        <token type-id="KW_DOMAIN" id="04125" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="DOMAIN" id="04086" />
+        <object-def attributes="SUBJECT" type="DOMAIN" id="04126" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop event trigger ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP EVENT TRIGGER statement" id="drop_event_trigger_statement">
-        <token type-id="KW_DROP" id="04087" />
-        <token type-id="KW_EVENT" id="04088" />
-        <token type-id="KW_TRIGGER" id="04089" />
+        <token type-id="KW_DROP" id="04127" />
+        <token type-id="KW_EVENT" id="04128" />
+        <token type-id="KW_TRIGGER" id="04129" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="EVENT_TRIGGER" id="04090" />
+        <object-def attributes="SUBJECT" type="EVENT_TRIGGER" id="04130" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop extension ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP EXTENSION statement" id="drop_extension_statement">
-        <token type-id="KW_DROP" id="04091" />
-        <token type-id="KW_EXTENSION" id="04092" />
+        <token type-id="KW_DROP" id="04131" />
+        <token type-id="KW_EXTENSION" id="04132" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="EXTENSION" id="04093" />
+        <object-def attributes="SUBJECT" type="EXTENSION" id="04133" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop foreign data wrapper ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP FOREIGN DATA WRAPPER statement" id="drop_foreign_data_wrapper_statement">
-        <token type-id="KW_DROP" id="04094" />
-        <token type-id="KW_FOREIGN" id="04095" />
-        <token type-id="KW_DATA" id="04096" />
-        <token type-id="KW_WRAPPER" id="04097" />
+        <token type-id="KW_DROP" id="04134" />
+        <token type-id="KW_FOREIGN" id="04135" />
+        <token type-id="KW_DATA" id="04136" />
+        <token type-id="KW_WRAPPER" id="04137" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="FOREIGN_DATA_WRAPPER" id="04098" />
+        <object-def attributes="SUBJECT" type="FOREIGN_DATA_WRAPPER" id="04138" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop foreign table ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP FOREIGN TABLE statement" id="drop_foreign_table_statement">
-        <token type-id="KW_DROP" id="04099" />
-        <token type-id="KW_FOREIGN" id="04100" />
-        <token type-id="KW_TABLE" id="04101" />
+        <token type-id="KW_DROP" id="04139" />
+        <token type-id="KW_FOREIGN" id="04140" />
+        <token type-id="KW_TABLE" id="04141" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="FOREIGN_TABLE" id="04102" />
+        <object-def attributes="SUBJECT" type="FOREIGN_TABLE" id="04142" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop function ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP FUNCTION statement" id="drop_function_statement">
-        <token type-id="KW_DROP" id="04103" />
-        <token type-id="KW_FUNCTION" id="04104" />
+        <token type-id="KW_DROP" id="04143" />
+        <token type-id="KW_FUNCTION" id="04144" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="FUNCTION" id="04105" />
-        <wrapper template="PARENTHESES" id="04106">
-            <iteration optional="true" separator="CHR_COMMA" id="04107">
+        <object-def attributes="SUBJECT" type="FUNCTION" id="04145" />
+        <wrapper template="PARENTHESES" id="04146">
+            <iteration optional="true" separator="CHR_COMMA" id="04147">
                 <element ref-id="data_type" />
             </iteration>
         </wrapper>
@@ -6658,49 +6726,49 @@
 
     <!-- ========= drop group ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP GROUP statement" id="drop_group_statement">
-        <token type-id="KW_DROP" id="04108" />
-        <token type-id="KW_GROUP" id="04109" />
-        <object-def attributes="SUBJECT" type="ROLE" id="04110" />
+        <token type-id="KW_DROP" id="04148" />
+        <token type-id="KW_GROUP" id="04149" />
+        <object-def attributes="SUBJECT" type="ROLE" id="04150" />
     </element-def>
 
     <!-- ========= drop index ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP INDEX statement" id="drop_index_statement">
-        <token type-id="KW_DROP" id="04111" />
-        <token type-id="KW_INDEX" id="04112" />
+        <token type-id="KW_DROP" id="04151" />
+        <token type-id="KW_INDEX" id="04152" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="INDEX" id="04113" />
+        <object-def attributes="SUBJECT" type="INDEX" id="04153" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop language ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP LANGUAGE statement" id="drop_language_statement">
-        <token type-id="KW_DROP" id="04114" />
-        <token type-id="KW_LANGUAGE" id="04115" />
+        <token type-id="KW_DROP" id="04154" />
+        <token type-id="KW_LANGUAGE" id="04155" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="LANGUAGE" id="04116" />
+        <object-def attributes="SUBJECT" type="LANGUAGE" id="04156" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop materialized view ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP MATERIALIZED VIEW statement" id="drop_materialized_view_statement">
-        <token type-id="KW_DROP" id="04117" />
-        <token type-id="KW_MATERIALIZED" id="04118" />
-        <token type-id="KW_VIEW" id="04119" />
+        <token type-id="KW_DROP" id="04157" />
+        <token type-id="KW_MATERIALIZED" id="04158" />
+        <token type-id="KW_VIEW" id="04159" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="MATERIALIZED_VIEW" id="04120" />
+        <object-def attributes="SUBJECT" type="MATERIALIZED_VIEW" id="04160" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop operator ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP OPERATOR statement" id="drop_operator_statement">
-        <token type-id="KW_DROP" id="04121" />
-        <token type-id="KW_OPERATOR" id="04122" />
+        <token type-id="KW_DROP" id="04161" />
+        <token type-id="KW_OPERATOR" id="04162" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="OPERATOR" id="04123" />
-        <wrapper template="PARENTHESES" id="04124">
-            <sequence id="04125">
+        <object-def attributes="SUBJECT" type="OPERATOR" id="04163" />
+        <wrapper template="PARENTHESES" id="04164">
+            <sequence id="04165">
                 <element ref-id="data_type" />
-                <token type-id="CHR_COMMA" id="04126" />
+                <token type-id="CHR_COMMA" id="04166" />
                 <element ref-id="data_type" />
             </sequence>
         </wrapper>
@@ -6709,56 +6777,56 @@
 
     <!-- ========= drop operator class ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP OPERATOR CLASS statement" id="drop_operator_class_statement">
-        <token type-id="KW_DROP" id="04127" />
-        <token type-id="KW_OPERATOR" id="04128" />
-        <token type-id="KW_CLASS" id="04129" />
+        <token type-id="KW_DROP" id="04167" />
+        <token type-id="KW_OPERATOR" id="04168" />
+        <token type-id="KW_CLASS" id="04169" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="OPERATOR_CLASS" id="04130" />
-        <token type-id="KW_USING" id="04131" />
-        <object-def type="ANY" id="04132" />
+        <object-def attributes="SUBJECT" type="OPERATOR_CLASS" id="04170" />
+        <token type-id="KW_USING" id="04171" />
+        <object-def type="ANY" id="04172" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop operator family ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP OPERATOR FAMILY statement" id="drop_operator_family_statement">
-        <token type-id="KW_DROP" id="04133" />
-        <token type-id="KW_OPERATOR" id="04134" />
-        <token type-id="FN_FAMILY" flavor="keyword" id="04135" />
+        <token type-id="KW_DROP" id="04173" />
+        <token type-id="KW_OPERATOR" id="04174" />
+        <token type-id="FN_FAMILY" flavor="keyword" id="04175" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="OPERATOR_FAMILY" id="04136" />
-        <token type-id="KW_USING" id="04137" />
-        <object-def type="ANY" id="04138" />
+        <object-def attributes="SUBJECT" type="OPERATOR_FAMILY" id="04176" />
+        <token type-id="KW_USING" id="04177" />
+        <object-def type="ANY" id="04178" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop owned ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP OWNED statement" id="drop_owned_statement">
-        <token type-id="KW_DROP" id="04139" />
-        <token type-id="KW_OWNED" id="04140" />
-        <token type-id="KW_BY" id="04141" />
-        <object-ref attributes="SUBJECT" type="ROLE" id="04142" />
+        <token type-id="KW_DROP" id="04179" />
+        <token type-id="KW_OWNED" id="04180" />
+        <token type-id="KW_BY" id="04181" />
+        <object-ref attributes="SUBJECT" type="ROLE" id="04182" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop policy ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP POLICY statement" id="drop_policy_statement">
-        <token type-id="KW_DROP" id="04143" />
-        <token type-id="KW_POLICY" id="04144" />
+        <token type-id="KW_DROP" id="04183" />
+        <token type-id="KW_POLICY" id="04184" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="POLICY" id="04145" />
-        <token type-id="KW_ON" id="04146" />
-        <object-ref type="TABLE" id="04147" />
+        <object-def attributes="SUBJECT" type="POLICY" id="04185" />
+        <token type-id="KW_ON" id="04186" />
+        <object-ref type="TABLE" id="04187" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop procedure ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP PROCEDURE statement" id="drop_procedure_statement">
-        <token type-id="KW_DROP" id="04148" />
-        <token type-id="KW_PROCEDURE" id="04149" />
+        <token type-id="KW_DROP" id="04188" />
+        <token type-id="KW_PROCEDURE" id="04189" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="PROCEDURE" id="04150" />
-        <wrapper template="PARENTHESES" id="04151">
-            <iteration optional="true" separator="CHR_COMMA" id="04152">
+        <object-def attributes="SUBJECT" type="PROCEDURE" id="04190" />
+        <wrapper template="PARENTHESES" id="04191">
+            <iteration optional="true" separator="CHR_COMMA" id="04192">
                 <element ref-id="data_type" />
             </iteration>
         </wrapper>
@@ -6767,28 +6835,28 @@
 
     <!-- ========= drop publication ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP PUBLICATION statement" id="drop_publication_statement">
-        <token type-id="KW_DROP" id="04153" />
-        <token type-id="KW_PUBLICATION" id="04154" />
+        <token type-id="KW_DROP" id="04193" />
+        <token type-id="KW_PUBLICATION" id="04194" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="PUBLICATION" id="04155" />
+        <object-def attributes="SUBJECT" type="PUBLICATION" id="04195" />
     </element-def>
 
     <!-- ========= drop role ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP ROLE statement" id="drop_role_statement">
-        <token type-id="KW_DROP" id="04156" />
-        <token type-id="KW_ROLE" id="04157" />
+        <token type-id="KW_DROP" id="04196" />
+        <token type-id="KW_ROLE" id="04197" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="ROLE" id="04158" />
+        <object-def attributes="SUBJECT" type="ROLE" id="04198" />
     </element-def>
 
     <!-- ========= drop routine ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP ROUTINE statement" id="drop_routine_statement">
-        <token type-id="KW_DROP" id="04159" />
-        <token type-id="KW_ROUTINE" id="04160" />
+        <token type-id="KW_DROP" id="04199" />
+        <token type-id="KW_ROUTINE" id="04200" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="ROUTINE" id="04161" />
-        <wrapper template="PARENTHESES" id="04162">
-            <iteration optional="true" separator="CHR_COMMA" id="04163">
+        <object-def attributes="SUBJECT" type="ROUTINE" id="04201" />
+        <wrapper template="PARENTHESES" id="04202">
+            <iteration optional="true" separator="CHR_COMMA" id="04203">
                 <element ref-id="data_type" />
             </iteration>
         </wrapper>
@@ -6797,196 +6865,196 @@
 
     <!-- ========= drop rule ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP RULE statement" id="drop_rule_statement">
-        <token type-id="KW_DROP" id="04164" />
-        <token type-id="KW_RULE" id="04165" />
+        <token type-id="KW_DROP" id="04204" />
+        <token type-id="KW_RULE" id="04205" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="RULE" id="04166" />
-        <token type-id="KW_ON" id="04167" />
-        <object-ref type="TABLE" id="04168" />
+        <object-def attributes="SUBJECT" type="RULE" id="04206" />
+        <token type-id="KW_ON" id="04207" />
+        <object-ref type="TABLE" id="04208" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop schema ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP SCHEMA statement" id="drop_schema_statement">
-        <token type-id="KW_DROP" id="04169" />
-        <token type-id="KW_SCHEMA" id="04170" />
+        <token type-id="KW_DROP" id="04209" />
+        <token type-id="KW_SCHEMA" id="04210" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="SCHEMA" id="04171" />
+        <object-def attributes="SUBJECT" type="SCHEMA" id="04211" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop sequence ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP SEQUENCE statement" id="drop_sequence_statement">
-        <token type-id="KW_DROP" id="04172" />
-        <token type-id="KW_SEQUENCE" id="04173" />
+        <token type-id="KW_DROP" id="04212" />
+        <token type-id="KW_SEQUENCE" id="04213" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="SEQUENCE" id="04174" />
+        <object-def attributes="SUBJECT" type="SEQUENCE" id="04214" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop server ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP SERVER statement" id="drop_server_statement">
-        <token type-id="KW_DROP" id="04175" />
-        <token type-id="KW_SERVER" id="04176" />
+        <token type-id="KW_DROP" id="04215" />
+        <token type-id="KW_SERVER" id="04216" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="SERVER" id="04177" />
+        <object-def attributes="SUBJECT" type="SERVER" id="04217" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop statistics ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP STATISTICS statement" id="drop_statistics_statement">
-        <token type-id="KW_DROP" id="04178" />
-        <token type-id="KW_STATISTICS" id="04179" />
+        <token type-id="KW_DROP" id="04218" />
+        <token type-id="KW_STATISTICS" id="04219" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="STATISTICS" id="04180" />
+        <object-def attributes="SUBJECT" type="STATISTICS" id="04220" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop subscription ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP SUBSCRIPTION statement" id="drop_subscription_statement">
-        <token type-id="KW_DROP" id="04181" />
-        <token type-id="KW_SUBSCRIPTION" id="04182" />
+        <token type-id="KW_DROP" id="04221" />
+        <token type-id="KW_SUBSCRIPTION" id="04222" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="SUBSCRIPTION" id="04183" />
+        <object-def attributes="SUBJECT" type="SUBSCRIPTION" id="04223" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop table ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP TABLE statement" id="drop_table_statement">
-        <token type-id="KW_DROP" id="04184" />
-        <token type-id="KW_TABLE" id="04185" />
+        <token type-id="KW_DROP" id="04224" />
+        <token type-id="KW_TABLE" id="04225" />
         <element optional="true" ref-id="if_exists_clause" />
-        <iteration separator="CHR_COMMA" id="04186">
-            <object-def attributes="SUBJECT" type="TABLE" id="04187" />
+        <iteration separator="CHR_COMMA" id="04226">
+            <object-def attributes="SUBJECT" type="TABLE" id="04227" />
         </iteration>
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop tablespace ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP TABLESPACE statement" id="drop_tablespace_statement">
-        <token type-id="KW_DROP" id="04188" />
-        <token type-id="KW_TABLESPACE" id="04189" />
+        <token type-id="KW_DROP" id="04228" />
+        <token type-id="KW_TABLESPACE" id="04229" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="TABLESPACE" id="04190" />
+        <object-def attributes="SUBJECT" type="TABLESPACE" id="04230" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop text search configuration ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP TEXT SEARCH CONFIGURATION statement" id="drop_text_search_configuration_statement">
-        <token type-id="KW_DROP" id="04191" />
-        <token flavor="keyword" type-id="DT_TEXT" id="04192" />
-        <token type-id="KW_SEARCH" id="04193" />
-        <token type-id="KW_CONFIGURATION" id="04194" />
+        <token type-id="KW_DROP" id="04231" />
+        <token flavor="keyword" type-id="DT_TEXT" id="04232" />
+        <token type-id="KW_SEARCH" id="04233" />
+        <token type-id="KW_CONFIGURATION" id="04234" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="TEXT_SEARCH_CONFIGURATION" id="04195" />
+        <object-def attributes="SUBJECT" type="TEXT_SEARCH_CONFIGURATION" id="04235" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop text search dictionary ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP TEXT SEARCH DICTIONARY statement" id="drop_text_search_dictionary_statement">
-        <token type-id="KW_DROP" id="04196" />
-        <token flavor="keyword" type-id="DT_TEXT" id="04197" />
-        <token type-id="KW_SEARCH" id="04198" />
-        <token type-id="KW_DICTIONARY" id="04199" />
+        <token type-id="KW_DROP" id="04236" />
+        <token flavor="keyword" type-id="DT_TEXT" id="04237" />
+        <token type-id="KW_SEARCH" id="04238" />
+        <token type-id="KW_DICTIONARY" id="04239" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="TEXT_SEARCH_DICTIONARY" id="04200" />
+        <object-def attributes="SUBJECT" type="TEXT_SEARCH_DICTIONARY" id="04240" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop text search parser ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP TEXT SEARCH PARSER statement" id="drop_text_search_parser_statement">
-        <token type-id="KW_DROP" id="04201" />
-        <token flavor="keyword" type-id="DT_TEXT" id="04202" />
-        <token type-id="KW_SEARCH" id="04203" />
-        <token type-id="KW_PARSER" id="04204" />
+        <token type-id="KW_DROP" id="04241" />
+        <token flavor="keyword" type-id="DT_TEXT" id="04242" />
+        <token type-id="KW_SEARCH" id="04243" />
+        <token type-id="KW_PARSER" id="04244" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="TEXT_SEARCH_PARSER" id="04205" />
+        <object-def attributes="SUBJECT" type="TEXT_SEARCH_PARSER" id="04245" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop text search template ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP TEXT SEARCH TEMPLATE statement" id="drop_text_search_template_statement">
-        <token type-id="KW_DROP" id="04206" />
-        <token flavor="keyword" type-id="DT_TEXT" id="04207" />
-        <token type-id="KW_SEARCH" id="04208" />
-        <token type-id="KW_TEMPLATE" id="04209" />
+        <token type-id="KW_DROP" id="04246" />
+        <token flavor="keyword" type-id="DT_TEXT" id="04247" />
+        <token type-id="KW_SEARCH" id="04248" />
+        <token type-id="KW_TEMPLATE" id="04249" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="TEXT_SEARCH_TEMPLATE" id="04210" />
+        <object-def attributes="SUBJECT" type="TEXT_SEARCH_TEMPLATE" id="04250" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop transform ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP TRANSFORM statement" id="drop_transform_statement">
-        <token type-id="KW_DROP" id="04211" />
-        <token type-id="KW_TRANSFORM" id="04212" />
+        <token type-id="KW_DROP" id="04251" />
+        <token type-id="KW_TRANSFORM" id="04252" />
         <element optional="true" ref-id="if_exists_clause" />
-        <token type-id="KW_FOR" id="04213" />
+        <token type-id="KW_FOR" id="04253" />
         <element ref-id="data_type" />
-        <token type-id="KW_LANGUAGE" id="04214" />
-        <object-ref type="LANGUAGE" id="04215" />
+        <token type-id="KW_LANGUAGE" id="04254" />
+        <object-ref type="LANGUAGE" id="04255" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop trigger ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP TRIGGER statement" id="drop_trigger_statement">
-        <token type-id="KW_DROP" id="04216" />
-        <token type-id="KW_TRIGGER" id="04217" />
+        <token type-id="KW_DROP" id="04256" />
+        <token type-id="KW_TRIGGER" id="04257" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="TRIGGER" id="04218" />
-        <token type-id="KW_ON" id="04219" />
-        <object-ref type="TABLE" id="04220" />
+        <object-def attributes="SUBJECT" type="TRIGGER" id="04258" />
+        <token type-id="KW_ON" id="04259" />
+        <object-ref type="TABLE" id="04260" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop type ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP TYPE statement" id="drop_type_statement">
-        <token type-id="KW_DROP" id="04221" />
-        <token type-id="KW_TYPE" id="04222" />
+        <token type-id="KW_DROP" id="04261" />
+        <token type-id="KW_TYPE" id="04262" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="TYPE" id="04223" />
+        <object-def attributes="SUBJECT" type="TYPE" id="04263" />
         <element ref-id="drop_behavior" />
     </element-def>
 
     <!-- ========= drop user ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP USER statement" id="drop_user_statement">
-        <token type-id="KW_DROP" id="04224" />
-        <token type-id="KW_USER" id="04225" />
+        <token type-id="KW_DROP" id="04264" />
+        <token type-id="KW_USER" id="04265" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="USER" id="04226" />
+        <object-def attributes="SUBJECT" type="USER" id="04266" />
     </element-def>
 
     <!-- ========= drop user mapping ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP USER MAPPING statement" id="drop_user_mapping_statement">
-        <token type-id="KW_DROP" id="04227" />
-        <token type-id="KW_USER" id="04228" />
-        <token type-id="KW_MAPPING" id="04229" />
+        <token type-id="KW_DROP" id="04267" />
+        <token type-id="KW_USER" id="04268" />
+        <token type-id="KW_MAPPING" id="04269" />
         <element optional="true" ref-id="if_exists_clause" />
-        <token type-id="KW_FOR" id="04230" />
-        <one-of id="04231">
-            <object-ref attributes="SUBJECT" type="USER" id="04232" />
-            <token type-id="KW_USER" id="04233" />
-            <token type-id="KW_PUBLIC" id="04234" />
+        <token type-id="KW_FOR" id="04270" />
+        <one-of id="04271">
+            <object-ref attributes="SUBJECT" type="USER" id="04272" />
+            <token type-id="KW_USER" id="04273" />
+            <token type-id="KW_PUBLIC" id="04274" />
         </one-of>
-        <token type-id="KW_SERVER" id="04235" />
-        <object-ref type="SERVER" id="04236" />
+        <token type-id="KW_SERVER" id="04275" />
+        <object-ref type="SERVER" id="04276" />
     </element-def>
 
     <!-- ========= drop view ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP VIEW statement" id="drop_view_statement">
-        <token id="04237" type-id="KW_DROP" />
-        <token id="04238" type-id="KW_VIEW" />
+        <token id="04277" type-id="KW_DROP" />
+        <token id="04278" type-id="KW_VIEW" />
         <element optional="true" ref-id="if_exists_clause" version="8.2" />
-        <iteration id="04239" separator="CHR_COMMA">
-            <qualified-identifier id="04240" separator="CHR_DOT">
+        <iteration id="04279" separator="CHR_COMMA">
+            <qualified-identifier id="04280" separator="CHR_DOT">
                 <variant>
-                    <object-ref id="04241" optional="true" type="SCHEMA" />
-                    <object-ref attributes="SUBJECT" id="04242" type="VIEW" />
+                    <object-ref id="04281" optional="true" type="SCHEMA" />
+                    <object-ref attributes="SUBJECT" id="04282" type="VIEW" />
                 </variant>
             </qualified-identifier>
         </iteration>
-        <one-of id="04243" optional="true" version="7.3">
-            <token id="04244" type-id="KW_CASCADE" />
-            <token id="04245" type-id="KW_RESTRICT" />
+        <one-of id="04283" optional="true" version="7.3">
+            <token id="04284" type-id="KW_CASCADE" />
+            <token id="04285" type-id="KW_RESTRICT" />
         </one-of>
     </element-def>
 
@@ -6994,40 +7062,54 @@
     <!-- ========= insert ========= -->
     <element-def attributes="DATA_MANIPULATION, TRANSACTIONAL, SCOPE_ISOLATION, SPECIFIC" description="INSERT statement" id="insert_statement">
         <element optional="true" ref-id="with_clause" version="9.1" />
-        <token exit="true" id="04246" type-id="KW_INSERT" />
-        <token id="04247" type-id="KW_INTO" />
-        <qualified-identifier id="04248" separator="CHR_DOT">
+        <token exit="true" id="04286" type-id="KW_INSERT" />
+        <token id="04287" type-id="KW_INTO" />
+        <token optional="true" type-id="KW_ONLY" id="04288" />
+        <qualified-identifier id="04289" separator="CHR_DOT">
             <variant>
-                <object-ref id="04249" optional="true" referenceable="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="04250" referenceable="true" type="DATASET" />
+                <object-ref id="04290" optional="true" referenceable="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="04291" referenceable="true" type="DATASET" />
             </variant>
         </qualified-identifier>
-        <wrapper attributes="COLUMN_PARAMETER_PROVIDER" id="04251" optional="true" template="PARENTHESES">
-            <iteration id="04252" separator="CHR_COMMA">
-                <qualified-identifier id="04253" separator="CHR_DOT">
+        <token optional="true" type-id="CHR_STAR" id="04292" />
+        <sequence optional="true" id="04293">
+            <token type-id="KW_AS" id="04294" />
+            <alias-def type="DATASET" id="04295" />
+        </sequence>
+        <wrapper attributes="COLUMN_PARAMETER_PROVIDER" id="04296" optional="true" template="PARENTHESES">
+            <iteration id="04297" separator="CHR_COMMA">
+                <qualified-identifier id="04298" separator="CHR_DOT">
                     <variant>
-                        <alias-ref id="04254" optional="true" type="DATASET" />
-                        <object-ref id="04255" type="COLUMN" />
+                        <alias-ref id="04299" optional="true" type="DATASET" />
+                        <object-ref id="04300" type="COLUMN" />
                     </variant>
                     <variant>
-                        <object-ref id="04256" optional="true" type="SCHEMA" />
-                        <object-ref id="04257" optional="true" type="DATASET" />
-                        <object-ref id="04258" type="COLUMN" />
+                        <object-ref id="04301" optional="true" type="SCHEMA" />
+                        <object-ref id="04302" optional="true" type="DATASET" />
+                        <object-ref id="04303" type="COLUMN" />
                     </variant>
                 </qualified-identifier>
             </iteration>
         </wrapper>
-        <one-of id="04259">
-            <sequence id="04260">
-                <token id="04261" type-id="KW_DEFAULT" />
+        <sequence optional="true" version="10" id="04304">
+            <token type-id="KW_OVERRIDING" id="04305" />
+            <one-of id="04306">
+                <token type-id="KW_SYSTEM" id="04307" />
+                <token type-id="KW_USER" id="04308" />
+            </one-of>
+            <token type-id="KW_VALUE" id="04309" />
+        </sequence>
+        <one-of id="04310">
+            <sequence id="04311">
+                <token id="04312" type-id="KW_DEFAULT" />
             </sequence>
-            <sequence id="04262">
-                <token id="04263" type-id="KW_VALUES" />
-                <iteration id="04264" separator="CHR_COMMA">
-                    <wrapper attributes="COLUMN_PARAMETER_HANDLER" id="04265" template="PARENTHESES">
-                        <iteration id="04266" separator="CHR_COMMA">
-                            <one-of id="04267" ambiguous="true">
-                                <token id="04268" type-id="KW_DEFAULT" />
+            <sequence id="04313">
+                <token id="04314" type-id="KW_VALUES" />
+                <iteration id="04315" separator="CHR_COMMA">
+                    <wrapper attributes="COLUMN_PARAMETER_HANDLER" id="04316" template="PARENTHESES">
+                        <iteration id="04317" separator="CHR_COMMA">
+                            <one-of id="04318" ambiguous="true">
+                                <token id="04319" type-id="KW_DEFAULT" />
                                 <element ref-id="expression" />
                             </one-of>
                         </iteration>
@@ -7036,14 +7118,82 @@
             </sequence>
             <element ref-id="subquery" />
         </one-of>
-        <sequence id="04269" optional="true" version="8.2">
-            <token id="04270" type-id="KW_RETURNING" />
-            <iteration id="04271" separator="CHR_COMMA">
-                <sequence id="04272">
+        <sequence optional="true" version="9.5" id="04320">
+            <token type-id="KW_ON" id="04321" />
+            <one-of optional="true" id="04322" ambiguous="true">
+                <sequence id="04323">
+                    <token type-id="KW_CONFLICT" id="04324" />
+                    <wrapper template="PARENTHESES" id="04325">
+                        <iteration separator="CHR_COMMA" id="04326">
+                            <qualified-identifier separator="CHR_DOT" id="04327">
+                                <variant>
+                                    <object-ref type="COLUMN" id="04328" />
+                                </variant>
+                            </qualified-identifier>
+                        </iteration>
+                    </wrapper>
+                    <sequence optional="true" id="04329">
+                        <token type-id="KW_WHERE" id="04330" />
+                        <element ref-id="condition" />
+                    </sequence>
+                </sequence>
+                <sequence id="04331">
+                    <token type-id="KW_CONFLICT" id="04332" />
+                    <token type-id="KW_ON" id="04333" />
+                    <token type-id="KW_CONSTRAINT" id="04334" />
+                    <object-ref type="CONSTRAINT" id="04335" />
+                </sequence>
+            </one-of>
+            <one-of id="04336" ambiguous="true">
+                <sequence id="04337">
+                    <token type-id="KW_DO" id="04338" />
+                    <token type-id="KW_NOTHING" id="04339" />
+                </sequence>
+                <sequence id="04340">
+                    <token type-id="KW_DO" id="04341" />
+                    <token type-id="KW_UPDATE" id="04342" />
+                    <token type-id="KW_SET" id="04343" />
+                    <iteration separator="CHR_COMMA" id="04344">
+                        <sequence id="04345">
+                            <qualified-identifier separator="CHR_DOT" id="04346">
+                                <variant>
+                                    <object-ref type="COLUMN" id="04347" />
+                                </variant>
+                            </qualified-identifier>
+                            <token type-id="CHR_EQUAL" id="04348" />
+                            <element ref-id="expression" />
+                        </sequence>
+                    </iteration>
+                    <sequence optional="true" id="04349">
+                        <token type-id="KW_WHERE" id="04350" />
+                        <element ref-id="condition" />
+                    </sequence>
+                </sequence>
+            </one-of>
+        </sequence>
+        <sequence id="04351" optional="true" version="8.2">
+            <token id="04352" type-id="KW_RETURNING" />
+            <sequence optional="true" version="18" id="04353">
+                <token type-id="KW_WITH" id="04354" />
+                <wrapper template="PARENTHESES" id="04355">
+                    <iteration separator="CHR_COMMA" id="04356">
+                        <sequence id="04357">
+                            <one-of id="04358">
+                                <token type-id="KW_OLD" id="04359" />
+                                <token type-id="KW_NEW" id="04360" />
+                            </one-of>
+                            <token type-id="KW_AS" id="04361" />
+                            <alias-def type="DATASET" id="04362" />
+                        </sequence>
+                    </iteration>
+                </wrapper>
+            </sequence>
+            <iteration id="04363" separator="CHR_COMMA">
+                <sequence id="04364">
                     <element ref-id="expression" />
-                    <sequence id="04273" optional="true">
-                        <token id="04274" type-id="KW_AS" />
-                        <alias-def id="04275" type="ANY" />
+                    <sequence id="04365" optional="true">
+                        <token id="04366" type-id="KW_AS" />
+                        <alias-def id="04367" type="ANY" />
                     </sequence>
                 </sequence>
             </iteration>
@@ -7054,62 +7204,62 @@
     <!-- ========= update ========= -->
     <element-def attributes="DATA_MANIPULATION, TRANSACTIONAL, SCOPE_ISOLATION, SPECIFIC" description="UPDATE statement" id="update_statement">
         <element optional="true" ref-id="with_clause" version="9.1" />
-        <token exit="true" id="04276" type-id="KW_UPDATE" />
-        <token id="04277" optional="true" type-id="KW_ONLY" />
-        <qualified-identifier id="04278" separator="CHR_DOT">
+        <token exit="true" id="04368" type-id="KW_UPDATE" />
+        <token id="04369" optional="true" type-id="KW_ONLY" />
+        <qualified-identifier id="04370" separator="CHR_DOT">
             <variant>
-                <object-ref id="04279" optional="true" referenceable="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="04280" referenceable="true" type="DATASET" />
+                <object-ref id="04371" optional="true" referenceable="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="04372" referenceable="true" type="DATASET" />
             </variant>
         </qualified-identifier>
-        <token id="04281" optional="true" type-id="CHR_STAR" />
-        <sequence id="04282" optional="true" version="8.2">
-            <token id="04283" optional="true" type-id="KW_AS" />
-            <alias-def id="04284" type="DATASET" />
+        <token id="04373" optional="true" type-id="CHR_STAR" />
+        <sequence id="04374" optional="true" version="8.2">
+            <token id="04375" optional="true" type-id="KW_AS" />
+            <alias-def id="04376" type="DATASET" />
         </sequence>
-        <token id="04285" type-id="KW_SET" />
-        <one-of id="04286" ambiguous="true">
-            <iteration id="04287" separator="CHR_COMMA">
-                <sequence id="04288">
-                    <qualified-identifier id="04289" separator="CHR_DOT">
+        <token id="04377" type-id="KW_SET" />
+        <one-of id="04378" ambiguous="true">
+            <iteration id="04379" separator="CHR_COMMA">
+                <sequence id="04380">
+                    <qualified-identifier id="04381" separator="CHR_DOT">
                         <variant>
-                            <alias-ref id="04290" optional="true" type="DATASET" />
-                            <object-ref id="04291" type="COLUMN" />
+                            <alias-ref id="04382" optional="true" type="DATASET" />
+                            <object-ref id="04383" type="COLUMN" />
                         </variant>
                         <variant>
-                            <object-ref id="04292" optional="true" type="SCHEMA" />
-                            <object-ref id="04293" optional="true" type="DATASET" />
-                            <object-ref id="04294" type="COLUMN" />
+                            <object-ref id="04384" optional="true" type="SCHEMA" />
+                            <object-ref id="04385" optional="true" type="DATASET" />
+                            <object-ref id="04386" type="COLUMN" />
                         </variant>
                     </qualified-identifier>
-                    <token id="04295" type-id="CHR_EQUAL" />
-                    <one-of id="04296" ambiguous="true">
-                        <token id="04297" type-id="KW_DEFAULT" />
+                    <token id="04387" type-id="CHR_EQUAL" />
+                    <one-of id="04388" ambiguous="true">
+                        <token id="04389" type-id="KW_DEFAULT" />
                         <element ref-id="expression" />
                     </one-of>
                 </sequence>
             </iteration>
-            <sequence id="04298">
-                <wrapper id="04299" template="PARENTHESES">
-                    <iteration id="04300" separator="CHR_COMMA">
-                        <qualified-identifier id="04301" separator="CHR_DOT">
+            <sequence id="04390">
+                <wrapper id="04391" template="PARENTHESES">
+                    <iteration id="04392" separator="CHR_COMMA">
+                        <qualified-identifier id="04393" separator="CHR_DOT">
                             <variant>
-                                <alias-ref id="04302" optional="true" type="DATASET" />
-                                <object-ref id="04303" type="COLUMN" />
+                                <alias-ref id="04394" optional="true" type="DATASET" />
+                                <object-ref id="04395" type="COLUMN" />
                             </variant>
                             <variant>
-                                <object-ref id="04304" optional="true" type="SCHEMA" />
-                                <object-ref id="04305" optional="true" type="DATASET" />
-                                <object-ref id="04306" type="COLUMN" />
+                                <object-ref id="04396" optional="true" type="SCHEMA" />
+                                <object-ref id="04397" optional="true" type="DATASET" />
+                                <object-ref id="04398" type="COLUMN" />
                             </variant>
                         </qualified-identifier>
                     </iteration>
                 </wrapper>
-                <token id="04307" type-id="CHR_EQUAL" />
-                <wrapper id="04308" template="PARENTHESES">
-                    <iteration id="04309" separator="CHR_COMMA">
-                        <one-of id="04310" ambiguous="true">
-                            <token id="04311" type-id="KW_DEFAULT" />
+                <token id="04399" type-id="CHR_EQUAL" />
+                <wrapper id="04400" template="PARENTHESES">
+                    <iteration id="04401" separator="CHR_COMMA">
+                        <one-of id="04402" ambiguous="true">
+                            <token id="04403" type-id="KW_DEFAULT" />
                             <element ref-id="expression" />
                         </one-of>
                     </iteration>
@@ -7117,25 +7267,25 @@
             </sequence>
         </one-of>
         <element optional="true" ref-id="from_clause" />
-        <sequence id="04312" optional="true">
-            <token id="04313" type-id="KW_WHERE" />
-            <one-of id="04314" ambiguous="true">
-                <sequence id="04315" version="8.3">
-                    <token id="04316" type-id="KW_CURRENT" />
-                    <token id="04317" type-id="KW_OF" />
-                    <object-ref id="04318" original-name="cursor_name" type="CURSOR" />
+        <sequence id="04404" optional="true">
+            <token id="04405" type-id="KW_WHERE" />
+            <one-of id="04406" ambiguous="true">
+                <sequence id="04407" version="8.3">
+                    <token id="04408" type-id="KW_CURRENT" />
+                    <token id="04409" type-id="KW_OF" />
+                    <object-ref id="04410" original-name="cursor_name" type="CURSOR" />
                 </sequence>
                 <element ref-id="condition" />
             </one-of>
         </sequence>
-        <sequence id="04319" optional="true" version="8.2">
-            <token id="04320" type-id="KW_RETURNING" />
-            <iteration id="04321" separator="CHR_COMMA">
-                <sequence id="04322">
+        <sequence id="04411" optional="true" version="8.2">
+            <token id="04412" type-id="KW_RETURNING" />
+            <iteration id="04413" separator="CHR_COMMA">
+                <sequence id="04414">
                     <element ref-id="expression" />
-                    <sequence id="04323" optional="true">
-                        <token id="04324" type-id="KW_AS" />
-                        <alias-def id="04325" type="ANY" />
+                    <sequence id="04415" optional="true">
+                        <token id="04416" type-id="KW_AS" />
+                        <alias-def id="04417" type="ANY" />
                     </sequence>
                 </sequence>
             </iteration>
@@ -7145,70 +7295,70 @@
 
     <!-- ========= truncate ========= -->
     <element-def attributes="DATA_MANIPULATION, SCOPE_ISOLATION, SPECIFIC" description="TRUNCATE statement" id="truncate_statement">
-        <token id="04326" type-id="KW_TRUNCATE" />
-        <iteration id="04327" separator="CHR_COMMA">
-            <sequence id="04328">
-                <token id="04329" optional="true" type-id="KW_TABLE" />
-                <token id="04330" optional="true" type-id="KW_ONLY" />
-                <qualified-identifier id="04331" separator="CHR_DOT">
+        <token id="04418" type-id="KW_TRUNCATE" />
+        <iteration id="04419" separator="CHR_COMMA">
+            <sequence id="04420">
+                <token id="04421" optional="true" type-id="KW_TABLE" />
+                <token id="04422" optional="true" type-id="KW_ONLY" />
+                <qualified-identifier id="04423" separator="CHR_DOT">
                     <variant>
-                        <object-ref id="04332" optional="true" referenceable="true" type="SCHEMA" />
-                        <object-ref attributes="SUBJECT" id="04333" referenceable="true" type="DATASET" />
+                        <object-ref id="04424" optional="true" referenceable="true" type="SCHEMA" />
+                        <object-ref attributes="SUBJECT" id="04425" referenceable="true" type="DATASET" />
                     </variant>
                 </qualified-identifier>
-                <token id="04334" optional="true" type-id="CHR_STAR" />
+                <token id="04426" optional="true" type-id="CHR_STAR" />
             </sequence>
         </iteration>
-        <sequence id="04335" optional="true" version="8.3">
-            <one-of id="04336">
-                <token id="04337" type-id="KW_RESTART" />
-                <token id="04338" type-id="KW_CONTINUE" />
+        <sequence id="04427" optional="true" version="8.3">
+            <one-of id="04428">
+                <token id="04429" type-id="KW_RESTART" />
+                <token id="04430" type-id="KW_CONTINUE" />
             </one-of>
-            <token id="04339" type-id="KW_IDENTITY" />
+            <token id="04431" type-id="KW_IDENTITY" />
         </sequence>
-        <one-of id="04340" optional="true" version="8.2">
-            <token id="04341" type-id="KW_CASCADE" />
-            <token id="04342" type-id="KW_RESTRICT" />
+        <one-of id="04432" optional="true" version="8.2">
+            <token id="04433" type-id="KW_CASCADE" />
+            <token id="04434" type-id="KW_RESTRICT" />
         </one-of>
     </element-def>
 
 
     <!-- ========= deallocate ========= -->
     <element-def attributes="SESSION_CONTROL, SPECIFIC" description="DEALLOCATE statement" id="deallocate_statement">
-        <token type-id="KW_DEALLOCATE" id="04343" />
-        <token optional="true" type-id="KW_PREPARE" id="04344" />
-        <one-of id="04345">
-            <object-ref attributes="SUBJECT" original-name="name" type="PREPARED_STATEMENT" id="04346" />
-            <token type-id="KW_ALL" id="04347" />
+        <token type-id="KW_DEALLOCATE" id="04435" />
+        <token optional="true" type-id="KW_PREPARE" id="04436" />
+        <one-of id="04437">
+            <object-ref attributes="SUBJECT" original-name="name" type="PREPARED_STATEMENT" id="04438" />
+            <token type-id="KW_ALL" id="04439" />
         </one-of>
     </element-def>
 
     <!-- ========= declare ========= -->
     <element-def attributes="DATA_MANIPULATION, SPECIFIC" description="DECLARE statement" id="declare_statement">
-        <token type-id="KW_DECLARE" id="04348" />
-        <object-def attributes="SUBJECT" original-name="name" type="CURSOR" id="04349" />
-        <token optional="true" type-id="KW_BINARY" id="04350" />
-        <one-of optional="true" id="04351">
-            <token type-id="KW_ASENSITIVE" id="04352" />
-            <token type-id="KW_INSENSITIVE" id="04353" />
+        <token type-id="KW_DECLARE" id="04440" />
+        <object-def attributes="SUBJECT" original-name="name" type="CURSOR" id="04441" />
+        <token optional="true" type-id="KW_BINARY" id="04442" />
+        <one-of optional="true" id="04443">
+            <token type-id="KW_ASENSITIVE" id="04444" />
+            <token type-id="KW_INSENSITIVE" id="04445" />
         </one-of>
-        <sequence optional="true" id="04354">
-            <token optional="true" type-id="KW_NO" id="04355" />
-            <token type-id="KW_SCROLL" id="04356" />
+        <sequence optional="true" id="04446">
+            <token optional="true" type-id="KW_NO" id="04447" />
+            <token type-id="KW_SCROLL" id="04448" />
         </sequence>
-        <token type-id="KW_CURSOR" id="04357" />
-        <one-of optional="true" id="04358">
-            <sequence id="04359">
-                <token type-id="KW_WITH" id="04360" />
-                <token type-id="KW_HOLD" id="04361" />
+        <token type-id="KW_CURSOR" id="04449" />
+        <one-of optional="true" id="04450">
+            <sequence id="04451">
+                <token type-id="KW_WITH" id="04452" />
+                <token type-id="KW_HOLD" id="04453" />
             </sequence>
-            <sequence id="04362">
-                <token type-id="KW_WITHOUT" id="04363" />
-                <token type-id="KW_HOLD" id="04364" />
+            <sequence id="04454">
+                <token type-id="KW_WITHOUT" id="04455" />
+                <token type-id="KW_HOLD" id="04456" />
             </sequence>
         </one-of>
-        <token type-id="KW_FOR" id="04365" />
-        <one-of id="04366">
+        <token type-id="KW_FOR" id="04457" />
+        <one-of id="04458">
             <element ref-id="subquery" />
             <element ref-id="values_clause" />
         </one-of>
@@ -7216,83 +7366,83 @@
 
     <!-- ========= discard ========= -->
     <element-def attributes="SESSION_CONTROL, SPECIFIC" description="DISCARD statement" id="discard_statement">
-        <token type-id="KW_DISCARD" id="04367" />
-        <one-of id="04368">
-            <token type-id="KW_ALL" id="04369" />
-            <token type-id="KW_PLANS" id="04370" />
-            <token type-id="KW_SEQUENCES" id="04371" />
-            <token type-id="KW_TEMPORARY" id="04372" />
-            <token type-id="KW_TEMP" id="04373" />
+        <token type-id="KW_DISCARD" id="04459" />
+        <one-of id="04460">
+            <token type-id="KW_ALL" id="04461" />
+            <token type-id="KW_PLANS" id="04462" />
+            <token type-id="KW_SEQUENCES" id="04463" />
+            <token type-id="KW_TEMPORARY" id="04464" />
+            <token type-id="KW_TEMP" id="04465" />
         </one-of>
     </element-def>
 
     <!-- ========= do ========= -->
     <element-def attributes="DATA_MANIPULATION, SPECIFIC" description="DO statement" id="do_statement">
-        <token type-id="KW_DO" id="04374" />
-        <sequence optional="true" id="04375">
-            <token type-id="KW_LANGUAGE" id="04376" />
-            <object-ref original-name="lang_name" type="LANGUAGE" id="04377" />
+        <token type-id="KW_DO" id="04466" />
+        <sequence optional="true" id="04467">
+            <token type-id="KW_LANGUAGE" id="04468" />
+            <object-ref original-name="lang_name" type="LANGUAGE" id="04469" />
         </sequence>
-        <token original-name="code" type-id="STRING" id="04378" />
+        <token original-name="code" type-id="STRING" id="04470" />
     </element-def>
 
     <!-- ========= delete ========= -->
     <element-def attributes="DATA_MANIPULATION, TRANSACTIONAL, SCOPE_ISOLATION, SPECIFIC" description="DELETE statement" id="delete_statement">
         <element optional="true" ref-id="with_clause" version="9.1" />
-        <token exit="true" id="04379" type-id="KW_DELETE" />
-        <token id="04380" type-id="KW_FROM" />
-        <token id="04381" optional="true" type-id="KW_ONLY" />
-        <qualified-identifier id="04382" separator="CHR_DOT">
+        <token exit="true" id="04471" type-id="KW_DELETE" />
+        <token id="04472" type-id="KW_FROM" />
+        <token id="04473" optional="true" type-id="KW_ONLY" />
+        <qualified-identifier id="04474" separator="CHR_DOT">
             <variant>
-                <object-ref id="04383" optional="true" referenceable="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="04384" original-name="table_name" referenceable="true" type="DATASET" />
+                <object-ref id="04475" optional="true" referenceable="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="04476" original-name="table_name" referenceable="true" type="DATASET" />
             </variant>
         </qualified-identifier>
-        <token id="04385" optional="true" type-id="CHR_STAR" version="8.3" />
-        <sequence id="04386" optional="true" version="8.1">
-            <token id="04387" optional="true" type-id="KW_AS" />
-            <alias-def id="04388" type="DATASET" />
+        <token id="04477" optional="true" type-id="CHR_STAR" version="8.3" />
+        <sequence id="04478" optional="true" version="8.1">
+            <token id="04479" optional="true" type-id="KW_AS" />
+            <alias-def id="04480" type="DATASET" />
         </sequence>
-        <sequence id="04389" optional="true" version="8.1">
-            <token id="04390" type-id="KW_USING" />
-            <iteration separator="CHR_COMMA" id="04391">
+        <sequence id="04481" optional="true" version="8.1">
+            <token id="04482" type-id="KW_USING" />
+            <iteration separator="CHR_COMMA" id="04483">
                 <element ref-id="from_item" />
             </iteration>
         </sequence>
-        <sequence id="04392" optional="true">
-            <token id="04393" type-id="KW_WHERE" />
-            <one-of id="04394" ambiguous="true">
-                <sequence id="04395">
-                    <token id="04396" type-id="KW_CURRENT" />
-                    <token id="04397" type-id="KW_OF" />
-                    <object-ref id="04398" original-name="cursor_name" type="CURSOR" />
+        <sequence id="04484" optional="true">
+            <token id="04485" type-id="KW_WHERE" />
+            <one-of id="04486" ambiguous="true">
+                <sequence id="04487">
+                    <token id="04488" type-id="KW_CURRENT" />
+                    <token id="04489" type-id="KW_OF" />
+                    <object-ref id="04490" original-name="cursor_name" type="CURSOR" />
                 </sequence>
                 <element ref-id="condition" />
             </one-of>
         </sequence>
-        <sequence id="04399" optional="true" version="8.2">
-            <token id="04400" type-id="KW_RETURNING" />
-            <sequence optional="true" version="18" id="04401">
-                <token type-id="KW_WITH" id="04402" />
-                <wrapper template="PARENTHESES" id="04403">
-                    <iteration separator="CHR_COMMA" id="04404">
-                        <sequence id="04405">
-                            <one-of id="04406">
-                                <token type-id="KW_OLD" id="04407" />
-                                <token type-id="KW_NEW" id="04408" />
+        <sequence id="04491" optional="true" version="8.2">
+            <token id="04492" type-id="KW_RETURNING" />
+            <sequence optional="true" version="18" id="04493">
+                <token type-id="KW_WITH" id="04494" />
+                <wrapper template="PARENTHESES" id="04495">
+                    <iteration separator="CHR_COMMA" id="04496">
+                        <sequence id="04497">
+                            <one-of id="04498">
+                                <token type-id="KW_OLD" id="04499" />
+                                <token type-id="KW_NEW" id="04500" />
                             </one-of>
-                            <token type-id="KW_AS" id="04409" />
-                            <alias-def type="DATASET" id="04410" />
+                            <token type-id="KW_AS" id="04501" />
+                            <alias-def type="DATASET" id="04502" />
                         </sequence>
                     </iteration>
                 </wrapper>
             </sequence>
-            <iteration id="04411" separator="CHR_COMMA">
-                <sequence id="04412">
+            <iteration id="04503" separator="CHR_COMMA">
+                <sequence id="04504">
                     <element ref-id="expression" />
-                    <sequence id="04413" optional="true">
-                        <token id="04414" type-id="KW_AS" />
-                        <alias-def id="04415" type="ANY" />
+                    <sequence id="04505" optional="true">
+                        <token id="04506" type-id="KW_AS" />
+                        <alias-def id="04507" type="ANY" />
                     </sequence>
                 </sequence>
             </iteration>
@@ -7306,8 +7456,8 @@
         <element ref-id="subquery" />
     </element-def>
     <element-def description="Subquery" id="subquery" virtual-object="DATASET">
-        <sequence id="04416" optional-wrapping="PARENTHESES">
-            <token exit="true" id="04417" type-id="KW_SELECT" />
+        <sequence id="04508" optional-wrapping="PARENTHESES">
+            <token exit="true" id="04509" type-id="KW_SELECT" />
             <element ref-id="select_list" />
             <element optional="true" ref-id="from_clause" />
             <element optional="true" ref-id="where_clause" />
@@ -7324,30 +7474,30 @@
         <element optional="true" ref-id="order_by_clause" />
     </element-def>
     <element-def attributes="CLAUSE" description="Select list" id="select_list">
-        <one-of id="04418" optional="true">
-            <token id="04419" type-id="KW_ALL" />
-            <sequence id="04420">
-                <token id="04421" type-id="KW_DISTINCT" />
-                <sequence id="04422" optional="true">
-                    <token id="04423" type-id="KW_ON" />
-                    <wrapper id="04424" template="PARENTHESES">
-                        <iteration id="04425" separator="CHR_COMMA">
+        <one-of id="04510" optional="true">
+            <token id="04511" type-id="KW_ALL" />
+            <sequence id="04512">
+                <token id="04513" type-id="KW_DISTINCT" />
+                <sequence id="04514" optional="true">
+                    <token id="04515" type-id="KW_ON" />
+                    <wrapper id="04516" template="PARENTHESES">
+                        <iteration id="04517" separator="CHR_COMMA">
                             <element ref-id="expression" />
                         </iteration>
                     </wrapper>
                 </sequence>
             </sequence>
         </one-of>
-        <iteration id="04426" separator="CHR_COMMA">
-            <one-of id="04427" ambiguous="true">
-                <token id="04428" type-id="CHR_STAR" />
-                <sequence id="04429">
+        <iteration id="04518" separator="CHR_COMMA">
+            <one-of id="04519" ambiguous="true">
+                <token id="04520" type-id="CHR_STAR" />
+                <sequence id="04521">
                     <element ref-id="condition" />
-                    <sequence id="04430" optional="true">
-                        <token id="04431" optional="true" type-id="KW_AS" />
-                        <one-of id="04432">
-                            <alias-def id="04433" type="COLUMN" />
-                            <token flavor="identifier" id="04434" type-id="DT_OID" />
+                    <sequence id="04522" optional="true">
+                        <token id="04523" optional="true" type-id="KW_AS" />
+                        <one-of id="04524">
+                            <alias-def id="04525" type="COLUMN" />
+                            <token flavor="identifier" id="04526" type-id="DT_OID" />
                         </one-of>
                     </sequence>
                 </sequence>
@@ -7355,92 +7505,92 @@
         </iteration>
     </element-def>
     <element-def attributes="CLAUSE" description="FROM clause" id="from_clause">
-        <token id="04435" type-id="KW_FROM" />
-        <iteration id="04436" optional-wrapping="PARENTHESES" separator="CHR_COMMA">
-            <sequence id="04437" optional-wrapping="PARENTHESES">
+        <token id="04527" type-id="KW_FROM" />
+        <iteration id="04528" optional-wrapping="PARENTHESES" separator="CHR_COMMA">
+            <sequence id="04529" optional-wrapping="PARENTHESES">
                 <element ref-id="from_item" />
                 <element optional="true" ref-id="join_clause" />
             </sequence>
         </iteration>
     </element-def>
     <element-def attributes="CLAUSE" description="WHERE clause" id="where_clause">
-        <token id="04438" type-id="KW_WHERE" />
+        <token id="04530" type-id="KW_WHERE" />
         <element ref-id="condition" />
     </element-def>
     <element-def attributes="CLAUSE" description="GROUP BY clause" id="group_by_clause">
-        <token id="04439" type-id="KW_GROUP" />
-        <token id="04440" type-id="KW_BY" />
-        <iteration id="04441" separator="CHR_COMMA">
+        <token id="04531" type-id="KW_GROUP" />
+        <token id="04532" type-id="KW_BY" />
+        <iteration id="04533" separator="CHR_COMMA">
             <element ref-id="expression" />
         </iteration>
     </element-def>
     <element-def attributes="CLAUSE" description="HAVING clause" id="having_clause">
-        <token id="04442" type-id="KW_HAVING" />
-        <iteration id="04443" separator="CHR_COMMA">
+        <token id="04534" type-id="KW_HAVING" />
+        <iteration id="04535" separator="CHR_COMMA">
             <element ref-id="condition" />
         </iteration>
     </element-def>
     <element-def attributes="CLAUSE" description="WINDOW clause" id="window_clause">
-        <token id="04444" type-id="KW_WINDOW" />
-        <object-def id="04445" original-name="window_name" type="WINDOW" />
-        <token id="04446" type-id="KW_AS" />
-        <wrapper id="04447" template="PARENTHESES">
+        <token id="04536" type-id="KW_WINDOW" />
+        <object-def id="04537" original-name="window_name" type="WINDOW" />
+        <token id="04538" type-id="KW_AS" />
+        <wrapper id="04539" template="PARENTHESES">
             <element ref-id="window_definition" />
         </wrapper>
     </element-def>
     <element-def description="Window definition" id="window_definition">
-        <one-of id="04448" ambiguous="true">
-            <sequence id="04449">
-                <token id="04450" type-id="KW_PARTITION" />
-                <token id="04451" type-id="KW_BY" />
-                <iteration id="04452" separator="CHR_COMMA">
+        <one-of id="04540" ambiguous="true">
+            <sequence id="04541">
+                <token id="04542" type-id="KW_PARTITION" />
+                <token id="04543" type-id="KW_BY" />
+                <iteration id="04544" separator="CHR_COMMA">
                     <element ref-id="expression" />
                 </iteration>
             </sequence>
 
-            <sequence id="04453">
-                <one-of id="04454" optional="true">
-                    <token id="04455" type-id="KW_RANGE" />
-                    <token id="04456" type-id="KW_ROWS" />
+            <sequence id="04545">
+                <one-of id="04546" optional="true">
+                    <token id="04547" type-id="KW_RANGE" />
+                    <token id="04548" type-id="KW_ROWS" />
                 </one-of>
-                <one-of id="04457" ambiguous="true">
+                <one-of id="04549" ambiguous="true">
                     <element original-name="frame_start" ref-id="frame_start_end" />
-                    <sequence id="04458">
-                        <token id="04459" type-id="KW_BETWEEN" />
+                    <sequence id="04550">
+                        <token id="04551" type-id="KW_BETWEEN" />
                         <element original-name="frame_start" ref-id="frame_start_end" />
-                        <token id="04460" type-id="KW_AND" />
+                        <token id="04552" type-id="KW_AND" />
                         <element original-name="frame_end" ref-id="frame_start_end" />
                     </sequence>
                 </one-of>
             </sequence>
             <element ref-id="order_by_clause" />
-            <object-ref id="04461" original-name="existing_window_name" type="WINDOW" />
+            <object-ref id="04553" original-name="existing_window_name" type="WINDOW" />
         </one-of>
     </element-def>
     <element-def attributes="CLAUSE" description="ORDER BY clause" id="order_by_clause">
-        <sequence id="04462">
-            <token id="04463" type-id="KW_ORDER" />
-            <token id="04464" type-id="KW_BY" />
-            <iteration id="04465" separator="CHR_COMMA">
-                <sequence id="04466">
+        <sequence id="04554">
+            <token id="04555" type-id="KW_ORDER" />
+            <token id="04556" type-id="KW_BY" />
+            <iteration id="04557" separator="CHR_COMMA">
+                <sequence id="04558">
                     <element ref-id="expression" />
-                    <one-of id="04467" optional="true">
-                        <token id="04468" type-id="KW_ASC" />
-                        <token id="04469" type-id="KW_DESC" />
-                        <sequence id="04470">
-                            <token id="04471" type-id="KW_USING" />
-                            <one-of id="04472">
-                                <token id="04473" type-id="CHR_LESS" />
-                                <token id="04474" type-id="CHR_GREATER" />
-                                <object-ref id="04475" type="OPERATOR" />
+                    <one-of id="04559" optional="true">
+                        <token id="04560" type-id="KW_ASC" />
+                        <token id="04561" type-id="KW_DESC" />
+                        <sequence id="04562">
+                            <token id="04563" type-id="KW_USING" />
+                            <one-of id="04564">
+                                <token id="04565" type-id="CHR_LESS" />
+                                <token id="04566" type-id="CHR_GREATER" />
+                                <object-ref id="04567" type="OPERATOR" />
                             </one-of>
                         </sequence>
                     </one-of>
-                    <sequence id="04476" optional="true">
-                        <token id="04477" type-id="KW_NULLS" />
-                        <one-of id="04478">
-                            <token id="04479" type-id="KW_FIRST" />
-                            <token id="04480" type-id="KW_LAST" />
+                    <sequence id="04568" optional="true">
+                        <token id="04569" type-id="KW_NULLS" />
+                        <one-of id="04570">
+                            <token id="04571" type-id="KW_FIRST" />
+                            <token id="04572" type-id="KW_LAST" />
                         </one-of>
                     </sequence>
                 </sequence>
@@ -7448,96 +7598,96 @@
         </sequence>
     </element-def>
     <element-def description="Frame START END" id="frame_start_end">
-        <one-of id="04481" ambiguous="true">
-            <sequence id="04482">
-                <token id="04483" type-id="KW_UNBOUNDED" />
-                <one-of id="04484">
-                    <token id="04485" type-id="KW_PRECEDING" />
-                    <token id="04486" type-id="KW_FOLLOWING" />
+        <one-of id="04573" ambiguous="true">
+            <sequence id="04574">
+                <token id="04575" type-id="KW_UNBOUNDED" />
+                <one-of id="04576">
+                    <token id="04577" type-id="KW_PRECEDING" />
+                    <token id="04578" type-id="KW_FOLLOWING" />
                 </one-of>
             </sequence>
-            <sequence id="04487">
-                <token id="04488" type-id="KW_CURRENT" />
-                <token id="04489" type-id="KW_ROW" />
+            <sequence id="04579">
+                <token id="04580" type-id="KW_CURRENT" />
+                <token id="04581" type-id="KW_ROW" />
             </sequence>
-            <sequence id="04490">
+            <sequence id="04582">
                 <element ref-id="expression" />
-                <one-of exit="true" id="04491">
-                    <token id="04492" type-id="KW_PRECEDING" />
-                    <token id="04493" type-id="KW_FOLLOWING" />
+                <one-of exit="true" id="04583">
+                    <token id="04584" type-id="KW_PRECEDING" />
+                    <token id="04585" type-id="KW_FOLLOWING" />
                 </one-of>
             </sequence>
         </one-of>
     </element-def>
     <element-def attributes="CLAUSE" description="LIMIT clause" id="limit_clause">
-        <token id="04494" type-id="KW_LIMIT" />
-        <one-of id="04495">
-            <token id="04496" original-name="count" type-id="INTEGER" />
-            <token id="04497" type-id="KW_ALL" />
+        <token id="04586" type-id="KW_LIMIT" />
+        <one-of id="04587">
+            <token id="04588" original-name="count" type-id="INTEGER" />
+            <token id="04589" type-id="KW_ALL" />
         </one-of>
     </element-def>
     <element-def attributes="CLAUSE" description="OFFSET clause" id="offset_clause">
-        <token id="04498" type-id="KW_OFFSET" />
-        <token id="04499" original-name="start" type-id="INTEGER" />
-        <one-of id="04500" optional="true">
-            <token id="04501" type-id="KW_ROW" />
-            <token id="04502" type-id="KW_ROWS" />
+        <token id="04590" type-id="KW_OFFSET" />
+        <token id="04591" original-name="start" type-id="INTEGER" />
+        <one-of id="04592" optional="true">
+            <token id="04593" type-id="KW_ROW" />
+            <token id="04594" type-id="KW_ROWS" />
         </one-of>
     </element-def>
     <element-def attributes="CLAUSE" description="FETCH clause" id="fetch_clause">
-        <token id="04503" type-id="KW_FETCH" />
-        <one-of id="04504">
-            <token id="04505" type-id="KW_FIRST" />
-            <token id="04506" type-id="KW_NEXT" />
+        <token id="04595" type-id="KW_FETCH" />
+        <one-of id="04596">
+            <token id="04597" type-id="KW_FIRST" />
+            <token id="04598" type-id="KW_NEXT" />
         </one-of>
-        <token id="04507" optional="true" original-name="count" type-id="INTEGER" />
-        <one-of id="04508">
-            <token id="04509" type-id="KW_ROW" />
-            <token id="04510" type-id="KW_ROWS" />
+        <token id="04599" optional="true" original-name="count" type-id="INTEGER" />
+        <one-of id="04600">
+            <token id="04601" type-id="KW_ROW" />
+            <token id="04602" type-id="KW_ROWS" />
         </one-of>
-        <token id="04511" type-id="KW_ONLY" />
+        <token id="04603" type-id="KW_ONLY" />
     </element-def>
     <element-def attributes="CLAUSE" description="FOR clause" id="for_clause">
-        <iteration id="04512">
-            <sequence id="04513">
-                <token id="04514" type-id="KW_FOR" />
-                <one-of id="04515">
-                    <sequence id="04516">
-                        <token id="04517" optional="true" type-id="KW_KEY" />
-                        <token id="04518" type-id="KW_SHARE" />
+        <iteration id="04604">
+            <sequence id="04605">
+                <token id="04606" type-id="KW_FOR" />
+                <one-of id="04607">
+                    <sequence id="04608">
+                        <token id="04609" optional="true" type-id="KW_KEY" />
+                        <token id="04610" type-id="KW_SHARE" />
                     </sequence>
-                    <sequence id="04519">
-                        <sequence id="04520" optional="true">
-                            <token id="04521" type-id="KW_NO" />
-                            <token id="04522" type-id="KW_KEY" />
+                    <sequence id="04611">
+                        <sequence id="04612" optional="true">
+                            <token id="04613" type-id="KW_NO" />
+                            <token id="04614" type-id="KW_KEY" />
                         </sequence>
-                        <token id="04523" type-id="KW_UPDATE" />
+                        <token id="04615" type-id="KW_UPDATE" />
                     </sequence>
                 </one-of>
-                <sequence id="04524" optional="true">
-                    <token id="04525" type-id="KW_OF" />
-                    <qualified-identifier id="04526" separator="CHR_DOT">
+                <sequence id="04616" optional="true">
+                    <token id="04617" type-id="KW_OF" />
+                    <qualified-identifier id="04618" separator="CHR_DOT">
                         <variant>
-                            <object-ref id="04527" optional="true" referenceable="true" type="SCHEMA" />
-                            <object-ref id="04528" referenceable="true" type="DATASET" />
+                            <object-ref id="04619" optional="true" referenceable="true" type="SCHEMA" />
+                            <object-ref id="04620" referenceable="true" type="DATASET" />
                         </variant>
                     </qualified-identifier>
                 </sequence>
-                <token id="04529" optional="true" type-id="KW_NOWAIT" />
+                <token id="04621" optional="true" type-id="KW_NOWAIT" />
             </sequence>
         </iteration>
     </element-def>
     <element-def attributes="CLAUSE" description="UNION INTERSECT EXCEPT clause" id="union_intersect_except_clause">
-        <iteration id="04530">
-            <sequence id="04531">
-                <one-of id="04532">
-                    <token id="04533" type-id="KW_UNION" />
-                    <token id="04534" type-id="KW_INTERSECT" />
-                    <token id="04535" type-id="KW_EXCEPT" />
+        <iteration id="04622">
+            <sequence id="04623">
+                <one-of id="04624">
+                    <token id="04625" type-id="KW_UNION" />
+                    <token id="04626" type-id="KW_INTERSECT" />
+                    <token id="04627" type-id="KW_EXCEPT" />
                 </one-of>
-                <one-of id="04536" optional="true">
-                    <token id="04537" type-id="KW_ALL" />
-                    <token id="04538" type-id="KW_DISTINCT" />
+                <one-of id="04628" optional="true">
+                    <token id="04629" type-id="KW_ALL" />
+                    <token id="04630" type-id="KW_DISTINCT" />
                 </one-of>
                 <element ref-id="subquery" />
             </sequence>
@@ -7545,110 +7695,110 @@
     </element-def>
 
     <element-def description="JOIN type" id="join_type">
-        <one-of id="04539" optional="true">
-            <token id="04540" type-id="KW_INNER" />
-            <token id="04541" type-id="KW_CROSS" />
-            <sequence id="04542">
-                <token flavor="keyword" id="04543" type-id="FN_LEFT" />
-                <token id="04544" optional="true" type-id="KW_OUTER" />
+        <one-of id="04631" optional="true">
+            <token id="04632" type-id="KW_INNER" />
+            <token id="04633" type-id="KW_CROSS" />
+            <sequence id="04634">
+                <token flavor="keyword" id="04635" type-id="FN_LEFT" />
+                <token id="04636" optional="true" type-id="KW_OUTER" />
             </sequence>
-            <sequence id="04545">
-                <token flavor="keyword" id="04546" type-id="FN_RIGHT" />
-                <token id="04547" optional="true" type-id="KW_OUTER" />
+            <sequence id="04637">
+                <token flavor="keyword" id="04638" type-id="FN_RIGHT" />
+                <token id="04639" optional="true" type-id="KW_OUTER" />
             </sequence>
-            <sequence id="04548">
-                <token id="04549" type-id="KW_FULL" />
-                <token id="04550" optional="true" type-id="KW_OUTER" />
+            <sequence id="04640">
+                <token id="04641" type-id="KW_FULL" />
+                <token id="04642" optional="true" type-id="KW_OUTER" />
             </sequence>
         </one-of>
-        <token id="04551" type-id="KW_JOIN" />
+        <token id="04643" type-id="KW_JOIN" />
     </element-def>
     <element-def description="From item" id="from_item" optional-wrapping="PARENTHESES">
-        <one-of id="04552" ambiguous="true">
-            <sequence id="04553">
-                <token id="04554" optional="true" type-id="KW_ONLY" />
-                <qualified-identifier id="04555" separator="CHR_DOT">
+        <one-of id="04644" ambiguous="true">
+            <sequence id="04645">
+                <token id="04646" optional="true" type-id="KW_ONLY" />
+                <qualified-identifier id="04647" separator="CHR_DOT">
                     <variant>
-                        <alias-ref id="04556" type="DATASET" />
+                        <alias-ref id="04648" type="DATASET" />
                     </variant>
                     <variant>
-                        <object-ref id="04557" optional="true" referenceable="true" type="SCHEMA" />
-                        <object-ref attributes="SUBJECT" id="04558" referenceable="true" type="DATASET" />
+                        <object-ref id="04649" optional="true" referenceable="true" type="SCHEMA" />
+                        <object-ref attributes="SUBJECT" id="04650" referenceable="true" type="DATASET" />
                     </variant>
                     <variant>
-                        <object-ref id="04559" optional="true" referenceable="true" type="SCHEMA" />
-                        <object-ref attributes="SUBJECT" id="04560" type="FUNCTION" />
+                        <object-ref id="04651" optional="true" referenceable="true" type="SCHEMA" />
+                        <object-ref attributes="SUBJECT" id="04652" type="FUNCTION" />
                     </variant>
                 </qualified-identifier>
-                <one-of id="04561" optional="true">
-                    <token id="04562" type-id="CHR_STAR" />
-                    <wrapper id="04563" template="PARENTHESES">
+                <one-of id="04653" optional="true">
+                    <token id="04654" type-id="CHR_STAR" />
+                    <wrapper id="04655" template="PARENTHESES">
                         <element ref-id="expression_list" optional="true" />
                     </wrapper>
                 </one-of>
             </sequence>
-            <sequence id="04564">
-                <token id="04565" optional="true" type-id="KW_LATERAL" />
-                <one-of id="04566" ambiguous="true">
+            <sequence id="04656">
+                <token id="04657" optional="true" type-id="KW_LATERAL" />
+                <one-of id="04658" ambiguous="true">
                     <element ref-id="subquery" />
                     <element ref-id="function_expression" />
                 </one-of>
             </sequence>
         </one-of>
         <element optional="true" ref-id="from_item_alias" />
-        <iteration id="04567" optional="true">
+        <iteration id="04659" optional="true">
             <element ref-id="join_clause" />
         </iteration>
     </element-def>
     <element-def attributes="CLAUSE" description="JOIN clause" id="from_item_alias">
-        <token id="04568" optional="true" type-id="KW_AS" />
-        <alias-def id="04569" type="DATASET" />
-        <wrapper id="04570" optional="true" template="PARENTHESES">
-            <iteration id="04571" separator="CHR_COMMA">
-                <qualified-identifier id="04572" separator="CHR_DOT">
+        <token id="04660" optional="true" type-id="KW_AS" />
+        <alias-def id="04661" type="DATASET" />
+        <wrapper id="04662" optional="true" template="PARENTHESES">
+            <iteration id="04663" separator="CHR_COMMA">
+                <qualified-identifier id="04664" separator="CHR_DOT">
                     <variant>
-                        <alias-ref id="04573" type="COLUMN" />
+                        <alias-ref id="04665" type="COLUMN" />
                     </variant>
                     <variant>
-                        <alias-def id="04574" type="COLUMN" />
+                        <alias-def id="04666" type="COLUMN" />
                     </variant>
                     <variant>
-                        <alias-ref id="04575" optional="true" type="DATASET" />
-                        <object-ref id="04576" type="COLUMN" />
+                        <alias-ref id="04667" optional="true" type="DATASET" />
+                        <object-ref id="04668" type="COLUMN" />
                     </variant>
                     <variant>
-                        <object-ref id="04577" local="true" optional="true" type="SCHEMA" />
-                        <object-ref id="04578" local="true" optional="true" type="DATASET" />
-                        <object-ref id="04579" type="COLUMN" />
+                        <object-ref id="04669" local="true" optional="true" type="SCHEMA" />
+                        <object-ref id="04670" local="true" optional="true" type="DATASET" />
+                        <object-ref id="04671" type="COLUMN" />
                     </variant>
                 </qualified-identifier>
             </iteration>
         </wrapper>
     </element-def>
     <element-def attributes="CLAUSE" description="JOIN clause" id="join_clause">
-        <iteration id="04580" optional="true">
-            <sequence id="04581">
-                <token id="04582" optional="true" type-id="KW_NATURAL" />
+        <iteration id="04672" optional="true">
+            <sequence id="04673">
+                <token id="04674" optional="true" type-id="KW_NATURAL" />
                 <element ref-id="join_type" />
                 <element ref-id="from_item" />
-                <one-of id="04583" optional="true">
-                    <sequence id="04584">
-                        <token id="04585" type-id="KW_ON" />
+                <one-of id="04675" optional="true">
+                    <sequence id="04676">
+                        <token id="04677" type-id="KW_ON" />
                         <element original-name="join_condition" ref-id="condition" />
                     </sequence>
-                    <sequence id="04586">
-                        <token id="04587" type-id="KW_USING" />
-                        <wrapper id="04588" template="PARENTHESES">
-                            <iteration id="04589" separator="CHR_COMMA">
-                                <qualified-identifier id="04590" separator="CHR_DOT">
+                    <sequence id="04678">
+                        <token id="04679" type-id="KW_USING" />
+                        <wrapper id="04680" template="PARENTHESES">
+                            <iteration id="04681" separator="CHR_COMMA">
+                                <qualified-identifier id="04682" separator="CHR_DOT">
                                     <variant>
-                                        <alias-ref id="04591" optional="true" type="DATASET" />
-                                        <object-ref id="04592" type="COLUMN" />
+                                        <alias-ref id="04683" optional="true" type="DATASET" />
+                                        <object-ref id="04684" type="COLUMN" />
                                     </variant>
                                     <variant>
-                                        <object-ref id="04593" local="true" optional="true" type="SCHEMA" />
-                                        <object-ref id="04594" local="true" optional="true" type="DATASET" />
-                                        <object-ref id="04595" type="COLUMN" />
+                                        <object-ref id="04685" local="true" optional="true" type="SCHEMA" />
+                                        <object-ref id="04686" local="true" optional="true" type="DATASET" />
+                                        <object-ref id="04687" type="COLUMN" />
                                     </variant>
                                 </qualified-identifier>
                             </iteration>
@@ -7662,37 +7812,37 @@
 
     <!-- ========= explain ========= -->
     <element-def attributes="DATA_MANIPULATION, QUERY, SPECIFIC" description="EXPLAIN statement" id="explain_statement">
-        <token id="04596" type-id="KW_EXPLAIN" />
-        <one-of id="04597" optional="true">
-            <wrapper id="04598" template="PARENTHESES" version="9.0">
-                <iteration id="04599" separator="CHR_COMMA">
-                    <one-of id="04600">
-                        <sequence id="04601">
-                            <one-of id="04602">
-                                <token id="04603" type-id="KW_ANALYZE" />
-                                <token id="04604" type-id="KW_VERBOSE" />
-                                <token id="04605" type-id="KW_COSTS" />
-                                <token id="04606" type-id="KW_BUFFERS" />
-                                <token id="04607" type-id="KW_TIMING" />
+        <token id="04688" type-id="KW_EXPLAIN" />
+        <one-of id="04689" optional="true">
+            <wrapper id="04690" template="PARENTHESES" version="9.0">
+                <iteration id="04691" separator="CHR_COMMA">
+                    <one-of id="04692">
+                        <sequence id="04693">
+                            <one-of id="04694">
+                                <token id="04695" type-id="KW_ANALYZE" />
+                                <token id="04696" type-id="KW_VERBOSE" />
+                                <token id="04697" type-id="KW_COSTS" />
+                                <token id="04698" type-id="KW_BUFFERS" />
+                                <token id="04699" type-id="KW_TIMING" />
                             </one-of>
                             <element optional="true" ref-id="boolean" />
                         </sequence>
-                        <sequence id="04608">
-                            <token id="04609" type-id="FN_FORMAT" />
-                            <one-of id="04610">
-                                <token id="04611" type-id="DT_TEXT" />
-                                <token id="04612" type-id="DT_XML" />
-                                <token id="04613" type-id="DT_JSON" />
-                                <token id="04614" type-id="DT_JSONB" />
-                                <token id="04615" type-id="DT_YAML" />
+                        <sequence id="04700">
+                            <token id="04701" type-id="FN_FORMAT" />
+                            <one-of id="04702">
+                                <token id="04703" type-id="DT_TEXT" />
+                                <token id="04704" type-id="DT_XML" />
+                                <token id="04705" type-id="DT_JSON" />
+                                <token id="04706" type-id="DT_JSONB" />
+                                <token id="04707" type-id="DT_YAML" />
                             </one-of>
                         </sequence>
                     </one-of>
                 </iteration>
             </wrapper>
-            <sequence id="04616">
-                <token id="04617" optional="true" type-id="KW_ANALYZE" version="7.2" />
-                <token id="04618" optional="true" type-id="KW_VERBOSE" />
+            <sequence id="04708">
+                <token id="04709" optional="true" type-id="KW_ANALYZE" version="7.2" />
+                <token id="04710" optional="true" type-id="KW_VERBOSE" />
             </sequence>
         </one-of>
         <element ref-id="subquery" />
@@ -7700,31 +7850,31 @@
 
 
     <element-def description="Expression" id="expression">
-        <iteration id="04619" separator="OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND">
-            <sequence id="04620">
-                <sequence id="04621" optional-wrapping="PARENTHESES">
-                    <one-of id="04622" optional="true">
-                        <token id="04623" type-id="CHR_PLUS" />
-                        <token id="04624" type-id="CHR_MINUS" />
-                        <token id="04625" type-id="CHR_AND" />
-                        <token id="04626" type-id="KW_PRIOR" />
-                        <token id="04627" type-id="KW_NOT" />
+        <iteration id="04711" separator="OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND">
+            <sequence id="04712">
+                <sequence id="04713" optional-wrapping="PARENTHESES">
+                    <one-of id="04714" optional="true">
+                        <token id="04715" type-id="CHR_PLUS" />
+                        <token id="04716" type-id="CHR_MINUS" />
+                        <token id="04717" type-id="CHR_AND" />
+                        <token id="04718" type-id="KW_PRIOR" />
+                        <token id="04719" type-id="KW_NOT" />
                     </one-of>
-                    <one-of id="04628" ambiguous="true">
+                    <one-of id="04720" ambiguous="true">
                         <element ref-id="expression" />
                         <element ref-id="expr" />
                     </one-of>
                 </sequence>
-                <iteration id="04629" optional="true">
-                    <one-of id="04630">
-                        <wrapper id="04631" template="BRACKETS">
+                <iteration id="04721" optional="true">
+                    <one-of id="04722">
+                        <wrapper id="04723" template="BRACKETS">
                             <element optional="true" ref-id="expression_list" />
                         </wrapper>
-                        <sequence id="04632">
-                            <token id="04633" type-id="CHR_DOT" />
-                            <object-ref id="04634" type="ANY" />
+                        <sequence id="04724">
+                            <token id="04725" type-id="CHR_DOT" />
+                            <object-ref id="04726" type="ANY" />
                         </sequence>
-                        <iteration id="04635">
+                        <iteration id="04727">
                             <element ref-id="postfix_cast_expression" />
                         </iteration>
                     </one-of>
@@ -7733,8 +7883,8 @@
         </iteration>
     </element-def>
     <element-def description="Expr" id="expr" optional-wrapping="PARENTHESES">
-        <one-of id="04636" ambiguous="true">
-            <wrapper id="04637" template="PARENTHESES">
+        <one-of id="04728" ambiguous="true">
+            <wrapper id="04729" template="PARENTHESES">
                 <element ref-id="subquery" />
             </wrapper>
             <element ref-id="array_expression" />
@@ -7744,71 +7894,71 @@
             <element ref-id="native_function_expression" />
             <element ref-id="sequence_expression" />
             <element ref-id="simple_expression" />
-            <exec-variable id="04638" />
+            <exec-variable id="04730" />
         </one-of>
-        <iteration id="04639" optional="true">
+        <iteration id="04731" optional="true">
             <element ref-id="postfix_cast_expression" />
         </iteration>
-        <token id="04640" optional="true" type-id="KW_NOT" />
-        <one-of id="04641" optional="true">
+        <token id="04732" optional="true" type-id="KW_NOT" />
+        <one-of id="04733" optional="true">
             <element ref-id="in_expression" />
             <element ref-id="like_expression" />
             <element ref-id="between_expression" />
         </one-of>
     </element-def>
     <element-def description="Postfix cast expression" id="postfix_cast_expression">
-        <token id="04642" type-id="OPR_CAST_PREFIX" />
-        <one-of id="04643" ambiguous="true">
+        <token id="04734" type-id="OPR_CAST_PREFIX" />
+        <one-of id="04735" ambiguous="true">
             <element ref-id="data_type" />
-            <qualified-identifier id="04644" separator="CHR_DOT">
+            <qualified-identifier id="04736" separator="CHR_DOT">
                 <variant>
-                    <object-ref id="04645" optional="true" type="SCHEMA" />
-                    <object-ref id="04646" local="true" type="TYPE" />
+                    <object-ref id="04737" optional="true" type="SCHEMA" />
+                    <object-ref id="04738" local="true" type="TYPE" />
                 </variant>
             </qualified-identifier>
         </one-of>
     </element-def>
     <element-def description="IN Expression" id="in_expression">
-        <token id="04647" type-id="KW_IN" />
-        <wrapper id="04648" template="PARENTHESES">
-            <one-of id="04649" ambiguous="true">
+        <token id="04739" type-id="KW_IN" />
+        <wrapper id="04740" template="PARENTHESES">
+            <one-of id="04741" ambiguous="true">
                 <element ref-id="subquery" />
                 <element ref-id="expression_list" />
             </one-of>
         </wrapper>
     </element-def>
     <element-def description="LIKE Expression" id="like_expression">
-        <one-of id="04650">
-            <token id="04651" type-id="KW_LIKE" />
-            <token id="04652" type-id="KW_ILIKE" />
+        <one-of id="04742">
+            <token id="04743" type-id="KW_LIKE" />
+            <token id="04744" type-id="KW_ILIKE" />
         </one-of>
         <element ref-id="expression" />
     </element-def>
     <element-def description="EXISTS Expression" id="exists_expression">
-        <token id="04653" type-id="KW_EXISTS" />
-        <wrapper id="04654" template="PARENTHESES">
+        <token id="04745" type-id="KW_EXISTS" />
+        <wrapper id="04746" template="PARENTHESES">
             <element ref-id="subquery" />
         </wrapper>
     </element-def>
     <element-def description="BETWEEN Expression" id="between_expression">
-        <token id="04655" type-id="KW_BETWEEN" />
+        <token id="04747" type-id="KW_BETWEEN" />
         <element ref-id="expression" />
-        <token id="04656" type-id="KW_AND" />
+        <token id="04748" type-id="KW_AND" />
         <element ref-id="expression" />
     </element-def>
 
     <element-def description="Array expression" id="array_expression">
-        <one-of id="04657">
-            <token flavor="function" id="04658" type-id="KW_ANY" />
-            <token flavor="function" id="04659" type-id="KW_SOME" />
-            <token flavor="function" id="04660" type-id="KW_ALL" />
+        <one-of id="04749">
+            <token flavor="function" id="04750" type-id="KW_ANY" />
+            <token flavor="function" id="04751" type-id="KW_SOME" />
+            <token flavor="function" id="04752" type-id="KW_ALL" />
         </one-of>
-        <wrapper id="04661" template="PARENTHESES">
-            <one-of id="04662" ambiguous="true">
-                <sequence id="04663">
-                    <token flavor="keyword" id="04664" type-id="DT_ARRAY" />
-                    <wrapper begin-token="CHR_LEFT_BRACKET" end-token="CHR_RIGHT_BRACKET" id="04665">
-                        <iteration id="04666" separator="CHR_COMMA">
+        <wrapper id="04753" template="PARENTHESES">
+            <one-of id="04754" ambiguous="true">
+                <sequence id="04755">
+                    <token flavor="keyword" id="04756" type-id="DT_ARRAY" />
+                    <wrapper begin-token="CHR_LEFT_BRACKET" end-token="CHR_RIGHT_BRACKET" id="04757">
+                        <iteration id="04758" separator="CHR_COMMA">
                             <element ref-id="expression" />
                         </iteration>
                     </wrapper>
@@ -7818,95 +7968,95 @@
         </wrapper>
     </element-def>
     <element-def description="Simple expression" id="simple_expression">
-        <one-of id="04667" sortable="true" ambiguous="true">
-            <sequence id="04668">
-                <qualified-identifier id="04669" separator="CHR_DOT">
+        <one-of id="04759" sortable="true" ambiguous="true">
+            <sequence id="04760">
+                <qualified-identifier id="04761" separator="CHR_DOT">
                     <variant>
-                        <alias-ref id="04670" optional="true" type="DATASET" />
-                        <token id="04671" type-id="DT_OID" />
+                        <alias-ref id="04762" optional="true" type="DATASET" />
+                        <token id="04763" type-id="DT_OID" />
                     </variant>
                     <variant>
-                        <alias-ref id="04672" optional="true" type="DATASET" />
-                        <object-ref id="04673" type="COLUMN" />
+                        <alias-ref id="04764" optional="true" type="DATASET" />
+                        <object-ref id="04765" type="COLUMN" />
                     </variant>
                     <variant>
-                        <object-ref id="04674" optional="true" type="SCHEMA" />
-                        <object-ref id="04675" local="true" optional="true" type="DATASET" />
-                        <object-ref id="04676" type="COLUMN" />
+                        <object-ref id="04766" optional="true" type="SCHEMA" />
+                        <object-ref id="04767" local="true" optional="true" type="DATASET" />
+                        <object-ref id="04768" type="COLUMN" />
                     </variant>
                     <variant>
-                        <object-ref id="04677" optional="true" type="SCHEMA" />
-                        <object-ref id="04678" local="true" optional="true" type="DATASET" />
-                        <token id="04679" type-id="CHR_STAR" />
+                        <object-ref id="04769" optional="true" type="SCHEMA" />
+                        <object-ref id="04770" local="true" optional="true" type="DATASET" />
+                        <token id="04771" type-id="CHR_STAR" />
                     </variant>
                     <variant>
-                        <object-ref id="04680" optional="true" type="SCHEMA" />
-                        <object-ref id="04681" local="true" optional="true" type="DATASET" />
-                        <token id="04682" type-id="DT_OID" />
+                        <object-ref id="04772" optional="true" type="SCHEMA" />
+                        <object-ref id="04773" local="true" optional="true" type="DATASET" />
+                        <token id="04774" type-id="DT_OID" />
                     </variant>
                     <variant>
-                        <alias-ref id="04683" optional="true" type="DATASET" />
-                        <alias-ref id="04684" type="COLUMN" />
+                        <alias-ref id="04775" optional="true" type="DATASET" />
+                        <alias-ref id="04776" type="COLUMN" />
                     </variant>
                     <variant>
-                        <alias-ref id="04685" type="DATASET" />
-                        <token id="04686" type-id="CHR_STAR" />
+                        <alias-ref id="04777" type="DATASET" />
+                        <token id="04778" type-id="CHR_STAR" />
                     </variant>
                     <variant>
-                        <alias-ref id="04687" type="DATASET" />
-                        <token id="04688" type-id="DT_OID" />
+                        <alias-ref id="04779" type="DATASET" />
+                        <token id="04780" type-id="DT_OID" />
                     </variant>
                     <variant>
-                        <object-ref id="04689" optional="true" type="SCHEMA" />
-                        <object-ref id="04690" type="FUNCTION" />
+                        <object-ref id="04781" optional="true" type="SCHEMA" />
+                        <object-ref id="04782" type="FUNCTION" />
                     </variant>
                 </qualified-identifier>
-                <wrapper attributes="METHOD_PARAMETER_HANDLER" id="04691" optional="true" template="PARENTHESES">
-                    <iteration id="04692" optional="true" separator="CHR_COMMA">
+                <wrapper attributes="METHOD_PARAMETER_HANDLER" id="04783" optional="true" template="PARENTHESES">
+                    <iteration id="04784" optional="true" separator="CHR_COMMA">
                         <element ref-id="expression" />
                     </iteration>
                 </wrapper>
             </sequence>
             <element ref-id="number" />
-            <token id="04693" original-name="text" type-id="STRING" />
-            <token id="04694" type-id="KW_NULL" />
-            <token id="04695" type-id="KW_TRUE" />
-            <token id="04696" type-id="KW_FALSE" />
+            <token id="04785" original-name="text" type-id="STRING" />
+            <token id="04786" type-id="KW_NULL" />
+            <token id="04787" type-id="KW_TRUE" />
+            <token id="04788" type-id="KW_FALSE" />
         </one-of>
-        <iteration id="04697" optional="true">
-            <sequence id="04698">
-                <token id="04699" type-id="CHR_LEFT_BRACKET" />
+        <iteration id="04789" optional="true">
+            <sequence id="04790">
+                <token id="04791" type-id="CHR_LEFT_BRACKET" />
                 <element optional="true" ref-id="expression_list" />
-                <token id="04700" type-id="CHR_RIGHT_BRACKET" />
+                <token id="04792" type-id="CHR_RIGHT_BRACKET" />
             </sequence>
         </iteration>
-        <token id="04701" optional="true" type-id="CT_OUTER_JOIN" />
+        <token id="04793" optional="true" type-id="CT_OUTER_JOIN" />
     </element-def>
     <element-def description="CASE expression" id="case_expression">
-        <token id="04702" type-id="KW_CASE" />
+        <token id="04794" type-id="KW_CASE" />
         <element optional="true" ref-id="expression" />
-        <iteration id="04703">
-            <sequence id="04704">
-                <token id="04705" type-id="KW_WHEN" />
+        <iteration id="04795">
+            <sequence id="04796">
+                <token id="04797" type-id="KW_WHEN" />
                 <element ref-id="condition" />
-                <token id="04706" type-id="KW_THEN" />
+                <token id="04798" type-id="KW_THEN" />
                 <element ref-id="condition" />
             </sequence>
         </iteration>
-        <sequence id="04707" optional="true">
-            <token id="04708" type-id="KW_ELSE" />
+        <sequence id="04799" optional="true">
+            <token id="04800" type-id="KW_ELSE" />
             <element ref-id="condition" />
         </sequence>
-        <token id="04709" type-id="KW_END" />
+        <token id="04801" type-id="KW_END" />
     </element-def>
     <element-def description="Cast expression" id="cast_expression">
-        <one-of id="04710">
-            <sequence id="04711">
-                <token id="04712" type-id="KW_CAST" />
-                <wrapper id="04713" template="PARENTHESES">
-                    <sequence id="04714">
+        <one-of id="04802">
+            <sequence id="04803">
+                <token id="04804" type-id="KW_CAST" />
+                <wrapper id="04805" template="PARENTHESES">
+                    <sequence id="04806">
                         <element ref-id="expression" />
-                        <token id="04715" type-id="KW_AS" />
+                        <token id="04807" type-id="KW_AS" />
                         <element ref-id="data_type" />
                     </sequence>
                 </wrapper>
@@ -7915,33 +8065,33 @@
         </one-of>
     </element-def>
     <element-def description="Sequence expression" id="sequence_expression">
-        <one-of id="04716">
-            <sequence id="04717">
-                <token id="04718" type-id="FN_CURRVAL" />
-                <wrapper id="04719" template="PARENTHESES">
-                    <token id="04720" type-id="STRING" />
+        <one-of id="04808">
+            <sequence id="04809">
+                <token id="04810" type-id="FN_CURRVAL" />
+                <wrapper id="04811" template="PARENTHESES">
+                    <token id="04812" type-id="STRING" />
                 </wrapper>
             </sequence>
-            <sequence id="04721">
-                <token id="04722" type-id="FN_NEXTVAL" />
-                <wrapper id="04723" template="PARENTHESES">
-                    <token id="04724" type-id="STRING" />
+            <sequence id="04813">
+                <token id="04814" type-id="FN_NEXTVAL" />
+                <wrapper id="04815" template="PARENTHESES">
+                    <token id="04816" type-id="STRING" />
                 </wrapper>
             </sequence>
-            <sequence id="04725">
-                <token id="04726" type-id="FN_LASTVAL" />
-                <token id="04727" type-id="CHR_LEFT_PARENTHESIS" />
-                <token id="04728" type-id="CHR_RIGHT_PARENTHESIS" />
+            <sequence id="04817">
+                <token id="04818" type-id="FN_LASTVAL" />
+                <token id="04819" type-id="CHR_LEFT_PARENTHESIS" />
+                <token id="04820" type-id="CHR_RIGHT_PARENTHESIS" />
             </sequence>
-            <sequence id="04729">
-                <token id="04730" type-id="FN_SETVAL" />
-                <wrapper id="04731" template="PARENTHESES">
-                    <sequence id="04732">
-                        <token id="04733" type-id="STRING" />
-                        <token id="04734" type-id="INTEGER" />
-                        <one-of id="04735" optional="true">
-                            <token id="04736" type-id="KW_TRUE" />
-                            <token id="04737" type-id="KW_FALSE" />
+            <sequence id="04821">
+                <token id="04822" type-id="FN_SETVAL" />
+                <wrapper id="04823" template="PARENTHESES">
+                    <sequence id="04824">
+                        <token id="04825" type-id="STRING" />
+                        <token id="04826" type-id="INTEGER" />
+                        <one-of id="04827" optional="true">
+                            <token id="04828" type-id="KW_TRUE" />
+                            <token id="04829" type-id="KW_FALSE" />
                         </one-of>
                     </sequence>
                 </wrapper>
@@ -7950,368 +8100,368 @@
     </element-def>
 
     <element-def description="Native function expression" id="native_function_expression">
-        <one-of id="04738">
-            <token id="04739" type-id="FN_ABBREV" />
-            <token id="04740" type-id="FN_ABS" />
-            <token id="04741" type-id="FN_ACOS" />
-            <token id="04742" type-id="FN_AGE" />
-            <token id="04743" type-id="FN_AREA" />
-            <token id="04744" type-id="FN_ARRAY_AGG" />
-            <token id="04745" type-id="FN_ARRAY_APPEND" />
-            <token id="04746" type-id="FN_ARRAY_CAT" />
-            <token id="04747" type-id="FN_ARRAY_DIMS" />
-            <token id="04748" type-id="FN_ARRAY_FILL" />
-            <token id="04749" type-id="FN_ARRAY_LENGTH" />
-            <token id="04750" type-id="FN_ARRAY_LOWER" />
-            <token id="04751" type-id="FN_ARRAY_NDIMS" />
-            <token id="04752" type-id="FN_ARRAY_PREPEND" />
-            <token id="04753" type-id="FN_ARRAY_REMOVE" />
-            <token id="04754" type-id="FN_ARRAY_REPLACE" />
-            <token id="04755" type-id="FN_ARRAY_TO_JSON" />
-            <token id="04756" type-id="FN_ARRAY_TO_STRING" />
-            <token id="04757" type-id="FN_ARRAY_UPPER" />
-            <token id="04758" type-id="FN_ASCII" />
-            <token id="04759" type-id="FN_ASIN" />
-            <token id="04760" type-id="FN_ATAN" />
-            <token id="04761" type-id="FN_ATAN2" />
-            <token id="04762" type-id="FN_AVG" />
-            <token id="04763" type-id="FN_BIT" />
-            <token id="04764" type-id="FN_BIT_AND" />
-            <token id="04765" type-id="FN_BIT_LENGTH" />
-            <token id="04766" type-id="FN_BIT_OR" />
-            <token id="04767" type-id="FN_BOOL_AND" />
-            <token id="04768" type-id="FN_BOOL_OR" />
-            <token id="04769" type-id="FN_BROADCAST" />
-            <token id="04770" type-id="FN_BTRIM" />
-            <token id="04771" type-id="FN_CBRT" />
-            <token id="04772" type-id="FN_CEIL" />
-            <token id="04773" type-id="FN_CEILING" />
-            <token id="04774" type-id="FN_CENTER" />
-            <token id="04775" type-id="FN_CHAR_LENGTH" />
-            <token id="04776" type-id="FN_CHR" />
-            <token id="04777" type-id="FN_CLOCK_TIMESTAMP" />
-            <token id="04778" type-id="KW_COALESCE" flavor="function" />
-            <token id="04779" type-id="FN_COL_DESCRIPTION" />
-            <token id="04780" type-id="FN_CONCAT" />
-            <token id="04781" type-id="FN_CONCAT_WS" />
-            <token id="04782" type-id="FN_CONVERT" />
-            <token id="04783" type-id="FN_CONVERT_FROM" />
-            <token id="04784" type-id="FN_CONVERT_TO" />
-            <token id="04785" type-id="FN_COS" />
-            <token id="04786" type-id="FN_COT" />
-            <token id="04787" type-id="FN_COUNT" />
-            <token id="04788" type-id="FN_CUME_DIST" />
-            <token id="04789" type-id="FN_CURRENT_CATALOG" />
-            <token id="04790" type-id="FN_CURRENT_DATABASE" />
-            <token id="04791" type-id="FN_CURRENT_DATE" />
-            <token id="04792" type-id="FN_CURRENT_QUERY" />
-            <token id="04793" type-id="FN_CURRENT_SCHEMA" />
-            <token id="04794" type-id="FN_CURRENT_SCHEMAS" />
-            <token id="04795" type-id="FN_CURRENT_SETTING" />
-            <token id="04796" type-id="FN_CURRENT_TIME" />
-            <token id="04797" type-id="FN_CURRENT_TIMESTAMP" />
-            <token id="04798" type-id="FN_CURRENT_USER" />
-            <token id="04799" type-id="FN_CURRVAL" />
-            <token id="04800" type-id="FN_CURSOR_TO_XML" />
-            <token id="04801" type-id="FN_DATE_PART" />
-            <token id="04802" type-id="FN_DATE_TRUNC" />
-            <token id="04803" type-id="FN_DECODE" />
-            <token id="04804" type-id="FN_DEGREES" />
-            <token id="04805" type-id="FN_DENSE_RANK" />
-            <token id="04806" type-id="FN_DIAMETER" />
-            <token id="04807" type-id="FN_DIV" />
-            <token id="04808" type-id="FN_ENCODE" />
-            <token id="04809" type-id="FN_ENUM_FIRST" />
-            <token id="04810" type-id="FN_ENUM_LAST" />
-            <token id="04811" type-id="FN_ENUM_RANGE" />
-            <token id="04812" type-id="FN_EVERY" />
-            <token id="04813" type-id="FN_EXP" />
-            <token id="04814" type-id="FN_EXTRACT" />
-            <token id="04815" type-id="FN_FAMILY" />
-            <token id="04816" type-id="FN_FIRST_VALUE" />
-            <token id="04817" type-id="FN_FLOOR" />
-            <token id="04818" type-id="FN_FORMAT" />
-            <token id="04819" type-id="FN_FORMAT_TYPE" />
-            <token id="04820" type-id="FN_GENERATE_SERIES" />
-            <token id="04821" type-id="FN_GENERATE_SUBSCRIPTS" />
-            <token id="04822" type-id="FN_GET_BIT" />
-            <token id="04823" type-id="FN_GET_BYTE" />
-            <token id="04824" type-id="FN_GET_CURRENT_TS_CONFIG" />
-            <token id="04825" type-id="FN_HAS_ANY_COLUMN_PRIVILEGE" />
-            <token id="04826" type-id="FN_HAS_COLUMN_PRIVILEGE" />
-            <token id="04827" type-id="FN_HAS_DATABASE_PRIVILEGE" />
-            <token id="04828" type-id="FN_HAS_FOREIGN_DATA_WRAPPER_PRIVILEGE" />
-            <token id="04829" type-id="FN_HAS_FUNCTION_PRIVILEGE" />
-            <token id="04830" type-id="FN_HAS_LANGUAGE_PRIVILEGE" />
-            <token id="04831" type-id="FN_HAS_SCHEMA_PRIVILEGE" />
-            <token id="04832" type-id="FN_HAS_SEQUENCE_PRIVILEGE" />
-            <token id="04833" type-id="FN_HAS_SERVER_PRIVILEGE" />
-            <token id="04834" type-id="FN_HAS_TABLESPACE_PRIVILEGE" />
-            <token id="04835" type-id="FN_HAS_TABLE_PRIVILEGE" />
-            <token id="04836" type-id="FN_HEIGHT" />
-            <token id="04837" type-id="FN_HOST" />
-            <token id="04838" type-id="FN_HOSTMASK" />
-            <token id="04839" type-id="FN_INET_CLIENT_ADDR" />
-            <token id="04840" type-id="FN_INET_CLIENT_PORT" />
-            <token id="04841" type-id="FN_INET_SERVER_ADDR" />
-            <token id="04842" type-id="FN_INET_SERVER_PORT" />
-            <token id="04843" type-id="FN_INITCAP" />
-            <token id="04844" type-id="FN_ISCLOSED" />
-            <token id="04845" type-id="FN_ISEMPTY" />
-            <token id="04846" type-id="FN_ISFINITE" />
-            <token id="04847" type-id="FN_ISOPEN" />
-            <token id="04848" type-id="FN_JSON_AGG" />
-            <token id="04849" type-id="FN_JSON_ARRAY_ELEMENTS" />
-            <token id="04850" type-id="FN_JSON_ARRAY_LENGTH" />
-            <token id="04851" type-id="FN_JSON_EACH" />
-            <token id="04852" type-id="FN_JSON_EACH_TEXT" />
-            <token id="04853" type-id="FN_JSON_EXTRACT_PATH" />
-            <token id="04854" type-id="FN_JSON_EXTRACT_PATH_TEXT" />
-            <token id="04855" type-id="FN_JSON_OBJECT_KEYS" />
-            <token id="04856" type-id="FN_JSON_POPULATE_RECORD" />
-            <token id="04857" type-id="FN_JSON_POPULATE_RECORDSET" />
-            <token id="04858" type-id="FN_JUSTIFY_DAYS" />
-            <token id="04859" type-id="FN_JUSTIFY_HOURS" />
-            <token id="04860" type-id="FN_JUSTIFY_INTERVAL" />
-            <token id="04861" type-id="FN_LAG" />
-            <token id="04862" type-id="FN_LASTVAL" />
-            <token id="04863" type-id="FN_LAST_VALUE" />
-            <token id="04864" type-id="FN_LEAD" />
-            <token id="04865" type-id="FN_LEFT" />
-            <token id="04866" type-id="FN_LENGTH" />
-            <token id="04867" type-id="FN_LN" />
-            <token id="04868" type-id="FN_LOCALTIME" />
-            <token id="04869" type-id="FN_LOCALTIMESTAMP" />
-            <token id="04870" type-id="FN_LOG" />
-            <token id="04871" type-id="FN_LOWER" />
-            <token id="04872" type-id="FN_LOWER_INC" />
-            <token id="04873" type-id="FN_LOWER_INF" />
-            <token id="04874" type-id="FN_LPAD" />
-            <token id="04875" type-id="FN_LTRIM" />
-            <token id="04876" type-id="FN_MASKLEN" />
-            <token id="04877" type-id="FN_MAX" />
-            <token id="04878" type-id="FN_MD5" />
-            <token id="04879" type-id="FN_MIN" />
-            <token id="04880" type-id="FN_MOD" />
-            <token id="04881" type-id="FN_NETMASK" />
-            <token id="04882" type-id="FN_NETWORK" />
-            <token id="04883" type-id="FN_NEXTVAL" />
-            <token id="04884" type-id="FN_NOW" />
-            <token id="04885" type-id="FN_NPOINTS" />
-            <token id="04886" type-id="FN_NTH_VALUE" />
-            <token id="04887" type-id="FN_NTILE" />
-            <token id="04888" type-id="FN_NUMNODE" />
-            <token id="04889" type-id="FN_OBJ_DESCRIPTION" />
-            <token id="04890" type-id="FN_OCTET_LENGTH" />
-            <token id="04891" type-id="FN_OVERLAY" />
-            <token id="04892" type-id="FN_PCLOSE" />
-            <token id="04893" type-id="FN_PERCENT_RANK" />
-            <token id="04894" type-id="FN_PG_ADVISORY_LOCK" />
-            <token id="04895" type-id="FN_PG_ADVISORY_LOCK_SHARED" />
-            <token id="04896" type-id="FN_PG_ADVISORY_UNLOCK" />
-            <token id="04897" type-id="FN_PG_ADVISORY_UNLOCK_ALL" />
-            <token id="04898" type-id="FN_PG_ADVISORY_UNLOCK_SHARED" />
-            <token id="04899" type-id="FN_PG_ADVISORY_XACT_LOCK" />
-            <token id="04900" type-id="FN_PG_ADVISORY_XACT_LOCK_SHARED" />
-            <token id="04901" type-id="FN_PG_BACKEND_PID" />
-            <token id="04902" type-id="FN_PG_BACKUP_START_TIME" />
-            <token id="04903" type-id="FN_PG_CANCEL_BACKEND" />
-            <token id="04904" type-id="FN_PG_CLIENT_ENCODING" />
-            <token id="04905" type-id="FN_PG_COLLATION_IS_VISIBLE" />
-            <token id="04906" type-id="FN_PG_COLUMN_SIZE" />
-            <token id="04907" type-id="FN_PG_CONF_LOAD_TIME" />
-            <token id="04908" type-id="FN_PG_CONVERSION_IS_VISIBLE" />
-            <token id="04909" type-id="FN_PG_CREATE_RESTORE_POINT" />
-            <token id="04910" type-id="FN_PG_CURRENT_XLOG_INSERT_LOCATION" />
-            <token id="04911" type-id="FN_PG_CURRENT_XLOG_LOCATION" />
-            <token id="04912" type-id="FN_PG_DATABASE_SIZE" />
-            <token id="04913" type-id="FN_PG_DESCRIBE_OBJECT" />
-            <token id="04914" type-id="FN_PG_EXPORT_SNAPSHOT" />
-            <token id="04915" type-id="FN_PG_FUNCTION_IS_VISIBLE" />
-            <token id="04916" type-id="FN_PG_GET_CONSTRAINTDEF" />
-            <token id="04917" type-id="FN_PG_GET_EXPR" />
-            <token id="04918" type-id="FN_PG_GET_FUNCTIONDEF" />
-            <token id="04919" type-id="FN_PG_GET_FUNCTION_ARGUMENTS" />
-            <token id="04920" type-id="FN_PG_GET_FUNCTION_IDENTITY_ARGUMENTS" />
-            <token id="04921" type-id="FN_PG_GET_FUNCTION_RESULT" />
-            <token id="04922" type-id="FN_PG_GET_INDEXDEF" />
-            <token id="04923" type-id="FN_PG_GET_KEYWORDS" />
-            <token id="04924" type-id="FN_PG_GET_RULEDEF" />
-            <token id="04925" type-id="FN_PG_GET_SERIAL_SEQUENCE" />
-            <token id="04926" type-id="FN_PG_GET_TRIGGERDEF" />
-            <token id="04927" type-id="FN_PG_GET_USERBYID" />
-            <token id="04928" type-id="FN_PG_GET_VIEWDEF" />
-            <token id="04929" type-id="FN_PG_HAS_ROLE" />
-            <token id="04930" type-id="FN_PG_IDENTIFY_OBJECT" />
-            <token id="04931" type-id="FN_PG_INDEXES_SIZE" />
-            <token id="04932" type-id="FN_PG_IS_IN_BACKUP" />
-            <token id="04933" type-id="FN_PG_IS_IN_RECOVERY" />
-            <token id="04934" type-id="FN_PG_IS_OTHER_TEMP_SCHEMA" />
-            <token id="04935" type-id="FN_PG_IS_XLOG_REPLAY_PAUSED" />
-            <token id="04936" type-id="FN_PG_LAST_XACT_REPLAY_TIMESTAMP" />
-            <token id="04937" type-id="FN_PG_LAST_XLOG_RECEIVE_LOCATION" />
-            <token id="04938" type-id="FN_PG_LAST_XLOG_REPLAY_LOCATION" />
-            <token id="04939" type-id="FN_PG_LISTENING_CHANNELS" />
-            <token id="04940" type-id="FN_PG_LS_DIR" />
-            <token id="04941" type-id="FN_PG_MY_TEMP_SCHEMA" />
-            <token id="04942" type-id="FN_PG_OPCLASS_IS_VISIBLE" />
-            <token id="04943" type-id="FN_PG_OPERATOR_IS_VISIBLE" />
-            <token id="04944" type-id="FN_PG_OPFAMILY_IS_VISIBLE" />
-            <token id="04945" type-id="FN_PG_OPTIONS_TO_TABLE" />
-            <token id="04946" type-id="FN_PG_POSTMASTER_START_TIME" />
-            <token id="04947" type-id="FN_PG_READ_BINARY_FILE" />
-            <token id="04948" type-id="FN_PG_READ_FILE" />
-            <token id="04949" type-id="FN_PG_RELATION_FILENODE" />
-            <token id="04950" type-id="FN_PG_RELATION_FILEPATH" />
-            <token id="04951" type-id="FN_PG_RELATION_SIZE" />
-            <token id="04952" type-id="FN_PG_RELOAD_CONF" />
-            <token id="04953" type-id="FN_PG_ROTATE_LOGFILE" />
-            <token id="04954" type-id="FN_PG_SIZE_PRETTY" />
-            <token id="04955" type-id="FN_PG_START_BACKUP" />
-            <token id="04956" type-id="FN_PG_STAT_FILE" />
-            <token id="04957" type-id="FN_PG_STOP_BACKUP" />
-            <token id="04958" type-id="FN_PG_SWITCH_XLOG" />
-            <token id="04959" type-id="FN_PG_TABLESPACE_DATABASES" />
-            <token id="04960" type-id="FN_PG_TABLESPACE_LOCATION" />
-            <token id="04961" type-id="FN_PG_TABLESPACE_SIZE" />
-            <token id="04962" type-id="FN_PG_TABLE_IS_VISIBLE" />
-            <token id="04963" type-id="FN_PG_TABLE_SIZE" />
-            <token id="04964" type-id="FN_PG_TERMINATE_BACKEND" />
-            <token id="04965" type-id="FN_PG_TOTAL_RELATION_SIZE" />
-            <token id="04966" type-id="FN_PG_TRIGGER_DEPTH" />
-            <token id="04967" type-id="FN_PG_TRY_ADVISORY_LOCK" />
-            <token id="04968" type-id="FN_PG_TRY_ADVISORY_LOCK_SHARED" />
-            <token id="04969" type-id="FN_PG_TRY_ADVISORY_XACT_LOCK" />
-            <token id="04970" type-id="FN_PG_TRY_ADVISORY_XACT_LOCK_SHARED" />
-            <token id="04971" type-id="FN_PG_TS_CONFIG_IS_VISIBLE" />
-            <token id="04972" type-id="FN_PG_TS_DICT_IS_VISIBLE" />
-            <token id="04973" type-id="FN_PG_TS_PARSER_IS_VISIBLE" />
-            <token id="04974" type-id="FN_PG_TS_TEMPLATE_IS_VISIBLE" />
-            <token id="04975" type-id="FN_PG_TYPEOF" />
-            <token id="04976" type-id="FN_PG_TYPE_IS_VISIBLE" />
-            <token id="04977" type-id="FN_PG_XLOGFILE_NAME" />
-            <token id="04978" type-id="FN_PG_XLOGFILE_NAME_OFFSET" />
-            <token id="04979" type-id="FN_PG_XLOG_LOCATION_DIFF" />
-            <token id="04980" type-id="FN_PG_XLOG_REPLAY_PAUSE" />
-            <token id="04981" type-id="FN_PG_XLOG_REPLAY_RESUME" />
-            <token id="04982" type-id="FN_PI" />
-            <token id="04983" type-id="FN_PLAINTO_TSQUERY" />
-            <token id="04984" type-id="FN_POPEN" />
-            <token id="04985" type-id="FN_POSITION" />
-            <token id="04986" type-id="FN_POWER" />
-            <token id="04987" type-id="FN_QUERYTREE" />
-            <token id="04988" type-id="FN_QUERY_TO_XML" />
-            <token id="04989" type-id="FN_QUOTE_IDENT" />
-            <token id="04990" type-id="FN_QUOTE_LITERAL" />
-            <token id="04991" type-id="FN_QUOTE_NULLABLE" />
-            <token id="04992" type-id="FN_RADIANS" />
-            <token id="04993" type-id="FN_RADIUS" />
-            <token id="04994" type-id="FN_RANDOM" />
-            <token id="04995" type-id="FN_RANK" />
-            <token id="04996" type-id="FN_REGEXP_MATCHES" />
-            <token id="04997" type-id="FN_REGEXP_REPLACE" />
-            <token id="04998" type-id="FN_REGEXP_SPLIT_TO_ARRAY" />
-            <token id="04999" type-id="FN_REGEXP_SPLIT_TO_TABLE" />
-            <token id="05000" type-id="FN_REPEAT" />
-            <token id="05001" type-id="FN_REPLACE" />
-            <token id="05002" type-id="FN_REVERSE" />
-            <token id="05003" type-id="FN_RIGHT" />
-            <token id="05004" type-id="FN_ROUND" />
-            <token id="05005" type-id="FN_ROW_NUMBER" />
-            <token id="05006" type-id="FN_ROW_TO_JSON" />
-            <token id="05007" type-id="FN_RPAD" />
-            <token id="05008" type-id="FN_RTRIM" />
-            <token id="05009" type-id="FN_SESSION_USER" />
-            <token id="05010" type-id="FN_SETSEED" />
-            <token id="05011" type-id="FN_SETVAL" />
-            <token id="05012" type-id="FN_SETWEIGHT" />
-            <token id="05013" type-id="FN_SET_BIT" />
-            <token id="05014" type-id="FN_SET_BYTE" />
-            <token id="05015" type-id="FN_SET_CONFIG" />
-            <token id="05016" type-id="FN_SET_MASKLEN" />
-            <token id="05017" type-id="FN_SHOBJ_DESCRIPTION" />
-            <token id="05018" type-id="FN_SIGN" />
-            <token id="05019" type-id="FN_SIN" />
-            <token id="05020" type-id="FN_SPLIT_PART" />
-            <token id="05021" type-id="FN_SQRT" />
-            <token id="05022" type-id="FN_STATEMENT_TIMESTAMP" />
-            <token id="05023" type-id="FN_STRING_AGG" />
-            <token id="05024" type-id="FN_STRING_TO_ARRAY" />
-            <token id="05025" type-id="FN_STRIP" />
-            <token id="05026" type-id="FN_STRPOS" />
-            <token id="05027" type-id="FN_SUBSTR" />
-            <token id="05028" type-id="FN_SUBSTRING" />
-            <token id="05029" type-id="FN_SUM" />
-            <token id="05030" type-id="FN_TABLE_TO_XML" />
-            <token id="05031" type-id="FN_TAN" />
-            <token id="05032" type-id="FN_TIMEOFDAY" />
-            <token id="05033" type-id="FN_TO_ASCII" />
-            <token id="05034" type-id="FN_TO_CHAR" />
-            <token id="05035" type-id="FN_TO_DATE" />
-            <token id="05036" type-id="FN_TO_HEX" />
-            <token id="05037" type-id="FN_TO_JSON" />
-            <token id="05038" type-id="FN_TO_NUMBER" />
-            <token id="05039" type-id="FN_TO_TIMESTAMP" />
-            <token id="05040" type-id="FN_TO_TSQUERY" />
-            <token id="05041" type-id="FN_TO_TSVECTOR" />
-            <token id="05042" type-id="FN_TRANSACTION_TIMESTAMP" />
-            <token id="05043" type-id="FN_TRANSLATE" />
-            <token id="05044" type-id="FN_TRIM" />
-            <token id="05045" type-id="FN_TRUNC" />
-            <token id="05046" type-id="FN_TSVECTOR_UPDATE_TRIGGER" />
-            <token id="05047" type-id="FN_TSVECTOR_UPDATE_TRIGGER_COLUMN" />
-            <token id="05048" type-id="FN_TS_HEADLINE" />
-            <token id="05049" type-id="FN_TS_RANK" />
-            <token id="05050" type-id="FN_TS_RANK_CD" />
-            <token id="05051" type-id="FN_TS_REWRITE" />
-            <token id="05052" type-id="FN_TXID_CURRENT" />
-            <token id="05053" type-id="FN_TXID_CURRENT_SNAPSHOT" />
-            <token id="05054" type-id="FN_TXID_SNAPSHOT_XIP" />
-            <token id="05055" type-id="FN_TXID_SNAPSHOT_XMAX" />
-            <token id="05056" type-id="FN_TXID_SNAPSHOT_XMIN" />
-            <token id="05057" type-id="FN_TXID_VISIBLE_IN_SNAPSHOT" />
-            <token id="05058" type-id="FN_UNNEST" />
-            <token id="05059" type-id="FN_UPPER" />
-            <token id="05060" type-id="FN_UPPER_INC" />
-            <token id="05061" type-id="FN_UPPER_INF" />
-            <token id="05062" type-id="KW_USER" flavor="function" />
-            <token id="05063" type-id="FN_VERSION" />
-            <token id="05064" type-id="FN_WIDTH" />
-            <token id="05065" type-id="FN_WIDTH_BUCKET" />
-            <token id="05066" type-id="FN_XIP_LIST" />
-            <token id="05067" type-id="FN_XMAX" />
-            <token id="05068" type-id="FN_XMIN" />
-            <token id="05069" type-id="FN_XMLAGG" />
-            <token id="05070" type-id="FN_XMLCOMMENT" />
-            <token id="05071" type-id="FN_XMLCONCAT" />
-            <token id="05072" type-id="FN_XMLELEMENT" />
-            <token id="05073" type-id="FN_XMLEXISTS" />
-            <token id="05074" type-id="FN_XMLFOREST" />
-            <token id="05075" type-id="FN_XMLPI" />
-            <token id="05076" type-id="FN_XMLROOT" />
-            <token id="05077" type-id="FN_XML_IS_WELL_FORMED" />
-            <token id="05078" type-id="FN_XPATH" />
-            <token id="05079" type-id="FN_XPATH_EXISTS" />
+        <one-of id="04830">
+            <token id="04831" type-id="FN_ABBREV" />
+            <token id="04832" type-id="FN_ABS" />
+            <token id="04833" type-id="FN_ACOS" />
+            <token id="04834" type-id="FN_AGE" />
+            <token id="04835" type-id="FN_AREA" />
+            <token id="04836" type-id="FN_ARRAY_AGG" />
+            <token id="04837" type-id="FN_ARRAY_APPEND" />
+            <token id="04838" type-id="FN_ARRAY_CAT" />
+            <token id="04839" type-id="FN_ARRAY_DIMS" />
+            <token id="04840" type-id="FN_ARRAY_FILL" />
+            <token id="04841" type-id="FN_ARRAY_LENGTH" />
+            <token id="04842" type-id="FN_ARRAY_LOWER" />
+            <token id="04843" type-id="FN_ARRAY_NDIMS" />
+            <token id="04844" type-id="FN_ARRAY_PREPEND" />
+            <token id="04845" type-id="FN_ARRAY_REMOVE" />
+            <token id="04846" type-id="FN_ARRAY_REPLACE" />
+            <token id="04847" type-id="FN_ARRAY_TO_JSON" />
+            <token id="04848" type-id="FN_ARRAY_TO_STRING" />
+            <token id="04849" type-id="FN_ARRAY_UPPER" />
+            <token id="04850" type-id="FN_ASCII" />
+            <token id="04851" type-id="FN_ASIN" />
+            <token id="04852" type-id="FN_ATAN" />
+            <token id="04853" type-id="FN_ATAN2" />
+            <token id="04854" type-id="FN_AVG" />
+            <token id="04855" type-id="FN_BIT" />
+            <token id="04856" type-id="FN_BIT_AND" />
+            <token id="04857" type-id="FN_BIT_LENGTH" />
+            <token id="04858" type-id="FN_BIT_OR" />
+            <token id="04859" type-id="FN_BOOL_AND" />
+            <token id="04860" type-id="FN_BOOL_OR" />
+            <token id="04861" type-id="FN_BROADCAST" />
+            <token id="04862" type-id="FN_BTRIM" />
+            <token id="04863" type-id="FN_CBRT" />
+            <token id="04864" type-id="FN_CEIL" />
+            <token id="04865" type-id="FN_CEILING" />
+            <token id="04866" type-id="FN_CENTER" />
+            <token id="04867" type-id="FN_CHAR_LENGTH" />
+            <token id="04868" type-id="FN_CHR" />
+            <token id="04869" type-id="FN_CLOCK_TIMESTAMP" />
+            <token id="04870" type-id="KW_COALESCE" flavor="function" />
+            <token id="04871" type-id="FN_COL_DESCRIPTION" />
+            <token id="04872" type-id="FN_CONCAT" />
+            <token id="04873" type-id="FN_CONCAT_WS" />
+            <token id="04874" type-id="FN_CONVERT" />
+            <token id="04875" type-id="FN_CONVERT_FROM" />
+            <token id="04876" type-id="FN_CONVERT_TO" />
+            <token id="04877" type-id="FN_COS" />
+            <token id="04878" type-id="FN_COT" />
+            <token id="04879" type-id="FN_COUNT" />
+            <token id="04880" type-id="FN_CUME_DIST" />
+            <token id="04881" type-id="FN_CURRENT_CATALOG" />
+            <token id="04882" type-id="FN_CURRENT_DATABASE" />
+            <token id="04883" type-id="FN_CURRENT_DATE" />
+            <token id="04884" type-id="FN_CURRENT_QUERY" />
+            <token id="04885" type-id="FN_CURRENT_SCHEMA" />
+            <token id="04886" type-id="FN_CURRENT_SCHEMAS" />
+            <token id="04887" type-id="FN_CURRENT_SETTING" />
+            <token id="04888" type-id="FN_CURRENT_TIME" />
+            <token id="04889" type-id="FN_CURRENT_TIMESTAMP" />
+            <token id="04890" type-id="FN_CURRENT_USER" />
+            <token id="04891" type-id="FN_CURRVAL" />
+            <token id="04892" type-id="FN_CURSOR_TO_XML" />
+            <token id="04893" type-id="FN_DATE_PART" />
+            <token id="04894" type-id="FN_DATE_TRUNC" />
+            <token id="04895" type-id="FN_DECODE" />
+            <token id="04896" type-id="FN_DEGREES" />
+            <token id="04897" type-id="FN_DENSE_RANK" />
+            <token id="04898" type-id="FN_DIAMETER" />
+            <token id="04899" type-id="FN_DIV" />
+            <token id="04900" type-id="FN_ENCODE" />
+            <token id="04901" type-id="FN_ENUM_FIRST" />
+            <token id="04902" type-id="FN_ENUM_LAST" />
+            <token id="04903" type-id="FN_ENUM_RANGE" />
+            <token id="04904" type-id="FN_EVERY" />
+            <token id="04905" type-id="FN_EXP" />
+            <token id="04906" type-id="FN_EXTRACT" />
+            <token id="04907" type-id="FN_FAMILY" />
+            <token id="04908" type-id="FN_FIRST_VALUE" />
+            <token id="04909" type-id="FN_FLOOR" />
+            <token id="04910" type-id="FN_FORMAT" />
+            <token id="04911" type-id="FN_FORMAT_TYPE" />
+            <token id="04912" type-id="FN_GENERATE_SERIES" />
+            <token id="04913" type-id="FN_GENERATE_SUBSCRIPTS" />
+            <token id="04914" type-id="FN_GET_BIT" />
+            <token id="04915" type-id="FN_GET_BYTE" />
+            <token id="04916" type-id="FN_GET_CURRENT_TS_CONFIG" />
+            <token id="04917" type-id="FN_HAS_ANY_COLUMN_PRIVILEGE" />
+            <token id="04918" type-id="FN_HAS_COLUMN_PRIVILEGE" />
+            <token id="04919" type-id="FN_HAS_DATABASE_PRIVILEGE" />
+            <token id="04920" type-id="FN_HAS_FOREIGN_DATA_WRAPPER_PRIVILEGE" />
+            <token id="04921" type-id="FN_HAS_FUNCTION_PRIVILEGE" />
+            <token id="04922" type-id="FN_HAS_LANGUAGE_PRIVILEGE" />
+            <token id="04923" type-id="FN_HAS_SCHEMA_PRIVILEGE" />
+            <token id="04924" type-id="FN_HAS_SEQUENCE_PRIVILEGE" />
+            <token id="04925" type-id="FN_HAS_SERVER_PRIVILEGE" />
+            <token id="04926" type-id="FN_HAS_TABLESPACE_PRIVILEGE" />
+            <token id="04927" type-id="FN_HAS_TABLE_PRIVILEGE" />
+            <token id="04928" type-id="FN_HEIGHT" />
+            <token id="04929" type-id="FN_HOST" />
+            <token id="04930" type-id="FN_HOSTMASK" />
+            <token id="04931" type-id="FN_INET_CLIENT_ADDR" />
+            <token id="04932" type-id="FN_INET_CLIENT_PORT" />
+            <token id="04933" type-id="FN_INET_SERVER_ADDR" />
+            <token id="04934" type-id="FN_INET_SERVER_PORT" />
+            <token id="04935" type-id="FN_INITCAP" />
+            <token id="04936" type-id="FN_ISCLOSED" />
+            <token id="04937" type-id="FN_ISEMPTY" />
+            <token id="04938" type-id="FN_ISFINITE" />
+            <token id="04939" type-id="FN_ISOPEN" />
+            <token id="04940" type-id="FN_JSON_AGG" />
+            <token id="04941" type-id="FN_JSON_ARRAY_ELEMENTS" />
+            <token id="04942" type-id="FN_JSON_ARRAY_LENGTH" />
+            <token id="04943" type-id="FN_JSON_EACH" />
+            <token id="04944" type-id="FN_JSON_EACH_TEXT" />
+            <token id="04945" type-id="FN_JSON_EXTRACT_PATH" />
+            <token id="04946" type-id="FN_JSON_EXTRACT_PATH_TEXT" />
+            <token id="04947" type-id="FN_JSON_OBJECT_KEYS" />
+            <token id="04948" type-id="FN_JSON_POPULATE_RECORD" />
+            <token id="04949" type-id="FN_JSON_POPULATE_RECORDSET" />
+            <token id="04950" type-id="FN_JUSTIFY_DAYS" />
+            <token id="04951" type-id="FN_JUSTIFY_HOURS" />
+            <token id="04952" type-id="FN_JUSTIFY_INTERVAL" />
+            <token id="04953" type-id="FN_LAG" />
+            <token id="04954" type-id="FN_LASTVAL" />
+            <token id="04955" type-id="FN_LAST_VALUE" />
+            <token id="04956" type-id="FN_LEAD" />
+            <token id="04957" type-id="FN_LEFT" />
+            <token id="04958" type-id="FN_LENGTH" />
+            <token id="04959" type-id="FN_LN" />
+            <token id="04960" type-id="FN_LOCALTIME" />
+            <token id="04961" type-id="FN_LOCALTIMESTAMP" />
+            <token id="04962" type-id="FN_LOG" />
+            <token id="04963" type-id="FN_LOWER" />
+            <token id="04964" type-id="FN_LOWER_INC" />
+            <token id="04965" type-id="FN_LOWER_INF" />
+            <token id="04966" type-id="FN_LPAD" />
+            <token id="04967" type-id="FN_LTRIM" />
+            <token id="04968" type-id="FN_MASKLEN" />
+            <token id="04969" type-id="FN_MAX" />
+            <token id="04970" type-id="FN_MD5" />
+            <token id="04971" type-id="FN_MIN" />
+            <token id="04972" type-id="FN_MOD" />
+            <token id="04973" type-id="FN_NETMASK" />
+            <token id="04974" type-id="FN_NETWORK" />
+            <token id="04975" type-id="FN_NEXTVAL" />
+            <token id="04976" type-id="FN_NOW" />
+            <token id="04977" type-id="FN_NPOINTS" />
+            <token id="04978" type-id="FN_NTH_VALUE" />
+            <token id="04979" type-id="FN_NTILE" />
+            <token id="04980" type-id="FN_NUMNODE" />
+            <token id="04981" type-id="FN_OBJ_DESCRIPTION" />
+            <token id="04982" type-id="FN_OCTET_LENGTH" />
+            <token id="04983" type-id="FN_OVERLAY" />
+            <token id="04984" type-id="FN_PCLOSE" />
+            <token id="04985" type-id="FN_PERCENT_RANK" />
+            <token id="04986" type-id="FN_PG_ADVISORY_LOCK" />
+            <token id="04987" type-id="FN_PG_ADVISORY_LOCK_SHARED" />
+            <token id="04988" type-id="FN_PG_ADVISORY_UNLOCK" />
+            <token id="04989" type-id="FN_PG_ADVISORY_UNLOCK_ALL" />
+            <token id="04990" type-id="FN_PG_ADVISORY_UNLOCK_SHARED" />
+            <token id="04991" type-id="FN_PG_ADVISORY_XACT_LOCK" />
+            <token id="04992" type-id="FN_PG_ADVISORY_XACT_LOCK_SHARED" />
+            <token id="04993" type-id="FN_PG_BACKEND_PID" />
+            <token id="04994" type-id="FN_PG_BACKUP_START_TIME" />
+            <token id="04995" type-id="FN_PG_CANCEL_BACKEND" />
+            <token id="04996" type-id="FN_PG_CLIENT_ENCODING" />
+            <token id="04997" type-id="FN_PG_COLLATION_IS_VISIBLE" />
+            <token id="04998" type-id="FN_PG_COLUMN_SIZE" />
+            <token id="04999" type-id="FN_PG_CONF_LOAD_TIME" />
+            <token id="05000" type-id="FN_PG_CONVERSION_IS_VISIBLE" />
+            <token id="05001" type-id="FN_PG_CREATE_RESTORE_POINT" />
+            <token id="05002" type-id="FN_PG_CURRENT_XLOG_INSERT_LOCATION" />
+            <token id="05003" type-id="FN_PG_CURRENT_XLOG_LOCATION" />
+            <token id="05004" type-id="FN_PG_DATABASE_SIZE" />
+            <token id="05005" type-id="FN_PG_DESCRIBE_OBJECT" />
+            <token id="05006" type-id="FN_PG_EXPORT_SNAPSHOT" />
+            <token id="05007" type-id="FN_PG_FUNCTION_IS_VISIBLE" />
+            <token id="05008" type-id="FN_PG_GET_CONSTRAINTDEF" />
+            <token id="05009" type-id="FN_PG_GET_EXPR" />
+            <token id="05010" type-id="FN_PG_GET_FUNCTIONDEF" />
+            <token id="05011" type-id="FN_PG_GET_FUNCTION_ARGUMENTS" />
+            <token id="05012" type-id="FN_PG_GET_FUNCTION_IDENTITY_ARGUMENTS" />
+            <token id="05013" type-id="FN_PG_GET_FUNCTION_RESULT" />
+            <token id="05014" type-id="FN_PG_GET_INDEXDEF" />
+            <token id="05015" type-id="FN_PG_GET_KEYWORDS" />
+            <token id="05016" type-id="FN_PG_GET_RULEDEF" />
+            <token id="05017" type-id="FN_PG_GET_SERIAL_SEQUENCE" />
+            <token id="05018" type-id="FN_PG_GET_TRIGGERDEF" />
+            <token id="05019" type-id="FN_PG_GET_USERBYID" />
+            <token id="05020" type-id="FN_PG_GET_VIEWDEF" />
+            <token id="05021" type-id="FN_PG_HAS_ROLE" />
+            <token id="05022" type-id="FN_PG_IDENTIFY_OBJECT" />
+            <token id="05023" type-id="FN_PG_INDEXES_SIZE" />
+            <token id="05024" type-id="FN_PG_IS_IN_BACKUP" />
+            <token id="05025" type-id="FN_PG_IS_IN_RECOVERY" />
+            <token id="05026" type-id="FN_PG_IS_OTHER_TEMP_SCHEMA" />
+            <token id="05027" type-id="FN_PG_IS_XLOG_REPLAY_PAUSED" />
+            <token id="05028" type-id="FN_PG_LAST_XACT_REPLAY_TIMESTAMP" />
+            <token id="05029" type-id="FN_PG_LAST_XLOG_RECEIVE_LOCATION" />
+            <token id="05030" type-id="FN_PG_LAST_XLOG_REPLAY_LOCATION" />
+            <token id="05031" type-id="FN_PG_LISTENING_CHANNELS" />
+            <token id="05032" type-id="FN_PG_LS_DIR" />
+            <token id="05033" type-id="FN_PG_MY_TEMP_SCHEMA" />
+            <token id="05034" type-id="FN_PG_OPCLASS_IS_VISIBLE" />
+            <token id="05035" type-id="FN_PG_OPERATOR_IS_VISIBLE" />
+            <token id="05036" type-id="FN_PG_OPFAMILY_IS_VISIBLE" />
+            <token id="05037" type-id="FN_PG_OPTIONS_TO_TABLE" />
+            <token id="05038" type-id="FN_PG_POSTMASTER_START_TIME" />
+            <token id="05039" type-id="FN_PG_READ_BINARY_FILE" />
+            <token id="05040" type-id="FN_PG_READ_FILE" />
+            <token id="05041" type-id="FN_PG_RELATION_FILENODE" />
+            <token id="05042" type-id="FN_PG_RELATION_FILEPATH" />
+            <token id="05043" type-id="FN_PG_RELATION_SIZE" />
+            <token id="05044" type-id="FN_PG_RELOAD_CONF" />
+            <token id="05045" type-id="FN_PG_ROTATE_LOGFILE" />
+            <token id="05046" type-id="FN_PG_SIZE_PRETTY" />
+            <token id="05047" type-id="FN_PG_START_BACKUP" />
+            <token id="05048" type-id="FN_PG_STAT_FILE" />
+            <token id="05049" type-id="FN_PG_STOP_BACKUP" />
+            <token id="05050" type-id="FN_PG_SWITCH_XLOG" />
+            <token id="05051" type-id="FN_PG_TABLESPACE_DATABASES" />
+            <token id="05052" type-id="FN_PG_TABLESPACE_LOCATION" />
+            <token id="05053" type-id="FN_PG_TABLESPACE_SIZE" />
+            <token id="05054" type-id="FN_PG_TABLE_IS_VISIBLE" />
+            <token id="05055" type-id="FN_PG_TABLE_SIZE" />
+            <token id="05056" type-id="FN_PG_TERMINATE_BACKEND" />
+            <token id="05057" type-id="FN_PG_TOTAL_RELATION_SIZE" />
+            <token id="05058" type-id="FN_PG_TRIGGER_DEPTH" />
+            <token id="05059" type-id="FN_PG_TRY_ADVISORY_LOCK" />
+            <token id="05060" type-id="FN_PG_TRY_ADVISORY_LOCK_SHARED" />
+            <token id="05061" type-id="FN_PG_TRY_ADVISORY_XACT_LOCK" />
+            <token id="05062" type-id="FN_PG_TRY_ADVISORY_XACT_LOCK_SHARED" />
+            <token id="05063" type-id="FN_PG_TS_CONFIG_IS_VISIBLE" />
+            <token id="05064" type-id="FN_PG_TS_DICT_IS_VISIBLE" />
+            <token id="05065" type-id="FN_PG_TS_PARSER_IS_VISIBLE" />
+            <token id="05066" type-id="FN_PG_TS_TEMPLATE_IS_VISIBLE" />
+            <token id="05067" type-id="FN_PG_TYPEOF" />
+            <token id="05068" type-id="FN_PG_TYPE_IS_VISIBLE" />
+            <token id="05069" type-id="FN_PG_XLOGFILE_NAME" />
+            <token id="05070" type-id="FN_PG_XLOGFILE_NAME_OFFSET" />
+            <token id="05071" type-id="FN_PG_XLOG_LOCATION_DIFF" />
+            <token id="05072" type-id="FN_PG_XLOG_REPLAY_PAUSE" />
+            <token id="05073" type-id="FN_PG_XLOG_REPLAY_RESUME" />
+            <token id="05074" type-id="FN_PI" />
+            <token id="05075" type-id="FN_PLAINTO_TSQUERY" />
+            <token id="05076" type-id="FN_POPEN" />
+            <token id="05077" type-id="FN_POSITION" />
+            <token id="05078" type-id="FN_POWER" />
+            <token id="05079" type-id="FN_QUERYTREE" />
+            <token id="05080" type-id="FN_QUERY_TO_XML" />
+            <token id="05081" type-id="FN_QUOTE_IDENT" />
+            <token id="05082" type-id="FN_QUOTE_LITERAL" />
+            <token id="05083" type-id="FN_QUOTE_NULLABLE" />
+            <token id="05084" type-id="FN_RADIANS" />
+            <token id="05085" type-id="FN_RADIUS" />
+            <token id="05086" type-id="FN_RANDOM" />
+            <token id="05087" type-id="FN_RANK" />
+            <token id="05088" type-id="FN_REGEXP_MATCHES" />
+            <token id="05089" type-id="FN_REGEXP_REPLACE" />
+            <token id="05090" type-id="FN_REGEXP_SPLIT_TO_ARRAY" />
+            <token id="05091" type-id="FN_REGEXP_SPLIT_TO_TABLE" />
+            <token id="05092" type-id="FN_REPEAT" />
+            <token id="05093" type-id="FN_REPLACE" />
+            <token id="05094" type-id="FN_REVERSE" />
+            <token id="05095" type-id="FN_RIGHT" />
+            <token id="05096" type-id="FN_ROUND" />
+            <token id="05097" type-id="FN_ROW_NUMBER" />
+            <token id="05098" type-id="FN_ROW_TO_JSON" />
+            <token id="05099" type-id="FN_RPAD" />
+            <token id="05100" type-id="FN_RTRIM" />
+            <token id="05101" type-id="FN_SESSION_USER" />
+            <token id="05102" type-id="FN_SETSEED" />
+            <token id="05103" type-id="FN_SETVAL" />
+            <token id="05104" type-id="FN_SETWEIGHT" />
+            <token id="05105" type-id="FN_SET_BIT" />
+            <token id="05106" type-id="FN_SET_BYTE" />
+            <token id="05107" type-id="FN_SET_CONFIG" />
+            <token id="05108" type-id="FN_SET_MASKLEN" />
+            <token id="05109" type-id="FN_SHOBJ_DESCRIPTION" />
+            <token id="05110" type-id="FN_SIGN" />
+            <token id="05111" type-id="FN_SIN" />
+            <token id="05112" type-id="FN_SPLIT_PART" />
+            <token id="05113" type-id="FN_SQRT" />
+            <token id="05114" type-id="FN_STATEMENT_TIMESTAMP" />
+            <token id="05115" type-id="FN_STRING_AGG" />
+            <token id="05116" type-id="FN_STRING_TO_ARRAY" />
+            <token id="05117" type-id="FN_STRIP" />
+            <token id="05118" type-id="FN_STRPOS" />
+            <token id="05119" type-id="FN_SUBSTR" />
+            <token id="05120" type-id="FN_SUBSTRING" />
+            <token id="05121" type-id="FN_SUM" />
+            <token id="05122" type-id="FN_TABLE_TO_XML" />
+            <token id="05123" type-id="FN_TAN" />
+            <token id="05124" type-id="FN_TIMEOFDAY" />
+            <token id="05125" type-id="FN_TO_ASCII" />
+            <token id="05126" type-id="FN_TO_CHAR" />
+            <token id="05127" type-id="FN_TO_DATE" />
+            <token id="05128" type-id="FN_TO_HEX" />
+            <token id="05129" type-id="FN_TO_JSON" />
+            <token id="05130" type-id="FN_TO_NUMBER" />
+            <token id="05131" type-id="FN_TO_TIMESTAMP" />
+            <token id="05132" type-id="FN_TO_TSQUERY" />
+            <token id="05133" type-id="FN_TO_TSVECTOR" />
+            <token id="05134" type-id="FN_TRANSACTION_TIMESTAMP" />
+            <token id="05135" type-id="FN_TRANSLATE" />
+            <token id="05136" type-id="FN_TRIM" />
+            <token id="05137" type-id="FN_TRUNC" />
+            <token id="05138" type-id="FN_TSVECTOR_UPDATE_TRIGGER" />
+            <token id="05139" type-id="FN_TSVECTOR_UPDATE_TRIGGER_COLUMN" />
+            <token id="05140" type-id="FN_TS_HEADLINE" />
+            <token id="05141" type-id="FN_TS_RANK" />
+            <token id="05142" type-id="FN_TS_RANK_CD" />
+            <token id="05143" type-id="FN_TS_REWRITE" />
+            <token id="05144" type-id="FN_TXID_CURRENT" />
+            <token id="05145" type-id="FN_TXID_CURRENT_SNAPSHOT" />
+            <token id="05146" type-id="FN_TXID_SNAPSHOT_XIP" />
+            <token id="05147" type-id="FN_TXID_SNAPSHOT_XMAX" />
+            <token id="05148" type-id="FN_TXID_SNAPSHOT_XMIN" />
+            <token id="05149" type-id="FN_TXID_VISIBLE_IN_SNAPSHOT" />
+            <token id="05150" type-id="FN_UNNEST" />
+            <token id="05151" type-id="FN_UPPER" />
+            <token id="05152" type-id="FN_UPPER_INC" />
+            <token id="05153" type-id="FN_UPPER_INF" />
+            <token id="05154" type-id="KW_USER" flavor="function" />
+            <token id="05155" type-id="FN_VERSION" />
+            <token id="05156" type-id="FN_WIDTH" />
+            <token id="05157" type-id="FN_WIDTH_BUCKET" />
+            <token id="05158" type-id="FN_XIP_LIST" />
+            <token id="05159" type-id="FN_XMAX" />
+            <token id="05160" type-id="FN_XMIN" />
+            <token id="05161" type-id="FN_XMLAGG" />
+            <token id="05162" type-id="FN_XMLCOMMENT" />
+            <token id="05163" type-id="FN_XMLCONCAT" />
+            <token id="05164" type-id="FN_XMLELEMENT" />
+            <token id="05165" type-id="FN_XMLEXISTS" />
+            <token id="05166" type-id="FN_XMLFOREST" />
+            <token id="05167" type-id="FN_XMLPI" />
+            <token id="05168" type-id="FN_XMLROOT" />
+            <token id="05169" type-id="FN_XML_IS_WELL_FORMED" />
+            <token id="05170" type-id="FN_XPATH" />
+            <token id="05171" type-id="FN_XPATH_EXISTS" />
         </one-of>
-        <wrapper id="05080" optional="true" template="PARENTHESES">
-            <sequence id="05081" optional="true">
-                <token id="05082" optional="true" type-id="KW_DISTINCT" />
+        <wrapper id="05172" optional="true" template="PARENTHESES">
+            <sequence id="05173" optional="true">
+                <token id="05174" optional="true" type-id="KW_DISTINCT" />
                 <element optional="true" ref-id="expression_list" />
             </sequence>
         </wrapper>
     </element-def>
 
     <element-def description="Function expression" id="function_expression">
-        <one-of id="05083" ambiguous="true">
-            <sequence id="05084">
-                <qualified-identifier id="05085" separator="CHR_DOT">
+        <one-of id="05175" ambiguous="true">
+            <sequence id="05176">
+                <qualified-identifier id="05177" separator="CHR_DOT">
                     <variant>
-                        <object-ref id="05086" optional="true" type="SCHEMA" />
-                        <object-ref id="05087" type="FUNCTION" />
+                        <object-ref id="05178" optional="true" type="SCHEMA" />
+                        <object-ref id="05179" type="FUNCTION" />
                     </variant>
                 </qualified-identifier>
-                <wrapper attributes="METHOD_PARAMETER_HANDLER" exit="true" id="05088" template="PARENTHESES">
-                    <iteration id="05089" optional="true" separator="CHR_COMMA">
+                <wrapper attributes="METHOD_PARAMETER_HANDLER" exit="true" id="05180" template="PARENTHESES">
+                    <iteration id="05181" optional="true" separator="CHR_COMMA">
                         <element ref-id="expression" />
                     </iteration>
                 </wrapper>
@@ -8320,7 +8470,7 @@
     </element-def>
 
     <element-def description="Expression list" id="expression_list">
-        <iteration id="05090" optional-wrapping="PARENTHESES" separator="CHR_COMMA">
+        <iteration id="05182" optional-wrapping="PARENTHESES" separator="CHR_COMMA">
             <element ref-id="expression" />
         </iteration>
     </element-def>
@@ -8328,26 +8478,26 @@
 
 
     <element-def description="Condition" id="condition" optional-wrapping="PARENTHESES">
-        <one-of id="05091" ambiguous="true">
-            <iteration formatting-indent="NORMAL" id="05092" separator="KW_AND, KW_OR">
+        <one-of id="05183" ambiguous="true">
+            <iteration formatting-indent="NORMAL" id="05184" separator="KW_AND, KW_OR">
                 <element ref-id="condition" />
             </iteration>
-            <sequence id="05093" optional-wrapping="PARENTHESES">
+            <sequence id="05185" optional-wrapping="PARENTHESES">
                 <element ref-id="expression_list" />
-                <one-of id="05094" optional="true">
-                    <sequence id="05095">
+                <one-of id="05186" optional="true">
+                    <sequence id="05187">
                         <element ref-id="comparison_operator" />
-                        <one-of id="05096" ambiguous="true">
-                            <wrapper id="05097" template="PARENTHESES">
+                        <one-of id="05188" ambiguous="true">
+                            <wrapper id="05189" template="PARENTHESES">
                                 <element ref-id="subquery" />
                             </wrapper>
                             <element ref-id="expression_list" />
                         </one-of>
                     </sequence>
-                    <sequence id="05098">
-                        <token id="05099" type-id="KW_IS" />
-                        <token id="05100" optional="true" type-id="KW_NOT" />
-                        <token id="05101" type-id="KW_NULL" />
+                    <sequence id="05190">
+                        <token id="05191" type-id="KW_IS" />
+                        <token id="05192" optional="true" type-id="KW_NOT" />
+                        <token id="05193" type-id="KW_NULL" />
                     </sequence>
                 </one-of>
             </sequence>
@@ -8357,139 +8507,139 @@
 
 
     <element-def description="Data type" id="data_type">
-        <one-of id="05102">
-            <token id="05103" type-id="DT_ARRAY" />
-            <token id="05104" type-id="DT_BIGINT" />
-            <token id="05105" type-id="DT_BIGSERIAL" />
-            <token id="05106" type-id="DT_BOOL" />
-            <token id="05107" type-id="DT_BOOLEAN" />
-            <token id="05108" type-id="DT_BOX" />
-            <token id="05109" type-id="DT_BYTEA" />
-            <token id="05110" type-id="DT_CHAR" />
-            <token id="05111" type-id="DT_BPCHAR" />
-            <sequence id="05112">
-                <one-of id="05113">
-                    <token id="05114" type-id="DT_CHARACTER" />
-                    <token flavor="datatype" id="05115" type-id="FN_BIT" />
+        <one-of id="05194">
+            <token id="05195" type-id="DT_ARRAY" />
+            <token id="05196" type-id="DT_BIGINT" />
+            <token id="05197" type-id="DT_BIGSERIAL" />
+            <token id="05198" type-id="DT_BOOL" />
+            <token id="05199" type-id="DT_BOOLEAN" />
+            <token id="05200" type-id="DT_BOX" />
+            <token id="05201" type-id="DT_BYTEA" />
+            <token id="05202" type-id="DT_CHAR" />
+            <token id="05203" type-id="DT_BPCHAR" />
+            <sequence id="05204">
+                <one-of id="05205">
+                    <token id="05206" type-id="DT_CHARACTER" />
+                    <token flavor="datatype" id="05207" type-id="FN_BIT" />
                 </one-of>
-                <token flavor="datatype" id="05116" optional="true" type-id="KW_VARYING" />
+                <token flavor="datatype" id="05208" optional="true" type-id="KW_VARYING" />
             </sequence>
-            <token id="05117" type-id="DT_CID" />
-            <token id="05118" type-id="DT_CIDR" />
-            <token id="05119" type-id="DT_CIRCLE" />
-            <token id="05120" type-id="DT_DATE" />
-            <token id="05121" type-id="DT_DECIMAL" />
-            <token id="05122" type-id="DT_DOUBLE_PRECISION" />
-            <token id="05123" type-id="DT_INET" />
-            <token id="05124" type-id="DT_INT" />
-            <token id="05125" type-id="DT_INT2" />
-            <token id="05126" type-id="DT_INT2VECTOR" />
-            <token id="05127" type-id="DT_INT4" />
-            <token id="05128" type-id="DT_INT8" />
-            <token id="05129" type-id="DT_INTEGER" />
-            <sequence id="05130">
-                <token id="05131" type-id="DT_INTERVAL" />
-                <one-of id="05132" optional="true" ambiguous="true">
-                    <sequence id="05133">
-                        <token flavor="datatype" id="05134" type-id="KW_YEAR" />
-                        <sequence id="05135" optional="true">
-                            <token flavor="datatype" id="05136" type-id="KW_TO" />
-                            <token flavor="datatype" id="05137" type-id="KW_MONTH" />
+            <token id="05209" type-id="DT_CID" />
+            <token id="05210" type-id="DT_CIDR" />
+            <token id="05211" type-id="DT_CIRCLE" />
+            <token id="05212" type-id="DT_DATE" />
+            <token id="05213" type-id="DT_DECIMAL" />
+            <token id="05214" type-id="DT_DOUBLE_PRECISION" />
+            <token id="05215" type-id="DT_INET" />
+            <token id="05216" type-id="DT_INT" />
+            <token id="05217" type-id="DT_INT2" />
+            <token id="05218" type-id="DT_INT2VECTOR" />
+            <token id="05219" type-id="DT_INT4" />
+            <token id="05220" type-id="DT_INT8" />
+            <token id="05221" type-id="DT_INTEGER" />
+            <sequence id="05222">
+                <token id="05223" type-id="DT_INTERVAL" />
+                <one-of id="05224" optional="true" ambiguous="true">
+                    <sequence id="05225">
+                        <token flavor="datatype" id="05226" type-id="KW_YEAR" />
+                        <sequence id="05227" optional="true">
+                            <token flavor="datatype" id="05228" type-id="KW_TO" />
+                            <token flavor="datatype" id="05229" type-id="KW_MONTH" />
                         </sequence>
                     </sequence>
-                    <token flavor="datatype" id="05138" type-id="KW_MONTH" />
-                    <sequence id="05139">
-                        <token flavor="datatype" id="05140" type-id="KW_DAY" />
-                        <sequence id="05141" optional="true">
-                            <token flavor="datatype" id="05142" type-id="KW_TO" />
-                            <one-of id="05143">
-                                <token flavor="datatype" id="05144" type-id="KW_HOUR" />
-                                <token flavor="datatype" id="05145" type-id="KW_MINUTE" />
-                                <token flavor="datatype" id="05146" type-id="KW_SECOND" />
+                    <token flavor="datatype" id="05230" type-id="KW_MONTH" />
+                    <sequence id="05231">
+                        <token flavor="datatype" id="05232" type-id="KW_DAY" />
+                        <sequence id="05233" optional="true">
+                            <token flavor="datatype" id="05234" type-id="KW_TO" />
+                            <one-of id="05235">
+                                <token flavor="datatype" id="05236" type-id="KW_HOUR" />
+                                <token flavor="datatype" id="05237" type-id="KW_MINUTE" />
+                                <token flavor="datatype" id="05238" type-id="KW_SECOND" />
                             </one-of>
                         </sequence>
                     </sequence>
-                    <sequence id="05147">
-                        <token flavor="datatype" id="05148" type-id="KW_HOUR" />
-                        <sequence id="05149" optional="true">
-                            <token flavor="datatype" id="05150" type-id="KW_TO" />
-                            <one-of id="05151">
-                                <token flavor="datatype" id="05152" type-id="KW_MINUTE" />
-                                <token flavor="datatype" id="05153" type-id="KW_SECOND" />
+                    <sequence id="05239">
+                        <token flavor="datatype" id="05240" type-id="KW_HOUR" />
+                        <sequence id="05241" optional="true">
+                            <token flavor="datatype" id="05242" type-id="KW_TO" />
+                            <one-of id="05243">
+                                <token flavor="datatype" id="05244" type-id="KW_MINUTE" />
+                                <token flavor="datatype" id="05245" type-id="KW_SECOND" />
                             </one-of>
                         </sequence>
                     </sequence>
-                    <sequence id="05154">
-                        <token flavor="datatype" id="05155" type-id="KW_MINUTE" />
-                        <sequence id="05156" optional="true">
-                            <token flavor="datatype" id="05157" type-id="KW_TO" />
-                            <token flavor="datatype" id="05158" type-id="KW_SECOND" />
+                    <sequence id="05246">
+                        <token flavor="datatype" id="05247" type-id="KW_MINUTE" />
+                        <sequence id="05248" optional="true">
+                            <token flavor="datatype" id="05249" type-id="KW_TO" />
+                            <token flavor="datatype" id="05250" type-id="KW_SECOND" />
                         </sequence>
                     </sequence>
-                    <token flavor="datatype" id="05159" type-id="KW_SECOND" />
+                    <token flavor="datatype" id="05251" type-id="KW_SECOND" />
                     <element ref-id="expression" />
                 </one-of>
             </sequence>
-            <token id="05160" type-id="DT_JSON" />
-            <token id="05161" type-id="DT_JSONB" />
-            <token id="05162" type-id="DT_LINE" />
-            <token id="05163" type-id="DT_LSEG" />
-            <token id="05164" type-id="DT_MACADDR" />
-            <token id="05165" type-id="DT_MONEY" />
-            <token id="05166" type-id="DT_NAME" />
-            <token id="05167" type-id="DT_NUMERIC" />
-            <token id="05168" type-id="DT_OID" />
-            <token id="05169" type-id="DT_PATH" />
-            <token id="05170" type-id="DT_POINT" />
-            <token id="05171" type-id="DT_POLYGON" />
-            <token id="05172" type-id="DT_REAL" />
-            <token id="05173" type-id="DT_SERIAL" />
-            <token id="05174" type-id="DT_SERIAL8" />
-            <token id="05175" type-id="DT_SMALLINT" />
-            <token id="05176" type-id="DT_SMALLSERIAL" />
-            <token id="05177" type-id="DT_TEXT" />
-            <token id="05178" type-id="DT_TID" />
-            <sequence id="05179">
-                <one-of id="05180">
-                    <token id="05181" type-id="DT_TIME" />
-                    <token id="05182" type-id="DT_TIMESTAMP" />
+            <token id="05252" type-id="DT_JSON" />
+            <token id="05253" type-id="DT_JSONB" />
+            <token id="05254" type-id="DT_LINE" />
+            <token id="05255" type-id="DT_LSEG" />
+            <token id="05256" type-id="DT_MACADDR" />
+            <token id="05257" type-id="DT_MONEY" />
+            <token id="05258" type-id="DT_NAME" />
+            <token id="05259" type-id="DT_NUMERIC" />
+            <token id="05260" type-id="DT_OID" />
+            <token id="05261" type-id="DT_PATH" />
+            <token id="05262" type-id="DT_POINT" />
+            <token id="05263" type-id="DT_POLYGON" />
+            <token id="05264" type-id="DT_REAL" />
+            <token id="05265" type-id="DT_SERIAL" />
+            <token id="05266" type-id="DT_SERIAL8" />
+            <token id="05267" type-id="DT_SMALLINT" />
+            <token id="05268" type-id="DT_SMALLSERIAL" />
+            <token id="05269" type-id="DT_TEXT" />
+            <token id="05270" type-id="DT_TID" />
+            <sequence id="05271">
+                <one-of id="05272">
+                    <token id="05273" type-id="DT_TIME" />
+                    <token id="05274" type-id="DT_TIMESTAMP" />
                 </one-of>
                 <element optional="true" ref-id="data_type_parameter_list" />
-                <sequence id="05183" optional="true">
-                    <one-of id="05184">
-                        <token flavor="datatype" id="05185" type-id="KW_WITH" />
-                        <token flavor="datatype" id="05186" type-id="KW_WITHOUT" />
+                <sequence id="05275" optional="true">
+                    <one-of id="05276">
+                        <token flavor="datatype" id="05277" type-id="KW_WITH" />
+                        <token flavor="datatype" id="05278" type-id="KW_WITHOUT" />
                     </one-of>
-                    <token id="05187" type-id="DT_TIME" />
-                    <token flavor="datatype" id="05188" type-id="KW_ZONE" />
+                    <token id="05279" type-id="DT_TIME" />
+                    <token flavor="datatype" id="05280" type-id="KW_ZONE" />
                 </sequence>
             </sequence>
-            <token id="05189" type-id="DT_TSQUERY" />
-            <token id="05190" type-id="DT_TSVECTOR" />
-            <token id="05191" type-id="DT_UUID" />
-            <token id="05192" type-id="DT_VARBIT" />
-            <token id="05193" type-id="DT_VARCHAR" />
-            <token id="05194" type-id="DT_XID" />
-            <token id="05195" type-id="DT_XML" />
+            <token id="05281" type-id="DT_TSQUERY" />
+            <token id="05282" type-id="DT_TSVECTOR" />
+            <token id="05283" type-id="DT_UUID" />
+            <token id="05284" type-id="DT_VARBIT" />
+            <token id="05285" type-id="DT_VARCHAR" />
+            <token id="05286" type-id="DT_XID" />
+            <token id="05287" type-id="DT_XML" />
         </one-of>
         <element optional="true" ref-id="data_type_parameter_list" />
-        <token id="05196" optional="true" type-id="DT_ARRAY" />
-        <iteration id="05197" optional="true">
-            <sequence id="05198">
-                <token id="05199" type-id="CHR_LEFT_BRACKET" />
-                <iteration id="05200" optional="true" separator="CHR_COMMA">
+        <token id="05288" optional="true" type-id="DT_ARRAY" />
+        <iteration id="05289" optional="true">
+            <sequence id="05290">
+                <token id="05291" type-id="CHR_LEFT_BRACKET" />
+                <iteration id="05292" optional="true" separator="CHR_COMMA">
                     <element ref-id="expression" />
                 </iteration>
-                <token id="05201" type-id="CHR_RIGHT_BRACKET" />
+                <token id="05293" type-id="CHR_RIGHT_BRACKET" />
             </sequence>
         </iteration>
     </element-def>
     <element-def description="Data type parameter list" id="data_type_parameter_list">
-        <wrapper id="05202" template="PARENTHESES">
-            <iteration id="05203" separator="CHR_COMMA">
-                <one-of id="05204">
+        <wrapper id="05294" template="PARENTHESES">
+            <iteration id="05295" separator="CHR_COMMA">
+                <one-of id="05296">
                     <element ref-id="number" />
-                    <token id="05205" type-id="STRING" />
+                    <token id="05297" type-id="STRING" />
                 </one-of>
             </iteration>
         </wrapper>
@@ -8497,69 +8647,69 @@
 
 
     <element-def description="COMPARISON operator" id="comparison_operator">
-        <one-of id="05206">
-            <token id="05207" type-id="CHR_EQUAL" />
-            <token id="05208" type-id="CHR_LESS" />
-            <token id="05209" type-id="CHR_GREATER" />
-            <token id="05210" type-id="OPR_NOT_EQUAL" />
-            <token id="05211" type-id="OPR_LESS_GREATER" />
-            <token id="05212" type-id="OPR_LESS_EQUAL" />
-            <token id="05213" type-id="OPR_GREATER_EQUAL" />
-            <token id="05214" type-id="OPR_LIKE" />
-            <token id="05215" type-id="OPR_NOT_LIKE" />
-            <token id="05216" type-id="OPR_MATCH" />
-            <token id="05217" type-id="OPR_MATCH_CI" />
-            <token id="05218" type-id="OPR_NO_MATCH" />
-            <token id="05219" type-id="OPR_NO_MATCH_CI" />
+        <one-of id="05298">
+            <token id="05299" type-id="CHR_EQUAL" />
+            <token id="05300" type-id="CHR_LESS" />
+            <token id="05301" type-id="CHR_GREATER" />
+            <token id="05302" type-id="OPR_NOT_EQUAL" />
+            <token id="05303" type-id="OPR_LESS_GREATER" />
+            <token id="05304" type-id="OPR_LESS_EQUAL" />
+            <token id="05305" type-id="OPR_GREATER_EQUAL" />
+            <token id="05306" type-id="OPR_LIKE" />
+            <token id="05307" type-id="OPR_NOT_LIKE" />
+            <token id="05308" type-id="OPR_MATCH" />
+            <token id="05309" type-id="OPR_MATCH_CI" />
+            <token id="05310" type-id="OPR_NO_MATCH" />
+            <token id="05311" type-id="OPR_NO_MATCH_CI" />
         </one-of>
     </element-def>
 
 
     <element-def description="Integer" id="integer">
-        <one-of id="05220" optional="true">
-            <token id="05221" type-id="CHR_MINUS" />
-            <token id="05222" type-id="CHR_PLUS" />
+        <one-of id="05312" optional="true">
+            <token id="05313" type-id="CHR_MINUS" />
+            <token id="05314" type-id="CHR_PLUS" />
         </one-of>
-        <token id="05223" type-id="INTEGER" />
+        <token id="05315" type-id="INTEGER" />
     </element-def>
 
     <element-def description="Number" id="number">
-        <one-of id="05224" optional="true">
-            <token id="05225" type-id="CHR_MINUS" />
-            <token id="05226" type-id="CHR_PLUS" />
+        <one-of id="05316" optional="true">
+            <token id="05317" type-id="CHR_MINUS" />
+            <token id="05318" type-id="CHR_PLUS" />
         </one-of>
-        <one-of id="05227">
-            <token id="05228" type-id="NUMBER" />
-            <token id="05229" type-id="INTEGER" />
+        <one-of id="05319">
+            <token id="05320" type-id="NUMBER" />
+            <token id="05321" type-id="INTEGER" />
         </one-of>
     </element-def>
 
     <element-def description="Boolean" id="boolean">
-        <one-of id="05230">
-            <token id="05231" type-id="KW_TRUE" />
-            <token id="05232" type-id="KW_FALSE" />
-            <token id="05233" type-id="KW_ON" />
-            <token id="05234" type-id="KW_OFF" />
-            <token id="05235" type-id="INTEGER" />
+        <one-of id="05322">
+            <token id="05323" type-id="KW_TRUE" />
+            <token id="05324" type-id="KW_FALSE" />
+            <token id="05325" type-id="KW_ON" />
+            <token id="05326" type-id="KW_OFF" />
+            <token id="05327" type-id="INTEGER" />
         </one-of>
     </element-def>
 
 
     <element-def description="IF EXISTS clause" id="if_exists_clause">
-        <token id="05236" type-id="KW_IF" />
-        <token id="05237" type-id="KW_EXISTS" />
+        <token id="05328" type-id="KW_IF" />
+        <token id="05329" type-id="KW_EXISTS" />
     </element-def>
     <element-def description="IF NOT EXISTS clause" id="if_not_exists_clause">
-        <token id="05238" type-id="KW_IF" />
-        <token id="05239" type-id="KW_NOT" />
-        <token id="05240" type-id="KW_EXISTS" />
+        <token id="05330" type-id="KW_IF" />
+        <token id="05331" type-id="KW_NOT" />
+        <token id="05332" type-id="KW_EXISTS" />
     </element-def>
 
     <element-def description="Unknown identifier" id="custom_undefined">
-        <token id="05241" type-id="IDENTIFIER" />
+        <token id="05333" type-id="IDENTIFIER" />
     </element-def>
 
     <element-def description="Statement end" formatting-spacing-before="NO_SPACE" id="end" truncate-on-execution="true">
-        <token id="05242" type-id="CHR_SEMICOLON" />
+        <token id="05334" type-id="CHR_SEMICOLON" />
     </element-def>
 </element-defs>
