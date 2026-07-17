@@ -594,17 +594,24 @@
             <action class="com.dbn.menu.action.VectorToolboxOpenAction" id="DBN.MainMenu.VectorToolbox" icon="com.dbn.common.icon.Icons.VECTOR_TOOLBOX"/>
             <action class="com.dbn.menu.action.McpBuilderOpenAction" id="DBN.MainMenu.McpBuilder"/>
             <separator/>
-            <action class="com.dbn.menu.action.MethodExecutionHistoryAction" id="DBN.MainMenu.MethodExecutionHistory">
-                <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift M"/>
-            </action>
-            <action class="com.dbn.menu.action.JavaExecutionHistoryAction" id="DBN.MainMenu.JavaExecutionHistory">
-                <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift J"/>
-            </action>
             <action class="com.dbn.menu.action.FileConnectionMappingsOpenAction" id="DBN.MainMenu.FileConnectionMappings"/>
-            <action class="com.dbn.menu.action.ResourceMonitorOpenAction" id="DBN.MainMenu.ResourceMonitor"/>
-            <action id="DBN.MainMenu.EventMonitor" class="com.dbn.menu.action.MonitorDataChangeOpenAction"/>
-            <action id="DBN.MainMenu.LiquibaseWorkspaces" class="com.dbn.menu.action.LiquibaseWorkspacesOpenAction"/>
-            <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" id="DBN.MainMenu.PendingTransactions"/>-->
+            <group id="DBN.MainMenu.Execution" popup="true">
+                <action class="com.dbn.menu.action.MethodExecutionHistoryAction" id="DBN.MainMenu.MethodExecutionHistory">
+                    <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift M"/>
+                </action>
+                <action class="com.dbn.menu.action.JavaExecutionHistoryAction" id="DBN.MainMenu.JavaExecutionHistory">
+                    <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift J"/>
+                </action>
+            </group>
+            <group id="DBN.MainMenu.Monitoring" popup="true">
+                <action class="com.dbn.menu.action.ResourceMonitorOpenAction" id="DBN.MainMenu.ResourceMonitor"/>
+                <action id="DBN.MainMenu.EventMonitor" class="com.dbn.menu.action.MonitorDataChangeOpenAction"/>
+                <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" id="DBN.MainMenu.PendingTransactions"/>-->
+            </group>
+            <group id="DBN.MainMenu.Liquibase" popup="true" icon="com.dbn.common.icon.Icons.DB_LIQUIBASE">
+                <action id="DBN.MainMenu.LiquibaseWorkspaces" class="com.dbn.menu.action.LiquibaseWorkspacesOpenAction"/>
+                <action id="DBN.MainMenu.LiquibaseDashboard" class="com.dbn.menu.action.LiquibaseDashboardOpenAction"/>
+            </group>
             <group class="com.dbn.prerequisite.action.PrerequisiteVerificationAction" popup="true" id="DBN.MainMenu.PrerequisiteVerification"/> />
             <separator/>
             <action id="DBN.MainMenu.Settings" class="com.dbn.menu.action.ProjectSettingsOpenAction"/>

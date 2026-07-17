@@ -13,16 +13,19 @@ package com.dbn.liquibase.ui;
 import com.dbn.common.color.Colors;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.link.HyperLinkForm;
+import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.Fonts;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionManager;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.execution.LiquibaseOperationSupport;
 import com.dbn.liquibase.execution.ui.LiquibaseExecutionInputDialog;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.dbn.object.DBSchema;
+import com.dbn.object.common.ui.DBObjectSelector;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.UIUtil;
@@ -38,11 +41,16 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.setFormFieldEnabled;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.util.Dialogs.show;
 import static com.dbn.common.util.Dialogs.whenOk;
-import static com.dbn.common.util.Messages.showInfoDialog;
+import static com.dbn.common.util.Lists.filter;
 import static com.dbn.liquibase.execution.LiquibaseOperation.CLEAR_CHECKSUMS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.DROP_ALL;
@@ -60,31 +68,70 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_SQL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.VALIDATE_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseOperationConfirmations.confirmWorkspaceAvailable;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
+import static java.util.Collections.emptyList;
 
-/** Single-screen overview of the Liquibase operations available for a database schema. */
-public class LiquibaseOperationsForm extends DBNFormBase {
+/** Project-level Liquibase dashboard for selecting a database context and starting operations. */
+public class LiquibaseDashboardForm extends DBNFormBase {
     private JPanel mainPanel;
-    private JPanel headerPanel;
     private JPanel hintPanel;
+    private JPanel hyperlinkPanel;
+    private JPanel contextPanel;
+    private JLabel connectionLabel;
+    private JLabel schemaLabel;
+    private DBNComboBox<ConnectionHandler> connectionSelector;
+    private DBObjectSelector<DBSchema> schemaSelector;
     private JTabbedPane operationsPanel;
 
-    private final DBSchema schema;
-    public LiquibaseOperationsForm(@NotNull LiquibaseOperationsDialog parent) {
+    private final List<JButton> operationButtons = new ArrayList<>();
+    private final DBSchema initialSchema;
+
+    public LiquibaseDashboardForm(@NotNull LiquibaseDashboardDialog parent) {
         super(parent);
-        schema = parent.getSchema();
+        initialSchema = parent.getInitialSchema();
 
-        initHeaderPanel();
         initHintPanel();
+        initHyperlinkPanel();
+        initContextSelectors();
         initOperationsPanel();
-    }
-
-    private void initHeaderPanel() {
-        headerPanel.add(new DBNHeaderForm(this, schema.getConnection()).getComponent(), BorderLayout.CENTER);
+        updateOperationAvailability();
     }
 
     private void initHintPanel() {
         hintPanel.add(new DBNHintForm(this, TextContent.plain(txt("cfg.liquibase.hint.Operations")), null, true).getComponent(), BorderLayout.CENTER);
+    }
+
+    private void initHyperlinkPanel() {
+        HyperLinkForm hyperlinkForm = HyperLinkForm.create(
+                "",
+                txt("cfg.liquibase.link.LiquibaseDocumentation"),
+                txt("app.liquibase.url.Dashboard"));
+        hyperlinkPanel.add(hyperlinkForm.getComponent(), BorderLayout.EAST);
+    }
+
+    private void initContextSelectors() {
+        connectionSelector.setValues(ConnectionManager.getInstance(getProject()).getConnections());
+        connectionSelector.setSelectedValue(initialSchema == null ? null : initialSchema.getConnection());
+
+        schemaSelector.initialize(this, SCHEMA);
+        schemaSelector.withConnectionContext(this::getSelectedConnection);
+        schemaSelector.withValueLoader(() -> {
+            ConnectionHandler connection = getSelectedConnection();
+            return connection == null ? emptyList() : filter(connection.getObjectBundle().getSchemas(), s -> !s.isSystemSchema());
+        });
+        schemaSelector.withValuePreselector(() -> initialSchema == null ? null : initialSchema.getName());
+        schemaSelector.triggerLoad();
+        setFormFieldEnabled(schemaSelector, "CONTEXT_AVAILABILITY", getSelectedConnection() != null);
+
+        onSelectionChange(connectionSelector, connection -> {
+            schemaSelector.reloadValues();
+            setFormFieldEnabled(schemaSelector, "CONTEXT_AVAILABILITY", connection != null);
+            updateOperationAvailability();
+        });
+        onSelectionChange(schemaSelector, schema -> updateOperationAvailability());
+        updateOperationAvailability();
     }
 
     private void initOperationsPanel() {
@@ -134,6 +181,7 @@ public class LiquibaseOperationsForm extends DBNFormBase {
         detailsPanel.add(description);
 
         JButton openButton = new JButton(txt("app.liquibase.action.Open"));
+        openButton.setEnabled(false);
         openButton.addActionListener(e -> executeOperation(operation));
         JPanel actionPanel = new JPanel(new BorderLayout());
         actionPanel.add(openButton, BorderLayout.NORTH);
@@ -141,30 +189,36 @@ public class LiquibaseOperationsForm extends DBNFormBase {
         itemPanel.add(actionPanel, BorderLayout.EAST);
         itemPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, itemPanel.getPreferredSize().height));
         parent.add(itemPanel);
+        operationButtons.add(openButton);
+    }
+
+    private void updateOperationAvailability() {
+        boolean available = getSelectedSchema() != null;
+        operationButtons.forEach(button -> button.setEnabled(available));
     }
 
     private void executeOperation(@NotNull LiquibaseOperation operation) {
-        Project project = schema.getProject();
-        DatabaseLiquibaseManager manager = DatabaseLiquibaseManager.getInstance(project);
-        LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
-        LiquibaseOperationSupport support = operation.getSupport();
-        if (support.requiresWorkspace() && !support.supportsWorkspaceCreation()
-                && !workspaces.containsWorkspaces(schema.getConnection().getDatabaseType())) {
-            showInfoDialog(
-                    project,
-                    txt("msg.liquibase.title.WorkspaceRequired"),
-                    txt("msg.liquibase.message.NoWorkspacesAvailable", schema.getConnection().getDatabaseType().getName()),
-                    new String[]{txt("msg.liquibase.button.OpenWorkspaces"), txt("msg.shared.button.Cancel")},
-                    0,
-                    option -> { if (option == 0) manager.openWorkspaceSettings(); });
-            return;
-        }
+        DBSchema schema = getSelectedSchema();
+        if (schema == null) return;
 
+        Project project = ensureProject();
+        DatabaseLiquibaseManager manager = DatabaseLiquibaseManager.getInstance(project);
+        if (!confirmWorkspaceAvailable(project, manager, schema.getConnection(), operation)) return;
+
+        LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
         show(() -> new LiquibaseExecutionInputDialog(schema, operation, workspaces),
                 whenOk(dialog -> {
                     LiquibaseExecutionInput input = dialog.getExecutionInput();
                     manager.executeOperation(input, null);
                 }));
+    }
+
+    private ConnectionHandler getSelectedConnection() {
+        return getSelection(connectionSelector);
+    }
+
+    private DBSchema getSelectedSchema() {
+        return schemaSelector.getSelectedValue();
     }
 
     @Override
@@ -174,6 +228,6 @@ public class LiquibaseOperationsForm extends DBNFormBase {
 
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return operationsPanel;
+        return connectionSelector;
     }
 }

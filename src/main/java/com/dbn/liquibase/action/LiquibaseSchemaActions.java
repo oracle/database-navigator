@@ -47,7 +47,7 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
     public LiquibaseSchemaActions(@NotNull DBSchema schema) {
         super(txt("app.liquibase.action.Liquibase"), true);
         getTemplatePresentation().setIcon(Icons.DB_LIQUIBASE);
-        add(new LiquibaseOperationsAction(schema));
+        add(new LiquibaseDashboardAction(schema));
         add(new LiquibaseWorkspacesOpenAction(txt("app.liquibase.action.Workspaces"), null));
         addSeparator();
 

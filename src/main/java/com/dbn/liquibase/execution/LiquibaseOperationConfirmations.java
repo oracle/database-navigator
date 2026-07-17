@@ -12,7 +12,10 @@ package com.dbn.liquibase.execution;
 
 import com.dbn.common.exception.RequestCancelledException;
 import com.dbn.common.util.Messages;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.object.DBSchema;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
@@ -33,6 +36,29 @@ public final class LiquibaseOperationConfirmations {
 
     public static void ensureConfirmed(@NotNull LiquibaseExecutionInput input) throws RequestCancelledException {
         if (!confirm(input)) throw new RequestCancelledException("Liquibase operation confirmation canceled");
+    }
+
+    public static boolean confirmWorkspaceAvailable(
+            @NotNull Project project,
+            @NotNull DatabaseLiquibaseManager manager,
+            @NotNull ConnectionHandler connection,
+            @NotNull LiquibaseOperation operation) {
+        LiquibaseOperationSupport support = operation.getSupport();
+        if (!support.requiresWorkspace()) return true;
+        if (support.supportsWorkspaceCreation()) return true;
+
+        if (manager.getWorkspaces().containsWorkspaces(connection.getDatabaseType())) return true;
+
+        Messages.showInfoDialog(
+                project,
+                txt("msg.liquibase.title.WorkspaceRequired"),
+                txt("msg.liquibase.message.NoWorkspacesAvailable", connection.getDatabaseType().getName()),
+                new String[]{
+                        txt("msg.liquibase.button.OpenWorkspaces"),
+                        txt("msg.shared.button.Cancel")},
+                0,
+                option -> { if (option == 0) manager.openWorkspaceSettings(); });
+        return false;
     }
 
     public static boolean confirmOverwrite(@NotNull LiquibaseExecutionInput input) {

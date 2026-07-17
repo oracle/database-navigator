@@ -21,7 +21,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.execution.LiquibaseOperationSupport;
 import com.dbn.liquibase.execution.ui.LiquibaseExecutionInputDialog;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.dbn.object.DBSchema;
@@ -31,8 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Dialogs.show;
 import static com.dbn.common.util.Dialogs.whenOk;
-import static com.dbn.common.util.Messages.showInfoDialog;
-import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.liquibase.execution.LiquibaseOperationConfirmations.confirmWorkspaceAvailable;
 
 /** Base action for Liquibase operations scoped to one database schema. */
 public abstract class LiquibaseSchemaAction extends ProjectAction {
@@ -65,7 +63,7 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
         DatabaseLiquibaseManager manager = getManager(project);
         LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
 
-        if (!confirmWorkspaceAvailable(project, operation, workspaces)) {
+        if (!confirmWorkspaceAvailable(project, manager, getConnection(), operation)) {
             return;
         }
 
@@ -76,26 +74,4 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
                 }));
     }
 
-    private boolean confirmWorkspaceAvailable(
-            @NotNull Project project,
-            @NotNull LiquibaseOperation operation,
-            @NotNull LiquibaseWorkspaceBundle workspaces) {
-
-        LiquibaseOperationSupport support = operation.getSupport();
-        if (!support.requiresWorkspace()) return true;
-        if (support.supportsWorkspaceCreation()) return true;
-        if (workspaces.containsWorkspaces(getConnection().getDatabaseType())) return true;
-
-        DatabaseLiquibaseManager manager = getManager(project);
-        showInfoDialog(
-                project,
-                txt("msg.liquibase.title.WorkspaceRequired"),
-                txt("msg.liquibase.message.NoWorkspacesAvailable", getConnection().getDatabaseType().getName()),
-                new String[]{
-                        txt("msg.liquibase.button.OpenWorkspaces"),
-                        txt("msg.shared.button.Cancel")},
-                0,
-                option -> { if (option == 0) manager.openWorkspaceSettings(); });
-        return false;
-    }
 }

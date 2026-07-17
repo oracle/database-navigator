@@ -8,11 +8,10 @@
  * https://www.apache.org/licenses/LICENSE-2.0
  */
 
-package com.dbn.liquibase.action;
+package com.dbn.menu.action;
 
 import com.dbn.common.action.ProjectAction;
-import com.dbn.liquibase.ui.LiquibaseOperationsDialog;
-import com.dbn.object.DBSchema;
+import com.dbn.liquibase.ui.LiquibaseDashboardDialog;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -20,17 +19,14 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.common.util.Dialogs.show;
 import static com.dbn.nls.NlsResources.txt;
 
-/** Opens the grouped Liquibase operations overview for a database schema. */
-public class LiquibaseOperationsAction extends ProjectAction {
-    private final DBSchema schema;
-
-    public LiquibaseOperationsAction(@NotNull DBSchema schema) {
-        super(txt("app.liquibase.action.Dashboard"));
-        this.schema = schema;
+/** Opens the project-level Liquibase dashboard. */
+public class LiquibaseDashboardOpenAction extends ProjectAction {
+    public LiquibaseDashboardOpenAction() {
+        super(txt("app.menu.action.LiquibaseDashboard"));
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        show(() -> new LiquibaseOperationsDialog(schema));
+        show(() -> new LiquibaseDashboardDialog(project));
     }
 }
