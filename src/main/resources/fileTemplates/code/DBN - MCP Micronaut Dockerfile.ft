@@ -1,0 +1,32 @@
+# Standalone multi-stage build for the ${SERVER_NAME} MCP server.
+#
+# Native executables are locked to the OS/architecture they are built on. Run this
+# build on a Linux machine or CI runner of the DESIRED target architecture — no
+# cross-compilation or emulation is involved:
+#
+#   docker build -t ${SERVER_NAME}:latest .
+#
+# Run (mount a directory containing mcp-config.yaml and the wallet/ folder; the
+# wallet is mounted at run time and never baked into the image):
+#
+#   docker run -d -p ${HTTP_PORT}:${HTTP_PORT} \
+#       -v /path/to/config:/config:ro \
+#       ${SERVER_NAME}:latest --config=/config/mcp-config.yaml
+#
+# Note: the native compilation needs roughly 6-8 GB of memory on the build machine.
+
+# ---- build stage: Oracle GraalVM (includes native-image) + Maven ----
+FROM container-registry.oracle.com/graalvm/native-image:${GRAALVM_IMAGE_TAG} AS build
+RUN microdnf install -y maven && microdnf clean all
+WORKDIR /build
+COPY pom.xml .
+COPY src ./src
+RUN mvn -B clean package -Dpackaging=native-image
+
+# ---- runtime stage: slim glibc base holding just the executable ----
+FROM oraclelinux:9-slim
+COPY --from=build /build/target/${SERVER_NAME} /app/${SERVER_NAME}
+ENV MICRONAUT_SERVER_HOST=0.0.0.0
+EXPOSE ${HTTP_PORT}
+ENTRYPOINT ["/app/${SERVER_NAME}"]
+CMD ["--config=/config/mcp-config.yaml"]

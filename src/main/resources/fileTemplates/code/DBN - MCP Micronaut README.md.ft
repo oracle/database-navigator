@@ -20,11 +20,34 @@ The server communicates over **streamable HTTP**: the MCP endpoint is served on
 
 $h2 2. Running the server
 
+#if($IS_CONTAINER)
+This server was built as a **container image**: `${IMAGE_NAME}` (registered with your local
+Docker-compatible runtime). Start it by mounting this directory — which holds
+`mcp-config.yaml` and the `wallet/` folder — read-only at `/config`:
+
+```
+docker run -d --name ${SERVER_NAME} \
+    -p ${HTTP_PORT}:${HTTP_PORT} \
+    -e MICRONAUT_SERVER_HOST=0.0.0.0 \
+    -v /path/to/this/directory:/config:ro \
+    ${IMAGE_NAME} --config=/config/mcp-config.yaml
+```
+
+Notes:
+- `podman` works identically to `docker`.
+- `MICRONAUT_SERVER_HOST=0.0.0.0` is required: the baked-in configuration binds
+  `127.0.0.1`, which is unreachable from outside the container.
+- Credentials are **mounted at run time, never baked into the image** — the image is
+  generic and safe to push to a registry; the mounted directory is the sensitive part.
+- **The image targets `linux/${HOST_ARCH}`** (the architecture of the machine that built it).
+  It will not run on a different CPU architecture — see section 6 for other targets.
+#else
 Start the executable directly:
 
 ```
 ./${EXECUTABLE_NAME}
 ```
+#end
 
 Use `--config=` to load a configuration file from another location:
 
@@ -122,3 +145,31 @@ java -jar target/${SERVER_NAME}-1.0.jar
 The GraalVM reachability metadata for the Oracle JDBC driver and wallet support lives in
 `src/main/resources/META-INF/native-image/` — keep it in sync with the Oracle driver version
 declared in `pom.xml`.
+
+---
+
+$h2 6. Deploying to other platforms and architectures
+
+Native executables (and the container images holding them) are locked to the OS and CPU
+architecture they were built on. GraalVM does not cross-compile. To target a different
+architecture (for example an `amd64` server from an Apple Silicon machine), build
+`source-project/Dockerfile` **on a machine or CI runner of the target architecture**:
+
+```
+docker build -t ${SERVER_NAME}:latest source-project/
+```
+
+The Dockerfile is fully self-contained (multi-stage: Oracle GraalVM builder + slim runtime)
+and needs no local GraalVM or Maven — only a container runtime. Native compilation needs
+roughly 6-8 GB of memory on the build machine. Run the resulting image with the same
+`docker run` command shown in section 2, mounting a directory that contains
+`mcp-config.yaml` (with `wallet-dir: /config/wallet`) and the `wallet/` folder.
+
+Do not rely on emulated cross-architecture builds (`--platform`) — native-image under
+emulation is extremely slow and memory-hungry; build natively on the target architecture
+instead.
+
+Note: do not run `mvn -Dpackaging=docker-native` inside `source-project/` while the
+`Dockerfile` is present — the Micronaut Maven plugin would treat it as an override of its
+own packaging and the build fails. Use `docker build` (as above), or remove/rename the
+`Dockerfile` first.

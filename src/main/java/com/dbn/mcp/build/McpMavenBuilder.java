@@ -50,6 +50,9 @@ public final class McpMavenBuilder {
         Files.createDirectories(sourceProjectDir);
 
         copyFileIfExists(projDir.resolve("pom.xml"), sourceProjectDir.resolve("pom.xml"));
+        // rendered as "Dockerfile.ci" so micronaut-maven-plugin does not pick it up
+        // as a docker-native packaging override during the build
+        copyFileIfExists(projDir.resolve("Dockerfile.ci"), sourceProjectDir.resolve("Dockerfile"));
         copyDirIfExists(projDir.resolve("src"), sourceProjectDir.resolve("src"));
     }
 
@@ -122,6 +125,8 @@ public final class McpMavenBuilder {
 
     private static Path copyArtifact(McpServerGenerator generator, Path proj, Path out) throws IOException {
         Path artifact = generator.locateArtifact(proj.resolve("target"));
+        if (artifact == null) return null; // no file artifact (e.g. container image build)
+
         Files.createDirectories(out);
         Path dest = out.resolve(artifact.getFileName());
         // COPY_ATTRIBUTES preserves the executable bit of native binaries

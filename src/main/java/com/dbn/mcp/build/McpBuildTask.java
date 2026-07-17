@@ -72,7 +72,11 @@ public class McpBuildTask {
         indicator.setText2(txt("prc.mcp.text.VerifyingMavenAvailability"));
         verifyMavenAvailability(project);
 
-        if (definition.getImplementation().isNative()) {
+        if (definition.getImplementation().isContainer()) {
+            // native-image runs inside the builder container; no local GraalVM needed
+            indicator.setText2(txt("prc.mcp.text.VerifyingContainerRuntime"));
+            McpContainerRuntimeSupport.verifyContainerRuntimeAvailability(project);
+        } else if (definition.getImplementation().isNative()) {
             indicator.setText2(txt("prc.mcp.text.VerifyingGraalVmAvailability"));
             McpGraalVmSupport.verifyGraalVmAvailability(project);
         }
@@ -229,7 +233,11 @@ public class McpBuildTask {
                         indicator,
                         null);
                 indicator.setText2(txt("prc.mcp.text.FinalizingOutput"));
-                result.setServerJar(serverArtifact);
+                if (definition.getImplementation().isContainer()) {
+                    result.setImageName(definition.getServerName() + ":latest");
+                } else {
+                    result.setServerJar(serverArtifact);
+                }
 
                 Path outputConfigFile = outputDirectory.resolve(CONFIG).toAbsolutePath().normalize();
                 Files.copy(result.getConfigFile(), outputConfigFile, StandardCopyOption.REPLACE_EXISTING);
@@ -245,9 +253,10 @@ public class McpBuildTask {
                 showResult();
             } catch (Throwable e) {
                 conditionallyLog(e);
-                String message = definition.getImplementation().isNative()
-                        ? txt("msg.mcp.error.NativeServerBuildFailed")
-                        : txt("msg.mcp.error.McpServerBuildFailed");
+                String message =
+                        definition.getImplementation().isContainer() ? txt("msg.mcp.error.ContainerServerBuildFailed") :
+                        definition.getImplementation().isNative() ? txt("msg.mcp.error.NativeServerBuildFailed") :
+                        txt("msg.mcp.error.McpServerBuildFailed");
                 showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), message, e);
                 onBuildFailure.run();
             }
@@ -261,7 +270,12 @@ public class McpBuildTask {
 
         result.setWalletDirectory(outputDirectory.resolve("wallet").toAbsolutePath().normalize());
 
-        result.setClaudeSnippetJson(clientConfiguration.buildClaudeJson(result.getServerJar().toString()));
+        if (definition.getImplementation().isContainer()) {
+            String containerRuntime = McpContainerRuntimeSupport.getContainerRuntimeCommand();
+            result.setDockerRunCommand(clientConfiguration.buildContainerRunCommand(containerRuntime, result.getImageName(), outputDirectory));
+        }
+        String serverArtifact = result.getServerJar() == null ? result.getImageName() : result.getServerJar().toString();
+        result.setClaudeSnippetJson(clientConfiguration.buildClaudeJson(serverArtifact));
         result.setClineSnippetJson(transportType.isHttp() ? clientConfiguration.buildClineJson() : null);
         Dialogs.show(() -> new McpBuildResultDialog(project, definition, result));
     }

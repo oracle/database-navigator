@@ -19,6 +19,7 @@ package com.dbn.mcp.build;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -38,6 +39,7 @@ interface McpServerGenerator {
         switch (definition.getImplementation()) {
             case STANDARD_JAVA: return new McpStandardJavaGenerator(project, definition);
             case MICRONAUT_NATIVE: return new McpMicronautNativeGenerator(project, definition);
+            case MICRONAUT_CONTAINER: return new McpMicronautContainerGenerator(project, definition);
             default: throw new UnsupportedOperationException(
                     "MCP server implementation not supported: " + definition.getImplementation());
         }
@@ -65,6 +67,9 @@ interface McpServerGenerator {
 
     /**
      * Locates the distributable build artifact inside the Maven "target" directory.
+     * Returns null when the build produces no file artifact (e.g. a container image
+     * registered with the local container runtime instead).
      */
+    @Nullable
     Path locateArtifact(Path targetDirectory) throws IOException;
 }

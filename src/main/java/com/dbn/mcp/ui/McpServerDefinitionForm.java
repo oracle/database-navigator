@@ -31,6 +31,7 @@ import com.dbn.common.util.Strings;
 import com.dbn.common.util.Titles;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.mcp.build.McpContainerRuntimeSupport;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.model.McpToolDefinition;
@@ -145,7 +146,8 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     /**
      * The Micronaut Native server is HTTP-only: force the transport selection
-     * and prevent changing it while that implementation is selected.
+     * and prevent changing it while that implementation is selected. Container
+     * image builds additionally surface the host-architecture limitation.
      */
     private void updateTransportAvailability() {
         McpServerImplementation implementation = getSelection(implementationComboBox);
@@ -154,6 +156,11 @@ public class McpServerDefinitionForm extends DBNFormBase {
             setSelection(transportTypeComboBox, McpTransportType.HTTP);
         }
         transportTypeComboBox.setEnabled(!nativeImplementation);
+
+        boolean containerImplementation = implementation != null && implementation.isContainer();
+        implementationComboBox.setToolTipText(containerImplementation
+                ? txt("msg.mcp.text.ContainerArchHint", McpContainerRuntimeSupport.normalizedHostArch())
+                : null);
     }
 
     private void initToolDefinitionsPanel() {

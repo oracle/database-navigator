@@ -47,11 +47,21 @@ public class McpBuildResultForm extends DBNFormBase {
     }
 
     private JLabel createHeaderLabel() {
-        String headerHtml = txt(resolveSummaryKey(),
-                escapeHtml(result.getServerJar().toString()),
-                escapeHtml(result.getConfigFile().toString()),
-                escapeHtml(result.getWalletDirectory().toString()),
-                escapeHtml(result.getSourceDirectory().toString()));
+        String headerHtml;
+        if (definition.getImplementation().isContainer()) {
+            headerHtml = txt("msg.mcp.text.BuildResultContainer",
+                    escapeHtml(result.getImageName()),
+                    escapeHtml(result.getConfigFile().toString()),
+                    escapeHtml(result.getWalletDirectory().toString()),
+                    escapeHtml(result.getSourceDirectory().toString()),
+                    "linux/" + McpContainerRuntimeSupport.normalizedHostArch());
+        } else {
+            headerHtml = txt(resolveSummaryKey(),
+                    escapeHtml(result.getServerJar().toString()),
+                    escapeHtml(result.getConfigFile().toString()),
+                    escapeHtml(result.getWalletDirectory().toString()),
+                    escapeHtml(result.getSourceDirectory().toString()));
+        }
         return new JLabel(headerHtml);
     }
 
@@ -70,6 +80,10 @@ public class McpBuildResultForm extends DBNFormBase {
     private JBTabbedPane createConfigTabs() {
         boolean httpTransport = isHttpTransport();
         JBTabbedPane tabs = new JBTabbedPane();
+        String dockerRunCommand = result.getDockerRunCommand();
+        if (dockerRunCommand != null) {
+            tabs.addTab(txt("app.mcp.title.DockerRun"), createConfigTab(dockerRunCommand));
+        }
         tabs.addTab(httpTransport ? txt("app.mcp.title.Claude") : txt("app.mcp.title.McpConfig"), createConfigTab(result.getClaudeSnippetJson()));
         String clineSnippetJson = result.getClineSnippetJson();
         if (httpTransport && clineSnippetJson != null) {

@@ -60,6 +60,9 @@ final class McpReadmeWriter {
             context.put("EXECUTABLE_NAME", serverName);
             context.put("HTTP_PORT", httpPort);
             context.put("TOOLS", toolList);
+            context.put("IMAGE_NAME", serverName + ":latest");
+            context.put("HOST_ARCH", McpContainerRuntimeSupport.normalizedHostArch());
+            context.put("IS_CONTAINER", definition.getImplementation().isContainer());
 
             String template = definition.getImplementation().isNative() ? MICRONAUT_TEMPLATE : STANDARD_TEMPLATE;
             String content = TemplateUtilities.generateCode(project, template, context);

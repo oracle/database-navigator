@@ -43,6 +43,7 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
     private static final @NonNls String POM_TEMPLATE = "DBN - MCP Micronaut POM.xml";
     private static final @NonNls String METADATA_TEMPLATE = "DBN - MCP Micronaut Reachability Metadata.json";
     private static final @NonNls String APPLICATION_YML_TEMPLATE = "DBN - MCP Micronaut Application Config.yaml";
+    private static final @NonNls String DOCKERFILE_TEMPLATE = "DBN - MCP Micronaut Dockerfile";
 
     // generated class name -> file template name (one source file per class)
     private static final @NonNls Map<String, String> SOURCE_TEMPLATES = new LinkedHashMap<>();
@@ -67,6 +68,10 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
     private static final @NonNls String LOGBACK_FILE = "src/main/resources/logback.xml";
     private static final @NonNls String APPLICATION_YML_FILE = "src/main/resources/application.yml";
     private static final @NonNls String METADATA_FILE = "src/main/resources/META-INF/native-image/com.dbn.mcp/mcp-server/reachability-metadata.json";
+    // written under a neutral name: micronaut-maven-plugin treats a root "Dockerfile"
+    // as an override of its docker-native packaging and would hijack the image build;
+    // the source-project export renames it to "Dockerfile"
+    private static final @NonNls String DOCKERFILE_FILE = "Dockerfile.ci";
 
     private static final @NonNls String LOGBACK_XML = """
             <configuration>
@@ -81,12 +86,13 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
             </configuration>
             """;
 
-    private final Project project;
-    private final McpServerDefinition definition;
+    protected final Project project;
+    protected final McpServerDefinition definition;
 
     private final Map<String, String> sourceContents = new LinkedHashMap<>();
     private String metadataContent;
     private String applicationYmlContent;
+    private String dockerfileContent;
 
     McpMicronautNativeGenerator(@NotNull Project project, @NotNull McpServerDefinition definition) {
         this.project = project;
@@ -111,6 +117,10 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
         }
         metadataContent = TemplateUtilities.generateCode(project, METADATA_TEMPLATE, new Properties());
         applicationYmlContent = TemplateUtilities.generateCode(project, APPLICATION_YML_TEMPLATE, attributes);
+
+        // standalone multi-stage build usable on a CI runner of any target architecture
+        attributes.put("GRAALVM_IMAGE_TAG", resolveJavaVersion(project));
+        dockerfileContent = TemplateUtilities.generateCode(project, DOCKERFILE_TEMPLATE, attributes);
     }
 
     @Override
@@ -119,6 +129,7 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
         files.put(LOGBACK_FILE, LOGBACK_XML);
         files.put(APPLICATION_YML_FILE, applicationYmlContent);
         files.put(METADATA_FILE, metadataContent);
+        files.put(DOCKERFILE_FILE, dockerfileContent);
         return files;
     }
 

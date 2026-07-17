@@ -112,10 +112,15 @@ final class McpServerConfigBuilder {
         boolean nativeImplementation = definition.getImplementation().isNative();
         sb.append(nativeImplementation ? "datasource:\n" : "dataSource:\n");
         if (nativeImplementation) {
-            if (walletDirectory == null) {
-                throw new IllegalArgumentException("Wallet directory is required for a Micronaut Native server");
+            if (definition.getImplementation().isContainer()) {
+                // the output directory is mounted read-only at /config inside the container
+                appendYamlField(sb, "  ", "wallet-dir", "/config/wallet");
+            } else {
+                if (walletDirectory == null) {
+                    throw new IllegalArgumentException("Wallet directory is required for a Micronaut Native server");
+                }
+                appendYamlField(sb, "  ", "wallet-dir", walletDirectory.toAbsolutePath().toString());
             }
-            appendYamlField(sb, "  ", "wallet-dir", walletDirectory.toAbsolutePath().toString());
         }
         appendYamlField(sb, "  ", "url", redactSensitiveParameters(connectionUrl));
         sb.append("  # username: YOUR_USER  # uncomment to override wallet credentials\n");

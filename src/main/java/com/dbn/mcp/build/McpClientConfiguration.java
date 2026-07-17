@@ -19,7 +19,9 @@ package com.dbn.mcp.build;
 import com.dbn.common.util.Json;
 import com.dbn.mcp.model.McpServerDefinition;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NonNls;
 
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +45,22 @@ final class McpClientConfiguration {
             args = List.of("-jar", serverArtifact);
         }
         return buildCommandSnippetJson(definition.getServerName(), command, args);
+    }
+
+    /**
+     * Ready-to-use run command for the container image build target: publishes the
+     * HTTP port, binds the server to all interfaces (the in-image application.yml
+     * binds 127.0.0.1, unreachable from outside the container), and mounts the
+     * output directory read-only at /config for mcp-config.yaml and the wallet.
+     */
+    @NonNls
+    String buildContainerRunCommand(String containerRuntime, String imageName, Path outputDirectory) {
+        String httpPort = definition.getHttpPort();
+        return containerRuntime + " run -d --name " + definition.getServerName() +
+                " -p " + httpPort + ":" + httpPort +
+                " -e MICRONAUT_SERVER_HOST=0.0.0.0" +
+                " -v " + outputDirectory.toAbsolutePath() + ":/config:ro " +
+                imageName + " --config=/config/mcp-config.yaml";
     }
 
     String buildClineJson() {

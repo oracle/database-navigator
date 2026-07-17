@@ -18,7 +18,8 @@ package com.dbn.mcp.model;
 
 public enum McpServerImplementation {
     STANDARD_JAVA("Standard Java"),
-    MICRONAUT_NATIVE("Micronaut Native (GraalVM)");
+    MICRONAUT_NATIVE("Micronaut Native (GraalVM)"),
+    MICRONAUT_CONTAINER("Micronaut Container Image");
 
     private final String displayName;
 
@@ -26,8 +27,16 @@ public enum McpServerImplementation {
         this.displayName = displayName;
     }
 
+    /**
+     * Both Micronaut variants compile to a GraalVM native executable; the container
+     * variant just performs the compilation inside a Linux builder container.
+     */
     public boolean isNative() {
-        return this == MICRONAUT_NATIVE;
+        return this != STANDARD_JAVA;
+    }
+
+    public boolean isContainer() {
+        return this == MICRONAUT_CONTAINER;
     }
 
     @Override
