@@ -25,6 +25,8 @@ import com.intellij.psi.tree.IElementType;
 
     private int blockNesting = 0;
     private int blockStartPos = 0;
+    private String dollarQuoteDelimiter;
+    private boolean dollarQuoteInPsqlBlock;
     public void startPsqlBlock(boolean incNesting) {
         yybegin(PSQL_BLOCK);
         blockStartPos = zzStartRead;
@@ -47,10 +49,12 @@ CHARSET ="armscii8"|"ascii"|"big5"|"binary"|"cp1250"|"cp1251"|"cp1256"|"cp1257"|
 
 string_simple_quoted      = "'"([^\']|"''"|{WHITE_SPACE})*"'"?
 STRING = ("n"|"_"{CHARSET})?{wso}{string_simple_quoted}
+DOLLAR_QUOTE_START = "$"({IDENTIFIER})?"$"
 
 VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 
 %state PSQL_BLOCK
+%state DOLLAR_QUOTE
 %%
 
 <PSQL_BLOCK> {
@@ -60,9 +64,35 @@ VARIABLE = ":"({IDENTIFIER}|{INTEGER})
     {WHITE_SPACE}+   {}
     {BLOCK_COMMENT}  {}
     {LINE_COMMENT}   {}
+    {DOLLAR_QUOTE_START} { dollarQuoteDelimiter = yytext().toString(); dollarQuoteInPsqlBlock = true; yybegin(DOLLAR_QUOTE); }
     {STRING}         {}
     \n|\r|.          {}
     <<EOF>>   { return endPsqlBlock(); }
+}
+
+<DOLLAR_QUOTE> {
+    {DOLLAR_QUOTE_START} {
+        if (yytext().toString().equals(dollarQuoteDelimiter)) {
+            dollarQuoteDelimiter = null;
+            if (dollarQuoteInPsqlBlock) {
+                dollarQuoteInPsqlBlock = false;
+                yybegin(PSQL_BLOCK);
+            } else {
+                yybegin(YYINITIAL);
+                return stt.string;
+            }
+        }
+    }
+    [^]       {}
+    <<EOF>>   {
+        dollarQuoteDelimiter = null;
+        if (dollarQuoteInPsqlBlock) {
+            dollarQuoteInPsqlBlock = false;
+            return endPsqlBlock();
+        }
+        yybegin(YYINITIAL);
+        return stt.string;
+    }
 }
 
 <YYINITIAL> {
@@ -75,6 +105,7 @@ VARIABLE = ":"({IDENTIFIER}|{INTEGER})
     "declare" { startPsqlBlock(false); }
     "begin"   { startPsqlBlock(true); }
 
+    {DOLLAR_QUOTE_START} { dollarQuoteDelimiter = yytext().toString(); dollarQuoteInPsqlBlock = false; yybegin(DOLLAR_QUOTE); }
     {VARIABLE}    { return stt.variable; }
     {INTEGER}     { return stt.integer; }
     {NUMBER}      { return stt.number; }

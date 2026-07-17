@@ -22,6 +22,8 @@ import com.intellij.psi.tree.IElementType;
     public PostgresSQLHighlighterFlexLexer(TokenTypeBundle tt) {
         super(tt);
     }
+
+    private String dollarQuoteDelimiter;
 %}
 %include ../../../common/lexer/shared_elements.flext
 
@@ -32,6 +34,7 @@ CHARSET ="armscii8"|"ascii"|"big5"|"binary"|"cp1250"|"cp1251"|"cp1256"|"cp1257"|
 
 string_simple_quoted      = "'"([^\']|"''"|{WHITE_SPACE})*"'"?
 STRING = ("n"|"_"{CHARSET})?{wso}{string_simple_quoted}
+DOLLAR_QUOTE_START = "$"({IDENTIFIER})?"$"
 
 VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 
@@ -59,7 +62,20 @@ SQL_DATATYPE = "array"|"bigint"|"bigserial"|"bool"|"boolean"|"box"|"bpchar"|"byt
 SQL_PARAMETER = "allow_connections"|"builtin_locale"|"buffering"|"buffer_usage_limit"|"check_option"|"collation_version"|"copy_data"|"create_slot"|"disable_on_error"|"enabled"|"failover"|"fastupdate"|"fillfactor"|"gin_pending_list_limit"|"icu_locale"|"icu_rules"|"is_template"|"locale"|"locale_provider"|"origin"|"pages_per_range"|"password_required"|"provider"|"publish_generated_columns"|"publish_via_partition_root"|"run_as_owner"|"rules"|"security_barrier"|"security_invoker"|"skip_locked"|"slot_name"|"streaming"|"strategy"|"synchronous_commit"|"tag"|"two_phase"
 
 %state DIV
+%state DOLLAR_QUOTE
 %%
+
+<DOLLAR_QUOTE> {
+    {DOLLAR_QUOTE_START} {
+        if (yytext().toString().equals(dollarQuoteDelimiter)) {
+            dollarQuoteDelimiter = null;
+            yybegin(YYINITIAL);
+            return stt.string;
+        }
+    }
+    [^]       {}
+    <<EOF>>   { dollarQuoteDelimiter = null; yybegin(YYINITIAL); return stt.string; }
+}
 
 {VARIABLE}          { return tt.getTokenType("VARIABLE"); }
 
@@ -70,6 +86,7 @@ SQL_PARAMETER = "allow_connections"|"builtin_locale"|"buffering"|"buffer_usage_l
 
 {INTEGER}           { return stt.integer; }
 {NUMBER}            { return stt.number; }
+{DOLLAR_QUOTE_START} { dollarQuoteDelimiter = yytext().toString(); yybegin(DOLLAR_QUOTE); }
 {STRING}            { return stt.string; }
 
 {SQL_FUNCTION}      { return tt.getTokenType("FUNCTION");}

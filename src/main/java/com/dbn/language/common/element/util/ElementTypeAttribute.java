@@ -33,6 +33,7 @@ public enum ElementTypeAttribute implements Property.LongBase {
     DATA_MANIPULATION("DATA_MANIPULATION", "Data manipulation statement", true),
     COMPILABLE_BLOCK("COMPILABLE_BLOCK", "Compilable block", false),
     TRANSACTION_CONTROL("TRANSACTION_CONTROL", "Transaction control statement", true),
+    SESSION_CONTROL("SESSION_CONTROL", "Session control statement", true),
     OBJECT_SPECIFICATION("OBJECT_SPECIFICATION", "Object specification", true),
     OBJECT_DECLARATION("OBJECT_DECLARATION", "Object declaration", true),
     OBJECT_DEFINITION("OBJECT_DEFINITION", "Object definition", true),
