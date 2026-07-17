@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.liquibase.execution.LiquibaseOperation.CLEAR_CHECKSUMS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.DROP_ALL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.MARK_NEXT_CHANGESET_RAN;
@@ -49,6 +50,7 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         DefaultActionGroup changelogActions = new DefaultActionGroup(txt("app.liquibase.group.Changelog"), true);
         changelogActions.add(action(schema, GENERATE_CHANGELOG));
         changelogActions.add(action(schema, GENERATE_DIFF_CHANGELOG));
+        changelogActions.addSeparator();
         changelogActions.add(action(schema, VALIDATE_CHANGELOG));
         changelogActions.add(action(schema, SHOW_CHANGELOG_STATUS));
         changelogActions.add(action(schema, SHOW_CHANGELOG_HISTORY));
@@ -64,6 +66,8 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         databaseActions.addSeparator();
         databaseActions.add(action(schema, RELEASE_LOCKS));
         databaseActions.add(action(schema, CLEAR_CHECKSUMS));
+        databaseActions.addSeparator();
+        databaseActions.add(action(schema, DROP_ALL));
         add(databaseActions);
 
         DefaultActionGroup sqlPreviewActions = new DefaultActionGroup(txt("app.liquibase.group.PreviewSql"), true);

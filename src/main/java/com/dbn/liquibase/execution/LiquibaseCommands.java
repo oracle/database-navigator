@@ -20,6 +20,7 @@ import liquibase.command.core.ChangelogSyncCommandStep;
 import liquibase.command.core.ChangelogSyncSqlCommandStep;
 import liquibase.command.core.ClearChecksumsCommandStep;
 import liquibase.command.core.DiffChangelogCommandStep;
+import liquibase.command.core.DropAllCommandStep;
 import liquibase.command.core.GenerateChangelogCommandStep;
 import liquibase.command.core.HistoryCommandStep;
 import liquibase.command.core.MarkNextChangesetRanCommandStep;
@@ -49,6 +50,7 @@ public class LiquibaseCommands {
     public static final String MARK_NEXT_CHANGESET_RAN = MarkNextChangesetRanCommandStep.COMMAND_NAME[0];
     public static final String RELEASE_LOCKS = ReleaseLocksCommandStep.COMMAND_NAME[0];
     public static final String CLEAR_CHECKSUMS = ClearChecksumsCommandStep.COMMAND_NAME[0];
+    public static final String DROP_ALL = DropAllCommandStep.COMMAND_NAME[0];
     public static final String UPDATE_DATABASE = UpdateCommandStep.COMMAND_NAME[0];
     public static final String UPDATE_SQL = UpdateSqlCommandStep.COMMAND_NAME[0];
     public static final String SYNCHRONIZE_CHANGELOG = ChangelogSyncCommandStep.COMMAND_NAME[0];

@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.liquibase.execution.LiquibaseOperation.CLEAR_CHECKSUMS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.DROP_ALL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.MARK_NEXT_CHANGESET_RAN;
@@ -70,6 +71,7 @@ public final class LiquibaseOperationSupport {
                 MARK_NEXT_CHANGESET_RAN,
                 RELEASE_LOCKS,
                 CLEAR_CHECKSUMS,
+                DROP_ALL,
                 ROLLBACK_CHANGESETS,
                 ROLLBACK_SQL)) return FieldState.VISIBLE;
 
