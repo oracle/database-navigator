@@ -45,6 +45,10 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
         return /*txt("cfg.liquibase.title.Operation_" + name()) + "\n\n" +*/ txt("cfg.liquibase.hint.Operation_" + name());
     }
 
+    public String getDocumentationUrl() {
+        return txt("app.liquibase.url.Operation_" + name());
+    }
+
     @Nullable
     public Icon getActionIcon() {
         return switch (this) {

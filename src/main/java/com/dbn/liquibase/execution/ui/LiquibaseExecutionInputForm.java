@@ -27,6 +27,7 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.form.field.FieldState;
 import com.dbn.common.ui.info.DBNInfoLabel;
+import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
@@ -55,6 +56,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
+import java.awt.BorderLayout;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -88,6 +90,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     private JPanel hintPanel;
     private JPanel rollbackDateFieldPanel;
     private JPanel rollbackTagFieldPanel;
+    private JPanel hyperlinkPanel;
     private JLabel workspaceLabel;
     private JLabel sourceConnectionLabel;
     private JLabel sourceSchemaLabel;
@@ -128,6 +131,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
         initHeaderPanel();
         initHintPanel();
+        initHyperlinkPanel();
         initInfoLabels();
         initContextLabels();
         initWorkspaceSelector();
@@ -136,6 +140,16 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         initSourceContextSelectors();
         initTargetContextSelectors();
         executionInput.setWorkspace(workspaceSelector.getSelectedValue());
+    }
+
+    private void initHyperlinkPanel() {
+        LiquibaseOperation operation = executionInput.getOperation();
+        HyperLinkForm hyperlinkForm = HyperLinkForm.create(
+                "",
+                txt("cfg.liquibase.link.LiquibaseDocumentation"),
+                operation.getDocumentationUrl());
+
+        hyperlinkPanel.add(hyperlinkForm.getComponent(), BorderLayout.EAST);
     }
 
     private void initInfoLabels() {
