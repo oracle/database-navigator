@@ -50,25 +50,27 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         DefaultActionGroup changelogActions = new DefaultActionGroup(txt("app.liquibase.group.Changelog"), true);
         changelogActions.add(action(schema, GENERATE_CHANGELOG));
         changelogActions.add(action(schema, GENERATE_DIFF_CHANGELOG));
-        changelogActions.addSeparator();
         changelogActions.add(action(schema, VALIDATE_CHANGELOG));
-        changelogActions.add(action(schema, SHOW_CHANGELOG_STATUS));
-        changelogActions.add(action(schema, SHOW_CHANGELOG_HISTORY));
+        changelogActions.add(action(schema, COMPARE_SCHEMAS));
         add(changelogActions);
 
-        DefaultActionGroup databaseActions = new DefaultActionGroup(txt("app.liquibase.group.Database"), true);
-        databaseActions.add(action(schema, UPDATE_DATABASE));
-        databaseActions.add(action(schema, ROLLBACK_CHANGESETS));
-        databaseActions.addSeparator();
-        databaseActions.add(action(schema, SYNCHRONIZE_CHANGELOG));
-        databaseActions.add(action(schema, MARK_NEXT_CHANGESET_RAN));
-        databaseActions.add(action(schema, TAG_DATABASE));
-        databaseActions.addSeparator();
-        databaseActions.add(action(schema, RELEASE_LOCKS));
-        databaseActions.add(action(schema, CLEAR_CHECKSUMS));
-        databaseActions.addSeparator();
-        databaseActions.add(action(schema, DROP_ALL));
-        add(databaseActions);
+        DefaultActionGroup deployActions = new DefaultActionGroup(txt("app.liquibase.group.Deploy"), true);
+        deployActions.add(action(schema, UPDATE_DATABASE));
+        deployActions.add(action(schema, ROLLBACK_CHANGESETS));
+        deployActions.add(action(schema, TAG_DATABASE));
+        deployActions.add(action(schema, MARK_NEXT_CHANGESET_RAN));
+        add(deployActions);
+
+        DefaultActionGroup inspectActions = new DefaultActionGroup(txt("app.liquibase.group.Inspect"), true);
+        inspectActions.add(action(schema, SHOW_CHANGELOG_STATUS));
+        inspectActions.add(action(schema, SHOW_CHANGELOG_HISTORY));
+        add(inspectActions);
+
+        DefaultActionGroup maintenanceActions = new DefaultActionGroup(txt("app.liquibase.group.Maintenance"), true);
+        maintenanceActions.add(action(schema, SYNCHRONIZE_CHANGELOG));
+        maintenanceActions.add(action(schema, RELEASE_LOCKS));
+        maintenanceActions.add(action(schema, CLEAR_CHECKSUMS));
+        add(maintenanceActions);
 
         DefaultActionGroup sqlPreviewActions = new DefaultActionGroup(txt("app.liquibase.group.PreviewSql"), true);
         sqlPreviewActions.add(action(schema, UPDATE_SQL));
@@ -76,8 +78,9 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         sqlPreviewActions.add(action(schema, SYNCHRONIZE_CHANGELOG_SQL));
         add(sqlPreviewActions);
 
-        addSeparator();
-        add(action(schema, COMPARE_SCHEMAS));
+        DefaultActionGroup moreActions = new DefaultActionGroup(txt("app.liquibase.group.More"), true);
+        moreActions.add(action(schema, DROP_ALL));
+        add(moreActions);
     }
 
     private static LiquibaseOperationAction action(
