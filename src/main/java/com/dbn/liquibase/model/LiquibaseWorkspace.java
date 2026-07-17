@@ -16,7 +16,6 @@
 
 package com.dbn.liquibase.model;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
@@ -64,7 +63,7 @@ public class LiquibaseWorkspace implements PersistentStateElement, Presentable, 
 
     @Override
     public Icon getIcon() {
-        return Icons.DB_LIQUIBASE;
+        return null;// Icons.DB_LIQUIBASE;
     }
 
     @Override

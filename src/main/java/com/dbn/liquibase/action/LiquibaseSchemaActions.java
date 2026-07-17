@@ -19,6 +19,7 @@ package com.dbn.liquibase.action;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.icon.Icons;
 import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.menu.action.LiquibaseWorkspacesOpenAction;
 import com.dbn.object.DBSchema;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,6 +47,9 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
     public LiquibaseSchemaActions(@NotNull DBSchema schema) {
         super(txt("app.liquibase.action.Liquibase"), true);
         getTemplatePresentation().setIcon(Icons.DB_LIQUIBASE);
+        add(new LiquibaseOperationsAction(schema));
+        add(new LiquibaseWorkspacesOpenAction(txt("app.liquibase.action.Workspaces"), null));
+        addSeparator();
 
         DefaultActionGroup changelogActions = new DefaultActionGroup(txt("app.liquibase.group.Changelog"), true);
         changelogActions.add(action(schema, GENERATE_CHANGELOG));
