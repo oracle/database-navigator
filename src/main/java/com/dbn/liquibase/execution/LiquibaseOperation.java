@@ -24,6 +24,7 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     UPDATE_DATABASE,
     UPDATE_SQL,
     TAG_DATABASE,
+    MARK_NEXT_CHANGESET_RAN,
     RELEASE_LOCKS,
     CLEAR_CHECKSUMS,
     ROLLBACK_CHANGESETS,

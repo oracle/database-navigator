@@ -23,6 +23,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.CLEAR_CHECKSUMS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseOperation.MARK_NEXT_CHANGESET_RAN;
 import static com.dbn.liquibase.execution.LiquibaseOperation.RELEASE_LOCKS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_SQL;
@@ -66,6 +67,7 @@ public final class LiquibaseOperationSupport {
                 UPDATE_DATABASE,
                 UPDATE_SQL,
                 TAG_DATABASE,
+                MARK_NEXT_CHANGESET_RAN,
                 RELEASE_LOCKS,
                 CLEAR_CHECKSUMS,
                 ROLLBACK_CHANGESETS,
@@ -118,6 +120,7 @@ public final class LiquibaseOperationSupport {
                 UPDATE_DATABASE,
                 UPDATE_SQL,
                 SHOW_CHANGELOG_HISTORY,
+                MARK_NEXT_CHANGESET_RAN,
                 SYNCHRONIZE_CHANGELOG,
                 SYNCHRONIZE_CHANGELOG_SQL,
                 ROLLBACK_CHANGESETS,
@@ -140,6 +143,7 @@ public final class LiquibaseOperationSupport {
                 SHOW_CHANGELOG_HISTORY,
                 SYNCHRONIZE_CHANGELOG,
                 UPDATE_DATABASE,
+                MARK_NEXT_CHANGESET_RAN,
                 TAG_DATABASE,
                 RELEASE_LOCKS,
                 CLEAR_CHECKSUMS,
@@ -156,6 +160,7 @@ public final class LiquibaseOperationSupport {
                 SYNCHRONIZE_CHANGELOG,
                 SYNCHRONIZE_CHANGELOG_SQL,
                 UPDATE_DATABASE,
+                MARK_NEXT_CHANGESET_RAN,
                 ROLLBACK_CHANGESETS,
                 UPDATE_SQL,
                 ROLLBACK_SQL);

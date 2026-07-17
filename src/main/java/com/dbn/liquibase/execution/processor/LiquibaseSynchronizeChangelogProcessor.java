@@ -64,7 +64,7 @@ public class LiquibaseSynchronizeChangelogProcessor extends LiquibaseExecutionPr
         List<LiquibaseChangeSetItem> items = discoverChangeSetItems(
                 context,
                 database,
-                "msg.liquibase.text.ChangeSetSyncPending");
+                changeSet -> txt("msg.liquibase.text.ChangeSetSyncPending"));
 
         executeCommand(SYNCHRONIZE_CHANGELOG, output, Map.of(
                 "database", database,
@@ -74,8 +74,7 @@ public class LiquibaseSynchronizeChangelogProcessor extends LiquibaseExecutionPr
         completeChangeSetItems(
                 context,
                 items,
-                "msg.liquibase.text.ChangeSetSynchronized",
-                "MARK_RAN");
+                item -> txt("msg.liquibase.text.ChangeSetSynchronized", "MARK_RAN"));
     }
 
     private static void notifySchemaObjectChanges(@NotNull DBSchema schema) {

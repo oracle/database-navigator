@@ -26,6 +26,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.CLEAR_CHECKSUMS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseOperation.MARK_NEXT_CHANGESET_RAN;
 import static com.dbn.liquibase.execution.LiquibaseOperation.RELEASE_LOCKS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_SQL;
@@ -58,6 +59,7 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         databaseActions.add(action(schema, ROLLBACK_CHANGESETS));
         databaseActions.addSeparator();
         databaseActions.add(action(schema, SYNCHRONIZE_CHANGELOG));
+        databaseActions.add(action(schema, MARK_NEXT_CHANGESET_RAN));
         databaseActions.add(action(schema, TAG_DATABASE));
         databaseActions.addSeparator();
         databaseActions.add(action(schema, RELEASE_LOCKS));

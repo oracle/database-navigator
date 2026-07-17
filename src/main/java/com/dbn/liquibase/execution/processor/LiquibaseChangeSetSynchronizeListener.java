@@ -43,7 +43,7 @@ final class LiquibaseChangeSetSynchronizeListener extends LiquibaseChangeSetList
         finishProcessing(
                 changeSet,
                 getStatus(execType),
-                txt("msg.liquibase.text.ChangeSetSynchronized", changeSet.getId(), execType.value));
+                txt("msg.liquibase.text.ChangeSetSynchronized", execType.value));
     }
 
     @Override

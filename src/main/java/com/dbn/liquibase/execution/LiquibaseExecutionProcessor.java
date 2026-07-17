@@ -67,6 +67,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.exception.Exceptions.unwrap;
@@ -153,13 +154,13 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     protected final List<LiquibaseChangeSetItem> discoverChangeSetItems(
             @NotNull LiquibaseExecutionContext context,
             @NotNull Database database,
-            @NotNull String messageKey) throws Exception {
+            @NotNull Function<ChangeSet, String> messageFunction) throws Exception {
         List<LiquibaseChangeSetItem> items = new ArrayList<>();
         for (ChangeSet changeSet : discoverPendingChangeSets(context, database)) {
             items.add(context.getResult().ensureChangeSetItem(
                     changeSet,
                     LiquibaseExecutionItemStatus.DISCOVERED,
-                    txt(messageKey, changeSet.getId())));
+                    messageFunction.apply(changeSet)));
         }
         return items;
     }
@@ -167,25 +168,10 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     protected final void completeChangeSetItems(
             @NotNull LiquibaseExecutionContext context,
             @NotNull List<LiquibaseChangeSetItem> items,
-            @NotNull String messageKey,
-            @Nullable String executionType) {
+            @NotNull Function<LiquibaseChangeSetItem, String> messageFunction) {
         LiquibaseExecutionResult result = context.getResult();
         for (LiquibaseChangeSetItem item : items) {
-            String message = executionType == null
-                    ? txt(messageKey, item.getId())
-                    : txt(messageKey, item.getId(), executionType);
-            item.updateStatus(LiquibaseExecutionItemStatus.EXECUTED, message);
-        }
-        if (!items.isEmpty()) result.notifyItemsChanged();
-    }
-
-    protected final void completeChangeSetItems(
-            @NotNull LiquibaseExecutionContext context,
-            @NotNull List<LiquibaseChangeSetItem> items,
-            @NotNull String messageKey) {
-        LiquibaseExecutionResult result = context.getResult();
-        for (LiquibaseChangeSetItem item : items) {
-            item.updateStatus(LiquibaseExecutionItemStatus.EXECUTED, txt(messageKey));
+            item.updateStatus(LiquibaseExecutionItemStatus.EXECUTED, messageFunction.apply(item));
         }
         if (!items.isEmpty()) result.notifyItemsChanged();
     }

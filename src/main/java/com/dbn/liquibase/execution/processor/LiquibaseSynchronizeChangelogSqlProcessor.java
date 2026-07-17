@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.liquibase.execution.LiquibaseCommands.SYNCHRONIZE_CHANGELOG_SQL;
+import static com.dbn.nls.NlsResources.txt;
 
 /** Generates the SQL for marking workspace changesets as executed without changing the target schema. */
 public class LiquibaseSynchronizeChangelogSqlProcessor extends LiquibaseExecutionProcessor {
@@ -46,7 +47,7 @@ public class LiquibaseSynchronizeChangelogSqlProcessor extends LiquibaseExecutio
         List<LiquibaseChangeSetItem> items = discoverChangeSetItems(
                 context,
                 database,
-                "msg.liquibase.text.ChangeSetSyncSqlPending");
+                changeSet -> txt("msg.liquibase.text.ChangeSetSyncSqlPending"));
 
         executeCommand(SYNCHRONIZE_CHANGELOG_SQL, output, Map.of(
                 "database", database,
@@ -56,6 +57,6 @@ public class LiquibaseSynchronizeChangelogSqlProcessor extends LiquibaseExecutio
         completeChangeSetItems(
                 context,
                 items,
-                "msg.liquibase.text.ChangeSetSyncSqlGenerated");
+                item -> txt("msg.liquibase.text.ChangeSetSyncSqlGenerated"));
     }
 }
