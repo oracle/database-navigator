@@ -56,8 +56,6 @@ import java.util.StringTokenizer;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.OPTIONAL_WRAPPING;
-import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_DEMARCATION;
-import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_ISOLATION;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
 
 @Slf4j
@@ -82,8 +80,6 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
     public WrappingDefinition wrapping;
     private ElementTypeAttributeHolder attributes;
 
-    public boolean scopeDemarcation;
-    public boolean scopeIsolation;
     protected transient boolean initialized;
 
 
@@ -229,8 +225,6 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
             wrapping = new WrappingDefinition(beginTokenElement, endTokenElement, true);
         }
 
-        scopeDemarcation = is(SCOPE_DEMARCATION) || is(STATEMENT);
-        scopeIsolation = is(SCOPE_ISOLATION);
     }
 
     public void loadExtension(Element def) {

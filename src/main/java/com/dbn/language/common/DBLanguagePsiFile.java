@@ -32,7 +32,6 @@ import com.dbn.connection.session.DatabaseSession;
 import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ElementLookupContext;
-import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.common.psi.lookup.LookupAdapters;
@@ -85,6 +84,8 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.file.util.VirtualFiles.getUnderlyingFile;
 import static com.dbn.common.util.Documents.getDocument;
 import static com.dbn.common.util.Documents.getEditors;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_DEMARCATION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_ISOLATION;
 import static com.dbn.language.common.psi.PsiUtil.SUPPORTED_VISITORS;
 import static com.dbn.vfs.DBParseableVirtualFile.PARSE_ROOT_ID_KEY;
 
@@ -413,7 +414,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
     }
 
     public void lookupVariableDefinition(int offset, Consumer<BasePsiElement> consumer) {
-        BasePsiElement<?> scope = PsiUtil.lookupElementAtOffset(this, ElementTypeAttribute.SCOPE_DEMARCATION, offset);
+        BasePsiElement<?> scope = PsiUtil.lookupElementAtOffset(this, SCOPE_DEMARCATION, offset);
         while (scope != null) {
             PsiLookupAdapter lookupAdapter = LookupAdapters.identifierDefinition(DBObjectType.ARGUMENT);
             scope.collectPsiElements(lookupAdapter, 0, consumer);
@@ -423,8 +424,8 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
 
             PsiElement parent = scope.getParent();
             if (parent instanceof BasePsiElement<?> basePsiElement) {
-                scope = basePsiElement.findEnclosingElement(ElementTypeAttribute.SCOPE_DEMARCATION);
-                if (scope == null) scope = basePsiElement.findEnclosingElement(ElementTypeAttribute.SCOPE_ISOLATION);
+                scope = basePsiElement.findEnclosingElement(SCOPE_DEMARCATION);
+                if (scope == null) scope = basePsiElement.findEnclosingElement(SCOPE_ISOLATION);
             } else {
                 scope = null;
             }

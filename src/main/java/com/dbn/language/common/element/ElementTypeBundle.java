@@ -99,11 +99,13 @@ public class ElementTypeBundle {
         public ElementTypeBase getElementType(String id) {
             return elementTypes.get(id);
         }
+
     }
 
 
     public void registerElement(LeafElementType tokenType) {
         leafRegistry.add(tokenType);
+        builder.elementTypes.put(tokenType.getId(), tokenType);
     }
 
     public LeafElementType getElement(int index) {
