@@ -68,6 +68,8 @@
         <token category="operator" index="16" id="OPR_NULL_SAFE_EQUAL" value="&#60;=&#62;" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
         <token category="operator" index="17" id="OPR_SHIFT_LEFT" value="&#60;&#60;" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
         <token category="operator" index="18" id="OPR_SHIFT_RIGHT" value="&#62;&#62;" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token category="operator" index="19" id="OPR_AT_AT" value="@@" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token category="operator" index="20" id="OPR_AND_AND" value="&#38;&#38;" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
 
 
 

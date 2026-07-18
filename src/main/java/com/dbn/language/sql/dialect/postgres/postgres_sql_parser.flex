@@ -111,22 +111,27 @@ VARIABLE = ":"({IDENTIFIER}|{INTEGER})
     {NUMBER}      { return stt.number; }
     {STRING}      { return stt.string; }
 
-    "="{wso}"=" {return tt.getOperatorTokenType(0);}
-    "|"{wso}"|" {return tt.getOperatorTokenType(1);}
-    "<"{wso}"=" {return tt.getOperatorTokenType(2);}
-    ">"{wso}"=" {return tt.getOperatorTokenType(3);}
-    "<"{wso}">" {return tt.getOperatorTokenType(4);}
-    "!"{wso}"=" {return tt.getOperatorTokenType(5);}
-    ":"{wso}"=" {return tt.getOperatorTokenType(6);}
-    "="{wso}">" {return tt.getOperatorTokenType(7);}
-    ".."        {return tt.getOperatorTokenType(8);}
-    "::"        {return tt.getOperatorTokenType(9);}
-    "~~"        {return tt.getOperatorTokenType(10);}
-    "!~~"       {return tt.getOperatorTokenType(11);}
-    "~"         {return tt.getOperatorTokenType(12);}
-    "~*"        {return tt.getOperatorTokenType(13);}
-    "!~"        {return tt.getOperatorTokenType(14);}
-    "!~*"       {return tt.getOperatorTokenType(15);}
+    "=="  {return tt.getOperatorTokenType(0);}
+    "||"  {return tt.getOperatorTokenType(1);}
+    "<="  {return tt.getOperatorTokenType(2);}
+    ">="  {return tt.getOperatorTokenType(3);}
+    "<>"  {return tt.getOperatorTokenType(4);}
+    "!="  {return tt.getOperatorTokenType(5);}
+    ":="  {return tt.getOperatorTokenType(6);}
+    "=>"  {return tt.getOperatorTokenType(7);}
+    ".."  {return tt.getOperatorTokenType(8);}
+    "::"  {return tt.getOperatorTokenType(9);}
+    "~~"  {return tt.getOperatorTokenType(10);}
+    "!~~" {return tt.getOperatorTokenType(11);}
+    "~"   {return tt.getOperatorTokenType(12);}
+    "~*"  {return tt.getOperatorTokenType(13);}
+    "!~"  {return tt.getOperatorTokenType(14);}
+    "!~*" {return tt.getOperatorTokenType(15);}
+    "<=>" {return tt.getOperatorTokenType(16);}
+    "<<"  {return tt.getOperatorTokenType(17);}
+    ">>"  {return tt.getOperatorTokenType(18);}
+    "@@"  {return tt.getOperatorTokenType(19);}
+    "&&"  {return tt.getOperatorTokenType(20);}
 
 
     "("{wso}"+"{wso}")"  {return tt.getTokenType("CT_OUTER_JOIN");}
