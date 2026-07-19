@@ -159,7 +159,9 @@ VARIABLE = ":"({IDENTIFIER}|{INTEGER})
     "*" {return tt.getCharacterTokenType(20);}
     "|" {return tt.getCharacterTokenType(21);}
     "&" {return tt.getCharacterTokenType(22);}
-//    "~" {return tt.getCharacterTokenType(23);}
+    "^" {return tt.getCharacterTokenType(24);}
+    "?" {return tt.getCharacterTokenType(25);}
+    "`" {return tt.getCharacterTokenType(26);}
 
 
 // MARKER_BEGIN_DATATYPES
