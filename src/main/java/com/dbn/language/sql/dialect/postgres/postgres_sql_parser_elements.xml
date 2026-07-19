@@ -8861,7 +8861,7 @@
 
 
     <element-def description="Expression" id="expression">
-        <iteration id="05257" separator="OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND">
+        <iteration id="05257" separator="OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL">
             <sequence id="05258">
                 <sequence id="05259" optional-wrapping="PARENTHESES">
                     <one-of id="05260" optional="true">
