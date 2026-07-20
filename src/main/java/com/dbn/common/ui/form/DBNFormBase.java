@@ -98,7 +98,7 @@ public abstract class DBNFormBase
     }
 
     @Nullable
-    protected final Formatter getFormatter() {
+    public final Formatter getFormatter() {
         if (formatter != null) return formatter;
 
         Project project = getProject();
@@ -109,7 +109,7 @@ public abstract class DBNFormBase
     }
 
     @NotNull
-    protected final Formatter ensureFormatter() {
+    public final Formatter ensureFormatter() {
         return nd(getFormatter());
     }
 
