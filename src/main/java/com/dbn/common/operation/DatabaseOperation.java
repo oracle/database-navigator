@@ -25,6 +25,7 @@ import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.database.DatabaseFeature.DATASOURCE_CONFIG;
 import static com.dbn.database.DatabaseFeature.DATA_CHANGE_NOTIFICATION;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
@@ -68,10 +69,20 @@ public enum DatabaseOperation implements Constant<DatabaseOperation> {
             txt("app.shared.const.Operation_ENABLE_CHANGE_NOTIFICATIONS"),
             txt("msg.prerequisites.warning.MissingPrerequisites_ENABLE_CHANGE_NOTIFICATIONS")),
 
+    CREATE_DATASOURCE_CONFIG(
+            DATASOURCE_CONFIG,
+            txt("app.shared.const.Operation_CREATE_DATASOURCE_CONFIG"),
+            txt("msg.prerequisites.warning.MissingPrerequisites_CREATE_DATASOURCE_CONFIG")),
+
     CREATE_VECTOR_EMBEDDINGS(
             VECTOR_EMBEDDING,
             txt("app.shared.const.Operation_CREATE_VECTOR_EMBEDDINGS"),
             txt("msg.prerequisites.warning.MissingPrerequisites_CREATE_VECTOR_EMBEDDINGS")),
+
+    MANAGE_DATASOURCE_CONFIGS(
+            DATASOURCE_CONFIG,
+            txt("app.shared.const.Operation_MANAGE_DATASOURCE_CONFIGS"),
+            txt("msg.prerequisites.warning.MissingPrerequisites_MANAGE_DATASOURCE_CONFIGS")),
 
     ;
 

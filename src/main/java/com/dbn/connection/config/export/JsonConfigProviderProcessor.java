@@ -5,7 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -32,29 +33,64 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
 
     @Override
     public void write(ConfigProviderPayload payload, Path file, String wrapperKey) throws Exception {
-        if(payload == null) throw new IllegalArgumentException("payload is null");
-        if (file == null)throw new IllegalArgumentException("output file is null");
+        if (file == null) throw new IllegalArgumentException("output file is null");
+        if (payload == null) throw new IllegalArgumentException("payload is null");
+
+        boolean hasWrapperKey = wrapperKey != null && !wrapperKey.isBlank();
+        boolean hasExistingContent = Files.exists(file) && Files.size(file) > 0;
+        if (!hasExistingContent) {
+            Files.writeString(file, render(payload, wrapperKey), StandardCharsets.UTF_8);
+            return;
+        }
+        ObjectNode root = readExistingRoot(file);
+        if (!hasWrapperKey) {
+            Files.writeString(file, render(payload, wrapperKey), StandardCharsets.UTF_8);
+            return;
+        }
+        if (containsRootConfiguration(root)) {
+            Files.writeString(file, render(payload, wrapperKey), StandardCharsets.UTF_8);
+            return;
+        }
+
+        root.set(wrapperKey.trim(), toJson(payload));
+        Files.writeString(file, MAPPER.writeValueAsString(root), StandardCharsets.UTF_8);
+    }
+
+    JsonExistingContentWriteMode getExistingContentWriteMode(Path file, String wrapperKey) throws Exception {
+        if (file == null || !Files.exists(file) || Files.size(file) == 0) return JsonExistingContentWriteMode.NONE;
+
+        ObjectNode root = readExistingRoot(file);
+        if (wrapperKey == null || wrapperKey.isBlank() || containsRootConfiguration(root)) {
+            return JsonExistingContentWriteMode.REPLACE_ROOT;
+        }
+        return root.has(wrapperKey.trim()) ? JsonExistingContentWriteMode.REPLACE_WRAPPER : JsonExistingContentWriteMode.NONE;
+    }
+
+    @Override
+    public String render(ConfigProviderPayload payload, String wrapperKey) throws Exception {
+        if (payload == null) throw new IllegalArgumentException("payload is null");
 
         ObjectNode payloadNode = toJson(payload);
 
-        if(wrapperKey == null || wrapperKey.isBlank()){
-            MAPPER.writeValue(file.toFile(), payloadNode);
-        }
-        else {
+        if (wrapperKey == null || wrapperKey.isBlank()) {
+            return MAPPER.writeValueAsString(payloadNode);
+        } else {
             ObjectNode root = MAPPER.createObjectNode();
             root.set(wrapperKey.trim(), payloadNode);
-            MAPPER.writeValue(file.toFile(), root);
+            return MAPPER.writeValueAsString(root);
         }
-
     }
     private static ObjectNode toJson(ConfigProviderPayload payload){
         ObjectNode node = MAPPER.createObjectNode();
 
         putIfNotBlank(node, "connect_descriptor", payload.getConnectDescriptor());
         putIfNotBlank(node, "user", payload.getUser());
+        if (payload.getPassword() != null) {
+            node.set("password", toSecretRefJson(payload.getPassword(), true));
+        }
 
         if (payload.getWalletLocation() != null) {
-            node.set("wallet_location", toSecretRefJson(payload.getWalletLocation()));
+            node.set("wallet_location", toSecretRefJson(payload.getWalletLocation(), false));
         }
         Map<String, Object> jdbc = payload.getJdbc();
         if (jdbc != null && !jdbc.isEmpty()) {
@@ -64,15 +100,28 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
 
     }
 
-    private static JsonNode toSecretRefJson(SecretRef ref) {
+    private static boolean containsRootConfiguration(ObjectNode root) {
+        return root.has("connect_descriptor");
+    }
+
+    private static ObjectNode readExistingRoot(Path file) throws Exception {
+        JsonNode existing = MAPPER.readTree(Files.readString(file, StandardCharsets.UTF_8));
+        if (existing instanceof ObjectNode root) return root;
+
+        throw new IllegalArgumentException("Existing export file must contain a JSON object.");
+    }
+
+    private static JsonNode toSecretRefJson(SecretRef ref, boolean includeEmptyTypeAndValue) {
         ObjectNode node = MAPPER.createObjectNode();
 
         SecretProviderType type = ref.getType();
         if (type != null) {
             node.put("type", type.id());
+        } else if (includeEmptyTypeAndValue) {
+            node.put("type", "FILL_THIS_TYPE");
         }
 
-        putIfNotBlank(node, "value", ref.getValue());
+        putValue(node, "value", ref.getValue(), includeEmptyTypeAndValue);
 
         putIfNotBlank(node, "field_name", ref.getFieldName());
 
@@ -98,4 +147,22 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
             if (!v.isEmpty()) node.put(key, v);
         }
     }
+
+    private static void putValue(ObjectNode node, String key, String value, boolean includeEmptyValue) {
+        if (value == null) {
+            if (includeEmptyValue) node.put(key, "");
+            return;
+        }
+
+        String trimmedValue = value.trim();
+        if (!trimmedValue.isEmpty() || includeEmptyValue) {
+            node.put(key, trimmedValue);
+        }
+    }
+}
+
+enum JsonExistingContentWriteMode {
+    NONE,
+    REPLACE_WRAPPER,
+    REPLACE_ROOT
 }

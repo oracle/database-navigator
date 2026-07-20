@@ -41,7 +41,6 @@ import com.dbn.connection.session.DatabaseSessionBundle;
 import com.dbn.connection.session.SessionManagerListener;
 import com.dbn.editor.code.options.CodeEditorChangesOption;
 import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
-import com.dbn.editor.code.options.CodeEditorSettings;
 import com.dbn.object.DBConsole;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.list.DBObjectList;
@@ -134,9 +133,8 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
 
                 Project project = source.getProject();
 
-                CodeEditorSettings editorSettings = CodeEditorSettings.getInstance(project);
-                CodeEditorConfirmationSettings confirmationSettings = editorSettings.getConfirmationSettings();
-                confirmationSettings.getTemporaryConsole().resolve(project,
+                CodeEditorConfirmationSettings settings = CodeEditorConfirmationSettings.get(project);
+                settings.getTemporaryConsole().resolve(project,
                         array(console.getName(), console.getSource()),
                         option -> processCodeChangeOption(consoleFile, option));
 

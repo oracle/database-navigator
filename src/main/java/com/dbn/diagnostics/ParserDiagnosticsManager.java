@@ -21,8 +21,10 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.file.util.FileSearchRequest;
 import com.dbn.common.notification.NotificationSupport;
+import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Files;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
@@ -31,6 +33,8 @@ import com.dbn.diagnostics.data.ParserDiagnosticsFilter;
 import com.dbn.diagnostics.data.ParserDiagnosticsResult;
 import com.dbn.diagnostics.data.ParserDiagnosticsUtil;
 import com.dbn.diagnostics.ui.ParserDiagnosticsForm;
+import com.dbn.diagnostics.ui.ParserIssueReportDialog;
+import com.dbn.error.jira.JiraParserIssueReportSubmitter;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.PsiUtil;
@@ -39,8 +43,11 @@ import com.dbn.language.psql.PSQLFileType;
 import com.dbn.language.sql.SQLFileType;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.diagnostic.Attachment;
+import com.intellij.openapi.diagnostic.IdeaLoggingEvent;
 import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher;
 import com.intellij.openapi.fileTypes.FileNameMatcher;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -48,6 +55,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -64,6 +72,7 @@ import static com.dbn.common.file.util.VirtualFiles.findFiles;
 import static com.dbn.common.notification.NotificationCategory.DEVELOPER;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.thread.Progress.progressOf;
+import static com.dbn.common.util.Dialogs.whenOk;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -77,6 +86,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
     public static final String COMPONENT_NAME = "DBNavigator.Project.ParserDiagnosticsManager";
 
     private final List<ParserDiagnosticsResult> resultHistory = new ArrayList<>();
+    private final StateContainer states = new StateContainer();
     private ParserDiagnosticsFilter resultFilter = ParserDiagnosticsFilter.EMPTY;
     private boolean running;
 
@@ -86,6 +96,36 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
 
     public static ParserDiagnosticsManager get(@NotNull Project project) {
         return projectService(project, ParserDiagnosticsManager.class);
+    }
+
+    @SneakyThrows
+    public void submitParserIssueReport(DBLanguagePsiFile psiFile) {
+        File attachmentFile = File.createTempFile("dbn-parser-issue-", "." + psiFile.getVirtualFile().getExtension());
+        attachmentFile.deleteOnExit();
+
+        Charset charset = psiFile.getVirtualFile().getCharset();
+        byte[] scrambled = ParserDiagnosticsManager.scrambleFile(psiFile, charset);
+        FileUtil.writeToFile(attachmentFile, scrambled);
+
+        Attachment attachment = new Attachment(attachmentFile.getPath(), attachmentFile, attachmentFile.getName());
+        FileType fileType = psiFile.getFileType();
+        String scrambledCode = new String(scrambled, charset);
+
+        ParserIssueReportInput input = new ParserIssueReportInput(
+                scrambledCode, fileType, psiFile.getLanguageDialect(), attachment);
+        Dialogs.show(() -> new ParserIssueReportDialog(getProject(), input),
+                whenOk(d -> submitParserIssueReport(input)));
+    }
+
+    private void submitParserIssueReport(ParserIssueReportInput input) {
+        IdeaLoggingEvent event = new IdeaLoggingEvent("Parser issue",
+                new IllegalArgumentException("Parser error"),
+                input);
+
+        new JiraParserIssueReportSubmitter().submit(
+                getProject(),
+                new IdeaLoggingEvent[]{event},
+                null);
     }
 
     @NotNull
@@ -150,7 +190,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
             progress.checkCanceled();
             if (psiFile != null) {
 
-                String scrambled = scrambler.scramble(psiFile);
+                String scrambled = scrambleFile(psiFile, scrambler);
                 String newFileName = scrambler.scrambleName(file);
                 File scrambledFile = new File(rootDir, newFileName);
                 try {
@@ -164,6 +204,15 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
                 }
             }
         }
+    }
+
+    public static byte[] scrambleFile(@NotNull DBLanguagePsiFile psiFile, @NotNull Charset charset) {
+        String scrambled = scrambleFile(psiFile, new DBLLanguageFileScrambler());
+        return scrambled.getBytes(charset);
+    }
+
+    private static String scrambleFile(DBLanguagePsiFile psiFile, DBLLanguageFileScrambler scrambler) {
+        return scrambler.scramble(psiFile);
     }
 
     public String[] getFileExtensions() {
@@ -249,6 +298,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
     @Override
     public Element getComponentState() {
         Element element = newElement("state");
+        states.writeState(element);
         Element historyElement = newElement(element, "diagnostics-history");
         for (ParserDiagnosticsResult capturedResult : resultHistory) {
             if (!capturedResult.isDraft()) {
@@ -261,6 +311,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
 
     @Override
     public void loadComponentState(@NotNull Element element) {
+        states.readState(element);
         Element historyElement = element.getChild("diagnostics-history");
         resultHistory.clear();
         if (historyElement != null) {

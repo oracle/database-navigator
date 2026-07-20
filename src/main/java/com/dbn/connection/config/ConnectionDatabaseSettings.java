@@ -242,6 +242,10 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         return isConfigFile() && databaseInfo.getConfigProviderInfo().isConfigHttps();
     }
 
+    public boolean isAuthenticationProvidedForConnect() {
+        return isConfigHttps() || authenticationInfo.isProvided();
+    }
+
     public boolean isConfigFile() {
         return databaseInfo.getUrlType() == DatabaseUrlType.CONFIG_FILE;
     }

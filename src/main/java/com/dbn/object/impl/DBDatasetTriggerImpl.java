@@ -19,9 +19,6 @@ package com.dbn.object.impl;
 import com.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dbn.common.icon.Icons;
 import com.dbn.database.common.metadata.def.DBTriggerMetadata;
-import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
-import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.editor.DBContentType;
 import com.dbn.object.DBDataset;
 import com.dbn.object.DBDatasetTrigger;
 import com.dbn.object.common.status.DBObjectStatus;
@@ -35,9 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.sql.SQLException;
 
-import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.util.Strings.cachedLowerCase;
-import static com.dbn.nls.NlsResources.txt;
 
 class DBDatasetTriggerImpl extends DBTriggerImpl implements DBDatasetTrigger {
     DBDatasetTriggerImpl(DBDataset dataset, DBTriggerMetadata metadata) throws SQLException {
@@ -111,30 +106,5 @@ class DBDatasetTriggerImpl extends DBTriggerImpl implements DBDatasetTrigger {
 
         ttb.createEmptyRow();
         super.buildToolTip(ttb);
-    }
-
-    /*********************************************************
-     *                         Loaders                       *
-     *********************************************************/
-
-    @Override
-    public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
-        DatabaseInterfaceInvoker.execute(HIGHEST,
-                txt("prc.object.title.UpdatingSourceCode"),
-                txt("prc.object.text.UpdatingSources", getQualifiedNameWithType()),
-                getProject(),
-                getConnectionId(),
-                getSchemaId(),
-                conn -> {
-                    DatabaseDataDefinitionInterface dataDefinition = getConnection().getDataDefinitionInterface();
-                    DBDataset dataset = getDataset();
-                    dataDefinition.updateTrigger(
-                            dataset.getSchemaName(true),
-                            dataset.getName(true),
-                            getName(),
-                            oldCode,
-                            newCode,
-                            conn);
-        });
     }
 }

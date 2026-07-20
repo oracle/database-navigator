@@ -357,7 +357,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
             @NotNull Consumer<AuthenticationInfo> consumer) {
 
         AuthenticationInfo authenticationInfo = databaseSettings.getAuthenticationInfo().clone();
-        if (!authenticationInfo.isProvided()) {
+        if (!databaseSettings.isAuthenticationProvidedForConnect()) {
             promptAuthenticationDialog(null, authenticationInfo, consumer);
         } else {
             consumer.accept(authenticationInfo);

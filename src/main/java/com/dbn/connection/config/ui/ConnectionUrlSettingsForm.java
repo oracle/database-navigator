@@ -20,6 +20,7 @@ import com.dbn.common.constant.Constants;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Safe;
@@ -65,6 +66,7 @@ import java.util.Objects;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.Labels.setText;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Commons.coalesce;
@@ -92,6 +94,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JLabel protocolLabel;
     private JLabel sourceTypeLabel;
     private JLabel cloudProviderLabel;
+    private DBNHyperlinkLabel cloudProviderDocumentationLink;
     private JLabel configFileLabel;
     private JLabel configLocationLabel;
     private JLabel configFileProfileKeyLabel;
@@ -433,8 +436,10 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         sourceTypeComboBox.setVisible(configFileVisible);
         cloudProviderLabel.setVisible(cloudProviderVisible);
         cloudProviderComboBox.setVisible(cloudProviderVisible);
+        updateCloudProviderDocumentationLink(cloudProviderVisible);
         configFileLabel.setVisible(localConfigFileVisible);
         configFileTextField.setVisible(localConfigFileVisible);
+        setText(configLocationLabel, resolveConfigLocationLabel(configFileSourceType));
         configLocationLabel.setVisible(remoteConfigVisible && !gcpStorageConfig);
         configLocationTextField.setVisible(remoteConfigVisible && !gcpStorageConfig);
         cloudRegionLabel.setVisible(cloudRegionConfig);
@@ -458,6 +463,57 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         ConnectionDatabaseSettingsForm parent = ensureParentComponent();
         parent.updateAuthenticationVisibility();
 
+    }
+
+    private void updateCloudProviderDocumentationLink(boolean cloudProviderVisible) {
+        String documentationUrl = getCloudProviderDocumentationUrl(getCloudConfigProviderType());
+        cloudProviderDocumentationLink.setHyperlinkText(txt("cfg.connection.link.ProviderDocumentation"));
+        cloudProviderDocumentationLink.setVisible(cloudProviderVisible && documentationUrl != null);
+        cloudProviderDocumentationLink.setHyperlinkTarget(documentationUrl);
+        cloudProviderDocumentationLink.setToolTipText(documentationUrl);
+    }
+
+    private static String getCloudProviderDocumentationUrl(CloudConfigProviderType provider) {
+        if (provider == null) return null;
+
+        return switch (provider) {
+            case OCI_OBJECT -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-oci#oci-object-storage-config-provider";
+            case OCI_DB_TOOLS -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-oci#oci-database-tools-connections-config-provider";
+            case OCI_VAULT -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-oci#oci-vault-config-provider";
+            case AZURE_APP_CONFIG -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-azure#azure-app-configuration-provider";
+            case AZURE_VAULT -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-azure#azure-vault-config-provider";
+            case AWS_S3 -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-aws#aws-s3-configuration-provider";
+            case AWS_SECRETS -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-aws#aws-secrets-manager-config-provider";
+            case GCP_STORAGE -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-gcp#gcp-cloud-storage-config-provider";
+            case GCP_SECRET_MANAGER -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-gcp#gcp-secret-manager-config-provider";
+            case HASHICORP_VAULT -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-hashicorp#hcp-vault-dedicated-config-provider";
+        };
+    }
+
+    private String resolveConfigLocationLabel(ConfigFileSourceType sourceType) {
+        if (sourceType == ConfigFileSourceType.HTTPS) {
+            return txt("cfg.connection.label.ConfigLocationHttps");
+        }
+
+        if (sourceType != ConfigFileSourceType.CLOUD_PROVIDER) {
+            return txt("cfg.connection.label.ConfigLocation");
+        }
+
+        CloudConfigProviderType providerType = getCloudConfigProviderType();
+        if (providerType == null) return txt("cfg.connection.label.ConfigLocation");
+
+        return switch (providerType) {
+            case OCI_OBJECT -> txt("cfg.connection.label.ConfigLocationOciObjectStorage");
+            case OCI_DB_TOOLS -> txt("cfg.connection.label.ConfigLocationOciDatabaseTools");
+            case OCI_VAULT -> txt("cfg.connection.label.ConfigLocationOciVault");
+            case AZURE_APP_CONFIG -> txt("cfg.connection.label.ConfigLocationAzureAppConfiguration");
+            case AZURE_VAULT -> txt("cfg.connection.label.ConfigLocationAzureVault");
+            case AWS_S3 -> txt("cfg.connection.label.ConfigLocationAwsS3");
+            case AWS_SECRETS -> txt("cfg.connection.label.ConfigLocationAwsSecretsManager");
+            case GCP_STORAGE -> txt("cfg.connection.label.ConfigLocationGcpCloudStorage");
+            case GCP_SECRET_MANAGER -> txt("cfg.connection.label.ConfigLocationGcpSecretManager");
+            case HASHICORP_VAULT -> txt("cfg.connection.label.ConfigLocationHashicorpVault");
+        };
     }
 
     boolean isOciCloudProvider() {

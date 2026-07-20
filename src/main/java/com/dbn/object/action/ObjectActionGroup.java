@@ -49,6 +49,7 @@ import com.dbn.object.common.list.action.HideEmptySchemasToggleAction;
 import com.dbn.object.common.list.action.HidePseudoColumnsToggleAction;
 import com.dbn.object.dependency.action.ObjectDependencyTreeAction;
 import com.dbn.object.diagram.actions.OpenDependencyDiagramAction;
+import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.navigation.DBObjectNavigationInfoProvider;
 import com.dbn.object.navigation.DBObjectNavigationInfoProviderCache;
 import com.dbn.object.type.DBObjectType;
@@ -140,6 +141,12 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
                 }
 
                 //add(new TestAction(object));
+            }
+        } else {
+            // connection-root managed objects: edit (when an editor provider is registered) + drop
+            ObjectManagementService managementService = ObjectManagementService.getInstance(object.getProject());
+            if (managementService.supports(object)) {
+                add(new ObjectDropAction(object));
             }
         }
     }

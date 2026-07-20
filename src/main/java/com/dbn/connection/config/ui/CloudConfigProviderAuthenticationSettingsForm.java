@@ -17,6 +17,7 @@
 package com.dbn.connection.config.ui;
 
 import com.dbn.common.database.DatabaseInfo;
+import com.dbn.common.options.ui.ConfigurationEditors;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -28,6 +29,7 @@ import com.dbn.connection.config.provider.ConfigProviderInfo;
 import com.dbn.credentials.Secret;
 import com.dbn.oci.config.OciConfigFileUtil;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComboBox;
@@ -47,6 +49,8 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.PasswordFields.getPassword;
 import static com.dbn.common.ui.util.PasswordFields.setPassword;
+import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.nls.NlsResources.txt;
 
 public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     private static final String GCP_AUTHENTICATION_URL =
@@ -113,6 +117,7 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
                 "Select Azure Client Certificate",
                 "Select the Azure service principal certificate file");
         authenticationComboBox.addActionListener(e -> {
+            applyDefaultOciConfigFile();
             updateFieldVisibility();
             if (isOciDefaultAuthentication()) {
                 profileComboBox.reloadValues();
@@ -147,6 +152,15 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
 
     public String getOciConfigProviderConfigFile() {
         return getText(configFileTextField);
+    }
+
+    public void validateSettings() throws ConfigurationException {
+        if (isOciDefaultAuthentication()) {
+            ConfigurationEditors.validateStringValue(
+                    configFileTextField.getTextField(),
+                    txt("cfg.connection.label.OciConfigFile"),
+                    true);
+        }
     }
 
     public void applyFormChanges(ConfigProviderInfo configProviderInfo) {
@@ -208,6 +222,7 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
 
         if (isOciProvider()) {
             configFileTextField.setText(databaseInfo.getConfigProviderInfo().getOciConfigFile());
+            applyDefaultOciConfigFile();
             profileComboBox
                     .withValuePreselector(p -> Objects.equals(p, databaseInfo.getConfigProviderInfo().getOciProfile()))
                     .triggerLoad();
@@ -328,6 +343,12 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
 
     private List<String> loadOciConfigProfiles() {
         return OciConfigFileUtil.getConfigProfileNames(getOciConfigProviderConfigFile());
+    }
+
+    private void applyDefaultOciConfigFile() {
+        if (isOciDefaultAuthentication() && isEmpty(getText(configFileTextField))) {
+            configFileTextField.setText(OciConfigFileUtil.getDefaultConfigFilePath());
+        }
     }
 
     private void updateFieldVisibility() {

@@ -19,9 +19,20 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.dbn.common.util.Files.normalizePath;
+import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 
 public class ConfigProviderMapper {
     private ConfigProviderMapper(){}
+
+    public static boolean hasConfiguredWallet(ConnectionSettings settings) {
+        if (settings == null) return false;
+
+        DatabaseInfo databaseInfo = settings.getDatabaseSettings().getDatabaseInfo();
+        if (hasParameter(databaseInfo.getParameters(), "WALLET_LOCATION")) return true;
+
+        ConnectionPropertiesSettings propertiesSettings = settings.getPropertiesSettings();
+        return hasParameter(propertiesSettings.getProperties(), "oracle.net.wallet_location");
+    }
 
     public static ConfigProviderPayload map(ConnectionSettings settings, ConfigProviderExportRequest request) throws Exception{
         ConnectionDatabaseSettings db = settings.getDatabaseSettings();
@@ -33,6 +44,9 @@ public class ConfigProviderMapper {
         String user = auth == null ? null : trim(auth.getUser());
         Map<String, Object> jdbc = resolveJdbc(props);
 
+        SecretRef passwordRef = auth != null && auth.getType() == USER_PASSWORD ?
+                SecretRefFactory.emptyTemplate() :
+                null;
         SecretRef walletRef = null;
 
         if (request != null && request.isIncludeWallet()) {
@@ -43,6 +57,7 @@ public class ConfigProviderMapper {
         return ConfigProviderPayload.builder()
                 .connectDescriptor(connectDescriptor)
                 .user(user)
+                .password(passwordRef)
                 .jdbc(jdbc)
                 .walletLocation(walletRef)
                 .build();
@@ -212,6 +227,17 @@ public class ConfigProviderMapper {
         return "WALLET_LOCATION".equalsIgnoreCase(key) ||
                 "SSL_SERVER_DN_MATCH".equalsIgnoreCase(key) ||
                 "SSL_SERVER_CERT_DN".equalsIgnoreCase(key);
+    }
+
+    private static boolean hasParameter(Map<String, String> parameters, String parameterName) {
+        if (parameters == null) return false;
+
+        for (Map.Entry<String, String> parameter : parameters.entrySet()) {
+            if (parameterName.equalsIgnoreCase(parameter.getKey()) && !isBlank(parameter.getValue())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String trim(String s) { return s == null ? null : s.trim(); }

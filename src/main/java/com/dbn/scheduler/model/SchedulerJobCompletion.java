@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package com.dbn.common.thread;
+package com.dbn.scheduler.model;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ThreadPropertyGate {
-    ThreadProperty value();
+@Getter
+public class SchedulerJobCompletion {
+    private final SchedulerJob job;
+    private final SchedulerJobSnapshot snapshot;
+
+    public SchedulerJobCompletion(@NotNull SchedulerJob job, @NotNull SchedulerJobSnapshot snapshot) {
+        this.job = job;
+        this.snapshot = snapshot;
+    }
 }

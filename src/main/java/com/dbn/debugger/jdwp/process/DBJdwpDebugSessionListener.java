@@ -17,7 +17,7 @@
 package com.dbn.debugger.jdwp.process;
 
 import com.dbn.common.thread.Dispatch;
-import com.dbn.common.thread.ThreadPropertyGate;
+import com.dbn.common.thread.ThreadContext;
 import com.dbn.debugger.DBDebugUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XDebugSession;
@@ -39,7 +39,7 @@ class DBJdwpDebugSessionListener implements XDebugSessionListener {
     }
 
     @Override
-    @ThreadPropertyGate(DEBUGGER_NAVIGATION)
+    @ThreadContext(DEBUGGER_NAVIGATION)
     public void sessionPaused() {
         XSuspendContext suspendContext = session.getSuspendContext();
         if (suspendContext == null || !process.shouldSuspend(suspendContext)) {
