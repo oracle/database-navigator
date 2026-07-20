@@ -36,7 +36,7 @@ string_simple_quoted      = "'"([^\']|"''"|{WHITE_SPACE})*"'"?
 STRING = ("n"|"_"{CHARSET})?{wso}{string_simple_quoted}
 DOLLAR_QUOTE_START = "$"({IDENTIFIER})?"$"
 
-VARIABLE = ":"({IDENTIFIER}|{INTEGER})
+VARIABLE = ":"({IDENTIFIER}|{INTEGER})|"$"{INTEGER}
 
 operator_equal               = "="
 operator_equal_equal         = "=="
