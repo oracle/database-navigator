@@ -56,6 +56,7 @@ public class OracleDriverInterface implements DatabaseDriverInterface {
     private static final String LATEST_VERSION = "latest";
     private static final String ORACLE_JDBC_GROUP_ID = "com.oracle.database.jdbc";
     private static final String ORACLE_DRIVER_ARTIFACT_ID = "ojdbc17";
+    private static final String ORACLE_DRIVER_PRODUCTION_ARTIFACT_ID = "ojdbc17-production";
     private static final String ORACLE_PROVIDER_PARENT_ARTIFACT_ID = "ojdbc-extensions";
     private static final String OJDBC_PROVIDER_PREFIX = "ojdbc-provider-";
     private static final String OJDBC_PROVIDER_COMMON = "ojdbc-provider-common";
@@ -146,10 +147,11 @@ public class OracleDriverInterface implements DatabaseDriverInterface {
 
     private static Element createOracleDriverLibraryElement(String version) {
         Element libraryElement = new Element("library");
-        libraryElement.setAttribute("artifact-id", ORACLE_DRIVER_ARTIFACT_ID);
+        libraryElement.setAttribute("artifact-id", ORACLE_DRIVER_PRODUCTION_ARTIFACT_ID);
         libraryElement.setAttribute("group-id", ORACLE_JDBC_GROUP_ID);
         libraryElement.setAttribute("version", version);
         libraryElement.setAttribute("role", DRIVER.name());
+        libraryElement.setAttribute("type", "pom");
         return libraryElement;
     }
 

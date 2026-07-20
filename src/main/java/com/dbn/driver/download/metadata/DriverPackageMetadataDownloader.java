@@ -198,8 +198,12 @@ public class DriverPackageMetadataDownloader {
         if (latestDriverVersions.isEmpty()) return driverPackages;
 
         return driverPackages.stream()
-                .filter(p -> p.isLatest() || !latestDriverVersions.contains(getDriverVersionKey(p)))
+                .filter(p -> p.isLatest() || hasExtensionLibrary(p) || !latestDriverVersions.contains(getDriverVersionKey(p)))
                 .toList();
+    }
+
+    private boolean hasExtensionLibrary(DriverPackage driverPackage) {
+        return driverPackage.getLibraries().stream().anyMatch(l -> l.getRole() == EXTENSION);
     }
 
     @SneakyThrows
