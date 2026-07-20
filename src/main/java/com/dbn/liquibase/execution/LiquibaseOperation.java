@@ -14,6 +14,7 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     GENERATE_CHANGELOG,
+    SNAPSHOT_DATABASE,
     VALIDATE_CHANGELOG,
     COMPARE_SCHEMAS,
     GENERATE_DIFF_CHANGELOG,

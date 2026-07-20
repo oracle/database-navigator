@@ -31,6 +31,7 @@ import liquibase.command.core.RollbackCountSqlCommandStep;
 import liquibase.command.core.RollbackSqlCommandStep;
 import liquibase.command.core.RollbackToDateCommandStep;
 import liquibase.command.core.RollbackToDateSqlCommandStep;
+import liquibase.command.core.SnapshotCommandStep;
 import liquibase.command.core.StatusCommandStep;
 import liquibase.command.core.TagCommandStep;
 import liquibase.command.core.UpdateCommandStep;
@@ -45,6 +46,7 @@ import lombok.experimental.UtilityClass;
 public class LiquibaseCommands {
     public static final Object NULL_ARGUMENT = new Object();
     public static final String GENERATE_CHANGELOG = GenerateChangelogCommandStep.COMMAND_NAME[0];
+    public static final String SNAPSHOT_DATABASE = SnapshotCommandStep.COMMAND_NAME[0];
     public static final String GENERATE_DIFF_CHANGELOG = DiffChangelogCommandStep.COMMAND_NAME[0];
     public static final String VALIDATE_CHANGELOG = ValidateCommandStep.COMMAND_NAME[0];
     public static final String SHOW_CHANGELOG_STATUS = StatusCommandStep.COMMAND_NAME[0];

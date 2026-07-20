@@ -30,6 +30,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_SQL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_HISTORY;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_STATUS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.SNAPSHOT_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_SQL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
@@ -61,6 +62,7 @@ public final class LiquibaseOperationSupport {
 
         if (operation.isOneOf(
                 VALIDATE_CHANGELOG,
+                SNAPSHOT_DATABASE,
                 SHOW_CHANGELOG_STATUS,
                 SHOW_CHANGELOG_HISTORY,
                 SYNCHRONIZE_CHANGELOG,
@@ -87,7 +89,7 @@ public final class LiquibaseOperationSupport {
     }
 
     public boolean supportsSnapshotItems() {
-        return operation == GENERATE_CHANGELOG;
+        return operation.isOneOf(GENERATE_CHANGELOG, SNAPSHOT_DATABASE);
     }
 
     public boolean supportsChangelogAuthor() {

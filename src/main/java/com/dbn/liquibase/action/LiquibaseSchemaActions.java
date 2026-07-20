@@ -34,6 +34,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_SQL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_HISTORY;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_STATUS;
+import static com.dbn.liquibase.execution.LiquibaseOperation.SNAPSHOT_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_SQL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
@@ -68,6 +69,7 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         DefaultActionGroup inspectActions = new DefaultActionGroup(txt("app.liquibase.group.Inspect"), true);
         inspectActions.add(action(schema, SHOW_CHANGELOG_STATUS));
         inspectActions.add(action(schema, SHOW_CHANGELOG_HISTORY));
+        inspectActions.add(action(schema, SNAPSHOT_DATABASE));
         add(inspectActions);
 
         DefaultActionGroup maintenanceActions = new DefaultActionGroup(txt("app.liquibase.group.Maintenance"), true);

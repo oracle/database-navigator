@@ -32,7 +32,9 @@ import com.dbn.liquibase.execution.logging.LiquibaseExecutionLogService;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.extensions.ExtensionPointName;
+import liquibase.CatalogAndSchema;
 import liquibase.Scope;
 import liquibase.change.core.TagDatabaseChange;
 import liquibase.changelog.ChangeLogParameters;
@@ -49,6 +51,10 @@ import liquibase.resource.DirectoryResourceAccessor;
 import liquibase.resource.ResourceAccessor;
 import liquibase.serializer.ChangeLogSerializer;
 import liquibase.serializer.ChangeLogSerializerFactory;
+import liquibase.snapshot.SnapshotControl;
+import liquibase.snapshot.SnapshotGeneratorFactory;
+import liquibase.snapshot.SnapshotListener;
+import liquibase.structure.DatabaseObject;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -71,8 +77,13 @@ import java.util.function.Function;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.exception.Exceptions.unwrap;
 import static com.dbn.common.util.Classes.withClassLoader;
+import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.common.util.TimeUtil.presentableDuration;
+import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.isLiquibaseTrackingObject;
+import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.resolveObjectType;
 import static com.dbn.liquibase.execution.LiquibaseOperationConfirmations.ensureConfirmed;
+import static com.dbn.nls.NlsResources.txt;
 import static liquibase.Scope.child;
 
 /**
@@ -154,6 +165,65 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
             item.updateStatus(LiquibaseExecutionItemStatus.EXECUTED, messageFunction.apply(item));
         }
         if (!items.isEmpty()) result.notifyItemsChanged();
+    }
+
+    protected final void collectDatabaseObjects(
+            @NotNull LiquibaseExecutionContext context,
+            @NotNull Database database,
+            @NotNull String schemaName) throws Exception {
+        LiquibaseExecutionResult result = context.getResult();
+        SnapshotControl snapshotControl = new SnapshotControl(database);
+        snapshotControl.setSnapshotListener(new SnapshotListener() {
+            @Override
+            public void willSnapshot(DatabaseObject object, Database database) {
+                if (object == null || isLiquibaseTrackingObject(object, database)) return;
+
+                checkCanceled(context);
+                LiquibaseSnapshotItem item = result.ensureSnapshotItem(object);
+                item.startProcessing();
+                result.appendInfoOutput(txt("log.liquibase.info.ObjectProcessingStarted", describe(item)));
+            }
+
+            @Override
+            public void finishedSnapshot(DatabaseObject object, DatabaseObject snapshot, Database database) {
+                if (object == null || isLiquibaseTrackingObject(object, database)) return;
+
+                checkCanceled(context);
+                LiquibaseSnapshotItem item = result.ensureSnapshotItem(object);
+                item.finishProcessing();
+                DatabaseObject processedObject = snapshot == null ? object : snapshot;
+                result.appendInfoOutput(txt(
+                        "log.liquibase.info.ObjectProcessingFinished",
+                        describe(item),
+                        presentableDuration(item.getProcessingDuration(), true)));
+                result.updateExecutionItem(
+                        item,
+                        processedObject,
+                        LiquibaseExecutionItemStatus.DISCOVERED,
+                        txt("log.liquibase.info.DatabaseObjectDiscovered"));
+            }
+        });
+
+        SnapshotGeneratorFactory.getInstance().createSnapshot(
+                new CatalogAndSchema(database.getDefaultCatalogName(), schemaName),
+                database,
+                snapshotControl);
+    }
+
+    @NotNull
+    private static String describe(@NotNull DBObjectType objectType, String objectName) {
+        String name = isEmpty(objectName) ? txt("app.shared.placeholder.Unnamed") : objectName;
+        return objectType.getDisplayName() + " \"" + name + "\"";
+    }
+
+    @NotNull
+    private static String describe(@NotNull LiquibaseSnapshotItem item) {
+        DatabaseObject containerObject = item.getContainerObject();
+        String description = describe(item.getObjectType(), item.getDatabaseObject().getName());
+        if (containerObject == null) return description;
+
+        return txt("log.liquibase.info.ObjectInContainer", description,
+                describe(resolveObjectType(containerObject), containerObject.getName()));
     }
 
     protected static @NotNull Consumer<String> sqlOutputBuilder(@NotNull LiquibaseExecutionContext context) {
