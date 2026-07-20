@@ -34,13 +34,16 @@ import liquibase.command.core.RollbackToDateSqlCommandStep;
 import liquibase.command.core.StatusCommandStep;
 import liquibase.command.core.TagCommandStep;
 import liquibase.command.core.UpdateCommandStep;
+import liquibase.command.core.UpdateCountCommandStep;
 import liquibase.command.core.UpdateSqlCommandStep;
+import liquibase.command.core.UpdateToTagCommandStep;
 import liquibase.command.core.ValidateCommandStep;
 import lombok.experimental.UtilityClass;
 
 /** CommandScope names exposed by the Liquibase command-step implementations. */
 @UtilityClass
 public class LiquibaseCommands {
+    public static final Object NULL_ARGUMENT = new Object();
     public static final String GENERATE_CHANGELOG = GenerateChangelogCommandStep.COMMAND_NAME[0];
     public static final String GENERATE_DIFF_CHANGELOG = DiffChangelogCommandStep.COMMAND_NAME[0];
     public static final String VALIDATE_CHANGELOG = ValidateCommandStep.COMMAND_NAME[0];
@@ -52,6 +55,8 @@ public class LiquibaseCommands {
     public static final String CLEAR_CHECKSUMS = ClearChecksumsCommandStep.COMMAND_NAME[0];
     public static final String DROP_ALL = DropAllCommandStep.COMMAND_NAME[0];
     public static final String UPDATE_DATABASE = UpdateCommandStep.COMMAND_NAME[0];
+    public static final String UPDATE_COUNT = UpdateCountCommandStep.COMMAND_NAME[0];
+    public static final String UPDATE_TO_TAG = UpdateToTagCommandStep.COMMAND_NAME[0];
     public static final String UPDATE_SQL = UpdateSqlCommandStep.COMMAND_NAME[0];
     public static final String SYNCHRONIZE_CHANGELOG = ChangelogSyncCommandStep.COMMAND_NAME[0];
     public static final String SYNCHRONIZE_CHANGELOG_SQL = ChangelogSyncSqlCommandStep.COMMAND_NAME[0];

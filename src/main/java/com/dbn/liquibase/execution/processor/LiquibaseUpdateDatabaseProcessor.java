@@ -19,6 +19,7 @@ package com.dbn.liquibase.execution.processor;
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.execution.LiquibaseUpdateInstruction;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
@@ -30,7 +31,6 @@ import java.util.Map;
 
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.liquibase.execution.LiquibaseCommands.TAG;
-import static com.dbn.liquibase.execution.LiquibaseCommands.UPDATE_DATABASE;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
 import static com.dbn.object.type.DBObjectType.BROWSABLE_TYPES;
@@ -93,9 +93,11 @@ public class LiquibaseUpdateDatabaseProcessor extends LiquibaseExecutionProcesso
 
             rememberTag(context, targetSchema, checkpointTag);
         }
-        executeCommand(UPDATE_DATABASE, output, Map.of(
+        LiquibaseUpdateInstruction instruction = input.getUpdateInstruction();
+        executeCommand(instruction.getCommand(), output, Map.of(
                 "database", database,
                 "changelogFile", paths.getMasterChangelogRelativePath(),
+                instruction.getParameter(), instruction.getValue(),
                 "changeExecListener", new LiquibaseChangeSetRunListener(result)));
 
     }

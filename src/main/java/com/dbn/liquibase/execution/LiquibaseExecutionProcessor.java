@@ -337,7 +337,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
 
         for (String argument : arguments.keySet()) {
             Object value = arguments.get(argument);
-            if (value == null) continue;
+            if (value == null || value == LiquibaseCommands.NULL_ARGUMENT) continue;
 
             command.addArgumentValue(argument, value);
         }

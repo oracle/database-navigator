@@ -1,7 +1,6 @@
 package com.dbn.liquibase.execution;
 
 import com.dbn.common.component.ProjectUnit;
-import com.dbn.common.locale.Formatter;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.model.LiquibaseWorkspace;
@@ -15,12 +14,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.text.ParseException;
-
 import static com.dbn.common.util.Commons.coalesce;
-import static com.dbn.liquibase.execution.LiquibaseCommands.ROLLBACK_COUNT;
-import static com.dbn.liquibase.execution.LiquibaseCommands.ROLLBACK_DATE;
-import static com.dbn.liquibase.execution.LiquibaseCommands.ROLLBACK_TAG;
 
 /** Input describing a Liquibase operation and its optional source and target schemas. */
 @Getter
@@ -31,10 +25,8 @@ public class LiquibaseExecutionInput extends ProjectUnit {
 
     private DBObjectRef<DBSchema> sourceSchema;
     private DBObjectRef<DBSchema> targetSchema;
-    private LiquibaseRollbackType rollbackType = LiquibaseRollbackType.COUNT;
-    private int rollbackCount = 1;
-    private String rollbackTag;
-    private String rollbackDate;
+    private final LiquibaseRollbackInstruction rollbackInstruction = new LiquibaseRollbackInstruction();
+    private final LiquibaseUpdateInstruction updateInstruction = new LiquibaseUpdateInstruction();
     private String changelogAuthor;
     private String databaseTag;
     private String checkpointTag;
@@ -99,18 +91,6 @@ public class LiquibaseExecutionInput extends ProjectUnit {
 
     public void setTargetSchema(@Nullable DBSchema targetSchema) {
         this.targetSchema = DBObjectRef.of(targetSchema);
-    }
-
-    @NotNull
-    public LiquibaseRollbackInstruction getRollbackInstruction() throws ParseException {
-        return switch (rollbackType) {
-            case COUNT -> new LiquibaseRollbackInstruction(ROLLBACK_COUNT, "count", rollbackCount);
-            case TAG -> new LiquibaseRollbackInstruction(ROLLBACK_TAG, "tag", rollbackTag);
-            case DATE -> new LiquibaseRollbackInstruction(
-                    ROLLBACK_DATE,
-                    "date",
-                    Formatter.getInstance(getProject()).parseDateTime(rollbackDate));
-        };
     }
 
     public void setWorkspace(@Nullable LiquibaseWorkspace workspace) {

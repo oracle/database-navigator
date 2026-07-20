@@ -30,8 +30,8 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 import java.util.Map;
 
-import static com.dbn.liquibase.execution.LiquibaseRollbackType.TAG;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.liquibase.execution.LiquibaseRollbackType.TAG;
 import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
 import static com.dbn.object.type.DBObjectType.BROWSABLE_TYPES;
 
@@ -62,18 +62,19 @@ public class LiquibaseRollbackChangesetsProcessor extends LiquibaseExecutionProc
 
         notifySchemaObjectChanges(targetSchema);
         removeTagHistory(context);
-        result.appendConsoleOutput(txt("log.liquibase.info.ChangelogRolledBack", changelogFile, input.getRollbackCount()));
+        result.appendConsoleOutput(txt("log.liquibase.info.ChangelogRolledBack", changelogFile,
+                input.getRollbackInstruction().getCount()));
     }
 
     private static void removeTagHistory(@NotNull LiquibaseExecutionContext context) {
         LiquibaseExecutionInput input = context.getInput();
-        if (input.getRollbackType() == TAG) {
+        if (input.getRollbackInstruction().getType() == TAG) {
             DBSchema targetSchema = context.getTargetSchema();
             DatabaseLiquibaseManager liquibaseManager = context.getLiquibaseManager();
             liquibaseManager.removeTag(
                     targetSchema.getConnectionId(),
                     targetSchema.getSchemaId(),
-                    input.getRollbackTag());
+                    input.getRollbackInstruction().getTag());
         }
     }
 
@@ -86,10 +87,10 @@ public class LiquibaseRollbackChangesetsProcessor extends LiquibaseExecutionProc
         var paths = input.getWorkspacePaths();
         var instruction = input.getRollbackInstruction();
 
-        executeCommand(instruction.command(), output, Map.of(
+        executeCommand(instruction.getCommand(), output, Map.of(
                 "database", database,
                 "changelogFile", paths.getMasterChangelogRelativePath(),
-                instruction.parameter(), instruction.value(),
+                instruction.getParameter(), instruction.getValue(),
                 "changeExecListener", new LiquibaseChangeSetRollbackListener(result, "Rolled back")));
 
     }
