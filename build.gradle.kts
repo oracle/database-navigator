@@ -127,6 +127,7 @@ dependencies {
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common:3.76.1@jar")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-generativeai:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-generativeaiinference:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-identity:3.76.1@jar")
     implementation("commons-io:commons-io:2.18.0@jar")
