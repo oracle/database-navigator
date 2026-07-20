@@ -23,12 +23,14 @@ import com.dbn.menu.action.LiquibaseWorkspacesOpenAction;
 import com.dbn.object.DBSchema;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.liquibase.execution.LiquibaseOperation.CALCULATE_CHECKSUMS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.CLEAR_CHECKSUMS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.DROP_ALL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.FUTURE_ROLLBACK;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseOperation.LIST_LOCKS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.MARK_NEXT_CHANGESET_RAN;
 import static com.dbn.liquibase.execution.LiquibaseOperation.RELEASE_LOCKS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS;
@@ -76,7 +78,9 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         DefaultActionGroup maintenanceActions = new DefaultActionGroup(txt("app.liquibase.group.Maintenance"), true);
         maintenanceActions.add(action(schema, SYNCHRONIZE_CHANGELOG));
         maintenanceActions.add(action(schema, RELEASE_LOCKS));
+        maintenanceActions.add(action(schema, LIST_LOCKS));
         maintenanceActions.add(action(schema, CLEAR_CHECKSUMS));
+        maintenanceActions.add(action(schema, CALCULATE_CHECKSUMS));
         add(maintenanceActions);
 
         DefaultActionGroup sqlPreviewActions = new DefaultActionGroup(txt("app.liquibase.group.PreviewSql"), true);

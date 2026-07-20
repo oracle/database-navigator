@@ -19,12 +19,14 @@ package com.dbn.liquibase.execution;
 import com.dbn.common.ui.form.field.FieldState;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.liquibase.execution.LiquibaseOperation.CALCULATE_CHECKSUMS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.CLEAR_CHECKSUMS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.DROP_ALL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.FUTURE_ROLLBACK;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseOperation.LIST_LOCKS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.MARK_NEXT_CHANGESET_RAN;
 import static com.dbn.liquibase.execution.LiquibaseOperation.RELEASE_LOCKS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS;
@@ -75,6 +77,8 @@ public final class LiquibaseOperationSupport {
                 MARK_NEXT_CHANGESET_RAN,
                 RELEASE_LOCKS,
                 CLEAR_CHECKSUMS,
+                LIST_LOCKS,
+                CALCULATE_CHECKSUMS,
                 DROP_ALL,
                 ROLLBACK_CHANGESETS,
                 ROLLBACK_SQL)) return FieldState.VISIBLE;
@@ -168,6 +172,8 @@ public final class LiquibaseOperationSupport {
                 TAG_DATABASE,
                 RELEASE_LOCKS,
                 CLEAR_CHECKSUMS,
+                LIST_LOCKS,
+                CALCULATE_CHECKSUMS,
                 ROLLBACK_CHANGESETS);
     }
 
@@ -185,7 +191,8 @@ public final class LiquibaseOperationSupport {
                 ROLLBACK_CHANGESETS,
                 UPDATE_SQL,
                 ROLLBACK_SQL,
-                FUTURE_ROLLBACK);
+                FUTURE_ROLLBACK,
+                CALCULATE_CHECKSUMS);
     }
 
     public boolean supportsWorkspaceCreation() {

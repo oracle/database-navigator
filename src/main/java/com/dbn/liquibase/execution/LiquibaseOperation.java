@@ -29,6 +29,8 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     MARK_NEXT_CHANGESET_RAN,
     RELEASE_LOCKS,
     CLEAR_CHECKSUMS,
+    LIST_LOCKS,
+    CALCULATE_CHECKSUMS,
     DROP_ALL,
     ROLLBACK_CHANGESETS,
     ROLLBACK_SQL;

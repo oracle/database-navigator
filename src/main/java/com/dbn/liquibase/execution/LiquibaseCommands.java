@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.execution;
 
+import liquibase.command.core.CalculateChecksumCommandStep;
 import liquibase.command.core.ChangelogSyncCommandStep;
 import liquibase.command.core.ChangelogSyncSqlCommandStep;
 import liquibase.command.core.ClearChecksumsCommandStep;
@@ -24,6 +25,7 @@ import liquibase.command.core.DropAllCommandStep;
 import liquibase.command.core.FutureRollbackSqlCommandStep;
 import liquibase.command.core.GenerateChangelogCommandStep;
 import liquibase.command.core.HistoryCommandStep;
+import liquibase.command.core.ListLocksCommandStep;
 import liquibase.command.core.MarkNextChangesetRanCommandStep;
 import liquibase.command.core.ReleaseLocksCommandStep;
 import liquibase.command.core.RollbackCommandStep;
@@ -56,6 +58,8 @@ public class LiquibaseCommands {
     public static final String MARK_NEXT_CHANGESET_RAN = MarkNextChangesetRanCommandStep.COMMAND_NAME[0];
     public static final String RELEASE_LOCKS = ReleaseLocksCommandStep.COMMAND_NAME[0];
     public static final String CLEAR_CHECKSUMS = ClearChecksumsCommandStep.COMMAND_NAME[0];
+    public static final String LIST_LOCKS = ListLocksCommandStep.COMMAND_NAME[0];
+    public static final String CALCULATE_CHECKSUM = CalculateChecksumCommandStep.COMMAND_NAME[0];
     public static final String DROP_ALL = DropAllCommandStep.COMMAND_NAME[0];
     public static final String UPDATE_DATABASE = UpdateCommandStep.COMMAND_NAME[0];
     public static final String UPDATE_COUNT = UpdateCountCommandStep.COMMAND_NAME[0];
