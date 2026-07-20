@@ -91,7 +91,9 @@ public final class LiquibaseOperationSupport {
     }
 
     public boolean supportsSnapshotItems() {
-        return operation.isOneOf(GENERATE_CHANGELOG, SNAPSHOT_DATABASE);
+        return operation.isOneOf(
+                GENERATE_CHANGELOG,
+                SNAPSHOT_DATABASE);
     }
 
     public boolean supportsChangelogAuthor() {
@@ -118,11 +120,15 @@ public final class LiquibaseOperationSupport {
     }
 
     public boolean supportsRollbackTag() {
-        return operation.isOneOf(ROLLBACK_CHANGESETS, ROLLBACK_SQL);
+        return operation.isOneOf(
+                ROLLBACK_CHANGESETS,
+                ROLLBACK_SQL);
     }
 
     public boolean supportsRollback() {
-        return operation.isOneOf(ROLLBACK_CHANGESETS, ROLLBACK_SQL);
+        return operation.isOneOf(
+                ROLLBACK_CHANGESETS,
+                ROLLBACK_SQL);
     }
 
     public boolean supportsChangeSetItems() {
@@ -139,7 +145,11 @@ public final class LiquibaseOperationSupport {
     }
 
     public boolean supportsSqlOutput() {
-        return operation.isOneOf(UPDATE_SQL, SYNCHRONIZE_CHANGELOG_SQL, ROLLBACK_SQL, FUTURE_ROLLBACK);
+        return operation.isOneOf(
+                UPDATE_SQL,
+                SYNCHRONIZE_CHANGELOG_SQL,
+                ROLLBACK_SQL,
+                FUTURE_ROLLBACK);
     }
 
     public boolean supportsComparisonItems() {

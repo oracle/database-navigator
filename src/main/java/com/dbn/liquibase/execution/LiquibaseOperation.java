@@ -57,7 +57,7 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
             case GENERATE_CHANGELOG -> Icons.ACTION_DOWNLOAD;
             case GENERATE_DIFF_CHANGELOG -> AllIcons.Actions.Diff;
             case UPDATE_DATABASE -> Icons.ACTION_UPLOAD;
-            case ROLLBACK_CHANGESETS, FUTURE_ROLLBACK -> Icons.ACTION_REVERT;
+            case ROLLBACK_CHANGESETS -> Icons.ACTION_REVERT;
             case DROP_ALL -> Icons.ACTION_DELETE;
             default -> null;
         };
