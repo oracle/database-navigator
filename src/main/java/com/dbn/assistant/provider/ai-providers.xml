@@ -116,12 +116,23 @@
                 <model id="COHERE_COMMAND_LATEST"         api-name="cohere.command-latest"         short-name="command-latest"      max-tokens="8192"  base-provider-id="COHERE"/>
                 <model id="COHERE_COMMAND_PLUS_LATEST"    api-name="cohere.command-plus-latest"    short-name="command-plus-latest" max-tokens="8192"  base-provider-id="COHERE"/>
 
-                <model id="XAI_GROK_3"           api-name="xai.grok-3"           short-name="grok-3"           max-tokens="16384" base-provider-id="X_AI" status="DEPRECATED"/>
-                <model id="XAI_GROK_3_FAST"      api-name="xai.grok-3-fast"      short-name="grok-3-fast"      max-tokens="16384" base-provider-id="X_AI" status="DEPRECATED"/>
-                <model id="XAI_GROK_3_MINI"      api-name="xai.grok-3-mini"      short-name="grok-3-mini"      max-tokens="8192"  base-provider-id="X_AI" status="DEPRECATED"/>
-                <model id="XAI_GROK_3_MINI_FAST" api-name="xai.grok-3-mini-fast" short-name="grok-3-mini-fast" max-tokens="8192"  base-provider-id="X_AI" status="DEPRECATED"/>
-                <model id="XAI_GROK_4"           api-name="xai.grok-4"           short-name="grok-4"           max-tokens="65536" base-provider-id="X_AI" status="DEPRECATED"/>
-                <model id="XAI_GROK_CODE_FAST_1" api-name="xai.grok-code-fast-1" short-name="grok-code-fast-1" max-tokens="16384" base-provider-id="X_AI" status="DEPRECATED"/>
+                <model id="XAI_GROK_4_3"                         api-name="xai.grok-4.3"                         short-name="grok-4.3"                    max-tokens="65536" base-provider-id="X_AI"/>
+                <model id="XAI_GROK_4_20_REASONING"              api-name="xai.grok-4.20-reasoning"              short-name="grok-4.20-reasoning"         max-tokens="65536" base-provider-id="X_AI"/>
+                <model id="XAI_GROK_4_20_0309_REASONING"         api-name="xai.grok-4.20-0309-reasoning"         short-name="grok-4.20-reasoning"         max-tokens="65536" base-provider-id="X_AI"/>
+                <model id="XAI_GROK_4_20_MULTI_AGENT"            api-name="xai.grok-4.20-multi-agent"            short-name="grok-4.20-multi-agent"       max-tokens="65536" base-provider-id="X_AI"/>
+                <model id="XAI_GROK_4_20_MULTI_AGENT_0309"       api-name="xai.grok-4.20-multi-agent-0309"       short-name="grok-4.20-multi-agent"       max-tokens="65536" base-provider-id="X_AI"/>
+                <model id="XAI_GROK_4_20_NON_REASONING"          api-name="xai.grok-4.20-non-reasoning"          short-name="grok-4.20-non-reasoning"     max-tokens="65536" base-provider-id="X_AI"/>
+                <model id="XAI_GROK_4_20_0309_NON_REASONING"     api-name="xai.grok-4.20-0309-non-reasoning"     short-name="grok-4.20-non-reasoning"     max-tokens="65536" base-provider-id="X_AI"/>
+                <model id="XAI_GROK_4_1_FAST_REASONING"          api-name="xai.grok-4-1-fast-reasoning"          short-name="grok-4.1-fast-reasoning"     max-tokens="65536" base-provider-id="X_AI"/>
+                <model id="XAI_GROK_4_1_FAST_NON_REASONING"      api-name="xai.grok-4-1-fast-non-reasoning"      short-name="grok-4.1-fast-non-reasoning" max-tokens="65536" base-provider-id="X_AI"/>
+                <model id="XAI_GROK_4_FAST_REASONING"            api-name="xai.grok-4-fast-reasoning"            short-name="grok-4-fast-reasoning"       max-tokens="65536" base-provider-id="X_AI"/>
+                <model id="XAI_GROK_4_FAST_NON_REASONING"        api-name="xai.grok-4-fast-non-reasoning"        short-name="grok-4-fast-non-reasoning"   max-tokens="65536" base-provider-id="X_AI"/>
+                <model id="XAI_GROK_4"                           api-name="xai.grok-4"                           short-name="grok-4"                      max-tokens="65536" base-provider-id="X_AI" status="DEPRECATED"/>
+                <model id="XAI_GROK_CODE_FAST_1"                 api-name="xai.grok-code-fast-1"                 short-name="grok-code-fast-1"            max-tokens="16384" base-provider-id="X_AI"/>
+                <model id="XAI_GROK_3_FAST"                      api-name="xai.grok-3-fast"                      short-name="grok-3-fast"                 max-tokens="16384" base-provider-id="X_AI" status="DEPRECATED"/>
+                <model id="XAI_GROK_3"                           api-name="xai.grok-3"                           short-name="grok-3"                      max-tokens="16384" base-provider-id="X_AI" status="DEPRECATED"/>
+                <model id="XAI_GROK_3_MINI_FAST"                 api-name="xai.grok-3-mini-fast"                 short-name="grok-3-mini-fast"            max-tokens="8192"  base-provider-id="X_AI" status="DEPRECATED"/>
+                <model id="XAI_GROK_3_MINI"                      api-name="xai.grok-3-mini"                      short-name="grok-3-mini"                 max-tokens="8192"  base-provider-id="X_AI" status="DEPRECATED"/>
             </models>
         </provider>
 
@@ -383,12 +394,23 @@
                     <model id="COHERE_COMMAND_LATEST"/>
                     <model id="COHERE_COMMAND_PLUS_LATEST"/>
 -->
-                    <model id="XAI_GROK_3"/>
-                    <model id="XAI_GROK_3_FAST"/>
-                    <model id="XAI_GROK_3_MINI"/>
-                    <model id="XAI_GROK_3_MINI_FAST"/>
+                    <model id="XAI_GROK_4_3"/>
+                    <model id="XAI_GROK_4_20_REASONING"/>
+                    <model id="XAI_GROK_4_20_0309_REASONING"/>
+                    <model id="XAI_GROK_4_20_MULTI_AGENT"/>
+                    <model id="XAI_GROK_4_20_MULTI_AGENT_0309"/>
+                    <model id="XAI_GROK_4_20_NON_REASONING"/>
+                    <model id="XAI_GROK_4_20_0309_NON_REASONING"/>
+                    <model id="XAI_GROK_4_1_FAST_REASONING"/>
+                    <model id="XAI_GROK_4_1_FAST_NON_REASONING"/>
+                    <model id="XAI_GROK_4_FAST_REASONING"/>
+                    <model id="XAI_GROK_4_FAST_NON_REASONING"/>
                     <model id="XAI_GROK_4"/>
                     <model id="XAI_GROK_CODE_FAST_1"/>
+                    <model id="XAI_GROK_3_FAST"/>
+                    <model id="XAI_GROK_3"/>
+                    <model id="XAI_GROK_3_MINI_FAST"/>
+                    <model id="XAI_GROK_3_MINI"/>
                 </models>
             </provider>
             <provider id="OPEN_AI">
