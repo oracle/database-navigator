@@ -21,6 +21,7 @@ import liquibase.command.core.ChangelogSyncSqlCommandStep;
 import liquibase.command.core.ClearChecksumsCommandStep;
 import liquibase.command.core.DiffChangelogCommandStep;
 import liquibase.command.core.DropAllCommandStep;
+import liquibase.command.core.FutureRollbackSqlCommandStep;
 import liquibase.command.core.GenerateChangelogCommandStep;
 import liquibase.command.core.HistoryCommandStep;
 import liquibase.command.core.MarkNextChangesetRanCommandStep;
@@ -68,4 +69,5 @@ public class LiquibaseCommands {
     public static final String ROLLBACK_COUNT_SQL = RollbackCountSqlCommandStep.COMMAND_NAME[0];
     public static final String ROLLBACK_TAG_SQL = RollbackSqlCommandStep.COMMAND_NAME[0];
     public static final String ROLLBACK_DATE_SQL = RollbackToDateSqlCommandStep.COMMAND_NAME[0];
+    public static final String FUTURE_ROLLBACK_SQL = FutureRollbackSqlCommandStep.COMMAND_NAME[0];
 }

@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.liquibase.execution.LiquibaseOperation.CLEAR_CHECKSUMS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.DROP_ALL;
+import static com.dbn.liquibase.execution.LiquibaseOperation.FUTURE_ROLLBACK;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.MARK_NEXT_CHANGESET_RAN;
@@ -81,6 +82,7 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         DefaultActionGroup sqlPreviewActions = new DefaultActionGroup(txt("app.liquibase.group.PreviewSql"), true);
         sqlPreviewActions.add(action(schema, UPDATE_SQL));
         sqlPreviewActions.add(action(schema, ROLLBACK_SQL));
+        sqlPreviewActions.add(action(schema, FUTURE_ROLLBACK));
         sqlPreviewActions.add(action(schema, SYNCHRONIZE_CHANGELOG_SQL));
         add(sqlPreviewActions);
 

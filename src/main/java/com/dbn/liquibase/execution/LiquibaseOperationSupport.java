@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.liquibase.execution.LiquibaseOperation.CLEAR_CHECKSUMS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.DROP_ALL;
+import static com.dbn.liquibase.execution.LiquibaseOperation.FUTURE_ROLLBACK;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.MARK_NEXT_CHANGESET_RAN;
@@ -69,6 +70,7 @@ public final class LiquibaseOperationSupport {
                 SYNCHRONIZE_CHANGELOG_SQL,
                 UPDATE_DATABASE,
                 UPDATE_SQL,
+                FUTURE_ROLLBACK,
                 TAG_DATABASE,
                 MARK_NEXT_CHANGESET_RAN,
                 RELEASE_LOCKS,
@@ -132,11 +134,12 @@ public final class LiquibaseOperationSupport {
                 SYNCHRONIZE_CHANGELOG,
                 SYNCHRONIZE_CHANGELOG_SQL,
                 ROLLBACK_CHANGESETS,
-                ROLLBACK_SQL);
+                ROLLBACK_SQL,
+                FUTURE_ROLLBACK);
     }
 
     public boolean supportsSqlOutput() {
-        return operation.isOneOf(UPDATE_SQL, SYNCHRONIZE_CHANGELOG_SQL, ROLLBACK_SQL);
+        return operation.isOneOf(UPDATE_SQL, SYNCHRONIZE_CHANGELOG_SQL, ROLLBACK_SQL, FUTURE_ROLLBACK);
     }
 
     public boolean supportsComparisonItems() {
@@ -171,7 +174,8 @@ public final class LiquibaseOperationSupport {
                 MARK_NEXT_CHANGESET_RAN,
                 ROLLBACK_CHANGESETS,
                 UPDATE_SQL,
-                ROLLBACK_SQL);
+                ROLLBACK_SQL,
+                FUTURE_ROLLBACK);
     }
 
     public boolean supportsWorkspaceCreation() {

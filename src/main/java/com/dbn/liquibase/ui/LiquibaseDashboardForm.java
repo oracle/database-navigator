@@ -48,6 +48,7 @@ import static com.dbn.common.util.Lists.filter;
 import static com.dbn.liquibase.execution.LiquibaseOperation.CLEAR_CHECKSUMS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.DROP_ALL;
+import static com.dbn.liquibase.execution.LiquibaseOperation.FUTURE_ROLLBACK;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.MARK_NEXT_CHANGESET_RAN;
@@ -135,7 +136,7 @@ public class LiquibaseDashboardForm extends DBNFormBase {
         addCategory("Deploy", UPDATE_DATABASE, ROLLBACK_CHANGESETS, TAG_DATABASE, MARK_NEXT_CHANGESET_RAN);
         addCategory("Inspect", SHOW_CHANGELOG_STATUS, SHOW_CHANGELOG_HISTORY, SNAPSHOT_DATABASE);
         addCategory("Maintenance", SYNCHRONIZE_CHANGELOG, RELEASE_LOCKS, CLEAR_CHECKSUMS);
-        addCategory("PreviewSql", UPDATE_SQL, ROLLBACK_SQL, SYNCHRONIZE_CHANGELOG_SQL);
+        addCategory("PreviewSql", UPDATE_SQL, ROLLBACK_SQL, FUTURE_ROLLBACK, SYNCHRONIZE_CHANGELOG_SQL);
         addCategory("More", DROP_ALL);
     }
 
