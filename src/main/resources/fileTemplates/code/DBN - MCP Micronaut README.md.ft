@@ -39,8 +39,8 @@ Notes:
   `127.0.0.1`, which is unreachable from outside the container.
 - Credentials are **mounted at run time, never baked into the image** — the image is
   generic and safe to push to a registry; the mounted directory is the sensitive part.
-- **The image targets `linux/${HOST_ARCH}`** (the architecture of the machine that built it).
-  It will not run on a different CPU architecture — see section 6 for other targets.
+- **The image targets the builder platform.** It will not run on a different CPU
+  architecture — see section 6 for other targets.
 #else
 Start the executable directly:
 

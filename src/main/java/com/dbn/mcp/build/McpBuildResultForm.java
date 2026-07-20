@@ -54,7 +54,7 @@ public class McpBuildResultForm extends DBNFormBase {
                     escapeHtml(result.getConfigFile().toString()),
                     escapeHtml(result.getWalletDirectory().toString()),
                     escapeHtml(result.getSourceDirectory().toString()),
-                    "linux/" + McpContainerRuntimeSupport.normalizedHostArch());
+                    txt("msg.mcp.text.ContainerBuilderPlatform"));
         } else {
             headerHtml = txt(resolveSummaryKey(),
                     escapeHtml(result.getServerJar().toString()),

@@ -72,11 +72,9 @@ public class McpBuildTask {
         indicator.setText2(txt("prc.mcp.text.VerifyingMavenAvailability"));
         verifyMavenAvailability(project);
 
-        if (definition.getImplementation().isContainer()) {
-            // native-image runs inside the builder container; no local GraalVM needed
-            indicator.setText2(txt("prc.mcp.text.VerifyingContainerRuntime"));
-            McpContainerRuntimeSupport.verifyContainerRuntimeAvailability(project);
-        } else if (definition.getImplementation().isNative()) {
+        // only the plain-native build needs local GraalVM; the container build
+        // compiles inside the builder image, so it requires no GraalVM here
+        if (definition.getImplementation().isNative() && !definition.getImplementation().isContainer()) {
             indicator.setText2(txt("prc.mcp.text.VerifyingGraalVmAvailability"));
             McpGraalVmSupport.verifyGraalVmAvailability(project);
         }
@@ -270,10 +268,6 @@ public class McpBuildTask {
 
         result.setWalletDirectory(outputDirectory.resolve("wallet").toAbsolutePath().normalize());
 
-        if (definition.getImplementation().isContainer()) {
-            String containerRuntime = McpContainerRuntimeSupport.getContainerRuntimeCommand();
-            result.setDockerRunCommand(clientConfiguration.buildContainerRunCommand(containerRuntime, result.getImageName(), outputDirectory));
-        }
         String serverArtifact = result.getServerJar() == null ? result.getImageName() : result.getServerJar().toString();
         result.setClaudeSnippetJson(clientConfiguration.buildClaudeJson(serverArtifact));
         result.setClineSnippetJson(transportType.isHttp() ? clientConfiguration.buildClineJson() : null);
