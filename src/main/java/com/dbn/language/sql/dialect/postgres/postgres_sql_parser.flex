@@ -52,6 +52,8 @@ STRING = ("n"|"_"{CHARSET})?{wso}{string_simple_quoted}
 DOLLAR_QUOTE_START = "$"({IDENTIFIER})?"$"
 
 VARIABLE = ":"({IDENTIFIER}|{INTEGER})|"$"{INTEGER}
+OPERATOR_CHAR = "-"|"!"|"#"|"%"|"&"|"*"|"+"|"/"|"<"|">"|"="|"?"|"@"|"^"|"|"|"~"|"`"
+OPERATOR_GENERIC = {OPERATOR_CHAR}{OPERATOR_CHAR}{OPERATOR_CHAR}*
 
 %state PSQL_BLOCK
 %state DOLLAR_QUOTE
@@ -132,6 +134,8 @@ VARIABLE = ":"({IDENTIFIER}|{INTEGER})|"$"{INTEGER}
     ">>"  {return tt.getOperatorTokenType(18);}
     "@@"  {return tt.getOperatorTokenType(19);}
     "&&"  {return tt.getOperatorTokenType(20);}
+
+    {OPERATOR_GENERIC} {return tt.getOperatorTokenType(21);}
 
 
     "("{wso}"+"{wso}")"  {return tt.getTokenType("CT_OUTER_JOIN");}

@@ -1,3 +1,5 @@
 jflexJava=/Applications/IntelliJ IDEA 26.1.app/Contents/jbr/Contents/Home/bin/java
 jflexJar=/Users/jdoe/Resources/libraries/jflex-1.9.1/jflex-1.9.1.jar
 jflexSkeleton=/Users/jdoe/Resources/libraries/jflex-1.9.1/idea-flex.skeleton
+# true uses LanguageSpecificationParserExtBuilder; false uses LanguageSpecificationParserExtensionBuilder
+parserExtBuilder=true

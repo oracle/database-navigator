@@ -62,6 +62,8 @@ operator_cast                = "::"
 operator_at_at               = "@@"
 operator_and_and             = "&&"
 operator_other               = "!"|"#"|"%"|"+"|"/"|"*"|"|"|"^"|"?"|"`"
+operator_char                = "-"|"!"|"#"|"%"|"&"|"*"|"+"|"/"|"<"|">"|"="|"?"|"@"|"^"|"|"|"~"|"`"
+operator_generic             = {operator_char}{operator_char}{operator_char}*
 OPERATOR  = {operator_equal_equal}|{operator_equal}|{operator_not_equal}|{operator_greater_than}|{operator_greater_equal_than}|{operator_less_than}|{operator_less_equal_than}|{operator_null_safe_equal}|{operator_shift_left}|{operator_shift_right}|{operator_cast}|{operator_assignment}|{operator_equal_greater}|{operator_range_dots}|{operator_concatenation}|{operator_like}|{operator_not_like}|{operator_match}|{operator_match_ci}|{operator_no_match}|{operator_no_match_ci}|{operator_at_at}|{operator_and_and}|{operator_other}
 
 
