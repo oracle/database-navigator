@@ -109,6 +109,9 @@
                 <model id="GOOGLE_GEMINI_2_5_FLASH"      api-name="google.gemini-2.5-flash"      short-name="gemini-2.5-flash"      max-tokens="65535" base-provider-id="GOOGLE"/>
                 <model id="GOOGLE_GEMINI_2_5_PRO"        api-name="google.gemini-2.5-pro"        short-name="gemini-2.5-pro"        max-tokens="65535" base-provider-id="GOOGLE"/>
 
+                <model id="OPENAI_GPT_OSS_120B" api-name="openai.gpt-oss-120b" short-name="gpt-oss-120b" max-tokens="16000" base-provider-id="OPEN_AI"/>
+                <model id="OPENAI_GPT_OSS_20B"  api-name="openai.gpt-oss-20b"  short-name="gpt-oss-20b"  max-tokens="16000" base-provider-id="OPEN_AI"/>
+
                 <model id="COHERE_COMMAND_R_08_2024"      api-name="cohere.command-r-08-2024"      short-name="command-r-08"        max-tokens="4096"  base-provider-id="COHERE" status="DEPRECATED"/>
                 <model id="COHERE_COMMAND_R_PLUS_08_2024" api-name="cohere.command-r-plus-08-2024" short-name="command-r-plus.08"   max-tokens="8192"  base-provider-id="COHERE" status="DEPRECATED"/>
                 <model id="COHERE_COMMAND_A_PLUS_05_2026" api-name="cohere.command-a-plus-05-2026" short-name="command-a-plus"      max-tokens="32768" base-provider-id="COHERE"/>
@@ -385,6 +388,8 @@
                     <model id="GOOGLE_GEMINI_2_5_FLASH"/>
                     <model id="GOOGLE_GEMINI_2_5_FLASH_LITE"/>
                     <model id="GOOGLE_GEMINI_2_5_PRO"/>
+                    <model id="OPENAI_GPT_OSS_120B"/>
+                    <model id="OPENAI_GPT_OSS_20B"/>
 <!--
                     TODO none of the cohere models understand tool specifications
                     <model id="COHERE_COMMAND_R_08_2024"/>
