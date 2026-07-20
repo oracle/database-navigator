@@ -17,6 +17,7 @@
 package com.dbn.mcp.ui;
 
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Write;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -31,7 +32,6 @@ import com.dbn.common.util.Strings;
 import com.dbn.common.util.Titles;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
-import com.dbn.mcp.build.McpContainerRuntimeSupport;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.model.McpToolDefinition;
@@ -77,6 +77,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
+    private JPanel implementationHintPanel;
     private JPanel toolDefinitionsPanel;
     private JLabel configFileLabel;
     private JLabel httpPortLabel;
@@ -105,12 +106,14 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
         initHeaderPanel();
         initHintPanel();
+        initImplementationHintPanel();
 
         initInputFields();
         initToolDefinitionsPanel();
         initConfigHyperlinks();
 
         resetFormChanges();
+        updateTransportAvailability();
         whenFirstShown(() -> updateDialogButtons());
     }
 
@@ -130,6 +133,35 @@ public class McpServerDefinitionForm extends DBNFormBase {
         hintPanel.add(new DBNHintForm(this, hintContent, null, true).getComponent());
     }
 
+    private JComponent nativeHintComponent;
+    private JComponent containerHintComponent;
+
+    /**
+     * Prerequisite hints for the two Micronaut implementations, created once and
+     * swapped in based on the selected implementation (Standard Java has none).
+     */
+    private void initImplementationHintPanel() {
+        nativeHintComponent = new DBNHintForm(this,
+                TextContent.plain(txt("msg.mcp.text.NativePrerequisites")), MessageType.WARNING, true).getComponent();
+        containerHintComponent = new DBNHintForm(this,
+                TextContent.plain(txt("msg.mcp.text.ContainerPrerequisites")), MessageType.WARNING, true).getComponent();
+        implementationHintPanel.setVisible(false);
+    }
+
+    private void updateImplementationHint() {
+        McpServerImplementation implementation = getSelection(implementationComboBox);
+        JComponent hint =
+                implementation == McpServerImplementation.MICRONAUT_CONTAINER ? containerHintComponent :
+                implementation == McpServerImplementation.MICRONAUT_NATIVE ? nativeHintComponent :
+                null;
+
+        implementationHintPanel.removeAll();
+        if (hint != null) implementationHintPanel.add(hint);
+        implementationHintPanel.setVisible(hint != null);
+        implementationHintPanel.revalidate();
+        implementationHintPanel.repaint();
+    }
+
     private void initInputFields() {
         initComboBox(implementationComboBox, McpServerImplementation.values());
         initComboBox(transportTypeComboBox, McpTransportType.values());
@@ -146,8 +178,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     /**
      * The Micronaut Native server is HTTP-only: force the transport selection
-     * and prevent changing it while that implementation is selected. Container
-     * image builds additionally surface the host-architecture limitation.
+     * and prevent changing it while that implementation is selected.
      */
     private void updateTransportAvailability() {
         McpServerImplementation implementation = getSelection(implementationComboBox);
@@ -157,10 +188,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
         }
         transportTypeComboBox.setEnabled(!nativeImplementation);
 
-        boolean containerImplementation = implementation != null && implementation.isContainer();
-        implementationComboBox.setToolTipText(containerImplementation
-                ? txt("msg.mcp.text.ContainerArchHint", McpContainerRuntimeSupport.normalizedHostArch())
-                : null);
+        updateImplementationHint();
     }
 
     private void initToolDefinitionsPanel() {
