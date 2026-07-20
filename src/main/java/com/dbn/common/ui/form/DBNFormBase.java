@@ -21,6 +21,7 @@ import com.dbn.common.dispose.ComponentDisposer;
 import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.latent.Latent;
+import com.dbn.common.locale.Formatter;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.alignment.FieldAlignerData;
@@ -82,6 +83,7 @@ public abstract class DBNFormBase
     private final Latent<DBNFormFieldAdapter> fieldAdapter = Latent.basic(() -> DBNFormFieldAdapter.create(this));
     private final Latent<Boolean> hasScrollBars = Latent.basic(() -> hasChildComponent(getMainComponent(), c -> c instanceof JScrollPane));
     private final @Getter DBNFormMonitor monitor = new DBNFormMonitor(this);
+    private Formatter formatter;
 
     public DBNFormBase(@Nullable Disposable parent) {
         super(parent);
@@ -93,6 +95,22 @@ public abstract class DBNFormBase
 
     protected DBNFormFieldAdapter getFieldAdapter() {
         return fieldAdapter.get();
+    }
+
+    @Nullable
+    protected final Formatter getFormatter() {
+        if (formatter != null) return formatter;
+
+        Project project = getProject();
+        if (project == null || project.isDisposed()) return null;
+
+        formatter = Formatter.getInstance(project);
+        return formatter;
+    }
+
+    @NotNull
+    protected final Formatter ensureFormatter() {
+        return nd(getFormatter());
     }
 
     @NotNull

@@ -16,7 +16,6 @@
 
 package com.dbn.liquibase.execution.ui;
 
-import com.dbn.common.locale.Formatter;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
@@ -136,13 +135,11 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
     private final LiquibaseExecutionInputDialog parent;
     private final LiquibaseExecutionInput executionInput;
-    private final Formatter formatter;
 
     LiquibaseExecutionInputForm(@NotNull LiquibaseExecutionInputDialog parent) {
         super(parent);
         this.parent = parent;
         this.executionInput = parent.getExecutionInput();
-        this.formatter = Formatter.getInstance(executionInput.getProject());
 
         initHeaderPanel();
         initHintPanel();
@@ -665,12 +662,12 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         String text = value.trim();
 
         try {
-            formatter.parseDateTime(text);
+            ensureFormatter().parseDateTime(text);
             return null;
         } catch (java.text.ParseException e) {
             return txt("msg.shared.error.InvalidDateFormat",
-                    formatter.getDatetimeFormatPattern(),
-                    formatter.formatDateTime(new Date()));
+                    ensureFormatter().getDatetimeFormatPattern(),
+                    ensureFormatter().formatDateTime(new Date()));
         }
     }
 
@@ -678,7 +675,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     private Date parseRollbackDate(@NotNull String value) {
         if (value.trim().isEmpty()) return null;
         try {
-            return formatter.parseDateTime(value);
+            return ensureFormatter().parseDateTime(value);
         } catch (java.text.ParseException e) {
             return null;
         }
@@ -686,7 +683,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
     @Nullable
     private String formatRollbackDate(@Nullable Date value) {
-        return value == null ? null : formatter.formatDateTime(value);
+        return value == null ? null : ensureFormatter().formatDateTime(value);
     }
 
     @Nullable

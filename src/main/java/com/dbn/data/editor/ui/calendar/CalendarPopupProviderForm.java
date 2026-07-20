@@ -19,7 +19,6 @@ package com.dbn.data.editor.ui.calendar;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
@@ -163,16 +162,12 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
         return mainPanel;
     }
 
-    public Formatter getFormatter() {
-        return Formatter.getInstance(ensureProject());
-    }
-
     private void setType(@NotNull CalendarPopupType type) {
         this.type = type;
         boolean timeVisible = type == CalendarPopupType.DATE_TIME;
         timePanel.setVisible(timeVisible);
         dateTimeLink.setVisible(!timeVisible);
-        if (timeVisible) timeTextField.setText(getFormatter().formatTime(new Date()));
+        if (timeVisible) timeTextField.setText(ensureFormatter().formatTime(new Date()));
         getMainComponent().revalidate();
         getMainComponent().doLayout();
 
@@ -188,7 +183,7 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
         if (userValueHolder == null) {
             String dateString = getText(getEditorComponent().getTextField());
             try {
-                return getFormatter().parseDateTime(dateString);
+                return ensureFormatter().parseDateTime(dateString);
             } catch (ParseException e) {
                 conditionallyLog(e);
                 return new Date();

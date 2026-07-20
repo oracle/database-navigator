@@ -18,6 +18,9 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.LiquibaseOperationSupport;
+import com.dbn.liquibase.execution.LiquibaseRollbackInstruction;
+import com.dbn.liquibase.execution.LiquibaseUpdateInstruction;
+import com.dbn.liquibase.execution.LiquibaseUpdateType;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.intellij.openapi.Disposable;
@@ -63,6 +66,10 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private JLabel durationLabel;
     private JLabel rollbackTypeCaptionLabel;
     private JLabel rollbackTypeLabel;
+    private JLabel updateTypeCaptionLabel;
+    private JLabel updateTypeLabel;
+    private JLabel updateValueCaptionLabel;
+    private JLabel updateValueLabel;
     private JLabel tagCaptionLabel;
     private JLabel tagLabel;
     private JLabel changelogLabel;
@@ -106,6 +113,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         updateStatus(result);
         updateProcessedItems(result);
         updateRollbackInfo(result);
+        updateUpdateInfo(result);
         updateTagInfo(result);
 
         onHyperlinkAccess(changelogLink, e -> openChangelog(result));
@@ -187,6 +195,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         updateStatusLabel(result);
         updateProcessedItems(result);
         updateRollbackInfo(result);
+        updateUpdateInfo(result);
         updateTagInfo(result);
         updateChangelogLink(result);
         updateLiquibaseTableLinks(result);
@@ -312,35 +321,73 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     }
 
     private void updateRollbackInfo(@NotNull LiquibaseExecutionResult result) {
-        boolean visible = result.getOperation().getSupport().supportsRollback();
-        rollbackTypeCaptionLabel.setVisible(visible);
-        rollbackTypeLabel.setVisible(visible);
-        if (!visible) return;
+        LiquibaseOperationSupport support = result.getOperation().getSupport();
+        boolean rollback = support.supportsRollback();
+        rollbackTypeCaptionLabel.setVisible(rollback);
+        rollbackTypeLabel.setVisible(rollback);
+        if (!rollback) return;
 
-        rollbackTypeLabel.setText(result.getRollbackType().getName());
+        rollbackTypeCaptionLabel.setText(txt("cfg.liquibase.label.RollbackType"));
+        rollbackTypeLabel.setText(result.getRollbackInstruction().getType().getName());
+    }
+
+    private void updateUpdateInfo(@NotNull LiquibaseExecutionResult result) {
+        boolean update = result.getOperation().getSupport().supportsUpdateInstruction();
+        updateTypeCaptionLabel.setVisible(update);
+        updateTypeLabel.setVisible(update);
+        updateValueCaptionLabel.setVisible(false);
+        updateValueLabel.setVisible(false);
+        if (!update) return;
+
+        LiquibaseUpdateInstruction instruction = result.getUpdateInstruction();
+        updateTypeCaptionLabel.setText(txt("cfg.liquibase.label.UpdateType"));
+        updateTypeLabel.setText(instruction.getType().getName());
+        if (instruction.getType() == LiquibaseUpdateType.COUNT) {
+            updateValueCaptionLabel.setText(txt("cfg.liquibase.label.UpdateCount"));
+            updateValueLabel.setText(Integer.toString(instruction.getCount()));
+            updateValueCaptionLabel.setVisible(true);
+            updateValueLabel.setVisible(true);
+        } else if (instruction.getType() == LiquibaseUpdateType.TAG) {
+            updateValueCaptionLabel.setText(txt("cfg.liquibase.label.UpdateTag"));
+            updateValueLabel.setText(instruction.getTag());
+            updateValueCaptionLabel.setVisible(isNotEmpty(instruction.getTag()));
+            updateValueLabel.setVisible(isNotEmpty(instruction.getTag()));
+        }
     }
 
     private void updateTagInfo(@NotNull LiquibaseExecutionResult result) {
-        String tag = null;
-        String captionKey = null;
         LiquibaseOperation operation = result.getOperation();
         LiquibaseOperationSupport support = operation.getSupport();
 
         if (support.supportsDatabaseTag()) {
-            tag = result.getDatabaseTag();
-            captionKey = "cfg.liquibase.label.DatabaseTag";
+            updateTagInfo(result.getDatabaseTag(), "cfg.liquibase.label.DatabaseTag");
         } else if (support.supportsCheckpointTag()) {
-            tag = result.getCheckpointTag();
-            captionKey = "cfg.liquibase.label.CheckpointTag";
-        } else if (support.supportsRollbackTag() && result.getRollbackType() == TAG) {
-            tag = result.getRollbackTag();
-            captionKey = "cfg.liquibase.label.RollbackTag";
+            updateTagInfo(result.getCheckpointTag(), "cfg.liquibase.label.CheckpointTag");
         } else if (support.supportsRollback()) {
-            boolean count = result.getRollbackType() == COUNT;
-            tag = count ? Integer.toString(result.getRollbackCount()) : result.getRollbackDate();
-            captionKey = count ? "cfg.liquibase.label.RollbackCount" : "cfg.liquibase.label.RollbackDate";
+            updateRollbackTagInfo(result);
+        } else {
+            clearTagInfo();
+        }
+    }
+
+    private void updateRollbackTagInfo(@NotNull LiquibaseExecutionResult result) {
+        LiquibaseRollbackInstruction instruction = result.getRollbackInstruction();
+        if (instruction.getType() == TAG) {
+            updateTagInfo(instruction.getTag(), "cfg.liquibase.label.RollbackTag");
+            return;
         }
 
+        if (instruction.getType() == COUNT) {
+            updateTagInfo(Integer.toString(instruction.getCount()), "cfg.liquibase.label.RollbackCount");
+            return;
+        }
+
+        updateTagInfo(
+                ensureFormatter().formatDateTime(instruction.getDate()),
+                "cfg.liquibase.label.RollbackDate");
+    }
+
+    private void updateTagInfo(@Nullable String tag, @NotNull String captionKey) {
         boolean visible = isNotEmpty(tag);
         tagCaptionLabel.setVisible(visible);
         tagLabel.setVisible(visible);
@@ -348,6 +395,11 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
             tagCaptionLabel.setText(txt(captionKey));
             tagLabel.setText(tag);
         }
+    }
+
+    private void clearTagInfo() {
+        tagCaptionLabel.setVisible(false);
+        tagLabel.setVisible(false);
     }
 
     @NotNull
