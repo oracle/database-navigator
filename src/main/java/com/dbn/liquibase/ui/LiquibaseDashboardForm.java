@@ -10,13 +10,12 @@
 
 package com.dbn.liquibase.ui;
 
-import com.dbn.common.color.Colors;
+import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
-import com.dbn.common.ui.util.Fonts;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
@@ -27,21 +26,16 @@ import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.components.JBLabel;
-import com.intellij.util.ui.UIUtil;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Box;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextPane;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
@@ -86,12 +80,10 @@ public class LiquibaseDashboardForm extends DBNFormBase {
     private DBObjectSelector<DBSchema> schemaSelector;
     private JTabbedPane operationsPanel;
 
-    private final List<JButton> operationButtons = new ArrayList<>();
-    private final DBSchema initialSchema;
+    private final List<LiquibaseDashboardOperationForm> operationForms = DisposableContainers.list(this);
 
     public LiquibaseDashboardForm(@NotNull LiquibaseDashboardDialog parent) {
         super(parent);
-        initialSchema = parent.getInitialSchema();
 
         initHintPanel();
         initHyperlinkPanel();
@@ -113,7 +105,10 @@ public class LiquibaseDashboardForm extends DBNFormBase {
     }
 
     private void initContextSelectors() {
-        connectionSelector.setValues(ConnectionManager.getInstance(getProject()).getConnections());
+        LiquibaseDashboardDialog dialog = ensureParentDialog();
+        DBSchema initialSchema = dialog.getInitialSchema();
+        ConnectionManager connectionManager = ConnectionManager.getInstance(ensureProject());
+        connectionSelector.setValues(connectionManager.getConnections());
         connectionSelector.setSelectedValue(initialSchema == null ? null : initialSchema.getConnection());
 
         schemaSelector.initialize(this, SCHEMA);
@@ -144,7 +139,7 @@ public class LiquibaseDashboardForm extends DBNFormBase {
         addCategory("More", DROP_ALL);
     }
 
-    private void addCategory(@NotNull String key, @NotNull LiquibaseOperation... operations) {
+    private void addCategory(@NotNull @NonNls String key, @NotNull LiquibaseOperation... operations) {
         JPanel itemsPanel = new JPanel();
         verticalBoxLayout(itemsPanel);
         for (LiquibaseOperation operation : operations) addOperation(itemsPanel, operation);
@@ -157,45 +152,14 @@ public class LiquibaseDashboardForm extends DBNFormBase {
     }
 
     private void addOperation(@NotNull JPanel parent, @NotNull LiquibaseOperation operation) {
-        JPanel itemPanel = new JPanel(new BorderLayout());
-        itemPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(16, 16, 8, 0));
-        itemPanel.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-
-        JPanel detailsPanel = new JPanel();
-        verticalBoxLayout(detailsPanel);
-        detailsPanel.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-
-        JTextPane description = new JTextPane();
-        description.setEditable(false);
-        description.setOpaque(false);
-        description.setFocusable(false);
-        description.setForeground(Colors.faded(UIUtil.getLabelForeground()));
-        description.setText(operation.getDescription());
-        description.setPreferredSize(new Dimension(150, 45));
-        description.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
-        description.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-
-        JLabel nameLabel = new JBLabel(operation.getName());
-        nameLabel.setFont(Fonts.regular(1));
-        nameLabel.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        detailsPanel.add(nameLabel);
-        detailsPanel.add(description);
-
-        JButton openButton = new JButton(txt("app.liquibase.action.Open"));
-        openButton.setEnabled(false);
-        openButton.addActionListener(e -> executeOperation(operation));
-        JPanel actionPanel = new JPanel(new BorderLayout());
-        actionPanel.add(openButton, BorderLayout.NORTH);
-        itemPanel.add(detailsPanel, BorderLayout.CENTER);
-        itemPanel.add(actionPanel, BorderLayout.EAST);
-        itemPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, itemPanel.getPreferredSize().height));
-        parent.add(itemPanel);
-        operationButtons.add(openButton);
+        LiquibaseDashboardOperationForm form = new LiquibaseDashboardOperationForm(this, operation, () -> executeOperation(operation));
+        parent.add(form.getComponent());
+        operationForms.add(form);
     }
 
     private void updateOperationAvailability() {
         boolean available = getSelectedSchema() != null;
-        operationButtons.forEach(button -> button.setEnabled(available));
+        operationForms.forEach(form -> form.setOperationAvailable(available));
     }
 
     private void executeOperation(@NotNull LiquibaseOperation operation) {

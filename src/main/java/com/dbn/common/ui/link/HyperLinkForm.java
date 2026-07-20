@@ -27,6 +27,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.link.Hyperlinks.initHyperlink;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.ClientProperty.NON_DISABLEABLE;
 
@@ -38,12 +39,8 @@ public class HyperLinkForm extends DBNFormBase {
     private HyperLinkForm(@Label String text, @LinkLabel String linkText, @NonNls String linkUrl) {
         super(null);
         NON_DISABLEABLE.set(textLabel, true);
-        NON_DISABLEABLE.set(hyperLink, true);
-
         textLabel.setText(text);
-        hyperLink.setHyperlinkText(linkText);
-        hyperLink.setHyperlinkTarget(linkUrl);
-        hyperLink.setToolTipText(linkUrl);
+        initHyperlink(hyperLink, linkText, linkUrl);
     }
 
     public static HyperLinkForm create(@Label String text, @LinkLabel String linkText, @NonNls String linkUrl) {

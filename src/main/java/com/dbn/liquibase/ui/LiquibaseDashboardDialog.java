@@ -36,7 +36,7 @@ public class LiquibaseDashboardDialog extends DBNDialog<LiquibaseDashboardForm> 
     private LiquibaseDashboardDialog(@NotNull Project project, @Nullable DBSchema initialSchema) {
         super(project, txt("msg.liquibase.title.Dashboard"), false);
         this.initialSchema = DBObjectRef.of(initialSchema);
-        setDefaultSize(640, 720);
+        setDefaultSize(640, 860);
         setModal(false);
         init();
     }

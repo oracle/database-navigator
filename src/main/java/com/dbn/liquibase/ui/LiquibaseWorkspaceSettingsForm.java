@@ -22,6 +22,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
+import com.dbn.common.ui.link.Hyperlinks;
 import com.dbn.common.ui.misc.ContentRootSelector;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.DatabaseType;
@@ -118,8 +119,10 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
     }
 
     private void initHyperlinksPanel() {
-        documentationLink.setHyperlinkText(txt("cfg.liquibase.link.LiquibaseDocumentation"));
-        documentationLink.setHyperlinkTarget("https://docs.liquibase.com/oss/reference-guide-4-33");
+        Hyperlinks.initHyperlink(
+                documentationLink,
+                txt("cfg.liquibase.link.LiquibaseDocumentation"),
+                "https://docs.liquibase.com/oss/reference-guide-4-33");
     }
 
     private void initFields() {
