@@ -80,6 +80,14 @@
             <plugin>
                 <groupId>io.micronaut.maven</groupId>
                 <artifactId>micronaut-maven-plugin</artifactId>
+                <!-- pinned below the version micronaut-parent:${MICRONAUT_PLATFORM_VERSION} resolves by
+                     default (5.0.0): that release's TestResourcesLifecycleExtension class is compiled
+                     with class file version 69 (Java 25), and Maven loads it into the core extension
+                     realm - the JVM running Maven itself - just from this plugin being declared, no
+                     matter which goal runs. Any Runner JRE below Java 25 fails to even load the class.
+                     4.11.1 compiles that same class at version 61 (Java 17). Remove this pin once
+                     Micronaut ships a 5.0.x release that fixes the baseline. -->
+                <version>4.11.1</version>
             </plugin>
             <plugin>
                 <groupId>org.graalvm.buildtools</groupId>
