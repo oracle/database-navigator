@@ -57,9 +57,16 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
         SOURCE_TEMPLATES.put("SqlToolExecutor", "DBN - MCP Micronaut SqlToolExecutor");
     }
 
-    // keep the pair platform-blessed: the platform BOM maps the compatible micronaut-mcp version
-    private static final @NonNls String MICRONAUT_PLATFORM_VERSION = "5.0.3";
-    private static final @NonNls String MICRONAUT_MCP_VERSION = "1.0.0";
+    // keep the pair platform-blessed: the platform BOM maps the compatible micronaut-mcp version.
+    // Pinned to the Micronaut 4.x line on purpose: Micronaut 5.0 raised its Java baseline to 25
+    // (https://micronaut.io/2026/04/27/micronaut-framework-5-0-with-java-25-baseline/), which
+    // breaks Maven's own plugin/annotation-processor bootstrapping on any older runner JRE.
+    // micronaut-mcp-server-java-sdk only supports Micronaut 5 from its 1.0.0 release onward; the
+    // last pre-1.0 release (0.0.20) is the one still built against the Micronaut 4.x line - it
+    // pins micronaut-inject/micronaut-core-bom to 4.10.16, which is why the platform version below
+    // matches it exactly rather than floating to the newest 4.x.
+    private static final @NonNls String MICRONAUT_PLATFORM_VERSION = "4.10.16";
+    private static final @NonNls String MICRONAUT_MCP_VERSION = "0.0.20";
     private static final @NonNls String JDBC_VERSION = "23.26.2.0.0";
     private static final @NonNls String ORACLE_PKI_VERSION = "23.26.2.0.0";
     private static final @NonNls String ORACLE_OSDT_VERSION = "21.18.0.0";
