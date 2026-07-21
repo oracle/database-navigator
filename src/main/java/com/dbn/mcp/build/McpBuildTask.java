@@ -120,9 +120,13 @@ public class McpBuildTask {
             int minVersion = McpJavaVersionManager.minJavaVersion(implementation);
             int feature = Integer.parseInt(javaVersion);
             if (feature < minVersion) {
-                showErrorDialog(project,
-                        txt("msg.mcp.title.McpBuildError"),
-                        txt("msg.mcp.error.JdkVersionRequired", minVersion, javaVersion));
+                int option = Messages.showConfirmationDialog(project,
+                        txt("msg.mcp.title.JdkVersionRequired"),
+                        txt("msg.mcp.error.JdkVersionRequired", minVersion, javaVersion),
+                        options(txt("msg.mcp.button.OpenMavenSettings"), txt("msg.shared.button.Cancel")), 0);
+                if (option == 0) {
+                    McpMavenPluginSupport.openMavenRunnerSettings(project);
+                }
                 cancelProcess();
             }
         } catch (ProcessCanceledException e) {
