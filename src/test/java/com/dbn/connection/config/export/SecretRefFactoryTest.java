@@ -42,11 +42,10 @@ public class SecretRefFactoryTest {
     }
 
     @Test
-    public void base64WalletAcceptsPemWalletFile() throws Exception {
+    public void base64WalletRejectsPemWalletFile() throws Exception {
         Path wallet = temporaryFolder.newFile("ewallet.pem").toPath();
-        Files.writeString(wallet, "wallet");
 
-        assertEquals("d2FsbGV0", SecretRefFactory.base64Wallet(wallet).getValue());
+        assertThrows(IllegalArgumentException.class, () -> SecretRefFactory.base64Wallet(wallet));
     }
 
     @Test

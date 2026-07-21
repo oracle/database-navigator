@@ -18,9 +18,9 @@ public class SecretRefFactory {
         if (walletFile == null) return null;
 
         String name = walletFile.getFileName().toString().toLowerCase();
-        boolean supported = name.equals("cwallet.sso") || name.equals("ewallet.pem");
+        boolean supported = name.equals("cwallet.sso");
         if (!supported) {
-            throw new IllegalArgumentException("Unsupported wallet file. Supported: cwallet.sso, ewallet.pem");
+            throw new IllegalArgumentException("Unsupported wallet file. Supported: cwallet.sso");
         }
 
         byte[] bytes = Files.readAllBytes(walletFile);

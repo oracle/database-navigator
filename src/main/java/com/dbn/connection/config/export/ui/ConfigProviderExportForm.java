@@ -188,10 +188,10 @@ public class ConfigProviderExportForm extends DBNFormBase {
 
         var descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor();
         descriptor.setTitle("Select Wallet File");
-        descriptor.setDescription("Select cwallet.sso or ewallet.pem");
+        descriptor.setDescription("Select cwallet.sso");
         descriptor.withFileFilter(vf -> {
             String n = vf.getName().toLowerCase();
-            return n.equals("cwallet.sso") || n.equals("ewallet.pem");
+            return n.equals("cwallet.sso");
         });
 
         VirtualFile vf = FileChooser.chooseFile(descriptor, getProject(), null);
