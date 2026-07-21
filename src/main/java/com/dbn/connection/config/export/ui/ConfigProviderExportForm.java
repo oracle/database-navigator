@@ -164,21 +164,14 @@ public class ConfigProviderExportForm extends DBNFormBase {
                 new FileSaverDescriptor("Export JSON", "Choose where to save the JSON file", "json");
 
         FileSaverDialog dialog = FileChooserFactory.getInstance().createSaveFileDialog(descriptor, getProject());
-        com.intellij.openapi.vfs.VirtualFile baseDir = null;
-        String basePath = resolveOutputDirectoryPath();
-        if (Strings.isEmpty(basePath) && getProject() != null) basePath = getProject().getBasePath();
-
-        if (Strings.isNotEmpty(basePath)) {
-            baseDir = com.intellij.openapi.vfs.LocalFileSystem.getInstance().findFileByPath(basePath);
-        }
-
-        VirtualFileWrapper wrapper = (baseDir == null)
-                ? dialog.save("connection.json")
-                : dialog.save(baseDir, "connection.json");
+        VirtualFileWrapper wrapper = dialog.save((VirtualFile) null, "connection.json");
 
         if (wrapper == null) return;
 
-        outputFile = wrapper.getFile().toPath();
+        VirtualFile file = wrapper.getVirtualFile(true);
+        if (file == null) return;
+
+        outputFile = Path.of(file.getPath());
         outputFileTextField.setText(outputFile.toString());
         validateFormFields();
     }
@@ -233,22 +226,6 @@ public class ConfigProviderExportForm extends DBNFormBase {
         mainPanel.revalidate();
         mainPanel.repaint();
         validateFormFields();
-    }
-
-    private String resolveOutputDirectoryPath() {
-        if (outputFile != null) {
-            Path parent = outputFile.toAbsolutePath().getParent();
-            if (parent != null) return parent.toString();
-        }
-
-        String configuredPath = getText(outputFileTextField.getTextField());
-        Path configuredFile = toPath(configuredPath);
-        if (configuredFile != null) {
-            Path parent = configuredFile.toAbsolutePath().getParent();
-            if (parent != null) return parent.toString();
-        }
-
-        return configuredPath;
     }
 
     private Path getDefaultOutputFile() {
