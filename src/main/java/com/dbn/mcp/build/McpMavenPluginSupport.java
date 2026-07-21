@@ -29,6 +29,7 @@ import com.intellij.openapi.updateSettings.impl.pluginsAdvertisement.PluginsAdve
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.execution.MavenRunnerConfigurable;
 import org.jetbrains.idea.maven.project.MavenProjectBundle;
 
 import java.util.Set;
@@ -99,13 +100,30 @@ public final class McpMavenPluginSupport {
             String mavenSettingsName = MavenProjectBundle.message("configurable.MavenSettings.display.name");
             ShowSettingsUtil.getInstance().showSettingsDialog(project, mavenSettingsName);
         } catch (Throwable e) {
-            showAcknowledgementDialog(project,
-                    txt("msg.mcp.title.MavenSettingsUnavailable"),
-                    txt("msg.mcp.question.MavenSettingsUnavailable", Environment.getIdeName()),
-                    options(txt("msg.mcp.button.RestartIde", Environment.getIdeName()), txt("msg.shared.button.Cancel")), 0, o -> when(o == 0, () -> {
-                        ApplicationEx app = (ApplicationEx) ApplicationManager.getApplication();
-                        app.restart(true);
-                    }));
+            showMavenSettingsUnavailable(project);
         }
+    }
+
+    /**
+     * Opens Maven Settings directly on the "Runner" tab, where the runner JRE (the setting
+     * that determines GraalVM readiness) actually lives, instead of landing on the generic
+     * top-level Maven page and leaving the user to find it themselves.
+     */
+    public static void openMavenRunnerSettings(@Nullable Project project) {
+        try {
+            ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenRunnerConfigurable.class);
+        } catch (Throwable e) {
+            showMavenSettingsUnavailable(project);
+        }
+    }
+
+    private static void showMavenSettingsUnavailable(@Nullable Project project) {
+        showAcknowledgementDialog(project,
+                txt("msg.mcp.title.MavenSettingsUnavailable"),
+                txt("msg.mcp.question.MavenSettingsUnavailable", Environment.getIdeName()),
+                options(txt("msg.mcp.button.RestartIde", Environment.getIdeName()), txt("msg.shared.button.Cancel")), 0, o -> when(o == 0, () -> {
+                    ApplicationEx app = (ApplicationEx) ApplicationManager.getApplication();
+                    app.restart(true);
+                }));
     }
 }
