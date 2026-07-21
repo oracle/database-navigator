@@ -16,10 +16,12 @@
 
 package com.dbn.mcp.build;
 
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Environment;
 import com.dbn.common.util.Messages;
 import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.application.ex.ApplicationEx;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.options.ShowSettingsUtil;
@@ -95,35 +97,43 @@ public final class McpMavenPluginSupport {
                 () -> {});
     }
 
+    /**
+     * Callers of this method run inside a background progress task (build verification), not on
+     * the EDT - but ShowSettingsUtil.showSettingsDialog constructs a DialogWrapper, which asserts
+     * it is only ever created on the EDT. Dispatch.run defers the actual dialog creation there.
+     */
     public static void openMavenPluginSettings(@Nullable Project project) {
-        try {
-            String mavenSettingsName = MavenProjectBundle.message("configurable.MavenSettings.display.name");
-            ShowSettingsUtil.getInstance().showSettingsDialog(project, mavenSettingsName);
-        } catch (Throwable e) {
-            showMavenSettingsUnavailable(project);
-        }
+        Dispatch.run((ModalityState) null, () -> {
+            try {
+                String mavenSettingsName = MavenProjectBundle.message("configurable.MavenSettings.display.name");
+                ShowSettingsUtil.getInstance().showSettingsDialog(project, mavenSettingsName);
+            } catch (Throwable e) {
+                log.warn("Could not open Maven Settings", e);
+                showAcknowledgementDialog(project,
+                        txt("msg.mcp.title.MavenSettingsUnavailable"),
+                        txt("msg.mcp.question.MavenSettingsUnavailable", Environment.getIdeName()),
+                        options(txt("msg.mcp.button.RestartIde", Environment.getIdeName()), txt("msg.shared.button.Cancel")), 0, o -> when(o == 0, () -> {
+                            ApplicationEx app = (ApplicationEx) ApplicationManager.getApplication();
+                            app.restart(true);
+                        }));
+            }
+        });
     }
 
     /**
-     * Opens Maven Settings directly on the "Runner" tab, where the runner JRE (the setting
-     * that determines GraalVM readiness) actually lives, instead of landing on the generic
-     * top-level Maven page and leaving the user to find it themselves.
+     * Opens Maven Settings directly on the "Runner" tab, where the runner JRE (the setting that
+     * determines GraalVM/JDK readiness) actually lives, instead of landing on the generic
+     * top-level Maven page. Falls back to {@link #openMavenPluginSettings} if the direct
+     * navigation ever fails - still a working path, just without landing on the exact tab.
      */
     public static void openMavenRunnerSettings(@Nullable Project project) {
-        try {
-            ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenRunnerConfigurable.class);
-        } catch (Throwable e) {
-            showMavenSettingsUnavailable(project);
-        }
-    }
-
-    private static void showMavenSettingsUnavailable(@Nullable Project project) {
-        showAcknowledgementDialog(project,
-                txt("msg.mcp.title.MavenSettingsUnavailable"),
-                txt("msg.mcp.question.MavenSettingsUnavailable", Environment.getIdeName()),
-                options(txt("msg.mcp.button.RestartIde", Environment.getIdeName()), txt("msg.shared.button.Cancel")), 0, o -> when(o == 0, () -> {
-                    ApplicationEx app = (ApplicationEx) ApplicationManager.getApplication();
-                    app.restart(true);
-                }));
+        Dispatch.run((ModalityState) null, () -> {
+            try {
+                ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenRunnerConfigurable.class);
+            } catch (Throwable e) {
+                log.warn("Could not open Maven Settings on the Runner tab, falling back to the generic Maven Settings page", e);
+                openMavenPluginSettings(project);
+            }
+        });
     }
 }
