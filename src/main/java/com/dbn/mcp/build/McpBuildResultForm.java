@@ -80,13 +80,27 @@ public class McpBuildResultForm extends DBNFormBase {
     private JBTabbedPane createConfigTabs() {
         boolean httpTransport = isHttpTransport();
         JBTabbedPane tabs = new JBTabbedPane();
-        // container run instructions live in the README (kept separate from MCP client config)
         tabs.addTab(httpTransport ? txt("app.mcp.title.Claude") : txt("app.mcp.title.McpConfig"), createConfigTab(result.getClaudeSnippetJson()));
         String clineSnippetJson = result.getClineSnippetJson();
         if (httpTransport && clineSnippetJson != null) {
             tabs.addTab(txt("app.mcp.title.Cline"), createConfigTab(clineSnippetJson));
         }
+        if (definition.getImplementation().isContainer()) {
+            tabs.addTab(txt("app.mcp.title.RunCommand"), createConfigTab(buildContainerRunCommand()));
+        }
         return tabs;
+    }
+
+    /**
+     * Mirrors the docker run command shown in the README (section 2) so it's copy-pasteable
+     * straight from the result dialog too, without having to go open the file.
+     */
+    private @NonNls String buildContainerRunCommand() {
+        return "docker run -d --name " + definition.getServerName() + " \\\n" +
+                "    -p " + definition.getHttpPort() + ":" + definition.getHttpPort() + " \\\n" +
+                "    -e MICRONAUT_SERVER_HOST=0.0.0.0 \\\n" +
+                "    -v ./" + McpBuildTask.CONTAINER_MOUNT_DIR + ":/config:ro \\\n" +
+                "    " + result.getImageName() + " --config=/config/mcp-config.yaml";
     }
 
     private JComponent createConfigTab(String content) {
