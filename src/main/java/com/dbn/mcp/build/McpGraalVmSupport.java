@@ -16,18 +16,15 @@
 
 package com.dbn.mcp.build;
 
-import com.dbn.common.thread.Read;
 import com.dbn.common.util.Messages;
+import com.intellij.openapi.externalSystem.service.execution.ExternalSystemJdkUtil;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.ProjectRootManager;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.execution.MavenRunner;
-import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.server.MavenDistributionsCache;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
@@ -70,24 +67,16 @@ public final class McpGraalVmSupport {
      * Maven integration accepts the SDK entry for launching. The second condition matters:
      * the Maven runner rejects SDK entries that are not full Java SDKs (and JDKs below 1.7)
      * with "Maven 3.3.1+ requires JDK 1.7+", regardless of how valid the underlying JDK is.
+     * <p>
+     * {@link ExternalSystemJdkUtil#getJdk} resolves the runner's JRE selection the same way
+     * the Runner settings panel does, including the "Use JAVA_HOME" and "Use Internal JRE"
+     * macros (matching values, see {@link org.jetbrains.idea.maven.execution.MavenRunnerSettings})
+     * - not just named SDK table entries.
      */
-    private static boolean isRunnerGraalVmReady(@NotNull Project project) {
+    public static boolean isRunnerGraalVmReady(@NotNull Project project) {
         try {
             @NonNls String jreName = MavenRunner.getInstance(project).getSettings().getJreName();
-            Sdk sdk;
-            switch (jreName) {
-                case MavenRunnerSettings.USE_PROJECT_JDK:
-                    sdk = Read.call(() -> ProjectRootManager.getInstance(project).getProjectSdk());
-                    break;
-                case MavenRunnerSettings.USE_JAVA_HOME:
-                case MavenRunnerSettings.USE_INTERNAL_JAVA:
-                    // environment-dependent JREs cannot be pinned or vetted;
-                    // native builds require an explicit SDK entry configured in Maven Settings
-                    return false;
-                default:
-                    sdk = Read.call(() -> ProjectJdkTable.getInstance().findJdk(jreName));
-                    break;
-            }
+            Sdk sdk = ExternalSystemJdkUtil.getJdk(project, jreName);
             return isGraalVm(homeOf(sdk)) && isAcceptedByMavenRunner(project, sdk);
         } catch (ProcessCanceledException e) {
             throw e;
