@@ -17,14 +17,15 @@
 package com.dbn.mcp.build;
 
 import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.thread.Read;
+import com.intellij.openapi.externalSystem.service.execution.ExternalSystemJdkUtil;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.ProjectRootManager;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.execution.MavenRunner;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,13 +57,20 @@ public class McpJavaVersionManager extends ProjectComponentBase {
 
     @NotNull
     public String getProjectJavaVersion() {
-        return normalizeJavaVersion(getConfiguredProjectJavaVersion());
+        return normalizeJavaVersion(getConfiguredRunnerJavaVersion());
     }
 
+    /**
+     * Every implementation is actually compiled and run by the Maven runner JRE, not by the
+     * IDE's Project Structure SDK - that JDK plays no part in this build pipeline. Resolving
+     * the runner JRE the same way {@link McpGraalVmSupport} does keeps both checks consistent
+     * with what Maven will really execute with.
+     */
     @Nullable
-    public String getConfiguredProjectJavaVersion() {
+    public String getConfiguredRunnerJavaVersion() {
         try {
-            Sdk sdk = Read.call(() -> ProjectRootManager.getInstance(getProject()).getProjectSdk());
+            @NonNls String jreName = MavenRunner.getInstance(getProject()).getSettings().getJreName();
+            Sdk sdk = ExternalSystemJdkUtil.getJdk(getProject(), jreName);
             if (sdk == null) return null;
 
             String javaVersion = extractJavaFeature(sdk.getVersionString());
@@ -72,7 +80,7 @@ public class McpJavaVersionManager extends ProjectComponentBase {
         } catch (ProcessCanceledException e) {
             throw e;
         } catch (Exception e) {
-            log.warn("Could not resolve project Java version", e);
+            log.warn("Could not resolve Maven runner Java version", e);
             return null;
         }
     }

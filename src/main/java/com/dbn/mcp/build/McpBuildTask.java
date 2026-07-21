@@ -110,7 +110,7 @@ public class McpBuildTask {
             McpJavaVersionManager manager = McpJavaVersionManager.getInstance(project);
             if (manager == null) return;
 
-            String javaVersion = manager.getConfiguredProjectJavaVersion();
+            String javaVersion = manager.getConfiguredRunnerJavaVersion();
             if (javaVersion == null) return;
 
             int feature = Integer.parseInt(javaVersion);
