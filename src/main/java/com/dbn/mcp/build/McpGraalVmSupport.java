@@ -50,16 +50,27 @@ public final class McpGraalVmSupport {
     private McpGraalVmSupport() {}
 
     public static void verifyGraalVmAvailability(@NotNull Project project) {
-        if (isRunnerGraalVmReady(project)) return;
+        if (promptGraalVmSetup(project)) return;
+        throw new ProcessCanceledException();
+    }
+
+    /**
+     * Live-checks the Maven runner JRE and, if it does not qualify, offers to open Maven
+     * Settings so the user can fix it on the spot. Unlike {@link #verifyGraalVmAvailability},
+     * this does not cancel the current process - it is meant for UI-triggered checks (e.g. a
+     * "Verify" hyperlink) where the caller decides what to do with the outcome.
+     */
+    public static boolean promptGraalVmSetup(@NotNull Project project) {
+        if (isRunnerGraalVmReady(project)) return true;
 
         int option = Messages.showConfirmationDialog(project,
                 txt("msg.mcp.title.GraalVmRequired"),
                 txt("msg.mcp.question.GraalVmNotFound"),
                 options(txt("msg.mcp.button.OpenMavenSettings"), txt("msg.shared.button.Cancel")), 0);
         if (option == 0) {
-            McpMavenPluginSupport.openMavenPluginSettings(project);
+            McpMavenPluginSupport.openMavenRunnerSettings(project);
         }
-        throw new ProcessCanceledException();
+        return false;
     }
 
     /**
