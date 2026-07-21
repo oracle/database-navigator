@@ -81,7 +81,7 @@ public class McpMavenBuildManager extends ProjectComponentBase {
         }
     }
 
-    public void runBuild(@NotNull Path projectDir, @NotNull List<String> goals, @Nullable String graalVmSdkName, @NotNull ProgressIndicator indicator, Consumer<String> outputHandler) throws IOException {
+    public void runBuild(@NotNull Path projectDir, @NotNull List<String> goals, @NotNull ProgressIndicator indicator, Consumer<String> outputHandler) throws IOException {
         indicator.setText2(txt("prc.mcp.text.RunningMavenBuild"));
 
         Project project = getProject();
@@ -153,11 +153,6 @@ public class McpMavenBuildManager extends ProjectComponentBase {
         MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(project);
         MavenGeneralSettings generalSettings = projectsManager.getGeneralSettings().clone();
         MavenRunnerSettings runnerSettings = MavenRunner.getInstance(project).getSettings().clone();
-        // apply the GraalVM override to this build's cloned settings only; the project's
-        // own Maven runner configuration is never touched (see McpGraalVmSupport)
-        if (graalVmSdkName != null) {
-            runnerSettings.setJreName(graalVmSdkName);
-        }
         alignToolchainEnvironment(runnerSettings);
         boolean success = MavenRunner.getInstance(project).runBatch(
                 List.of(parameters),

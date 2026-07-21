@@ -42,7 +42,6 @@ public class McpBuildTask {
     private final McpClientConfiguration clientConfiguration;
 
     private McpServerGenerator generator;
-    private String graalVmSdkName; // per-build GraalVM override; null = use the configured Maven runner as-is
 
     public McpBuildTask(Project project, ConnectionHandler connection, McpServerDefinition definition) {
         this.project = project;
@@ -77,7 +76,7 @@ public class McpBuildTask {
         // compiles inside the builder image, so it requires no GraalVM here
         if (definition.getImplementation().isNative() && !definition.getImplementation().isContainer()) {
             indicator.setText2(txt("prc.mcp.text.VerifyingGraalVmAvailability"));
-            graalVmSdkName = McpGraalVmSupport.resolveGraalVmSdkName(project);
+            McpGraalVmSupport.verifyGraalVmAvailability(project);
         }
 
         indicator.setText2(txt("prc.mcp.text.VerifyingProjectJavaVersion"));
@@ -229,7 +228,6 @@ public class McpBuildTask {
                         outputDirectory,
                         generator,
                         sourceDirectory,
-                        graalVmSdkName,
                         indicator,
                         null);
                 indicator.setText2(txt("prc.mcp.text.FinalizingOutput"));

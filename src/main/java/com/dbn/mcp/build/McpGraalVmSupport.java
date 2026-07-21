@@ -16,18 +16,13 @@
 
 package com.dbn.mcp.build;
 
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Messages;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.util.SystemProperties;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,79 +31,38 @@ import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.server.MavenDistributionsCache;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Stream;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Messages.options;
-import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Native MCP server builds require Maven to execute on a GraalVM JDK that
- * includes the native-image tool. This support checks whether the configured
- * Maven runner JRE already qualifies and, if not, locates a GraalVM installation
- * on the machine and (with user consent) resolves the SDK to use — without
- * altering the project's own Maven runner configuration. The caller applies the
- * resolved SDK as a per-build override (see McpMavenBuildManager), so unrelated
- * Maven builds in the project are never affected.
+ * includes the native-image tool. This support only checks whether the
+ * currently configured Maven runner JRE already qualifies; it does not scan
+ * the machine for GraalVM installations or register SDKs on the user's
+ * behalf. When the runner does not qualify, the user is routed to Maven
+ * Settings to configure one explicitly, or can use the Container Image
+ * build target instead, which needs no local GraalVM at all.
  */
-@Slf4j
 public final class McpGraalVmSupport {
     private McpGraalVmSupport() {}
 
-    /**
-     * Resolves the GraalVM SDK name to use for a single native/container build.
-     * Returns null when the currently configured Maven runner JRE already
-     * qualifies (no override needed). Never mutates the project's Maven runner
-     * settings; registers the SDK in the IDE's JDK table if it is not already
-     * known there, since the Maven runner can only reference named SDK entries.
-     */
-    @Nullable
-    public static String resolveGraalVmSdkName(@NotNull Project project) {
-        if (isRunnerGraalVmReady(project)) return null;
-
-        Path graalVmHome = findGraalVmHome(project);
-        if (graalVmHome == null) {
-            int option = Messages.showConfirmationDialog(project,
-                    txt("msg.mcp.title.GraalVmRequired"),
-                    txt("msg.mcp.question.GraalVmNotFound"),
-                    options(txt("msg.mcp.button.OpenMavenSettings"), txt("msg.shared.button.Cancel")), 0);
-            if (option == 0) {
-                McpMavenPluginSupport.openMavenPluginSettings(project);
-            }
-            throw new ProcessCanceledException();
-        }
+    public static void verifyGraalVmAvailability(@NotNull Project project) {
+        if (isRunnerGraalVmReady(project)) return;
 
         int option = Messages.showConfirmationDialog(project,
                 txt("msg.mcp.title.GraalVmRequired"),
-                txt("msg.mcp.question.UseDetectedGraalVm", graalVmHome),
-                options(txt("msg.mcp.button.UseGraalVm"), txt("msg.shared.button.Cancel")), 0);
-        if (option != 0) {
-            throw new ProcessCanceledException();
+                txt("msg.mcp.question.GraalVmNotFound"),
+                options(txt("msg.mcp.button.OpenMavenSettings"), txt("msg.shared.button.Cancel")), 0);
+        if (option == 0) {
+            McpMavenPluginSupport.openMavenPluginSettings(project);
         }
-
-        String sdkName = resolveSdkName(project, graalVmHome);
-        log.info("Resolved GraalVM SDK for this native MCP build: {} ({})", sdkName, graalVmHome);
-        return sdkName;
-    }
-
-    /**
-     * Non-intrusive check for UI hints: true when a native build could proceed
-     * without prompting the user (the Maven runner already qualifies, or a
-     * GraalVM installation is discoverable on the machine).
-     */
-    public static boolean isGraalVmAvailable(@NotNull Project project) {
-        return isRunnerGraalVmReady(project) || findGraalVmHome(project) != null;
+        throw new ProcessCanceledException();
     }
 
     /**
@@ -128,7 +82,7 @@ public final class McpGraalVmSupport {
                 case MavenRunnerSettings.USE_JAVA_HOME:
                 case MavenRunnerSettings.USE_INTERNAL_JAVA:
                     // environment-dependent JREs cannot be pinned or vetted;
-                    // native builds require an explicit SDK entry (offered below)
+                    // native builds require an explicit SDK entry configured in Maven Settings
                     return false;
                 default:
                     sdk = Read.call(() -> ProjectJdkTable.getInstance().findJdk(jreName));
@@ -158,139 +112,9 @@ public final class McpGraalVmSupport {
         return sdk == null || sdk.getHomePath() == null ? null : Paths.get(sdk.getHomePath());
     }
 
-    @Nullable
-    private static Path findGraalVmHome(@NotNull Project project) {
-        // prefer installations matching the host CPU architecture, then the newest version
-        return collectCandidateHomes(project).stream()
-                .filter(McpGraalVmSupport::isGraalVm)
-                .max(Comparator
-                        .comparing(McpGraalVmSupport::matchesHostArchitecture)
-                        .thenComparing(McpGraalVmSupport::readJavaVersion, McpGraalVmSupport::compareVersions))
-                .orElse(null);
-    }
-
-    private static boolean matchesHostArchitecture(Path jdkHome) {
-        @NonNls String hostArch = System.getProperty("os.arch");
-        @NonNls String jdkArch = readReleaseProperty(jdkHome, "OS_ARCH");
-        if (jdkArch == null) return true; // unknown: do not penalize
-        if (jdkArch.equals(hostArch)) return true;
-        // normalize the common macOS/Linux aliases
-        return (jdkArch.equals("aarch64") && hostArch.equals("arm64")) ||
-                (jdkArch.equals("arm64") && hostArch.equals("aarch64")) ||
-                (jdkArch.equals("amd64") && hostArch.equals("x86_64")) ||
-                (jdkArch.equals("x86_64") && hostArch.equals("amd64"));
-    }
-
-    private static String readJavaVersion(Path jdkHome) {
-        return nvl(readReleaseProperty(jdkHome, "JAVA_VERSION"), "0");
-    }
-
-    @Nullable
-    private static @NonNls String readReleaseProperty(Path jdkHome, @NonNls String key) {
-        Path releaseFile = jdkHome.resolve("release");
-        if (!Files.isRegularFile(releaseFile)) return null;
-        try {
-            for (String line : Files.readAllLines(releaseFile)) {
-                if (line.startsWith(key + "=")) {
-                    return line.substring(key.length() + 1).replace("\"", "").trim();
-                }
-            }
-        } catch (IOException e) {
-            conditionallyLog(e);
-        }
-        return null;
-    }
-
-    private static int compareVersions(String left, String right) {
-        String[] leftParts = left.split("[.+_-]");
-        String[] rightParts = right.split("[.+_-]");
-        int length = Math.max(leftParts.length, rightParts.length);
-        for (int i = 0; i < length; i++) {
-            int leftValue = i < leftParts.length ? parseVersionPart(leftParts[i]) : 0;
-            int rightValue = i < rightParts.length ? parseVersionPart(rightParts[i]) : 0;
-            if (leftValue != rightValue) return Integer.compare(leftValue, rightValue);
-        }
-        return 0;
-    }
-
-    private static int parseVersionPart(String part) {
-        try {
-            return Integer.parseInt(part);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
-
-    private static Set<Path> collectCandidateHomes(@NotNull Project project) {
-        Set<Path> candidates = new LinkedHashSet<>();
-
-        Sdk[] sdks = Read.call(() -> ProjectJdkTable.getInstance().getAllJdks());
-        for (Sdk sdk : sdks) {
-            String homePath = sdk.getHomePath();
-            if (homePath != null) candidates.add(Paths.get(homePath));
-        }
-
-        String graalVmHome = System.getenv("GRAALVM_HOME");
-        if (graalVmHome != null) candidates.add(Paths.get(graalVmHome));
-
-        String userHome = SystemProperties.getUserHome();
-        candidates.addAll(listJdkHomes(Paths.get(userHome, "Library/Java/JavaVirtualMachines"), "Contents/Home"));
-        candidates.addAll(listJdkHomes(Paths.get("/Library/Java/JavaVirtualMachines"), "Contents/Home"));
-        candidates.addAll(listJdkHomes(Paths.get(userHome, ".sdkman/candidates/java"), null));
-        candidates.addAll(listJdkHomes(Paths.get(userHome, ".jdks"), null));
-        candidates.addAll(listJdkHomes(Paths.get("/usr/lib/jvm"), null));
-
-        String programFiles = System.getenv("ProgramFiles");
-        if (programFiles != null) {
-            candidates.addAll(listJdkHomes(Paths.get(programFiles, "Java"), null));
-            candidates.addAll(listJdkHomes(Paths.get(programFiles, "GraalVM"), null));
-        }
-
-        return candidates;
-    }
-
-    private static List<Path> listJdkHomes(Path installDirectory, @Nullable @NonNls String homeSuffix) {
-        if (!Files.isDirectory(installDirectory)) return List.of();
-
-        List<Path> homes = new ArrayList<>();
-        try (Stream<Path> entries = Files.list(installDirectory)) {
-            for (Path entry : entries.toList()) {
-                homes.add(homeSuffix == null ? entry : entry.resolve(homeSuffix));
-            }
-        } catch (IOException e) {
-            conditionallyLog(e);
-        }
-        return homes;
-    }
-
     private static boolean isGraalVm(@Nullable Path jdkHome) {
         if (jdkHome == null || !Files.isDirectory(jdkHome)) return false;
         return Files.isRegularFile(jdkHome.resolve("bin/native-image")) ||
                 Files.isRegularFile(jdkHome.resolve("bin/native-image.cmd"));
-    }
-
-    private static String resolveSdkName(@NotNull Project project, @NotNull Path graalVmHome) {
-        Sdk[] sdks = Read.call(() -> ProjectJdkTable.getInstance().getAllJdks());
-        for (Sdk sdk : sdks) {
-            String homePath = sdk.getHomePath();
-            if (homePath != null && Paths.get(homePath).equals(graalVmHome) && isAcceptedByMavenRunner(project, sdk)) {
-                return sdk.getName();
-            }
-        }
-        return registerSdk(project, graalVmHome);
-    }
-
-    private static String registerSdk(@NotNull Project project, @NotNull Path graalVmHome) {
-        // must be a full JavaSdk entry: the Maven runner rejects other SDK types outright
-        Sdk sdk = Dispatch.call(() ->
-                SdkConfigurationUtil.createAndAddSDK(graalVmHome.toString(), JavaSdk.getInstance()));
-
-        if (sdk == null) {
-            showErrorDialog(project,
-                    txt("msg.mcp.title.GraalVmRequired"),
-                    txt("msg.mcp.error.GraalVmSdkSetupFailed", graalVmHome));
-            throw new ProcessCanceledException();
-        }
-        return sdk.getName();
     }
 }
