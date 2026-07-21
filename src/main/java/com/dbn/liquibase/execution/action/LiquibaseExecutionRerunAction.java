@@ -34,6 +34,8 @@ public class LiquibaseExecutionRerunAction extends AbstractLiquibaseExecutionRes
         if (target == null) return false;
 
         TaskStatus status = target.getStatus();
-        return status == TaskStatus.CANCELLED || status == TaskStatus.FAILED;
+        if (status == TaskStatus.CANCELLED || status == TaskStatus.FAILED) return true;
+
+        return status == TaskStatus.DONE && target.getOperation().getSupport().supportsRerunOnSuccess();
     }
 }

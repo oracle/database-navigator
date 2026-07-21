@@ -46,6 +46,7 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     private final Map<String, LiquibaseSnapshotItem> snapshotItems = new LinkedHashMap<>();
     private final Map<String, LiquibaseChangeSetItem> changeSetItems = new LinkedHashMap<>();
     private final Map<String, LiquibaseComparisonItem> comparisonItems = new LinkedHashMap<>();
+    private final Map<String, LiquibaseLockItem> lockItems = new LinkedHashMap<>();
     private volatile TaskStatus status = TaskStatus.NEW;
 
     @NotNull
@@ -66,6 +67,13 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     public List<LiquibaseComparisonItem> getComparisonItems() {
         synchronized (comparisonItems) {
             return new ArrayList<>(comparisonItems.values());
+        }
+    }
+
+    @NotNull
+    public List<LiquibaseLockItem> getLockItems() {
+        synchronized (lockItems) {
+            return new ArrayList<>(lockItems.values());
         }
     }
 
@@ -107,6 +115,11 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
         }
         notifyItemsChanged();
         return item;
+    }
+
+    @NotNull
+    public LiquibaseLockItem ensureLockItem(@NotNull liquibase.lockservice.DatabaseChangeLogLock lock) {
+        return ensureItem(lockItems, Integer.toString(lock.getId()), () -> new LiquibaseLockItem(lock));
     }
 
     @NotNull

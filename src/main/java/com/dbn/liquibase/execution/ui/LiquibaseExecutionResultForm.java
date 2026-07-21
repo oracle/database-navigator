@@ -34,6 +34,7 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
     private LiquibaseSnapshotItemsTableModel snapshotItemsTableModel;
     private LiquibaseChangeSetItemsTableModel changeSetItemsTableModel;
     private LiquibaseComparisonItemsTableModel comparisonItemsTableModel;
+    private LiquibaseLockItemsTableModel lockItemsTableModel;
     private int outputOffset;
 
     public LiquibaseExecutionResultForm(@NotNull LiquibaseExecutionResult result) {
@@ -44,7 +45,7 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
         initContentItemsPanel();
         initSqlOutputPanel();
         initResultListeners();
-        updateResult(result, snapshotItemsTableModel, changeSetItemsTableModel, comparisonItemsTableModel);
+        updateResult(result, snapshotItemsTableModel, changeSetItemsTableModel, comparisonItemsTableModel, lockItemsTableModel);
     }
 
     private void initActionsPanel() {
@@ -82,6 +83,8 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
             initComparisonItemsPanel(result);
         } else if (support.supportsSnapshotItems()) {
             initSnapshotItemsPanel(result);
+        } else if (support.supportsLockItems()) {
+            initLockItemsPanel(result);
         } else if (support.supportsChangeSetItems()) {
             initChangeSetItemsPanel(result);
         }
@@ -109,25 +112,34 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
         contentTabbedPane.addTab(txt("app.liquibase.title.ChangeSetItems"), new DBNScrollPane(changeSetItemsTable));
     }
 
+    private void initLockItemsPanel(@NotNull LiquibaseExecutionResult result) {
+        lockItemsTableModel = new LiquibaseLockItemsTableModel(result);
+        LiquibaseLockItemsTable lockItemsTable = new LiquibaseLockItemsTable(this, lockItemsTableModel);
+        contentTabbedPane.addTab(txt("app.liquibase.title.LockItems"), new DBNScrollPane(lockItemsTable));
+    }
+
     private void initResultListeners() {
         LiquibaseExecutionResult result = getExecutionResult();
         result.addListener(() -> Dispatch.run(false, () -> updateResult(
                 result,
                 snapshotItemsTableModel,
                 changeSetItemsTableModel,
-                comparisonItemsTableModel)));
+                comparisonItemsTableModel,
+                lockItemsTableModel)));
     }
 
     private void updateResult(
             @NotNull LiquibaseExecutionResult result,
             @Nullable LiquibaseSnapshotItemsTableModel snapshotTableModel,
             @Nullable LiquibaseChangeSetItemsTableModel changeSetTableModel,
-            @Nullable LiquibaseComparisonItemsTableModel comparisonTableModel) {
+            @Nullable LiquibaseComparisonItemsTableModel comparisonTableModel,
+            @Nullable LiquibaseLockItemsTableModel lockTableModel) {
         boolean outputChanged = updateConsoleOutput(result);
         updateSqlOutput(result);
         if (snapshotTableModel != null) snapshotTableModel.refresh();
         if (changeSetTableModel != null) changeSetTableModel.refresh();
         if (comparisonTableModel != null) comparisonTableModel.refresh();
+        if (lockTableModel != null) lockTableModel.refresh();
         if (outputChanged) console.markOutputUnread();
     }
 
@@ -159,7 +171,7 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
         initSqlOutputPanel();
         initContentItemsPanel();
         initResultListeners();
-        updateResult(getExecutionResult(), snapshotItemsTableModel, changeSetItemsTableModel, comparisonItemsTableModel);
+        updateResult(getExecutionResult(), snapshotItemsTableModel, changeSetItemsTableModel, comparisonItemsTableModel, lockItemsTableModel);
 
         mainPanel.revalidate();
         mainPanel.repaint();

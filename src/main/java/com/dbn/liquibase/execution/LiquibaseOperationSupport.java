@@ -145,7 +145,29 @@ public final class LiquibaseOperationSupport {
                 SYNCHRONIZE_CHANGELOG_SQL,
                 ROLLBACK_CHANGESETS,
                 ROLLBACK_SQL,
-                FUTURE_ROLLBACK);
+                FUTURE_ROLLBACK,
+                CALCULATE_CHECKSUMS);
+    }
+
+    public boolean supportsLockItems() {
+        return operation == LIST_LOCKS;
+    }
+
+    public boolean supportsRerunOnSuccess() {
+        return operation.isOneOf(
+                GENERATE_CHANGELOG,
+                SNAPSHOT_DATABASE,
+                VALIDATE_CHANGELOG,
+                COMPARE_SCHEMAS,
+                GENERATE_DIFF_CHANGELOG,
+                SHOW_CHANGELOG_STATUS,
+                SHOW_CHANGELOG_HISTORY,
+                SYNCHRONIZE_CHANGELOG_SQL,
+                UPDATE_SQL,
+                FUTURE_ROLLBACK,
+                LIST_LOCKS,
+                CALCULATE_CHECKSUMS,
+                ROLLBACK_SQL);
     }
 
     public boolean supportsSqlOutput() {

@@ -11,7 +11,9 @@ import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.object.DBSchema;
+import liquibase.command.core.ListLocksCommandStep;
 import liquibase.database.Database;
+import liquibase.lockservice.DatabaseChangeLogLock;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -30,12 +32,18 @@ public class LiquibaseListLocksProcessor extends LiquibaseExecutionProcessor {
         DBSchema targetSchema = context.getTargetSchema();
         withLiquibaseDatabase(context, true, targetSchema, database ->
                 withLiquibaseScope(context, classLoaderAccessor(), null,
-                        output -> executeListLocks(database, output)));
+                        output -> executeListLocks(context, database, output)));
     }
 
     private void executeListLocks(
+            @NotNull LiquibaseExecutionContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
         executeCommand(LIST_LOCKS, output, Map.of("database", database));
+        for (DatabaseChangeLogLock lock : ListLocksCommandStep.listLocks(database)) {
+            checkCanceled(context);
+            context.getResult().ensureLockItem(lock);
+        }
+        context.getResult().notifyItemsChanged();
     }
 }
