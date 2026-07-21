@@ -32,6 +32,8 @@ import com.dbn.common.util.Strings;
 import com.dbn.common.util.Titles;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.mcp.build.McpGraalVmSupport;
+import com.dbn.mcp.build.McpMavenPluginSupport;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.model.McpToolDefinition;
@@ -133,16 +135,15 @@ public class McpServerDefinitionForm extends DBNFormBase {
         hintPanel.add(new DBNHintForm(this, hintContent, null, true).getComponent());
     }
 
-    private JComponent nativeHintComponent;
     private JComponent containerHintComponent;
 
     /**
-     * Prerequisite hints for the two Micronaut implementations, created once and
-     * swapped in based on the selected implementation (Standard Java has none).
+     * Prerequisite hint for the container implementation, created once and swapped in based
+     * on the selected implementation (Standard Java has none). The native hint is rebuilt on
+     * every display since it reflects the live Maven runner JRE readiness (see
+     * {@link #buildNativeHintComponent()}).
      */
     private void initImplementationHintPanel() {
-        nativeHintComponent = new DBNHintForm(this,
-                TextContent.plain(txt("msg.mcp.text.NativePrerequisites")), MessageType.WARNING, true).getComponent();
         containerHintComponent = new DBNHintForm(this,
                 TextContent.plain(txt("msg.mcp.text.ContainerPrerequisites")), MessageType.WARNING, true).getComponent();
         implementationHintPanel.setVisible(false);
@@ -152,7 +153,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
         McpServerImplementation implementation = getSelection(implementationComboBox);
         JComponent hint =
                 implementation == McpServerImplementation.MICRONAUT_CONTAINER ? containerHintComponent :
-                implementation == McpServerImplementation.MICRONAUT_NATIVE ? nativeHintComponent :
+                implementation == McpServerImplementation.MICRONAUT_NATIVE ? buildNativeHintComponent() :
                 null;
 
         implementationHintPanel.removeAll();
@@ -160,6 +161,30 @@ public class McpServerDefinitionForm extends DBNFormBase {
         implementationHintPanel.setVisible(hint != null);
         implementationHintPanel.revalidate();
         implementationHintPanel.repaint();
+    }
+
+    /**
+     * Reflects the live readiness of the configured Maven runner JRE: a "Verify" action link
+     * when not (yet) GraalVM-ready that lets the user check and, if needed, jump straight to
+     * Maven Settings to fix it; no hint at all once it is ready - nothing left to warn about.
+     */
+    @Nullable
+    private JComponent buildNativeHintComponent() {
+        Project project = getProject();
+        if (McpGraalVmSupport.isRunnerGraalVmReady(project)) return null;
+
+        DBNHintForm hintForm = new DBNHintForm(this,
+                TextContent.plain(txt("msg.mcp.text.NativePrerequisites")), MessageType.WARNING, true,
+                txt("msg.mcp.link.Verify"), this::verifyGraalVmSetup);
+        return hintForm.getComponent();
+    }
+
+    private void verifyGraalVmSetup() {
+        Project project = getProject();
+        if (!McpGraalVmSupport.isRunnerGraalVmReady(project)) {
+            McpMavenPluginSupport.openMavenRunnerSettings(project);
+        }
+        updateImplementationHint();
     }
 
     private void initInputFields() {
