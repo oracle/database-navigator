@@ -68,7 +68,7 @@ public class ConfigProviderMapperTest {
         assertEquals("FILL_THIS_VALUE", payload.getPassword().getValue());
         assertEquals(1000, payload.getJdbc().get("connectTimeout"));
         assertEquals("true", payload.getJdbc().get("ssl"));
-        assertEquals("true", payload.getJdbc().get("autoCommit"));
+        assertFalse(payload.getJdbc().containsKey("autoCommit"));
         assertFalse(payload.getJdbc().containsKey("oracle.net.wallet_location"));
     }
 

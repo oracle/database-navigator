@@ -263,9 +263,6 @@ public class ConfigProviderMapper {
             }
         }
 
-        // 2) export autoCommit exactly as a STRING
-        jdbc.put("autoCommit", props.isEnableAutoCommit() ? "true" : "false");
-
         return jdbc.isEmpty() ? null : jdbc;
     }
 
