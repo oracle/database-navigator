@@ -21,6 +21,10 @@ public class LiquibaseChangeSetItemsTableModel extends DBNDynamicTableModel<Liqu
         addColumn(txt("app.liquibase.column.ChangeSetAuthor"), i -> i.getAuthor());
         addColumn(txt("app.liquibase.column.ChangelogFile"), i -> i.getFilePath());
         addColumn(txt("app.shared.column.Description"), e -> e.getDescription());
+        addColumn(txt("app.liquibase.column.CalculatedChecksum"), e -> e.getCalculatedChecksum());
+        addColumn(txt("app.liquibase.column.StoredChecksum"), e -> e.getStoredChecksum());
+        addColumn(txt("app.liquibase.column.ChecksumStatus"), e ->
+                e.getChecksumStatus() == null ? null : e.getChecksumStatus().getName());
         addColumn(txt("app.liquibase.column.Duration"), e -> presentableDuration(e.getProcessingDuration(), true));
         addColumn(txt("app.liquibase.column.Status"), e -> e.getStatus().getName());
         addColumn(txt("app.liquibase.column.Details"), e -> e.getMessage());

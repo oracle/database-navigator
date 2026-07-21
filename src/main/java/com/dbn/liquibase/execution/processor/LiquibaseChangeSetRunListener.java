@@ -7,6 +7,10 @@ import liquibase.changelog.DatabaseChangeLog;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.liquibase.execution.LiquibaseExecutionItemStatus.FAILED;
+import static com.dbn.liquibase.execution.LiquibaseExecutionItemStatus.PROCESSED;
+import static com.dbn.liquibase.execution.LiquibaseExecutionItemStatus.SKIPPED;
+
 /** Tracks changeset execution callbacks emitted by update-style Liquibase commands. */
 final class LiquibaseChangeSetRunListener extends LiquibaseChangeSetListener {
     LiquibaseChangeSetRunListener(@NotNull LiquibaseExecutionResult result) {
@@ -43,9 +47,9 @@ final class LiquibaseChangeSetRunListener extends LiquibaseChangeSetListener {
     @NotNull
     private static LiquibaseExecutionItemStatus getStatus(@NotNull ChangeSet.ExecType execType) {
         return switch (execType) {
-            case SKIPPED -> LiquibaseExecutionItemStatus.SKIPPED;
-            case FAILED -> LiquibaseExecutionItemStatus.FAILED;
-            default -> LiquibaseExecutionItemStatus.EXECUTED;
+            case SKIPPED -> SKIPPED;
+            case FAILED -> FAILED;
+            default -> PROCESSED;
         };
     }
 }

@@ -25,7 +25,7 @@ final class LiquibaseChangeSetRollbackListener extends LiquibaseChangeSetListene
 
     @Override
     public void rolledBack(ChangeSet changeSet, DatabaseChangeLog changeLog, Database database) {
-        finishProcessing(changeSet, LiquibaseExecutionItemStatus.EXECUTED, completionMessage);
+        finishProcessing(changeSet, LiquibaseExecutionItemStatus.PROCESSED, completionMessage);
     }
 
     @Override

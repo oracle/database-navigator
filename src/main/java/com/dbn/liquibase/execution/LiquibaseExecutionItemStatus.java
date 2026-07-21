@@ -6,7 +6,7 @@ import static com.dbn.nls.NlsResources.txt;
 public enum LiquibaseExecutionItemStatus {
     PROCESSING,
     DISCOVERED,
-    EXECUTED,
+    PROCESSED,
     SKIPPED,
     FAILED;
 

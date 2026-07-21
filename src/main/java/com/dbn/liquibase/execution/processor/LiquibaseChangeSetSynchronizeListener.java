@@ -60,7 +60,7 @@ final class LiquibaseChangeSetSynchronizeListener extends LiquibaseChangeSetList
         return switch (execType) {
             case SKIPPED -> LiquibaseExecutionItemStatus.SKIPPED;
             case FAILED -> LiquibaseExecutionItemStatus.FAILED;
-            default -> LiquibaseExecutionItemStatus.EXECUTED;
+            default -> LiquibaseExecutionItemStatus.PROCESSED;
         };
     }
 }

@@ -22,7 +22,6 @@ public class LiquibaseChangeSetItemsTable extends DBNTableWithGutter<LiquibaseCh
         setCellSelectionEnabled(true);
         setDefaultRenderer(Object.class, new DBNDynamicTableCellRenderer());
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
-        setProportionalColumnWidth(model.getColumnCount() - 1, 30);
         initTableSorter();
         Borderless.markBorderless(this);
         Accessibility.setAccessibleName(this, txt("app.liquibase.aria.ChangeSetItems"));

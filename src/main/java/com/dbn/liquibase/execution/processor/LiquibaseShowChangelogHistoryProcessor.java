@@ -77,7 +77,7 @@ public class LiquibaseShowChangelogHistoryProcessor extends LiquibaseExecutionPr
             LiquibaseExecutionItemStatus status = switch (ranChangeSet.getExecType()) {
                 case FAILED -> LiquibaseExecutionItemStatus.FAILED;
                 case SKIPPED -> LiquibaseExecutionItemStatus.SKIPPED;
-                default -> LiquibaseExecutionItemStatus.EXECUTED;
+                default -> LiquibaseExecutionItemStatus.PROCESSED;
             };
             result.ensureChangeSetItem(changeSet, status, ranChangeSet.getDescription());
         }

@@ -8,16 +8,19 @@ package com.dbn.liquibase.execution.processor;
 
 import com.dbn.liquibase.execution.LiquibaseChangeSetItem;
 import com.dbn.liquibase.execution.LiquibaseExecutionContext;
-import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
+import liquibase.change.CheckSum;
 import liquibase.changelog.ChangeLogParameters;
 import liquibase.changelog.ChangeSet;
 import liquibase.changelog.DatabaseChangeLog;
+import liquibase.changelog.RanChangeSet;
+import liquibase.command.CommandResults;
+import liquibase.command.core.CalculateChecksumCommandStep;
 import liquibase.database.Database;
 import liquibase.parser.ChangeLogParserFactory;
 import liquibase.resource.ResourceAccessor;
@@ -28,9 +31,11 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.liquibase.execution.LiquibaseCommands.CALCULATE_CHECKSUM;
+import static com.dbn.liquibase.execution.LiquibaseExecutionItemStatus.PROCESSED;
+import static com.dbn.liquibase.execution.LiquibaseExecutionItemStatus.PROCESSING;
 import static com.dbn.nls.NlsResources.txt;
 
-/** Calculates the current Liquibase checksum for every changeset in the workspace changelog. */
+/** Calculates changelog checksums and compares them with the values recorded in the database. */
 public class LiquibaseCalculateChecksumsProcessor extends LiquibaseExecutionProcessor {
     @Override
     public LiquibaseOperation getOperation() {
@@ -63,18 +68,36 @@ public class LiquibaseCalculateChecksumsProcessor extends LiquibaseExecutionProc
             checkCanceled(context);
             LiquibaseChangeSetItem item = result.ensureChangeSetItem(
                     changeSet,
-                    LiquibaseExecutionItemStatus.PROCESSING,
+                    PROCESSING,
                     txt("msg.liquibase.text.ChangeSetChecksumPending"));
             items.add(item);
+            item.startProcessing();
 
-            executeCommand(CALCULATE_CHECKSUM, output, Map.of(
+            CommandResults commandResults = executeCommand(CALCULATE_CHECKSUM, output, Map.of(
                     "database", database,
                     "changelogFile", paths.getMasterChangelogRelativePath(),
                     "changesetIdentifier", changeSet.toString()));
 
-            item.updateStatus(LiquibaseExecutionItemStatus.EXECUTED,
-                    txt("msg.liquibase.text.ChangeSetChecksumCalculated"));
+            CheckSum calculatedChecksum = commandResults.getResult(CalculateChecksumCommandStep.CHECKSUM_RESULT);
+            RanChangeSet ranChangeSet = database.getRanChangeSet(changeSet);
+            boolean executed = ranChangeSet != null;
+            CheckSum storedChecksum = executed ? ranChangeSet.getLastCheckSum() : null;
+            item.updateChecksum(calculatedChecksum, storedChecksum, executed);
+            item.finishProcessing();
+            item.updateStatus(
+                    PROCESSED,
+                    getChecksumMessage(item));
         }
         if (!items.isEmpty()) result.notifyItemsChanged();
+    }
+
+    @NotNull
+    private static String getChecksumMessage(@NotNull LiquibaseChangeSetItem item) {
+        return switch (item.getChecksumStatus()) {
+            case MATCHING -> txt("msg.liquibase.text.ChangeSetChecksumMatching");
+            case CHANGED -> txt("msg.liquibase.text.ChangeSetChecksumChanged");
+            case NOT_EXECUTED -> txt("msg.liquibase.text.ChangeSetChecksumNotExecuted");
+            case NOT_RECORDED -> txt("msg.liquibase.text.ChangeSetChecksumNotRecorded");
+        };
     }
 }

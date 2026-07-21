@@ -40,6 +40,7 @@ import liquibase.change.core.TagDatabaseChange;
 import liquibase.changelog.ChangeLogParameters;
 import liquibase.changelog.ChangeSet;
 import liquibase.changelog.DatabaseChangeLog;
+import liquibase.command.CommandResults;
 import liquibase.command.CommandScope;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
@@ -162,7 +163,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
             @NotNull Function<LiquibaseChangeSetItem, String> messageFunction) {
         LiquibaseExecutionResult result = context.getResult();
         for (LiquibaseChangeSetItem item : items) {
-            item.updateStatus(LiquibaseExecutionItemStatus.EXECUTED, messageFunction.apply(item));
+            item.updateStatus(LiquibaseExecutionItemStatus.PROCESSED, messageFunction.apply(item));
         }
         if (!items.isEmpty()) result.notifyItemsChanged();
     }
@@ -402,7 +403,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
                 }));
     }
 
-    protected static Object executeCommand(String commandName, LiquibaseExecutionOutputStream output, @NonNls Map<String, Object> arguments) throws CommandExecutionException {
+    protected static CommandResults executeCommand(String commandName, LiquibaseExecutionOutputStream output, @NonNls Map<String, Object> arguments) throws CommandExecutionException {
         CommandScope command = new CommandScope(commandName);
 
         for (String argument : arguments.keySet()) {
@@ -413,9 +414,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
         }
 
         command.setOutput(output);
-        command.execute();
-
-        return null;
+        return command.execute();
     }
 
 }
