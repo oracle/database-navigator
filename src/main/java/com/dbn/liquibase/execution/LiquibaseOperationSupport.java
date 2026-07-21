@@ -37,6 +37,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.SNAPSHOT_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_SQL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
+import static com.dbn.liquibase.execution.LiquibaseOperation.UNEXPECTED_CHANGESETS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_SQL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.VALIDATE_CHANGELOG;
@@ -68,6 +69,7 @@ public final class LiquibaseOperationSupport {
                 SNAPSHOT_DATABASE,
                 SHOW_CHANGELOG_STATUS,
                 SHOW_CHANGELOG_HISTORY,
+                UNEXPECTED_CHANGESETS,
                 SYNCHRONIZE_CHANGELOG,
                 SYNCHRONIZE_CHANGELOG_SQL,
                 UPDATE_DATABASE,
@@ -140,6 +142,7 @@ public final class LiquibaseOperationSupport {
                 UPDATE_DATABASE,
                 UPDATE_SQL,
                 SHOW_CHANGELOG_HISTORY,
+                UNEXPECTED_CHANGESETS,
                 MARK_NEXT_CHANGESET_RAN,
                 SYNCHRONIZE_CHANGELOG,
                 SYNCHRONIZE_CHANGELOG_SQL,
@@ -162,6 +165,7 @@ public final class LiquibaseOperationSupport {
                 GENERATE_DIFF_CHANGELOG,
                 SHOW_CHANGELOG_STATUS,
                 SHOW_CHANGELOG_HISTORY,
+                UNEXPECTED_CHANGESETS,
                 SYNCHRONIZE_CHANGELOG_SQL,
                 UPDATE_SQL,
                 FUTURE_ROLLBACK,
@@ -188,6 +192,7 @@ public final class LiquibaseOperationSupport {
         return operation.isOneOf(
                 SHOW_CHANGELOG_STATUS,
                 SHOW_CHANGELOG_HISTORY,
+                UNEXPECTED_CHANGESETS,
                 SYNCHRONIZE_CHANGELOG,
                 UPDATE_DATABASE,
                 MARK_NEXT_CHANGESET_RAN,
@@ -206,6 +211,7 @@ public final class LiquibaseOperationSupport {
                 GENERATE_DIFF_CHANGELOG,
                 SHOW_CHANGELOG_STATUS,
                 SHOW_CHANGELOG_HISTORY,
+                UNEXPECTED_CHANGESETS,
                 SYNCHRONIZE_CHANGELOG,
                 SYNCHRONIZE_CHANGELOG_SQL,
                 UPDATE_DATABASE,

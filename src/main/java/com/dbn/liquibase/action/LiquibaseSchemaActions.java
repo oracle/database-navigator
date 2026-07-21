@@ -41,6 +41,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.SNAPSHOT_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_SQL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
+import static com.dbn.liquibase.execution.LiquibaseOperation.UNEXPECTED_CHANGESETS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_SQL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.VALIDATE_CHANGELOG;
@@ -72,6 +73,7 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         DefaultActionGroup inspectActions = new DefaultActionGroup(txt("app.liquibase.group.Inspect"), true);
         inspectActions.add(action(schema, SHOW_CHANGELOG_STATUS));
         inspectActions.add(action(schema, SHOW_CHANGELOG_HISTORY));
+        inspectActions.add(action(schema, UNEXPECTED_CHANGESETS));
         inspectActions.add(action(schema, SNAPSHOT_DATABASE));
         add(inspectActions);
 

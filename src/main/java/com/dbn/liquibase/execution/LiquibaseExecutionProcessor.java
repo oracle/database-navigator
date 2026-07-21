@@ -404,6 +404,14 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     }
 
     protected static CommandResults executeCommand(String commandName, LiquibaseExecutionOutputStream output, @NonNls Map<String, Object> arguments) throws CommandExecutionException {
+        return executeCommand(commandName, output, arguments, Map.of());
+    }
+
+    protected static CommandResults executeCommand(
+            String commandName,
+            LiquibaseExecutionOutputStream output,
+            @NonNls Map<String, Object> arguments,
+            Map<Class<?>, Object> dependencies) throws CommandExecutionException {
         CommandScope command = new CommandScope(commandName);
 
         for (String argument : arguments.keySet()) {
@@ -411,6 +419,10 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
             if (value == null || value == LiquibaseCommands.NULL_ARGUMENT) continue;
 
             command.addArgumentValue(argument, value);
+        }
+
+        for (Map.Entry<Class<?>, Object> dependency : dependencies.entrySet()) {
+            command.provideDependency(dependency.getKey(), dependency.getValue());
         }
 
         command.setOutput(output);

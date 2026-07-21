@@ -37,6 +37,7 @@ import liquibase.command.core.RollbackToDateSqlCommandStep;
 import liquibase.command.core.SnapshotCommandStep;
 import liquibase.command.core.StatusCommandStep;
 import liquibase.command.core.TagCommandStep;
+import liquibase.command.core.UnexpectedChangesetsCommandStep;
 import liquibase.command.core.UpdateCommandStep;
 import liquibase.command.core.UpdateCountCommandStep;
 import liquibase.command.core.UpdateSqlCommandStep;
@@ -54,6 +55,7 @@ public class LiquibaseCommands {
     public static final String VALIDATE_CHANGELOG = ValidateCommandStep.COMMAND_NAME[0];
     public static final String SHOW_CHANGELOG_STATUS = StatusCommandStep.COMMAND_NAME[0];
     public static final String SHOW_CHANGELOG_HISTORY = HistoryCommandStep.COMMAND_NAME[0];
+    public static final String UNEXPECTED_CHANGESETS = UnexpectedChangesetsCommandStep.COMMAND_NAME[0];
     public static final String TAG = TagCommandStep.COMMAND_NAME[0];
     public static final String MARK_NEXT_CHANGESET_RAN = MarkNextChangesetRanCommandStep.COMMAND_NAME[0];
     public static final String RELEASE_LOCKS = ReleaseLocksCommandStep.COMMAND_NAME[0];

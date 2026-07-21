@@ -274,6 +274,7 @@
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseGenerateDiffChangelogProcessor"/>
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseShowChangelogStatusProcessor"/>
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseShowChangelogHistoryProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUnexpectedChangesetsProcessor"/>
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseSynchronizeChangelogProcessor"/>
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseSynchronizeChangelogSqlProcessor"/>
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUpdateDatabaseProcessor"/>
