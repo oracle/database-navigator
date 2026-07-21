@@ -54,23 +54,38 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
- * Native MCP server builds require the Maven runner to execute on a GraalVM JDK
- * that includes the native-image tool. This support verifies the configured Maven
- * runner JRE and, if it does not qualify, tries to locate a GraalVM installation
- * on the machine and (with user consent) configures the Maven runner to use it.
+ * Native MCP server builds require Maven to execute on a GraalVM JDK that
+ * includes the native-image tool. This support checks whether the configured
+ * Maven runner JRE already qualifies and, if not, locates a GraalVM installation
+ * on the machine and (with user consent) resolves the SDK to use — without
+ * altering the project's own Maven runner configuration. The caller applies the
+ * resolved SDK as a per-build override (see McpMavenBuildManager), so unrelated
+ * Maven builds in the project are never affected.
  */
 @Slf4j
 public final class McpGraalVmSupport {
     private McpGraalVmSupport() {}
 
-    public static void verifyGraalVmAvailability(@NotNull Project project) {
-        if (isRunnerGraalVmReady(project)) return;
+    /**
+     * Resolves the GraalVM SDK name to use for a single native/container build.
+     * Returns null when the currently configured Maven runner JRE already
+     * qualifies (no override needed). Never mutates the project's Maven runner
+     * settings; registers the SDK in the IDE's JDK table if it is not already
+     * known there, since the Maven runner can only reference named SDK entries.
+     */
+    @Nullable
+    public static String resolveGraalVmSdkName(@NotNull Project project) {
+        if (isRunnerGraalVmReady(project)) return null;
 
         Path graalVmHome = findGraalVmHome(project);
         if (graalVmHome == null) {
-            showErrorDialog(project,
+            int option = Messages.showConfirmationDialog(project,
                     txt("msg.mcp.title.GraalVmRequired"),
-                    txt("msg.mcp.error.GraalVmNotFound"));
+                    txt("msg.mcp.question.GraalVmNotFound"),
+                    options(txt("msg.mcp.button.OpenMavenSettings"), txt("msg.shared.button.Cancel")), 0);
+            if (option == 0) {
+                McpMavenPluginSupport.openMavenPluginSettings(project);
+            }
             throw new ProcessCanceledException();
         }
 
@@ -83,8 +98,17 @@ public final class McpGraalVmSupport {
         }
 
         String sdkName = resolveSdkName(project, graalVmHome);
-        MavenRunner.getInstance(project).getSettings().setJreName(sdkName);
-        log.info("Configured Maven runner JRE for native MCP builds: {} ({})", sdkName, graalVmHome);
+        log.info("Resolved GraalVM SDK for this native MCP build: {} ({})", sdkName, graalVmHome);
+        return sdkName;
+    }
+
+    /**
+     * Non-intrusive check for UI hints: true when a native build could proceed
+     * without prompting the user (the Maven runner already qualifies, or a
+     * GraalVM installation is discoverable on the machine).
+     */
+    public static boolean isGraalVmAvailable(@NotNull Project project) {
+        return isRunnerGraalVmReady(project) || findGraalVmHome(project) != null;
     }
 
     /**

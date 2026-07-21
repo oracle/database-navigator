@@ -4,6 +4,7 @@ import com.dbn.common.template.TemplateUtilities;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Consumer;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,6 +26,7 @@ public final class McpMavenBuilder {
             Path artifactDir,
             McpServerGenerator generator,
             Path sourceProjectDir,
+            @Nullable String graalVmSdkName,
             ProgressIndicator indicator,
             Consumer<String> outputHandler)
             throws IOException {
@@ -33,7 +35,7 @@ public final class McpMavenBuilder {
         try {
             writeSourceFiles(projDir, generator.getSourceFiles());
             writePom(project, projDir, generator);
-            runMaven(project, projDir, generator.getMavenGoals(), indicator, outputHandler);
+            runMaven(project, projDir, generator.getMavenGoals(), graalVmSdkName, indicator, outputHandler);
             exportSourceProject(projDir, sourceProjectDir);
             return copyArtifact(generator, projDir, artifactDir);
         } finally {
@@ -115,12 +117,12 @@ public final class McpMavenBuilder {
         Files.writeString(dir.resolve("pom.xml"), pom);
     }
 
-    private static void runMaven(Project project, Path dir, List<String> goals, ProgressIndicator indicator, Consumer<String> outputHandler) throws IOException {
+    private static void runMaven(Project project, Path dir, List<String> goals, @Nullable String graalVmSdkName, ProgressIndicator indicator, Consumer<String> outputHandler) throws IOException {
         McpMavenBuildManager mavenManager = McpMavenBuildManager.getInstance(project);
         if (mavenManager == null) {
             throw new IOException(txt("msg.mcp.exception.MavenServiceUnavailable"));
         }
-        mavenManager.runBuild(dir, goals, indicator, outputHandler);
+        mavenManager.runBuild(dir, goals, graalVmSdkName, indicator, outputHandler);
     }
 
     private static Path copyArtifact(McpServerGenerator generator, Path proj, Path out) throws IOException {
