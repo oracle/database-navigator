@@ -58,15 +58,13 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
     }
 
     // keep the pair platform-blessed: the platform BOM maps the compatible micronaut-mcp version.
-    // Pinned to the Micronaut 4.x line on purpose: Micronaut 5.0 raised its Java baseline to 25
-    // (https://micronaut.io/2026/04/27/micronaut-framework-5-0-with-java-25-baseline/), which
-    // breaks Maven's own plugin/annotation-processor bootstrapping on any older runner JRE.
-    // micronaut-mcp-server-java-sdk only supports Micronaut 5 from its 1.0.0 release onward; the
-    // last pre-1.0 release (0.0.20) is the one still built against the Micronaut 4.x line - it
-    // pins micronaut-inject/micronaut-core-bom to 4.10.16, which is why the platform version below
-    // matches it exactly rather than floating to the newest 4.x.
-    private static final @NonNls String MICRONAUT_PLATFORM_VERSION = "4.10.16";
-    private static final @NonNls String MICRONAUT_MCP_VERSION = "0.0.20";
+    // Deliberately on the Micronaut 5.x line, which requires Java 25 as its baseline
+    // (https://micronaut.io/2026/04/27/micronaut-framework-5-0-with-java-25-baseline/): the last
+    // pre-1.0 micronaut-mcp-server-java-sdk release still targeting Micronaut 4.x (0.0.20) pulls
+    // in mcp-core 0.17.0, which predates APIs our generated sources use (e.g. McpJsonDefaults) -
+    // there is no released version pairing Micronaut 4.x with a modern-enough mcp-core.
+    private static final @NonNls String MICRONAUT_PLATFORM_VERSION = "5.0.3";
+    private static final @NonNls String MICRONAUT_MCP_VERSION = "1.0.0";
     private static final @NonNls String JDBC_VERSION = "23.26.2.0.0";
     private static final @NonNls String ORACLE_PKI_VERSION = "23.26.2.0.0";
     private static final @NonNls String ORACLE_OSDT_VERSION = "21.18.0.0";
@@ -126,7 +124,7 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
         applicationYmlContent = TemplateUtilities.generateCode(project, APPLICATION_YML_TEMPLATE, attributes);
 
         // standalone multi-stage build usable on a CI runner of any target architecture
-        attributes.put("GRAALVM_IMAGE_TAG", resolveJavaVersion(project));
+        attributes.put("GRAALVM_IMAGE_TAG", resolveJavaVersion(project, definition.getImplementation()));
         dockerfileContent = TemplateUtilities.generateCode(project, DOCKERFILE_TEMPLATE, attributes);
     }
 
@@ -149,7 +147,7 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
     public Properties getPomProperties() {
         Properties properties = new Properties();
         properties.setProperty("SERVER_NAME", definition.getServerName());
-        properties.setProperty("PROJECT_JAVA_VERSION", resolveJavaVersion(project));
+        properties.setProperty("PROJECT_JAVA_VERSION", resolveJavaVersion(project, definition.getImplementation()));
         properties.setProperty("MICRONAUT_PLATFORM_VERSION", MICRONAUT_PLATFORM_VERSION);
         properties.setProperty("MICRONAUT_MCP_VERSION", MICRONAUT_MCP_VERSION);
         properties.setProperty("JDBC_VERSION", JDBC_VERSION);

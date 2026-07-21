@@ -5,6 +5,7 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.mcp.model.McpServerDefinition;
+import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.model.McpTransportType;
 import com.dbn.mcp.util.McpServerName;
 import com.dbn.mcp.util.McpToolDefinitions;
@@ -24,7 +25,6 @@ import java.nio.file.StandardCopyOption;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.dbn.mcp.build.McpJavaVersionManager.MIN_JAVA_VERSION;
 import static com.dbn.mcp.build.McpMavenPluginSupport.verifyMavenAvailability;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -84,7 +84,7 @@ public class McpBuildTask {
         }
 
         indicator.setText2(txt("prc.mcp.text.VerifyingProjectJavaVersion"));
-        verifyJavaVersion(project);
+        verifyJavaVersion(project, definition.getImplementation());
 
         indicator.setText2(txt("prc.mcp.text.VerifyingConnectionUrl"));
         verifyConnectionUrl();
@@ -109,7 +109,7 @@ public class McpBuildTask {
         }
     }
 
-    public static void verifyJavaVersion(@NotNull Project project) {
+    public static void verifyJavaVersion(@NotNull Project project, @NotNull McpServerImplementation implementation) {
         try {
             McpJavaVersionManager manager = McpJavaVersionManager.getInstance(project);
             if (manager == null) return;
@@ -117,11 +117,12 @@ public class McpBuildTask {
             String javaVersion = manager.getConfiguredRunnerJavaVersion();
             if (javaVersion == null) return;
 
+            int minVersion = McpJavaVersionManager.minJavaVersion(implementation);
             int feature = Integer.parseInt(javaVersion);
-            if (feature < MIN_JAVA_VERSION) {
+            if (feature < minVersion) {
                 showErrorDialog(project,
                         txt("msg.mcp.title.McpBuildError"),
-                        txt("msg.mcp.error.JdkVersionRequired", MIN_JAVA_VERSION, javaVersion));
+                        txt("msg.mcp.error.JdkVersionRequired", minVersion, javaVersion));
                 cancelProcess();
             }
         } catch (ProcessCanceledException e) {

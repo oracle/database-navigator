@@ -97,7 +97,7 @@ class McpStandardJavaGenerator implements McpServerGenerator {
         properties.setProperty("JDBC_ARTIFACT_ID", jdbc.artifactId);
         properties.setProperty("JDBC_VERSION", jdbc.version);
         properties.setProperty("MAIN_CLASS_FQ", mainClass.fullyQualifiedName);
-        properties.setProperty("PROJECT_JAVA_VERSION", resolveJavaVersion(project));
+        properties.setProperty("PROJECT_JAVA_VERSION", resolveJavaVersion(project, definition.getImplementation()));
         return properties;
     }
 
