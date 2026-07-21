@@ -22,14 +22,15 @@ $h2 2. Running the server
 
 #if($IS_CONTAINER)
 This server was built as a **container image**: `${IMAGE_NAME}` (registered with your local
-Docker-compatible runtime). Start it by mounting this directory — which holds
-`mcp-config.yaml` and the `wallet/` folder — read-only at `/config`:
+Docker-compatible runtime). The `${MOUNT_DIR}/` folder next to this README holds
+`mcp-config.yaml` and the `wallet/` folder — mount it read-only at `/config`. Run this from
+inside this directory (the relative path only resolves from here):
 
 ```
 docker run -d --name ${SERVER_NAME} \
     -p ${HTTP_PORT}:${HTTP_PORT} \
     -e MICRONAUT_SERVER_HOST=0.0.0.0 \
-    -v /path/to/this/directory:/config:ro \
+    -v ./${MOUNT_DIR}:/config:ro \
     ${IMAGE_NAME} --config=/config/mcp-config.yaml
 ```
 

@@ -62,6 +62,7 @@ final class McpReadmeWriter {
             context.put("TOOLS", toolList);
             context.put("IMAGE_NAME", serverName + ":latest");
             context.put("IS_CONTAINER", definition.getImplementation().isContainer());
+            context.put("MOUNT_DIR", McpBuildTask.CONTAINER_MOUNT_DIR);
 
             String template = definition.getImplementation().isNative() ? MICRONAUT_TEMPLATE : STANDARD_TEMPLATE;
             String content = TemplateUtilities.generateCode(project, template, context);

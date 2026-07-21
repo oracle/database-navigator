@@ -32,6 +32,10 @@ public class McpBuildTask {
     private static final @NonNls String CONFIG = "mcp-config.yaml";
     private static final @NonNls String DIST = "mcp-dist";
     private static final @NonNls String SOURCE_PROJECT = "source-project";
+    // container builds only: mcp-config.yaml + wallet/ live here instead of directly under the
+    // output directory, so the README's docker run command can mount a fixed relative path
+    // ("./config") instead of a placeholder the user has to substitute by hand
+    static final @NonNls String CONTAINER_MOUNT_DIR = "config";
 
     private final Project project;
     private final McpServerDefinition definition;
@@ -237,13 +241,17 @@ public class McpBuildTask {
                     result.setServerJar(serverArtifact);
                 }
 
-                Path outputConfigFile = outputDirectory.resolve(CONFIG).toAbsolutePath().normalize();
+                Path payloadDirectory = definition.getImplementation().isContainer() ?
+                        outputDirectory.resolve(CONTAINER_MOUNT_DIR) : outputDirectory;
+                Files.createDirectories(payloadDirectory);
+
+                Path outputConfigFile = payloadDirectory.resolve(CONFIG).toAbsolutePath().normalize();
                 Files.copy(result.getConfigFile(), outputConfigFile, StandardCopyOption.REPLACE_EXISTING);
                 result.setConfigFile(outputConfigFile);
 
                 Files.deleteIfExists(outputDirectory.resolve("Main.java"));
                 indicator.setText2(txt("prc.mcp.text.CreatingWallet"));
-                walletBuilder.build(outputDirectory);
+                walletBuilder.build(payloadDirectory);
 
                 indicator.setText2(txt("prc.mcp.text.WritingReadme"));
                 readmeWriter.write(outputDirectory);
@@ -263,10 +271,12 @@ public class McpBuildTask {
 
     private void showResult() {
         Path outputDirectory = result.getOutputDirectory();
+        Path payloadDirectory = definition.getImplementation().isContainer() ?
+                outputDirectory.resolve(CONTAINER_MOUNT_DIR) : outputDirectory;
 
         McpTransportType transportType = definition.getTransportType();
 
-        result.setWalletDirectory(outputDirectory.resolve("wallet").toAbsolutePath().normalize());
+        result.setWalletDirectory(payloadDirectory.resolve("wallet").toAbsolutePath().normalize());
 
         String serverArtifact = result.getServerJar() == null ? result.getImageName() : result.getServerJar().toString();
         result.setClaudeSnippetJson(clientConfiguration.buildClaudeJson(serverArtifact));
