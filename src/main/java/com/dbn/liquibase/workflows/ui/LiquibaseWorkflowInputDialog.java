@@ -20,6 +20,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /** Dialog for collecting the shared and operation-specific inputs of a Liquibase workflow. */
 @Getter
 public class LiquibaseWorkflowInputDialog extends DBNDialog<LiquibaseExecutionInputForm> {
@@ -49,6 +51,7 @@ public class LiquibaseWorkflowInputDialog extends DBNDialog<LiquibaseExecutionIn
     @Override
     @NotNull
     protected Action[] initializeActions() {
+        renameAction(getOKAction(), txt("msg.liquibase.button.ExecuteWorkflow_" + workflowInput.getWorkflow().name()));
         return actions(getOKAction(), getCancelAction());
     }
 }
