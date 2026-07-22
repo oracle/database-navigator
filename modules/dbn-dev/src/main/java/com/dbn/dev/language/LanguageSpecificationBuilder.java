@@ -101,7 +101,10 @@ public class LanguageSpecificationBuilder {
     }
 
     private static void buildParserExtension(BuildSession session) throws Exception {
-        build(new LanguageSpecificationParserExtensionBuilder(session.input), session, Artifact.PARSER, Action.BUILD_EXTENSION);
+        LanguageSpecificationArtifactBuilder builder = session.input.isParserExtBuilderEnabled() ?
+                new LanguageSpecificationParserExtBuilder(session.input) :
+                new LanguageSpecificationParserExtensionBuilder(session.input);
+        build(builder, session, Artifact.PARSER, Action.BUILD_EXTENSION);
     }
 
     private static void build(

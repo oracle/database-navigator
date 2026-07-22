@@ -58,9 +58,9 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
     private static final String BUILDER_VERSION = "1.1.0";
     private static final String GENERATED_COMMENT = "Generated with LanguageSpecificationParserExtensionBuilder. Do not edit manually.";
     private static final String ATTR_BUILDER_VERSION = "builder-version";
-    private static final String ATTR_TOKEN_TYPE_IDS = "token-type-ids";
-    private static final String ATTR_PARSE_CANDIDATE_IDS = "parse-candidate-ids";
-    private static final String ATTR_COMPLETION_CANDIDATE_IDS = "completion-candidate-ids";
+    private static final String ATTR_TOKEN_TYPE_IDS = "tt";
+    private static final String ATTR_PARSE_CANDIDATE_IDS = "pc";
+    private static final String ATTR_COMPLETION_CANDIDATE_IDS = "cc";
     private static final String TAG_NODE = "node";
     private static final DateTimeFormatter LOG_TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
     private static final int ELEMENT_LOG_INTERVAL = 25;
@@ -1039,8 +1039,13 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
     private static String tokenContentSignature(Element element) {
         StringBuilder signature = new StringBuilder();
-        signature.append("parse-candidate-ids=").append(attributeValue(element, ATTR_PARSE_CANDIDATE_IDS));
-        signature.append(";completion-candidate-ids=").append(attributeValue(element, ATTR_COMPLETION_CANDIDATE_IDS));
+        signature.append(ATTR_PARSE_CANDIDATE_IDS)
+                .append('=')
+                .append(attributeValue(element, ATTR_PARSE_CANDIDATE_IDS));
+        signature.append(';')
+                .append(ATTR_COMPLETION_CANDIDATE_IDS)
+                .append('=')
+                .append(attributeValue(element, ATTR_COMPLETION_CANDIDATE_IDS));
         for (Element child : element.getChildren(TAG_NODE)) {
             signature.append("|child=").append(tokenFullSignature(child));
         }
@@ -1049,9 +1054,17 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
     private static String tokenFullSignature(Element element) {
         StringBuilder signature = new StringBuilder();
-        signature.append("token-type-ids=").append(String.join(",", tokenTypeIds(element)));
-        signature.append(";parse-candidate-ids=").append(attributeValue(element, ATTR_PARSE_CANDIDATE_IDS));
-        signature.append(";completion-candidate-ids=").append(attributeValue(element, ATTR_COMPLETION_CANDIDATE_IDS));
+        signature.append(ATTR_TOKEN_TYPE_IDS)
+                .append('=')
+                .append(String.join(",", tokenTypeIds(element)));
+        signature.append(';')
+                .append(ATTR_PARSE_CANDIDATE_IDS)
+                .append('=')
+                .append(attributeValue(element, ATTR_PARSE_CANDIDATE_IDS));
+        signature.append(';')
+                .append(ATTR_COMPLETION_CANDIDATE_IDS)
+                .append('=')
+                .append(attributeValue(element, ATTR_COMPLETION_CANDIDATE_IDS));
         for (Element child : element.getChildren(TAG_NODE)) {
             signature.append("|child=").append(tokenFullSignature(child));
         }

@@ -39,6 +39,9 @@ public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfEle
     private static final ElementTypeRef[] EMPTY_CANDIDATES = new ElementTypeRef[0];
     private static final LeafElementType[] EMPTY_LEAFS = new LeafElementType[0];
     private static final String TAG_NODE = "node";
+    private static final String ATTR_TOKEN_TYPE_IDS = "tt";
+    private static final String ATTR_PARSE_CANDIDATE_IDS = "pc";
+    private static final String ATTR_COMPLETION_CANDIDATE_IDS = "cc";
 
     public final ElementTypeRef[] defaultCandidates;
     public final Map<String, TokenNode> tokens;
@@ -48,7 +51,7 @@ public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfEle
     public OneOfElementTypeExtension(OneOfElementType elementType, Element definition) {
         super(elementType, definition);
         defaultCandidates = elementType.children;
-        tokens = loadTokens(definition);
+        tokens = loadTokens(definition, EMPTY_CANDIDATES);
         TokenPairTemplate[] templates = elementType.getLanguageDialect().getTokenPairTemplates();
         optionalWrappingBeginTokens = new TokenType[templates.length];
         optionalWrappingCandidates = new ElementTypeRef[templates.length][];
@@ -163,20 +166,6 @@ public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfEle
         return candidateNode == null ? EMPTY_LEAFS : candidateNode.nextLeafs;
     }
 
-    private Map<String, TokenNode> loadTokens(Element definition) {
-        List<Element> tokenElements = definition.getChildren(TAG_NODE);
-        if (tokenElements.isEmpty()) return Map.of();
-
-        Map<String, TokenNode> tokens = new LinkedHashMap<>();
-        for (Element tokenElement : tokenElements) {
-            TokenNode tokenNode = new TokenNode(tokenElement);
-            for (String tokenTypeId : tokenNode.tokenTypeIds) {
-                tokens.put(tokenTypeId, tokenNode);
-            }
-        }
-        return unmodifiableMap(tokens);
-    }
-
     private ElementTypeRef resolveCandidate(String candidateId) {
         OneOfElementType elementType = this.elementType;
         for (ElementTypeRef child : elementType.children) {
@@ -203,24 +192,21 @@ public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfEle
     }
 
     public class TokenNode {
-        public final List<String> tokenTypeIds;
-        public final List<String> candidateIds;
-        public final List<String> nextLeafIds;
         public final ElementTypeRef[] candidates;
         public final LeafElementType[] nextLeafs;
         public final Map<String, TokenNode> tokens;
 
-        private TokenNode(Element definition) {
-            this.tokenTypeIds = unmodifiableList(csvAttribute(definition, "token-type-ids"));
-            this.candidateIds = unmodifiableList(csvAttribute(definition, "parse-candidate-ids"));
-            this.nextLeafIds = unmodifiableList(csvAttribute(definition, "completion-candidate-ids"));
-            this.candidates = loadCandidates(candidateIds);
-            this.nextLeafs = loadNextLeafs(nextLeafIds);
-            this.tokens = loadTokens(definition);
+        private TokenNode(Element definition, ElementTypeRef[] inheritedCandidates) {
+            this.candidates = loadCandidates(definition, inheritedCandidates);
+            this.nextLeafs = loadNextLeafs(definition);
+            this.tokens = loadTokens(definition, candidates);
         }
 
-        private ElementTypeRef[] loadCandidates(List<String> candidateIds) {
-            if (candidateIds.isEmpty()) return EMPTY_CANDIDATES;
+        private ElementTypeRef[] loadCandidates(
+                Element definition,
+                ElementTypeRef[] inheritedCandidates) {
+            List<String> candidateIds = unmodifiableList(csvAttribute(definition, ATTR_PARSE_CANDIDATE_IDS));
+            if (candidateIds.isEmpty()) return inheritedCandidates;
 
             List<ElementTypeRef> candidates = new ArrayList<>(candidateIds.size());
             for (String candidateId : candidateIds) {
@@ -232,7 +218,8 @@ public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfEle
             return candidates.toArray(EMPTY_CANDIDATES);
         }
 
-        private LeafElementType[] loadNextLeafs(List<String> nextLeafIds) {
+        private LeafElementType[] loadNextLeafs(Element definition) {
+            List<String> nextLeafIds = unmodifiableList(csvAttribute(definition, ATTR_COMPLETION_CANDIDATE_IDS));
             if (nextLeafIds.isEmpty()) return EMPTY_LEAFS;
 
             List<LeafElementType> nextLeafs = new ArrayList<>(nextLeafIds.size());
@@ -246,4 +233,20 @@ public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfEle
         }
     }
 
+    private Map<String, TokenNode> loadTokens(
+            Element definition,
+            ElementTypeRef[] inheritedCandidates) {
+        List<Element> tokenElements = definition.getChildren(TAG_NODE);
+        if (tokenElements.isEmpty()) return Map.of();
+
+        Map<String, TokenNode> tokens = new LinkedHashMap<>();
+        for (Element tokenElement : tokenElements) {
+            List<String> tokenTypeIds = unmodifiableList(csvAttribute(tokenElement, ATTR_TOKEN_TYPE_IDS));
+            TokenNode tokenNode = new TokenNode(tokenElement, inheritedCandidates);
+            for (String tokenTypeId : tokenTypeIds) {
+                tokens.put(tokenTypeId.intern(), tokenNode);
+            }
+        }
+        return unmodifiableMap(tokens);
+    }
 }
