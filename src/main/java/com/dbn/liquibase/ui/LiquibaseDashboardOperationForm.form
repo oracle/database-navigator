@@ -21,7 +21,7 @@
           <grid row="0" column="2" row-span="2" col-span="1" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="app.liquibase.action.Open"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.action.Initiate"/>
         </properties>
       </component>
       <component id="description" class="javax.swing.JTextPane" binding="descriptionTextPane">
