@@ -11,7 +11,6 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,7 +46,6 @@ public class LiquibaseExecutionInput extends ProjectUnit {
     }
 
     @NotNull
-    @Delegate
     public LiquibaseFeatureSupport getSupport() {
         return operation.getSupport();
     }
@@ -90,7 +88,7 @@ public class LiquibaseExecutionInput extends ProjectUnit {
 
     @NotNull
     public ConnectionHandler getRelevantConnection() {
-        ConnectionHandler connection = requires(SOURCE_SCHEMA)
+        ConnectionHandler connection = getOperation().requires(SOURCE_SCHEMA)
                 ? coalesce(() -> getSourceConnection(), () -> getTargetConnection())
                 : coalesce(() -> getTargetConnection(), () -> getSourceConnection());
 
@@ -100,7 +98,7 @@ public class LiquibaseExecutionInput extends ProjectUnit {
 
     @NotNull
     public DBSchema getRelevantSchema() {
-        DBSchema schema = requires(SOURCE_SCHEMA)
+        DBSchema schema = getOperation().requires(SOURCE_SCHEMA)
                 ? coalesce(() -> getSourceSchema(), () -> getTargetSchema())
                 : coalesce(() -> getTargetSchema(), () -> getSourceSchema());
 

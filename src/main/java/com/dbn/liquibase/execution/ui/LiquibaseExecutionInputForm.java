@@ -341,11 +341,11 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     }
 
     private boolean isRollbackOperation() {
-        return executionInput.supports(ROLLBACK);
+        return executionInput.getOperation().supports(ROLLBACK);
     }
 
     private boolean isUpdateOperation() {
-        return executionInput.supports(UPDATE_INSTRUCTION);
+        return executionInput.getOperation().supports(UPDATE_INSTRUCTION);
     }
 
     private boolean isUpdateType(@NotNull LiquibaseUpdateType type) {
@@ -387,7 +387,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     }
 
     private void initWorkspaceSelector() {
-        boolean visible = executionInput.requires(WORKSPACE);
+        boolean visible = executionInput.getOperation().requires(WORKSPACE);
         workspaceLabel.setVisible(visible);
         workspaceSelector.setVisible(visible);
         if (!visible) return;
@@ -404,7 +404,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
                 schema.getSchemaId());
         workspaceSelector.setValues(availableWorkspaces);
         workspaceSelector.setSelectedValue(availableWorkspaces.contains(selectedWorkspace) ? selectedWorkspace : null);
-        if (executionInput.supports(WORKSPACE_CREATION)) {
+        if (executionInput.getOperation().supports(WORKSPACE_CREATION)) {
             workspaceSelector.withValueFactory(new ValueFactory<>(txt("app.liquibase.action.NewWorkspace")) {
                 @Override
                 public void createValue(Consumer<LiquibaseWorkspace> consumer) {
@@ -449,7 +449,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
     private void initSourceContextSelectors() {
         ConnectionHandler sourceConnection = executionInput.getSourceConnection();
-        FieldState state = executionInput.getSourceContextState();
+        FieldState state = executionInput.getOperation().getSourceContextState();
         initConnectionSelector(
                 sourceConnectionLabel,
                 sourceConnectionSelector,
@@ -468,7 +468,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
     private void initTargetContextSelectors() {
         ConnectionHandler targetConnection = executionInput.getTargetConnection();
-        FieldState state = executionInput.getTargetContextState();
+        FieldState state = executionInput.getOperation().getTargetContextState();
         initConnectionSelector(
                 targetConnectionLabel,
                 targetConnectionSelector,
@@ -489,7 +489,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         if (!executionInput.containsOperation(COMPARE_SCHEMAS)) return;
 
         ConnectionHandler targetConnection = getTargetConnection();
-        FieldState state = executionInput.getTargetContextState();
+        FieldState state = executionInput.getOperation().getTargetContextState();
         List<ConnectionHandler> connections = getSupportedConnections(getConnections(), state);
         targetConnectionSelector.setValues(connections);
         targetConnectionSelector.setSelectedValue(connections.contains(targetConnection) ? targetConnection : null);
