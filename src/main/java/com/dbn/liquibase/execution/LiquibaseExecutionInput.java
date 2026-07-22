@@ -29,6 +29,7 @@ public class LiquibaseExecutionInput extends ProjectUnit {
     private final LiquibaseUpdateInstruction updateInstruction = new LiquibaseUpdateInstruction();
     private String changelogAuthor;
     private String databaseTag;
+    private String changelogTag;
     private String checkpointTag;
     private boolean confirmed;
 

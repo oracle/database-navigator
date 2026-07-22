@@ -199,11 +199,21 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     }
 
     private void initDatabaseTagField(LiquibaseOperationSupport support) {
-        boolean supported = support.supportsDatabaseTag();
+        boolean databaseTag = support.supportsDatabaseTag();
+        boolean changelogTag = support.supportsChangelogTag();
+        boolean supported = databaseTag || changelogTag;
         databaseTagLabel.setVisible(supported);
         databaseTagTextField.setVisible(supported);
         databaseTagInfoLabel.setVisible(supported);
-        if (supported) setText(databaseTagTextField, executionInput.getDatabaseTag());
+        if (!supported) return;
+
+        if (changelogTag) {
+            databaseTagLabel.setText(txt("cfg.liquibase.label.ChangelogTag"));
+            databaseTagInfoLabel.setContent(plain(txt("cfg.liquibase.hint.ChangelogTag")));
+            setText(databaseTagTextField, executionInput.getChangelogTag());
+        } else {
+            setText(databaseTagTextField, executionInput.getDatabaseTag());
+        }
     }
 
     private void initCheckpointTagField(LiquibaseOperationSupport support) {
@@ -606,8 +616,8 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         }
 
         addTextValidation(databaseTagTextField,
-                text -> !support.requiresDatabaseTag() || !text.trim().isEmpty(),
-                txt("msg.liquibase.error.DatabaseTagRequired"));
+                text -> (!support.requiresDatabaseTag() && !support.requiresChangelogTag()) || !text.trim().isEmpty(),
+                txt(support.requiresChangelogTag() ? "msg.liquibase.error.ChangelogTagRequired" : "msg.liquibase.error.DatabaseTagRequired"));
     }
 
     @NotNull
@@ -635,6 +645,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         }
         executionInput.setChangelogAuthor(getText(changelogAuthorTextField));
         executionInput.setDatabaseTag(getText(databaseTagTextField));
+        executionInput.setChangelogTag(support.supportsChangelogTag() ? getText(databaseTagTextField) : null);
         executionInput.setCheckpointTag(getText(checkpointTagTextField));
 
         if (workspace == null) return;

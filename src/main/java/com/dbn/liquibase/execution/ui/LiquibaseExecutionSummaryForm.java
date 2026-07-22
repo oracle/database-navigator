@@ -359,7 +359,9 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         LiquibaseOperation operation = result.getOperation();
         LiquibaseOperationSupport support = operation.getSupport();
 
-        if (support.supportsDatabaseTag()) {
+        if (support.supportsChangelogTag()) {
+            updateTagInfo(result.getChangelogTag(), "cfg.liquibase.label.ChangelogTag");
+        } else if (support.supportsDatabaseTag()) {
             updateTagInfo(result.getDatabaseTag(), "cfg.liquibase.label.DatabaseTag");
         } else if (support.supportsCheckpointTag()) {
             updateTagInfo(result.getCheckpointTag(), "cfg.liquibase.label.CheckpointTag");

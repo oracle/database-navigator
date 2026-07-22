@@ -19,6 +19,7 @@ package com.dbn.liquibase.execution;
 import liquibase.command.core.CalculateChecksumCommandStep;
 import liquibase.command.core.ChangelogSyncCommandStep;
 import liquibase.command.core.ChangelogSyncSqlCommandStep;
+import liquibase.command.core.ChangelogSyncToTagCommandStep;
 import liquibase.command.core.ClearChecksumsCommandStep;
 import liquibase.command.core.DiffChangelogCommandStep;
 import liquibase.command.core.DropAllCommandStep;
@@ -70,6 +71,7 @@ public class LiquibaseCommands {
     public static final String UPDATE_TO_TAG = UpdateToTagCommandStep.COMMAND_NAME[0];
     public static final String UPDATE_SQL = UpdateSqlCommandStep.COMMAND_NAME[0];
     public static final String SYNCHRONIZE_CHANGELOG = ChangelogSyncCommandStep.COMMAND_NAME[0];
+    public static final String SYNCHRONIZE_CHANGELOG_TO_TAG = ChangelogSyncToTagCommandStep.COMMAND_NAME[0];
     public static final String SYNCHRONIZE_CHANGELOG_SQL = ChangelogSyncSqlCommandStep.COMMAND_NAME[0];
     public static final String ROLLBACK_COUNT = RollbackCountCommandStep.COMMAND_NAME[0];
     public static final String ROLLBACK_TAG = RollbackCommandStep.COMMAND_NAME[0];

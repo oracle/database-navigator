@@ -40,6 +40,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_STAT
 import static com.dbn.liquibase.execution.LiquibaseOperation.SNAPSHOT_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_SQL;
+import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_TO_TAG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UNEXPECTED_CHANGESETS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
@@ -81,6 +82,7 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
 
         DefaultActionGroup maintenanceActions = new DefaultActionGroup(txt("app.liquibase.group.Maintenance"), true);
         maintenanceActions.add(action(schema, SYNCHRONIZE_CHANGELOG));
+        maintenanceActions.add(action(schema, SYNCHRONIZE_CHANGELOG_TO_TAG));
         maintenanceActions.add(action(schema, RELEASE_LOCKS));
         maintenanceActions.add(action(schema, LIST_LOCKS));
         maintenanceActions.add(action(schema, CLEAR_CHECKSUMS));

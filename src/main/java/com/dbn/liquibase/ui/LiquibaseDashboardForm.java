@@ -62,6 +62,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_STAT
 import static com.dbn.liquibase.execution.LiquibaseOperation.SNAPSHOT_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_SQL;
+import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_TO_TAG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UNEXPECTED_CHANGESETS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
@@ -139,7 +140,7 @@ public class LiquibaseDashboardForm extends DBNFormBase {
         addCategory("Changelog", GENERATE_CHANGELOG, GENERATE_DIFF_CHANGELOG, VALIDATE_CHANGELOG, COMPARE_SCHEMAS);
         addCategory("Deploy", UPDATE_DATABASE, UPDATE_TESTING_ROLLBACK, ROLLBACK_CHANGESETS, TAG_DATABASE, MARK_NEXT_CHANGESET_RAN);
         addCategory("Inspect", SHOW_CHANGELOG_STATUS, SHOW_CHANGELOG_HISTORY, UNEXPECTED_CHANGESETS, SNAPSHOT_DATABASE);
-        addCategory("Maintenance", SYNCHRONIZE_CHANGELOG, RELEASE_LOCKS, LIST_LOCKS, CLEAR_CHECKSUMS, CALCULATE_CHECKSUMS);
+        addCategory("Maintenance", SYNCHRONIZE_CHANGELOG, SYNCHRONIZE_CHANGELOG_TO_TAG, RELEASE_LOCKS, LIST_LOCKS, CLEAR_CHECKSUMS, CALCULATE_CHECKSUMS);
         addCategory("PreviewSql", UPDATE_SQL, ROLLBACK_SQL, FUTURE_ROLLBACK, SYNCHRONIZE_CHANGELOG_SQL);
         addCategory("More", DROP_ALL);
     }

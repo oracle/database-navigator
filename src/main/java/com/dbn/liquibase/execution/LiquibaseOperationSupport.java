@@ -36,6 +36,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_STAT
 import static com.dbn.liquibase.execution.LiquibaseOperation.SNAPSHOT_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_SQL;
+import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_TO_TAG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UNEXPECTED_CHANGESETS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
@@ -72,6 +73,7 @@ public final class LiquibaseOperationSupport {
                 SHOW_CHANGELOG_HISTORY,
                 UNEXPECTED_CHANGESETS,
                 SYNCHRONIZE_CHANGELOG,
+                SYNCHRONIZE_CHANGELOG_TO_TAG,
                 SYNCHRONIZE_CHANGELOG_SQL,
                 UPDATE_DATABASE,
                 UPDATE_TESTING_ROLLBACK,
@@ -119,6 +121,14 @@ public final class LiquibaseOperationSupport {
         return operation == TAG_DATABASE;
     }
 
+    public boolean supportsChangelogTag() {
+        return operation == SYNCHRONIZE_CHANGELOG_TO_TAG;
+    }
+
+    public boolean requiresChangelogTag() {
+        return supportsChangelogTag();
+    }
+
     public boolean supportsCheckpointTag() {
         return operation == UPDATE_DATABASE;
     }
@@ -148,6 +158,7 @@ public final class LiquibaseOperationSupport {
                 UPDATE_TESTING_ROLLBACK,
                 MARK_NEXT_CHANGESET_RAN,
                 SYNCHRONIZE_CHANGELOG,
+                SYNCHRONIZE_CHANGELOG_TO_TAG,
                 SYNCHRONIZE_CHANGELOG_SQL,
                 ROLLBACK_CHANGESETS,
                 ROLLBACK_SQL,
@@ -202,6 +213,7 @@ public final class LiquibaseOperationSupport {
                 UPDATE_TESTING_ROLLBACK,
                 MARK_NEXT_CHANGESET_RAN,
                 TAG_DATABASE,
+                SYNCHRONIZE_CHANGELOG_TO_TAG,
                 RELEASE_LOCKS,
                 CLEAR_CHECKSUMS,
                 LIST_LOCKS,
@@ -223,6 +235,7 @@ public final class LiquibaseOperationSupport {
                 UPDATE_TESTING_ROLLBACK,
                 MARK_NEXT_CHANGESET_RAN,
                 ROLLBACK_CHANGESETS,
+                SYNCHRONIZE_CHANGELOG_TO_TAG,
                 UPDATE_SQL,
                 ROLLBACK_SQL,
                 FUTURE_ROLLBACK,

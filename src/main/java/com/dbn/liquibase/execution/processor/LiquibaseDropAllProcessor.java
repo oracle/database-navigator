@@ -15,7 +15,6 @@ import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.object.DBSchema;
-import com.dbn.object.event.ObjectChangeEvent;
 import liquibase.CatalogAndSchema;
 import liquibase.command.core.DropAllCommandStep;
 import liquibase.database.Database;
@@ -25,8 +24,6 @@ import java.util.Map;
 
 import static com.dbn.liquibase.execution.LiquibaseCommands.DROP_ALL;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
-import static com.dbn.object.type.DBObjectType.BROWSABLE_TYPES;
 
 /** Drops all Liquibase-visible database objects owned by the selected target schema. */
 public class LiquibaseDropAllProcessor extends LiquibaseExecutionProcessor {
@@ -58,15 +55,5 @@ public class LiquibaseDropAllProcessor extends LiquibaseExecutionProcessor {
                 "database", database,
                 DropAllCommandStep.CATALOG_AND_SCHEMAS_ARG.getName(), new CatalogAndSchema[]{catalogAndSchema},
                 DropAllCommandStep.FORCE_ARG.getName(), true));
-    }
-
-    private static void notifySchemaObjectChanges(@NotNull DBSchema schema) {
-        BROWSABLE_TYPES.stream()
-                .filter(type -> type.isSchemaObject())
-                .forEach(type -> ObjectChangeEvent.notify(
-                        UNSPECIFIED,
-                        type,
-                        schema.getConnectionId(),
-                        schema.getSchemaId()));
     }
 }

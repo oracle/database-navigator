@@ -32,6 +32,7 @@ import com.dbn.liquibase.execution.logging.LiquibaseExecutionLogService;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
+import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.extensions.ExtensionPointName;
 import liquibase.CatalogAndSchema;
@@ -85,6 +86,8 @@ import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.isLiquibaseTr
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.resolveObjectType;
 import static com.dbn.liquibase.execution.LiquibaseOperationConfirmations.ensureConfirmed;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
+import static com.dbn.object.type.DBObjectType.BROWSABLE_TYPES;
 import static liquibase.Scope.child;
 
 /**
@@ -121,6 +124,16 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
 
     protected static @NotNull ClassLoaderResourceAccessor classLoaderAccessor() {
         return new ClassLoaderResourceAccessor(LiquibaseExecutionProcessor.class.getClassLoader());
+    }
+
+    protected static void notifySchemaObjectChanges(@NotNull DBSchema schema) {
+        BROWSABLE_TYPES.stream()
+                .filter(type -> type.isSchemaObject())
+                .forEach(type -> ObjectChangeEvent.notify(
+                        UNSPECIFIED,
+                        type,
+                        schema.getConnectionId(),
+                        schema.getSchemaId()));
     }
 
     @NotNull

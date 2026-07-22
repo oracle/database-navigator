@@ -24,7 +24,6 @@ import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.LiquibaseRollbackInstruction;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.object.DBSchema;
-import com.dbn.object.event.ObjectChangeEvent;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,8 +32,6 @@ import java.util.Map;
 
 import static com.dbn.liquibase.execution.LiquibaseRollbackType.TAG;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
-import static com.dbn.object.type.DBObjectType.BROWSABLE_TYPES;
 
 /** Rolls back a selected number of previously applied Liquibase changesets. */
 public class LiquibaseRollbackChangesetsProcessor extends LiquibaseExecutionProcessor {
@@ -96,15 +93,4 @@ public class LiquibaseRollbackChangesetsProcessor extends LiquibaseExecutionProc
                 "changeExecListener", new LiquibaseChangeSetRollbackListener(result, "Rolled back")));
 
     }
-
-    private static void notifySchemaObjectChanges(@NotNull DBSchema schema) {
-        BROWSABLE_TYPES.stream()
-                .filter(t -> t.isSchemaObject())
-                .forEach(t -> ObjectChangeEvent.notify(
-                        UNSPECIFIED,
-                        t,
-                        schema.getConnectionId(),
-                        schema.getSchemaId()));
-    }
-
 }
