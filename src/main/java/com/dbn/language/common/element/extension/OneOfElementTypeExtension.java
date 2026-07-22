@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,15 +43,20 @@ public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfEle
     private static final String ATTR_TOKEN_TYPE_IDS = "tt";
     private static final String ATTR_PARSE_CANDIDATE_IDS = "pc";
     private static final String ATTR_COMPLETION_CANDIDATE_IDS = "cc";
+    private static final String ATTR_NODE_ID = "id";
+    private static final String ATTR_NODE_REF = "ref";
 
     public final ElementTypeRef[] defaultCandidates;
     public final Map<String, TokenNode> tokens;
+    private final Map<String, Element> nodeDefinitions;
+    private final Map<String, TokenNode> tokenNodes = new HashMap<>();
     private final TokenType[] optionalWrappingBeginTokens;
     private final ElementTypeRef[][] optionalWrappingCandidates;
 
     public OneOfElementTypeExtension(OneOfElementType elementType, Element definition) {
         super(elementType, definition);
         defaultCandidates = elementType.children;
+        nodeDefinitions = loadNodeDefinitions(definition);
         tokens = loadTokens(definition, EMPTY_CANDIDATES);
         TokenPairTemplate[] templates = elementType.getLanguageDialect().getTokenPairTemplates();
         optionalWrappingBeginTokens = new TokenType[templates.length];
@@ -241,12 +247,61 @@ public class OneOfElementTypeExtension extends ElementTypeExtensionBase<OneOfEle
 
         Map<String, TokenNode> tokens = new LinkedHashMap<>();
         for (Element tokenElement : tokenElements) {
-            List<String> tokenTypeIds = unmodifiableList(csvAttribute(tokenElement, ATTR_TOKEN_TYPE_IDS));
-            TokenNode tokenNode = new TokenNode(tokenElement, inheritedCandidates);
+            Element nodeDefinition = resolveNodeDefinition(tokenElement);
+            List<String> tokenTypeIds = unmodifiableList(csvAttribute(nodeDefinition, ATTR_TOKEN_TYPE_IDS));
+            if (tokenTypeIds.isEmpty()) {
+                throw new IllegalStateException("One-of extension node has no token types");
+            }
+            TokenNode tokenNode = loadTokenNode(nodeDefinition, inheritedCandidates);
             for (String tokenTypeId : tokenTypeIds) {
                 tokens.put(tokenTypeId.intern(), tokenNode);
             }
         }
         return unmodifiableMap(tokens);
+    }
+
+    private TokenNode loadTokenNode(
+            Element definition,
+            ElementTypeRef[] inheritedCandidates) {
+        String nodeId = definition.getAttributeValue(ATTR_NODE_ID);
+        if (nodeId != null) {
+            TokenNode tokenNode = tokenNodes.get(nodeId);
+            if (tokenNode != null) return tokenNode;
+        }
+
+        TokenNode tokenNode = new TokenNode(definition, inheritedCandidates);
+        if (nodeId != null) {
+            tokenNodes.put(nodeId, tokenNode);
+        }
+        return tokenNode;
+    }
+
+    private Element resolveNodeDefinition(Element definition) {
+        String nodeRef = definition.getAttributeValue(ATTR_NODE_REF);
+        if (nodeRef == null) return definition;
+
+        Element nodeDefinition = nodeDefinitions.get(nodeRef);
+        if (nodeDefinition == null) {
+            throw new IllegalStateException("Unresolved one-of extension node reference " + nodeRef);
+        }
+        return nodeDefinition;
+    }
+
+    private static Map<String, Element> loadNodeDefinitions(Element definition) {
+        Map<String, Element> nodeDefinitions = new HashMap<>();
+        collectNodeDefinitions(definition, nodeDefinitions);
+        return unmodifiableMap(nodeDefinitions);
+    }
+
+    private static void collectNodeDefinitions(
+            Element definition,
+            Map<String, Element> nodeDefinitions) {
+        for (Element node : definition.getChildren(TAG_NODE)) {
+            String nodeId = node.getAttributeValue(ATTR_NODE_ID);
+            if (nodeId != null && nodeDefinitions.put(nodeId, node) != null) {
+                throw new IllegalStateException("Duplicate one-of extension node id " + nodeId);
+            }
+            collectNodeDefinitions(node, nodeDefinitions);
+        }
     }
 }

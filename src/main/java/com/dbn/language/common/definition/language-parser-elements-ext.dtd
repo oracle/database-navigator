@@ -27,6 +27,8 @@
 
 <!ELEMENT node (node)*>
 <!ATTLIST node
-        tt CDATA #REQUIRED
+        id CDATA #IMPLIED
+        ref CDATA #IMPLIED
+        tt CDATA #IMPLIED
         pc CDATA #IMPLIED
         cc CDATA #IMPLIED>

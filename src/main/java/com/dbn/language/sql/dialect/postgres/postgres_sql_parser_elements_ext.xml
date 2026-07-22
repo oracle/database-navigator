@@ -2,7 +2,7 @@
 <!--Generated with LanguageSpecificationParserExtBuilder. Do not edit manually.-->
 <!DOCTYPE parser-element-extensions SYSTEM "../../../common/definition/language-parser-elements-ext.dtd">
 
-<parser-element-extensions language="POSTGRES-SQL" source="postgres_sql_parser_elements.xml" builder-version="2.0.0">
+<parser-element-extensions language="POSTGRES-SQL" source="postgres_sql_parser_elements.xml" builder-version="2.1.0">
     <one-of-extension id="00001" depth="5">
         <node tt="KW_ANALYZE" pc="analyze_statement" cc="00032, 00035, 00037, 00038, 00039, 00040" />
         <node tt="KW_ALTER, KW_PROCEDURAL, KW_LANGUAGE, KW_LARGE" pc="alter_statement" cc="01675, 03609, 03634, 03656, 03722, 03819, 03885, 03908, 03971, 04019, 01716, 01816, 01838, 01917, 02023, 02072, 02097, 02152, 02181, 02248, 02337, 02511, 02593, 02605, 02621, 02692, 02725, 02752, 02819, 02841, 03087, 03374, 03433, 03469, 03485, 03501, 03519, 02409, 02485, 04139, 01892, 01893, 01908" />
@@ -21,19 +21,14 @@
         </node>
         <node tt="KW_WITH" pc="select_statement, insert_statement, update_statement, delete_statement, merge_statement" cc="00003, 00006">
             <node tt="KW_RECURSIVE" cc="00006">
-                <node tt="IDENTIFIER" cc="00010">
+                <node id="N0000" tt="IDENTIFIER" pc="select_statement, insert_statement, update_statement, delete_statement, merge_statement" cc="00010">
                     <node tt="CHR_LEFT_PARENTHESIS" cc="00009" />
                     <node tt="KW_AS">
                         <node tt="CHR_LEFT_PARENTHESIS" cc="05057, 00013, 00002, 04834, 04916, 05019" />
                     </node>
                 </node>
             </node>
-            <node tt="IDENTIFIER" cc="00010">
-                <node tt="CHR_LEFT_PARENTHESIS" cc="00009" />
-                <node tt="KW_AS">
-                    <node tt="CHR_LEFT_PARENTHESIS" cc="05057, 00013, 00002, 04834, 04916, 05019" />
-                </node>
-            </node>
+            <node ref="N0000" />
         </node>
         <node tt="CHR_LEFT_PARENTHESIS" pc="select_statement" cc="05057" />
         <node tt="KW_SELECT" pc="select_statement" />
@@ -99,19 +94,14 @@
         <node tt="KW_VALUES" pc="values_clause" />
         <node tt="KW_WITH" pc="insert_statement, update_statement, delete_statement" cc="00003, 00006">
             <node tt="KW_RECURSIVE" cc="00006">
-                <node tt="IDENTIFIER" cc="00010">
+                <node id="N0001" tt="IDENTIFIER" pc="insert_statement, update_statement, delete_statement" cc="00010">
                     <node tt="CHR_LEFT_PARENTHESIS" cc="00009" />
                     <node tt="KW_AS">
                         <node tt="CHR_LEFT_PARENTHESIS" cc="05057, 00013, 00002, 04834, 04916, 05019" />
                     </node>
                 </node>
             </node>
-            <node tt="IDENTIFIER" cc="00010">
-                <node tt="CHR_LEFT_PARENTHESIS" cc="00009" />
-                <node tt="KW_AS">
-                    <node tt="CHR_LEFT_PARENTHESIS" cc="05057, 00013, 00002, 04834, 04916, 05019" />
-                </node>
-            </node>
+            <node ref="N0001" />
         </node>
         <node tt="KW_INSERT" pc="insert_statement" cc="04835" />
         <node tt="KW_UPDATE" pc="update_statement" cc="04917, 04919, 04920" />
@@ -242,15 +232,15 @@
             <node tt="KW_ACCESS" pc="create_access_method_statement" cc="00859" />
             <node tt="KW_OR" pc="create_aggregate_statement, create_language_statement, create_rule_statement, create_trigger_statement, create_transform_statement, create_view_statement" cc="00417, 01259, 01131, 03146, 03121, 00872">
                 <node tt="FN_REPLACE" cc="00418, 01260, 01261, 01262, 01132, 03147, 03148, 03122, 00874, 00875, 00876, 00877">
-                    <node tt="KW_AGGREGATE" pc="create_aggregate_statement" cc="00420, 00421" />
-                    <node tt="KW_TRUSTED, KW_PROCEDURAL, KW_LANGUAGE" pc="create_language_statement" cc="01261, 01262, 01263" />
-                    <node tt="KW_RULE" pc="create_rule_statement" cc="01133" />
-                    <node tt="KW_CONSTRAINT, KW_TRIGGER" pc="create_trigger_statement" cc="03148, 03149" />
-                    <node tt="KW_TRANSFORM" pc="create_transform_statement" cc="03123" />
+                    <node id="N0002" tt="KW_AGGREGATE" pc="create_aggregate_statement" cc="00420, 00421" />
+                    <node id="N0003" tt="KW_TRUSTED, KW_PROCEDURAL, KW_LANGUAGE" pc="create_language_statement" cc="01261, 01262, 01263" />
+                    <node id="N0004" tt="KW_RULE" pc="create_rule_statement" cc="01133" />
+                    <node id="N0005" tt="KW_CONSTRAINT, KW_TRIGGER" pc="create_trigger_statement" cc="03148, 03149" />
+                    <node id="N0006" tt="KW_TRANSFORM" pc="create_transform_statement" cc="03123" />
                     <node tt="KW_TEMP, KW_TEMPORARY, KW_RECURSIVE, KW_VIEW" pc="create_view_statement" cc="00876, 00877, 00879, 00880" />
                 </node>
             </node>
-            <node tt="KW_AGGREGATE" pc="create_aggregate_statement" cc="00420, 00421" />
+            <node ref="N0002" />
             <node tt="KW_CAST" pc="create_cast_statement" />
             <node tt="KW_COLLATION" pc="create_collation_statement" cc="06271, 00807, 00808" />
             <node tt="KW_DEFAULT, KW_CONVERSION" pc="create_conversion_statement" cc="00792, 00794, 00795" />
@@ -264,7 +254,7 @@
             </node>
             <node tt="KW_GROUP" pc="create_group_statement" cc="01124" />
             <node tt="KW_UNIQUE, KW_INDEX" pc="create_index_statement" cc="01184, 01185, 06271, 01188, 01189, 01190" />
-            <node tt="KW_TRUSTED, KW_PROCEDURAL, KW_LANGUAGE" pc="create_language_statement" cc="01261, 01262, 01263" />
+            <node ref="N0003" />
             <node tt="KW_MATERIALIZED" pc="create_materialized_view_statement" cc="00687" />
             <node tt="KW_OPERATOR" pc="create_operator_statement, create_operator_class_statement, create_operator_family_statement" cc="00662, 00663, 00630, 00622">
                 <node tt="IDENTIFIER" pc="create_operator_statement" />
@@ -274,15 +264,15 @@
             <node tt="KW_PUBLICATION" pc="create_publication_statement" cc="00527" />
             <node tt="KW_POLICY" pc="create_policy_statement" cc="00586" />
             <node tt="KW_ROLE" pc="create_role_statement" cc="01127" />
-            <node tt="KW_RULE" pc="create_rule_statement" cc="01133" />
+            <node ref="N0004" />
             <node tt="KW_SCHEMA" pc="create_schema_statement" cc="06271, 01173, 01171" />
             <node tt="KW_TEMP, KW_TEMPORARY" pc="create_sequence_statement, create_table_statement, create_table_as_statement, create_view_statement" cc="01008, 01009, 01347, 01289, 00876, 00877">
                 <node tt="KW_UNLOGGED, KW_SEQUENCE" pc="create_sequence_statement" cc="01009, 06271, 01011, 01012" />
-                <node tt="KW_TABLE" pc="create_table_statement, create_table_as_statement" cc="06271, 01349, 01350, 01291, 01292">
+                <node id="N0007" tt="KW_TABLE" pc="create_table_statement, create_table_as_statement" cc="06271, 01349, 01350, 01291, 01292">
                     <node tt="KW_IF" cc="06272">
                         <node tt="KW_NOT" cc="06273">
                             <node tt="KW_EXISTS" cc="01349, 01350, 01291, 01292">
-                                <node tt="IDENTIFIER" cc="01438, 01355, 01297, 01452, 01456, 01458, 01468, 01299">
+                                <node id="N0008" tt="IDENTIFIER" pc="create_table_statement, create_table_as_statement" cc="01438, 01355, 01297, 01452, 01456, 01458, 01468, 01299">
                                     <node tt="CHR_DOT, CHR_LEFT_PARENTHESIS" cc="01350, 01292, 01540, 01544, 01552, 01559, 01561, 01567, 01597, 01622, 01623, 01625, 01411, 01417, 01295" />
                                     <node tt="KW_OF, KW_PARTITION" pc="create_table_statement" cc="01440, 01441, 01356" />
                                     <node tt="KW_USING, KW_WITH, KW_WITHOUT, KW_ON, KW_TABLESPACE, KW_AS" pc="create_table_as_statement" cc="01298, 01454, 01457, 01459, 01469, 00002, 05057, 00013, 01302, 01307" />
@@ -290,36 +280,15 @@
                             </node>
                         </node>
                     </node>
-                    <node tt="IDENTIFIER" cc="01438, 01355, 01297, 01452, 01456, 01458, 01468, 01299">
-                        <node tt="CHR_DOT, CHR_LEFT_PARENTHESIS" cc="01350, 01292, 01540, 01544, 01552, 01559, 01561, 01567, 01597, 01622, 01623, 01625, 01411, 01417, 01295" />
-                        <node tt="KW_OF, KW_PARTITION" pc="create_table_statement" cc="01440, 01441, 01356" />
-                        <node tt="KW_USING, KW_WITH, KW_WITHOUT, KW_ON, KW_TABLESPACE, KW_AS" pc="create_table_as_statement" cc="01298, 01454, 01457, 01459, 01469, 00002, 05057, 00013, 01302, 01307" />
-                    </node>
+                    <node ref="N0008" />
                 </node>
-                <node tt="KW_RECURSIVE, KW_VIEW" pc="create_view_statement" cc="00877, 00879, 00880" />
+                <node id="N0009" tt="KW_RECURSIVE, KW_VIEW" pc="create_view_statement" cc="00877, 00879, 00880" />
             </node>
             <node tt="KW_UNLOGGED" pc="create_sequence_statement, create_table_statement, create_table_as_statement" cc="01009, 01347, 01289">
-                <node tt="KW_SEQUENCE" pc="create_sequence_statement" cc="06271, 01011, 01012" />
-                <node tt="KW_TABLE" pc="create_table_statement, create_table_as_statement" cc="06271, 01349, 01350, 01291, 01292">
-                    <node tt="KW_IF" cc="06272">
-                        <node tt="KW_NOT" cc="06273">
-                            <node tt="KW_EXISTS" cc="01349, 01350, 01291, 01292">
-                                <node tt="IDENTIFIER" cc="01438, 01355, 01297, 01452, 01456, 01458, 01468, 01299">
-                                    <node tt="CHR_DOT, CHR_LEFT_PARENTHESIS" cc="01350, 01292, 01540, 01544, 01552, 01559, 01561, 01567, 01597, 01622, 01623, 01625, 01411, 01417, 01295" />
-                                    <node tt="KW_OF, KW_PARTITION" pc="create_table_statement" cc="01440, 01441, 01356" />
-                                    <node tt="KW_USING, KW_WITH, KW_WITHOUT, KW_ON, KW_TABLESPACE, KW_AS" pc="create_table_as_statement" cc="01298, 01454, 01457, 01459, 01469, 00002, 05057, 00013, 01302, 01307" />
-                                </node>
-                            </node>
-                        </node>
-                    </node>
-                    <node tt="IDENTIFIER" cc="01438, 01355, 01297, 01452, 01456, 01458, 01468, 01299">
-                        <node tt="CHR_DOT, CHR_LEFT_PARENTHESIS" cc="01350, 01292, 01540, 01544, 01552, 01559, 01561, 01567, 01597, 01622, 01623, 01625, 01411, 01417, 01295" />
-                        <node tt="KW_OF, KW_PARTITION" pc="create_table_statement" cc="01440, 01441, 01356" />
-                        <node tt="KW_USING, KW_WITH, KW_WITHOUT, KW_ON, KW_TABLESPACE, KW_AS" pc="create_table_as_statement" cc="01298, 01454, 01457, 01459, 01469, 00002, 05057, 00013, 01302, 01307" />
-                    </node>
-                </node>
+                <node id="N0010" tt="KW_SEQUENCE" pc="create_sequence_statement" cc="06271, 01011, 01012" />
+                <node ref="N0007" />
             </node>
-            <node tt="KW_SEQUENCE" pc="create_sequence_statement" cc="06271, 01011, 01012" />
+            <node ref="N0010" />
             <node tt="KW_SERVER" pc="create_server_statement" cc="06271, 00986" />
             <node tt="KW_STATISTICS" pc="create_statistics_statement" cc="06271, 00916, 00917, 00936" />
             <node tt="KW_SUBSCRIPTION" pc="create_subscription_statement" cc="00951" />
@@ -333,32 +302,11 @@
                                 </node>
                             </node>
                         </node>
-                        <node tt="IDENTIFIER" cc="01438, 01355, 01297, 01452, 01456, 01458, 01468, 01299">
-                            <node tt="CHR_DOT, CHR_LEFT_PARENTHESIS" cc="01350, 01292, 01540, 01544, 01552, 01559, 01561, 01567, 01597, 01622, 01623, 01625, 01411, 01417, 01295" />
-                            <node tt="KW_OF, KW_PARTITION" pc="create_table_statement" cc="01440, 01441, 01356" />
-                            <node tt="KW_USING, KW_WITH, KW_WITHOUT, KW_ON, KW_TABLESPACE, KW_AS" pc="create_table_as_statement" cc="01298, 01454, 01457, 01459, 01469, 00002, 05057, 00013, 01302, 01307" />
-                        </node>
+                        <node ref="N0008" />
                     </node>
                 </node>
             </node>
-            <node tt="KW_TABLE" pc="create_table_statement, create_table_as_statement" cc="06271, 01349, 01350, 01291, 01292">
-                <node tt="KW_IF" cc="06272">
-                    <node tt="KW_NOT" cc="06273">
-                        <node tt="KW_EXISTS" cc="01349, 01350, 01291, 01292">
-                            <node tt="IDENTIFIER" cc="01438, 01355, 01297, 01452, 01456, 01458, 01468, 01299">
-                                <node tt="CHR_DOT, CHR_LEFT_PARENTHESIS" cc="01350, 01292, 01540, 01544, 01552, 01559, 01561, 01567, 01597, 01622, 01623, 01625, 01411, 01417, 01295" />
-                                <node tt="KW_OF, KW_PARTITION" pc="create_table_statement" cc="01440, 01441, 01356" />
-                                <node tt="KW_USING, KW_WITH, KW_WITHOUT, KW_ON, KW_TABLESPACE, KW_AS" pc="create_table_as_statement" cc="01298, 01454, 01457, 01459, 01469, 00002, 05057, 00013, 01302, 01307" />
-                            </node>
-                        </node>
-                    </node>
-                </node>
-                <node tt="IDENTIFIER" cc="01438, 01355, 01297, 01452, 01456, 01458, 01468, 01299">
-                    <node tt="CHR_DOT, CHR_LEFT_PARENTHESIS" cc="01350, 01292, 01540, 01544, 01552, 01559, 01561, 01567, 01597, 01622, 01623, 01625, 01411, 01417, 01295" />
-                    <node tt="KW_OF, KW_PARTITION" pc="create_table_statement" cc="01440, 01441, 01356" />
-                    <node tt="KW_USING, KW_WITH, KW_WITHOUT, KW_ON, KW_TABLESPACE, KW_AS" pc="create_table_as_statement" cc="01298, 01454, 01457, 01459, 01469, 00002, 05057, 00013, 01302, 01307" />
-                </node>
-            </node>
+            <node ref="N0007" />
             <node tt="KW_TABLESPACE" pc="create_tablespace_statement" cc="01317" />
             <node tt="DT_TEXT" pc="create_text_search_configuration_statement, create_text_search_dictionary_statement, create_text_search_parser_statement, create_text_search_template_statement" cc="03276, 03293, 03313, 03353">
                 <node tt="KW_SEARCH" cc="03277, 03294, 03314, 03354">
@@ -368,14 +316,14 @@
                     <node tt="KW_TEMPLATE" pc="create_text_search_template_statement" cc="03356, 03357" />
                 </node>
             </node>
-            <node tt="KW_CONSTRAINT, KW_TRIGGER" pc="create_trigger_statement" cc="03148, 03149" />
-            <node tt="KW_TRANSFORM" pc="create_transform_statement" cc="03123" />
+            <node ref="N0005" />
+            <node ref="N0006" />
             <node tt="KW_TYPE" pc="create_type_statement" cc="03230, 03231" />
             <node tt="KW_USER" pc="create_user_statement, create_user_mapping_statement" cc="01051, 01054">
                 <node tt="IDENTIFIER" pc="create_user_statement" cc="01071, 01074, 01075, 01076, 01077, 01078, 01079, 01080, 01081, 01082, 01083, 01084, 01085, 01086, 01087, 01088, 01089, 01091, 01095, 01096, 01102, 01106, 01114, 01115, 01116, 01120" />
                 <node tt="KW_MAPPING" pc="create_user_mapping_statement" cc="06271, 01055" />
             </node>
-            <node tt="KW_RECURSIVE, KW_VIEW" pc="create_view_statement" cc="00877, 00879, 00880" />
+            <node ref="N0009" />
         </node>
         <node tt="IDENTIFIER" pc="create_function_statement, create_procedure_statement" />
     </one-of-extension>
@@ -472,19 +420,14 @@
     <one-of-extension id="01157" depth="5">
         <node tt="KW_WITH" pc="select_statement, insert_statement, update_statement, delete_statement" cc="00003, 00006">
             <node tt="KW_RECURSIVE" cc="00006">
-                <node tt="IDENTIFIER" cc="00010">
+                <node id="N0011" tt="IDENTIFIER" pc="select_statement, insert_statement, update_statement, delete_statement" cc="00010">
                     <node tt="CHR_LEFT_PARENTHESIS" cc="00009" />
                     <node tt="KW_AS">
                         <node tt="CHR_LEFT_PARENTHESIS" cc="05057, 00013, 00002, 04834, 04916, 05019" />
                     </node>
                 </node>
             </node>
-            <node tt="IDENTIFIER" cc="00010">
-                <node tt="CHR_LEFT_PARENTHESIS" cc="00009" />
-                <node tt="KW_AS">
-                    <node tt="CHR_LEFT_PARENTHESIS" cc="05057, 00013, 00002, 04834, 04916, 05019" />
-                </node>
-            </node>
+            <node ref="N0011" />
         </node>
         <node tt="CHR_LEFT_PARENTHESIS" pc="select_statement" cc="05057" />
         <node tt="KW_SELECT" pc="select_statement" />
@@ -496,19 +439,14 @@
     <one-of-extension id="01163" depth="5">
         <node tt="KW_WITH" pc="select_statement, insert_statement, update_statement, delete_statement" cc="00003, 00006">
             <node tt="KW_RECURSIVE" cc="00006">
-                <node tt="IDENTIFIER" cc="00010">
+                <node id="N0012" tt="IDENTIFIER" pc="select_statement, insert_statement, update_statement, delete_statement" cc="00010">
                     <node tt="CHR_LEFT_PARENTHESIS" cc="00009" />
                     <node tt="KW_AS">
                         <node tt="CHR_LEFT_PARENTHESIS" cc="05057, 00013, 00002, 04834, 04916, 05019" />
                     </node>
                 </node>
             </node>
-            <node tt="IDENTIFIER" cc="00010">
-                <node tt="CHR_LEFT_PARENTHESIS" cc="00009" />
-                <node tt="KW_AS">
-                    <node tt="CHR_LEFT_PARENTHESIS" cc="05057, 00013, 00002, 04834, 04916, 05019" />
-                </node>
-            </node>
+            <node ref="N0012" />
         </node>
         <node tt="CHR_LEFT_PARENTHESIS" pc="select_statement" cc="05057" />
         <node tt="KW_SELECT" pc="select_statement" />
@@ -521,24 +459,24 @@
         <node tt="KW_CREATE" pc="create_table_statement, create_view_statement, create_index_statement, create_sequence_statement, create_trigger_statement" cc="01341, 01342, 01344, 01345, 01346, 01347, 00871, 00874, 00875, 00876, 00877, 01183, 01184, 01006, 01007, 01008, 01009, 03145, 03147, 03148">
             <node tt="KW_GLOBAL, KW_LOCAL, KW_TABLE" pc="create_table_statement" cc="01344, 01345, 06271, 01349, 01350" />
             <node tt="KW_TEMP, KW_TEMPORARY" pc="create_table_statement, create_view_statement, create_sequence_statement" cc="01347, 00876, 00877, 01008, 01009">
-                <node tt="KW_TABLE" pc="create_table_statement" cc="06271, 01349, 01350" />
-                <node tt="KW_RECURSIVE, KW_VIEW" pc="create_view_statement" cc="00877, 00879, 00880" />
+                <node id="N0013" tt="KW_TABLE" pc="create_table_statement" cc="06271, 01349, 01350" />
+                <node id="N0014" tt="KW_RECURSIVE, KW_VIEW" pc="create_view_statement" cc="00877, 00879, 00880" />
                 <node tt="KW_UNLOGGED, KW_SEQUENCE" pc="create_sequence_statement" cc="01009, 06271, 01011, 01012" />
             </node>
             <node tt="KW_UNLOGGED" pc="create_table_statement, create_sequence_statement" cc="01347, 01009">
-                <node tt="KW_TABLE" pc="create_table_statement" cc="06271, 01349, 01350" />
-                <node tt="KW_SEQUENCE" pc="create_sequence_statement" cc="06271, 01011, 01012" />
+                <node ref="N0013" />
+                <node id="N0015" tt="KW_SEQUENCE" pc="create_sequence_statement" cc="06271, 01011, 01012" />
             </node>
             <node tt="KW_OR" pc="create_view_statement, create_trigger_statement" cc="00872, 03146">
                 <node tt="FN_REPLACE" cc="00874, 00875, 00876, 00877, 03147, 03148">
                     <node tt="KW_TEMP, KW_TEMPORARY, KW_RECURSIVE, KW_VIEW" pc="create_view_statement" cc="00876, 00877, 00879, 00880" />
-                    <node tt="KW_CONSTRAINT, KW_TRIGGER" pc="create_trigger_statement" cc="03148, 03149" />
+                    <node id="N0016" tt="KW_CONSTRAINT, KW_TRIGGER" pc="create_trigger_statement" cc="03148, 03149" />
                 </node>
             </node>
-            <node tt="KW_RECURSIVE, KW_VIEW" pc="create_view_statement" cc="00877, 00879, 00880" />
+            <node ref="N0014" />
             <node tt="KW_UNIQUE, KW_INDEX" pc="create_index_statement" cc="01184, 01185, 06271, 01188, 01189, 01190" />
-            <node tt="KW_SEQUENCE" pc="create_sequence_statement" cc="06271, 01011, 01012" />
-            <node tt="KW_CONSTRAINT, KW_TRIGGER" pc="create_trigger_statement" cc="03148, 03149" />
+            <node ref="N0015" />
+            <node ref="N0016" />
         </node>
     </one-of-extension>
     <one-of-extension id="01197" depth="1">
@@ -548,20 +486,20 @@
         <node tt="CHR_LEFT_PARENTHESIS, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_AT, OPR_GENERIC, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_STAR, CHR_SLASH, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_EQUAL_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND" pc="expression" />
         <node tt="KW_OPERATOR, KW_PRIOR, KW_NOT, KW_ANY, KW_SOME, KW_ALL, KW_CASE, KW_EXISTS, KW_CAST, DT_ARRAY, DT_BIGINT, DT_BIGSERIAL, DT_BOOL, DT_BOOLEAN, DT_BOX, DT_BYTEA, FN_BIT, DT_CHAR, DT_BPCHAR, DT_CHARACTER, DT_CID, DT_CIDR, DT_CIRCLE, DT_DATE, DT_DECIMAL, KW_DOUBLE, KW_FLOAT, DT_FLOAT4, DT_FLOAT8, DT_INET, DT_INT, DT_INT2, DT_INT2VECTOR, DT_INT4, DT_INT8, DT_INTEGER, DT_INTERVAL, DT_JSON, DT_JSONB, DT_LINE, DT_LSEG, DT_MACADDR, DT_MACADDR8, DT_MONEY, DT_NAME, DT_NUMERIC, DT_OID, DT_PATH, DT_PG_LSN, DT_PG_SNAPSHOT, DT_POINT, DT_POLYGON, DT_REAL, DT_SERIAL, DT_SERIAL2, DT_SERIAL4, DT_SERIAL8, DT_SMALLINT, DT_SMALLSERIAL, DT_TEXT, DT_TID, DT_TIME, DT_TIMESTAMP, DT_TIMESTAMPTZ, DT_TIMETZ, DT_TSQUERY, DT_TSVECTOR, DT_TXID_SNAPSHOT, DT_UUID, DT_VARBIT, DT_VARCHAR, DT_XID, DT_XML, IDENTIFIER, FN_ABBREV, FN_ABS, FN_ACOS, FN_AGE, FN_AREA, FN_ARRAY_AGG, FN_ARRAY_APPEND, FN_ARRAY_CAT, FN_ARRAY_DIMS, FN_ARRAY_FILL, FN_ARRAY_LENGTH, FN_ARRAY_LOWER, FN_ARRAY_NDIMS, FN_ARRAY_PREPEND, FN_ARRAY_REMOVE, FN_ARRAY_REPLACE, FN_ARRAY_TO_JSON, FN_ARRAY_TO_STRING, FN_ARRAY_UPPER, FN_ASCII, FN_ASIN, FN_ATAN, FN_ATAN2, FN_AVG, FN_BIT_AND, FN_BIT_LENGTH, FN_BIT_OR, FN_BOOL_AND, FN_BOOL_OR, FN_BROADCAST, FN_BTRIM, FN_CBRT, FN_CEIL, FN_CEILING, FN_CENTER, FN_CHAR_LENGTH, FN_CHR, FN_CLOCK_TIMESTAMP, KW_COALESCE, FN_COL_DESCRIPTION, FN_CONCAT, FN_CONCAT_WS, FN_CONVERT, FN_CONVERT_FROM, FN_CONVERT_TO, FN_COS, FN_COT, FN_COUNT, FN_CUME_DIST, FN_CURRENT_CATALOG, FN_CURRENT_DATABASE, FN_CURRENT_DATE, FN_CURRENT_QUERY, FN_CURRENT_SCHEMA, FN_CURRENT_SCHEMAS, FN_CURRENT_SETTING, FN_CURRENT_TIME, FN_CURRENT_TIMESTAMP, FN_CURRENT_USER, FN_CURRVAL, FN_CURSOR_TO_XML, FN_DATE_PART, FN_DATE_TRUNC, FN_DECODE, FN_DEGREES, FN_DENSE_RANK, FN_DIAMETER, FN_DIV, FN_ENCODE, FN_ENUM_FIRST, FN_ENUM_LAST, FN_ENUM_RANGE, FN_EVERY, FN_EXP, FN_EXTRACT, FN_FAMILY, FN_FIRST_VALUE, FN_FLOOR, FN_FORMAT, FN_FORMAT_TYPE, FN_GENERATE_SERIES, FN_GENERATE_SUBSCRIPTS, FN_GET_BIT, FN_GET_BYTE, FN_GET_CURRENT_TS_CONFIG, FN_HAS_ANY_COLUMN_PRIVILEGE, FN_HAS_COLUMN_PRIVILEGE, FN_HAS_DATABASE_PRIVILEGE, FN_HAS_FOREIGN_DATA_WRAPPER_PRIVILEGE, FN_HAS_FUNCTION_PRIVILEGE, FN_HAS_LANGUAGE_PRIVILEGE, FN_HAS_SCHEMA_PRIVILEGE, FN_HAS_SEQUENCE_PRIVILEGE, FN_HAS_SERVER_PRIVILEGE, FN_HAS_TABLESPACE_PRIVILEGE, FN_HAS_TABLE_PRIVILEGE, FN_HEIGHT, FN_HOST, FN_HOSTMASK, FN_INET_CLIENT_ADDR, FN_INET_CLIENT_PORT, FN_INET_SERVER_ADDR, FN_INET_SERVER_PORT, FN_INITCAP, FN_ISCLOSED, FN_ISEMPTY, FN_ISFINITE, FN_ISOPEN, FN_JSON_AGG, FN_JSON_ARRAY_ELEMENTS, FN_JSON_ARRAY_LENGTH, FN_JSON_EACH, FN_JSON_EACH_TEXT, FN_JSON_EXTRACT_PATH, FN_JSON_EXTRACT_PATH_TEXT, FN_JSON_OBJECT_KEYS, FN_JSON_POPULATE_RECORD, FN_JSON_POPULATE_RECORDSET, FN_JUSTIFY_DAYS, FN_JUSTIFY_HOURS, FN_JUSTIFY_INTERVAL, FN_LAG, FN_LASTVAL, FN_LAST_VALUE, FN_LEAD, FN_LEFT, FN_LENGTH, FN_LN, FN_LOCALTIME, FN_LOCALTIMESTAMP, FN_LOG, FN_LOWER, FN_LOWER_INC, FN_LOWER_INF, FN_LPAD, FN_LTRIM, FN_MASKLEN, FN_MAX, FN_MD5, FN_MIN, FN_MOD, FN_NETMASK, FN_NETWORK, FN_NEXTVAL, FN_NOW, FN_NPOINTS, FN_NTH_VALUE, FN_NTILE, FN_NUMNODE, FN_OBJ_DESCRIPTION, FN_OCTET_LENGTH, FN_OVERLAY, FN_PCLOSE, FN_PERCENT_RANK, FN_PG_ADVISORY_LOCK, FN_PG_ADVISORY_LOCK_SHARED, FN_PG_ADVISORY_UNLOCK, FN_PG_ADVISORY_UNLOCK_ALL, FN_PG_ADVISORY_UNLOCK_SHARED, FN_PG_ADVISORY_XACT_LOCK, FN_PG_ADVISORY_XACT_LOCK_SHARED, FN_PG_BACKEND_PID, FN_PG_BACKUP_START_TIME, FN_PG_CANCEL_BACKEND, FN_PG_CLIENT_ENCODING, FN_PG_COLLATION_IS_VISIBLE, FN_PG_COLUMN_SIZE, FN_PG_CONF_LOAD_TIME, FN_PG_CONVERSION_IS_VISIBLE, FN_PG_CREATE_RESTORE_POINT, FN_PG_CURRENT_XLOG_INSERT_LOCATION, FN_PG_CURRENT_XLOG_LOCATION, FN_PG_DATABASE_SIZE, FN_PG_DESCRIBE_OBJECT, FN_PG_EXPORT_SNAPSHOT, FN_PG_FUNCTION_IS_VISIBLE, FN_PG_GET_CONSTRAINTDEF, FN_PG_GET_EXPR, FN_PG_GET_FUNCTIONDEF, FN_PG_GET_FUNCTION_ARGUMENTS, FN_PG_GET_FUNCTION_IDENTITY_ARGUMENTS, FN_PG_GET_FUNCTION_RESULT, FN_PG_GET_INDEXDEF, FN_PG_GET_KEYWORDS, FN_PG_GET_RULEDEF, FN_PG_GET_SERIAL_SEQUENCE, FN_PG_GET_TRIGGERDEF, FN_PG_GET_USERBYID, FN_PG_GET_VIEWDEF, FN_PG_HAS_ROLE, FN_PG_IDENTIFY_OBJECT, FN_PG_INDEXES_SIZE, FN_PG_IS_IN_BACKUP, FN_PG_IS_IN_RECOVERY, FN_PG_IS_OTHER_TEMP_SCHEMA, FN_PG_IS_XLOG_REPLAY_PAUSED, FN_PG_LAST_XACT_REPLAY_TIMESTAMP, FN_PG_LAST_XLOG_RECEIVE_LOCATION, FN_PG_LAST_XLOG_REPLAY_LOCATION, FN_PG_LISTENING_CHANNELS, FN_PG_LS_DIR, FN_PG_MY_TEMP_SCHEMA, FN_PG_OPCLASS_IS_VISIBLE, FN_PG_OPERATOR_IS_VISIBLE, FN_PG_OPFAMILY_IS_VISIBLE, FN_PG_OPTIONS_TO_TABLE, FN_PG_POSTMASTER_START_TIME, FN_PG_READ_BINARY_FILE, FN_PG_READ_FILE, FN_PG_RELATION_FILENODE, FN_PG_RELATION_FILEPATH, FN_PG_RELATION_SIZE, FN_PG_RELOAD_CONF, FN_PG_ROTATE_LOGFILE, FN_PG_SIZE_PRETTY, FN_PG_START_BACKUP, FN_PG_STAT_FILE, FN_PG_STOP_BACKUP, FN_PG_SWITCH_XLOG, FN_PG_TABLESPACE_DATABASES, FN_PG_TABLESPACE_LOCATION, FN_PG_TABLESPACE_SIZE, FN_PG_TABLE_IS_VISIBLE, FN_PG_TABLE_SIZE, FN_PG_TERMINATE_BACKEND, FN_PG_TOTAL_RELATION_SIZE, FN_PG_TRIGGER_DEPTH, FN_PG_TRY_ADVISORY_LOCK, FN_PG_TRY_ADVISORY_LOCK_SHARED, FN_PG_TRY_ADVISORY_XACT_LOCK, FN_PG_TRY_ADVISORY_XACT_LOCK_SHARED, FN_PG_TS_CONFIG_IS_VISIBLE, FN_PG_TS_DICT_IS_VISIBLE, FN_PG_TS_PARSER_IS_VISIBLE, FN_PG_TS_TEMPLATE_IS_VISIBLE, FN_PG_TYPEOF, FN_PG_TYPE_IS_VISIBLE, FN_PG_XLOGFILE_NAME, FN_PG_XLOGFILE_NAME_OFFSET, FN_PG_XLOG_LOCATION_DIFF, FN_PG_XLOG_REPLAY_PAUSE, FN_PG_XLOG_REPLAY_RESUME, FN_PI, FN_PLAINTO_TSQUERY, FN_POPEN, FN_POSITION, FN_POWER, FN_QUERYTREE, FN_QUERY_TO_XML, FN_QUOTE_IDENT, FN_QUOTE_LITERAL, FN_QUOTE_NULLABLE, FN_RADIANS, FN_RADIUS, FN_RANDOM, FN_RANK, FN_REGEXP_MATCHES, FN_REGEXP_REPLACE, FN_REGEXP_SPLIT_TO_ARRAY, FN_REGEXP_SPLIT_TO_TABLE, FN_REPEAT, FN_REPLACE, FN_REVERSE, FN_RIGHT, FN_ROUND, FN_ROW_NUMBER, FN_ROW_TO_JSON, FN_RPAD, FN_RTRIM, FN_SESSION_USER, FN_SETSEED, FN_SETVAL, FN_SETWEIGHT, FN_SET_BIT, FN_SET_BYTE, FN_SET_CONFIG, FN_SET_MASKLEN, FN_SHOBJ_DESCRIPTION, FN_SIGN, FN_SIN, FN_SPLIT_PART, FN_SQRT, FN_STATEMENT_TIMESTAMP, FN_STRING_AGG, FN_STRING_TO_ARRAY, FN_STRIP, FN_STRPOS, FN_SUBSTR, FN_SUBSTRING, FN_SUM, FN_TABLE_TO_XML, FN_TAN, FN_TIMEOFDAY, FN_TO_ASCII, FN_TO_CHAR, FN_TO_DATE, FN_TO_HEX, FN_TO_JSON, FN_TO_NUMBER, FN_TO_TIMESTAMP, FN_TO_TSQUERY, FN_TO_TSVECTOR, FN_TRANSACTION_TIMESTAMP, FN_TRANSLATE, FN_TRIM, FN_TRUNC, FN_TSVECTOR_UPDATE_TRIGGER, FN_TSVECTOR_UPDATE_TRIGGER_COLUMN, FN_TS_HEADLINE, FN_TS_RANK, FN_TS_RANK_CD, FN_TS_REWRITE, FN_TXID_CURRENT, FN_TXID_CURRENT_SNAPSHOT, FN_TXID_SNAPSHOT_XIP, FN_TXID_SNAPSHOT_XMAX, FN_TXID_SNAPSHOT_XMIN, FN_TXID_VISIBLE_IN_SNAPSHOT, FN_UNNEST, FN_UPPER, FN_UPPER_INC, FN_UPPER_INF, KW_USER, FN_VERSION, FN_WIDTH, FN_WIDTH_BUCKET, FN_XIP_LIST, FN_XMAX, FN_XMIN, FN_XMLAGG, FN_XMLCOMMENT, FN_XMLCONCAT, FN_XMLELEMENT, FN_XMLEXISTS, FN_XMLFOREST, FN_XMLPI, FN_XMLROOT, FN_XML_IS_WELL_FORMED, FN_XPATH, FN_XPATH_EXISTS, FN_ACOSD, FN_ACOSH, FN_ANY_VALUE, FN_ARRAY_POSITION, FN_ARRAY_POSITIONS, FN_ARRAY_REVERSE, FN_ARRAY_SAMPLE, FN_ARRAY_SHUFFLE, FN_ARRAY_SORT, FN_ARRAY_TO_TSVECTOR, FN_ASIND, FN_ASINH, FN_ATAN2D, FN_ATAND, FN_ATANH, FN_BIT_COUNT, FN_BIT_XOR, FN_BOUND_BOX, FN_BRIN_DESUMMARIZE_RANGE, FN_BRIN_SUMMARIZE_NEW_VALUES, FN_BRIN_SUMMARIZE_RANGE, FN_CASEFOLD, FN_COSD, FN_COSH, FN_COTD, FN_CRC32, FN_CRC32C, FN_CURSOR_TO_XMLSCHEMA, FN_DATABASE_TO_XML, FN_DATABASE_TO_XMLSCHEMA, FN_DATABASE_TO_XML_AND_XMLSCHEMA, FN_DATE_ADD, FN_DATE_BIN, FN_DATE_SUBTRACT, FN_DIAGONAL, FN_ERF, FN_ERFC, FN_FACTORIAL, FN_GAMMA, FN_GCD, FN_GEN_RANDOM_UUID, FN_GIN_CLEAN_PENDING_LIST, FN_HAS_LARGEOBJECT_PRIVILEGE, FN_HAS_PARAMETER_PRIVILEGE, FN_HAS_TYPE_PRIVILEGE, FN_ICU_UNICODE_VERSION, FN_INET_MERGE, FN_INET_SAME_FAMILY, FN_JSONB_AGG, FN_JSONB_AGG_STRICT, FN_JSONB_ARRAY_ELEMENTS, FN_JSONB_ARRAY_ELEMENTS_TEXT, FN_JSONB_ARRAY_LENGTH, FN_JSONB_BUILD_ARRAY, FN_JSONB_BUILD_OBJECT, FN_JSONB_EACH, FN_JSONB_EACH_TEXT, FN_JSONB_EXTRACT_PATH, FN_JSONB_EXTRACT_PATH_TEXT, FN_JSONB_INSERT, FN_JSONB_OBJECT, FN_JSONB_OBJECT_AGG, FN_JSONB_OBJECT_AGG_STRICT, FN_JSONB_OBJECT_AGG_UNIQUE, FN_JSONB_OBJECT_AGG_UNIQUE_STRICT, FN_JSONB_OBJECT_KEYS, FN_JSONB_PATH_EXISTS, FN_JSONB_PATH_EXISTS_TZ, FN_JSONB_PATH_MATCH, FN_JSONB_PATH_MATCH_TZ, FN_JSONB_PATH_QUERY, FN_JSONB_PATH_QUERY_ARRAY, FN_JSONB_PATH_QUERY_ARRAY_TZ, FN_JSONB_PATH_QUERY_FIRST, FN_JSONB_PATH_QUERY_FIRST_TZ, FN_JSONB_PATH_QUERY_TZ, FN_JSONB_POPULATE_RECORD, FN_JSONB_POPULATE_RECORDSET, FN_JSONB_POPULATE_RECORD_VALID, FN_JSONB_PRETTY, FN_JSONB_SET, FN_JSONB_SET_LAX, FN_JSONB_STRIP_NULLS, FN_JSONB_TO_RECORD, FN_JSONB_TO_RECORDSET, FN_JSONB_TO_TSVECTOR, FN_JSONB_TYPEOF, FN_JSON_AGG_STRICT, FN_JSON_ARRAY, FN_JSON_ARRAYAGG, FN_JSON_ARRAY_ELEMENTS_TEXT, FN_JSON_BUILD_ARRAY, FN_JSON_BUILD_OBJECT, FN_JSON_EXISTS, FN_JSON_OBJECT, FN_JSON_OBJECTAGG, FN_JSON_OBJECT_AGG, FN_JSON_OBJECT_AGG_STRICT, FN_JSON_OBJECT_AGG_UNIQUE, FN_JSON_OBJECT_AGG_UNIQUE_STRICT, FN_JSON_QUERY, FN_JSON_SCALAR, FN_JSON_SERIALIZE, FN_JSON_STRIP_NULLS, FN_JSON_TO_RECORD, FN_JSON_TO_RECORDSET, FN_JSON_TO_TSVECTOR, FN_JSON_TYPEOF, FN_LCM, FN_LGAMMA, FN_LOG10, FN_MACADDR8_SET7BIT, FN_MAKEACLITEM, FN_MAKE_DATE, FN_MAKE_INTERVAL, FN_MAKE_TIME, FN_MAKE_TIMESTAMP, FN_MAKE_TIMESTAMPTZ, FN_MERGE_ACTION, FN_MIN_SCALE, FN_MXID_AGE, FN_NUM_NONNULLS, FN_NUM_NULLS, FN_NVL, FN_PARSE_IDENT, FN_PG_AVAILABLE_WAL_SUMMARIES, FN_PG_BACKUP_START, FN_PG_BACKUP_STOP, FN_PG_BASETYPE, FN_PG_BLOCKING_PIDS, FN_PG_CHAR_TO_ENCODING, FN_PG_CLEAR_ATTRIBUTE_STATS, FN_PG_CLEAR_RELATION_STATS, FN_PG_COLLATION_ACTUAL_VERSION, FN_PG_COLUMN_COMPRESSION, FN_PG_COLUMN_TOAST_CHUNK_ID, FN_PG_CONTROL_CHECKPOINT, FN_PG_CONTROL_INIT, FN_PG_CONTROL_RECOVERY, FN_PG_CONTROL_SYSTEM, FN_PG_COPY_LOGICAL_REPLICATION_SLOT, FN_PG_COPY_PHYSICAL_REPLICATION_SLOT, FN_PG_CREATE_LOGICAL_REPLICATION_SLOT, FN_PG_CREATE_PHYSICAL_REPLICATION_SLOT, FN_PG_CURRENT_LOGFILE, FN_PG_CURRENT_SNAPSHOT, FN_PG_CURRENT_WAL_FLUSH_LSN, FN_PG_CURRENT_WAL_INSERT_LSN, FN_PG_CURRENT_WAL_LSN, FN_PG_CURRENT_XACT_ID, FN_PG_CURRENT_XACT_ID_IF_ASSIGNED, FN_PG_DATABASE_COLLATION_ACTUAL_VERSION, FN_PG_DROP_REPLICATION_SLOT, FN_PG_ENCODING_TO_CHAR, FN_PG_EVENT_TRIGGER_DDL_COMMANDS, FN_PG_EVENT_TRIGGER_DROPPED_OBJECTS, FN_PG_EVENT_TRIGGER_TABLE_REWRITE_OID, FN_PG_EVENT_TRIGGER_TABLE_REWRITE_REASON, FN_PG_FILENODE_RELATION, FN_PG_GET_ACL, FN_PG_GET_CATALOG_FOREIGN_KEYS, FN_PG_GET_LOADED_MODULES, FN_PG_GET_MULTIXACT_MEMBERS, FN_PG_GET_OBJECT_ADDRESS, FN_PG_GET_OWNED_SEQUENCE, FN_PG_GET_PARTITION_CONSTRAINTDEF, FN_PG_GET_PARTKEYDEF, FN_PG_GET_STATISTICSOBJDEF, FN_PG_GET_WAL_REPLAY_PAUSE_STATE, FN_PG_GET_WAL_RESOURCE_MANAGERS, FN_PG_GET_WAL_SUMMARIZER_STATE, FN_PG_IDENTIFY_OBJECT_AS_ADDRESS, FN_PG_IMPORT_SYSTEM_COLLATIONS, FN_PG_INDEXAM_HAS_PROPERTY, FN_PG_INDEX_COLUMN_HAS_PROPERTY, FN_PG_INDEX_HAS_PROPERTY, FN_PG_INPUT_ERROR_INFO, FN_PG_INPUT_IS_VALID, FN_PG_IS_WAL_REPLAY_PAUSED, FN_PG_JIT_AVAILABLE, FN_PG_LAST_COMMITTED_XACT, FN_PG_LAST_WAL_RECEIVE_LSN, FN_PG_LAST_WAL_REPLAY_LSN, FN_PG_LOGICAL_EMIT_MESSAGE, FN_PG_LOGICAL_SLOT_GET_BINARY_CHANGES, FN_PG_LOGICAL_SLOT_GET_CHANGES, FN_PG_LOGICAL_SLOT_PEEK_BINARY_CHANGES, FN_PG_LOG_STANDBY_SNAPSHOT, FN_PG_LS_ARCHIVE_STATUSDIR, FN_PG_LS_LOGDIR, FN_PG_LS_LOGICALMAPDIR, FN_PG_LS_LOGICALSNAPDIR, FN_PG_LS_REPLSLOTDIR, FN_PG_LS_SUMMARIESDIR, FN_PG_LS_TMPDIR, FN_PG_LS_WALDIR, FN_PG_MCV_LIST_ITEMS, FN_PG_NOTIFICATION_QUEUE_USAGE, FN_PG_NUMA_AVAILABLE, FN_PG_PARTITION_ANCESTORS, FN_PG_PARTITION_ROOT, FN_PG_PARTITION_TREE, FN_PG_PROMOTE, FN_PG_REPLICATION_ORIGIN_ADVANCE, FN_PG_REPLICATION_ORIGIN_CREATE, FN_PG_REPLICATION_ORIGIN_DROP, FN_PG_REPLICATION_ORIGIN_OID, FN_PG_REPLICATION_ORIGIN_PROGRESS, FN_PG_REPLICATION_ORIGIN_SESSION_IS_SETUP, FN_PG_REPLICATION_ORIGIN_SESSION_PROGRESS, FN_PG_REPLICATION_ORIGIN_SESSION_RESET, FN_PG_REPLICATION_ORIGIN_SESSION_SETUP, FN_PG_REPLICATION_ORIGIN_XACT_RESET, FN_PG_REPLICATION_ORIGIN_XACT_SETUP, FN_PG_REPLICATION_SLOT_ADVANCE, FN_PG_RESTORE_ATTRIBUTE_STATS, FN_PG_RESTORE_RELATION_STATS, FN_PG_SAFE_SNAPSHOT_BLOCKING_PIDS, FN_PG_SETTINGS_GET_FLAGS, FN_PG_SIZE_BYTES, FN_PG_SLEEP, FN_PG_SLEEP_FOR, FN_PG_SLEEP_UNTIL, FN_PG_SNAPSHOT_XIP, FN_PG_SNAPSHOT_XMAX, FN_PG_SNAPSHOT_XMIN, FN_PG_SPLIT_WALFILE_NAME, FN_PG_STATISTICS_OBJ_IS_VISIBLE, FN_PG_SWITCH_WAL, FN_PG_SYNC_REPLICATION_SLOTS, FN_PG_VISIBLE_IN_SNAPSHOT, FN_PG_WALFILE_NAME, FN_PG_WALFILE_NAME_OFFSET, FN_PG_WAL_LSN_DIFF, FN_PG_WAL_REPLAY_PAUSE, FN_PG_WAL_REPLAY_RESUME, FN_PG_WAL_SUMMARY_CONTENTS, FN_PG_XACT_COMMIT_TIMESTAMP, FN_PG_XACT_COMMIT_TIMESTAMP_ORIGIN, FN_PG_XACT_STATUS, FN_PHRASETO_TSQUERY, FN_QUERY_TO_XMLSCHEMA, FN_QUERY_TO_XML_AND_XMLSCHEMA, FN_RANDOM_NORMAL, FN_RANGE_AGG, FN_RANGE_INTERSECT_AGG, FN_RANGE_MERGE, FN_REGEXP_COUNT, FN_REGEXP_INSTR, FN_REGEXP_LIKE, FN_REGEXP_MATCH, FN_REGEXP_SUBSTR, FN_ROW_SECURITY_ACTIVE, FN_SCHEMA_TO_XML, FN_SCHEMA_TO_XMLSCHEMA, FN_SCHEMA_TO_XML_AND_XMLSCHEMA, FN_SHA224, FN_SHA256, FN_SHA384, FN_SHA512, FN_SIND, FN_SINH, FN_SLOPE, FN_STARTS_WITH, FN_STDDEV, FN_STRING_TO_TABLE, FN_SUPPRESS_REDUNDANT_UPDATES_TRIGGER, FN_TABLE_TO_XMLSCHEMA, FN_TABLE_TO_XML_AND_XMLSCHEMA, FN_TAND, FN_TANH, FN_TIMEZONE, FN_TO_BIN, FN_TO_JSONB, FN_TO_OCT, FN_TO_REGCLASS, FN_TO_REGCOLLATION, FN_TO_REGNAMESPACE, FN_TO_REGOPER, FN_TO_REGOPERATOR, FN_TO_REGPROC, FN_TO_REGPROCEDURE, FN_TO_REGROLE, FN_TO_REGTYPE, FN_TO_REGTYPEMOD, FN_TRIM_SCALE, FN_TSQUERY_PHRASE, FN_TSVECTOR_TO_ARRAY, FN_TS_DEBUG, FN_TS_DELETE, FN_TS_FILTER, FN_TS_LEXIZE, FN_TS_PARSE, FN_TS_STAT, FN_TS_TOKEN_TYPE, FN_TXID_CURRENT_IF_ASSIGNED, FN_TXID_STATUS, FN_UNICODE_ASSIGNED, FN_UNICODE_VERSION, FN_UNISTR, FN_UUIDV4, FN_UUIDV7, FN_UUID_EXTRACT_TIMESTAMP, FN_UUID_EXTRACT_VERSION, FN_VARIANCE, FN_WEBSEARCH_TO_TSQUERY, FN_XML_IS_WELL_FORMED_CONTENT, FN_XML_IS_WELL_FORMED_DOCUMENT, KW_NULL, KW_TRUE, KW_FALSE, INTEGER, VARIABLE" pc="expression" />
         <node tt="STRING" pc="expression, 01335" cc="05388, 05326, 05333, 05337, 05338, 05341">
-            <node tt="CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" pc="expression" />
-            <node tt="CT_OUTER_JOIN, KW_NOT, KW_IN, KW_LIKE, KW_ILIKE, KW_BETWEEN" pc="expression" />
+            <node id="N0017" tt="CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" pc="expression" />
+            <node id="N0018" tt="CT_OUTER_JOIN, KW_NOT, KW_IN, KW_LIKE, KW_ILIKE, KW_BETWEEN" pc="expression" />
         </node>
         <node tt="NUMBER" pc="expression, 01336" cc="05388, 05326, 05333, 05337, 05338, 05341">
-            <node tt="CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" pc="expression" />
-            <node tt="CT_OUTER_JOIN, KW_NOT, KW_IN, KW_LIKE, KW_ILIKE, KW_BETWEEN" pc="expression" />
+            <node ref="N0017" />
+            <node ref="N0018" />
         </node>
     </one-of-extension>
     <one-of-extension id="01473" depth="4">
         <node tt="KW_NOT" pc="01474, 01531" cc="01476, 01533">
-            <node tt="KW_NULL" pc="01474" />
-            <node tt="KW_DEFERRABLE" pc="01531" />
+            <node id="N0019" tt="KW_NULL" pc="01474" />
+            <node id="N0020" tt="KW_DEFERRABLE" pc="01531" />
         </node>
-        <node tt="KW_NULL" pc="01474" />
+        <node ref="N0019" />
         <node tt="KW_CHECK" pc="01477" />
         <node tt="KW_DEFAULT" pc="01483" />
         <node tt="KW_GENERATED" pc="01485, 01493" cc="01487, 01496, 01498">
@@ -575,7 +513,7 @@
         </node>
         <node tt="KW_UNIQUE, KW_PRIMARY" pc="01505" cc="01644, 01646, 01510" />
         <node tt="KW_REFERENCES" pc="01511" cc="01514, 01515" />
-        <node tt="KW_DEFERRABLE" pc="01531" />
+        <node ref="N0020" />
         <node tt="KW_INITIALLY" pc="01534" cc="01537, 01538" />
     </one-of-extension>
     <one-of-extension id="01542" depth="3">
@@ -818,10 +756,10 @@
         <node tt="KW_NO" pc="02633, 02640, 02647" cc="02639, 02646, 02651">
             <node tt="KW_MINVALUE" pc="02633" />
             <node tt="KW_MAXVALUE" pc="02640" />
-            <node tt="KW_CYCLE" pc="02647" />
+            <node id="N0021" tt="KW_CYCLE" pc="02647" />
         </node>
         <node tt="KW_MAXVALUE" pc="02640" cc="06261, 06262" />
-        <node tt="KW_CYCLE" pc="02647" />
+        <node ref="N0021" />
         <node tt="KW_START" pc="02652" cc="02654, 06261, 06262" />
         <node tt="KW_RESTART" pc="02655" cc="02658" />
         <node tt="KW_CACHE" pc="02659" cc="06256" />
@@ -876,19 +814,19 @@
         <node tt="KW_ALTER" pc="02862" cc="02864, 02865" />
         <node tt="KW_VALIDATE" pc="02913" cc="02915" />
         <node tt="KW_DISABLE" pc="02924, 02933, 02939" cc="02928, 02937, 02942">
-            <node tt="KW_TRIGGER" pc="02924" cc="02930, 02931, 02932" />
-            <node tt="KW_RULE" pc="02933" cc="02938" />
+            <node id="N0022" tt="KW_TRIGGER" pc="02924" cc="02930, 02931, 02932" />
+            <node id="N0023" tt="KW_RULE" pc="02933" cc="02938" />
             <node tt="KW_ROW" pc="02939" cc="02943" />
         </node>
         <node tt="KW_ENABLE" pc="02924, 02933, 02939" cc="02928, 02937, 02947">
-            <node tt="KW_TRIGGER" pc="02924" cc="02930, 02931, 02932" />
-            <node tt="KW_RULE" pc="02933" cc="02938" />
+            <node ref="N0022" />
+            <node ref="N0023" />
             <node tt="KW_ROW" pc="02939" cc="02948" />
         </node>
         <node tt="KW_FORCE" pc="02939" cc="02952" />
         <node tt="KW_NO" pc="02939, 02998" cc="02957, 03003">
             <node tt="KW_FORCE" pc="02939" cc="02958" />
-            <node tt="KW_INHERIT" pc="02998" cc="03005, 03006" />
+            <node id="N0024" tt="KW_INHERIT" pc="02998" cc="03005, 03006" />
         </node>
         <node tt="KW_CLUSTER" pc="02961" cc="02963" />
         <node tt="KW_SET" pc="02967, 02971, 02975, 02982, 02986, 02991" cc="02969, 02973, 02977, 02984, 02989, 02990">
@@ -902,7 +840,7 @@
             <node tt="CHR_LEFT_PARENTHESIS" pc="02991" cc="01654, 01655, 01656, 01657, 01658, 01659" />
         </node>
         <node tt="KW_RESET" pc="02993" />
-        <node tt="KW_INHERIT" pc="02998" cc="03005, 03006" />
+        <node ref="N0024" />
         <node tt="KW_OF" pc="03007" cc="03010, 03011" />
         <node tt="KW_NOT" pc="03012" cc="03014" />
         <node tt="KW_OWNER" pc="03015" cc="03017" />
@@ -910,18 +848,18 @@
     </one-of-extension>
     <one-of-extension id="02866" depth="2">
         <node tt="KW_SET" pc="02867, 02876, 02882, 02888, 02893, 02900, 02904" cc="02869, 02870, 02878, 02886, 02890, 02902, 02906">
-            <node tt="KW_DATA, KW_TYPE" pc="02867" cc="02870, 06097, 06098, 06099, 06100, 06101, 06102, 06103, 06104, 06105, 06106, 06109, 06110, 06112, 06113, 06114, 06115, 06116, 06118, 06120, 06121, 06122, 06123, 06124, 06125, 06126, 06127, 06128, 06129, 06131, 06160, 06161, 06162, 06163, 06164, 06165, 06166, 06167, 06168, 06169, 06170, 06171, 06172, 06173, 06174, 06175, 06176, 06177, 06178, 06179, 06180, 06181, 06182, 06183, 06186, 06187, 06194, 06195, 06196, 06197, 06198, 06199, 06200, 06201, 06202, 06203, 06211, 06212" />
+            <node id="N0025" tt="KW_DATA, KW_TYPE" pc="02867" cc="02870, 06097, 06098, 06099, 06100, 06101, 06102, 06103, 06104, 06105, 06106, 06109, 06110, 06112, 06113, 06114, 06115, 06116, 06118, 06120, 06121, 06122, 06123, 06124, 06125, 06126, 06127, 06128, 06129, 06131, 06160, 06161, 06162, 06163, 06164, 06165, 06166, 06167, 06168, 06169, 06170, 06171, 06172, 06173, 06174, 06175, 06176, 06177, 06178, 06179, 06180, 06181, 06182, 06183, 06186, 06187, 06194, 06195, 06196, 06197, 06198, 06199, 06200, 06201, 06202, 06203, 06211, 06212" />
             <node tt="KW_DEFAULT" pc="02876" />
-            <node tt="KW_NOT" pc="02882" cc="02887" />
+            <node id="N0026" tt="KW_NOT" pc="02882" cc="02887" />
             <node tt="KW_STATISTICS" pc="02888" cc="06256, 02892" />
             <node tt="CHR_LEFT_PARENTHESIS" pc="02893" cc="01654, 01655, 01656, 01657, 01658, 01659" />
             <node tt="KW_STORAGE" pc="02900" cc="02903" />
             <node tt="KW_COMPRESSION" pc="02904" cc="02907" />
         </node>
-        <node tt="KW_DATA, KW_TYPE" pc="02867" cc="02870, 06097, 06098, 06099, 06100, 06101, 06102, 06103, 06104, 06105, 06106, 06109, 06110, 06112, 06113, 06114, 06115, 06116, 06118, 06120, 06121, 06122, 06123, 06124, 06125, 06126, 06127, 06128, 06129, 06131, 06160, 06161, 06162, 06163, 06164, 06165, 06166, 06167, 06168, 06169, 06170, 06171, 06172, 06173, 06174, 06175, 06176, 06177, 06178, 06179, 06180, 06181, 06182, 06183, 06186, 06187, 06194, 06195, 06196, 06197, 06198, 06199, 06200, 06201, 06202, 06203, 06211, 06212" />
+        <node ref="N0025" />
         <node tt="KW_DROP" pc="02879, 02882" cc="02881, 02886">
             <node tt="KW_DEFAULT" pc="02879" />
-            <node tt="KW_NOT" pc="02882" cc="02887" />
+            <node ref="N0026" />
         </node>
         <node tt="KW_RESET" pc="02895" />
     </one-of-extension>
@@ -1004,12 +942,12 @@
     <one-of-extension id="03823" depth="2">
         <node tt="KW_SET" pc="03824, 03830, 03880" cc="03826, 03834, 03882">
             <node tt="KW_DEFAULT" pc="03824" />
-            <node tt="KW_NOT" pc="03830" cc="03835" />
+            <node id="N0027" tt="KW_NOT" pc="03830" cc="03835" />
             <node tt="KW_SCHEMA" pc="03880" cc="03883" />
         </node>
         <node tt="KW_DROP" pc="03827, 03830, 03851" cc="03829, 03834, 03853">
             <node tt="KW_DEFAULT" pc="03827" />
-            <node tt="KW_NOT" pc="03830" cc="03835" />
+            <node ref="N0027" />
             <node tt="KW_CONSTRAINT" pc="03851" cc="06269, 03854" />
         </node>
         <node tt="KW_ADD" pc="03836" cc="03839, 03843, 03846" />
@@ -1088,14 +1026,14 @@
     </one-of-extension>
     <one-of-extension id="04045" depth="2">
         <node tt="KW_SET" pc="04046, 04052, 04058" cc="04048, 04049, 04054, 04062">
-            <node tt="KW_DATA, KW_TYPE" pc="04046" cc="04049, 06097, 06098, 06099, 06100, 06101, 06102, 06103, 06104, 06105, 06106, 06109, 06110, 06112, 06113, 06114, 06115, 06116, 06118, 06120, 06121, 06122, 06123, 06124, 06125, 06126, 06127, 06128, 06129, 06131, 06160, 06161, 06162, 06163, 06164, 06165, 06166, 06167, 06168, 06169, 06170, 06171, 06172, 06173, 06174, 06175, 06176, 06177, 06178, 06179, 06180, 06181, 06182, 06183, 06186, 06187, 06194, 06195, 06196, 06197, 06198, 06199, 06200, 06201, 06202, 06203, 06211, 06212" />
+            <node id="N0028" tt="KW_DATA, KW_TYPE" pc="04046" cc="04049, 06097, 06098, 06099, 06100, 06101, 06102, 06103, 06104, 06105, 06106, 06109, 06110, 06112, 06113, 06114, 06115, 06116, 06118, 06120, 06121, 06122, 06123, 06124, 06125, 06126, 06127, 06128, 06129, 06131, 06160, 06161, 06162, 06163, 06164, 06165, 06166, 06167, 06168, 06169, 06170, 06171, 06172, 06173, 06174, 06175, 06176, 06177, 06178, 06179, 06180, 06181, 06182, 06183, 06186, 06187, 06194, 06195, 06196, 06197, 06198, 06199, 06200, 06201, 06202, 06203, 06211, 06212" />
             <node tt="KW_DEFAULT" pc="04052" />
-            <node tt="KW_NOT" pc="04058" cc="04063" />
+            <node id="N0029" tt="KW_NOT" pc="04058" cc="04063" />
         </node>
-        <node tt="KW_DATA, KW_TYPE" pc="04046" cc="04049, 06097, 06098, 06099, 06100, 06101, 06102, 06103, 06104, 06105, 06106, 06109, 06110, 06112, 06113, 06114, 06115, 06116, 06118, 06120, 06121, 06122, 06123, 06124, 06125, 06126, 06127, 06128, 06129, 06131, 06160, 06161, 06162, 06163, 06164, 06165, 06166, 06167, 06168, 06169, 06170, 06171, 06172, 06173, 06174, 06175, 06176, 06177, 06178, 06179, 06180, 06181, 06182, 06183, 06186, 06187, 06194, 06195, 06196, 06197, 06198, 06199, 06200, 06201, 06202, 06203, 06211, 06212" />
+        <node ref="N0028" />
         <node tt="KW_DROP" pc="04055, 04058" cc="04057, 04062">
             <node tt="KW_DEFAULT" pc="04055" />
-            <node tt="KW_NOT" pc="04058" cc="04063" />
+            <node ref="N0029" />
         </node>
     </one-of-extension>
     <one-of-extension id="04143" depth="2">
@@ -1307,391 +1245,132 @@
         <node tt="KW_PRIOR, KW_NOT" pc="05386, expression_list" />
         <node tt="KW_CASE" pc="05386, expression_list" />
         <node tt="DT_ARRAY, DT_BIGINT, DT_BIGSERIAL, DT_BOOL, DT_BOOLEAN, DT_BOX, DT_BYTEA, DT_CHAR, DT_BPCHAR, DT_CID, DT_CIDR, DT_CIRCLE, DT_DATE, DT_DECIMAL, KW_FLOAT, DT_FLOAT4, DT_FLOAT8, DT_INET, DT_INT, DT_INT2, DT_INT2VECTOR, DT_INT4, DT_INT8, DT_INTEGER, DT_JSON, DT_JSONB, DT_LINE, DT_LSEG, DT_MACADDR, DT_MACADDR8, DT_MONEY, DT_NAME, DT_NUMERIC, DT_PATH, DT_PG_LSN, DT_PG_SNAPSHOT, DT_POINT, DT_POLYGON, DT_REAL, DT_SERIAL, DT_SERIAL2, DT_SERIAL4, DT_SERIAL8, DT_SMALLINT, DT_SMALLSERIAL, DT_TEXT, DT_TID, DT_TIMESTAMPTZ, DT_TIMETZ, DT_TSQUERY, DT_TSVECTOR, DT_TXID_SNAPSHOT, DT_UUID, DT_VARBIT, DT_VARCHAR, DT_XID, DT_XML" pc="05386, expression_list" cc="06204, 05326, 05333, 05337, 05338, 05341">
-            <node tt="CHR_LEFT_PARENTHESIS, CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-            <node tt="DT_ARRAY" cc="05326, 05333, 05337, 05338, 05341">
-                <node tt="CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                    <node tt="KW_IN">
+            <node id="N0030" tt="CHR_LEFT_PARENTHESIS, CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" pc="05386, expression_list" />
+            <node id="N0031" tt="DT_ARRAY" pc="05386, expression_list" cc="05326, 05333, 05337, 05338, 05341">
+                <node id="N0032" tt="CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" pc="05386, expression_list" />
+                <node id="N0033" tt="KW_NOT" pc="05386, expression_list" cc="05333, 05337, 05338, 05341">
+                    <node id="N0034" tt="KW_IN" pc="05386, expression_list">
                         <node tt="CHR_LEFT_PARENTHESIS" />
                     </node>
-                    <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
+                    <node id="N0035" tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" pc="05386, expression_list" />
                     <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                    <node tt="CHR_COLON" pc="05386" />
-                    <node tt="CHR_COMMA" pc="expression_list" />
+                    <node id="N0036" tt="CHR_COLON" pc="05386" />
+                    <node id="N0037" tt="CHR_COMMA" pc="expression_list" />
                 </node>
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
+                <node ref="N0034" />
+                <node ref="N0035" />
+                <node ref="N0036" />
+                <node ref="N0037" />
             </node>
-            <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
-            </node>
-            <node tt="KW_IN">
-                <node tt="CHR_LEFT_PARENTHESIS" />
-            </node>
-            <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-            <node tt="CHR_COLON" pc="05386" />
-            <node tt="CHR_COMMA" pc="expression_list" />
+            <node ref="N0033" />
+            <node ref="N0034" />
+            <node ref="N0035" />
+            <node ref="N0036" />
+            <node ref="N0037" />
         </node>
         <node tt="FN_BIT" pc="05386, expression_list" cc="06204, 05326, 05333, 05337, 05338, 05341, 06111">
-            <node tt="CHR_LEFT_PARENTHESIS, CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-            <node tt="DT_ARRAY" cc="05326, 05333, 05337, 05338, 05341">
-                <node tt="CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                    <node tt="KW_IN">
-                        <node tt="CHR_LEFT_PARENTHESIS" />
-                    </node>
-                    <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                    <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                    <node tt="CHR_COLON" pc="05386" />
-                    <node tt="CHR_COMMA" pc="expression_list" />
-                </node>
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
+            <node ref="N0030" />
+            <node ref="N0031" />
+            <node ref="N0033" />
+            <node ref="N0034" />
+            <node ref="N0035" />
+            <node ref="N0036" />
+            <node id="N0038" tt="KW_VARYING" pc="05386, expression_list" cc="06204, 05326, 05333, 05337, 05338, 05341">
+                <node ref="N0030" />
+                <node ref="N0031" />
+                <node ref="N0033" />
+                <node ref="N0034" />
+                <node ref="N0035" />
+                <node ref="N0036" />
+                <node ref="N0037" />
             </node>
-            <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
-            </node>
-            <node tt="KW_IN">
-                <node tt="CHR_LEFT_PARENTHESIS" />
-            </node>
-            <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-            <node tt="CHR_COLON" pc="05386" />
-            <node tt="KW_VARYING" cc="06204, 05326, 05333, 05337, 05338, 05341">
-                <node tt="CHR_LEFT_PARENTHESIS, CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="DT_ARRAY" cc="05326, 05333, 05337, 05338, 05341">
-                    <node tt="CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                    <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                        <node tt="KW_IN">
-                            <node tt="CHR_LEFT_PARENTHESIS" />
-                        </node>
-                        <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                        <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                        <node tt="CHR_COLON" pc="05386" />
-                        <node tt="CHR_COMMA" pc="expression_list" />
-                    </node>
-                    <node tt="KW_IN">
-                        <node tt="CHR_LEFT_PARENTHESIS" />
-                    </node>
-                    <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                    <node tt="CHR_COLON" pc="05386" />
-                    <node tt="CHR_COMMA" pc="expression_list" />
-                </node>
-                <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                    <node tt="KW_IN">
-                        <node tt="CHR_LEFT_PARENTHESIS" />
-                    </node>
-                    <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                    <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                    <node tt="CHR_COLON" pc="05386" />
-                    <node tt="CHR_COMMA" pc="expression_list" />
-                </node>
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
-            </node>
-            <node tt="CHR_COMMA" pc="expression_list" />
+            <node ref="N0037" />
         </node>
         <node tt="DT_CHARACTER" pc="05386, expression_list" cc="06111, 06204, 05326, 05333, 05337, 05338, 05341">
-            <node tt="KW_VARYING" cc="06204, 05326, 05333, 05337, 05338, 05341">
-                <node tt="CHR_LEFT_PARENTHESIS, CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="DT_ARRAY" cc="05326, 05333, 05337, 05338, 05341">
-                    <node tt="CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                    <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                        <node tt="KW_IN">
-                            <node tt="CHR_LEFT_PARENTHESIS" />
-                        </node>
-                        <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                        <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                        <node tt="CHR_COLON" pc="05386" />
-                        <node tt="CHR_COMMA" pc="expression_list" />
-                    </node>
-                    <node tt="KW_IN">
-                        <node tt="CHR_LEFT_PARENTHESIS" />
-                    </node>
-                    <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                    <node tt="CHR_COLON" pc="05386" />
-                    <node tt="CHR_COMMA" pc="expression_list" />
-                </node>
-                <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                    <node tt="KW_IN">
-                        <node tt="CHR_LEFT_PARENTHESIS" />
-                    </node>
-                    <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                    <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                    <node tt="CHR_COLON" pc="05386" />
-                    <node tt="CHR_COMMA" pc="expression_list" />
-                </node>
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
-            </node>
-            <node tt="CHR_LEFT_PARENTHESIS, CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-            <node tt="DT_ARRAY" cc="05326, 05333, 05337, 05338, 05341">
-                <node tt="CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                    <node tt="KW_IN">
-                        <node tt="CHR_LEFT_PARENTHESIS" />
-                    </node>
-                    <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                    <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                    <node tt="CHR_COLON" pc="05386" />
-                    <node tt="CHR_COMMA" pc="expression_list" />
-                </node>
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
-            </node>
-            <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
-            </node>
-            <node tt="KW_IN">
-                <node tt="CHR_LEFT_PARENTHESIS" />
-            </node>
-            <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-            <node tt="CHR_COLON" pc="05386" />
-            <node tt="CHR_COMMA" pc="expression_list" />
+            <node ref="N0038" />
+            <node ref="N0030" />
+            <node ref="N0031" />
+            <node ref="N0033" />
+            <node ref="N0034" />
+            <node ref="N0035" />
+            <node ref="N0036" />
+            <node ref="N0037" />
         </node>
         <node tt="KW_DOUBLE" pc="05386, expression_list" cc="06119">
             <node tt="KW_PRECISION" cc="06204, 05326, 05333, 05337, 05338, 05341">
-                <node tt="CHR_LEFT_PARENTHESIS, CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="DT_ARRAY" cc="05326, 05333, 05337, 05338, 05341">
-                    <node tt="CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                    <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                        <node tt="KW_IN">
-                            <node tt="CHR_LEFT_PARENTHESIS" />
-                        </node>
-                        <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                        <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                        <node tt="CHR_COLON" pc="05386" />
-                        <node tt="CHR_COMMA" pc="expression_list" />
-                    </node>
-                    <node tt="KW_IN">
-                        <node tt="CHR_LEFT_PARENTHESIS" />
-                    </node>
-                    <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                    <node tt="CHR_COLON" pc="05386" />
-                    <node tt="CHR_COMMA" pc="expression_list" />
-                </node>
-                <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                    <node tt="KW_IN">
-                        <node tt="CHR_LEFT_PARENTHESIS" />
-                    </node>
-                    <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                    <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                    <node tt="CHR_COLON" pc="05386" />
-                    <node tt="CHR_COMMA" pc="expression_list" />
-                </node>
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
+                <node ref="N0030" />
+                <node ref="N0031" />
+                <node ref="N0033" />
+                <node ref="N0034" />
+                <node ref="N0035" />
+                <node ref="N0036" />
+                <node ref="N0037" />
             </node>
         </node>
         <node tt="DT_INTERVAL" pc="05386, expression_list" />
         <node tt="DT_OID, IDENTIFIER" pc="05386, expression_list" cc="06204, 05326, 05333, 05337, 05338, 05341, 05388">
-            <node tt="CHR_LEFT_PARENTHESIS, CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
+            <node ref="N0030" />
             <node tt="DT_ARRAY, CT_OUTER_JOIN" cc="05326, 05333, 05337, 05338, 05341">
-                <node tt="CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                    <node tt="KW_IN">
-                        <node tt="CHR_LEFT_PARENTHESIS" />
-                    </node>
-                    <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                    <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                    <node tt="CHR_COLON" pc="05386" />
-                    <node tt="CHR_COMMA" pc="expression_list" />
-                </node>
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
+                <node ref="N0032" />
+                <node ref="N0033" />
+                <node ref="N0034" />
+                <node ref="N0035" />
+                <node ref="N0036" />
+                <node ref="N0037" />
             </node>
-            <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
-            </node>
-            <node tt="KW_IN">
-                <node tt="CHR_LEFT_PARENTHESIS" />
-            </node>
-            <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-            <node tt="CHR_COLON" pc="05386" />
-            <node tt="CHR_COMMA" pc="expression_list" />
+            <node ref="N0033" />
+            <node ref="N0034" />
+            <node ref="N0035" />
+            <node ref="N0036" />
+            <node ref="N0037" />
         </node>
         <node tt="DT_TIME, DT_TIMESTAMP" pc="05386, expression_list" cc="06190, 06191, 06204, 05326, 05333, 05337, 05338, 05341">
-            <node tt="CHR_LEFT_PARENTHESIS, CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
+            <node ref="N0030" />
             <node tt="KW_WITH, KW_WITHOUT" cc="06192">
                 <node tt="DT_TIME" cc="06193">
                     <node tt="KW_ZONE" cc="06204, 05326, 05333, 05337, 05338, 05341">
-                        <node tt="CHR_LEFT_PARENTHESIS, CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                        <node tt="DT_ARRAY" cc="05326, 05333, 05337, 05338, 05341">
-                            <node tt="CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                            <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                                <node tt="KW_IN">
-                                    <node tt="CHR_LEFT_PARENTHESIS" />
-                                </node>
-                                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                                <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                                <node tt="CHR_COLON" pc="05386" />
-                                <node tt="CHR_COMMA" pc="expression_list" />
-                            </node>
-                            <node tt="KW_IN">
-                                <node tt="CHR_LEFT_PARENTHESIS" />
-                            </node>
-                            <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                            <node tt="CHR_COLON" pc="05386" />
-                            <node tt="CHR_COMMA" pc="expression_list" />
-                        </node>
-                        <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                            <node tt="KW_IN">
-                                <node tt="CHR_LEFT_PARENTHESIS" />
-                            </node>
-                            <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                            <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                            <node tt="CHR_COLON" pc="05386" />
-                            <node tt="CHR_COMMA" pc="expression_list" />
-                        </node>
-                        <node tt="KW_IN">
-                            <node tt="CHR_LEFT_PARENTHESIS" />
-                        </node>
-                        <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                        <node tt="CHR_COLON" pc="05386" />
-                        <node tt="CHR_COMMA" pc="expression_list" />
+                        <node ref="N0030" />
+                        <node ref="N0031" />
+                        <node ref="N0033" />
+                        <node ref="N0034" />
+                        <node ref="N0035" />
+                        <node ref="N0036" />
+                        <node ref="N0037" />
                     </node>
                 </node>
             </node>
-            <node tt="DT_ARRAY" cc="05326, 05333, 05337, 05338, 05341">
-                <node tt="CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                    <node tt="KW_IN">
-                        <node tt="CHR_LEFT_PARENTHESIS" />
-                    </node>
-                    <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                    <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                    <node tt="CHR_COLON" pc="05386" />
-                    <node tt="CHR_COMMA" pc="expression_list" />
-                </node>
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
-            </node>
-            <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
-            </node>
-            <node tt="KW_IN">
-                <node tt="CHR_LEFT_PARENTHESIS" />
-            </node>
-            <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-            <node tt="CHR_COLON" pc="05386" />
-            <node tt="CHR_COMMA" pc="expression_list" />
+            <node ref="N0031" />
+            <node ref="N0033" />
+            <node ref="N0034" />
+            <node ref="N0035" />
+            <node ref="N0036" />
+            <node ref="N0037" />
         </node>
         <node tt="FN_ABBREV, FN_ABS, FN_ACOS, FN_AGE, FN_AREA, FN_ARRAY_AGG, FN_ARRAY_APPEND, FN_ARRAY_CAT, FN_ARRAY_DIMS, FN_ARRAY_FILL, FN_ARRAY_LENGTH, FN_ARRAY_LOWER, FN_ARRAY_NDIMS, FN_ARRAY_PREPEND, FN_ARRAY_REMOVE, FN_ARRAY_REPLACE, FN_ARRAY_TO_JSON, FN_ARRAY_TO_STRING, FN_ARRAY_UPPER, FN_ASCII, FN_ASIN, FN_ATAN, FN_ATAN2, FN_AVG, FN_BIT_AND, FN_BIT_LENGTH, FN_BIT_OR, FN_BOOL_AND, FN_BOOL_OR, FN_BROADCAST, FN_BTRIM, FN_CBRT, FN_CEIL, FN_CEILING, FN_CENTER, FN_CHAR_LENGTH, FN_CHR, FN_CLOCK_TIMESTAMP, KW_COALESCE, FN_COL_DESCRIPTION, FN_CONCAT, FN_CONCAT_WS, FN_CONVERT, FN_CONVERT_FROM, FN_CONVERT_TO, FN_COS, FN_COT, FN_COUNT, FN_CUME_DIST, FN_CURRENT_CATALOG, FN_CURRENT_DATABASE, FN_CURRENT_DATE, FN_CURRENT_QUERY, FN_CURRENT_SCHEMA, FN_CURRENT_SCHEMAS, FN_CURRENT_SETTING, FN_CURRENT_TIME, FN_CURRENT_TIMESTAMP, FN_CURRENT_USER, FN_CURRVAL, FN_CURSOR_TO_XML, FN_DATE_PART, FN_DATE_TRUNC, FN_DECODE, FN_DEGREES, FN_DENSE_RANK, FN_DIAMETER, FN_DIV, FN_ENCODE, FN_ENUM_FIRST, FN_ENUM_LAST, FN_ENUM_RANGE, FN_EVERY, FN_EXP, FN_EXTRACT, FN_FAMILY, FN_FIRST_VALUE, FN_FLOOR, FN_FORMAT, FN_FORMAT_TYPE, FN_GENERATE_SERIES, FN_GENERATE_SUBSCRIPTS, FN_GET_BIT, FN_GET_BYTE, FN_GET_CURRENT_TS_CONFIG, FN_HAS_ANY_COLUMN_PRIVILEGE, FN_HAS_COLUMN_PRIVILEGE, FN_HAS_DATABASE_PRIVILEGE, FN_HAS_FOREIGN_DATA_WRAPPER_PRIVILEGE, FN_HAS_FUNCTION_PRIVILEGE, FN_HAS_LANGUAGE_PRIVILEGE, FN_HAS_SCHEMA_PRIVILEGE, FN_HAS_SEQUENCE_PRIVILEGE, FN_HAS_SERVER_PRIVILEGE, FN_HAS_TABLESPACE_PRIVILEGE, FN_HAS_TABLE_PRIVILEGE, FN_HEIGHT, FN_HOST, FN_HOSTMASK, FN_INET_CLIENT_ADDR, FN_INET_CLIENT_PORT, FN_INET_SERVER_ADDR, FN_INET_SERVER_PORT, FN_INITCAP, FN_ISCLOSED, FN_ISEMPTY, FN_ISFINITE, FN_ISOPEN, FN_JSON_AGG, FN_JSON_ARRAY_ELEMENTS, FN_JSON_ARRAY_LENGTH, FN_JSON_EACH, FN_JSON_EACH_TEXT, FN_JSON_EXTRACT_PATH, FN_JSON_EXTRACT_PATH_TEXT, FN_JSON_OBJECT_KEYS, FN_JSON_POPULATE_RECORD, FN_JSON_POPULATE_RECORDSET, FN_JUSTIFY_DAYS, FN_JUSTIFY_HOURS, FN_JUSTIFY_INTERVAL, FN_LAG, FN_LASTVAL, FN_LAST_VALUE, FN_LEAD, FN_LEFT, FN_LENGTH, FN_LN, FN_LOCALTIME, FN_LOCALTIMESTAMP, FN_LOG, FN_LOWER, FN_LOWER_INC, FN_LOWER_INF, FN_LPAD, FN_LTRIM, FN_MASKLEN, FN_MAX, FN_MD5, FN_MIN, FN_MOD, FN_NETMASK, FN_NETWORK, FN_NEXTVAL, FN_NOW, FN_NPOINTS, FN_NTH_VALUE, FN_NTILE, FN_NUMNODE, FN_OBJ_DESCRIPTION, FN_OCTET_LENGTH, FN_OVERLAY, FN_PCLOSE, FN_PERCENT_RANK, FN_PG_ADVISORY_LOCK, FN_PG_ADVISORY_LOCK_SHARED, FN_PG_ADVISORY_UNLOCK, FN_PG_ADVISORY_UNLOCK_ALL, FN_PG_ADVISORY_UNLOCK_SHARED, FN_PG_ADVISORY_XACT_LOCK, FN_PG_ADVISORY_XACT_LOCK_SHARED, FN_PG_BACKEND_PID, FN_PG_BACKUP_START_TIME, FN_PG_CANCEL_BACKEND, FN_PG_CLIENT_ENCODING, FN_PG_COLLATION_IS_VISIBLE, FN_PG_COLUMN_SIZE, FN_PG_CONF_LOAD_TIME, FN_PG_CONVERSION_IS_VISIBLE, FN_PG_CREATE_RESTORE_POINT, FN_PG_CURRENT_XLOG_INSERT_LOCATION, FN_PG_CURRENT_XLOG_LOCATION, FN_PG_DATABASE_SIZE, FN_PG_DESCRIBE_OBJECT, FN_PG_EXPORT_SNAPSHOT, FN_PG_FUNCTION_IS_VISIBLE, FN_PG_GET_CONSTRAINTDEF, FN_PG_GET_EXPR, FN_PG_GET_FUNCTIONDEF, FN_PG_GET_FUNCTION_ARGUMENTS, FN_PG_GET_FUNCTION_IDENTITY_ARGUMENTS, FN_PG_GET_FUNCTION_RESULT, FN_PG_GET_INDEXDEF, FN_PG_GET_KEYWORDS, FN_PG_GET_RULEDEF, FN_PG_GET_SERIAL_SEQUENCE, FN_PG_GET_TRIGGERDEF, FN_PG_GET_USERBYID, FN_PG_GET_VIEWDEF, FN_PG_HAS_ROLE, FN_PG_IDENTIFY_OBJECT, FN_PG_INDEXES_SIZE, FN_PG_IS_IN_BACKUP, FN_PG_IS_IN_RECOVERY, FN_PG_IS_OTHER_TEMP_SCHEMA, FN_PG_IS_XLOG_REPLAY_PAUSED, FN_PG_LAST_XACT_REPLAY_TIMESTAMP, FN_PG_LAST_XLOG_RECEIVE_LOCATION, FN_PG_LAST_XLOG_REPLAY_LOCATION, FN_PG_LISTENING_CHANNELS, FN_PG_LS_DIR, FN_PG_MY_TEMP_SCHEMA, FN_PG_OPCLASS_IS_VISIBLE, FN_PG_OPERATOR_IS_VISIBLE, FN_PG_OPFAMILY_IS_VISIBLE, FN_PG_OPTIONS_TO_TABLE, FN_PG_POSTMASTER_START_TIME, FN_PG_READ_BINARY_FILE, FN_PG_READ_FILE, FN_PG_RELATION_FILENODE, FN_PG_RELATION_FILEPATH, FN_PG_RELATION_SIZE, FN_PG_RELOAD_CONF, FN_PG_ROTATE_LOGFILE, FN_PG_SIZE_PRETTY, FN_PG_START_BACKUP, FN_PG_STAT_FILE, FN_PG_STOP_BACKUP, FN_PG_SWITCH_XLOG, FN_PG_TABLESPACE_DATABASES, FN_PG_TABLESPACE_LOCATION, FN_PG_TABLESPACE_SIZE, FN_PG_TABLE_IS_VISIBLE, FN_PG_TABLE_SIZE, FN_PG_TERMINATE_BACKEND, FN_PG_TOTAL_RELATION_SIZE, FN_PG_TRIGGER_DEPTH, FN_PG_TRY_ADVISORY_LOCK, FN_PG_TRY_ADVISORY_LOCK_SHARED, FN_PG_TRY_ADVISORY_XACT_LOCK, FN_PG_TRY_ADVISORY_XACT_LOCK_SHARED, FN_PG_TS_CONFIG_IS_VISIBLE, FN_PG_TS_DICT_IS_VISIBLE, FN_PG_TS_PARSER_IS_VISIBLE, FN_PG_TS_TEMPLATE_IS_VISIBLE, FN_PG_TYPEOF, FN_PG_TYPE_IS_VISIBLE, FN_PG_XLOGFILE_NAME, FN_PG_XLOGFILE_NAME_OFFSET, FN_PG_XLOG_LOCATION_DIFF, FN_PG_XLOG_REPLAY_PAUSE, FN_PG_XLOG_REPLAY_RESUME, FN_PI, FN_PLAINTO_TSQUERY, FN_POPEN, FN_POSITION, FN_POWER, FN_QUERYTREE, FN_QUERY_TO_XML, FN_QUOTE_IDENT, FN_QUOTE_LITERAL, FN_QUOTE_NULLABLE, FN_RADIANS, FN_RADIUS, FN_RANDOM, FN_RANK, FN_REGEXP_MATCHES, FN_REGEXP_REPLACE, FN_REGEXP_SPLIT_TO_ARRAY, FN_REGEXP_SPLIT_TO_TABLE, FN_REPEAT, FN_REPLACE, FN_REVERSE, FN_RIGHT, FN_ROUND, FN_ROW_NUMBER, FN_ROW_TO_JSON, FN_RPAD, FN_RTRIM, FN_SESSION_USER, FN_SETSEED, FN_SETVAL, FN_SETWEIGHT, FN_SET_BIT, FN_SET_BYTE, FN_SET_CONFIG, FN_SET_MASKLEN, FN_SHOBJ_DESCRIPTION, FN_SIGN, FN_SIN, FN_SPLIT_PART, FN_SQRT, FN_STATEMENT_TIMESTAMP, FN_STRING_AGG, FN_STRING_TO_ARRAY, FN_STRIP, FN_STRPOS, FN_SUBSTR, FN_SUBSTRING, FN_SUM, FN_TABLE_TO_XML, FN_TAN, FN_TIMEOFDAY, FN_TO_ASCII, FN_TO_CHAR, FN_TO_DATE, FN_TO_HEX, FN_TO_JSON, FN_TO_NUMBER, FN_TO_TIMESTAMP, FN_TO_TSQUERY, FN_TO_TSVECTOR, FN_TRANSACTION_TIMESTAMP, FN_TRANSLATE, FN_TRIM, FN_TRUNC, FN_TSVECTOR_UPDATE_TRIGGER, FN_TSVECTOR_UPDATE_TRIGGER_COLUMN, FN_TS_HEADLINE, FN_TS_RANK, FN_TS_RANK_CD, FN_TS_REWRITE, FN_TXID_CURRENT, FN_TXID_CURRENT_SNAPSHOT, FN_TXID_SNAPSHOT_XIP, FN_TXID_SNAPSHOT_XMAX, FN_TXID_SNAPSHOT_XMIN, FN_TXID_VISIBLE_IN_SNAPSHOT, FN_UNNEST, FN_UPPER, FN_UPPER_INC, FN_UPPER_INF, KW_USER, FN_VERSION, FN_WIDTH, FN_WIDTH_BUCKET, FN_XIP_LIST, FN_XMAX, FN_XMIN, FN_XMLAGG, FN_XMLCOMMENT, FN_XMLCONCAT, FN_XMLELEMENT, FN_XMLEXISTS, FN_XMLFOREST, FN_XMLPI, FN_XMLROOT, FN_XML_IS_WELL_FORMED, FN_XPATH, FN_XPATH_EXISTS, FN_ACOSD, FN_ACOSH, FN_ANY_VALUE, FN_ARRAY_POSITION, FN_ARRAY_POSITIONS, FN_ARRAY_REVERSE, FN_ARRAY_SAMPLE, FN_ARRAY_SHUFFLE, FN_ARRAY_SORT, FN_ARRAY_TO_TSVECTOR, FN_ASIND, FN_ASINH, FN_ATAN2D, FN_ATAND, FN_ATANH, FN_BIT_COUNT, FN_BIT_XOR, FN_BOUND_BOX, FN_BRIN_DESUMMARIZE_RANGE, FN_BRIN_SUMMARIZE_NEW_VALUES, FN_BRIN_SUMMARIZE_RANGE, FN_CASEFOLD, FN_COSD, FN_COSH, FN_COTD, FN_CRC32, FN_CRC32C, FN_CURSOR_TO_XMLSCHEMA, FN_DATABASE_TO_XML, FN_DATABASE_TO_XMLSCHEMA, FN_DATABASE_TO_XML_AND_XMLSCHEMA, FN_DATE_ADD, FN_DATE_BIN, FN_DATE_SUBTRACT, FN_DIAGONAL, FN_ERF, FN_ERFC, FN_FACTORIAL, FN_GAMMA, FN_GCD, FN_GEN_RANDOM_UUID, FN_GIN_CLEAN_PENDING_LIST, FN_HAS_LARGEOBJECT_PRIVILEGE, FN_HAS_PARAMETER_PRIVILEGE, FN_HAS_TYPE_PRIVILEGE, FN_ICU_UNICODE_VERSION, FN_INET_MERGE, FN_INET_SAME_FAMILY, FN_JSONB_AGG, FN_JSONB_AGG_STRICT, FN_JSONB_ARRAY_ELEMENTS, FN_JSONB_ARRAY_ELEMENTS_TEXT, FN_JSONB_ARRAY_LENGTH, FN_JSONB_BUILD_ARRAY, FN_JSONB_BUILD_OBJECT, FN_JSONB_EACH, FN_JSONB_EACH_TEXT, FN_JSONB_EXTRACT_PATH, FN_JSONB_EXTRACT_PATH_TEXT, FN_JSONB_INSERT, FN_JSONB_OBJECT, FN_JSONB_OBJECT_AGG, FN_JSONB_OBJECT_AGG_STRICT, FN_JSONB_OBJECT_AGG_UNIQUE, FN_JSONB_OBJECT_AGG_UNIQUE_STRICT, FN_JSONB_OBJECT_KEYS, FN_JSONB_PATH_EXISTS, FN_JSONB_PATH_EXISTS_TZ, FN_JSONB_PATH_MATCH, FN_JSONB_PATH_MATCH_TZ, FN_JSONB_PATH_QUERY, FN_JSONB_PATH_QUERY_ARRAY, FN_JSONB_PATH_QUERY_ARRAY_TZ, FN_JSONB_PATH_QUERY_FIRST, FN_JSONB_PATH_QUERY_FIRST_TZ, FN_JSONB_PATH_QUERY_TZ, FN_JSONB_POPULATE_RECORD, FN_JSONB_POPULATE_RECORDSET, FN_JSONB_POPULATE_RECORD_VALID, FN_JSONB_PRETTY, FN_JSONB_SET, FN_JSONB_SET_LAX, FN_JSONB_STRIP_NULLS, FN_JSONB_TO_RECORD, FN_JSONB_TO_RECORDSET, FN_JSONB_TO_TSVECTOR, FN_JSONB_TYPEOF, FN_JSON_AGG_STRICT, FN_JSON_ARRAY, FN_JSON_ARRAYAGG, FN_JSON_ARRAY_ELEMENTS_TEXT, FN_JSON_BUILD_ARRAY, FN_JSON_BUILD_OBJECT, FN_JSON_EXISTS, FN_JSON_OBJECT, FN_JSON_OBJECTAGG, FN_JSON_OBJECT_AGG, FN_JSON_OBJECT_AGG_STRICT, FN_JSON_OBJECT_AGG_UNIQUE, FN_JSON_OBJECT_AGG_UNIQUE_STRICT, FN_JSON_QUERY, FN_JSON_SCALAR, FN_JSON_SERIALIZE, FN_JSON_STRIP_NULLS, FN_JSON_TO_RECORD, FN_JSON_TO_RECORDSET, FN_JSON_TO_TSVECTOR, FN_JSON_TYPEOF, FN_LCM, FN_LGAMMA, FN_LOG10, FN_MACADDR8_SET7BIT, FN_MAKEACLITEM, FN_MAKE_DATE, FN_MAKE_INTERVAL, FN_MAKE_TIME, FN_MAKE_TIMESTAMP, FN_MAKE_TIMESTAMPTZ, FN_MERGE_ACTION, FN_MIN_SCALE, FN_MXID_AGE, FN_NUM_NONNULLS, FN_NUM_NULLS, FN_NVL, FN_PARSE_IDENT, FN_PG_AVAILABLE_WAL_SUMMARIES, FN_PG_BACKUP_START, FN_PG_BACKUP_STOP, FN_PG_BASETYPE, FN_PG_BLOCKING_PIDS, FN_PG_CHAR_TO_ENCODING, FN_PG_CLEAR_ATTRIBUTE_STATS, FN_PG_CLEAR_RELATION_STATS, FN_PG_COLLATION_ACTUAL_VERSION, FN_PG_COLUMN_COMPRESSION, FN_PG_COLUMN_TOAST_CHUNK_ID, FN_PG_CONTROL_CHECKPOINT, FN_PG_CONTROL_INIT, FN_PG_CONTROL_RECOVERY, FN_PG_CONTROL_SYSTEM, FN_PG_COPY_LOGICAL_REPLICATION_SLOT, FN_PG_COPY_PHYSICAL_REPLICATION_SLOT, FN_PG_CREATE_LOGICAL_REPLICATION_SLOT, FN_PG_CREATE_PHYSICAL_REPLICATION_SLOT, FN_PG_CURRENT_LOGFILE, FN_PG_CURRENT_SNAPSHOT, FN_PG_CURRENT_WAL_FLUSH_LSN, FN_PG_CURRENT_WAL_INSERT_LSN, FN_PG_CURRENT_WAL_LSN, FN_PG_CURRENT_XACT_ID, FN_PG_CURRENT_XACT_ID_IF_ASSIGNED, FN_PG_DATABASE_COLLATION_ACTUAL_VERSION, FN_PG_DROP_REPLICATION_SLOT, FN_PG_ENCODING_TO_CHAR, FN_PG_EVENT_TRIGGER_DDL_COMMANDS, FN_PG_EVENT_TRIGGER_DROPPED_OBJECTS, FN_PG_EVENT_TRIGGER_TABLE_REWRITE_OID, FN_PG_EVENT_TRIGGER_TABLE_REWRITE_REASON, FN_PG_FILENODE_RELATION, FN_PG_GET_ACL, FN_PG_GET_CATALOG_FOREIGN_KEYS, FN_PG_GET_LOADED_MODULES, FN_PG_GET_MULTIXACT_MEMBERS, FN_PG_GET_OBJECT_ADDRESS, FN_PG_GET_OWNED_SEQUENCE, FN_PG_GET_PARTITION_CONSTRAINTDEF, FN_PG_GET_PARTKEYDEF, FN_PG_GET_STATISTICSOBJDEF, FN_PG_GET_WAL_REPLAY_PAUSE_STATE, FN_PG_GET_WAL_RESOURCE_MANAGERS, FN_PG_GET_WAL_SUMMARIZER_STATE, FN_PG_IDENTIFY_OBJECT_AS_ADDRESS, FN_PG_IMPORT_SYSTEM_COLLATIONS, FN_PG_INDEXAM_HAS_PROPERTY, FN_PG_INDEX_COLUMN_HAS_PROPERTY, FN_PG_INDEX_HAS_PROPERTY, FN_PG_INPUT_ERROR_INFO, FN_PG_INPUT_IS_VALID, FN_PG_IS_WAL_REPLAY_PAUSED, FN_PG_JIT_AVAILABLE, FN_PG_LAST_COMMITTED_XACT, FN_PG_LAST_WAL_RECEIVE_LSN, FN_PG_LAST_WAL_REPLAY_LSN, FN_PG_LOGICAL_EMIT_MESSAGE, FN_PG_LOGICAL_SLOT_GET_BINARY_CHANGES, FN_PG_LOGICAL_SLOT_GET_CHANGES, FN_PG_LOGICAL_SLOT_PEEK_BINARY_CHANGES, FN_PG_LOG_STANDBY_SNAPSHOT, FN_PG_LS_ARCHIVE_STATUSDIR, FN_PG_LS_LOGDIR, FN_PG_LS_LOGICALMAPDIR, FN_PG_LS_LOGICALSNAPDIR, FN_PG_LS_REPLSLOTDIR, FN_PG_LS_SUMMARIESDIR, FN_PG_LS_TMPDIR, FN_PG_LS_WALDIR, FN_PG_MCV_LIST_ITEMS, FN_PG_NOTIFICATION_QUEUE_USAGE, FN_PG_NUMA_AVAILABLE, FN_PG_PARTITION_ANCESTORS, FN_PG_PARTITION_ROOT, FN_PG_PARTITION_TREE, FN_PG_PROMOTE, FN_PG_REPLICATION_ORIGIN_ADVANCE, FN_PG_REPLICATION_ORIGIN_CREATE, FN_PG_REPLICATION_ORIGIN_DROP, FN_PG_REPLICATION_ORIGIN_OID, FN_PG_REPLICATION_ORIGIN_PROGRESS, FN_PG_REPLICATION_ORIGIN_SESSION_IS_SETUP, FN_PG_REPLICATION_ORIGIN_SESSION_PROGRESS, FN_PG_REPLICATION_ORIGIN_SESSION_RESET, FN_PG_REPLICATION_ORIGIN_SESSION_SETUP, FN_PG_REPLICATION_ORIGIN_XACT_RESET, FN_PG_REPLICATION_ORIGIN_XACT_SETUP, FN_PG_REPLICATION_SLOT_ADVANCE, FN_PG_RESTORE_ATTRIBUTE_STATS, FN_PG_RESTORE_RELATION_STATS, FN_PG_SAFE_SNAPSHOT_BLOCKING_PIDS, FN_PG_SETTINGS_GET_FLAGS, FN_PG_SIZE_BYTES, FN_PG_SLEEP, FN_PG_SLEEP_FOR, FN_PG_SLEEP_UNTIL, FN_PG_SNAPSHOT_XIP, FN_PG_SNAPSHOT_XMAX, FN_PG_SNAPSHOT_XMIN, FN_PG_SPLIT_WALFILE_NAME, FN_PG_STATISTICS_OBJ_IS_VISIBLE, FN_PG_SWITCH_WAL, FN_PG_SYNC_REPLICATION_SLOTS, FN_PG_VISIBLE_IN_SNAPSHOT, FN_PG_WALFILE_NAME, FN_PG_WALFILE_NAME_OFFSET, FN_PG_WAL_LSN_DIFF, FN_PG_WAL_REPLAY_PAUSE, FN_PG_WAL_REPLAY_RESUME, FN_PG_WAL_SUMMARY_CONTENTS, FN_PG_XACT_COMMIT_TIMESTAMP, FN_PG_XACT_COMMIT_TIMESTAMP_ORIGIN, FN_PG_XACT_STATUS, FN_PHRASETO_TSQUERY, FN_QUERY_TO_XMLSCHEMA, FN_QUERY_TO_XML_AND_XMLSCHEMA, FN_RANDOM_NORMAL, FN_RANGE_AGG, FN_RANGE_INTERSECT_AGG, FN_RANGE_MERGE, FN_REGEXP_COUNT, FN_REGEXP_INSTR, FN_REGEXP_LIKE, FN_REGEXP_MATCH, FN_REGEXP_SUBSTR, FN_ROW_SECURITY_ACTIVE, FN_SCHEMA_TO_XML, FN_SCHEMA_TO_XMLSCHEMA, FN_SCHEMA_TO_XML_AND_XMLSCHEMA, FN_SHA224, FN_SHA256, FN_SHA384, FN_SHA512, FN_SIND, FN_SINH, FN_SLOPE, FN_STARTS_WITH, FN_STDDEV, FN_STRING_TO_TABLE, FN_SUPPRESS_REDUNDANT_UPDATES_TRIGGER, FN_TABLE_TO_XMLSCHEMA, FN_TABLE_TO_XML_AND_XMLSCHEMA, FN_TAND, FN_TANH, FN_TIMEZONE, FN_TO_BIN, FN_TO_JSONB, FN_TO_OCT, FN_TO_REGCLASS, FN_TO_REGCOLLATION, FN_TO_REGNAMESPACE, FN_TO_REGOPER, FN_TO_REGOPERATOR, FN_TO_REGPROC, FN_TO_REGPROCEDURE, FN_TO_REGROLE, FN_TO_REGTYPE, FN_TO_REGTYPEMOD, FN_TRIM_SCALE, FN_TSQUERY_PHRASE, FN_TSVECTOR_TO_ARRAY, FN_TS_DEBUG, FN_TS_DELETE, FN_TS_FILTER, FN_TS_LEXIZE, FN_TS_PARSE, FN_TS_STAT, FN_TS_TOKEN_TYPE, FN_TXID_CURRENT_IF_ASSIGNED, FN_TXID_STATUS, FN_UNICODE_ASSIGNED, FN_UNICODE_VERSION, FN_UNISTR, FN_UUIDV4, FN_UUIDV7, FN_UUID_EXTRACT_TIMESTAMP, FN_UUID_EXTRACT_VERSION, FN_VARIANCE, FN_WEBSEARCH_TO_TSQUERY, FN_XML_IS_WELL_FORMED_CONTENT, FN_XML_IS_WELL_FORMED_DOCUMENT, VARIABLE" pc="05386, expression_list" cc="05326, 05333, 05337, 05338, 05341">
             <node tt="CHR_LEFT_PARENTHESIS, OPR_CAST_PREFIX, CHR_LEFT_BRACKET, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-            <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
-            </node>
-            <node tt="KW_IN">
-                <node tt="CHR_LEFT_PARENTHESIS" />
-            </node>
-            <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-            <node tt="CHR_COLON" pc="05386" />
-            <node tt="CHR_COMMA" pc="expression_list" />
+            <node ref="N0033" />
+            <node ref="N0034" />
+            <node ref="N0035" />
+            <node ref="N0036" />
+            <node ref="N0037" />
         </node>
         <node tt="STRING, KW_NULL, KW_TRUE, KW_FALSE, NUMBER, INTEGER" pc="05386, expression_list" cc="05388, 05326, 05333, 05337, 05338, 05341">
-            <node tt="CHR_LEFT_BRACKET, OPR_CAST_PREFIX, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
+            <node ref="N0032" />
             <node tt="CT_OUTER_JOIN" cc="05326, 05333, 05337, 05338, 05341">
                 <node tt="OPR_CAST_PREFIX, CHR_LEFT_BRACKET, CHR_DOT, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                    <node tt="KW_IN">
-                        <node tt="CHR_LEFT_PARENTHESIS" />
-                    </node>
-                    <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                    <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                    <node tt="CHR_COLON" pc="05386" />
-                    <node tt="CHR_COMMA" pc="expression_list" />
-                </node>
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
+                <node ref="N0033" />
+                <node ref="N0034" />
+                <node ref="N0035" />
+                <node ref="N0036" />
+                <node ref="N0037" />
             </node>
-            <node tt="KW_NOT" cc="05333, 05337, 05338, 05341">
-                <node tt="KW_IN">
-                    <node tt="CHR_LEFT_PARENTHESIS" />
-                </node>
-                <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-                <node tt="CHR_LEFT_BRACKET, CHR_DOT, OPR_CAST_PREFIX, OPR_GENERIC, OPR_EQUAL_EQUAL, OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS, CHR_AND, CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL, OPR_LIKE, OPR_NOT_LIKE, OPR_MATCH, OPR_MATCH_CI, OPR_NO_MATCH, OPR_NO_MATCH_CI, OPR_NULL_SAFE_EQUAL, OPR_SHIFT_LEFT, OPR_SHIFT_RIGHT, OPR_AT_AT, OPR_AND_AND, CHR_AT, CHR_EXCLAMATION, CHR_HASH, CHR_PERCENT, CHR_VERTICAL_BAR, CHR_CARET, CHR_QUESTION_MARK, CHR_BACKTICK, CHR_RIGHT_PARENTHESIS" />
-                <node tt="CHR_COLON" pc="05386" />
-                <node tt="CHR_COMMA" pc="expression_list" />
-            </node>
-            <node tt="KW_IN">
-                <node tt="CHR_LEFT_PARENTHESIS" />
-            </node>
-            <node tt="KW_LIKE, KW_ILIKE, KW_BETWEEN" />
-            <node tt="CHR_COLON" pc="05386" />
-            <node tt="CHR_COMMA" pc="expression_list" />
+            <node ref="N0033" />
+            <node ref="N0034" />
+            <node ref="N0035" />
+            <node ref="N0036" />
+            <node ref="N0037" />
         </node>
-        <node tt="CHR_COLON" pc="05386" />
+        <node ref="N0036" />
     </one-of-extension>
     <one-of-extension id="05425" depth="1">
         <node tt="FN_ABBREV" pc="05426" />

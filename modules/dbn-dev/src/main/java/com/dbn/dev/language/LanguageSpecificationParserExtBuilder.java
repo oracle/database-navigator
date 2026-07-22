@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -48,12 +49,14 @@ import static com.dbn.language.common.element.util.ElementTypeAttribute.SYNTHETI
 
 public class LanguageSpecificationParserExtBuilder implements LanguageSpecificationArtifactBuilder {
     private static final String EXT_DTD_PATH = "../../../common/definition/language-parser-elements-ext.dtd";
-    private static final String BUILDER_VERSION = "2.0.0";
+    private static final String BUILDER_VERSION = "2.1.0";
     private static final String GENERATED_COMMENT =
             "Generated with LanguageSpecificationParserExtBuilder. Do not edit manually.";
     private static final String ATTR_TOKEN_TYPE_IDS = "tt";
     private static final String ATTR_PARSE_CANDIDATE_IDS = "pc";
     private static final String ATTR_COMPLETION_CANDIDATE_IDS = "cc";
+    private static final String ATTR_NODE_ID = "id";
+    private static final String ATTR_NODE_REF = "ref";
     private static final int MAX_DEPTH = 8;
     private static final int MAX_COMPLETION_CANDIDATES = 100;
     private static final int MIN_EXTENSION_CANDIDATES = 10;
@@ -178,8 +181,9 @@ public class LanguageSpecificationParserExtBuilder implements LanguageSpecificat
             extensionRoot.setAttribute("source", input.getParserElementsFile().getName());
             extensionRoot.setAttribute("builder-version", BUILDER_VERSION);
 
+            NodeIdSequence nodeIds = new NodeIdSequence();
             for (Map.Entry<String, ExtensionNode> entry : extensionNodes.entrySet()) {
-                addOneOfExtension(extensionRoot, entry.getKey(), entry.getValue());
+                addOneOfExtension(extensionRoot, entry.getKey(), entry.getValue(), nodeIds);
             }
 
             Document extensionDocument = new Document(extensionRoot);
@@ -200,28 +204,43 @@ public class LanguageSpecificationParserExtBuilder implements LanguageSpecificat
     private static void addOneOfExtension(
             Element extensionRoot,
             String oneOfId,
-            ExtensionNode extensionNode) {
+            ExtensionNode extensionNode,
+            NodeIdSequence nodeIds) {
         if (extensionNode.childNodes.isEmpty()) return;
 
         Element extensionElement = new Element("one-of-extension");
         extensionElement.setAttribute("id", oneOfId);
         extensionElement.setAttribute("depth", Integer.toString(getChildDepth(extensionNode.childNodes)));
+        XmlWriteContext context = new XmlWriteContext(extensionNode.childNodes, nodeIds);
         for (Node childNode : extensionNode.childNodes) {
-            extensionElement.addContent(toXmlElement(childNode, null));
+            extensionElement.addContent(toXmlElement(childNode, null, context));
         }
         extensionRoot.addContent(extensionElement);
     }
 
     private static Element toXmlElement(
             Node node,
-            Set<ElementTypeBase> inheritedCandidates) {
+            Set<ElementTypeBase> inheritedCandidates,
+            XmlWriteContext context) {
         if (node.tokenTypes.isEmpty()) {
             throw new IllegalStateException("Extension node must contain at least one token type");
         }
 
+        SharedNode sharedNode = context.sharedNodes.get(node);
+        if (sharedNode.referenced && sharedNode.id != null) {
+            Element reference = new Element("node");
+            reference.setAttribute(ATTR_NODE_REF, sharedNode.id);
+            return reference;
+        }
+
         Element element = new Element("node");
+        boolean shared = sharedNode.referenced;
+        if (shared) {
+            sharedNode.id = context.nextNodeId();
+            element.setAttribute(ATTR_NODE_ID, sharedNode.id);
+        }
         element.setAttribute(ATTR_TOKEN_TYPE_IDS, Lists.toCsv(node.tokenTypes, TokenType::getId));
-        if (inheritedCandidates == null ||
+        if (shared || inheritedCandidates == null ||
                 !Node.hasSameCandidateIds(node.parseCandidates, inheritedCandidates)) {
             setCandidateIds(element, ATTR_PARSE_CANDIDATE_IDS, node.parseCandidates);
         }
@@ -232,7 +251,7 @@ public class LanguageSpecificationParserExtBuilder implements LanguageSpecificat
 
         if (node.isAmbiguous()) {
             for (Node childNode : node.childNodes) {
-                element.addContent(toXmlElement(childNode, node.parseCandidates));
+                element.addContent(toXmlElement(childNode, node.parseCandidates, context));
             }
         }
         return element;
@@ -438,5 +457,95 @@ public class LanguageSpecificationParserExtBuilder implements LanguageSpecificat
             if (leaf.tokenType.isOperator()) return false;
             return true;
         }
+    }
+
+    private static final class XmlWriteContext {
+        private final Map<Node, SharedNode> sharedNodes = new IdentityHashMap<>();
+        private final Map<NodeStructure, SharedNode> nodesByStructure = new HashMap<>();
+        private final NodeIdSequence nodeIds;
+
+        private XmlWriteContext(
+                List<Node> rootNodes,
+                NodeIdSequence nodeIds) {
+            this.nodeIds = nodeIds;
+            for (Node rootNode : rootNodes) {
+                register(rootNode);
+            }
+            Set<SharedNode> emittedNodes = new LinkedHashSet<>();
+            for (Node rootNode : rootNodes) {
+                planReferences(rootNode, emittedNodes);
+            }
+        }
+
+        private SharedNode register(Node node) {
+            List<SharedNode> childNodes = new ArrayList<>();
+            if (node.isAmbiguous()) {
+                for (Node childNode : node.childNodes) {
+                    childNodes.add(register(childNode));
+                }
+            }
+
+            Set<LeafElementType> completionCandidates = node.getCompletionCandidates();
+            NodeStructure structure = new NodeStructure(
+                    List.copyOf(node.tokenTypes),
+                    List.copyOf(node.parseCandidates),
+                    completionCandidates.size() <= MAX_COMPLETION_CANDIDATES ?
+                            List.copyOf(completionCandidates) :
+                            List.of(),
+                    childNodes.stream().map(child -> child.structureId).toList());
+            SharedNode sharedNode = nodesByStructure.get(structure);
+            if (sharedNode == null) {
+                sharedNode = new SharedNode(nodesByStructure.size());
+                nodesByStructure.put(structure, sharedNode);
+            }
+            sharedNodes.put(node, sharedNode);
+            return sharedNode;
+        }
+
+        private void planReferences(
+                Node node,
+                Set<SharedNode> emittedNodes) {
+            SharedNode sharedNode = sharedNodes.get(node);
+            if (!emittedNodes.add(sharedNode)) {
+                sharedNode.referenced = true;
+                return;
+            }
+
+            if (node.isAmbiguous()) {
+                for (Node childNode : node.childNodes) {
+                    planReferences(childNode, emittedNodes);
+                }
+            }
+        }
+
+        private String nextNodeId() {
+            return nodeIds.next();
+        }
+    }
+
+    private static final class NodeIdSequence {
+        private int value;
+
+        private String next() {
+            String sequence = Integer.toString(value++);
+            return "N" + "0".repeat(Math.max(0, 4 - sequence.length())) + sequence;
+        }
+    }
+
+    private static final class SharedNode {
+        private final int structureId;
+        private boolean referenced;
+        private String id;
+
+        private SharedNode(int structureId) {
+            this.structureId = structureId;
+        }
+    }
+
+    private record NodeStructure(
+            List<TokenType> tokenTypes,
+            List<ElementTypeBase> parseCandidates,
+            List<LeafElementType> completionCandidates,
+            List<Integer> childStructureIds) {
     }
 }
