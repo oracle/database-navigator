@@ -74,7 +74,6 @@ public class LanguageSpecificationParserExtBuilder implements LanguageSpecificat
     public void build() throws Exception {
         new LanguageSpecificationParserBundleLoader(input).load(
                 (bundle, builder) -> buildExtension(bundle, builder),
-                false,
                 false);
     }
 

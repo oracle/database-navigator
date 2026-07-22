@@ -70,8 +70,4 @@ public class IterationElementTypeCache extends ElementTypeIndexedCache<Iteration
         return elementType.iteratedElement.cache.captureFirstPossibleTokens(context, bucket);
     }
 
-    @Override
-    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
-        return elementType.iteratedElement.cache.captureSurrogateSuccessors(surrogateLead, bucket);
-    }
 }

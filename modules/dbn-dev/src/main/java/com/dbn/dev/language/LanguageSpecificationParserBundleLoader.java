@@ -22,7 +22,6 @@ import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguageDialectIdentifier;
 import com.dbn.language.common.TokenTypeBundle;
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.impl.OneOfElementTypeBuilder;
 import com.dbn.language.psql.PSQLLanguage;
 import com.dbn.language.sql.SQLLanguage;
 import lombok.SneakyThrows;
@@ -72,31 +71,20 @@ class LanguageSpecificationParserBundleLoader {
     }
 
     @SneakyThrows
-    @SuppressWarnings("removal")
     ElementTypeBundle load(Consumer<ElementTypeBundle.Builder> builderCallback) {
-        return load(builderCallback, true, true);
+        return load(builderCallback, true);
     }
 
-    /**
-     * Legacy ambiguous-path toggle. Trie-based parser extensions supersede this path.
-     */
-    @Deprecated(forRemoval = true)
     @SneakyThrows
-    @SuppressWarnings("removal")
-    ElementTypeBundle load(BiConsumer<ElementTypeBundle, ElementTypeBundle.Builder> builderCallback, boolean rebuilding, boolean legacyAmbiguousPathRebuildEnabled) {
+    ElementTypeBundle load(BiConsumer<ElementTypeBundle, ElementTypeBundle.Builder> builderCallback, boolean rebuilding) {
         AtomicReference<ElementTypeBundle.Builder> builder = new AtomicReference<>();
-        ElementTypeBundle bundle = load(builder::set, rebuilding, legacyAmbiguousPathRebuildEnabled);
+        ElementTypeBundle bundle = load(builder::set, rebuilding);
         builderCallback.accept(bundle, builder.get());
         return bundle;
     }
 
-    /**
-     * Legacy ambiguous-path toggle. Trie-based parser extensions supersede this path.
-     */
-    @Deprecated(forRemoval = true)
     @SneakyThrows
-    @SuppressWarnings("removal")
-    ElementTypeBundle load(Consumer<ElementTypeBundle.Builder> builderCallback, boolean rebuilding, boolean legacyAmbiguousPathRebuildEnabled) {
+    ElementTypeBundle load(Consumer<ElementTypeBundle.Builder> builderCallback, boolean rebuilding) {
         var dialects = DIALECTS.get(input.database);
         if (dialects == null || !dialects.containsKey(input.language)) {
             throw new IllegalArgumentException("Unsupported parser definition: " + input.databaseId + " " + input.language);
@@ -105,10 +93,8 @@ class LanguageSpecificationParserBundleLoader {
         var dialect = dialects.get(input.language);
 
         boolean previousRebuilding = ElementTypeBundle.Builder.rebuilding;
-        boolean previousLegacyAmbiguousPathRebuildEnabled = OneOfElementTypeBuilder.legacyAmbiguousPathRebuildEnabled;
         try {
             ElementTypeBundle.Builder.rebuilding = rebuilding;
-            OneOfElementTypeBuilder.legacyAmbiguousPathRebuildEnabled = legacyAmbiguousPathRebuildEnabled;
             DBLanguageDialect languageDialect = input.language.getLanguageDialect(dialect);
             File definitionFile = getParserElementsFile();
 
@@ -120,7 +106,6 @@ class LanguageSpecificationParserBundleLoader {
         } finally {
             System.out.println("Element type bundle loading finished");
             ElementTypeBundle.Builder.rebuilding = previousRebuilding;
-            OneOfElementTypeBuilder.legacyAmbiguousPathRebuildEnabled = previousLegacyAmbiguousPathRebuildEnabled;
         }
     }
 

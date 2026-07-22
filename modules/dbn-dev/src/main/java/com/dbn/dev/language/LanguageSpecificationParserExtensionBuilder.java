@@ -93,7 +93,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
     @Override
     public void build() throws Exception {
         log("Reading " + input.getParserElementsFile().toPath());
-        new LanguageSpecificationParserBundleLoader(input).load(this::buildExtension, false, false);
+        new LanguageSpecificationParserBundleLoader(input).load(this::buildExtension, false);
     }
 
     private void buildExtension(ElementTypeBundle bundle, ElementTypeBundle.Builder builder) {

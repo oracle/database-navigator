@@ -62,9 +62,6 @@ public enum ElementTypeAttribute implements Property.LongBase {
 
     ITERATION_SEPARATOR("ITERATION_SEPARATOR", "Iterator separator token"),
     OPTIONAL_WRAPPING("OPTIONAL_WRAPPING", "Optional wrapping token"),
-    SURROGATE_LEAD("SURROGATE_LEAD", "Surrogate lead token"),
-    SURROGATE_SEQUENCE("SURROGATE_SEQUENCE", "Surrogate sequence element"),
-    SURROGATE_CONTENT("SURROGATE_CONTENT", "Surrogate content element"),
 
     SYNTHETIC("SYNTHETIC", "Generated synthetic element"),
     ;

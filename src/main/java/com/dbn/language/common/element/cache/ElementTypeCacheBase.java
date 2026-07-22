@@ -159,11 +159,6 @@ public abstract class ElementTypeCacheBase<T extends ElementTypeBase> implements
     }
 
     @Override
-    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
-        return bucket;
-    }
-
-    @Override
     public String toString() {
         return elementType.getId();
     }

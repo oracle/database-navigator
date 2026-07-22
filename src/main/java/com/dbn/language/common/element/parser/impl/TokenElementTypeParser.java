@@ -26,12 +26,10 @@ import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
 import com.intellij.lang.PsiBuilder.Marker;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
 import static com.dbn.language.common.element.parser.ParseResultType.BORROWED_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
-import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
 
 @Slf4j
 public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> {
@@ -44,9 +42,6 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
         ParserBuilder builder = context.builder;
         TokenType builderToken = builder.getToken();
         if (builderToken == null) return NO_MATCH_RESULT;
-
-        ParseResult surrogateResult = parseSurrogate(context);
-        if (surrogateResult != null) return surrogateResult;
 
         if (isTokenMatch(builder)) {
             String text = elementType.text;
@@ -70,43 +65,6 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
         }
 
         return NO_MATCH_RESULT;
-    }
-
-    @Nullable
-    private ParseResult parseSurrogate(ParserContext context) {
-        ParserBuilder builder = context.builder;
-        if (context.isSurrogateFor(elementType)) {
-            if (elementType.is(SURROGATE_LEAD)) {
-                // chained surrogate lead match
-                return stepOut(null, context, FULL_MATCH, 0);
-            }
-
-            if (isConsumedMatch(builder)) {
-                // consumed surrogate target match
-                return stepOut(null, context, BORROWED_MATCH, 0);
-            }
-
-            if (isTokenMatch(builder)) {
-                // actual surrogate target match
-                Marker marker = builder.markAndAdvance();
-                return stepOut(marker, context, FULL_MATCH, 0);
-            }
-
-            return NO_MATCH_RESULT;
-        }
-
-        if (elementType.is(SURROGATE_LEAD)) {
-            if (isTokenMatch(builder)) {
-                // surrogate lead match (soft)
-                return stepOut(null, context, FULL_MATCH, 0);
-            }
-            if (isConsumedMatch(builder)) {
-                // surrogate lead match (soft)
-                return stepOut(null, context, BORROWED_MATCH, 0);
-            }
-        }
-
-        return null;
     }
 
     private boolean isTokenMatch(ParserBuilder builder) {

@@ -234,13 +234,5 @@ public class OneOfElementType extends ElementTypeBase {
         // initialize children before this
         initChildren();
         sortChildren();
-
-        rebuildLegacyAmbiguousPaths();
-    }
-
-    @Deprecated(forRemoval = true)
-    @SuppressWarnings("removal")
-    private void rebuildLegacyAmbiguousPaths() {
-        OneOfElementTypeBuilder.rebuildAmbiguousPaths(this);
     }
 }

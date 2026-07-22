@@ -19,7 +19,6 @@ package com.dbn.dev.language;
 import com.dbn.dev.language.LanguageSpecificationBuilderInput.Action;
 import com.dbn.dev.language.LanguageSpecificationBuilderInput.Artifact;
 import com.dbn.language.common.element.impl.ElementTypeIdCache;
-import com.dbn.language.common.element.impl.LeafElementType;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.ArrayDeque;
@@ -46,7 +45,6 @@ public class LanguageSpecificationBuilder {
 
     private static void clearRunState() {
         ElementTypeIdCache.clear();
-        LeafElementType.clearSurrogateForFlags();
     }
 
     private static void runSelection() throws Exception {

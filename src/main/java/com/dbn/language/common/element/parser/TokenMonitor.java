@@ -16,15 +16,9 @@
 
 package com.dbn.language.common.element.parser;
 
-import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
-import com.intellij.util.containers.Stack;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 public class TokenMonitor extends ParserBuilderExtension {
-    private final Stack<SurrogateMarker> surrogateStack = new Stack<>();
     public LeafElementType lastLeaf;
 
     protected TokenMonitor(ParserBuilder builder) {
@@ -35,63 +29,4 @@ public class TokenMonitor extends ParserBuilderExtension {
         lastLeaf = leaf;
     }
 
-    public void enterSurrogateSection(LeafElementType surrogateLeaf) {
-        SurrogateMarker surrogateMarker = new SurrogateMarker(surrogateLeaf, builder.getOffset());
-        surrogateStack.push(surrogateMarker);
-    }
-
-    public void exitSurrogateSection(LeafElementType surrogateLeaf) {
-        SurrogateMarker surrogateMarker = surrogateStack.pop();
-        assert surrogateMarker.elementType == surrogateLeaf;
-    }
-
-    public boolean isSurrogate() {
-        if (surrogateStack.isEmpty()) return false;
-
-        SurrogateMarker surrogateMarker = surrogateStack.peek();
-        if (surrogateMarker.builderOffset != builder.getOffset()) return false;
-        return true;
-    }
-
-    public boolean isSurrogateFor(ElementTypeBase elementType) {
-        if (surrogateStack.isEmpty()) return false;
-
-        SurrogateMarker surrogateMarker = surrogateStack.peek();
-        if (surrogateMarker.builderOffset != builder.getOffset()) return false;
-
-        return surrogateMarker.elementType.isSurrogateFor(elementType);
-    }
-
-
-    public LeafElementType getLastSurrogate() {
-        return surrogateStack.isEmpty() ? null : surrogateStack.peek().elementType;
-    }
-
-/*    public boolean isStartSurrogateFor(ElementTypeBase elementType) {
-        if (surrogateStack.isEmpty()) return false;
-        return lastSurrogate.startSurrogateFor.contains(elementType);
-    }*/
-
-    public static Set<LeafElementType> unwrapSurrogates(Set<LeafElementType> leafs) {
-        Set<LeafElementType> collector = new LinkedHashSet<>();
-        for (LeafElementType leaf : leafs) {
-            unwrapSurrogate(leaf, collector);
-        }
-        return collector;
-    }
-
-    private static void unwrapSurrogate(LeafElementType leafElementType, Set<LeafElementType> collector) {
-        Set<LeafElementType> surrogateFor = leafElementType.surrogateFor;
-        if (surrogateFor == null) {
-            collector.add(leafElementType);
-            return;
-        }
-
-        for (LeafElementType elementType : surrogateFor) {
-            unwrapSurrogate(elementType, collector);
-        }
-    }
-
-    private record SurrogateMarker(LeafElementType elementType, int builderOffset) {
-    }
 }

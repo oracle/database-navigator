@@ -9282,6 +9282,7 @@
             <element ref-id="box_constructor_expression" />
             <element ref-id="array_constructor_expression" />
             <element ref-id="row_constructor_expression" />
+            <element ref-id="temporal_type_literal" />
             <sequence id="05492">
                 <token type-id="DT_TEXT" id="05493" />
                 <token type-id="STRING" id="05494" />
@@ -9359,6 +9360,32 @@
             </wrapper>
         </iteration>
         <token id="05534" optional="true" type-id="CT_OUTER_JOIN" />
+    </element-def>
+    <element-def description="Temporal type literal" id="temporal_type_literal">
+        <one-of>
+            <sequence>
+                <one-of>
+                    <token type-id="DT_TIME" />
+                    <token type-id="DT_TIMESTAMP" />
+                </one-of>
+                <sequence optional="true">
+                    <one-of>
+                        <token flavor="datatype" type-id="KW_WITH" />
+                        <token flavor="datatype" type-id="KW_WITHOUT" />
+                    </one-of>
+                    <token type-id="DT_TIME" />
+                    <token flavor="datatype" type-id="KW_ZONE" />
+                </sequence>
+                <token type-id="STRING" />
+            </sequence>
+            <sequence>
+                <one-of>
+                    <token type-id="DT_TIMESTAMPTZ" />
+                    <token type-id="DT_TIMETZ" />
+                </one-of>
+                <token type-id="STRING" />
+            </sequence>
+        </one-of>
     </element-def>
     <element-def description="Box constructor expression" id="box_constructor_expression">
         <token type-id="DT_BOX" id="05535" />

@@ -84,19 +84,6 @@ public class QualifiedIdentifierElementCache extends ElementTypeIndexedCache<Qua
         return bucket;
     }
 
-    @Override
-    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
-        for (LeafElementType[] elementTypes : elementType.variants) {
-            if (elementTypes.length <= 1) continue;
-            if (!surrogateLead.isSurrogateFor(elementTypes[0])) continue;
-
-            bucket = initBucket(bucket);
-            bucket.add(elementTypes[1]);
-        }
-
-        return bucket;
-    }
-
     public QualifiedIdentifierVariant getMostProbableParseVariant(TokenChain tokenChain) {
         QualifiedIdentifierVariant variant = probableParseVariants.get(tokenChain);
         if (variant == null) {

@@ -126,30 +126,6 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
             }
         }
 
-        if (surrogatedBy != null) {
-            Set<LeafElementType> candidates = null;
-            for (LeafElementType surrogatedByElement : surrogatedBy) {
-                SurrogateSequenceElementType surrogateSequence = surrogatedByElement.findParent(SurrogateSequenceElementType.class);
-                if (surrogateSequence != null) {
-                    ElementTypeBase surrogatedElement = surrogateSequence.getMainElementType();
-                    candidates = surrogatedElement.cache.captureSurrogateSuccessors(surrogatedByElement, candidates);
-                }
-            }
-
-            if (candidates != null) return candidates;
-        }
-
-        if (surrogateFor != null) {
-            Set<LeafElementType> candidates = null;
-            SurrogateSequenceElementType surrogateSequence = findParent(SurrogateSequenceElementType.class);
-            if (surrogateSequence != null) {
-                ElementTypeBase surrogatedElement = surrogateSequence.getMainElementType();
-                candidates = surrogatedElement.cache.captureSurrogateSuccessors(this, null);
-            }
-
-            if (candidates != null) return candidates;
-        }
-
         return super.getNextPossibleLeafs(pathNode, context);
     }
 

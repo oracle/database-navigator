@@ -23,12 +23,9 @@ import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.ElementTypeRef;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.SequenceElementType;
-import com.dbn.language.common.element.impl.SurrogateOneOfElementType;
-import com.dbn.language.common.element.impl.SurrogateSequenceElementType;
 
 import java.util.Set;
 
-import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
 
 public class SequenceElementTypeCache<T extends SequenceElementType> extends ElementTypeIndexedCache<T> {
 
@@ -89,10 +86,6 @@ public class SequenceElementTypeCache<T extends SequenceElementType> extends Ele
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, Set<LeafElementType> bucket) {
-        if (elementType instanceof SurrogateSequenceElementType surrogateSequence) {
-            return surrogateSequence.getMainElementType().cache.captureFirstPossibleLeafs(context, bucket);
-        }
-
         bucket = super.captureFirstPossibleLeafs(context, bucket);
         bucket = initBucket(bucket);
 
@@ -109,10 +102,6 @@ public class SequenceElementTypeCache<T extends SequenceElementType> extends Ele
 
     @Override
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, Set<TokenType> bucket) {
-        if (elementType instanceof SurrogateSequenceElementType surrogateSequence) {
-            return surrogateSequence.getMainElementType().cache.captureFirstPossibleTokens(context, bucket);
-        }
-
         bucket = super.captureFirstPossibleTokens(context, bucket);
         bucket = initBucket(bucket);
 
@@ -127,38 +116,4 @@ public class SequenceElementTypeCache<T extends SequenceElementType> extends Ele
         return bucket;
     }
 
-    @Override
-    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
-        ElementTypeRef leadCandidate = elementType.getFirstChild();
-
-        while (true) {
-            if (surrogateLead.isSurrogateFor(leadCandidate.elementType)) break;
-            if (!leadCandidate.optional) return bucket;
-            leadCandidate = leadCandidate.next;
-            if (leadCandidate == null) return bucket;
-        }
-
-        if (leadCandidate.elementType instanceof LeafElementType) {
-            ElementTypeRef successorCandidate = leadCandidate.next;
-            if (leadCandidate.elementType.is(SURROGATE_LEAD)) {
-                bucket = successorCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);
-            } else {
-                while (successorCandidate != null) {
-                    bucket = initBucket(bucket);
-                    bucket.addAll(successorCandidate.elementType.cache.getFirstPossibleLeafs());
-                    if (!successorCandidate.optional) break;
-                    successorCandidate = successorCandidate.next;
-                }
-            }
-            return bucket;
-        }
-
-        if (leadCandidate.elementType instanceof SurrogateOneOfElementType) {
-            ElementTypeRef successorCandidate = leadCandidate.next;
-            return successorCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);
-        }
-
-        return leadCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);
-    }
 }
-
