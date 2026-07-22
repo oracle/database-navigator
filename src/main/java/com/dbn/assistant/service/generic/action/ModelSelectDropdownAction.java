@@ -20,11 +20,13 @@ import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
+import com.dbn.oci.config.OciConfigManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -40,7 +42,9 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
+import static com.dbn.assistant.credential.AssistantCredentialLookup.getCredential;
 import static com.dbn.assistant.profile.AssistantProfileLookup.getProfile;
+import static com.dbn.assistant.provider.AIProviderId.OCI_GEN_AI;
 import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
@@ -101,7 +105,17 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         AIProvider provider = profile.getProvider();
         if (provider == null) return emptyList();
 
-        return provider.getModels(m -> !m.isDiscontinued());
+        List<AIModel> models = provider.getModels(m -> !m.isDiscontinued());
+        if (provider.getId() != OCI_GEN_AI) return models;
+
+        AssistantCredential credential = getCredential(project, profile.getCredentialId());
+        if (credential == null) return models;
+
+        OciConfigManager configManager = OciConfigManager.getInstance(project);
+        List<String> availableModelNames = configManager.getModelNames(credential.getOciConfig());
+        if (availableModelNames == null) return models;
+
+        return models.stream().filter(m -> availableModelNames.contains(m.getApiName())).toList();
     }
 
     @Override
