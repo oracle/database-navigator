@@ -63,7 +63,7 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
         DatabaseLiquibaseManager manager = getManager(project);
         LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
 
-        if (!confirmWorkspaceAvailable(project, manager, getConnection(), operation)) {
+        if (!confirmWorkspaceAvailable(getConnection(), operation.getSupport())) {
             return;
         }
 

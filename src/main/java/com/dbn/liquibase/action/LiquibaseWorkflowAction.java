@@ -19,6 +19,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Dialogs.show;
+import static com.dbn.liquibase.execution.LiquibaseOperationConfirmations.confirmWorkspaceAvailable;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Entry point for a reusable Liquibase workflow scoped to a database schema. */
@@ -34,6 +35,10 @@ public class LiquibaseWorkflowAction extends LiquibaseSchemaAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
+        if (!confirmWorkspaceAvailable(
+                getSchema().getConnection(),
+                workflow.getSupport())) return;
+
         show(() -> new LiquibaseWorkflowInputDialog(getSchema(), workflow));
     }
 

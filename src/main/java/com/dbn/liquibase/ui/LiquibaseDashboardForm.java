@@ -187,10 +187,11 @@ public class LiquibaseDashboardForm extends DBNFormBase {
         DBSchema schema = getSelectedSchema();
         if (schema == null) return;
 
+        ConnectionHandler connection = schema.getConnection();
+        if (!confirmWorkspaceAvailable(connection, operation.getSupport())) return;
+
         Project project = ensureProject();
         DatabaseLiquibaseManager manager = DatabaseLiquibaseManager.getInstance(project);
-        if (!confirmWorkspaceAvailable(project, manager, schema.getConnection(), operation)) return;
-
         LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
         show(() -> new LiquibaseExecutionInputDialog(schema, operation, workspaces),
                 whenOk(dialog -> {

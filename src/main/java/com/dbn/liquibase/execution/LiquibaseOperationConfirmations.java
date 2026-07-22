@@ -39,14 +39,14 @@ public final class LiquibaseOperationConfirmations {
     }
 
     public static boolean confirmWorkspaceAvailable(
-            @NotNull Project project,
-            @NotNull DatabaseLiquibaseManager manager,
             @NotNull ConnectionHandler connection,
-            @NotNull LiquibaseOperation operation) {
-        if (!operation.requires(LiquibaseFeature.WORKSPACE)) return true;
-        if (operation.supports(LiquibaseFeature.WORKSPACE_CREATION)) return true;
+            @NotNull LiquibaseFeatureSupport support) {
+        if (!support.requires(LiquibaseFeature.WORKSPACE)) return true;
+        if (support.supports(LiquibaseFeature.WORKSPACE_CREATION)) return true;
 
-        if (manager.getWorkspaces().containsWorkspaces(connection.getDatabaseType())) return true;
+        Project project = connection.getProject();
+        DatabaseLiquibaseManager manager = DatabaseLiquibaseManager.getInstance(project);
+        if (!manager.getWorkspaces().getWorkspaces(connection.getDatabaseType()).isEmpty()) return true;
 
         Messages.showInfoDialog(
                 project,
