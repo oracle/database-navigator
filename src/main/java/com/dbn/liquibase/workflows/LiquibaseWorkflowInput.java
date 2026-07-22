@@ -10,55 +10,53 @@
 
 package com.dbn.liquibase.workflows;
 
-import com.dbn.common.component.ProjectUnit;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.model.LiquibaseWorkspace;
-import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.dbn.object.DBSchema;
-import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /** Shared context used to initialize the inputs of operations in a workflow. */
 @Getter
-@Setter
-public class LiquibaseWorkflowInput extends ProjectUnit {
+public class LiquibaseWorkflowInput extends LiquibaseExecutionInput {
     private final LiquibaseWorkflow workflow;
-    private final LiquibaseWorkspaceBundle workspaces;
-    private DBObjectRef<DBSchema> sourceSchema;
-    private DBObjectRef<DBSchema> targetSchema;
-    private LiquibaseWorkspace workspace;
 
     public LiquibaseWorkflowInput(@NotNull Project project, @NotNull LiquibaseWorkflow workflow) {
-        super(project);
+        super(project, LiquibaseOperation.VALIDATE_CHANGELOG);
         this.workflow = workflow;
-        this.workspaces = com.dbn.liquibase.DatabaseLiquibaseManager.getInstance(project).getWorkspaces();
     }
 
-    @Nullable
-    public DBSchema getSourceSchema() {
-        return DBObjectRef.get(sourceSchema);
+    @Override
+    @NotNull
+    public LiquibaseWorkflowSupport getSupport() {
+        return workflow.getSupport();
     }
 
-    public void setSourceSchema(@Nullable DBSchema schema) {
-        sourceSchema = DBObjectRef.of(schema);
+    @Override
+    public boolean containsOperation(@NotNull LiquibaseOperation operation) {
+        return workflow.includesOperation(operation);
     }
 
-    @Nullable
-    public DBSchema getTargetSchema() {
-        return DBObjectRef.get(targetSchema);
+    public void setInitialSchema(@NotNull DBSchema schema) {
+        if (workflow.includesOperation(LiquibaseOperation.COMPARE_SCHEMAS)) {
+            setSourceSchema(schema);
+        } else {
+            setTargetSchema(schema);
+            if (workflow.includesOperation(LiquibaseOperation.GENERATE_CHANGELOG)) setSourceSchema(schema);
+        }
     }
 
-    public void setTargetSchema(@Nullable DBSchema schema) {
-        targetSchema = DBObjectRef.of(schema);
+    @Override
+    @NotNull
+    public String getHint() {
+        return workflow.getDescription();
     }
 
-    public void setWorkspace(@Nullable LiquibaseWorkspace workspace) {
-        this.workspace = workspace == null ? null : workspace.clone();
+    @Override
+    @NotNull
+    public String getDocumentationUrl() {
+        return "";
     }
 
     @NotNull
@@ -66,7 +64,17 @@ public class LiquibaseWorkflowInput extends ProjectUnit {
         LiquibaseExecutionInput input = new LiquibaseExecutionInput(getProject(), operation);
         input.setSourceSchema(getSourceSchema());
         input.setTargetSchema(getTargetSchema());
-        input.setWorkspace(workspace);
+        input.setWorkspace(getWorkspace());
+        input.getRollbackInstruction().setType(getRollbackInstruction().getType());
+        input.getRollbackInstruction().setCount(getRollbackInstruction().getCount());
+        input.getRollbackInstruction().setTag(getRollbackInstruction().getTag());
+        input.getRollbackInstruction().setDate(getRollbackInstruction().getDate());
+        input.getUpdateInstruction().setType(getUpdateInstruction().getType());
+        input.getUpdateInstruction().setCount(getUpdateInstruction().getCount());
+        input.getUpdateInstruction().setTag(getUpdateInstruction().getTag());
+        input.setChangelogAuthor(getChangelogAuthor());
+        input.setDatabaseTag(getDatabaseTag());
+        input.setCheckpointTag(getCheckpointTag());
         return input;
     }
 }

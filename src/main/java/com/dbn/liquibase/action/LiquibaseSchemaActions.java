@@ -56,8 +56,8 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
     public LiquibaseSchemaActions(@NotNull DBSchema schema) {
         super(txt("app.liquibase.action.Liquibase"), true);
         getTemplatePresentation().setIcon(Icons.DB_LIQUIBASE);
+        add(new LiquibaseWorkspacesOpenAction(txt("app.liquibase.action.Workspaces"), Icons.ACTION_OPTIONS));
         add(new LiquibaseDashboardAction(schema));
-        add(new LiquibaseWorkspacesOpenAction(txt("app.liquibase.action.Workspaces"), null));
         DefaultActionGroup workflowActions = new DefaultActionGroup(txt("app.liquibase.group.Workflows"), true);
         for (LiquibaseWorkflow workflow : LiquibaseWorkflow.values()) {
             workflowActions.add(new LiquibaseWorkflowAction(schema, workflow));

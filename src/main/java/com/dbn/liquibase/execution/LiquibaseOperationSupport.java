@@ -46,7 +46,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_TESTING_ROLL
 import static com.dbn.liquibase.execution.LiquibaseOperation.VALIDATE_CHANGELOG;
 
 /** Defines the context and result capabilities of a Liquibase operation. */
-public final class LiquibaseOperationSupport {
+public final class LiquibaseOperationSupport implements LiquibaseFeatureSupport {
     private final LiquibaseOperation operation;
 
     LiquibaseOperationSupport(@NotNull LiquibaseOperation operation) {
@@ -94,65 +94,26 @@ public final class LiquibaseOperationSupport {
         return FieldState.HIDDEN;
     }
 
-    public boolean requiresSourceSchema() {
-        return getSourceContextState().isVisible();
-    }
-
-    public boolean requiresTargetSchema() {
-        return getTargetContextState().isVisible();
-    }
-
-    public boolean supportsSnapshotItems() {
-        return operation.isOneOf(
+    public boolean supports(@NotNull LiquibaseFeature feature) {
+        return switch (feature) {
+            case SOURCE_SCHEMA, TARGET_SCHEMA, WORKSPACE -> requires(feature);
+            case WORKSPACE_CREATION -> operation.isOneOf(
+                    GENERATE_CHANGELOG,
+                    GENERATE_DIFF_CHANGELOG);
+            case SNAPSHOT_ITEMS -> operation.isOneOf(
                 GENERATE_CHANGELOG,
                 SNAPSHOT_DATABASE);
-    }
-
-    public boolean supportsChangelogAuthor() {
-        return operation == GENERATE_CHANGELOG;
-    }
-
-    public boolean supportsDatabaseTag() {
-        return operation.isOneOf(
+            case CHANGELOG_AUTHOR -> operation == GENERATE_CHANGELOG;
+            case DATABASE_TAG -> operation.isOneOf(
                 GENERATE_CHANGELOG,
                 GENERATE_DIFF_CHANGELOG,
                 TAG_DATABASE);
-    }
-
-    public boolean requiresDatabaseTag() {
-        return operation == TAG_DATABASE;
-    }
-
-    public boolean supportsChangelogTag() {
-        return operation == SYNCHRONIZE_CHANGELOG_TO_TAG;
-    }
-
-    public boolean requiresChangelogTag() {
-        return supportsChangelogTag();
-    }
-
-    public boolean supportsCheckpointTag() {
-        return operation == UPDATE_DATABASE;
-    }
-
-    public boolean supportsUpdateInstruction() {
-        return operation == UPDATE_DATABASE;
-    }
-
-    public boolean supportsRollbackTag() {
-        return operation.isOneOf(
+            case CHANGELOG_TAG -> operation == SYNCHRONIZE_CHANGELOG_TO_TAG;
+            case CHECKPOINT_TAG, UPDATE_INSTRUCTION -> operation == UPDATE_DATABASE;
+            case ROLLBACK_TAG, ROLLBACK -> operation.isOneOf(
                 ROLLBACK_CHANGESETS,
                 ROLLBACK_SQL);
-    }
-
-    public boolean supportsRollback() {
-        return operation.isOneOf(
-                ROLLBACK_CHANGESETS,
-                ROLLBACK_SQL);
-    }
-
-    public boolean supportsChangeSetItems() {
-        return operation.isOneOf(
+            case CHANGESET_ITEMS -> operation.isOneOf(
                 UPDATE_DATABASE,
                 UPDATE_SQL,
                 SHOW_CHANGELOG_HISTORY,
@@ -166,14 +127,8 @@ public final class LiquibaseOperationSupport {
                 ROLLBACK_SQL,
                 FUTURE_ROLLBACK,
                 CALCULATE_CHECKSUMS);
-    }
-
-    public boolean supportsLockItems() {
-        return operation == LIST_LOCKS;
-    }
-
-    public boolean supportsRerunOnSuccess() {
-        return operation.isOneOf(
+            case LOCK_ITEMS -> operation == LIST_LOCKS;
+            case RERUN_ON_SUCCESS -> operation.isOneOf(
                 GENERATE_CHANGELOG,
                 GENERATE_DATABASE_DOCUMENTATION,
                 SNAPSHOT_DATABASE,
@@ -190,24 +145,15 @@ public final class LiquibaseOperationSupport {
                 LIST_LOCKS,
                 CALCULATE_CHECKSUMS,
                 ROLLBACK_SQL);
-    }
-
-    public boolean supportsSqlOutput() {
-        return operation.isOneOf(
+            case SQL_OUTPUT -> operation.isOneOf(
                 UPDATE_SQL,
                 SYNCHRONIZE_CHANGELOG_SQL,
                 ROLLBACK_SQL,
                 FUTURE_ROLLBACK);
-    }
-
-    public boolean supportsComparisonItems() {
-        return operation.isOneOf(
+            case COMPARISON_ITEMS -> operation.isOneOf(
                 COMPARE_SCHEMAS,
                 GENERATE_DIFF_CHANGELOG);
-    }
-
-    public boolean supportsTrackingTables() {
-        return operation.isOneOf(
+            case TRACKING_TABLES -> operation.isOneOf(
                 SHOW_CHANGELOG_STATUS,
                 SHOW_CHANGELOG_HISTORY,
                 UNEXPECTED_CHANGESETS,
@@ -222,10 +168,14 @@ public final class LiquibaseOperationSupport {
                 LIST_LOCKS,
                 CALCULATE_CHECKSUMS,
                 ROLLBACK_CHANGESETS);
+        };
     }
 
-    public boolean requiresWorkspace() {
-        return operation.isOneOf(
+    public boolean requires(@NotNull LiquibaseFeature feature) {
+        return switch (feature) {
+            case SOURCE_SCHEMA -> getSourceContextState().isVisible();
+            case TARGET_SCHEMA -> getTargetContextState().isVisible();
+            case WORKSPACE -> operation.isOneOf(
                 GENERATE_CHANGELOG,
                 GENERATE_DATABASE_DOCUMENTATION,
                 VALIDATE_CHANGELOG,
@@ -244,11 +194,9 @@ public final class LiquibaseOperationSupport {
                 ROLLBACK_SQL,
                 FUTURE_ROLLBACK,
                 CALCULATE_CHECKSUMS);
-    }
-
-    public boolean supportsWorkspaceCreation() {
-        return operation.isOneOf(
-                GENERATE_CHANGELOG,
-                GENERATE_DIFF_CHANGELOG);
+            case DATABASE_TAG -> operation == TAG_DATABASE;
+            case CHANGELOG_TAG -> operation == SYNCHRONIZE_CHANGELOG_TO_TAG;
+            default -> false;
+        };
     }
 }

@@ -19,7 +19,6 @@ package com.dbn.liquibase.execution.ui;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.execution.LiquibaseOperationSupport;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.dbn.object.DBSchema;
 import lombok.Getter;
@@ -27,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.liquibase.execution.LiquibaseFeature.SOURCE_SCHEMA;
+import static com.dbn.liquibase.execution.LiquibaseFeature.TARGET_SCHEMA;
 import static com.dbn.liquibase.execution.LiquibaseOperationConfirmations.confirm;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -43,9 +44,10 @@ public class LiquibaseExecutionInputDialog extends DBNDialog<LiquibaseExecutionI
         super(schema.getProject(), txt("app.liquibase.title.Operation_" + operation.name()), true);
         this.executionInput = new LiquibaseExecutionInput(getProject(), operation);
         this.workspaces = workspaces;
-        LiquibaseOperationSupport support = operation.getSupport();
-        if (support.requiresSourceSchema()) executionInput.setSourceSchema(schema);
-        if (support.requiresTargetSchema() && !support.requiresSourceSchema()) {
+        if (operation.requires(SOURCE_SCHEMA)) {
+            executionInput.setSourceSchema(schema);
+        }
+        if (operation.requires(TARGET_SCHEMA) && !operation.requires(SOURCE_SCHEMA)) {
             executionInput.setTargetSchema(schema);
         }
         setDefaultSize(600, 320);

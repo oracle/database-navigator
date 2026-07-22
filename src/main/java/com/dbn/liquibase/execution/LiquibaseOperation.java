@@ -4,6 +4,7 @@ import com.dbn.common.constant.Constant;
 import com.dbn.common.icon.Icons;
 import com.intellij.icons.AllIcons;
 import lombok.Getter;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
@@ -39,6 +40,7 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     ROLLBACK_CHANGESETS,
     ROLLBACK_SQL;
 
+    @Delegate
     private final LiquibaseOperationSupport support = new LiquibaseOperationSupport(this);
 
     public String getName() {

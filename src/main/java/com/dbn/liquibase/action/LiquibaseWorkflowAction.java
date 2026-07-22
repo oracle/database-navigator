@@ -10,8 +10,8 @@
 
 package com.dbn.liquibase.action;
 
-import com.dbn.liquibase.ui.LiquibaseDashboardDialog;
 import com.dbn.liquibase.workflows.LiquibaseWorkflow;
+import com.dbn.liquibase.workflows.ui.LiquibaseWorkflowInputDialog;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -34,7 +34,7 @@ public class LiquibaseWorkflowAction extends LiquibaseSchemaAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        show(() -> new LiquibaseDashboardDialog(getSchema()));
+        show(() -> new LiquibaseWorkflowInputDialog(getSchema(), workflow));
     }
 
     @Override

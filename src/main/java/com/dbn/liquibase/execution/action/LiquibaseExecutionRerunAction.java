@@ -4,6 +4,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.task.TaskStatus;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.execution.LiquibaseFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -36,6 +37,6 @@ public class LiquibaseExecutionRerunAction extends AbstractLiquibaseExecutionRes
         TaskStatus status = target.getStatus();
         if (status == TaskStatus.CANCELLED || status == TaskStatus.FAILED) return true;
 
-        return status == TaskStatus.DONE && target.getOperation().getSupport().supportsRerunOnSuccess();
+        return status == TaskStatus.DONE && target.getOperation().supports(LiquibaseFeature.RERUN_ON_SUCCESS);
     }
 }

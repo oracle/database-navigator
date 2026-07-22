@@ -20,6 +20,11 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import java.util.List;
 
+import static com.dbn.liquibase.execution.LiquibaseFeature.CHANGESET_ITEMS;
+import static com.dbn.liquibase.execution.LiquibaseFeature.COMPARISON_ITEMS;
+import static com.dbn.liquibase.execution.LiquibaseFeature.LOCK_ITEMS;
+import static com.dbn.liquibase.execution.LiquibaseFeature.SNAPSHOT_ITEMS;
+import static com.dbn.liquibase.execution.LiquibaseFeature.SQL_OUTPUT;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Console form for Liquibase operation output. */
@@ -69,7 +74,7 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
 
     private void initSqlOutputPanel() {
         LiquibaseExecutionResult result = getExecutionResult();
-        if (!result.getOperation().getSupport().supportsSqlOutput()) return;
+        if (!result.getOperation().supports(SQL_OUTPUT)) return;
 
         sqlPanel = new LiquibaseExecutionSqlPanel(this, result);
         Disposer.register(this, sqlPanel);
@@ -79,13 +84,13 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
     private void initContentItemsPanel() {
         LiquibaseExecutionResult result = getExecutionResult();
         LiquibaseOperationSupport support = result.getOperation().getSupport();
-        if (support.supportsComparisonItems()) {
+        if (support.supports(COMPARISON_ITEMS)) {
             initComparisonItemsPanel(result);
-        } else if (support.supportsSnapshotItems()) {
+        } else if (support.supports(SNAPSHOT_ITEMS)) {
             initSnapshotItemsPanel(result);
-        } else if (support.supportsLockItems()) {
+        } else if (support.supports(LOCK_ITEMS)) {
             initLockItemsPanel(result);
-        } else if (support.supportsChangeSetItems()) {
+        } else if (support.supports(CHANGESET_ITEMS)) {
             initChangeSetItemsPanel(result);
         }
     }

@@ -43,6 +43,16 @@ import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
+import static com.dbn.liquibase.execution.LiquibaseFeature.CHANGELOG_TAG;
+import static com.dbn.liquibase.execution.LiquibaseFeature.CHANGESET_ITEMS;
+import static com.dbn.liquibase.execution.LiquibaseFeature.CHECKPOINT_TAG;
+import static com.dbn.liquibase.execution.LiquibaseFeature.COMPARISON_ITEMS;
+import static com.dbn.liquibase.execution.LiquibaseFeature.DATABASE_TAG;
+import static com.dbn.liquibase.execution.LiquibaseFeature.ROLLBACK;
+import static com.dbn.liquibase.execution.LiquibaseFeature.SNAPSHOT_ITEMS;
+import static com.dbn.liquibase.execution.LiquibaseFeature.TRACKING_TABLES;
+import static com.dbn.liquibase.execution.LiquibaseFeature.UPDATE_INSTRUCTION;
+import static com.dbn.liquibase.execution.LiquibaseFeature.WORKSPACE;
 import static com.dbn.liquibase.execution.LiquibaseRollbackType.COUNT;
 import static com.dbn.liquibase.execution.LiquibaseRollbackType.TAG;
 import static com.dbn.nls.NlsResources.txt;
@@ -209,8 +219,8 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     }
 
     private void updateChangelogLink(@NotNull LiquibaseExecutionResult result) {
-        LiquibaseOperationSupport support = result.getOperation().getSupport();
-        boolean relevant = support.requiresWorkspace();
+        LiquibaseOperation operation = result.getOperation();
+        boolean relevant = operation.requires(WORKSPACE);
         changelogLabel.setVisible(relevant);
         if (!relevant) {
             changelogLink.setVisible(false);
@@ -272,8 +282,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
 
     private void updateLiquibaseTableLinks(@NotNull LiquibaseExecutionResult result) {
         LiquibaseOperation operation = result.getOperation();
-        LiquibaseOperationSupport support = operation.getSupport();
-        if (!support.supportsTrackingTables()) {
+        if (!operation.supports(TRACKING_TABLES)) {
             databaseChangeLogLabel.setVisible(false);
             databaseChangeLogLink.setVisible(false);
             databaseChangeLogInfoLabel.setVisible(false);
@@ -339,22 +348,22 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
 
     private void updateProcessedItems(@NotNull LiquibaseExecutionResult result) {
         LiquibaseOperationSupport support = result.getOperation().getSupport();
-        boolean visible = support.supportsSnapshotItems() ||
-                support.supportsComparisonItems() ||
-                support.supportsChangeSetItems();
+        boolean visible = support.supports(SNAPSHOT_ITEMS) ||
+                support.supports(COMPARISON_ITEMS) ||
+                support.supports(CHANGESET_ITEMS);
         processedItemsCaptionLabel.setVisible(visible);
         processedItemsLabel.setVisible(visible);
         if (!visible) return;
 
-        int count = support.supportsSnapshotItems() ? result.getSnapshotItems().size() :
-                support.supportsComparisonItems() ? result.getComparisonItems().size() :
+        int count = support.supports(SNAPSHOT_ITEMS) ? result.getSnapshotItems().size() :
+                support.supports(COMPARISON_ITEMS) ? result.getComparisonItems().size() :
                 result.getChangeSetItems().size();
         processedItemsLabel.setText(Integer.toString(count));
     }
 
     private void updateRollbackInfo(@NotNull LiquibaseExecutionResult result) {
         LiquibaseOperationSupport support = result.getOperation().getSupport();
-        boolean rollback = support.supportsRollback();
+        boolean rollback = support.supports(ROLLBACK);
         rollbackTypeCaptionLabel.setVisible(rollback);
         rollbackTypeLabel.setVisible(rollback);
         if (!rollback) return;
@@ -364,7 +373,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     }
 
     private void updateUpdateInfo(@NotNull LiquibaseExecutionResult result) {
-        boolean update = result.getOperation().getSupport().supportsUpdateInstruction();
+        boolean update = result.getOperation().getSupport().supports(UPDATE_INSTRUCTION);
         updateTypeCaptionLabel.setVisible(update);
         updateTypeLabel.setVisible(update);
         updateValueCaptionLabel.setVisible(false);
@@ -391,13 +400,13 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         LiquibaseOperation operation = result.getOperation();
         LiquibaseOperationSupport support = operation.getSupport();
 
-        if (support.supportsChangelogTag()) {
+        if (support.supports(CHANGELOG_TAG)) {
             updateTagInfo(result.getChangelogTag(), "cfg.liquibase.label.ChangelogTag");
-        } else if (support.supportsDatabaseTag()) {
+        } else if (support.supports(DATABASE_TAG)) {
             updateTagInfo(result.getDatabaseTag(), "cfg.liquibase.label.DatabaseTag");
-        } else if (support.supportsCheckpointTag()) {
+        } else if (support.supports(CHECKPOINT_TAG)) {
             updateTagInfo(result.getCheckpointTag(), "cfg.liquibase.label.CheckpointTag");
-        } else if (support.supportsRollback()) {
+        } else if (support.supports(ROLLBACK)) {
             updateRollbackTagInfo(result);
         } else {
             clearTagInfo();

@@ -58,9 +58,15 @@ public enum LiquibaseWorkflow {
             LIST_LOCKS);
 
     private final List<LiquibaseOperation> operations;
+    private final LiquibaseWorkflowSupport support;
 
     LiquibaseWorkflow(LiquibaseOperation... operations) {
         this.operations = List.of(operations);
+        this.support = new LiquibaseWorkflowSupport(this);
+    }
+
+    public boolean includesOperation(LiquibaseOperation operation) {
+        return operations.contains(operation);
     }
 
     public String getTitle() {

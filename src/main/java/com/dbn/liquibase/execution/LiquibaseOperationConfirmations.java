@@ -43,9 +43,8 @@ public final class LiquibaseOperationConfirmations {
             @NotNull DatabaseLiquibaseManager manager,
             @NotNull ConnectionHandler connection,
             @NotNull LiquibaseOperation operation) {
-        LiquibaseOperationSupport support = operation.getSupport();
-        if (!support.requiresWorkspace()) return true;
-        if (support.supportsWorkspaceCreation()) return true;
+        if (!operation.requires(LiquibaseFeature.WORKSPACE)) return true;
+        if (operation.supports(LiquibaseFeature.WORKSPACE_CREATION)) return true;
 
         if (manager.getWorkspaces().containsWorkspaces(connection.getDatabaseType())) return true;
 
