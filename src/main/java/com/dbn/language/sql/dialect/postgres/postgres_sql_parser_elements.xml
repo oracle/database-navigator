@@ -8964,7 +8964,7 @@
     </element-def>
     <element-def attributes="CLAUSE" description="JOIN clause" id="from_item_alias">
         <token id="05346" optional="true" type-id="KW_AS" />
-        <alias-def id="05347" type="DATASET" />
+        <alias-def id="05347" optional="true" type="DATASET" />
         <wrapper id="05348" optional="true" template="PARENTHESES">
             <iteration id="05349" separator="CHR_COMMA">
                 <one-of ambiguous="true" id="05350">
@@ -9116,13 +9116,13 @@
                 <iteration id="05437" optional="true">
                     <one-of id="05438">
                         <wrapper id="05439" template="BRACKETS">
-                            <one-of ambiguous="true" optional="true" id="05440">
+                            <one-of ambiguous="true" optional="true" id="05440" sortable="true">
+                                <element ref-id="expression_list" />
                                 <sequence id="05441">
                                     <element optional="true" ref-id="expression" />
                                     <token type-id="CHR_COLON" id="05442" />
                                     <element optional="true" ref-id="expression" />
                                 </sequence>
-                                <element ref-id="expression_list" />
                             </one-of>
                         </wrapper>
                         <sequence id="05443">
@@ -9293,13 +9293,13 @@
         </one-of>
         <iteration id="05517" optional="true">
             <wrapper id="05518" template="BRACKETS">
-                <one-of optional="true" ambiguous="true" id="05519">
+                <one-of optional="true" ambiguous="true" id="05519" sortable="true">
+                    <element ref-id="expression_list" />
                     <sequence id="05520">
                         <element optional="true" ref-id="expression" />
                         <token type-id="CHR_COLON" id="05521" />
                         <element optional="true" ref-id="expression" />
                     </sequence>
-                    <element ref-id="expression_list" />
                 </one-of>
             </wrapper>
         </iteration>
