@@ -1488,29 +1488,30 @@
         <token index="11" id="PRM_FAILOVER" value="failover" category="parameter"/>
         <token index="12" id="PRM_FASTUPDATE" value="fastupdate" category="parameter"/>
         <token index="13" id="PRM_FILLFACTOR" value="fillfactor" category="parameter"/>
-        <token index="14" id="PRM_GIN_PENDING_LIST_LIMIT" value="gin_pending_list_limit" category="parameter"/>
-        <token index="15" id="PRM_ICU_LOCALE" value="icu_locale" category="parameter"/>
-        <token index="16" id="PRM_ICU_RULES" value="icu_rules" category="parameter"/>
-        <token index="17" id="PRM_IS_TEMPLATE" value="is_template" category="parameter"/>
-        <token index="18" id="PRM_LOCALE" value="locale" category="parameter"/>
-        <token index="19" id="PRM_LOCALE_PROVIDER" value="locale_provider" category="parameter"/>
-        <token index="20" id="PRM_ORIGIN" value="origin" category="parameter"/>
-        <token index="21" id="PRM_PAGES_PER_RANGE" value="pages_per_range" category="parameter"/>
-        <token index="22" id="PRM_PASSWORD_REQUIRED" value="password_required" category="parameter"/>
-        <token index="23" id="PRM_PROVIDER" value="provider" category="parameter"/>
-        <token index="24" id="PRM_PUBLISH_GENERATED_COLUMNS" value="publish_generated_columns" category="parameter"/>
-        <token index="25" id="PRM_PUBLISH_VIA_PARTITION_ROOT" value="publish_via_partition_root" category="parameter"/>
-        <token index="26" id="PRM_RUN_AS_OWNER" value="run_as_owner" category="parameter"/>
-        <token index="27" id="PRM_RULES" value="rules" category="parameter"/>
-        <token index="28" id="PRM_SECURITY_BARRIER" value="security_barrier" category="parameter"/>
-        <token index="29" id="PRM_SECURITY_INVOKER" value="security_invoker" category="parameter"/>
-        <token index="30" id="PRM_SKIP_LOCKED" value="skip_locked" category="parameter"/>
-        <token index="31" id="PRM_SLOT_NAME" value="slot_name" category="parameter"/>
-        <token index="32" id="PRM_STREAMING" value="streaming" category="parameter"/>
-        <token index="33" id="PRM_STRATEGY" value="strategy" category="parameter"/>
-        <token index="34" id="PRM_SYNCHRONOUS_COMMIT" value="synchronous_commit" category="parameter"/>
-        <token index="35" id="PRM_TAG" value="tag" category="parameter"/>
-        <token index="36" id="PRM_TWO_PHASE" value="two_phase" category="parameter"/>
+        <token index="14" id="PRM_GENERIC_PLAN" value="generic_plan" category="parameter"/>
+        <token index="15" id="PRM_GIN_PENDING_LIST_LIMIT" value="gin_pending_list_limit" category="parameter"/>
+        <token index="16" id="PRM_ICU_LOCALE" value="icu_locale" category="parameter"/>
+        <token index="17" id="PRM_ICU_RULES" value="icu_rules" category="parameter"/>
+        <token index="18" id="PRM_IS_TEMPLATE" value="is_template" category="parameter"/>
+        <token index="19" id="PRM_LOCALE" value="locale" category="parameter"/>
+        <token index="20" id="PRM_LOCALE_PROVIDER" value="locale_provider" category="parameter"/>
+        <token index="21" id="PRM_ORIGIN" value="origin" category="parameter"/>
+        <token index="22" id="PRM_PAGES_PER_RANGE" value="pages_per_range" category="parameter"/>
+        <token index="23" id="PRM_PASSWORD_REQUIRED" value="password_required" category="parameter"/>
+        <token index="24" id="PRM_PROVIDER" value="provider" category="parameter"/>
+        <token index="25" id="PRM_PUBLISH_GENERATED_COLUMNS" value="publish_generated_columns" category="parameter"/>
+        <token index="26" id="PRM_PUBLISH_VIA_PARTITION_ROOT" value="publish_via_partition_root" category="parameter"/>
+        <token index="27" id="PRM_RUN_AS_OWNER" value="run_as_owner" category="parameter"/>
+        <token index="28" id="PRM_RULES" value="rules" category="parameter"/>
+        <token index="29" id="PRM_SECURITY_BARRIER" value="security_barrier" category="parameter"/>
+        <token index="30" id="PRM_SECURITY_INVOKER" value="security_invoker" category="parameter"/>
+        <token index="31" id="PRM_SKIP_LOCKED" value="skip_locked" category="parameter"/>
+        <token index="32" id="PRM_SLOT_NAME" value="slot_name" category="parameter"/>
+        <token index="33" id="PRM_STREAMING" value="streaming" category="parameter"/>
+        <token index="34" id="PRM_STRATEGY" value="strategy" category="parameter"/>
+        <token index="35" id="PRM_SYNCHRONOUS_COMMIT" value="synchronous_commit" category="parameter"/>
+        <token index="36" id="PRM_TAG" value="tag" category="parameter"/>
+        <token index="37" id="PRM_TWO_PHASE" value="two_phase" category="parameter"/>
         <!-- MARKER_END_PARAMETERS -->
 
 
