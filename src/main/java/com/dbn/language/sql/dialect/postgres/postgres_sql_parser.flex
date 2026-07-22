@@ -51,7 +51,7 @@ string_simple_quoted      = "'"([^\']|"''"|{WHITE_SPACE})*"'"?
 STRING = ("n"|"_"{CHARSET})?{wso}{string_simple_quoted}
 DOLLAR_QUOTE_START = "$"({IDENTIFIER})?"$"
 
-VARIABLE = ":"({IDENTIFIER}|{INTEGER})|"$"{INTEGER}
+VARIABLE = ":"{IDENTIFIER}|"$"{INTEGER}
 OPERATOR_CHAR = "-"|"!"|"#"|"%"|"&"|"*"|"+"|"/"|"<"|">"|"="|"?"|"@"|"^"|"|"|"~"|"`"
 OPERATOR_GENERIC = {OPERATOR_CHAR}{OPERATOR_CHAR}{OPERATOR_CHAR}*
 
