@@ -11,6 +11,7 @@
 package com.dbn.liquibase.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
@@ -39,6 +40,7 @@ import java.awt.BorderLayout;
 import java.util.List;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.setFormFieldEnabled;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
@@ -76,6 +78,10 @@ import static java.util.Collections.emptyList;
 
 /** Project-level Liquibase dashboard for selecting a database context and starting operations. */
 public class LiquibaseDashboardForm extends DBNFormBase {
+    private static final String STATE_CATEGORY = "LIQUIBASE_DASHBOARD";
+    private static final String ATTR_CONNECTION = "connection-selection";
+    private static final String ATTR_SCHEMA = "schema-selection";
+
     private JPanel mainPanel;
     private JPanel hintPanel;
     private JPanel hyperlinkPanel;
@@ -114,8 +120,16 @@ public class LiquibaseDashboardForm extends DBNFormBase {
         LiquibaseDashboardDialog dialog = ensureParentDialog();
         DBSchema initialSchema = dialog.getInitialSchema();
         ConnectionManager connectionManager = ConnectionManager.getInstance(ensureProject());
+        DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(ensureProject());
+        StateAttributes state = liquibaseManager.getState(STATE_CATEGORY);
+
+        if (initialSchema != null) {
+            state.setAttribute(ATTR_CONNECTION, initialSchema.getConnection().getName());
+            state.setAttribute(ATTR_SCHEMA, initialSchema.getName());
+        }
+
         connectionSelector.setValues(connectionManager.getConnections());
-        connectionSelector.setSelectedValue(initialSchema == null ? null : initialSchema.getConnection());
+        initPersistence(connectionSelector, state, ATTR_CONNECTION);
 
         schemaSelector.initialize(this, SCHEMA);
         schemaSelector.withConnectionContext(this::getSelectedConnection);
@@ -123,7 +137,7 @@ public class LiquibaseDashboardForm extends DBNFormBase {
             ConnectionHandler connection = getSelectedConnection();
             return connection == null ? emptyList() : filter(connection.getObjectBundle().getSchemas(), s -> !s.isSystemSchema());
         });
-        schemaSelector.withValuePreselector(() -> initialSchema == null ? null : initialSchema.getName());
+        initPersistence(schemaSelector, state, ATTR_SCHEMA);
         schemaSelector.triggerLoad();
         setFormFieldEnabled(schemaSelector, "CONTEXT_AVAILABILITY", getSelectedConnection() != null);
 
