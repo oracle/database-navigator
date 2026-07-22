@@ -41,6 +41,7 @@ import liquibase.command.core.UnexpectedChangesetsCommandStep;
 import liquibase.command.core.UpdateCommandStep;
 import liquibase.command.core.UpdateCountCommandStep;
 import liquibase.command.core.UpdateSqlCommandStep;
+import liquibase.command.core.UpdateTestingRollbackCommandStep;
 import liquibase.command.core.UpdateToTagCommandStep;
 import liquibase.command.core.ValidateCommandStep;
 import lombok.experimental.UtilityClass;
@@ -65,6 +66,7 @@ public class LiquibaseCommands {
     public static final String DROP_ALL = DropAllCommandStep.COMMAND_NAME[0];
     public static final String UPDATE_DATABASE = UpdateCommandStep.COMMAND_NAME[0];
     public static final String UPDATE_COUNT = UpdateCountCommandStep.COMMAND_NAME[0];
+    public static final String UPDATE_TESTING_ROLLBACK = UpdateTestingRollbackCommandStep.COMMAND_NAME[0];
     public static final String UPDATE_TO_TAG = UpdateToTagCommandStep.COMMAND_NAME[0];
     public static final String UPDATE_SQL = UpdateSqlCommandStep.COMMAND_NAME[0];
     public static final String SYNCHRONIZE_CHANGELOG = ChangelogSyncCommandStep.COMMAND_NAME[0];

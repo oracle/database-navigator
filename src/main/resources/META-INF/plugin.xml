@@ -278,6 +278,7 @@
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseSynchronizeChangelogProcessor"/>
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseSynchronizeChangelogSqlProcessor"/>
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUpdateDatabaseProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUpdateTestingRollbackProcessor"/>
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUpdateSqlProcessor"/>
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseFutureRollbackProcessor"/>
         <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseTagDatabaseProcessor"/>

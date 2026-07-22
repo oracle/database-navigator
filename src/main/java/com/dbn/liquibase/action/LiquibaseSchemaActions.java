@@ -44,6 +44,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UNEXPECTED_CHANGESETS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_SQL;
+import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_TESTING_ROLLBACK;
 import static com.dbn.liquibase.execution.LiquibaseOperation.VALIDATE_CHANGELOG;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -65,6 +66,7 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
 
         DefaultActionGroup deployActions = new DefaultActionGroup(txt("app.liquibase.group.Deploy"), true);
         deployActions.add(action(schema, UPDATE_DATABASE));
+        deployActions.add(action(schema, UPDATE_TESTING_ROLLBACK));
         deployActions.add(action(schema, ROLLBACK_CHANGESETS));
         deployActions.add(action(schema, TAG_DATABASE));
         deployActions.add(action(schema, MARK_NEXT_CHANGESET_RAN));

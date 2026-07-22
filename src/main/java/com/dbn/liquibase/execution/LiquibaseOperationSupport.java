@@ -40,6 +40,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UNEXPECTED_CHANGESETS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
 import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_SQL;
+import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_TESTING_ROLLBACK;
 import static com.dbn.liquibase.execution.LiquibaseOperation.VALIDATE_CHANGELOG;
 
 /** Defines the context and result capabilities of a Liquibase operation. */
@@ -73,6 +74,7 @@ public final class LiquibaseOperationSupport {
                 SYNCHRONIZE_CHANGELOG,
                 SYNCHRONIZE_CHANGELOG_SQL,
                 UPDATE_DATABASE,
+                UPDATE_TESTING_ROLLBACK,
                 UPDATE_SQL,
                 FUTURE_ROLLBACK,
                 TAG_DATABASE,
@@ -143,6 +145,7 @@ public final class LiquibaseOperationSupport {
                 UPDATE_SQL,
                 SHOW_CHANGELOG_HISTORY,
                 UNEXPECTED_CHANGESETS,
+                UPDATE_TESTING_ROLLBACK,
                 MARK_NEXT_CHANGESET_RAN,
                 SYNCHRONIZE_CHANGELOG,
                 SYNCHRONIZE_CHANGELOG_SQL,
@@ -166,6 +169,7 @@ public final class LiquibaseOperationSupport {
                 SHOW_CHANGELOG_STATUS,
                 SHOW_CHANGELOG_HISTORY,
                 UNEXPECTED_CHANGESETS,
+                UPDATE_TESTING_ROLLBACK,
                 SYNCHRONIZE_CHANGELOG_SQL,
                 UPDATE_SQL,
                 FUTURE_ROLLBACK,
@@ -195,6 +199,7 @@ public final class LiquibaseOperationSupport {
                 UNEXPECTED_CHANGESETS,
                 SYNCHRONIZE_CHANGELOG,
                 UPDATE_DATABASE,
+                UPDATE_TESTING_ROLLBACK,
                 MARK_NEXT_CHANGESET_RAN,
                 TAG_DATABASE,
                 RELEASE_LOCKS,
@@ -215,6 +220,7 @@ public final class LiquibaseOperationSupport {
                 SYNCHRONIZE_CHANGELOG,
                 SYNCHRONIZE_CHANGELOG_SQL,
                 UPDATE_DATABASE,
+                UPDATE_TESTING_ROLLBACK,
                 MARK_NEXT_CHANGESET_RAN,
                 ROLLBACK_CHANGESETS,
                 UPDATE_SQL,
