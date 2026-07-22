@@ -50,7 +50,7 @@ public class LiquibaseWorkflowInput extends LiquibaseExecutionInput {
     @Override
     @NotNull
     public String getHint() {
-        return workflow.getDescription();
+        return workflow.getHint();
     }
 
     @Override

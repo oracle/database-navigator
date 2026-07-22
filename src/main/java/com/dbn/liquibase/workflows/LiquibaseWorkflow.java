@@ -76,4 +76,8 @@ public enum LiquibaseWorkflow {
     public String getDescription() {
         return txt("app.liquibase.text.WorkflowDescription_" + name());
     }
+
+    public String getHint() {
+        return txt("app.liquibase.hint.Workflow_" + name());
+    }
 }
