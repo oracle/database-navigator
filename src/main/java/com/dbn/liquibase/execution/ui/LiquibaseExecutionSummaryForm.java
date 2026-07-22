@@ -133,8 +133,8 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         onHyperlinkAccess(databaseChangeLogLink,e -> navigateToTable(result, result.getDatabaseChangeLogTableName()));
         onHyperlinkAccess(databaseChangeLogLockLink,e -> navigateToTable(result, result.getDatabaseChangeLogLockTableName()));
 
-        databaseChangeLogInfoLabel.setContent(plain(txt("cfg.liquibase.hint.DatabaseChangeLogTable")));
-        databaseChangeLogLockInfoLabel.setContent(plain(txt("cfg.liquibase.hint.DatabaseChangeLogLockTable")));
+        databaseChangeLogInfoLabel.setContent(plain(txt("app.liquibase.hint.DatabaseChangeLogTable")));
+        databaseChangeLogLockInfoLabel.setContent(plain(txt("app.liquibase.hint.DatabaseChangeLogLockTable")));
         updateChangelogLink(result);
         updateDocumentationLink(result);
         updateLiquibaseTableLinks(result);
@@ -151,16 +151,16 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         boolean qualified = sourceVisible && targetVisible;
 
         sourceConnectionCaptionLabel.setText(txt(qualified && !sameConnection ?
-                "cfg.liquibase.label.SourceConnection" :
+                "app.liquibase.label.SourceConnection" :
                 "app.object.label.Connection"));
         sourceSchemaCaptionLabel.setText(txt(qualified ?
-                "cfg.liquibase.label.SourceSchema" :
+                "app.liquibase.label.SourceSchema" :
                 "app.object.label.Schema"));
         targetConnectionCaptionLabel.setText(txt(qualified ?
-                "cfg.liquibase.label.TargetConnection" :
+                "app.liquibase.label.TargetConnection" :
                 "app.object.label.Connection"));
         targetSchemaCaptionLabel.setText(txt(qualified ?
-                "cfg.liquibase.label.TargetSchema" :
+                "app.liquibase.label.TargetSchema" :
                 "app.object.label.Schema"));
     }
 
@@ -368,7 +368,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         rollbackTypeLabel.setVisible(rollback);
         if (!rollback) return;
 
-        rollbackTypeCaptionLabel.setText(txt("cfg.liquibase.label.RollbackType"));
+        rollbackTypeCaptionLabel.setText(txt("app.liquibase.label.RollbackType"));
         rollbackTypeLabel.setText(result.getRollbackInstruction().getType().getName());
     }
 
@@ -381,15 +381,15 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         if (!update) return;
 
         LiquibaseUpdateInstruction instruction = result.getUpdateInstruction();
-        updateTypeCaptionLabel.setText(txt("cfg.liquibase.label.UpdateType"));
+        updateTypeCaptionLabel.setText(txt("app.liquibase.label.UpdateType"));
         updateTypeLabel.setText(instruction.getType().getName());
         if (instruction.getType() == LiquibaseUpdateType.COUNT) {
-            updateValueCaptionLabel.setText(txt("cfg.liquibase.label.UpdateCount"));
+            updateValueCaptionLabel.setText(txt("app.liquibase.label.UpdateCount"));
             updateValueLabel.setText(Integer.toString(instruction.getCount()));
             updateValueCaptionLabel.setVisible(true);
             updateValueLabel.setVisible(true);
         } else if (instruction.getType() == LiquibaseUpdateType.TAG) {
-            updateValueCaptionLabel.setText(txt("cfg.liquibase.label.UpdateTag"));
+            updateValueCaptionLabel.setText(txt("app.liquibase.label.UpdateTag"));
             updateValueLabel.setText(instruction.getTag());
             updateValueCaptionLabel.setVisible(isNotEmpty(instruction.getTag()));
             updateValueLabel.setVisible(isNotEmpty(instruction.getTag()));
@@ -401,11 +401,11 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         LiquibaseOperationSupport support = operation.getSupport();
 
         if (support.supports(CHANGELOG_TAG)) {
-            updateTagInfo(result.getChangelogTag(), "cfg.liquibase.label.ChangelogTag");
+            updateTagInfo(result.getChangelogTag(), "app.liquibase.label.ChangelogTag");
         } else if (support.supports(DATABASE_TAG)) {
-            updateTagInfo(result.getDatabaseTag(), "cfg.liquibase.label.DatabaseTag");
+            updateTagInfo(result.getDatabaseTag(), "app.liquibase.label.DatabaseTag");
         } else if (support.supports(CHECKPOINT_TAG)) {
-            updateTagInfo(result.getCheckpointTag(), "cfg.liquibase.label.CheckpointTag");
+            updateTagInfo(result.getCheckpointTag(), "app.liquibase.label.CheckpointTag");
         } else if (support.supports(ROLLBACK)) {
             updateRollbackTagInfo(result);
         } else {
@@ -416,18 +416,18 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private void updateRollbackTagInfo(@NotNull LiquibaseExecutionResult result) {
         LiquibaseRollbackInstruction instruction = result.getRollbackInstruction();
         if (instruction.getType() == TAG) {
-            updateTagInfo(instruction.getTag(), "cfg.liquibase.label.RollbackTag");
+            updateTagInfo(instruction.getTag(), "app.liquibase.label.RollbackTag");
             return;
         }
 
         if (instruction.getType() == COUNT) {
-            updateTagInfo(Integer.toString(instruction.getCount()), "cfg.liquibase.label.RollbackCount");
+            updateTagInfo(Integer.toString(instruction.getCount()), "app.liquibase.label.RollbackCount");
             return;
         }
 
         updateTagInfo(
                 ensureFormatter().formatDateTime(instruction.getDate()),
-                "cfg.liquibase.label.RollbackDate");
+                "app.liquibase.label.RollbackDate");
     }
 
     private void updateTagInfo(@Nullable String tag, @NotNull String captionKey) {

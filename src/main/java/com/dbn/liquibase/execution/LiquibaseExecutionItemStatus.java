@@ -11,6 +11,6 @@ public enum LiquibaseExecutionItemStatus {
     FAILED;
 
     public String getName() {
-        return txt("cfg.liquibase.const.ExecutionItemStatus_" + name());
+        return txt("app.liquibase.const.ExecutionItemStatus_" + name());
     }
 }

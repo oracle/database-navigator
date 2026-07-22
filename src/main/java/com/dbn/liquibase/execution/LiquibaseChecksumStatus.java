@@ -16,6 +16,6 @@ public enum LiquibaseChecksumStatus {
     NOT_RECORDED;
 
     public String getName() {
-        return txt("cfg.liquibase.const.ChecksumStatus_" + name());
+        return txt("app.liquibase.const.ChecksumStatus_" + name());
     }
 }

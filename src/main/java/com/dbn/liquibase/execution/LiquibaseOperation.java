@@ -44,7 +44,7 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     private final LiquibaseOperationSupport support = new LiquibaseOperationSupport(this);
 
     public String getName() {
-        return txt("cfg.liquibase.const.Operation_" + name());
+        return txt("app.liquibase.const.Operation_" + name());
     }
 
     public String getDescription() {
@@ -52,7 +52,7 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     }
 
     public String getHint() {
-        return /*txt("app.liquibase.title.Operation_" + name()) + "\n\n" +*/ txt("cfg.liquibase.hint.Operation_" + name());
+        return /*txt("app.liquibase.title.Operation_" + name()) + "\n\n" +*/ txt("app.liquibase.hint.Operation_" + name());
     }
 
     public String getDocumentationUrl() {

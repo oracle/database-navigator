@@ -123,7 +123,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
     private void initHyperlinksPanel() {
         Hyperlinks.initHyperlink(
                 documentationLink,
-                txt("cfg.liquibase.link.LiquibaseDocumentation"),
+                txt("app.liquibase.link.LiquibaseDocumentation"),
                 "https://docs.liquibase.com/oss/reference-guide-4-33");
     }
 

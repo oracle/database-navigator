@@ -29,7 +29,7 @@
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.Workspace"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.label.Workspace"/>
         </properties>
       </component>
       <component id="9" class="com.dbn.common.ui.misc.DBNComboBox" binding="workspaceSelector">
@@ -43,7 +43,7 @@
           <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.ChangelogAuthor"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.label.ChangelogAuthor"/>
         </properties>
       </component>
       <component id="30" class="javax.swing.JTextField" binding="changelogAuthorTextField">
@@ -61,7 +61,7 @@
           <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.DatabaseTag"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.label.DatabaseTag"/>
         </properties>
       </component>
       <component id="32" class="javax.swing.JTextField" binding="databaseTagTextField">
@@ -85,7 +85,7 @@
           <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.CheckpointTag"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.label.CheckpointTag"/>
         </properties>
       </component>
       <component id="35" class="javax.swing.JTextField" binding="checkpointTagTextField">
@@ -103,7 +103,7 @@
           <grid row="16" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.RollbackCount"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.label.RollbackCount"/>
         </properties>
       </component>
       <component id="18" class="javax.swing.JSpinner" binding="rollbackCountSpinner">
@@ -129,7 +129,7 @@
           <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.UpdateType"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.label.UpdateType"/>
         </properties>
       </component>
       <component id="38" class="com.dbn.common.ui.misc.DBNComboBox" binding="updateTypeSelector">
@@ -143,7 +143,7 @@
           <grid row="13" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.UpdateCount"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.label.UpdateCount"/>
         </properties>
       </component>
       <component id="40" class="javax.swing.JSpinner" binding="updateCountSpinner">
@@ -163,7 +163,7 @@
           <grid row="14" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.UpdateTag"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.label.UpdateTag"/>
         </properties>
       </component>
       <component id="43" class="javax.swing.JTextField" binding="updateTagTextField">
@@ -187,7 +187,7 @@
           <grid row="15" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.RollbackType"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.label.RollbackType"/>
         </properties>
       </component>
       <component id="20" class="com.dbn.common.ui.misc.DBNComboBox" binding="rollbackTypeSelector">
@@ -201,7 +201,7 @@
           <grid row="17" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.RollbackTag"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.label.RollbackTag"/>
         </properties>
       </component>
       <grid id="22" binding="rollbackTagFieldPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
@@ -223,7 +223,7 @@
           <grid row="18" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.RollbackDate"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.label.RollbackDate"/>
         </properties>
       </component>
       <grid id="24" binding="rollbackDateFieldPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
@@ -270,7 +270,7 @@
           <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.SourceConnection"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.label.SourceConnection"/>
         </properties>
       </component>
       <component id="4" class="com.dbn.common.ui.misc.DBNComboBox" binding="sourceConnectionSelector">
@@ -284,7 +284,7 @@
           <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.SourceSchema"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.label.SourceSchema"/>
         </properties>
       </component>
       <component id="15" class="com.dbn.object.common.ui.DBObjectSelector" binding="sourceSchemaSelector">
@@ -298,7 +298,7 @@
           <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.TargetConnection"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.label.TargetConnection"/>
         </properties>
       </component>
       <component id="13" class="com.dbn.common.ui.misc.DBNComboBox" binding="targetConnectionSelector">
@@ -312,7 +312,7 @@
           <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.TargetSchema"/>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.label.TargetSchema"/>
         </properties>
       </component>
       <component id="11" class="com.dbn.object.common.ui.DBObjectSelector" binding="targetSchemaSelector">

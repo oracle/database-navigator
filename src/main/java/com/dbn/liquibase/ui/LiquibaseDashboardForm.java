@@ -106,13 +106,13 @@ public class LiquibaseDashboardForm extends DBNFormBase {
     }
 
     private void initHintPanel() {
-        hintPanel.add(new DBNHintForm(this, TextContent.plain(txt("cfg.liquibase.hint.Operations")), null, true).getComponent(), BorderLayout.CENTER);
+        hintPanel.add(new DBNHintForm(this, TextContent.plain(txt("app.liquibase.hint.Operations")), null, true).getComponent(), BorderLayout.CENTER);
     }
 
     private void initHyperlinkPanel() {
         HyperLinkForm hyperlinkForm = HyperLinkForm.create(
                 "",
-                txt("cfg.liquibase.link.LiquibaseDocumentation"),
+                txt("app.liquibase.link.LiquibaseDocumentation"),
                 txt("app.liquibase.url.Dashboard"));
         hyperlinkPanel.add(hyperlinkForm.getComponent(), BorderLayout.EAST);
     }

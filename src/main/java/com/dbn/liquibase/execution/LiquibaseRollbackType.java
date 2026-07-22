@@ -12,6 +12,6 @@ public enum LiquibaseRollbackType implements Constant<LiquibaseRollbackType>, Pr
     DATE;
 
     public String getName() {
-        return txt("cfg.liquibase.const.RollbackType_" + name());
+        return txt("app.liquibase.const.RollbackType_" + name());
     }
 }

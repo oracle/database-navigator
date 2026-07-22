@@ -22,6 +22,6 @@ public enum LiquibaseUpdateType implements Constant<LiquibaseUpdateType>, Presen
     TAG;
 
     public String getName() {
-        return txt("cfg.liquibase.const.UpdateType_" + name());
+        return txt("app.liquibase.const.UpdateType_" + name());
     }
 }

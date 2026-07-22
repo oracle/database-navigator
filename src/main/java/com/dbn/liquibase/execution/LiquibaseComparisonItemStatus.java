@@ -9,6 +9,6 @@ public enum LiquibaseComparisonItemStatus {
     CHANGED;
 
     public String getName() {
-        return txt("cfg.liquibase.const.ComparisonItemStatus_" + name());
+        return txt("app.liquibase.const.ComparisonItemStatus_" + name());
     }
 }

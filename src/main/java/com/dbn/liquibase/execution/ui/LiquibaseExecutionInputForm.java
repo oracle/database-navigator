@@ -175,20 +175,20 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
         HyperLinkForm hyperlinkForm = HyperLinkForm.create(
                 "",
-                txt("cfg.liquibase.link.LiquibaseDocumentation"),
+                txt("app.liquibase.link.LiquibaseDocumentation"),
                 documentationUrl);
 
         hyperlinkPanel.add(hyperlinkForm.getComponent(), BorderLayout.EAST);
     }
 
     private void initInfoLabels() {
-        rollbackCountInfoLabel.setContent(plain(txt("cfg.liquibase.hint.RollbackCount")));
-        rollbackTagInfoLabel.setContent(plain(txt("cfg.liquibase.hint.RollbackTag")));
-        rollbackDateInfoLabel.setContent(plain(txt("cfg.liquibase.hint.RollbackDate")));
-        databaseTagInfoLabel.setContent(plain(txt("cfg.liquibase.hint.DatabaseTag")));
-        checkpointTagInfoLabel.setContent(plain(txt("cfg.liquibase.hint.CheckpointTag")));
-        updateCountInfoLabel.setContent(plain(txt("cfg.liquibase.hint.UpdateCount")));
-        updateTagInfoLabel.setContent(plain(txt("cfg.liquibase.hint.UpdateTag")));
+        rollbackCountInfoLabel.setContent(plain(txt("app.liquibase.hint.RollbackCount")));
+        rollbackTagInfoLabel.setContent(plain(txt("app.liquibase.hint.RollbackTag")));
+        rollbackDateInfoLabel.setContent(plain(txt("app.liquibase.hint.RollbackDate")));
+        databaseTagInfoLabel.setContent(plain(txt("app.liquibase.hint.DatabaseTag")));
+        checkpointTagInfoLabel.setContent(plain(txt("app.liquibase.hint.CheckpointTag")));
+        updateCountInfoLabel.setContent(plain(txt("app.liquibase.hint.UpdateCount")));
+        updateTagInfoLabel.setContent(plain(txt("app.liquibase.hint.UpdateTag")));
     }
 
     private void initOperationTagField() {
@@ -223,8 +223,8 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         if (!supported) return;
 
         if (changelogTag) {
-            databaseTagLabel.setText(txt("cfg.liquibase.label.ChangelogTag"));
-            databaseTagInfoLabel.setContent(plain(txt("cfg.liquibase.hint.ChangelogTag")));
+            databaseTagLabel.setText(txt("app.liquibase.label.ChangelogTag"));
+            databaseTagInfoLabel.setContent(plain(txt("app.liquibase.hint.ChangelogTag")));
             setText(databaseTagTextField, executionInput.getChangelogTag());
         } else {
             setText(databaseTagTextField, executionInput.getDatabaseTag());
@@ -271,7 +271,7 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         rollbackTagField.createValuesListPopup(new ListPopupValuesProvider() {
             @Override
             public String getName() {
-                return txt("cfg.liquibase.label.RollbackTag");
+                return txt("app.liquibase.label.RollbackTag");
             }
 
             @Override
@@ -373,16 +373,16 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
         boolean qualified = sourceVisible && targetVisible;
 
         sourceConnectionLabel.setText(txt(qualified ?
-                "cfg.liquibase.label.SourceConnection" :
+                "app.liquibase.label.SourceConnection" :
                 "app.object.label.Connection"));
         sourceSchemaLabel.setText(txt(qualified ?
-                "cfg.liquibase.label.SourceSchema" :
+                "app.liquibase.label.SourceSchema" :
                 "app.object.label.Schema"));
         targetConnectionLabel.setText(txt(qualified ?
-                "cfg.liquibase.label.TargetConnection" :
+                "app.liquibase.label.TargetConnection" :
                 "app.object.label.Connection"));
         targetSchemaLabel.setText(txt(qualified ?
-                "cfg.liquibase.label.TargetSchema" :
+                "app.liquibase.label.TargetSchema" :
                 "app.object.label.Schema"));
     }
 
