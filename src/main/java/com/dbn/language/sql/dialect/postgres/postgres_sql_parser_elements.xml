@@ -10197,6 +10197,7 @@
                 </one-of>
             </sequence>
         </iteration>
+        <element optional="true" ref-id="collate_clause" />
     </element-def>
 
 
