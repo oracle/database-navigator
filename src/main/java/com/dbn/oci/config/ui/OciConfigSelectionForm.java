@@ -22,8 +22,8 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.oci.config.OciConfig;
-import com.dbn.oci.config.OciConfigFileUtil;
 import com.dbn.oci.config.OciConfigManager;
+import com.dbn.oci.config.OciConfigUtil;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -90,7 +90,7 @@ public class OciConfigSelectionForm extends DBNFormBase {
         Dispatch.async(mainPanel, () -> {
             String configFilePath = getConfigFilePath();
             String configProfile = getSelection(configProfileComboBox);
-            return OciConfigFileUtil.getConfigProfileValues(configFilePath, configProfile);
+            return OciConfigUtil.getConfigProfileValues(configFilePath, configProfile);
         }, values -> {
             setText(userIdTextField, values.get("user"));
             setText(tenancyIdTextField, values.get("tenancy"));
@@ -143,7 +143,7 @@ public class OciConfigSelectionForm extends DBNFormBase {
 
     private List<String> loadOciConfigProfiles() {
         String configFilePath = getConfigFilePath();
-        return OciConfigFileUtil.getConfigProfileNames(configFilePath);
+        return OciConfigUtil.getConfigProfileNames(configFilePath);
     }
 
     private @NotNull String getConfigFilePath() {
