@@ -62,6 +62,12 @@ public class LiquibaseWorkspacePaths {
         return resolvePath(getLiquibaseRootPath(), workspace.getSqlDirectory(), "SQL directory");
     }
 
+    /** Returns the directory used for generated Liquibase database documentation. */
+    @NotNull
+    public Path getDocumentationDirectoryPath() {
+        return resolvePath(getLiquibaseRootPath(), workspace.getDocumentationDirectory(), "Documentation directory");
+    }
+
     @NotNull
     public Path getMasterChangelogPath() {
         return resolvePath(getChangelogDirectoryPath(), workspace.getMasterChangelog(), "Master changelog");

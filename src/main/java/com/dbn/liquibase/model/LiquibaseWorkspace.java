@@ -44,6 +44,7 @@ public class LiquibaseWorkspace implements PersistentStateElement, Presentable, 
     public static final String DEFAULT_ROOT_PATH = "db/liquibase";
     public static final String DEFAULT_CHANGELOG_DIRECTORY = "changes";
     public static final String DEFAULT_SQL_DIRECTORY = "sql";
+    public static final String DEFAULT_DOCUMENTATION_DIRECTORY = "docs";
     public static final String DEFAULT_MASTER_CHANGELOG = "db.changelog-master.yaml";
     public static final String DEFAULT_PROPERTIES_FILE = "liquibase.properties";
 
@@ -54,6 +55,7 @@ public class LiquibaseWorkspace implements PersistentStateElement, Presentable, 
     private String rootPath = DEFAULT_ROOT_PATH;
     private String changelogDirectory = DEFAULT_CHANGELOG_DIRECTORY;
     private String sqlDirectory = DEFAULT_SQL_DIRECTORY;
+    private String documentationDirectory = DEFAULT_DOCUMENTATION_DIRECTORY;
     private String masterChangelog = DEFAULT_MASTER_CHANGELOG;
     private String propertiesFile = DEFAULT_PROPERTIES_FILE;
 
@@ -75,6 +77,7 @@ public class LiquibaseWorkspace implements PersistentStateElement, Presentable, 
         rootPath = stringAttribute(element, "root-path", rootPath);
         changelogDirectory = stringAttribute(element, "changelog-directory", changelogDirectory);
         sqlDirectory = stringAttribute(element, "sql-directory", sqlDirectory);
+        documentationDirectory = stringAttribute(element, "documentation-directory", documentationDirectory);
         masterChangelog = stringAttribute(element, "master-changelog", masterChangelog);
         propertiesFile = stringAttribute(element, "properties-file", propertiesFile);
     }
@@ -88,6 +91,7 @@ public class LiquibaseWorkspace implements PersistentStateElement, Presentable, 
         setStringAttribute(element, "root-path", rootPath);
         setStringAttribute(element, "changelog-directory", changelogDirectory);
         setStringAttribute(element, "sql-directory", sqlDirectory);
+        setStringAttribute(element, "documentation-directory", documentationDirectory);
         setStringAttribute(element, "master-changelog", masterChangelog);
         setStringAttribute(element, "properties-file", propertiesFile);
     }

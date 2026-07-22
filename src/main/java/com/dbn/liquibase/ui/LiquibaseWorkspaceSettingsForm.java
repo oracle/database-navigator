@@ -51,6 +51,7 @@ import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.liquibase.model.LiquibaseWorkspace.DEFAULT_CHANGELOG_DIRECTORY;
+import static com.dbn.liquibase.model.LiquibaseWorkspace.DEFAULT_DOCUMENTATION_DIRECTORY;
 import static com.dbn.liquibase.model.LiquibaseWorkspace.DEFAULT_MASTER_CHANGELOG;
 import static com.dbn.liquibase.model.LiquibaseWorkspace.DEFAULT_PROPERTIES_FILE;
 import static com.dbn.liquibase.model.LiquibaseWorkspace.DEFAULT_ROOT_PATH;
@@ -67,6 +68,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
     private JBTextField rootPathTextField;
     private JBTextField changelogDirectoryTextField;
     private JBTextField sqlDirectoryTextField;
+    private JBTextField documentationDirectoryTextField;
     private JBTextField masterChangelogTextField;
     private JBTextField propertiesFileTextField;
     private DBNCommentLabel rootPathInfoLabel;
@@ -156,6 +158,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
         rootPathTextField.getEmptyText().setText(DEFAULT_ROOT_PATH);
         changelogDirectoryTextField.getEmptyText().setText(DEFAULT_CHANGELOG_DIRECTORY);
         sqlDirectoryTextField.getEmptyText().setText(DEFAULT_SQL_DIRECTORY);
+        documentationDirectoryTextField.getEmptyText().setText(DEFAULT_DOCUMENTATION_DIRECTORY);
         masterChangelogTextField.getEmptyText().setText(DEFAULT_MASTER_CHANGELOG);
         propertiesFileTextField.getEmptyText().setText(DEFAULT_PROPERTIES_FILE);
     }
@@ -166,6 +169,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
         onTextChange(rootPathTextField, e -> updatePathTooltips());
         onTextChange(changelogDirectoryTextField, e -> updatePathTooltips());
         onTextChange(sqlDirectoryTextField, e -> updatePathTooltips());
+        onTextChange(documentationDirectoryTextField, e -> updatePathTooltips());
         onTextChange(masterChangelogTextField, e -> updatePathTooltips());
         onTextChange(propertiesFileTextField, e -> updatePathTooltips());
     }
@@ -199,6 +203,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
             setToolTipText(rootPathTextField, null);
             setToolTipText(changelogDirectoryTextField, null);
             setToolTipText(sqlDirectoryTextField, null);
+            setToolTipText(documentationDirectoryTextField, null);
             setToolTipText(masterChangelogTextField, null);
             setToolTipText(propertiesFileTextField, null);
             return;
@@ -208,6 +213,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
         setToolTipText(rootPathTextField, liquibaseRoot);
         setToolTipText(changelogDirectoryTextField, appendPath(liquibaseRoot, getText(changelogDirectoryTextField)));
         setToolTipText(sqlDirectoryTextField, appendPath(liquibaseRoot, getText(sqlDirectoryTextField)));
+        setToolTipText(documentationDirectoryTextField, appendPath(liquibaseRoot, getText(documentationDirectoryTextField)));
         setToolTipText(masterChangelogTextField, appendPath(liquibaseRoot, getText(masterChangelogTextField)));
         setToolTipText(propertiesFileTextField, appendPath(contentRoot, getText(propertiesFileTextField)));
     }
@@ -229,12 +235,14 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
         addRequiredTextValidation(rootPathTextField,           txt("msg.liquibase.error.RootPathRequired"));
         addRequiredTextValidation(changelogDirectoryTextField, txt("msg.liquibase.error.ChangelogDirectoryRequired"));
         addRequiredTextValidation(sqlDirectoryTextField,       txt("msg.liquibase.error.SqlDirectoryRequired"));
+        addRequiredTextValidation(documentationDirectoryTextField, txt("msg.liquibase.error.DocumentationDirectoryRequired"));
         addRequiredTextValidation(masterChangelogTextField,    txt("msg.liquibase.error.MasterChangelogRequired"));
         addRequiredTextValidation(propertiesFileTextField,     txt("msg.liquibase.error.PropertiesFileRequired"));
 
         addTextValidation(rootPathTextField,           v -> isValidRelativePath(v), txt("msg.liquibase.error.InvalidDirectoryPath"));
         addTextValidation(changelogDirectoryTextField, v -> isValidRelativePath(v), txt("msg.liquibase.error.InvalidDirectoryPath"));
         addTextValidation(sqlDirectoryTextField,       v -> isValidRelativePath(v), txt("msg.liquibase.error.InvalidDirectoryPath"));
+        addTextValidation(documentationDirectoryTextField, v -> isValidRelativePath(v), txt("msg.liquibase.error.InvalidDirectoryPath"));
         addTextValidation(masterChangelogTextField,    v -> isValidFileName(v),     txt("msg.liquibase.error.InvalidFileName"));
         addTextValidation(propertiesFileTextField,     v -> isValidFileName(v),     txt("msg.liquibase.error.InvalidFileName"));
     }
@@ -283,6 +291,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
         contentRootComboBox.setSelectedPath(workspace.getContentRootPath());
         setText(changelogDirectoryTextField, workspace.getChangelogDirectory());
         setText(sqlDirectoryTextField, workspace.getSqlDirectory());
+        setText(documentationDirectoryTextField, workspace.getDocumentationDirectory());
         setText(masterChangelogTextField, workspace.getMasterChangelog());
         setText(propertiesFileTextField, workspace.getPropertiesFile());
     }
@@ -294,6 +303,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
         workspace.setContentRootPath(contentRootComboBox.getSelectedPath());
         workspace.setChangelogDirectory(getText(changelogDirectoryTextField));
         workspace.setSqlDirectory(getText(sqlDirectoryTextField));
+        workspace.setDocumentationDirectory(getText(documentationDirectoryTextField));
         workspace.setMasterChangelog(getText(masterChangelogTextField));
         workspace.setPropertiesFile(getText(propertiesFileTextField));
     }
