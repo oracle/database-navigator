@@ -8972,24 +8972,24 @@
                 <one-of ambiguous="true" id="05351">
                     <sequence id="05352">
                         <alias-def type="COLUMN" id="05353" />
-                        <element ref-id="data_type" />
+                        <element optional="true" ref-id="data_type" />
                     </sequence>
                     <qualified-identifier id="05354">
-                        <variant>
-                            <alias-ref id="05355" type="COLUMN" />
-                        </variant>
-                        <variant>
-                            <alias-def id="05356" type="COLUMN" />
-                        </variant>
-                        <variant>
-                            <alias-ref id="05357" optional="true" type="DATASET" />
-                            <object-ref id="05358" type="COLUMN" />
-                        </variant>
-                        <variant>
-                            <object-ref id="05359" local="true" optional="true" type="SCHEMA" />
-                            <object-ref id="05360" local="true" optional="true" type="DATASET" />
-                            <object-ref id="05361" type="COLUMN" />
-                        </variant>
+                    <variant>
+                        <alias-ref type="COLUMN" id="05355" />
+                    </variant>
+                    <variant>
+                        <alias-def type="COLUMN" id="05356" />
+                    </variant>
+                    <variant>
+                        <alias-ref optional="true" type="DATASET" id="05357" />
+                        <object-ref type="COLUMN" id="05358" />
+                    </variant>
+                    <variant>
+                        <object-ref local="true" optional="true" type="SCHEMA" id="05359" />
+                        <object-ref local="true" optional="true" type="DATASET" id="05360" />
+                        <object-ref type="COLUMN" id="05361" />
+                    </variant>
                     </qualified-identifier>
                 </one-of>
             </iteration>
