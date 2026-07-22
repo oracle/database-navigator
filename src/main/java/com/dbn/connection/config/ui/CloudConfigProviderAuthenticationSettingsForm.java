@@ -27,9 +27,9 @@ import com.dbn.connection.config.provider.CloudConfigProviderAuthentication;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
 import com.dbn.credentials.Secret;
-import com.dbn.oci.config.OciConfigFileUtil;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.dbn.oci.config.OciConfigUtil;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComboBox;
@@ -44,11 +44,11 @@ import java.util.Objects;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
-import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
-import static com.dbn.common.ui.util.TextFields.getText;
-import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.PasswordFields.getPassword;
 import static com.dbn.common.ui.util.PasswordFields.setPassword;
+import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -342,12 +342,12 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     }
 
     private List<String> loadOciConfigProfiles() {
-        return OciConfigFileUtil.getConfigProfileNames(getOciConfigProviderConfigFile());
+        return OciConfigUtil.getConfigProfileNames(getOciConfigProviderConfigFile());
     }
 
     private void applyDefaultOciConfigFile() {
         if (isOciDefaultAuthentication() && isEmpty(getText(configFileTextField))) {
-            configFileTextField.setText(OciConfigFileUtil.getDefaultConfigFilePath());
+            configFileTextField.setText(OciConfigUtil.getDefaultConfigFilePath());
         }
     }
 
