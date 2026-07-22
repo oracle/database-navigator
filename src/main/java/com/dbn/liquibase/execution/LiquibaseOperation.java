@@ -46,11 +46,11 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     }
 
     public String getDescription() {
-        return txt("cfg.liquibase.text.OperationDescription_" + name());
+        return txt("app.liquibase.text.OperationDescription_" + name());
     }
 
     public String getHint() {
-        return /*txt("cfg.liquibase.title.Operation_" + name()) + "\n\n" +*/ txt("cfg.liquibase.hint.Operation_" + name());
+        return /*txt("app.liquibase.title.Operation_" + name()) + "\n\n" +*/ txt("cfg.liquibase.hint.Operation_" + name());
     }
 
     public String getDocumentationUrl() {

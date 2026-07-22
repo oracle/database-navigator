@@ -40,7 +40,7 @@ public class LiquibaseExecutionInputDialog extends DBNDialog<LiquibaseExecutionI
             @NotNull DBSchema schema,
             @NotNull LiquibaseOperation operation,
             @NotNull LiquibaseWorkspaceBundle workspaces) {
-        super(schema.getProject(), txt("cfg.liquibase.title.Operation_" + operation.name()), true);
+        super(schema.getProject(), txt("app.liquibase.title.Operation_" + operation.name()), true);
         this.executionInput = new LiquibaseExecutionInput(getProject(), operation);
         this.workspaces = workspaces;
         LiquibaseOperationSupport support = operation.getSupport();
