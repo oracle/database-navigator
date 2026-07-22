@@ -14,6 +14,7 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     GENERATE_CHANGELOG,
+    GENERATE_DATABASE_DOCUMENTATION,
     SNAPSHOT_DATABASE,
     VALIDATE_CHANGELOG,
     COMPARE_SCHEMAS,
@@ -60,6 +61,7 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
     public Icon getActionIcon() {
         return switch (this) {
             case GENERATE_CHANGELOG -> Icons.ACTION_DOWNLOAD;
+            case GENERATE_DATABASE_DOCUMENTATION -> AllIcons.Toolwindows.Documentation;
             case GENERATE_DIFF_CHANGELOG -> AllIcons.Actions.Diff;
             case UPDATE_DATABASE -> Icons.ACTION_UPLOAD;
             case ROLLBACK_CHANGESETS -> Icons.ACTION_REVERT;

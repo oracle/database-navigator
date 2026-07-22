@@ -25,6 +25,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.DROP_ALL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.FUTURE_ROLLBACK;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DATABASE_DOCUMENTATION;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.LIST_LOCKS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.MARK_NEXT_CHANGESET_RAN;
@@ -68,6 +69,7 @@ public final class LiquibaseOperationSupport {
 
         if (operation.isOneOf(
                 VALIDATE_CHANGELOG,
+                GENERATE_DATABASE_DOCUMENTATION,
                 SNAPSHOT_DATABASE,
                 SHOW_CHANGELOG_STATUS,
                 SHOW_CHANGELOG_HISTORY,
@@ -173,6 +175,7 @@ public final class LiquibaseOperationSupport {
     public boolean supportsRerunOnSuccess() {
         return operation.isOneOf(
                 GENERATE_CHANGELOG,
+                GENERATE_DATABASE_DOCUMENTATION,
                 SNAPSHOT_DATABASE,
                 VALIDATE_CHANGELOG,
                 COMPARE_SCHEMAS,
@@ -224,6 +227,7 @@ public final class LiquibaseOperationSupport {
     public boolean requiresWorkspace() {
         return operation.isOneOf(
                 GENERATE_CHANGELOG,
+                GENERATE_DATABASE_DOCUMENTATION,
                 VALIDATE_CHANGELOG,
                 GENERATE_DIFF_CHANGELOG,
                 SHOW_CHANGELOG_STATUS,

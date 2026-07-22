@@ -73,9 +73,11 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
     private JLabel tagCaptionLabel;
     private JLabel tagLabel;
     private JLabel changelogLabel;
+    private JLabel documentationLabel;
     private JLabel databaseChangeLogLabel;
     private JLabel databaseChangeLogLockLabel;
     private DBNHyperlinkLabel changelogLink;
+    private DBNHyperlinkLabel documentationLink;
     private DBNHyperlinkLabel databaseChangeLogLink;
     private DBNHyperlinkLabel databaseChangeLogLockLink;
     private DBNInfoLabel databaseChangeLogInfoLabel;
@@ -117,12 +119,14 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         updateTagInfo(result);
 
         onHyperlinkAccess(changelogLink, e -> openChangelog(result));
+        onHyperlinkAccess(documentationLink, e -> openDocumentation(result));
         onHyperlinkAccess(databaseChangeLogLink,e -> navigateToTable(result, result.getDatabaseChangeLogTableName()));
         onHyperlinkAccess(databaseChangeLogLockLink,e -> navigateToTable(result, result.getDatabaseChangeLogLockTableName()));
 
         databaseChangeLogInfoLabel.setContent(plain(txt("cfg.liquibase.hint.DatabaseChangeLogTable")));
         databaseChangeLogLockInfoLabel.setContent(plain(txt("cfg.liquibase.hint.DatabaseChangeLogLockTable")));
         updateChangelogLink(result);
+        updateDocumentationLink(result);
         updateLiquibaseTableLinks(result);
 
         initMessageForm(result, result.getRelevantSchema());
@@ -198,6 +202,7 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         updateUpdateInfo(result);
         updateTagInfo(result);
         updateChangelogLink(result);
+        updateDocumentationLink(result);
         updateLiquibaseTableLinks(result);
         messageForm.setMessage(createMessage(result, result.getRelevantSchema()));
         updateDuration(result);
@@ -229,9 +234,36 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
         Path changelogPath = result.getChangelogPath();
         if (changelogPath == null) return;
 
+        openFile(result, changelogPath);
+    }
+
+    private void updateDocumentationLink(@NotNull LiquibaseExecutionResult result) {
+        boolean relevant = result.getOperation() == LiquibaseOperation.GENERATE_DATABASE_DOCUMENTATION;
+        documentationLabel.setVisible(relevant);
+        documentationLink.setVisible(false);
+        setToolTipText(documentationLink, null);
+        if (!relevant) return;
+
+        Path documentationPath = result.getDocumentationPath();
+        if (documentationPath == null || !Files.isRegularFile(documentationPath)) return;
+
+        documentationLink.setHyperlinkText(documentationPath.getFileName().toString());
+        setToolTipText(documentationLink, documentationPath.toString());
+        documentationLink.setVisible(true);
+    }
+
+    private void openDocumentation(@NotNull LiquibaseExecutionResult result) {
+        Path documentationPath = result.getDocumentationPath();
+        if (documentationPath == null) return;
+
+        openFile(result, documentationPath);
+    }
+
+    private void openFile(@NotNull LiquibaseExecutionResult result, @NotNull Path path) {
+
         Background.run(() -> {
             LocalFileSystem fileSystem = LocalFileSystem.getInstance();
-            VirtualFile file = fileSystem.refreshAndFindFileByIoFile(changelogPath.toFile());
+            VirtualFile file = fileSystem.refreshAndFindFileByIoFile(path.toFile());
             if (file == null) return;
 
             Editors.openFileEditor(result.getProject(), file, true);

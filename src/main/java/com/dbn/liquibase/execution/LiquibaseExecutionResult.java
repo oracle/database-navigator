@@ -16,6 +16,7 @@ import liquibase.changelog.ChangeSet;
 import liquibase.diff.ObjectDifferences;
 import liquibase.structure.DatabaseObject;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -32,11 +33,13 @@ import java.util.function.Supplier;
 
 /** Execution-console result for a Liquibase operation and its console output. */
 @Getter
+@Setter
 public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecutionResultForm> {
     @Delegate
     private final LiquibaseExecutionInput input;
 
     private Path changelogPath;
+    private Path documentationPath;
     private String databaseChangeLogTableName = "DATABASECHANGELOG";
     private String databaseChangeLogLockTableName = "DATABASECHANGELOGLOCK";
     private final Listeners<Runnable> listeners = Listeners.create(this);
@@ -173,10 +176,6 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
             @NotNull LiquibaseExecutionInput input) {
         this.input = input;
         this.output = new LogOutputBuffer(input.getProject());
-    }
-
-    public void setChangelogPath(@Nullable Path changelogPath) {
-        this.changelogPath = changelogPath;
     }
 
     public void setLiquibaseTableNames(

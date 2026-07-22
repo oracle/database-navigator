@@ -29,6 +29,7 @@ import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.DROP_ALL;
 import static com.dbn.liquibase.execution.LiquibaseOperation.FUTURE_ROLLBACK;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
+import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DATABASE_DOCUMENTATION;
 import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
 import static com.dbn.liquibase.execution.LiquibaseOperation.LIST_LOCKS;
 import static com.dbn.liquibase.execution.LiquibaseOperation.MARK_NEXT_CHANGESET_RAN;
@@ -77,6 +78,7 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         inspectActions.add(action(schema, UNEXPECTED_CHANGESETS));
         inspectActions.add(action(schema, COMPARE_SCHEMAS));
         inspectActions.add(action(schema, SNAPSHOT_DATABASE));
+        inspectActions.add(action(schema, GENERATE_DATABASE_DOCUMENTATION));
         add(inspectActions);
 
         DefaultActionGroup maintenanceActions = new DefaultActionGroup(txt("app.liquibase.group.Maintenance"), true);
