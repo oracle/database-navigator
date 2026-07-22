@@ -9083,56 +9083,55 @@
                         <token type-id="CHR_EXCLAMATION" id="05410" />
                         <token type-id="CHR_HASH" id="05411" />
                         <token type-id="CHR_PERCENT" id="05412" />
-                        <token type-id="CHR_STAR" id="05413" />
-                        <token type-id="CHR_SLASH" id="05414" />
-                        <token type-id="CHR_VERTICAL_BAR" id="05415" />
-                        <token type-id="CHR_CARET" id="05416" />
-                        <token type-id="CHR_QUESTION_MARK" id="05417" />
-                        <token type-id="CHR_BACKTICK" id="05418" />
-                        <token type-id="CHR_EQUAL" id="05419" />
-                        <token type-id="CHR_LESS" id="05420" />
-                        <token type-id="CHR_GREATER" id="05421" />
-                        <token type-id="OPR_EQUAL_EQUAL" id="05422" />
-                        <token type-id="OPR_LIKE" id="05423" />
-                        <token type-id="OPR_NOT_LIKE" id="05424" />
-                        <token type-id="OPR_MATCH" id="05425" />
-                        <token type-id="OPR_MATCH_CI" id="05426" />
-                        <token type-id="OPR_NO_MATCH" id="05427" />
-                        <token type-id="OPR_NO_MATCH_CI" id="05428" />
-                        <token type-id="OPR_NULL_SAFE_EQUAL" id="05429" />
-                        <token type-id="OPR_SHIFT_LEFT" id="05430" />
-                        <token type-id="OPR_SHIFT_RIGHT" id="05431" />
-                        <token type-id="OPR_AT_AT" id="05432" />
-                        <token type-id="OPR_AND_AND" id="05433" />
+                        <token type-id="CHR_SLASH" id="05413" />
+                        <token type-id="CHR_VERTICAL_BAR" id="05414" />
+                        <token type-id="CHR_CARET" id="05415" />
+                        <token type-id="CHR_QUESTION_MARK" id="05416" />
+                        <token type-id="CHR_BACKTICK" id="05417" />
+                        <token type-id="CHR_EQUAL" id="05418" />
+                        <token type-id="CHR_LESS" id="05419" />
+                        <token type-id="CHR_GREATER" id="05420" />
+                        <token type-id="OPR_EQUAL_EQUAL" id="05421" />
+                        <token type-id="OPR_LIKE" id="05422" />
+                        <token type-id="OPR_NOT_LIKE" id="05423" />
+                        <token type-id="OPR_MATCH" id="05424" />
+                        <token type-id="OPR_MATCH_CI" id="05425" />
+                        <token type-id="OPR_NO_MATCH" id="05426" />
+                        <token type-id="OPR_NO_MATCH_CI" id="05427" />
+                        <token type-id="OPR_NULL_SAFE_EQUAL" id="05428" />
+                        <token type-id="OPR_SHIFT_LEFT" id="05429" />
+                        <token type-id="OPR_SHIFT_RIGHT" id="05430" />
+                        <token type-id="OPR_AT_AT" id="05431" />
+                        <token type-id="OPR_AND_AND" id="05432" />
                         <element ref-id="qualified_operator" />
-                        <token id="05434" type-id="KW_PRIOR" />
-                        <token id="05435" type-id="KW_NOT" />
+                        <token id="05433" type-id="KW_PRIOR" />
+                        <token id="05434" type-id="KW_NOT" />
                     </one-of>
-                    <one-of id="05436" ambiguous="true">
+                    <one-of id="05435" ambiguous="true">
                         <element ref-id="expression" />
                         <element ref-id="expr" />
                     </one-of>
                 </sequence>
-                <iteration id="05437" optional="true">
-                    <one-of id="05438">
-                        <wrapper id="05439" template="BRACKETS">
-                            <one-of ambiguous="true" optional="true" id="05440" sortable="true">
+                <iteration id="05436" optional="true">
+                    <one-of id="05437">
+                        <wrapper id="05438" template="BRACKETS">
+                            <one-of ambiguous="true" optional="true" id="05439" sortable="true">
                                 <element ref-id="expression_list" />
-                                <sequence id="05441">
+                                <sequence id="05440">
                                     <element optional="true" ref-id="expression" />
-                                    <token type-id="CHR_COLON" id="05442" />
+                                    <token type-id="CHR_COLON" id="05441" />
                                     <element optional="true" ref-id="expression" />
                                 </sequence>
                             </one-of>
                         </wrapper>
-                        <sequence id="05443">
-                            <token id="05444" type-id="CHR_DOT" />
-                            <one-of id="05445">
-                                <object-ref id="05446" type="ANY" />
-                                <token type-id="CHR_STAR" id="05447" />
+                        <sequence id="05442">
+                            <token id="05443" type-id="CHR_DOT" />
+                            <one-of id="05444">
+                                <object-ref id="05445" type="ANY" />
+                                <token type-id="CHR_STAR" id="05446" />
                             </one-of>
                         </sequence>
-                        <iteration id="05448">
+                        <iteration id="05447">
                             <element ref-id="postfix_cast_expression" />
                         </iteration>
                     </one-of>
@@ -9141,8 +9140,8 @@
         </iteration>
     </element-def>
     <element-def description="Expr" id="expr" optional-wrapping="PARENTHESES">
-        <one-of id="05449" ambiguous="true">
-            <wrapper id="05450" template="PARENTHESES">
+        <one-of id="05448" ambiguous="true">
+            <wrapper id="05449" template="PARENTHESES">
                 <element ref-id="subquery" />
             </wrapper>
             <element ref-id="array_expression" />
@@ -9152,71 +9151,71 @@
             <element ref-id="native_function_expression" />
             <element ref-id="sequence_expression" />
             <element ref-id="simple_expression" />
-            <exec-variable id="05451" />
+            <exec-variable id="05450" />
         </one-of>
-        <iteration id="05452" optional="true">
+        <iteration id="05451" optional="true">
             <element ref-id="postfix_cast_expression" />
         </iteration>
-        <token id="05453" optional="true" type-id="KW_NOT" />
-        <one-of id="05454" optional="true">
+        <token id="05452" optional="true" type-id="KW_NOT" />
+        <one-of id="05453" optional="true">
             <element ref-id="in_expression" />
             <element ref-id="like_expression" />
             <element ref-id="between_expression" />
         </one-of>
     </element-def>
     <element-def description="Postfix cast expression" id="postfix_cast_expression">
-        <token id="05455" type-id="OPR_CAST_PREFIX" />
-        <one-of id="05456" ambiguous="true">
+        <token id="05454" type-id="OPR_CAST_PREFIX" />
+        <one-of id="05455" ambiguous="true">
             <element ref-id="data_type" />
-            <qualified-identifier id="05457">
+            <qualified-identifier id="05456">
                 <variant>
-                    <object-ref id="05458" optional="true" type="SCHEMA" />
-                    <object-ref id="05459" local="true" type="TYPE" />
+                    <object-ref id="05457" optional="true" type="SCHEMA" />
+                    <object-ref id="05458" local="true" type="TYPE" />
                 </variant>
             </qualified-identifier>
         </one-of>
     </element-def>
     <element-def description="IN Expression" id="in_expression">
-        <token id="05460" type-id="KW_IN" />
-        <wrapper id="05461" template="PARENTHESES">
-            <one-of id="05462" ambiguous="true">
+        <token id="05459" type-id="KW_IN" />
+        <wrapper id="05460" template="PARENTHESES">
+            <one-of id="05461" ambiguous="true">
                 <element ref-id="subquery" />
                 <element ref-id="expression_list" />
             </one-of>
         </wrapper>
     </element-def>
     <element-def description="LIKE Expression" id="like_expression">
-        <one-of id="05463">
-            <token id="05464" type-id="KW_LIKE" />
-            <token id="05465" type-id="KW_ILIKE" />
+        <one-of id="05462">
+            <token id="05463" type-id="KW_LIKE" />
+            <token id="05464" type-id="KW_ILIKE" />
         </one-of>
         <element ref-id="expression" />
     </element-def>
     <element-def description="EXISTS Expression" id="exists_expression">
-        <token id="05466" type-id="KW_EXISTS" />
-        <wrapper id="05467" template="PARENTHESES">
+        <token id="05465" type-id="KW_EXISTS" />
+        <wrapper id="05466" template="PARENTHESES">
             <element ref-id="subquery" />
         </wrapper>
     </element-def>
     <element-def description="BETWEEN Expression" id="between_expression">
-        <token id="05468" type-id="KW_BETWEEN" />
+        <token id="05467" type-id="KW_BETWEEN" />
         <element ref-id="expression" />
-        <token id="05469" type-id="KW_AND" />
+        <token id="05468" type-id="KW_AND" />
         <element ref-id="expression" />
     </element-def>
 
     <element-def description="Array expression" id="array_expression">
-        <one-of id="05470">
-            <token flavor="function" id="05471" type-id="KW_ANY" />
-            <token flavor="function" id="05472" type-id="KW_SOME" />
-            <token flavor="function" id="05473" type-id="KW_ALL" />
+        <one-of id="05469">
+            <token flavor="function" id="05470" type-id="KW_ANY" />
+            <token flavor="function" id="05471" type-id="KW_SOME" />
+            <token flavor="function" id="05472" type-id="KW_ALL" />
         </one-of>
-        <wrapper id="05474" template="PARENTHESES">
-            <one-of id="05475" ambiguous="true">
-                <sequence id="05476">
-                    <token flavor="keyword" id="05477" type-id="DT_ARRAY" />
-                    <wrapper begin-token="CHR_LEFT_BRACKET" end-token="CHR_RIGHT_BRACKET" id="05478">
-                        <iteration id="05479" separator="CHR_COMMA">
+        <wrapper id="05473" template="PARENTHESES">
+            <one-of id="05474" ambiguous="true">
+                <sequence id="05475">
+                    <token flavor="keyword" id="05476" type-id="DT_ARRAY" />
+                    <wrapper begin-token="CHR_LEFT_BRACKET" end-token="CHR_RIGHT_BRACKET" id="05477">
+                        <iteration id="05478" separator="CHR_COMMA">
                             <element ref-id="expression" />
                         </iteration>
                     </wrapper>
@@ -9226,76 +9225,77 @@
         </wrapper>
     </element-def>
     <element-def description="Array literal" id="array_literal">
-        <wrapper template="BRACKETS" id="05480">
-            <iteration separator="CHR_COMMA" id="05481">
+        <wrapper template="BRACKETS" id="05479">
+            <iteration separator="CHR_COMMA" id="05480">
                 <element ref-id="expression" />
             </iteration>
         </wrapper>
     </element-def>
     <element-def description="Simple expression" id="simple_expression">
-        <one-of id="05482" sortable="true" ambiguous="true">
+        <one-of id="05481" sortable="true" ambiguous="true">
             <element ref-id="box_constructor_expression" />
-            <sequence id="05483">
-                <token flavor="keyword" type-id="DT_ARRAY" id="05484" />
+            <sequence id="05482">
+                <token flavor="keyword" type-id="DT_ARRAY" id="05483" />
                 <element ref-id="array_literal" />
             </sequence>
             <element ref-id="array_literal" />
-            <sequence id="05485">
-                <token type-id="DT_TEXT" id="05486" />
-                <token type-id="STRING" id="05487" />
+            <sequence id="05484">
+                <token type-id="DT_TEXT" id="05485" />
+                <token type-id="STRING" id="05486" />
             </sequence>
-            <sequence id="05488">
-                <qualified-identifier id="05489">
+            <sequence id="05487">
+                <qualified-identifier id="05488">
                     <variant>
-                        <alias-ref id="05490" optional="true" type="DATASET" />
-                        <token id="05491" type-id="DT_OID" />
+                        <alias-ref id="05489" optional="true" type="DATASET" />
+                        <token id="05490" type-id="DT_OID" />
                     </variant>
                     <variant>
-                        <alias-ref id="05492" optional="true" type="DATASET" />
-                        <object-ref id="05493" type="COLUMN" />
+                        <alias-ref id="05491" optional="true" type="DATASET" />
+                        <object-ref id="05492" type="COLUMN" />
                     </variant>
                     <variant>
-                        <object-ref id="05494" optional="true" type="SCHEMA" />
-                        <object-ref id="05495" local="true" optional="true" type="DATASET" />
-                        <object-ref id="05496" type="COLUMN" />
+                        <object-ref id="05493" optional="true" type="SCHEMA" />
+                        <object-ref id="05494" local="true" optional="true" type="DATASET" />
+                        <object-ref id="05495" type="COLUMN" />
                     </variant>
                     <variant>
-                        <object-ref id="05497" optional="true" type="SCHEMA" />
-                        <object-ref id="05498" local="true" optional="true" type="DATASET" />
-                        <token id="05499" type-id="CHR_STAR" />
+                        <object-ref id="05496" optional="true" type="SCHEMA" />
+                        <object-ref id="05497" local="true" optional="true" type="DATASET" />
+                        <token id="05498" type-id="CHR_STAR" />
                     </variant>
                     <variant>
-                        <object-ref id="05500" optional="true" type="SCHEMA" />
-                        <object-ref id="05501" local="true" optional="true" type="DATASET" />
-                        <token id="05502" type-id="DT_OID" />
+                        <object-ref id="05499" optional="true" type="SCHEMA" />
+                        <object-ref id="05500" local="true" optional="true" type="DATASET" />
+                        <token id="05501" type-id="DT_OID" />
                     </variant>
                     <variant>
-                        <alias-ref id="05503" optional="true" type="DATASET" />
-                        <alias-ref id="05504" type="COLUMN" />
+                        <alias-ref id="05502" optional="true" type="DATASET" />
+                        <alias-ref id="05503" type="COLUMN" />
                     </variant>
                     <variant>
-                        <alias-ref id="05505" type="DATASET" />
-                        <token id="05506" type-id="CHR_STAR" />
+                        <alias-ref id="05504" type="DATASET" />
+                        <token id="05505" type-id="CHR_STAR" />
                     </variant>
                     <variant>
-                        <alias-ref id="05507" type="DATASET" />
-                        <token id="05508" type-id="DT_OID" />
+                        <alias-ref id="05506" type="DATASET" />
+                        <token id="05507" type-id="DT_OID" />
                     </variant>
                     <variant>
-                        <object-ref id="05509" optional="true" type="SCHEMA" />
-                        <object-ref id="05510" type="FUNCTION" />
+                        <object-ref id="05508" optional="true" type="SCHEMA" />
+                        <object-ref id="05509" type="FUNCTION" />
                     </variant>
                 </qualified-identifier>
-                <wrapper attributes="METHOD_PARAMETER_HANDLER" id="05511" optional="true" template="PARENTHESES">
-                    <iteration id="05512" optional="true" separator="CHR_COMMA">
+                <wrapper attributes="METHOD_PARAMETER_HANDLER" id="05510" optional="true" template="PARENTHESES">
+                    <iteration id="05511" optional="true" separator="CHR_COMMA">
                         <element ref-id="expression" />
                     </iteration>
                 </wrapper>
             </sequence>
-            <sequence id="05513">
-                <token type-id="DT_INTERVAL" id="05514" />
-                <token type-id="STRING" id="05515" />
+            <sequence id="05512">
+                <token type-id="DT_INTERVAL" id="05513" />
+                <token type-id="STRING" id="05514" />
             </sequence>
+            <token type-id="CHR_STAR" id="05515" />
             <element ref-id="number" />
             <token id="05516" original-name="text" type-id="STRING" />
             <token type-id="KW_VALUE" id="05517" />
