@@ -30,7 +30,7 @@ import com.dbn.common.util.Commons;
 import com.dbn.common.util.Sockets;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
-import com.dbn.oci.config.OciConfigFileUtil;
+import com.dbn.oci.config.OciConfigUtil;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -319,7 +319,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
     private List<String> loadOciConfigProfiles() {
         String configFilePath = getConfigFilePath();
-        return OciConfigFileUtil.getConfigProfileNames(configFilePath);
+        return OciConfigUtil.getConfigProfileNames(configFilePath);
     }
 
     private String getConfigFilePath() {

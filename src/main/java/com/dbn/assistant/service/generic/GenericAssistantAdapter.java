@@ -48,6 +48,7 @@ import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.project.Project;
+import dev.langchain4j.model.chat.StreamingChatModel;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.List;
@@ -168,7 +169,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
             AssistantModelInput input = createModelInput(connectionId, context);
             AssistantState state = getAssistantState(connectionId);
 
-            var model = resolveModel(context, input);
+            var model = resolveModel(context, input, true);
             var invoker = resolveModelInvoker(model);
 
             AssistantMemoryId memoryId = AssistantMemoryId.stateful(chatId);
@@ -196,7 +197,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         AssistantModelInput input = createModelInput(connectionId, context);
         if (input == null) return null;
 
-        var model = resolveModel(context, input);
+        var model = resolveModel(context, input, false);
         var invoker = resolveModelInvoker(model);
 
         AtomicReference<String> title = new AtomicReference<>();
@@ -246,12 +247,14 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         return input;
     }
 
-    private static Object resolveModel(ChatContext context, AssistantModelInput input) {
+    private static Object resolveModel(ChatContext context, AssistantModelInput input, boolean allowStreaming) {
         AIProviderId providerId = context.getProviderId();
         AssistantModelFactory modelFactory = AssistantModelFactories.get(providerId);
 
         Class[] modelTypes = AssistantModelInvokers.types();
         for (Class<?> modelType : modelTypes) {
+            if (!allowStreaming && modelType == StreamingChatModel.class) continue;
+
             Object assistantModel = modelFactory.createModel(modelType, input);
             if (assistantModel != null) return assistantModel;
         }
