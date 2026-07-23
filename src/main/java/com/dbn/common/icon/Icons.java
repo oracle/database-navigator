@@ -51,8 +51,11 @@ public class Icons {
     public static final Icon COMMON_WARNING           = load("/img/common/Warning.svg");
     public static final Icon COMMON_SUCCES            = AllIcons.Status.Success;
     public static final Icon COMMON_INFO_INACTIVE     = load("/img/common/InformationInactive.svg");
+    public static final Icon COMMON_INFO_OUTLINE      = AllIcons.General.ShowInfos;
     public static final Icon COMMON_ERROR_INACTIVE    = load("/img/common/ErrorInactive.svg");
+    public static final Icon COMMON_ERROR_OUTLINE     = AllIcons.Ide.FatalErrorRead;
     public static final Icon COMMON_WARNING_INACTIVE  = load("/img/common/WarningInactive.svg");
+    public static final Icon COMMON_WARNING_OUTLINE   = AllIcons.General.ShowWarning;;
     public static final Icon COMMON_CHECK             = AllIcons.General.InspectionsOK;
     public static final Icon COMMON_RIGHT             = load("/img/common/SplitRight.png");
     public static final Icon COMMON_LEFT              = load("/img/common/SplitLeft.png");

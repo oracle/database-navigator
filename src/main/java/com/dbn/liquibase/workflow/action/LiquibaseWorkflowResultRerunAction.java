@@ -50,8 +50,9 @@ public class LiquibaseWorkflowResultRerunAction extends AbstractLiquibaseWorkflo
         if (target == null) return false;
         TaskStatus status = target.getContext().getStatus();
 
-        if(status == TaskStatus.CANCELLED) return true;
-        if(status == TaskStatus.FAILED) return true;
+        if (status == TaskStatus.CANCELLED) return true;
+        if (status == TaskStatus.FAILED) return true;
+        if (status == TaskStatus.SKIPPED) return true;
 
         return status == TaskStatus.DONE && target.getInput().getSupport().supports(RERUN_ON_SUCCESS);
     }

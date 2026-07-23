@@ -24,6 +24,7 @@ public enum TaskStatus {
     RUNNING,
     CANCELLED,
     SKIPPED,
+    BYPASSED,
     FAILED;
 
     public String getName() {

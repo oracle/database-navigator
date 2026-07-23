@@ -473,7 +473,7 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
         return switch (status) {
             case DONE -> Colors.getLabelSuccessForeground();
             case FAILED -> Colors.getLabelErrorForeground();
-            case CANCELLED, SKIPPED -> Colors.getLabelWarningForeground();
+            case CANCELLED, SKIPPED, BYPASSED -> Colors.getLabelWarningForeground();
             default -> UIUtil.getLabelForeground();
         };
     }
@@ -509,7 +509,7 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
         }
 
         MessageType messageType =
-                status == TaskStatus.CANCELLED || status == TaskStatus.SKIPPED ? MessageType.WARNING :
+                status == TaskStatus.CANCELLED || status == TaskStatus.SKIPPED || status == TaskStatus.BYPASSED ? MessageType.WARNING :
                 status == TaskStatus.DONE ? MessageType.SUCCESS : MessageType.ERROR;
         return new TitledMessage(
                 messageType,

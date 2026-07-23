@@ -223,7 +223,7 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
             Icon statusIcon = getStatusIcon(value);
             operationLabel.setForeground(selected
                     ? UIUtil.getListSelectionForeground(focused)
-                    : hasResult(value) ? list.getForeground() : UIUtil.getInactiveTextColor());
+                    : isInactive(value) ? UIUtil.getInactiveTextColor() : list.getForeground());
             operationLabel.setText(value.getName());
             statusLabel.setIcon(statusIcon);
             return this;
@@ -233,21 +233,23 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
             for (LiquibaseOperationResult result : getExecutionResult().getResults()) {
                 if (result.getOperation() != operation) continue;
                 return switch (result.getStatus()) {
+                    case NEW -> Icons.COMMON_EMPTY;
                     case RUNNING -> Icons.COMMON_STATUS_RUNNING;
                     case DONE -> Icons.COMMON_STATUS_SUCCESS;
                     case FAILED -> Icons.COMMON_STATUS_ERROR;
                     case CANCELLED -> Icons.COMMON_WARNING;
-                    case SKIPPED, NEW -> Icons.COMMON_EMPTY;
+                    case SKIPPED -> Icons.COMMON_WARNING_OUTLINE;
+                    case BYPASSED -> Icons.COMMON_EMPTY;
                 };
             }
             return Icons.COMMON_EMPTY;
         }
 
-        private boolean hasResult(@NotNull LiquibaseOperation operation) {
+        private boolean isInactive(@NotNull LiquibaseOperation operation) {
             for (LiquibaseOperationResult result : getExecutionResult().getResults()) {
-                if (result.getOperation() == operation) return true;
+                if (result.getOperation() == operation) return result.getStatus() == TaskStatus.BYPASSED;
             }
-            return false;
+            return true;
         }
     }
 

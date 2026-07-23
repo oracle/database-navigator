@@ -45,8 +45,8 @@ public class LiquibaseWorkflowExecutor {
 
             LiquibaseOperationResult operationResult = executeOperation(index, operations.get(index));
             TaskStatus status = operationResult.getStatus();
-            if (status == TaskStatus.FAILED || status == TaskStatus.CANCELLED) {
-                skipOperations(operations, index + 1, TaskStatus.SKIPPED);
+            if (status != TaskStatus.DONE) {
+                skipOperations(operations, index + 1, TaskStatus.BYPASSED);
                 result.getContext().finish(status);
                 result.notifyChanged();
                 return;
