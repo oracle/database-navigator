@@ -26,7 +26,6 @@ import com.dbn.language.common.element.impl.LeafElementType;
 import com.intellij.util.containers.Stack;
 
 import static com.dbn.language.common.element.util.ElementTypeAttribute.OPTIONAL_WRAPPING;
-import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
 
 public class TokenPairStack extends ParserBuilderExtension {
     private final Stack<TokenPairMarker> markers = new Stack<>();
@@ -57,8 +56,6 @@ public class TokenPairStack extends ParserBuilderExtension {
     }
 
     public boolean acknowledge(LeafElementType leafElement, boolean borrowed) {
-        if (leafElement.is(SURROGATE_LEAD)) return false;
-
         TokenType token = leafElement.tokenType;
         if (token == beginToken) return acknowledgeBegin(leafElement, borrowed);
         if (token == endToken) return acknowledgeEnd(leafElement, borrowed);
@@ -107,6 +104,12 @@ public class TokenPairStack extends ParserBuilderExtension {
         TokenPairMarker marker = markers.peek();
         return marker.explicit;
 
+    }
+
+    public boolean isConsumedOptionalBegin(TokenType tokenType) {
+        if (tokenType != beginToken || markers.isEmpty()) return false;
+
+        return !markers.peek().explicit;
     }
 
     public static class TokenPairMarker {

@@ -92,6 +92,11 @@ public class PasswordFields {
 
         PasswordFieldState state = PASSWORD_FIELD_STATE.get(textComponent);
         if (state != null && !state.modified) {
+            char[] fieldPassword = textComponent.getPassword();
+            if (!isPasswordPlaceholder(fieldPassword, state.defaultPassword)) {
+                return fieldPassword;
+            }
+
             char[] password = state.defaultPassword == null ? defaultPassword : state.defaultPassword;
             if (password == null) return null;
 
@@ -156,6 +161,16 @@ public class PasswordFields {
         }
         placeholderLength = Math.min(placeholderLength, MAX_PLACEHOLDER_LENGTH);
         return String.valueOf(PASSWORD_PLACEHOLDER_CHAR).repeat(placeholderLength);
+    }
+
+    private static boolean isPasswordPlaceholder(char[] password, char[] defaultPassword) {
+        int placeholderLength = Chars.isEmpty(defaultPassword) ? 0 : getPasswordPlaceholder(defaultPassword).length();
+        if (password.length != placeholderLength) return false;
+
+        for (char character : password) {
+            if (character != PASSWORD_PLACEHOLDER_CHAR) return false;
+        }
+        return true;
     }
 
     private static PasswordFieldState getPasswordFieldState(JPasswordField textComponent) {

@@ -34,25 +34,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
-import static com.dbn.language.common.element.parser.TokenMonitor.unwrapSurrogates;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
-import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
-import static java.util.Collections.disjoint;
 
 public abstract class LeafElementType extends ElementTypeBase implements Indexable {
-    public static final Map<LeafElementType, Map<ElementTypeBase, Boolean>> surrogateForFlags = new ConcurrentHashMap<>();
-
     public TokenType tokenType;
 
     public boolean optional;
     private final int idx;
-
-    public Set<LeafElementType> surrogateFor;
-    public Set<LeafElementType> surrogatedBy;
 
     LeafElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
@@ -64,22 +54,6 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
         super(bundle, parent, id);
         idx = bundle.nextIndex();
         bundle.registerElement(this);
-    }
-
-    public boolean isSurrogateFor(ElementTypeBase elementType) {
-        if (surrogateFor == null) return false;
-
-        if (elementType instanceof LeafElementType leafElementType && !leafElementType.is(SURROGATE_LEAD)) {
-            return surrogateFor.contains(leafElementType);
-        }
-
-        var flags = surrogateForFlags.computeIfAbsent(this, e -> new ConcurrentHashMap<>());
-        return flags.computeIfAbsent(elementType, e -> evaluateSurrogateFor(e));
-    }
-
-    private boolean evaluateSurrogateFor(ElementTypeBase elementType) {
-        Set<LeafElementType> firstPossibleLeafs = unwrapSurrogates(elementType.cache.getFirstPossibleLeafs());
-        return !disjoint(surrogateFor, firstPossibleLeafs);
     }
 
     @Override

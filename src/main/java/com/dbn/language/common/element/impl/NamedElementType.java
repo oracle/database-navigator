@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static com.dbn.common.util.Strings.cachedUpperCase;
@@ -39,13 +39,12 @@ import static com.dbn.common.util.Strings.cachedUpperCase;
 @Getter
 @Slf4j
 public final class NamedElementType extends SequenceElementType {
-    public final Set<ElementTypeBase> parents;
+    public final Set<ElementTypeBase> parents = new LinkedHashSet<>();
     private boolean definitionLoaded;
     private boolean truncateOnExecution;
 
     public NamedElementType(ElementTypeBundle bundle, String id) {
         super(bundle, null, id);
-        parents = new HashSet<>();
     }
 
     @Override

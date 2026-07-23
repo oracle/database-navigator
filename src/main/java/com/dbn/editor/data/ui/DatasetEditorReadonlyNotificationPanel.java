@@ -18,7 +18,6 @@ package com.dbn.editor.data.ui;
 
 import com.dbn.common.environment.EnvironmentManager;
 import com.dbn.common.message.MessageType;
-import com.dbn.common.util.Messages;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.options.ConfigId;
@@ -27,7 +26,9 @@ import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.OPTIONS_YES_CANCEL;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorReadonlyNotificationPanel extends DatasetEditorNotificationPanel{
@@ -39,11 +40,11 @@ public class DatasetEditorReadonlyNotificationPanel extends DatasetEditorNotific
         if (isReadonly(object)) {
             setText(txt("ntf.dataEditor.text.ReadonlyData", environmentName));
             createActionLabel(txt("app.dataEditor.link.EditMode"),
-                    () -> Messages.showQuestionDialog(project,
+                    () -> showQuestionDialog(project,
                             txt("msg.dataEditor.title.EnableEditMode"),
                             txt("msg.dataEditor.question.EnableEditMode", object.getQualifiedNameWithType()),
-                            Messages.OPTIONS_YES_CANCEL, 0,
-                            option -> when(option == 0, () -> {
+                            OPTIONS_YES_CANCEL, 0,
+                            whenOk(() -> {
                                 EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
                                 environmentManager.enableEditing(object, DBContentType.DATA);
                             })));

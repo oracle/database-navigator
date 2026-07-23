@@ -11,5 +11,6 @@
 /modules/dbn-spi/build/
 /modules/dbn-api/.gradle/
 /modules/dbn-spi/.gradle/
+/modules/dbn-dev/language-builder.properties
 /mcp-dist/
 /.intellijPlatform/

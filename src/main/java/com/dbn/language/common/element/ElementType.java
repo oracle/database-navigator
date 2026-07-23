@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NonNls;
 import javax.swing.Icon;
 import java.util.Set;
 
-public interface ElementType extends PropertyHolder<ElementTypeAttribute>{
+public interface ElementType extends PropertyHolder<ElementTypeAttribute>, Comparable<ElementType> {
 
     @NonNls
     String getId();
@@ -76,4 +76,10 @@ public interface ElementType extends PropertyHolder<ElementTypeAttribute>{
     TokenType getTokenType();
 
     default void collectAnonymousLeafs(Set<LeafElementType> leafElementTypes) {};
+
+    @Override
+    default int compareTo(ElementType elementType) {
+        return getId().compareTo(elementType.getId());
+    }
+
 }

@@ -77,6 +77,8 @@
             <include name="plugins/maven/lib/*.jar"/>
             <include name="plugins/maven-model/lib/*.jar"/>
             <include name="plugins/maven-server/lib/*.jar"/>
+            <include name="plugins/uml/lib/*.jar"/>
+            <include name="plugins/copyright/lib/*.jar"/>
         </fileset>
     </path>
     <path id="classpath.project">

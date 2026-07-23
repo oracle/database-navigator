@@ -18,6 +18,7 @@ package com.dbn.language.common.element.parser.impl;
 
 import com.dbn.language.common.ParseException;
 import com.dbn.language.common.SharedTokenTypeBundle;
+import com.dbn.language.common.TokenChain;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.cache.QualifiedIdentifierElementCache;
 import com.dbn.language.common.element.impl.LeafElementType;
@@ -30,11 +31,6 @@ import com.dbn.language.common.element.parser.ParserBuilder;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
 import com.dbn.language.common.element.util.ParseBuilderErrorHandler;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
@@ -55,7 +51,7 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
 
         QualifiedIdentifierVariant variant = getMostProbableParseVariant(builder);
         if (variant != null) {
-            LeafElementType[] elementTypes = variant.getLeafs();
+            LeafElementType[] elementTypes = variant.leafs;
 
             for (LeafElementType elementType : elementTypes) {
                 ParseResult result = elementType.parser.parse(node, context);
@@ -73,9 +69,8 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
             }
 
             if (node.matchedTokens > 0) {
-                if (variant.isIncomplete()) {
-                    Set<TokenType> expected = Collections.singleton(separatorToken.tokenType);
-                    ParseBuilderErrorHandler.updateBuilderError(expected, context);
+                if (variant.incomplete) {
+                    ParseBuilderErrorHandler.updateBuilderError(separatorToken.tokenType.asSet(), context);
                     return stepOut(node, context, PARTIAL_MATCH);
                 } else {
                     return stepOut(node, context, FULL_MATCH);
@@ -87,20 +82,20 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
     }
 
     private QualifiedIdentifierVariant getMostProbableParseVariant(ParserBuilder builder) {
-        List<TokenType> chain = readTokenChain(builder);
+        TokenChain chain = readTokenChain(builder);
         return ((QualifiedIdentifierElementCache) elementType.cache).getMostProbableParseVariant(chain);
     }
 
-    private List<TokenType> readTokenChain(ParserBuilder builder) {
+    private TokenChain readTokenChain(ParserBuilder builder) {
         TokenType separatorToken = elementType.separatorToken.tokenType;
         SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
         TokenType identifier = sharedTokenTypes.identifier;
 
-        List<TokenType> chain = new ArrayList<>(3); //
+        TokenChain chain = new TokenChain();
         int offset = 0;
         boolean wasSeparator = true;
         TokenType tokenType = builder.lookAhead(offset);
-        while (tokenType != null) {
+        while (tokenType != null && chain.size < 4) {
             if (tokenType == separatorToken) {
                 if (wasSeparator) chain.add(identifier);
                 wasSeparator = true;
@@ -116,8 +111,8 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
             }
             offset++;
             tokenType = builder.lookAhead(offset);
-            if (tokenType == null && wasSeparator) chain.add(identifier);
+            if (tokenType == null && wasSeparator && chain.size < 4) chain.add(identifier);
         }
-        return chain;
+        return chain.finish();
     }
 }

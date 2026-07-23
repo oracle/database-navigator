@@ -18,6 +18,11 @@ package com.dbn.language.common.element.parser;
 
 public class ParseResult{
     public static final ParseResult NO_MATCH_RESULT = new ParseResult(ParseResultType.NO_MATCH, 0);
+    private static final ParseResult FULL_MATCH_0 = new ParseResult(ParseResultType.FULL_MATCH, 0);
+    private static final ParseResult FULL_MATCH_1 = new ParseResult(ParseResultType.FULL_MATCH, 1);
+    private static final ParseResult BORROWED_MATCH_0 = new ParseResult(ParseResultType.BORROWED_MATCH, 0);
+    private static final ParseResult BORROWED_MATCH_1 = new ParseResult(ParseResultType.BORROWED_MATCH, 1);
+    private static final ParseResult PARTIAL_MATCH_0 = new ParseResult(ParseResultType.PARTIAL_MATCH, 0);
 
     public final ParseResultType type;
     public final int matchedTokens;
@@ -28,6 +33,22 @@ public class ParseResult{
     }
 
     public static ParseResult match(ParseResultType type, int matchedTokens) {
+        if (matchedTokens == 0) {
+            return switch (type) {
+                case NO_MATCH -> NO_MATCH_RESULT;
+                case FULL_MATCH -> FULL_MATCH_0;
+                case BORROWED_MATCH -> BORROWED_MATCH_0;
+                case PARTIAL_MATCH -> PARTIAL_MATCH_0;
+            };
+        }
+        if (matchedTokens == 1) {
+            return switch (type) {
+                case NO_MATCH -> NO_MATCH_RESULT;
+                case FULL_MATCH -> FULL_MATCH_1;
+                case BORROWED_MATCH -> BORROWED_MATCH_1;
+                default -> new ParseResult(type, matchedTokens);
+            };
+        }
         return new ParseResult(type, matchedTokens);
     }
 

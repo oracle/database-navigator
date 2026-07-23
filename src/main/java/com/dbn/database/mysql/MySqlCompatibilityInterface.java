@@ -28,8 +28,11 @@ import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
+import com.dbn.object.DBConstraint;
+import com.dbn.object.common.DBObject;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -43,11 +46,13 @@ import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
 import static com.dbn.database.DatabaseFeature.CURRENT_SCHEMA;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
 import static com.dbn.database.DatabaseFeature.OBJECT_DDL_EXTRACTION;
+import static com.dbn.database.DatabaseFeature.OBJECT_DISABLING;
 import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
 import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
 import static com.dbn.database.DatabaseFeature.SESSION_BROWSING;
 import static com.dbn.database.DatabaseFeature.SESSION_KILL;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
+import static com.dbn.object.type.DBConstraintType.CHECK;
 
 @NonNls
 public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
@@ -55,6 +60,13 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
 
     private interface Property {
         String DISCONNECT_ON_EXPIRED_PASSWORDS = "disconnectOnExpiredPasswords";
+    }
+
+    @Override
+    public void initializeTransactionIsolation(@NotNull Connection connection) throws SQLException {
+        if (connection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
+            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        }
     }
 
     @Override
@@ -92,6 +104,7 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
                 SESSION_BROWSING,
                 SESSION_KILL,
                 OBJECT_CHANGE_MONITORING,
+                OBJECT_DISABLING,
                 OBJECT_SOURCE_EDITING,
                 OBJECT_DDL_EXTRACTION,
                 UPDATABLE_RESULT_SETS,
@@ -100,6 +113,14 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
                 CHANGE_EXPIRED_PASSWORD,
                 CONSTRAINT_MANIPULATION,
                 READONLY_CONNECTIVITY);
+    }
+
+    @Override
+    public boolean supportsFeature(DatabaseFeature feature, DBObject object) {
+        if (feature == OBJECT_DISABLING) {
+            return object instanceof DBConstraint constraint && constraint.getConstraintType() == CHECK;
+        }
+        return super.supportsFeature(feature, object);
     }
 
     @Override
@@ -151,12 +172,14 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
     }
 
     @Override
-    public void initConnectorPasswordChange(@NotNull ConnectorProperties properties, @NotNull char[] newPassword) {
+    public void initConnectorPasswordChange(@NotNull ConnectorProperties properties, @Nullable char[] newPassword) {
+        if (newPassword == null) return;
         properties.add(Property.DISCONNECT_ON_EXPIRED_PASSWORDS, "false");
     }
 
     @Override
-    public void completeConnectorPasswordChange(@NotNull Connection connection, @NotNull char[] newPassword) throws SQLException {
+    public void completeConnectorPasswordChange(@NotNull Connection connection, @Nullable char[] newPassword) throws SQLException {
+        if (newPassword == null) return;
         try (PreparedStatement statement = connection.prepareStatement("SET PASSWORD = ?")) {
             statement.setString(1, Chars.toStringAcceptEmpty(newPassword));
             statement.execute();
@@ -175,5 +198,10 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
         properties.add("useSSL", "true");
         properties.add("requireSSL", "true");
         properties.add("verifyServerCertificate", "true");
+    }
+
+    @Override
+    public String getLiquibaseCatalogName(@NotNull String schemaName) {
+        return schemaName;
     }
 }

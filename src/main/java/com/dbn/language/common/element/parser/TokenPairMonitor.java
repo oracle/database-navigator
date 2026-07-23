@@ -76,6 +76,13 @@ public class TokenPairMonitor extends ParserBuilderExtension {
         return false;
     }
 
+    @Nullable
+    public TokenType getConsumedOptionalBegin() {
+        TokenType token = builder.getPreviousToken();
+        TokenPairStack stack = getStack(token);
+        return stack != null && stack.isConsumedOptionalBegin(token) ? token : null;
+    }
+
     protected void consumeBeginTokens(ElementTypeBase element) {
         WrappingDefinition wrapping = element.wrapping;
         if (wrapping == null) return;

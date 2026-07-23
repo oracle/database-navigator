@@ -29,7 +29,6 @@ import com.dbn.common.project.Projects;
 import com.dbn.common.state.StateContainer;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Dialogs.DialogCallback;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionBundleSettings;
@@ -61,7 +60,10 @@ import static com.dbn.common.action.UserDataKeys.setUserData;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.options.setting.Settings.newStateElement;
-import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
+import static com.dbn.common.util.Messages.showInfoDialog;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.nls.NlsResources.txt;
 
 @State(
@@ -204,11 +206,11 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
 
     public void exportToDefaultSettings() {
         Project project = getProject();
-        Messages.showQuestionDialog(
+        showQuestionDialog(
                 project, txt("msg.settings.title.DefaultProjectSettings"),
                 txt("msg.settings.message.DefaultProjectSettingsOverride"),
-                Messages.OPTIONS_YES_NO, 0,
-                option -> when(option == 0, () -> {
+                OPTIONS_YES_NO, 0,
+                whenOk(() -> {
                     try {
                         Element element = newStateElement();
                         getProjectSettings().writeConfiguration(element);
@@ -216,7 +218,7 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
                         ConnectionBundleSettings.IS_IMPORT_EXPORT_ACTION.set(true);
                         ProjectSettings defaultProjectSettings = ProjectSettings.getDefault();
                         defaultProjectSettings.readConfiguration(element);
-                        Messages.showInfoDialog(project, 
+                        showInfoDialog(project,
                                 txt("msg.settings.title.ProjectSettings"),
                                 txt("msg.settings.message.ProjectSettingsExported"));
                     } finally {
@@ -231,13 +233,13 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
 
         Project project = getProject();
         String projectName = project.getName();
-        Messages.showQuestionDialog(
+        showQuestionDialog(
                 project, txt("msg.settings.title.DefaultProjectSettings"),
                 newProject ?
                         txt("msg.settings.message.ImportDefaultProjectSettings", projectName) :
                         txt("msg.settings.message.ImportDefaultProjectSettingsOverride", projectName),
-                Messages.OPTIONS_YES_NO, 0,
-                option -> when(option == 0, () -> {
+                OPTIONS_YES_NO, 0,
+                whenOk(() -> {
                     try {
                         Element element = newStateElement();
                         ProjectSettings defaultProjectSettings = ProjectSettings.getDefault();
@@ -251,7 +253,7 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
                                 (listener) -> listener.connectionsChanged());
 
                         if (!newProject) {
-                            Messages.showInfoDialog(project,
+                            showInfoDialog(project,
                                     txt("msg.settings.title.ProjectSettings"),
                                     txt("msg.settings.message.DefaultProjectSettingsLoaded", projectName));
                         }

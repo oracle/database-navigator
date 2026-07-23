@@ -233,6 +233,11 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
+    public SchemaId getSchemaId() {
+        return SchemaId.get(getName());
+    }
+
+    @Override
     public @Nullable Icon getIcon() {
         return isSystemSchema() ? Icons.DBO_SCHEMA_DISABLED : Icons.DBO_SCHEMA;
     }

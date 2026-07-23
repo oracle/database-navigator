@@ -24,9 +24,9 @@ import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.util.TimeUtil.Millis.ONE_HOUR;
 import static com.dbn.common.util.TimeUtil.Millis.ONE_MINUTE;
-import static com.dbn.common.util.TimeUtil.Millis.ONE_SECOND;
 import static com.dbn.nls.NlsResources.txt;
 import static java.lang.System.currentTimeMillis;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @UtilityClass
 public class TimeUtil {
@@ -68,7 +68,7 @@ public class TimeUtil {
     }
 
     public static long secondsSince(long start) {
-        return TimeUnit.MILLISECONDS.toSeconds(millisSince(start));
+        return MILLISECONDS.toSeconds(millisSince(start));
     }
 
     public static @Nls String presentableDuration(Duration duration, boolean compact) {
@@ -76,33 +76,26 @@ public class TimeUtil {
     }
 
     public static @Nls String presentableDuration(long millis, boolean compact) {
-        long hours = TimeUnit.MILLISECONDS.toHours(millis);
+        long hours = MILLISECONDS.toHours(millis);
         if (hours > 0) {
-            long minutes = TimeUnit.MILLISECONDS.toMinutes(millis - (hours * ONE_HOUR));
+            long minutes = MILLISECONDS.toMinutes(millis - (hours * ONE_HOUR));
             String hoursDuration = presentableDuration(hours, DurationUnit.HOUR, compact);
             return minutes > 0 ?
                     composeDuration(hoursDuration, presentableDuration(minutes, DurationUnit.MINUTE, compact), compact) :
                     hoursDuration;
         }
 
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+        long minutes = MILLISECONDS.toMinutes(millis);
         if (minutes > 0) {
-            long seconds = TimeUnit.MILLISECONDS.toSeconds(millis - (minutes * ONE_MINUTE));
+            long seconds = MILLISECONDS.toSeconds(millis - (minutes * ONE_MINUTE));
             String minutesDuration = presentableDuration(minutes, DurationUnit.MINUTE, compact);
             return seconds > 0 ?
                     composeDuration(minutesDuration, presentableDuration(seconds, DurationUnit.SECOND, compact), compact) :
                     minutesDuration;
         }
 
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
-        if (seconds > 5) {
-            long milliseconds = millis - (seconds * ONE_SECOND);
-            String secondsDuration = presentableDuration(seconds, DurationUnit.SECOND, compact);
-            return milliseconds > 0 ?
-                    composeDuration(secondsDuration, presentableDuration(milliseconds, DurationUnit.MILLISECOND, compact), compact) :
-                    secondsDuration;
-        }
-
+        long seconds = MILLISECONDS.toSeconds(millis);
+        if (seconds > 0) return presentableDuration(seconds, DurationUnit.SECOND, compact);
 
         return txt("app.shared.unit.Duration_MILLISECOND", millis);
     }

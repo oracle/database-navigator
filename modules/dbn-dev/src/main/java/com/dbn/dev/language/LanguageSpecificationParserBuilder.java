@@ -16,86 +16,53 @@
 
 package com.dbn.dev.language;
 
-import com.dbn.connection.DatabaseType;
-import com.dbn.language.common.DBLanguage;
-import com.dbn.language.common.DBLanguageDialect;
-import com.dbn.language.common.DBLanguageDialectIdentifier;
-import com.dbn.language.common.DBLanguageParser;
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.psql.PSQLLanguage;
-import com.dbn.language.psql.dialect.PSQLLanguageDialect;
-import com.dbn.language.psql.dialect.oracle.OraclePLSQLParser;
-import com.dbn.language.sql.SQLLanguage;
-import com.dbn.language.sql.dialect.SQLLanguageDialect;
-import com.dbn.language.sql.dialect.mysql.MysqlSQLParser;
-import com.dbn.language.sql.dialect.oracle.OracleSQLParser;
-import com.dbn.language.sql.dialect.postgres.PostgresSQLParser;
-import com.dbn.language.sql.dialect.sqlite.SqliteSQLParser;
 import lombok.SneakyThrows;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-import static com.dbn.connection.DatabaseType.MYSQL;
-import static com.dbn.connection.DatabaseType.ORACLE;
-import static com.dbn.connection.DatabaseType.POSTGRES;
-import static com.dbn.connection.DatabaseType.SQLITE;
-import static com.dbn.language.common.DBLanguageDialectIdentifier.MYSQL_SQL;
-import static com.dbn.language.common.DBLanguageDialectIdentifier.ORACLE_PLSQL;
-import static com.dbn.language.common.DBLanguageDialectIdentifier.ORACLE_SQL;
-import static com.dbn.language.common.DBLanguageDialectIdentifier.POSTGRES_SQL;
-import static com.dbn.language.common.DBLanguageDialectIdentifier.SQLITE_SQL;
-import static java.util.Map.of;
+import static com.dbn.dev.language.LanguageSpecificationXmlUtil.outputString;
 
-public class LanguageSpecificationParserBuilder {
+public class LanguageSpecificationParserBuilder implements LanguageSpecificationArtifactBuilder {
     private final LanguageSpecificationBuilderInput input;
-
-    private static final Map<DatabaseType, Map<DBLanguage, Class<? extends DBLanguageParser>>> PARSERS = new HashMap<>();
-    private static final Map<DatabaseType, Map<DBLanguage, DBLanguageDialectIdentifier>> DIALECTS = new HashMap<>();
-    static {
-        SQLLanguage sql = SQLLanguage.INSTANCE;
-        PSQLLanguage psql = PSQLLanguage.INSTANCE;
-
-        PARSERS.put(ORACLE, of(
-                sql, OracleSQLParser.class,
-                psql, OraclePLSQLParser.class));
-
-        PARSERS.put(MYSQL, of(sql, MysqlSQLParser.class));
-        PARSERS.put(POSTGRES, of(sql, PostgresSQLParser.class));
-        PARSERS.put(SQLITE, of(sql, SqliteSQLParser.class));
-
-        DIALECTS.put(ORACLE, of(
-                sql, ORACLE_SQL,
-                psql, ORACLE_PLSQL));
-
-        DIALECTS.put(MYSQL, of(sql, MYSQL_SQL));
-        DIALECTS.put(POSTGRES, of(sql, POSTGRES_SQL));
-        DIALECTS.put(SQLITE, of(sql, SQLITE_SQL));
-    }
 
     public LanguageSpecificationParserBuilder(LanguageSpecificationBuilderInput input) {
         this.input = input;
     }
 
     @SneakyThrows
+    @Override
     public void build() {
-        var parsers = PARSERS.get(input.database);
-        var parser = parsers.get(input.language);
-
-        var dialects = DIALECTS.get(input.database);
-        var dialect = dialects.get(input.language);
-
-        ElementTypeBundle.Builder.rebuilding = true;
-        DBLanguageDialect languageDialect = input.language.getLanguageDialect(dialect);
-        var constructor = parser.getConstructor(getDialectClass());
-        DBLanguageParser languageParser = constructor.newInstance(languageDialect);
-        ElementTypeBundle elementTypes = languageParser.getElementTypes();
-        // TODO write element-type-definition if marked dirty
+        BuildSession session = new BuildSession();
+        new LanguageSpecificationParserBundleLoader(input).load(builder -> writeElementTypeDefinition(session, builder));
     }
 
-    private Class<? extends DBLanguageDialect> getDialectClass() {
-        if (input.language == SQLLanguage.INSTANCE) return SQLLanguageDialect.class;
-        if (input.language == PSQLLanguage.INSTANCE) return PSQLLanguageDialect.class;
-        return null;
+    @SneakyThrows
+    private File getParserElementsFile(BuildSession session) {
+        File file = input.getParserElementsFile();
+        if (!file.exists()) {
+            throw new IllegalArgumentException("Parser elements definition does not exist: " + file.getAbsolutePath());
+        }
+        return file;
+    }
+
+    @SneakyThrows
+    private void writeElementTypeDefinition(BuildSession session, ElementTypeBundle.Builder builder) {
+        if (!builder.isDirty()) {
+            System.out.println("Parser elements definition is up to date");
+            return;
+        }
+
+        File file = getParserElementsFile(session);
+        Path filePath = file.toPath();
+
+        System.out.println("Writing " + filePath);
+        Files.writeString(filePath, outputString(builder.getDefinitionDocument()), StandardCharsets.UTF_8);
+    }
+
+    private static class BuildSession {
     }
 }
