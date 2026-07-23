@@ -1412,13 +1412,16 @@
                     <element ref-id="expr" />
                     <token type-id="CHR_STAR" id="00690" />
                 </one-of>
-                <iteration optional="true" separator="CHR_COMMA" id="00691">
-                    <element ref-id="expr" />
+                <iteration optional="true" id="00691">
+                    <sequence id="00692">
+                        <token type-id="CHR_COMMA" id="00693" />
+                        <element ref-id="expr" />
+                    </sequence>
                 </iteration>
-                <sequence optional="true" id="00692">
-                    <token type-id="KW_ORDER" id="00693" />
-                    <token type-id="KW_BY" id="00694" />
-                    <iteration separator="CHR_COMMA" id="00695">
+                <sequence optional="true" id="00694">
+                    <token type-id="KW_ORDER" id="00695" />
+                    <token type-id="KW_BY" id="00696" />
+                    <iteration separator="CHR_COMMA" id="00697">
                         <element ref-id="ordering_term" />
                     </iteration>
                 </sequence>
@@ -1428,110 +1431,110 @@
         <element optional="true" ref-id="over_clause" />
     </element-def>
     <element-def attributes="CLAUSE" description="FILTER clause" id="filter_clause">
-        <token type-id="KW_FILTER" id="00696" />
-        <wrapper template="PARENTHESES" id="00697">
-            <sequence id="00698">
-                <token type-id="KW_WHERE" id="00699" />
+        <token type-id="KW_FILTER" id="00698" />
+        <wrapper template="PARENTHESES" id="00699">
+            <sequence id="00700">
+                <token type-id="KW_WHERE" id="00701" />
                 <element ref-id="expr" />
             </sequence>
         </wrapper>
     </element-def>
     <element-def description="Core function expression" id="core_function_expression">
-        <sequence id="00700">
-            <one-of id="00701">
-                <token id="00702" type-id="FN_ABS" />
-                <token id="00703" type-id="FN_CHANGES" />
-                <token id="00704" type-id="FN_CHAR" />
-                <token id="00705" type-id="FN_COALESCE" />
-                <token type-id="FN_CONCAT" id="00706" />
-                <token type-id="FN_CONCAT_WS" id="00707" />
-                <token type-id="FN_FORMAT" id="00708" />
-                <token id="00709" type-id="FN_HEX" />
-                <token id="00710" type-id="FN_IFNULL" />
-                <token id="00711" type-id="FN_INSTR" />
-                <token type-id="FN_IIF" id="00712" />
-                <token id="00713" type-id="FN_LAST_INSERT_ROWID" />
-                <token id="00714" type-id="FN_LENGTH" />
-                <token id="00715" type-id="FN_LIKELIHOOD" />
-                <token id="00716" type-id="FN_LIKELY" />
-                <token id="00717" type-id="FN_LOAD_EXTENSION" />
-                <token id="00718" type-id="FN_LOWER" />
-                <token id="00719" type-id="FN_LTRIM" />
-                <token type-id="FN_OCTET_LENGTH" id="00720" />
-                <token id="00721" type-id="FN_NULLIF" />
-                <token flavor="function" type-id="KW_GLOB" id="00722" />
-                <token flavor="function" type-id="KW_IF" id="00723" />
-                <token flavor="function" type-id="KW_LIKE" id="00724" />
-                <token id="00725" type-id="FN_PRINTF" />
-                <token id="00726" type-id="FN_QUOTE" />
-                <token id="00727" type-id="FN_RANDOM" />
-                <token id="00728" type-id="FN_RANDOMBLOB" />
-                <token id="00729" type-id="FN_ROUND" />
-                <token id="00730" type-id="FN_RTRIM" />
-                <token type-id="FN_SIGN" id="00731" />
-                <token id="00732" type-id="FN_SOUNDEX" />
-                <token flavor="function" type-id="KW_REPLACE" id="00733" />
-                <token id="00734" type-id="FN_SQLITE_COMPILEOPTION_GET" />
-                <token id="00735" type-id="FN_SQLITE_COMPILEOPTION_USED" />
-                <token type-id="FN_SQLITE_OFFSET" id="00736" />
-                <token id="00737" type-id="FN_SQLITE_SOURCE_ID" />
-                <token id="00738" type-id="FN_SQLITE_VERSION" />
-                <token id="00739" type-id="FN_SUBSTR" />
-                <token type-id="FN_SUBSTRING" id="00740" />
-                <token id="00741" type-id="FN_TOTAL_CHANGES" />
-                <token id="00742" type-id="FN_TRIM" />
-                <token id="00743" type-id="FN_TYPEOF" />
-                <token id="00744" type-id="FN_UNLIKELY" />
-                <token id="00745" type-id="FN_UNICODE" />
-                <token id="00746" type-id="FN_UPPER" />
-                <token id="00747" type-id="FN_ZEROBLOB" />
-                <token type-id="FN_UNHEX" id="00748" />
-                <token type-id="FN_UNISTR" id="00749" />
-                <token type-id="FN_UNISTR_QUOTE" id="00750" />
+        <sequence id="00702">
+            <one-of id="00703">
+                <token id="00704" type-id="FN_ABS" />
+                <token id="00705" type-id="FN_CHANGES" />
+                <token id="00706" type-id="FN_CHAR" />
+                <token id="00707" type-id="FN_COALESCE" />
+                <token type-id="FN_CONCAT" id="00708" />
+                <token type-id="FN_CONCAT_WS" id="00709" />
+                <token type-id="FN_FORMAT" id="00710" />
+                <token id="00711" type-id="FN_HEX" />
+                <token id="00712" type-id="FN_IFNULL" />
+                <token id="00713" type-id="FN_INSTR" />
+                <token type-id="FN_IIF" id="00714" />
+                <token id="00715" type-id="FN_LAST_INSERT_ROWID" />
+                <token id="00716" type-id="FN_LENGTH" />
+                <token id="00717" type-id="FN_LIKELIHOOD" />
+                <token id="00718" type-id="FN_LIKELY" />
+                <token id="00719" type-id="FN_LOAD_EXTENSION" />
+                <token id="00720" type-id="FN_LOWER" />
+                <token id="00721" type-id="FN_LTRIM" />
+                <token type-id="FN_OCTET_LENGTH" id="00722" />
+                <token id="00723" type-id="FN_NULLIF" />
+                <token flavor="function" type-id="KW_GLOB" id="00724" />
+                <token flavor="function" type-id="KW_IF" id="00725" />
+                <token flavor="function" type-id="KW_LIKE" id="00726" />
+                <token id="00727" type-id="FN_PRINTF" />
+                <token id="00728" type-id="FN_QUOTE" />
+                <token id="00729" type-id="FN_RANDOM" />
+                <token id="00730" type-id="FN_RANDOMBLOB" />
+                <token id="00731" type-id="FN_ROUND" />
+                <token id="00732" type-id="FN_RTRIM" />
+                <token type-id="FN_SIGN" id="00733" />
+                <token id="00734" type-id="FN_SOUNDEX" />
+                <token flavor="function" type-id="KW_REPLACE" id="00735" />
+                <token id="00736" type-id="FN_SQLITE_COMPILEOPTION_GET" />
+                <token id="00737" type-id="FN_SQLITE_COMPILEOPTION_USED" />
+                <token type-id="FN_SQLITE_OFFSET" id="00738" />
+                <token id="00739" type-id="FN_SQLITE_SOURCE_ID" />
+                <token id="00740" type-id="FN_SQLITE_VERSION" />
+                <token id="00741" type-id="FN_SUBSTR" />
+                <token type-id="FN_SUBSTRING" id="00742" />
+                <token id="00743" type-id="FN_TOTAL_CHANGES" />
+                <token id="00744" type-id="FN_TRIM" />
+                <token id="00745" type-id="FN_TYPEOF" />
+                <token id="00746" type-id="FN_UNLIKELY" />
+                <token id="00747" type-id="FN_UNICODE" />
+                <token id="00748" type-id="FN_UPPER" />
+                <token id="00749" type-id="FN_ZEROBLOB" />
+                <token type-id="FN_UNHEX" id="00750" />
+                <token type-id="FN_UNISTR" id="00751" />
+                <token type-id="FN_UNISTR_QUOTE" id="00752" />
             </one-of>
             <element ref-id="wrapped_expression_list" />
         </sequence>
     </element-def>
 
     <element-def description="Window function expression" id="window_function_expression">
-        <one-of id="00751">
-            <token type-id="FN_CUME_DIST" id="00752" />
-            <token type-id="FN_DENSE_RANK" id="00753" />
-            <token type-id="FN_FIRST_VALUE" id="00754" />
-            <token type-id="FN_LAG" id="00755" />
-            <token type-id="FN_LAST_VALUE" id="00756" />
-            <token type-id="FN_LEAD" id="00757" />
-            <token type-id="FN_NTH_VALUE" id="00758" />
-            <token type-id="FN_NTILE" id="00759" />
-            <token type-id="FN_PERCENT_RANK" id="00760" />
-            <token type-id="FN_RANK" id="00761" />
-            <token type-id="FN_ROW_NUMBER" id="00762" />
+        <one-of id="00753">
+            <token type-id="FN_CUME_DIST" id="00754" />
+            <token type-id="FN_DENSE_RANK" id="00755" />
+            <token type-id="FN_FIRST_VALUE" id="00756" />
+            <token type-id="FN_LAG" id="00757" />
+            <token type-id="FN_LAST_VALUE" id="00758" />
+            <token type-id="FN_LEAD" id="00759" />
+            <token type-id="FN_NTH_VALUE" id="00760" />
+            <token type-id="FN_NTILE" id="00761" />
+            <token type-id="FN_PERCENT_RANK" id="00762" />
+            <token type-id="FN_RANK" id="00763" />
+            <token type-id="FN_ROW_NUMBER" id="00764" />
         </one-of>
         <element ref-id="wrapped_expression_list" />
         <element ref-id="over_clause" />
     </element-def>
 
     <element-def description="OVER clause" id="over_clause">
-        <token type-id="KW_OVER" id="00763" />
-        <one-of id="00764">
-            <token type-id="IDENTIFIER" id="00765" />
+        <token type-id="KW_OVER" id="00765" />
+        <one-of id="00766">
+            <token type-id="IDENTIFIER" id="00767" />
             <element ref-id="window_definition" />
         </one-of>
     </element-def>
 
     <element-def description="Window definition" id="window_definition">
-        <wrapper template="PARENTHESES" id="00766">
-            <sequence id="00767">
-                <token optional="true" type-id="IDENTIFIER" original-name="base-window-name" id="00768" />
-                <sequence optional="true" id="00769">
-                    <token type-id="KW_PARTITION" id="00770" />
-                    <token type-id="KW_BY" id="00771" />
+        <wrapper template="PARENTHESES" id="00768">
+            <sequence id="00769">
+                <token optional="true" type-id="IDENTIFIER" original-name="base-window-name" id="00770" />
+                <sequence optional="true" id="00771">
+                    <token type-id="KW_PARTITION" id="00772" />
+                    <token type-id="KW_BY" id="00773" />
                     <element ref-id="expression_list" />
                 </sequence>
-                <sequence optional="true" id="00772">
-                    <token type-id="KW_ORDER" id="00773" />
-                    <token type-id="KW_BY" id="00774" />
-                    <iteration separator="CHR_COMMA" id="00775">
+                <sequence optional="true" id="00774">
+                    <token type-id="KW_ORDER" id="00775" />
+                    <token type-id="KW_BY" id="00776" />
+                    <iteration separator="CHR_COMMA" id="00777">
                         <element ref-id="ordering_term" />
                     </iteration>
                 </sequence>
@@ -1541,182 +1544,182 @@
     </element-def>
 
     <element-def description="Frame specification" id="frame_spec">
-        <one-of id="00776">
-            <token type-id="KW_ROWS" id="00777" />
-            <token type-id="KW_RANGE" id="00778" />
-            <token type-id="KW_GROUPS" id="00779" />
+        <one-of id="00778">
+            <token type-id="KW_ROWS" id="00779" />
+            <token type-id="KW_RANGE" id="00780" />
+            <token type-id="KW_GROUPS" id="00781" />
         </one-of>
-        <one-of id="00780">
-            <sequence id="00781">
-                <token type-id="KW_BETWEEN" id="00782" />
+        <one-of id="00782">
+            <sequence id="00783">
+                <token type-id="KW_BETWEEN" id="00784" />
                 <element ref-id="frame_boundary" />
-                <token type-id="KW_AND" id="00783" />
+                <token type-id="KW_AND" id="00785" />
                 <element ref-id="frame_boundary" />
             </sequence>
             <element ref-id="frame_boundary" />
         </one-of>
-        <sequence optional="true" id="00784">
-            <token type-id="KW_EXCLUDE" id="00785" />
-            <one-of id="00786">
-                <sequence id="00787">
-                    <token type-id="KW_CURRENT" id="00788" />
-                    <token type-id="KW_ROW" id="00789" />
+        <sequence optional="true" id="00786">
+            <token type-id="KW_EXCLUDE" id="00787" />
+            <one-of id="00788">
+                <sequence id="00789">
+                    <token type-id="KW_CURRENT" id="00790" />
+                    <token type-id="KW_ROW" id="00791" />
                 </sequence>
-                <token type-id="KW_GROUP" id="00790" />
-                <token type-id="KW_TIES" id="00791" />
-                <sequence id="00792">
-                    <token type-id="KW_NO" id="00793" />
-                    <token type-id="KW_OTHERS" id="00794" />
+                <token type-id="KW_GROUP" id="00792" />
+                <token type-id="KW_TIES" id="00793" />
+                <sequence id="00794">
+                    <token type-id="KW_NO" id="00795" />
+                    <token type-id="KW_OTHERS" id="00796" />
                 </sequence>
             </one-of>
         </sequence>
     </element-def>
     <element-def description="Frame boundary" id="frame_boundary">
-        <one-of id="00795">
-            <sequence id="00796">
-                <token type-id="KW_UNBOUNDED" id="00797" />
-                <one-of id="00798">
-                    <token type-id="KW_PRECEDING" id="00799" />
-                    <token type-id="KW_FOLLOWING" id="00800" />
+        <one-of id="00797">
+            <sequence id="00798">
+                <token type-id="KW_UNBOUNDED" id="00799" />
+                <one-of id="00800">
+                    <token type-id="KW_PRECEDING" id="00801" />
+                    <token type-id="KW_FOLLOWING" id="00802" />
                 </one-of>
             </sequence>
-            <sequence id="00801">
-                <token type-id="KW_CURRENT" id="00802" />
-                <token type-id="KW_ROW" id="00803" />
+            <sequence id="00803">
+                <token type-id="KW_CURRENT" id="00804" />
+                <token type-id="KW_ROW" id="00805" />
             </sequence>
-            <sequence id="00804">
+            <sequence id="00806">
                 <element ref-id="expr" />
-                <one-of id="00805">
-                    <token type-id="KW_PRECEDING" id="00806" />
-                    <token type-id="KW_FOLLOWING" id="00807" />
+                <one-of id="00807">
+                    <token type-id="KW_PRECEDING" id="00808" />
+                    <token type-id="KW_FOLLOWING" id="00809" />
                 </one-of>
             </sequence>
         </one-of>
     </element-def>
 
     <element-def description="JSON function expression" id="json_function_expression">
-        <one-of id="00808">
-            <token type-id="FN_JSON" id="00809" />
-            <token type-id="FN_JSON_ARRAY" id="00810" />
-            <token type-id="FN_JSON_ARRAY_INSERT" id="00811" />
-            <token type-id="FN_JSON_ARRAY_LENGTH" id="00812" />
-            <token type-id="FN_JSONB" id="00813" />
-            <token type-id="FN_JSONB_ARRAY" id="00814" />
-            <token type-id="FN_JSONB_ARRAY_INSERT" id="00815" />
-            <token type-id="FN_JSONB_EACH" id="00816" />
-            <token type-id="FN_JSONB_EXTRACT" id="00817" />
-            <token type-id="FN_JSONB_INSERT" id="00818" />
-            <token type-id="FN_JSONB_OBJECT" id="00819" />
-            <token type-id="FN_JSONB_PATCH" id="00820" />
-            <token type-id="FN_JSONB_REMOVE" id="00821" />
-            <token type-id="FN_JSONB_REPLACE" id="00822" />
-            <token type-id="FN_JSONB_SET" id="00823" />
-            <token type-id="FN_JSONB_TREE" id="00824" />
-            <token type-id="FN_JSON_EACH" id="00825" />
-            <token type-id="FN_JSON_ERROR_POSITION" id="00826" />
-            <token type-id="FN_JSON_EXTRACT" id="00827" />
-            <token type-id="FN_JSON_INSERT" id="00828" />
-            <token type-id="FN_JSON_OBJECT" id="00829" />
-            <token type-id="FN_JSON_PATCH" id="00830" />
-            <token type-id="FN_JSON_PRETTY" id="00831" />
-            <token type-id="FN_JSON_REMOVE" id="00832" />
-            <token type-id="FN_JSON_REPLACE" id="00833" />
-            <token type-id="FN_JSON_SET" id="00834" />
-            <token type-id="FN_JSON_TREE" id="00835" />
-            <token type-id="FN_JSON_TYPE" id="00836" />
-            <token type-id="FN_JSON_VALID" id="00837" />
+        <one-of id="00810">
+            <token type-id="FN_JSON" id="00811" />
+            <token type-id="FN_JSON_ARRAY" id="00812" />
+            <token type-id="FN_JSON_ARRAY_INSERT" id="00813" />
+            <token type-id="FN_JSON_ARRAY_LENGTH" id="00814" />
+            <token type-id="FN_JSONB" id="00815" />
+            <token type-id="FN_JSONB_ARRAY" id="00816" />
+            <token type-id="FN_JSONB_ARRAY_INSERT" id="00817" />
+            <token type-id="FN_JSONB_EACH" id="00818" />
+            <token type-id="FN_JSONB_EXTRACT" id="00819" />
+            <token type-id="FN_JSONB_INSERT" id="00820" />
+            <token type-id="FN_JSONB_OBJECT" id="00821" />
+            <token type-id="FN_JSONB_PATCH" id="00822" />
+            <token type-id="FN_JSONB_REMOVE" id="00823" />
+            <token type-id="FN_JSONB_REPLACE" id="00824" />
+            <token type-id="FN_JSONB_SET" id="00825" />
+            <token type-id="FN_JSONB_TREE" id="00826" />
+            <token type-id="FN_JSON_EACH" id="00827" />
+            <token type-id="FN_JSON_ERROR_POSITION" id="00828" />
+            <token type-id="FN_JSON_EXTRACT" id="00829" />
+            <token type-id="FN_JSON_INSERT" id="00830" />
+            <token type-id="FN_JSON_OBJECT" id="00831" />
+            <token type-id="FN_JSON_PATCH" id="00832" />
+            <token type-id="FN_JSON_PRETTY" id="00833" />
+            <token type-id="FN_JSON_REMOVE" id="00834" />
+            <token type-id="FN_JSON_REPLACE" id="00835" />
+            <token type-id="FN_JSON_SET" id="00836" />
+            <token type-id="FN_JSON_TREE" id="00837" />
+            <token type-id="FN_JSON_TYPE" id="00838" />
+            <token type-id="FN_JSON_VALID" id="00839" />
         </one-of>
         <element ref-id="wrapped_expression_list" />
     </element-def>
 
     <element-def description="Date and time function expression" id="date_function_expression">
-        <one-of id="00838">
-            <token flavor="function" type-id="DT_DATE" id="00839" />
-            <token flavor="function" type-id="DT_TIME" id="00840" />
-            <token flavor="function" type-id="DT_DATETIME" id="00841" />
-            <token type-id="FN_JULIANDAY" id="00842" />
-            <token type-id="FN_STRFTIME" id="00843" />
-            <token type-id="FN_TIMEDIFF" id="00844" />
-            <token type-id="FN_UNIXEPOCH" id="00845" />
+        <one-of id="00840">
+            <token flavor="function" type-id="DT_DATE" id="00841" />
+            <token flavor="function" type-id="DT_TIME" id="00842" />
+            <token flavor="function" type-id="DT_DATETIME" id="00843" />
+            <token type-id="FN_JULIANDAY" id="00844" />
+            <token type-id="FN_STRFTIME" id="00845" />
+            <token type-id="FN_TIMEDIFF" id="00846" />
+            <token type-id="FN_UNIXEPOCH" id="00847" />
         </one-of>
         <element ref-id="wrapped_expression_list" />
     </element-def>
 
     <element-def description="Math function expression" id="math_function_expression">
-        <one-of id="00846">
-            <token type-id="FN_ACOS" id="00847" />
-            <token type-id="FN_ACOSH" id="00848" />
-            <token type-id="FN_ASIN" id="00849" />
-            <token type-id="FN_ASINH" id="00850" />
-            <token type-id="FN_ATAN" id="00851" />
-            <token type-id="FN_ATAN2" id="00852" />
-            <token type-id="FN_ATANH" id="00853" />
-            <token type-id="FN_CEIL" id="00854" />
-            <token type-id="FN_CEILING" id="00855" />
-            <token type-id="FN_COS" id="00856" />
-            <token type-id="FN_COSH" id="00857" />
-            <token type-id="FN_DEGREES" id="00858" />
-            <token type-id="FN_EXP" id="00859" />
-            <token type-id="FN_FLOOR" id="00860" />
-            <token type-id="FN_LN" id="00861" />
-            <token type-id="FN_LOG" id="00862" />
-            <token type-id="FN_LOG10" id="00863" />
-            <token type-id="FN_LOG2" id="00864" />
-            <token type-id="FN_MOD" id="00865" />
-            <token type-id="FN_PI" id="00866" />
-            <token type-id="FN_POW" id="00867" />
-            <token type-id="FN_RADIANS" id="00868" />
-            <token type-id="FN_SIN" id="00869" />
-            <token type-id="FN_SINH" id="00870" />
-            <token type-id="FN_SQRT" id="00871" />
-            <token type-id="FN_TAN" id="00872" />
-            <token type-id="FN_TANH" id="00873" />
-            <token type-id="FN_TRUNC" id="00874" />
+        <one-of id="00848">
+            <token type-id="FN_ACOS" id="00849" />
+            <token type-id="FN_ACOSH" id="00850" />
+            <token type-id="FN_ASIN" id="00851" />
+            <token type-id="FN_ASINH" id="00852" />
+            <token type-id="FN_ATAN" id="00853" />
+            <token type-id="FN_ATAN2" id="00854" />
+            <token type-id="FN_ATANH" id="00855" />
+            <token type-id="FN_CEIL" id="00856" />
+            <token type-id="FN_CEILING" id="00857" />
+            <token type-id="FN_COS" id="00858" />
+            <token type-id="FN_COSH" id="00859" />
+            <token type-id="FN_DEGREES" id="00860" />
+            <token type-id="FN_EXP" id="00861" />
+            <token type-id="FN_FLOOR" id="00862" />
+            <token type-id="FN_LN" id="00863" />
+            <token type-id="FN_LOG" id="00864" />
+            <token type-id="FN_LOG10" id="00865" />
+            <token type-id="FN_LOG2" id="00866" />
+            <token type-id="FN_MOD" id="00867" />
+            <token type-id="FN_PI" id="00868" />
+            <token type-id="FN_POW" id="00869" />
+            <token type-id="FN_RADIANS" id="00870" />
+            <token type-id="FN_SIN" id="00871" />
+            <token type-id="FN_SINH" id="00872" />
+            <token type-id="FN_SQRT" id="00873" />
+            <token type-id="FN_TAN" id="00874" />
+            <token type-id="FN_TANH" id="00875" />
+            <token type-id="FN_TRUNC" id="00876" />
         </one-of>
         <element ref-id="wrapped_expression_list" />
     </element-def>
 
     <element-def description="Data type" id="data_type">
-        <one-of id="00875">
-            <token id="00876" type-id="DT_BIGINT" />
-            <token id="00877" type-id="DT_BLOB" />
-            <token id="00878" type-id="DT_BOOLEAN" />
-            <token id="00879" type-id="DT_CHARACTER" />
-            <token id="00880" type-id="DT_CLOB" />
-            <token id="00881" type-id="DT_DATE" />
-            <token id="00882" type-id="DT_DATETIME" />
-            <token id="00883" type-id="DT_DECIMAL" />
-            <token id="00884" type-id="DT_DOUBLE" />
-            <token id="00885" type-id="DT_DOUBLE_PRECISION" />
-            <token id="00886" type-id="DT_FLOAT" />
-            <token id="00887" type-id="DT_INT" />
-            <token id="00888" type-id="DT_INT2" />
-            <token id="00889" type-id="DT_INT8" />
-            <token id="00890" type-id="DT_INTEGER" />
-            <token id="00891" type-id="DT_MEDIUMINT" />
-            <token id="00892" type-id="DT_NATIVE_CHARACTER" />
-            <token id="00893" type-id="DT_NCHAR" />
-            <token id="00894" type-id="DT_NUMERIC" />
-            <token id="00895" type-id="DT_NVARCHAR" />
-            <token id="00896" type-id="DT_REAL" />
-            <token id="00897" type-id="DT_SMALLINT" />
-            <token id="00898" type-id="DT_TEXT" />
-            <token id="00899" type-id="DT_TINYINT" />
-            <token id="00900" type-id="DT_UNSIGNED_BIG_INT" />
-            <token id="00901" type-id="DT_VARCHAR" />
-            <token id="00902" type-id="DT_VARYING_CHARACTER" />
+        <one-of id="00877">
+            <token id="00878" type-id="DT_BIGINT" />
+            <token id="00879" type-id="DT_BLOB" />
+            <token id="00880" type-id="DT_BOOLEAN" />
+            <token id="00881" type-id="DT_CHARACTER" />
+            <token id="00882" type-id="DT_CLOB" />
+            <token id="00883" type-id="DT_DATE" />
+            <token id="00884" type-id="DT_DATETIME" />
+            <token id="00885" type-id="DT_DECIMAL" />
+            <token id="00886" type-id="DT_DOUBLE" />
+            <token id="00887" type-id="DT_DOUBLE_PRECISION" />
+            <token id="00888" type-id="DT_FLOAT" />
+            <token id="00889" type-id="DT_INT" />
+            <token id="00890" type-id="DT_INT2" />
+            <token id="00891" type-id="DT_INT8" />
+            <token id="00892" type-id="DT_INTEGER" />
+            <token id="00893" type-id="DT_MEDIUMINT" />
+            <token id="00894" type-id="DT_NATIVE_CHARACTER" />
+            <token id="00895" type-id="DT_NCHAR" />
+            <token id="00896" type-id="DT_NUMERIC" />
+            <token id="00897" type-id="DT_NVARCHAR" />
+            <token id="00898" type-id="DT_REAL" />
+            <token id="00899" type-id="DT_SMALLINT" />
+            <token id="00900" type-id="DT_TEXT" />
+            <token id="00901" type-id="DT_TINYINT" />
+            <token id="00902" type-id="DT_UNSIGNED_BIG_INT" />
+            <token id="00903" type-id="DT_VARCHAR" />
+            <token id="00904" type-id="DT_VARYING_CHARACTER" />
         </one-of>
     </element-def>
 
     <element-def description="Type name" id="type_name">
-        <iteration id="00903">
+        <iteration id="00905">
             <element ref-id="data_type" />
         </iteration>
-        <wrapper id="00904" optional="true" template="PARENTHESES">
-            <sequence id="00905">
+        <wrapper id="00906" optional="true" template="PARENTHESES">
+            <sequence id="00907">
                 <element original-name="signed-number" ref-id="number" />
-                <sequence id="00906" optional="true">
-                    <token id="00907" type-id="CHR_COMMA" />
+                <sequence id="00908" optional="true">
+                    <token id="00909" type-id="CHR_COMMA" />
                     <element original-name="signed-number" ref-id="number" />
                 </sequence>
             </sequence>
@@ -1725,81 +1728,81 @@
 
 
     <element-def description="UNARY operator" id="unary_operator">
-        <token id="00908" type-id="CHR_PLUS" />
-        <token id="00909" type-id="CHR_MINUS" />
-        <token id="00910" type-id="CHR_TILDE" />
-        <token id="00911" type-id="KW_NOT" />
+        <token id="00910" type-id="CHR_PLUS" />
+        <token id="00911" type-id="CHR_MINUS" />
+        <token id="00912" type-id="CHR_TILDE" />
+        <token id="00913" type-id="KW_NOT" />
     </element-def>
     <element-def description="BINARY operator" id="binary_operator">
-        <one-of id="00912">
-            <token id="00913" type-id="CHR_STAR" />
-            <token id="00914" type-id="CHR_SLASH" />
-            <token id="00915" type-id="CHR_PERCENT" />
-            <token id="00916" type-id="CHR_PLUS" />
-            <token id="00917" type-id="CHR_MINUS" />
-            <token id="00918" type-id="KW_AND" />
-            <token id="00919" type-id="KW_OR" />
-            <token id="00920" type-id="KW_IN" />
-            <token id="00921" type-id="KW_BETWEEN" />
-            <sequence id="00922">
-                <token id="00923" optional="true" type-id="KW_NOT" />
-                <one-of id="00924">
-                    <token id="00925" type-id="KW_LIKE" />
-                    <token id="00926" type-id="KW_GLOB" />
-                    <token id="00927" type-id="KW_MATCH" />
-                    <token id="00928" type-id="KW_REGEXP" />
+        <one-of id="00914">
+            <token id="00915" type-id="CHR_STAR" />
+            <token id="00916" type-id="CHR_SLASH" />
+            <token id="00917" type-id="CHR_PERCENT" />
+            <token id="00918" type-id="CHR_PLUS" />
+            <token id="00919" type-id="CHR_MINUS" />
+            <token id="00920" type-id="KW_AND" />
+            <token id="00921" type-id="KW_OR" />
+            <token id="00922" type-id="KW_IN" />
+            <token id="00923" type-id="KW_BETWEEN" />
+            <sequence id="00924">
+                <token id="00925" optional="true" type-id="KW_NOT" />
+                <one-of id="00926">
+                    <token id="00927" type-id="KW_LIKE" />
+                    <token id="00928" type-id="KW_GLOB" />
+                    <token id="00929" type-id="KW_MATCH" />
+                    <token id="00930" type-id="KW_REGEXP" />
                 </one-of>
             </sequence>
-            <token id="00929" type-id="KW_COLLATE" />
-            <sequence id="00930">
-                <token id="00931" type-id="KW_IS" />
-                <token id="00932" optional="true" type-id="KW_NOT" />
+            <token id="00931" type-id="KW_COLLATE" />
+            <sequence id="00932">
+                <token id="00933" type-id="KW_IS" />
+                <token id="00934" optional="true" type-id="KW_NOT" />
             </sequence>
-            <token id="00933" type-id="OPR_CONCATENATION" />
+            <token id="00935" type-id="OPR_CONCATENATION" />
             <element ref-id="comparison_operator" />
         </one-of>
     </element-def>
 
 
     <element-def description="COMPARISON operator" id="comparison_operator">
-        <one-of id="00934">
-            <token id="00935" type-id="CHR_EQUAL" />
-            <token id="00936" type-id="CHR_LESS" />
-            <token id="00937" type-id="CHR_GREATER" />
-            <token id="00938" type-id="OPR_EQUAL_EQUAL" />
-            <token id="00939" type-id="OPR_NOT_EQUAL" />
-            <token id="00940" type-id="OPR_LESS_GREATER" />
-            <token id="00941" type-id="OPR_LESS_EQUAL" />
-            <token id="00942" type-id="OPR_GREATER_EQUAL" />
+        <one-of id="00936">
+            <token id="00937" type-id="CHR_EQUAL" />
+            <token id="00938" type-id="CHR_LESS" />
+            <token id="00939" type-id="CHR_GREATER" />
+            <token id="00940" type-id="OPR_EQUAL_EQUAL" />
+            <token id="00941" type-id="OPR_NOT_EQUAL" />
+            <token id="00942" type-id="OPR_LESS_GREATER" />
+            <token id="00943" type-id="OPR_LESS_EQUAL" />
+            <token id="00944" type-id="OPR_GREATER_EQUAL" />
         </one-of>
     </element-def>
 
     <element-def description="Literal value" id="literal_value">
-        <one-of id="00943">
-            <token id="00944" type-id="STRING" />
-            <token id="00945" type-id="KW_NULL" />
-            <token id="00946" type-id="KW_CURRENT_TIME" />
-            <token id="00947" type-id="KW_CURRENT_DATE" />
-            <token id="00948" type-id="KW_CURRENT_TIMESTAMP" />
+        <one-of id="00945">
+            <token id="00946" type-id="STRING" />
+            <token id="00947" type-id="KW_NULL" />
+            <token id="00948" type-id="KW_CURRENT_TIME" />
+            <token id="00949" type-id="KW_CURRENT_DATE" />
+            <token id="00950" type-id="KW_CURRENT_TIMESTAMP" />
         </one-of>
     </element-def>
 
 
     <element-def description="Number" id="number">
-        <one-of id="00949" optional="true">
-            <token id="00950" type-id="CHR_MINUS" />
-            <token id="00951" type-id="CHR_PLUS" />
+        <one-of id="00951" optional="true">
+            <token id="00952" type-id="CHR_MINUS" />
+            <token id="00953" type-id="CHR_PLUS" />
         </one-of>
-        <one-of id="00952">
-            <token id="00953" type-id="NUMBER" />
-            <token id="00954" type-id="INTEGER" />
+        <one-of id="00954">
+            <token id="00955" type-id="NUMBER" />
+            <token id="00956" type-id="INTEGER" />
         </one-of>
     </element-def>
 
     <element-def description="Unknown identifier" id="custom_undefined">
-        <token id="00955" type-id="IDENTIFIER" />
+        <token id="00957" type-id="IDENTIFIER" />
     </element-def>
     <element-def description="Statement end" formatting-spacing-before="NO_SPACE" id="end" truncate-on-execution="true">
-        <token id="00956" type-id="CHR_SEMICOLON" />
+        <token id="00958" type-id="CHR_SEMICOLON" />
     </element-def>
 </element-defs>
