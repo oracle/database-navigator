@@ -28,6 +28,7 @@ import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -103,7 +104,8 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
     }
 
     @Override
-    public void completeConnectorPasswordChange(@NotNull Connection connection, @NotNull char[] newPassword) throws SQLException {
+    public void completeConnectorPasswordChange(@NotNull Connection connection, @Nullable char[] newPassword) throws SQLException {
+        if (newPassword == null) return;
         try (Statement statement = connection.createStatement()) {
             String password = Chars.toStringAcceptEmpty(newPassword);
             String passwordLiteral = statement.enquoteLiteral(password);

@@ -32,14 +32,10 @@ import com.dbn.execution.common.result.ui.ExecutionResultForm;
 import com.dbn.execution.common.ui.ExecutionConsoleForm;
 import com.dbn.execution.compiler.CompilerResult;
 import com.dbn.execution.explain.result.ExplainPlanResult;
-import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
-import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.execution.statement.options.StatementExecutionSettings;
 import com.dbn.execution.statement.result.StatementExecutionResult;
-import com.dbn.ml.result.MLExecutionResult;
-import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -182,19 +178,7 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
     }
 
 
-    public void addExecutionResult(MethodExecutionResult executionResult) {
-        showExecutionConsole(c -> c.addResult(executionResult));
-    }
-
-    public void addExecutionResult(VectorEmbeddingExecutionResult executionResult) {
-        showExecutionConsole(c -> c.addResult(executionResult));
-    }
-
-    public void addExecutionResult(MLExecutionResult executionResult) {
-        showExecutionConsole(c -> c.addResult(executionResult));
-    }
-
-    public void addExecutionResult(JavaExecutionResult executionResult) {
+    public void addExecutionResult(ExecutionResult<?> executionResult) {
         showExecutionConsole(c -> c.addResult(executionResult));
     }
 

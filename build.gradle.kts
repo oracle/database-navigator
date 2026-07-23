@@ -35,7 +35,7 @@ val bundledJdbcPostgres: Configuration by configurations.creating
 val bundledJdbcSqlite: Configuration by configurations.creating
 
 group = "com.dbn"
-version = "4.0.0.0"
+version = "4.1.0.0"
 
 java {
     toolchain {
@@ -130,6 +130,7 @@ dependencies {
     implementation("com.oracle.oci.sdk:oci-java-sdk-generativeai:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-generativeaiinference:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-identity:3.76.1@jar")
+    implementation("com.opencsv:opencsv:5.12.0@jar")
     implementation("commons-io:commons-io:2.18.0@jar")
     implementation("dev.langchain4j:langchain4j-anthropic:1.16.2@jar")
     implementation("dev.langchain4j:langchain4j-community-oci-genai:1.16.0-beta26@jar")
@@ -181,6 +182,7 @@ dependencies {
     implementation("org.glassfish.jersey.inject:jersey-hk2:2.48@jar")
     implementation("org.glassfish.jersey.media:jersey-media-json-jackson:2.48@jar")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.21@jar")
+    implementation("org.liquibase:liquibase-core:4.33.0@jar")
     implementation("org.projectlombok:lombok:1.18.46@jar")
 
 

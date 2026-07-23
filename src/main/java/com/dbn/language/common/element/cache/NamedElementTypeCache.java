@@ -54,11 +54,6 @@ public class NamedElementTypeCache extends SequenceElementTypeCache<NamedElement
     }
 
     @Override
-    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
-        return computeGuarded("surrogateSuccessorCapture", bucket, this, c -> super.captureSurrogateSuccessors(surrogateLead, bucket));
-    }
-
-    @Override
     protected boolean checkStartsWith(TokenTypeCategory typeCategory) {
         return computeGuarded("startsWithCheck" + typeCategory, false, this, c -> super.checkStartsWith(typeCategory));
     }

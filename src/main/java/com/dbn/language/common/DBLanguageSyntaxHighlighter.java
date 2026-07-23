@@ -37,15 +37,15 @@ public abstract class DBLanguageSyntaxHighlighter extends SyntaxHighlighterBase 
     private final DBLanguageDialect languageDialect;
     private final TokenTypeBundle tokenTypes;
 
-    public DBLanguageSyntaxHighlighter(DBLanguageDialect languageDialect, String tokenTypesFile) {
-        Document document = loadDefinition(tokenTypesFile);
+    public DBLanguageSyntaxHighlighter(DBLanguageDialect languageDialect, String tokenDefinitionFile) {
+        Document document = loadDefinition(tokenDefinitionFile);
         tokenTypes = new TokenTypeBundle(languageDialect, document);
         this.languageDialect = languageDialect;
     }
 
     @SneakyThrows
-    private Document loadDefinition(String tokenTypesFile) {
-        return XmlContents.fileToDocument(getResourceLookupClass(), tokenTypesFile);
+    private Document loadDefinition(String tokenDefinitionFile) {
+        return XmlContents.fileToDocument(getResourceLookupClass(), tokenDefinitionFile);
     }
 
     protected Class getResourceLookupClass() {
@@ -59,12 +59,15 @@ public abstract class DBLanguageSyntaxHighlighter extends SyntaxHighlighterBase 
     @NotNull
     public TextAttributesKey[] getTokenHighlights(IElementType tokenType) {
         if (tokenType instanceof SimpleTokenType simpleTokenType) {
-            return simpleTokenType.getTokenHighlights(() -> pack(
-                        getAttributeKeys(tokenType, backgrounds),
-                        getAttributeKeys(tokenType, colors)));
-        } else {
-            return TextAttributesKey.EMPTY_ARRAY;
+            TextAttributesKey[] tokenHighlights = simpleTokenType.getTextAttributesKeys();
+            if (tokenHighlights != null) return tokenHighlights;
+
+            return simpleTokenType.getTokenHighlights(pack(
+                    getAttributeKeys(tokenType, backgrounds),
+                    getAttributeKeys(tokenType, colors)));
         }
+
+        return TextAttributesKey.EMPTY_ARRAY;
     }
 
     private static TextAttributesKey getAttributeKeys(IElementType tokenType, Map map) {

@@ -20,6 +20,7 @@ import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.data.editor.ui.array.ArrayEditorPopupProviderForm;
 import com.dbn.data.editor.ui.calendar.CalendarPopupProviderForm;
+import com.dbn.data.editor.ui.calendar.CalendarPopupType;
 import com.dbn.data.editor.ui.text.TextEditorPopupProviderForm;
 import com.dbn.object.common.DBObject;
 import com.intellij.openapi.project.Project;
@@ -119,7 +120,11 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
     }
 
     public void createCalendarPopup(boolean autoPopup) {
-        CalendarPopupProviderForm popupProviderForm = new CalendarPopupProviderForm(this, autoPopup);
+        createCalendarPopup(autoPopup, CalendarPopupType.DATE_TIME);
+    }
+
+    public void createCalendarPopup(boolean autoPopup, CalendarPopupType type) {
+        CalendarPopupProviderForm popupProviderForm = new CalendarPopupProviderForm(this, autoPopup, type);
         addPopupProvider(popupProviderForm);
     }
 

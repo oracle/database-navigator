@@ -46,8 +46,8 @@ public enum StateTransition {
     @Getter
     public enum Category {
         NEUTRAL(SimpleTextAttributes.GRAY_ATTRIBUTES.getFgColor(), false),
-        GOOD(Colors.SUCCESS_COLOR, true),
-        BAD(Colors.FAILURE_COLOR, true);
+        GOOD(Colors.getLabelSuccessForeground(), true),
+        BAD(Colors.getLabelErrorForeground(), true);
 
         private final Color color;
         private final boolean bold;

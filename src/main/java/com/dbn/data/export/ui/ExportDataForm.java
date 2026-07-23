@@ -21,7 +21,6 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.TextFields;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.config.ui.CharsetOption;
@@ -61,8 +60,11 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.addDocumentListener;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.isEmptyText;
-import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.FileChoosers.addSingleFolderChooser;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.data.export.DataExportFiles.sanitizeFileName;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -293,7 +295,7 @@ public class ExportDataForm extends DBNFormBase {
 
         Project project = getProject();
         if (!fields.isEmpty()) {
-            Messages.showErrorDialog(project,
+            showErrorDialog(project,
                     txt("msg.dataExport.title.MissingInput"),
                     txt("msg.dataExport.error.MissingInput", fields.toString()));
             return;
@@ -304,18 +306,18 @@ public class ExportDataForm extends DBNFormBase {
             try {
                 file = getExportInstructions().getFile();
             } catch (DataExportException e) {
-                Messages.showErrorDialog(
+                showErrorDialog(
                         project,
                         txt("msg.dataExport.title.InvalidFilePath"),
                         txt("msg.dataExport.error.InvalidFilePath"));
                 return;
             }
             if (file.exists()) {
-                Messages.showQuestionDialog(project,
+                showQuestionDialog(project,
                         txt("msg.dataExport.title.FileExists"),
                         txt("msg.dataExport.question.FileExists", file.getPath()),
-                        Messages.OPTIONS_YES_NO, 0,
-                        option -> when(option == 0, callback));
+                        OPTIONS_YES_NO, 0,
+                        whenOk(callback));
 
                 return;
             }

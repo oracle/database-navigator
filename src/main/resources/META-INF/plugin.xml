@@ -202,6 +202,7 @@
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.vector.DatabaseVectorManager"/>
         <projectService serviceImplementation="com.dbn.ml.DatabaseMLManager"/>
+        <projectService serviceImplementation="com.dbn.liquibase.DatabaseLiquibaseManager"/>
         <projectService serviceImplementation="com.dbn.scheduler.DatabaseSchedulerManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.SourceCodeManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.diff.SourceCodeDiffManager"/>
@@ -249,6 +250,7 @@
         <extensionPoint name="userApprovalAdapter" qualifiedName="com.dbn.userApprovalAdapter" interface="com.dbn.common.approval.UserApprovalAdapter" dynamic="true"/>
         <extensionPoint name="presentationProvider" qualifiedName="com.dbn.presentationProvider" interface="com.dbn.common.presentation.PresentationProvider" dynamic="true"/>
         <extensionPoint name="dataExportProcessor" qualifiedName="com.dbn.dataExportProcessor" interface="com.dbn.data.export.processor.DataExportProcessor" dynamic="true"/>
+        <extensionPoint name="liquibaseExecutionProcessor" qualifiedName="com.dbn.liquibaseExecutionProcessor" interface="com.dbn.liquibase.execution.LiquibaseExecutionProcessor" dynamic="true"/>
 
         <extensionPoint name="prerequisiteDefinitionProvider" qualifiedName="com.dbn.prerequisiteDefinitionProvider" interface="com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider" dynamic="true"/>
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
@@ -264,6 +266,33 @@
         <dataExportProcessor implementation="com.dbn.data.export.processor.JIRAMarkupDataExportProcessor"/>
         <dataExportProcessor implementation="com.dbn.data.export.processor.MarkdownDataExportProcessor"/>
         <dataExportProcessor implementation="com.dbn.data.export.processor.CustomDataExportProcessor"/>
+
+        <!-- Liquibase execution processors -->
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseGenerateChangelogProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseGenerateDatabaseDocumentationProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseSnapshotDatabaseProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseValidateChangelogProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseCompareSchemasProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseGenerateDiffChangelogProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseShowChangelogStatusProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseShowChangelogHistoryProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUnexpectedChangesetsProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseSynchronizeChangelogProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseSynchronizeChangelogToTagProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseSynchronizeChangelogSqlProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUpdateDatabaseProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUpdateTestingRollbackProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUpdateSqlProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseFutureRollbackProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseTagDatabaseProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseMarkNextChangesetRanProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseReleaseLocksProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseClearChecksumsProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseListLocksProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseCalculateChecksumsProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseDropAllProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseRollbackChangesetsProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseRollbackSqlProcessor"/>
 
         <!--object filters-->
         <objectFilter implementation="com.dbn.vector.model.request.EmbeddingStagingTableFilter"/>
@@ -575,16 +604,26 @@
             <action class="com.dbn.menu.action.McpBuilderOpenAction" id="DBN.MainMenu.McpBuilder"/>
             <action class="com.dbn.menu.action.MLToolboxOpenAction" id="DBN.MainMenu.MLToolbox"/>
             <separator/>
-            <action class="com.dbn.menu.action.MethodExecutionHistoryAction" id="DBN.MainMenu.MethodExecutionHistory">
-                <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift M"/>
-            </action>
-            <action class="com.dbn.menu.action.JavaExecutionHistoryAction" id="DBN.MainMenu.JavaExecutionHistory">
-                <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift J"/>
-            </action>
             <action class="com.dbn.menu.action.FileConnectionMappingsOpenAction" id="DBN.MainMenu.FileConnectionMappings"/>
-            <action class="com.dbn.menu.action.ResourceMonitorOpenAction" id="DBN.MainMenu.ResourceMonitor"/>
-            <action id="DBN.MainMenu.EventMonitor" class="com.dbn.menu.action.MonitorDataChangeOpenAction"/>
-            <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" id="DBN.MainMenu.PendingTransactions"/>-->
+            <group id="DBN.MainMenu.Execution" popup="true">
+                <action class="com.dbn.menu.action.MethodExecutionHistoryAction" id="DBN.MainMenu.MethodExecutionHistory">
+                    <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift M"/>
+                </action>
+                <action class="com.dbn.menu.action.JavaExecutionHistoryAction" id="DBN.MainMenu.JavaExecutionHistory">
+                    <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift J"/>
+                </action>
+            </group>
+            <group id="DBN.MainMenu.Monitoring" popup="true">
+                <action class="com.dbn.menu.action.ResourceMonitorOpenAction" id="DBN.MainMenu.ResourceMonitor"/>
+                <action id="DBN.MainMenu.EventMonitor" class="com.dbn.menu.action.MonitorDataChangeOpenAction"/>
+                <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" id="DBN.MainMenu.PendingTransactions"/>-->
+            </group>
+            <group id="DBN.MainMenu.Liquibase" popup="true" icon="com.dbn.common.icon.Icons.DB_LIQUIBASE">
+                <action id="DBN.MainMenu.LiquibaseWorkspaces" class="com.dbn.menu.action.LiquibaseWorkspacesOpenAction"/>
+                <separator/>
+                <action id="DBN.MainMenu.LiquibaseOperationDashboard" class="com.dbn.menu.action.LiquibaseOperationDashboardOpenAction"/>
+                <action id="DBN.MainMenu.LiquibaseWorkflowDashboard" class="com.dbn.menu.action.LiquibaseWorkflowDashboardOpenAction"/>
+            </group>
             <group class="com.dbn.prerequisite.action.PrerequisiteVerificationAction" popup="true" id="DBN.MainMenu.PrerequisiteVerification"/> />
             <separator/>
             <action id="DBN.MainMenu.Settings" class="com.dbn.menu.action.ProjectSettingsOpenAction"/>
@@ -729,6 +768,20 @@
             <action id="DBN.Execution.Method.Result.StopExecution" class="com.dbn.execution.method.result.action.MethodExecutionStopAction" icon="AllIcons.Actions.Suspend"/>
             <separator/>
             <action id="DBN.Execution.Method.Result.Settings" class="com.dbn.execution.method.result.action.ExecutionEngineSettingsAction" icon="AllIcons.General.GearPlain"/>
+        </group>
+        <group id="DBN.Execution.Liquibase.Result">
+            <action id="DBN.Execution.Liquibase.Result.Close" class="com.dbn.liquibase.operation.action.LiquibaseOperationResultCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBN.Execution.Liquibase.Result.Stop" class="com.dbn.liquibase.operation.action.LiquibaseOperationResultStopAction" icon="com.dbn.common.icon.Icons.ACTION_STOP"/>
+            <action id="DBN.Execution.Liquibase.Result.Rerun" class="com.dbn.liquibase.operation.action.LiquibaseOperationResultRerunAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RERUN"/>
+            <separator/>
+            <action id="DBN.Execution.Liquibase.Result.Settings" class="com.dbn.liquibase.operation.action.LiquibaseOperationResultSettingsAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_OPTIONS"/>
+        </group>
+        <group id="DBN.Execution.Liquibase.Workflow.Result">
+            <action id="DBN.Execution.Liquibase.Workflow.Result.Close" class="com.dbn.liquibase.workflow.action.LiquibaseWorkflowResultCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBN.Execution.Liquibase.Workflow.Result.Stop" class="com.dbn.liquibase.workflow.action.LiquibaseWorkflowResultStopAction" icon="com.dbn.common.icon.Icons.ACTION_STOP"/>
+            <action id="DBN.Execution.Liquibase.Workflow.Result.Rerun" class="com.dbn.liquibase.workflow.action.LiquibaseWorkflowResultRerunAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RERUN"/>
+            <separator/>
+            <action id="DBN.Execution.Liquibase.Workflow.Result.Settings" class="com.dbn.liquibase.workflow.action.LiquibaseWorkflowResultSettingsAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_OPTIONS"/>
         </group>
         <group id="DBN.Vector.Embedding.Result">
             <action id="DBN.Vector.Embedding.Result.Close" class="com.dbn.vector.action.VectorEmbeddingCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
