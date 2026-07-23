@@ -1,4 +1,5 @@
 ABORT
+ALWAYS
 ACTION
 ADD|reserved
 AFTER
@@ -54,6 +55,7 @@ FOREIGN|reserved
 FOLLOWING
 FROM|reserved
 FULL|reserved
+GENERATED
 GLOB
 GROUP|reserved
 GROUPS
@@ -116,6 +118,7 @@ ROWID
 SAVEPOINT
 SELECT|reserved
 SET|reserved
+STORED
 TABLE|reserved
 TEMP
 TEMPORARY
