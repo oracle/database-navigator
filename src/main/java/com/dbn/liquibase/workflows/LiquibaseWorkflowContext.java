@@ -11,20 +11,17 @@
 package com.dbn.liquibase.workflows;
 
 import com.dbn.common.task.TaskStatus;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /** Per-run state shared by a workflow and its operation results. */
 @Getter
 public class LiquibaseWorkflowContext {
     private final LiquibaseWorkflowInput input;
-    private final List<LiquibaseExecutionResult> results = new ArrayList<>();
     private int operationIndex = -1;
     private TaskStatus status = TaskStatus.NEW;
     private volatile boolean cancellationRequested;
@@ -44,19 +41,11 @@ public class LiquibaseWorkflowContext {
         status = TaskStatus.RUNNING;
     }
 
-    public void addResult(@NotNull LiquibaseExecutionResult result) {
-        results.add(result);
-    }
-
     public void finish(@NotNull TaskStatus status) {
         this.status = status;
     }
 
     public void cancel() {
         cancellationRequested = true;
-    }
-
-    public boolean isCancellationRequested() {
-        return cancellationRequested;
     }
 }

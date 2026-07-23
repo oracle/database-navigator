@@ -43,11 +43,9 @@ import com.dbn.execution.compiler.CompilerMessage;
 import com.dbn.execution.compiler.CompilerResult;
 import com.dbn.execution.explain.result.ExplainPlanMessage;
 import com.dbn.execution.explain.result.ExplainPlanResult;
-import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.logging.DatabaseLoggingResult;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
-import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.execution.statement.StatementExecutionInput;
 import com.dbn.execution.statement.StatementExecutionMessage;
 import com.dbn.execution.statement.options.StatementExecutionSettings;
@@ -55,7 +53,6 @@ import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.execution.statement.result.StatementExecutionResult;
 import com.dbn.language.common.DBLanguagePsiFile;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
@@ -334,16 +331,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
         }
     }
 
-    public void addResult(MethodExecutionResult executionResult) {
-        showResultTab(executionResult);
-    }
-
-    public void addResult(LiquibaseExecutionResult executionResult) {
-        showResultTab(executionResult);
-    }
-
-    //todo add one foe vector embeddings
-    public void addResult(JavaExecutionResult executionResult) {
+    public void addResult(ExecutionResult<?> executionResult) {
         showResultTab(executionResult);
     }
 
