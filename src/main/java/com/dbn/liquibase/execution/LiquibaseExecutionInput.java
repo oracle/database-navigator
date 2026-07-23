@@ -124,4 +124,18 @@ public class LiquibaseExecutionInput extends ProjectUnit {
         this.workspace = workspace == null ? null : workspace.clone();
         this.workspacePaths = this.workspace == null ? null : new LiquibaseWorkspacePaths(this.workspace);
     }
+
+    public LiquibaseExecutionInput copyFrom(@NotNull LiquibaseExecutionInput input) {
+        setSourceSchema(input.getSourceSchema());
+        setTargetSchema(input.getTargetSchema());
+        setWorkspace(input.getWorkspace());
+        rollbackInstruction.copyFrom(input.getRollbackInstruction());
+        updateInstruction.copyFrom(input.getUpdateInstruction());
+        changelogAuthor = input.getChangelogAuthor();
+        databaseTag = input.getDatabaseTag();
+        changelogTag = input.getChangelogTag();
+        checkpointTag = input.getCheckpointTag();
+        confirmed = input.isConfirmed();
+        return this;
+    }
 }

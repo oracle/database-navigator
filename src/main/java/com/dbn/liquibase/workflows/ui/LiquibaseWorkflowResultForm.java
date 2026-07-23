@@ -11,6 +11,7 @@
 package com.dbn.liquibase.workflows.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.util.Splitters;
 import com.dbn.common.ui.util.UserInterface;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.DefaultListModel;
+import javax.swing.Icon;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -57,6 +59,7 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
     private void refreshSelectedOperation() {
         dispatch(() -> {
             if (isDisposed()) return;
+            operationsList.repaint();
             showSelectedOperation();
         });
     }
@@ -93,7 +96,7 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
         return model;
     }
 
-    private static class OperationListCellRenderer extends ColoredListCellRenderer<LiquibaseOperation> {
+    private class OperationListCellRenderer extends ColoredListCellRenderer<LiquibaseOperation> {
         @Override
         protected void customize(
                 @NotNull JList<? extends LiquibaseOperation> list,
@@ -101,8 +104,22 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
                 int index,
                 boolean selected,
                 boolean hasFocus) {
-            setIcon(value.getActionIcon());
+            setIcon(getStatusIcon(value));
             append(value.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        }
+
+        private Icon getStatusIcon(@NotNull LiquibaseOperation operation) {
+            for (LiquibaseExecutionResult result : getExecutionResult().getResults()) {
+                if (result.getOperation() != operation) continue;
+                return switch (result.getStatus()) {
+                    case RUNNING -> Icons.ACTION_REFRESH;
+                    case DONE -> Icons.COMMON_STATUS_SUCCESS;
+                    case FAILED -> Icons.COMMON_STATUS_ERROR;
+                    case CANCELLED -> Icons.COMMON_WARNING;
+                    case SKIPPED, NEW -> Icons.COMMON_WARNING_INACTIVE;
+                };
+            }
+            return Icons.COMMON_WARNING_INACTIVE;
         }
     }
 

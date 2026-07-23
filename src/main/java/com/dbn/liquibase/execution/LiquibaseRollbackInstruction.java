@@ -57,4 +57,11 @@ public class LiquibaseRollbackInstruction {
             case DATE -> date;
         };
     }
+
+    public void copyFrom(@NotNull LiquibaseRollbackInstruction instruction) {
+        type = instruction.type;
+        count = instruction.count;
+        tag = instruction.tag;
+        date = instruction.date == null ? null : (Date) instruction.date.clone();
+    }
 }

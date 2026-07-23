@@ -14,6 +14,7 @@ import com.dbn.common.exception.RequestCancelledException;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
+import com.dbn.liquibase.workflows.LiquibaseWorkflowInput;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +33,14 @@ public final class LiquibaseOperationConfirmations {
             case DROP_ALL -> confirmDropAll(input);
             default -> true;
         };
+    }
+
+    public static boolean confirm(@NotNull LiquibaseWorkflowInput input) {
+        for (var operation : input.getWorkflow().getOperations()) {
+            if (!confirm(input.createExecutionInput(operation))) return false;
+        }
+        input.setConfirmed(true);
+        return true;
     }
 
     public static void ensureConfirmed(@NotNull LiquibaseExecutionInput input) throws RequestCancelledException {

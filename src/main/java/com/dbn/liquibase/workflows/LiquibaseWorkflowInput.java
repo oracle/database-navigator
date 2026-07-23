@@ -66,19 +66,6 @@ public class LiquibaseWorkflowInput extends LiquibaseExecutionInput {
     @NotNull
     public LiquibaseExecutionInput createExecutionInput(@NotNull LiquibaseOperation operation) {
         LiquibaseExecutionInput input = new LiquibaseExecutionInput(getProject(), operation);
-        input.setSourceSchema(getSourceSchema());
-        input.setTargetSchema(getTargetSchema());
-        input.setWorkspace(getWorkspace());
-        input.getRollbackInstruction().setType(getRollbackInstruction().getType());
-        input.getRollbackInstruction().setCount(getRollbackInstruction().getCount());
-        input.getRollbackInstruction().setTag(getRollbackInstruction().getTag());
-        input.getRollbackInstruction().setDate(getRollbackInstruction().getDate());
-        input.getUpdateInstruction().setType(getUpdateInstruction().getType());
-        input.getUpdateInstruction().setCount(getUpdateInstruction().getCount());
-        input.getUpdateInstruction().setTag(getUpdateInstruction().getTag());
-        input.setChangelogAuthor(getChangelogAuthor());
-        input.setDatabaseTag(getDatabaseTag());
-        input.setCheckpointTag(getCheckpointTag());
-        return input;
+        return input.copyFrom(this);
     }
 }

@@ -425,6 +425,11 @@ public class LiquibaseExecutionSummaryForm extends DBNFormBase {
             return;
         }
 
+        if (instruction.getDate() == null) {
+            clearTagInfo();
+            return;
+        }
+
         updateTagInfo(
                 ensureFormatter().formatDateTime(instruction.getDate()),
                 "app.liquibase.label.RollbackDate");

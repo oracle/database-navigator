@@ -50,7 +50,8 @@ public class LiquibaseWorkflowResult extends ExecutionResultBase<LiquibaseWorkfl
         synchronized (results) {
             results.add(result);
         }
-        listeners.notify(Runnable::run);
+        result.addListener(this::notifyChanged);
+        notifyChanged();
     }
 
     public void addListener(@NotNull Runnable listener) {
@@ -59,6 +60,10 @@ public class LiquibaseWorkflowResult extends ExecutionResultBase<LiquibaseWorkfl
 
     public void removeListener(@NotNull Runnable listener) {
         listeners.remove(listener);
+    }
+
+    private void notifyChanged() {
+        listeners.notify(Runnable::run);
     }
 
     @Nullable

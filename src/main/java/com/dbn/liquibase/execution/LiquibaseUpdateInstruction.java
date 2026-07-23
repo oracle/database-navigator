@@ -52,4 +52,10 @@ public class LiquibaseUpdateInstruction {
             case TAG -> tag;
         };
     }
+
+    public void copyFrom(@NotNull LiquibaseUpdateInstruction instruction) {
+        type = instruction.type;
+        count = instruction.count;
+        tag = instruction.tag;
+    }
 }
