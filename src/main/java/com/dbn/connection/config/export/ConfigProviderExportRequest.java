@@ -5,6 +5,8 @@ import lombok.Value;
 
 import java.nio.file.Path;
 
+import static com.dbn.common.util.Passwords.clearPassword;
+
 @Value
 @Builder
 public class ConfigProviderExportRequest {
@@ -19,4 +21,10 @@ public class ConfigProviderExportRequest {
     String wrapperKey;
     boolean includeWallet;
     Path walletFile;
+    boolean includeDatabasePassword;
+    char[] databasePassword;
+
+    public void clearDatabasePassword() {
+        clearPassword(databasePassword);
+    }
 }

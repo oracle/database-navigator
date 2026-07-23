@@ -1,10 +1,12 @@
 package com.dbn.connection.config.export.ui;
 
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.export.ConfigProviderExportManager;
 import com.dbn.connection.config.export.ConfigProviderExportRequest;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,7 +44,15 @@ public class ConfigProviderExportDialog extends DBNDialog<ConfigProviderExportFo
         return actions(getOKAction(), getCancelAction());
     }
 
-    public ConfigProviderExportRequest getExportRequest() {
-        return getForm().getExportRequest();
+    @Override
+    protected void doOKAction() {
+        ConfigProviderExportRequest request = getForm().getExportRequest();
+        Project project = getProject();
+        if (!exportService.confirmExport(project, request)) return;
+
+        ModalityState ownerModality = ModalityState.stateForComponent(getOwner());
+        super.doOKAction();
+        Dispatch.run(ownerModality,
+                () -> exportService.submitExport(project, connectionSettings, request));
     }
 }

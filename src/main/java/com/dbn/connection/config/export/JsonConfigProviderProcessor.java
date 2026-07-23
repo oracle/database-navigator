@@ -86,11 +86,11 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
         putIfNotBlank(node, "connect_descriptor", payload.getConnectDescriptor());
         putIfNotBlank(node, "user", payload.getUser());
         if (payload.getPassword() != null) {
-            node.set("password", toSecretRefJson(payload.getPassword(), true));
+            node.set("password", toSecretRefJson(payload.getPassword()));
         }
 
         if (payload.getWalletLocation() != null) {
-            node.set("wallet_location", toSecretRefJson(payload.getWalletLocation(), false));
+            node.set("wallet_location", toSecretRefJson(payload.getWalletLocation()));
         }
         Map<String, Object> jdbc = payload.getJdbc();
         if (jdbc != null && !jdbc.isEmpty()) {
@@ -111,17 +111,15 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
         throw new IllegalArgumentException("Existing export file must contain a JSON object.");
     }
 
-    private static JsonNode toSecretRefJson(SecretRef ref, boolean includeEmptyTypeAndValue) {
+    private static JsonNode toSecretRefJson(SecretRef ref) {
         ObjectNode node = MAPPER.createObjectNode();
 
         SecretProviderType type = ref.getType();
         if (type != null) {
             node.put("type", type.id());
-        } else if (includeEmptyTypeAndValue) {
-            node.put("type", "FILL_THIS_TYPE");
         }
 
-        putValue(node, "value", ref.getValue(), includeEmptyTypeAndValue);
+        putIfNotBlank(node, "value", ref.getValue());
 
         putIfNotBlank(node, "field_name", ref.getFieldName());
 
@@ -148,17 +146,6 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
         }
     }
 
-    private static void putValue(ObjectNode node, String key, String value, boolean includeEmptyValue) {
-        if (value == null) {
-            if (includeEmptyValue) node.put(key, "");
-            return;
-        }
-
-        String trimmedValue = value.trim();
-        if (!trimmedValue.isEmpty() || includeEmptyValue) {
-            node.put(key, trimmedValue);
-        }
-    }
 }
 
 enum JsonExistingContentWriteMode {

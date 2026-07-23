@@ -44,9 +44,9 @@ public class ConfigProviderMapper {
         String user = auth == null ? null : trim(auth.getUser());
         Map<String, Object> jdbc = resolveJdbc(props);
 
-        SecretRef passwordRef = auth != null && auth.getType() == USER_PASSWORD ?
-                SecretRefFactory.emptyTemplate() :
-                null;
+        SecretRef passwordRef = auth != null && auth.getType() == USER_PASSWORD &&
+                request != null && request.isIncludeDatabasePassword() ?
+                SecretRefFactory.base64Password(request.getDatabasePassword()) : null;
         SecretRef walletRef = null;
 
         if (request != null && request.isIncludeWallet()) {

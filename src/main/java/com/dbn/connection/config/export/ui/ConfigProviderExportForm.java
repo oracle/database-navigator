@@ -1,11 +1,13 @@
 package com.dbn.connection.config.export.ui;
 
+import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.info.DBNInfoLabel;
+import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
@@ -29,13 +31,20 @@ import javax.swing.ButtonGroup;
 import javax.swing.JRadioButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.nio.file.Path;
 
+import static com.dbn.common.ui.util.PasswordFields.getPassword;
+import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.util.Chars.isNotEmpty;
+import static com.dbn.common.util.Commons.matchArrays;
+import static com.dbn.common.util.Passwords.clearPassword;
+import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_INCLUDE_WALLET;
 import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_OUTPUT_FILE;
 import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_WALLET_FILE;
@@ -48,6 +57,12 @@ public class ConfigProviderExportForm extends DBNFormBase {
     private JPanel outputFilePanel;
 
     private JTextField wrapperKeyTextField;
+    private DBNCommentLabel wrapperKeyHintLabel;
+    private JPanel databasePasswordPanel;
+    private JBCheckBox includeDatabasePasswordCheckBox;
+    private DBNCommentLabel databasePasswordWarningLabel;
+    private JLabel databasePasswordLabel;
+    private JPasswordField databasePasswordField;
     private TextFieldWithBrowseButton outputFileTextField;
     private JRadioButton clipboardDestinationRadioButton;
     private JRadioButton fileDestinationRadioButton;
@@ -67,6 +82,7 @@ public class ConfigProviderExportForm extends DBNFormBase {
     private final ConnectionHandler connection;
     private final ConnectionSettings connectionSettings;
     private final boolean walletConfigured;
+    private final boolean databasePasswordExportAvailable;
 
     ConfigProviderExportForm(
             @NotNull ConfigProviderExportDialog parent,
@@ -79,9 +95,13 @@ public class ConfigProviderExportForm extends DBNFormBase {
         this.connection = connection;
         this.connectionSettings = connectionSettings;
         this.walletConfigured = ConfigProviderMapper.hasConfiguredWallet(connectionSettings);
+        this.databasePasswordExportAvailable = hasConfiguredDatabasePassword(connectionSettings);
 
         // Fail-fast if .form bindings are wrong
-        if (mainPanel == null || headerPanel == null || outputFilePanel == null || wrapperKeyTextField == null || outputFileTextField == null ||
+        if (mainPanel == null || headerPanel == null || outputFilePanel == null || wrapperKeyTextField == null || wrapperKeyHintLabel == null ||
+                databasePasswordPanel == null || includeDatabasePasswordCheckBox == null || databasePasswordWarningLabel == null ||
+                databasePasswordLabel == null || databasePasswordField == null ||
+                outputFileTextField == null ||
                 clipboardDestinationRadioButton == null || fileDestinationRadioButton == null ||
                 includeWalletCheckBox == null || walletInfoLabel == null || walletPanel == null ||
                 walletFileTextField == null || walletFileHintLabel == null || walletFileLabel == null) {
@@ -99,8 +119,21 @@ public class ConfigProviderExportForm extends DBNFormBase {
         fileDestinationRadioButton.setSelected(true);
 
         initListeners();
+        updateDatabasePasswordControls();
         updateWalletControls();
         updateDestinationControls();
+    }
+
+    private static boolean hasConfiguredDatabasePassword(@NotNull ConnectionSettings connectionSettings) {
+        AuthenticationInfo authentication = connectionSettings.getDatabaseSettings().getAuthenticationInfo();
+        if (authentication == null || authentication.getType() != USER_PASSWORD) return false;
+
+        char[] password = authentication.getPassword();
+        try {
+            return isNotEmpty(password);
+        } finally {
+            clearPassword(password);
+        }
     }
 
     private void initHeaderPanel() {
@@ -150,6 +183,17 @@ public class ConfigProviderExportForm extends DBNFormBase {
             validateFormFields();
         });
 
+        includeDatabasePasswordCheckBox.addActionListener(e -> {
+            if (includeDatabasePasswordCheckBox.isSelected() && !confirmDatabasePasswordExport()) {
+                includeDatabasePasswordCheckBox.setSelected(false);
+            }
+            if (!includeDatabasePasswordCheckBox.isSelected()) {
+                clearDatabasePasswordFields();
+            }
+            updateDatabasePasswordControls();
+            validateFormFields();
+        });
+
         walletFileTextField.addActionListener(e -> chooseWalletFile());
     }
 
@@ -157,6 +201,22 @@ public class ConfigProviderExportForm extends DBNFormBase {
     protected void initValidation() {
         addTextValidation(outputFileTextField.getTextField(), f -> validateOutputFile());
         addTextValidation(walletFileTextField.getTextField(), f -> validateWalletFile());
+        addPasswordValidation(databasePasswordField, password -> !isDatabasePasswordExportSelected() || isNotEmpty(password),
+                txt("msg.connection.error.ExportPasswordRequired"));
+        addPasswordValidation(databasePasswordField, this::matchesConfiguredDatabasePassword,
+                txt("msg.connection.error.ExportPasswordMismatch"));
+    }
+
+    private boolean matchesConfiguredDatabasePassword(char[] password) {
+        if (!isDatabasePasswordExportSelected() || !isNotEmpty(password)) return true;
+
+        AuthenticationInfo authentication = connectionSettings.getDatabaseSettings().getAuthenticationInfo();
+        char[] configuredPassword = authentication == null ? null : authentication.getPassword();
+        try {
+            return matchArrays(configuredPassword, password);
+        } finally {
+            clearPassword(configuredPassword);
+        }
     }
 
     private void chooseOutputFile() {
@@ -211,6 +271,39 @@ public class ConfigProviderExportForm extends DBNFormBase {
         walletFileHintLabel.setVisible(enabled);
     }
 
+    private void updateDatabasePasswordControls() {
+        boolean includePassword = isDatabasePasswordExportSelected();
+        databasePasswordPanel.setVisible(databasePasswordExportAvailable);
+        includeDatabasePasswordCheckBox.setVisible(databasePasswordExportAvailable);
+        databasePasswordWarningLabel.setVisible(includePassword);
+        databasePasswordLabel.setVisible(includePassword);
+        databasePasswordField.setVisible(includePassword);
+    }
+
+    private boolean isDatabasePasswordExportSelected() {
+        return databasePasswordExportAvailable && includeDatabasePasswordCheckBox.isSelected();
+    }
+
+    private boolean confirmDatabasePasswordExport() {
+        int option = Messages.showAcknowledgementDialog(
+                getProject(),
+                txt("msg.connection.title.ExportDatabasePassword"),
+                txt("msg.connection.question.ExportDatabasePassword"),
+                Messages.OPTIONS_YES_NO,
+                1,
+                null);
+        return option == 0;
+    }
+
+    private void clearDatabasePasswordFields() {
+        char[] password = databasePasswordField.getPassword();
+        try {
+            setPassword(databasePasswordField, null);
+        } finally {
+            clearPassword(password);
+        }
+    }
+
     private void updateDestinationControls() {
         boolean clipboardAvailable = !includeWalletCheckBox.isSelected();
         clipboardDestinationRadioButton.setEnabled(clipboardAvailable);
@@ -257,6 +350,8 @@ public class ConfigProviderExportForm extends DBNFormBase {
         String key = Strings.trim(getText(wrapperKeyTextField));
         if (key != null && key.isBlank()) key = null;
 
+        char[] databasePassword = isDatabasePasswordExportSelected() ? getPassword(databasePasswordField) : null;
+
         return ConfigProviderExportRequest.builder()
                 .outputFile(fileDestinationRadioButton.isSelected() ? outputFile : null)
                 .destination(clipboardDestinationRadioButton.isSelected() ?
@@ -264,9 +359,17 @@ public class ConfigProviderExportForm extends DBNFormBase {
                         ConfigProviderExportRequest.Destination.FILE)
                 .formatId("json") // JSON-only UI
                 .wrapperKey(key)
+                .includeDatabasePassword(databasePassword != null)
+                .databasePassword(databasePassword)
                 .includeWallet(includeWalletCheckBox.isSelected())
                 .walletFile(walletFile)
                 .build();
+    }
+
+    @Override
+    public void disposeInner() {
+        clearDatabasePasswordFields();
+        super.disposeInner();
     }
 
     @NotNull

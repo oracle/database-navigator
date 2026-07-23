@@ -3,6 +3,7 @@ package com.dbn.connection.config.export;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
+import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.state.StateCategory;
 import com.dbn.common.state.StateContainer;
@@ -16,7 +17,6 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,9 +28,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.dbn.common.component.Components.applicationService;
+import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.util.Chars.isNotEmpty;
+import static com.dbn.common.util.Commons.matchArrays;
+import static com.dbn.common.util.Passwords.clearPassword;
 import static com.dbn.connection.config.export.JsonExistingContentWriteMode.NONE;
 import static com.dbn.connection.config.export.JsonExistingContentWriteMode.REPLACE_ROOT;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -69,20 +72,27 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
             @NotNull Project project,
             @Nullable ConnectionHandler connection,
             @NotNull ConnectionSettings settings) {
-        Dialogs.show(
-                () -> new ConfigProviderExportDialog(project, this, connection, settings),
-                (dialog, exitCode) -> {
-                    if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
+        Dialogs.show(() -> new ConfigProviderExportDialog(project, this, connection, settings));
+    }
 
-                    ConfigProviderExportRequest request = dialog.getExportRequest();
-                    if (!confirmFileReplacement(project, request)) return;
+    public boolean confirmExport(
+            @NotNull Project project,
+            @NotNull ConfigProviderExportRequest request) {
+        if (!confirmFileReplacement(project, request)) {
+            request.clearDatabasePassword();
+            return false;
+        }
+        return true;
+    }
 
-                    Progress.modal(project, null, true,
-                            "Exporting configuration",
-                            "Writing configuration file...",
-                            progress -> doExport(project, settings, request));
-                }
-        );
+    public void submitExport(
+            @NotNull Project project,
+            @NotNull ConnectionSettings settings,
+            @NotNull ConfigProviderExportRequest request) {
+        Progress.modal(project, null, true,
+                "Exporting configuration",
+                "Writing configuration file...",
+                progress -> doExport(project, settings, request));
     }
 
     private static boolean confirmFileReplacement(@NotNull Project project, @NotNull ConfigProviderExportRequest request) {
@@ -123,7 +133,7 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
 
     private void doExport(Project project, ConnectionSettings settings, ConfigProviderExportRequest request) {
         try {
-            validateRequest(request);
+            validateRequest(settings, request);
 
             // 1) map settings -> domain payload (format-agnostic)
             ConfigProviderPayload payload = ConfigProviderMapper.map(settings, request);
@@ -154,15 +164,22 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
                 showFileExportedDialog(project, request.getOutputFile());
             }
         } catch (Exception e) {
-            boolean sensitive = request.isIncludeWallet();
+            boolean sensitive = request.isIncludeWallet() || request.isIncludeDatabasePassword();
 
             if (sensitive) {
-                conditionallyLog(new RuntimeException("ConfigProvider export failed (" + e.getClass().getName() + "): " + messageOf(e)));
+                conditionallyLog(new RuntimeException(
+                        "Connection settings export failed while processing sensitive content. " +
+                                "Exception type: " + e.getClass().getName()));
+                Messages.showErrorDialog(
+                        project,
+                        txt("msg.connection.title.ExportFailed"),
+                        txt("msg.connection.error.SensitiveExportFailed"));
             } else {
                 conditionallyLog(e);
+                Messages.showErrorDialog(project, txt("msg.connection.title.ExportFailed"), userMessage(e));
             }
-
-            Messages.showErrorDialog(project, txt("msg.connection.title.ExportFailed"), userMessage(e));
+        } finally {
+            request.clearDatabasePassword();
         }
     }
 
@@ -194,10 +211,12 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
         }
     }
 
-    private static void validateRequest(ConfigProviderExportRequest request) {
+    private static void validateRequest(ConnectionSettings settings, ConfigProviderExportRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Export request is missing.");
         }
+
+        validateDatabasePassword(settings, request);
 
         if (request.getDestination() != ConfigProviderExportRequest.Destination.CLIPBOARD) {
             Path outputFile = request.getOutputFile();
@@ -234,6 +253,27 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
             if (!Files.isReadable(walletFile)) {
                 throw new IllegalArgumentException("Wallet file is not readable: " + walletFile);
             }
+        }
+    }
+
+    static void validateDatabasePassword(
+            @NotNull ConnectionSettings settings,
+            @NotNull ConfigProviderExportRequest request) {
+        if (!request.isIncludeDatabasePassword()) return;
+
+        char[] exportPassword = request.getDatabasePassword();
+        if (!isNotEmpty(exportPassword)) {
+            throw new IllegalArgumentException(txt("msg.connection.error.ExportPasswordRequired"));
+        }
+
+        AuthenticationInfo authentication = settings.getDatabaseSettings().getAuthenticationInfo();
+        char[] configuredPassword = authentication == null ? null : authentication.getPassword();
+        try {
+            if (!matchArrays(configuredPassword, exportPassword)) {
+                throw new IllegalArgumentException(txt("msg.connection.error.ExportPasswordMismatch"));
+            }
+        } finally {
+            clearPassword(configuredPassword);
         }
     }
 
