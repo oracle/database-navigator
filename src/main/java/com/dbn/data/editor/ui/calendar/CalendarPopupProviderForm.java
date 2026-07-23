@@ -19,7 +19,7 @@ package com.dbn.data.editor.ui.calendar;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.locale.Formatter;
+import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
@@ -58,6 +58,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -78,19 +79,45 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
     private JLabel timeLabel;
     private JPanel actionsPanelBottom;
     private JPanel headerSeparatorPanel;
+    private DBNHyperlinkLabel dateTimeLink;
+    private CalendarPopupType type;
 
-    public CalendarPopupProviderForm(TextFieldWithPopup<?> textField, boolean autoPopup) {
+    public CalendarPopupProviderForm(
+            TextFieldWithPopup<?> textField,
+            boolean autoPopup,
+            @NotNull CalendarPopupType type) {
         super(textField, autoPopup, true);
-        calendarPanel.setBackground(weeksTable.getBackground());
-        daysTable.addKeyListener(this);
-        timeTextField.addKeyListener(this);
+        this.type = type;
 
+        initLayout();
+        initTimeFields();
+        initWeeksTable();
+        initDaysTable();
+        initActionToolbars();
+        updateComponentColors();
+        Colors.subscribe(this, () -> updateComponentColors());
+    }
+
+    private void initLayout() {
+        calendarPanel.setBackground(weeksTable.getBackground());
+        calendarPanel.setBorder(Borders.COMPONENT_OUTLINE_BORDER);
+        headerSeparatorPanel.setBorder(Borders.BOTTOM_LINE_BORDER);
+    }
+
+    private void initTimeFields() {
+        dateTimeLink.setHyperlinkText(txt("app.dataEditor.link.SpecifyTime"));
+        onHyperlinkAccess(dateTimeLink, e -> setType(CalendarPopupType.DATE_TIME));
+        timeTextField.addKeyListener(this);
+    }
+
+    private void initWeeksTable() {
         weeksTable.setDefaultRenderer(Object.class, HEADER_CELL_RENDERER);
         weeksTable.setFocusable(false);
         weeksTable.setShowGrid(false);
-        calendarPanel.setBorder(Borders.COMPONENT_OUTLINE_BORDER);
-        headerSeparatorPanel.setBorder(Borders.BOTTOM_LINE_BORDER);
+    }
 
+    private void initDaysTable() {
+        daysTable.addKeyListener(this);
         daysTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         daysTable.setDefaultRenderer(Object.class, CELL_RENDERER);
         daysTable.getTableHeader().setDefaultRenderer(HEADER_CELL_RENDERER);
@@ -101,17 +128,9 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
                 selectDate();
             }
         }));
+    }
 
-        /*tDays.addMouseMotionListener(new MouseMotionAdapter() {
-            public void mouseMoved(MouseEvent e) {
-                final Point point = e.getPoint();
-                int rowIndex = tDays.rowAtPoint(point);
-                int columnIndex = tDays.columnAtPoint(point);
-                tDays.setRowSelectionInterval(rowIndex, rowIndex);
-                tDays.setColumnSelectionInterval(columnIndex, columnIndex);
-            }
-        });*/
-
+    private void initActionToolbars() {
         ActionToolbar actionToolbarLeft = Actions.createActionToolbar(actionsLeftPanel, true, "DBN.Calendar.Left");
         ActionToolbar actionToolbarRight = Actions.createActionToolbar(actionsLeftPanel, true, "DBN.Calendar.Right");
         ActionToolbar actionToolbarBottom = Actions.createActionToolbar(actionsLeftPanel, true, "DBN.Calendar.Bottom");
@@ -121,10 +140,6 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
         actionsLeftPanel.add(actionToolbarLeft.getComponent(), BorderLayout.WEST);
         actionsRightPanel.add(actionToolbarRight.getComponent(), BorderLayout.EAST);
         actionsPanelBottom.add(actionToolbarBottom.getComponent(), BorderLayout.EAST);
-
-
-        updateComponentColors();
-        Colors.subscribe(this, () -> updateComponentColors());
     }
 
     private void updateComponentColors() {
@@ -147,8 +162,20 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
         return mainPanel;
     }
 
-    public Formatter getFormatter() {
-        return Formatter.getInstance(ensureProject());
+    private void setType(@NotNull CalendarPopupType type) {
+        this.type = type;
+        boolean timeVisible = type == CalendarPopupType.DATE_TIME;
+        timePanel.setVisible(timeVisible);
+        dateTimeLink.setVisible(!timeVisible);
+        if (timeVisible) timeTextField.setText(ensureFormatter().formatTime(new Date()));
+        getMainComponent().revalidate();
+        getMainComponent().doLayout();
+
+        JBPopup popup = getPopup();
+        if (popup != null && popup.isVisible()) {
+            popup.pack(false, true);
+            popup.moveToFitScreen();
+        }
     }
 
     private Date getDateForPopup() {
@@ -156,7 +183,7 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
         if (userValueHolder == null) {
             String dateString = getText(getEditorComponent().getTextField());
             try {
-                return getFormatter().parseDateTime(dateString);
+                return ensureFormatter().parseDateTime(dateString);
             } catch (ParseException e) {
                 conditionallyLog(e);
                 return new Date();
@@ -192,8 +219,13 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
 
         monthYearLabel.setText(tableModel.getCurrentMonthName() + " " + tableModel.getCurrentYear());
 
-        timeTextField.setText(getFormatter().formatTime(date));
-        timeLabel.setText(txt("msg.dataEditor.label.TimeFormat", getFormatter().getTimeFormatPattern()));
+        boolean timeVisible = type == CalendarPopupType.DATE_TIME;
+        timePanel.setVisible(timeVisible);
+        dateTimeLink.setVisible(!timeVisible);
+        if (timeVisible) {
+            timeTextField.setText(getFormatter().formatTime(date));
+            timeLabel.setText(txt("msg.dataEditor.label.TimeFormat", getFormatter().getTimeFormatPattern()));
+        }
 
         return popupBuilder.createPopup();
     }
@@ -224,10 +256,11 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
         Date date = model.getTimestamp(
                 daysTable.getSelectedRow(),
                 daysTable.getSelectedColumn(),
-                getText(timeTextField),
+                type == CalendarPopupType.DATE ? "" : getText(timeTextField),
                 getFormatter());
         TextFieldWithPopup editorComponent = getEditorComponent();
-        editorComponent.setText(getFormatter().formatDateTime(date));
+        editorComponent.setText(type == CalendarPopupType.DATE ?
+                getFormatter().formatDate(date) : getFormatter().formatDateTime(date));
         hidePopup();
         getTextField().requestFocus();
     }

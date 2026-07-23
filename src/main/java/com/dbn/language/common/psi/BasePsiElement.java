@@ -78,7 +78,6 @@ import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.impl.source.tree.FileElement;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
-
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -90,6 +89,12 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.GENERIC;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_DEMARCATION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_ISOLATION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SPECIFIC;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SPECIFIC_OVERRIDE;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
 import static com.dbn.language.common.psi.PsiUtil.SUPPORTED_VISITORS;
 
 public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapperPsiElement implements DatabaseContextBase, ItemPresentation, FormattingProviderPsiElement {
@@ -573,7 +578,12 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
     }
 
     public boolean isScopeBoundary() {
-        return elementType.scopeDemarcation || elementType.scopeIsolation || getNode().getTreeParent() instanceof FileElement;
+        if (elementType.is(STATEMENT)) return true;
+        if (elementType.is(SCOPE_DEMARCATION)) return true;
+        if (elementType.is(SCOPE_ISOLATION)) return true;
+        if (getNode().getTreeParent() instanceof FileElement) return true;
+
+        return false;
     }
 
     @Nullable
@@ -600,11 +610,11 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
 
     protected ElementType resolveSpecificElementType(boolean override) {
         ElementType elementType = this.elementType;
-        if (elementType.is(ElementTypeAttribute.GENERIC)) {
+        if (elementType.is(GENERIC)) {
 
             BasePsiElement specificElement = override ?
-                    findFirstPsiElement(ElementTypeAttribute.SPECIFIC_OVERRIDE) :
-                    findFirstPsiElement(ElementTypeAttribute.SPECIFIC);
+                    findFirstPsiElement(SPECIFIC_OVERRIDE) :
+                    findFirstPsiElement(SPECIFIC);
             if (specificElement != null) {
                 elementType = specificElement.elementType;
             }

@@ -16,16 +16,38 @@
 
 package com.dbn.common.ui.link;
 
+import com.intellij.openapi.util.NlsContexts.LinkLabel;
 import com.intellij.ui.HyperlinkAdapter;
 import com.intellij.ui.HyperlinkLabel;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.event.HyperlinkEvent;
 import java.util.function.Consumer;
 
+import static com.dbn.common.ui.util.ClientProperty.NON_DISABLEABLE;
+
 @UtilityClass
 public class Hyperlinks {
+    public static void initHyperlink(
+            @NotNull HyperlinkLabel hyperlink,
+            @LinkLabel String text,
+            @Nullable @NonNls String target) {
+        NON_DISABLEABLE.set(hyperlink, true);
+        hyperlink.setHyperlinkText(text);
+        hyperlink.setHyperlinkTarget(target);
+        hyperlink.setToolTipText(target);
+    }
+
+    public static void initHyperlink(
+            @NotNull HyperlinkLabel hyperlink,
+            @LinkLabel String text,
+            @NotNull Runnable action) {
+        initHyperlink(hyperlink, text, (String) null);
+        onHyperlinkAccess(hyperlink, e -> action.run());
+    }
 
     public static void onHyperlinkAccess(HyperlinkLabel hyperlinkLabel, Consumer<HyperlinkEvent> action) {
         hyperlinkLabel.addHyperlinkListener(new HyperlinkAdapter() {

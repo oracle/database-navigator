@@ -16,7 +16,6 @@
 
 package com.dbn.common.ui.messages;
 
-import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.option.RememberOption;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Dialogs;
@@ -34,6 +33,7 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
+import java.util.Collections;
 import java.util.List;
 
 public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
@@ -107,10 +107,9 @@ public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
         return actions;
     }
 
-    //@Override
-    @Workaround
+    @Override
     protected void sortActionsOnMac(@NotNull List<Action> actions) {
-        // TODO proper action sequence support needed in "Messages" utility
+        Collections.reverse(actions);
     }
 
     private @NotNull AbstractAction createAction(int exitCode) {

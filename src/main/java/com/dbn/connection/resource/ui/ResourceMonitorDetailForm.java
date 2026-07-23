@@ -23,7 +23,6 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.table.DBNTable;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionPool;
 import com.dbn.connection.ConnectionRef;
@@ -51,7 +50,9 @@ import java.awt.event.ActionListener;
 
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
-import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.connection.transaction.TransactionAction.actions;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -143,11 +144,11 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
             DatabaseSession session = getSelectedSession();
             if (session != null) {
                 ConnectionHandler connection = getConnection();
-                Messages.showQuestionDialog(getProject(),
+                showQuestionDialog(getProject(),
                         txt("msg.sessions.title.DisconnectSession"),
                         txt("msg.sessions.question.DisconnectSession", session, connection),
-                        Messages.OPTIONS_YES_NO, 0,
-                        option -> when(option == 0, () -> {
+                        OPTIONS_YES_NO, 0,
+                        whenOk(() -> {
                             DBNConnection conn = getSelectedConnection();
                             if (conn != null) {
                                 DatabaseTransactionManager transactionManager = getTransactionManager();
@@ -175,11 +176,11 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();
             if (session != null) {
-                Messages.showQuestionDialog(getProject(),
+                showQuestionDialog(getProject(),
                         txt("msg.sessions.title.DeleteSession"),
                         txt("msg.sessions.question.DeleteSession", session, getConnection()),
-                        Messages.OPTIONS_YES_NO, 0,
-                        option -> when(option == 0, () -> {
+                        OPTIONS_YES_NO, 0,
+                        whenOk(() -> {
                             Project project = ensureProject();
                             DatabaseSessionManager sessionManager = DatabaseSessionManager.getInstance(project);
                             sessionManager.deleteSession(session);

@@ -16,7 +16,6 @@
 
 package com.dbn.sync.java.download.ui;
 
-import com.dbn.common.file.VirtualFilePresentable;
 import com.dbn.common.project.ModulePresentable;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
@@ -24,7 +23,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.list.CheckBoxList;
-import com.dbn.common.ui.util.ComboBoxes;
+import com.dbn.common.ui.misc.ContentRootSelector;
 import com.dbn.object.common.DBObject;
 import com.dbn.sync.java.download.JavaDownloadBatch;
 import com.dbn.sync.java.download.JavaDownloadInput;
@@ -59,7 +58,7 @@ public class JavaDownloadInputForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel targetLocationPanel;
     private JComboBox<ModulePresentable> moduleComboBox;
-    private JComboBox<VirtualFilePresentable> contentRootComboBox;
+    private ContentRootSelector contentRootComboBox;
     private CheckBoxList<JavaDownloadTask> contentList;
     private JPanel hintPanel;
     private JPanel contentPanel;
@@ -142,14 +141,13 @@ public class JavaDownloadInputForm extends DBNFormBase {
     private void initContentRoots() {
         Module module = getSelectedModule();
         if (module == null) {
-            ComboBoxes.initComboBox(contentRootComboBox);
+            contentRootComboBox.setContentRoots(new VirtualFile[0]);
         } else {
             ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
             Set<? extends JpsModuleSourceRootType<?>> rootTypes = cast(getSourceRootTypes());
             List<VirtualFile> sourceRoots = moduleRootManager.getSourceRoots(rootTypes);
 
-            List<VirtualFilePresentable> presentableFiles = VirtualFilePresentable.fromFiles(sourceRoots);
-            ComboBoxes.initComboBox(contentRootComboBox, presentableFiles);
+            contentRootComboBox.setContentRoots(sourceRoots);
         }
     }
 
@@ -186,13 +184,7 @@ public class JavaDownloadInputForm extends DBNFormBase {
     }
 
     @Nullable
-    private VirtualFile getSelectedContentRoot() {
-        VirtualFilePresentable presentable = getSelection(contentRootComboBox);
-        return presentable == null ? null : presentable.getFile();
-    }
-
     private String getSelectedContentPath() {
-        VirtualFile selectedContentRoot = getSelectedContentRoot();
-        return selectedContentRoot == null ? null : selectedContentRoot.getPath();
+        return contentRootComboBox.getSelectedPath();
     }
 }
