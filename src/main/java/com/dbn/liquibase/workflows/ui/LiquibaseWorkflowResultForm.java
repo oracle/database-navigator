@@ -10,16 +10,24 @@
 
 package com.dbn.liquibase.workflows.ui;
 
+import com.dbn.common.action.DataKeys;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
+import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Splitters;
 import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Actions;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.execution.action.LiquibaseWorkflowCloseAction;
+import com.dbn.liquibase.execution.action.LiquibaseWorkflowRerunAction;
+import com.dbn.liquibase.execution.action.LiquibaseWorkflowSettingsAction;
+import com.dbn.liquibase.execution.action.LiquibaseWorkflowStopAction;
 import com.dbn.liquibase.execution.ui.LiquibaseExecutionResultForm;
 import com.dbn.liquibase.workflows.LiquibaseWorkflowResult;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,11 +41,14 @@ import javax.swing.ListModel;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /** Result form for a Liquibase workflow, with one operation result available at a time. */
 public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<LiquibaseWorkflowResult> {
     private JPanel mainPanel;
     private JPanel resultPanel;
     private JList<LiquibaseOperation> operationsList;
+    private JPanel actionsPanel;
     private JSplitPane splitPane;
 
     private final Runnable resultListener = this::refreshSelectedOperation;
@@ -47,6 +58,7 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
     public LiquibaseWorkflowResultForm(@NotNull LiquibaseWorkflowResult result) {
         super(result);
 
+        initActionsPanel();
         operationsList.setCellRenderer(new OperationListCellRenderer());
         operationsList.addListSelectionListener(e -> showSelectedOperation());
         operationsList.setModel(createModel(result));
@@ -54,6 +66,19 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
 
         Splitters.setSplitPaneProportion(splitPane, 0.2);
         result.addListener(resultListener);
+    }
+
+    private void initActionsPanel() {
+        ActionToolbar actionToolbar = Actions.createActionToolbar(
+                actionsPanel,
+                false,
+                new LiquibaseWorkflowCloseAction(),
+                new LiquibaseWorkflowStopAction(),
+                new LiquibaseWorkflowRerunAction(),
+                Actions.SEPARATOR,
+                new LiquibaseWorkflowSettingsAction());
+        Accessibility.setAccessibleName(actionToolbar, txt("app.liquibase.aria.ExecutionResultActions"));
+        actionsPanel.add(actionToolbar.getComponent());
     }
 
     private void refreshSelectedOperation() {
@@ -73,7 +98,7 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
         if (result == null) return;
 
         LiquibaseExecutionResultForm resultForm = resultForms.computeIfAbsent(
-                operation, key -> new LiquibaseExecutionResultForm(result));
+                operation, key -> new LiquibaseExecutionResultForm(result, true));
         resultPanel.add(resultForm.getComponent());
         UserInterface.repaint(resultPanel);
     }
@@ -127,6 +152,12 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
     @Override
     public JPanel getMainComponent() {
         return mainPanel;
+    }
+
+    @Override
+    public Object getData(@NotNull String dataId) {
+        if (DataKeys.LIQUIBASE_WORKFLOW_RESULT.is(dataId)) return getExecutionResult();
+        return null;
     }
 
     @Override

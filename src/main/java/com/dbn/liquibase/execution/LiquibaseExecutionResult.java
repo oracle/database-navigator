@@ -253,7 +253,7 @@ public class LiquibaseExecutionResult extends ExecutionResultBase<LiquibaseExecu
     @Nullable
     @Override
     public LiquibaseExecutionResultForm createForm() {
-        return new LiquibaseExecutionResultForm(this);
+        return new LiquibaseExecutionResultForm(this, false);
     }
 
     @NotNull

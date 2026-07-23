@@ -62,7 +62,7 @@ public class LiquibaseWorkflowResult extends ExecutionResultBase<LiquibaseWorkfl
         listeners.remove(listener);
     }
 
-    private void notifyChanged() {
+    void notifyChanged() {
         listeners.notify(Runnable::run);
     }
 

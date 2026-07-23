@@ -41,9 +41,12 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
     private LiquibaseComparisonItemsTableModel comparisonItemsTableModel;
     private LiquibaseLockItemsTableModel lockItemsTableModel;
     private int outputOffset;
+    private boolean embedded;
 
-    public LiquibaseExecutionResultForm(@NotNull LiquibaseExecutionResult result) {
+    public LiquibaseExecutionResultForm(@NotNull LiquibaseExecutionResult result, boolean embedded) {
         super(result);
+        this.embedded = embedded;
+
         initActionsPanel();
         initSummaryPanel();
         initConsolePanel();
@@ -54,6 +57,8 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
     }
 
     private void initActionsPanel() {
+        actionsPanel.setVisible(!embedded);
+        if (embedded) return;
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBN.Execution.Liquibase.Result");
         Accessibility.setAccessibleName(actionToolbar, txt("app.liquibase.aria.ExecutionResultActions"));
         actionsPanel.add(actionToolbar.getComponent());

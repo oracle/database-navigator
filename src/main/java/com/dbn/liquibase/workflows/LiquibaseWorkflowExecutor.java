@@ -39,6 +39,7 @@ public class LiquibaseWorkflowExecutor {
             if (result.getContext().isCancellationRequested()) {
                 skipOperations(operations, index, TaskStatus.CANCELLED);
                 result.getContext().finish(TaskStatus.CANCELLED);
+                result.notifyChanged();
                 return;
             }
 
@@ -47,11 +48,13 @@ public class LiquibaseWorkflowExecutor {
             if (status == TaskStatus.FAILED || status == TaskStatus.CANCELLED) {
                 skipOperations(operations, index + 1, TaskStatus.SKIPPED);
                 result.getContext().finish(status);
+                result.notifyChanged();
                 return;
             }
         }
 
         result.getContext().finish(TaskStatus.DONE);
+        result.notifyChanged();
     }
 
     public void cancel() {
