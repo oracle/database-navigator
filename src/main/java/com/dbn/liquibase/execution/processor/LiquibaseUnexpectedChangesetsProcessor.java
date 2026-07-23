@@ -6,13 +6,13 @@
 
 package com.dbn.liquibase.execution.processor;
 
-import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
-import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
-import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
+import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationContext;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
+import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import liquibase.changelog.ChangeLogParameters;
 import liquibase.changelog.ChangeSet;
@@ -36,7 +36,7 @@ public class LiquibaseUnexpectedChangesetsProcessor extends LiquibaseExecutionPr
     }
 
     @Override
-    protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+    protected void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception {
         prepareChangelogContext(context, true);
 
         DBSchema targetSchema = context.getTargetSchema();
@@ -46,7 +46,7 @@ public class LiquibaseUnexpectedChangesetsProcessor extends LiquibaseExecutionPr
     }
 
     private void executeUnexpectedChangesets(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
         LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
@@ -61,7 +61,7 @@ public class LiquibaseUnexpectedChangesetsProcessor extends LiquibaseExecutionPr
                 changeLog,
                 parameters.getContexts(),
                 parameters.getLabels());
-        LiquibaseExecutionResult result = context.getResult();
+        LiquibaseOperationResult result = context.getResult();
         for (RanChangeSet ranChangeSet : unexpected) {
             checkCanceled(context);
             ChangeSet changeSet = new ChangeSet(

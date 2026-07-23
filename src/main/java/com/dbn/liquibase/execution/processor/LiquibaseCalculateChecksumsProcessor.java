@@ -7,12 +7,12 @@
 package com.dbn.liquibase.execution.processor;
 
 import com.dbn.liquibase.execution.LiquibaseChangeSetItem;
-import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
-import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
-import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
+import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationContext;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
+import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import liquibase.change.CheckSum;
 import liquibase.changelog.ChangeLogParameters;
@@ -43,7 +43,7 @@ public class LiquibaseCalculateChecksumsProcessor extends LiquibaseExecutionProc
     }
 
     @Override
-    protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+    protected void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception {
         prepareChangelogContext(context, true);
 
         DBSchema targetSchema = context.getTargetSchema();
@@ -53,7 +53,7 @@ public class LiquibaseCalculateChecksumsProcessor extends LiquibaseExecutionProc
     }
 
     private void executeCalculateChecksums(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
         LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
@@ -62,7 +62,7 @@ public class LiquibaseCalculateChecksumsProcessor extends LiquibaseExecutionProc
                 .getParser(paths.getMasterChangelogRelativePath(), resourceAccessor)
                 .parse(paths.getMasterChangelogRelativePath(), new ChangeLogParameters(database), resourceAccessor);
 
-        LiquibaseExecutionResult result = context.getResult();
+        LiquibaseOperationResult result = context.getResult();
         List<LiquibaseChangeSetItem> items = new ArrayList<>();
         for (ChangeSet changeSet : changeLog.getChangeSets()) {
             checkCanceled(context);

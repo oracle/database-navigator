@@ -10,12 +10,12 @@
 
 package com.dbn.liquibase.execution.processor;
 
-import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
-import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
-import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
+import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationContext;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
+import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
@@ -34,10 +34,10 @@ public class LiquibaseSynchronizeChangelogToTagProcessor extends LiquibaseExecut
     }
 
     @Override
-    protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+    protected void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception {
         prepareChangelogContext(context, true);
 
-        LiquibaseExecutionResult result = context.getResult();
+        LiquibaseOperationResult result = context.getResult();
         LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
         Path changelogFile = paths.getMasterChangelogPath();
         DBSchema targetSchema = context.getTargetSchema();
@@ -53,7 +53,7 @@ public class LiquibaseSynchronizeChangelogToTagProcessor extends LiquibaseExecut
     }
 
     private static void executeSynchronize(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output,
             @NotNull String tag) throws Exception {

@@ -11,7 +11,7 @@
 package com.dbn.liquibase.execution.processor;
 
 import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import liquibase.changelog.ChangeSet;
 import liquibase.changelog.DatabaseChangeLog;
 import liquibase.database.Database;
@@ -21,7 +21,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 /** Tracks changesets marked as executed by a changelog synchronization operation. */
 final class LiquibaseChangeSetSynchronizeListener extends LiquibaseChangeSetListener {
-    LiquibaseChangeSetSynchronizeListener(@NotNull LiquibaseExecutionResult result) {
+    LiquibaseChangeSetSynchronizeListener(@NotNull LiquibaseOperationResult result) {
         super(result);
     }
 

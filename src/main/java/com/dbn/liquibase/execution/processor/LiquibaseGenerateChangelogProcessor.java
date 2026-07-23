@@ -16,11 +16,11 @@
 
 package com.dbn.liquibase.execution.processor;
 
-import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
-import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
+import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationContext;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import com.dbn.object.DBSchema;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
@@ -56,17 +56,17 @@ public class LiquibaseGenerateChangelogProcessor extends LiquibaseExecutionProce
     }
 
     @Override
-    protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+    protected void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception {
         prepareChangelogContext(context, false);
         prepareChangelogOutput(context);
 
-        LiquibaseExecutionResult result = context.getResult();
+        LiquibaseOperationResult result = context.getResult();
         Path changelogFile = context.getInput().getWorkspacePaths().getMasterChangelogPath();
         generateChangelog(context);
         result.appendConsoleOutput(txt("log.liquibase.info.InitialChangelogGenerated", changelogFile));
     }
 
-    private void generateChangelog(@NotNull LiquibaseExecutionContext context) throws Exception {
+    private void generateChangelog(@NotNull LiquibaseOperationContext context) throws Exception {
         Path changelogFile = context.getInput().getWorkspacePaths().getMasterChangelogPath();
 
         DBSchema sourceSchema = context.getSourceSchema();
@@ -84,7 +84,7 @@ public class LiquibaseGenerateChangelogProcessor extends LiquibaseExecutionProce
     }
 
     private void executeGeneration(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
 

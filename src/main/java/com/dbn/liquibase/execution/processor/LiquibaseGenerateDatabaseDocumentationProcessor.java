@@ -10,11 +10,11 @@
 
 package com.dbn.liquibase.execution.processor;
 
-import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
-import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
+import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationContext;
+import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import liquibase.CatalogAndSchema;
 import liquibase.changelog.ChangeLogParameters;
@@ -42,7 +42,7 @@ public class LiquibaseGenerateDatabaseDocumentationProcessor extends LiquibaseEx
     }
 
     @Override
-    protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+    protected void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception {
         prepareChangelogContext(context, true);
 
         LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
@@ -60,7 +60,7 @@ public class LiquibaseGenerateDatabaseDocumentationProcessor extends LiquibaseEx
     }
 
     private void executeDocumentation(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output,
             @NotNull Path documentationDirectory) throws Exception {

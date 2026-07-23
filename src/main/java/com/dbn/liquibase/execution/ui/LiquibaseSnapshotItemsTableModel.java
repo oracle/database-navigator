@@ -1,8 +1,8 @@
 package com.dbn.liquibase.execution.ui;
 
 import com.dbn.common.ui.table.DBNDynamicTableModel;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseSnapshotItem;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import liquibase.structure.core.Schema;
 import lombok.Getter;
 
@@ -12,9 +12,9 @@ import static com.dbn.nls.NlsResources.txt;
 /** Table model for database objects discovered during a Liquibase snapshot. */
 @Getter
 public class LiquibaseSnapshotItemsTableModel extends DBNDynamicTableModel<LiquibaseSnapshotItem> {
-    private final LiquibaseExecutionResult result;
+    private final LiquibaseOperationResult result;
 
-    LiquibaseSnapshotItemsTableModel(LiquibaseExecutionResult result) {
+    public LiquibaseSnapshotItemsTableModel(LiquibaseOperationResult result) {
         super(LiquibaseSnapshotItem.class, result.getSnapshotItems());
         this.result = result;
         addColumn(txt("app.liquibase.column.DiscoveryOrder"), e -> getData().indexOf(e) + 1);

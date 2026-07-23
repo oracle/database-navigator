@@ -31,20 +31,20 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.execution.ExecutionManager;
-import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionHistory;
-import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
-import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.processor.LiquibaseExecutionProcessors;
-import com.dbn.liquibase.model.LiquibaseWorkspace;
-import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
-import com.dbn.liquibase.ui.LiquibaseWorkspaceBundleSettingsDialog;
-import com.dbn.liquibase.ui.LiquibaseWorkspaceSettingsDialog;
-import com.dbn.liquibase.workflows.LiquibaseWorkflowExecutor;
-import com.dbn.liquibase.workflows.LiquibaseWorkflowInput;
-import com.dbn.liquibase.workflows.LiquibaseWorkflowResult;
+import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationContext;
+import com.dbn.liquibase.operation.LiquibaseOperationInput;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
+import com.dbn.liquibase.workflow.LiquibaseWorkflowExecutor;
+import com.dbn.liquibase.workflow.LiquibaseWorkflowInput;
+import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
+import com.dbn.liquibase.workspace.LiquibaseWorkspace;
+import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
+import com.dbn.liquibase.workspace.ui.LiquibaseWorkspaceBundleSettingsDialog;
+import com.dbn.liquibase.workspace.ui.LiquibaseWorkspaceSettingsDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -72,7 +72,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     private final StateContainer states = new StateContainer();
     private final LiquibaseWorkspaceBundle workspaces;
     private final LiquibaseExecutionHistory executionHistory = new LiquibaseExecutionHistory();
-    private final Map<LiquibaseExecutionResult, LiquibaseExecutionContext> executionContexts = new ConcurrentHashMap<>();
+    private final Map<LiquibaseOperationResult, LiquibaseOperationContext> executionContexts = new ConcurrentHashMap<>();
     private final Map<LiquibaseWorkflowResult, LiquibaseWorkflowExecutor> workflowExecutors = new ConcurrentHashMap<>();
 
     private DatabaseLiquibaseManager(@NotNull Project project) {
@@ -122,33 +122,33 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
                 whenOk(d -> workspaces.replaceWorkspaces(d.getWorkspaces())));
     }
 
-    public void cancelExecution(@NotNull LiquibaseExecutionResult result) {
-        LiquibaseExecutionContext context = executionContexts.get(result);
+    public void cancelExecution(@NotNull LiquibaseOperationResult result) {
+        LiquibaseOperationContext context = executionContexts.get(result);
         if (context != null) context.cancel();
     }
 
     public void registerExecutionContext(
-            @NotNull LiquibaseExecutionResult result,
-            @NotNull LiquibaseExecutionContext context) {
+            @NotNull LiquibaseOperationResult result,
+            @NotNull LiquibaseOperationContext context) {
         executionContexts.put(result, context);
     }
 
-    public void unregisterExecutionContext(@NotNull LiquibaseExecutionResult result) {
+    public void unregisterExecutionContext(@NotNull LiquibaseOperationResult result) {
         executionContexts.remove(result);
     }
 
-    public void rerunOperation(@NotNull LiquibaseExecutionResult previousResult) {
+    public void rerunOperation(@NotNull LiquibaseOperationResult previousResult) {
         executeOperation(previousResult.getInput(), previousResult);
     }
 
     public void executeOperation(
-            @NotNull LiquibaseExecutionInput input,
-            @Nullable LiquibaseExecutionResult previousResult) {
+            @NotNull LiquibaseOperationInput input,
+            @Nullable LiquibaseOperationResult previousResult) {
 
         LiquibaseOperation operation = input.getOperation();
         LiquibaseExecutionProcessor processor = LiquibaseExecutionProcessors.get(operation);
-        LiquibaseExecutionContext context = new LiquibaseExecutionContext(input);
-        LiquibaseExecutionResult result = context.prepareExecutionResult();
+        LiquibaseOperationContext context = new LiquibaseOperationContext(input);
+        LiquibaseOperationResult result = context.prepareExecutionResult();
         result.setPrevious(previousResult);
         registerExecutionContext(result, context);
 

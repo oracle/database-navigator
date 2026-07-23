@@ -30,7 +30,11 @@ import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionLogService;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
-import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
+import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationContext;
+import com.dbn.liquibase.operation.LiquibaseOperationInput;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
+import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.type.DBObjectType;
@@ -84,7 +88,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.isLiquibaseTrackingObject;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.resolveObjectType;
-import static com.dbn.liquibase.execution.LiquibaseOperationConfirmations.ensureConfirmed;
+import static com.dbn.liquibase.operation.LiquibaseOperationConfirmations.ensureConfirmed;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
 import static com.dbn.object.type.DBObjectType.BROWSABLE_TYPES;
@@ -94,7 +98,7 @@ import static liquibase.Scope.child;
  * Base class for state-independent processors that execute a single Liquibase operation.
  *
  * <p>A processor instance is registered as an extension-point prototype and receives the mutable
- * execution state through {@link LiquibaseExecutionContext}. This keeps operation-specific logic
+ * execution state through {@link LiquibaseOperationContext}. This keeps operation-specific logic
  * reusable while allowing cancellation, logging, timing, and result publication to remain shared
  * across all Liquibase operations.</p>
  *
@@ -109,7 +113,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     protected LiquibaseExecutionProcessor() {
     }
 
-    protected static void rememberTag(@NotNull LiquibaseExecutionContext context, DBSchema targetSchema, String tag) {
+    protected static void rememberTag(@NotNull LiquibaseOperationContext context, DBSchema targetSchema, String tag) {
         DatabaseLiquibaseManager liquibaseManager = context.getLiquibaseManager();
         liquibaseManager.rememberTag(
                 targetSchema.getConnectionId(),
@@ -117,7 +121,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
                 tag);
     }
 
-    protected static @NotNull DirectoryResourceAccessor contentRootAccessor(LiquibaseExecutionContext context) throws FileNotFoundException {
+    protected static @NotNull DirectoryResourceAccessor contentRootAccessor(LiquibaseOperationContext context) throws FileNotFoundException {
         LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
         return new DirectoryResourceAccessor(paths.getContentRootPath());
     }
@@ -138,7 +142,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
 
     @NotNull
     protected final List<ChangeSet> discoverPendingChangeSets(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             @NotNull Database database) throws Exception {
         LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
         ResourceAccessor resourceAccessor = contentRootAccessor(context);
@@ -157,7 +161,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
 
     @NotNull
     protected final List<LiquibaseChangeSetItem> discoverChangeSetItems(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
             @NotNull Function<ChangeSet, String> messageFunction) throws Exception {
         List<LiquibaseChangeSetItem> items = new ArrayList<>();
@@ -171,10 +175,10 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     }
 
     protected final void completeChangeSetItems(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             @NotNull List<LiquibaseChangeSetItem> items,
             @NotNull Function<LiquibaseChangeSetItem, String> messageFunction) {
-        LiquibaseExecutionResult result = context.getResult();
+        LiquibaseOperationResult result = context.getResult();
         for (LiquibaseChangeSetItem item : items) {
             item.updateStatus(LiquibaseExecutionItemStatus.PROCESSED, messageFunction.apply(item));
         }
@@ -182,10 +186,10 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     }
 
     protected final void collectDatabaseObjects(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
             @NotNull String schemaName) throws Exception {
-        LiquibaseExecutionResult result = context.getResult();
+        LiquibaseOperationResult result = context.getResult();
         SnapshotControl snapshotControl = new SnapshotControl(database);
         snapshotControl.setSnapshotListener(new SnapshotListener() {
             @Override
@@ -240,7 +244,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
                 describe(resolveObjectType(containerObject), containerObject.getName()));
     }
 
-    protected static @NotNull Consumer<String> sqlOutputBuilder(@NotNull LiquibaseExecutionContext context) {
+    protected static @NotNull Consumer<String> sqlOutputBuilder(@NotNull LiquibaseOperationContext context) {
         return sql -> context.getResult().appendSqlOutput(sql);
     }
 
@@ -279,8 +283,8 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
         }
     }
 
-    protected final void prepareChangelogOutput(@NotNull LiquibaseExecutionContext context) throws Exception {
-        LiquibaseExecutionInput input = context.getInput();
+    protected final void prepareChangelogOutput(@NotNull LiquibaseOperationContext context) throws Exception {
+        LiquibaseOperationInput input = context.getInput();
         Path changelogFile = input.getWorkspacePaths().getMasterChangelogPath();
         boolean overwrite = input.isConfirmed();
         if (overwrite) Files.deleteIfExists(changelogFile);
@@ -288,7 +292,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     }
 
     protected final void prepareChangelogContext(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             boolean requireExistingChangelog) {
         LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
         Path changelogFile = paths.getMasterChangelogPath();
@@ -301,8 +305,8 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     public abstract LiquibaseOperation getOperation();
 
     @NotNull
-    public final LiquibaseExecutionResult execute(@NotNull LiquibaseExecutionContext context) {
-        LiquibaseExecutionResult result = context.prepareExecutionResult();
+    public final LiquibaseOperationResult execute(@NotNull LiquibaseOperationContext context) {
+        LiquibaseOperationResult result = context.prepareExecutionResult();
         context.setExecutionThread(Thread.currentThread());
         result.notifyStarted();
         try {
@@ -320,9 +324,9 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
         return result;
     }
 
-    protected abstract void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception;
+    protected abstract void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception;
 
-    protected final void checkCanceled(@NotNull LiquibaseExecutionContext context) {
+    protected final void checkCanceled(@NotNull LiquibaseOperationContext context) {
         if (context.isCancellationRequested()) throw new RequestCancelledException("Liquibase execution canceled");
     }
 
@@ -334,7 +338,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     }
 
     protected final void withLiquibaseDatabase(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             boolean readonly,
             @NotNull DBSchema schema,
             @NotNull ThrowableConsumer<Database, Exception> operation) throws SQLException {
@@ -362,12 +366,12 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     }
 
     protected final void withLiquibaseScope(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             @NotNull ResourceAccessor resourceAccessor,
             @Nullable Consumer<String> sqlConsumer,
             @NotNull ThrowableConsumer<LiquibaseExecutionOutputStream, Exception> operation) throws Exception {
         checkCanceled(context);
-        LiquibaseExecutionResult result = context.getResult();
+        LiquibaseOperationResult result = context.getResult();
         Map<String, Object> scopeValues = Map.of(
                 Scope.Attr.logService.name(), new LiquibaseExecutionLogService(result),
                 Scope.Attr.resourceAccessor.name(), resourceAccessor);
@@ -381,8 +385,8 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
         checkCanceled(context);
     }
 
-    protected final void finishResult(@NotNull LiquibaseExecutionContext context, @NotNull TaskStatus status) {
-        LiquibaseExecutionResult result = context.getResult();
+    protected final void finishResult(@NotNull LiquibaseOperationContext context, @NotNull TaskStatus status) {
+        LiquibaseOperationResult result = context.getResult();
         if (context.isCancellationRequested()) {
             result.notifyCancelled();
         } else {
@@ -392,7 +396,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     }
 
     private void withPoolConnection(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             boolean readonly,
             @NotNull ConnectionHandler connection,
             @Nullable SchemaId schemaId,

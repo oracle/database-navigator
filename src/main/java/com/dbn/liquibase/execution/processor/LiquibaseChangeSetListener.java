@@ -2,7 +2,7 @@ package com.dbn.liquibase.execution.processor;
 
 import com.dbn.liquibase.execution.LiquibaseChangeSetItem;
 import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import liquibase.changelog.ChangeSet;
 import liquibase.changelog.visitor.AbstractChangeExecListener;
 import org.jetbrains.annotations.NotNull;
@@ -10,9 +10,9 @@ import org.jetbrains.annotations.Nullable;
 
 /** Shared changeset-item lifecycle handling for Liquibase execution listeners. */
 abstract class LiquibaseChangeSetListener extends AbstractChangeExecListener {
-    protected final LiquibaseExecutionResult result;
+    protected final LiquibaseOperationResult result;
 
-    LiquibaseChangeSetListener(@NotNull LiquibaseExecutionResult result) {
+    LiquibaseChangeSetListener(@NotNull LiquibaseOperationResult result) {
         this.result = result;
     }
 

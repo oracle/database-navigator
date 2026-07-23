@@ -17,7 +17,7 @@
 package com.dbn.liquibase.execution.processor;
 
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import com.dbn.object.DBSchema;
 import liquibase.CatalogAndSchema;
 import liquibase.database.Database;
@@ -57,7 +57,7 @@ public abstract class LiquibaseDiffExecutionProcessor extends LiquibaseExecution
     }
 
     protected final void populateComparisonItems(
-            @NotNull LiquibaseExecutionResult result,
+            @NotNull LiquibaseOperationResult result,
             @NotNull DiffResult diffResult) {
         diffResult.getMissingObjects().forEach(o -> result.ensureComparisonItem(o, null, MISSING, null));
         diffResult.getUnexpectedObjects().forEach(o -> result.ensureComparisonItem(null, o, UNEXPECTED, null));

@@ -7,8 +7,8 @@
 package com.dbn.liquibase.execution.ui;
 
 import com.dbn.common.ui.table.DBNDynamicTableModel;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
 import com.dbn.liquibase.execution.LiquibaseLockItem;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import lombok.Getter;
 
 import static com.dbn.nls.NlsResources.txt;
@@ -16,9 +16,9 @@ import static com.dbn.nls.NlsResources.txt;
 /** Table model for Liquibase changelog locks. */
 @Getter
 public class LiquibaseLockItemsTableModel extends DBNDynamicTableModel<LiquibaseLockItem> {
-    private final LiquibaseExecutionResult result;
+    private final LiquibaseOperationResult result;
 
-    LiquibaseLockItemsTableModel(LiquibaseExecutionResult result) {
+    public LiquibaseLockItemsTableModel(LiquibaseOperationResult result) {
         super(LiquibaseLockItem.class, result.getLockItems());
         this.result = result;
         addColumn(txt("app.liquibase.column.DiscoveryOrder"), e -> getData().indexOf(e) + 1);

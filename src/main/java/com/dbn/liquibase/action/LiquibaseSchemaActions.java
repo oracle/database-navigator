@@ -18,37 +18,41 @@ package com.dbn.liquibase.action;
 
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.icon.Icons;
-import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.workflows.LiquibaseWorkflow;
+import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.action.LiquibaseOperationDashboardAction;
+import com.dbn.liquibase.operation.action.LiquibaseOperationStartAction;
+import com.dbn.liquibase.workflow.LiquibaseWorkflow;
+import com.dbn.liquibase.workflow.action.LiquibaseWorkflowDashboardAction;
+import com.dbn.liquibase.workflow.action.LiquibaseWorkflowStartAction;
 import com.dbn.menu.action.LiquibaseWorkspacesOpenAction;
 import com.dbn.object.DBSchema;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.liquibase.execution.LiquibaseOperation.CALCULATE_CHECKSUMS;
-import static com.dbn.liquibase.execution.LiquibaseOperation.CLEAR_CHECKSUMS;
-import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
-import static com.dbn.liquibase.execution.LiquibaseOperation.DROP_ALL;
-import static com.dbn.liquibase.execution.LiquibaseOperation.FUTURE_ROLLBACK;
-import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_CHANGELOG;
-import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DATABASE_DOCUMENTATION;
-import static com.dbn.liquibase.execution.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
-import static com.dbn.liquibase.execution.LiquibaseOperation.LIST_LOCKS;
-import static com.dbn.liquibase.execution.LiquibaseOperation.MARK_NEXT_CHANGESET_RAN;
-import static com.dbn.liquibase.execution.LiquibaseOperation.RELEASE_LOCKS;
-import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_CHANGESETS;
-import static com.dbn.liquibase.execution.LiquibaseOperation.ROLLBACK_SQL;
-import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_HISTORY;
-import static com.dbn.liquibase.execution.LiquibaseOperation.SHOW_CHANGELOG_STATUS;
-import static com.dbn.liquibase.execution.LiquibaseOperation.SNAPSHOT_DATABASE;
-import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG;
-import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_SQL;
-import static com.dbn.liquibase.execution.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_TO_TAG;
-import static com.dbn.liquibase.execution.LiquibaseOperation.TAG_DATABASE;
-import static com.dbn.liquibase.execution.LiquibaseOperation.UNEXPECTED_CHANGESETS;
-import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_DATABASE;
-import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_SQL;
-import static com.dbn.liquibase.execution.LiquibaseOperation.UPDATE_TESTING_ROLLBACK;
-import static com.dbn.liquibase.execution.LiquibaseOperation.VALIDATE_CHANGELOG;
+import static com.dbn.liquibase.operation.LiquibaseOperation.CALCULATE_CHECKSUMS;
+import static com.dbn.liquibase.operation.LiquibaseOperation.CLEAR_CHECKSUMS;
+import static com.dbn.liquibase.operation.LiquibaseOperation.COMPARE_SCHEMAS;
+import static com.dbn.liquibase.operation.LiquibaseOperation.DROP_ALL;
+import static com.dbn.liquibase.operation.LiquibaseOperation.FUTURE_ROLLBACK;
+import static com.dbn.liquibase.operation.LiquibaseOperation.GENERATE_CHANGELOG;
+import static com.dbn.liquibase.operation.LiquibaseOperation.GENERATE_DATABASE_DOCUMENTATION;
+import static com.dbn.liquibase.operation.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
+import static com.dbn.liquibase.operation.LiquibaseOperation.LIST_LOCKS;
+import static com.dbn.liquibase.operation.LiquibaseOperation.MARK_NEXT_CHANGESET_RAN;
+import static com.dbn.liquibase.operation.LiquibaseOperation.RELEASE_LOCKS;
+import static com.dbn.liquibase.operation.LiquibaseOperation.ROLLBACK_CHANGESETS;
+import static com.dbn.liquibase.operation.LiquibaseOperation.ROLLBACK_SQL;
+import static com.dbn.liquibase.operation.LiquibaseOperation.SHOW_CHANGELOG_HISTORY;
+import static com.dbn.liquibase.operation.LiquibaseOperation.SHOW_CHANGELOG_STATUS;
+import static com.dbn.liquibase.operation.LiquibaseOperation.SNAPSHOT_DATABASE;
+import static com.dbn.liquibase.operation.LiquibaseOperation.SYNCHRONIZE_CHANGELOG;
+import static com.dbn.liquibase.operation.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_SQL;
+import static com.dbn.liquibase.operation.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_TO_TAG;
+import static com.dbn.liquibase.operation.LiquibaseOperation.TAG_DATABASE;
+import static com.dbn.liquibase.operation.LiquibaseOperation.UNEXPECTED_CHANGESETS;
+import static com.dbn.liquibase.operation.LiquibaseOperation.UPDATE_DATABASE;
+import static com.dbn.liquibase.operation.LiquibaseOperation.UPDATE_SQL;
+import static com.dbn.liquibase.operation.LiquibaseOperation.UPDATE_TESTING_ROLLBACK;
+import static com.dbn.liquibase.operation.LiquibaseOperation.VALIDATE_CHANGELOG;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Liquibase operations available for a single database schema. */
@@ -61,7 +65,7 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         workflowActions.add(new LiquibaseWorkflowDashboardAction(schema));
         workflowActions.addSeparator();
         for (LiquibaseWorkflow workflow : LiquibaseWorkflow.values()) {
-            workflowActions.add(new LiquibaseWorkflowAction(schema, workflow));
+            workflowActions.add(new LiquibaseWorkflowStartAction(schema, workflow));
         }
         add(workflowActions);
         addSeparator();
@@ -111,9 +115,9 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         add(moreActions);
     }
 
-    private static LiquibaseOperationAction action(
+    private static LiquibaseOperationStartAction action(
             @NotNull DBSchema schema,
             @NotNull LiquibaseOperation operation) {
-        return new LiquibaseOperationAction(schema, operation);
+        return new LiquibaseOperationStartAction(schema, operation);
     }
 }

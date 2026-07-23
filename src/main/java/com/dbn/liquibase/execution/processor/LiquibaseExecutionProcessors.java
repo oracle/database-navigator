@@ -18,7 +18,7 @@ package com.dbn.liquibase.execution.processor;
 
 import com.dbn.common.extension.ExtensionPointCache;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperation;
 import org.jetbrains.annotations.NotNull;
 
 /** Creates the specialized processor for a Liquibase operation. */

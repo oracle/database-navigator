@@ -7,12 +7,12 @@
 package com.dbn.liquibase.execution.processor;
 
 import com.dbn.liquibase.execution.LiquibaseChangeSetItem;
-import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
-import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
-import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
+import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationContext;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
+import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +30,7 @@ public class LiquibaseSynchronizeChangelogSqlProcessor extends LiquibaseExecutio
     }
 
     @Override
-    protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+    protected void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception {
         prepareChangelogContext(context, true);
 
         withLiquibaseDatabase(context, true, context.getTargetSchema(), database ->
@@ -39,10 +39,10 @@ public class LiquibaseSynchronizeChangelogSqlProcessor extends LiquibaseExecutio
     }
 
     private void executeSynchronizeSql(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
-        LiquibaseExecutionResult result = context.getResult();
+        LiquibaseOperationResult result = context.getResult();
         LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
         List<LiquibaseChangeSetItem> items = discoverChangeSetItems(
                 context,

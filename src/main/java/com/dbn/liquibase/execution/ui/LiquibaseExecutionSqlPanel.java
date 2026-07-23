@@ -24,7 +24,7 @@ import com.dbn.common.util.Viewers;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.language.sql.SQLFileType;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
@@ -46,7 +46,7 @@ public class LiquibaseExecutionSqlPanel extends DBNFormBase {
 
     public LiquibaseExecutionSqlPanel(
             @NotNull DBNFormBase parent,
-            @NotNull LiquibaseExecutionResult result) {
+            @NotNull LiquibaseOperationResult result) {
         super(parent);
 
         actionsPanel.setBorder(Borders.lineBorder(JBColor.border(), 0, 0, 1, 0));

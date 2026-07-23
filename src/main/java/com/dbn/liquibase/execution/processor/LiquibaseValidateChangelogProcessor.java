@@ -1,10 +1,10 @@
 package com.dbn.liquibase.execution.processor;
 
-import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
-import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
+import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationContext;
+import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +33,7 @@ public class LiquibaseValidateChangelogProcessor extends LiquibaseExecutionProce
     }
 
     @Override
-    protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+    protected void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception {
         prepareChangelogContext(context, true);
 
         var result = context.getResult();
@@ -44,7 +44,7 @@ public class LiquibaseValidateChangelogProcessor extends LiquibaseExecutionProce
         result.appendConsoleOutput(txt("log.liquibase.info.ChangelogValidated", changelogFile));
     }
 
-    private void validateChangelog(@NotNull LiquibaseExecutionContext context) throws Exception {
+    private void validateChangelog(@NotNull LiquibaseOperationContext context) throws Exception {
         DBSchema targetSchema = context.getTargetSchema();
         withLiquibaseDatabase(context, true, targetSchema, database ->
                 withLiquibaseScope(context, contentRootAccessor(context), null,
@@ -55,7 +55,7 @@ public class LiquibaseValidateChangelogProcessor extends LiquibaseExecutionProce
     }
 
     private void executeValidation(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
         LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();

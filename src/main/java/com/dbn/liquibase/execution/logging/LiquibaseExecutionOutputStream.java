@@ -16,7 +16,7 @@
 
 package com.dbn.liquibase.execution.logging;
 
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -28,12 +28,12 @@ import java.util.function.Consumer;
 
 /** Forwards Liquibase command output to a DBN execution result. */
 public class LiquibaseExecutionOutputStream extends OutputStream {
-    private final LiquibaseExecutionResult result;
+    private final LiquibaseOperationResult result;
     private final Consumer<String> sqlConsumer;
     private final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
     public LiquibaseExecutionOutputStream(
-            @NotNull LiquibaseExecutionResult result,
+            @NotNull LiquibaseOperationResult result,
             Consumer<String> sqlConsumer) {
         this.result = result;
         this.sqlConsumer = sqlConsumer;

@@ -16,7 +16,7 @@
 
 package com.dbn.liquibase.execution.logging;
 
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
 
 import liquibase.logging.core.AbstractLogService;
 import liquibase.logging.core.AbstractLogger;
@@ -29,7 +29,7 @@ import java.util.logging.Level;
 
 /** Forwards Liquibase log messages to a DBN execution result. */
 public class LiquibaseExecutionLogService extends AbstractLogService {
-    private final LiquibaseExecutionResult result;
+    private final LiquibaseOperationResult result;
     private final AbstractLogger logger = new AbstractLogger() {
         @Override
         public void log(@NotNull Level level, @Nullable String message, @Nullable Throwable exception) {
@@ -37,7 +37,7 @@ public class LiquibaseExecutionLogService extends AbstractLogService {
         }
     };
 
-    public LiquibaseExecutionLogService(@NotNull LiquibaseExecutionResult result) {
+    public LiquibaseExecutionLogService(@NotNull LiquibaseOperationResult result) {
         this.result = result;
     }
 

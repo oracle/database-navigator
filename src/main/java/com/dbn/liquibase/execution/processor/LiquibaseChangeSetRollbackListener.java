@@ -1,7 +1,7 @@
 package com.dbn.liquibase.execution.processor;
 
 import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import liquibase.changelog.ChangeSet;
 import liquibase.changelog.DatabaseChangeLog;
 import liquibase.database.Database;
@@ -12,7 +12,7 @@ final class LiquibaseChangeSetRollbackListener extends LiquibaseChangeSetListene
     private final String completionMessage;
 
     LiquibaseChangeSetRollbackListener(
-            @NotNull LiquibaseExecutionResult result,
+            @NotNull LiquibaseOperationResult result,
             @NotNull String completionMessage) {
         super(result);
         this.completionMessage = completionMessage;

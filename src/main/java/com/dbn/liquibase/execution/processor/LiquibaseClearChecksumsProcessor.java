@@ -10,10 +10,10 @@
 
 package com.dbn.liquibase.execution.processor;
 
-import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
+import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationContext;
 import com.dbn.object.DBSchema;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +30,7 @@ public class LiquibaseClearChecksumsProcessor extends LiquibaseExecutionProcesso
     }
 
     @Override
-    protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+    protected void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception {
         DBSchema targetSchema = context.getTargetSchema();
         withLiquibaseDatabase(context, false, targetSchema, database ->
                 withLiquibaseScope(context, classLoaderAccessor(), null,

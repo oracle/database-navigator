@@ -2,7 +2,7 @@ package com.dbn.liquibase.execution.ui;
 
 import com.dbn.common.ui.table.DBNDynamicTableModel;
 import com.dbn.liquibase.execution.LiquibaseComparisonItem;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import liquibase.structure.DatabaseObject;
 import lombok.Getter;
 
@@ -11,9 +11,9 @@ import static com.dbn.nls.NlsResources.txt;
 /** Table model for structured object differences reported by Liquibase. */
 @Getter
 public class LiquibaseComparisonItemsTableModel extends DBNDynamicTableModel<LiquibaseComparisonItem> {
-    private final LiquibaseExecutionResult result;
+    private final LiquibaseOperationResult result;
 
-    LiquibaseComparisonItemsTableModel(LiquibaseExecutionResult result) {
+    public LiquibaseComparisonItemsTableModel(LiquibaseOperationResult result) {
         super(LiquibaseComparisonItem.class, result.getComparisonItems());
         this.result = result;
         addColumn(txt("app.liquibase.column.DiscoveryOrder"), e -> getData().indexOf(e) + 1);

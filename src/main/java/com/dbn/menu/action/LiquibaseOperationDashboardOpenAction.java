@@ -11,7 +11,7 @@
 package com.dbn.menu.action;
 
 import com.dbn.common.action.ProjectAction;
-import com.dbn.liquibase.ui.LiquibaseOperationDashboardDialog;
+import com.dbn.liquibase.operation.ui.LiquibaseOperationDashboardDialog;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;

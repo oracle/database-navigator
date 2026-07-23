@@ -2,7 +2,7 @@ package com.dbn.liquibase.execution.ui;
 
 import com.dbn.common.ui.table.DBNDynamicTableModel;
 import com.dbn.liquibase.execution.LiquibaseChangeSetItem;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import lombok.Getter;
 
 import static com.dbn.common.util.TimeUtil.presentableDuration;
@@ -11,9 +11,9 @@ import static com.dbn.nls.NlsResources.txt;
 /** Table model for change sets processed by a Liquibase operation. */
 @Getter
 public class LiquibaseChangeSetItemsTableModel extends DBNDynamicTableModel<LiquibaseChangeSetItem> {
-    private final LiquibaseExecutionResult result;
+    private final LiquibaseOperationResult result;
 
-    LiquibaseChangeSetItemsTableModel(LiquibaseExecutionResult result) {
+    public LiquibaseChangeSetItemsTableModel(LiquibaseOperationResult result) {
         super(LiquibaseChangeSetItem.class, result.getChangeSetItems());
         this.result = result;
         addColumn(txt("app.liquibase.column.DiscoveryOrder"), e -> getData().indexOf(e) + 1);

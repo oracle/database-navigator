@@ -11,13 +11,13 @@
 package com.dbn.liquibase.execution.processor;
 
 import com.dbn.liquibase.execution.LiquibaseChangeSetItem;
-import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionItemStatus;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseExecutionResult;
-import com.dbn.liquibase.execution.LiquibaseOperation;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
-import com.dbn.liquibase.model.LiquibaseWorkspacePaths;
+import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationContext;
+import com.dbn.liquibase.operation.LiquibaseOperationResult;
+import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
 import liquibase.changelog.ChangeSet;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +36,7 @@ public class LiquibaseMarkNextChangesetRanProcessor extends LiquibaseExecutionPr
     }
 
     @Override
-    protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+    protected void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception {
         prepareChangelogContext(context, true);
 
         withLiquibaseDatabase(context, false, context.getTargetSchema(), database ->
@@ -45,10 +45,10 @@ public class LiquibaseMarkNextChangesetRanProcessor extends LiquibaseExecutionPr
     }
 
     private void executeMarkNext(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
-        LiquibaseExecutionResult result = context.getResult();
+        LiquibaseOperationResult result = context.getResult();
         LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
         List<ChangeSet> pending = discoverPendingChangeSets(context, database);
         LiquibaseChangeSetItem item = pending.isEmpty() ? null : result.ensureChangeSetItem(

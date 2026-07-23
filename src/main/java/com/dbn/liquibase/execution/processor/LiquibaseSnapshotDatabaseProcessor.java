@@ -10,9 +10,9 @@
 
 package com.dbn.liquibase.execution.processor;
 
-import com.dbn.liquibase.execution.LiquibaseExecutionContext;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationContext;
 import com.dbn.object.DBSchema;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +28,7 @@ public class LiquibaseSnapshotDatabaseProcessor extends LiquibaseExecutionProces
     }
 
     @Override
-    protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+    protected void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception {
         DBSchema targetSchema = context.getTargetSchema();
         withLiquibaseDatabase(context, true, targetSchema, database ->
                 withLiquibaseScope(context, classLoaderAccessor(), null,

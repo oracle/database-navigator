@@ -17,12 +17,12 @@
 package com.dbn.liquibase.execution.processor;
 
 import com.dbn.liquibase.DatabaseLiquibaseManager;
-import com.dbn.liquibase.execution.LiquibaseExecutionContext;
-import com.dbn.liquibase.execution.LiquibaseExecutionInput;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
-import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.execution.LiquibaseRollbackInstruction;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
+import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationContext;
+import com.dbn.liquibase.operation.LiquibaseOperationInput;
+import com.dbn.liquibase.operation.LiquibaseRollbackInstruction;
 import com.dbn.object.DBSchema;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 import java.util.Map;
 
-import static com.dbn.liquibase.execution.LiquibaseRollbackType.TAG;
+import static com.dbn.liquibase.operation.LiquibaseRollbackType.TAG;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Rolls back a selected number of previously applied Liquibase changesets. */
@@ -41,7 +41,7 @@ public class LiquibaseRollbackChangesetsProcessor extends LiquibaseExecutionProc
     }
 
     @Override
-    protected void executeOperation(@NotNull LiquibaseExecutionContext context) throws Exception {
+    protected void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception {
         prepareChangelogContext(context, true);
 
         var input = context.getInput();
@@ -64,8 +64,8 @@ public class LiquibaseRollbackChangesetsProcessor extends LiquibaseExecutionProc
                 input.getRollbackInstruction().getCount()));
     }
 
-    private static void removeTagHistory(@NotNull LiquibaseExecutionContext context) {
-        LiquibaseExecutionInput input = context.getInput();
+    private static void removeTagHistory(@NotNull LiquibaseOperationContext context) {
+        LiquibaseOperationInput input = context.getInput();
         LiquibaseRollbackInstruction rollbackInstruction = input.getRollbackInstruction();
         if (rollbackInstruction.getType() == TAG) {
             DBSchema targetSchema = context.getTargetSchema();
@@ -78,7 +78,7 @@ public class LiquibaseRollbackChangesetsProcessor extends LiquibaseExecutionProc
     }
 
     private void executeRollback(
-            @NotNull LiquibaseExecutionContext context,
+            @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
         var input = context.getInput();

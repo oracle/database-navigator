@@ -19,10 +19,10 @@ package com.dbn.liquibase.action;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
-import com.dbn.liquibase.execution.LiquibaseExecutionInput;
-import com.dbn.liquibase.execution.LiquibaseOperation;
-import com.dbn.liquibase.execution.ui.LiquibaseExecutionInputDialog;
-import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
+import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationInput;
+import com.dbn.liquibase.operation.ui.LiquibaseOperationInputDialog;
+import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Dialogs.show;
 import static com.dbn.common.util.Dialogs.whenOk;
-import static com.dbn.liquibase.execution.LiquibaseOperationConfirmations.confirmWorkspaceAvailable;
+import static com.dbn.liquibase.operation.LiquibaseOperationConfirmations.confirmWorkspaceAvailable;
 
 /** Base action for Liquibase operations scoped to one database schema. */
 public abstract class LiquibaseSchemaAction extends ProjectAction {
@@ -67,9 +67,9 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
             return;
         }
 
-        show(() -> new LiquibaseExecutionInputDialog(schema, operation, workspaces),
+        show(() -> new LiquibaseOperationInputDialog(schema, operation, workspaces),
                 whenOk(dialog -> {
-                    LiquibaseExecutionInput input = dialog.getExecutionInput();
+                    LiquibaseOperationInput input = dialog.getExecutionInput();
                     manager.executeOperation(input, null);
                 }));
     }
