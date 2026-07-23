@@ -41,6 +41,7 @@ import javax.swing.ListModel;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.common.ui.util.Lists.onSelectionChange;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Result form for a Liquibase workflow, with one operation result available at a time. */
@@ -54,15 +55,23 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
     private final Runnable resultListener = this::refreshSelectedOperation;
     private final Map<LiquibaseOperation, LiquibaseExecutionResultForm> resultForms =
             DisposableContainers.map(this);
+    private boolean operationSelectionChanged;
+    private boolean updatingOperationSelection;
 
     public LiquibaseWorkflowResultForm(@NotNull LiquibaseWorkflowResult result) {
         super(result);
 
         initActionsPanel();
         operationsList.setCellRenderer(new OperationListCellRenderer());
-        operationsList.addListSelectionListener(e -> showSelectedOperation());
+        onSelectionChange(operationsList, e -> {
+            if (!e.getValueIsAdjusting() && !updatingOperationSelection) {
+                operationSelectionChanged = operationsList.getSelectedValue() !=
+                        getExecutionResult().getContext().getCurrentOperation();
+            }
+            showSelectedOperation();
+        });
         operationsList.setModel(createModel(result));
-        operationsList.setSelectedIndex(0);
+        selectProcessedOperation();
 
         Splitters.setSplitPaneProportion(splitPane, 0.2);
         result.addListener(resultListener);
@@ -84,9 +93,28 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
     private void refreshSelectedOperation() {
         dispatch(() -> {
             if (isDisposed()) return;
+            if (!operationSelectionChanged) selectProcessedOperation();
             operationsList.repaint();
             showSelectedOperation();
         });
+    }
+
+    private void selectProcessedOperation() {
+        LiquibaseOperation operation = getExecutionResult().getContext().getCurrentOperation();
+        if (operation != null) {
+            selectOperation(operation);
+        } else if (operationsList.getSelectedIndex() < 0 && operationsList.getModel().getSize() > 0) {
+            selectOperation(operationsList.getModel().getElementAt(0));
+        }
+    }
+
+    private void selectOperation(@NotNull LiquibaseOperation operation) {
+        updatingOperationSelection = true;
+        try {
+            operationsList.setSelectedValue(operation, true);
+        } finally {
+            updatingOperationSelection = false;
+        }
     }
 
     private void showSelectedOperation() {
