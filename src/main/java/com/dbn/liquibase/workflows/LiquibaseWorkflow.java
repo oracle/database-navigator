@@ -10,6 +10,7 @@
 
 package com.dbn.liquibase.workflows;
 
+import com.dbn.liquibase.LiquibaseDashboardItem;
 import com.dbn.liquibase.execution.LiquibaseOperation;
 import lombok.Getter;
 
@@ -33,7 +34,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 /** Defines a reusable sequence of Liquibase operations. */
 @Getter
-public enum LiquibaseWorkflow {
+public enum LiquibaseWorkflow implements LiquibaseDashboardItem {
     VALIDATE_AND_APPLY(
             VALIDATE_CHANGELOG,
             SHOW_CHANGELOG_STATUS,
@@ -85,4 +86,15 @@ public enum LiquibaseWorkflow {
     public String getHint() {
         return txt("app.liquibase.hint.Workflow_" + name());
     }
+
+    @Override
+    public String getDashboardName() {
+        return txt("app.liquibase.action.Workflow_" + name());
+    }
+
+    @Override
+    public String getDashboardDescription() {
+        return getHint();
+    }
+
 }

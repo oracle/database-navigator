@@ -11,7 +11,7 @@
 package com.dbn.liquibase.action;
 
 import com.dbn.common.action.ProjectAction;
-import com.dbn.liquibase.ui.LiquibaseDashboardDialog;
+import com.dbn.liquibase.ui.LiquibaseOperationDashboardDialog;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -21,16 +21,16 @@ import static com.dbn.common.util.Dialogs.show;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Opens the project-level Liquibase dashboard from a database context. */
-public class LiquibaseDashboardAction extends ProjectAction {
+public class LiquibaseOperationDashboardAction extends ProjectAction {
     private final DBSchema schema;
 
-    public LiquibaseDashboardAction(@NotNull DBSchema schema) {
-        super(txt("app.liquibase.action.Dashboard"));
+    public LiquibaseOperationDashboardAction(@NotNull DBSchema schema) {
+        super(txt("app.liquibase.action.OperationDashboard"));
         this.schema = schema;
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        show(() -> new LiquibaseDashboardDialog(schema));
+        show(() -> new LiquibaseOperationDashboardDialog(schema));
     }
 }

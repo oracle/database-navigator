@@ -22,19 +22,19 @@ import javax.swing.Action;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Non-modal dialog displaying the grouped Liquibase operations for a project. */
-public class LiquibaseDashboardDialog extends DBNDialog<LiquibaseDashboardForm> {
+public class LiquibaseOperationDashboardDialog extends DBNDialog<LiquibaseOperationDashboardForm> {
     private final DBObjectRef<DBSchema> initialSchema;
 
-    public LiquibaseDashboardDialog(@NotNull Project project) {
+    public LiquibaseOperationDashboardDialog(@NotNull Project project) {
         this(project, null);
     }
 
-    public LiquibaseDashboardDialog(@NotNull DBSchema schema) {
+    public LiquibaseOperationDashboardDialog(@NotNull DBSchema schema) {
         this(schema.getProject(), schema);
     }
 
-    private LiquibaseDashboardDialog(@NotNull Project project, @Nullable DBSchema initialSchema) {
-        super(project, txt("msg.liquibase.title.Dashboard"), false);
+    private LiquibaseOperationDashboardDialog(@NotNull Project project, @Nullable DBSchema initialSchema) {
+        super(project, txt("msg.liquibase.title.OperationDashboard"), false);
         this.initialSchema = DBObjectRef.of(initialSchema);
         setDefaultSize(640, 860);
         setModal(false);
@@ -48,8 +48,8 @@ public class LiquibaseDashboardDialog extends DBNDialog<LiquibaseDashboardForm> 
 
     @NotNull
     @Override
-    protected LiquibaseDashboardForm createForm() {
-        return new LiquibaseDashboardForm(this);
+    protected LiquibaseOperationDashboardForm createForm() {
+        return new LiquibaseOperationDashboardForm(this);
     }
 
     @Override

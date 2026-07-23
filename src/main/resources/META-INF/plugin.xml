@@ -618,7 +618,9 @@
             </group>
             <group id="DBN.MainMenu.Liquibase" popup="true" icon="com.dbn.common.icon.Icons.DB_LIQUIBASE">
                 <action id="DBN.MainMenu.LiquibaseWorkspaces" class="com.dbn.menu.action.LiquibaseWorkspacesOpenAction"/>
-                <action id="DBN.MainMenu.LiquibaseDashboard" class="com.dbn.menu.action.LiquibaseDashboardOpenAction"/>
+                <separator/>
+                <action id="DBN.MainMenu.LiquibaseOperationDashboard" class="com.dbn.menu.action.LiquibaseOperationDashboardOpenAction"/>
+                <action id="DBN.MainMenu.LiquibaseWorkflowDashboard" class="com.dbn.menu.action.LiquibaseWorkflowDashboardOpenAction"/>
             </group>
             <group class="com.dbn.prerequisite.action.PrerequisiteVerificationAction" popup="true" id="DBN.MainMenu.PrerequisiteVerification"/> />
             <separator/>

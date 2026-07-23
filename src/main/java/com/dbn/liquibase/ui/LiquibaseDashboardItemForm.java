@@ -15,8 +15,10 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.util.Components;
 import com.dbn.common.ui.util.Fonts;
-import com.dbn.liquibase.execution.LiquibaseOperation;
+import com.dbn.common.util.Strings;
+import com.dbn.liquibase.LiquibaseDashboardItem;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -29,8 +31,8 @@ import static com.dbn.common.ui.link.Hyperlinks.initHyperlink;
 import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.util.ui.UIUtil.getLabelForeground;
 
-/** Dashboard item form presenting one Liquibase operation and its documentation link. */
-public class LiquibaseDashboardOperationForm extends DBNFormBase {
+/** Operation dashboard item form presenting one Liquibase operation and its documentation link. */
+public class LiquibaseDashboardItemForm extends DBNFormBase {
     private JPanel mainPanel;
     private JLabel nameLabel;
     private JTextPane descriptionTextPane;
@@ -38,21 +40,34 @@ public class LiquibaseDashboardOperationForm extends DBNFormBase {
     private DBNHyperlinkLabel moreHyperlinkLabel;
     private int descriptionWidth;
 
-    public LiquibaseDashboardOperationForm(
-            @NotNull LiquibaseDashboardForm parent,
-            @NotNull LiquibaseOperation operation,
+    public LiquibaseDashboardItemForm(
+            @NotNull DBNFormBase parent,
+            @NotNull LiquibaseDashboardItem item,
+            @NotNull Runnable action) {
+        this(parent, item.getDashboardName(), item.getDashboardDescription(), item.getDashboardDocumentationUrl(), action);
+    }
+
+    private LiquibaseDashboardItemForm(
+            @NotNull DBNFormBase parent,
+            @NotNull String name,
+            @NotNull String description,
+            @Nullable String documentationUrl,
             @NotNull Runnable action) {
         super(parent);
 
-        nameLabel.setText(operation.getName());
-        descriptionTextPane.setText(operation.getHint());
+        nameLabel.setText(name);
+        descriptionTextPane.setText(description);
         nameLabel.setFont(Fonts.regular(1));
         descriptionTextPane.setFocusable(false);
         descriptionTextPane.setForeground(Colors.faded(getLabelForeground()));
         openButton.setEnabled(false);
         openButton.addActionListener(e -> action.run());
 
-        initHyperlink(moreHyperlinkLabel, txt("app.shared.link.ShowMore"), operation.getDocumentationUrl());
+        if (Strings.isEmpty(documentationUrl)) {
+            moreHyperlinkLabel.setVisible(false);
+        } else {
+            initHyperlink(moreHyperlinkLabel, txt("app.shared.link.ShowMore"), documentationUrl);
+        }
 
         whenFirstShown(() -> installDescriptionResizer());
     }

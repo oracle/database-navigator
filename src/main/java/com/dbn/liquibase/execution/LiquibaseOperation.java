@@ -2,6 +2,7 @@ package com.dbn.liquibase.execution;
 
 import com.dbn.common.constant.Constant;
 import com.dbn.common.icon.Icons;
+import com.dbn.liquibase.LiquibaseDashboardItem;
 import com.intellij.icons.AllIcons;
 import lombok.Getter;
 import lombok.experimental.Delegate;
@@ -13,7 +14,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 /** Liquibase operation represented in the DBN execution console. */
 @Getter
-public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
+public enum LiquibaseOperation implements Constant<LiquibaseOperation>, LiquibaseDashboardItem {
     GENERATE_CHANGELOG,
     GENERATE_DATABASE_DOCUMENTATION,
     SNAPSHOT_DATABASE,
@@ -55,8 +56,23 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation> {
         return /*txt("app.liquibase.title.Operation_" + name()) + "\n\n" +*/ txt("app.liquibase.hint.Operation_" + name());
     }
 
+    @Override
+    public String getDashboardName() {
+        return getName();
+    }
+
+    @Override
+    public String getDashboardDescription() {
+        return getHint();
+    }
+
     public String getDocumentationUrl() {
         return txt("app.liquibase.url.Operation_" + name());
+    }
+
+    @Override
+    public String getDashboardDocumentationUrl() {
+        return getDocumentationUrl();
     }
 
     @Nullable

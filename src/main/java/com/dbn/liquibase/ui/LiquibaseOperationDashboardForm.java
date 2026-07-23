@@ -78,7 +78,7 @@ import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
 
 /** Project-level Liquibase dashboard for selecting a database context and starting operations. */
-public class LiquibaseDashboardForm extends DBNFormBase {
+public class LiquibaseOperationDashboardForm extends DBNFormBase {
     private static final String STATE_CATEGORY = "LIQUIBASE_DASHBOARD";
     private static final String ATTR_CONNECTION = "connection-selection";
     private static final String ATTR_SCHEMA = "schema-selection";
@@ -93,9 +93,9 @@ public class LiquibaseDashboardForm extends DBNFormBase {
     private DBObjectSelector<DBSchema> schemaSelector;
     private JTabbedPane operationsPanel;
 
-    private final List<LiquibaseDashboardOperationForm> operationForms = DisposableContainers.list(this);
+    private final List<LiquibaseDashboardItemForm> operationForms = DisposableContainers.list(this);
 
-    public LiquibaseDashboardForm(@NotNull LiquibaseDashboardDialog parent) {
+    public LiquibaseOperationDashboardForm(@NotNull LiquibaseOperationDashboardDialog parent) {
         super(parent);
 
         initHintPanel();
@@ -106,19 +106,19 @@ public class LiquibaseDashboardForm extends DBNFormBase {
     }
 
     private void initHintPanel() {
-        hintPanel.add(new DBNHintForm(this, TextContent.plain(txt("app.liquibase.hint.Operations")), null, true).getComponent(), BorderLayout.CENTER);
+        hintPanel.add(new DBNHintForm(this, TextContent.plain(txt("app.liquibase.hint.OperationDashboard")), null, true).getComponent(), BorderLayout.CENTER);
     }
 
     private void initHyperlinkPanel() {
         HyperLinkForm hyperlinkForm = HyperLinkForm.create(
                 "",
                 txt("app.liquibase.link.LiquibaseDocumentation"),
-                txt("app.liquibase.url.Dashboard"));
+                txt("app.liquibase.url.OperationDashboard"));
         hyperlinkPanel.add(hyperlinkForm.getComponent(), BorderLayout.EAST);
     }
 
     private void initContextSelectors() {
-        LiquibaseDashboardDialog dialog = ensureParentDialog();
+        LiquibaseOperationDashboardDialog dialog = ensureParentDialog();
         DBSchema initialSchema = dialog.getInitialSchema();
         ConnectionManager connectionManager = ConnectionManager.getInstance(ensureProject());
         DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(ensureProject());
@@ -173,7 +173,7 @@ public class LiquibaseDashboardForm extends DBNFormBase {
     }
 
     private void addOperation(@NotNull JPanel parent, @NotNull LiquibaseOperation operation) {
-        LiquibaseDashboardOperationForm form = new LiquibaseDashboardOperationForm(this, operation, () -> executeOperation(operation));
+        LiquibaseDashboardItemForm form = new LiquibaseDashboardItemForm(this, operation, () -> executeOperation(operation));
         parent.add(form.getComponent());
         operationForms.add(form);
     }

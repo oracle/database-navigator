@@ -57,14 +57,16 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         super(txt("app.liquibase.action.Liquibase"), true);
         getTemplatePresentation().setIcon(Icons.DB_LIQUIBASE);
         add(new LiquibaseWorkspacesOpenAction(txt("app.liquibase.action.Workspaces"), Icons.ACTION_OPTIONS));
-        add(new LiquibaseDashboardAction(schema));
         DefaultActionGroup workflowActions = new DefaultActionGroup(txt("app.liquibase.group.Workflows"), true);
+        workflowActions.add(new LiquibaseWorkflowDashboardAction(schema));
+        workflowActions.addSeparator();
         for (LiquibaseWorkflow workflow : LiquibaseWorkflow.values()) {
             workflowActions.add(new LiquibaseWorkflowAction(schema, workflow));
         }
         add(workflowActions);
         addSeparator();
 
+        add(new LiquibaseOperationDashboardAction(schema));
         DefaultActionGroup changelogActions = new DefaultActionGroup(txt("app.liquibase.group.Changelog"), true);
         changelogActions.add(action(schema, GENERATE_CHANGELOG));
         changelogActions.add(action(schema, GENERATE_DIFF_CHANGELOG));
