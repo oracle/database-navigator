@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dbn.liquibase.operation.ui.LiquibaseDashboardItemForm">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="3" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="8" vgap="2">
+    <margin top="16" left="8" bottom="8" right="8"/>
+    <constraints>
+      <xy x="20" y="20" width="600" height="106"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <component id="name" class="javax.swing.JLabel" binding="nameLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="[operation]"/>
+        </properties>
+      </component>
+      <component id="open" class="javax.swing.JButton" binding="openButton">
+        <constraints>
+          <grid row="0" column="2" row-span="2" col-span="1" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/DBNResources" key="app.liquibase.action.Initiate"/>
+        </properties>
+      </component>
+      <component id="description" class="javax.swing.JTextPane" binding="descriptionTextPane">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <editable value="false"/>
+          <opaque value="false"/>
+          <text value="[description]"/>
+        </properties>
+      </component>
+      <hspacer id="abe6f">
+        <constraints>
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </hspacer>
+      <component id="cac79" class="com.dbn.common.ui.link.DBNHyperlinkLabel" binding="moreHyperlinkLabel">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+    </children>
+  </grid>
+</form>

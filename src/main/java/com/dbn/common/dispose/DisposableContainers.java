@@ -65,6 +65,13 @@ public final class DisposableContainers {
             }
             return removed;
         }
+
+        public void clear() {
+            for (Disposable disposable : this) {
+                Disposer.dispose(disposable);
+            }
+            super.clear();
+        }
     }
 
     private static class DisposableConcurrentList<T extends Disposable> extends CopyOnWriteArrayList<T> implements Disposable{
@@ -92,6 +99,13 @@ public final class DisposableContainers {
             }
             return removed;
         }
+
+        public void clear() {
+            for (Disposable disposable : this) {
+                Disposer.dispose(disposable);
+            }
+            super.clear();
+        }
     }
 
 
@@ -106,12 +120,26 @@ public final class DisposableContainers {
         }
 
         @Override
+        public V remove(Object key) {
+            V removed = super.remove(key);
+            if (removed != null) Disposer.dispose(removed);
+            return removed;
+        }
+
+        @Override
         public boolean remove(Object key, Object value) {
             boolean removed = super.remove(key, value);
             if (removed && value instanceof Disposable disposable) {
                 Disposer.dispose(disposable);
             }
             return removed;
+        }
+
+        public void clear() {
+            for (Disposable disposable : values()) {
+                Disposer.dispose(disposable);
+            }
+            super.clear();
         }
     }
 }

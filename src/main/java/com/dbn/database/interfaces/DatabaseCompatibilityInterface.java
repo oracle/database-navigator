@@ -131,12 +131,32 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
      * Configures a database-specific JDBC password-change connection attempt.
      * The caller must initialize normal authentication properties first.
      */
-    default void initConnectorPasswordChange(@NotNull ConnectorProperties properties, @NotNull char[] newPassword) {}
+    default void initConnectorPasswordChange(@NotNull ConnectorProperties properties, @Nullable char[] newPassword) {}
 
     /**
      * Completes a database-specific password-change connection attempt after the JDBC connection is established.
      */
-    default void completeConnectorPasswordChange(@NotNull Connection connection, @NotNull char[] newPassword) throws SQLException {}
+    default void completeConnectorPasswordChange(@NotNull Connection connection, @Nullable char[] newPassword) throws SQLException {}
+
+    /**
+     * Initializes the transaction isolation of a newly established JDBC connection.
+     * Database implementations may use this hook to apply database-specific isolation settings.
+     */
+    default void initializeTransactionIsolation(@NotNull Connection connection) throws SQLException {}
+
+    /**
+     * Initializes a JDBC session before it is used by Liquibase.
+     * Database implementations may use this hook to apply session settings required by Liquibase.
+     */
+    default void initializeLiquibaseConnection(@NotNull Connection connection) throws SQLException {}
+
+    /**
+     * Returns the Liquibase catalog corresponding to a DBN schema, when the database uses schemas as catalogs.
+     */
+    @Nullable
+    default String getLiquibaseCatalogName(@NotNull String schemaName) {
+        return null;
+    }
 
     void initConnectorSession(ConnectorProperties properties, ConnectionSettings settings, SessionId sessionId);
 

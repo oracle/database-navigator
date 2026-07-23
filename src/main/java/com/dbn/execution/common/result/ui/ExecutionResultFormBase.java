@@ -40,11 +40,11 @@ public abstract class ExecutionResultFormBase<T extends ExecutionResult<?>> exte
 
     @Override
     public void setExecutionResult(@NotNull T executionResult) {
-        if (this.executionResult != executionResult) {
-            this.executionResult = Disposer.replace(this.executionResult, executionResult);
-            this.executionResult.setPrevious(null);
-            rebuildForm();
-        }
+        if (this.executionResult == executionResult) return;
+
+        this.executionResult = Disposer.replace(this.executionResult, executionResult);
+        this.executionResult.setPrevious(null);
+        rebuildForm();
     }
 
     protected void rebuildForm(){}

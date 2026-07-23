@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+
 /**
  * The DBNFormValidator interface defines methods for adding validation logic to swing components
  * and performing validation checks on forms consisting of multiple components.
@@ -99,6 +100,8 @@ public interface DBNFormValidator {
     void addTextValidation(JTextComponent textField, Predicate<String> validator, @DialogMessage String message);
 
     void addTextValidation(JTextComponent textField, Function<JTextComponent, @DialogMessage String> validator);
+
+    void addRequiredTextValidation(JTextComponent textField, @DialogMessage String message);
 
     void addPasswordValidation(JPasswordField passwordField, Predicate<char[]> validator, @DialogMessage String message);
 

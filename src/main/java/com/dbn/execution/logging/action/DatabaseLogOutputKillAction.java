@@ -18,7 +18,6 @@ package com.dbn.execution.logging.action;
 
 import com.dbn.common.component.ComponentBase;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Messages;
 import com.dbn.execution.logging.DatabaseLoggingResult;
 import com.dbn.execution.logging.LogOutputContext;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -27,7 +26,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseLogOutputKillAction extends AbstractDatabaseLoggingAction implements ComponentBase {
@@ -40,12 +41,12 @@ public class DatabaseLogOutputKillAction extends AbstractDatabaseLoggingAction i
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatabaseLoggingResult loggingResult) {
         LogOutputContext context = loggingResult.getContext();
         if (context.isActive()) {
-            Messages.showQuestionDialog(
+            showQuestionDialog(
                     project,
                     txt("msg.execution.title.KillProcess"),
                     txt("msg.execution.question.KillProcess"),
-                    Messages.OPTIONS_YES_NO, 0,
-                    option -> when(option == 0, () -> context.stop()));
+                    OPTIONS_YES_NO, 0,
+                    whenOk(() -> context.stop()));
 
         } else {
             context.stop();

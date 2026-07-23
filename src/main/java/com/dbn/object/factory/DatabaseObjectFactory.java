@@ -21,7 +21,6 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Safe;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
@@ -54,8 +53,11 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.OPTIONS_YES_CANCEL;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.DELETE;
@@ -115,13 +117,12 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                 showQuestionDialog(project,
                         txt("msg.objects.title.OwnerRestriction"),
                         txt("msg.objects.question.OwnerRestriction", objectTypeName),
-                        Messages.OPTIONS_YES_CANCEL, 0,
-                        option -> when(option == 0, () ->
-                                openFactoryInputDialog(
-                                        userSchema,
-                                        objectType,
-                                        initialInput,
-                                        callback)));
+                        OPTIONS_YES_CANCEL, 0,
+                        whenOk(() -> openFactoryInputDialog(
+                                userSchema,
+                                objectType,
+                                initialInput,
+                                callback)));
                 return;
             }
 
@@ -166,8 +167,8 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                 project,
                 txt("msg.objects.title.DropObject"),
                 txt("msg.objects.question.DropObject", object.getQualifiedNameWithType()),
-                Messages.OPTIONS_YES_NO, 0,
-                option -> when(option == 0, () ->
+                OPTIONS_YES_NO, 0,
+                whenOk(() ->
                         ConnectionAction.invoke(txt("msg.objects.title.DroppingObject"), false, object, action -> {
                             if (object instanceof DBSchemaObject schemaObject) {
                                 DatabaseFileManager databaseFileManager = DatabaseFileManager.getInstance(project);

@@ -75,6 +75,11 @@ public class DBNFormValidatorSurrogate implements DBNFormValidator{
     }
 
     @Override
+    public void addRequiredTextValidation(JTextComponent textField, @DialogMessage String message) {
+        notSupported();
+    }
+
+    @Override
     public void addSelectionValidation(JComboBox comboBox, @DialogMessage String message) {
         notSupported();
     }
