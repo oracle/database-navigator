@@ -17,6 +17,9 @@ import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.liquibase.execution.LiquibaseFeature.DISTINCT_SCHEMAS;
+import static com.dbn.liquibase.execution.LiquibaseFeature.SOURCE_SCHEMA;
+
 /** Shared context used to initialize the inputs of operations in a workflow. */
 @Getter
 public class LiquibaseWorkflowInput extends LiquibaseExecutionInput {
@@ -39,11 +42,12 @@ public class LiquibaseWorkflowInput extends LiquibaseExecutionInput {
     }
 
     public void setInitialSchema(@NotNull DBSchema schema) {
-        if (workflow.includesOperation(LiquibaseOperation.COMPARE_SCHEMAS)) {
+        LiquibaseWorkflowSupport support = getSupport();
+        if (support.supports(DISTINCT_SCHEMAS)) {
             setSourceSchema(schema);
         } else {
             setTargetSchema(schema);
-            if (workflow.includesOperation(LiquibaseOperation.GENERATE_CHANGELOG)) setSourceSchema(schema);
+            if (support.supports(SOURCE_SCHEMA)) setSourceSchema(schema);
         }
     }
 

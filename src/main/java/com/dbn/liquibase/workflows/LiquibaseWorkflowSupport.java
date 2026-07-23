@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static com.dbn.liquibase.execution.LiquibaseFeature.DISTINCT_SCHEMAS;
+
 /** Aggregates the context and result capabilities of the operations in a Liquibase workflow. */
 public final class LiquibaseWorkflowSupport implements LiquibaseFeatureSupport {
     private final LiquibaseWorkflow workflow;
@@ -38,10 +40,12 @@ public final class LiquibaseWorkflowSupport implements LiquibaseFeatureSupport {
     }
 
     public FieldState getSourceContextState() {
+        if (!supports(DISTINCT_SCHEMAS)) return FieldState.HIDDEN;
         return getContextState(LiquibaseOperationSupport::getSourceContextState);
     }
 
     public FieldState getTargetContextState() {
+        if (supports(DISTINCT_SCHEMAS)) return FieldState.EDITABLE;
         return getContextState(LiquibaseOperationSupport::getTargetContextState);
     }
 

@@ -153,6 +153,9 @@ public final class LiquibaseOperationSupport implements LiquibaseFeatureSupport 
             case COMPARISON_ITEMS -> operation.isOneOf(
                 COMPARE_SCHEMAS,
                 GENERATE_DIFF_CHANGELOG);
+            case DISTINCT_SCHEMAS -> operation.isOneOf(
+                COMPARE_SCHEMAS,
+                GENERATE_DIFF_CHANGELOG);
             case TRACKING_TABLES -> operation.isOneOf(
                 SHOW_CHANGELOG_STATUS,
                 SHOW_CHANGELOG_HISTORY,

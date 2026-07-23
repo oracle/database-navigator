@@ -29,5 +29,6 @@ public enum LiquibaseFeature {
     RERUN_ON_SUCCESS,
     SQL_OUTPUT,
     COMPARISON_ITEMS,
-    TRACKING_TABLES
+    TRACKING_TABLES,
+    DISTINCT_SCHEMAS
 }

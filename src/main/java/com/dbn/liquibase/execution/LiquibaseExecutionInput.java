@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Commons.coalesce;
+import static com.dbn.liquibase.execution.LiquibaseFeature.DISTINCT_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseFeature.SOURCE_SCHEMA;
 
 /** Input describing a Liquibase operation and its optional source and target schemas. */
@@ -72,6 +73,11 @@ public class LiquibaseExecutionInput extends ProjectUnit {
     @Nullable
     public DBSchema getTargetSchema() {
         return DBObjectRef.get(targetSchema);
+    }
+
+    @Nullable
+    public DBSchema getExcludedTargetSchema() {
+        return getSupport().supports(DISTINCT_SCHEMAS) ? getSourceSchema() : null;
     }
 
     @Nullable

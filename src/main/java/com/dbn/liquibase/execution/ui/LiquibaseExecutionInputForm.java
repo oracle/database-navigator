@@ -79,13 +79,13 @@ import static com.dbn.liquibase.execution.LiquibaseFeature.CHANGELOG_AUTHOR;
 import static com.dbn.liquibase.execution.LiquibaseFeature.CHANGELOG_TAG;
 import static com.dbn.liquibase.execution.LiquibaseFeature.CHECKPOINT_TAG;
 import static com.dbn.liquibase.execution.LiquibaseFeature.DATABASE_TAG;
+import static com.dbn.liquibase.execution.LiquibaseFeature.DISTINCT_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseFeature.ROLLBACK;
 import static com.dbn.liquibase.execution.LiquibaseFeature.SOURCE_SCHEMA;
 import static com.dbn.liquibase.execution.LiquibaseFeature.TARGET_SCHEMA;
 import static com.dbn.liquibase.execution.LiquibaseFeature.UPDATE_INSTRUCTION;
 import static com.dbn.liquibase.execution.LiquibaseFeature.WORKSPACE;
 import static com.dbn.liquibase.execution.LiquibaseFeature.WORKSPACE_CREATION;
-import static com.dbn.liquibase.execution.LiquibaseOperation.COMPARE_SCHEMAS;
 import static com.dbn.liquibase.execution.LiquibaseRollbackType.COUNT;
 import static com.dbn.liquibase.execution.LiquibaseRollbackType.DATE;
 import static com.dbn.liquibase.execution.LiquibaseRollbackType.TAG;
@@ -449,14 +449,13 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     }
 
     private void initSourceContextSelectors() {
-        ConnectionHandler sourceConnection = executionInput.getSourceConnection();
         FieldState state = executionInput.getSupport().getSourceContextState();
         initConnectionSelector(
                 sourceConnectionLabel,
                 sourceConnectionSelector,
                 sourceSchemaSelector,
                 getConnections(),
-                sourceConnection,
+                executionInput.getSourceConnection(),
                 state);
         initSchemaSelector(
                 sourceSchemaLabel,
@@ -468,14 +467,13 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
     }
 
     private void initTargetContextSelectors() {
-        ConnectionHandler targetConnection = executionInput.getTargetConnection();
         FieldState state = executionInput.getSupport().getTargetContextState();
         initConnectionSelector(
                 targetConnectionLabel,
                 targetConnectionSelector,
                 targetSchemaSelector,
                 getConnections(),
-                targetConnection,
+                executionInput.getTargetConnection(),
                 state);
         initSchemaSelector(
                 targetSchemaLabel,
@@ -483,14 +481,15 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
                 () -> getTargetConnection(),
                 () -> executionInput.getTargetSchema(),
                 state,
-                () -> executionInput.getSourceSchema());
+                () -> executionInput.getExcludedTargetSchema());
     }
 
     private void updateTargetConnections() {
-        if (!executionInput.containsOperation(COMPARE_SCHEMAS)) return;
+        LiquibaseFeatureSupport support = executionInput.getSupport();
+        if (!support.supports(DISTINCT_SCHEMAS)) return;
 
         ConnectionHandler targetConnection = getTargetConnection();
-        FieldState state = executionInput.getSupport().getTargetContextState();
+        FieldState state = support.getTargetContextState();
         List<ConnectionHandler> connections = getSupportedConnections(getConnections(), state);
         targetConnectionSelector.setValues(connections);
         targetConnectionSelector.setSelectedValue(connections.contains(targetConnection) ? targetConnection : null);
@@ -672,12 +671,20 @@ public class LiquibaseExecutionInputForm extends DBNFormBase {
 
     @Nullable
     public DBSchema getTargetSchema() {
-        return getSelection(targetSchemaSelector);
+        LiquibaseFeatureSupport support = executionInput.getSupport();
+        if (support.getTargetContextState().isVisible()) {
+            return getSelection(targetSchemaSelector);
+        }
+        return executionInput.getTargetSchema();
     }
 
     @Nullable
     public DBSchema getSourceSchema() {
-        return getSelection(sourceSchemaSelector);
+        LiquibaseFeatureSupport support = executionInput.getSupport();
+        if (support.getSourceContextState().isVisible()) {
+            return getSelection(sourceSchemaSelector);
+        }
+        return executionInput.getSourceSchema();
     }
 
     @Nullable
