@@ -26,7 +26,6 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.ProgressRunnable;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionHandlerStatusListener;
 import com.dbn.connection.ConnectionId;
@@ -54,8 +53,10 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.util.Commons.array;
-import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.isLast;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.connection.transaction.TransactionAction.COMMIT;
 import static com.dbn.connection.transaction.TransactionAction.DISCONNECT;
 import static com.dbn.connection.transaction.TransactionAction.ROLLBACK;
@@ -79,30 +80,28 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
 
     public void rollback(ConnectionHandler connection, @NotNull DBNConnection conn) {
         DatabaseSession session = connection.getSessionBundle().getSession(conn.getSessionId());
-        Messages.showQuestionDialog(getProject(),
+        showQuestionDialog(getProject(),
                 txt("msg.sessions.title.RollbackSession"),
-                txt("msg.sessions.question.RollbackSession", session, connection) ,
-                Messages.OPTIONS_YES_NO, 0,
-                option -> when(option == 0, () ->
-                        execute(connection,
-                                conn,
-                                actions(ROLLBACK),
-                                false,
-                                null)));
+                txt("msg.sessions.question.RollbackSession", session, connection),
+                OPTIONS_YES_NO, 0,
+                whenOk(() -> execute(connection,
+                        conn,
+                        actions(ROLLBACK),
+                        false,
+                        null)));
     }
 
     public void commit(ConnectionHandler connection, @NotNull DBNConnection conn) {
         DatabaseSession session = connection.getSessionBundle().getSession(conn.getSessionId());
-        Messages.showQuestionDialog(ensureProject(),
+        showQuestionDialog(ensureProject(),
                 txt("msg.sessions.title.CommitSession"),
                 txt("msg.sessions.question.CommitSession", session, connection),
-                Messages.OPTIONS_YES_NO, 0,
-                option -> when(option == 0, () ->
-                        execute(connection,
-                                conn,
-                                actions(COMMIT),
-                                false,
-                                null)));
+                OPTIONS_YES_NO, 0,
+                whenOk(() -> execute(connection,
+                        conn,
+                        actions(COMMIT),
+                        false,
+                        null)));
     }
 
     public void execute(

@@ -16,6 +16,7 @@
 
 package com.dbn.vector.ui.result;
 
+import com.dbn.common.action.DataKeys;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.util.Actions;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
@@ -23,6 +24,7 @@ import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.dbn.vector.model.VectorEmbeddingResult;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -73,5 +75,11 @@ public class EmbeddingResultForm extends ExecutionResultFormBase<VectorEmbedding
     @Override
     protected JComponent getMainComponent() {
         return mainPanel;
+    }
+
+    @Override
+    public @Nullable Object getData(@NotNull String dataId) {
+        if (DataKeys.EMBEDDING_EXECUTION_RESULT.is(dataId)) return getExecutionResult();
+        return null;
     }
 }

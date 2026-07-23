@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.table.TableModel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Borderless.markBorderless;
 import static com.dbn.nls.NlsResources.txt;
 
 public class VectorEmbeddingResultsTable extends DBNTableWithGutter<VectorEmbeddingResultsTableModel> {
@@ -36,6 +37,7 @@ public class VectorEmbeddingResultsTable extends DBNTableWithGutter<VectorEmbedd
         setDefaultRenderer(Object.class, new DBNDynamicTableCellRenderer());
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
         initTableSorter();
+        markBorderless(this);
 
         setProportionalColumnWidth(0, 20);
         setProportionalColumnWidth(getModel().getColumnCount() -1, 30); // status message

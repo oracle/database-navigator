@@ -18,7 +18,6 @@ package com.dbn.execution.method.result.ui;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.dispose.Disposer;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.tab.DBNTabs;
 import com.dbn.common.ui.util.Borders;
@@ -31,9 +30,9 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SessionId;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
+import com.dbn.execution.common.result.ui.ExecutionResultLogConsole;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
-import com.dbn.execution.logging.ui.DatabaseLoggingResultConsole;
 import com.dbn.execution.method.ArgumentValue;
 import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.object.DBArgument;
@@ -127,8 +126,7 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
         DatabaseCompatibilityInterface compatibility = connection.getCompatibilityInterface();
         String logConsoleName = nvl(compatibility.getDatabaseLogName(), txt("app.logging.label.LogName_OUTPUT"));
 
-        DatabaseLoggingResultConsole console = new DatabaseLoggingResultConsole(connection, logConsoleName, true);
-        console.setBorder(Borders.lineBorder(JBColor.border(), 0, 0, 1, 0));
+        ExecutionResultLogConsole console = new ExecutionResultLogConsole(connection, logConsoleName, true);
 
         LogOutputContext context = new LogOutputContext(connection);
         console.writeToConsole(context,
@@ -143,7 +141,7 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
         console.writeToConsole(context, LogOutput.createSysOutput(context, txt("log.execution.info.MethodExecutionFinished"), false));
         Disposer.register(this, console);
 
-        outputTabs.addTab(console.getTitle(), Icons.EXEC_LOG_OUTPUT_CONSOLE, console.getComponent());
+        console.installOn(outputTabs);
     }
 
     private void addOutputArgumentTabs(MethodExecutionResult executionResult) {

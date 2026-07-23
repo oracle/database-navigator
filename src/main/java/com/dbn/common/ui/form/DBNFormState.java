@@ -23,6 +23,7 @@ import com.dbn.object.common.ui.DBObjectSelector;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractButton;
 import javax.swing.JComboBox;
@@ -58,8 +59,27 @@ public class DBNFormState {
         selectElement(comboBox, attribute);
     }
 
+    public static <T extends Presentable> void initPersistence(
+            JComboBox<T> comboBox,
+            StateAttributes stateAttributes,
+            @NonNls String stateAttribute,
+            @Nullable String defaultAttribute) {
+        if (stateAttributes.getAttribute(stateAttribute) == null) {
+            stateAttributes.setAttribute(stateAttribute, defaultAttribute);
+        }
+        initPersistence(comboBox, stateAttributes, stateAttribute);
+    }
+
     public static void initPersistence(TextFieldWithBrowseButton textField, StateAttributes stateAttributes, @NonNls String stateAttribute) {
         initPersistence(textField.getTextField(), stateAttributes, stateAttribute);
+    }
+
+    public static void initPersistence(
+            TextFieldWithBrowseButton textField,
+            StateAttributes stateAttributes,
+            @NonNls String stateAttribute,
+            @Nullable String defaultAttribute) {
+        initPersistence(textField.getTextField(), stateAttributes, stateAttribute, defaultAttribute);
     }
 
     public static void initPersistence(JTextField textField, StateAttributes stateAttributes, @NonNls String stateAttribute) {
@@ -67,6 +87,17 @@ public class DBNFormState {
 
         textField.setText(nvl(attribute, ""));
         onTextChange(textField, e -> stateAttributes.setAttribute(stateAttribute, getText(textField)));
+    }
+
+    public static void initPersistence(
+            JTextField textField,
+            StateAttributes stateAttributes,
+            @NonNls String stateAttribute,
+            @Nullable String defaultAttribute) {
+        if (stateAttributes.getAttribute(stateAttribute) == null) {
+            stateAttributes.setAttribute(stateAttribute, defaultAttribute);
+        }
+        initPersistence(textField, stateAttributes, stateAttribute);
     }
 
     public static void initPersistence(AbstractButton button, StateAttributes stateAttributes, @NonNls String stateAttribute) {

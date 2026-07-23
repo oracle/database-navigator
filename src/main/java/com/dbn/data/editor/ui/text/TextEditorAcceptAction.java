@@ -53,6 +53,6 @@ class TextEditorAcceptAction extends TextEditorAction {
     @Override
     public void update(@NotNull AnActionEvent e) {
         TextEditorPopupProviderForm form = getTextEditorForm(e);
-        e.getPresentation().setEnabled(form != null && form.isChanged());
+        e.getPresentation().setEnabled(form != null && form.isFormChanged());
     }
 }

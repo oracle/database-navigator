@@ -23,10 +23,18 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.dispose.Checks.isValid;
+
 @Getter
 @Setter
 public abstract class ExecutionResultBase<F extends ExecutionResultForm> extends StatefulDisposableBase implements ExecutionResult<F> {
     private ExecutionResult<F> previous;
+
+    public void setPrevious(@Nullable ExecutionResult<F> previous) {
+        if (previous == null || isValid(previous)) {
+            this.previous = previous;
+        }
+    }
 
     @Nullable
     @Override

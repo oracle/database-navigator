@@ -18,7 +18,6 @@ package com.dbn.language.editor.action;
 
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.config.ConnectionDetailSettings;
@@ -27,7 +26,9 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseSessionDisableAction extends ProjectAction {
@@ -43,13 +44,12 @@ public class DatabaseSessionDisableAction extends ProjectAction {
         if (editor == null) return;
 
         ConnectionHandler connection = this.connection.ensure();
-        Messages.showQuestionDialog(
+        showQuestionDialog(
                 project,
                 txt("msg.sessions.title.DisableSessionSupport"),
                 txt("msg.sessions.question.DisableSessionSupport",connection.getName()),
-                Messages.OPTIONS_YES_NO,
-                0,
-                option -> when(option == 0, () -> {
+                OPTIONS_YES_NO, 0,
+                whenOk(() -> {
                     ConnectionDetailSettings detailSettings = connection.getSettings().getDetailSettings();
                     detailSettings.setEnableSessionManagement(false);
                 }));

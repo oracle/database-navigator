@@ -15,7 +15,6 @@
         <diagram.Provider implementation="com.dbn.object.diagram.impl.DBRoleModelDiagramProvider"/>
     </extensions>
     <actions>
-        <action id="DBN.DatabaseDiagram.Show"
-                class="com.dbn.object.diagram.actions.OpenDependencyDiagramAction"/>
+        <!--<action id="DBN.DatabaseDiagram.Show" class="com.dbn.object.diagram.actions.OpenDependencyDiagramAction"/>-->
     </actions>
 </idea-plugin>
