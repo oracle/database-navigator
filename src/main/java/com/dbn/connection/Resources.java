@@ -26,6 +26,7 @@ import com.dbn.connection.jdbc.DBNResource;
 import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.connection.jdbc.Resource;
 import com.dbn.connection.jdbc.ResourceStatus;
+import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -249,6 +250,9 @@ public final class Resources {
             markClosed(connection);
         } catch (SQLException e) {
             conditionallyLog(e);
+            DatabaseMessageParserInterface messageParserInterface = connection.getConnectionHandler().getMessageParserInterface();
+            if (messageParserInterface.isMissingSavepointException(e)) return;
+            
             sentWarningNotification(TRANSACTION, "ntf.connection.warning.FailedToReleaseSavepoint", connection, e);
         }
     }

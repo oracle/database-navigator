@@ -29,4 +29,8 @@ public class ElementTypeIdCache {
         AtomicInteger id = cache.computeIfAbsent(elementType, e -> new AtomicInteger());
         return elementType.getId() + "." + id.incrementAndGet();
     }
+
+    public static void clear() {
+        cache.clear();
+    }
 }

@@ -24,8 +24,10 @@ import org.jdom.Element;
 import org.jdom.input.JDOMParseException;
 import org.jdom.input.SAXBuilder;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.xml.sax.SAXParseException;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -45,8 +47,16 @@ public final class XmlContents {
         return JDOMUtil.load(inputStream);
     }
 
+    /**
+     * Loads an XML document from a classpath resource.
+     *
+     * @return the parsed document, or {@code null} when the resource does not exist
+     */
+    @Nullable
     public static Document fileToDocument(Class clazz, @NonNls String fileName) throws Exception {
         URL url = clazz.getResource(fileName);
+        if (url == null) return null;
+
         return streamToDocument(url.openStream(), url);
     }
 

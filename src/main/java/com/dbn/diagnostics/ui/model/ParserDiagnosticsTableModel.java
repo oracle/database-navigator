@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.ListModel;
 
+import static com.dbn.common.util.Lists.getElementAt;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ParserDiagnosticsTableModel implements DBNReadonlyTableModel<ParserDiagnosticsEntry>, DBNTableWithGutterModel<ParserDiagnosticsEntry>, Disposable {
@@ -94,7 +95,7 @@ public class ParserDiagnosticsTableModel implements DBNReadonlyTableModel<Parser
 
     @Override
     public final Object getValueAt(int rowIndex, int columnIndex) {
-        return deltaResult == null ? null : deltaResult.getEntries().get(rowIndex);
+        return deltaResult == null ? null : getElementAt(deltaResult.getEntries(), rowIndex);
     }
 
     @Override

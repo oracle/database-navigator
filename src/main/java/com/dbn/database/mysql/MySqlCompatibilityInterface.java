@@ -28,6 +28,8 @@ import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
+import com.dbn.object.DBConstraint;
+import com.dbn.object.common.DBObject;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,11 +46,13 @@ import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
 import static com.dbn.database.DatabaseFeature.CURRENT_SCHEMA;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
 import static com.dbn.database.DatabaseFeature.OBJECT_DDL_EXTRACTION;
+import static com.dbn.database.DatabaseFeature.OBJECT_DISABLING;
 import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
 import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
 import static com.dbn.database.DatabaseFeature.SESSION_BROWSING;
 import static com.dbn.database.DatabaseFeature.SESSION_KILL;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
+import static com.dbn.object.type.DBConstraintType.CHECK;
 
 @NonNls
 public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
@@ -100,6 +104,7 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
                 SESSION_BROWSING,
                 SESSION_KILL,
                 OBJECT_CHANGE_MONITORING,
+                OBJECT_DISABLING,
                 OBJECT_SOURCE_EDITING,
                 OBJECT_DDL_EXTRACTION,
                 UPDATABLE_RESULT_SETS,
@@ -108,6 +113,14 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
                 CHANGE_EXPIRED_PASSWORD,
                 CONSTRAINT_MANIPULATION,
                 READONLY_CONNECTIVITY);
+    }
+
+    @Override
+    public boolean supportsFeature(DatabaseFeature feature, DBObject object) {
+        if (feature == OBJECT_DISABLING) {
+            return object instanceof DBConstraint constraint && constraint.getConstraintType() == CHECK;
+        }
+        return super.supportsFeature(feature, object);
     }
 
     @Override

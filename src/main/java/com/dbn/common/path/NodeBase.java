@@ -18,6 +18,8 @@ package com.dbn.common.path;
 
 import lombok.Getter;
 
+import java.util.Objects;
+
 @Getter
 public class NodeBase<T> implements Node<T> {
     public NodeBase<T> parent;
@@ -64,6 +66,32 @@ public class NodeBase<T> implements Node<T> {
             parent = parent.getParent();
         }
         return buffer.toString();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        if (this == that) return true;
+        if (that == null || getClass() != that.getClass()) return false;
+
+        NodeBase<?> first = this;
+        NodeBase<?> second = (NodeBase<?>) that;
+        while (first != null && second != null) {
+            if (!Objects.equals(first.element, second.element)) return false;
+            first = first.parent;
+            second = second.parent;
+        }
+        return first == null && second == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 1;
+        NodeBase<T> node = this;
+        while (node != null) {
+            hash = 31 * hash + Objects.hashCode(node.element);
+            node = node.parent;
+        }
+        return hash;
     }
 
     @Override

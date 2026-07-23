@@ -23,8 +23,8 @@ import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenTypeBundle;
 
 public abstract class SQLSyntaxHighlighter extends DBLanguageSyntaxHighlighter {
-    public SQLSyntaxHighlighter(DBLanguageDialect languageDialect, String tokenTypesFile) {
-        super(languageDialect, tokenTypesFile);
+    public SQLSyntaxHighlighter(DBLanguageDialect languageDialect, String tokenDefinitionsFile) {
+        super(languageDialect, tokenDefinitionsFile);
         TokenTypeBundle tt = getTokenTypes();
         SharedTokenTypeBundle stt = tt.getSharedTokenTypes();
         colors.put(stt.identifier,                  SQLTextAttributesKeys.IDENTIFIER);

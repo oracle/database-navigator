@@ -22,6 +22,7 @@ import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ElementTypeCache;
 import com.dbn.language.common.element.cache.ElementTypeIndexedCache;
 import com.dbn.language.common.element.cache.OneOfElementTypeCache;
+import com.dbn.language.common.element.extension.OneOfElementTypeExtension;
 import com.dbn.language.common.element.parser.BranchCheck;
 import com.dbn.language.common.element.parser.impl.OneOfElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
@@ -30,7 +31,6 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,14 +42,18 @@ import static com.dbn.common.Linked.linkElements;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.language.common.TokenTypeCategory.CHARACTER;
 import static com.dbn.language.common.TokenTypeCategory.IDENTIFIER;
-import static com.dbn.language.common.element.impl.OneOfElementTypeBuilder.rebuildAmbiguousPaths;
 
 @Slf4j
 public class OneOfElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
     public boolean basic;
     public boolean sortable;
+    /**
+     * Legacy one-of tree rewrite flag. Trie-based parser extensions supersede this path.
+     */
+    @Deprecated(forRemoval = true)
     public boolean ambiguous;
+    public OneOfElementTypeExtension extension;
 
     public OneOfElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
@@ -127,7 +131,7 @@ public class OneOfElementType extends ElementTypeBase {
                 this.children[i] = new ElementTypeRef(elementType, false, version, branchChecks);
             }
             sortable = getBooleanAttribute(def, "sortable");
-            ambiguous = getBooleanAttribute(def, "ambiguous");
+            loadLegacyAmbiguousAttribute(def);
         }
 
         if (children == null || children.length == 0) {
@@ -137,12 +141,34 @@ public class OneOfElementType extends ElementTypeBase {
         linkElements(children);
     }
 
+    private void loadLegacyAmbiguousAttribute(Element def) {
+        if (!bundle.legacyParser) {
+            ambiguous = false;
+            if (ElementTypeBundle.Builder.rebuilding && stringAttribute(def, "ambiguous") != null) {
+                def.removeAttribute("ambiguous");
+                bundle.getBuilder().setDirty(true);
+            }
+            return;
+        }
+
+        ambiguous = getBooleanAttribute(def, "ambiguous");
+    }
+
+    @Override
+    public void loadExtension(Element def) {
+        if (!"one-of-extension".equals(def.getName())) {
+            super.loadExtension(def);
+            return;
+        }
+
+        extension = new OneOfElementTypeExtension(this, def);
+    }
+
     @Override
     protected OneOfElementTypeCache createLookupCache() {
         return new OneOfElementTypeCache(this);
     }
 
-    @NotNull
     @Override
     protected OneOfElementTypeParser createParser() {
         return new OneOfElementTypeParser(this);
@@ -153,7 +179,6 @@ public class OneOfElementType extends ElementTypeBase {
         return false;
     }
 
-    @NotNull
     @Override
     public String getName() {
         return "one-of (" + getId() + ")";
@@ -165,6 +190,7 @@ public class OneOfElementType extends ElementTypeBase {
     }
 
     public void sortChildren() {
+        if (!bundle.legacyParser) return;
         if (!sortable) return;
 
         Arrays.sort(children, ONE_OF_COMPARATOR);
@@ -208,7 +234,5 @@ public class OneOfElementType extends ElementTypeBase {
         // initialize children before this
         initChildren();
         sortChildren();
-
-        rebuildAmbiguousPaths(this);
     }
 }
