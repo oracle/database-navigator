@@ -35,6 +35,8 @@ import com.dbn.generator.statement.action.GenerateStatementActionGroup;
 import com.dbn.ml.action.AIModelPredictAction;
 import com.dbn.object.DBAIModel;
 import com.dbn.liquibase.action.LiquibaseSchemaActions;
+import com.dbn.ml.action.AIModelPredictAction;
+import com.dbn.object.DBAIModel;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBJavaClass;
