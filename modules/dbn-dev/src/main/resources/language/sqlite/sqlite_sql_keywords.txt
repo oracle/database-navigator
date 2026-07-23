@@ -118,6 +118,7 @@ ROWID
 SAVEPOINT
 SELECT|reserved
 SET|reserved
+STRICT
 STORED
 TABLE|reserved
 TEMP
