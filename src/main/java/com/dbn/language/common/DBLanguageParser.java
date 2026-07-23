@@ -32,37 +32,69 @@ import org.jdom.Document;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public abstract class DBLanguageParser implements PsiParser {
+    @NonNls
+    private static final String PARSER_EXTENSIONS_ENABLED_PROPERTY = "dbn.parser.extensions.enabled";
+
     public final DBLanguageDialect languageDialect;
     private final String defaultParseRootId;
-    private final String tokenTypesFile;
-    private final String elementTypesFile;
+    private final String tokenDefinitionFile;
+    private final String elementDefinitionFile;
+    private final String elementExtensionFile;
 
     private final @Getter(lazy = true) TokenTypeBundle tokenTypes = loadTokenTypes();
     private final @Getter(lazy = true) ElementTypeBundle elementTypes = loadElementTypes();
 
-    public DBLanguageParser(DBLanguageDialect languageDialect, @NonNls String tokenTypesFile, @NonNls String elementTypesFile, @NonNls String defaultParseRootId) {
+    public DBLanguageParser(
+            DBLanguageDialect languageDialect,
+            @NonNls String tokenDefinitionFile,
+            @NonNls String elementDefinitionFile,
+            @NonNls String elementExtensionFile,
+            @NonNls String defaultParseRootId) {
         this.languageDialect = languageDialect;
         this.defaultParseRootId = defaultParseRootId;
-        this.tokenTypesFile = tokenTypesFile;
-        this.elementTypesFile = elementTypesFile;
+        this.tokenDefinitionFile = tokenDefinitionFile;
+        this.elementDefinitionFile = elementDefinitionFile;
+        this.elementExtensionFile = elementExtensionFile;
     }
 
     @SneakyThrows
-    private Document loadDefinition(String tokenTypesFile) {
-        return XmlContents.fileToDocument(getResourceLookupClass(), tokenTypesFile);
+    private Document loadDefinition(String definitionFile) {
+        return XmlContents.fileToDocument(getResourceLookupClass(), definitionFile);
     }
 
     private TokenTypeBundle loadTokenTypes() {
-        Document document = loadDefinition(tokenTypesFile);
+        Document document = loadDefinition(tokenDefinitionFile);
         return new TokenTypeBundle(languageDialect, document);
     }
 
     private ElementTypeBundle loadElementTypes() {
-        Document document = loadDefinition(elementTypesFile);
-        return new ElementTypeBundle(languageDialect, getTokenTypes(), document);
+        Document definitionDocument = loadDefinition(elementDefinitionFile);
+        Document extensionDocument = isParserExtensionsEnabled() ? loadDefinition(elementExtensionFile) : null;
+        return new ElementTypeBundle(languageDialect, getTokenTypes(), definitionDocument, extensionDocument, null);
+    }
+
+    private boolean isParserExtensionsEnabled() {
+        String globalValue = System.getProperty(PARSER_EXTENSIONS_ENABLED_PROPERTY);
+        if (!Boolean.parseBoolean(globalValue)) {
+            return false;
+        }
+
+        String dialectProperty = PARSER_EXTENSIONS_ENABLED_PROPERTY + "." + dialectId();
+        String dialectValue = System.getProperty(dialectProperty);
+        if (dialectValue != null) {
+            return Boolean.parseBoolean(dialectValue);
+        }
+
+        return true;
+    }
+
+    private String dialectId() {
+        return languageDialect.getIdentifier().name().toLowerCase(Locale.ROOT);
     }
 
 

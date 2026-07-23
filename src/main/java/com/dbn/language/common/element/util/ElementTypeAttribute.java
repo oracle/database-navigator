@@ -33,6 +33,7 @@ public enum ElementTypeAttribute implements Property.LongBase {
     DATA_MANIPULATION("DATA_MANIPULATION", "Data manipulation statement", true),
     COMPILABLE_BLOCK("COMPILABLE_BLOCK", "Compilable block", false),
     TRANSACTION_CONTROL("TRANSACTION_CONTROL", "Transaction control statement", true),
+    SESSION_CONTROL("SESSION_CONTROL", "Session control statement", true),
     OBJECT_SPECIFICATION("OBJECT_SPECIFICATION", "Object specification", true),
     OBJECT_DECLARATION("OBJECT_DECLARATION", "Object declaration", true),
     OBJECT_DEFINITION("OBJECT_DEFINITION", "Object definition", true),
@@ -61,9 +62,8 @@ public enum ElementTypeAttribute implements Property.LongBase {
 
     ITERATION_SEPARATOR("ITERATION_SEPARATOR", "Iterator separator token"),
     OPTIONAL_WRAPPING("OPTIONAL_WRAPPING", "Optional wrapping token"),
-    SURROGATE_LEAD("SURROGATE_LEAD", "Surrogate lead token"),
-    SURROGATE_SEQUENCE("SURROGATE_SEQUENCE", "Surrogate sequence element"),
-    SURROGATE_CONTENT("SURROGATE_CONTENT", "Surrogate content element"),
+
+    SYNTHETIC("SYNTHETIC", "Generated synthetic element"),
     ;
 
     public static final ElementTypeAttribute[] VALUES = values();

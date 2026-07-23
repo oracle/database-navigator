@@ -344,6 +344,10 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         loadValues();
     }
 
+    public boolean hasSelection() {
+        return getSelectedValue() != null;
+    }
+
     private static class EmptyValuesAction extends BasicAction {
         public EmptyValuesAction(String emptyOptionsText) {
             super(emptyOptionsText);

@@ -22,6 +22,8 @@ import com.intellij.psi.PsiElement;
 
 import java.util.function.Predicate;
 
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_ISOLATION;
+
 public abstract class PsiScopeVisitor implements Visitor<BasePsiElement> {
     private PsiScopeVisitor() {}
 
@@ -38,7 +40,7 @@ public abstract class PsiScopeVisitor implements Visitor<BasePsiElement> {
         BasePsiElement scope = element.getEnclosingScopeElement();
         while (scope != null) {
             boolean breakTreeWalk = visitScope(scope);
-            if (breakTreeWalk || scope.elementType.scopeIsolation) break;
+            if (breakTreeWalk || scope.elementType.is(SCOPE_ISOLATION)) break;
 
             // LOOKUP
             PsiElement parent = scope.getParent();

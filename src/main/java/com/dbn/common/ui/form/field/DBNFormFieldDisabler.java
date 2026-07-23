@@ -47,17 +47,25 @@ public class DBNFormFieldDisabler {
     public static void disableFormField(JComponent component, @NonNls String reason) {
         Set<String> disabledReasons = getDisabledReasons(component);
         disabledReasons.add(reason);
-        setEnabled(component, false);
+        setFieldEnabled(component, false);
     }
 
     public static void enableFormField(JComponent component, @NonNls String reason) {
         Set<String> disabledReasons = getDisabledReasons(component);
         disabledReasons.remove(reason);
         boolean enabled = disabledReasons.isEmpty();
-        setEnabled(component, enabled);
+        setFieldEnabled(component, enabled);
     }
 
-    private static void setEnabled(JComponent component, boolean enabled) {
+    public static void setFormFieldEnabled(JComponent component, @NonNls String reason, boolean enabled) {
+        if (enabled) {
+            enableFormField(component, reason);
+        } else {
+            disableFormField(component, reason);
+        }
+    }
+
+    public static void setFieldEnabled(JComponent component, boolean enabled) {
         Dispatch.run(component, true, () -> component.setEnabled(enabled));
     }
 

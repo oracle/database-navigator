@@ -30,9 +30,7 @@ public final class GenericDatabaseInterfaces extends DatabaseInterfacesBase {
     private final @Getter(lazy = true) DatabaseNativeDataTypes nativeDataTypes = new GenericNativeDataTypes();
 
     public GenericDatabaseInterfaces() {
-        //super(SQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.ISO92_SQL), null);
-        // TODO ISO92 far from complete - fallback to SQLITE
-        super(SQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.SQLITE_SQL), null);
+        super(SQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.ISO92_SQL), null);
     }
 
     @Override

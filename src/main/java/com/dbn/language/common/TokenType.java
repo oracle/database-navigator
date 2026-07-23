@@ -23,6 +23,8 @@ import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Set;
+
 public interface TokenType extends Indexable {
 
     String getId();
@@ -74,6 +76,8 @@ public interface TokenType extends Indexable {
     FormattingDefinition getFormatting();
 
     TokenPairTemplate getTokenPairTemplate();
+
+    Set<TokenType> asSet();
 
     void setDefaultFormatting(FormattingDefinition defaults);
 

@@ -43,6 +43,7 @@ import java.util.Set;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.language.common.TokenTypeCategory.getCategory;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.ITERATION_SEPARATOR;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SYNTHETIC;
 
 public class TokenElementType extends LeafElementType implements LookupItemBuilderProvider {
     private final TokenLookupItemBuilder lookupItemBuilder = new TokenLookupItemBuilder(this);
@@ -69,6 +70,7 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
         this.tokenType = tokenType;
         this.description = "";
 
+        set(SYNTHETIC, true);
         setDefaultFormatting(tokenType.getFormatting());
     }
 
@@ -81,6 +83,7 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
         tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
         description = tokenType.getValue() + " " + getTokenTypeCategory();
 
+        set(SYNTHETIC, true);
         setDefaultFormatting(tokenType.getFormatting());
     }
 
@@ -121,30 +124,6 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
                 ElementTypeCache<?> lookupCache = wrapperElementType.wrappedElement.cache;
                 return lookupCache.captureFirstPossibleLeafs(context);
             }
-        }
-
-        if (surrogatedBy != null) {
-            Set<LeafElementType> candidates = null;
-            for (LeafElementType surrogatedByElement : surrogatedBy) {
-                SurrogateSequenceElementType surrogateSequence = surrogatedByElement.findParent(SurrogateSequenceElementType.class);
-                if (surrogateSequence != null) {
-                    ElementTypeBase surrogatedElement = surrogateSequence.getMainElementType();
-                    candidates = surrogatedElement.cache.captureSurrogateSuccessors(surrogatedByElement, candidates);
-                }
-            }
-
-            if (candidates != null) return candidates;
-        }
-
-        if (surrogateFor != null) {
-            Set<LeafElementType> candidates = null;
-            SurrogateSequenceElementType surrogateSequence = findParent(SurrogateSequenceElementType.class);
-            if (surrogateSequence != null) {
-                ElementTypeBase surrogatedElement = surrogateSequence.getMainElementType();
-                candidates = surrogatedElement.cache.captureSurrogateSuccessors(this, null);
-            }
-
-            if (candidates != null) return candidates;
         }
 
         return super.getNextPossibleLeafs(pathNode, context);

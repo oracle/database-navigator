@@ -21,7 +21,6 @@ import com.dbn.common.index.IndexContainer;
 import com.dbn.common.index.IndexContainer.IndexResolver;
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
-import com.dbn.language.common.TokenTypeBundle;
 import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.IdentifierElementType;
@@ -31,12 +30,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-
 public abstract class ElementTypeIndexedCache<T extends ElementTypeBase> extends ElementTypeCacheBase<T> {
-    private final IndexResolver<TokenType> tokenTypeResolver = index -> getParserTokenTypes().getTokenType(index);
-    private final IndexResolver<LeafElementType> elementTypeResolver = index -> getElementTypeBundle().getElement(index);
+    private final IndexResolver<TokenType> tokenTypeResolver = index -> elementType.bundle.tokenTypeBundle.getTokenType(index);
+    private final IndexResolver<LeafElementType> elementTypeResolver = index -> elementType.bundle.getElement(index);
 
     private transient final IndexContainer<LeafElementType> allPossibleLeafs = new IndexContainer<>(); // only used during initialization
     public final BackedIndexContainer<LeafElementType> firstPossibleLeafs = new BackedIndexContainer<>(elementTypeResolver);
@@ -82,10 +78,6 @@ public abstract class ElementTypeIndexedCache<T extends ElementTypeBase> extends
     @Override
     public Set<TokenType> getFirstRequiredTokens() {
         return firstRequiredTokens.elements();
-    }
-
-    private TokenTypeBundle getParserTokenTypes() {
-        return elementType.getLanguageDialect().getParserTokenTypes();
     }
 
     @Override
@@ -162,8 +154,12 @@ public abstract class ElementTypeIndexedCache<T extends ElementTypeBase> extends
 
     @Override
     public boolean startsWith(TokenTypeCategory typeCategory) {
-        return startsWithTokenCategory.computeIfAbsent(typeCategory,
-                c -> checkStartsWith(c) ? TRUE : FALSE);
+        Boolean startsWith = startsWithTokenCategory.get(typeCategory);
+        if (startsWith == null) {
+            startsWith = checkStartsWith(typeCategory);
+            startsWithTokenCategory.put(typeCategory, startsWith);
+        }
+        return startsWith;
     }
 
     protected abstract boolean checkStartsWith(TokenTypeCategory typeCategory);

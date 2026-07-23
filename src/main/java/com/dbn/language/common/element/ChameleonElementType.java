@@ -39,9 +39,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+import java.util.Collections;
+import java.util.Set;
 
 public class ChameleonElementType extends ILazyParseableElementType implements ElementType, TokenType {
     private final DBLanguageDialect parentLanguage;
+    private final Set<TokenType> asSet = Collections.singleton(this);
+
     public ChameleonElementType(DBLanguageDialect language,DBLanguageDialect parentLanguage) {
         super("chameleon (" + language.getDisplayName() + ")", language, false);
         this.parentLanguage = parentLanguage;
@@ -113,6 +117,11 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
     @Override
     public TokenPairTemplate getTokenPairTemplate() {
         return null;
+    }
+
+    @Override
+    public Set<TokenType> asSet() {
+        return asSet;
     }
 
     @Override

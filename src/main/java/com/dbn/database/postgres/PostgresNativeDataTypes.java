@@ -30,6 +30,7 @@ public class PostgresNativeDataTypes extends DatabaseNativeDataTypes {
     {
         createNumericDefinition("OID", BigDecimal.class, Types.NUMERIC);
         createNumericDefinition("XID", BigDecimal.class, Types.NUMERIC);
+        createNumericDefinition("XID8", BigDecimal.class, Types.NUMERIC);
         createNumericDefinition("CID", BigDecimal.class, Types.NUMERIC);
         createNumericDefinition("TID", BigDecimal.class, Types.NUMERIC);
 
@@ -47,10 +48,12 @@ public class PostgresNativeDataTypes extends DatabaseNativeDataTypes {
         createNumericDefinition("INT8", Long.class, Types.BIGINT);
         createNumericDefinition("SERIAL2", Long.class, Types.BIGINT);
         createNumericDefinition("SERIAL3", Long.class, Types.BIGINT);
+        createNumericDefinition("SERIAL4", Long.class, Types.BIGINT);
         createNumericDefinition("SERIAL8", Long.class, Types.BIGINT);
         createNumericDefinition("DECIMAL", BigDecimal.class, Types.DECIMAL);
         createNumericDefinition("NUMERIC", BigDecimal.class, Types.NUMERIC);
         createNumericDefinition("REAL", Float.class, Types.NUMERIC);
+        createNumericDefinition("FLOAT", Double.class, Types.DOUBLE);
         createNumericDefinition("DOUBLE", Float.class, Types.DOUBLE);
         createNumericDefinition("DOUBLE_PRECISION", BigDecimal.class, Types.DOUBLE);
         createNumericDefinition("FLOAT4", Float.class, Types.FLOAT);
@@ -104,6 +107,35 @@ public class PostgresNativeDataTypes extends DatabaseNativeDataTypes {
         createLiteralDefinition("CIDR", String.class, Types.VARCHAR);
         createLiteralDefinition("INET", String.class, Types.VARCHAR);
         createLiteralDefinition("MACADDR", String.class, Types.VARCHAR);
+        createLiteralDefinition("MACADDR8", String.class, Types.VARCHAR);
+        createLiteralDefinition("PG_LSN", String.class, Types.VARCHAR);
+        createLiteralDefinition("PG_SNAPSHOT", String.class, Types.VARCHAR);
+        createLiteralDefinition("TXID_SNAPSHOT", String.class, Types.VARCHAR);
+
+        createLiteralDefinition("REGCLASS", String.class, Types.VARCHAR);
+        createLiteralDefinition("REGCOLLATION", String.class, Types.VARCHAR);
+        createLiteralDefinition("REGCONFIG", String.class, Types.VARCHAR);
+        createLiteralDefinition("REGDICTIONARY", String.class, Types.VARCHAR);
+        createLiteralDefinition("REGNAMESPACE", String.class, Types.VARCHAR);
+        createLiteralDefinition("REGOPER", String.class, Types.VARCHAR);
+        createLiteralDefinition("REGOPERATOR", String.class, Types.VARCHAR);
+        createLiteralDefinition("REGPROC", String.class, Types.VARCHAR);
+        createLiteralDefinition("REGPROCEDURE", String.class, Types.VARCHAR);
+        createLiteralDefinition("REGROLE", String.class, Types.VARCHAR);
+        createLiteralDefinition("REGTYPE", String.class, Types.VARCHAR);
+
+        createBasicDefinition("DATERANGE", Object.class, Types.OTHER, GenericDataType.OBJECT);
+        createBasicDefinition("DATEMULTIRANGE", Object.class, Types.OTHER, GenericDataType.OBJECT);
+        createBasicDefinition("INT4RANGE", Object.class, Types.OTHER, GenericDataType.OBJECT);
+        createBasicDefinition("INT4MULTIRANGE", Object.class, Types.OTHER, GenericDataType.OBJECT);
+        createBasicDefinition("INT8RANGE", Object.class, Types.OTHER, GenericDataType.OBJECT);
+        createBasicDefinition("INT8MULTIRANGE", Object.class, Types.OTHER, GenericDataType.OBJECT);
+        createBasicDefinition("NUMRANGE", Object.class, Types.OTHER, GenericDataType.OBJECT);
+        createBasicDefinition("NUMMULTIRANGE", Object.class, Types.OTHER, GenericDataType.OBJECT);
+        createBasicDefinition("TSRANGE", Object.class, Types.OTHER, GenericDataType.OBJECT);
+        createBasicDefinition("TSMULTIRANGE", Object.class, Types.OTHER, GenericDataType.OBJECT);
+        createBasicDefinition("TSTZRANGE", Object.class, Types.OTHER, GenericDataType.OBJECT);
+        createBasicDefinition("TSTZMULTIRANGE", Object.class, Types.OTHER, GenericDataType.OBJECT);
 
         createLiteralDefinition("TSVECTOR", String.class, Types.VARCHAR);
         createLiteralDefinition("TSQUERY", String.class, Types.VARCHAR);
