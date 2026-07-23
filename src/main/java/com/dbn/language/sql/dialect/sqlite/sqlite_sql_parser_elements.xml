@@ -1668,58 +1668,59 @@
             <token type-id="FN_MOD" id="00867" />
             <token type-id="FN_PI" id="00868" />
             <token type-id="FN_POW" id="00869" />
-            <token type-id="FN_RADIANS" id="00870" />
-            <token type-id="FN_SIN" id="00871" />
-            <token type-id="FN_SINH" id="00872" />
-            <token type-id="FN_SQRT" id="00873" />
-            <token type-id="FN_TAN" id="00874" />
-            <token type-id="FN_TANH" id="00875" />
-            <token type-id="FN_TRUNC" id="00876" />
+            <token type-id="FN_POWER" id="00870" />
+            <token type-id="FN_RADIANS" id="00871" />
+            <token type-id="FN_SIN" id="00872" />
+            <token type-id="FN_SINH" id="00873" />
+            <token type-id="FN_SQRT" id="00874" />
+            <token type-id="FN_TAN" id="00875" />
+            <token type-id="FN_TANH" id="00876" />
+            <token type-id="FN_TRUNC" id="00877" />
         </one-of>
         <element ref-id="wrapped_expression_list" />
     </element-def>
 
     <element-def description="Data type" id="data_type">
-        <one-of id="00877">
-            <token id="00878" type-id="DT_BIGINT" />
-            <token id="00879" type-id="DT_BLOB" />
-            <token id="00880" type-id="DT_BOOLEAN" />
-            <token id="00881" type-id="DT_CHARACTER" />
-            <token id="00882" type-id="DT_CLOB" />
-            <token id="00883" type-id="DT_DATE" />
-            <token id="00884" type-id="DT_DATETIME" />
-            <token id="00885" type-id="DT_DECIMAL" />
-            <token id="00886" type-id="DT_DOUBLE" />
-            <token id="00887" type-id="DT_DOUBLE_PRECISION" />
-            <token id="00888" type-id="DT_FLOAT" />
-            <token id="00889" type-id="DT_INT" />
-            <token id="00890" type-id="DT_INT2" />
-            <token id="00891" type-id="DT_INT8" />
-            <token id="00892" type-id="DT_INTEGER" />
-            <token id="00893" type-id="DT_MEDIUMINT" />
-            <token id="00894" type-id="DT_NATIVE_CHARACTER" />
-            <token id="00895" type-id="DT_NCHAR" />
-            <token id="00896" type-id="DT_NUMERIC" />
-            <token id="00897" type-id="DT_NVARCHAR" />
-            <token id="00898" type-id="DT_REAL" />
-            <token id="00899" type-id="DT_SMALLINT" />
-            <token id="00900" type-id="DT_TEXT" />
-            <token id="00901" type-id="DT_TINYINT" />
-            <token id="00902" type-id="DT_UNSIGNED_BIG_INT" />
-            <token id="00903" type-id="DT_VARCHAR" />
-            <token id="00904" type-id="DT_VARYING_CHARACTER" />
+        <one-of id="00878">
+            <token id="00879" type-id="DT_BIGINT" />
+            <token id="00880" type-id="DT_BLOB" />
+            <token id="00881" type-id="DT_BOOLEAN" />
+            <token id="00882" type-id="DT_CHARACTER" />
+            <token id="00883" type-id="DT_CLOB" />
+            <token id="00884" type-id="DT_DATE" />
+            <token id="00885" type-id="DT_DATETIME" />
+            <token id="00886" type-id="DT_DECIMAL" />
+            <token id="00887" type-id="DT_DOUBLE" />
+            <token id="00888" type-id="DT_DOUBLE_PRECISION" />
+            <token id="00889" type-id="DT_FLOAT" />
+            <token id="00890" type-id="DT_INT" />
+            <token id="00891" type-id="DT_INT2" />
+            <token id="00892" type-id="DT_INT8" />
+            <token id="00893" type-id="DT_INTEGER" />
+            <token id="00894" type-id="DT_MEDIUMINT" />
+            <token id="00895" type-id="DT_NATIVE_CHARACTER" />
+            <token id="00896" type-id="DT_NCHAR" />
+            <token id="00897" type-id="DT_NUMERIC" />
+            <token id="00898" type-id="DT_NVARCHAR" />
+            <token id="00899" type-id="DT_REAL" />
+            <token id="00900" type-id="DT_SMALLINT" />
+            <token id="00901" type-id="DT_TEXT" />
+            <token id="00902" type-id="DT_TINYINT" />
+            <token id="00903" type-id="DT_UNSIGNED_BIG_INT" />
+            <token id="00904" type-id="DT_VARCHAR" />
+            <token id="00905" type-id="DT_VARYING_CHARACTER" />
         </one-of>
     </element-def>
 
     <element-def description="Type name" id="type_name">
-        <iteration id="00905">
+        <iteration id="00906">
             <element ref-id="data_type" />
         </iteration>
-        <wrapper id="00906" optional="true" template="PARENTHESES">
-            <sequence id="00907">
+        <wrapper id="00907" optional="true" template="PARENTHESES">
+            <sequence id="00908">
                 <element original-name="signed-number" ref-id="number" />
-                <sequence id="00908" optional="true">
-                    <token id="00909" type-id="CHR_COMMA" />
+                <sequence id="00909" optional="true">
+                    <token id="00910" type-id="CHR_COMMA" />
                     <element original-name="signed-number" ref-id="number" />
                 </sequence>
             </sequence>
@@ -1728,81 +1729,83 @@
 
 
     <element-def description="UNARY operator" id="unary_operator">
-        <token id="00910" type-id="CHR_PLUS" />
-        <token id="00911" type-id="CHR_MINUS" />
-        <token id="00912" type-id="CHR_TILDE" />
-        <token id="00913" type-id="KW_NOT" />
+        <token id="00911" type-id="CHR_PLUS" />
+        <token id="00912" type-id="CHR_MINUS" />
+        <token id="00913" type-id="CHR_TILDE" />
+        <token id="00914" type-id="KW_NOT" />
     </element-def>
     <element-def description="BINARY operator" id="binary_operator">
-        <one-of id="00914">
-            <token id="00915" type-id="CHR_STAR" />
-            <token id="00916" type-id="CHR_SLASH" />
-            <token id="00917" type-id="CHR_PERCENT" />
-            <token id="00918" type-id="CHR_PLUS" />
-            <token id="00919" type-id="CHR_MINUS" />
-            <token id="00920" type-id="KW_AND" />
-            <token id="00921" type-id="KW_OR" />
-            <token id="00922" type-id="KW_IN" />
-            <token id="00923" type-id="KW_BETWEEN" />
-            <sequence id="00924">
-                <token id="00925" optional="true" type-id="KW_NOT" />
-                <one-of id="00926">
-                    <token id="00927" type-id="KW_LIKE" />
-                    <token id="00928" type-id="KW_GLOB" />
-                    <token id="00929" type-id="KW_MATCH" />
-                    <token id="00930" type-id="KW_REGEXP" />
+        <one-of id="00915">
+            <token id="00916" type-id="CHR_STAR" />
+            <token id="00917" type-id="CHR_SLASH" />
+            <token id="00918" type-id="CHR_PERCENT" />
+            <token id="00919" type-id="CHR_PLUS" />
+            <token id="00920" type-id="CHR_MINUS" />
+            <token id="00921" type-id="KW_AND" />
+            <token id="00922" type-id="KW_OR" />
+            <token id="00923" type-id="KW_IN" />
+            <token id="00924" type-id="KW_BETWEEN" />
+            <token type-id="OPR_JSON_EXTRACT_TEXT" id="00925" />
+            <token type-id="OPR_JSON_EXTRACT" id="00926" />
+            <sequence id="00927">
+                <token id="00928" optional="true" type-id="KW_NOT" />
+                <one-of id="00929">
+                    <token id="00930" type-id="KW_LIKE" />
+                    <token id="00931" type-id="KW_GLOB" />
+                    <token id="00932" type-id="KW_MATCH" />
+                    <token id="00933" type-id="KW_REGEXP" />
                 </one-of>
             </sequence>
-            <token id="00931" type-id="KW_COLLATE" />
-            <sequence id="00932">
-                <token id="00933" type-id="KW_IS" />
-                <token id="00934" optional="true" type-id="KW_NOT" />
+            <token id="00934" type-id="KW_COLLATE" />
+            <sequence id="00935">
+                <token id="00936" type-id="KW_IS" />
+                <token id="00937" optional="true" type-id="KW_NOT" />
             </sequence>
-            <token id="00935" type-id="OPR_CONCATENATION" />
+            <token id="00938" type-id="OPR_CONCATENATION" />
             <element ref-id="comparison_operator" />
         </one-of>
     </element-def>
 
 
     <element-def description="COMPARISON operator" id="comparison_operator">
-        <one-of id="00936">
-            <token id="00937" type-id="CHR_EQUAL" />
-            <token id="00938" type-id="CHR_LESS" />
-            <token id="00939" type-id="CHR_GREATER" />
-            <token id="00940" type-id="OPR_EQUAL_EQUAL" />
-            <token id="00941" type-id="OPR_NOT_EQUAL" />
-            <token id="00942" type-id="OPR_LESS_GREATER" />
-            <token id="00943" type-id="OPR_LESS_EQUAL" />
-            <token id="00944" type-id="OPR_GREATER_EQUAL" />
+        <one-of id="00939">
+            <token id="00940" type-id="CHR_EQUAL" />
+            <token id="00941" type-id="CHR_LESS" />
+            <token id="00942" type-id="CHR_GREATER" />
+            <token id="00943" type-id="OPR_EQUAL_EQUAL" />
+            <token id="00944" type-id="OPR_NOT_EQUAL" />
+            <token id="00945" type-id="OPR_LESS_GREATER" />
+            <token id="00946" type-id="OPR_LESS_EQUAL" />
+            <token id="00947" type-id="OPR_GREATER_EQUAL" />
         </one-of>
     </element-def>
 
     <element-def description="Literal value" id="literal_value">
-        <one-of id="00945">
-            <token id="00946" type-id="STRING" />
-            <token id="00947" type-id="KW_NULL" />
-            <token id="00948" type-id="KW_CURRENT_TIME" />
-            <token id="00949" type-id="KW_CURRENT_DATE" />
-            <token id="00950" type-id="KW_CURRENT_TIMESTAMP" />
+        <one-of id="00948">
+            <token id="00949" type-id="STRING" />
+            <token id="00950" type-id="KW_NULL" />
+            <token id="00951" type-id="KW_CURRENT_TIME" />
+            <token id="00952" type-id="KW_CURRENT_DATE" />
+            <token id="00953" type-id="KW_CURRENT_TIMESTAMP" />
         </one-of>
     </element-def>
 
 
     <element-def description="Number" id="number">
-        <one-of id="00951" optional="true">
-            <token id="00952" type-id="CHR_MINUS" />
-            <token id="00953" type-id="CHR_PLUS" />
+        <one-of id="00954" optional="true">
+            <token id="00955" type-id="CHR_MINUS" />
+            <token id="00956" type-id="CHR_PLUS" />
         </one-of>
-        <one-of id="00954">
-            <token id="00955" type-id="NUMBER" />
-            <token id="00956" type-id="INTEGER" />
+        <one-of id="00957">
+            <token id="00958" type-id="NUMBER" />
+            <token id="00959" type-id="INTEGER" />
         </one-of>
     </element-def>
 
     <element-def description="Unknown identifier" id="custom_undefined">
-        <token id="00957" type-id="IDENTIFIER" />
+        <token id="00960" type-id="IDENTIFIER" />
     </element-def>
     <element-def description="Statement end" formatting-spacing-before="NO_SPACE" id="end" truncate-on-execution="true">
-        <token id="00958" type-id="CHR_SEMICOLON" />
+        <token id="00961" type-id="CHR_SEMICOLON" />
     </element-def>
 </element-defs>

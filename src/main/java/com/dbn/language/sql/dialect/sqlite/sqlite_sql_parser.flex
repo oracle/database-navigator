@@ -67,16 +67,18 @@ VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 {NUMBER}         { return stt.number; }
 {STRING}         { return stt.string; }
 
-"="{wso}"="      { return tt.getOperatorTokenType(0); }
-"|"{wso}"|"      { return tt.getOperatorTokenType(1); }
-"<"{wso}"="      { return tt.getOperatorTokenType(2); }
-">"{wso}"="      { return tt.getOperatorTokenType(3); }
-"<"{wso}">"      { return tt.getOperatorTokenType(4); }
-"!"{wso}"="      { return tt.getOperatorTokenType(5); }
-":"{wso}"="      { return tt.getOperatorTokenType(6); }
-"="{wso}">"      { return tt.getOperatorTokenType(7); }
+"=="             { return tt.getOperatorTokenType(0); }
+"||"             { return tt.getOperatorTokenType(1); }
+"<="             { return tt.getOperatorTokenType(2); }
+">="             { return tt.getOperatorTokenType(3); }
+"<>"             { return tt.getOperatorTokenType(4); }
+"!="             { return tt.getOperatorTokenType(5); }
+":="             { return tt.getOperatorTokenType(6); }
+"=>"             { return tt.getOperatorTokenType(7); }
 ".."             { return tt.getOperatorTokenType(8); }
 "::"             { return tt.getOperatorTokenType(9); }
+"->>"            { return tt.getOperatorTokenType(23); }
+"->"             { return tt.getOperatorTokenType(22); }
 
 "("{wso}"+"{wso}")"  {return tt.getTokenType("CT_OUTER_JOIN");}
 
@@ -380,46 +382,47 @@ VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 "percent_rank" {return tt.ftt(90);}
 "pi" {return tt.ftt(91);}
 "pow" {return tt.ftt(92);}
-"printf" {return tt.ftt(93);}
-"quote" {return tt.ftt(94);}
-"radians" {return tt.ftt(95);}
-"random" {return tt.ftt(96);}
-"randomblob" {return tt.ftt(97);}
-"rank" {return tt.ftt(98);}
-"round" {return tt.ftt(99);}
-"row_number" {return tt.ftt(100);}
-"rtrim" {return tt.ftt(101);}
-"sign" {return tt.ftt(102);}
-"sin" {return tt.ftt(103);}
-"sinh" {return tt.ftt(104);}
-"soundex" {return tt.ftt(105);}
-"sqlite_compileoption_get" {return tt.ftt(106);}
-"sqlite_compileoption_used" {return tt.ftt(107);}
-"sqlite_offset" {return tt.ftt(108);}
-"sqlite_source_id" {return tt.ftt(109);}
-"sqlite_version" {return tt.ftt(110);}
-"sqrt" {return tt.ftt(111);}
-"strftime" {return tt.ftt(112);}
-"string_agg" {return tt.ftt(113);}
-"substr" {return tt.ftt(114);}
-"substring" {return tt.ftt(115);}
-"sum" {return tt.ftt(116);}
-"tan" {return tt.ftt(117);}
-"tanh" {return tt.ftt(118);}
-"timediff" {return tt.ftt(119);}
-"total" {return tt.ftt(120);}
-"total_changes" {return tt.ftt(121);}
-"trim" {return tt.ftt(122);}
-"trunc" {return tt.ftt(123);}
-"typeof" {return tt.ftt(124);}
-"unhex" {return tt.ftt(125);}
-"unicode" {return tt.ftt(126);}
-"unistr" {return tt.ftt(127);}
-"unistr_quote" {return tt.ftt(128);}
-"unixepoch" {return tt.ftt(129);}
-"unlikely" {return tt.ftt(130);}
-"upper" {return tt.ftt(131);}
-"zeroblob" {return tt.ftt(132);}
+"power" {return tt.ftt(93);}
+"printf" {return tt.ftt(94);}
+"quote" {return tt.ftt(95);}
+"radians" {return tt.ftt(96);}
+"random" {return tt.ftt(97);}
+"randomblob" {return tt.ftt(98);}
+"rank" {return tt.ftt(99);}
+"round" {return tt.ftt(100);}
+"row_number" {return tt.ftt(101);}
+"rtrim" {return tt.ftt(102);}
+"sign" {return tt.ftt(103);}
+"sin" {return tt.ftt(104);}
+"sinh" {return tt.ftt(105);}
+"soundex" {return tt.ftt(106);}
+"sqlite_compileoption_get" {return tt.ftt(107);}
+"sqlite_compileoption_used" {return tt.ftt(108);}
+"sqlite_offset" {return tt.ftt(109);}
+"sqlite_source_id" {return tt.ftt(110);}
+"sqlite_version" {return tt.ftt(111);}
+"sqrt" {return tt.ftt(112);}
+"strftime" {return tt.ftt(113);}
+"string_agg" {return tt.ftt(114);}
+"substr" {return tt.ftt(115);}
+"substring" {return tt.ftt(116);}
+"sum" {return tt.ftt(117);}
+"tan" {return tt.ftt(118);}
+"tanh" {return tt.ftt(119);}
+"timediff" {return tt.ftt(120);}
+"total" {return tt.ftt(121);}
+"total_changes" {return tt.ftt(122);}
+"trim" {return tt.ftt(123);}
+"trunc" {return tt.ftt(124);}
+"typeof" {return tt.ftt(125);}
+"unhex" {return tt.ftt(126);}
+"unicode" {return tt.ftt(127);}
+"unistr" {return tt.ftt(128);}
+"unistr_quote" {return tt.ftt(129);}
+"unixepoch" {return tt.ftt(130);}
+"unlikely" {return tt.ftt(131);}
+"upper" {return tt.ftt(132);}
+"zeroblob" {return tt.ftt(133);}
 // MARKER_END_FUNCTIONS
 
 
