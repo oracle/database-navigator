@@ -42,7 +42,6 @@ import com.dbn.liquibase.model.LiquibaseWorkspace;
 import com.dbn.liquibase.model.LiquibaseWorkspaceBundle;
 import com.dbn.liquibase.ui.LiquibaseWorkspaceBundleSettingsDialog;
 import com.dbn.liquibase.ui.LiquibaseWorkspaceSettingsDialog;
-import com.dbn.liquibase.workflows.LiquibaseWorkflowContext;
 import com.dbn.liquibase.workflows.LiquibaseWorkflowExecutor;
 import com.dbn.liquibase.workflows.LiquibaseWorkflowInput;
 import com.dbn.liquibase.workflows.LiquibaseWorkflowResult;
@@ -164,9 +163,15 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         });
     }
 
-    public void executeWorkflow(@NotNull LiquibaseWorkflowInput input) {
-        LiquibaseWorkflowContext context = new LiquibaseWorkflowContext(input);
-        LiquibaseWorkflowResult result = new LiquibaseWorkflowResult(context);
+    public void rerunWorkflow(@NotNull LiquibaseWorkflowResult previousResult) {
+        executeWorkflow(previousResult.getInput(), previousResult);
+    }
+
+    public void executeWorkflow(
+            @NotNull LiquibaseWorkflowInput input,
+            @Nullable LiquibaseWorkflowResult previousResult) {
+        LiquibaseWorkflowResult result = new LiquibaseWorkflowResult(input);
+        result.setPrevious(previousResult);
         LiquibaseWorkflowExecutor executor = new LiquibaseWorkflowExecutor(result);
         workflowExecutors.put(result, executor);
 

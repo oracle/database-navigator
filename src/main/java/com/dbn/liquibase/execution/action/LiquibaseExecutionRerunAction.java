@@ -4,13 +4,13 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.task.TaskStatus;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.LiquibaseExecutionResult;
-import com.dbn.liquibase.execution.LiquibaseFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.liquibase.execution.LiquibaseFeature.RERUN_ON_SUCCESS;
 import static com.dbn.nls.NlsResources.txt;
 
 public class LiquibaseExecutionRerunAction extends AbstractLiquibaseExecutionResultAction {
@@ -35,8 +35,9 @@ public class LiquibaseExecutionRerunAction extends AbstractLiquibaseExecutionRes
         if (target == null) return false;
 
         TaskStatus status = target.getStatus();
-        if (status == TaskStatus.CANCELLED || status == TaskStatus.FAILED) return true;
+        if (status == TaskStatus.CANCELLED) return true;
+        if (status == TaskStatus.FAILED) return true;
 
-        return status == TaskStatus.DONE && target.getOperation().supports(LiquibaseFeature.RERUN_ON_SUCCESS);
+        return status == TaskStatus.DONE && target.getOperation().supports(RERUN_ON_SUCCESS);
     }
 }

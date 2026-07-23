@@ -41,7 +41,7 @@ public class LiquibaseWorkflowAction extends LiquibaseSchemaAction {
                 workflow.getSupport())) return;
 
         show(() -> new LiquibaseWorkflowInputDialog(getSchema(), workflow),
-                whenOk(dialog -> getManager(project).executeWorkflow(dialog.getWorkflowInput())));
+                whenOk(dialog -> getManager(project).executeWorkflow(dialog.getWorkflowInput(), null)));
     }
 
     @Override

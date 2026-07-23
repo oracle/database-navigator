@@ -32,7 +32,7 @@ public class LiquibaseWorkflowExecutor {
     }
 
     public void execute() {
-        List<LiquibaseOperation> operations = result.getContext().getInput().getWorkflow().getOperations();
+        List<LiquibaseOperation> operations = result.getInput().getWorkflow().getOperations();
         result.getContext().finish(TaskStatus.RUNNING);
 
         for (int index = 0; index < operations.size(); index++) {
@@ -69,7 +69,7 @@ public class LiquibaseWorkflowExecutor {
             @NotNull LiquibaseOperation operation) {
         result.getContext().startOperation(index);
 
-        LiquibaseExecutionInput input = result.getContext().getInput().createExecutionInput(operation);
+        LiquibaseExecutionInput input = result.getInput().createExecutionInput(operation);
         LiquibaseExecutionContext context = new LiquibaseExecutionContext(input);
         currentContext = context;
 
@@ -96,7 +96,7 @@ public class LiquibaseWorkflowExecutor {
             int fromIndex,
             @NotNull TaskStatus status) {
         for (int index = fromIndex; index < operations.size(); index++) {
-            LiquibaseExecutionInput input = result.getContext().getInput().createExecutionInput(operations.get(index));
+            LiquibaseExecutionInput input = result.getInput().createExecutionInput(operations.get(index));
             LiquibaseExecutionContext context = new LiquibaseExecutionContext(input);
             LiquibaseExecutionResult operationResult = context.prepareExecutionResult();
             operationResult.notifyStarted();

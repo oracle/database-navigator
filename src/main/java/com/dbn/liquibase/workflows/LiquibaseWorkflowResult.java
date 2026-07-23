@@ -31,12 +31,14 @@ import java.util.List;
 /** Execution-console result aggregating the operation results produced by a Liquibase workflow. */
 @Getter
 public class LiquibaseWorkflowResult extends ExecutionResultBase<LiquibaseWorkflowResultForm> {
+    private final LiquibaseWorkflowInput input;
     private final LiquibaseWorkflowContext context;
     private final List<LiquibaseExecutionResult> results = new ArrayList<>();
     private final Listeners<Runnable> listeners = Listeners.create(this);
 
-    public LiquibaseWorkflowResult(@NotNull LiquibaseWorkflowContext context) {
-        this.context = context;
+    public LiquibaseWorkflowResult(@NotNull LiquibaseWorkflowInput input) {
+        this.input = input;
+        this.context = new LiquibaseWorkflowContext(input.getWorkflow());
     }
 
     @NotNull
@@ -76,8 +78,8 @@ public class LiquibaseWorkflowResult extends ExecutionResultBase<LiquibaseWorkfl
     @Override
     public String getName() {
         return getConnection().getName() + " - " +
-                context.getInput().getRelevantSchema().getName() + " - " +
-                context.getInput().getWorkflow().getTitle();
+                input.getRelevantSchema().getName() + " - " +
+                input.getWorkflow().getTitle();
     }
 
     @Override
@@ -88,7 +90,7 @@ public class LiquibaseWorkflowResult extends ExecutionResultBase<LiquibaseWorkfl
     @NotNull
     @Override
     public Project getProject() {
-        return context.getInput().getProject();
+        return input.getProject();
     }
 
     @Override
@@ -99,7 +101,7 @@ public class LiquibaseWorkflowResult extends ExecutionResultBase<LiquibaseWorkfl
     @NotNull
     @Override
     public ConnectionHandler getConnection() {
-        return context.getInput().getRelevantConnection();
+        return input.getRelevantConnection();
     }
 
     @Override

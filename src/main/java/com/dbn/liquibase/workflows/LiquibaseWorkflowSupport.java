@@ -50,6 +50,7 @@ public final class LiquibaseWorkflowSupport implements LiquibaseFeatureSupport {
     }
 
     public boolean supports(@NotNull LiquibaseFeature feature) {
+        if (feature == LiquibaseFeature.RERUN_ON_SUCCESS) return workflow == LiquibaseWorkflow.DIAGNOSE_DATABASE;
         return any(support -> support.supports(feature));
     }
 

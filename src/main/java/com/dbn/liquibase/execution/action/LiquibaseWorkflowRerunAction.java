@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.liquibase.execution.LiquibaseFeature.RERUN_ON_SUCCESS;
 import static com.dbn.nls.NlsResources.txt;
 
 public class LiquibaseWorkflowRerunAction extends AbstractLiquibaseWorkflowResultAction {
@@ -19,8 +20,7 @@ public class LiquibaseWorkflowRerunAction extends AbstractLiquibaseWorkflowResul
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull LiquibaseWorkflowResult target) {
-        DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
-        liquibaseManager.executeWorkflow(target.getContext().getInput());
+        DatabaseLiquibaseManager.getInstance(project).rerunWorkflow(target);
     }
 
     @Override
@@ -33,6 +33,10 @@ public class LiquibaseWorkflowRerunAction extends AbstractLiquibaseWorkflowResul
     private static boolean isEnabled(@Nullable LiquibaseWorkflowResult target) {
         if (target == null) return false;
         TaskStatus status = target.getContext().getStatus();
-        return status == TaskStatus.CANCELLED || status == TaskStatus.FAILED;
+
+        if(status == TaskStatus.CANCELLED) return true;
+        if(status == TaskStatus.FAILED) return true;
+
+        return status == TaskStatus.DONE && target.getInput().getSupport().supports(RERUN_ON_SUCCESS);
     }
 }

@@ -18,17 +18,15 @@ import liquibase.changelog.ChangeLogParameters;
 import liquibase.changelog.ChangeSet;
 import liquibase.changelog.DatabaseChangeLog;
 import liquibase.changelog.RanChangeSet;
-import liquibase.command.core.UnexpectedChangesetsCommandStep;
 import liquibase.database.Database;
 import liquibase.parser.ChangeLogParserFactory;
 import liquibase.resource.ResourceAccessor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.Map;
 
-import static com.dbn.liquibase.execution.LiquibaseCommands.UNEXPECTED_CHANGESETS;
 import static com.dbn.nls.NlsResources.txt;
+import static liquibase.command.core.UnexpectedChangesetsCommandStep.listUnexpectedChangeSets;
 
 /** Finds changesets recorded in the database but missing from the workspace changelog. */
 public class LiquibaseUnexpectedChangesetsProcessor extends LiquibaseExecutionProcessor {
@@ -58,7 +56,7 @@ public class LiquibaseUnexpectedChangesetsProcessor extends LiquibaseExecutionPr
                 .getParser(paths.getMasterChangelogRelativePath(), resourceAccessor)
                 .parse(paths.getMasterChangelogRelativePath(), parameters, resourceAccessor);
 
-        Collection<RanChangeSet> unexpected = UnexpectedChangesetsCommandStep.listUnexpectedChangeSets(
+        Collection<RanChangeSet> unexpected = listUnexpectedChangeSets(
                 database,
                 changeLog,
                 parameters.getContexts(),
@@ -81,14 +79,14 @@ public class LiquibaseUnexpectedChangesetsProcessor extends LiquibaseExecutionPr
                     txt("msg.liquibase.text.UnexpectedChangeSet"));
         }
 
-        executeCommand(
+/*        executeCommand(
                 UNEXPECTED_CHANGESETS,
                 output,
                 Map.of("verbose", true),
                 Map.of(
                         Database.class, database,
                         DatabaseChangeLog.class, changeLog,
-                        ChangeLogParameters.class, parameters));
+                        ChangeLogParameters.class, parameters));*/
         result.notifyItemsChanged();
     }
 }

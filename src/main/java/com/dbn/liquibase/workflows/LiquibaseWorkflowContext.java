@@ -21,18 +21,17 @@ import java.util.List;
 /** Per-run state shared by a workflow and its operation results. */
 @Getter
 public class LiquibaseWorkflowContext {
-    private final LiquibaseWorkflowInput input;
+    private final List<LiquibaseOperation> operations;
     private int operationIndex = -1;
     private TaskStatus status = TaskStatus.NEW;
     private volatile boolean cancellationRequested;
 
-    public LiquibaseWorkflowContext(@NotNull LiquibaseWorkflowInput input) {
-        this.input = input;
+    public LiquibaseWorkflowContext(@NotNull LiquibaseWorkflow workflow) {
+        this.operations = workflow.getOperations();
     }
 
     @Nullable
     public LiquibaseOperation getCurrentOperation() {
-        List<LiquibaseOperation> operations = input.getWorkflow().getOperations();
         return operationIndex >= 0 && operationIndex < operations.size() ? operations.get(operationIndex) : null;
     }
 

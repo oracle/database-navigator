@@ -13,6 +13,7 @@ package com.dbn.liquibase.workflows.ui;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.task.TaskStatus;
 import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
@@ -60,11 +61,11 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
     private JPanel actionsPanel;
 
     private final Runnable resultListener = this::refreshSelectedOperation;
-    private final Map<LiquibaseOperation, LiquibaseExecutionResultForm> resultForms =
-            DisposableContainers.map(this);
+    private final Map<LiquibaseOperation, LiquibaseExecutionResultForm> resultForms = DisposableContainers.map(this);
     private final AtomicBoolean refreshPending = new AtomicBoolean();
     private boolean operationSelectionChanged;
     private boolean updatingOperationSelection;
+    private TaskStatus actionStatus;
 
     public LiquibaseWorkflowResultForm(@NotNull LiquibaseWorkflowResult result) {
         super(result);
@@ -83,6 +84,27 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
         selectProcessedOperation();
 
         result.addListener(resultListener);
+    }
+
+    @Override
+    public void setExecutionResult(@NotNull LiquibaseWorkflowResult result) {
+        getExecutionResult().removeListener(resultListener);
+        super.setExecutionResult(result);
+    }
+
+    @Override
+    protected void rebuildForm() {
+        resultForms.clear();
+        resultPanel.removeAll();
+        addBlankCard(resultPanel);
+        operationsList.setModel(createModel(getExecutionResult()));
+        operationSelectionChanged = false;
+        actionStatus = null;
+        selectProcessedOperation();
+        getExecutionResult().addListener(resultListener);
+        updateActionToolbarState();
+        resultPanel.revalidate();
+        resultPanel.repaint();
     }
 
     private void initActionsPanel() {
@@ -106,10 +128,19 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
                 if (!operationSelectionChanged) selectProcessedOperation();
                 operationsList.repaint();
                 showSelectedOperation();
+                updateActionToolbarState();
             } finally {
                 refreshPending.set(false);
             }
         });
+    }
+
+    private void updateActionToolbarState() {
+        TaskStatus status = getExecutionResult().getContext().getStatus();
+        if (status == actionStatus) return;
+
+        actionStatus = status;
+        updateActionToolbars();
     }
 
     private void selectProcessedOperation() {
@@ -164,7 +195,7 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
     @NotNull
     private ListModel<LiquibaseOperation> createModel(@NotNull LiquibaseWorkflowResult result) {
         DefaultListModel<LiquibaseOperation> model = new DefaultListModel<>();
-        for (LiquibaseOperation operation : result.getContext().getInput().getWorkflow().getOperations()) {
+        for (LiquibaseOperation operation : result.getInput().getWorkflow().getOperations()) {
             model.addElement(operation);
         }
         return model;
@@ -208,7 +239,7 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
                     case DONE -> Icons.COMMON_STATUS_SUCCESS;
                     case FAILED -> Icons.COMMON_STATUS_ERROR;
                     case CANCELLED -> Icons.COMMON_WARNING;
-                    case SKIPPED, NEW -> Icons.COMMON_WARNING_INACTIVE;
+                    case SKIPPED, NEW -> Icons.COMMON_EMPTY;
                 };
             }
             return Icons.COMMON_EMPTY;
