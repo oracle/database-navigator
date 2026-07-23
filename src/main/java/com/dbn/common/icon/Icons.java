@@ -45,9 +45,11 @@ public class Icons {
     public static final Icon DONATE = load("/img/Donate.png");
     public static final Icon DONATE_DISABLED = load("/img/DonateDisabled.png");
 
+    public static final Icon COMMON_EMPTY              = load("/img/common/Empty.svg");
     public static final Icon COMMON_INFO              = load("/img/common/Information.svg");
     public static final Icon COMMON_ERROR             = load("/img/common/Error.svg");
     public static final Icon COMMON_WARNING           = load("/img/common/Warning.svg");
+    public static final Icon COMMON_SUCCES            = AllIcons.Status.Success;
     public static final Icon COMMON_INFO_INACTIVE     = load("/img/common/InformationInactive.svg");
     public static final Icon COMMON_ERROR_INACTIVE    = load("/img/common/ErrorInactive.svg");
     public static final Icon COMMON_WARNING_INACTIVE  = load("/img/common/WarningInactive.svg");
@@ -60,6 +62,7 @@ public class Icons {
     public static final Icon COMMON_TIMER             = load("/img/Timer.png");
     public static final Icon COMMON_DATA_GRID         = load("/img/common/DataGrid.png");
 
+    public static final Icon COMMON_STATUS_RUNNING   = load("/img/common/StatusRunning.svg");
     public static final Icon COMMON_STATUS_SUCCESS   = load("/img/common/StatusSuccess.svg");
     public static final Icon COMMON_STATUS_ERROR     = load("/img/common/StatusError.svg");
 

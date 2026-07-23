@@ -13,9 +13,7 @@ package com.dbn.liquibase.workflows.ui;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.util.Accessibility;
-import com.dbn.common.ui.util.Splitters;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
@@ -28,19 +26,29 @@ import com.dbn.liquibase.execution.action.LiquibaseWorkflowStopAction;
 import com.dbn.liquibase.execution.ui.LiquibaseExecutionResultForm;
 import com.dbn.liquibase.workflows.LiquibaseWorkflowResult;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.ui.SimpleTextAttributes;
+import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
+import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.dbn.common.ui.CardLayouts.addBlankCard;
+import static com.dbn.common.ui.CardLayouts.addCard;
+import static com.dbn.common.ui.CardLayouts.getCard;
+import static com.dbn.common.ui.CardLayouts.showBlankCard;
+import static com.dbn.common.ui.CardLayouts.showCard;
 import static com.dbn.common.ui.util.Lists.onSelectionChange;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -50,11 +58,11 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
     private JPanel resultPanel;
     private JList<LiquibaseOperation> operationsList;
     private JPanel actionsPanel;
-    private JSplitPane splitPane;
 
     private final Runnable resultListener = this::refreshSelectedOperation;
     private final Map<LiquibaseOperation, LiquibaseExecutionResultForm> resultForms =
             DisposableContainers.map(this);
+    private final AtomicBoolean refreshPending = new AtomicBoolean();
     private boolean operationSelectionChanged;
     private boolean updatingOperationSelection;
 
@@ -62,6 +70,7 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
         super(result);
 
         initActionsPanel();
+        addBlankCard(resultPanel);
         operationsList.setCellRenderer(new OperationListCellRenderer());
         onSelectionChange(operationsList, e -> {
             if (!e.getValueIsAdjusting() && !updatingOperationSelection) {
@@ -73,7 +82,6 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
         operationsList.setModel(createModel(result));
         selectProcessedOperation();
 
-        Splitters.setSplitPaneProportion(splitPane, 0.2);
         result.addListener(resultListener);
     }
 
@@ -91,11 +99,16 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
     }
 
     private void refreshSelectedOperation() {
+        if (!refreshPending.compareAndSet(false, true)) return;
         dispatch(() -> {
-            if (isDisposed()) return;
-            if (!operationSelectionChanged) selectProcessedOperation();
-            operationsList.repaint();
-            showSelectedOperation();
+            try {
+                if (isDisposed()) return;
+                if (!operationSelectionChanged) selectProcessedOperation();
+                operationsList.repaint();
+                showSelectedOperation();
+            } finally {
+                refreshPending.set(false);
+            }
         });
     }
 
@@ -119,15 +132,23 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
 
     private void showSelectedOperation() {
         LiquibaseOperation operation = operationsList.getSelectedValue();
-        resultPanel.removeAll();
-        if (operation == null) return;
+        if (operation == null) {
+            showBlankCard(resultPanel);
+            return;
+        }
 
         LiquibaseExecutionResult result = findResult(operation);
-        if (result == null) return;
+        if (result == null) {
+            showBlankCard(resultPanel);
+            return;
+        }
 
         LiquibaseExecutionResultForm resultForm = resultForms.computeIfAbsent(
                 operation, key -> new LiquibaseExecutionResultForm(result, true));
-        resultPanel.add(resultForm.getComponent());
+        if (getCard(resultPanel, operation.name()) == null) {
+            addCard(resultPanel, resultForm, operation.name());
+        }
+        showCard(resultPanel, operation.name());
         UserInterface.repaint(resultPanel);
     }
 
@@ -149,30 +170,55 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
         return model;
     }
 
-    private class OperationListCellRenderer extends ColoredListCellRenderer<LiquibaseOperation> {
+    private class OperationListCellRenderer extends JPanel implements ListCellRenderer<LiquibaseOperation> {
+        private final JLabel operationLabel = new JLabel();
+        private final JLabel statusLabel = new JLabel();
+
+        private OperationListCellRenderer() {
+            super(new BorderLayout(16, 0));
+            setBorder(JBUI.Borders.empty(2, 4));
+            add(operationLabel, BorderLayout.CENTER);
+            add(statusLabel, BorderLayout.EAST);
+        }
+
         @Override
-        protected void customize(
+        public Component getListCellRendererComponent(
                 @NotNull JList<? extends LiquibaseOperation> list,
                 LiquibaseOperation value,
                 int index,
                 boolean selected,
                 boolean hasFocus) {
-            setIcon(getStatusIcon(value));
-            append(value.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+            boolean focused = hasFocus || list.hasFocus();
+            setOpaque(true);
+            setBackground(selected ? UIUtil.getListSelectionBackground(focused) : list.getBackground());
+            Icon statusIcon = getStatusIcon(value);
+            operationLabel.setForeground(selected
+                    ? UIUtil.getListSelectionForeground(focused)
+                    : hasResult(value) ? list.getForeground() : UIUtil.getInactiveTextColor());
+            operationLabel.setText(value.getName());
+            statusLabel.setIcon(statusIcon);
+            return this;
         }
 
         private Icon getStatusIcon(@NotNull LiquibaseOperation operation) {
             for (LiquibaseExecutionResult result : getExecutionResult().getResults()) {
                 if (result.getOperation() != operation) continue;
                 return switch (result.getStatus()) {
-                    case RUNNING -> Icons.ACTION_REFRESH;
+                    case RUNNING -> Icons.COMMON_STATUS_RUNNING;
                     case DONE -> Icons.COMMON_STATUS_SUCCESS;
                     case FAILED -> Icons.COMMON_STATUS_ERROR;
                     case CANCELLED -> Icons.COMMON_WARNING;
                     case SKIPPED, NEW -> Icons.COMMON_WARNING_INACTIVE;
                 };
             }
-            return Icons.COMMON_WARNING_INACTIVE;
+            return Icons.COMMON_EMPTY;
+        }
+
+        private boolean hasResult(@NotNull LiquibaseOperation operation) {
+            for (LiquibaseExecutionResult result : getExecutionResult().getResults()) {
+                if (result.getOperation() == operation) return true;
+            }
+            return false;
         }
     }
 
