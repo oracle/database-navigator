@@ -18,6 +18,7 @@ package com.dbn.connection.mapping;
 
 import com.dbn.common.editor.EditorNotificationProvider;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionHandlerStatusListener;
 import com.dbn.connection.ConnectionId;
@@ -98,7 +99,7 @@ public class FileConnectionContextNotificationProvider extends EditorNotificatio
     }
 
     private static ConnectionHandlerStatusListener createConnectionHandlerStatusListener() {
-        return connectionId -> {
+        return connectionId -> Dispatch.run(true, () -> {
             ConnectionHandler connection = ConnectionHandler.get(connectionId);
             if(connection == null) return;
 
@@ -114,6 +115,6 @@ public class FileConnectionContextNotificationProvider extends EditorNotificatio
                     notifications.updateNotifications(file);
                 }
             }
-        };
+        });
     }
 }

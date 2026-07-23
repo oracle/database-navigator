@@ -18,7 +18,6 @@ package com.dbn.connection.mapping.ui;
 
 import com.dbn.common.editor.EditorNotificationPanel;
 import com.dbn.common.message.MessageType;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.mapping.FileConnectionContext;
@@ -32,8 +31,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JLabel;
 
 import static com.dbn.common.dispose.Failsafe.nd;
-import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
 import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.nls.NlsResources.txt;
 
 public class FileConnectionContextNotificationPanel extends EditorNotificationPanel {
@@ -85,10 +85,8 @@ public class FileConnectionContextNotificationPanel extends EditorNotificationPa
                     project,
                     txt("msg.fileContext.title.RemoveDatabaseContext"),
                     txt("msg.fileContext.question.RemoveDatabaseContext", connection.getName(), mappingFile.getPath()),
-                    Messages.OPTIONS_YES_NO,
-                    0,
-                    option -> when(option == 0,
-                            () -> contextManager.removeMapping(mappingFile)));
+                    OPTIONS_YES_NO, 0,
+                    whenOk(() -> contextManager.removeMapping(mappingFile)));
 
 
 

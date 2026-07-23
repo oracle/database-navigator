@@ -150,10 +150,6 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
         if (elementType.cache.couldStartWithToken(token)) return true;
 
         if (builder.tokenPairMonitor.hasConsumedMatch(elementType)) return true;
-        if (builder.tokenMonitor.isSurrogate()) {
-            if (builder.tokenMonitor.isSurrogateFor(elementType)) return true;
-        }
-
         if (isSuppressibleReservedWord(token, node, context)) return true;
 
         return false;

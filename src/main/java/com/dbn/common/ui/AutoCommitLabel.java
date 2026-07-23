@@ -21,6 +21,7 @@ import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.panel.DBNPanelImpl;
 import com.dbn.common.ui.util.Fonts;
+import com.dbn.common.ui.util.Tooltips;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
@@ -42,6 +43,8 @@ import javax.swing.JLabel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
+import static com.dbn.common.color.Colors.getLabelErrorForeground;
+import static com.dbn.common.color.Colors.getLabelSuccessForeground;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -91,48 +94,53 @@ public class AutoCommitLabel extends DBNPanelImpl implements Disposable {
     private void update() {
         Dispatch.run(true, () -> {
             ConnectionHandler connection = getConnection();
-            if (isLiveConnection(connection)) {
-                setVisible(true);
-                boolean disconnected = !connection.isConnected(sessionId);
-                boolean autoCommit = connection.isAutoCommit();
+            boolean liveConnection = isLiveConnection(connection);
+            setVisible(liveConnection);
 
-                connectionLabel.setForeground(disconnected ? Colors.DISCONNECTED : Colors.CONNECTED);
-                DatabaseSession session = connection.getSessionBundle().getSession(sessionId);
+            if (!liveConnection) return;
+
+            boolean disconnected = !connection.isConnected(sessionId);
+            boolean autoCommit = getAutoCommit(connection);
+
+            connectionLabel.setForeground(disconnected ? Colors.DISCONNECTED : Colors.CONNECTED);
+            DatabaseSession session = connection.getSessionBundle().getSession(sessionId);
 
 
-                String sessionName = session.getName();
-                connectionLabel.setText(
-                        disconnected ?
-                                txt("app.connection.label.NotConnected") :
-                                txt("app.connection.label.Connected"));
-                connectionLabel.setToolTipText(
-                        disconnected ?
-                                txt("app.connection.tooltip.NotConnectedToSession", sessionName) : null);
+            String sessionName = session.getName();
+            connectionLabel.setText(
+                    disconnected ?
+                            txt("app.connection.label.NotConnected") :
+                            txt("app.connection.label.Connected"));
+            Tooltips.setToolTipText(connectionLabel,
+                    disconnected ?
+                            txt("app.connection.tooltip.NotConnectedToSession", sessionName) : null);
 
-                connectionLabel.setFont(disconnected ?
-                        Fonts.regular() :
-                        Fonts.regularBold());
+            connectionLabel.setFont(disconnected ?
+                    Fonts.regular() :
+                    Fonts.regularBold());
 
-                autoCommitLabel.setForeground(autoCommit ?
-                        com.dbn.common.color.Colors.FAILURE_COLOR :
-                        com.dbn.common.color.Colors.SUCCESS_COLOR);
-                autoCommitLabel.setText(
-                        autoCommit ?
-                                txt("app.connection.label.AutoCommitOn") :
-                                txt("app.connection.label.AutoCommitOff"));
-                autoCommitLabel.setToolTipText(
-                        autoCommit ?
-                                txt("app.connection.tooltip.AutoCommitEnabled", connection) :
-                                txt("app.connection.tooltip.AutoCommitDisabled", connection));
-            } else {
-                setVisible(false);
-            }
+            autoCommitLabel.setForeground(autoCommit ?
+                    getLabelErrorForeground() :
+                    getLabelSuccessForeground());
+            autoCommitLabel.setText(
+                    autoCommit ?
+                            txt("app.connection.label.AutoCommitOn") :
+                            txt("app.connection.label.AutoCommitOff"));
+            Tooltips.setToolTipText(autoCommitLabel,
+                    autoCommit ?
+                            txt("app.connection.tooltip.AutoCommitEnabled", connection) :
+                            txt("app.connection.tooltip.AutoCommitDisabled", connection));
         });
     }
 
     @Nullable
     private ConnectionHandler getConnection() {
         return ConnectionRef.get(connection);
+    }
+
+    private boolean getAutoCommit(@NotNull ConnectionHandler connection) {
+        DBNConnection sessionConnection = connection.getConnectionPool().getSessionConnection(sessionId);
+        return sessionConnection == null ? connection.isAutoCommit() : sessionConnection.isAutoCommit();
     }
 
     private final ConnectionStatusListener connectionStatusListener = (connectionId, sessionId) -> {
@@ -171,7 +179,8 @@ public class AutoCommitLabel extends DBNPanelImpl implements Disposable {
             if (action.isOneOf(
                     TransactionAction.TURN_AUTO_COMMIT_ON,
                     TransactionAction.TURN_AUTO_COMMIT_OFF) &&
-                    ConnectionRef.get(AutoCommitLabel.this.connection) == connection) {
+                    ConnectionRef.get(AutoCommitLabel.this.connection) == connection &&
+                    (conn == null || sessionId == conn.getSessionId())) {
 
                 update();
             }

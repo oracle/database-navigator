@@ -23,7 +23,11 @@ import org.jetbrains.annotations.NonNls;
 
 public class SqliteSQLParser extends SQLParser {
     public SqliteSQLParser(DBLanguageDialect languageDialect, @NonNls String parseRootId) {
-        super(languageDialect, "sqlite_sql_parser_tokens.xml", "sqlite_sql_parser_elements.xml", parseRootId);
+        super(languageDialect,
+                "sqlite_sql_parser_tokens.xml",
+                "sqlite_sql_parser_elements.xml",
+                "sqlite_sql_parser_elements_ext.xml",
+                parseRootId);
     }
 
     public SqliteSQLParser(SQLLanguageDialect languageDialect) {

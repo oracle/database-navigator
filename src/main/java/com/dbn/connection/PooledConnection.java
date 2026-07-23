@@ -49,14 +49,18 @@ public final class PooledConnection {
     }
 
     public static <T> T call(@NotNull ConnectionContext context, @NotNull ConnectionCallable<T> callable) throws SQLException {
+        return call(context, true, callable);
+    }
+
+    public static <T> T call(@NotNull ConnectionContext context, boolean readonly, @NotNull ConnectionCallable<T> callable) throws SQLException {
         ConnectionHandler connection = context.getConnection();
         SchemaId schemaId = context.getSchemaId();
 
         DBNConnection c = null;
         try {
             c = schemaId == null ?
-                    connection.getPoolConnection(true) :
-                    connection.getPoolConnection(schemaId, true);
+                    connection.getPoolConnection(readonly) :
+                    connection.getPoolConnection(schemaId, readonly);
 
             connection.checkDisposed();
             c.set(ResourceStatus.ACTIVE, true);

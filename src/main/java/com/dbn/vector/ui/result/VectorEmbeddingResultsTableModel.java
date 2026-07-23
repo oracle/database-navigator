@@ -78,7 +78,7 @@ public class VectorEmbeddingResultsTableModel extends DBNDynamicTableModel<Embed
         return switch (r.getStatus()) {
             case SKIPPED -> GRAY_ATTRIBUTES;
             case FAILED -> ERROR_ATTRIBUTES;
-            case DONE -> new SimpleTextAttributes(STYLE_PLAIN, Colors.SUCCESS_COLOR);
+            case DONE -> new SimpleTextAttributes(STYLE_PLAIN, Colors.getLabelSuccessForeground());
             default -> REGULAR_ATTRIBUTES;
         };
     }

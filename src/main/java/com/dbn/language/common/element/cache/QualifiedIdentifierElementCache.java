@@ -16,6 +16,7 @@
 
 package com.dbn.language.common.element.cache;
 
+import com.dbn.language.common.TokenChain;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.impl.ElementTypeBase;
@@ -24,13 +25,12 @@ import com.dbn.language.common.element.impl.QualifiedIdentifierElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class QualifiedIdentifierElementCache extends ElementTypeIndexedCache<QualifiedIdentifierElementType> {
-    private final Map<List<TokenType>, QualifiedIdentifierVariant> probableParseVariants = new ConcurrentHashMap<>();
+    private final Map<TokenChain, QualifiedIdentifierVariant> probableParseVariants = new ConcurrentHashMap<>();
 
     public QualifiedIdentifierElementCache(QualifiedIdentifierElementType elementType) {
         super(elementType);
@@ -54,7 +54,12 @@ public class QualifiedIdentifierElementCache extends ElementTypeIndexedCache<Qua
 
     @Override
     protected boolean checkStartsWith(TokenTypeCategory typeCategory) {
-        return elementType.variants.stream().anyMatch(t -> t[0].cache.startsWith(typeCategory));
+        for (LeafElementType[] variant : elementType.variants) {
+            if (variant[0].cache.startsWith(typeCategory)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -79,24 +84,18 @@ public class QualifiedIdentifierElementCache extends ElementTypeIndexedCache<Qua
         return bucket;
     }
 
-    @Override
-    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
-        for (LeafElementType[] elementTypes : elementType.variants) {
-            if (elementTypes.length <= 1) continue;
-            if (!surrogateLead.isSurrogateFor(elementTypes[0])) continue;
-
-            bucket = initBucket(bucket);
-            bucket.add(elementTypes[1]);
+    public QualifiedIdentifierVariant getMostProbableParseVariant(TokenChain tokenChain) {
+        QualifiedIdentifierVariant variant = probableParseVariants.get(tokenChain);
+        if (variant == null) {
+            variant = evaluateMostProbableParseVariant(tokenChain);
+            if (variant != null) {
+                probableParseVariants.put(tokenChain, variant);
+            }
         }
-
-        return bucket;
+        return variant;
     }
 
-    public QualifiedIdentifierVariant getMostProbableParseVariant(List<TokenType> tokenChain) {
-        return probableParseVariants.computeIfAbsent(tokenChain, c -> evaluateMostProbableParseVariant(c));
-    }
-
-    private QualifiedIdentifierVariant evaluateMostProbableParseVariant(List<TokenType> tokenChain) {
+    private QualifiedIdentifierVariant evaluateMostProbableParseVariant(TokenChain tokenChain) {
         QualifiedIdentifierVariant mostProbableVariant = null;
 
         for (LeafElementType[] elementTypes : elementType.variants) {
@@ -107,7 +106,7 @@ public class QualifiedIdentifierElementCache extends ElementTypeIndexedCache<Qua
                         matchedTokens++;
                     }
                 }
-                if (mostProbableVariant == null || mostProbableVariant.getMatchedTokens() < matchedTokens) {
+                if (mostProbableVariant == null || mostProbableVariant.matchedTokens < matchedTokens) {
                     mostProbableVariant = mostProbableVariant == null ?
                             new QualifiedIdentifierVariant(elementTypes, matchedTokens) :
                             mostProbableVariant.replace(elementTypes, matchedTokens);

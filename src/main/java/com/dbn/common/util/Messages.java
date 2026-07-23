@@ -168,7 +168,6 @@ public class Messages {
         showDialog(project, message, title, options, defaultOptionIndex, Icons.DIALOG_QUESTION, callback, rememberOption);
     }
 
-
     public static void showWarningDialog(@Nullable Project project,  @DialogTitle String title, @DialogMessage String message) {
         showWarningDialog(project, title, message, OPTIONS_OK, 0, null);
     }
@@ -273,4 +272,9 @@ public class Messages {
         return ModalityState.any();
     }
 
+    public static MessageCallback whenOk(@NotNull Runnable runnable) {
+        return option -> {
+            if (option == 0) runnable.run();
+        };
+    }
 }
