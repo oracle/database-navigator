@@ -38,12 +38,12 @@ public class TimeUtilTest {
         Assert.assertEquals("1m", logged(TimeUtil.presentableDuration(ONE_MINUTE, true)));
         Assert.assertEquals("1m 45s", logged(TimeUtil.presentableDuration(ONE_MINUTE + ONE_SECOND * 45, true)));
         Assert.assertEquals("3m 45s", logged(TimeUtil.presentableDuration(ONE_MINUTE * 3 + ONE_SECOND * 45, true)));
-        Assert.assertEquals("1000 ms", logged(TimeUtil.presentableDuration(ONE_SECOND, true)));
-        Assert.assertEquals("1456 ms", logged(TimeUtil.presentableDuration(ONE_SECOND + 456, true)));
-        Assert.assertEquals("3456 ms", logged(TimeUtil.presentableDuration(ONE_SECOND * 3 + 456, true)));
-        Assert.assertEquals("5000 ms", logged(TimeUtil.presentableDuration(ONE_SECOND * 5, true)));
+        Assert.assertEquals("1s", logged(TimeUtil.presentableDuration(ONE_SECOND, true)));
+        Assert.assertEquals("1s", logged(TimeUtil.presentableDuration(ONE_SECOND + 456, true)));
+        Assert.assertEquals("3s", logged(TimeUtil.presentableDuration(ONE_SECOND * 3 + 456, true)));
+        Assert.assertEquals("5s", logged(TimeUtil.presentableDuration(ONE_SECOND * 5, true)));
         Assert.assertEquals("6s", logged(TimeUtil.presentableDuration(ONE_SECOND * 6, true)));
-        Assert.assertEquals("7s 456ms", logged(TimeUtil.presentableDuration(ONE_SECOND * 7 + 456, true)));
+        Assert.assertEquals("7s", logged(TimeUtil.presentableDuration(ONE_SECOND * 7 + 456, true)));
         Assert.assertEquals("0 ms", logged(TimeUtil.presentableDuration(0, false)));
         Assert.assertEquals("one hour", logged(TimeUtil.presentableDuration(ONE_HOUR, false)));
         Assert.assertEquals("one hour and one minute", logged(TimeUtil.presentableDuration(ONE_HOUR + ONE_MINUTE, false)));
@@ -52,13 +52,13 @@ public class TimeUtilTest {
         Assert.assertEquals("one minute", logged(TimeUtil.presentableDuration(ONE_MINUTE, false)));
         Assert.assertEquals("one minute and 45 seconds", logged(TimeUtil.presentableDuration(ONE_MINUTE + ONE_SECOND * 45, false)));
         Assert.assertEquals("3 minutes and 45 seconds", logged(TimeUtil.presentableDuration(ONE_MINUTE * 3 + ONE_SECOND * 45, false)));
-        Assert.assertEquals("1000 ms", logged(TimeUtil.presentableDuration(ONE_SECOND, false)));
-        Assert.assertEquals("1000 ms", logged(TimeUtil.presentableDuration(Duration.ofSeconds(1), false)));
-        Assert.assertEquals("1456 ms", logged(TimeUtil.presentableDuration(ONE_SECOND + 456, false)));
-        Assert.assertEquals("3456 ms", logged(TimeUtil.presentableDuration(ONE_SECOND * 3 + 456, false)));
-        Assert.assertEquals("5000 ms", logged(TimeUtil.presentableDuration(ONE_SECOND * 5, false)));
+        Assert.assertEquals("one second", logged(TimeUtil.presentableDuration(ONE_SECOND, false)));
+        Assert.assertEquals("one second", logged(TimeUtil.presentableDuration(Duration.ofSeconds(1), false)));
+        Assert.assertEquals("one second", logged(TimeUtil.presentableDuration(ONE_SECOND + 456, false)));
+        Assert.assertEquals("3 seconds", logged(TimeUtil.presentableDuration(ONE_SECOND * 3 + 456, false)));
+        Assert.assertEquals("5 seconds", logged(TimeUtil.presentableDuration(ONE_SECOND * 5, false)));
         Assert.assertEquals("6 seconds", logged(TimeUtil.presentableDuration(ONE_SECOND * 6, false)));
-        Assert.assertEquals("7 seconds and 456 ms", logged(TimeUtil.presentableDuration(ONE_SECOND * 7 + 456, false)));
+        Assert.assertEquals("7 seconds", logged(TimeUtil.presentableDuration(ONE_SECOND * 7 + 456, false)));
     }
     
     private static String logged(String val) {

@@ -133,12 +133,4 @@ wrappedTokenLC.couldStartWithLeaf(leaf));
         return elementType.wrapping.beginElement.tokenType == tokenType;
     }
 
-    @Override
-    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
-        if (surrogateLead.isSurrogateFor(elementType.wrapping.beginElement)) {
-            bucket = initBucket(bucket);
-            bucket.addAll(elementType.wrappedElement.cache.getFirstPossibleLeafs());
-        }
-        return bucket;
-    }
 }

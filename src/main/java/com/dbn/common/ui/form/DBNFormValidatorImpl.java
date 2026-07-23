@@ -116,6 +116,11 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
     }
 
     @Override
+    public void addRequiredTextValidation(JTextComponent textField, @DialogMessage String message) {
+        addTextValidation(textField, Strings::isNotEmpty, message);
+    }
+
+    @Override
     public void addPasswordValidation(JPasswordField passwordField, Predicate<char[]> validator, @DialogMessage String message) {
         addValidation(passwordField, f -> testPassword(f, validator), message);
     }

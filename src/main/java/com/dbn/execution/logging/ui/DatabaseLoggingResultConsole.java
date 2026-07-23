@@ -17,6 +17,7 @@
 package com.dbn.execution.logging.ui;
 
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionHandler;
@@ -29,13 +30,20 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JComponent;
 import java.io.StringReader;
 
 public class DatabaseLoggingResultConsole extends LogConsoleBase{
     public static final StringReader EMPTY_READER = new StringReader("");
     public DatabaseLoggingResultConsole(@NotNull ConnectionHandler connection, String title, boolean buildInActions) {
         super(connection.getProject(), EMPTY_READER, title, buildInActions, createFilterModel(connection));
-        getComponent().setBorder(Borders.lineBorder(JBColor.border(), 0, 0, 1, 0));
+        normalizeBorders();
+    }
+
+    protected void normalizeBorders() {
+        JComponent component = getComponent();
+        UserInterface.removeBorders(component);
+        component.setBorder(Borders.lineBorder(JBColor.border(), 0, 0, 1, 0));
     }
 
     private static LogFilterModel createFilterModel(ConnectionHandler connection) {

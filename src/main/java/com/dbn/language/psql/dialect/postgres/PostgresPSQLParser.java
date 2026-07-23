@@ -21,6 +21,10 @@ import com.dbn.language.psql.dialect.PSQLLanguageDialect;
 
 public class PostgresPSQLParser extends PSQLParser {
     public PostgresPSQLParser(PSQLLanguageDialect languageDialect) {
-        super(languageDialect, "postgres_psql_parser_tokens.xml", "postgres_psql_parser_elements.xml", "psql_block");
+        super(languageDialect,
+                "postgres_psql_parser_tokens.xml",
+                "postgres_psql_parser_elements.xml",
+                "postgres_psql_parser_elements_ext.xml",
+                "psql_block");
     }
 }

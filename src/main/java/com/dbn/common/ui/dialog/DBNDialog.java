@@ -35,6 +35,7 @@ import com.dbn.diagnostics.Diagnostics;
 import com.dbn.help.HelpTopic;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.OptionAction;
@@ -78,6 +79,7 @@ import static com.dbn.common.action.UserDataKeys.PROJECT_REF;
 import static com.dbn.common.data.Data.asBooleanPrimitive;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.registerDialog;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.releaseDialog;
 import static com.dbn.common.ui.util.Buttons.installMousePressFocus;
@@ -86,7 +88,9 @@ import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Lists.firstElement;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
@@ -233,6 +237,9 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     @NotNull
     protected abstract F createForm();
 
+    public void updateDialogButtons() {
+
+    }
 
     @Override
     protected final @NonNls @Nullable String getHelpId() {
@@ -248,8 +255,18 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         getForm().resetFormChanges();
     }
 
-    public void applyFormChanges() throws ConfigurationException {
-        getForm().applyFormChanges();
+    public void applyFormChanges() {
+        try {
+            getForm().applyFormChanges();
+            updateDialogButtons();
+        } catch (ConfigurationException e) {
+            conditionallyLog(e);
+            showErrorDialog(
+                    getProject(),
+                    txt("msg.connection.title.InvalidConfiguration"),
+                    getLocalizedMessage(e));
+            throw new ProcessCanceledException();
+        }
     }
 
     @Nullable
@@ -265,7 +282,20 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
 
     @Override
     protected String getDimensionServiceKey() {
-        return autoSize || Diagnostics.isDialogSizingReset() ? null : "DBNavigator." + simpleClassName(this);
+        return createDimensionSeviceKey();
+    }
+
+    protected @NonNls String createDimensionSeviceKey(Object ... attributes) {
+        if (autoSize) return null;
+        if (Diagnostics.isDialogSizingReset()) return null;
+
+        @NonNls
+        StringBuilder key = new StringBuilder("DBNavigator." + simpleClassName(this));
+        for (Object attribute : attributes) {
+            key.append(".").append(attribute);
+        }
+
+        return key.toString();
     }
 
     protected static Action createAction(@NotNull @Button String name, @NotNull Runnable runnable) {

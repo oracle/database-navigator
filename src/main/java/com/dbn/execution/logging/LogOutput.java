@@ -17,6 +17,7 @@
 package com.dbn.execution.logging;
 
 import com.dbn.common.locale.Formatter;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.openapi.project.Project;
@@ -25,8 +26,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Data;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
+
+import static java.lang.System.currentTimeMillis;
 
 @Data
 public class LogOutput {
@@ -34,17 +38,19 @@ public class LogOutput {
 
     @Getter
     public enum Type {
-        SYS(ProcessOutputTypes.SYSTEM),
-        STD(ProcessOutputTypes.STDOUT),
-        ERR(ProcessOutputTypes.STDERR);
+        SYS("INFO", ProcessOutputTypes.SYSTEM),
+        STD("INFO", ProcessOutputTypes.STDOUT),
+        ERR("ERROR", ProcessOutputTypes.STDERR);
+        private final String label;
         private final Key<?> key;
 
-        Type(Key<?> key) {
+        Type(String label, Key<?> key) {
+            this.label = label;
             this.key = key;
         }
     }
 
-    private final String text;
+    private String text;
     private final Type type;
     private final boolean scrollToEnd;
     private final boolean clearBuffer;
@@ -53,7 +59,7 @@ public class LogOutput {
         this(text, type, false, false);
     }
     private LogOutput(String text, Type type, boolean scrollToEnd, boolean clearBuffer) {
-        this.text = text;
+        this.text = Strings.trim(text);
         this.type = type;
         this.scrollToEnd = scrollToEnd;
         this.clearBuffer = clearBuffer;
@@ -71,8 +77,16 @@ public class LogOutput {
         return new LogOutput(text, Type.SYS);
     }
 
+    @NotNull
+    public LogOutput withTimestamp(@NotNull Project project) {
+        Formatter formatter = Formatter.getInstance(project);
+        String date = formatter.formatDateTime(new Date(currentTimeMillis()));
+        this.text = date + ": " + text;
+        return this;
+    }
+
     public static LogOutput createSysOutput(LogOutputContext context, String message, boolean clearBuffer) {
-        return createSysOutput(context, System.currentTimeMillis(), message, clearBuffer);
+        return createSysOutput(context, currentTimeMillis(), message, clearBuffer);
     }
 
     public static LogOutput createSysOutput(LogOutputContext context, long timestamp, String message, boolean clearBuffer) {

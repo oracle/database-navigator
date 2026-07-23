@@ -26,7 +26,9 @@ import org.jetbrains.annotations.PropertyKey;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.util.Commons.nvl;
@@ -34,6 +36,8 @@ import static com.dbn.common.util.Commons.nvl;
 public class NlsResources extends DynamicBundle{
     public static final @NonNls String BUNDLE = "messages.DBNResources";
     private static final NlsResources INSTANCE = new NlsResources();
+    private static final ResourceBundle DEFAULT_BUNDLE = ResourceBundle.getBundle(BUNDLE, Locale.ROOT, NlsResources.class.getClassLoader());
+    private static final String DEFAULT_VALUE = "[DEFAULT]";
     private static final Object[] EMPTY_PARAMS = new Object[0];
     private static final Map<String, Boolean> KEY_VALIDITY_CACHE = new ConcurrentHashMap<>();
 
@@ -51,7 +55,8 @@ public class NlsResources extends DynamicBundle{
         adjustParams(params);
         if (isValidKey(key)) {
             key = key.intern();
-            return INSTANCE.getMessage(key, params);
+            String text = INSTANCE.getMessage(key, params);
+            return DEFAULT_VALUE.equals(text) ? DEFAULT_BUNDLE.getString(key) : text;
         } else if (params != null && params.length > 0) {
             return MessageFormat.format(key, params);
         }

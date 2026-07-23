@@ -17,7 +17,6 @@
 package com.dbn.execution.logging.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Messages;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.logging.DatabaseLoggingResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -26,7 +25,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseLogOutputCloseAction extends AbstractDatabaseLoggingAction {
@@ -38,12 +39,12 @@ public class DatabaseLogOutputCloseAction extends AbstractDatabaseLoggingAction 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatabaseLoggingResult loggingResult) {
         if (loggingResult.getContext().isActive()) {
-            Messages.showQuestionDialog(
+            showQuestionDialog(
                     project,
                     txt("msg.execution.title.ProcessActive"),
                     txt("msg.execution.question.ProcessActive"),
-                    Messages.OPTIONS_YES_NO, 0,
-                    option -> when(option == 0, () -> closeConsole(loggingResult, project)));
+                    OPTIONS_YES_NO, 0,
+                    whenOk(() -> closeConsole(loggingResult, project)));
         } else {
             closeConsole(loggingResult, project);
         }

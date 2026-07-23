@@ -43,11 +43,9 @@ import com.dbn.execution.compiler.CompilerMessage;
 import com.dbn.execution.compiler.CompilerResult;
 import com.dbn.execution.explain.result.ExplainPlanMessage;
 import com.dbn.execution.explain.result.ExplainPlanResult;
-import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.logging.DatabaseLoggingResult;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
-import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.execution.statement.StatementExecutionInput;
 import com.dbn.execution.statement.StatementExecutionMessage;
 import com.dbn.execution.statement.options.StatementExecutionSettings;
@@ -333,11 +331,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
         }
     }
 
-    public void addResult(MethodExecutionResult executionResult) {
-        showResultTab(executionResult);
-    }
-    //todo add one foe vector embeddings
-    public void addResult(JavaExecutionResult executionResult) {
+    public void addResult(ExecutionResult<?> executionResult) {
         showResultTab(executionResult);
     }
 
@@ -488,6 +482,9 @@ public class ExecutionConsoleForm extends DBNFormBase {
                 executionResultForm = getExecutionResultForm(executionResult);
                 if (isValid(executionResultForm)) {
                     selectResultTab(executionResult);
+                } else {
+                    executionResultForms.remove(executionResult);
+                    executionResultForm = null;
                 }
             } else {
                 executionResultForm = getExecutionResultForm(previousExecutionResult);
@@ -496,6 +493,9 @@ public class ExecutionConsoleForm extends DBNFormBase {
                     executionResultForms.put(executionResult, executionResultForm);
                     executionResultForm.setExecutionResult(executionResult);
                     selectResultTab(executionResult);
+                } else {
+                    executionResultForms.remove(previousExecutionResult);
+                    executionResultForm = null;
                 }
             }
 

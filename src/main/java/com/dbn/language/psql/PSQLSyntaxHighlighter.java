@@ -23,8 +23,8 @@ import com.dbn.language.common.TokenTypeBundle;
 import com.dbn.language.psql.dialect.PSQLLanguageDialect;
 
 public abstract class PSQLSyntaxHighlighter extends DBLanguageSyntaxHighlighter {
-    public PSQLSyntaxHighlighter(PSQLLanguageDialect languageDialect, String tokenTypesFile) {
-        super(languageDialect, tokenTypesFile);
+    public PSQLSyntaxHighlighter(PSQLLanguageDialect languageDialect, String tokenDefinitionsFile) {
+        super(languageDialect, tokenDefinitionsFile);
         TokenTypeBundle tt = getTokenTypes();
         SharedTokenTypeBundle stt = tt.getSharedTokenTypes();
         colors.put(stt.identifier,                  PSQLTextAttributesKeys.IDENTIFIER);

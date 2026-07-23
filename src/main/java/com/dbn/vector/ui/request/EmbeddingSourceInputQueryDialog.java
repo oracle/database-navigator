@@ -21,7 +21,6 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.request.EmbeddingSourceQuery;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
@@ -63,14 +62,12 @@ public class EmbeddingSourceInputQueryDialog extends DBNDialog<EmbeddingSourceIn
     }
 
     @Override
-    @SneakyThrows
     protected void doOKAction() {
         applyFormChanges();
         super.doOKAction();
     }
 
     @Override
-    @SneakyThrows
     public void doCancelAction() {
         if (operation == RecordOperation.CREATE) {
             applyFormChanges(); // preserve input even if canceled
