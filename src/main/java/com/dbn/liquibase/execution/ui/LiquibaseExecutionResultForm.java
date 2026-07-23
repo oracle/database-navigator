@@ -2,6 +2,7 @@ package com.dbn.liquibase.execution.ui;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.task.TaskStatus;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Accessibility;
@@ -41,7 +42,8 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
     private LiquibaseComparisonItemsTableModel comparisonItemsTableModel;
     private LiquibaseLockItemsTableModel lockItemsTableModel;
     private int outputOffset;
-    private boolean embedded;
+    private final boolean embedded;
+    private TaskStatus actionStatus;
 
     public LiquibaseExecutionResultForm(@NotNull LiquibaseExecutionResult result, boolean embedded) {
         super(result);
@@ -151,6 +153,17 @@ public class LiquibaseExecutionResultForm extends ExecutionResultFormBase<Liquib
         if (comparisonTableModel != null) comparisonTableModel.refresh();
         if (lockTableModel != null) lockTableModel.refresh();
         if (outputChanged) console.markOutputUnread();
+        updateActionToolbarState(result);
+    }
+
+    private void updateActionToolbarState(@NotNull LiquibaseExecutionResult result) {
+        if (embedded) return;
+
+        TaskStatus status = result.getStatus();
+        if (status == actionStatus) return;
+
+        actionStatus = status;
+        updateActionToolbars();
     }
 
     private void updateSqlOutput(@NotNull LiquibaseExecutionResult result) {
