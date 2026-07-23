@@ -40,14 +40,13 @@ public class JsonConfigProviderProcessorTest {
     private final JsonConfigProviderProcessor processor = new JsonConfigProviderProcessor();
 
     @Test
-    public void renderWritesOnlyConfiguredValuesAndPasswordTemplate() throws Exception {
+    public void renderWritesOnlyConfiguredValues() throws Exception {
         String json = processor.render(payload(), null);
 
         JsonNode node = MAPPER.readTree(json);
         assertEquals("(description=(connect_data=(service_name=prod)))", node.path("connect_descriptor").asText());
         assertEquals("scott", node.path("user").asText());
-        assertEquals("FILL_THIS_TYPE", node.path("password").path("type").asText());
-        assertEquals("FILL_THIS_VALUE", node.path("password").path("value").asText());
+        assertFalse(node.has("password"));
         assertEquals(1000, node.path("jdbc").path("timeout").asInt());
         assertFalse(node.has("wallet_location"));
     }
@@ -108,7 +107,6 @@ public class JsonConfigProviderProcessorTest {
         return ConfigProviderPayload.builder()
                 .connectDescriptor("(description=(connect_data=(service_name=prod)))")
                 .user("scott")
-                .password(SecretRefFactory.emptyTemplate())
                 .jdbc(Map.of("timeout", 1000))
                 .build();
     }

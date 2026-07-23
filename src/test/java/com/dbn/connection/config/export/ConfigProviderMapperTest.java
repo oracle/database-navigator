@@ -36,7 +36,6 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -64,8 +63,7 @@ public class ConfigProviderMapperTest {
 
         assertEquals("(description=(address_list=(address=(protocol=tcp)(host=db.example.com)(port=1522)))(connect_data=(service_name=production)))", payload.getConnectDescriptor());
         assertEquals("scott", payload.getUser());
-        assertNotNull(payload.getPassword());
-        assertEquals("FILL_THIS_VALUE", payload.getPassword().getValue());
+        assertNull(payload.getPassword());
         assertEquals(1000, payload.getJdbc().get("connectTimeout"));
         assertEquals("true", payload.getJdbc().get("ssl"));
         assertFalse(payload.getJdbc().containsKey("autoCommit"));
@@ -129,6 +127,23 @@ public class ConfigProviderMapperTest {
         ConfigProviderPayload payload = ConfigProviderMapper.map(settings, request());
 
         assertNull(payload.getPassword());
+    }
+
+    @Test
+    public void mapExportsExplicitDatabasePasswordAsBase64Secret() throws Exception {
+        ConnectionSettings settings = settings(DatabaseUrlType.DATABASE);
+        settings.getDatabaseSettings().getAuthenticationInfo().setType(AuthenticationType.USER_PASSWORD);
+
+        char[] password = "secret".toCharArray();
+        ConfigProviderExportRequest request = ConfigProviderExportRequest.builder()
+                .includeDatabasePassword(true)
+                .databasePassword(password)
+                .build();
+
+        ConfigProviderPayload payload = ConfigProviderMapper.map(settings, request);
+
+        assertEquals(SecretProviderType.BASE64, payload.getPassword().getType());
+        assertEquals("c2VjcmV0", payload.getPassword().getValue());
     }
 
     @Test

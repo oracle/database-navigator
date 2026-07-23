@@ -42,6 +42,14 @@ public class SecretRefFactoryTest {
     }
 
     @Test
+    public void base64PasswordEncodesPassword() {
+        SecretRef ref = SecretRefFactory.base64Password("secret".toCharArray());
+
+        assertEquals(SecretProviderType.BASE64, ref.getType());
+        assertEquals("c2VjcmV0", ref.getValue());
+    }
+
+    @Test
     public void base64WalletRejectsPemWalletFile() throws Exception {
         Path wallet = temporaryFolder.newFile("ewallet.pem").toPath();
 
