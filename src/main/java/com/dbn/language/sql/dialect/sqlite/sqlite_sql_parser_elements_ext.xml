@@ -6,19 +6,19 @@
     <one-of-extension id="00012" depth="1">
         <node tt="KW_WITH, KW_SELECT, KW_VALUES, KW_DELETE, KW_UPDATE, KW_INSERT, KW_REPLACE" pc="00013" />
         <node tt="KW_ALTER" pc="alter_statement" cc="00366" />
-        <node tt="KW_ANALYZE" pc="analyze_statement" cc="00386, 00387, 00388, 00389, 00390" />
+        <node tt="KW_ANALYZE" pc="analyze_statement" cc="00419, 00420, 00421, 00422, 00423" />
         <node tt="KW_VACUUM" pc="vacuum_statement" />
-        <node tt="KW_SAVEPOINT" pc="savepoint_statement" cc="00393" />
-        <node tt="KW_RELEASE" pc="release_savepoint_statement" cc="00395, 00396" />
-        <node tt="KW_ROLLBACK" pc="rollback_transaction_statement" cc="00398, 00400" />
-        <node tt="KW_COMMIT, KW_END" pc="commit_transaction_statement" cc="00406" />
-        <node tt="KW_BEGIN" pc="begin_transaction_statement" cc="00409, 00410, 00411, 00412" />
+        <node tt="KW_SAVEPOINT" pc="savepoint_statement" cc="00426" />
+        <node tt="KW_RELEASE" pc="release_savepoint_statement" cc="00428, 00429" />
+        <node tt="KW_ROLLBACK" pc="rollback_transaction_statement" cc="00431, 00433" />
+        <node tt="KW_COMMIT, KW_END" pc="commit_transaction_statement" cc="00439" />
+        <node tt="KW_BEGIN" pc="begin_transaction_statement" cc="00442, 00443, 00444, 00445" />
         <node tt="KW_ATTACH" pc="attach_database_statement" />
-        <node tt="KW_DETACH" pc="detach_database_statement" cc="00418, 00419" />
-        <node tt="KW_PRAGMA" pc="pragma_statement" cc="00422, 00425, 00426, 00427, 00428, 00429, 00430, 00431, 00432, 00435, 00436, 00437, 00438, 00439, 00440, 00441, 00442, 00443, 00448, 00457, 00464, 00465, 00466, 00467, 00468, 00469, 00470, 00471, 00472, 00473, 00474, 00475, 00476, 00477, 00478, 00479, 00480, 00481, 00482, 00483, 00484, 00485, 00486, 00487, 00488, 00493, 00494, 00499, 00509, 00510, 00511, 00512, 00517, 00518, 00519, 00520, 00521, 00522, 00527, 00528, 00532, 00543, 00550, 00559, 00568" />
+        <node tt="KW_DETACH" pc="detach_database_statement" cc="00451, 00452" />
+        <node tt="KW_PRAGMA" pc="pragma_statement" cc="00455, 00458, 00459, 00460, 00461, 00462, 00463, 00464, 00465, 00468, 00469, 00470, 00471, 00472, 00473, 00474, 00475, 00476, 00481, 00490, 00497, 00498, 00499, 00500, 00501, 00502, 00503, 00504, 00505, 00506, 00507, 00508, 00509, 00510, 00511, 00512, 00513, 00514, 00515, 00516, 00517, 00518, 00519, 00520, 00521, 00526, 00527, 00532, 00542, 00543, 00544, 00545, 00550, 00551, 00552, 00553, 00554, 00555, 00560, 00561, 00565, 00576, 00583, 00592, 00601" />
         <node tt="KW_CREATE" pc="create_statement" cc="00164, 00165, 00187, 00195, 00229, 00170, 00171, 00335" />
         <node tt="KW_DROP" pc="drop_statement" cc="00349, 00353, 00357, 00361" />
-        <node tt="KW_REINDEX" pc="reindex_statement" cc="00380, 00381, 00382, 00383" />
+        <node tt="KW_REINDEX" pc="reindex_statement" cc="00413, 00414, 00415, 00416" />
     </one-of-extension>
     <one-of-extension id="00156" depth="2">
         <node tt="KW_VALUES" pc="values_clause, select_stmt">
@@ -27,90 +27,105 @@
         <node tt="KW_WITH, KW_SELECT" pc="select_stmt" />
         <node tt="KW_DEFAULT" pc="00157" cc="00159" />
     </one-of-extension>
-    <one-of-extension id="00424" depth="1">
-        <node tt="PRM_COLLATION_LIST" pc="00425" />
-        <node tt="PRM_COMPILE_OPTIONS" pc="00426" />
-        <node tt="PRM_DATA_VERSION" pc="00427" />
-        <node tt="PRM_DATABASE_LIST" pc="00428" />
-        <node tt="PRM_FREELIST_COUNT" pc="00429" />
-        <node tt="PRM_PAGE_COUNT" pc="00430" />
-        <node tt="PRM_SHRINK_MEMORY" pc="00431" />
-        <node tt="PRM_STATS" pc="00432" />
-        <node tt="PRM_APPLICATION_ID, PRM_BUSY_TIMEOUT, PRM_DEFAULT_CACHE_SIZE, PRM_PAGE_SIZE, PRM_SCHEMA_VERSION, PRM_USER_VERSION, PRM_SOFT_HEAP_LIMIT, PRM_THREADS, PRM_WAL_AUTOCHECKPOINT" pc="00433" />
-        <node tt="PRM_AUTO_VACUUM" pc="00447" />
-        <node tt="PRM_CACHE_SIZE" pc="00456" />
-        <node tt="PRM_CACHE_SPILL, PRM_AUTOMATIC_INDEX, PRM_CASE_SENSITIVE_LIKE, PRM_CELL_SIZE_CHECK, PRM_CHECKPOINT_FULLFSYNC, PRM_COUNT_CHANGES, PRM_DEFER_FOREIGN_KEYS, PRM_EMPTY_RESULT_CALLBACKS, PRM_FOREIGN_KEYS, PRM_FULL_COLUMN_NAMES, PRM_FULLFSYNC, PRM_IGNORE_CHECK_CONSTRAINTS, PRM_LEGACY_FILE_FORMAT, PRM_PARSER_TRACE, PRM_QUERY_ONLY, PRM_READ_UNCOMMITTED, PRM_RECURSIVE_TRIGGERS, PRM_REVERSE_UNORDERED_SELECTS, PRM_SECURE_DELETE, PRM_SHORT_COLUMN_NAMES, PRM_VDBE_ADDOPTRACE, PRM_VDBE_DEBUG, PRM_VDBE_LISTING, PRM_VDBE_TRACE, PRM_WRITABLE_SCHEMA" pc="00462" />
-        <node tt="PRM_DATA_STORE_DIRECTORY, PRM_TEMP_STORE_DIRECTORY" pc="00491" />
-        <node tt="PRM_ENCODING" pc="00498" />
-        <node tt="PRM_FOREIGN_KEY_CHECK, PRM_FOREIGN_KEY_LIST, PRM_INDEX_LIST, PRM_TABLE_INFO" pc="00507" />
-        <node tt="PRM_INCREMENTAL_VACUUM, PRM_INTEGRITY_CHECK, PRM_JOURNAL_SIZE_LIMIT, PRM_MAX_PAGE_COUNT, PRM_MMAP_SIZE, PRM_QUICK_CHECK" pc="00515" />
-        <node tt="PRM_INDEX_INFO, PRM_INDEX_XINFO" pc="00525" />
-        <node tt="PRM_JOURNAL_MODE" pc="00531" />
-        <node tt="PRM_LOCKING_MODE" pc="00542" />
-        <node tt="PRM_SYNCHRONOUS" pc="00549" />
-        <node tt="PRM_TEMP_STORE" pc="00558" />
-        <node tt="PRM_WAL_CHECKPOINT" pc="00567" />
+    <one-of-extension id="00370" depth="2">
+        <node tt="KW_RENAME" pc="00371, 00375" cc="00373, 00377, 00378">
+            <node tt="KW_TO" pc="00371" cc="00374" />
+            <node tt="KW_COLUMN, IDENTIFIER" pc="00375" cc="00378, 00379" />
+        </node>
+        <node tt="KW_ADD" pc="00381, 00384" cc="00383, 00310, 00387, 00389">
+            <node tt="KW_COLUMN, IDENTIFIER" pc="00381" cc="00310, 00912, 00913, 00914, 00915, 00916, 00917, 00918, 00919, 00920, 00921, 00922, 00923, 00924, 00925, 00926, 00927, 00928, 00929, 00930, 00931, 00932, 00933, 00934, 00935, 00936, 00937, 00938, 00313, 00317, 00324, 00327, 00329, 00331, 00333, 00274" />
+            <node tt="KW_CONSTRAINT, KW_CHECK" pc="00384" cc="00388" />
+        </node>
+        <node tt="KW_DROP" pc="00390, 00394" cc="00392, 00393, 00396">
+            <node tt="KW_COLUMN, IDENTIFIER" pc="00390" cc="00393" />
+            <node tt="KW_CONSTRAINT" pc="00394" cc="00397" />
+        </node>
+        <node tt="KW_ALTER" pc="00398" cc="00400, 00401" />
     </one-of-extension>
-    <one-of-extension id="00451" depth="1">
-        <node tt="INTEGER" pc="00452" />
-        <node tt="IDENTIFIER" pc="00453, 00455" />
-        <node tt="KW_FULL" pc="00454" />
+    <one-of-extension id="00457" depth="1">
+        <node tt="PRM_COLLATION_LIST" pc="00458" />
+        <node tt="PRM_COMPILE_OPTIONS" pc="00459" />
+        <node tt="PRM_DATA_VERSION" pc="00460" />
+        <node tt="PRM_DATABASE_LIST" pc="00461" />
+        <node tt="PRM_FREELIST_COUNT" pc="00462" />
+        <node tt="PRM_PAGE_COUNT" pc="00463" />
+        <node tt="PRM_SHRINK_MEMORY" pc="00464" />
+        <node tt="PRM_STATS" pc="00465" />
+        <node tt="PRM_APPLICATION_ID, PRM_BUSY_TIMEOUT, PRM_DEFAULT_CACHE_SIZE, PRM_PAGE_SIZE, PRM_SCHEMA_VERSION, PRM_USER_VERSION, PRM_SOFT_HEAP_LIMIT, PRM_THREADS, PRM_WAL_AUTOCHECKPOINT" pc="00466" />
+        <node tt="PRM_AUTO_VACUUM" pc="00480" />
+        <node tt="PRM_CACHE_SIZE" pc="00489" />
+        <node tt="PRM_CACHE_SPILL, PRM_AUTOMATIC_INDEX, PRM_CASE_SENSITIVE_LIKE, PRM_CELL_SIZE_CHECK, PRM_CHECKPOINT_FULLFSYNC, PRM_COUNT_CHANGES, PRM_DEFER_FOREIGN_KEYS, PRM_EMPTY_RESULT_CALLBACKS, PRM_FOREIGN_KEYS, PRM_FULL_COLUMN_NAMES, PRM_FULLFSYNC, PRM_IGNORE_CHECK_CONSTRAINTS, PRM_LEGACY_FILE_FORMAT, PRM_PARSER_TRACE, PRM_QUERY_ONLY, PRM_READ_UNCOMMITTED, PRM_RECURSIVE_TRIGGERS, PRM_REVERSE_UNORDERED_SELECTS, PRM_SECURE_DELETE, PRM_SHORT_COLUMN_NAMES, PRM_VDBE_ADDOPTRACE, PRM_VDBE_DEBUG, PRM_VDBE_LISTING, PRM_VDBE_TRACE, PRM_WRITABLE_SCHEMA" pc="00495" />
+        <node tt="PRM_DATA_STORE_DIRECTORY, PRM_TEMP_STORE_DIRECTORY" pc="00524" />
+        <node tt="PRM_ENCODING" pc="00531" />
+        <node tt="PRM_FOREIGN_KEY_CHECK, PRM_FOREIGN_KEY_LIST, PRM_INDEX_LIST, PRM_TABLE_INFO" pc="00540" />
+        <node tt="PRM_INCREMENTAL_VACUUM, PRM_INTEGRITY_CHECK, PRM_JOURNAL_SIZE_LIMIT, PRM_MAX_PAGE_COUNT, PRM_MMAP_SIZE, PRM_QUICK_CHECK" pc="00548" />
+        <node tt="PRM_INDEX_INFO, PRM_INDEX_XINFO" pc="00558" />
+        <node tt="PRM_JOURNAL_MODE" pc="00564" />
+        <node tt="PRM_LOCKING_MODE" pc="00575" />
+        <node tt="PRM_SYNCHRONOUS" pc="00582" />
+        <node tt="PRM_TEMP_STORE" pc="00591" />
+        <node tt="PRM_WAL_CHECKPOINT" pc="00600" />
     </one-of-extension>
-    <one-of-extension id="00463" depth="1">
-        <node tt="PRM_CACHE_SPILL" pc="00464" />
-        <node tt="PRM_AUTOMATIC_INDEX" pc="00465" />
-        <node tt="PRM_CASE_SENSITIVE_LIKE" pc="00466" />
-        <node tt="PRM_CELL_SIZE_CHECK" pc="00467" />
-        <node tt="PRM_CHECKPOINT_FULLFSYNC" pc="00468" />
-        <node tt="PRM_COUNT_CHANGES" pc="00469" />
-        <node tt="PRM_DEFER_FOREIGN_KEYS" pc="00470" />
-        <node tt="PRM_EMPTY_RESULT_CALLBACKS" pc="00471" />
-        <node tt="PRM_FOREIGN_KEYS" pc="00472" />
-        <node tt="PRM_FULL_COLUMN_NAMES" pc="00473" />
-        <node tt="PRM_FULLFSYNC" pc="00474" />
-        <node tt="PRM_IGNORE_CHECK_CONSTRAINTS" pc="00475" />
-        <node tt="PRM_LEGACY_FILE_FORMAT" pc="00476" />
-        <node tt="PRM_PARSER_TRACE" pc="00477" />
-        <node tt="PRM_QUERY_ONLY" pc="00478" />
-        <node tt="PRM_READ_UNCOMMITTED" pc="00479" />
-        <node tt="PRM_RECURSIVE_TRIGGERS" pc="00480" />
-        <node tt="PRM_REVERSE_UNORDERED_SELECTS" pc="00481" />
-        <node tt="PRM_SECURE_DELETE" pc="00482" />
-        <node tt="PRM_SHORT_COLUMN_NAMES" pc="00483" />
-        <node tt="PRM_VDBE_ADDOPTRACE" pc="00484" />
-        <node tt="PRM_VDBE_DEBUG" pc="00485" />
-        <node tt="PRM_VDBE_LISTING" pc="00486" />
-        <node tt="PRM_VDBE_TRACE" pc="00487" />
-        <node tt="PRM_WRITABLE_SCHEMA" pc="00488" />
+    <one-of-extension id="00484" depth="1">
+        <node tt="INTEGER" pc="00485" />
+        <node tt="IDENTIFIER" pc="00486, 00488" />
+        <node tt="KW_FULL" pc="00487" />
     </one-of-extension>
-    <one-of-extension id="00502" depth="1">
-        <node tt="IDENTIFIER" pc="00503, 00504, 00505, 00506" />
+    <one-of-extension id="00496" depth="1">
+        <node tt="PRM_CACHE_SPILL" pc="00497" />
+        <node tt="PRM_AUTOMATIC_INDEX" pc="00498" />
+        <node tt="PRM_CASE_SENSITIVE_LIKE" pc="00499" />
+        <node tt="PRM_CELL_SIZE_CHECK" pc="00500" />
+        <node tt="PRM_CHECKPOINT_FULLFSYNC" pc="00501" />
+        <node tt="PRM_COUNT_CHANGES" pc="00502" />
+        <node tt="PRM_DEFER_FOREIGN_KEYS" pc="00503" />
+        <node tt="PRM_EMPTY_RESULT_CALLBACKS" pc="00504" />
+        <node tt="PRM_FOREIGN_KEYS" pc="00505" />
+        <node tt="PRM_FULL_COLUMN_NAMES" pc="00506" />
+        <node tt="PRM_FULLFSYNC" pc="00507" />
+        <node tt="PRM_IGNORE_CHECK_CONSTRAINTS" pc="00508" />
+        <node tt="PRM_LEGACY_FILE_FORMAT" pc="00509" />
+        <node tt="PRM_PARSER_TRACE" pc="00510" />
+        <node tt="PRM_QUERY_ONLY" pc="00511" />
+        <node tt="PRM_READ_UNCOMMITTED" pc="00512" />
+        <node tt="PRM_RECURSIVE_TRIGGERS" pc="00513" />
+        <node tt="PRM_REVERSE_UNORDERED_SELECTS" pc="00514" />
+        <node tt="PRM_SECURE_DELETE" pc="00515" />
+        <node tt="PRM_SHORT_COLUMN_NAMES" pc="00516" />
+        <node tt="PRM_VDBE_ADDOPTRACE" pc="00517" />
+        <node tt="PRM_VDBE_DEBUG" pc="00518" />
+        <node tt="PRM_VDBE_LISTING" pc="00519" />
+        <node tt="PRM_VDBE_TRACE" pc="00520" />
+        <node tt="PRM_WRITABLE_SCHEMA" pc="00521" />
     </one-of-extension>
     <one-of-extension id="00535" depth="1">
-        <node tt="KW_DELETE" pc="00536" />
-        <node tt="IDENTIFIER" pc="00537, 00538, 00539, 00540, 00541" />
+        <node tt="IDENTIFIER" pc="00536, 00537, 00538, 00539" />
     </one-of-extension>
-    <one-of-extension id="00553" depth="1">
-        <node tt="INTEGER" pc="00554" />
-        <node tt="IDENTIFIER" pc="00555, 00556" />
-        <node tt="KW_FULL" pc="00557" />
+    <one-of-extension id="00568" depth="1">
+        <node tt="KW_DELETE" pc="00569" />
+        <node tt="IDENTIFIER" pc="00570, 00571, 00572, 00573, 00574" />
     </one-of-extension>
-    <one-of-extension id="00562" depth="1">
-        <node tt="INTEGER" pc="00563" />
-        <node tt="KW_DEFAULT" pc="00564" />
-        <node tt="IDENTIFIER" pc="00565, 00566" />
+    <one-of-extension id="00586" depth="1">
+        <node tt="INTEGER" pc="00587" />
+        <node tt="IDENTIFIER" pc="00588, 00589" />
+        <node tt="KW_FULL" pc="00590" />
     </one-of-extension>
-    <one-of-extension id="00570" depth="1">
-        <node tt="IDENTIFIER" pc="00571, 00573, 00574" />
-        <node tt="KW_FULL" pc="00572" />
+    <one-of-extension id="00595" depth="1">
+        <node tt="INTEGER" pc="00596" />
+        <node tt="KW_DEFAULT" pc="00597" />
+        <node tt="IDENTIFIER" pc="00598, 00599" />
     </one-of-extension>
-    <one-of-extension id="00575" depth="1">
-        <node tt="INTEGER" pc="00576" />
-        <node tt="IDENTIFIER" pc="00577, 00578, 00579" />
-        <node tt="KW_ON" pc="00580" />
-        <node tt="KW_OFF" pc="00581" />
+    <one-of-extension id="00603" depth="1">
+        <node tt="IDENTIFIER" pc="00604, 00606, 00607" />
+        <node tt="KW_FULL" pc="00605" />
     </one-of-extension>
-    <one-of-extension id="00582" depth="1">
+    <one-of-extension id="00608" depth="1">
+        <node tt="INTEGER" pc="00609" />
+        <node tt="IDENTIFIER" pc="00610, 00611, 00612" />
+        <node tt="KW_ON" pc="00613" />
+        <node tt="KW_OFF" pc="00614" />
+    </one-of-extension>
+    <one-of-extension id="00615" depth="1">
         <node tt="CHR_PLUS, STRING, KW_NULL, KW_CURRENT_TIME, KW_CURRENT_DATE, KW_CURRENT_TIMESTAMP, CHR_STAR, CHR_MINUS, NUMBER, INTEGER, IDENTIFIER" pc="compound_expression, simple_expression" />
         <node tt="FN_AVG, FN_COUNT, FN_GROUP_CONCAT, FN_JSON_GROUP_ARRAY, FN_JSON_GROUP_OBJECT, FN_JSONB_GROUP_ARRAY, FN_JSONB_GROUP_OBJECT, FN_MAX, FN_MEDIAN, FN_MIN, FN_PERCENTILE, FN_PERCENTILE_CONT, FN_PERCENTILE_DISC, FN_STRING_AGG, FN_SUM, FN_TOTAL, FN_ABS, FN_CHANGES, FN_CHAR, FN_COALESCE, FN_CONCAT, FN_CONCAT_WS, FN_FORMAT, FN_HEX, FN_IFNULL, FN_INSTR, FN_IIF, FN_LAST_INSERT_ROWID, FN_LENGTH, FN_LIKELIHOOD, FN_LIKELY, FN_LOAD_EXTENSION, FN_LOWER, FN_LTRIM, FN_OCTET_LENGTH, FN_NULLIF, KW_GLOB, KW_IF, KW_LIKE, FN_PRINTF, FN_QUOTE, FN_RANDOM, FN_RANDOMBLOB, FN_ROUND, FN_RTRIM, FN_SIGN, FN_SOUNDEX, KW_REPLACE, FN_SQLITE_COMPILEOPTION_GET, FN_SQLITE_COMPILEOPTION_USED, FN_SQLITE_OFFSET, FN_SQLITE_SOURCE_ID, FN_SQLITE_VERSION, FN_SUBSTR, FN_SUBSTRING, FN_TOTAL_CHANGES, FN_TRIM, FN_TYPEOF, FN_UNLIKELY, FN_UNICODE, FN_UPPER, FN_ZEROBLOB, FN_UNHEX, FN_UNISTR, FN_UNISTR_QUOTE, DT_DATE, DT_TIME, DT_DATETIME, FN_JULIANDAY, FN_STRFTIME, FN_TIMEDIFF, FN_UNIXEPOCH, FN_JSON, FN_JSON_ARRAY, FN_JSON_ARRAY_INSERT, FN_JSON_ARRAY_LENGTH, FN_JSONB, FN_JSONB_ARRAY, FN_JSONB_ARRAY_INSERT, FN_JSONB_EACH, FN_JSONB_EXTRACT, FN_JSONB_INSERT, FN_JSONB_OBJECT, FN_JSONB_PATCH, FN_JSONB_REMOVE, FN_JSONB_REPLACE, FN_JSONB_SET, FN_JSONB_TREE, FN_JSON_EACH, FN_JSON_ERROR_POSITION, FN_JSON_EXTRACT, FN_JSON_INSERT, FN_JSON_OBJECT, FN_JSON_PATCH, FN_JSON_PRETTY, FN_JSON_REMOVE, FN_JSON_REPLACE, FN_JSON_SET, FN_JSON_TREE, FN_JSON_TYPE, FN_JSON_VALID, FN_ACOS, FN_ACOSH, FN_ASIN, FN_ASINH, FN_ATAN, FN_ATAN2, FN_ATANH, FN_CEIL, FN_CEILING, FN_COS, FN_COSH, FN_DEGREES, FN_EXP, FN_FLOOR, FN_LN, FN_LOG, FN_LOG10, FN_LOG2, FN_MOD, FN_PI, FN_POW, FN_POWER, FN_RADIANS, FN_SIN, FN_SINH, FN_SQRT, FN_TAN, FN_TANH, FN_TRUNC, FN_CUME_DIST, FN_DENSE_RANK, FN_FIRST_VALUE, FN_LAG, FN_LAST_VALUE, FN_LEAD, FN_NTH_VALUE, FN_NTILE, FN_PERCENT_RANK, FN_RANK, FN_ROW_NUMBER" pc="compound_expression, function_expression" />
         <node tt="KW_CASE" pc="compound_expression, case_expression" />
@@ -118,223 +133,223 @@
         <node tt="KW_IN" pc="compound_expression, in_expression" />
         <node tt="KW_CAST" pc="compound_expression, cast_expression" />
         <node tt="KW_RAISE" pc="compound_expression, raise_function" />
-        <node tt="VARIABLE" pc="compound_expression, 00583" />
+        <node tt="VARIABLE" pc="compound_expression, 00616" />
         <node tt="CHR_LEFT_PARENTHESIS" pc="compound_expression" />
     </one-of-extension>
-    <one-of-extension id="00584" depth="1">
+    <one-of-extension id="00617" depth="1">
         <node tt="STRING, KW_CURRENT_TIME, KW_CURRENT_DATE, KW_CURRENT_TIMESTAMP" pc="literal_value" />
-        <node tt="KW_NULL" pc="literal_value, 00599" />
-        <node tt="CHR_STAR" pc="00598, 00585" />
-        <node tt="CHR_MINUS, CHR_PLUS" pc="number" cc="00958, 00959" />
+        <node tt="KW_NULL" pc="literal_value, 00632" />
+        <node tt="CHR_STAR" pc="00631, 00618" />
+        <node tt="CHR_MINUS, CHR_PLUS" pc="number" cc="00991, 00992" />
         <node tt="NUMBER, INTEGER" pc="number" />
-        <node tt="IDENTIFIER" pc="00585" />
+        <node tt="IDENTIFIER" pc="00618" />
     </one-of-extension>
-    <one-of-extension id="00600" depth="1">
-        <node tt="CHR_PLUS" pc="00601, 00602" />
-        <node tt="CHR_LEFT_PARENTHESIS" pc="00602, 00605" />
-        <node tt="FN_AVG, FN_COUNT, FN_GROUP_CONCAT, FN_JSON_GROUP_ARRAY, FN_JSON_GROUP_OBJECT, FN_JSONB_GROUP_ARRAY, FN_JSONB_GROUP_OBJECT, FN_MAX, FN_MEDIAN, FN_MIN, FN_PERCENTILE, FN_PERCENTILE_CONT, FN_PERCENTILE_DISC, FN_STRING_AGG, FN_SUM, FN_TOTAL, FN_ABS, FN_CHANGES, FN_CHAR, FN_COALESCE, FN_CONCAT, FN_CONCAT_WS, FN_FORMAT, FN_HEX, FN_IFNULL, FN_INSTR, FN_IIF, FN_LAST_INSERT_ROWID, FN_LENGTH, FN_LIKELIHOOD, FN_LIKELY, FN_LOAD_EXTENSION, FN_LOWER, FN_LTRIM, FN_OCTET_LENGTH, FN_NULLIF, KW_GLOB, KW_IF, KW_LIKE, FN_PRINTF, FN_QUOTE, FN_RANDOM, FN_RANDOMBLOB, FN_ROUND, FN_RTRIM, FN_SIGN, FN_SOUNDEX, KW_REPLACE, FN_SQLITE_COMPILEOPTION_GET, FN_SQLITE_COMPILEOPTION_USED, FN_SQLITE_OFFSET, FN_SQLITE_SOURCE_ID, FN_SQLITE_VERSION, FN_SUBSTR, FN_SUBSTRING, FN_TOTAL_CHANGES, FN_TRIM, FN_TYPEOF, FN_UNLIKELY, FN_UNICODE, FN_UPPER, FN_ZEROBLOB, FN_UNHEX, FN_UNISTR, FN_UNISTR_QUOTE, DT_DATE, DT_TIME, DT_DATETIME, FN_JULIANDAY, FN_STRFTIME, FN_TIMEDIFF, FN_UNIXEPOCH, FN_JSON, FN_JSON_ARRAY, FN_JSON_ARRAY_INSERT, FN_JSON_ARRAY_LENGTH, FN_JSONB, FN_JSONB_ARRAY, FN_JSONB_ARRAY_INSERT, FN_JSONB_EACH, FN_JSONB_EXTRACT, FN_JSONB_INSERT, FN_JSONB_OBJECT, FN_JSONB_PATCH, FN_JSONB_REMOVE, FN_JSONB_REPLACE, FN_JSONB_SET, FN_JSONB_TREE, FN_JSON_EACH, FN_JSON_ERROR_POSITION, FN_JSON_EXTRACT, FN_JSON_INSERT, FN_JSON_OBJECT, FN_JSON_PATCH, FN_JSON_PRETTY, FN_JSON_REMOVE, FN_JSON_REPLACE, FN_JSON_SET, FN_JSON_TREE, FN_JSON_TYPE, FN_JSON_VALID, FN_ACOS, FN_ACOSH, FN_ASIN, FN_ASINH, FN_ATAN, FN_ATAN2, FN_ATANH, FN_CEIL, FN_CEILING, FN_COS, FN_COSH, FN_DEGREES, FN_EXP, FN_FLOOR, FN_LN, FN_LOG, FN_LOG10, FN_LOG2, FN_MOD, FN_PI, FN_POW, FN_POWER, FN_RADIANS, FN_SIN, FN_SINH, FN_SQRT, FN_TAN, FN_TANH, FN_TRUNC, FN_CUME_DIST, FN_DENSE_RANK, FN_FIRST_VALUE, FN_LAG, FN_LAST_VALUE, FN_LEAD, FN_NTH_VALUE, FN_NTILE, FN_PERCENT_RANK, FN_RANK, FN_ROW_NUMBER, KW_CASE, STRING, KW_NULL, KW_CURRENT_TIME, KW_CURRENT_DATE, KW_CURRENT_TIMESTAMP, NUMBER, INTEGER, IDENTIFIER, KW_EXISTS, KW_IN, KW_CAST, KW_RAISE, VARIABLE" pc="00602" />
-        <node tt="CHR_STAR, CHR_MINUS" pc="00602" cc="00921, 00922, 00923, 00924, 00928, 00930, 00931, 00932, 00933, 00934, 00936, 00958, 00959" />
+    <one-of-extension id="00633" depth="1">
+        <node tt="CHR_PLUS" pc="00634, 00635" />
+        <node tt="CHR_LEFT_PARENTHESIS" pc="00635, 00638" />
+        <node tt="FN_AVG, FN_COUNT, FN_GROUP_CONCAT, FN_JSON_GROUP_ARRAY, FN_JSON_GROUP_OBJECT, FN_JSONB_GROUP_ARRAY, FN_JSONB_GROUP_OBJECT, FN_MAX, FN_MEDIAN, FN_MIN, FN_PERCENTILE, FN_PERCENTILE_CONT, FN_PERCENTILE_DISC, FN_STRING_AGG, FN_SUM, FN_TOTAL, FN_ABS, FN_CHANGES, FN_CHAR, FN_COALESCE, FN_CONCAT, FN_CONCAT_WS, FN_FORMAT, FN_HEX, FN_IFNULL, FN_INSTR, FN_IIF, FN_LAST_INSERT_ROWID, FN_LENGTH, FN_LIKELIHOOD, FN_LIKELY, FN_LOAD_EXTENSION, FN_LOWER, FN_LTRIM, FN_OCTET_LENGTH, FN_NULLIF, KW_GLOB, KW_IF, KW_LIKE, FN_PRINTF, FN_QUOTE, FN_RANDOM, FN_RANDOMBLOB, FN_ROUND, FN_RTRIM, FN_SIGN, FN_SOUNDEX, KW_REPLACE, FN_SQLITE_COMPILEOPTION_GET, FN_SQLITE_COMPILEOPTION_USED, FN_SQLITE_OFFSET, FN_SQLITE_SOURCE_ID, FN_SQLITE_VERSION, FN_SUBSTR, FN_SUBSTRING, FN_TOTAL_CHANGES, FN_TRIM, FN_TYPEOF, FN_UNLIKELY, FN_UNICODE, FN_UPPER, FN_ZEROBLOB, FN_UNHEX, FN_UNISTR, FN_UNISTR_QUOTE, DT_DATE, DT_TIME, DT_DATETIME, FN_JULIANDAY, FN_STRFTIME, FN_TIMEDIFF, FN_UNIXEPOCH, FN_JSON, FN_JSON_ARRAY, FN_JSON_ARRAY_INSERT, FN_JSON_ARRAY_LENGTH, FN_JSONB, FN_JSONB_ARRAY, FN_JSONB_ARRAY_INSERT, FN_JSONB_EACH, FN_JSONB_EXTRACT, FN_JSONB_INSERT, FN_JSONB_OBJECT, FN_JSONB_PATCH, FN_JSONB_REMOVE, FN_JSONB_REPLACE, FN_JSONB_SET, FN_JSONB_TREE, FN_JSON_EACH, FN_JSON_ERROR_POSITION, FN_JSON_EXTRACT, FN_JSON_INSERT, FN_JSON_OBJECT, FN_JSON_PATCH, FN_JSON_PRETTY, FN_JSON_REMOVE, FN_JSON_REPLACE, FN_JSON_SET, FN_JSON_TREE, FN_JSON_TYPE, FN_JSON_VALID, FN_ACOS, FN_ACOSH, FN_ASIN, FN_ASINH, FN_ATAN, FN_ATAN2, FN_ATANH, FN_CEIL, FN_CEILING, FN_COS, FN_COSH, FN_DEGREES, FN_EXP, FN_FLOOR, FN_LN, FN_LOG, FN_LOG10, FN_LOG2, FN_MOD, FN_PI, FN_POW, FN_POWER, FN_RADIANS, FN_SIN, FN_SINH, FN_SQRT, FN_TAN, FN_TANH, FN_TRUNC, FN_CUME_DIST, FN_DENSE_RANK, FN_FIRST_VALUE, FN_LAG, FN_LAST_VALUE, FN_LEAD, FN_NTH_VALUE, FN_NTILE, FN_PERCENT_RANK, FN_RANK, FN_ROW_NUMBER, KW_CASE, STRING, KW_NULL, KW_CURRENT_TIME, KW_CURRENT_DATE, KW_CURRENT_TIMESTAMP, NUMBER, INTEGER, IDENTIFIER, KW_EXISTS, KW_IN, KW_CAST, KW_RAISE, VARIABLE" pc="00635" />
+        <node tt="CHR_STAR, CHR_MINUS" pc="00635" cc="00954, 00955, 00956, 00957, 00961, 00963, 00964, 00965, 00966, 00967, 00969, 00991, 00992" />
     </one-of-extension>
-    <one-of-extension id="00658" depth="1">
-        <node tt="CHR_LEFT_PARENTHESIS" pc="wrapped_expression_list, 00659" />
-        <node tt="CHR_PLUS, CHR_STAR, CHR_MINUS" pc="00659" cc="00958, 00959" />
-        <node tt="FN_AVG, FN_COUNT, FN_GROUP_CONCAT, FN_JSON_GROUP_ARRAY, FN_JSON_GROUP_OBJECT, FN_JSONB_GROUP_ARRAY, FN_JSONB_GROUP_OBJECT, FN_MAX, FN_MEDIAN, FN_MIN, FN_PERCENTILE, FN_PERCENTILE_CONT, FN_PERCENTILE_DISC, FN_STRING_AGG, FN_SUM, FN_TOTAL, FN_ABS, FN_CHANGES, FN_CHAR, FN_COALESCE, FN_CONCAT, FN_CONCAT_WS, FN_FORMAT, FN_HEX, FN_IFNULL, FN_INSTR, FN_IIF, FN_LAST_INSERT_ROWID, FN_LENGTH, FN_LIKELIHOOD, FN_LIKELY, FN_LOAD_EXTENSION, FN_LOWER, FN_LTRIM, FN_OCTET_LENGTH, FN_NULLIF, KW_GLOB, KW_IF, KW_LIKE, FN_PRINTF, FN_QUOTE, FN_RANDOM, FN_RANDOMBLOB, FN_ROUND, FN_RTRIM, FN_SIGN, FN_SOUNDEX, KW_REPLACE, FN_SQLITE_COMPILEOPTION_GET, FN_SQLITE_COMPILEOPTION_USED, FN_SQLITE_OFFSET, FN_SQLITE_SOURCE_ID, FN_SQLITE_VERSION, FN_SUBSTR, FN_SUBSTRING, FN_TOTAL_CHANGES, FN_TRIM, FN_TYPEOF, FN_UNLIKELY, FN_UNICODE, FN_UPPER, FN_ZEROBLOB, FN_UNHEX, FN_UNISTR, FN_UNISTR_QUOTE, DT_DATE, DT_TIME, DT_DATETIME, FN_JULIANDAY, FN_STRFTIME, FN_TIMEDIFF, FN_UNIXEPOCH, FN_JSON, FN_JSON_ARRAY, FN_JSON_ARRAY_INSERT, FN_JSON_ARRAY_LENGTH, FN_JSONB, FN_JSONB_ARRAY, FN_JSONB_ARRAY_INSERT, FN_JSONB_EACH, FN_JSONB_EXTRACT, FN_JSONB_INSERT, FN_JSONB_OBJECT, FN_JSONB_PATCH, FN_JSONB_REMOVE, FN_JSONB_REPLACE, FN_JSONB_SET, FN_JSONB_TREE, FN_JSON_EACH, FN_JSON_ERROR_POSITION, FN_JSON_EXTRACT, FN_JSON_INSERT, FN_JSON_OBJECT, FN_JSON_PATCH, FN_JSON_PRETTY, FN_JSON_REMOVE, FN_JSON_REPLACE, FN_JSON_SET, FN_JSON_TREE, FN_JSON_TYPE, FN_JSON_VALID, FN_ACOS, FN_ACOSH, FN_ASIN, FN_ASINH, FN_ATAN, FN_ATAN2, FN_ATANH, FN_CEIL, FN_CEILING, FN_COS, FN_COSH, FN_DEGREES, FN_EXP, FN_FLOOR, FN_LN, FN_LOG, FN_LOG10, FN_LOG2, FN_MOD, FN_PI, FN_POW, FN_POWER, FN_RADIANS, FN_SIN, FN_SINH, FN_SQRT, FN_TAN, FN_TANH, FN_TRUNC, FN_CUME_DIST, FN_DENSE_RANK, FN_FIRST_VALUE, FN_LAG, FN_LAST_VALUE, FN_LEAD, FN_NTH_VALUE, FN_NTILE, FN_PERCENT_RANK, FN_RANK, FN_ROW_NUMBER, KW_CASE, STRING, KW_NULL, KW_CURRENT_TIME, KW_CURRENT_DATE, KW_CURRENT_TIMESTAMP, NUMBER, INTEGER, IDENTIFIER, KW_EXISTS, KW_IN, KW_CAST, KW_RAISE, VARIABLE" pc="00659" />
+    <one-of-extension id="00691" depth="1">
+        <node tt="CHR_LEFT_PARENTHESIS" pc="wrapped_expression_list, 00692" />
+        <node tt="CHR_PLUS, CHR_STAR, CHR_MINUS" pc="00692" cc="00991, 00992" />
+        <node tt="FN_AVG, FN_COUNT, FN_GROUP_CONCAT, FN_JSON_GROUP_ARRAY, FN_JSON_GROUP_OBJECT, FN_JSONB_GROUP_ARRAY, FN_JSONB_GROUP_OBJECT, FN_MAX, FN_MEDIAN, FN_MIN, FN_PERCENTILE, FN_PERCENTILE_CONT, FN_PERCENTILE_DISC, FN_STRING_AGG, FN_SUM, FN_TOTAL, FN_ABS, FN_CHANGES, FN_CHAR, FN_COALESCE, FN_CONCAT, FN_CONCAT_WS, FN_FORMAT, FN_HEX, FN_IFNULL, FN_INSTR, FN_IIF, FN_LAST_INSERT_ROWID, FN_LENGTH, FN_LIKELIHOOD, FN_LIKELY, FN_LOAD_EXTENSION, FN_LOWER, FN_LTRIM, FN_OCTET_LENGTH, FN_NULLIF, KW_GLOB, KW_IF, KW_LIKE, FN_PRINTF, FN_QUOTE, FN_RANDOM, FN_RANDOMBLOB, FN_ROUND, FN_RTRIM, FN_SIGN, FN_SOUNDEX, KW_REPLACE, FN_SQLITE_COMPILEOPTION_GET, FN_SQLITE_COMPILEOPTION_USED, FN_SQLITE_OFFSET, FN_SQLITE_SOURCE_ID, FN_SQLITE_VERSION, FN_SUBSTR, FN_SUBSTRING, FN_TOTAL_CHANGES, FN_TRIM, FN_TYPEOF, FN_UNLIKELY, FN_UNICODE, FN_UPPER, FN_ZEROBLOB, FN_UNHEX, FN_UNISTR, FN_UNISTR_QUOTE, DT_DATE, DT_TIME, DT_DATETIME, FN_JULIANDAY, FN_STRFTIME, FN_TIMEDIFF, FN_UNIXEPOCH, FN_JSON, FN_JSON_ARRAY, FN_JSON_ARRAY_INSERT, FN_JSON_ARRAY_LENGTH, FN_JSONB, FN_JSONB_ARRAY, FN_JSONB_ARRAY_INSERT, FN_JSONB_EACH, FN_JSONB_EXTRACT, FN_JSONB_INSERT, FN_JSONB_OBJECT, FN_JSONB_PATCH, FN_JSONB_REMOVE, FN_JSONB_REPLACE, FN_JSONB_SET, FN_JSONB_TREE, FN_JSON_EACH, FN_JSON_ERROR_POSITION, FN_JSON_EXTRACT, FN_JSON_INSERT, FN_JSON_OBJECT, FN_JSON_PATCH, FN_JSON_PRETTY, FN_JSON_REMOVE, FN_JSON_REPLACE, FN_JSON_SET, FN_JSON_TREE, FN_JSON_TYPE, FN_JSON_VALID, FN_ACOS, FN_ACOSH, FN_ASIN, FN_ASINH, FN_ATAN, FN_ATAN2, FN_ATANH, FN_CEIL, FN_CEILING, FN_COS, FN_COSH, FN_DEGREES, FN_EXP, FN_FLOOR, FN_LN, FN_LOG, FN_LOG10, FN_LOG2, FN_MOD, FN_PI, FN_POW, FN_POWER, FN_RADIANS, FN_SIN, FN_SINH, FN_SQRT, FN_TAN, FN_TANH, FN_TRUNC, FN_CUME_DIST, FN_DENSE_RANK, FN_FIRST_VALUE, FN_LAG, FN_LAST_VALUE, FN_LEAD, FN_NTH_VALUE, FN_NTILE, FN_PERCENT_RANK, FN_RANK, FN_ROW_NUMBER, KW_CASE, STRING, KW_NULL, KW_CURRENT_TIME, KW_CURRENT_DATE, KW_CURRENT_TIMESTAMP, NUMBER, INTEGER, IDENTIFIER, KW_EXISTS, KW_IN, KW_CAST, KW_RAISE, VARIABLE" pc="00692" />
     </one-of-extension>
-    <one-of-extension id="00668" depth="1">
-        <node tt="FN_AVG" pc="00669" />
-        <node tt="FN_COUNT" pc="00670" />
-        <node tt="FN_GROUP_CONCAT" pc="00671" />
-        <node tt="FN_JSON_GROUP_ARRAY" pc="00672" />
-        <node tt="FN_JSON_GROUP_OBJECT" pc="00673" />
-        <node tt="FN_JSONB_GROUP_ARRAY" pc="00674" />
-        <node tt="FN_JSONB_GROUP_OBJECT" pc="00675" />
-        <node tt="FN_MAX" pc="00676" />
-        <node tt="FN_MEDIAN" pc="00677" />
-        <node tt="FN_MIN" pc="00678" />
-        <node tt="FN_PERCENTILE" pc="00679" />
-        <node tt="FN_PERCENTILE_CONT" pc="00680" />
-        <node tt="FN_PERCENTILE_DISC" pc="00681" />
-        <node tt="FN_STRING_AGG" pc="00682" />
-        <node tt="FN_SUM" pc="00683" />
-        <node tt="FN_TOTAL" pc="00684" />
+    <one-of-extension id="00701" depth="1">
+        <node tt="FN_AVG" pc="00702" />
+        <node tt="FN_COUNT" pc="00703" />
+        <node tt="FN_GROUP_CONCAT" pc="00704" />
+        <node tt="FN_JSON_GROUP_ARRAY" pc="00705" />
+        <node tt="FN_JSON_GROUP_OBJECT" pc="00706" />
+        <node tt="FN_JSONB_GROUP_ARRAY" pc="00707" />
+        <node tt="FN_JSONB_GROUP_OBJECT" pc="00708" />
+        <node tt="FN_MAX" pc="00709" />
+        <node tt="FN_MEDIAN" pc="00710" />
+        <node tt="FN_MIN" pc="00711" />
+        <node tt="FN_PERCENTILE" pc="00712" />
+        <node tt="FN_PERCENTILE_CONT" pc="00713" />
+        <node tt="FN_PERCENTILE_DISC" pc="00714" />
+        <node tt="FN_STRING_AGG" pc="00715" />
+        <node tt="FN_SUM" pc="00716" />
+        <node tt="FN_TOTAL" pc="00717" />
     </one-of-extension>
-    <one-of-extension id="00687" depth="1">
-        <node tt="KW_DISTINCT" pc="00688" />
+    <one-of-extension id="00720" depth="1">
+        <node tt="KW_DISTINCT" pc="00721" />
         <node tt="CHR_PLUS, CHR_LEFT_PARENTHESIS, CHR_MINUS" pc="expr" />
         <node tt="FN_AVG, FN_COUNT, FN_GROUP_CONCAT, FN_JSON_GROUP_ARRAY, FN_JSON_GROUP_OBJECT, FN_JSONB_GROUP_ARRAY, FN_JSONB_GROUP_OBJECT, FN_MAX, FN_MEDIAN, FN_MIN, FN_PERCENTILE, FN_PERCENTILE_CONT, FN_PERCENTILE_DISC, FN_STRING_AGG, FN_SUM, FN_TOTAL, FN_ABS, FN_CHANGES, FN_CHAR, FN_COALESCE, FN_CONCAT, FN_CONCAT_WS, FN_FORMAT, FN_HEX, FN_IFNULL, FN_INSTR, FN_IIF, FN_LAST_INSERT_ROWID, FN_LENGTH, FN_LIKELIHOOD, FN_LIKELY, FN_LOAD_EXTENSION, FN_LOWER, FN_LTRIM, FN_OCTET_LENGTH, FN_NULLIF, KW_GLOB, KW_IF, KW_LIKE, FN_PRINTF, FN_QUOTE, FN_RANDOM, FN_RANDOMBLOB, FN_ROUND, FN_RTRIM, FN_SIGN, FN_SOUNDEX, KW_REPLACE, FN_SQLITE_COMPILEOPTION_GET, FN_SQLITE_COMPILEOPTION_USED, FN_SQLITE_OFFSET, FN_SQLITE_SOURCE_ID, FN_SQLITE_VERSION, FN_SUBSTR, FN_SUBSTRING, FN_TOTAL_CHANGES, FN_TRIM, FN_TYPEOF, FN_UNLIKELY, FN_UNICODE, FN_UPPER, FN_ZEROBLOB, FN_UNHEX, FN_UNISTR, FN_UNISTR_QUOTE, DT_DATE, DT_TIME, DT_DATETIME, FN_JULIANDAY, FN_STRFTIME, FN_TIMEDIFF, FN_UNIXEPOCH, FN_JSON, FN_JSON_ARRAY, FN_JSON_ARRAY_INSERT, FN_JSON_ARRAY_LENGTH, FN_JSONB, FN_JSONB_ARRAY, FN_JSONB_ARRAY_INSERT, FN_JSONB_EACH, FN_JSONB_EXTRACT, FN_JSONB_INSERT, FN_JSONB_OBJECT, FN_JSONB_PATCH, FN_JSONB_REMOVE, FN_JSONB_REPLACE, FN_JSONB_SET, FN_JSONB_TREE, FN_JSON_EACH, FN_JSON_ERROR_POSITION, FN_JSON_EXTRACT, FN_JSON_INSERT, FN_JSON_OBJECT, FN_JSON_PATCH, FN_JSON_PRETTY, FN_JSON_REMOVE, FN_JSON_REPLACE, FN_JSON_SET, FN_JSON_TREE, FN_JSON_TYPE, FN_JSON_VALID, FN_ACOS, FN_ACOSH, FN_ASIN, FN_ASINH, FN_ATAN, FN_ATAN2, FN_ATANH, FN_CEIL, FN_CEILING, FN_COS, FN_COSH, FN_DEGREES, FN_EXP, FN_FLOOR, FN_LN, FN_LOG, FN_LOG10, FN_LOG2, FN_MOD, FN_PI, FN_POW, FN_POWER, FN_RADIANS, FN_SIN, FN_SINH, FN_SQRT, FN_TAN, FN_TANH, FN_TRUNC, FN_CUME_DIST, FN_DENSE_RANK, FN_FIRST_VALUE, FN_LAG, FN_LAST_VALUE, FN_LEAD, FN_NTH_VALUE, FN_NTILE, FN_PERCENT_RANK, FN_RANK, FN_ROW_NUMBER, KW_CASE, STRING, KW_NULL, KW_CURRENT_TIME, KW_CURRENT_DATE, KW_CURRENT_TIMESTAMP, NUMBER, INTEGER, IDENTIFIER, KW_EXISTS, KW_IN, KW_CAST, KW_RAISE, VARIABLE" pc="expr" />
-        <node tt="CHR_STAR" pc="expr, 00690" />
+        <node tt="CHR_STAR" pc="expr, 00723" />
     </one-of-extension>
-    <one-of-extension id="00703" depth="1">
-        <node tt="FN_ABS" pc="00704" />
-        <node tt="FN_CHANGES" pc="00705" />
-        <node tt="FN_CHAR" pc="00706" />
-        <node tt="FN_COALESCE" pc="00707" />
-        <node tt="FN_CONCAT" pc="00708" />
-        <node tt="FN_CONCAT_WS" pc="00709" />
-        <node tt="FN_FORMAT" pc="00710" />
-        <node tt="FN_HEX" pc="00711" />
-        <node tt="FN_IFNULL" pc="00712" />
-        <node tt="FN_INSTR" pc="00713" />
-        <node tt="FN_IIF" pc="00714" />
-        <node tt="FN_LAST_INSERT_ROWID" pc="00715" />
-        <node tt="FN_LENGTH" pc="00716" />
-        <node tt="FN_LIKELIHOOD" pc="00717" />
-        <node tt="FN_LIKELY" pc="00718" />
-        <node tt="FN_LOAD_EXTENSION" pc="00719" />
-        <node tt="FN_LOWER" pc="00720" />
-        <node tt="FN_LTRIM" pc="00721" />
-        <node tt="FN_OCTET_LENGTH" pc="00722" />
-        <node tt="FN_NULLIF" pc="00723" />
-        <node tt="KW_GLOB" pc="00724" />
-        <node tt="KW_IF" pc="00725" />
-        <node tt="KW_LIKE" pc="00726" />
-        <node tt="FN_PRINTF" pc="00727" />
-        <node tt="FN_QUOTE" pc="00728" />
-        <node tt="FN_RANDOM" pc="00729" />
-        <node tt="FN_RANDOMBLOB" pc="00730" />
-        <node tt="FN_ROUND" pc="00731" />
-        <node tt="FN_RTRIM" pc="00732" />
-        <node tt="FN_SIGN" pc="00733" />
-        <node tt="FN_SOUNDEX" pc="00734" />
-        <node tt="KW_REPLACE" pc="00735" />
-        <node tt="FN_SQLITE_COMPILEOPTION_GET" pc="00736" />
-        <node tt="FN_SQLITE_COMPILEOPTION_USED" pc="00737" />
-        <node tt="FN_SQLITE_OFFSET" pc="00738" />
-        <node tt="FN_SQLITE_SOURCE_ID" pc="00739" />
-        <node tt="FN_SQLITE_VERSION" pc="00740" />
-        <node tt="FN_SUBSTR" pc="00741" />
-        <node tt="FN_SUBSTRING" pc="00742" />
-        <node tt="FN_TOTAL_CHANGES" pc="00743" />
-        <node tt="FN_TRIM" pc="00744" />
-        <node tt="FN_TYPEOF" pc="00745" />
-        <node tt="FN_UNLIKELY" pc="00746" />
-        <node tt="FN_UNICODE" pc="00747" />
-        <node tt="FN_UPPER" pc="00748" />
-        <node tt="FN_ZEROBLOB" pc="00749" />
-        <node tt="FN_UNHEX" pc="00750" />
-        <node tt="FN_UNISTR" pc="00751" />
-        <node tt="FN_UNISTR_QUOTE" pc="00752" />
+    <one-of-extension id="00736" depth="1">
+        <node tt="FN_ABS" pc="00737" />
+        <node tt="FN_CHANGES" pc="00738" />
+        <node tt="FN_CHAR" pc="00739" />
+        <node tt="FN_COALESCE" pc="00740" />
+        <node tt="FN_CONCAT" pc="00741" />
+        <node tt="FN_CONCAT_WS" pc="00742" />
+        <node tt="FN_FORMAT" pc="00743" />
+        <node tt="FN_HEX" pc="00744" />
+        <node tt="FN_IFNULL" pc="00745" />
+        <node tt="FN_INSTR" pc="00746" />
+        <node tt="FN_IIF" pc="00747" />
+        <node tt="FN_LAST_INSERT_ROWID" pc="00748" />
+        <node tt="FN_LENGTH" pc="00749" />
+        <node tt="FN_LIKELIHOOD" pc="00750" />
+        <node tt="FN_LIKELY" pc="00751" />
+        <node tt="FN_LOAD_EXTENSION" pc="00752" />
+        <node tt="FN_LOWER" pc="00753" />
+        <node tt="FN_LTRIM" pc="00754" />
+        <node tt="FN_OCTET_LENGTH" pc="00755" />
+        <node tt="FN_NULLIF" pc="00756" />
+        <node tt="KW_GLOB" pc="00757" />
+        <node tt="KW_IF" pc="00758" />
+        <node tt="KW_LIKE" pc="00759" />
+        <node tt="FN_PRINTF" pc="00760" />
+        <node tt="FN_QUOTE" pc="00761" />
+        <node tt="FN_RANDOM" pc="00762" />
+        <node tt="FN_RANDOMBLOB" pc="00763" />
+        <node tt="FN_ROUND" pc="00764" />
+        <node tt="FN_RTRIM" pc="00765" />
+        <node tt="FN_SIGN" pc="00766" />
+        <node tt="FN_SOUNDEX" pc="00767" />
+        <node tt="KW_REPLACE" pc="00768" />
+        <node tt="FN_SQLITE_COMPILEOPTION_GET" pc="00769" />
+        <node tt="FN_SQLITE_COMPILEOPTION_USED" pc="00770" />
+        <node tt="FN_SQLITE_OFFSET" pc="00771" />
+        <node tt="FN_SQLITE_SOURCE_ID" pc="00772" />
+        <node tt="FN_SQLITE_VERSION" pc="00773" />
+        <node tt="FN_SUBSTR" pc="00774" />
+        <node tt="FN_SUBSTRING" pc="00775" />
+        <node tt="FN_TOTAL_CHANGES" pc="00776" />
+        <node tt="FN_TRIM" pc="00777" />
+        <node tt="FN_TYPEOF" pc="00778" />
+        <node tt="FN_UNLIKELY" pc="00779" />
+        <node tt="FN_UNICODE" pc="00780" />
+        <node tt="FN_UPPER" pc="00781" />
+        <node tt="FN_ZEROBLOB" pc="00782" />
+        <node tt="FN_UNHEX" pc="00783" />
+        <node tt="FN_UNISTR" pc="00784" />
+        <node tt="FN_UNISTR_QUOTE" pc="00785" />
     </one-of-extension>
-    <one-of-extension id="00753" depth="1">
-        <node tt="FN_CUME_DIST" pc="00754" />
-        <node tt="FN_DENSE_RANK" pc="00755" />
-        <node tt="FN_FIRST_VALUE" pc="00756" />
-        <node tt="FN_LAG" pc="00757" />
-        <node tt="FN_LAST_VALUE" pc="00758" />
-        <node tt="FN_LEAD" pc="00759" />
-        <node tt="FN_NTH_VALUE" pc="00760" />
-        <node tt="FN_NTILE" pc="00761" />
-        <node tt="FN_PERCENT_RANK" pc="00762" />
-        <node tt="FN_RANK" pc="00763" />
-        <node tt="FN_ROW_NUMBER" pc="00764" />
+    <one-of-extension id="00786" depth="1">
+        <node tt="FN_CUME_DIST" pc="00787" />
+        <node tt="FN_DENSE_RANK" pc="00788" />
+        <node tt="FN_FIRST_VALUE" pc="00789" />
+        <node tt="FN_LAG" pc="00790" />
+        <node tt="FN_LAST_VALUE" pc="00791" />
+        <node tt="FN_LEAD" pc="00792" />
+        <node tt="FN_NTH_VALUE" pc="00793" />
+        <node tt="FN_NTILE" pc="00794" />
+        <node tt="FN_PERCENT_RANK" pc="00795" />
+        <node tt="FN_RANK" pc="00796" />
+        <node tt="FN_ROW_NUMBER" pc="00797" />
     </one-of-extension>
-    <one-of-extension id="00810" depth="1">
-        <node tt="FN_JSON" pc="00811" />
-        <node tt="FN_JSON_ARRAY" pc="00812" />
-        <node tt="FN_JSON_ARRAY_INSERT" pc="00813" />
-        <node tt="FN_JSON_ARRAY_LENGTH" pc="00814" />
-        <node tt="FN_JSONB" pc="00815" />
-        <node tt="FN_JSONB_ARRAY" pc="00816" />
-        <node tt="FN_JSONB_ARRAY_INSERT" pc="00817" />
-        <node tt="FN_JSONB_EACH" pc="00818" />
-        <node tt="FN_JSONB_EXTRACT" pc="00819" />
-        <node tt="FN_JSONB_INSERT" pc="00820" />
-        <node tt="FN_JSONB_OBJECT" pc="00821" />
-        <node tt="FN_JSONB_PATCH" pc="00822" />
-        <node tt="FN_JSONB_REMOVE" pc="00823" />
-        <node tt="FN_JSONB_REPLACE" pc="00824" />
-        <node tt="FN_JSONB_SET" pc="00825" />
-        <node tt="FN_JSONB_TREE" pc="00826" />
-        <node tt="FN_JSON_EACH" pc="00827" />
-        <node tt="FN_JSON_ERROR_POSITION" pc="00828" />
-        <node tt="FN_JSON_EXTRACT" pc="00829" />
-        <node tt="FN_JSON_INSERT" pc="00830" />
-        <node tt="FN_JSON_OBJECT" pc="00831" />
-        <node tt="FN_JSON_PATCH" pc="00832" />
-        <node tt="FN_JSON_PRETTY" pc="00833" />
-        <node tt="FN_JSON_REMOVE" pc="00834" />
-        <node tt="FN_JSON_REPLACE" pc="00835" />
-        <node tt="FN_JSON_SET" pc="00836" />
-        <node tt="FN_JSON_TREE" pc="00837" />
-        <node tt="FN_JSON_TYPE" pc="00838" />
-        <node tt="FN_JSON_VALID" pc="00839" />
+    <one-of-extension id="00843" depth="1">
+        <node tt="FN_JSON" pc="00844" />
+        <node tt="FN_JSON_ARRAY" pc="00845" />
+        <node tt="FN_JSON_ARRAY_INSERT" pc="00846" />
+        <node tt="FN_JSON_ARRAY_LENGTH" pc="00847" />
+        <node tt="FN_JSONB" pc="00848" />
+        <node tt="FN_JSONB_ARRAY" pc="00849" />
+        <node tt="FN_JSONB_ARRAY_INSERT" pc="00850" />
+        <node tt="FN_JSONB_EACH" pc="00851" />
+        <node tt="FN_JSONB_EXTRACT" pc="00852" />
+        <node tt="FN_JSONB_INSERT" pc="00853" />
+        <node tt="FN_JSONB_OBJECT" pc="00854" />
+        <node tt="FN_JSONB_PATCH" pc="00855" />
+        <node tt="FN_JSONB_REMOVE" pc="00856" />
+        <node tt="FN_JSONB_REPLACE" pc="00857" />
+        <node tt="FN_JSONB_SET" pc="00858" />
+        <node tt="FN_JSONB_TREE" pc="00859" />
+        <node tt="FN_JSON_EACH" pc="00860" />
+        <node tt="FN_JSON_ERROR_POSITION" pc="00861" />
+        <node tt="FN_JSON_EXTRACT" pc="00862" />
+        <node tt="FN_JSON_INSERT" pc="00863" />
+        <node tt="FN_JSON_OBJECT" pc="00864" />
+        <node tt="FN_JSON_PATCH" pc="00865" />
+        <node tt="FN_JSON_PRETTY" pc="00866" />
+        <node tt="FN_JSON_REMOVE" pc="00867" />
+        <node tt="FN_JSON_REPLACE" pc="00868" />
+        <node tt="FN_JSON_SET" pc="00869" />
+        <node tt="FN_JSON_TREE" pc="00870" />
+        <node tt="FN_JSON_TYPE" pc="00871" />
+        <node tt="FN_JSON_VALID" pc="00872" />
     </one-of-extension>
-    <one-of-extension id="00848" depth="1">
-        <node tt="FN_ACOS" pc="00849" />
-        <node tt="FN_ACOSH" pc="00850" />
-        <node tt="FN_ASIN" pc="00851" />
-        <node tt="FN_ASINH" pc="00852" />
-        <node tt="FN_ATAN" pc="00853" />
-        <node tt="FN_ATAN2" pc="00854" />
-        <node tt="FN_ATANH" pc="00855" />
-        <node tt="FN_CEIL" pc="00856" />
-        <node tt="FN_CEILING" pc="00857" />
-        <node tt="FN_COS" pc="00858" />
-        <node tt="FN_COSH" pc="00859" />
-        <node tt="FN_DEGREES" pc="00860" />
-        <node tt="FN_EXP" pc="00861" />
-        <node tt="FN_FLOOR" pc="00862" />
-        <node tt="FN_LN" pc="00863" />
-        <node tt="FN_LOG" pc="00864" />
-        <node tt="FN_LOG10" pc="00865" />
-        <node tt="FN_LOG2" pc="00866" />
-        <node tt="FN_MOD" pc="00867" />
-        <node tt="FN_PI" pc="00868" />
-        <node tt="FN_POW" pc="00869" />
-        <node tt="FN_POWER" pc="00870" />
-        <node tt="FN_RADIANS" pc="00871" />
-        <node tt="FN_SIN" pc="00872" />
-        <node tt="FN_SINH" pc="00873" />
-        <node tt="FN_SQRT" pc="00874" />
-        <node tt="FN_TAN" pc="00875" />
-        <node tt="FN_TANH" pc="00876" />
-        <node tt="FN_TRUNC" pc="00877" />
+    <one-of-extension id="00881" depth="1">
+        <node tt="FN_ACOS" pc="00882" />
+        <node tt="FN_ACOSH" pc="00883" />
+        <node tt="FN_ASIN" pc="00884" />
+        <node tt="FN_ASINH" pc="00885" />
+        <node tt="FN_ATAN" pc="00886" />
+        <node tt="FN_ATAN2" pc="00887" />
+        <node tt="FN_ATANH" pc="00888" />
+        <node tt="FN_CEIL" pc="00889" />
+        <node tt="FN_CEILING" pc="00890" />
+        <node tt="FN_COS" pc="00891" />
+        <node tt="FN_COSH" pc="00892" />
+        <node tt="FN_DEGREES" pc="00893" />
+        <node tt="FN_EXP" pc="00894" />
+        <node tt="FN_FLOOR" pc="00895" />
+        <node tt="FN_LN" pc="00896" />
+        <node tt="FN_LOG" pc="00897" />
+        <node tt="FN_LOG10" pc="00898" />
+        <node tt="FN_LOG2" pc="00899" />
+        <node tt="FN_MOD" pc="00900" />
+        <node tt="FN_PI" pc="00901" />
+        <node tt="FN_POW" pc="00902" />
+        <node tt="FN_POWER" pc="00903" />
+        <node tt="FN_RADIANS" pc="00904" />
+        <node tt="FN_SIN" pc="00905" />
+        <node tt="FN_SINH" pc="00906" />
+        <node tt="FN_SQRT" pc="00907" />
+        <node tt="FN_TAN" pc="00908" />
+        <node tt="FN_TANH" pc="00909" />
+        <node tt="FN_TRUNC" pc="00910" />
     </one-of-extension>
-    <one-of-extension id="00878" depth="1">
-        <node tt="DT_BIGINT" pc="00879" />
-        <node tt="DT_BLOB" pc="00880" />
-        <node tt="DT_BOOLEAN" pc="00881" />
-        <node tt="DT_CHARACTER" pc="00882" />
-        <node tt="DT_CLOB" pc="00883" />
-        <node tt="DT_DATE" pc="00884" />
-        <node tt="DT_DATETIME" pc="00885" />
-        <node tt="DT_DECIMAL" pc="00886" />
-        <node tt="DT_DOUBLE" pc="00887" />
-        <node tt="DT_DOUBLE_PRECISION" pc="00888" />
-        <node tt="DT_FLOAT" pc="00889" />
-        <node tt="DT_INT" pc="00890" />
-        <node tt="DT_INT2" pc="00891" />
-        <node tt="DT_INT8" pc="00892" />
-        <node tt="DT_INTEGER" pc="00893" />
-        <node tt="DT_MEDIUMINT" pc="00894" />
-        <node tt="DT_NATIVE_CHARACTER" pc="00895" />
-        <node tt="DT_NCHAR" pc="00896" />
-        <node tt="DT_NUMERIC" pc="00897" />
-        <node tt="DT_NVARCHAR" pc="00898" />
-        <node tt="DT_REAL" pc="00899" />
-        <node tt="DT_SMALLINT" pc="00900" />
-        <node tt="DT_TEXT" pc="00901" />
-        <node tt="DT_TINYINT" pc="00902" />
-        <node tt="DT_UNSIGNED_BIG_INT" pc="00903" />
-        <node tt="DT_VARCHAR" pc="00904" />
-        <node tt="DT_VARYING_CHARACTER" pc="00905" />
+    <one-of-extension id="00911" depth="1">
+        <node tt="DT_BIGINT" pc="00912" />
+        <node tt="DT_BLOB" pc="00913" />
+        <node tt="DT_BOOLEAN" pc="00914" />
+        <node tt="DT_CHARACTER" pc="00915" />
+        <node tt="DT_CLOB" pc="00916" />
+        <node tt="DT_DATE" pc="00917" />
+        <node tt="DT_DATETIME" pc="00918" />
+        <node tt="DT_DECIMAL" pc="00919" />
+        <node tt="DT_DOUBLE" pc="00920" />
+        <node tt="DT_DOUBLE_PRECISION" pc="00921" />
+        <node tt="DT_FLOAT" pc="00922" />
+        <node tt="DT_INT" pc="00923" />
+        <node tt="DT_INT2" pc="00924" />
+        <node tt="DT_INT8" pc="00925" />
+        <node tt="DT_INTEGER" pc="00926" />
+        <node tt="DT_MEDIUMINT" pc="00927" />
+        <node tt="DT_NATIVE_CHARACTER" pc="00928" />
+        <node tt="DT_NCHAR" pc="00929" />
+        <node tt="DT_NUMERIC" pc="00930" />
+        <node tt="DT_NVARCHAR" pc="00931" />
+        <node tt="DT_REAL" pc="00932" />
+        <node tt="DT_SMALLINT" pc="00933" />
+        <node tt="DT_TEXT" pc="00934" />
+        <node tt="DT_TINYINT" pc="00935" />
+        <node tt="DT_UNSIGNED_BIG_INT" pc="00936" />
+        <node tt="DT_VARCHAR" pc="00937" />
+        <node tt="DT_VARYING_CHARACTER" pc="00938" />
     </one-of-extension>
-    <one-of-extension id="00915" depth="1">
-        <node tt="CHR_STAR" pc="00916" />
-        <node tt="CHR_SLASH" pc="00917" />
-        <node tt="CHR_PERCENT" pc="00918" />
-        <node tt="CHR_PLUS" pc="00919" />
-        <node tt="CHR_MINUS" pc="00920" />
-        <node tt="KW_AND" pc="00921" />
-        <node tt="KW_OR" pc="00922" />
-        <node tt="KW_IN" pc="00923" />
-        <node tt="KW_BETWEEN" pc="00924" />
-        <node tt="OPR_JSON_EXTRACT_TEXT" pc="00925" />
-        <node tt="OPR_JSON_EXTRACT" pc="00926" />
-        <node tt="KW_NOT, KW_LIKE, KW_GLOB, KW_MATCH, KW_REGEXP" pc="00927" cc="00930, 00931, 00932, 00933" />
-        <node tt="KW_COLLATE" pc="00934" />
-        <node tt="KW_IS" pc="00935" cc="00937" />
-        <node tt="OPR_CONCATENATION" pc="00938" />
+    <one-of-extension id="00948" depth="1">
+        <node tt="CHR_STAR" pc="00949" />
+        <node tt="CHR_SLASH" pc="00950" />
+        <node tt="CHR_PERCENT" pc="00951" />
+        <node tt="CHR_PLUS" pc="00952" />
+        <node tt="CHR_MINUS" pc="00953" />
+        <node tt="KW_AND" pc="00954" />
+        <node tt="KW_OR" pc="00955" />
+        <node tt="KW_IN" pc="00956" />
+        <node tt="KW_BETWEEN" pc="00957" />
+        <node tt="OPR_JSON_EXTRACT_TEXT" pc="00958" />
+        <node tt="OPR_JSON_EXTRACT" pc="00959" />
+        <node tt="KW_NOT, KW_LIKE, KW_GLOB, KW_MATCH, KW_REGEXP" pc="00960" cc="00963, 00964, 00965, 00966" />
+        <node tt="KW_COLLATE" pc="00967" />
+        <node tt="KW_IS" pc="00968" cc="00970" />
+        <node tt="OPR_CONCATENATION" pc="00971" />
         <node tt="CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_EQUAL_EQUAL, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL" pc="comparison_operator" />
     </one-of-extension>
 </parser-element-extensions>
