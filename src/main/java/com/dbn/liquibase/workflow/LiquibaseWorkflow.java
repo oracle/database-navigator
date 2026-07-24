@@ -41,11 +41,16 @@ import static com.dbn.nls.NlsResources.txt;
 /** Defines a reusable sequence of Liquibase operations. */
 @Getter
 public enum LiquibaseWorkflow implements LiquibaseTask {
-    VALIDATE_AND_APPLY(
+    DIAGNOSE_DATABASE(
             VALIDATE_CHANGELOG,
             SHOW_CHANGELOG_STATUS,
-            UPDATE_SQL,
-            UPDATE_DATABASE),
+            UNEXPECTED_CHANGESETS,
+            CALCULATE_CHECKSUMS,
+            LIST_LOCKS),
+    VALIDATE_AND_PREVIEW(
+            VALIDATE_CHANGELOG,
+            SHOW_CHANGELOG_STATUS,
+            UPDATE_SQL),
     COMPARE_AND_GENERATE(
             COMPARE_SCHEMAS,
             GENERATE_DIFF_CHANGELOG),
@@ -58,16 +63,15 @@ public enum LiquibaseWorkflow implements LiquibaseTask {
             GENERATE_CHANGELOG,
             VALIDATE_CHANGELOG,
             GENERATE_DATABASE_DOCUMENTATION),
+    VALIDATE_AND_APPLY(
+            VALIDATE_CHANGELOG,
+            SHOW_CHANGELOG_STATUS,
+            UPDATE_SQL,
+            UPDATE_DATABASE),
     ROLLBACK_SAFELY(
             SHOW_CHANGELOG_HISTORY,
             ROLLBACK_SQL,
-            ROLLBACK_CHANGESETS),
-    DIAGNOSE_DATABASE(
-            VALIDATE_CHANGELOG,
-            SHOW_CHANGELOG_STATUS,
-            UNEXPECTED_CHANGESETS,
-            CALCULATE_CHECKSUMS,
-            LIST_LOCKS);
+            ROLLBACK_CHANGESETS);
 
     private final List<LiquibaseOperation> operations;
     private final LiquibaseWorkflowSupport support;
