@@ -51,7 +51,7 @@ BLOB = ("x"|"X")"'"([0-9a-fA-F][0-9a-fA-F])*"'"
 
 sign = "+"|"-"
 digit = [0-9]
-INTEGER = {digit}+("e"{sign}?{digit}+)?
+INTEGER = ("0x"|"0X")[0-9a-fA-F]+|{digit}+("e"{sign}?{digit}+)?
 NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 
 VARIABLE = "?"{digit}*|(":"|"@"|"$")({IDENTIFIER}|{INTEGER})
