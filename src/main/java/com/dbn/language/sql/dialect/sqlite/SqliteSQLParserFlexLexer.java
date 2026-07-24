@@ -4435,7 +4435,7 @@ public final class SqliteSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 534: break;
           case 89:
-            { return tt.ktt(160);
+            { return tt.ktt(156);
             }
           // fall through
           case 535: break;
@@ -4675,17 +4675,17 @@ public final class SqliteSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 582: break;
           case 137:
-            { return tt.ktt(158);
+            { return tt.ktt(154);
             }
           // fall through
           case 583: break;
           case 138:
-            { return tt.ktt(161);
+            { return tt.ktt(157);
             }
           // fall through
           case 584: break;
           case 139:
-            { return tt.ktt(163);
+            { return tt.ktt(159);
             }
           // fall through
           case 585: break;
@@ -4915,12 +4915,12 @@ public final class SqliteSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 630: break;
           case 185:
-            { return tt.ktt(151);
+            { return tt.getCharacterTokenType(27);
             }
           // fall through
           case 631: break;
           case 186:
-            { return tt.ktt(162);
+            { return tt.ktt(158);
             }
           // fall through
           case 632: break;
@@ -5145,22 +5145,22 @@ public final class SqliteSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 676: break;
           case 231:
-            { return tt.ktt(152);
+            { return tt.getCharacterTokenType(28);
             }
           // fall through
           case 677: break;
           case 232:
-            { return tt.ktt(155);
+            { return tt.ktt(151);
             }
           // fall through
           case 678: break;
           case 233:
-            { return tt.ktt(156);
+            { return tt.ktt(152);
             }
           // fall through
           case 679: break;
           case 234:
-            { return tt.ktt(157);
+            { return tt.ktt(153);
             }
           // fall through
           case 680: break;
@@ -5340,12 +5340,12 @@ public final class SqliteSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 715: break;
           case 270:
-            { return tt.ktt(159);
+            { return tt.ktt(155);
             }
           // fall through
           case 716: break;
           case 271:
-            { return tt.ktt(164);
+            { return tt.ktt(160);
             }
           // fall through
           case 717: break;
@@ -5435,12 +5435,12 @@ public final class SqliteSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 734: break;
           case 289:
-            { return tt.ktt(153);
+            { return tt.getCharacterTokenType(30);
             }
           // fall through
           case 735: break;
           case 290:
-            { return tt.ktt(154);
+            { return tt.getCharacterTokenType(29);
             }
           // fall through
           case 736: break;

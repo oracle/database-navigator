@@ -63,6 +63,11 @@ VARIABLE = "?"{digit}*|(":"|"@"|"$")({IDENTIFIER}|{INTEGER})
 {BLOCK_COMMENT}  { return stt.blockComment; }
 {LINE_COMMENT}   { return stt.lineComment; }
 
+"UTF-8"          { return tt.getCharacterTokenType(27); }
+"UTF-16le"       { return tt.getCharacterTokenType(29); }
+"UTF-16be"       { return tt.getCharacterTokenType(30); }
+"UTF-16"         { return tt.getCharacterTokenType(28); }
+
 {VARIABLE}       { return stt.variable; }
 {INTEGER}        { return stt.integer; }
 {NUMBER}         { return stt.number; }
@@ -301,20 +306,16 @@ VARIABLE = "?"{digit}*|(":"|"@"|"$")({IDENTIFIER}|{INTEGER})
 "unbounded" {return tt.ktt(148);}
 "update" {return tt.ktt(149);}
 "using" {return tt.ktt(150);}
-"utf-8" {return tt.ktt(151);}
-"utf-16" {return tt.ktt(152);}
-"utf-16be" {return tt.ktt(153);}
-"utf-16le" {return tt.ktt(154);}
-"vacuum" {return tt.ktt(155);}
-"values" {return tt.ktt(156);}
-"window" {return tt.ktt(157);}
-"view" {return tt.ktt(158);}
-"virtual" {return tt.ktt(159);}
-"wal" {return tt.ktt(160);}
-"when" {return tt.ktt(161);}
-"where" {return tt.ktt(162);}
-"with" {return tt.ktt(163);}
-"without" {return tt.ktt(164);}
+"vacuum" {return tt.ktt(151);}
+"values" {return tt.ktt(152);}
+"window" {return tt.ktt(153);}
+"view" {return tt.ktt(154);}
+"virtual" {return tt.ktt(155);}
+"wal" {return tt.ktt(156);}
+"when" {return tt.ktt(157);}
+"where" {return tt.ktt(158);}
+"with" {return tt.ktt(159);}
+"without" {return tt.ktt(160);}
 // MARKER_END_KEYWORDS
 
 
