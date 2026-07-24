@@ -81,6 +81,7 @@ LEFT|reserved
 LIKE
 LIMIT|reserved
 MATCH
+MATERIALIZED|reserved
 NATURAL|reserved
 NO
 NOT|reserved
