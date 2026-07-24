@@ -56,7 +56,7 @@ NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 
 VARIABLE = "?"{digit}*|(":"|"@"|"$")({IDENTIFIER}|{INTEGER})
 
-OPERATOR = "=="|"||"|"<="|">="|"<>"|"!="|":="|"=>"|".."|"::"|"->>"|"->"|"="|">"|"<"
+OPERATOR = "=="|"||"|"<<"|">>"|"<="|">="|"<>"|"!="|":="|"=>"|".."|"::"|"->>"|"->"|"&"|"|"|"="|">"|"<"
 
 
 SQL_KEYWORD = "abort"|"always"|"action"|"add"|"after"|"all"|"alter"|"analyze"|"and"|"as"|"asc"|"attach"|"autoincrement"|"before"|"begin"|"between"|"by"|"cascade"|"case"|"cast"|"check"|"collate"|"column"|"commit"|"conflict"|"constraint"|"create"|"cross"|"current_date"|"current_time"|"current_timestamp"|"current"|"database"|"default"|"deferrable"|"deferred"|"delete"|"desc"|"detach"|"distinct"|"drop"|"exclude"|"each"|"else"|"end"|"escape"|"except"|"exclusive"|"exists"|"explain"|"fail"|"false"|"filter"|"for"|"foreign"|"following"|"from"|"full"|"generated"|"glob"|"group"|"groups"|"having"|"if"|"ignore"|"immediate"|"in"|"index"|"indexed"|"initially"|"inner"|"insert"|"instead"|"intersect"|"into"|"is"|"isnull"|"join"|"key"|"left"|"like"|"limit"|"match"|"natural"|"no"|"not"|"notnull"|"null"|"of"|"off"|"offset"|"on"|"or"|"order"|"others"|"outer"|"over"|"partition"|"plan"|"pragma"|"preceding"|"primary"|"query"|"raise"|"recursive"|"references"|"range"|"regexp"|"reindex"|"release"|"rename"|"replace"|"restrict"|"right"|"rollback"|"rows"|"row"|"rowid"|"savepoint"|"select"|"set"|"strict"|"stored"|"table"|"temp"|"temporary"|"then"|"ties"|"to"|"transaction"|"trigger"|"true"|"union"|"unique"|"unbounded"|"update"|"using"|"vacuum"|"values"|"window"|"view"|"virtual"|"when"|"where"|"with"|"without"

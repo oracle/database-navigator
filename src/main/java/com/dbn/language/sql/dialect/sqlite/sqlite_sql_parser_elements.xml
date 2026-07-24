@@ -1841,76 +1841,80 @@
             <token id="00982" type-id="CHR_PERCENT" />
             <token id="00983" type-id="CHR_PLUS" />
             <token id="00984" type-id="CHR_MINUS" />
-            <token id="00985" type-id="KW_AND" />
-            <token id="00986" type-id="KW_OR" />
-            <token id="00987" type-id="KW_IN" />
-            <token id="00988" type-id="KW_BETWEEN" />
-            <token type-id="OPR_JSON_EXTRACT_TEXT" id="00989" />
-            <token type-id="OPR_JSON_EXTRACT" id="00990" />
-            <sequence id="00991">
-                <token id="00992" optional="true" type-id="KW_NOT" />
-                <one-of id="00993" exit="true">
-                    <token id="00994" type-id="KW_LIKE" />
-                    <token id="00995" type-id="KW_GLOB" />
-                    <token id="00996" type-id="KW_MATCH" />
-                    <token id="00997" type-id="KW_REGEXP" />
+            <token type-id="CHR_AND" id="00985" />
+            <token type-id="CHR_VERTICAL_BAR" id="00986" />
+            <token type-id="OPR_SHIFT_LEFT" id="00987" />
+            <token type-id="OPR_SHIFT_RIGHT" id="00988" />
+            <token id="00989" type-id="KW_AND" />
+            <token id="00990" type-id="KW_OR" />
+            <token id="00991" type-id="KW_IN" />
+            <token id="00992" type-id="KW_BETWEEN" />
+            <token type-id="OPR_JSON_EXTRACT_TEXT" id="00993" />
+            <token type-id="OPR_JSON_EXTRACT" id="00994" />
+            <sequence id="00995">
+                <token id="00996" optional="true" type-id="KW_NOT" />
+                <one-of id="00997" exit="true">
+                    <token id="00998" type-id="KW_LIKE" />
+                    <token id="00999" type-id="KW_GLOB" />
+                    <token id="01000" type-id="KW_MATCH" />
+                    <token id="01001" type-id="KW_REGEXP" />
                 </one-of>
             </sequence>
-            <token id="00998" type-id="KW_COLLATE" />
+            <token id="01002" type-id="KW_COLLATE" />
             <element ref-id="is_operator" />
-            <token id="00999" type-id="OPR_CONCATENATION" />
+            <token id="01003" type-id="OPR_CONCATENATION" />
             <element ref-id="comparison_operator" />
         </one-of>
     </element-def>
 
     <element-def description="IS operator" id="is_operator">
-        <token type-id="KW_IS" id="01000" />
-        <token optional="true" type-id="KW_NOT" id="01001" />
-        <sequence optional="true" id="01002">
-            <token type-id="KW_DISTINCT" id="01003" />
-            <token type-id="KW_FROM" id="01004" />
+        <token type-id="KW_IS" id="01004" />
+        <token optional="true" type-id="KW_NOT" id="01005" />
+        <sequence optional="true" id="01006">
+            <token type-id="KW_DISTINCT" id="01007" />
+            <token type-id="KW_FROM" id="01008" />
         </sequence>
     </element-def>
 
     <element-def description="COMPARISON operator" id="comparison_operator">
-        <one-of id="01005">
-            <token id="01006" type-id="CHR_EQUAL" />
-            <token id="01007" type-id="CHR_LESS" />
-            <token id="01008" type-id="CHR_GREATER" />
-            <token id="01009" type-id="OPR_EQUAL_EQUAL" />
-            <token id="01010" type-id="OPR_NOT_EQUAL" />
-            <token id="01011" type-id="OPR_LESS_GREATER" />
-            <token id="01012" type-id="OPR_LESS_EQUAL" />
-            <token id="01013" type-id="OPR_GREATER_EQUAL" />
+        <one-of id="01009">
+            <token id="01010" type-id="CHR_EQUAL" />
+            <token id="01011" type-id="CHR_LESS" />
+            <token id="01012" type-id="CHR_GREATER" />
+            <token id="01013" type-id="OPR_EQUAL_EQUAL" />
+            <token id="01014" type-id="OPR_NOT_EQUAL" />
+            <token id="01015" type-id="OPR_LESS_GREATER" />
+            <token id="01016" type-id="OPR_LESS_EQUAL" />
+            <token id="01017" type-id="OPR_GREATER_EQUAL" />
         </one-of>
     </element-def>
 
     <element-def description="Literal value" id="literal_value">
-        <one-of id="01014">
-            <token id="01015" type-id="STRING" />
-            <token id="01016" type-id="KW_NULL" />
-            <token id="01017" type-id="KW_CURRENT_TIME" />
-            <token id="01018" type-id="KW_CURRENT_DATE" />
-            <token id="01019" type-id="KW_CURRENT_TIMESTAMP" />
+        <one-of id="01018">
+            <token id="01019" type-id="STRING" />
+            <token id="01020" type-id="KW_NULL" />
+            <token id="01021" type-id="KW_CURRENT_TIME" />
+            <token id="01022" type-id="KW_CURRENT_DATE" />
+            <token id="01023" type-id="KW_CURRENT_TIMESTAMP" />
         </one-of>
     </element-def>
 
 
     <element-def description="Number" id="number">
-        <one-of id="01020" optional="true">
-            <token id="01021" type-id="CHR_MINUS" />
-            <token id="01022" type-id="CHR_PLUS" />
+        <one-of id="01024" optional="true">
+            <token id="01025" type-id="CHR_MINUS" />
+            <token id="01026" type-id="CHR_PLUS" />
         </one-of>
-        <one-of id="01023">
-            <token id="01024" type-id="NUMBER" />
-            <token id="01025" type-id="INTEGER" />
+        <one-of id="01027">
+            <token id="01028" type-id="NUMBER" />
+            <token id="01029" type-id="INTEGER" />
         </one-of>
     </element-def>
 
     <element-def description="Unknown identifier" id="custom_undefined">
-        <token id="01026" type-id="IDENTIFIER" />
+        <token id="01030" type-id="IDENTIFIER" />
     </element-def>
     <element-def description="Statement end" formatting-spacing-before="NO_SPACE" id="end" truncate-on-execution="true">
-        <token id="01027" type-id="CHR_SEMICOLON" />
+        <token id="01031" type-id="CHR_SEMICOLON" />
     </element-def>
 </element-defs>

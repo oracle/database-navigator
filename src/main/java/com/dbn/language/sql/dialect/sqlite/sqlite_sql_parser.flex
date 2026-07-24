@@ -81,6 +81,8 @@ VARIABLE = "?"{digit}*|(":"|"@"|"$")({IDENTIFIER}|{INTEGER})
 "::"             { return tt.getOperatorTokenType(9); }
 "->>"            { return tt.getOperatorTokenType(23); }
 "->"             { return tt.getOperatorTokenType(22); }
+"<<"             { return tt.getOperatorTokenType(17); }
+">>"             { return tt.getOperatorTokenType(18); }
 
 "("{wso}"+"{wso}")"  {return tt.getTokenType("CT_OUTER_JOIN");}
 
@@ -106,6 +108,8 @@ VARIABLE = "?"{digit}*|(":"|"@"|"$")({IDENTIFIER}|{INTEGER})
 "/" {return tt.getCharacterTokenType(19);}
 "*" {return tt.getCharacterTokenType(20);}
 "|" {return tt.getCharacterTokenType(21);}
+"&" {return tt.getCharacterTokenType(22);}
+"~" {return tt.getCharacterTokenType(23);}
 
 
 
