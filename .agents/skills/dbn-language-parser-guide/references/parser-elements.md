@@ -179,7 +179,7 @@ Notes:
 Matches the first alternative that parses.
 
 ```xml
-<one-of id="00001" ambiguous="true">
+<one-of id="00001">
     <element ref-id="select_statement"/>
     <element ref-id="insert_statement"/>
 </one-of>
@@ -190,7 +190,7 @@ Notes:
 - Child-level `optional="true"` is not supported and logs a runtime warning.
 - Put optionality on the `one-of` itself or on a parent sequence child.
 - `sortable="true"` allows runtime reordering by token categories.
-- `ambiguous="true"` enables ambiguous path rebuilding for alternatives with overlapping starts.
+- Overlapping alternatives remain as raw children; generated parser-extension look-ahead narrows candidates without rewriting the grammar tree.
 - `tokens="KW_A,KW_B"` creates compact token alternatives.
 
 ### `iteration`
@@ -357,7 +357,7 @@ The shared DTD should describe the real parser XML surface, not an idealized XML
 
 - Does the new grammar construct exist in another dialect with a reusable pattern?
 - Do new `element-def` ids use lowercase underscored specification names and human-readable descriptions with SQL keywords uppercased?
-- Are alternatives ordered or marked `ambiguous` where their first tokens overlap?
+- Do overlapping alternatives have sufficient generated look-ahead to distinguish their first-token paths?
 - Is a repeated multi-token construct wrapped as a single child `sequence` inside `iteration`?
 - Are semantic identifiers used where resolution/rename/structure behavior matters?
 - Did the change avoid adding new deprecated `exit="true"` branch workarounds?

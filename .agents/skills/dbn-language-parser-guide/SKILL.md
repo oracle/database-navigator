@@ -13,7 +13,7 @@ When working on parser migration, inch the new extension-based parser toward leg
 
 Keep these boundaries clear:
 
-- Legacy path: `OneOfElementTypeBuilder`, `ambiguous="true"`, surrogate sequences, sortable one-of behavior, token-monitor borrowing, and `exit="true"` are compatibility mechanisms. Avoid expanding this surface.
+- Legacy path: sortable one-of behavior, token-monitor borrowing, and `exit="true"` remain compatibility mechanisms. Avoid expanding this surface; the old surrogate-based branch-rewrite machinery has been removed.
 - New path: `LanguageSpecificationParserExtensionBuilder` should generate enough look-ahead metadata for `OneOfElementTypeParser.parseCandidates()` to choose the same branch legacy would have chosen, without rewriting grammar children.
 - Runtime path: avoid broad changes in `OneOfElementTypeParser` unless explicitly requested. Candidate selection should be controlled by generated extension metadata where possible.
 - Grammar path: when a statement is invalid in both parser models, or when the syntax is absent from the dialect definition, fix the dialect parser XML locally and leave generated numeric ids to tooling.
@@ -75,7 +75,7 @@ Keep these boundaries clear:
 - Keep names unqualified when the dialect scopes them through a surrounding object, such as column names in table definitions or DML target clauses, constraint names, policy names, rule names, and trigger names. Query column references should use the existing dataset-alias and schema/table/column variants; leave broader expression qualification to the expression grammar.
 - Treat `variant original-name="..."` as definition-only metadata for documenting specification-name deviations; do not add Java/runtime behavior for it unless explicitly requested.
 - Prefer extension-based ambiguity resolution over surrogate rewrites. The runtime `OneOfElementTypeParser.parseCandidates()` uses raw `one-of` children when no extension is loaded, and uses `OneOfElementTypeExtension.parseCandidates()` when generated extension metadata exists.
-- Treat `OneOfElementTypeBuilder` and `ambiguous="true"` as legacy surrogate-based ambiguity handling. It rewrites ambiguous `one-of` nodes into synthetic `SurrogateSequenceElementType` branches with surrogate lead tokens and token-monitor borrowing semantics. Do not add new dependencies on this path.
+- Keep overlapping alternatives as raw grammar children; generated extension look-ahead resolves them without rewriting the grammar tree.
 - Treat `LanguageSpecificationParserExtensionBuilder` as the current ambiguity model. It scans raw grammar trees, builds token look-ahead tries, and emits `one-of-extension` nodes into `*_parser_elements_ext.xml`. Runtime parsing then narrows candidates by deepest matching trie node before trying normal child parsers, keeping the grammar tree intact.
 - If a `one-of` ambiguity is unresolved, first inspect the generated extension XML and the candidate token prefixes before changing grammar structure. Only edit parser element XML or extension tooling source; generated `*_parser_elements_ext.xml` files should normally be refreshed by tooling.
 - Do not introduce new `exit="true"` markers. Existing markers are a deprecated workaround for ambiguous parser branches; future ambiguity handling should move to trie-based look-ahead.
