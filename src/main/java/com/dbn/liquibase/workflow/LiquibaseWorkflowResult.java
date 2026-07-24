@@ -6,39 +6,52 @@
  * You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.dbn.liquibase.workflow;
 
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.util.Listeners;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
-import com.dbn.execution.ExecutionResultBase;
-import com.dbn.language.common.DBLanguagePsiFile;
+import com.dbn.common.task.TaskStatus;
 import com.dbn.liquibase.operation.LiquibaseOperationResult;
+import com.dbn.liquibase.task.LiquibaseTaskResult;
 import com.dbn.liquibase.workflow.ui.LiquibaseWorkflowResultForm;
-import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.liquibase.operation.LiquibaseFeature.RERUN_ON_SUCCESS;
+
 /** Execution-console result aggregating the operation results produced by a Liquibase workflow. */
 @Getter
-public class LiquibaseWorkflowResult extends ExecutionResultBase<LiquibaseWorkflowResultForm> {
-    private final LiquibaseWorkflowInput input;
-    private final LiquibaseWorkflowContext context;
+public class LiquibaseWorkflowResult extends LiquibaseTaskResult<
+        LiquibaseWorkflowInput,
+        LiquibaseWorkflowContext,
+        LiquibaseWorkflowResultForm> {
+
     private final List<LiquibaseOperationResult> results = new ArrayList<>();
-    private final Listeners<Runnable> listeners = Listeners.create(this);
 
     public LiquibaseWorkflowResult(@NotNull LiquibaseWorkflowInput input) {
-        this.input = input;
-        this.context = new LiquibaseWorkflowContext(input.getWorkflow());
+        this(new LiquibaseWorkflowContext(input));
+    }
+
+    private LiquibaseWorkflowResult(@NotNull LiquibaseWorkflowContext context) {
+        super(context);
+    }
+
+    @Override
+    @Delegate
+    public LiquibaseWorkflowInput getInput() {
+        return super.getInput();
     }
 
     @NotNull
@@ -56,16 +69,12 @@ public class LiquibaseWorkflowResult extends ExecutionResultBase<LiquibaseWorkfl
         notifyChanged();
     }
 
-    public void addListener(@NotNull Runnable listener) {
-        listeners.add(listener);
-    }
-
-    public void removeListener(@NotNull Runnable listener) {
-        listeners.remove(listener);
-    }
-
-    void notifyChanged() {
-        listeners.notify(Runnable::run);
+    public boolean canRerun() {
+        TaskStatus status = getStatus();
+        if (status == TaskStatus.CANCELLED) return true;
+        if (status == TaskStatus.FAILED) return true;
+        if (status == TaskStatus.SKIPPED) return true;
+        return status == TaskStatus.DONE && getInput().getSupport().supports(RERUN_ON_SUCCESS);
     }
 
     @Nullable
@@ -78,35 +87,8 @@ public class LiquibaseWorkflowResult extends ExecutionResultBase<LiquibaseWorkfl
     @Override
     public String getName() {
         return getConnection().getName() + " - " +
-                input.getRelevantSchema().getName() + " - " +
-                input.getWorkflow().getTitle();
-    }
-
-    @Override
-    public Icon getIcon() {
-        return Icons.DB_LIQUIBASE;
-    }
-
-    @NotNull
-    @Override
-    public Project getProject() {
-        return input.getProject();
-    }
-
-    @Override
-    public ConnectionId getConnectionId() {
-        return getConnection().getConnectionId();
-    }
-
-    @NotNull
-    @Override
-    public ConnectionHandler getConnection() {
-        return input.getRelevantConnection();
-    }
-
-    @Override
-    public DBLanguagePsiFile createPreviewFile() {
-        return null;
+                getRelevantSchema().getName() + " - " +
+                getWorkflow().getTitle();
     }
 
     @Override

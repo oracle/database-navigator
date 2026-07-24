@@ -38,6 +38,7 @@ import com.dbn.liquibase.operation.LiquibaseOperation;
 import com.dbn.liquibase.operation.LiquibaseOperationContext;
 import com.dbn.liquibase.operation.LiquibaseOperationInput;
 import com.dbn.liquibase.operation.LiquibaseOperationResult;
+import com.dbn.liquibase.task.LiquibaseTaskResult;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowExecutor;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowInput;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
@@ -122,9 +123,14 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
                 whenOk(d -> workspaces.replaceWorkspaces(d.getWorkspaces())));
     }
 
-    public void cancelExecution(@NotNull LiquibaseOperationResult result) {
-        LiquibaseOperationContext context = executionContexts.get(result);
-        if (context != null) context.cancel();
+    public void cancelTask(@NotNull LiquibaseTaskResult<?, ?, ?> result) {
+        if (result instanceof LiquibaseOperationResult operationResult) {
+            LiquibaseOperationContext context = executionContexts.get(operationResult);
+            if (context != null) context.cancel();
+        } else if (result instanceof LiquibaseWorkflowResult workflowResult) {
+            LiquibaseWorkflowExecutor executor = workflowExecutors.get(workflowResult);
+            if (executor != null) executor.cancel();
+        }
     }
 
     public void registerExecutionContext(
@@ -137,8 +143,12 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         executionContexts.remove(result);
     }
 
-    public void rerunOperation(@NotNull LiquibaseOperationResult previousResult) {
-        executeOperation(previousResult.getInput(), previousResult);
+    public void rerunTask(@NotNull LiquibaseTaskResult<?, ?, ?> previousResult) {
+        if (previousResult instanceof LiquibaseOperationResult operationResult) {
+            executeOperation(operationResult.getInput(), operationResult);
+        } else if (previousResult instanceof LiquibaseWorkflowResult workflowResult) {
+            executeWorkflow(workflowResult.getInput(), workflowResult);
+        }
     }
 
     public void executeOperation(
@@ -163,10 +173,6 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         });
     }
 
-    public void rerunWorkflow(@NotNull LiquibaseWorkflowResult previousResult) {
-        executeWorkflow(previousResult.getInput(), previousResult);
-    }
-
     public void executeWorkflow(
             @NotNull LiquibaseWorkflowInput input,
             @Nullable LiquibaseWorkflowResult previousResult) {
@@ -183,11 +189,6 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
                 workflowExecutors.remove(result);
             }
         });
-    }
-
-    public void cancelWorkflow(@NotNull LiquibaseWorkflowResult result) {
-        LiquibaseWorkflowExecutor executor = workflowExecutors.get(result);
-        if (executor != null) executor.cancel();
     }
 
     public void openWorkspaceCreationDialog(

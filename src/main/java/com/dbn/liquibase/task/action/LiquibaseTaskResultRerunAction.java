@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.dbn.liquibase.workflow.action;
+package com.dbn.liquibase.task.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.task.TaskStatus;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
-import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
+import com.dbn.liquibase.task.LiquibaseTaskResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -28,21 +27,27 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class LiquibaseWorkflowResultStopAction extends AbstractLiquibaseWorkflowResultAction {
-    public LiquibaseWorkflowResultStopAction() {
-        super(txt("app.execution.action.StopExecution"));
+public class LiquibaseTaskResultRerunAction extends AbstractLiquibaseTaskResultAction {
+    public LiquibaseTaskResultRerunAction() {
+        super(txt("app.execution.action.ExecuteAgain"));
     }
 
     @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull LiquibaseWorkflowResult target) {
-        DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
-        liquibaseManager.cancelWorkflow(target);
+    protected void actionPerformed(
+            @NotNull AnActionEvent e,
+            @NotNull Project project,
+            @NotNull LiquibaseTaskResult<?, ?, ?> target) {
+        DatabaseLiquibaseManager.getInstance(project).rerunTask(target);
     }
 
     @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable LiquibaseWorkflowResult target) {
-        presentation.setEnabled(target != null && target.getContext().getStatus() == TaskStatus.RUNNING);
-        presentation.setText(txt("app.execution.action.StopExecution"));
-        presentation.setIcon(Icons.ACTION_STOP);
+    protected void update(
+            @NotNull AnActionEvent e,
+            @NotNull Presentation presentation,
+            @NotNull Project project,
+            @Nullable LiquibaseTaskResult<?, ?, ?> target) {
+        presentation.setEnabled(target != null && target.canRerun());
+        presentation.setText(txt("app.execution.action.ExecuteAgain"));
+        presentation.setIcon(Icons.EXEC_RESULT_RERUN);
     }
 }

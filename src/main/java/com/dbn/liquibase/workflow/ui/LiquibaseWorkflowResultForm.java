@@ -113,7 +113,7 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
         ActionToolbar actionToolbar = Actions.createActionToolbar(
                 actionsPanel,
                 false,
-                "DBN.Execution.Liquibase.Workflow.Result");
+                "DBN.Execution.Liquibase.Result");
         Accessibility.setAccessibleName(actionToolbar, txt("app.liquibase.aria.ExecutionResultActions"));
         actionsPanel.add(actionToolbar.getComponent());
     }
@@ -134,7 +134,7 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
     }
 
     private void updateActionToolbarState() {
-        TaskStatus status = getExecutionResult().getContext().getStatus();
+        TaskStatus status = getExecutionResult().getStatus();
         if (status == actionStatus) return;
 
         actionStatus = status;

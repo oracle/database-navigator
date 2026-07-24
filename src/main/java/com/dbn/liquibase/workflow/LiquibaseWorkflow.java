@@ -6,12 +6,18 @@
  * You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.dbn.liquibase.workflow;
 
-import com.dbn.liquibase.LiquibaseDashboardItem;
 import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.task.LiquibaseTask;
 import lombok.Getter;
 
 import java.util.List;
@@ -34,7 +40,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 /** Defines a reusable sequence of Liquibase operations. */
 @Getter
-public enum LiquibaseWorkflow implements LiquibaseDashboardItem {
+public enum LiquibaseWorkflow implements LiquibaseTask {
     VALIDATE_AND_APPLY(
             VALIDATE_CHANGELOG,
             SHOW_CHANGELOG_STATUS,

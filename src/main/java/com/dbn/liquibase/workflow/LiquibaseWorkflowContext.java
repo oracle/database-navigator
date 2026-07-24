@@ -6,12 +6,18 @@
  * You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.dbn.liquibase.workflow;
 
-import com.dbn.common.task.TaskStatus;
 import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.task.LiquibaseTaskContext;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,14 +26,13 @@ import java.util.List;
 
 /** Per-run state shared by a workflow and its operation results. */
 @Getter
-public class LiquibaseWorkflowContext {
+public class LiquibaseWorkflowContext extends LiquibaseTaskContext<LiquibaseWorkflowInput> {
     private final List<LiquibaseOperation> operations;
     private int operationIndex = -1;
-    private TaskStatus status = TaskStatus.NEW;
-    private volatile boolean cancellationRequested;
 
-    public LiquibaseWorkflowContext(@NotNull LiquibaseWorkflow workflow) {
-        this.operations = workflow.getOperations();
+    public LiquibaseWorkflowContext(@NotNull LiquibaseWorkflowInput input) {
+        super(input);
+        this.operations = input.getWorkflow().getOperations();
     }
 
     @Nullable
@@ -37,14 +42,7 @@ public class LiquibaseWorkflowContext {
 
     public void startOperation(int index) {
         operationIndex = index;
-        status = TaskStatus.RUNNING;
+        start();
     }
 
-    public void finish(@NotNull TaskStatus status) {
-        this.status = status;
-    }
-
-    public void cancel() {
-        cancellationRequested = true;
-    }
 }

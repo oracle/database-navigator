@@ -18,7 +18,7 @@ package com.dbn.liquibase.operation;
 
 import com.dbn.common.constant.Constant;
 import com.dbn.common.icon.Icons;
-import com.dbn.liquibase.LiquibaseDashboardItem;
+import com.dbn.liquibase.task.LiquibaseTask;
 import com.intellij.icons.AllIcons;
 import lombok.Getter;
 import lombok.experimental.Delegate;
@@ -30,7 +30,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 /** Liquibase operation represented in the DBN execution console. */
 @Getter
-public enum LiquibaseOperation implements Constant<LiquibaseOperation>, LiquibaseDashboardItem {
+public enum LiquibaseOperation implements Constant<LiquibaseOperation>, LiquibaseTask {
     GENERATE_CHANGELOG,
     GENERATE_DATABASE_DOCUMENTATION,
     SNAPSHOT_DATABASE,

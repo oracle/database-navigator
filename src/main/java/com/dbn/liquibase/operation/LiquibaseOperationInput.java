@@ -16,9 +16,9 @@
 
 package com.dbn.liquibase.operation;
 
-import com.dbn.common.component.ProjectUnit;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
+import com.dbn.liquibase.task.LiquibaseTaskInput;
 import com.dbn.liquibase.workspace.LiquibaseWorkspace;
 import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
@@ -37,7 +37,7 @@ import static com.dbn.liquibase.operation.LiquibaseFeature.SOURCE_SCHEMA;
 /** Input describing a Liquibase operation and its optional source and target schemas. */
 @Getter
 @Setter
-public class LiquibaseOperationInput extends ProjectUnit {
+public class LiquibaseOperationInput extends LiquibaseTaskInput {
     private final LiquibaseWorkspaceBundle workspaces;
     private final LiquibaseOperation operation;
 

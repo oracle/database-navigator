@@ -19,6 +19,7 @@ package com.dbn.liquibase.operation.action;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.liquibase.operation.ui.LiquibaseOperationDashboardDialog;
 import com.dbn.object.DBSchema;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -28,15 +29,19 @@ import static com.dbn.nls.NlsResources.txt;
 
 /** Opens the project-level Liquibase dashboard from a database context. */
 public class LiquibaseOperationDashboardAction extends ProjectAction {
-    private final DBSchema schema;
+    private final DBObjectRef<DBSchema> schema;
 
     public LiquibaseOperationDashboardAction(@NotNull DBSchema schema) {
         super(txt("app.liquibase.action.OperationDashboard"));
-        this.schema = schema;
+        this.schema = DBObjectRef.of(schema);
+    }
+
+    public DBSchema getSchema() {
+        return DBObjectRef.ensure(schema);
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        show(() -> new LiquibaseOperationDashboardDialog(schema));
+        show(() -> new LiquibaseOperationDashboardDialog(getSchema()));
     }
 }
