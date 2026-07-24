@@ -1503,7 +1503,7 @@
             <token type-id="FN_SUM" id="00749" />
             <token type-id="FN_TOTAL" id="00750" />
         </one-of>
-        <wrapper template="PARENTHESES" id="00751">
+        <wrapper template="PARENTHESES" id="00751" optional="true">
             <sequence id="00752">
                 <one-of id="00753">
                     <sequence id="00754">
