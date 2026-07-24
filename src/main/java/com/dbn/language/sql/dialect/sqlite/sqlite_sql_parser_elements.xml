@@ -1310,11 +1310,11 @@
                 <one-of id="00658" optional="true">
                     <sequence id="00659">
                         <token optional="true" type-id="KW_NOT" id="00660" />
-                        <element ref-id="between_expression" />
-                    </sequence>
-                    <sequence id="00661">
-                        <token optional="true" type-id="KW_NOT" id="00662" />
-                        <element ref-id="in_expression" />
+                        <one-of id="00661">
+                            <token type-id="KW_NULL" id="00662" />
+                            <element ref-id="between_expression" />
+                            <element ref-id="in_expression" />
+                        </one-of>
                     </sequence>
                     <sequence id="00663">
                         <element ref-id="binary_operator" />
@@ -1387,7 +1387,7 @@
     </element-def>
     <element-def description="BETWEEN expression" id="between_expression">
         <token id="00695" type-id="KW_BETWEEN" />
-        <element ref-id="expr" />
+        <element ref-id="simple_expression" />
         <token id="00696" type-id="KW_AND" />
         <element ref-id="expr" />
     </element-def>
