@@ -51,6 +51,10 @@ public enum LiquibaseWorkflow implements LiquibaseTask {
             VALIDATE_CHANGELOG,
             SHOW_CHANGELOG_STATUS,
             UPDATE_SQL),
+    DRIFT_AUDIT(
+            COMPARE_SCHEMAS,
+            GENERATE_DIFF_CHANGELOG,
+            VALIDATE_CHANGELOG),
     COMPARE_AND_GENERATE(
             COMPARE_SCHEMAS,
             GENERATE_DIFF_CHANGELOG),
@@ -68,6 +72,15 @@ public enum LiquibaseWorkflow implements LiquibaseTask {
             SHOW_CHANGELOG_STATUS,
             UPDATE_SQL,
             UPDATE_DATABASE),
+    DEPLOY_AND_VERIFY(
+            VALIDATE_CHANGELOG,
+            UPDATE_SQL,
+            UPDATE_DATABASE,
+            SHOW_CHANGELOG_STATUS),
+    RELEASE_CHECKPOINT(
+            VALIDATE_CHANGELOG,
+            UPDATE_DATABASE,
+            SHOW_CHANGELOG_HISTORY),
     ROLLBACK_SAFELY(
             SHOW_CHANGELOG_HISTORY,
             ROLLBACK_SQL,
