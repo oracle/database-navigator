@@ -47,13 +47,14 @@ CHARSET ="armscii8"|"ascii"|"big5"|"binary"|"cp1250"|"cp1251"|"cp1256"|"cp1257"|
 
 string_simple_quoted      = "'"([^\']|"''"|{WHITE_SPACE})*"'"?
 STRING = ("n"|"_"{CHARSET})?{wso}{string_simple_quoted}
+BLOB = ("x"|"X")"'"([0-9a-fA-F][0-9a-fA-F])*"'"
 
 sign = "+"|"-"
 digit = [0-9]
 INTEGER = {digit}+("e"{sign}?{digit}+)?
 NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 
-VARIABLE = ":"({IDENTIFIER}|{INTEGER})
+VARIABLE = "?"{digit}*|(":"|"@"|"$")({IDENTIFIER}|{INTEGER})
 
 OPERATOR = "=="|"||"|"<="|">="|"<>"|"!="|":="|"=>"|".."|"::"|"->>"|"->"|"="|">"|"<"
 
@@ -66,7 +67,7 @@ SQL_PARAMETER = "application_id"|"automatic_index"|"auto_vacuum"|"busy_timeout"|
 %state DIV
 %%
 
-{VARIABLE}           { return tt.getTokenType("VARIABLE"); }
+{VARIABLE}           { return tt.variable; }
 
 {WHITE_SPACE}+       { return stt.whiteSpace; }
 
@@ -75,14 +76,15 @@ SQL_PARAMETER = "application_id"|"automatic_index"|"auto_vacuum"|"busy_timeout"|
 
 {INTEGER}            { return stt.integer; }
 {NUMBER}             { return stt.number; }
+{BLOB}               { return stt.string; }
 {STRING}             { return stt.string; }
 
-{SQL_FUNCTION}       { return tt.getTokenType("FUNCTION");}
-{SQL_PARAMETER}      { return tt.getTokenType("PARAMETER"); }
-{SQL_DATATYPE}       { return tt.getTokenType("DATA_TYPE"); }
-{SQL_KEYWORD}        { return tt.getTokenType("KEYWORD"); }
+{SQL_FUNCTION}       { return tt.function;}
+{SQL_PARAMETER}      { return tt.parameter; }
+{SQL_DATATYPE}       { return tt.dataType; }
+{SQL_KEYWORD}        { return tt.keyword; }
 
-{OPERATOR}           { return tt.getTokenType("OPERATOR"); }
+{OPERATOR}           { return tt.operator; }
 
 {IDENTIFIER}         { return stt.identifier; }
 {QUOTED_IDENTIFIER}  { return stt.identifier; }

@@ -46,13 +46,14 @@ CHARSET ="armscii8"|"ascii"|"big5"|"binary"|"cp1250"|"cp1251"|"cp1256"|"cp1257"|
 
 string_simple_quoted      = "'"([^\']|"''"|{WHITE_SPACE})*"'"?
 STRING = ("n"|"_"{CHARSET})?{wso}{string_simple_quoted}
+BLOB = ("x"|"X")"'"([0-9a-fA-F][0-9a-fA-F])*"'"
 
 sign = "+"|"-"
 digit = [0-9]
 INTEGER = {digit}+("e"{sign}?{digit}+)?
 NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 
-VARIABLE = ":"({IDENTIFIER}|{INTEGER})
+VARIABLE = "?"{digit}*|(":"|"@"|"$")({IDENTIFIER}|{INTEGER})
 
 %state DIV
 %%
@@ -65,6 +66,7 @@ VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 {VARIABLE}       { return stt.variable; }
 {INTEGER}        { return stt.integer; }
 {NUMBER}         { return stt.number; }
+{BLOB}           { return stt.string; }
 {STRING}         { return stt.string; }
 
 "=="             { return tt.getOperatorTokenType(0); }

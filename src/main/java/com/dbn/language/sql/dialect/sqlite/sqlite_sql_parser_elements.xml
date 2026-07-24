@@ -1829,7 +1829,7 @@
             <token type-id="OPR_JSON_EXTRACT" id="00980" />
             <sequence id="00981">
                 <token id="00982" optional="true" type-id="KW_NOT" />
-                <one-of id="00983">
+                <one-of id="00983" exit="true">
                     <token id="00984" type-id="KW_LIKE" />
                     <token id="00985" type-id="KW_GLOB" />
                     <token id="00986" type-id="KW_MATCH" />

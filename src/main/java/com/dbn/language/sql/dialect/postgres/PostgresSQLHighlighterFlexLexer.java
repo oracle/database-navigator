@@ -7927,7 +7927,7 @@ public final class PostgresSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 22: break;
           case 3:
-            { return tt.getTokenType("OPERATOR");
+            { return tt.operator;
             }
           // fall through
           case 23: break;
@@ -7952,7 +7952,7 @@ public final class PostgresSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 27: break;
           case 8:
-            { return tt.getTokenType("KEYWORD");
+            { return tt.keyword;
             }
           // fall through
           case 28: break;
@@ -7977,7 +7977,7 @@ public final class PostgresSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 32: break;
           case 13:
-            { return tt.getTokenType("VARIABLE");
+            { return tt.variable;
             }
           // fall through
           case 33: break;
@@ -7997,7 +7997,7 @@ public final class PostgresSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 36: break;
           case 17:
-            { return tt.getTokenType("FUNCTION");
+            { return tt.function;
             }
           // fall through
           case 37: break;
@@ -8011,12 +8011,12 @@ public final class PostgresSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 38: break;
           case 19:
-            { return tt.getTokenType("DATA_TYPE");
+            { return tt.dataType;
             }
           // fall through
           case 39: break;
           case 20:
-            { return tt.getTokenType("PARAMETER");
+            { return tt.parameter;
             }
           // fall through
           case 40: break;
