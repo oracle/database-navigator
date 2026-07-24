@@ -38,6 +38,7 @@ DELETE|reserved
 DESC
 DETACH
 DISTINCT|reserved
+DO
 DROP|reserved
 EXCLUDE
 EACH
@@ -85,6 +86,7 @@ MATERIALIZED|reserved
 NATURAL|reserved
 NO
 NOT|reserved
+NOTHING
 NOTNULL|reserved
 NULL|reserved
 OF
