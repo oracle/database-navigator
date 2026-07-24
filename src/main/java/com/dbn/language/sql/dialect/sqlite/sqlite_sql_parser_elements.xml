@@ -1492,7 +1492,7 @@
         </one-of>
     </element-def>
     <element-def description="Simple expression" id="simple_expression">
-        <one-of id="00781" sortable="true">
+        <one-of id="00781">
             <qualified-identifier id="00782" separator="CHR_DOT">
                 <variant>
                     <object-ref id="00783" local="true" optional="true" type="SCHEMA" />
@@ -1581,7 +1581,7 @@
     </element-def>
     <element-def description="CASE expression" id="case_expression">
         <token id="00825" type-id="KW_CASE" />
-        <one-of id="00826" sortable="true">
+        <one-of id="00826">
             <sequence id="00827">
                 <element ref-id="expr" />
                 <iteration exit="true" id="00828">
@@ -1667,7 +1667,7 @@
         </wrapper>
     </element-def>
     <element-def description="Expression list" id="expression_list">
-        <one-of id="00865" sortable="true">
+        <one-of id="00865">
             <iteration id="00866" separator="CHR_COMMA">
                 <element ref-id="expr" />
             </iteration>

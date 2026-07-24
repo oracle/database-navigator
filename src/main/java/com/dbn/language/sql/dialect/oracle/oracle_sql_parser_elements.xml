@@ -79,7 +79,7 @@
             </variant>
         </qualified-identifier>
         <iteration id="00008">
-            <one-of id="00009" sortable="true">
+            <one-of id="00009">
                 <element ref-id="physical_attributes_clause" />
                 <sequence id="00010">
                     <token id="00011" type-id="KW_SIZE" />
@@ -97,7 +97,7 @@
         <token id="00014" type-id="KW_STORAGE" />
         <wrapper id="00015" template="PARENTHESES">
             <iteration id="00016">
-                <one-of id="00017" sortable="true">
+                <one-of id="00017">
                     <sequence id="00018">
                         <token id="00019" type-id="KW_INITIAL" />
                         <element ref-id="size_clause" />
@@ -403,7 +403,7 @@
         <token id="00197" type-id="KW_ALTER" />
         <token id="00198" type-id="KW_DATABASE" />
         <object-ref attributes="SUBJECT" id="00199" optional="true" type="DATABASE" />
-        <one-of id="00200" sortable="true">
+        <one-of id="00200">
             <element ref-id="startup_clause" />
             <element ref-id="recovery_clause" />
             <element ref-id="database_file_clause" />
@@ -453,7 +453,7 @@
         </one-of>
     </element-def>
     <element-def description="Recovery clause" id="recovery_clause">
-        <one-of id="00225" sortable="true">
+        <one-of id="00225">
             <element ref-id="general_recovery" />
             <element ref-id="managed_standby_recovery" />
             <sequence id="00226">
@@ -474,7 +474,7 @@
         </sequence>
         <one-of id="00236">
             <sequence id="00237">
-                <one-of id="00238" sortable="true">
+                <one-of id="00238">
                     <element ref-id="full_database_recovery" />
                     <element ref-id="partial_database_recovery" />
                     <sequence id="00239">
@@ -578,7 +578,7 @@
         <token id="00300" type-id="KW_MANAGED" />
         <token id="00301" type-id="KW_STANDBY" />
         <token id="00302" type-id="KW_DATABASE" />
-        <one-of id="00303" optional="true" sortable="true">
+        <one-of id="00303" optional="true">
             <element ref-id="recover_clause" />
             <element ref-id="cancel_clause" />
             <element ref-id="finish_clause" />
@@ -586,7 +586,7 @@
     </element-def>
     <element-def attributes="CLAUSE" description="Recover clause" id="recover_clause">
         <iteration id="00304">
-            <one-of id="00305" sortable="true">
+            <one-of id="00305">
                 <sequence id="00306">
                     <token id="00307" type-id="KW_DISCONNECT" />
                     <sequence id="00308" optional="true">
@@ -690,7 +690,7 @@
         </sequence>
     </element-def>
     <element-def attributes="CLAUSE" description="Database file clause" id="database_file_clause">
-        <one-of id="00376" sortable="true">
+        <one-of id="00376">
             <sequence id="00377">
                 <token id="00378" type-id="KW_RENAME" />
                 <token id="00379" type-id="KW_FILE" />
@@ -732,7 +732,7 @@
                 <token id="00399" original-name="filenumber" type-id="INTEGER" />
             </one-of>
         </iteration>
-        <one-of id="00400" sortable="true">
+        <one-of id="00400">
             <token id="00401" type-id="KW_ONLINE" />
             <sequence id="00402">
                 <token id="00403" type-id="KW_OFFLINE" />
@@ -760,7 +760,7 @@
                 <token id="00416" original-name="filenumber" type-id="INTEGER" />
             </one-of>
         </iteration>
-        <one-of id="00417" sortable="true">
+        <one-of id="00417">
             <sequence id="00418">
                 <token id="00419" type-id="KW_RESIZE" />
                 <element ref-id="size_clause" />
@@ -778,7 +778,7 @@
         </one-of>
     </element-def>
     <element-def attributes="CLAUSE" description="Logfile clause" id="logfile_clause">
-        <one-of id="00427" sortable="true">
+        <one-of id="00427">
             <sequence id="00428">
                 <token id="00429" type-id="KW_ARCHIVELOG" />
                 <token id="00430" optional="true" type-id="KW_MANUAL" />
@@ -819,7 +819,7 @@
         <token id="00451" type-id="KW_ADD" />
         <token id="00452" optional="true" type-id="KW_STANDBY" />
         <token id="00453" type-id="KW_LOGFILE" />
-        <one-of id="00454" sortable="true">
+        <one-of id="00454">
             <sequence id="00455">
                 <one-of id="00456" optional="true">
                     <sequence id="00457">
@@ -860,7 +860,7 @@
         <token id="00476" type-id="KW_DROP" />
         <token id="00477" optional="true" type-id="KW_STANDBY" />
         <token id="00478" type-id="KW_LOGFILE" />
-        <one-of id="00479" sortable="true">
+        <one-of id="00479">
             <iteration id="00480" separator="CHR_COMMA">
                 <element ref-id="logfile_descriptor" />
             </iteration>
@@ -959,7 +959,7 @@
         </one-of>
     </element-def>
     <element-def attributes="CLAUSE" description="STANDBY DATABASE clause" id="standby_database_clause">
-        <one-of id="00540" sortable="true">
+        <one-of id="00540">
             <element ref-id="activate_standby_db_clause" />
             <element ref-id="maximize_standby_db_clause" />
             <element ref-id="register_logfile_clause" />
@@ -1090,7 +1090,7 @@
         <token id="00624" type-id="KW_APPLY" />
     </element-def>
     <element-def attributes="CLAUSE" description="DEFAULT SETTINGS clause" id="default_settings_clause">
-        <one-of id="00625" sortable="true">
+        <one-of id="00625">
             <sequence id="00626">
                 <token id="00627" type-id="KW_SET" />
                 <token exit="true" id="00628" type-id="KW_DEFAULT" />
@@ -1242,7 +1242,7 @@
             <iteration id="00715">
                 <sequence id="00716">
                     <token id="00717" type-id="KW_ADD" />
-                    <one-of id="00718" sortable="true">
+                    <one-of id="00718">
                         <element ref-id="level_clause" />
                         <element ref-id="hierarchy_clause" />
                         <element ref-id="attribute_clause" />
@@ -1290,7 +1290,7 @@
         <token id="00743" type-id="KW_LEVEL" />
         <object-def id="00744" type="DIMENSION_LEVEL" />
         <token id="00745" type-id="KW_IS" />
-        <one-of id="00746" sortable="true">
+        <one-of id="00746">
             <qualified-identifier id="00747" separator="CHR_DOT">
                 <variant>
                     <object-ref id="00748" original-name="level_table" type="TABLE" />
@@ -1331,7 +1331,7 @@
             <sequence id="00766">
                 <token id="00767" type-id="KW_JOIN" />
                 <token id="00768" type-id="KW_KEY" />
-                <one-of id="00769" sortable="true">
+                <one-of id="00769">
                     <object-ref id="00770" original-name="child_key_column" type="COLUMN" />
                     <wrapper id="00771" template="PARENTHESES">
                         <iteration id="00772" separator="CHR_COMMA">
@@ -1351,7 +1351,7 @@
                 <token id="00778" type-id="KW_ATTRIBUTE" />
                 <object-ref id="00779" type="DIMENSION_LEVEL" />
                 <token id="00780" type-id="KW_DETERMINES" />
-                <one-of id="00781" sortable="true">
+                <one-of id="00781">
                     <object-ref id="00782" original-name="dependent_column" type="COLUMN" />
                     <wrapper id="00783" template="PARENTHESES">
                         <iteration id="00784" separator="CHR_COMMA">
@@ -1370,7 +1370,7 @@
                 <token id="00790" type-id="KW_LEVEL" />
                 <object-ref id="00791" type="DIMENSION_LEVEL" />
                 <token id="00792" type-id="KW_DETERMINES" />
-                <one-of id="00793" sortable="true">
+                <one-of id="00793">
                     <object-ref id="00794" original-name="dependent_column" type="COLUMN" />
                     <wrapper id="00795" template="PARENTHESES">
                         <iteration id="00796" separator="CHR_COMMA">
@@ -4575,7 +4575,7 @@
 
     <element-def description="Object properties" id="object_properties">
         <iteration separator="CHR_COMMA" id="02709">
-            <one-of id="02710" sortable="true">
+            <one-of id="02710">
                 <sequence id="02711">
                     <qualified-identifier separator="CHR_DOT" id="02712">
                         <variant><object-ref type="COLUMN" original-name="column" id="02713" /></variant>
@@ -9963,7 +9963,7 @@
     </element-def>
     <element-def attributes="CLAUSE" description="ON object clause" id="on_object_clause">
         <token id="05644" type-id="KW_ON" />
-        <one-of id="05645" sortable="true">
+        <one-of id="05645">
             <qualified-identifier id="05646" separator="CHR_DOT">
                 <variant>
                     <object-ref id="05647" optional="true" type="SCHEMA" />
@@ -10159,7 +10159,7 @@
         </iteration>
     </element-def>
     <element-def description="DML table expression clause" id="dml_table_expression_clause">
-        <one-of id="05739" sortable="true">
+        <one-of id="05739">
             <sequence id="05740">
                 <qualified-identifier id="05741" separator="CHR_DOT">
                     <variant>
@@ -10712,7 +10712,7 @@
         </one-of>
     </element-def>
     <element-def description="Query table expression" id="query_table_expression">
-        <one-of id="05996" sortable="true">
+        <one-of id="05996">
             <wrapper id="05997" template="PARENTHESES">
                 <sequence id="05998">
                     <element ref-id="subquery" />
@@ -10789,7 +10789,7 @@
         </wrapper>
     </element-def>
     <element-def description="Collection expression" id="collection_expression">
-        <one-of id="06027" sortable="true">
+        <one-of id="06027">
             <element ref-id="subquery" />
             <element ref-id="expression_list" />
             <alias-ref id="06028" type="COLUMN" />
@@ -10839,7 +10839,7 @@
     </element-def>
     <element-def attributes="SPECIFIC" custom="true" description="INNER JOIN clause" id="inner_join_clause">
         <element ref-id="table_reference" />
-        <one-of id="06048" sortable="true">
+        <one-of id="06048">
             <sequence id="06049">
                 <token id="06050" type-id="KW_ON" />
                 <element ref-id="condition" />
@@ -10860,7 +10860,7 @@
         <token id="06056" type-id="KW_JOIN" />
         <element ref-id="table_reference" />
         <element optional="true" ref-id="query_partition_clause" />
-        <one-of id="06057" optional="true" sortable="true">
+        <one-of id="06057" optional="true">
             <sequence id="06058">
                 <token id="06059" type-id="KW_ON" />
                 <element ref-id="condition" />
@@ -10876,7 +10876,7 @@
         </one-of>
     </element-def>
     <element-def description="OUTER JOIN type" id="outer_join_type">
-        <one-of id="06065" sortable="true">
+        <one-of id="06065">
             <token id="06066" type-id="KW_FULL" />
             <token id="06067" type-id="KW_LEFT" />
             <token id="06068" type-id="KW_RIGHT" />
@@ -10955,7 +10955,7 @@
         <token id="06100" type-id="KW_GROUP" />
         <token id="06101" type-id="KW_BY" />
         <iteration formatting-indent="NORMAL" id="06102" separator="CHR_COMMA">
-            <one-of id="06103" sortable="true">
+            <one-of id="06103">
                 <element ref-id="expression" />
                 <element ref-id="rollup_cube_clause" />
                 <element ref-id="grouping_sets_clause" />
@@ -10979,7 +10979,7 @@
         <token id="06109" type-id="KW_SETS" />
         <wrapper id="06110" template="PARENTHESES">
             <iteration id="06111" separator="CHR_COMMA">
-                <one-of id="06112" sortable="true">
+                <one-of id="06112">
                     <element ref-id="rollup_cube_clause" />
                     <element original-name="grouping_expression_list" ref-id="wrapped_expression_list" />
                 </one-of>
@@ -10996,7 +10996,7 @@
         <element ref-id="main_model" />
     </element-def>
     <element-def attributes="CLAUSE" description="UNION INTERSECT MINUS clause" id="union_intersect_minus_clause">
-        <one-of id="06115" sortable="true">
+        <one-of id="06115">
             <sequence id="06116">
                 <token id="06117" type-id="KW_UNION" />
                 <token id="06118" optional="true" type-id="KW_ALL" />
@@ -11016,7 +11016,7 @@
         </sequence>
         <sequence id="06126" optional="true">
             <token id="06127" type-id="KW_UNIQUE" />
-            <one-of id="06128" sortable="true">
+            <one-of id="06128">
                 <token id="06129" type-id="KW_DIMENSION" />
                 <sequence id="06130">
                     <token id="06131" type-id="KW_SINGLE" />
@@ -11120,9 +11120,9 @@
     <element-def description="Cell assignment" id="cell_assignment">
         <element ref-id="measure_column" />
         <token exit="true" id="06177" type-id="CHR_LEFT_BRACKET" />
-        <one-of id="06178" sortable="true">
+        <one-of id="06178">
             <iteration id="06179" separator="CHR_COMMA">
-                <one-of id="06180" sortable="true">
+                <one-of id="06180">
                     <element ref-id="condition" />
                     <element ref-id="expression" />
                     <element ref-id="single_column_for_loop" />
@@ -11135,11 +11135,11 @@
     <element-def description="Single column FOR loop" id="single_column_for_loop">
         <token id="06182" type-id="KW_FOR" />
         <element exit="true" ref-id="dimension_column" />
-        <one-of id="06183" sortable="true">
+        <one-of id="06183">
             <sequence id="06184">
                 <token id="06185" type-id="KW_IN" />
                 <wrapper id="06186" template="PARENTHESES">
-                    <one-of id="06187" sortable="true">
+                    <one-of id="06187">
                         <iteration id="06188" separator="CHR_COMMA">
                             <token id="06189" original-name="literal" type-id="STRING" />
                         </iteration>
@@ -11174,7 +11174,7 @@
                 <wrapper id="06205" template="PARENTHESES">
                     <token id="06206" type-id="KW_IN" />
                 </wrapper>
-                <one-of id="06207" sortable="true">
+                <one-of id="06207">
                     <element ref-id="subquery" />
                     <iteration id="06208" separator="CHR_COMMA">
                         <wrapper id="06209" template="PARENTHESES">
@@ -11199,7 +11199,7 @@
         <token id="06217" type-id="KW_BY" />
         <iteration formatting-indent="NORMAL" id="06218" separator="CHR_COMMA">
             <sequence id="06219">
-                <one-of id="06220" sortable="true">
+                <one-of id="06220">
                     <element ref-id="expression" />
                     <token id="06221" original-name="position" type-id="INTEGER" />
                     <alias-ref id="06222" original-name="c_alias" type="COLUMN" />
@@ -11728,7 +11728,7 @@
         </one-of>
     </element-def>
     <element-def description="Simple expression" id="simple_expression">
-        <one-of id="06470" sortable="true">
+        <one-of id="06470">
             <token id="06471" type-id="CHR_STAR" />
             <token id="06472" type-id="KW_ROWNUM" />
             <token id="06473" type-id="KW_LEVEL" />
@@ -11919,7 +11919,7 @@
 
     <element-def attributes="FOLDABLE_BLOCK" description="CASE expression" id="case_expression">
         <token id="06578" type-id="KW_CASE" />
-        <one-of id="06579" sortable="true">
+        <one-of id="06579">
             <element ref-id="simple_case_expression" />
             <element ref-id="searched_case_expression" />
         </one-of>
@@ -11975,13 +11975,13 @@
         </one-of>
     </element-def>
     <element-def description="Model expression" id="model_expression">
-        <one-of id="06602" sortable="true">
+        <one-of id="06602">
             <element ref-id="measure_column" />
             <element ref-id="aggregate_function" />
         </one-of>
         <token exit="true" id="06603" type-id="CHR_LEFT_BRACKET" />
         <iteration id="06604" separator="CHR_COMMA">
-            <one-of id="06605" sortable="true">
+            <one-of id="06605">
                 <element ref-id="condition" />
                 <element ref-id="expression" />
             </one-of>
@@ -12231,7 +12231,7 @@
                                     <sequence id="06728" original-name="in_condition">
                                         <token id="06729" type-id="KW_IN" />
                                         <wrapper id="06730" template="PARENTHESES">
-                                            <one-of id="06731" sortable="true">
+                                            <one-of id="06731">
                                                 <iteration id="06732" separator="CHR_COMMA">
                                                     <element ref-id="expression" />
                                                 </iteration>
@@ -12285,7 +12285,7 @@
                                 <token id="06760" optional="true" type-id="KW_NOT" />
                                 <token exit="true" id="06761" type-id="KW_IN" />
                                 <wrapper id="06762" template="PARENTHESES">
-                                    <one-of id="06763" sortable="true">
+                                    <one-of id="06763">
                                         <element ref-id="expression_list" />
                                         <element ref-id="subquery" />
                                     </one-of>

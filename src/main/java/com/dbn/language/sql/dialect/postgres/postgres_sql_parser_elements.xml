@@ -9188,7 +9188,7 @@
                 <iteration id="05466" optional="true">
                     <one-of id="05467">
                         <wrapper id="05468" template="BRACKETS">
-                            <one-of optional="true" id="05469" sortable="true">
+                            <one-of optional="true" id="05469">
                                 <element ref-id="expression_list" />
                                 <sequence id="05470">
                                     <element optional="true" ref-id="expression" />
@@ -9315,7 +9315,7 @@
         </wrapper>
     </element-def>
     <element-def description="Array constructor expression" id="array_constructor_expression">
-        <one-of sortable="true" id="05515">
+        <one-of id="05515">
             <sequence id="05516">
                 <token flavor="keyword" type-id="DT_ARRAY" id="05517" />
                 <wrapper template="PARENTHESES" id="05518">
@@ -9336,7 +9336,7 @@
         </wrapper>
     </element-def>
     <element-def description="Simple expression" id="simple_expression">
-        <one-of id="05523" sortable="true">
+        <one-of id="05523">
             <element ref-id="box_constructor_expression" />
             <element ref-id="array_constructor_expression" />
             <element ref-id="row_constructor_expression" />
@@ -9407,7 +9407,7 @@
         </one-of>
         <iteration id="05561" optional="true">
             <wrapper id="05562" template="BRACKETS">
-                <one-of optional="true" id="05563" sortable="true">
+                <one-of optional="true" id="05563">
                     <element ref-id="expression_list" />
                     <sequence id="05564">
                         <element optional="true" ref-id="expression" />

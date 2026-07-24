@@ -5828,7 +5828,7 @@
                 <token optional="true" type-id="KW_NOT" id="03067" />
                 <token type-id="KW_IN" id="03068" />
                 <wrapper template="PARENTHESES" id="03069">
-                    <one-of sortable="true" id="03070">
+                    <one-of id="03070">
                         <element ref-id="expression_list" />
                         <element ref-id="subquery" />
                     </one-of>
@@ -5888,7 +5888,7 @@
 
     <!-- ========= simple expression ========= -->
     <element-def description="Simple expression" id="simple_expression" optional-wrapping="PARENTHESES">
-        <one-of sortable="true" id="03092">
+        <one-of id="03092">
             <sequence id="03093">
                 <one-of id="03094">
                     <token type-id="CHR_PLUS" id="03095" />
@@ -5965,7 +5965,7 @@
                 </wrapper>
             </sequence>
             <wrapper template="PARENTHESES" id="03137">
-                <one-of sortable="true" id="03138">
+                <one-of id="03138">
                     <element ref-id="expr" />
                     <element ref-id="subquery" />
                 </one-of>
