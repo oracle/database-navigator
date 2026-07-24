@@ -274,7 +274,7 @@
                 </one-of>
                 <token id="00104" type-id="KW_JOIN" />
                 <element ref-id="table_or_subquery" />
-                <element ref-id="join_constraint" />
+                <element optional="true" ref-id="join_constraint" />
             </sequence>
         </iteration>
     </element-def>
