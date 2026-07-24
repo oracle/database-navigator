@@ -46,13 +46,14 @@ CHARSET ="armscii8"|"ascii"|"big5"|"binary"|"cp1250"|"cp1251"|"cp1256"|"cp1257"|
 
 string_simple_quoted      = "'"([^\']|"''"|{WHITE_SPACE})*"'"?
 STRING = ("n"|"_"{CHARSET})?{wso}{string_simple_quoted}
+BLOB = ("x"|"X")"'"([0-9a-fA-F][0-9a-fA-F])*"'"
 
 sign = "+"|"-"
 digit = [0-9]
-INTEGER = {digit}+("e"{sign}?{digit}+)?
+INTEGER = ("0x"|"0X")[0-9a-fA-F]+|{digit}+("e"{sign}?{digit}+)?
 NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 
-VARIABLE = ":"({IDENTIFIER}|{INTEGER})
+VARIABLE = "?"{digit}*|(":"|"@"|"$")({IDENTIFIER}|{INTEGER})
 
 %state DIV
 %%
@@ -62,21 +63,31 @@ VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 {BLOCK_COMMENT}  { return stt.blockComment; }
 {LINE_COMMENT}   { return stt.lineComment; }
 
+"UTF-8"          { return tt.getCharacterTokenType(27); }
+"UTF-16le"       { return tt.getCharacterTokenType(29); }
+"UTF-16be"       { return tt.getCharacterTokenType(30); }
+"UTF-16"         { return tt.getCharacterTokenType(28); }
+
 {VARIABLE}       { return stt.variable; }
 {INTEGER}        { return stt.integer; }
 {NUMBER}         { return stt.number; }
+{BLOB}           { return stt.string; }
 {STRING}         { return stt.string; }
 
-"="{wso}"="      { return tt.getOperatorTokenType(0); }
-"|"{wso}"|"      { return tt.getOperatorTokenType(1); }
-"<"{wso}"="      { return tt.getOperatorTokenType(2); }
-">"{wso}"="      { return tt.getOperatorTokenType(3); }
-"<"{wso}">"      { return tt.getOperatorTokenType(4); }
-"!"{wso}"="      { return tt.getOperatorTokenType(5); }
-":"{wso}"="      { return tt.getOperatorTokenType(6); }
-"="{wso}">"      { return tt.getOperatorTokenType(7); }
+"=="             { return tt.getOperatorTokenType(0); }
+"||"             { return tt.getOperatorTokenType(1); }
+"<="             { return tt.getOperatorTokenType(2); }
+">="             { return tt.getOperatorTokenType(3); }
+"<>"             { return tt.getOperatorTokenType(4); }
+"!="             { return tt.getOperatorTokenType(5); }
+":="             { return tt.getOperatorTokenType(6); }
+"=>"             { return tt.getOperatorTokenType(7); }
 ".."             { return tt.getOperatorTokenType(8); }
 "::"             { return tt.getOperatorTokenType(9); }
+"->>"            { return tt.getOperatorTokenType(23); }
+"->"             { return tt.getOperatorTokenType(22); }
+"<<"             { return tt.getOperatorTokenType(17); }
+">>"             { return tt.getOperatorTokenType(18); }
 
 "("{wso}"+"{wso}")"  {return tt.getTokenType("CT_OUTER_JOIN");}
 
@@ -102,6 +113,8 @@ VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 "/" {return tt.getCharacterTokenType(19);}
 "*" {return tt.getCharacterTokenType(20);}
 "|" {return tt.getCharacterTokenType(21);}
+"&" {return tt.getCharacterTokenType(22);}
+"~" {return tt.getCharacterTokenType(23);}
 
 
 
@@ -117,14 +130,14 @@ VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 "datetime" {return tt.dtt(6);}
 "decimal" {return tt.dtt(7);}
 "double" {return tt.dtt(8);}
-"double"{ws}"precision" {return tt.dtt(9);}
+"double precision" {return tt.dtt(9);}
 "float" {return tt.dtt(10);}
 "int" {return tt.dtt(11);}
 "int2" {return tt.dtt(12);}
 "int8" {return tt.dtt(13);}
 "integer" {return tt.dtt(14);}
 "mediumint" {return tt.dtt(15);}
-"native"{ws}"character" {return tt.dtt(16);}
+"native character" {return tt.dtt(16);}
 "nchar" {return tt.dtt(17);}
 "numeric" {return tt.dtt(18);}
 "nvarchar" {return tt.dtt(19);}
@@ -133,9 +146,9 @@ VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 "text" {return tt.dtt(22);}
 "time" {return tt.dtt(23);}
 "tinyint" {return tt.dtt(24);}
-"unsigned"{ws}"big"{ws}"int" {return tt.dtt(25);}
+"unsigned big int" {return tt.dtt(25);}
 "varchar" {return tt.dtt(26);}
-"varying"{ws}"character" {return tt.dtt(27);}
+"varying character" {return tt.dtt(27);}
 // MARKER_END_DATATYPES
 
 
@@ -143,258 +156,386 @@ VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 
 // MARKER_BEGIN_KEYWORDS
 "abort" {return tt.ktt(0);}
-"action" {return tt.ktt(1);}
-"add" {return tt.ktt(2);}
-"after" {return tt.ktt(3);}
-"all" {return tt.ktt(4);}
-"alter" {return tt.ktt(5);}
-"analyze" {return tt.ktt(6);}
-"and" {return tt.ktt(7);}
-"as" {return tt.ktt(8);}
-"asc" {return tt.ktt(9);}
-"attach" {return tt.ktt(10);}
-"autoincrement" {return tt.ktt(11);}
-"before" {return tt.ktt(12);}
-"begin" {return tt.ktt(13);}
-"between" {return tt.ktt(14);}
-"by" {return tt.ktt(15);}
-"cascade" {return tt.ktt(16);}
-"case" {return tt.ktt(17);}
-"cast" {return tt.ktt(18);}
-"check" {return tt.ktt(19);}
-"collate" {return tt.ktt(20);}
-"column" {return tt.ktt(21);}
-"commit" {return tt.ktt(22);}
-"conflict" {return tt.ktt(23);}
-"constraint" {return tt.ktt(24);}
-"create" {return tt.ktt(25);}
-"cross" {return tt.ktt(26);}
-"current_date" {return tt.ktt(27);}
-"current_time" {return tt.ktt(28);}
-"current_timestamp" {return tt.ktt(29);}
-"database" {return tt.ktt(30);}
-"default" {return tt.ktt(31);}
-"deferrable" {return tt.ktt(32);}
-"deferred" {return tt.ktt(33);}
-"delete" {return tt.ktt(34);}
-"desc" {return tt.ktt(35);}
-"detach" {return tt.ktt(36);}
-"distinct" {return tt.ktt(37);}
-"drop" {return tt.ktt(38);}
-"each" {return tt.ktt(39);}
-"else" {return tt.ktt(40);}
-"end" {return tt.ktt(41);}
-"escape" {return tt.ktt(42);}
-"except" {return tt.ktt(43);}
-"exclusive" {return tt.ktt(44);}
-"exists" {return tt.ktt(45);}
-"explain" {return tt.ktt(46);}
-"fail" {return tt.ktt(47);}
-"for" {return tt.ktt(48);}
-"foreign" {return tt.ktt(49);}
-"from" {return tt.ktt(50);}
-"full" {return tt.ktt(51);}
-"glob" {return tt.ktt(52);}
-"group" {return tt.ktt(53);}
-"having" {return tt.ktt(54);}
-"if" {return tt.ktt(55);}
-"ignore" {return tt.ktt(56);}
-"immediate" {return tt.ktt(57);}
-"in" {return tt.ktt(58);}
-"index" {return tt.ktt(59);}
-"indexed" {return tt.ktt(60);}
-"initially" {return tt.ktt(61);}
-"inner" {return tt.ktt(62);}
-"insert" {return tt.ktt(63);}
-"instead" {return tt.ktt(64);}
-"intersect" {return tt.ktt(65);}
-"into" {return tt.ktt(66);}
-"is" {return tt.ktt(67);}
-"isnull" {return tt.ktt(68);}
-"join" {return tt.ktt(69);}
-"key" {return tt.ktt(70);}
-"left" {return tt.ktt(71);}
-"like" {return tt.ktt(72);}
-"limit" {return tt.ktt(73);}
-"match" {return tt.ktt(74);}
-"natural" {return tt.ktt(75);}
-"no" {return tt.ktt(76);}
-"not" {return tt.ktt(77);}
-"notnull" {return tt.ktt(78);}
-"null" {return tt.ktt(79);}
-"of" {return tt.ktt(80);}
-"off" {return tt.ktt(81);}
-"offset" {return tt.ktt(82);}
-"on" {return tt.ktt(83);}
-"or" {return tt.ktt(84);}
-"order" {return tt.ktt(85);}
-"outer" {return tt.ktt(86);}
-"plan" {return tt.ktt(87);}
-"pragma" {return tt.ktt(88);}
-"primary" {return tt.ktt(89);}
-"query" {return tt.ktt(90);}
-"raise" {return tt.ktt(91);}
-"recursive" {return tt.ktt(92);}
-"references" {return tt.ktt(93);}
-"regexp" {return tt.ktt(94);}
-"reindex" {return tt.ktt(95);}
-"release" {return tt.ktt(96);}
-"rename" {return tt.ktt(97);}
-"replace" {return tt.ktt(98);}
-"restrict" {return tt.ktt(99);}
-"right" {return tt.ktt(100);}
-"rollback" {return tt.ktt(101);}
-"row" {return tt.ktt(102);}
-"rowid" {return tt.ktt(103);}
-"savepoint" {return tt.ktt(104);}
-"select" {return tt.ktt(105);}
-"set" {return tt.ktt(106);}
-"table" {return tt.ktt(107);}
-"temp" {return tt.ktt(108);}
-"temporary" {return tt.ktt(109);}
-"then" {return tt.ktt(110);}
-"to" {return tt.ktt(111);}
-"transaction" {return tt.ktt(112);}
-"trigger" {return tt.ktt(113);}
-"union" {return tt.ktt(114);}
-"unique" {return tt.ktt(115);}
-"update" {return tt.ktt(116);}
-"using" {return tt.ktt(117);}
-"vacuum" {return tt.ktt(118);}
-"values" {return tt.ktt(119);}
-"view" {return tt.ktt(120);}
-"virtual" {return tt.ktt(121);}
-"when" {return tt.ktt(122);}
-"where" {return tt.ktt(123);}
-"with" {return tt.ktt(124);}
-"without" {return tt.ktt(125);}
+"always" {return tt.ktt(1);}
+"action" {return tt.ktt(2);}
+"add" {return tt.ktt(3);}
+"after" {return tt.ktt(4);}
+"all" {return tt.ktt(5);}
+"alter" {return tt.ktt(6);}
+"analyze" {return tt.ktt(7);}
+"and" {return tt.ktt(8);}
+"as" {return tt.ktt(9);}
+"asc" {return tt.ktt(10);}
+"attach" {return tt.ktt(11);}
+"autoincrement" {return tt.ktt(12);}
+"before" {return tt.ktt(13);}
+"begin" {return tt.ktt(14);}
+"between" {return tt.ktt(15);}
+"by" {return tt.ktt(16);}
+"cascade" {return tt.ktt(17);}
+"case" {return tt.ktt(18);}
+"cast" {return tt.ktt(19);}
+"check" {return tt.ktt(20);}
+"collate" {return tt.ktt(21);}
+"column" {return tt.ktt(22);}
+"commit" {return tt.ktt(23);}
+"conflict" {return tt.ktt(24);}
+"constraint" {return tt.ktt(25);}
+"create" {return tt.ktt(26);}
+"cross" {return tt.ktt(27);}
+"current_date" {return tt.ktt(28);}
+"current_time" {return tt.ktt(29);}
+"current_timestamp" {return tt.ktt(30);}
+"current" {return tt.ktt(31);}
+"database" {return tt.ktt(32);}
+"default" {return tt.ktt(33);}
+"deferrable" {return tt.ktt(34);}
+"deferred" {return tt.ktt(35);}
+"delete" {return tt.ktt(36);}
+"desc" {return tt.ktt(37);}
+"detach" {return tt.ktt(38);}
+"distinct" {return tt.ktt(39);}
+"do" {return tt.ktt(40);}
+"drop" {return tt.ktt(41);}
+"exclude" {return tt.ktt(42);}
+"each" {return tt.ktt(43);}
+"else" {return tt.ktt(44);}
+"end" {return tt.ktt(45);}
+"escape" {return tt.ktt(46);}
+"except" {return tt.ktt(47);}
+"exclusive" {return tt.ktt(48);}
+"exists" {return tt.ktt(49);}
+"explain" {return tt.ktt(50);}
+"expressions" {return tt.ktt(51);}
+"fail" {return tt.ktt(52);}
+"file" {return tt.ktt(53);}
+"false" {return tt.ktt(54);}
+"first" {return tt.ktt(55);}
+"filter" {return tt.ktt(56);}
+"for" {return tt.ktt(57);}
+"foreign" {return tt.ktt(58);}
+"following" {return tt.ktt(59);}
+"from" {return tt.ktt(60);}
+"full" {return tt.ktt(61);}
+"last" {return tt.ktt(62);}
+"generated" {return tt.ktt(63);}
+"glob" {return tt.ktt(64);}
+"group" {return tt.ktt(65);}
+"groups" {return tt.ktt(66);}
+"having" {return tt.ktt(67);}
+"if" {return tt.ktt(68);}
+"ignore" {return tt.ktt(69);}
+"immediate" {return tt.ktt(70);}
+"in" {return tt.ktt(71);}
+"index" {return tt.ktt(72);}
+"indexed" {return tt.ktt(73);}
+"initially" {return tt.ktt(74);}
+"inner" {return tt.ktt(75);}
+"incremental" {return tt.ktt(76);}
+"insert" {return tt.ktt(77);}
+"instead" {return tt.ktt(78);}
+"intersect" {return tt.ktt(79);}
+"into" {return tt.ktt(80);}
+"is" {return tt.ktt(81);}
+"isnull" {return tt.ktt(82);}
+"join" {return tt.ktt(83);}
+"key" {return tt.ktt(84);}
+"left" {return tt.ktt(85);}
+"like" {return tt.ktt(86);}
+"limit" {return tt.ktt(87);}
+"match" {return tt.ktt(88);}
+"materialized" {return tt.ktt(89);}
+"memory" {return tt.ktt(90);}
+"natural" {return tt.ktt(91);}
+"n" {return tt.ktt(92);}
+"no" {return tt.ktt(93);}
+"none" {return tt.ktt(94);}
+"not" {return tt.ktt(95);}
+"nothing" {return tt.ktt(96);}
+"notnull" {return tt.ktt(97);}
+"normal" {return tt.ktt(98);}
+"null" {return tt.ktt(99);}
+"nulls" {return tt.ktt(100);}
+"of" {return tt.ktt(101);}
+"off" {return tt.ktt(102);}
+"offset" {return tt.ktt(103);}
+"on" {return tt.ktt(104);}
+"or" {return tt.ktt(105);}
+"order" {return tt.ktt(106);}
+"others" {return tt.ktt(107);}
+"outer" {return tt.ktt(108);}
+"over" {return tt.ktt(109);}
+"passive" {return tt.ktt(110);}
+"persist" {return tt.ktt(111);}
+"partition" {return tt.ktt(112);}
+"plan" {return tt.ktt(113);}
+"pragma" {return tt.ktt(114);}
+"preceding" {return tt.ktt(115);}
+"primary" {return tt.ktt(116);}
+"query" {return tt.ktt(117);}
+"raise" {return tt.ktt(118);}
+"recursive" {return tt.ktt(119);}
+"references" {return tt.ktt(120);}
+"range" {return tt.ktt(121);}
+"regexp" {return tt.ktt(122);}
+"reindex" {return tt.ktt(123);}
+"release" {return tt.ktt(124);}
+"rename" {return tt.ktt(125);}
+"replace" {return tt.ktt(126);}
+"restrict" {return tt.ktt(127);}
+"restart" {return tt.ktt(128);}
+"returning" {return tt.ktt(129);}
+"right" {return tt.ktt(130);}
+"rollback" {return tt.ktt(131);}
+"rows" {return tt.ktt(132);}
+"row" {return tt.ktt(133);}
+"rowid" {return tt.ktt(134);}
+"savepoint" {return tt.ktt(135);}
+"select" {return tt.ktt(136);}
+"set" {return tt.ktt(137);}
+"strict" {return tt.ktt(138);}
+"stored" {return tt.ktt(139);}
+"table" {return tt.ktt(140);}
+"temp" {return tt.ktt(141);}
+"temporary" {return tt.ktt(142);}
+"then" {return tt.ktt(143);}
+"ties" {return tt.ktt(144);}
+"to" {return tt.ktt(145);}
+"transaction" {return tt.ktt(146);}
+"trigger" {return tt.ktt(147);}
+"true" {return tt.ktt(148);}
+"truncate" {return tt.ktt(149);}
+"union" {return tt.ktt(150);}
+"unique" {return tt.ktt(151);}
+"unbounded" {return tt.ktt(152);}
+"update" {return tt.ktt(153);}
+"using" {return tt.ktt(154);}
+"vacuum" {return tt.ktt(155);}
+"values" {return tt.ktt(156);}
+"window" {return tt.ktt(157);}
+"view" {return tt.ktt(158);}
+"virtual" {return tt.ktt(159);}
+"wal" {return tt.ktt(160);}
+"when" {return tt.ktt(161);}
+"where" {return tt.ktt(162);}
+"with" {return tt.ktt(163);}
+"without" {return tt.ktt(164);}
+"yes" {return tt.ktt(165);}
 // MARKER_END_KEYWORDS
 
 
 
 // MARKER_BEGIN_FUNCTIONS
 "abs" {return tt.ftt(0);}
-"avg" {return tt.ftt(1);}
-"changes" {return tt.ftt(2);}
-"char" {return tt.ftt(3);}
-"coalesce" {return tt.ftt(4);}
-"count" {return tt.ftt(5);}
-"group_concat" {return tt.ftt(6);}
-"hex" {return tt.ftt(7);}
-"ifnull" {return tt.ftt(8);}
-"instr" {return tt.ftt(9);}
-"json" {return tt.ftt(10);}
-"json_array" {return tt.ftt(11);}
-"json_array_length" {return tt.ftt(12);}
-"json_extract" {return tt.ftt(13);}
-"json_insert" {return tt.ftt(14);}
-"json_object" {return tt.ftt(15);}
-"json_remove" {return tt.ftt(16);}
-"json_replace" {return tt.ftt(17);}
-"json_set" {return tt.ftt(18);}
-"json_type" {return tt.ftt(19);}
-"json_valid" {return tt.ftt(20);}
-"julianday" {return tt.ftt(21);}
-"last_insert_rowid" {return tt.ftt(22);}
-"length" {return tt.ftt(23);}
-"likelihood" {return tt.ftt(24);}
-"likely" {return tt.ftt(25);}
-"load_extension" {return tt.ftt(26);}
-"lower" {return tt.ftt(27);}
-"ltrim" {return tt.ftt(28);}
-"max" {return tt.ftt(29);}
-"min" {return tt.ftt(30);}
-"nullif" {return tt.ftt(31);}
-"printf" {return tt.ftt(32);}
-"quote" {return tt.ftt(33);}
-"random" {return tt.ftt(34);}
-"randomblob" {return tt.ftt(35);}
-"round" {return tt.ftt(36);}
-"rtrim" {return tt.ftt(37);}
-"soundex" {return tt.ftt(38);}
-"sqlite_compileoption_get" {return tt.ftt(39);}
-"sqlite_compileoption_used" {return tt.ftt(40);}
-"sqlite_source_id" {return tt.ftt(41);}
-"sqlite_version" {return tt.ftt(42);}
-"strftime" {return tt.ftt(43);}
-"substr" {return tt.ftt(44);}
-"sum" {return tt.ftt(45);}
-"total" {return tt.ftt(46);}
-"total_changes" {return tt.ftt(47);}
-"trim" {return tt.ftt(48);}
-"typeof" {return tt.ftt(49);}
-"unicode" {return tt.ftt(50);}
-"unlikely" {return tt.ftt(51);}
-"upper" {return tt.ftt(52);}
-"zeroblob" {return tt.ftt(53);}
+"acos" {return tt.ftt(1);}
+"acosh" {return tt.ftt(2);}
+"asin" {return tt.ftt(3);}
+"asinh" {return tt.ftt(4);}
+"atan" {return tt.ftt(5);}
+"atan2" {return tt.ftt(6);}
+"atanh" {return tt.ftt(7);}
+"avg" {return tt.ftt(8);}
+"ceil" {return tt.ftt(9);}
+"ceiling" {return tt.ftt(10);}
+"changes" {return tt.ftt(11);}
+"char" {return tt.ftt(12);}
+"coalesce" {return tt.ftt(13);}
+"concat" {return tt.ftt(14);}
+"concat_ws" {return tt.ftt(15);}
+"cos" {return tt.ftt(16);}
+"cosh" {return tt.ftt(17);}
+"count" {return tt.ftt(18);}
+"cume_dist" {return tt.ftt(19);}
+"degrees" {return tt.ftt(20);}
+"dense_rank" {return tt.ftt(21);}
+"exp" {return tt.ftt(22);}
+"first_value" {return tt.ftt(23);}
+"floor" {return tt.ftt(24);}
+"format" {return tt.ftt(25);}
+"group_concat" {return tt.ftt(26);}
+"hex" {return tt.ftt(27);}
+"ifnull" {return tt.ftt(28);}
+"iif" {return tt.ftt(29);}
+"instr" {return tt.ftt(30);}
+"json" {return tt.ftt(31);}
+"jsonb" {return tt.ftt(32);}
+"jsonb_array" {return tt.ftt(33);}
+"jsonb_array_insert" {return tt.ftt(34);}
+"jsonb_each" {return tt.ftt(35);}
+"jsonb_extract" {return tt.ftt(36);}
+"jsonb_group_array" {return tt.ftt(37);}
+"jsonb_group_object" {return tt.ftt(38);}
+"jsonb_insert" {return tt.ftt(39);}
+"jsonb_object" {return tt.ftt(40);}
+"jsonb_patch" {return tt.ftt(41);}
+"jsonb_remove" {return tt.ftt(42);}
+"jsonb_replace" {return tt.ftt(43);}
+"jsonb_set" {return tt.ftt(44);}
+"jsonb_tree" {return tt.ftt(45);}
+"json_array" {return tt.ftt(46);}
+"json_array_insert" {return tt.ftt(47);}
+"json_array_length" {return tt.ftt(48);}
+"json_each" {return tt.ftt(49);}
+"json_error_position" {return tt.ftt(50);}
+"json_extract" {return tt.ftt(51);}
+"json_group_array" {return tt.ftt(52);}
+"json_group_object" {return tt.ftt(53);}
+"json_insert" {return tt.ftt(54);}
+"json_object" {return tt.ftt(55);}
+"json_patch" {return tt.ftt(56);}
+"json_pretty" {return tt.ftt(57);}
+"json_remove" {return tt.ftt(58);}
+"json_replace" {return tt.ftt(59);}
+"json_set" {return tt.ftt(60);}
+"json_tree" {return tt.ftt(61);}
+"json_type" {return tt.ftt(62);}
+"json_valid" {return tt.ftt(63);}
+"julianday" {return tt.ftt(64);}
+"lag" {return tt.ftt(65);}
+"last_insert_rowid" {return tt.ftt(66);}
+"last_value" {return tt.ftt(67);}
+"lead" {return tt.ftt(68);}
+"length" {return tt.ftt(69);}
+"likelihood" {return tt.ftt(70);}
+"likely" {return tt.ftt(71);}
+"ln" {return tt.ftt(72);}
+"load_extension" {return tt.ftt(73);}
+"log" {return tt.ftt(74);}
+"log10" {return tt.ftt(75);}
+"log2" {return tt.ftt(76);}
+"lower" {return tt.ftt(77);}
+"ltrim" {return tt.ftt(78);}
+"max" {return tt.ftt(79);}
+"median" {return tt.ftt(80);}
+"min" {return tt.ftt(81);}
+"mod" {return tt.ftt(82);}
+"nth_value" {return tt.ftt(83);}
+"ntile" {return tt.ftt(84);}
+"nullif" {return tt.ftt(85);}
+"octet_length" {return tt.ftt(86);}
+"percentile" {return tt.ftt(87);}
+"percentile_cont" {return tt.ftt(88);}
+"percentile_disc" {return tt.ftt(89);}
+"percent_rank" {return tt.ftt(90);}
+"pi" {return tt.ftt(91);}
+"pow" {return tt.ftt(92);}
+"power" {return tt.ftt(93);}
+"printf" {return tt.ftt(94);}
+"quote" {return tt.ftt(95);}
+"radians" {return tt.ftt(96);}
+"random" {return tt.ftt(97);}
+"randomblob" {return tt.ftt(98);}
+"rank" {return tt.ftt(99);}
+"round" {return tt.ftt(100);}
+"row_number" {return tt.ftt(101);}
+"rtrim" {return tt.ftt(102);}
+"sign" {return tt.ftt(103);}
+"sin" {return tt.ftt(104);}
+"sinh" {return tt.ftt(105);}
+"soundex" {return tt.ftt(106);}
+"sqlite_compileoption_get" {return tt.ftt(107);}
+"sqlite_compileoption_used" {return tt.ftt(108);}
+"sqlite_offset" {return tt.ftt(109);}
+"sqlite_source_id" {return tt.ftt(110);}
+"sqlite_version" {return tt.ftt(111);}
+"sqrt" {return tt.ftt(112);}
+"strftime" {return tt.ftt(113);}
+"string_agg" {return tt.ftt(114);}
+"substr" {return tt.ftt(115);}
+"substring" {return tt.ftt(116);}
+"sum" {return tt.ftt(117);}
+"tan" {return tt.ftt(118);}
+"tanh" {return tt.ftt(119);}
+"timediff" {return tt.ftt(120);}
+"total" {return tt.ftt(121);}
+"total_changes" {return tt.ftt(122);}
+"trim" {return tt.ftt(123);}
+"trunc" {return tt.ftt(124);}
+"typeof" {return tt.ftt(125);}
+"unhex" {return tt.ftt(126);}
+"unicode" {return tt.ftt(127);}
+"unistr" {return tt.ftt(128);}
+"unistr_quote" {return tt.ftt(129);}
+"unixepoch" {return tt.ftt(130);}
+"unlikely" {return tt.ftt(131);}
+"upper" {return tt.ftt(132);}
+"zeroblob" {return tt.ftt(133);}
 // MARKER_END_FUNCTIONS
 
 
 // MARKER_BEGIN_PARAMETERS
-"application_id" {return tt.ptt(0);}
-"automatic_index" {return tt.ptt(1);}
-"auto_vacuum" {return tt.ptt(2);}
-"busy_timeout" {return tt.ptt(3);}
-"cache_size" {return tt.ptt(4);}
-"cache_spill" {return tt.ptt(5);}
-"case_sensitive_like" {return tt.ptt(6);}
-"cell_size_check" {return tt.ptt(7);}
-"checkpoint_fullfsync" {return tt.ptt(8);}
-"collation_list" {return tt.ptt(9);}
-"compile_options" {return tt.ptt(10);}
-"count_changes" {return tt.ptt(11);}
-"database_list" {return tt.ptt(12);}
-"data_store_directory" {return tt.ptt(13);}
-"data_version" {return tt.ptt(14);}
-"default_cache_size" {return tt.ptt(15);}
-"defer_foreign_keys" {return tt.ptt(16);}
-"empty_result_callbacks" {return tt.ptt(17);}
-"encoding" {return tt.ptt(18);}
-"foreign_keys" {return tt.ptt(19);}
-"foreign_key_check" {return tt.ptt(20);}
-"foreign_key_list" {return tt.ptt(21);}
-"freelist_count" {return tt.ptt(22);}
-"fullfsync" {return tt.ptt(23);}
-"full_column_names" {return tt.ptt(24);}
-"ignore_check_constraints" {return tt.ptt(25);}
-"incremental_vacuum" {return tt.ptt(26);}
-"index_info" {return tt.ptt(27);}
-"index_list" {return tt.ptt(28);}
-"index_xinfo" {return tt.ptt(29);}
-"integrity_check" {return tt.ptt(30);}
-"journal_mode" {return tt.ptt(31);}
-"journal_size_limit" {return tt.ptt(32);}
-"legacy_file_format" {return tt.ptt(33);}
-"locking_mode" {return tt.ptt(34);}
-"max_page_count" {return tt.ptt(35);}
-"mmap_size" {return tt.ptt(36);}
-"page_count" {return tt.ptt(37);}
-"page_size" {return tt.ptt(38);}
-"parser_trace" {return tt.ptt(39);}
-"query_only" {return tt.ptt(40);}
-"quick_check" {return tt.ptt(41);}
-"read_uncommitted" {return tt.ptt(42);}
-"recursive_triggers" {return tt.ptt(43);}
-"reverse_unordered_selects" {return tt.ptt(44);}
-"schema_version" {return tt.ptt(45);}
-"secure_delete" {return tt.ptt(46);}
-"short_column_names" {return tt.ptt(47);}
-"shrink_memory" {return tt.ptt(48);}
-"soft_heap_limit" {return tt.ptt(49);}
-"stats" {return tt.ptt(50);}
-"synchronous" {return tt.ptt(51);}
-"table_info" {return tt.ptt(52);}
-"temp_store" {return tt.ptt(53);}
-"temp_store_directory" {return tt.ptt(54);}
-"threads" {return tt.ptt(55);}
-"user_version" {return tt.ptt(56);}
-"vdbe_addoptrace" {return tt.ptt(57);}
-"vdbe_debug" {return tt.ptt(58);}
-"vdbe_listing" {return tt.ptt(59);}
-"vdbe_trace" {return tt.ptt(60);}
-"wal_autocheckpoint" {return tt.ptt(61);}
-"wal_checkpoint" {return tt.ptt(62);}
-"writable_schema" {return tt.ptt(63);}
+"analysis_limit" {return tt.ptt(0);}
+"application_id" {return tt.ptt(1);}
+"automatic_index" {return tt.ptt(2);}
+"auto_vacuum" {return tt.ptt(3);}
+"busy_timeout" {return tt.ptt(4);}
+"cache_size" {return tt.ptt(5);}
+"cache_spill" {return tt.ptt(6);}
+"case_sensitive_like" {return tt.ptt(7);}
+"cell_size_check" {return tt.ptt(8);}
+"checkpoint_fullfsync" {return tt.ptt(9);}
+"collation_list" {return tt.ptt(10);}
+"compile_options" {return tt.ptt(11);}
+"count_changes" {return tt.ptt(12);}
+"database_list" {return tt.ptt(13);}
+"data_store_directory" {return tt.ptt(14);}
+"data_version" {return tt.ptt(15);}
+"default_cache_size" {return tt.ptt(16);}
+"defer_foreign_keys" {return tt.ptt(17);}
+"empty_result_callbacks" {return tt.ptt(18);}
+"encoding" {return tt.ptt(19);}
+"foreign_keys" {return tt.ptt(20);}
+"foreign_key_check" {return tt.ptt(21);}
+"foreign_key_list" {return tt.ptt(22);}
+"freelist_count" {return tt.ptt(23);}
+"fullfsync" {return tt.ptt(24);}
+"full_column_names" {return tt.ptt(25);}
+"function_list" {return tt.ptt(26);}
+"hard_heap_limit" {return tt.ptt(27);}
+"ignore_check_constraints" {return tt.ptt(28);}
+"incremental_vacuum" {return tt.ptt(29);}
+"index_info" {return tt.ptt(30);}
+"index_list" {return tt.ptt(31);}
+"index_xinfo" {return tt.ptt(32);}
+"integrity_check" {return tt.ptt(33);}
+"journal_mode" {return tt.ptt(34);}
+"journal_size_limit" {return tt.ptt(35);}
+"legacy_file_format" {return tt.ptt(36);}
+"locking_mode" {return tt.ptt(37);}
+"max_page_count" {return tt.ptt(38);}
+"mmap_size" {return tt.ptt(39);}
+"module_list" {return tt.ptt(40);}
+"optimize" {return tt.ptt(41);}
+"page_count" {return tt.ptt(42);}
+"page_size" {return tt.ptt(43);}
+"parser_trace" {return tt.ptt(44);}
+"pragma_list" {return tt.ptt(45);}
+"query_only" {return tt.ptt(46);}
+"quick_check" {return tt.ptt(47);}
+"read_uncommitted" {return tt.ptt(48);}
+"recursive_triggers" {return tt.ptt(49);}
+"reverse_unordered_selects" {return tt.ptt(50);}
+"schema_version" {return tt.ptt(51);}
+"secure_delete" {return tt.ptt(52);}
+"short_column_names" {return tt.ptt(53);}
+"shrink_memory" {return tt.ptt(54);}
+"soft_heap_limit" {return tt.ptt(55);}
+"stats" {return tt.ptt(56);}
+"synchronous" {return tt.ptt(57);}
+"table_info" {return tt.ptt(58);}
+"table_list" {return tt.ptt(59);}
+"temp_store" {return tt.ptt(60);}
+"temp_store_directory" {return tt.ptt(61);}
+"threads" {return tt.ptt(62);}
+"trusted_schema" {return tt.ptt(63);}
+"user_version" {return tt.ptt(64);}
+"vdbe_addoptrace" {return tt.ptt(65);}
+"vdbe_debug" {return tt.ptt(66);}
+"vdbe_listing" {return tt.ptt(67);}
+"vdbe_trace" {return tt.ptt(68);}
+"wal_autocheckpoint" {return tt.ptt(69);}
+"wal_checkpoint" {return tt.ptt(70);}
+"writable_schema" {return tt.ptt(71);}
 // MARKER_END_PARAMETERS
 
 

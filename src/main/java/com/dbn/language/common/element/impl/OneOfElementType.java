@@ -19,8 +19,6 @@ package com.dbn.language.common.element.impl;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.ElementTypeCache;
-import com.dbn.language.common.element.cache.ElementTypeIndexedCache;
 import com.dbn.language.common.element.cache.OneOfElementTypeCache;
 import com.dbn.language.common.element.extension.OneOfElementTypeExtension;
 import com.dbn.language.common.element.parser.BranchCheck;
@@ -33,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -48,11 +45,7 @@ public class OneOfElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
     public boolean basic;
     public boolean sortable;
-    /**
-     * Legacy one-of tree rewrite flag. Trie-based parser extensions supersede this path.
-     */
-    @Deprecated(forRemoval = true)
-    public boolean ambiguous;
+
     public OneOfElementTypeExtension extension;
 
     public OneOfElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
@@ -61,33 +54,6 @@ public class OneOfElementType extends ElementTypeBase {
 
     public OneOfElementType(ElementTypeBase parent, String id) {
         super(parent.bundle, parent, id);
-    }
-
-    void setElements(Collection<? extends ElementTypeBase> elements) {
-        children = new ElementTypeRef[elements.size()];
-
-        int index = 0;
-        for (ElementTypeBase element : elements) {
-            element.parent = this;
-            children[index] = new ElementTypeRef(element);
-            index++;
-        }
-        linkElements(children);
-        initLookupCache();
-    }
-
-    @SuppressWarnings("unchecked")
-    private void initLookupCache() {
-        ElementTypeIndexedCache cache = (ElementTypeIndexedCache) this.cache;
-        for (ElementTypeRef child : children) {
-            ElementTypeBase elementType = child.elementType;
-            ElementTypeCache<?> elementTypeCache = elementType.cache;
-            cache.firstPossibleLeafs.addAll(elementTypeCache.getFirstPossibleLeafs());
-            cache.firstRequiredLeafs.addAll(elementTypeCache.getFirstRequiredLeafs());
-            cache.allPossibleTokens.addAll(elementTypeCache.getAllPossibleTokens());
-            cache.firstPossibleTokens.addAll(elementTypeCache.getFirstPossibleTokens());
-            cache.firstRequiredTokens.addAll(elementTypeCache.getFirstRequiredTokens());
-        }
     }
 
     @Override
@@ -131,7 +97,6 @@ public class OneOfElementType extends ElementTypeBase {
                 this.children[i] = new ElementTypeRef(elementType, false, version, branchChecks);
             }
             sortable = getBooleanAttribute(def, "sortable");
-            loadLegacyAmbiguousAttribute(def);
         }
 
         if (children == null || children.length == 0) {
@@ -139,19 +104,6 @@ public class OneOfElementType extends ElementTypeBase {
             throw new ElementTypeDefinitionException("[" + getLanguageDialect().getID() + "] Invalid one-of definition (id=" + getId() + "). Element should contain at least 2 elements.");
         }
         linkElements(children);
-    }
-
-    private void loadLegacyAmbiguousAttribute(Element def) {
-        if (!bundle.legacyParser) {
-            ambiguous = false;
-            if (ElementTypeBundle.Builder.rebuilding && stringAttribute(def, "ambiguous") != null) {
-                def.removeAttribute("ambiguous");
-                bundle.getBuilder().setDirty(true);
-            }
-            return;
-        }
-
-        ambiguous = getBooleanAttribute(def, "ambiguous");
     }
 
     @Override

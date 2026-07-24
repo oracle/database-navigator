@@ -48,6 +48,10 @@
         <token category="character" index="24" id="CHR_CARET" value="^"/>
         <token category="character" index="25" id="CHR_QUESTION_MARK" value="?"/>
         <token category="character" index="26" id="CHR_BACKTICK" value="`"/>
+        <token category="character" index="27" id="CHRS_UTF_8" value="UTF-8"/>
+        <token category="character" index="28" id="CHRS_UTF_16" value="UTF-16"/>
+        <token category="character" index="29" id="CHRS_UTF_16LE" value="UTF-16le"/>
+        <token category="character" index="30" id="CHRS_UTF_16BE" value="UTF-16be"/>
 
 
         <token category="operator" index="0" id="OPR_EQUAL_EQUAL" value="==" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
@@ -72,6 +76,8 @@
         <token category="operator" index="19" id="OPR_AT_AT" value="@@" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
         <token category="operator" index="20" id="OPR_AND_AND" value="&#38;&#38;" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
         <token category="operator" index="21" id="OPR_GENERIC" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token category="operator" index="22" id="OPR_JSON_EXTRACT" value="-&gt;" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token category="operator" index="23" id="OPR_JSON_EXTRACT_TEXT" value="-&gt;&gt;" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
 
 
 
@@ -97,7 +103,7 @@
         <token-set id="COMMENTS">LINE_COMMENT, BLOCK_COMMENT</token-set>
         <token-set id="IDENTIFIERS">IDENTIFIER</token-set>
         <token-set id="NUMBERS">INTEGER, NUMBER</token-set>
-        <token-set id="OPERATORS">OPR_CONCATENATION, OPR_ASSIGNMENT, OPR_RANGE_DOTS, OPR_CAST_PREFIX, OPR_GENERIC</token-set>
+        <token-set id="OPERATORS">OPR_CONCATENATION, OPR_ASSIGNMENT, OPR_RANGE_DOTS, OPR_CAST_PREFIX, OPR_GENERIC, OPR_JSON_EXTRACT, OPR_JSON_EXTRACT_TEXT</token-set>
         <token-set id="STRINGS">STRING</token-set>
         <token-set id="VARIABLES">VARIABLE</token-set>
     </token-sets>

@@ -77,7 +77,7 @@ SQL_DATATYPE = "bigint"|"binary"|"bit"|"blob"|"bool"|"boolean"|"char"|"date"|"da
 %state DIV
 %%
 
-{VARIABLE}           { return tt.getTokenType("VARIABLE"); }
+{VARIABLE}           { return tt.variable; }
 
 {WHITE_SPACE}+       { return stt.whiteSpace; }
 
@@ -88,12 +88,12 @@ SQL_DATATYPE = "bigint"|"binary"|"bit"|"blob"|"bool"|"boolean"|"char"|"date"|"da
 {NUMBER}             { return stt.number; }
 {STRING}             { return stt.string; }
 
-{SQL_FUNCTION}       { return tt.getTokenType("FUNCTION");}
-{SQL_PARAMETER}      { return tt.getTokenType("PARAMETER");}
-{SQL_DATATYPE}       { return tt.getTokenType("DATA_TYPE"); }
-{SQL_KEYWORD}        { return tt.getTokenType("KEYWORD"); }
+{SQL_FUNCTION}       { return tt.function;}
+{SQL_PARAMETER}      { return tt.parameter;}
+{SQL_DATATYPE}       { return tt.dataType; }
+{SQL_KEYWORD}        { return tt.keyword; }
 
-{OPERATOR}           { return tt.getTokenType("OPERATOR"); }
+{OPERATOR}           { return tt.operator; }
 
 {IDENTIFIER}         { return stt.identifier; }
 {QUOTED_IDENTIFIER}  { return stt.identifier; }
