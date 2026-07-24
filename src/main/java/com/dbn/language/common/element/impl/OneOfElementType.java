@@ -30,21 +30,16 @@ import com.intellij.psi.PsiElement;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.Linked.linkElements;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.language.common.TokenTypeCategory.CHARACTER;
-import static com.dbn.language.common.TokenTypeCategory.IDENTIFIER;
 
 @Slf4j
 public class OneOfElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
     public boolean basic;
-    public boolean sortable;
 
     public OneOfElementTypeExtension extension;
 
@@ -71,7 +66,6 @@ public class OneOfElementType extends ElementTypeBase {
                 TokenElementType tokenElementType = new TokenElementType(this, tokenTypeId);
                 children[i] = new ElementTypeRef(tokenElementType);
             }
-            sortable = false;
         } else {
             List<Element> children = def.getChildren();
             this.children = new ElementTypeRef[children.size()];
@@ -96,7 +90,6 @@ public class OneOfElementType extends ElementTypeBase {
 
                 this.children[i] = new ElementTypeRef(elementType, false, version, branchChecks);
             }
-            sortable = getBooleanAttribute(def, "sortable");
         }
 
         if (children == null || children.length == 0) {
@@ -141,24 +134,6 @@ public class OneOfElementType extends ElementTypeBase {
         return new SequencePsiElement<>(astNode, this);
     }
 
-    public void sortChildren() {
-        if (!bundle.legacyParser) return;
-        if (!sortable) return;
-
-        Arrays.sort(children, ONE_OF_COMPARATOR);
-        linkElements(children);
-    }
-
-    private static final Comparator<ElementTypeRef> ONE_OF_COMPARATOR = (o1, o2) -> {
-        int i1 = o1.elementType.cache.startsWith(IDENTIFIER) ? 1 :
-                 o1.elementType.cache.startsWith(CHARACTER) ? 2 : 3;
-
-        int i2 = o2.elementType.cache.startsWith(IDENTIFIER) ? 1 :
-                 o2.elementType.cache.startsWith(CHARACTER) ? 2 : 3;
-
-        return i2-i1;
-    };
-
     public ElementTypeRef getFirstChild() {
         return children[0];
     }
@@ -185,6 +160,5 @@ public class OneOfElementType extends ElementTypeBase {
 
         // initialize children before this
         initChildren();
-        sortChildren();
     }
 }
