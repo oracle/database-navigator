@@ -356,6 +356,7 @@ The shared DTD should describe the real parser XML surface, not an idealized XML
 ## Review Checklist
 
 - Does the new grammar construct exist in another dialect with a reusable pattern?
+- After resolving the reported syntax gap, were adjacent forms in the same construct checked for missing operators, clauses, delimiters, nesting, or token-category collisions?
 - Do new `element-def` ids use lowercase underscored specification names and human-readable descriptions with SQL keywords uppercased?
 - Do overlapping alternatives have sufficient generated look-ahead to distinguish their first-token paths?
 - Is a repeated multi-token construct wrapped as a single child `sequence` inside `iteration`?
