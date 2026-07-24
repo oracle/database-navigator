@@ -141,7 +141,7 @@
         <node tt="STRING, KW_CURRENT_TIME, KW_CURRENT_DATE, KW_CURRENT_TIMESTAMP" pc="literal_value" />
         <node tt="KW_NULL" pc="literal_value, 00652" />
         <node tt="CHR_STAR" pc="00651, 00638" />
-        <node tt="CHR_MINUS, CHR_PLUS" pc="number" cc="01015, 01016" />
+        <node tt="CHR_MINUS, CHR_PLUS" pc="number" cc="01017, 01018" />
         <node tt="NUMBER, INTEGER" pc="number" />
         <node tt="IDENTIFIER" pc="00638, 00653, 00654">
             <node tt="CHR_DOT" pc="00638" cc="00640, 00641, 00643, 00646, 00648" />
@@ -352,8 +352,8 @@
         <node tt="OPR_JSON_EXTRACT" pc="00983" />
         <node tt="KW_NOT, KW_LIKE, KW_GLOB, KW_MATCH, KW_REGEXP" pc="00984" cc="00987, 00988, 00989, 00990" />
         <node tt="KW_COLLATE" pc="00991" />
-        <node tt="KW_IS" pc="00992" cc="00994" />
-        <node tt="OPR_CONCATENATION" pc="00995" />
+        <node tt="KW_IS" pc="is_operator" cc="00994, 00996" />
+        <node tt="OPR_CONCATENATION" pc="00992" />
         <node tt="CHR_EQUAL, CHR_LESS, CHR_GREATER, OPR_EQUAL_EQUAL, OPR_NOT_EQUAL, OPR_LESS_GREATER, OPR_LESS_EQUAL, OPR_GREATER_EQUAL" pc="comparison_operator" />
     </one-of-extension>
 </parser-element-extensions>
