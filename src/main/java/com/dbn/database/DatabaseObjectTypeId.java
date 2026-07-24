@@ -72,6 +72,7 @@ public enum DatabaseObjectTypeId implements Constant<DatabaseObjectTypeId> {
     MATERIALIZED_VIEW,
     METHOD,
     MODEL,
+    MODULE,
     MINING_MODEL,
     NESTED_TABLE,
     NESTED_TABLE_COLUMN,

@@ -219,6 +219,7 @@
         <token index="162" id="KW_WHERE" value="where" category="keyword" reserved="true"/>
         <token index="163" id="KW_WITH" value="with" category="keyword"/>
         <token index="164" id="KW_WITHOUT" value="without" category="keyword"/>
+        <token index="165" id="KW_YES" value="yes" category="keyword"/>
         <!-- MARKER_END_KEYWORDS -->
 
 

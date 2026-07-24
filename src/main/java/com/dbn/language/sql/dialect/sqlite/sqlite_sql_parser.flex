@@ -320,6 +320,7 @@ VARIABLE = "?"{digit}*|(":"|"@"|"$")({IDENTIFIER}|{INTEGER})
 "where" {return tt.ktt(162);}
 "with" {return tt.ktt(163);}
 "without" {return tt.ktt(164);}
+"yes" {return tt.ktt(165);}
 // MARKER_END_KEYWORDS
 
 
