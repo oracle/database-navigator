@@ -16,9 +16,12 @@
 
 package com.dbn.liquibase.operation;
 
+import com.dbn.common.environment.EnvironmentTypeId;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.task.LiquibaseTaskInput;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfileBundle;
 import com.dbn.liquibase.workspace.LiquibaseWorkspace;
 import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
@@ -39,6 +42,7 @@ import static com.dbn.liquibase.operation.LiquibaseFeature.SOURCE_SCHEMA;
 @Setter
 public class LiquibaseOperationInput extends LiquibaseTaskInput {
     private final LiquibaseWorkspaceBundle workspaces;
+    private final LiquibaseEnvironmentProfileBundle environmentProfiles;
     private final LiquibaseOperation operation;
 
     private DBObjectRef<DBSchema> sourceSchema;
@@ -59,6 +63,7 @@ public class LiquibaseOperationInput extends LiquibaseTaskInput {
 
         DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
         this.workspaces = liquibaseManager.getWorkspaces();
+        this.environmentProfiles = liquibaseManager.getEnvironmentProfiles();
         this.operation = operation;
     }
 
@@ -116,6 +121,16 @@ public class LiquibaseOperationInput extends LiquibaseTaskInput {
 
         if (connection == null) throw new IllegalStateException("No connection available");
         return connection;
+    }
+
+    @NotNull
+    public EnvironmentTypeId getEnvironmentTypeId() {
+        return getRelevantConnection().getEnvironmentType().getId();
+    }
+
+    @NotNull
+    public LiquibaseEnvironmentProfile getEnvironmentProfile() {
+        return environmentProfiles.getProfile(getEnvironmentTypeId());
     }
 
     @NotNull

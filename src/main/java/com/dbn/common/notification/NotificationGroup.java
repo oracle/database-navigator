@@ -16,10 +16,11 @@
 
 package com.dbn.common.notification;
 
+import com.dbn.common.index.Identifiable;
 import lombok.Getter;
 
 @Getter
-public enum NotificationGroup {
+public enum NotificationGroup implements Identifiable<String> {
     DEFAULT("DBNavigator.NotificationGroup.Default", "ntf.shared.title.DBNavigator"),
     PINNED("DBNavigator.NotificationGroup.Pinned", "ntf.shared.title.DBNavigatorPinned"),
     BROWSER("DBNavigator.NotificationGroup.Browser", "ntf.shared.title.DBNavigatorBrowser"),

@@ -58,7 +58,7 @@ import static com.dbn.liquibase.workspace.LiquibaseWorkspace.DEFAULT_ROOT_PATH;
 import static com.dbn.liquibase.workspace.LiquibaseWorkspace.DEFAULT_SQL_DIRECTORY;
 import static com.dbn.nls.NlsResources.txt;
 
-public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
+public class LiquibaseWorkspaceForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel hintPanel;
     private DBNHyperlinkLabel documentationLink;
@@ -77,21 +77,21 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
     private final LiquibaseWorkspace workspace;
     private final DatabaseType databaseType;
 
-    LiquibaseWorkspaceSettingsForm(@NotNull LiquibaseWorkspaceSettingsDialog parent) {
+    LiquibaseWorkspaceForm(@NotNull LiquibaseWorkspaceDialog parent) {
         this(parent,
                 parent.getWorkspaces(),
                 parent.getWorkspace(),
                 parent.getDatabaseType());
     }
 
-    LiquibaseWorkspaceSettingsForm(
+    LiquibaseWorkspaceForm(
             @NotNull DBNComponent parent,
             @NotNull LiquibaseWorkspaceBundle workspaces,
             @NotNull LiquibaseWorkspace workspace) {
         this(parent, workspaces, workspace, null);
     }
 
-    LiquibaseWorkspaceSettingsForm(
+    LiquibaseWorkspaceForm(
             @NotNull DBNComponent parent,
             @NotNull LiquibaseWorkspaceBundle workspaces,
             @NotNull LiquibaseWorkspace workspace,
@@ -183,7 +183,7 @@ public class LiquibaseWorkspaceSettingsForm extends DBNFormBase {
         workspace.setName(newName);
 
         Disposable parent = ensureParentComponent();
-        if (parent instanceof LiquibaseWorkspaceBundleSettingsForm bundleForm) {
+        if (parent instanceof LiquibaseWorkspacesForm bundleForm) {
             bundleForm.refreshWorkspaceList();
         }
     }

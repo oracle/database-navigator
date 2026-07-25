@@ -42,10 +42,12 @@ import com.dbn.liquibase.task.LiquibaseTaskResult;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowExecutor;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowInput;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfileBundle;
 import com.dbn.liquibase.workspace.LiquibaseWorkspace;
 import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
-import com.dbn.liquibase.workspace.ui.LiquibaseWorkspaceBundleSettingsDialog;
-import com.dbn.liquibase.workspace.ui.LiquibaseWorkspaceSettingsDialog;
+import com.dbn.liquibase.workspace.ui.LiquibaseEnvironmentProfilesDialog;
+import com.dbn.liquibase.workspace.ui.LiquibaseWorkspaceDialog;
+import com.dbn.liquibase.workspace.ui.LiquibaseWorkspacesDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -72,6 +74,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
 
     private final StateContainer states = new StateContainer();
     private final LiquibaseWorkspaceBundle workspaces;
+    private final LiquibaseEnvironmentProfileBundle environmentProfiles;
     private final LiquibaseExecutionHistory executionHistory = new LiquibaseExecutionHistory();
     private final Map<LiquibaseOperationResult, LiquibaseOperationContext> executionContexts = new ConcurrentHashMap<>();
     private final Map<LiquibaseWorkflowResult, LiquibaseWorkflowExecutor> workflowExecutors = new ConcurrentHashMap<>();
@@ -79,6 +82,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     private DatabaseLiquibaseManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
         workspaces = new LiquibaseWorkspaceBundle(project);
+        environmentProfiles = new LiquibaseEnvironmentProfileBundle(project);
         ProjectEvents.subscribe(project, this, ConnectionConfigListener.TOPIC,
                 whenRemoved(c -> executionHistory.removeConnection(c)));
     }
@@ -90,6 +94,11 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     @NotNull
     public LiquibaseWorkspaceBundle getWorkspaces() {
         return workspaces;
+    }
+
+    @NotNull
+    public LiquibaseEnvironmentProfileBundle getEnvironmentProfiles() {
+        return environmentProfiles;
     }
 
     @NotNull
@@ -119,8 +128,13 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     }
 
     public void openWorkspaceSettings() {
-        Dialogs.show(() -> new LiquibaseWorkspaceBundleSettingsDialog(workspaces),
+        Dialogs.show(() -> new LiquibaseWorkspacesDialog(workspaces),
                 whenOk(d -> workspaces.replaceWorkspaces(d.getWorkspaces())));
+    }
+
+    public void openEnvironmentProfiles() {
+        Dialogs.show(() -> new LiquibaseEnvironmentProfilesDialog(getProject(), environmentProfiles),
+                whenOk(d -> environmentProfiles.replaceProfiles(d.getBundle())));
     }
 
     public void cancelTask(@NotNull LiquibaseTaskResult<?, ?, ?> result) {
@@ -198,7 +212,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         workspace.setDatabaseType(databaseType);
 
         Dialogs.show(
-                () -> new LiquibaseWorkspaceSettingsDialog(
+                () -> new LiquibaseWorkspaceDialog(
                         workspaces,
                         workspace,
                         databaseType, true),
@@ -213,6 +227,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         Element element = newStateElement();
         states.writeState(element);
         workspaces.writeState(element, "workspaces");
+        environmentProfiles.writeState(element, "environment-profiles");
         executionHistory.writeState(element, "execution-history");
 
         return element;
@@ -222,6 +237,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     public void loadComponentState(@NotNull Element element) {
         states.readState(element);
         workspaces.readState(element, "workspaces");
+        environmentProfiles.readState(element, "environment-profiles");
         executionHistory.readState(element, "execution-history");
     }
 }

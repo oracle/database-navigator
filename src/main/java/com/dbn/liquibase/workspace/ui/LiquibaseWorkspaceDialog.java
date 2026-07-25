@@ -29,13 +29,13 @@ import javax.swing.Action;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
-public class LiquibaseWorkspaceSettingsDialog extends DBNDialog<LiquibaseWorkspaceSettingsForm> {
+public class LiquibaseWorkspaceDialog extends DBNDialog<LiquibaseWorkspaceForm> {
     private final LiquibaseWorkspaceBundle workspaces;
     private final LiquibaseWorkspace workspace;
     private final boolean newWorkspace;
     private final DatabaseType databaseType;
 
-    public LiquibaseWorkspaceSettingsDialog(
+    public LiquibaseWorkspaceDialog(
             LiquibaseWorkspaceBundle workspaces,
             LiquibaseWorkspace workspace,
             @Nullable DatabaseType databaseType,
@@ -51,8 +51,8 @@ public class LiquibaseWorkspaceSettingsDialog extends DBNDialog<LiquibaseWorkspa
 
     @NotNull
     @Override
-    protected LiquibaseWorkspaceSettingsForm createForm() {
-        return new LiquibaseWorkspaceSettingsForm(this);
+    protected LiquibaseWorkspaceForm createForm() {
+        return new LiquibaseWorkspaceForm(this);
     }
 
     @Override

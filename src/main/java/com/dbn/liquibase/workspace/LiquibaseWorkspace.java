@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.workspace;
 
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
@@ -40,7 +41,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
  */
 @Getter
 @Setter
-public class LiquibaseWorkspace implements PersistentStateElement, Presentable, Cloneable<LiquibaseWorkspace> {
+public class LiquibaseWorkspace implements PersistentStateElement, Presentable, Cloneable<LiquibaseWorkspace>, Identifiable<String> {
     public static final String DEFAULT_ROOT_PATH = "db/liquibase";
     public static final String DEFAULT_CHANGELOG_DIRECTORY = "changes";
     public static final String DEFAULT_SQL_DIRECTORY = "sql";
@@ -58,7 +59,6 @@ public class LiquibaseWorkspace implements PersistentStateElement, Presentable, 
     private String documentationDirectory = DEFAULT_DOCUMENTATION_DIRECTORY;
     private String masterChangelog = DEFAULT_MASTER_CHANGELOG;
     private String propertiesFile = DEFAULT_PROPERTIES_FILE;
-
     public boolean usesSameContentRoot(@NotNull LiquibaseWorkspace other) {
         return Objects.equals(contentRootPath, other.contentRootPath);
     }
@@ -99,6 +99,7 @@ public class LiquibaseWorkspace implements PersistentStateElement, Presentable, 
     @Override
     @SneakyThrows
     public LiquibaseWorkspace clone() {
-        return (LiquibaseWorkspace) super.clone();
+        LiquibaseWorkspace clone = (LiquibaseWorkspace) super.clone();
+        return clone;
     }
 }

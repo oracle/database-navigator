@@ -26,10 +26,10 @@ import javax.swing.JComponent;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Project-level Liquibase workspace overview for its named workspaces. */
-public class LiquibaseWorkspaceBundleSettingsDialog extends DBNDialog<LiquibaseWorkspaceBundleSettingsForm> {
+public class LiquibaseWorkspacesDialog extends DBNDialog<LiquibaseWorkspacesForm> {
     private final LiquibaseWorkspaceBundle workspaces;
 
-    public LiquibaseWorkspaceBundleSettingsDialog(LiquibaseWorkspaceBundle workspaces) {
+    public LiquibaseWorkspacesDialog(LiquibaseWorkspaceBundle workspaces) {
         super(workspaces.getProject(), txt("msg.liquibase.title.WorkspaceSettings"), true);
         this.workspaces = workspaces.clone();
         setDefaultSize(800, 600);
@@ -43,8 +43,8 @@ public class LiquibaseWorkspaceBundleSettingsDialog extends DBNDialog<LiquibaseW
 
     @NotNull
     @Override
-    protected LiquibaseWorkspaceBundleSettingsForm createForm() {
-        return new LiquibaseWorkspaceBundleSettingsForm(this);
+    protected LiquibaseWorkspacesForm createForm() {
+        return new LiquibaseWorkspacesForm(this);
     }
 
     @Override

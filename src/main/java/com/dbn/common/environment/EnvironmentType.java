@@ -17,6 +17,7 @@
 package com.dbn.common.environment;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.util.LookAndFeel;
@@ -47,7 +48,7 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class EnvironmentType implements Cloneable<EnvironmentType>, PersistentConfiguration, Presentable {
+public class EnvironmentType implements Cloneable<EnvironmentType>, PersistentConfiguration, Presentable, Identifiable<EnvironmentTypeId> {
 
     private static final Color DEFAULT_REGULAR_COLOR = Color.LIGHT_GRAY;
     private static final Color DEFAULT_DARK_COLOR = Color.DARK_GRAY;

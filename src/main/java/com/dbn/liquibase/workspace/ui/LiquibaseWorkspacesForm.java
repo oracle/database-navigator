@@ -18,8 +18,11 @@ package com.dbn.liquibase.workspace.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Strings;
 import com.dbn.liquibase.workspace.LiquibaseWorkspace;
 import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
@@ -31,24 +34,29 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.util.Map;
 
+import static com.dbn.common.ui.CardLayouts.addCard;
+import static com.dbn.common.ui.CardLayouts.getCard;
+import static com.dbn.common.ui.CardLayouts.removeCard;
+import static com.dbn.common.ui.CardLayouts.showCard;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
-import static com.dbn.common.ui.util.UserInterface.repaint;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Overview form for managing the named Liquibase workspaces in a project. */
-public class LiquibaseWorkspaceBundleSettingsForm extends DBNFormBase {
+public class LiquibaseWorkspacesForm extends DBNFormBase {
+    private static final String EMPTY_CARD = "DBN_LIQUIBASE_EMPTY_WORKSPACES";
     private JPanel mainPanel;
     private JPanel workspacesPanel;
     private JPanel detailsPanel;
     private JList<LiquibaseWorkspace> workspacesList;
 
     private final LiquibaseWorkspaceBundle workspaces;
-    private final Map<String, LiquibaseWorkspaceSettingsForm> workspaceForms = DisposableContainers.map(this);
+    private final Map<String, LiquibaseWorkspaceForm> workspaceForms = DisposableContainers.map(this);
 
-    LiquibaseWorkspaceBundleSettingsForm(LiquibaseWorkspaceBundleSettingsDialog parent) {
+    LiquibaseWorkspacesForm(LiquibaseWorkspacesDialog parent) {
         super(parent);
         workspaces = parent.getWorkspaces();
         workspacesList.setCellRenderer((list, value, index, selected, focus) -> {
@@ -62,8 +70,25 @@ public class LiquibaseWorkspaceBundleSettingsForm extends DBNFormBase {
         workspacesList.addListSelectionListener(e -> showSelectedWorkspace());
         workspacesPanel.removeAll();
         workspacesPanel.add(initWorkspacesList());
+        initDetailsPanel();
         updateWorkspaces();
-        if (workspacesList.getModel().getSize() > 0) workspacesList.setSelectedIndex(0);
+        if (workspacesList.getModel().getSize() > 0) {
+            workspacesList.setSelectedIndex(0);
+        } else {
+            showSelectedWorkspace();
+        }
+    }
+
+    private void initDetailsPanel() {
+        addCard(detailsPanel, createEmptyDetails(), EMPTY_CARD);
+    }
+
+    private JComponent createEmptyDetails() {
+        DBNHintForm hintForm = new DBNHintForm(this, TextContent.plain(txt("app.liquibase.hint.NoWorkspaces")), null, false);
+        JPanel hintPanel = new JPanel(new BorderLayout());
+        hintPanel.setBorder(Borders.insetBorder(0, 8,8,8));
+        hintPanel.add(hintForm.getComponent());
+        return hintPanel;
     }
 
     private JPanel initWorkspacesList() {
@@ -82,14 +107,18 @@ public class LiquibaseWorkspaceBundleSettingsForm extends DBNFormBase {
     }
 
     private void showSelectedWorkspace() {
-        detailsPanel.removeAll();
         LiquibaseWorkspace workspace = workspacesList.getSelectedValue();
-        if (workspace == null) return;
+        if (workspace == null) {
+            showCard(detailsPanel, EMPTY_CARD);
+            return;
+        }
 
         DBNForm workspaceForm = workspaceForms.computeIfAbsent(workspace.getId(), id ->
-                new LiquibaseWorkspaceSettingsForm(this, workspaces, workspace));
-        detailsPanel.add(workspaceForm.getComponent());
-        repaint(detailsPanel);
+                new LiquibaseWorkspaceForm(this, workspaces, workspace));
+        if (getCard(detailsPanel, workspace.getId()) == null) {
+            addCard(detailsPanel, workspaceForm, workspace.getId());
+        }
+        showCard(detailsPanel, workspace.getId());
     }
 
     void refreshWorkspaceList() {
@@ -106,10 +135,17 @@ public class LiquibaseWorkspaceBundleSettingsForm extends DBNFormBase {
     private void removeWorkspace() {
         LiquibaseWorkspace workspace = workspacesList.getSelectedValue();
         if (workspace == null) return;
+        int selectedIndex = workspacesList.getSelectedIndex();
         workspaces.removeWorkspace(workspace.getId());
         workspaceForms.remove(workspace.getId());
+        removeCard(detailsPanel, workspace.getId());
         updateWorkspaces();
-        if (!workspacesList.isSelectionEmpty()) showSelectedWorkspace();
+        int nextIndex = Math.min(selectedIndex, workspacesList.getModel().getSize() - 1);
+        if (nextIndex >= 0) {
+            workspacesList.setSelectedIndex(nextIndex);
+        } else {
+            showSelectedWorkspace();
+        }
         markFormChanged();
     }
 

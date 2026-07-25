@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data.filter;
 
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.connection.ConnectionId;
 import com.dbn.data.sorting.SortingState;
@@ -26,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
-public interface DatasetFilter extends UnnamedConfigurable, PersistentConfiguration {
+public interface DatasetFilter extends UnnamedConfigurable, PersistentConfiguration, Identifiable<String> {
     Icon getIcon();
     @NonNls
     @NotNull
