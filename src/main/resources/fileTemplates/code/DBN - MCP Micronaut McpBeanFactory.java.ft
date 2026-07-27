@@ -59,9 +59,18 @@ public class McpBeanFactory {
             pool.setUser(config.getUsername());
             pool.setPassword(config.getPassword());
         } else {
+            String walletDir = config.getWalletDir();
+            if (walletDir == null || walletDir.isBlank()) {
+                // no Graal env, no explicit credentials and no wallet: fail with a clear message
+                // rather than a NullPointerException from Path.of(null)
+                throw new IllegalStateException(
+                        "No database configuration found: expected either the Graal runtime "
+                                + "environment (" + ENV_DATABASE_URL + " and " + ENV_DB_TOKEN_LOCATION
+                                + "), explicit credentials, or a wallet directory in mcp-config.yml.");
+            }
             pool.setConnectionProperty(
                     OracleConnection.CONNECTION_PROPERTY_SEPS_WALLET_LOCATION,
-                    Path.of(config.getWalletDir()).toAbsolutePath().toString());
+                    Path.of(walletDir).toAbsolutePath().toString());
         }
         return pool;
     }
