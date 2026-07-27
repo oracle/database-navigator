@@ -91,8 +91,9 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
     protected @Nullable @Nls String getHint() {
         int size = getModelSize();
         if (size < 10) return null;
+        if (objectType == null) return null;
 
-        return txt("app.objects.hint.FilterObjectList", getObjectType().getListDisplayName());
+        return txt("app.objects.hint.FilterObjectList", objectType.getListDisplayName());
     }
 
     public DBObjectSelector<T> withConnectionContext(Supplier<ConnectionHandler> connectionContext) {
