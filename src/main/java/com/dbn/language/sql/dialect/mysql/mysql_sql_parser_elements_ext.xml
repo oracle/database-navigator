@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--Generated with LanguageSpecificationParserExtBuilder. Do not edit manually.-->
+<!--Generated with LanguageSpecificationParserExtensionBuilder. Do not edit manually.-->
 <!DOCTYPE parser-element-extensions SYSTEM "../../../common/definition/language-parser-elements-ext.dtd">
 
 <parser-element-extensions language="MYSQL-SQL" source="mysql_sql_parser_elements.xml" builder-version="2.1.0">
