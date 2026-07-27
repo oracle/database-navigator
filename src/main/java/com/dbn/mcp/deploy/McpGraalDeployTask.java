@@ -26,10 +26,12 @@ import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -45,6 +47,14 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @RequiredArgsConstructor
 public class McpGraalDeployTask {
+    // provisioning usually completes within a couple of minutes; poll generously before giving up
+    private static final long ACTIVATION_POLL_INTERVAL_MILLIS = 5_000;
+    private static final long ACTIVATION_TIMEOUT_MILLIS = 10 * 60 * 1_000L;
+    private static final long POLL_SLEEP_STEP_MILLIS = 200;
+    private static final @NonNls String STATE_ACTIVE = "ACTIVE";
+    private static final @NonNls String STATE_FAILED = "FAILED";
+    private static final @NonNls String STATE_PROVISIONING = "PROVISIONING";
+
     private final Project project;
     private final ConnectionRef connection;
     private final McpServerDefinition definition;
@@ -60,7 +70,9 @@ public class McpGraalDeployTask {
         if (!verifyDeployable()) return;
 
         Path sourceProjectDir = result.getSourceDirectory();
-        Progress.prompt(project, null, true,
+        // modal, not background: launched from the modal deployment dialog, a background
+        // indicator would sit in the status bar behind it and never be seen
+        Progress.modal(project, null, true,
                 txt("prc.mcp.title.DeployingToGraal"),
                 txt("prc.mcp.text.BuildingGraalImage"),
                 indicator -> {
@@ -111,17 +123,14 @@ public class McpGraalDeployTask {
 
         ConnectionHandler connectionHandler = ConnectionRef.ensure(connection);
         ConnectionAction.invoke(txt("msg.mcp.title.GraalDeployment"), true, connectionHandler,
-                action -> Progress.prompt(project, connectionHandler, true,
+                action -> Progress.modal(project, connectionHandler, true,
                         txt("prc.mcp.title.DeployingToGraal"),
                         txt("prc.mcp.text.CreatingGraalApplication"),
                         indicator -> {
             try {
-                new McpGraalApplicationManager(connection).createApplication(input);
-
-                showInfoDialog(project,
-                        txt("msg.mcp.title.GraalDeployment"),
-                        txt("msg.mcp.text.GraalApplicationCreated",
-                                input.getApplicationName(), input.getContainerImageOcid()));
+                McpGraalApplicationManager manager = new McpGraalApplicationManager(connection);
+                manager.createApplication(input);
+                reportActivation(manager, input, indicator);
             } catch (ProcessCanceledException e) {
                 throw e;
             } catch (Throwable e) {
@@ -130,6 +139,61 @@ public class McpGraalDeployTask {
                         txt("msg.mcp.error.GraalApplicationCreationFailed"), e);
             }
         }));
+    }
+
+    /**
+     * Polls the newly created application until it becomes ACTIVE (reporting its endpoint), fails,
+     * or the timeout elapses - keeping the progress indicator updated and honouring cancellation.
+     * Cancelling only stops watching; the application keeps provisioning on the service.
+     */
+    private void reportActivation(
+            McpGraalApplicationManager manager, McpGraalDeploymentInput input, ProgressIndicator indicator)
+            throws SQLException {
+
+        indicator.setText2(txt("prc.mcp.text.WaitingForGraalApplication"));
+        String name = input.getApplicationName();
+        long deadline = System.currentTimeMillis() + ACTIVATION_TIMEOUT_MILLIS;
+        String lastState = null;
+
+        while (System.currentTimeMillis() < deadline) {
+            indicator.checkCanceled();
+            McpGraalApplicationManager.ApplicationStatus status = manager.getApplicationStatus(name);
+            if (status != null && status.lifecycleState() != null) {
+                lastState = status.lifecycleState();
+                indicator.setText2(txt("prc.mcp.text.GraalApplicationState", lastState));
+
+                if (STATE_ACTIVE.equalsIgnoreCase(lastState)) {
+                    String endpoint = status.endpoint() == null ? "-" : status.endpoint();
+                    showInfoDialog(project, txt("msg.mcp.title.GraalDeployment"),
+                            txt("msg.mcp.text.GraalApplicationActive", name, endpoint));
+                    return;
+                }
+                if (STATE_FAILED.equalsIgnoreCase(lastState)) {
+                    showErrorDialog(project, txt("msg.mcp.title.GraalDeployment"),
+                            txt("msg.mcp.error.GraalApplicationFailedState", name));
+                    return;
+                }
+            }
+            sleep(ACTIVATION_POLL_INTERVAL_MILLIS, indicator);
+        }
+
+        // timed out while still provisioning: the application exists, it is just not ACTIVE yet
+        showInfoDialog(project, txt("msg.mcp.title.GraalDeployment"),
+                txt("msg.mcp.text.GraalApplicationPending", name,
+                        lastState == null ? STATE_PROVISIONING : lastState));
+    }
+
+    private static void sleep(long millis, ProgressIndicator indicator) {
+        long until = System.currentTimeMillis() + millis;
+        while (System.currentTimeMillis() < until) {
+            indicator.checkCanceled();
+            try {
+                Thread.sleep(POLL_SLEEP_STEP_MILLIS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new ProcessCanceledException(e);
+            }
+        }
     }
 
     private boolean verifyDeployable() {

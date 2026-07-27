@@ -22,10 +22,13 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.PooledConnection;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNCallableStatement;
+import com.dbn.connection.jdbc.DBNPreparedStatement;
+import com.dbn.connection.jdbc.DBNResultSet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 
@@ -65,7 +68,19 @@ final class McpGraalApplicationManager {
             "    ).item;\n" +
             "END;";
 
+    /**
+     * Reads the current lifecycle state and endpoint of an application by name. The column names
+     * match the list_all_applications result set (NAME, LIFECYCLE_STATE, ENDPOINT).
+     */
+    private static final @NonNls String GET_STATUS_STATEMENT =
+            "SELECT lifecycle_state, endpoint\n" +
+            "FROM TABLE(graalos.graalos_api_pkg.list_all_applications())\n" +
+            "WHERE name = ?";
+
     private final ConnectionRef connection;
+
+    /** A point-in-time snapshot of an application's provisioning state. */
+    record ApplicationStatus(@Nullable String lifecycleState, @Nullable String endpoint) {}
 
     void createApplication(@NotNull McpGraalDeploymentInput input) throws SQLException {
         ConnectionHandler connectionHandler = ConnectionRef.ensure(connection);
@@ -80,6 +95,31 @@ final class McpGraalApplicationManager {
                 statement.setString(2, input.getContainerImageOcid());
                 statement.execute();
             } finally {
+                Resources.close(statement);
+            }
+        });
+    }
+
+    /** Returns the application's current status, or null when it is not (yet) listed. */
+    @Nullable
+    ApplicationStatus getApplicationStatus(@NotNull String applicationName) throws SQLException {
+        ConnectionHandler connectionHandler = ConnectionRef.ensure(connection);
+        ConnectionContext context = new ConnectionContext(
+                connectionHandler.getProject(), connectionHandler.getConnectionId(), null);
+
+        return PooledConnection.call(context, conn -> {
+            DBNPreparedStatement<?> statement = null;
+            DBNResultSet resultSet = null;
+            try {
+                statement = conn.prepareStatement(GET_STATUS_STATEMENT);
+                statement.setString(1, applicationName);
+                resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    return new ApplicationStatus(resultSet.getString(1), resultSet.getString(2));
+                }
+                return null;
+            } finally {
+                Resources.close(resultSet);
                 Resources.close(statement);
             }
         });
