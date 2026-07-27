@@ -32,6 +32,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+
 /**
  * Creates the Graal application through the same database connection the MCP server was built
  * from. The application name and container image OCID are always bound as parameters - never
@@ -76,6 +78,23 @@ final class McpGraalApplicationManager {
             "SELECT lifecycle_state, endpoint\n" +
             "FROM TABLE(graalos.graalos_api_pkg.list_all_applications())\n" +
             "WHERE name = ?";
+
+    /**
+     * POC convenience: grant public read access to every table on the connection, so the
+     * application's own GRAAL_ database user can query the tool tables with no manual grant. Each
+     * table gets SELECT to PUBLIC and a public synonym; per-table failures are swallowed.
+     */
+    private static final @NonNls String GRANT_PUBLIC_ACCESS_BLOCK =
+            "BEGIN\n" +
+            "  FOR t IN (SELECT table_name FROM user_tables) LOOP\n" +
+            "    BEGIN\n" +
+            "      EXECUTE IMMEDIATE 'GRANT SELECT ON \"' || t.table_name || '\" TO PUBLIC';\n" +
+            "      EXECUTE IMMEDIATE 'CREATE OR REPLACE PUBLIC SYNONYM \"' || t.table_name ||\n" +
+            "                        '\" FOR \"' || USER || '\".\"' || t.table_name || '\"';\n" +
+            "    EXCEPTION WHEN OTHERS THEN NULL;\n" +
+            "    END;\n" +
+            "  END LOOP;\n" +
+            "END;";
 
     private final ConnectionRef connection;
 
@@ -123,5 +142,27 @@ final class McpGraalApplicationManager {
                 Resources.close(statement);
             }
         });
+    }
+
+    /** POC convenience - see {@link #GRANT_PUBLIC_ACCESS_BLOCK}. Best-effort; never fails the deploy. */
+    void grantPublicTableAccess() {
+        try {
+            ConnectionHandler connectionHandler = ConnectionRef.ensure(connection);
+            ConnectionContext context = new ConnectionContext(
+                    connectionHandler.getProject(), connectionHandler.getConnectionId(), null);
+
+            PooledConnection.run(context, conn -> {
+                DBNCallableStatement statement = null;
+                try {
+                    statement = conn.prepareCall(GRANT_PUBLIC_ACCESS_BLOCK);
+                    statement.execute();
+                } finally {
+                    Resources.close(statement);
+                }
+            });
+        } catch (SQLException e) {
+            conditionallyLog(e);
+            log.warn("Could not grant public table access: {}", e.getMessage());
+        }
     }
 }

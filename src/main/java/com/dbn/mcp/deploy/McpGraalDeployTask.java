@@ -130,6 +130,9 @@ public class McpGraalDeployTask {
             try {
                 McpGraalApplicationManager manager = new McpGraalApplicationManager(connection);
                 manager.createApplication(input);
+                // POC: grant public read access so the app's GRAAL_ user can query the tool tables
+                indicator.setText2(txt("prc.mcp.text.GrantingTableAccess"));
+                manager.grantPublicTableAccess();
                 reportActivation(manager, input, indicator);
             } catch (ProcessCanceledException e) {
                 throw e;
