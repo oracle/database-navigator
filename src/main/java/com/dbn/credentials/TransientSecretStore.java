@@ -16,18 +16,21 @@
 
 package com.dbn.credentials;
 
+import com.dbn.common.thread.Threads;
 import com.dbn.common.util.Chars;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.util.Passwords.clearPassword;
 import static com.dbn.common.util.TimeUtil.Millis.THIRTY_SECONDS;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.lang.System.currentTimeMillis;
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 /**
  * Short-lived in-memory storage for secrets that must be propagated during transient
@@ -44,7 +47,8 @@ import static java.lang.System.currentTimeMillis;
  */
 public final class TransientSecretStore {
     private static final long TIMEOUT = THIRTY_SECONDS;
-    private static final Timer CLEANUP_TIMER = new Timer("DBN - Transient Secret Store", true);
+    private static final ScheduledExecutorService CLEANUP_EXECUTOR =
+            newSingleThreadScheduledExecutor(Threads.createThreadFactory("DBN - Transient Secret Store", true));
     private static final Map<Key, Entry> DATA = new ConcurrentHashMap<>();
 
     private TransientSecretStore() {}
@@ -65,7 +69,8 @@ public final class TransientSecretStore {
         Entry oldEntry = DATA.put(key, entry);
         if (oldEntry != null) oldEntry.clear();
 
-        CLEANUP_TIMER.schedule(new CleanupTask(key, entry), TIMEOUT);
+        CleanupTask cleanupTask = new CleanupTask(key, entry);
+        CLEANUP_EXECUTOR.schedule(cleanupTask, TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -97,22 +102,19 @@ public final class TransientSecretStore {
         });
     }
 
-    private static class CleanupTask extends TimerTask {
-        private final Key key;
-        private final Entry entry;
-
-        private CleanupTask(Key key, Entry entry) {
-            this.key = key;
-            this.entry = entry;
-        }
+    private record CleanupTask(Key key, Entry entry) implements Runnable {
 
         @Override
-        public void run() {
-            if (DATA.remove(key, entry)) {
-                entry.clear();
+            public void run() {
+                try {
+                    if (DATA.remove(key, entry)) {
+                        entry.clear();
+                    }
+                } catch (Throwable e) {
+                    conditionallyLog(e);
+                }
             }
         }
-    }
 
     private record Entry(char[] secret, long expiresAt) {
             private Entry(char[] secret, long expiresAt) {
