@@ -57,10 +57,12 @@ final class McpOciImageResolver {
             throw new IOException(txt("msg.mcp.exception.OciConfigIncomplete"));
         }
 
-        try (ArtifactsClient client = ArtifactsClient.builder().build(authProvider)) {
-            // the image lives in the region it was pushed to, which is not necessarily the
-            // default region of ~/.oci/config - querying the wrong region silently finds nothing
-            client.setRegion(Region.fromRegionCodeOrId(input.getRegionKey()));
+        // the image lives in the region it was pushed to, which is not necessarily the default
+        // region of ~/.oci/config - querying the wrong region silently finds nothing, so the
+        // region is pinned on the builder from the deployment input rather than left to the config
+        try (ArtifactsClient client = ArtifactsClient.builder()
+                .region(Region.fromRegionCodeOrId(input.getRegionKey()))
+                .build(authProvider)) {
 
             ListContainerImagesRequest request = ListContainerImagesRequest.builder()
                     .compartmentId(compartmentId)
