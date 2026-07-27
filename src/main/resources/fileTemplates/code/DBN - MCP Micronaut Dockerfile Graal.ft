@@ -1,0 +1,45 @@
+## Velocity guard: NATIVE_IMAGE_OPTIONS must reach the Dockerfile literally, not be parsed as a reference
+#set($NATIVE_IMAGE_OPTIONS = '-H:+UnlockExperimentalVMOptions -H:+GraalOS -H:-UnlockExperimentalVMOptions -H:+AddAllCharsets')
+# Deployment image for running ${SERVER_NAME} as a Graal application.
+#
+# Multistage build, per the Graal "Deploy a Micronaut Server to ADB" guide: the GraalOS Java SDK
+# image compiles the native executable, and the final image carries only that executable - no JVM,
+# no build tooling.
+#
+# This image is intentionally credential-free: it contains NO wallet, NO database username or
+# password and NO connection string. At run time the Graal platform injects DATABASE_URL and
+# OCI_GRAAL_DB_TOKEN, and the server authenticates with a periodically refreshed database token
+# issued for an application-specific database user.
+#
+# Built and pushed by DB Navigator, but equivalent to running by hand:
+#
+#   docker build --platform linux/amd64 -t <region>.ocir.io/<namespace>/<repo>:<tag> -f Dockerfile.graal .
+#   docker push <region>.ocir.io/<namespace>/<repo>:<tag>
+#
+# Note: the service supplies the musl runtime libraries when it runs this image. To run it locally
+# with "docker run", additionally copy them into the final stage:
+#
+#   COPY --from=build /opt/graalvm/lib/toolchains/sysroot/x86_64-unknown-linux-musl_swcfi/lib \
+#                     /opt/graalvm/lib/toolchains/sysroot/x86_64-unknown-linux-musl_swcfi/lib
+
+FROM graalvm-dev-docker-local.artifactory.oci.oraclecorp.com/graalos/graalos-base-devel:25.2.4-ea.03 AS build
+# -H:+GraalOS is required: without it the executable is an ordinary native image and the
+# deployed application will not start on the Graal service
+ENV NATIVE_IMAGE_OPTIONS="${NATIVE_IMAGE_OPTIONS}"
+WORKDIR /workspace
+COPY . .
+# the SDK image ships no Maven, so the build runs through the bundled wrapper
+RUN chmod +x mvnw && ./mvnw clean package -Dpackaging=native-image -Denforcer.skip
+
+FROM scratch
+# GraalOS runtime (musl) libraries: required whenever the executable is dynamically linked to
+# them. The service supplies these when it runs the image, but copying them in also makes the
+# image runnable locally and avoids a missing-interpreter failure at startup.
+COPY --from=build \
+  /opt/graalvm/lib/toolchains/sysroot/x86_64-unknown-linux-musl_swcfi/lib \
+  /opt/graalvm/lib/toolchains/sysroot/x86_64-unknown-linux-musl_swcfi/lib
+COPY --from=build /workspace/target/${SERVER_NAME} /bin/app
+COPY mcp-config-graal.yaml /config/mcp-config.yaml
+# required for server-type Graal applications
+EXPOSE ${HTTP_PORT}
+ENTRYPOINT ["/bin/app", "--config=/config/mcp-config.yaml"]

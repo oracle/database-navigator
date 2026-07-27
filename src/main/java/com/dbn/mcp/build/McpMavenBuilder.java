@@ -53,6 +53,11 @@ public final class McpMavenBuilder {
         // rendered as "Dockerfile.ci" so micronaut-maven-plugin does not pick it up
         // as a docker-native packaging override during the build
         copyFileIfExists(projDir.resolve("Dockerfile.ci"), sourceProjectDir.resolve("Dockerfile"));
+        // container builds only: the credential-free image used when deploying to Graal, plus the
+        // Maven wrapper its build stage runs (the GraalOS SDK image ships no Maven)
+        copyFileIfExists(projDir.resolve("Dockerfile.graal"), sourceProjectDir.resolve("Dockerfile.graal"));
+        copyFileIfExists(projDir.resolve("mvnw"), sourceProjectDir.resolve("mvnw"));
+        copyDirIfExists(projDir.resolve(".mvn"), sourceProjectDir.resolve(".mvn"));
         copyDirIfExists(projDir.resolve("src"), sourceProjectDir.resolve("src"));
     }
 
