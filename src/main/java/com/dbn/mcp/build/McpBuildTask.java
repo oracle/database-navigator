@@ -4,6 +4,7 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.model.McpTransportType;
@@ -38,6 +39,9 @@ public class McpBuildTask {
     static final @NonNls String CONTAINER_MOUNT_DIR = "config";
 
     private final Project project;
+    // retained so the build result can offer deployment actions that need to talk to the
+    // originating database (deliberately not stored on McpBuilderResult, which stays build-output data)
+    private final ConnectionRef connection;
     private final McpServerDefinition definition;
     private final McpBuilderResult result = new McpBuilderResult();
     private final McpServerConfigBuilder serverConfigBuilder;
@@ -49,6 +53,7 @@ public class McpBuildTask {
 
     public McpBuildTask(Project project, ConnectionHandler connection, McpServerDefinition definition) {
         this.project = project;
+        this.connection = ConnectionRef.of(connection);
         this.definition = definition;
         this.serverConfigBuilder = new McpServerConfigBuilder(connection, definition);
         this.walletBuilder = new McpWalletBuilder(connection);
@@ -286,7 +291,7 @@ public class McpBuildTask {
         String serverArtifact = result.getServerJar() == null ? result.getImageName() : result.getServerJar().toString();
         result.setClaudeSnippetJson(clientConfiguration.buildClaudeJson(serverArtifact));
         result.setClineSnippetJson(transportType.isHttp() ? clientConfiguration.buildClineJson() : null);
-        Dialogs.show(() -> new McpBuildResultDialog(project, definition, result));
+        Dialogs.show(() -> new McpBuildResultDialog(project, connection, definition, result));
     }
 
     private static void cancelProcess() {
