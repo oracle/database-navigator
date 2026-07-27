@@ -20,12 +20,41 @@ import java.sql.SQLException;
 public class McpBeanFactory {
     private static final McpJsonMapper MAPPER = McpJsonDefaults.getMapper();
 
+    // Supplied by the Graal runtime when this server is deployed as a Graal application.
+    // Their presence switches the datasource to token authentication - no wallet, no
+    // username/password and no connection string are baked into the deployed image.
+    private static final String ENV_DATABASE_URL = "DATABASE_URL";
+    private static final String ENV_DB_TOKEN_LOCATION = "OCI_GRAAL_DB_TOKEN";
+
     @Singleton
     PoolDataSource dataSource(DataSourceConfig config) throws SQLException {
         PoolDataSource pool = PoolDataSourceFactory.getPoolDataSource();
         pool.setConnectionFactoryClassName("oracle.jdbc.pool.OracleDataSource");
-        pool.setURL(config.getUrl());
 
+        String databaseUrl = System.getenv(ENV_DATABASE_URL);
+        String tokenLocation = System.getenv(ENV_DB_TOKEN_LOCATION);
+        boolean hasUrl = databaseUrl != null && !databaseUrl.isBlank();
+        boolean hasToken = tokenLocation != null && !tokenLocation.isBlank();
+
+        if (hasUrl && hasToken) {
+            // Graal-managed deployment: the platform provides the connection string and a
+            // periodically refreshed database token for an application-specific DB user.
+            pool.setURL("jdbc:oracle:thin:@" + databaseUrl);
+            pool.setConnectionProperty(
+                    OracleConnection.CONNECTION_PROPERTY_TOKEN_AUTHENTICATION, "OCI_TOKEN");
+            pool.setConnectionProperty(
+                    OracleConnection.CONNECTION_PROPERTY_TOKEN_LOCATION, tokenLocation);
+            return pool;
+        }
+        if (hasUrl || hasToken) {
+            // never include the values themselves in the message - they are credentials material
+            throw new IllegalStateException(
+                    "Incomplete Graal database environment: both " + ENV_DATABASE_URL + " and "
+                            + ENV_DB_TOKEN_LOCATION + " must be set, but only one was provided.");
+        }
+
+        // local execution: wallet or explicit credentials from mcp-config.yml
+        pool.setURL(config.getUrl());
         if (config.usesExplicitCredentials()) {
             pool.setUser(config.getUsername());
             pool.setPassword(config.getPassword());

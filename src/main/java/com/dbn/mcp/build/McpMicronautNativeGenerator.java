@@ -49,6 +49,7 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
     private static final @NonNls Map<String, String> SOURCE_TEMPLATES = new LinkedHashMap<>();
     static {
         SOURCE_TEMPLATES.put("Application", "DBN - MCP Micronaut Application");
+        SOURCE_TEMPLATES.put("HealthController", "DBN - MCP Micronaut HealthController");
         SOURCE_TEMPLATES.put("McpConfigLoader", "DBN - MCP Micronaut McpConfigLoader");
         SOURCE_TEMPLATES.put("DataSourceConfig", "DBN - MCP Micronaut DataSourceConfig");
         SOURCE_TEMPLATES.put("ToolConfig", "DBN - MCP Micronaut ToolConfig");
@@ -78,15 +79,18 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
     // the source-project export renames it to "Dockerfile"
     private static final @NonNls String DOCKERFILE_FILE = "Dockerfile.ci";
 
+    // logs go to standard error: that is what the Graal runtime collects for deployed
+    // applications, and it keeps application output separate from anything on stdout
     private static final @NonNls String LOGBACK_XML = """
             <configuration>
-                <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+                <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+                    <target>System.err</target>
                     <encoder>
                         <pattern>%d{HH:mm:ss.SSS} %-5level %logger{24} - %msg%n</pattern>
                     </encoder>
                 </appender>
                 <root level="INFO">
-                    <appender-ref ref="STDOUT"/>
+                    <appender-ref ref="STDERR"/>
                 </root>
             </configuration>
             """;

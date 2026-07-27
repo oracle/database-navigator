@@ -93,6 +93,10 @@
                         <buildArg>--initialize-at-run-time=$PASSWORD_CONSOLE_HOLDER</buildArg>
                         <buildArg>--initialize-at-build-time=ch.qos.logback.classic.Logger</buildArg>
                         <buildArg>-H:+SharedArenaSupport</buildArg>
+                        <!-- database token authentication (used when deployed to Graal, where
+                             credentials arrive as a token rather than a wallet) needs the full
+                             charset set available in the native image -->
+                        <buildArg>-H:+AddAllCharsets</buildArg>
                     </buildArgs>
                 </configuration>
             </plugin>

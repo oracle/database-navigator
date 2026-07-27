@@ -1,0 +1,20 @@
+package com.dbn.mcp.server;
+
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+
+import java.util.Map;
+
+/**
+ * Startup smoke endpoint. Separates "the native HTTP server started" from database
+ * authentication and MCP protocol problems, and answers the platform health check that
+ * expects a successful response on the root path.
+ */
+@Controller
+public class HealthController {
+
+    @Get("/")
+    public Map<String, Boolean> health() {
+        return Map.of("ok", true);
+    }
+}
