@@ -23,6 +23,7 @@ import lombok.experimental.UtilityClass;
 import java.util.Arrays;
 import java.util.Set;
 
+import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.options.ConfigActivity.APPLYING;
 import static com.dbn.common.options.ConfigActivity.CLONING;
 import static com.dbn.common.options.ConfigActivity.TRANSFERRING;
@@ -51,7 +52,7 @@ public class Secrets {
             synchronized (REGISTRY_LOCK) {
                 secrets = REGISTRY.toArray(new Secret[0]);
             }
-            Arrays.stream(secrets).forEach(s -> s.ensureLoaded());
+            Arrays.stream(secrets).forEach(s -> guarded(() -> s.ensureLoaded()));
         });
     }
 
