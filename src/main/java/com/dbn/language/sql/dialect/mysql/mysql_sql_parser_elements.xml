@@ -3654,8 +3654,8 @@
                 <token type-id="KW_SIMPLE" id="01926" />
             </one-of>
         </sequence>
-        <iteration id="01927">
-            <sequence optional="true" id="01928">
+        <iteration id="01927" optional="true" >
+            <sequence id="01928">
                 <token type-id="KW_ON" id="01929" />
                 <one-of id="01930">
                     <token type-id="KW_UPDATE" id="01931" />
