@@ -3654,16 +3654,16 @@
                 <token type-id="KW_SIMPLE" id="01926" />
             </one-of>
         </sequence>
-        <sequence optional="true" id="01927">
-            <token type-id="KW_ON" id="01928" />
-            <token type-id="KW_DELETE" id="01929" />
-            <element ref-id="reference_option" />
-        </sequence>
-        <sequence optional="true" id="01930">
-            <token type-id="KW_ON" id="01931" />
-            <token type-id="KW_UPDATE" id="01932" />
-            <element ref-id="reference_option" />
-        </sequence>
+        <iteration id="01927">
+            <sequence optional="true" id="01928">
+                <token type-id="KW_ON" id="01929" />
+                <one-of id="01930">
+                    <token type-id="KW_UPDATE" id="01931" />
+                    <token type-id="KW_DELETE" id="01932" />
+                </one-of>
+                <element ref-id="reference_option" />
+            </sequence>
+        </iteration>
     </element-def>
     <element-def description="REFERENCE option" id="reference_option">
         <one-of id="01933">
