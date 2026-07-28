@@ -80,6 +80,13 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation>, Liquibas
         return txt("app.liquibase.text.OperationDescription_" + name());
     }
 
+    public boolean isDestructive() {
+        return switch (this) {
+            case DROP_ALL, ROLLBACK_CHANGESETS, UPDATE_TESTING_ROLLBACK -> true;
+            default -> false;
+        };
+    }
+
     public String getHint() {
         return /*txt("app.liquibase.title.Operation_" + name()) + "\n\n" +*/ txt("app.liquibase.hint.Operation_" + name());
     }

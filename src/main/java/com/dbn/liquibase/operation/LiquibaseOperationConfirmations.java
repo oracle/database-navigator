@@ -21,6 +21,7 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowInput;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +35,19 @@ import static com.dbn.nls.NlsResources.txt;
 public final class LiquibaseOperationConfirmations {
 
     public static boolean confirm(@NotNull LiquibaseOperationInput input) {
+        LiquibaseEnvironmentProfile profile = input.getEnvironmentProfile();
+        if (input.getOperation().isDestructive() && !profile.isAllowDestructiveOperations()) {
+            Messages.showErrorDialog(
+                    input.getProject(),
+                    txt("msg.liquibase.title.OperationContext"),
+                    txt("msg.liquibase.error.DestructiveOperationNotAllowed", profile.getName(), input.getOperation().getName()));
+            return false;
+        }
+        if (!profile.isRequireConfirmation()) {
+            input.setConfirmed(true);
+            return true;
+        }
+
         return switch (input.getOperation()) {
             case GENERATE_CHANGELOG, GENERATE_DIFF_CHANGELOG -> confirmOverwrite(input);
             case DROP_ALL -> confirmDropAll(input);

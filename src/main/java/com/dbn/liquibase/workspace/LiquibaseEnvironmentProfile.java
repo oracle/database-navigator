@@ -50,6 +50,20 @@ public class LiquibaseEnvironmentProfile implements PersistentStateElement, Pres
     public LiquibaseEnvironmentProfile(@NotNull String name, @NotNull EnvironmentTypeId environmentTypeId) {
         this.name = name;
         this.environmentTypeId = environmentTypeId;
+        initializeDefaults(environmentTypeId);
+    }
+
+    private void initializeDefaults(@NotNull EnvironmentTypeId environmentTypeId) {
+        if (EnvironmentTypeId.DEVELOPMENT.equals(environmentTypeId)) {
+            requireConfirmation = false;
+        }
+        if (EnvironmentTypeId.INTEGRATION.equals(environmentTypeId)) {
+            requireSqlPreview = true;
+        }
+        if (EnvironmentTypeId.PRODUCTION.equals(environmentTypeId)) {
+            requireSqlPreview = true;
+            allowDestructiveOperations = false;
+        }
     }
 
     @Override
