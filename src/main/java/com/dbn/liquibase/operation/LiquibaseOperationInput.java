@@ -53,6 +53,7 @@ public class LiquibaseOperationInput extends LiquibaseTaskInput {
     private String databaseTag;
     private String changelogTag;
     private String checkpointTag;
+    private String environmentProfileId;
     private boolean confirmed;
 
     private LiquibaseWorkspace workspace;
@@ -130,7 +131,20 @@ public class LiquibaseOperationInput extends LiquibaseTaskInput {
 
     @NotNull
     public LiquibaseEnvironmentProfile getEnvironmentProfile() {
+        LiquibaseEnvironmentProfile selected = getSelectedEnvironmentProfile();
+        if (selected != null) return selected;
         return environmentProfiles.getProfile(getEnvironmentTypeId());
+    }
+
+    @Nullable
+    public LiquibaseEnvironmentProfile getSelectedEnvironmentProfile() {
+        if (environmentProfileId == null) return null;
+        LiquibaseEnvironmentProfile profile = environmentProfiles.getProfile(environmentProfileId);
+        return profile != null && getEnvironmentTypeId().equals(profile.getEnvironmentTypeId()) ? profile : null;
+    }
+
+    public void setEnvironmentProfile(@Nullable LiquibaseEnvironmentProfile profile) {
+        environmentProfileId = profile == null ? null : profile.getId();
     }
 
     @NotNull
@@ -166,6 +180,7 @@ public class LiquibaseOperationInput extends LiquibaseTaskInput {
         databaseTag = input.getDatabaseTag();
         changelogTag = input.getChangelogTag();
         checkpointTag = input.getCheckpointTag();
+        environmentProfileId = input.getEnvironmentProfileId();
         confirmed = input.isConfirmed();
         return this;
     }

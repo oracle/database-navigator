@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,15 +46,26 @@ public class LiquibaseEnvironmentProfileBundle implements PersistentStateElement
 
     @NotNull
     public LiquibaseEnvironmentProfile getProfile(@NotNull EnvironmentTypeId environmentTypeId) {
-        return entries.values().stream()
-                .filter(profile -> environmentTypeId.equals(profile.getEnvironmentTypeId()))
+        return getProfiles(environmentTypeId).stream()
                 .findFirst()
                 .orElseGet(() -> new LiquibaseEnvironmentProfile(environmentTypeId.id(), environmentTypeId));
+    }
+
+    @Nullable
+    public LiquibaseEnvironmentProfile getProfile(@NotNull String profileId) {
+        return entries.get(profileId);
     }
 
     @NotNull
     public List<LiquibaseEnvironmentProfile> getProfiles() {
         return List.copyOf(entries.values());
+    }
+
+    @NotNull
+    public List<LiquibaseEnvironmentProfile> getProfiles(@NotNull EnvironmentTypeId environmentTypeId) {
+        return entries.values().stream()
+                .filter(profile -> environmentTypeId.equals(profile.getEnvironmentTypeId()))
+                .toList();
     }
 
     @NotNull

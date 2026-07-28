@@ -19,10 +19,10 @@ package com.dbn.liquibase.workspace;
 import com.dbn.common.environment.EnvironmentTypeId;
 import com.dbn.common.index.Identifiable;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.UUIDs;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -36,9 +36,8 @@ import static com.dbn.common.util.Strings.isEmpty;
 /**
  * Named Liquibase execution policy associated with a DBN environment type.
  */
-@Getter
-@Setter
-public class LiquibaseEnvironmentProfile implements PersistentStateElement, Cloneable<LiquibaseEnvironmentProfile>, Identifiable<String> {
+@Data
+public class LiquibaseEnvironmentProfile implements PersistentStateElement, Presentable, Cloneable<LiquibaseEnvironmentProfile>, Identifiable<String> {
     private String id = UUIDs.regular();
     private String name;
     private EnvironmentTypeId environmentTypeId;

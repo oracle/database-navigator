@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.operation.ui;
 
+import com.dbn.common.environment.EnvironmentTypeId;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
@@ -42,6 +43,7 @@ import com.dbn.liquibase.operation.LiquibaseRollbackInstruction;
 import com.dbn.liquibase.operation.LiquibaseRollbackType;
 import com.dbn.liquibase.operation.LiquibaseUpdateInstruction;
 import com.dbn.liquibase.operation.LiquibaseUpdateType;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
 import com.dbn.liquibase.workspace.LiquibaseWorkspace;
 import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
@@ -106,6 +108,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
     private JPanel rollbackTagFieldPanel;
     private JPanel hyperlinkPanel;
     private JLabel workspaceLabel;
+    private JLabel environmentProfileLabel;
     private JLabel sourceConnectionLabel;
     private JLabel sourceSchemaLabel;
     private JLabel targetConnectionLabel;
@@ -128,6 +131,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
     private DBNComboBox<ConnectionHandler> sourceConnectionSelector;
     private DBNComboBox<ConnectionHandler> targetConnectionSelector;
     private DBNComboBox<LiquibaseWorkspace> workspaceSelector;
+    private DBNComboBox<LiquibaseEnvironmentProfile> envProfileSelector;
     private DBNComboBox<LiquibaseRollbackType> rollbackTypeSelector;
     private DBNInfoLabel rollbackCountInfoLabel;
     private DBNInfoLabel rollbackTagInfoLabel;
@@ -144,6 +148,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
     private TextFieldWithPopup<?> rollbackTagField;
 
     private final LiquibaseOperationInput executionInput;
+    private volatile ConnectionHandler environmentProfileConnection;
 
     LiquibaseOperationInputForm(@NotNull LiquibaseOperationInputDialog parent) {
         this(parent, parent.getExecutionInput());
@@ -166,6 +171,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         initRollbackFields();
         initSourceContextSelectors();
         initTargetContextSelectors();
+        initEnvironmentProfileSelector();
         executionInput.setWorkspace(workspaceSelector.getSelectedValue());
     }
 
@@ -406,16 +412,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         workspaceSelector.setValues(availableWorkspaces);
         workspaceSelector.setSelectedValue(availableWorkspaces.contains(selectedWorkspace) ? selectedWorkspace : null);
         if (support.supports(WORKSPACE_CREATION)) {
-            workspaceSelector.withValueFactory(new ValueFactory<>(txt("app.liquibase.action.NewWorkspace")) {
-                @Override
-                public void createValue(Consumer<LiquibaseWorkspace> consumer) {
-                    Project project = executionInput.getProject();
-                    DatabaseLiquibaseManager liquibaseManager = getLiquibaseManager();
-                    liquibaseManager.openWorkspaceCreationDialog(
-                            connection.getDatabaseType(),
-                            consumer);
-                }
-            });
+            workspaceSelector.withValueFactory(workspaceFactory(connection));
         } else if (availableWorkspaces.isEmpty()) {
             setEmptyOptionsText(workspaceSelector, getNoWorkspacesMessage());
         }
@@ -425,6 +422,18 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
             updateTargetConnections();
             markFormChanged();
         });
+    }
+
+    private @NotNull ValueFactory<LiquibaseWorkspace> workspaceFactory(ConnectionHandler connection) {
+        return new ValueFactory<>(txt("app.liquibase.action.NewWorkspace")) {
+            @Override
+            public void createValue(Consumer<LiquibaseWorkspace> consumer) {
+                DatabaseLiquibaseManager liquibaseManager = getLiquibaseManager();
+                liquibaseManager.openWorkspaceCreationDialog(
+                        connection.getDatabaseType(),
+                        consumer);
+            }
+        };
     }
 
     private void updateWorkspacePath() {
@@ -439,6 +448,54 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         } catch (IllegalArgumentException e) {
             setToolTipText(workspaceSelector, null);
         }
+    }
+
+    private void initEnvironmentProfileSelector() {
+        setEmptyOptionsText(envProfileSelector, txt("app.liquibase.placeholder.NoEnvironmentProfile"));
+        envProfileSelector.withValueLoader(() -> loadEnvironmentProfiles());
+        envProfileSelector.withValueFactory(environmentProfileFactory());
+        updateEnvironmentProfileSelector();
+        onSelectionChange(envProfileSelector, value -> {
+            executionInput.setEnvironmentProfile(value);
+            markFormChanged();
+        });
+    }
+
+    private @NotNull ValueFactory<LiquibaseEnvironmentProfile> environmentProfileFactory() {
+        return new ValueFactory<>(txt("app.liquibase.placeholder.NewEnvironmentProfile")) {
+            @Override
+            public void createValue(Consumer<LiquibaseEnvironmentProfile> consumer) {
+                ConnectionHandler connection = getRelevantContextConnection();
+                if (connection == null) return;
+
+                EnvironmentTypeId environmentTypeId = connection.getEnvironmentType().getId();
+                DatabaseLiquibaseManager liquibaseManager = getLiquibaseManager();
+                liquibaseManager.openEnvironmentProfileCreationDialog(environmentTypeId, consumer);
+            }
+        };
+    }
+
+    private void updateEnvironmentProfileSelector() {
+        environmentProfileConnection = getRelevantContextConnection();
+        setFormFieldEnabled(envProfileSelector, "CONDITIONAL_AVAILABILITY", environmentProfileConnection != null);
+        envProfileSelector.reloadValues();
+    }
+
+    @NotNull
+    private List<LiquibaseEnvironmentProfile> loadEnvironmentProfiles() {
+        ConnectionHandler connection = environmentProfileConnection;
+        if (connection == null) return emptyList();
+
+        EnvironmentTypeId environmentTypeId = connection.getEnvironmentType().getId();
+        return executionInput.getEnvironmentProfiles().getProfiles(environmentTypeId);
+    }
+
+    @Nullable
+    private ConnectionHandler getRelevantContextConnection() {
+        ConnectionHandler source = getSourceConnection();
+        ConnectionHandler target = getTargetConnection();
+        if (executionInput.getOperation().requires(SOURCE_SCHEMA)) return source == null ? target : source;
+        return target == null ? source : target;
     }
 
     @NotNull
@@ -528,6 +585,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         if (enabled) {
             onSelectionChange(selector, value -> {
                 schemaSelector.reloadValues();
+                updateEnvironmentProfileSelector();
                 markFormChanged();
             });
         }
@@ -643,10 +701,12 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         DBSchema sourceSchema = getSourceSchema();
         DBSchema targetSchema = getTargetSchema();
         LiquibaseWorkspace workspace = getSelection(workspaceSelector);
+        LiquibaseEnvironmentProfile environmentProfile = getSelection(envProfileSelector);
 
         executionInput.setSourceSchema(sourceSchema);
         executionInput.setTargetSchema(targetSchema);
         executionInput.setWorkspace(workspace);
+        executionInput.setEnvironmentProfile(environmentProfile);
 
         if (support.supports(ROLLBACK)) {
             LiquibaseRollbackInstruction rollbackInstruction = executionInput.getRollbackInstruction();

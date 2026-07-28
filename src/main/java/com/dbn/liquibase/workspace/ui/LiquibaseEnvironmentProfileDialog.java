@@ -19,7 +19,7 @@ package com.dbn.liquibase.workspace.ui;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
 import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfileBundle;
-import com.intellij.openapi.project.Project;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
@@ -27,33 +27,41 @@ import javax.swing.Action;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Dialog for editing one named Liquibase environment profile. */
+@Getter
 public class LiquibaseEnvironmentProfileDialog extends DBNDialog<LiquibaseEnvironmentProfileForm> {
+
     private final LiquibaseEnvironmentProfileBundle bundle;
     private final LiquibaseEnvironmentProfile profile;
-    private final boolean newProfile;
+    private final boolean newRecord;
+    private final boolean environmentTypeEditable;
 
     public LiquibaseEnvironmentProfileDialog(
             @NotNull LiquibaseEnvironmentProfileBundle bundle,
             @NotNull LiquibaseEnvironmentProfile profile,
-            boolean newProfile,
-            @NotNull Project project) {
-        super(project, txt("app.liquibase.title.EnvironmentProfiles"), true);
+            boolean newRecord) {
+        super(bundle.getProject(), txt(newRecord ?
+                "msg.liquibase.title.CreateEnvironmentProfile" :
+                "msg.liquibase.title.UpdateEnvironmentProfile"), true);
         this.bundle = bundle;
         this.profile = profile.clone();
-        this.newProfile = newProfile;
+        this.newRecord = newRecord;
+        this.environmentTypeEditable = !newRecord || profile.getEnvironmentTypeId() == null;
         init();
     }
 
     @NotNull
     @Override
     protected LiquibaseEnvironmentProfileForm createForm() {
-        return new LiquibaseEnvironmentProfileForm(this, profile);
+        return new LiquibaseEnvironmentProfileForm(this, profile, environmentTypeEditable);
     }
 
     @Override
     @NotNull
     protected Action[] initializeActions() {
-        renameAction(getOKAction(), txt(newProfile ? "msg.shared.button.Create" : "msg.shared.button.Update"));
+        renameAction(getOKAction(), txt(newRecord ?
+                "msg.shared.button.Create" :
+                "msg.shared.button.Update"));
+
         return actions(getOKAction(), getCancelAction());
     }
 

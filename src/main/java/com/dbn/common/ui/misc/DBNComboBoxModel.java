@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.swing.MutableComboBoxModel;
+import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,31 +44,42 @@ public class DBNComboBoxModel<T> implements MutableComboBoxModel<T> {
 
     @Override
     public void addElement(T item) {
+        int index = items.size();
         items.add(item);
+        fireIntervalAdded(index, index);
     }
 
     @Override
     public void removeElement(Object obj) {
-        items.remove(obj);
+        int index = items.indexOf(obj);
+        if (index < 0) return;
+
+        items.remove(index);
+        fireIntervalRemoved(index, index);
     }
 
     @Override
     public void insertElementAt(T item, int index) {
         items.add(index, item);
+        fireIntervalAdded(index, index);
     }
 
     @Override
     public void removeElementAt(int index) {
         items.remove(index);
+        fireIntervalRemoved(index, index);
     }
 
     public void removeAllElements() {
+        int size = items.size();
         items.clear();
+        if (size > 0) fireIntervalRemoved(0, size - 1);
     }
 
     @Override
     public void setSelectedItem(Object selectedItem) {
         this.selectedItem = (T) selectedItem;
+        fireContentsChanged(-1, -1);
     }
 
     @Override
@@ -101,5 +113,20 @@ public class DBNComboBoxModel<T> implements MutableComboBoxModel<T> {
 
     public boolean isEmpty() {
         return items.isEmpty();
+    }
+
+    private void fireContentsChanged(int index0, int index1) {
+        ListDataEvent event = new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, index0, index1);
+        listDataListeners.notify(listener -> listener.contentsChanged(event));
+    }
+
+    private void fireIntervalAdded(int index0, int index1) {
+        ListDataEvent event = new ListDataEvent(this, ListDataEvent.INTERVAL_ADDED, index0, index1);
+        listDataListeners.notify(listener -> listener.intervalAdded(event));
+    }
+
+    private void fireIntervalRemoved(int index0, int index1) {
+        ListDataEvent event = new ListDataEvent(this, ListDataEvent.INTERVAL_REMOVED, index0, index1);
+        listDataListeners.notify(listener -> listener.intervalRemoved(event));
     }
 }

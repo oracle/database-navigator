@@ -20,6 +20,7 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.environment.EnvironmentTypeId;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.state.StateCategory;
@@ -42,9 +43,11 @@ import com.dbn.liquibase.task.LiquibaseTaskResult;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowExecutor;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowInput;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
 import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfileBundle;
 import com.dbn.liquibase.workspace.LiquibaseWorkspace;
 import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
+import com.dbn.liquibase.workspace.ui.LiquibaseEnvironmentProfileDialog;
 import com.dbn.liquibase.workspace.ui.LiquibaseEnvironmentProfilesDialog;
 import com.dbn.liquibase.workspace.ui.LiquibaseWorkspaceDialog;
 import com.dbn.liquibase.workspace.ui.LiquibaseWorkspacesDialog;
@@ -64,6 +67,7 @@ import java.util.function.Consumer;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Dialogs.whenOk;
 import static com.dbn.connection.config.ConnectionConfigListener.whenRemoved;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
         name = DatabaseLiquibaseManager.COMPONENT_NAME,
@@ -135,6 +139,18 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     public void openEnvironmentProfiles() {
         Dialogs.show(() -> new LiquibaseEnvironmentProfilesDialog(getProject(), environmentProfiles),
                 whenOk(d -> environmentProfiles.replaceProfiles(d.getBundle())));
+    }
+
+    public void openEnvironmentProfileCreationDialog(
+            @NotNull EnvironmentTypeId environmentTypeId,
+            @NotNull Consumer<LiquibaseEnvironmentProfile> consumer) {
+        LiquibaseEnvironmentProfile profile = new LiquibaseEnvironmentProfile(
+                txt("app.liquibase.placeholder.NewEnvironmentProfile"),
+                environmentTypeId);
+
+        Dialogs.show(
+                () -> new LiquibaseEnvironmentProfileDialog(environmentProfiles, profile, true),
+                whenOk(d -> consumer.accept(d.getProfile())));
     }
 
     public void cancelTask(@NotNull LiquibaseTaskResult<?, ?, ?> result) {

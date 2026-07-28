@@ -115,7 +115,7 @@ public class LiquibaseEnvironmentProfilesForm extends DBNFormBase {
             return;
         }
         DBNForm form = profileForms.computeIfAbsent(profile.getId(), id ->
-                new LiquibaseEnvironmentProfileForm(this, profile));
+                new LiquibaseEnvironmentProfileForm(this, profile, true));
         if (getCard(detailsPanel, profile.getId()) == null) {
             addCard(detailsPanel, form, profile.getId());
         }

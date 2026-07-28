@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.setFormFieldEnabled;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
@@ -56,12 +57,15 @@ public class LiquibaseEnvironmentProfileForm extends DBNFormBase {
     private JCheckBox requireConfirmationCheckBox;
 
     private final LiquibaseEnvironmentProfile profile;
+    private final boolean environmentTypeEditable;
 
     LiquibaseEnvironmentProfileForm(
             @NotNull DBNComponent parent,
-            @NotNull LiquibaseEnvironmentProfile profile) {
+            @NotNull LiquibaseEnvironmentProfile profile,
+            boolean environmentTypeEditable) {
         super(parent);
         this.profile = profile;
+        this.environmentTypeEditable = environmentTypeEditable;
         initHintPanel();
         initEnvironmentTypes();
         onTextChange(nameTextField, e -> updateProfileName());
@@ -92,6 +96,7 @@ public class LiquibaseEnvironmentProfileForm extends DBNFormBase {
         types.addAll(settings.getEnvironmentTypes().getEnvironmentTypes());
         environmentTypeSelector.setValues(types);
         environmentTypeSelector.set(HIDE_DESCRIPTION, false);
+        setFormFieldEnabled(environmentTypeSelector, "CONTEXT_AVAILABILITY", environmentTypeEditable);
     }
 
     @Override
