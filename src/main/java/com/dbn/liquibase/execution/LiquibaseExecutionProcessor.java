@@ -34,6 +34,7 @@ import com.dbn.liquibase.operation.LiquibaseOperation;
 import com.dbn.liquibase.operation.LiquibaseOperationContext;
 import com.dbn.liquibase.operation.LiquibaseOperationInput;
 import com.dbn.liquibase.operation.LiquibaseOperationResult;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
 import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
@@ -75,6 +76,7 @@ import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -422,6 +424,24 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
 
     protected static CommandResults executeCommand(String commandName, LiquibaseExecutionOutputStream output, @NonNls Map<String, Object> arguments) throws CommandExecutionException {
         return executeCommand(commandName, output, arguments, Map.of());
+    }
+
+    protected final CommandResults executeCommand(
+            @NonNls String commandName,
+            @NotNull LiquibaseOperationContext context,
+            @NotNull LiquibaseExecutionOutputStream output,
+            @NonNls Map<String, Object> arguments) throws CommandExecutionException {
+
+        Map<String, Object> args = new HashMap<>(arguments);
+        LiquibaseEnvironmentProfile profile = context.getInput().getEnvironmentProfile();
+
+        String contexts = profile.getContexts();
+        if (isNotEmpty(contexts)) args.put("contextFilter", contexts);
+
+        String labels = profile.getLabels();
+        if (isNotEmpty(labels)) args.put("labelFilter", labels);
+
+        return executeCommand(commandName, output, args);
     }
 
     protected static CommandResults executeCommand(

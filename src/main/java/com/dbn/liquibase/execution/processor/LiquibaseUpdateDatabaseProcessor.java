@@ -91,7 +91,7 @@ public class LiquibaseUpdateDatabaseProcessor extends LiquibaseExecutionProcesso
             rememberTag(context, targetSchema, checkpointTag);
         }
         LiquibaseUpdateInstruction instruction = input.getUpdateInstruction();
-        executeCommand(instruction.getCommand(), output, Map.of(
+        executeCommand(instruction.getCommand(), context, output, Map.of(
                 "database", database,
                 "changelogFile", paths.getMasterChangelogRelativePath(),
                 instruction.getParameter(), instruction.getValue(),

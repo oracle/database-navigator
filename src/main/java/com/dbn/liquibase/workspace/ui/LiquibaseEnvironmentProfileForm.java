@@ -42,6 +42,8 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
+import static com.dbn.liquibase.util.LiquibaseExpressions.isValidContexts;
+import static com.dbn.liquibase.util.LiquibaseExpressions.isValidLabels;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Detail form for a named Liquibase environment profile. */
@@ -106,6 +108,8 @@ public class LiquibaseEnvironmentProfileForm extends DBNFormBase {
         addRequiredTextValidation(nameTextField, txt("msg.liquibase.error.EnvironmentProfileNameRequired"));
         addValidation(nameTextField, field -> validateProfileName());
         addSelectionValidation(environmentTypeSelector, txt("msg.liquibase.error.EnvironmentTypeRequired"));
+        addTextValidation(contextsTextField, t -> isValidContexts(t), txt("msg.liquibase.error.InvalidContexts"));
+        addTextValidation(labelsTextField, t -> isValidLabels(t), txt("msg.liquibase.error.InvalidLabels"));
     }
 
     private String validateProfileName() {

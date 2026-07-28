@@ -37,7 +37,7 @@ public class LiquibaseUpdateSqlProcessor extends LiquibaseExecutionProcessor {
         var result = context.getResult();
         var paths = context.getInput().getWorkspacePaths();
 
-        executeCommand(UPDATE_SQL, output, Map.of(
+        executeCommand(UPDATE_SQL, context, output, Map.of(
                 "database", database,
                 "changelogFile", paths.getMasterChangelogRelativePath(),
                 "changeExecListener", new LiquibaseChangeSetRunListener(result)));
