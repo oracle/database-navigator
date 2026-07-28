@@ -39,6 +39,6 @@ class ArrayEditorRevertAction extends ArrayEditorAction {
     @Override
     public void update(@NotNull AnActionEvent e) {
         ArrayEditorPopupProviderForm form = getArrayEditorForm(e);
-        e.getPresentation().setEnabled(form != null && form.isChanged());
+        e.getPresentation().setEnabled(form != null && form.isFormChanged());
     }
 }

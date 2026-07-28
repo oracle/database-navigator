@@ -20,7 +20,6 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.oci.config.OciConfig;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
@@ -50,14 +49,12 @@ public class OciConfigSelectionDialog extends DBNDialog<OciConfigSelectionForm> 
     }
 
     @Override
-    @SneakyThrows
     protected void doOKAction() {
         applyFormChanges();
         super.doOKAction();
     }
 
     @Override
-    @SneakyThrows
     public void doCancelAction() {
         applyFormChanges(); // preserve input even if canceled
         super.doCancelAction();

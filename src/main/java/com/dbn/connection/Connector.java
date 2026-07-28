@@ -118,9 +118,7 @@ class Connector {
                 authenticationInfo = this.authenticationInfo;
             }
             compatibility.initConnectorAuthentication(properties, authenticationInfo);
-            if (newPassword != null) {
-                compatibility.initConnectorPasswordChange(properties, newPassword);
-            }
+            compatibility.initConnectorPasswordChange(properties, newPassword);
 
             // SESSION INFO
             compatibility.initConnectorSession(properties, connectionSettings, sessionId);
@@ -162,9 +160,9 @@ class Connector {
             if (connection == null) {
                 throw new SQLException("Driver failed to create connection. No failure information provided by jdbc vendor.");
             }
-            if (newPassword != null) {
-                compatibility.completeConnectorPasswordChange(connection, newPassword);
-            }
+
+            compatibility.completeConnectorPasswordChange(connection, newPassword);
+            compatibility.initializeTransactionIsolation(connection);
 
             if (connectionStatus != null) {
                 connectionStatus.setConnectionException(null);

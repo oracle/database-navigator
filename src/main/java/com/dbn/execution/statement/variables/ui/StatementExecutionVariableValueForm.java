@@ -152,7 +152,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase {
     }
 
     private String validateDataType() {
-        Formatter formatter = Formatter.getInstance(ensureProject());
+        Formatter formatter = ensureFormatter();
         String value = getText(editorComponent.getTextField());
         if (Strings.isEmpty(value)) return null;
 

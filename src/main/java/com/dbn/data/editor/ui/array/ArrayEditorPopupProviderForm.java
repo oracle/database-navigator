@@ -124,7 +124,7 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
         return null;
     }
 
-    public boolean isChanged() {
+    public boolean isFormChanged() {
         return list.getModel().isChanged();
     }
 

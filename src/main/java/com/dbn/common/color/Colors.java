@@ -47,6 +47,46 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import static com.dbn.common.color.ColorCache.cached;
+import static com.dbn.common.color.ColorKey.DARKER_PANEL_BACKGROUND;
+import static com.dbn.common.color.ColorKey.DARK_PANEL_BACKGROUND;
+import static com.dbn.common.color.ColorKey.EDITOR_BACKGROUND;
+import static com.dbn.common.color.ColorKey.EDITOR_CARET_ROW_BACKGROUND;
+import static com.dbn.common.color.ColorKey.EDITOR_FOREGROUND;
+import static com.dbn.common.color.ColorKey.ERROR_HINT;
+import static com.dbn.common.color.ColorKey.INFO_HINT;
+import static com.dbn.common.color.ColorKey.LABEL_ERROR_FOREGROUND;
+import static com.dbn.common.color.ColorKey.LABEL_FOREGROUND;
+import static com.dbn.common.color.ColorKey.LABEL_INFO_FOREGROUND;
+import static com.dbn.common.color.ColorKey.LABEL_SUCCESS_FOREGROUND;
+import static com.dbn.common.color.ColorKey.LABEL_WARNING_FOREGROUND;
+import static com.dbn.common.color.ColorKey.LIGHTER_PANEL_BACKGROUND;
+import static com.dbn.common.color.ColorKey.LIGHT_PANEL_BACKGROUND;
+import static com.dbn.common.color.ColorKey.LIST_BACKGROUND;
+import static com.dbn.common.color.ColorKey.LIST_FOREGROUND;
+import static com.dbn.common.color.ColorKey.LIST_SELECTION_BACKGROUND_FOCUSED;
+import static com.dbn.common.color.ColorKey.LIST_SELECTION_BACKGROUND_UNFOCUSED;
+import static com.dbn.common.color.ColorKey.LIST_SELECTION_FOREGROUND_FOCUSED;
+import static com.dbn.common.color.ColorKey.LIST_SELECTION_FOREGROUND_UNFOCUSED;
+import static com.dbn.common.color.ColorKey.OUTLINE;
+import static com.dbn.common.color.ColorKey.PANEL_BACKGROUND;
+import static com.dbn.common.color.ColorKey.READONLY_EDITOR_BACKGROUND;
+import static com.dbn.common.color.ColorKey.READONLY_EDITOR_CARET_ROW_BACKGROUND;
+import static com.dbn.common.color.ColorKey.TABLE_BACKGROUND;
+import static com.dbn.common.color.ColorKey.TABLE_CARET_ROW;
+import static com.dbn.common.color.ColorKey.TABLE_FOREGROUND;
+import static com.dbn.common.color.ColorKey.TABLE_GRID;
+import static com.dbn.common.color.ColorKey.TABLE_GUTTER_BACKGROUND;
+import static com.dbn.common.color.ColorKey.TABLE_GUTTER_FOREGROUND;
+import static com.dbn.common.color.ColorKey.TABLE_HEADER_GRID;
+import static com.dbn.common.color.ColorKey.TABLE_SELECTION_BACKGROUND_FOCUSED;
+import static com.dbn.common.color.ColorKey.TABLE_SELECTION_BACKGROUND_UNFOCUSED;
+import static com.dbn.common.color.ColorKey.TABLE_SELECTION_FOREGROUND_FOCUSED;
+import static com.dbn.common.color.ColorKey.TABLE_SELECTION_FOREGROUND_UNFOCUSED;
+import static com.dbn.common.color.ColorKey.TEXT_FIELD_BACKGROUND;
+import static com.dbn.common.color.ColorKey.TEXT_FIELD_DISABLED_BACKGROUND;
+import static com.dbn.common.color.ColorKey.TEXT_FIELD_FOREGROUND;
+import static com.dbn.common.color.ColorKey.TEXT_FIELD_INACTIVE_FOREGROUND;
+import static com.dbn.common.color.ColorKey.WARNING_HINT;
 import static com.dbn.common.color.ColorSchemes.background;
 import static com.dbn.common.color.ColorSchemes.foreground;
 import static com.dbn.common.dispose.Failsafe.guarded;
@@ -63,56 +103,56 @@ public final class Colors {
     public static final Color SEPARATOR_COLOR = JBColor.namedColor("Separator.separatorColor", new JBColor(0xcdcdcd, 0x515151));
 
     public static Color getPanelBackground() {
-        return cached(0, () -> UIUtil.getPanelBackground());
+        return cached(PANEL_BACKGROUND, () -> UIUtil.getPanelBackground());
     }
 
     public static Color getLabelForeground() {
-        return cached(1, () -> UIUtil.getLabelForeground());
+        return cached(LABEL_FOREGROUND, () -> UIUtil.getLabelForeground());
     }
 
     public static Color getTextFieldBackground() {
-        return cached(2, () -> UIUtil.getTextFieldBackground());
+        return cached(TEXT_FIELD_BACKGROUND, () -> UIUtil.getTextFieldBackground());
     }
 
     public static Color getTextFieldDisabledBackground() {
-        return cached(3, () -> UIManager.getColor("TextField.disabledBackground"));
+        return cached(TEXT_FIELD_DISABLED_BACKGROUND, () -> UIManager.getColor("TextField.disabledBackground"));
     }
 
     public static Color getTextFieldForeground() {
-        return cached(4, () -> UIUtil.getTextFieldForeground());
+        return cached(TEXT_FIELD_FOREGROUND, () -> UIUtil.getTextFieldForeground());
     }
 
     public static Color getTableBackground() {
-        return cached(5, () -> UIUtil.getTableBackground());
+        return cached(TABLE_BACKGROUND, () -> UIUtil.getTableBackground());
     }
 
     public static Color getTableForeground() {
-        return cached(6, () -> UIUtil.getTableForeground());
+        return cached(TABLE_FOREGROUND, () -> UIUtil.getTableForeground());
     }
 
     public static Color getListBackground() {
-        return cached(7, () -> UIUtil.getListBackground());
+        return cached(LIST_BACKGROUND, () -> UIUtil.getListBackground());
     }
 
     public static Color getListForeground() {
-        return cached(8, () -> UIUtil.getListForeground());
+        return cached(LIST_FOREGROUND, () -> UIUtil.getListForeground());
     }
 
     public static Color getListSelectionBackground(boolean focused) {
         return focused ?
-                cached(9, () -> UIUtil.getListSelectionBackground(true)) :
-                cached(10, () -> UIUtil.getListSelectionBackground(false));
+                cached(LIST_SELECTION_BACKGROUND_FOCUSED, () -> UIUtil.getListSelectionBackground(true)) :
+                cached(LIST_SELECTION_BACKGROUND_UNFOCUSED, () -> UIUtil.getListSelectionBackground(false));
 
     }
 
     public static Color getListSelectionForeground(boolean focused) {
         return focused ?
-                cached(11, () -> UIUtil.getListSelectionForeground(true)) :
-                cached(12, () -> UIUtil.getListSelectionForeground(false));
+                cached(LIST_SELECTION_FOREGROUND_FOCUSED, () -> UIUtil.getListSelectionForeground(true)) :
+                cached(LIST_SELECTION_FOREGROUND_UNFOCUSED, () -> UIUtil.getListSelectionForeground(false));
     }
 
     public static Color getTableCaretRowColor() {
-        return cached(13, () -> background(
+        return cached(TABLE_CARET_ROW, () -> background(
                 DataGridTextAttributesKeys.CARET_ROW,
                 EditorColors.CARET_ROW_COLOR,
                 () -> UIUtil.getTableBackground()));
@@ -120,11 +160,11 @@ public final class Colors {
 
     public static Color getTableSelectionBackground(boolean focused) {
         return focused ?
-                cached(14, () -> background(
+                cached(TABLE_SELECTION_BACKGROUND_FOCUSED, () -> background(
                         DataGridTextAttributesKeys.SELECTION,
                         EditorColors.SELECTION_BACKGROUND_COLOR,
                         () -> UIUtil.getTableSelectionBackground(true))) :
-                cached(15, () -> background(
+                cached(TABLE_SELECTION_BACKGROUND_UNFOCUSED, () -> background(
                         DataGridTextAttributesKeys.SELECTION,
                         EditorColors.SELECTION_BACKGROUND_COLOR,
                         () -> UIUtil.getTableSelectionBackground(false)));
@@ -132,95 +172,102 @@ public final class Colors {
 
     public static Color getTableSelectionForeground(boolean focused) {
         return focused ?
-                cached(16, () -> foreground(
+                cached(TABLE_SELECTION_FOREGROUND_FOCUSED, () -> foreground(
                         DataGridTextAttributesKeys.SELECTION,
                         EditorColors.SELECTION_FOREGROUND_COLOR,
                         () -> UIUtil.getTableSelectionForeground(true))) :
-                cached(17, () -> foreground(
+                cached(TABLE_SELECTION_FOREGROUND_UNFOCUSED, () -> foreground(
                         DataGridTextAttributesKeys.SELECTION,
                         EditorColors.SELECTION_FOREGROUND_COLOR,
                         () -> UIUtil.getTableSelectionForeground(false)));
     }
 
     public static Color getTableGridColor() {
-        return cached(18, () -> JBColor.lazy(() -> lafDarker(Colors.getTableBackground(), 3)));
+        return cached(TABLE_GRID, () -> JBColor.lazy(() -> lafDarker(Colors.getTableBackground(), 3)));
     }
 
     public static Color getTableHeaderGridColor() {
-        return cached(19, () -> JBColor.lazy(() -> lafDarker(Colors.getPanelBackground(), 3)));
+        return cached(TABLE_HEADER_GRID, () -> JBColor.lazy(() -> lafDarker(Colors.getPanelBackground(), 3)));
     }
 
     public static Color getTableGutterBackground() {
-        return cached(20, () -> background(null, EditorColors.GUTTER_BACKGROUND, () -> getPanelBackground()));
+        return cached(TABLE_GUTTER_BACKGROUND, () -> background(null, EditorColors.GUTTER_BACKGROUND, () -> getPanelBackground()));
     }
 
     public static Color getTableGutterForeground() {
-        return cached(21, () -> background(null, EditorColors.LINE_NUMBERS_COLOR, () -> JBColor.GRAY));
+        return cached(TABLE_GUTTER_FOREGROUND, () -> background(null, EditorColors.LINE_NUMBERS_COLOR, () -> JBColor.GRAY));
     }
 
     public static Color getEditorBackground() {
-        return cached(22, () -> background(HighlighterColors.NO_HIGHLIGHTING, null, () -> JBColor.WHITE));
+        return cached(EDITOR_BACKGROUND, () -> background(HighlighterColors.NO_HIGHLIGHTING, null, () -> JBColor.WHITE));
     }
 
     public static Color getEditorForeground() {
-        return cached(23, () -> foreground(HighlighterColors.NO_HIGHLIGHTING, null, () -> JBColor.BLACK));
+        return cached(EDITOR_FOREGROUND, () -> foreground(HighlighterColors.NO_HIGHLIGHTING, null, () -> JBColor.BLACK));
     }
 
     public static Color getEditorCaretRowBackground() {
-        return cached(24, () -> foreground(null, EditorColors.CARET_ROW_COLOR, () -> getEditorBackground()));
+        return cached(EDITOR_CARET_ROW_BACKGROUND, () -> foreground(null, EditorColors.CARET_ROW_COLOR, () -> getEditorBackground()));
     }
 
     public static Color getReadonlyEditorBackground() {
-        return cached(25, () -> background(null, EditorColors.READONLY_BACKGROUND_COLOR, () -> Colors.lafDarker(getEditorBackground(), 1)));
+        return cached(READONLY_EDITOR_BACKGROUND, () -> background(null, EditorColors.READONLY_BACKGROUND_COLOR, () -> Colors.lafDarker(getEditorBackground(), 1)));
     }
 
     public static Color getReadonlyEditorCaretRowBackground() {
-        return cached(26, () -> JBColor.lazy(() -> Colors.lafDarker(getReadonlyEditorBackground(), 1)));
+        return cached(READONLY_EDITOR_CARET_ROW_BACKGROUND, () -> JBColor.lazy(() -> Colors.lafDarker(getReadonlyEditorBackground(), 1)));
     }
 
     public static Color getLighterPanelBackground() {
-        return cached(27, () -> JBColor.lazy(() -> Colors.lafBrighter(UIUtil.getPanelBackground(), 1)));
+        return cached(LIGHTER_PANEL_BACKGROUND, () -> JBColor.lazy(() -> Colors.lafBrighter(UIUtil.getPanelBackground(), 1)));
     }
 
     public static Color getLightPanelBackground() {
-        return cached(28, () -> JBColor.lazy(() -> Colors.lafBrighter(UIUtil.getPanelBackground(), 2)));
+        return cached(LIGHT_PANEL_BACKGROUND, () -> JBColor.lazy(() -> Colors.lafBrighter(UIUtil.getPanelBackground(), 2)));
     }
 
     public static Color getDarkerPanelBackground() {
-        return cached(29, () -> JBColor.lazy(() -> Colors.lafDarker(UIUtil.getPanelBackground(), 1)));
+        return cached(DARKER_PANEL_BACKGROUND, () -> JBColor.lazy(() -> Colors.lafDarker(UIUtil.getPanelBackground(), 1)));
     }
 
     public static Color getDarkPanelBackground() {
-        return cached(30, () -> JBColor.lazy(() -> Colors.lafDarker(UIUtil.getPanelBackground(), 2)));
+        return cached(DARK_PANEL_BACKGROUND, () -> JBColor.lazy(() -> Colors.lafDarker(UIUtil.getPanelBackground(), 2)));
     }
 
     public static Color getInfoHintColor() {
-        return cached(31, () -> HintUtil.getInformationColor());
+        return cached(INFO_HINT, () -> HintUtil.getInformationColor());
     }
 
     public static Color getLabelInfoForeground() {
-        return cached(32, () -> JBColor.namedColor("Label.infoForeground", new JBColor(Gray._120, Gray._135)));
+        return cached(LABEL_INFO_FOREGROUND, () -> JBColor.namedColor("Label.infoForeground", new JBColor(Gray._120, Gray._135)));
     }
 
     public static Color getLabelErrorForeground() {
-        return cached(33, () -> JBColor.namedColor("Label.errorForeground", new JBColor(new Color(0xC7222D), JBColor.RED)));
+        return cached(LABEL_ERROR_FOREGROUND, () -> JBColor.namedColor("Label.errorForeground", new JBColor(new Color(0xC7222D), JBColor.RED)));
     }
 
+    public static Color getLabelSuccessForeground() {
+        return cached(LABEL_SUCCESS_FOREGROUND, () -> JBColor.namedColor("Label.successForeground", SUCCESS_COLOR));
+    }
+
+    public static Color getLabelWarningForeground() {
+        return cached(LABEL_WARNING_FOREGROUND, () -> JBColor.namedColor("Label.warningForeground", JBColor.ORANGE));
+    }
 
     public static Color getWarningHintColor() {
-        return cached(34, () -> HintUtil.getWarningColor());
+        return cached(WARNING_HINT, () -> HintUtil.getWarningColor());
     }
 
     public static Color getErrorHintColor() {
-        return cached(35, () -> HintUtil.getErrorColor());
+        return cached(ERROR_HINT, () -> HintUtil.getErrorColor());
     }
 
     public static Color getOutlineColor() {
-        return cached(36, () -> DarculaUIUtil.getOutlineColor(true, false));
+        return cached(OUTLINE, () -> DarculaUIUtil.getOutlineColor(true, false));
     }
 
     public static Color getTextFieldInactiveForeground() {
-        return cached(37, () -> UIManager.getColor("TextField.inactiveForeground"));
+        return cached(TEXT_FIELD_INACTIVE_FOREGROUND, () -> UIManager.getColor("TextField.inactiveForeground"));
     }
 
 

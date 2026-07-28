@@ -32,6 +32,7 @@ import com.dbn.execution.method.action.MethodExecuteAction;
 import com.dbn.execution.method.action.ProgramMethodDebugAction;
 import com.dbn.execution.method.action.ProgramMethodExecuteAction;
 import com.dbn.generator.statement.action.GenerateStatementActionGroup;
+import com.dbn.liquibase.action.LiquibaseSchemaActions;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBJavaClass;
@@ -48,6 +49,7 @@ import com.dbn.object.common.list.action.HideAuditColumnsToggleAction;
 import com.dbn.object.common.list.action.HideEmptySchemasToggleAction;
 import com.dbn.object.common.list.action.HidePseudoColumnsToggleAction;
 import com.dbn.object.dependency.action.ObjectDependencyTreeAction;
+import com.dbn.object.diagram.DatabaseDiagrams;
 import com.dbn.object.diagram.actions.OpenDependencyDiagramAction;
 import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.navigation.DBObjectNavigationInfoProvider;
@@ -98,6 +100,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         addCodeGeneratorActions(object);
         addObjectListActions(object);
         addObjectPropertiesActions(object);
+        addLiquibaseActions(object);
     }
 
     private void addTableActions(DBObject object) {
@@ -195,7 +198,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
     private void addDependencyActions(DBObject object) {
         boolean separated = false;
-        if (object.is(DIAGRAMMABLE)) {
+        if (object.is(DIAGRAMMABLE) && DatabaseDiagrams.isAvailable()) {
             addSeparator();
             separated = true;
             add(new OpenDependencyDiagramAction(object));
@@ -264,6 +267,13 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
             add(new HideEmptySchemasToggleAction(connection));
         }
         add(new RefreshActionGroup(object));
+    }
+
+    private void addLiquibaseActions(DBObject object) {
+        if (object instanceof DBSchema schema) {
+            addSeparator();
+            add(new LiquibaseSchemaActions(schema));
+        }
     }
 
     private void addObjectPropertiesActions(DBObject object) {

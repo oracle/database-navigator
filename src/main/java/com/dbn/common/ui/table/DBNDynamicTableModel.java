@@ -21,6 +21,7 @@ import com.intellij.openapi.util.NlsContexts.ColumnName;
 import com.intellij.openapi.util.NlsContexts.Tooltip;
 import com.intellij.ui.SimpleTextAttributes;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
@@ -110,6 +111,12 @@ public class DBNDynamicTableModel<T> extends DBNMutableTableModel<T> implements 
 
     public T getData(int rowIndex) {
         return data.get(rowIndex);
+    }
+
+    public void setData(@NotNull List<T> data) {
+        this.data.clear();
+        this.data.addAll(data);
+        notifyRowChanges();
     }
 
     @Getter

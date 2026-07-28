@@ -84,6 +84,7 @@ import static com.dbn.browser.DatabaseBrowserUtils.treeVisibilityChanged;
 import static com.dbn.common.content.DynamicContentProperty.GROUPED;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Lists.filter;
 import static com.dbn.object.type.DBObjectRelationType.ROLE_PRIVILEGE;
 import static com.dbn.object.type.DBObjectRelationType.ROLE_ROLE;
 import static com.dbn.object.type.DBObjectRelationType.USER_PRIVILEGE;
@@ -157,7 +158,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
     }
 
     private @NotNull List<DBSchema> loadPublicSchemas() {
-        return nvl(Lists.filter(getSchemas(), s -> s.isPublicSchema()), Collections.emptyList());
+        return nvl(filter(getSchemas(), s -> s.isPublicSchema()), Collections.emptyList());
     }
 
     private PsiFile createFakePsiFile() {
@@ -398,7 +399,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         ConnectionHandler connection = this.getConnection();
         Filter<BrowserTreeNode> objectTypeFilter = connection.getObjectTypeFilter();
 
-        List<BrowserTreeNode> treeChildren = Lists.filter(allPossibleTreeChildren, objectTypeFilter);
+        List<BrowserTreeNode> treeChildren = filter(allPossibleTreeChildren, objectTypeFilter);
         treeChildren = nvl(treeChildren, Collections.emptyList());
 
         for (BrowserTreeNode objectList : treeChildren) {

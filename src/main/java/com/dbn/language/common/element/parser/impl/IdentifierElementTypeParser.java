@@ -24,11 +24,9 @@ import com.dbn.language.common.element.parser.ParserBuilder;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
 import com.intellij.lang.PsiBuilder.Marker;
-import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
 import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
-import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
 
 public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierElementType> {
     public IdentifierElementTypeParser(IdentifierElementType elementType) {
@@ -41,41 +39,12 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
         TokenType token = builder.getToken();
         if (token == null) return NO_MATCH_RESULT;
 
-        ParseResult surrogateResult = parseSurrogate(context, parentNode);
-        if (surrogateResult != null) return surrogateResult;
-
         if (isTokenMatch(parentNode, context)) {
             Marker marker = builder.markAndAdvance();
             return stepOut(marker, context, FULL_MATCH, 1);
         }
 
         return NO_MATCH_RESULT;
-    }
-
-    @Nullable
-    private ParseResult parseSurrogate(ParserContext context, ParserNode parentNode) {
-        ParserBuilder builder = context.builder;
-        if (context.isSurrogateFor(elementType)) {
-            if (elementType.is(SURROGATE_LEAD)) {
-                // chained surrogate lead match
-                return stepOut(null, context, FULL_MATCH, 0);
-            }
-
-            if (isTokenMatch(parentNode, context)) {
-                // actual surrogate target match
-                Marker marker = builder.markAndAdvance();
-                return stepOut(marker, context, FULL_MATCH, 1);
-            }
-
-            return NO_MATCH_RESULT;
-        }
-
-        if (elementType.is(SURROGATE_LEAD)) {
-            if (isTokenMatch(parentNode, context)) {
-                return stepOut(null, context, FULL_MATCH, 0);
-            }
-        }
-        return null;
     }
 
     private boolean isTokenMatch(ParserNode parentNode, ParserContext context) {
