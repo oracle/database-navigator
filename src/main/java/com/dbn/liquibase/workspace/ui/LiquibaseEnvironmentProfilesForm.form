@@ -39,7 +39,7 @@
                     <properties/>
                     <border type="none"/>
                     <children>
-                      <component id="c5ba0" class="javax.swing.JList" binding="profilesList">
+                      <component id="c5ba0" class="com.intellij.ui.components.JBList" binding="profilesList">
                         <constraints/>
                         <properties>
                           <selectionMode value="0"/>

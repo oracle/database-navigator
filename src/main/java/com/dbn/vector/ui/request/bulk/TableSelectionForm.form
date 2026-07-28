@@ -71,7 +71,7 @@
             <properties/>
             <border type="etched" title-resource-bundle="messages/DBNResources" title-key="app.vector.title.AvailableTables1"/>
             <children>
-              <component id="availableLst" class="javax.swing.JList" binding="availableTablesList" custom-create="true">
+              <component id="availableLst" class="com.intellij.ui.components.JBList" binding="availableTablesList" custom-create="true">
                 <constraints/>
                 <properties/>
               </component>
@@ -158,7 +158,7 @@
             <properties/>
             <border type="etched" title-resource-bundle="messages/DBNResources" title-key="app.vector.title.SelectedTables2"/>
             <children>
-              <component id="selectedLst" class="javax.swing.JList" binding="selectedTablesList" custom-create="true">
+              <component id="selectedLst" class="com.intellij.ui.components.JBList" binding="selectedTablesList" custom-create="true">
                 <constraints/>
                 <properties/>
               </component>

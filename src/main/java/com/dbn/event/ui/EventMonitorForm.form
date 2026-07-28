@@ -42,7 +42,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="29767" class="javax.swing.JList" binding="connectionsList">
+                  <component id="29767" class="com.intellij.ui.components.JBList" binding="connectionsList">
                     <constraints/>
                     <properties>
                       <selectionMode value="0"/>
