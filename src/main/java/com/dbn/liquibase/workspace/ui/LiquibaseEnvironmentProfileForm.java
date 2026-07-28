@@ -25,6 +25,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfileBundle;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
@@ -57,14 +58,17 @@ public class LiquibaseEnvironmentProfileForm extends DBNFormBase {
     private JCheckBox requireConfirmationCheckBox;
 
     private final LiquibaseEnvironmentProfile profile;
+    private final LiquibaseEnvironmentProfileBundle bundle;
     private final boolean environmentTypeEditable;
 
     LiquibaseEnvironmentProfileForm(
             @NotNull DBNComponent parent,
+            @NotNull LiquibaseEnvironmentProfileBundle bundle,
             @NotNull LiquibaseEnvironmentProfile profile,
             boolean environmentTypeEditable) {
         super(parent);
         this.profile = profile;
+        this.bundle = bundle;
         this.environmentTypeEditable = environmentTypeEditable;
         initHintPanel();
         initEnvironmentTypes();
@@ -102,7 +106,13 @@ public class LiquibaseEnvironmentProfileForm extends DBNFormBase {
     @Override
     protected void initValidation() {
         addRequiredTextValidation(nameTextField, txt("msg.liquibase.error.EnvironmentProfileNameRequired"));
+        addValidation(nameTextField, field -> validateProfileName());
         addSelectionValidation(environmentTypeSelector, txt("msg.liquibase.error.EnvironmentTypeRequired"));
+    }
+
+    private String validateProfileName() {
+        return bundle.findNameOwner(getText(nameTextField), profile) == null ?
+                null : txt("msg.liquibase.error.EnvironmentProfileNameAlreadyUsed");
     }
 
     @Override

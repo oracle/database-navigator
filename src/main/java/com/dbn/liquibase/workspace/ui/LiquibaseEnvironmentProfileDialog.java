@@ -52,7 +52,7 @@ public class LiquibaseEnvironmentProfileDialog extends DBNDialog<LiquibaseEnviro
     @NotNull
     @Override
     protected LiquibaseEnvironmentProfileForm createForm() {
-        return new LiquibaseEnvironmentProfileForm(this, profile, environmentTypeEditable);
+        return new LiquibaseEnvironmentProfileForm(this, bundle, profile, environmentTypeEditable);
     }
 
     @Override

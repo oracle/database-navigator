@@ -24,9 +24,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.util.Strings.equalsIgnoreCase;
 import static com.dbn.common.util.Strings.isEmpty;
 
 /** Project-level container for named Liquibase environment profiles. */
@@ -66,6 +68,19 @@ public class LiquibaseEnvironmentProfileBundle implements PersistentStateElement
         return entries.values().stream()
                 .filter(profile -> environmentTypeId.equals(profile.getEnvironmentTypeId()))
                 .toList();
+    }
+
+    @Nullable
+    public LiquibaseEnvironmentProfile findNameOwner(
+            @NotNull String name,
+            @NotNull LiquibaseEnvironmentProfile currentProfile) {
+        if (isEmpty(name)) return null;
+
+        return entries.values().stream()
+                .filter(profile -> !Objects.equals(profile.getId(), currentProfile.getId()))
+                .filter(profile -> equalsIgnoreCase(profile.getName(), name))
+                .findFirst()
+                .orElse(null);
     }
 
     @NotNull
