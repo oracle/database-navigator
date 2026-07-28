@@ -10,6 +10,7 @@
 
 package com.dbn.liquibase.workspace;
 
+import com.dbn.common.environment.EnvironmentTypeBundle;
 import com.dbn.common.environment.EnvironmentTypeId;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.state.PersistentStateElement;
@@ -21,10 +22,12 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -94,6 +97,13 @@ public class LiquibaseEnvironmentProfileBundle implements PersistentStateElement
 
     public void removeProfile(@NotNull String profileId) {
         entries.remove(profileId);
+    }
+
+    public void removeOrphanedProfiles(@NotNull EnvironmentTypeBundle environmentTypes) {
+        Set<EnvironmentTypeId> validTypeIds = new HashSet<>();
+        validTypeIds.add(EnvironmentTypeId.DEFAULT);
+        environmentTypes.getEnvironmentTypes().forEach(environmentType -> validTypeIds.add(environmentType.getId()));
+        entries.values().removeIf(profile -> !validTypeIds.contains(profile.getEnvironmentTypeId()));
     }
 
     public void replaceProfile(@NotNull LiquibaseEnvironmentProfile profile) {

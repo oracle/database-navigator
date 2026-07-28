@@ -20,7 +20,9 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.environment.EnvironmentTypeBundle;
 import com.dbn.common.environment.EnvironmentTypeId;
+import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.state.StateCategory;
@@ -51,6 +53,7 @@ import com.dbn.liquibase.workspace.ui.LiquibaseEnvironmentProfileDialog;
 import com.dbn.liquibase.workspace.ui.LiquibaseEnvironmentProfilesDialog;
 import com.dbn.liquibase.workspace.ui.LiquibaseWorkspaceDialog;
 import com.dbn.liquibase.workspace.ui.LiquibaseWorkspacesDialog;
+import com.dbn.options.general.GeneralProjectSettings;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -89,6 +92,19 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         environmentProfiles = new LiquibaseEnvironmentProfileBundle(project);
         ProjectEvents.subscribe(project, this, ConnectionConfigListener.TOPIC,
                 whenRemoved(c -> executionHistory.removeConnection(c)));
+        ProjectEvents.subscribe(project, this, EnvironmentManagerListener.TOPIC,
+                environmentManagerListener());
+    }
+
+    private @NotNull EnvironmentManagerListener environmentManagerListener() {
+        return new EnvironmentManagerListener() {
+            @Override
+            public void configurationChanged(Project project) {
+                GeneralProjectSettings projectSettings = GeneralProjectSettings.getInstance(project);
+                EnvironmentTypeBundle environmentTypes = projectSettings.getEnvironmentSettings().getEnvironmentTypes();
+                environmentProfiles.removeOrphanedProfiles(environmentTypes);
+            }
+        };
     }
 
     public static DatabaseLiquibaseManager getInstance(@NotNull Project project) {
