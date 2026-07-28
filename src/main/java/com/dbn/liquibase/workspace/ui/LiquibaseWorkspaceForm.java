@@ -26,6 +26,8 @@ import com.dbn.common.ui.link.Hyperlinks;
 import com.dbn.common.ui.misc.ContentRootSelector;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.DatabaseType;
+import com.dbn.liquibase.workspace.LiquibaseChangelogFiles;
+import com.dbn.liquibase.workspace.LiquibaseChangelogFormat;
 import com.dbn.liquibase.workspace.LiquibaseWorkspace;
 import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.intellij.openapi.Disposable;
@@ -50,9 +52,9 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.liquibase.workspace.LiquibaseChangelogFiles.getDefaultMasterChangelog;
 import static com.dbn.liquibase.workspace.LiquibaseWorkspace.DEFAULT_CHANGELOG_DIRECTORY;
 import static com.dbn.liquibase.workspace.LiquibaseWorkspace.DEFAULT_DOCUMENTATION_DIRECTORY;
-import static com.dbn.liquibase.workspace.LiquibaseWorkspace.DEFAULT_MASTER_CHANGELOG;
 import static com.dbn.liquibase.workspace.LiquibaseWorkspace.DEFAULT_PROPERTIES_FILE;
 import static com.dbn.liquibase.workspace.LiquibaseWorkspace.DEFAULT_ROOT_PATH;
 import static com.dbn.liquibase.workspace.LiquibaseWorkspace.DEFAULT_SQL_DIRECTORY;
@@ -65,6 +67,7 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
     private ContentRootSelector contentRootComboBox;
     private JBTextField nameTextField;
     private DBNComboBox<DatabaseType> databaseTypeSelector;
+    private DBNComboBox<LiquibaseChangelogFormat> changelogFormatSelector;
     private JBTextField rootPathTextField;
     private JBTextField changelogDirectoryTextField;
     private JBTextField sqlDirectoryTextField;
@@ -130,6 +133,7 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
     private void initFields() {
         initContentRoots();
         initDatabaseTypes();
+        initChangelogFormats();
         initPlaceholders();
         resetFormChanges();
         initPathListeners();
@@ -144,6 +148,26 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
         List<DatabaseType> values = getDatabaseTypeValues();
         databaseTypeSelector.setValues(values);
         setSelection(databaseTypeSelector, workspace.getDatabaseType());
+        onSelectionChange(databaseTypeSelector, type -> updateMasterChangelogExtension(getSelection(changelogFormatSelector)));
+    }
+
+    private void initChangelogFormats() {
+        changelogFormatSelector.setValues(List.of(LiquibaseChangelogFormat.values()));
+        setSelection(changelogFormatSelector, workspace.getChangelogFormat());
+        onSelectionChange(changelogFormatSelector, this::updateMasterChangelogExtension);
+    }
+
+    private void updateMasterChangelogExtension(@Nullable LiquibaseChangelogFormat format) {
+        if (format == null) return;
+
+        masterChangelogTextField.getEmptyText().setText(
+                getDefaultMasterChangelog(format, getSelection(databaseTypeSelector)));
+
+        String changelog = getText(masterChangelogTextField);
+        if (isEmpty(changelog)) return;
+
+        setText(masterChangelogTextField,
+                LiquibaseChangelogFiles.normalize(changelog, format, getSelection(databaseTypeSelector)));
     }
 
     @NotNull
@@ -159,7 +183,11 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
         changelogDirectoryTextField.getEmptyText().setText(DEFAULT_CHANGELOG_DIRECTORY);
         sqlDirectoryTextField.getEmptyText().setText(DEFAULT_SQL_DIRECTORY);
         documentationDirectoryTextField.getEmptyText().setText(DEFAULT_DOCUMENTATION_DIRECTORY);
-        masterChangelogTextField.getEmptyText().setText(DEFAULT_MASTER_CHANGELOG);
+        LiquibaseChangelogFormat changelogFormat = workspace.getChangelogFormat();
+        DatabaseType databaseType = workspace.getDatabaseType();
+        String defaultChangelog = getDefaultMasterChangelog(changelogFormat, databaseType);
+
+        masterChangelogTextField.getEmptyText().setText(defaultChangelog);
         propertiesFileTextField.getEmptyText().setText(DEFAULT_PROPERTIES_FILE);
     }
 
@@ -228,6 +256,7 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
     protected void initValidation() {
         addRequiredTextValidation(nameTextField, txt("msg.liquibase.error.WorkspaceNameRequired"));
         addSelectionValidation(databaseTypeSelector, txt("msg.liquibase.error.DatabaseTypeRequired"));
+        addValidation(changelogFormatSelector, selector -> validateChangelogFormat());
         addValidation(nameTextField, field -> validateWorkspaceName());
         addSelectionValidation(contentRootComboBox,    txt("msg.liquibase.error.ContentRootRequired"));
         addValidation(rootPathTextField, field -> validateWorkspaceRoot());
@@ -253,6 +282,14 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
 
         LiquibaseWorkspace owner = workspaces.findRootOwner(selectedPath, getText(rootPathTextField), workspace);
         return owner == null ? null : txt("msg.liquibase.error.ContentRootAlreadyMapped", getWorkspaceName(owner));
+    }
+
+    private String validateChangelogFormat() {
+        LiquibaseChangelogFormat format = getSelection(changelogFormatSelector);
+        DatabaseType databaseType = getSelection(databaseTypeSelector);
+        return format == LiquibaseChangelogFormat.SQL &&
+                (databaseType == null || databaseType == DatabaseType.GENERIC || databaseType == DatabaseType.UNKNOWN)
+                ? txt("msg.liquibase.error.ChangelogFormatRequiresDatabaseType") : null;
     }
 
     private String getWorkspaceName(LiquibaseWorkspace workspace) {
@@ -289,10 +326,12 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
         setSelection(databaseTypeSelector, workspace.getDatabaseType());
         setText(rootPathTextField, workspace.getRootPath());
         contentRootComboBox.setSelectedPath(workspace.getContentRootPath());
+        setSelection(changelogFormatSelector, workspace.getChangelogFormat());
         setText(changelogDirectoryTextField, workspace.getChangelogDirectory());
         setText(sqlDirectoryTextField, workspace.getSqlDirectory());
         setText(documentationDirectoryTextField, workspace.getDocumentationDirectory());
         setText(masterChangelogTextField, workspace.getMasterChangelog());
+        updateMasterChangelogExtension(workspace.getChangelogFormat());
         setText(propertiesFileTextField, workspace.getPropertiesFile());
     }
 
@@ -301,6 +340,7 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
         workspace.setDatabaseType(getSelection(databaseTypeSelector));
         workspace.setRootPath(getText(rootPathTextField));
         workspace.setContentRootPath(contentRootComboBox.getSelectedPath());
+        workspace.setChangelogFormat(getSelection(changelogFormatSelector));
         workspace.setChangelogDirectory(getText(changelogDirectoryTextField));
         workspace.setSqlDirectory(getText(sqlDirectoryTextField));
         workspace.setDocumentationDirectory(getText(documentationDirectoryTextField));

@@ -57,6 +57,7 @@ public class LiquibaseWorkspace implements PersistentStateElement, Presentable, 
     private String changelogDirectory = DEFAULT_CHANGELOG_DIRECTORY;
     private String sqlDirectory = DEFAULT_SQL_DIRECTORY;
     private String documentationDirectory = DEFAULT_DOCUMENTATION_DIRECTORY;
+    private LiquibaseChangelogFormat changelogFormat = LiquibaseChangelogFormat.YAML;
     private String masterChangelog = DEFAULT_MASTER_CHANGELOG;
     private String propertiesFile = DEFAULT_PROPERTIES_FILE;
     public boolean usesSameContentRoot(@NotNull LiquibaseWorkspace other) {
@@ -79,6 +80,7 @@ public class LiquibaseWorkspace implements PersistentStateElement, Presentable, 
         sqlDirectory = stringAttribute(element, "sql-directory", sqlDirectory);
         documentationDirectory = stringAttribute(element, "documentation-directory", documentationDirectory);
         masterChangelog = stringAttribute(element, "master-changelog", masterChangelog);
+        changelogFormat = enumAttribute(element, "changelog-format", changelogFormat);
         propertiesFile = stringAttribute(element, "properties-file", propertiesFile);
     }
 
@@ -92,6 +94,7 @@ public class LiquibaseWorkspace implements PersistentStateElement, Presentable, 
         setStringAttribute(element, "changelog-directory", changelogDirectory);
         setStringAttribute(element, "sql-directory", sqlDirectory);
         setStringAttribute(element, "documentation-directory", documentationDirectory);
+        setEnumAttribute(element, "changelog-format", changelogFormat);
         setStringAttribute(element, "master-changelog", masterChangelog);
         setStringAttribute(element, "properties-file", propertiesFile);
     }
