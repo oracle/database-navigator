@@ -205,7 +205,7 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
 
         private OperationListCellRenderer() {
             super(new BorderLayout(16, 0));
-            setBorder(JBUI.Borders.empty(2, 4));
+            setBorder(JBUI.Borders.empty(2, 16));
             add(operationLabel, BorderLayout.CENTER);
             add(statusLabel, BorderLayout.EAST);
         }

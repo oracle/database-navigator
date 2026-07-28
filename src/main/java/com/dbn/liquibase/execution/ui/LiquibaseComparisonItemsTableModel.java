@@ -21,7 +21,7 @@ public class LiquibaseComparisonItemsTableModel extends DBNDynamicTableModel<Liq
         addColumn(txt("app.liquibase.column.SourceObject"), e -> getObjectName(e.getSourceObject()));
         addColumn(txt("app.liquibase.column.TargetObject"), e -> getObjectName(e.getTargetObject()));
         addColumn(txt("app.liquibase.column.ComparisonStatus"), e -> e.getComparisonStatus().getName());
-        addColumn(txt("app.liquibase.column.Details"), LiquibaseComparisonItem::getMessage);
+        addColumn(txt("app.liquibase.column.Details"), e -> e.getMessage());
     }
 
     public void refresh() {

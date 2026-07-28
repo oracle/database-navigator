@@ -20,6 +20,7 @@ import com.dbn.common.action.ProjectAction;
 import com.dbn.liquibase.workflow.ui.LiquibaseWorkflowDashboardDialog;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +33,7 @@ public class LiquibaseWorkflowDashboardAction extends ProjectAction {
     private final DBObjectRef<DBSchema> schema;
 
     public LiquibaseWorkflowDashboardAction(@NotNull DBSchema schema) {
-        super(txt("app.liquibase.action.WorkflowDashboard"));
+        super(txt("app.liquibase.action.WorkflowDashboard"), null, AllIcons.Actions.ListFiles);
         this.schema = DBObjectRef.of(schema);
     }
 

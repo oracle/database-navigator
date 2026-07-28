@@ -36,60 +36,66 @@ import static com.dbn.liquibase.operation.LiquibaseOperation.UNEXPECTED_CHANGESE
 import static com.dbn.liquibase.operation.LiquibaseOperation.UPDATE_DATABASE;
 import static com.dbn.liquibase.operation.LiquibaseOperation.UPDATE_SQL;
 import static com.dbn.liquibase.operation.LiquibaseOperation.VALIDATE_CHANGELOG;
+import static com.dbn.liquibase.workflow.LiquibaseWorkflowCategory.DEPLOY;
+import static com.dbn.liquibase.workflow.LiquibaseWorkflowCategory.PREPARE;
+import static com.dbn.liquibase.workflow.LiquibaseWorkflowCategory.RECOVER;
+import static com.dbn.liquibase.workflow.LiquibaseWorkflowCategory.REVIEW;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Defines a reusable sequence of Liquibase operations. */
 @Getter
 public enum LiquibaseWorkflow implements LiquibaseTask {
-    DIAGNOSE_DATABASE(
+    DIAGNOSE_DATABASE(REVIEW,
             VALIDATE_CHANGELOG,
             SHOW_CHANGELOG_STATUS,
             UNEXPECTED_CHANGESETS,
             CALCULATE_CHECKSUMS,
             LIST_LOCKS),
-    VALIDATE_AND_PREVIEW(
+    VALIDATE_AND_PREVIEW(REVIEW,
             VALIDATE_CHANGELOG,
             SHOW_CHANGELOG_STATUS,
             UPDATE_SQL),
-    DRIFT_AUDIT(
+    DRIFT_AUDIT(REVIEW,
             COMPARE_SCHEMAS,
             GENERATE_DIFF_CHANGELOG,
             VALIDATE_CHANGELOG),
-    COMPARE_AND_GENERATE(
+    COMPARE_AND_GENERATE(PREPARE,
             COMPARE_SCHEMAS,
             GENERATE_DIFF_CHANGELOG),
-    GENERATE_AND_DOCUMENT(
+    GENERATE_AND_DOCUMENT(PREPARE,
             GENERATE_CHANGELOG,
             VALIDATE_CHANGELOG,
             GENERATE_DATABASE_DOCUMENTATION),
-    COMPARE_GENERATE_AND_APPLY(
+    COMPARE_GENERATE_AND_APPLY(DEPLOY,
             COMPARE_SCHEMAS,
             GENERATE_DIFF_CHANGELOG,
             VALIDATE_CHANGELOG,
             UPDATE_DATABASE),
-    VALIDATE_AND_APPLY(
+    VALIDATE_AND_APPLY(DEPLOY,
             VALIDATE_CHANGELOG,
             SHOW_CHANGELOG_STATUS,
             UPDATE_SQL,
             UPDATE_DATABASE),
-    DEPLOY_AND_VERIFY(
+    DEPLOY_AND_VERIFY(DEPLOY,
             VALIDATE_CHANGELOG,
             UPDATE_SQL,
             UPDATE_DATABASE,
             SHOW_CHANGELOG_STATUS),
-    RELEASE_CHECKPOINT(
+    RELEASE_CHECKPOINT(DEPLOY,
             VALIDATE_CHANGELOG,
             UPDATE_DATABASE,
             SHOW_CHANGELOG_HISTORY),
-    ROLLBACK_SAFELY(
+    ROLLBACK_SAFELY(RECOVER,
             SHOW_CHANGELOG_HISTORY,
             ROLLBACK_SQL,
             ROLLBACK_CHANGESETS);
 
     private final List<LiquibaseOperation> operations;
+    private final LiquibaseWorkflowCategory category;
     private final LiquibaseWorkflowSupport support;
 
-    LiquibaseWorkflow(LiquibaseOperation... operations) {
+    LiquibaseWorkflow(LiquibaseWorkflowCategory category, LiquibaseOperation... operations) {
+        this.category = category;
         this.operations = List.of(operations);
         this.support = new LiquibaseWorkflowSupport(this);
     }

@@ -26,39 +26,51 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+import static com.dbn.liquibase.operation.LiquibaseOperationCategory.CHANGELOG;
+import static com.dbn.liquibase.operation.LiquibaseOperationCategory.DEPLOY;
+import static com.dbn.liquibase.operation.LiquibaseOperationCategory.INSPECT;
+import static com.dbn.liquibase.operation.LiquibaseOperationCategory.MAINTENANCE;
+import static com.dbn.liquibase.operation.LiquibaseOperationCategory.MORE;
+import static com.dbn.liquibase.operation.LiquibaseOperationCategory.PREVIEW_SQL;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Liquibase operation represented in the DBN execution console. */
 @Getter
 public enum LiquibaseOperation implements Constant<LiquibaseOperation>, LiquibaseTask {
-    GENERATE_CHANGELOG,
-    GENERATE_DATABASE_DOCUMENTATION,
-    SNAPSHOT_DATABASE,
-    VALIDATE_CHANGELOG,
-    COMPARE_SCHEMAS,
-    GENERATE_DIFF_CHANGELOG,
-    SHOW_CHANGELOG_STATUS,
-    SHOW_CHANGELOG_HISTORY,
-    UNEXPECTED_CHANGESETS,
-    SYNCHRONIZE_CHANGELOG,
-    SYNCHRONIZE_CHANGELOG_TO_TAG,
-    SYNCHRONIZE_CHANGELOG_SQL,
-    UPDATE_DATABASE,
-    UPDATE_TESTING_ROLLBACK,
-    UPDATE_SQL,
-    FUTURE_ROLLBACK,
-    TAG_DATABASE,
-    MARK_NEXT_CHANGESET_RAN,
-    RELEASE_LOCKS,
-    CLEAR_CHECKSUMS,
-    LIST_LOCKS,
-    CALCULATE_CHECKSUMS,
-    DROP_ALL,
-    ROLLBACK_CHANGESETS,
-    ROLLBACK_SQL;
+    GENERATE_CHANGELOG(CHANGELOG),
+    GENERATE_DATABASE_DOCUMENTATION(INSPECT),
+    SNAPSHOT_DATABASE(INSPECT),
+    VALIDATE_CHANGELOG(CHANGELOG),
+    COMPARE_SCHEMAS(INSPECT),
+    GENERATE_DIFF_CHANGELOG(CHANGELOG),
+    SHOW_CHANGELOG_STATUS(INSPECT),
+    SHOW_CHANGELOG_HISTORY(INSPECT),
+    UNEXPECTED_CHANGESETS(INSPECT),
+    SYNCHRONIZE_CHANGELOG(MAINTENANCE),
+    SYNCHRONIZE_CHANGELOG_TO_TAG(MAINTENANCE),
+    SYNCHRONIZE_CHANGELOG_SQL(PREVIEW_SQL),
+    UPDATE_DATABASE(DEPLOY),
+    UPDATE_TESTING_ROLLBACK(DEPLOY),
+    UPDATE_SQL(PREVIEW_SQL),
+    FUTURE_ROLLBACK(PREVIEW_SQL),
+    TAG_DATABASE(DEPLOY),
+    MARK_NEXT_CHANGESET_RAN(MAINTENANCE),
+    RELEASE_LOCKS(MAINTENANCE),
+    CLEAR_CHECKSUMS(MAINTENANCE),
+    LIST_LOCKS(MAINTENANCE),
+    CALCULATE_CHECKSUMS(MAINTENANCE),
+    DROP_ALL(MORE),
+    ROLLBACK_CHANGESETS(DEPLOY),
+    ROLLBACK_SQL(PREVIEW_SQL);
 
+    @Getter
+    private final LiquibaseOperationCategory category;
     @Delegate
     private final LiquibaseOperationSupport support = new LiquibaseOperationSupport(this);
+
+    LiquibaseOperation(LiquibaseOperationCategory category) {
+        this.category = category;
+    }
 
     public String getName() {
         return txt("app.liquibase.const.Operation_" + name());

@@ -28,6 +28,7 @@ import com.dbn.connection.ConnectionManager;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.operation.ui.LiquibaseDashboardItemForm;
 import com.dbn.liquibase.workflow.LiquibaseWorkflow;
+import com.dbn.liquibase.workflow.LiquibaseWorkflowCategory;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.intellij.openapi.project.Project;
@@ -38,6 +39,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import java.awt.BorderLayout;
 import java.util.List;
 
@@ -68,7 +70,7 @@ public class LiquibaseWorkflowDashboardForm extends DBNFormBase {
     private JLabel schemaLabel;
     private DBNComboBox<ConnectionHandler> connectionSelector;
     private DBObjectSelector<DBSchema> schemaSelector;
-    private JScrollPane workflowsScrollPane;
+    private JTabbedPane workflowsPanel;
 
     private final List<LiquibaseDashboardItemForm> workflowForms = DisposableContainers.list(this);
 
@@ -128,9 +130,16 @@ public class LiquibaseWorkflowDashboardForm extends DBNFormBase {
     }
 
     private void initWorkflowsPanel() {
+        for (LiquibaseWorkflowCategory category : LiquibaseWorkflowCategory.values()) {
+            addCategory(category);
+        }
+    }
+
+    private void addCategory(@NotNull LiquibaseWorkflowCategory category) {
         JPanel itemsPanel = new JPanel();
         verticalBoxLayout(itemsPanel);
         for (LiquibaseWorkflow workflow : LiquibaseWorkflow.values()) {
+            if (workflow.getCategory() != category) continue;
             LiquibaseDashboardItemForm form = new LiquibaseDashboardItemForm(
                     this,
                     workflow,
@@ -139,9 +148,11 @@ public class LiquibaseWorkflowDashboardForm extends DBNFormBase {
             workflowForms.add(form);
         }
         itemsPanel.add(Box.createVerticalGlue());
-        workflowsScrollPane.setViewportView(itemsPanel);
-        workflowsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        workflowsScrollPane.setBorder(null);
+
+        JScrollPane scrollPane = new JScrollPane(itemsPanel);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setBorder(null);
+        workflowsPanel.addTab(category.getName(), scrollPane);
     }
 
     private void updateWorkflowAvailability() {
