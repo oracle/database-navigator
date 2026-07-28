@@ -26,11 +26,16 @@ import com.dbn.common.ui.link.Hyperlinks;
 import com.dbn.common.ui.misc.ContentRootSelector;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.DatabaseType;
+import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.liquibase.workspace.LiquibaseChangelogFiles;
 import com.dbn.liquibase.workspace.LiquibaseChangelogFormat;
 import com.dbn.liquibase.workspace.LiquibaseWorkspace;
 import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
+import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -346,6 +351,16 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
         workspace.setDocumentationDirectory(getText(documentationDirectoryTextField));
         workspace.setMasterChangelog(getText(masterChangelogTextField));
         workspace.setPropertiesFile(getText(propertiesFileTextField));
+
+        DatabaseType databaseType = workspace.getDatabaseType();
+        if (databaseType != null) {
+            Project project = ensureProject();
+            FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
+            Path rootPath = new LiquibaseWorkspacePaths(workspace).getLiquibaseRootPath();
+            VirtualFile rootDirectory = LocalFileSystem.getInstance().findFileByPath(rootPath.toString());
+
+            contextManager.setVirtualConnection(rootDirectory, databaseType);
+        }
     }
 
     @Override

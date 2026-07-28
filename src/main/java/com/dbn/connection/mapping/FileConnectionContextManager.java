@@ -34,6 +34,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.ConnectionSelectorOptions;
+import com.dbn.connection.DatabaseType;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.config.ConnectionConfigListener;
@@ -159,12 +160,26 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
     }
 
     public boolean setConnection(VirtualFile file, ConnectionHandler connection) {
-        if (isConnectionSelectable(file)) {
-            return notifiedChange(
-                    () -> registry.setConnectionHandler(file, connection),
-                    handler -> handler.connectionChanged(getProject(), file, connection));
-        }
-        return false;
+        if (!isConnectionSelectable(file)) return false;
+
+        return notifiedChange(
+                () -> registry.setDatabaseConnection(file, connection),
+                handler -> handler.connectionChanged(getProject(), file, connection));
+    }
+
+    public void setVirtualConnection(@Nullable VirtualFile file, @NotNull DatabaseType databaseType) {
+        if (file == null) return;
+
+        ConnectionId connectionId = switch (databaseType) {
+            case ORACLE -> ConnectionId.VIRTUAL_ORACLE;
+            case MYSQL -> ConnectionId.VIRTUAL_MYSQL;
+            case POSTGRES -> ConnectionId.VIRTUAL_POSTGRES;
+            case SQLITE -> ConnectionId.VIRTUAL_SQLITE;
+            case GENERIC, ISO92, UNKNOWN -> ConnectionId.VIRTUAL_ISO92_SQL;
+        };
+        ConnectionManager connectionManager = ConnectionManager.getInstance(getProject());
+        ConnectionHandler connection = connectionManager.getConnection(connectionId);
+        setConnection(file, connection);
     }
 
     public void setConnection(@NotNull Editor editor, @Nullable ConnectionHandler connection) {
@@ -452,9 +467,10 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
     @Override
     public Element getComponentState() {
         Element element = newStateElement();
-        for (FileConnectionContext mapping : registry.getMappings().values()) {
+        for (FileConnectionContext context : registry.getMappings().values()) {
+            if (!context.isValid()) continue;
             Element mappingElement = newElement(element, "mapping");
-            mapping.writeState(mappingElement);
+            context.writeState(mappingElement);
         }
         return element;
     }
@@ -493,4 +509,3 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
         mappings.cleanup();
     }
 }
-
