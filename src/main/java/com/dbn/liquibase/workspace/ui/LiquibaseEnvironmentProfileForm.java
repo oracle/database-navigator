@@ -36,7 +36,6 @@ import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.setFormFieldEnabled;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
@@ -99,7 +98,6 @@ public class LiquibaseEnvironmentProfileForm extends DBNFormBase {
         types.add(EnvironmentType.DEFAULT);
         types.addAll(settings.getEnvironmentTypes().getEnvironmentTypes());
         environmentTypeSelector.setValues(types);
-        environmentTypeSelector.set(HIDE_DESCRIPTION, false);
         setFormFieldEnabled(environmentTypeSelector, "CONTEXT_AVAILABILITY", environmentTypeEditable);
     }
 

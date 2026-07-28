@@ -55,7 +55,6 @@ import java.util.List;
 import static com.dbn.assistant.profile.AssistantTemperaturePreset.BALANCED;
 import static com.dbn.assistant.profile.AssistantTemperaturePreset.CUSTOM;
 import static com.dbn.assistant.profile.AssistantTemperaturePreset.values;
-import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
@@ -143,7 +142,6 @@ public class AssistantProfileEditForm extends DBNFormBase {
 
     private void initTemperatureFields() {
         initComboBox(temperatureComboBox, values());
-        temperatureComboBox.set(HIDE_DESCRIPTION, true);
         temperatureSlider.addChangeListener(e -> updateSliderLabels());
 
         TextContent infoContent = buildTemperatureInfo();

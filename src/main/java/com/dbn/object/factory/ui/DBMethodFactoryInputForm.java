@@ -42,7 +42,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
@@ -76,13 +75,11 @@ public class DBMethodFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         ConnectionHandler connection = getConnection();
         connectionComboBox.setValues(connection);
         connectionComboBox.setSelectedValue(connection);
-        connectionComboBox.set(HIDE_DESCRIPTION, true);
         connectionComboBox.setEnabled(false); // TODO support connection switch
 
         SchemaId schemaId = schema.getSchemaId();
         schemaComboBox.setValues(schemaId);
         schemaComboBox.setSelectedValue(schemaId);
-        schemaComboBox.set(HIDE_DESCRIPTION, true);
         schemaComboBox.setEnabled(false); // TODO support connection switch
 
         initPreserveCaseFields();

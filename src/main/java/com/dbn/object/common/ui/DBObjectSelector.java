@@ -39,7 +39,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -55,7 +54,6 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
     private final Listeners<DBObjectSelectorListener> listeners = Listeners.create();
 
     public DBObjectSelector() {
-        set(HIDE_DESCRIPTION, true);
     }
 
     public DBObjectSelector<T> initialize(
