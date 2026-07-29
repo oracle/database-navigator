@@ -15,6 +15,7 @@ import com.dbn.common.environment.EnvironmentTypeId;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
+import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -30,7 +31,10 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.equalsIgnoreCase;
 import static com.dbn.common.util.Strings.isEmpty;
 
@@ -39,6 +43,7 @@ import static com.dbn.common.util.Strings.isEmpty;
 public class LiquibaseEnvironmentProfileBundle implements PersistentStateElement, Cloneable<LiquibaseEnvironmentProfileBundle> {
     private final ProjectRef project;
     private Map<String, LiquibaseEnvironmentProfile> entries = new LinkedHashMap<>();
+    private Map<ConnectionId, String> selections = new LinkedHashMap<>();
 
     public LiquibaseEnvironmentProfileBundle(@NotNull Project project) {
         this.project = ProjectRef.of(project);
@@ -96,7 +101,19 @@ public class LiquibaseEnvironmentProfileBundle implements PersistentStateElement
     }
 
     public void removeProfile(@NotNull String profileId) {
+        selections.values().removeIf(id -> Objects.equals(id, profileId));
         entries.remove(profileId);
+    }
+
+    @Nullable
+    public LiquibaseEnvironmentProfile getSelectedProfile(@NotNull ConnectionId connectionId) {
+        String profileId = selections.get(connectionId);
+        return profileId == null ? null : entries.get(profileId);
+    }
+
+    public void rememberProfile(@NotNull ConnectionId connectionId, @Nullable LiquibaseEnvironmentProfile profile) {
+        if (profile == null) return;
+        selections.put(connectionId, profile.getId());
     }
 
     public void removeOrphanedProfiles(@NotNull EnvironmentTypeBundle environmentTypes) {
@@ -113,11 +130,13 @@ public class LiquibaseEnvironmentProfileBundle implements PersistentStateElement
     public void replaceProfiles(@NotNull LiquibaseEnvironmentProfileBundle bundle) {
         entries = new LinkedHashMap<>();
         bundle.entries.forEach((id, profile) -> entries.put(id, profile.clone()));
+        selections = new LinkedHashMap<>(bundle.selections);
     }
 
     @Override
     public void readState(@NotNull Element element) {
         entries.clear();
+        selections.clear();
         for (Element profileElement : childrenOf(element, "profile")) {
             String environmentType = profileElement.getAttributeValue("environment-type");
             if (isEmpty(environmentType)) continue;
@@ -125,6 +144,11 @@ public class LiquibaseEnvironmentProfileBundle implements PersistentStateElement
             LiquibaseEnvironmentProfile profile = new LiquibaseEnvironmentProfile(environmentType, environmentTypeId);
             profile.readState(profileElement);
             entries.put(profile.getId(), profile);
+        }
+        for (Element selectionElement : childrenOf(element, "selection")) {
+            ConnectionId connectionId = connectionIdAttribute(selectionElement, "connection-id");
+            String profileId = stringAttribute(selectionElement, "profile-id");
+            if (connectionId != null && entries.containsKey(profileId)) selections.put(connectionId, profileId);
         }
     }
 
@@ -134,6 +158,11 @@ public class LiquibaseEnvironmentProfileBundle implements PersistentStateElement
             Element profileElement = newElement(element, "profile");
             profile.writeState(profileElement);
         });
+        selections.forEach((connectionId, profileId) -> {
+            Element selectionElement = newElement(element, "selection");
+            setConstantAttribute(selectionElement, "connection-id", connectionId);
+            selectionElement.setAttribute("profile-id", profileId);
+        });
     }
 
     @Override
@@ -142,6 +171,7 @@ public class LiquibaseEnvironmentProfileBundle implements PersistentStateElement
         LiquibaseEnvironmentProfileBundle clone = (LiquibaseEnvironmentProfileBundle) super.clone();
         clone.entries = new LinkedHashMap<>();
         entries.forEach((id, profile) -> clone.entries.put(id, profile.clone()));
+        clone.selections = new LinkedHashMap<>(selections);
         return clone;
     }
 }

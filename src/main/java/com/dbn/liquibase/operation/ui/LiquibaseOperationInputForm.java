@@ -31,6 +31,7 @@ import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.DatabaseType;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
@@ -44,6 +45,7 @@ import com.dbn.liquibase.operation.LiquibaseRollbackType;
 import com.dbn.liquibase.operation.LiquibaseUpdateInstruction;
 import com.dbn.liquibase.operation.LiquibaseUpdateType;
 import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfileBundle;
 import com.dbn.liquibase.workspace.LiquibaseWorkspace;
 import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
@@ -148,7 +150,6 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
     private TextFieldWithPopup<?> rollbackTagField;
 
     private final LiquibaseOperationInput executionInput;
-    private volatile ConnectionHandler environmentProfileConnection;
 
     LiquibaseOperationInputForm(@NotNull LiquibaseOperationInputDialog parent) {
         this(parent, parent.getExecutionInput());
@@ -454,7 +455,9 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         setEmptyOptionsText(envProfileSelector, txt("app.liquibase.placeholder.NoEnvironmentProfile"));
         envProfileSelector.withValueLoader(() -> loadEnvironmentProfiles());
         envProfileSelector.withValueFactory(environmentProfileFactory());
-        updateEnvironmentProfileSelector();
+        envProfileSelector.withValuePreselector(p -> p == getSelectedEnvironmentProfile());
+        envProfileSelector.reloadValues();
+
         onSelectionChange(envProfileSelector, value -> {
             executionInput.setEnvironmentProfile(value);
             markFormChanged();
@@ -475,15 +478,19 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         };
     }
 
-    private void updateEnvironmentProfileSelector() {
-        environmentProfileConnection = getRelevantContextConnection();
-        setFormFieldEnabled(envProfileSelector, "CONDITIONAL_AVAILABILITY", environmentProfileConnection != null);
-        envProfileSelector.reloadValues();
+    @Nullable
+    private LiquibaseEnvironmentProfile getSelectedEnvironmentProfile() {
+        ConnectionHandler connection = getRelevantContextConnection();
+        if (connection == null) return null;
+
+        ConnectionId connectionId = connection.getConnectionId();
+        LiquibaseEnvironmentProfileBundle environmentProfiles = executionInput.getEnvironmentProfiles();
+        return environmentProfiles.getSelectedProfile(connectionId);
     }
 
     @NotNull
     private List<LiquibaseEnvironmentProfile> loadEnvironmentProfiles() {
-        ConnectionHandler connection = environmentProfileConnection;
+        ConnectionHandler connection = getRelevantContextConnection();
         if (connection == null) return emptyList();
 
         EnvironmentTypeId environmentTypeId = connection.getEnvironmentType().getId();
@@ -585,7 +592,8 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         if (enabled) {
             onSelectionChange(selector, value -> {
                 schemaSelector.reloadValues();
-                updateEnvironmentProfileSelector();
+                envProfileSelector.withValuePreselector(p -> p == getSelectedEnvironmentProfile());
+                envProfileSelector.reloadValues();
                 markFormChanged();
             });
         }
@@ -720,12 +728,15 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         executionInput.setChangelogTag(support.supports(CHANGELOG_TAG) ? getText(databaseTagTextField) : null);
         executionInput.setCheckpointTag(getText(checkpointTagTextField));
 
-        if (workspace == null) return;
-        if (sourceSchema == null && targetSchema == null) return;
+        LiquibaseEnvironmentProfileBundle environmentProfiles = executionInput.getEnvironmentProfiles();
+        environmentProfiles.rememberProfile(
+                executionInput.getRelevantConnectionId(),
+                environmentProfile);
 
-        executionInput.getWorkspaces().rememberWorkspace(
-                executionInput.getRelevantConnection().getConnectionId(),
-                executionInput.getRelevantSchema().getSchemaId(),
+        LiquibaseWorkspaceBundle workspaces = executionInput.getWorkspaces();
+        workspaces.rememberWorkspace(
+                executionInput.getRelevantConnectionId(),
+                executionInput.getRelevantSchemaId(),
                 workspace);
     }
 

@@ -18,6 +18,8 @@ package com.dbn.liquibase.task;
 
 import com.dbn.common.component.ProjectUnit;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -32,4 +34,12 @@ public abstract class LiquibaseTaskInput extends ProjectUnit {
 
     @NotNull
     public abstract DBSchema getRelevantSchema();
+
+    public ConnectionId getRelevantConnectionId() {
+        return getRelevantConnection().getConnectionId();
+    }
+
+    public @NotNull SchemaId getRelevantSchemaId() {
+        return getRelevantSchema().getSchemaId();
+    }
 }
