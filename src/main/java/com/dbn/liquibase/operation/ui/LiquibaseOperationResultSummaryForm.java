@@ -226,6 +226,7 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
     }
 
     private void updateMessageForm(@NotNull LiquibaseOperationResult result) {
+        checkDisposed();
         updateStatusLabel(result);
         updateProcessedItems(result);
         updateRollbackInfo(result);

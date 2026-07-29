@@ -21,6 +21,7 @@ import com.dbn.common.task.TaskStatus;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.execution.ExecutionCancellationAdapter;
 import com.dbn.execution.ExecutionResultBase;
 import com.dbn.execution.common.result.ui.ExecutionResultForm;
 import com.dbn.language.common.DBLanguagePsiFile;
@@ -52,6 +53,13 @@ public abstract class LiquibaseTaskResult<
 
     public final TaskStatus getStatus() {
         return context.getStatus();
+    }
+
+    @Override
+    public ExecutionCancellationAdapter getCancellationAdapter() {
+        return getStatus() == TaskStatus.RUNNING
+                ? new LiquibaseTaskCancellationAdapter(this)
+                : null;
     }
 
     public abstract boolean canRerun();
