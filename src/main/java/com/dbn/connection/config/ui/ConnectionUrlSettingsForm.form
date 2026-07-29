@@ -265,9 +265,17 @@
       </component>
       <component id="87dfa" class="javax.swing.JTextField" binding="configLocationTextField">
         <constraints>
-          <grid row="10" column="1" row-span="1" col-span="5" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="10" column="1" row-span="1" col-span="4" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
+      </component>
+      <component id="ociDbToolsBrowse" class="javax.swing.JButton" binding="configLocationBrowseButton">
+        <constraints>
+          <grid row="10" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.button.BrowseDatabaseTools"/>
+        </properties>
       </component>
       <component id="fbd3c" class="javax.swing.JLabel" binding="cloudRegionLabel">
         <constraints>

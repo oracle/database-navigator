@@ -41,6 +41,8 @@ import com.dbn.connection.config.parameter.ui.UrlParameterInputDialog;
 import com.dbn.connection.config.tns.TnsAdmin;
 import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
+import com.dbn.oci.database.tools.OciDatabaseToolsConnectionInfo;
+import com.dbn.oci.database.tools.ui.OciDatabaseToolsConnectionDialog;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBTextField;
@@ -114,6 +116,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JTextField portTextField;
     private JTextField databaseTextField;
     private JTextField configLocationTextField;
+    private JButton configLocationBrowseButton;
     private JTextField cloudRegionTextField;
     private JTextField gcpStorageProjectTextField;
     private JTextField gcpStorageBucketTextField;
@@ -140,6 +143,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         sourceTypeComboBox.addActionListener(e -> updateFieldVisibility());
         cloudProviderComboBox.addActionListener(e -> updateFieldVisibility());
         parametersButton.addActionListener(e -> openParametersDialog());
+        configLocationBrowseButton.addActionListener(e -> openOciDatabaseToolsConnectionDialog());
 
         updateTnsAdminField();
 
@@ -184,6 +188,18 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         if (dialog.showAndGet()) {
             this.parameters = dialog.getParameters();
             updateUrlField();
+        }
+    }
+
+    private void openOciDatabaseToolsConnectionDialog() {
+        if (!isOciDatabaseToolsConfig()) return;
+
+        ConnectionDatabaseSettingsForm parent = ensureParentComponent();
+        OciDatabaseToolsConnectionDialog dialog =
+                new OciDatabaseToolsConnectionDialog(getProject(), parent.getOciAuthenticationConfig());
+        if (dialog.showAndGet()) {
+            OciDatabaseToolsConnectionInfo connection = dialog.getSelectedConnection();
+            if (connection != null) configLocationTextField.setText(connection.getId());
         }
     }
 
@@ -442,6 +458,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         setText(configLocationLabel, resolveConfigLocationLabel(configFileSourceType));
         configLocationLabel.setVisible(remoteConfigVisible && !gcpStorageConfig);
         configLocationTextField.setVisible(remoteConfigVisible && !gcpStorageConfig);
+        configLocationBrowseButton.setVisible(remoteConfigVisible && isOciDatabaseToolsConfig());
         cloudRegionLabel.setVisible(cloudRegionConfig);
         cloudRegionTextField.setVisible(cloudRegionConfig);
         gcpStorageProjectLabel.setVisible(gcpStorageConfig);
@@ -524,6 +541,11 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private boolean isOciObjectStorageConfig() {
         return isCloudProviderConfig() &&
                 getCloudConfigProviderType() == CloudConfigProviderType.OCI_OBJECT;
+    }
+
+    private boolean isOciDatabaseToolsConfig() {
+        return isCloudProviderConfig() &&
+                getCloudConfigProviderType() == CloudConfigProviderType.OCI_DB_TOOLS;
     }
 
     private boolean isGcpStorageConfig() {

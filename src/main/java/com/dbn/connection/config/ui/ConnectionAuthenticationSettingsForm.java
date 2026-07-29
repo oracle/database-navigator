@@ -22,6 +22,7 @@ import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
+import com.dbn.oci.config.OciAuthenticationConfig;
 import com.dbn.connection.ui.ConnectionAuthenticationFieldsForm;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.Nls;
@@ -107,6 +108,10 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
 
     public void addCloudProviderChangeListeners(Runnable runnable) {
         cloudConfigProviderAuthSettingsForm.addChangeListeners(runnable);
+    }
+
+    public OciAuthenticationConfig getOciAuthenticationConfig() {
+        return cloudConfigProviderAuthSettingsForm.getOciAuthenticationConfig();
     }
 
     private AuthenticationInfo getAuthenticationInfo() {

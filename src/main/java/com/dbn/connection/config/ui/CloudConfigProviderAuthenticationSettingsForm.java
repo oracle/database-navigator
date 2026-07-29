@@ -26,6 +26,7 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.provider.CloudConfigProviderAuthentication;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
+import com.dbn.oci.config.OciAuthenticationConfig;
 import com.dbn.credentials.Secret;
 import com.dbn.oci.config.OciConfigUtil;
 import com.intellij.openapi.options.ConfigurationException;
@@ -152,6 +153,13 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
 
     public String getOciConfigProviderConfigFile() {
         return getText(configFileTextField);
+    }
+
+    public OciAuthenticationConfig getOciAuthenticationConfig() {
+        return new OciAuthenticationConfig(
+                getCloudConfigProviderAuthentication(),
+                getOciConfigProviderConfigFile(),
+                getOciConfigProviderProfile());
     }
 
     public void validateSettings() throws ConfigurationException {

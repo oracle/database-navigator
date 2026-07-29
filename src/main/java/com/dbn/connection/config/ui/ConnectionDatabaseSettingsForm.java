@@ -45,6 +45,7 @@ import com.dbn.connection.config.provider.CloudConfigProviderAuthentication;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.config.provider.ConfigFileSourceType;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
+import com.dbn.oci.config.OciAuthenticationConfig;
 import com.dbn.credentials.Secret;
 import com.dbn.driver.DriverSource;
 import com.intellij.openapi.options.ConfigurationException;
@@ -174,6 +175,10 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
                 configuration.getProject(),
                 ConnectionPresentationChangeListener.TOPIC,
                 (listener) -> listener.presentationChanged(name, icon, color, connectionId, databaseType));
+    }
+
+    OciAuthenticationConfig getOciAuthenticationConfig() {
+        return authSettingsForm.getOciAuthenticationConfig();
     }
 
     private Icon getIcon(ConnectionSettings connectionSettings, ConnectivityStatus connectivityStatus) {
