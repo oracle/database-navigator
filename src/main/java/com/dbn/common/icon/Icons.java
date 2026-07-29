@@ -73,8 +73,8 @@ public class Icons {
     public static final Icon COMMON_FILTER_ACTIVE =    AllIcons.Actions.IntentionBulb;
     public static final Icon COMMON_FILTER_INACTIVE =  AllIcons.Actions.IntentionBulbGrey;
 
-    public static final Icon ACTION_APPROVE                   = AllIcons.General.GreenCheckmark;
-    public static final Icon ACTION_REJECT                    = AllIcons.Vcs.Remove;
+    public static final Icon ACTION_APPROVE                   = load("/img/action/Approve.svg");
+    public static final Icon ACTION_REJECT                    = load("/img/action/Reject.svg");
 
     public static final Icon ACTION_ADD                       = AllIcons.General.Add;
     public static final Icon ACTION_INFO                      = load("/img/action/Info.svg");
