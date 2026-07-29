@@ -25,6 +25,7 @@ import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.link.Hyperlinks;
 import com.dbn.common.ui.misc.ContentRootSelector;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.liquibase.workspace.LiquibaseChangelogFiles;
@@ -352,15 +353,24 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
         workspace.setMasterChangelog(getText(masterChangelogTextField));
         workspace.setPropertiesFile(getText(propertiesFileTextField));
 
-        DatabaseType databaseType = workspace.getDatabaseType();
-        if (databaseType != null) {
-            Project project = ensureProject();
-            FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-            Path rootPath = new LiquibaseWorkspacePaths(workspace).getLiquibaseRootPath();
-            VirtualFile rootDirectory = LocalFileSystem.getInstance().findFileByPath(rootPath.toString());
+        addConnectionContext();
+    }
 
-            contextManager.setVirtualConnection(rootDirectory, databaseType);
-        }
+    private void addConnectionContext() {
+        DatabaseType databaseType = workspace.getDatabaseType();
+        if (databaseType == null) return;
+
+        Project project = ensureProject();
+        FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
+        Path rootPath = new LiquibaseWorkspacePaths(workspace).getLiquibaseRootPath();
+        LocalFileSystem fileSystem = LocalFileSystem.getInstance();
+        VirtualFile rootDirectory = fileSystem.findFileByPath(rootPath.toString());
+        if (rootDirectory == null) return;
+
+        ConnectionHandler connection = contextManager.getConnection(rootDirectory);
+        if (connection != null) return;
+
+        contextManager.setVirtualConnection(rootDirectory, databaseType);
     }
 
     @Override

@@ -227,6 +227,8 @@ public class FileConnectionContextRegistry extends StatefulDisposableBase implem
                     file.putUserData(FILE_CONNECTION_CONTEXT, context);
                 }
             }
+            if (ensure) return context;
+
             if (context == null || !context.isValid()) {
                 VirtualFile parent = file.getParent();
                 if (parent != null) {
