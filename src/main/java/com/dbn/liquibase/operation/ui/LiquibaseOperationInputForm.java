@@ -485,7 +485,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
 
         ConnectionId connectionId = connection.getConnectionId();
         LiquibaseEnvironmentProfileBundle environmentProfiles = executionInput.getEnvironmentProfiles();
-        return environmentProfiles.getSelectedProfile(connectionId);
+        return environmentProfiles.getSelectedProfile(connectionId, executionInput.getRelevantSchemaId());
     }
 
     @NotNull
@@ -731,6 +731,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         LiquibaseEnvironmentProfileBundle environmentProfiles = executionInput.getEnvironmentProfiles();
         environmentProfiles.rememberProfile(
                 executionInput.getRelevantConnectionId(),
+                executionInput.getRelevantSchemaId(),
                 environmentProfile);
 
         LiquibaseWorkspaceBundle workspaces = executionInput.getWorkspaces();
