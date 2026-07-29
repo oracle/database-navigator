@@ -81,10 +81,33 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation>, Liquibas
     }
 
     public boolean isDestructive() {
-        return switch (this) {
-            case DROP_ALL, ROLLBACK_CHANGESETS, UPDATE_TESTING_ROLLBACK -> true;
-            default -> false;
-        };
+        return isOneOf(
+                DROP_ALL,
+                ROLLBACK_CHANGESETS,
+                UPDATE_TESTING_ROLLBACK);
+    }
+
+    public boolean isMutating() {
+        return isMutatingSchema() || isMutatingChangelog();
+    }
+
+    public boolean isMutatingSchema() {
+        return isOneOf(
+                DROP_ALL,
+                UPDATE_DATABASE,
+                UPDATE_TESTING_ROLLBACK,
+                ROLLBACK_CHANGESETS);
+    }
+
+    public boolean isMutatingChangelog() {
+        return isOneOf(
+                TAG_DATABASE,
+                MARK_NEXT_CHANGESET_RAN,
+                RELEASE_LOCKS,
+                CLEAR_CHECKSUMS,
+                CALCULATE_CHECKSUMS,
+                SYNCHRONIZE_CHANGELOG,
+                SYNCHRONIZE_CHANGELOG_TO_TAG);
     }
 
     public String getHint() {

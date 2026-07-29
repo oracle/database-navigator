@@ -26,7 +26,6 @@ import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
-import java.util.Map;
 
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.liquibase.execution.LiquibaseCommands.TAG;
@@ -65,8 +64,7 @@ public class LiquibaseUpdateDatabaseProcessor extends LiquibaseExecutionProcesso
         withLiquibaseDatabase(context, false, targetSchema, database ->
                 withLiquibaseScope(context, contentRootAccessor(context), null,
                         output -> executeUpdate(
-                                context,
-                                database,
+                                database, context,
                                 output)));
 
         notifySchemaObjectChanges(targetSchema);
@@ -74,8 +72,7 @@ public class LiquibaseUpdateDatabaseProcessor extends LiquibaseExecutionProcesso
     }
 
     private void executeUpdate(
-            @NotNull LiquibaseOperationContext context,
-            @NotNull Database database,
+            @NotNull Database database, @NotNull LiquibaseOperationContext context,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
         var input = context.getInput();
         var result = context.getResult();
@@ -84,18 +81,20 @@ public class LiquibaseUpdateDatabaseProcessor extends LiquibaseExecutionProcesso
         DBSchema targetSchema = context.getTargetSchema();
         String checkpointTag = input.getCheckpointTag();
         if (isNotEmpty(checkpointTag)) {
-            executeCommand(TAG, output, Map.of(
+            var arguments = arguments(
                     "database", database,
-                    "tag", checkpointTag));
+                    "tag", checkpointTag);
+            executeCommand(TAG, context, output, arguments);
 
             rememberTag(context, targetSchema, checkpointTag);
         }
         LiquibaseUpdateInstruction instruction = input.getUpdateInstruction();
-        executeCommand(instruction.getCommand(), context, output, Map.of(
+        var arguments = arguments(
                 "database", database,
                 "changelogFile", paths.getMasterChangelogRelativePath(),
                 instruction.getParameter(), instruction.getValue(),
-                "changeExecListener", new LiquibaseChangeSetRunListener(result)));
+                "changeExecListener", new LiquibaseChangeSetRunListener(result));
+        executeCommand(instruction.getCommand(), context, output, arguments);
 
     }
 }

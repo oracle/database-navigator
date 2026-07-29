@@ -157,6 +157,10 @@ public class LiquibaseOperationInput extends LiquibaseTaskInput {
         return schema;
     }
 
+    public String getRelevantSchemaName() {
+        return getRelevantSchema().getName();
+    }
+
     public void setSourceSchema(@Nullable DBSchema sourceSchema) {
         this.sourceSchema = DBObjectRef.of(sourceSchema);
     }

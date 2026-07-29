@@ -18,8 +18,6 @@ import com.dbn.object.DBSchema;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-
 import static com.dbn.liquibase.execution.LiquibaseCommands.UPDATE_TESTING_ROLLBACK;
 
 /**
@@ -49,10 +47,13 @@ public class LiquibaseUpdateTestingRollbackProcessor extends LiquibaseExecutionP
             @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
+
         var paths = context.getInput().getWorkspacePaths();
-        executeCommand(UPDATE_TESTING_ROLLBACK, context, output, Map.of(
+        var listener = new LiquibaseChangeSetTestingRollbackListener(context.getResult());
+        var arguments = arguments(
                 "database", database,
                 "changelogFile", paths.getMasterChangelogRelativePath(),
-                "changeExecListener", new LiquibaseChangeSetTestingRollbackListener(context.getResult())));
+                "changeExecListener", listener);
+        executeCommand(UPDATE_TESTING_ROLLBACK, context, output, arguments);
     }
 }

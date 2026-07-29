@@ -328,10 +328,6 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
 
     protected abstract void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception;
 
-    protected final void checkCanceled(@NotNull LiquibaseOperationContext context) {
-        if (context.isCancellationRequested()) throw new RequestCancelledException("Liquibase execution canceled");
-    }
-
     @NotNull
     protected final String formatException(@NotNull Exception exception) {
         StringWriter output = new StringWriter();
@@ -422,48 +418,59 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
                 }));
     }
 
-    protected static CommandResults executeCommand(String commandName, LiquibaseExecutionOutputStream output, @NonNls Map<String, Object> arguments) throws CommandExecutionException {
-        return executeCommand(commandName, output, arguments, Map.of());
-    }
-
-    protected final CommandResults executeCommand(
-            @NonNls String commandName,
+    protected static CommandResults executeCommand(
+            @NotNull @NonNls String commandName,
             @NotNull LiquibaseOperationContext context,
             @NotNull LiquibaseExecutionOutputStream output,
             @NonNls Map<String, Object> arguments) throws CommandExecutionException {
-
-        Map<String, Object> args = new HashMap<>(arguments);
-        LiquibaseEnvironmentProfile profile = context.getInput().getEnvironmentProfile();
-
-        String contexts = profile.getContexts();
-        if (isNotEmpty(contexts)) args.put("contextFilter", contexts);
-
-        String labels = profile.getLabels();
-        if (isNotEmpty(labels)) args.put("labelFilter", labels);
-
-        return executeCommand(commandName, output, args);
+        return executeCommand(commandName, context, output, arguments, null);
     }
 
     protected static CommandResults executeCommand(
-            String commandName,
-            LiquibaseExecutionOutputStream output,
+            @NotNull @NonNls String commandName,
+            @NotNull LiquibaseOperationContext context,
+            @NotNull LiquibaseExecutionOutputStream output,
             @NonNls Map<String, Object> arguments,
-            Map<Class<?>, Object> dependencies) throws CommandExecutionException {
+            @Nullable Map<Class<?>, Object> dependencies) throws CommandExecutionException {
+        checkCanceled(context);
         CommandScope command = new CommandScope(commandName);
 
-        for (String argument : arguments.keySet()) {
-            Object value = arguments.get(argument);
-            if (value == null || value == LiquibaseCommands.NULL_ARGUMENT) continue;
+        Map<String, Object> args = new HashMap<>(arguments);
+        LiquibaseEnvironmentProfile profile = context.getInput().getEnvironmentProfile();
+        args.put("contextFilter", profile.getContexts());
+        args.put("labelFilter", profile.getLabels());
+
+        for (String argument : args.keySet()) {
+            Object value = args.get(argument);
+            if (value == null) continue;
+            if (value == LiquibaseCommands.NULL_ARGUMENT) continue;
 
             command.addArgumentValue(argument, value);
         }
 
-        for (Map.Entry<Class<?>, Object> dependency : dependencies.entrySet()) {
-            command.provideDependency(dependency.getKey(), dependency.getValue());
+        if (dependencies != null) {
+            for (var dependency : dependencies.entrySet()) {
+                command.provideDependency(dependency.getKey(), dependency.getValue());
+            }
         }
 
         command.setOutput(output);
         return command.execute();
     }
 
+    protected static void checkCanceled(@NotNull LiquibaseOperationContext context) {
+        if (context.isCancellationRequested()) throw new RequestCancelledException("Liquibase execution canceled");
+    }
+
+    @NonNls
+    protected static Map<String, Object> arguments(Object ... keyValues) {
+        Map<String, Object> arguments = new HashMap<>();
+        for (int i = 0; i < keyValues.length; i += 2) {
+            String key = keyValues[i].toString();
+            Object value = keyValues[i + 1];
+
+            arguments.put(key, value);
+        }
+        return arguments;
+    }
 }

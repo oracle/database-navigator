@@ -28,7 +28,6 @@ import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
-import java.util.Map;
 
 import static com.dbn.liquibase.operation.LiquibaseRollbackType.TAG;
 import static com.dbn.nls.NlsResources.txt;
@@ -86,11 +85,13 @@ public class LiquibaseRollbackChangesetsProcessor extends LiquibaseExecutionProc
         var paths = input.getWorkspacePaths();
         var instruction = input.getRollbackInstruction();
 
-        executeCommand(instruction.getCommand(), output, Map.of(
+        var listener = new LiquibaseChangeSetRollbackListener(result, "Rolled back");
+        var arguments = arguments(
                 "database", database,
                 "changelogFile", paths.getMasterChangelogRelativePath(),
                 instruction.getParameter(), instruction.getValue(),
-                "changeExecListener", new LiquibaseChangeSetRollbackListener(result, "Rolled back")));
+                "changeExecListener", listener);
+        executeCommand(instruction.getCommand(), context, output, arguments);
 
     }
 }

@@ -7,8 +7,6 @@ import com.dbn.liquibase.operation.LiquibaseOperationContext;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-
 import static com.dbn.liquibase.execution.LiquibaseCommands.UPDATE_SQL;
 
 /** Generates the SQL for pending Liquibase changesets without modifying the target schema. */
@@ -37,10 +35,11 @@ public class LiquibaseUpdateSqlProcessor extends LiquibaseExecutionProcessor {
         var result = context.getResult();
         var paths = context.getInput().getWorkspacePaths();
 
-        executeCommand(UPDATE_SQL, context, output, Map.of(
+        var arguments = arguments(
                 "database", database,
                 "changelogFile", paths.getMasterChangelogRelativePath(),
-                "changeExecListener", new LiquibaseChangeSetRunListener(result)));
+                "changeExecListener", new LiquibaseChangeSetRunListener(result));
+        executeCommand(UPDATE_SQL, context, output, arguments);
     }
 
 }

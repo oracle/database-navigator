@@ -23,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
 import static com.dbn.liquibase.execution.LiquibaseCommands.SYNCHRONIZE_CHANGELOG;
 import static com.dbn.nls.NlsResources.txt;
@@ -63,10 +62,11 @@ public class LiquibaseSynchronizeChangelogProcessor extends LiquibaseExecutionPr
                 database,
                 changeSet -> txt("msg.liquibase.text.ChangeSetSyncPending"));
 
-        executeCommand(SYNCHRONIZE_CHANGELOG, output, Map.of(
+        var arguments = arguments(
                 "database", database,
                 "changelogFile", paths.getMasterChangelogRelativePath(),
-                "changeExecListener", new LiquibaseChangeSetSynchronizeListener(result)));
+                "changeExecListener", new LiquibaseChangeSetSynchronizeListener(result));
+        executeCommand(SYNCHRONIZE_CHANGELOG, context, output, arguments);
 
         completeChangeSetItems(
                 context,

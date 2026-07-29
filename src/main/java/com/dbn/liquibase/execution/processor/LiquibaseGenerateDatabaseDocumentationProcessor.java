@@ -74,14 +74,19 @@ public class LiquibaseGenerateDatabaseDocumentationProcessor extends LiquibaseEx
         CatalogAndSchema catalogAndSchema = new CatalogAndSchema(
                 database.getDefaultCatalogName(),
                 context.getTargetSchema().getName());
+
+        var arguments = arguments(
+                "changelogFile", paths.getMasterChangelogRelativePath(),
+                DATABASE_ARG.getName(), database,
+                OUTPUT_DIRECTORY_ARG.getName(), documentationDirectory.toString(),
+                CATALOG_AND_SCHEMAS_ARG.getName(), new CatalogAndSchema[]{catalogAndSchema});
+        Map<Class<?>, Object> dependencies = Map.of(DatabaseChangeLog.class, changeLog);
+
         executeCommand(
                 GENERATE_DATABASE_DOCUMENTATION,
+                context,
                 output,
-                Map.of(
-                        "changelogFile", paths.getMasterChangelogRelativePath(),
-                        DATABASE_ARG.getName(), database,
-                        OUTPUT_DIRECTORY_ARG.getName(), documentationDirectory.toString(),
-                        CATALOG_AND_SCHEMAS_ARG.getName(), new CatalogAndSchema[]{catalogAndSchema}),
-                Map.of(DatabaseChangeLog.class, changeLog));
+                arguments,
+                dependencies);
     }
 }
