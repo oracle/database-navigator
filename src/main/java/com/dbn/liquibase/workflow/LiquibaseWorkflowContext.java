@@ -28,6 +28,7 @@ import java.util.List;
 @Getter
 public class LiquibaseWorkflowContext extends LiquibaseTaskContext<LiquibaseWorkflowInput> {
     private final LiquibaseWorkflowResult result = new  LiquibaseWorkflowResult(this);
+    private final LiquibaseWorkflowExecutor executor = new LiquibaseWorkflowExecutor(result);
     private final List<LiquibaseOperation> operations;
     private int operationIndex = -1;
 

@@ -64,8 +64,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import static com.dbn.common.options.setting.Settings.newStateElement;
@@ -85,7 +83,6 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     private final LiquibaseWorkspaceBundle workspaces;
     private final LiquibaseEnvironmentProfileBundle environmentProfiles;
     private final LiquibaseExecutionHistory executionHistory = new LiquibaseExecutionHistory();
-    private final Map<LiquibaseWorkflowResult, LiquibaseWorkflowExecutor> workflowExecutors = new ConcurrentHashMap<>();
 
     private DatabaseLiquibaseManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
@@ -185,17 +182,25 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
                 cancelTask(workflowResult);
             }
         } else if (result instanceof LiquibaseWorkflowResult workflowResult) {
-            LiquibaseWorkflowExecutor executor = workflowExecutors.get(workflowResult);
-            if (executor != null) executor.cancel();
+            LiquibaseWorkflowContext context = workflowResult.getContext();
+            LiquibaseWorkflowExecutor executor = context.getExecutor();
+            executor.cancel();
         }
     }
 
     public void resumeOperation(@NotNull LiquibaseOperationResult result) {
-        LiquibaseOperationContext context = result.getContext();
-        if (context == null) return;
+        LiquibaseWorkflowResult workflowResult = result.getWorkflowResult();
+        if (workflowResult != null) {
+            LiquibaseWorkflowContext context = workflowResult.getContext();
+            LiquibaseWorkflowExecutor executor = context.getExecutor();
+            Background.run(() -> executor.resume(result));
+        } else {
+            LiquibaseOperationContext context = result.getContext();
+            if (context == null) return;
 
-        LiquibaseExecutionProcessor processor = LiquibaseExecutionProcessors.get(result.getOperation());
-        Background.run(() -> processor.execute(context));
+            LiquibaseExecutionProcessor processor = LiquibaseExecutionProcessors.get(result.getOperation());
+            Background.run(() -> processor.execute(context));
+        }
     }
 
     public void rerunTask(@NotNull LiquibaseTaskResult<?, ?, ?> previousResult) {
@@ -227,17 +232,12 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         LiquibaseWorkflowContext context = new LiquibaseWorkflowContext(input);
         LiquibaseWorkflowResult result = context.getResult();
         result.setPrevious(previousResult);
-        LiquibaseWorkflowExecutor executor = new LiquibaseWorkflowExecutor(result);
-        workflowExecutors.put(result, executor);
 
-        ExecutionManager.getInstance(getProject()).addExecutionResult(result);
-        Background.run(() -> {
-            try {
-                executor.execute();
-            } finally {
-                workflowExecutors.remove(result);
-            }
-        });
+        ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
+        executionManager.addExecutionResult(result);
+
+        LiquibaseWorkflowExecutor executor = context.getExecutor();
+        Background.run(() -> executor.execute());
     }
 
     public void openWorkspaceCreationDialog(
