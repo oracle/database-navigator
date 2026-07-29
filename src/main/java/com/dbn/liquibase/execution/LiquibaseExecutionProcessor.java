@@ -30,6 +30,7 @@ import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionLogService;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
+import com.dbn.liquibase.execution.processor.LiquibaseExecutionProcessors;
 import com.dbn.liquibase.operation.LiquibaseOperation;
 import com.dbn.liquibase.operation.LiquibaseOperationContext;
 import com.dbn.liquibase.operation.LiquibaseOperationInput;
@@ -306,6 +307,22 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
 
     public abstract LiquibaseOperation getOperation();
 
+    /** Executes the SQL-preview processor against the current context without creating a second result. */
+    public final void executePreview(@NotNull LiquibaseOperationContext context) throws Exception {
+        if (!context.requiresSqlPreview()) return;
+
+        LiquibaseOperation previewOperation = getPreviewOperation();
+        if (previewOperation == null) return;
+
+        LiquibaseExecutionProcessor previewProcessor = LiquibaseExecutionProcessors.get(previewOperation);
+        previewProcessor.executeOperation(context);
+    }
+
+    @Nullable
+    protected LiquibaseOperation getPreviewOperation() {
+        return null;
+    }
+
     @NotNull
     public final LiquibaseOperationResult execute(@NotNull LiquibaseOperationContext context) {
         LiquibaseOperationResult result = context.prepareExecutionResult();
@@ -313,6 +330,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
         result.notifyStarted();
         try {
             ensureConfirmed(context.getInput());
+            executePreview(context);
             executeOperation(context);
             finishResult(context, TaskStatus.DONE);
         } catch (ElementSkippedException e) {

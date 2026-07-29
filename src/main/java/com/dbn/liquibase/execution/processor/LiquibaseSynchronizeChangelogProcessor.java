@@ -35,6 +35,11 @@ public class LiquibaseSynchronizeChangelogProcessor extends LiquibaseExecutionPr
     }
 
     @Override
+    protected LiquibaseOperation getPreviewOperation() {
+        return LiquibaseOperation.SYNCHRONIZE_CHANGELOG_SQL;
+    }
+
+    @Override
     protected void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception {
         prepareChangelogContext(context, true);
 

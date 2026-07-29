@@ -31,7 +31,7 @@ import com.dbn.liquibase.execution.ui.LiquibaseChangeSetItemsTable;
 import com.dbn.liquibase.execution.ui.LiquibaseChangeSetItemsTableModel;
 import com.dbn.liquibase.execution.ui.LiquibaseComparisonItemsTable;
 import com.dbn.liquibase.execution.ui.LiquibaseComparisonItemsTableModel;
-import com.dbn.liquibase.execution.ui.LiquibaseExecutionSqlPanel;
+import com.dbn.liquibase.execution.ui.LiquibaseExecutionSqlForm;
 import com.dbn.liquibase.execution.ui.LiquibaseLockItemsTable;
 import com.dbn.liquibase.execution.ui.LiquibaseLockItemsTableModel;
 import com.dbn.liquibase.execution.ui.LiquibaseSnapshotItemsTable;
@@ -61,7 +61,7 @@ public class LiquibaseOperationResultForm extends ExecutionResultFormBase<Liquib
     private JTabbedPane contentTabbedPane;
 
     private ExecutionResultLogConsole console;
-    private LiquibaseExecutionSqlPanel sqlPanel;
+    private LiquibaseExecutionSqlForm sqlPanel;
     private LiquibaseSnapshotItemsTableModel snapshotItemsTableModel;
     private LiquibaseChangeSetItemsTableModel changeSetItemsTableModel;
     private LiquibaseComparisonItemsTableModel comparisonItemsTableModel;
@@ -106,11 +106,14 @@ public class LiquibaseOperationResultForm extends ExecutionResultFormBase<Liquib
 
     private void initSqlOutputPanel() {
         LiquibaseOperationResult result = getExecutionResult();
-        if (!result.getOperation().supports(SQL_OUTPUT)) return;
+        boolean previewRequired = result.getContext().requiresSqlPreview();
+        if (!result.getOperation().supports(SQL_OUTPUT) && !previewRequired) return;
 
-        sqlPanel = new LiquibaseExecutionSqlPanel(this, result);
+        sqlPanel = new LiquibaseExecutionSqlForm(this, result);
         Disposer.register(this, sqlPanel);
-        contentTabbedPane.addTab(txt("app.liquibase.title.SqlOutput"), sqlPanel.getComponent());
+        contentTabbedPane.addTab(txt(previewRequired
+                ? "app.liquibase.title.SqlPreview"
+                : "app.liquibase.title.SqlOutput"), sqlPanel.getComponent());
     }
 
     private void initContentItemsPanel() {

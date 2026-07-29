@@ -40,6 +40,11 @@ public class LiquibaseRollbackChangesetsProcessor extends LiquibaseExecutionProc
     }
 
     @Override
+    protected LiquibaseOperation getPreviewOperation() {
+        return LiquibaseOperation.ROLLBACK_SQL;
+    }
+
+    @Override
     protected void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception {
         prepareChangelogContext(context, true);
 

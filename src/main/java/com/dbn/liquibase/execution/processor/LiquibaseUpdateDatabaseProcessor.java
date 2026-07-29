@@ -51,6 +51,11 @@ public class LiquibaseUpdateDatabaseProcessor extends LiquibaseExecutionProcesso
     }
 
     @Override
+    protected LiquibaseOperation getPreviewOperation() {
+        return LiquibaseOperation.UPDATE_SQL;
+    }
+
+    @Override
     protected void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception {
         prepareChangelogContext(context, true);
 

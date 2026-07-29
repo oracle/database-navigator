@@ -17,6 +17,7 @@
 package com.dbn.liquibase.operation;
 
 import com.dbn.liquibase.task.LiquibaseTaskContext;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
 import com.dbn.object.DBSchema;
 import lombok.Getter;
 import lombok.Setter;
@@ -61,5 +62,13 @@ public class LiquibaseOperationContext extends LiquibaseTaskContext<LiquibaseOpe
 
     public void clearExecutionThread() {
         executionThread = null;
+    }
+
+    public boolean requiresSqlPreview() {
+        LiquibaseOperationInput input = getInput();
+        LiquibaseEnvironmentProfile profile = input.getEnvironmentProfile();
+        LiquibaseOperation operation = input.getOperation();
+
+        return profile.isRequireSqlPreview() && operation.isMutatingSchema();
     }
 }
