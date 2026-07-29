@@ -152,7 +152,7 @@ public class VectorEmbeddingResult {
     public TitledMessage getSummaryMessage() {
         MessageType messageType = switch (status) {
             case RUNNING -> MessageType.PROCESSING;
-            case CANCELLED -> MessageType.INFO;
+            case CANCELLED -> MessageType.WARNING;
             case SUCCESS -> MessageType.SUCCESS;
             case PARTIAL -> MessageType.WARNING;
             case FAILED -> MessageType.ERROR;
@@ -161,7 +161,7 @@ public class VectorEmbeddingResult {
 
         String title = switch (status) {
             case RUNNING -> txt("prc.vector.title.EmbeddingData");
-            case CANCELLED -> txt("prc.vector.title.EmbeddingData");
+            case CANCELLED -> txt("msg.vector.title.EmbeddingCancelled");
             case SUCCESS -> txt("msg.vector.title.EmbeddingSuccessful");
             case PARTIAL -> txt("msg.vector.title.EmbeddingPartiallySuccessful");
             case FAILED -> txt("msg.vector.title.EmbeddingFailed");
@@ -172,9 +172,8 @@ public class VectorEmbeddingResult {
             case RUNNING -> txt("prc.vector.text.EmbeddingData",
                     request.getDestinationConfig().getSchemaName(),
                     request.getDestinationConfig().getTableName());
-            case CANCELLED -> txt("prc.vector.text.EmbeddingData",
-                    request.getDestinationConfig().getSchemaName(),
-                    request.getDestinationConfig().getTableName());
+            case CANCELLED -> txt("msg.vector.text.EmbeddingCancelled",
+                    getSourceSucceedCount(), getResourcesCount());
             case SUCCESS -> txt("msg.vector.text.EmbeddingSuccessful", getResourcesCount());
             case PARTIAL -> txt("msg.vector.text.EmbeddingPartiallySuccessful", getSourceSucceedCount(), getResourcesCount());
             case FAILED -> txt("msg.vector.text.EmbeddingFailed");
