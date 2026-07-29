@@ -75,6 +75,15 @@ public class LiquibaseOperationResult extends LiquibaseTaskResult<
     }
 
     @Override
+    public void disposeInner() {
+        snapshotItems.clear();
+        changeSetItems.clear();
+        comparisonItems.clear();
+        lockItems.clear();
+        super.disposeInner();
+    }
+
+    @Override
     @Delegate
     public @NotNull LiquibaseOperationInput getInput() {
         return super.getInput();

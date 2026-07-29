@@ -17,6 +17,7 @@
 package com.dbn.liquibase.workflow;
 
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.dispose.Disposer;
 import com.dbn.common.task.TaskStatus;
 import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import com.dbn.liquibase.task.LiquibaseTaskResult;
@@ -42,6 +43,12 @@ public class LiquibaseWorkflowResult extends LiquibaseTaskResult<
 
     public LiquibaseWorkflowResult(@NotNull LiquibaseWorkflowContext context) {
         super(context);
+    }
+
+    @Override
+    public void disposeInner() {
+        Disposer.dispose(operationResults);
+        super.disposeInner();
     }
 
     @Override
