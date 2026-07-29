@@ -291,6 +291,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
     private static String getCloudProviderName(CloudConfigProviderType provider) {
         if (provider == null) return "";
+        if (provider.isOci()) return "OCI";
         if (provider.isAzure()) return "Azure";
         if (provider.isAws()) return "AWS";
         if (provider.isGcp()) return "GCP";

@@ -414,7 +414,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         CloudConfigProviderType provider = urlSettingsForm.getCloudConfigProviderType();
         if (getSelectedDatabaseType() != DatabaseType.ORACLE) return null;
         if (!urlSettingsForm.isCloudProviderConfig()) return null;
-        if (provider == null || provider.isOci()) return null;
+        if (provider == null) return null;
 
         return provider;
     }
