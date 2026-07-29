@@ -195,7 +195,16 @@ public class LiquibaseOperationResultForm extends ExecutionResultFormBase<Liquib
     }
 
     private void updateSqlOutput(@NotNull LiquibaseOperationResult result) {
-        if (sqlPanel != null) sqlPanel.setText(result.getSqlOutput());
+        if (sqlPanel != null) {
+            sqlPanel.setText(result.getSqlOutput());
+            sqlPanel.updateApprovalVisibility();
+        }
+    }
+
+    public void showSqlPreview() {
+        if (sqlPanel == null) return;
+        contentTabbedPane.setSelectedComponent(sqlPanel.getMainComponent());
+        sqlPanel.focusViewer();
     }
 
     private boolean updateConsoleOutput(@NotNull LiquibaseOperationResult result) {

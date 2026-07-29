@@ -17,16 +17,19 @@
 package com.dbn.liquibase.execution;
 
 import com.dbn.common.exception.ElementSkippedException;
+import com.dbn.common.exception.ExecutionPausedException;
 import com.dbn.common.exception.RequestCancelledException;
 import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.common.routine.ThrowableConsumer;
 import com.dbn.common.task.TaskStatus;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.connection.ConnectionContext;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.PooledConnection;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
+import com.dbn.execution.ExecutionManager;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionLogService;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
@@ -35,12 +38,16 @@ import com.dbn.liquibase.operation.LiquibaseOperation;
 import com.dbn.liquibase.operation.LiquibaseOperationContext;
 import com.dbn.liquibase.operation.LiquibaseOperationInput;
 import com.dbn.liquibase.operation.LiquibaseOperationResult;
+import com.dbn.liquibase.operation.ui.LiquibaseOperationResultForm;
+import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
+import com.dbn.liquibase.workflow.ui.LiquibaseWorkflowResultForm;
 import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
 import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.extensions.ExtensionPointName;
+import com.intellij.openapi.project.Project;
 import liquibase.CatalogAndSchema;
 import liquibase.Scope;
 import liquibase.change.core.TagDatabaseChange;
@@ -86,6 +93,8 @@ import java.util.function.Function;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.exception.Exceptions.unwrap;
 import static com.dbn.common.util.Classes.withClassLoader;
+import static com.dbn.common.util.Messages.showConfirmationDialog;
+import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
@@ -316,6 +325,11 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
 
         LiquibaseExecutionProcessor previewProcessor = LiquibaseExecutionProcessors.get(previewOperation);
         previewProcessor.executeOperation(context);
+        context.getResult().notifyPaused();
+        if (!showSqlPreviewPrompt(context)) {
+            throw new RequestCancelledException("SQL preview confirmation canceled");
+        }
+        throw new ExecutionPausedException();
     }
 
     @Nullable
@@ -325,7 +339,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
 
     @NotNull
     public final LiquibaseOperationResult execute(@NotNull LiquibaseOperationContext context) {
-        LiquibaseOperationResult result = context.prepareExecutionResult();
+        LiquibaseOperationResult result = context.getResult();
         context.setExecutionThread(Thread.currentThread());
         result.notifyStarted();
         try {
@@ -333,6 +347,8 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
             executePreview(context);
             executeOperation(context);
             finishResult(context, TaskStatus.DONE);
+        } catch (ExecutionPausedException e) {
+            return result;
         } catch (ElementSkippedException e) {
             finishResult(context, TaskStatus.SKIPPED);
         } catch (RequestCancelledException e) {
@@ -342,6 +358,53 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
             finishResult(context, TaskStatus.FAILED);
         }
         return result;
+    }
+
+    private boolean showSqlPreviewPrompt(@NotNull LiquibaseOperationContext context) {
+        int option = showConfirmationDialog(
+                context.getProject(),
+                txt("msg.liquibase.title.SqlReviewRequired"),
+                txt("msg.liquibase.message.SqlPreviewRequired",
+                        context.getInput().getOperation().getName(),
+                        context.getTargetSchema().getName()),
+                new String[]{
+                        txt("msg.liquibase.button.ShowSqlPreview"),
+                        txt("msg.liquibase.button.CancelOperation")},
+                0,
+                selected -> {
+                    if (selected == 0) {
+                        LiquibaseOperationResult result = context.getResult();
+                        showSqlPreview(result);
+                    }
+                });
+        return option == 0;
+    }
+
+    public void showSqlPreview(LiquibaseOperationResult result) {
+        Project project = result.getProject();
+        ExecutionManager executionManager = ExecutionManager.getInstance(project);
+
+        LiquibaseWorkflowResult workflowResult = result.getWorkflowResult();
+        if (workflowResult == null) {
+            executionManager.selectResultTab(result);
+            Dispatch.run(nonModal(), () -> {
+                LiquibaseOperationResultForm form = result.getForm();
+                if (form == null) return;
+
+                form.showSqlPreview();
+            });
+        } else {
+            executionManager.selectResultTab(workflowResult);
+            Dispatch.run(nonModal(), () -> {
+                LiquibaseWorkflowResultForm form = workflowResult.getForm();
+                if (form == null) return;
+
+                LiquibaseOperationResultForm operationForm = form.getOperationResultForm(result);
+                if (operationForm == null) return;
+
+                operationForm.showSqlPreview();
+            });
+        }
     }
 
     protected abstract void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception;

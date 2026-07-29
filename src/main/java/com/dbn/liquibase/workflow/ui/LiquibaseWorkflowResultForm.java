@@ -182,8 +182,15 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
     }
 
     @Nullable
+    public LiquibaseOperationResultForm getOperationResultForm(@NotNull LiquibaseOperationResult result) {
+        selectOperation(result.getOperation());
+        showSelectedOperation();
+        return resultForms.get(result.getOperation());
+    }
+
+    @Nullable
     private LiquibaseOperationResult findResult(@NotNull LiquibaseOperation operation) {
-        List<LiquibaseOperationResult> results = getExecutionResult().getResults();
+        List<LiquibaseOperationResult> results = getExecutionResult().getOperationResults();
         for (LiquibaseOperationResult result : results) {
             if (result.getOperation() == operation) return result;
         }
@@ -230,11 +237,12 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
         }
 
         private Icon getStatusIcon(@NotNull LiquibaseOperation operation) {
-            for (LiquibaseOperationResult result : getExecutionResult().getResults()) {
+            for (LiquibaseOperationResult result : getExecutionResult().getOperationResults()) {
                 if (result.getOperation() != operation) continue;
                 return switch (result.getStatus()) {
                     case NEW -> Icons.COMMON_EMPTY;
                     case RUNNING -> Icons.COMMON_STATUS_RUNNING;
+                    case PAUSED -> Icons.COMMON_PAUSED;
                     case DONE -> Icons.COMMON_STATUS_SUCCESS;
                     case FAILED -> Icons.COMMON_STATUS_ERROR;
                     case CANCELLED -> Icons.COMMON_WARNING;
@@ -246,7 +254,7 @@ public class LiquibaseWorkflowResultForm extends ExecutionResultFormBase<Liquiba
         }
 
         private boolean isInactive(@NotNull LiquibaseOperation operation) {
-            for (LiquibaseOperationResult result : getExecutionResult().getResults()) {
+            for (LiquibaseOperationResult result : getExecutionResult().getOperationResults()) {
                 if (result.getOperation() == operation) return result.getStatus() == TaskStatus.BYPASSED;
             }
             return true;

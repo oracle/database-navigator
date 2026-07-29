@@ -17,27 +17,25 @@
 package com.dbn.liquibase.operation;
 
 import com.dbn.liquibase.task.LiquibaseTaskContext;
+import com.dbn.liquibase.workflow.LiquibaseWorkflowContext;
 import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
 import com.dbn.object.DBSchema;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /** Per-run state shared by a Liquibase processor and its execution result. */
 @Getter
 @Setter
 public class LiquibaseOperationContext extends LiquibaseTaskContext<LiquibaseOperationInput> {
-    private LiquibaseOperationResult result;
+    private final LiquibaseWorkflowContext workflowContext;
+    private final LiquibaseOperationResult result = new LiquibaseOperationResult(this);
     private volatile Thread executionThread;
 
-    public LiquibaseOperationContext(@NotNull LiquibaseOperationInput input) {
+    public LiquibaseOperationContext(@NotNull LiquibaseOperationInput input, @Nullable LiquibaseWorkflowContext workflowContext) {
         super(input);
-    }
-
-    @NotNull
-    public LiquibaseOperationResult prepareExecutionResult() {
-        if (result == null) result = new LiquibaseOperationResult(this);
-        return result;
+        this.workflowContext = workflowContext;
     }
 
     public void cancel() {
@@ -69,6 +67,10 @@ public class LiquibaseOperationContext extends LiquibaseTaskContext<LiquibaseOpe
         LiquibaseEnvironmentProfile profile = input.getEnvironmentProfile();
         LiquibaseOperation operation = input.getOperation();
 
-        return profile.isRequireSqlPreview() && operation.isMutatingSchema();
+        if (!profile.isRequireSqlPreview()) return false;
+        if (!operation.isMutatingSchema()) return false;
+        if (input.isApproved()) return false;
+
+        return true;
     }
 }

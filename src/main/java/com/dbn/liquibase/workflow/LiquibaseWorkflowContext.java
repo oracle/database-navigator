@@ -27,6 +27,7 @@ import java.util.List;
 /** Per-run state shared by a workflow and its operation results. */
 @Getter
 public class LiquibaseWorkflowContext extends LiquibaseTaskContext<LiquibaseWorkflowInput> {
+    private final LiquibaseWorkflowResult result = new  LiquibaseWorkflowResult(this);
     private final List<LiquibaseOperation> operations;
     private int operationIndex = -1;
 

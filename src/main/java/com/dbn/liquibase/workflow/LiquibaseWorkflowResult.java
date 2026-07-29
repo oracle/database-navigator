@@ -38,13 +38,9 @@ public class LiquibaseWorkflowResult extends LiquibaseTaskResult<
         LiquibaseWorkflowContext,
         LiquibaseWorkflowResultForm> {
 
-    private final List<LiquibaseOperationResult> results = new ArrayList<>();
+    private final List<LiquibaseOperationResult> operationResults = new ArrayList<>();
 
-    public LiquibaseWorkflowResult(@NotNull LiquibaseWorkflowInput input) {
-        this(new LiquibaseWorkflowContext(input));
-    }
-
-    private LiquibaseWorkflowResult(@NotNull LiquibaseWorkflowContext context) {
+    public LiquibaseWorkflowResult(@NotNull LiquibaseWorkflowContext context) {
         super(context);
     }
 
@@ -55,15 +51,15 @@ public class LiquibaseWorkflowResult extends LiquibaseTaskResult<
     }
 
     @NotNull
-    public List<LiquibaseOperationResult> getResults() {
-        synchronized (results) {
-            return new ArrayList<>(results);
+    public List<LiquibaseOperationResult> getOperationResults() {
+        synchronized (operationResults) {
+            return new ArrayList<>(operationResults);
         }
     }
 
     public void addResult(@NotNull LiquibaseOperationResult result) {
-        synchronized (results) {
-            results.add(result);
+        synchronized (operationResults) {
+            operationResults.add(result);
         }
         result.addListener(this::notifyChanged);
         notifyChanged();

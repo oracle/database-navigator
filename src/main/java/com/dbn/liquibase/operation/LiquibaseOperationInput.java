@@ -55,6 +55,7 @@ public class LiquibaseOperationInput extends LiquibaseTaskInput {
     private String checkpointTag;
     private String environmentProfileId;
     private boolean confirmed;
+    private boolean approved;
 
     private LiquibaseWorkspace workspace;
     private LiquibaseWorkspacePaths workspacePaths;

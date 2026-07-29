@@ -49,6 +49,7 @@ public class Icons {
     public static final Icon COMMON_INFO              = load("/img/common/Information.svg");
     public static final Icon COMMON_ERROR             = load("/img/common/Error.svg");
     public static final Icon COMMON_WARNING           = load("/img/common/Warning.svg");
+    public static final Icon COMMON_PAUSED            = AllIcons.RunConfigurations.TestPaused;
     public static final Icon COMMON_SUCCES            = AllIcons.Status.Success;
     public static final Icon COMMON_INFO_INACTIVE     = load("/img/common/InformationInactive.svg");
     public static final Icon COMMON_INFO_OUTLINE      = AllIcons.General.ShowInfos;
@@ -71,6 +72,9 @@ public class Icons {
 
     public static final Icon COMMON_FILTER_ACTIVE =    AllIcons.Actions.IntentionBulb;
     public static final Icon COMMON_FILTER_INACTIVE =  AllIcons.Actions.IntentionBulbGrey;
+
+    public static final Icon ACTION_APPROVE                   = AllIcons.General.GreenCheckmark;
+    public static final Icon ACTION_REJECT                    = AllIcons.Vcs.Remove;
 
     public static final Icon ACTION_ADD                       = AllIcons.General.Add;
     public static final Icon ACTION_INFO                      = load("/img/action/Info.svg");
@@ -160,6 +164,7 @@ public class Icons {
     public static final Icon DIALOG_ERROR       = AllIcons.General.ErrorDialog;
     public static final Icon DIALOG_QUESTION    = AllIcons.General.QuestionDialog;
     public static final Icon DIALOG_SUCCESS     = AllIcons.General.SuccessDialog;
+    public static final Icon DIALOG_PAUSE       = AllIcons.General.QuestionDialog;
 
 
     public static final Icon METHOD_EXECUTION_RUN     = ACTION_EXECUTE;

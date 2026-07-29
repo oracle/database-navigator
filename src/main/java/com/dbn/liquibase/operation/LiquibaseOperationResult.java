@@ -29,6 +29,8 @@ import com.dbn.liquibase.execution.LiquibaseSnapshotItem;
 import com.dbn.liquibase.execution.logging.LogOutputBuffer;
 import com.dbn.liquibase.operation.ui.LiquibaseOperationResultForm;
 import com.dbn.liquibase.task.LiquibaseTaskResult;
+import com.dbn.liquibase.workflow.LiquibaseWorkflowContext;
+import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
 import liquibase.changelog.ChangeSet;
 import liquibase.diff.ObjectDifferences;
 import liquibase.structure.DatabaseObject;
@@ -66,6 +68,12 @@ public class LiquibaseOperationResult extends LiquibaseTaskResult<
     private final Map<String, LiquibaseChangeSetItem> changeSetItems = new LinkedHashMap<>();
     private final Map<String, LiquibaseComparisonItem> comparisonItems = new LinkedHashMap<>();
     private final Map<String, LiquibaseLockItem> lockItems = new LinkedHashMap<>();
+
+    public LiquibaseOperationResult(@NotNull LiquibaseOperationContext context) {
+        super(context);
+        this.output = new LogOutputBuffer(context.getProject());
+    }
+
     @Override
     @Delegate
     public @NotNull LiquibaseOperationInput getInput() {
@@ -188,11 +196,6 @@ public class LiquibaseOperationResult extends LiquibaseTaskResult<
         notifyChanged();
     }
 
-    public LiquibaseOperationResult(@NotNull LiquibaseOperationContext context) {
-        super(context);
-        this.output = new LogOutputBuffer(context.getProject());
-    }
-
     public void setLiquibaseTableNames(
             @NotNull String databaseChangeLogTableName,
             @NotNull String databaseChangeLogLockTableName) {
@@ -218,6 +221,11 @@ public class LiquibaseOperationResult extends LiquibaseTaskResult<
     public void notifyCancelled() {
         getContext().finish(TaskStatus.CANCELLED);
         timing.finish();
+        notifyItemsChanged();
+    }
+
+    public void notifyPaused() {
+        getContext().pause();
         notifyItemsChanged();
     }
 
@@ -284,4 +292,8 @@ public class LiquibaseOperationResult extends LiquibaseTaskResult<
         return getConnection().getName() + " - " + getRelevantSchema().getName() + " - " + getOperation().getName();
     }
 
+    public LiquibaseWorkflowResult getWorkflowResult() {
+        LiquibaseWorkflowContext workflowContext = getContext().getWorkflowContext();
+        return workflowContext == null ? null : workflowContext.getResult();
+    }
 }

@@ -54,6 +54,10 @@ public abstract class LiquibaseTaskContext<I extends LiquibaseTaskInput> {
         status = TaskStatus.RUNNING;
     }
 
+    public void pause() {
+        status = TaskStatus.PAUSED;
+    }
+
     public void finish(@NotNull TaskStatus status) {
         this.status = status;
     }
