@@ -2276,7 +2276,7 @@
         <iteration id="01282">
             <sequence id="01283">
                 <token id="01284" type-id="KW_ATTRIBUTE" />
-                <object-ref id="01285" type="DIMENSION_LEVEL" />
+                <object-ref id="01285" type="DIMENSION_ATTRIBUTE" />
                 <token id="01286" type-id="KW_DETERMINES" />
                 <one-of id="01287">
                     <object-ref id="01288" original-name="dependent_column" type="COLUMN" />
