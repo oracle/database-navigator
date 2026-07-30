@@ -60,6 +60,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     AI_MODEL(DatabaseObjectTypeId.AI_MODEL,"AI model","AI models", Icons.DBO_AI_MODEL, null, Icons.DBO_AI_MODELS,false),
     AI_PROFILE(DatabaseObjectTypeId.AI_PROFILE, "AI profile", "AI profiles", Icons.DBO_AI_PROFILE, Icons.DBO_AI_PROFILE_DISABLED, Icons.DBO_AI_PROFILES, false),
     ATTRIBUTE(DatabaseObjectTypeId.ATTRIBUTE, "attribute", "attribute", Icons.DBO_ATTRIBUTE, null, Icons.DBO_ATTRIBUTES, false),
+    ATTRIBUTE_DIMENSION(DatabaseObjectTypeId.ATTRIBUTE_DIMENSION, "attribute dimension", "attribute dimensions", null, null, null, false),
     ARGUMENT(DatabaseObjectTypeId.ARGUMENT, "argument", "arguments", Icons.DBO_ARGUMENT, null, Icons.DBO_ARGUMENTS, false),
     CATEGORY(DatabaseObjectTypeId.CATEGORY, "category", "categories", null, null, null, false),
     CERTIFICATE(DatabaseObjectTypeId.CERTIFICATE, "certificate", "certificates", Icons.DBO_CERTIFICATE, Icons.DBO_CERTIFICATE_DISABLED, Icons.DBO_CERTIFICATES, false),
@@ -80,6 +81,8 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     DIMENSION_ATTRIBUTE(DatabaseObjectTypeId.DIMENSION_ATTRIBUTE, "dimension attribute", "dimension attributes", null, null, null, false),
     DIMENSION_HIERARCHY(DatabaseObjectTypeId.DIMENSION_HIERARCHY, "dimension hierarchy", "dimension hierarchies", null, null, null, false),
     DIMENSION_LEVEL(DatabaseObjectTypeId.DIMENSION_LEVEL, "dimension level", "dimension levels", null, null, null, false),
+    HIERARCHY(DatabaseObjectTypeId.HIERARCHY, "hierarchy", "hierarchies", null, null, null, false),
+    LEVEL(DatabaseObjectTypeId.LEVEL, "level", "levels", null, null, null, false),
     DISKGROUP(DatabaseObjectTypeId.DISKGROUP, "diskgroup", "diskgroups", null, null, null, false),
     DOMAIN(DatabaseObjectTypeId.DOMAIN, "domain", "domains", null, null, null, false),
     EVENT_TRIGGER(DatabaseObjectTypeId.EVENT_TRIGGER, "event trigger", "event triggers", null, null, null, false),
@@ -515,6 +518,9 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         DIMENSION_ATTRIBUTE.addParent(DIMENSION);
         DIMENSION_HIERARCHY.addParent(DIMENSION);
         DIMENSION_LEVEL.addParent(DIMENSION);
+        ATTRIBUTE_DIMENSION.addParent(SCHEMA);
+        HIERARCHY.addParent(DIMENSION);
+        LEVEL.addParent(DIMENSION);
         INDEX.addParent(SCHEMA);
         JSON_VIEW.addParent(SCHEMA);
         MATERIALIZED_VIEW.addParent(SCHEMA);
