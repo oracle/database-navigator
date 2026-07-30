@@ -442,6 +442,7 @@
         <one-of id="00209">
             <element ref-id="alter_analytic_view" />
             <element ref-id="alter_assertion" />
+            <element ref-id="alter_directive_validate" />
             <element ref-id="alter_audit_policy" />
             <element ref-id="alter_attribute_dimension" />
             <element ref-id="alter_database_link" />
@@ -500,6 +501,17 @@
         <one-of optional="true" id="00221">
             <token type-id="KW_VALIDATE" id="00222" />
             <token type-id="KW_NOVALIDATE" id="00223" />
+        </one-of>
+    </element-def>
+
+    <!-- ========= alter directive validate ========= -->
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="ALTER DIRECTIVE (VALIDATE) statement" id="alter_directive_validate">
+        <token type-id="KW_ALTER" />
+        <token type-id="KW_DIRECTIVE" />
+        <object-ref attributes="SUBJECT" type="ANY" />
+        <one-of>
+            <token type-id="KW_ENABLE" />
+            <token type-id="KW_DISABLE" />
         </one-of>
     </element-def>
 
