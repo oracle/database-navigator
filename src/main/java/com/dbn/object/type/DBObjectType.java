@@ -160,6 +160,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     TYPE_PROCEDURE(DatabaseObjectTypeId.TYPE_PROCEDURE, "type procedure", "procedures", Icons.DBO_PROCEDURE, null, Icons.DBO_PROCEDURES, false),
     TYPE_TYPE(DatabaseObjectTypeId.TYPE_TYPE, "type", "types", Icons.DBO_TYPE, null, Icons.DBO_TYPES, false),
     USER(DatabaseObjectTypeId.USER, "user", "users", Icons.DBO_USER, null, Icons.DBO_USERS, false),
+    VALIDATION_DIRECTIVE(DatabaseObjectTypeId.VALIDATION_DIRECTIVE, "validation directive", "validation directives", null, null, null, false),
     VARRAY(DatabaseObjectTypeId.VARRAY, "varray", "varrays", null, null, null, false),
     VARRAY_TYPE(DatabaseObjectTypeId.VARRAY_TYPE, "varray type", "varray types", null, null, null, false),
     VIEW(DatabaseObjectTypeId.VIEW, "view", "views", Icons.DBO_VIEW, null, Icons.DBO_VIEWS, false),
@@ -513,6 +514,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         DATASET.addParent(SCHEMA);
         DBLINK.addParent(SCHEMA);
         DIMENSION.addParent(SCHEMA);
+        VALIDATION_DIRECTIVE.addParent(SCHEMA);
         FUNCTION.addParent(SCHEMA);
         FUNCTION.addParent(PACKAGE);
         DIMENSION_ATTRIBUTE.addParent(DIMENSION);

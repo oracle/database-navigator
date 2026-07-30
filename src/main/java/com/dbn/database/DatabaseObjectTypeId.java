@@ -123,6 +123,7 @@ public enum DatabaseObjectTypeId implements Constant<DatabaseObjectTypeId> {
     TYPE_PROCEDURE,
     TYPE_TYPE,
     USER,
+    VALIDATION_DIRECTIVE,
     VARRAY,
     VARRAY_TYPE,
     VIEW,
