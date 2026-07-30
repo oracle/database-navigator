@@ -3370,11 +3370,11 @@
                 <object-ref attributes="SUBJECT" id="01950" type="FUNCTION" />
             </variant>
         </qualified-identifier>
-        <one-of id="01951" optional="true">
+        <one-of id="01951">
+            <element ref-id="function_compile_clause"/>
             <token type-id="KW_EDITIONABLE" id="01952" />
             <token type-id="KW_NONEDITIONABLE" id="01953" />
         </one-of>
-        <element ref-id="function_compile_clause" optional="true"/>
     </element-def>
 
     <element-def description="FUNCTION COMPILE clause" id="function_compile_clause">
@@ -4582,10 +4582,10 @@
             </variant>
         </qualified-identifier>
         <one-of id="02594" optional="true">
+            <element ref-id="package_compile_clause"/>
             <token type-id="KW_EDITIONABLE" id="02595" />
             <token type-id="KW_NONEDITIONABLE" id="02596" />
         </one-of>
-        <element ref-id="package_compile_clause" optional="true"/>
     </element-def>
 
     <element-def description="PACKAGE COMPILE clause" id="package_compile_clause">
@@ -4619,10 +4619,10 @@
             </variant>
         </qualified-identifier>
         <one-of id="02612" optional="true">
+            <element ref-id="procedure_compile_clause"/>
             <token type-id="KW_EDITIONABLE" id="02613" />
             <token type-id="KW_NONEDITIONABLE" id="02614" />
         </one-of>
-        <element ref-id="procedure_compile_clause" optional="true"/>
     </element-def>
 
     <element-def description="PROCEDURE COMPILE clause" id="procedure_compile_clause">
@@ -5532,6 +5532,7 @@
     <element-def attributes="SPECIFIC" description="ALTER TRIGGER statement" id="alter_trigger">
         <token id="03289" type-id="KW_ALTER" />
         <token id="03290" type-id="KW_TRIGGER" />
+        <element ref-id="if_exists_clause" optional="true" />
         <element ref-id="trigger_reference" />
         <one-of id="03291">
             <element ref-id="trigger_compile_clause" />

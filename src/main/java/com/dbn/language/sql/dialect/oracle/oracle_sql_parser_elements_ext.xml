@@ -262,7 +262,7 @@
             <node tt="KW_SYSTEM" pc="alter_system" cc="02972, 03010, 03014, 02937, 02946, 02947, 02956, 03021, 03026, 02961, 02963, 02964, 03031, 03032, 03034, 02965, 02967, 02970" />
             <node ref="N0015" />
             <node tt="KW_TABLE" pc="alter_table" cc="09326, 03380, 03381" />
-            <node tt="KW_TRIGGER" pc="alter_trigger" cc="09245, 09246" />
+            <node tt="KW_TRIGGER" pc="alter_trigger" cc="09326, 09245, 09246" />
             <node tt="KW_TYPE" pc="alter_type" cc="09326, 09248, 09249" />
             <node tt="KW_VIEW" pc="alter_view" cc="09277, 09278" />
             <node tt="KW_USER" pc="alter_user" cc="04319" />
