@@ -247,7 +247,7 @@
             <node tt="KW_INDEX" pc="alter_index" cc="09320, 02001, 02002" />
             <node tt="KW_INDEXTYPE" pc="alter_indextype" cc="09320, 02163, 02164" />
             <node tt="KW_JAVA" pc="alter_java" cc="09320, 02217, 02218" />
-            <node tt="KW_LIBRARY" pc="alter_library" cc="02286, 02287" />
+            <node tt="KW_LIBRARY" pc="alter_library" cc="09320, 02286, 02287" />
             <node tt="KW_MATERIALIZED" pc="alter_materialized_view" cc="02299" />
             <node tt="KW_OPERATOR" pc="alter_operator" cc="02532, 02533" />
             <node tt="KW_OUTLINE" pc="alter_outline" cc="02572, 02573, 02574" />

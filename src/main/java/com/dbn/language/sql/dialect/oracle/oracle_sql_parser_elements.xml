@@ -4005,6 +4005,7 @@
     <element-def description="ALTER LIBRARY statement" id="alter_library">
         <token id="02283" type-id="KW_ALTER" />
         <token id="02284" type-id="KW_LIBRARY" />
+        <element ref-id="if_exists_clause" optional="true" />
         <qualified-identifier id="02285" separator="CHR_DOT">
             <variant>
                 <object-ref id="02286" optional="true" type="SCHEMA" />
