@@ -9,6 +9,8 @@ Use this skill for DBN SQL/PSQL parser grammar XML work, especially files named 
 
 When a specification provides a syntax diagram or linked diagram-text definition, treat the diagram as the authoritative grammar source. Prefer it over reconstructing syntax from prose descriptions; use prose for semantics, restrictions, and examples.
 
+When reading Oracle diagram text, use whitespace around parentheses as a useful structural cue: spaced forms such as `( MOUNT ... )` generally denote diagram grouping and should not become lexical SQL parentheses, while unspaced forms such as `(column, ...)` generally denote literal parentheses in the SQL syntax. Confirm this against the diagram and verified examples; if the diagram is unreadable or ambiguous, do not infer the grammar—ask for the diagram text or an image.
+
 ## Quick Workflow
 
 1. Inspect the target dialect XML and at least one equivalent construct in sibling dialects before editing.
