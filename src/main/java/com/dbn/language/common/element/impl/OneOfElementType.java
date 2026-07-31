@@ -147,18 +147,4 @@ public class OneOfElementType extends ElementTypeBase {
             bucket.add((LeafElementType) child.elementType);
         }
     }
-
-    private void initChildren() {
-        for (ElementTypeRef child : children) {
-            child.elementType.initialize();
-        }
-    }
-
-    public void initialize() {
-        if (initialized) return;
-        initialized = true;
-
-        // initialize children before this
-        initChildren();
-    }
 }

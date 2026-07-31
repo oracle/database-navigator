@@ -230,14 +230,4 @@ public class SequenceElementType extends ElementTypeBase {
             bucket.add((LeafElementType) child.elementType);
         }
     }
-
-    public void initialize() {
-        if (initialized) return;
-        initialized = true;
-
-        // rebuild children before this
-        for (ElementTypeRef child : children) {
-            child.elementType.initialize();
-        }
-    }
 }

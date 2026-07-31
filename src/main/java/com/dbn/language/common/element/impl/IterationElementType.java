@@ -37,7 +37,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.ITERATION_SEPARATOR;
 
 @Slf4j
-public final class IterationElementType extends ElementTypeBase {
+public class IterationElementType extends ElementTypeBase {
 
     public ElementTypeBase iteratedElement;
     public TokenElementType[] separatorTokens;
@@ -48,14 +48,6 @@ public final class IterationElementType extends ElementTypeBase {
 
     public IterationElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
-    }
-
-    @Override
-    public void initialize() {
-        if (initialized) return;
-        initialized = true;
-
-        iteratedElement.initialize();
     }
 
     @Override
@@ -73,22 +65,7 @@ public final class IterationElementType extends ElementTypeBase {
     protected void loadDefinition(Element def) throws ElementTypeDefinitionException {
         super.loadDefinition(def);
         String separatorTokenIds = stringAttribute(def, "separator");
-        if (separatorTokenIds != null) {
-            StringTokenizer tokenizer = new StringTokenizer(separatorTokenIds, ",");
-            List<TokenElementType> separators = new ArrayList<>();
-            while (tokenizer.hasMoreTokens()) {
-                String separatorTokenId = tokenizer.nextToken().trim();
-                TokenElementType separatorToken = new TokenElementType(this, separatorTokenId, id + ".i");
-                        //bundle.getTokenElementType(separatorTokenId);
-
-                separatorToken.set(ITERATION_SEPARATOR, true);
-                separatorToken.setDefaultFormatting(separatorToken.isCharacter() ?
-                        FormattingDefinition.NO_SPACE_BEFORE :
-                        FormattingDefinition.ONE_SPACE_BEFORE);
-                separators.add(separatorToken);
-            }
-            separatorTokens = separators.toArray(new TokenElementType[0]);
-        }
+        initSeparatorTokens(separatorTokenIds);
 
         List<Element> children = def.getChildren();
         if (children.size() != 1) {
@@ -131,6 +108,25 @@ public final class IterationElementType extends ElementTypeBase {
         if (minIterationsDef != null) {
             minIterations = Integer.parseInt(minIterationsDef);
         }
+    }
+
+    public void initSeparatorTokens(String separatorTokenIds) {
+        if (separatorTokenIds == null) return;
+
+        StringTokenizer tokenizer = new StringTokenizer(separatorTokenIds, ",");
+        List<TokenElementType> separators = new ArrayList<>();
+        while (tokenizer.hasMoreTokens()) {
+            String separatorTokenId = tokenizer.nextToken().trim();
+            TokenElementType separatorToken = new TokenElementType(this, separatorTokenId, id + ".i");
+                    //bundle.getTokenElementType(separatorTokenId);
+
+            separatorToken.set(ITERATION_SEPARATOR, true);
+            separatorToken.setDefaultFormatting(separatorToken.isCharacter() ?
+                    FormattingDefinition.NO_SPACE_BEFORE :
+                    FormattingDefinition.ONE_SPACE_BEFORE);
+            separators.add(separatorToken);
+        }
+        separatorTokens = separators.toArray(new TokenElementType[0]);
     }
 
     @Override

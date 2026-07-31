@@ -18,7 +18,7 @@
 <!ATTLIST element-defs
         language CDATA #REQUIRED
         version CDATA #REQUIRED>
-<!ELEMENT element-def (token|element|sequence|iteration|one-of|wrapper|qualified-identifier|object-ref|object-def|alias-def|alias-ref|variable-def|variable-ref|block)*>
+<!ELEMENT element-def (token|element|sequence|iteration|one-of|wrapper|wrapped-iteration|one-of-iteration|qualified-identifier|object-ref|object-def|alias-def|alias-ref|variable-def|variable-ref|block)*>
 <!ATTLIST element-def
         id CDATA #REQUIRED
         description CDATA #REQUIRED
@@ -50,7 +50,21 @@
         virtual-object CDATA #IMPLIED
         object-type CDATA #IMPLIED
         formatting-spacing-before CDATA #IMPLIED>
-<!ELEMENT wrapper (token|element|sequence|one-of|iteration|wrapper|qualified-identifier|object-ref|variable-ref|alias-ref)*>
+<!ELEMENT wrapper (token|element|sequence|one-of|iteration|wrapper|wrapped-iteration|one-of-iteration|qualified-identifier|object-ref|variable-ref|alias-ref)*>
+<!ELEMENT wrapped-iteration (token|element|sequence|one-of|iteration|wrapper|qualified-identifier|object-ref|object-def|alias-def|alias-ref|variable-def|variable-ref)*>
+<!ATTLIST wrapped-iteration
+        id CDATA #IMPLIED
+        version CDATA #IMPLIED
+        optional (true | false) #IMPLIED
+        template (PARENTHESES | BEGIN_END | BRACKETS | BRACES) #REQUIRED
+        separator CDATA #IMPLIED>
+<!ELEMENT one-of-iteration (token|element|sequence|iteration|one-of|wrapper|wrapped-iteration|qualified-identifier|object-ref|object-def|alias-def|alias-ref|variable-def|variable-ref)*>
+<!ATTLIST one-of-iteration
+        id CDATA #IMPLIED
+        version CDATA #IMPLIED
+        optional (true | false) #IMPLIED
+        unique (true | false) #IMPLIED
+        separator CDATA #IMPLIED>
 <!ATTLIST wrapper
         id CDATA #IMPLIED
         version CDATA #IMPLIED
@@ -78,7 +92,7 @@
         formatting-spacing-before (NO_SPACE | ONE_SPACE | ONE_LINE) #IMPLIED
         formatting-spacing-after (NO_SPACE | ONE_SPACE | ONE_LINE) #IMPLIED
         original-name CDATA #IMPLIED>
-<!ELEMENT sequence (#PCDATA|token|element|sequence|iteration|one-of|wrapper|qualified-identifier|object-def|object-ref|alias-def|alias-ref|variable-def|variable-ref)*>
+<!ELEMENT sequence (#PCDATA|token|element|sequence|iteration|one-of|wrapper|wrapped-iteration|one-of-iteration|qualified-identifier|object-def|object-ref|alias-def|alias-ref|variable-def|variable-ref)*>
 <!ATTLIST sequence
         id CDATA #IMPLIED
         object-type CDATA #IMPLIED
@@ -96,7 +110,7 @@
         formatting-spacing-before (NO_SPACE | ONE_SPACE | ONE_LINE) #IMPLIED
         formatting-spacing-after (NO_SPACE | ONE_SPACE | ONE_LINE) #IMPLIED
         original-name CDATA #IMPLIED>
-<!ELEMENT iteration (token|element|sequence|one-of|wrapper|qualified-identifier|object-def|object-ref|variable-ref|alias-ref|alias-def)*>
+<!ELEMENT iteration (token|element|sequence|one-of|wrapper|wrapped-iteration|one-of-iteration|qualified-identifier|object-def|object-ref|variable-ref|alias-ref|alias-def)*>
 <!ATTLIST iteration
         id CDATA #IMPLIED
         separator CDATA #IMPLIED
@@ -113,7 +127,7 @@
         formatting-spacing-before (NO_SPACE | ONE_SPACE | ONE_LINE) #IMPLIED
         formatting-spacing-after (NO_SPACE | ONE_SPACE | ONE_LINE) #IMPLIED
         original-name CDATA #IMPLIED>
-<!ELEMENT one-of (token|element|sequence|iteration|one-of|wrapper|qualified-identifier|object-ref|object-def|alias-ref|alias-def|variable-ref|variable-def|exec-variable)*>
+<!ELEMENT one-of (token|element|sequence|iteration|one-of|wrapper|wrapped-iteration|one-of-iteration|qualified-identifier|object-ref|object-def|alias-ref|alias-def|variable-ref|variable-def|exec-variable)*>
 <!ATTLIST one-of
         id CDATA #IMPLIED
         object-type CDATA #IMPLIED

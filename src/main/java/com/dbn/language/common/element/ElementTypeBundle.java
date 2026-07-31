@@ -30,10 +30,12 @@ import com.dbn.language.common.element.impl.IterationElementType;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.NamedElementType;
 import com.dbn.language.common.element.impl.OneOfElementType;
+import com.dbn.language.common.element.impl.OneOfIterationElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierElementType;
 import com.dbn.language.common.element.impl.SequenceElementType;
 import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.impl.UnknownElementType;
+import com.dbn.language.common.element.impl.WrappedIterationElementType;
 import com.dbn.language.common.element.impl.WrapperElementType;
 import com.dbn.language.common.element.util.ElementTypeDefinition;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
@@ -131,7 +133,6 @@ public class ElementTypeBundle {
             notifyMissingDefinitions();
             registerLeafElements();
             loadElementExtensions();
-            initializeRootElements();
 
 /*            if (builder.dirty) {
                 Unsafe.warned(() -> {
@@ -196,10 +197,6 @@ public class ElementTypeBundle {
         forEach(builder.leafElementTypes, e -> e.registerLeaf());
     }
 
-    private void initializeRootElements() {
-        forEach(builder.rootElementTypes, e -> e.initialize());
-    }
-
     public short nextIndex() {
         int index = leafIndexer.incrementAndGet();
         return (short) index;
@@ -244,6 +241,9 @@ public class ElementTypeBundle {
         } else if (ElementTypeDefinition.ITERATION.is(type)) {
             result = new IterationElementType(this, parent, createId(), def);
 
+        } else if (ElementTypeDefinition.ONE_OF_ITERATION.is(type)) {
+            result = new OneOfIterationElementType(this, parent, createId(), def);
+
         } else if (ElementTypeDefinition.ONE_OF.is(type)) {
             result = new OneOfElementType(this, parent, createId(), def);
 
@@ -252,6 +252,9 @@ public class ElementTypeBundle {
 
         } else if (ElementTypeDefinition.WRAPPER.is(type)) {
             result = new WrapperElementType(this, parent, createId(), def);
+
+        } else if (ElementTypeDefinition.WRAPPED_ITERATION.is(type)) {
+            result = new WrappedIterationElementType(this, parent, createId(), def);
 
         } else if (ElementTypeDefinition.ELEMENT.is(type)) {
             String id = determineMandatoryAttribute(def, "ref-id", "Invalid reference to element.");

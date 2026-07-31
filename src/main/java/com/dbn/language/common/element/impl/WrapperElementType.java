@@ -33,7 +33,7 @@ import java.util.List;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
-public final class WrapperElementType extends ElementTypeBase {
+public class WrapperElementType extends ElementTypeBase {
     public ElementTypeBase wrappedElement;
     public boolean wrappedElementOptional;
 
@@ -133,12 +133,5 @@ public final class WrapperElementType extends ElementTypeBase {
     @Override
     public PsiElement createPsiElement(ASTNode astNode) {
         return new SequencePsiElement<>(astNode, this);
-    }
-
-    public void initialize() {
-        if (initialized) return;
-        initialized = true;
-
-        wrappedElement.initialize();
     }
 }
