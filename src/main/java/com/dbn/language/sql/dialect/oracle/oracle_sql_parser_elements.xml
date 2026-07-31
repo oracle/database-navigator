@@ -6721,6 +6721,7 @@
         <token id="04015" type-id="KW_ALTER" />
         <token id="04016" optional="true" type-id="KW_PUBLIC" />
         <token id="04017" type-id="KW_SYNONYM" />
+        <element ref-id="if_exists_clause" optional="true" />
         <element ref-id="synonym_reference" />
         <one-of id="04018">
             <token id="04019" type-id="KW_EDITIONABLE" />
