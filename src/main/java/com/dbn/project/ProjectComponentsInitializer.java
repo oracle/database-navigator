@@ -48,6 +48,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.state.StateEncryption.requestUnencryptedStateApproval;
+import static com.intellij.openapi.fileEditor.FileEditorManagerListener.Before.FILE_EDITOR_MANAGER;
 
 /**
  * TODO SERVICES
@@ -63,7 +64,7 @@ public class ProjectComponentsInitializer extends ProjectComponentBase implement
         super(project, COMPONENT_NAME);
         ProjectSettingsProvider.init(project);
         ConnectionBundleSettings.init(project);
-        ProjectEvents.subscribe(FileEditorManagerListener.Before.FILE_EDITOR_MANAGER, componentInitializer());
+        ProjectEvents.subscribe(project, this, FILE_EDITOR_MANAGER, componentInitializer());
     }
 
     @NotNull
@@ -75,10 +76,7 @@ public class ProjectComponentsInitializer extends ProjectComponentBase implement
         return new FileEditorManagerListener.Before() {
             @Override
             public void beforeFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-                Project project = source.getProject();
-
-                ProjectComponentsInitializer initializer = getInstance(project);
-                if (initializer.shouldInitialize(file)) initializer.initializeComponents();
+                if (shouldInitialize(file)) initializeComponents();
             }
         };
     }

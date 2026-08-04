@@ -20,7 +20,6 @@ import com.dbn.language.common.ParseException;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.impl.ElementTypeRef;
-import com.dbn.language.common.element.impl.IdentifierElementType;
 import com.dbn.language.common.element.impl.IterationElementType;
 import com.dbn.language.common.element.impl.SequenceElementType;
 import com.dbn.language.common.element.parser.ElementTypeParser;
@@ -127,17 +126,7 @@ public class SequenceElementTypeParser<E extends SequenceElementType> extends El
     }
 
     private boolean isWeakMatch(ParserNode node) {
-        return node.matchedElements < 2 && node.matchedTokens < 3 && node.elementIndex > 1 && ignoreFirstMatch();
-    }
-
-    @Deprecated // ambiguous
-    private boolean ignoreFirstMatch() {
-        ElementTypeRef firstChild = elementType.children[0];
-        ElementType elementType = firstChild.elementType;
-        if (elementType instanceof IdentifierElementType identifierElementType) {
-            return !identifierElementType.isDefinition();
-        }
-        return false;
+        return node.matchedElements < 2 && node.matchedTokens < 3 && node.elementIndex > 1;
     }
 
     private int advanceLexerToNextLandmark(ParserNode node, ParserContext context) {

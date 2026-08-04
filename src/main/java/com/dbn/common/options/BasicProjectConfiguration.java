@@ -43,10 +43,7 @@ public abstract class BasicProjectConfiguration<P extends ProjectConfiguration, 
     @NotNull
     @Override
     public Project getProject() {
-        if (project != null) {
-            return project.ensure();
-        }
-
-        return getParent().ensureProject();
+        if (project != null) return project.ensure();
+        return ensureParent().ensureProject();
     }
 }

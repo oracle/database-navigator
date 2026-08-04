@@ -17,6 +17,7 @@
 package com.dbn.assistant.provider;
 
 import com.dbn.common.filter.Filter;
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Lists;
@@ -42,7 +43,7 @@ import static com.dbn.common.util.Lists.firstElement;
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
-public final class AIProvider implements Presentable {
+public final class AIProvider implements Presentable, Identifiable<AIProviderId> {
 
     private final AIProviderId id;
     private final String name;

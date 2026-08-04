@@ -20,7 +20,7 @@ import com.dbn.common.property.Property;
 
 public enum ValueSelectorOption implements Property.IntBase {
     HIDE_ICON,
-    HIDE_DESCRIPTION;
+    SHOW_DESCRIPTION;
 
     public static final ValueSelectorOption[] VALUES = values();
 

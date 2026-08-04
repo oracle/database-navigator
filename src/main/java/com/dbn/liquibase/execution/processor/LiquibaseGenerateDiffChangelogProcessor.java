@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.liquibase.execution.LiquibaseCommands.GENERATE_DIFF_CHANGELOG;
@@ -94,13 +93,14 @@ public class LiquibaseGenerateDiffChangelogProcessor extends LiquibaseDiffExecut
         populateComparisonItems(result, diffResult);
 
         checkCanceled(context);
-        executeCommand(GENERATE_DIFF_CHANGELOG, output, Map.of(
+        var arguments = arguments(
                 "referenceDatabase", sourceDatabase,
                 "database", targetDatabase,
                 "diffTypes", DIFF_TYPES,
                 "excludeObjects", buildTrackingTableFilter(targetDatabase),
                 "changelogFile", changelogFile.toString(),
-                "author", input.getChangelogAuthor()));
+                "author", input.getChangelogAuthor());
+        executeCommand(GENERATE_DIFF_CHANGELOG, context, output, arguments);
 
         String databaseTag = input.getDatabaseTag();
         if (isNotEmpty(databaseTag)) {

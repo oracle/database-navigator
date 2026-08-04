@@ -71,7 +71,7 @@ SQL_DATATYPE = "bit"|"char"|"character"|"date"|"dec"|"decimal"|"double"|"float"|
 %state DIV
 %%
 
-{VARIABLE}          { return tt.getTokenType("VARIABLE"); }
+{VARIABLE}          { return tt.variable; }
 
 {WHITE_SPACE}+      { return stt.whiteSpace; }
 
@@ -82,12 +82,12 @@ SQL_DATATYPE = "bit"|"char"|"character"|"date"|"dec"|"decimal"|"double"|"float"|
 {NUMBER}            { return stt.number; }
 {STRING}            { return stt.string; }
 
-{SQL_FUNCTION}      { return tt.getTokenType("FUNCTION");}
-//{SQL_PARAMETER}         { return tt.getTokenType("PARAMETER");}
+{SQL_FUNCTION}      { return tt.function;}
+//{SQL_PARAMETER}         { return tt.parameter;}
 
-{SQL_DATATYPE}      { return tt.getTokenType("DATA_TYPE"); }
-{SQL_KEYWORD}       { return tt.getTokenType("KEYWORD"); }
-{OPERATOR}          { return tt.getTokenType("OPERATOR"); }
+{SQL_DATATYPE}      { return tt.dataType; }
+{SQL_KEYWORD}       { return tt.keyword; }
+{OPERATOR}          { return tt.operator; }
 
 
 {IDENTIFIER}        { return stt.identifier; }

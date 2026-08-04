@@ -28,22 +28,22 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Slf4j
-@Getter
 @NonNls
+@Getter
 public class TokenTypeBundle extends TokenTypeBundleBase {
     private final DBLanguage baseLanguage;
     private final SharedTokenTypeBundle sharedTokenTypes;
 
-    private final IElementType integer;
-    private final IElementType number;
-    private final IElementType string;
-    private final IElementType operator;
-    private final IElementType keyword;
-    private final IElementType function;
-    private final IElementType variable;
-    private final IElementType parameter;
-    private final IElementType exception;
-    private final IElementType dataType;
+    public final IElementType integer;
+    public final IElementType number;
+    public final IElementType string;
+    public final IElementType operator;
+    public final IElementType keyword;
+    public final IElementType function;
+    public final IElementType variable;
+    public final IElementType parameter;
+    public final IElementType exception;
+    public final IElementType dataType;
 
     public static final Set<String> GENERIC_TOKENS = Set.of("INTEGER", "NUMBER", "STRING", "OPERATOR", "KEYWORD", "FUNCTION", "VARIABLE", "PARAMETER", "EXCEPTION", "DATA_TYPE");
     private final Set<String> undefinedTokens = new HashSet<>();

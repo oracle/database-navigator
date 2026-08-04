@@ -16,65 +16,61 @@
 
 package com.dbn.liquibase.operation;
 
-import com.dbn.liquibase.DatabaseLiquibaseManager;
+import com.dbn.liquibase.task.LiquibaseTaskContext;
+import com.dbn.liquibase.workflow.LiquibaseWorkflowContext;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
 import com.dbn.object.DBSchema;
-import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /** Per-run state shared by a Liquibase processor and its execution result. */
 @Getter
 @Setter
-public class LiquibaseOperationContext {
-    private final LiquibaseOperationInput input;
-    private LiquibaseOperationResult result;
+public class LiquibaseOperationContext extends LiquibaseTaskContext<LiquibaseOperationInput> {
+    private final LiquibaseWorkflowContext workflowContext;
+    private final LiquibaseOperationResult result = new LiquibaseOperationResult(this);
     private volatile Thread executionThread;
-    private volatile boolean cancellationRequested;
 
-    public LiquibaseOperationContext(@NotNull LiquibaseOperationInput input) {
-        this.input = input;
-    }
-
-    public Project getProject() {
-        return input.getProject();
-    }
-
-    public @NotNull DatabaseLiquibaseManager getLiquibaseManager() {
-        return DatabaseLiquibaseManager.getInstance(input.getProject());
-    }
-
-    @NotNull
-    public LiquibaseOperationResult prepareExecutionResult() {
-        if (result == null) result = new LiquibaseOperationResult(input);
-        return result;
+    public LiquibaseOperationContext(@NotNull LiquibaseOperationInput input, @Nullable LiquibaseWorkflowContext workflowContext) {
+        super(input);
+        this.workflowContext = workflowContext;
     }
 
     public void cancel() {
-        cancellationRequested = true;
+        super.cancel();
         Thread thread = executionThread;
         if (thread != null) thread.interrupt();
     }
 
-    public boolean isCancellationRequested() {
-        return cancellationRequested || Thread.currentThread().isInterrupted();
-    }
-
     @NotNull
     public DBSchema getSourceSchema() {
-        DBSchema schema = input.getSourceSchema();
+        DBSchema schema = getInput().getSourceSchema();
         if (schema == null) throw new IllegalStateException("Source schema not specified");
         return schema;
     }
 
     @NotNull
     public DBSchema getTargetSchema() {
-        DBSchema schema = input.getTargetSchema();
+        DBSchema schema = getInput().getTargetSchema();
         if (schema == null) throw new IllegalStateException("Target schema not specified");
         return schema;
     }
 
     public void clearExecutionThread() {
         executionThread = null;
+    }
+
+    public boolean requiresSqlPreview() {
+        LiquibaseOperationInput input = getInput();
+        LiquibaseEnvironmentProfile profile = input.getEnvironmentProfile();
+        LiquibaseOperation operation = input.getOperation();
+
+        if (!profile.isRequireSqlPreview()) return false;
+        if (!operation.isMutatingSchema()) return false;
+        if (input.isApproved()) return false;
+
+        return true;
     }
 }

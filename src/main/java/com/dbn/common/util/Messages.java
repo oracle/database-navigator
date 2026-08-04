@@ -196,6 +196,17 @@ public class Messages {
         return Dispatch.call(() -> showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_QUESTION, null));
     }
 
+    public static int showConfirmationDialog(@Nullable Project project, @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex,  MessageCallback callback) {
+        return Dispatch.call(() -> {
+            int option = showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_QUESTION, null);
+            if (callback != null) {
+                callback.accept(option);
+            }
+
+            return option;
+        });
+    }
+
     public static int showAcknowledgementDialog(@Nullable Project project, @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex,  MessageCallback callback) {
         return Dispatch.call(() -> {
             int option = showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_WARNING, null);

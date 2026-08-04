@@ -25,7 +25,6 @@ import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
-import java.util.Map;
 
 import static com.dbn.liquibase.execution.LiquibaseCommands.SHOW_CHANGELOG_HISTORY;
 import static com.dbn.nls.NlsResources.txt;
@@ -54,14 +53,14 @@ public class LiquibaseShowChangelogHistoryProcessor extends LiquibaseExecutionPr
 
         withLiquibaseDatabase(context, true, targetSchema, database ->
                 withLiquibaseScope(context, contentRootAccessor(context), null,
-                        output -> executeHistory(context, database, output)));
+                        output -> executeHistory(database, context, output)));
 
         result.appendConsoleOutput(txt("log.liquibase.info.ChangelogHistoryDisplayed", changelogFile));
     }
 
     private void executeHistory(
-            @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
+            @NotNull LiquibaseOperationContext context,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
         LiquibaseOperationResult result = context.getResult();
         for (RanChangeSet ranChangeSet : database.getRanChangeSetList()) {
@@ -82,8 +81,9 @@ public class LiquibaseShowChangelogHistoryProcessor extends LiquibaseExecutionPr
             result.ensureChangeSetItem(changeSet, status, ranChangeSet.getDescription());
         }
 
-        executeCommand(SHOW_CHANGELOG_HISTORY, output, Map.of(
+        var arguments = arguments(
                 "database", database,
-                "showTags", true));
+                "showTags", true);
+        executeCommand(SHOW_CHANGELOG_HISTORY, context, output, arguments);
     }
 }

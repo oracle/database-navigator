@@ -66,8 +66,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_ICON;
+import static com.dbn.common.ui.ValueSelectorOption.SHOW_DESCRIPTION;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormField;
 import static com.dbn.common.ui.util.ClientProperty.LOADING;
@@ -430,7 +430,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
             name = value.toString();
         }
 
-        if (options.is(HIDE_DESCRIPTION)) return name;
+        if (!options.is(SHOW_DESCRIPTION)) return name;
         if (Strings.isEmptyOrSpaces(description)) return name;
         if (Objects.equals(name, description)) return name;
 

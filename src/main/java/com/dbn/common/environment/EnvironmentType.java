@@ -17,6 +17,7 @@
 package com.dbn.common.environment;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.util.LookAndFeel;
@@ -47,7 +48,7 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class EnvironmentType implements Cloneable<EnvironmentType>, PersistentConfiguration, Presentable {
+public class EnvironmentType implements Cloneable<EnvironmentType>, PersistentConfiguration, Presentable, Identifiable<EnvironmentTypeId> {
 
     private static final Color DEFAULT_REGULAR_COLOR = Color.LIGHT_GRAY;
     private static final Color DEFAULT_DARK_COLOR = Color.DARK_GRAY;
@@ -60,7 +61,7 @@ public class EnvironmentType implements Cloneable<EnvironmentType>, PersistentCo
         JBColor NONE = new JBColor(new Color(0xffffff), Color.DARK_GRAY);
     }
 
-    public static final EnvironmentType DEFAULT     = new EnvironmentType(EnvironmentTypeId.DEFAULT, "", "", new Color(214,214,214), new Color(72,74,74), false, false);
+    public static final EnvironmentType DEFAULT     = new EnvironmentType(EnvironmentTypeId.DEFAULT, txt("cfg.environment.const.EnvironmentType_DEFAULT"), txt("cfg.environment.text.DefaultEnvironment"), new Color(214,214,214), new Color(72,74,74), false, false);
     public static final EnvironmentType DEVELOPMENT = new EnvironmentType(EnvironmentTypeId.DEVELOPMENT, txt("cfg.environment.const.EnvironmentType_DEVELOPMENT"), txt("cfg.environment.text.DevelopmentEnvironment"), new Color(-2430209), new Color(0x445F80), false, false);
     public static final EnvironmentType INTEGRATION = new EnvironmentType(EnvironmentTypeId.INTEGRATION, txt("cfg.environment.const.EnvironmentType_INTEGRATION"), txt("cfg.environment.text.IntegrationEnvironment"), new Color(-2621494), new Color(0x466646), true, false);
     public static final EnvironmentType PRODUCTION  = new EnvironmentType(EnvironmentTypeId.PRODUCTION, txt("cfg.environment.const.EnvironmentType_PRODUCTION"), txt("cfg.environment.text.ProductionEnvironment"), new Color(-11574), new Color(0x634544), true, true);

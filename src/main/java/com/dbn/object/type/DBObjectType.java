@@ -108,6 +108,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     MATERIALIZED_VIEW(DatabaseObjectTypeId.MATERIALIZED_VIEW, "materialized view", "materialized views", Icons.DBO_MATERIALIZED_VIEW, null, Icons.DBO_MATERIALIZED_VIEWS, false),
     METHOD(DatabaseObjectTypeId.METHOD, "method", "methods", null, null, null, true),
     MODEL(DatabaseObjectTypeId.MODEL, "model", "models", null, null, null, false),
+    MODULE(DatabaseObjectTypeId.MODULE, "module", "modules", null, null, null, false),
     MINING_MODEL(DatabaseObjectTypeId.MINING_MODEL, "mining model", "mining models", null, null, null, false),
     NESTED_TABLE(DatabaseObjectTypeId.NESTED_TABLE, "nested table", "nested tables", Icons.DBO_NESTED_TABLE, null, Icons.DBO_NESTED_TABLES, false),
     NESTED_TABLE_COLUMN(DatabaseObjectTypeId.NESTED_TABLE_COLUMN, "nested table column", "nested table columns", null, null, null, false),

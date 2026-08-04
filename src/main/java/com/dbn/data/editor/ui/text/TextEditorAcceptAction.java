@@ -28,7 +28,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 class TextEditorAcceptAction extends TextEditorAction {
     public TextEditorAcceptAction() {
-        super(txt("app.dataEditor.action.AcceptChanges"), null, Icons.TEXT_CELL_EDIT_ACCEPT);
+        super(txt("app.dataEditor.button.ApplyChanges"), null, Icons.TEXT_CELL_EDIT_ACCEPT);
     }
 
     @Override

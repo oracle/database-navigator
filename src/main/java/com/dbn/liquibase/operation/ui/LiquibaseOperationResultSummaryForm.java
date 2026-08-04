@@ -22,7 +22,6 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
 import com.dbn.common.task.TaskStatus;
 import com.dbn.common.thread.Background;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.info.DBNInfoLabel;
@@ -54,6 +53,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import static com.dbn.common.task.TaskStatus.BYPASSED;
+import static com.dbn.common.task.TaskStatus.CANCELLED;
+import static com.dbn.common.task.TaskStatus.DONE;
+import static com.dbn.common.task.TaskStatus.PAUSED;
+import static com.dbn.common.task.TaskStatus.RUNNING;
+import static com.dbn.common.task.TaskStatus.SKIPPED;
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.Tooltips.setToolTipText;
@@ -72,7 +77,6 @@ import static com.dbn.liquibase.operation.LiquibaseFeature.WORKSPACE;
 import static com.dbn.liquibase.operation.LiquibaseRollbackType.COUNT;
 import static com.dbn.liquibase.operation.LiquibaseRollbackType.TAG;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.nls.NlsResources.txtOr;
 
 /** Summary panel for a Liquibase operation result. */
 public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
@@ -217,7 +221,7 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
         messageForm = new DBNMessageForm(this, message);
         messageForm.setMessage(message);
         messagePanel.add(messageForm.getComponent());
-        result.addListener(() -> Dispatch.run(mainPanel, () -> updateMessageForm(result)));
+        result.addListener(() -> dispatch(() -> updateMessageForm(result)));
         if (result.getTiming().getEndTime() > 0) updateMessageForm(result);
     }
 
@@ -480,7 +484,7 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
 
     private void updateDuration(@NotNull LiquibaseOperationResult result) {
         durationLabel.setText(presentableDuration(result.getExecutionDuration(), true));
-        if (result.getStatus() == TaskStatus.RUNNING) {
+        if (result.getStatus() == RUNNING) {
             if (!durationTimer.isRunning()) durationTimer.start();
         } else {
             durationTimer.stop();
@@ -494,14 +498,14 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
     }
 
     @NotNull
-    private static TitledMessage createMessage(
+    private TitledMessage createMessage(
             @NotNull LiquibaseOperationResult result,
             @NotNull DBSchema schema) {
         LiquibaseOperation operation = result.getOperation();
         TaskStatus status = result.getStatus();
         String schemaName = schema.getName();
 
-        if (status == TaskStatus.RUNNING) {
+        if (status == RUNNING) {
             return new TitledMessage(
                     MessageType.PROCESSING,
                     txt(getTitleKey(operation, status)),
@@ -509,8 +513,9 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
         }
 
         MessageType messageType =
-                status == TaskStatus.CANCELLED || status == TaskStatus.SKIPPED || status == TaskStatus.BYPASSED ? MessageType.WARNING :
-                status == TaskStatus.DONE ? MessageType.SUCCESS : MessageType.ERROR;
+                status.isOneOf(CANCELLED, SKIPPED, BYPASSED) ? MessageType.WARNING :
+                status == PAUSED ? MessageType.PAUSE :
+                status == DONE ? MessageType.SUCCESS : MessageType.ERROR;
         return new TitledMessage(
                 messageType,
                 txt(getTitleKey(operation, status)),
@@ -521,25 +526,16 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
     private static String getTitleKey(
             @NotNull LiquibaseOperation operation,
             @NotNull TaskStatus status) {
-        return getOperationKey("title", operation, status);
+        return txt("msg.liquibase.title.OperationStatus",
+                operation.getName(),
+                status.getName());
     }
 
     @NotNull
-    private static String getMessageKey(
+    private String getMessageKey(
             @NotNull LiquibaseOperation operation,
             @NotNull TaskStatus status) {
-        return getOperationKey("text", operation, status);
-    }
-
-    @NotNull
-    private static String getOperationKey(
-            @NotNull String category,
-            @NotNull LiquibaseOperation operation,
-            @NotNull TaskStatus status) {
-        String suffix = operation.name() + '_' + status.name();
-        String operationKey = "msg.liquibase." + category + ".Operation_" + suffix;
-        String fallbackKey = "msg.liquibase." + category + ".Operation_ANY_" + status.name();
-        return txtOr(operationKey, fallbackKey);
+        return txt("msg.liquibase.text.OperationStatus_" + status.name(), result.getRelevantSchemaName());
     }
 
     @NotNull

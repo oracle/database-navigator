@@ -112,7 +112,7 @@
         </wrapper>
     </element-def>
     <element-def description="Simple expression" id="simple_expression">
-        <one-of id="00039" sortable="true">
+        <one-of id="00039">
             <sequence id="00040">
                 <qualified-identifier id="00041" separator="CHR_DOT">
                     <variant>

@@ -16,6 +16,7 @@
 
 package com.dbn.code.common.style.presets;
 
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.ui.Presentable;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.intellij.formatting.Spacing;
@@ -24,7 +25,7 @@ import com.intellij.formatting.WrapType;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.annotations.Nullable;
 
-public interface CodeStylePreset extends Presentable{
+public interface CodeStylePreset extends Presentable, Identifiable<String> {
     Wrap WRAP_NONE = Wrap.createWrap(WrapType.NONE, false);
     Wrap WRAP_NORMAL = Wrap.createWrap(WrapType.NORMAL, true);
     Wrap WRAP_ALWAYS = Wrap.createWrap(WrapType.ALWAYS, true);

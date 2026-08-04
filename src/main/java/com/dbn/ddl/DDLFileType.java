@@ -16,6 +16,7 @@
 
 package com.dbn.ddl;
 
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.util.Files;
 import com.dbn.common.util.Strings;
 import com.dbn.editor.DBContentType;
@@ -33,7 +34,7 @@ import java.util.Set;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class DDLFileType {
+public class DDLFileType implements Identifiable<DDLFileTypeId> {
     private final DBLanguageFileType languageFileType;
     private final DDLFileTypeId id;
     private final @Nls String description;

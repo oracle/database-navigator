@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static com.dbn.common.util.Commons.nvl;
@@ -35,30 +36,51 @@ import static com.dbn.common.util.Strings.toUpperCase;
 @UtilityClass
 public class Naming {
 
-    public static String nextNumberedIdentifier(@NonNls String identifier, boolean insertWhitespace) {
-        StringBuilder text = new StringBuilder();
-        StringBuilder number = new StringBuilder();
-        for (int i=identifier.length() -1; i >= 0; i--) {
-            char chr = identifier.charAt(i);
-            if ('0' <= chr && chr <= '9') {
-                number.insert(0, chr);
-            } else {
-                text.append(identifier, 0, i+1);
-                break;
-            }
-        }
-        int nr = number.length() == 0 ? 0 : Integer.parseInt(number.toString());
-        nr++;
-        if (insertWhitespace && nr == 1) text.append(" ");
-        return text.toString() + nr;
+    public static String nextNumberedIdentifier(@NonNls String identifier, boolean insertWhitespace, Supplier<Set<String>> taken) {
+        return nextNumberedIdentifier(identifier, insertWhitespace, i -> taken.get().contains(i));
     }
 
-    public static String nextNumberedIdentifier(@NonNls String identifier, boolean insertWhitespace, Supplier<Set<String>> taken) {
-        Set<String> takenIdentifiers = taken.get();
-        while (takenIdentifiers.contains(identifier)) {
-            identifier = nextNumberedIdentifier(identifier, insertWhitespace);
+    public static String nextNumberedIdentifier(@NonNls String identifier, boolean insertWhitespace, Predicate<String> duplicate) {
+        if (isPureNumber(identifier)) {
+            if (!duplicate.test(identifier)) return identifier;
+
+            String separator = insertWhitespace ? " " : "";
+            int suffix = 1;
+            String candidate;
+            do {
+                candidate = identifier + separator + suffix++;
+            } while (duplicate.test(candidate));
+            return candidate;
+        }
+
+        while (duplicate.test(identifier)) {
+            StringBuilder text = new StringBuilder();
+            StringBuilder number = new StringBuilder();
+            for (int i = identifier.length() - 1; i >= 0; i--) {
+                char chr = identifier.charAt(i);
+                if ('0' <= chr && chr <= '9') {
+                    number.insert(0, chr);
+                } else {
+                    text.append(identifier, 0, i + 1);
+                    break;
+                }
+            }
+
+            int suffix = number.isEmpty() ? 0 : Integer.parseInt(number.toString());
+            suffix++;
+            if (insertWhitespace && suffix == 1) text.append(" ");
+            identifier = text + String.valueOf(suffix);
         }
         return identifier;
+    }
+
+    private static boolean isPureNumber(String identifier) {
+        if (identifier.isEmpty()) return false;
+        for (int i = 0; i < identifier.length(); i++) {
+            char chr = identifier.charAt(i);
+            if (chr < '0' || chr > '9') return false;
+        }
+        return true;
     }
 
     public static String createNamesList(Set<IdentifierPsiElement> identifiers, int maxItems) {

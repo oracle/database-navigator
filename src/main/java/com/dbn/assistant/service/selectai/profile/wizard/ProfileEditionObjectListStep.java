@@ -20,7 +20,6 @@ import com.dbn.assistant.service.selectai.profile.wizard.validation.ProfileObjec
 import com.dbn.common.color.Colors;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Background;
-import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.Accessibility;
@@ -141,7 +140,6 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   }
 
   private void initSchemaSelector() {
-    schemaComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
     schemaComboBox.addListener((ov, nv) -> populateDatabaseObjectTable(nv));
     loadSchemas();
   }

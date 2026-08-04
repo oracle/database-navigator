@@ -24,6 +24,7 @@ import com.dbn.data.grid.ui.table.basic.BasicTable;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.Shortcut;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
@@ -35,7 +36,7 @@ public interface SearchableDataComponent extends DBNForm {
         table.cancelEditing();
         table.clearSelection();
 
-        DataSearchComponent searchComponent = getSearchComponent();
+        DataSearchComponent searchComponent = ensureSearchComponent();
         searchComponent.initializeFindModel();
 
         JTextComponent searchField = searchComponent.getSearchField();
@@ -50,6 +51,8 @@ public interface SearchableDataComponent extends DBNForm {
 
     default void hideSearchHeader() {
         DataSearchComponent searchComponent = getSearchComponent();
+        if (searchComponent == null) return;
+
         searchComponent.resetFindModel();
 
         JPanel searchPanel = getSearchPanel();
@@ -62,6 +65,10 @@ public interface SearchableDataComponent extends DBNForm {
     default void cancelEditActions() {
         BasicTable<?> table = getTable();
         table.cancelEditing();
+    }
+
+    default boolean isSearchShowing() {
+        return getSearchPanel().isVisible();
     }
 
     default String getSelectedText() {
@@ -89,7 +96,12 @@ public interface SearchableDataComponent extends DBNForm {
     @NotNull
     JPanel getSearchPanel();
 
+    @Nullable
     default DataSearchComponent getSearchComponent() {
+        return DataSearchComponent.get(this);
+    }
+
+    default DataSearchComponent ensureSearchComponent() {
         return DataSearchComponent.ensure(this);
     }
 

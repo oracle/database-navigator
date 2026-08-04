@@ -37,9 +37,6 @@ import java.util.Locale;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public abstract class DBLanguageParser implements PsiParser {
-    @NonNls
-    private static final String PARSER_EXTENSIONS_ENABLED_PROPERTY = "dbn.parser.extensions.enabled";
-
     public final DBLanguageDialect languageDialect;
     private final String defaultParseRootId;
     private final String tokenDefinitionFile;
@@ -74,23 +71,8 @@ public abstract class DBLanguageParser implements PsiParser {
 
     private ElementTypeBundle loadElementTypes() {
         Document definitionDocument = loadDefinition(elementDefinitionFile);
-        Document extensionDocument = isParserExtensionsEnabled() ? loadDefinition(elementExtensionFile) : null;
+        Document extensionDocument = loadDefinition(elementExtensionFile);
         return new ElementTypeBundle(languageDialect, getTokenTypes(), definitionDocument, extensionDocument, null);
-    }
-
-    private boolean isParserExtensionsEnabled() {
-        String globalValue = System.getProperty(PARSER_EXTENSIONS_ENABLED_PROPERTY);
-        if (!Boolean.parseBoolean(globalValue)) {
-            return false;
-        }
-
-        String dialectProperty = PARSER_EXTENSIONS_ENABLED_PROPERTY + "." + dialectId();
-        String dialectValue = System.getProperty(dialectProperty);
-        if (dialectValue != null) {
-            return Boolean.parseBoolean(dialectValue);
-        }
-
-        return true;
     }
 
     private String dialectId() {

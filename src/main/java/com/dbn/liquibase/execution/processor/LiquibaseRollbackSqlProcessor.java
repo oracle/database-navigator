@@ -7,8 +7,6 @@ import com.dbn.liquibase.operation.LiquibaseOperationContext;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-
 
 /** Generates rollback SQL without modifying the target schema. */
 public class LiquibaseRollbackSqlProcessor extends LiquibaseExecutionProcessor {
@@ -38,11 +36,13 @@ public class LiquibaseRollbackSqlProcessor extends LiquibaseExecutionProcessor {
         var paths = input.getWorkspacePaths();
         var instruction = input.getRollbackInstruction();
 
-        executeCommand(instruction.getSqlCommand(), output, Map.of(
+        LiquibaseChangeSetRollbackListener rollbackListener = new LiquibaseChangeSetRollbackListener(result, "SQL generated");
+        var arguments = arguments(
                 "database", database,
                 "changelogFile", paths.getMasterChangelogRelativePath(),
                 instruction.getParameter(), instruction.getValue(),
-                "changeExecListener", new LiquibaseChangeSetRollbackListener(result, "SQL generated")));
+                "changeExecListener", rollbackListener);
+        executeCommand(instruction.getSqlCommand(), context, output, arguments);
     }
 
 }

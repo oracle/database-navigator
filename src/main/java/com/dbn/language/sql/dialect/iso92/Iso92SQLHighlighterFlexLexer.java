@@ -2571,7 +2571,7 @@ public final class Iso92SQLHighlighterFlexLexer implements FlexLexer {
           // fall through
           case 22: break;
           case 7:
-            { return tt.getTokenType("OPERATOR");
+            { return tt.operator;
             }
           // fall through
           case 23: break;
@@ -2601,22 +2601,22 @@ public final class Iso92SQLHighlighterFlexLexer implements FlexLexer {
           // fall through
           case 28: break;
           case 13:
-            { return tt.getTokenType("VARIABLE");
+            { return tt.variable;
             }
           // fall through
           case 29: break;
           case 14:
-            { return tt.getTokenType("KEYWORD");
+            { return tt.keyword;
             }
           // fall through
           case 30: break;
           case 15:
-            { return tt.getTokenType("FUNCTION");
+            { return tt.function;
             }
           // fall through
           case 31: break;
           case 16:
-            { return tt.getTokenType("DATA_TYPE");
+            { return tt.dataType;
             }
           // fall through
           case 32: break;

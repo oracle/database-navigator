@@ -21,7 +21,6 @@ import com.dbn.common.filter.Filter;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.ValueSelector;
-import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
@@ -145,7 +144,7 @@ public class ObjectQuickFilterForm extends DBNFormBase {
         }
 
         NewFilterSelector(final ObjectQuickFilter<?> filter) {
-            super(PlatformIcons.ADD_ICON, txt("app.objects.action.AddNameCondition"), null, ValueSelectorOption.HIDE_DESCRIPTION);
+            super(PlatformIcons.ADD_ICON, txt("app.objects.action.AddNameCondition"), null);
             addListener((oldValue, newValue) -> {
                 Project project = ensureProject();
                 ObjectQuickFilterManager quickFilterManager = ObjectQuickFilterManager.getInstance(project);

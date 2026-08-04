@@ -121,8 +121,6 @@
         branch CDATA #IMPLIED
         branch-check CDATA #IMPLIED
         exit (true | false) #IMPLIED
-        ambiguity-level CDATA #IMPLIED
-        ambiguous (true | false) #IMPLIED
         sortable (true | false) #IMPLIED
         optional-wrapping (PARENTHESES) #IMPLIED
         formatting-indent (NORMAL | CONTINUE | NONE | ABSOLUTE_NONE) #IMPLIED

@@ -22,9 +22,9 @@ public class LiquibaseLockItemsTableModel extends DBNDynamicTableModel<Liquibase
         super(LiquibaseLockItem.class, result.getLockItems());
         this.result = result;
         addColumn(txt("app.liquibase.column.DiscoveryOrder"), e -> getData().indexOf(e) + 1);
-        addColumn(txt("app.liquibase.column.LockId"), LiquibaseLockItem::getId);
-        addColumn(txt("app.liquibase.column.LockedBy"), LiquibaseLockItem::getLockedBy);
-        addColumn(txt("app.liquibase.column.LockGranted"), LiquibaseLockItem::getLockGranted);
+        addColumn(txt("app.liquibase.column.LockId"), e -> e.getId());
+        addColumn(txt("app.liquibase.column.LockedBy"), e -> e.getLockedBy());
+        addColumn(txt("app.liquibase.column.LockGranted"), e -> e.getLockGranted());
     }
 
     public void refresh() {

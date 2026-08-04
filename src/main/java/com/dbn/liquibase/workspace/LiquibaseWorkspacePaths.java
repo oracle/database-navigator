@@ -70,7 +70,14 @@ public class LiquibaseWorkspacePaths {
 
     @NotNull
     public Path getMasterChangelogPath() {
-        return resolvePath(getChangelogDirectoryPath(), workspace.getMasterChangelog(), "Master changelog");
+        String masterChangelog = workspace.getMasterChangelog();
+        if (!Strings.isEmpty(masterChangelog)) {
+            masterChangelog = LiquibaseChangelogFiles.normalize(
+                    masterChangelog,
+                    workspace.getChangelogFormat(),
+                    workspace.getDatabaseType());
+        }
+        return resolvePath(getChangelogDirectoryPath(), masterChangelog, "Master changelog");
     }
 
     @NotNull

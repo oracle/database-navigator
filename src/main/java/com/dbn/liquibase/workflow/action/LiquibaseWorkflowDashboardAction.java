@@ -19,6 +19,8 @@ package com.dbn.liquibase.workflow.action;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.liquibase.workflow.ui.LiquibaseWorkflowDashboardDialog;
 import com.dbn.object.DBSchema;
+import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -28,15 +30,19 @@ import static com.dbn.nls.NlsResources.txt;
 
 /** Opens the workflow dashboard from a database schema context. */
 public class LiquibaseWorkflowDashboardAction extends ProjectAction {
-    private final DBSchema schema;
+    private final DBObjectRef<DBSchema> schema;
 
     public LiquibaseWorkflowDashboardAction(@NotNull DBSchema schema) {
-        super(txt("app.liquibase.action.WorkflowDashboard"));
-        this.schema = schema;
+        super(txt("app.liquibase.action.WorkflowDashboard"), null, AllIcons.Actions.ListFiles);
+        this.schema = DBObjectRef.of(schema);
+    }
+
+    public DBSchema getSchema() {
+        return DBObjectRef.ensure(schema);
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        show(() -> new LiquibaseWorkflowDashboardDialog(schema));
+        show(() -> new LiquibaseWorkflowDashboardDialog(getSchema()));
     }
 }

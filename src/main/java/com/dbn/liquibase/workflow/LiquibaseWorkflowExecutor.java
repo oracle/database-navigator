@@ -11,7 +11,6 @@
 package com.dbn.liquibase.workflow;
 
 import com.dbn.common.task.TaskStatus;
-import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.processor.LiquibaseExecutionProcessors;
 import com.dbn.liquibase.operation.LiquibaseOperation;
@@ -21,6 +20,13 @@ import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+
+import static com.dbn.common.task.TaskStatus.BYPASSED;
+import static com.dbn.common.task.TaskStatus.CANCELLED;
+import static com.dbn.common.task.TaskStatus.DONE;
+import static com.dbn.common.task.TaskStatus.FAILED;
+import static com.dbn.common.task.TaskStatus.PAUSED;
+import static com.dbn.common.task.TaskStatus.RUNNING;
 
 /** Executes the operations of a Liquibase workflow sequentially and records every operation result. */
 public class LiquibaseWorkflowExecutor {
@@ -32,29 +38,45 @@ public class LiquibaseWorkflowExecutor {
     }
 
     public void execute() {
-        List<LiquibaseOperation> operations = result.getInput().getWorkflow().getOperations();
-        result.getContext().finish(TaskStatus.RUNNING);
+        executeFrom(0);
+    }
 
-        for (int index = 0; index < operations.size(); index++) {
-            if (result.getContext().isCancellationRequested()) {
-                skipOperations(operations, index, TaskStatus.CANCELLED);
-                result.getContext().finish(TaskStatus.CANCELLED);
+    private void executeFrom(int startIndex) {
+        List<LiquibaseOperation> operations = result.getInput().getWorkflow().getOperations();
+        LiquibaseWorkflowContext context = result.getContext();
+        context.finish(RUNNING);
+
+        for (int index = startIndex; index < operations.size(); index++) {
+            if (context.isCancellationRequested()) {
+                skipOperations(operations, CANCELLED, index);
+                context.finish(CANCELLED);
                 result.notifyChanged();
                 return;
             }
 
-            LiquibaseOperationResult operationResult = executeOperation(index, operations.get(index));
+            LiquibaseOperationResult operationResult = executeOperation(index);
             TaskStatus status = operationResult.getStatus();
-            if (status != TaskStatus.DONE) {
-                skipOperations(operations, index + 1, TaskStatus.BYPASSED);
-                result.getContext().finish(status);
+            if (status == PAUSED) {
+                context.finish(PAUSED);
+                result.notifyChanged();
+                return;
+            }
+            if (status != DONE) {
+                skipOperations(operations, BYPASSED, index + 1);
+                context.finish(status);
                 result.notifyChanged();
                 return;
             }
         }
 
-        result.getContext().finish(TaskStatus.DONE);
+        context.finish(DONE);
         result.notifyChanged();
+    }
+
+    public void resume(@NotNull LiquibaseOperationResult operationResult) {
+        int index = result.getOperationResults().indexOf(operationResult);
+        if (index < 0) return;
+        executeFrom(index);
     }
 
     public void cancel() {
@@ -64,28 +86,35 @@ public class LiquibaseWorkflowExecutor {
     }
 
     @NotNull
-    private LiquibaseOperationResult executeOperation(
-            int index,
-            @NotNull LiquibaseOperation operation) {
-        result.getContext().startOperation(index);
+    private LiquibaseOperationResult executeOperation(int index) {
+        LiquibaseWorkflowContext context = result.getContext();
+        context.startOperation(index);
 
-        LiquibaseOperationInput input = result.getInput().createExecutionInput(operation);
-        LiquibaseOperationContext context = new LiquibaseOperationContext(input);
-        currentContext = context;
+        LiquibaseWorkflowInput input = result.getInput();
+        List<LiquibaseOperation> operations = input.getWorkflow().getOperations();
+        LiquibaseOperation operation = operations.get(index);
 
-        LiquibaseOperationResult operationResult = context.prepareExecutionResult();
-        result.addResult(operationResult);
-        DatabaseLiquibaseManager manager = DatabaseLiquibaseManager.getInstance(input.getProject());
-        manager.registerExecutionContext(operationResult, context);
+        LiquibaseOperationContext operationContext;
+        LiquibaseOperationResult operationResult;
+        List<LiquibaseOperationResult> operationResults = result.getOperationResults();
+        if (index < operationResults.size()) {
+            operationResult = operationResults.get(index);
+            operationContext = operationResult.getContext();
+        } else {
+            LiquibaseOperationInput operationInput = input.createExecutionInput(operation);
+            operationContext = new LiquibaseOperationContext(operationInput, context);
+            operationResult = operationContext.getResult();
+            result.addResult(operationResult);
+        }
+        currentContext = operationContext;
         try {
             LiquibaseExecutionProcessor processor = LiquibaseExecutionProcessors.get(operation);
-            processor.execute(context);
+            processor.execute(operationContext);
         } catch (Exception e) {
             operationResult.appendErrorOutput(e.getMessage());
             operationResult.notifyStarted();
-            operationResult.notifyFinished(TaskStatus.FAILED);
+            operationResult.notifyFinished(FAILED);
         } finally {
-            manager.unregisterExecutionContext(operationResult);
             currentContext = null;
         }
         return operationResult;
@@ -93,12 +122,13 @@ public class LiquibaseWorkflowExecutor {
 
     private void skipOperations(
             @NotNull List<LiquibaseOperation> operations,
-            int fromIndex,
-            @NotNull TaskStatus status) {
+            @NotNull TaskStatus status,
+            int fromIndex) {
+        LiquibaseWorkflowContext context = result.getContext();
         for (int index = fromIndex; index < operations.size(); index++) {
-            LiquibaseOperationInput input = result.getInput().createExecutionInput(operations.get(index));
-            LiquibaseOperationContext context = new LiquibaseOperationContext(input);
-            LiquibaseOperationResult operationResult = context.prepareExecutionResult();
+            LiquibaseOperationInput operationInput = result.getInput().createExecutionInput(operations.get(index));
+            LiquibaseOperationContext operationContext = new LiquibaseOperationContext(operationInput, context);
+            LiquibaseOperationResult operationResult = operationContext.getResult();
             operationResult.notifyStarted();
             operationResult.notifyFinished(status);
             result.addResult(operationResult);

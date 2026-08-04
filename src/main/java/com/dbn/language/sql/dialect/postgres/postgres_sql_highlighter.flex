@@ -88,7 +88,7 @@ SQL_PARAMETER = "allow_connections"|"builtin_locale"|"buffering"|"buffer_usage_l
     <<EOF>>   { dollarQuoteDelimiter = null; yybegin(YYINITIAL); return stt.string; }
 }
 
-{VARIABLE}          { return tt.getTokenType("VARIABLE"); }
+{VARIABLE}          { return tt.variable; }
 
 {WHITE_SPACE}+      { return stt.whiteSpace; }
 
@@ -100,12 +100,12 @@ SQL_PARAMETER = "allow_connections"|"builtin_locale"|"buffering"|"buffer_usage_l
 {DOLLAR_QUOTE_START} { dollarQuoteDelimiter = yytext().toString(); yybegin(DOLLAR_QUOTE); }
 {STRING}            { return stt.string; }
 
-{SQL_FUNCTION}      { return tt.getTokenType("FUNCTION");}
-{SQL_PARAMETER}     { return tt.getTokenType("PARAMETER");}
-{SQL_DATATYPE}      { return tt.getTokenType("DATA_TYPE"); }
-{SQL_KEYWORD}       { return tt.getTokenType("KEYWORD"); }
+{SQL_FUNCTION}      { return tt.function;}
+{SQL_PARAMETER}     { return tt.parameter;}
+{SQL_DATATYPE}      { return tt.dataType; }
+{SQL_KEYWORD}       { return tt.keyword; }
 
-{OPERATOR}          { return tt.getTokenType("OPERATOR"); }
+{OPERATOR}          { return tt.operator; }
 
 {IDENTIFIER}        { return stt.identifier; }
 {QUOTED_IDENTIFIER} { return stt.identifier; }

@@ -22,7 +22,6 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.ValueSelector;
-import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
@@ -133,7 +132,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
 
     private class ColumnSelector extends ValueSelector<DBColumn> {
         ColumnSelector() {
-            super(PlatformIcons.ADD_ICON, txt("app.dataEditor.action.AddFilterCondition"), null, ValueSelectorOption.HIDE_DESCRIPTION);
+            super(PlatformIcons.ADD_ICON, txt("app.dataEditor.action.AddFilterCondition"), null);
             addListener((oldValue, newValue) -> addConditionPanel(newValue));
         }
 

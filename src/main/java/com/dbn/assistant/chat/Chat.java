@@ -20,6 +20,7 @@ import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.TimeUtil;
@@ -48,7 +49,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 
 @Getter
 @Setter
-public class Chat implements PersistentStateElement {
+public class Chat implements PersistentStateElement, Identifiable<String> {
     private String id = UUIDs.compact();
     private String title;
     private String sourceId;
