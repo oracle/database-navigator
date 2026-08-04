@@ -35,7 +35,7 @@ val bundledJdbcPostgres: Configuration by configurations.creating
 val bundledJdbcSqlite: Configuration by configurations.creating
 
 group = "com.dbn"
-version = "4.0.0.5"
+version = "4.0.0.6"
 
 java {
     toolchain {
