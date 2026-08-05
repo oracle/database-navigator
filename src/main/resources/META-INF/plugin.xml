@@ -198,6 +198,7 @@
         <projectService serviceImplementation="com.dbn.editor.DatabaseFileEditorManager"/>
         <projectService serviceImplementation="com.dbn.event.notification.EventNotificationManager"/>
         <projectService serviceImplementation="com.dbn.mcp.McpServerBuilderManager"/>
+        <projectService serviceImplementation="com.dbn.mcp.registry.McpServerRegistry"/>
         <projectService serviceImplementation="com.dbn.event.registration.EventRegistrationManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.vector.DatabaseVectorManager"/>

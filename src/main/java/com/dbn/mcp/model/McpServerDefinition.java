@@ -57,6 +57,7 @@ public class McpServerDefinition implements PersistentStateElement, Cloneable<Mc
         serverName = stringAttribute(element, "server-name");
         implementation = enumAttribute(element, "implementation", implementation);
         transportType = enumAttribute(element, "transport-type", McpTransportType.class);
+        httpPort = stringAttribute(element, "http-port", "8080");
         description = readCdata(element.getChild("description"));
 
         Element toolsElement = element.getChild("tools");
@@ -74,6 +75,7 @@ public class McpServerDefinition implements PersistentStateElement, Cloneable<Mc
         setStringAttribute(element, "server-name", serverName);
         setEnumAttribute(element, "implementation", implementation);
         setEnumAttribute(element, "transport-type", transportType);
+        setStringAttribute(element, "http-port", httpPort);
         writeCdata(newElement(element, "description"), description);
 
         Element toolsElement = newElement(element, "tools");

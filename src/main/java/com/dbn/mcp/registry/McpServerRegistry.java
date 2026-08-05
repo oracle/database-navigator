@@ -1,0 +1,145 @@
+/*
+ * Copyright 2026 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.mcp.registry;
+
+import com.dbn.DatabaseNavigator;
+import com.dbn.common.component.PersistentState;
+import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.event.ProjectEvents;
+import com.dbn.connection.ConnectionId;
+import com.dbn.mcp.build.McpBuilderResult;
+import com.dbn.mcp.model.McpServerDefinition;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.project.Project;
+import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
+
+@State(
+        name = McpServerRegistry.COMPONENT_NAME,
+        storages = @Storage(DatabaseNavigator.STORAGE_FILE)
+)
+public class McpServerRegistry extends ProjectComponentBase implements PersistentState {
+    public static final String COMPONENT_NAME = "DBNavigator.Project.McpServerRegistry";
+
+    private final Map<String, McpServerRecord> records = new ConcurrentHashMap<>();
+
+    public McpServerRegistry(@NotNull Project project) {
+        super(project, COMPONENT_NAME);
+    }
+
+    public static McpServerRegistry getInstance(@NotNull Project project) {
+        return projectService(project, McpServerRegistry.class);
+    }
+
+    public @NotNull List<McpServerRecord> getRecords() {
+        List<McpServerRecord> result = new ArrayList<>(records.values());
+        result.sort(Comparator
+                .comparing(McpServerRecord::getServerName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(McpServerRecord::getOutputDirectory));
+        return result;
+    }
+
+    public @Nullable McpServerRecord getRecord(@NotNull String outputDirectory) {
+        return records.get(normalizePath(outputDirectory));
+    }
+
+    public @NotNull McpServerRecord registerBuild(
+            @NotNull ConnectionId connectionId,
+            @NotNull McpServerDefinition definition,
+            @NotNull McpBuilderResult result) throws IOException {
+        Path outputDirectory = result.getOutputDirectory().toAbsolutePath().normalize();
+
+        McpServerRecord record = new McpServerRecord();
+        record.setOutputDirectory(outputDirectory.toString());
+        record.setDefinition(definition.clone());
+        record.setConnectionId(connectionId);
+        record.setBuildTimestamp(System.currentTimeMillis());
+        record.setStatus(McpServerStatus.BUILT);
+        initArtifact(record, result, outputDirectory);
+
+        McpServerManifest.write(record);
+        McpServerRecord previous = records.put(record.getOutputDirectory(), record);
+        ProjectEvents.notify(getProject(), McpServerRegistryListener.TOPIC, listener -> {
+            if (previous == null) {
+                listener.recordAdded(record);
+            } else {
+                listener.recordUpdated(record);
+            }
+        });
+        return record;
+    }
+
+    private static void initArtifact(McpServerRecord record, McpBuilderResult result, Path outputDirectory) {
+        if (record.getImplementation().isContainer()) {
+            record.setArtifactType(McpArtifactType.IMAGE);
+            record.setImageName(result.getImageName());
+            return;
+        }
+
+        record.setArtifactType(record.getImplementation().isNative() ?
+                McpArtifactType.EXECUTABLE : McpArtifactType.JAR);
+        Path artifact = result.getServerJar();
+        if (artifact != null) {
+            String relativePath = outputDirectory.relativize(artifact.toAbsolutePath().normalize()).toString();
+            record.setArtifactPath(relativePath.replace('\\', '/'));
+        }
+    }
+
+    /*********************************************
+     *            PersistentStateComponent       *
+     *********************************************/
+    @Override
+    public @Nullable Element getComponentState() {
+        Element state = newStateElement();
+        Element servers = newElement(state, "mcp-servers");
+        for (McpServerRecord record : getRecords()) {
+            record.writeState(newElement(servers, "mcp-server"));
+        }
+        return state;
+    }
+
+    @Override
+    public void loadComponentState(@NotNull Element state) {
+        records.clear();
+        Element servers = state.getChild("mcp-servers");
+        for (Element serverElement : childrenOf(servers, "mcp-server")) {
+            McpServerRecord record = new McpServerRecord();
+            record.readState(serverElement);
+            String outputDirectory = record.getOutputDirectory();
+            if (outputDirectory != null) records.put(outputDirectory, record);
+        }
+    }
+
+    private static String normalizePath(String path) {
+        return Path.of(path).toAbsolutePath().normalize().toString();
+    }
+}

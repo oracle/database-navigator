@@ -8,19 +8,19 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.model.McpTransportType;
+import com.dbn.mcp.registry.McpServerRegistry;
 import com.dbn.mcp.util.McpServerName;
 import com.dbn.mcp.util.McpToolDefinitions;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import static com.dbn.common.util.Messages.options;
@@ -30,14 +30,6 @@ import static com.dbn.mcp.build.McpMavenPluginSupport.verifyMavenAvailability;
 import static com.dbn.nls.NlsResources.txt;
 
 public class McpBuildTask {
-    private static final @NonNls String CONFIG = "mcp-config.yaml";
-    private static final @NonNls String DIST = "mcp-dist";
-    private static final @NonNls String SOURCE_PROJECT = "source-project";
-    // container builds only: mcp-config.yaml + wallet/ live here instead of directly under the
-    // output directory, so the README's docker run command can mount a fixed relative path
-    // ("./config") instead of a placeholder the user has to substitute by hand
-    static final @NonNls String CONTAINER_MOUNT_DIR = "config";
-
     private final Project project;
     // retained so the build result can offer deployment actions that need to talk to the
     // originating database (deliberately not stored on McpBuilderResult, which stays build-output data)
@@ -168,8 +160,7 @@ public class McpBuildTask {
 
     private void initOutputDirectory() {
         String serverName = definition.getServerName();
-        Path basePath = resolveBasePath();
-        Path distPath = basePath.resolve(DIST).toAbsolutePath().normalize();
+        Path distPath = McpDistPaths.distRoot(project);
         Path outputDirectory = distPath.resolve(serverName).normalize();
         if (!outputDirectory.startsWith(distPath)) {
             showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), txt("msg.mcp.error.InvalidServerName"));
@@ -191,10 +182,10 @@ public class McpBuildTask {
     @Nullable
     private void initServerConfig() {
         try {
-            Path baseDirectory = resolveBasePath();
-            Path walletDirectory = result.getOutputDirectory().resolve("wallet");
+            Path baseDirectory = McpDistPaths.distRoot(project).getParent();
+            Path walletDirectory = result.getOutputDirectory().resolve(McpDistPaths.WALLET);
             String yaml = serverConfigBuilder.build(walletDirectory);
-            Path configFile = baseDirectory.resolve(CONFIG);
+            Path configFile = baseDirectory.resolve(McpDistPaths.CONFIG);
 
             Files.createDirectories(baseDirectory);
             Files.writeString(configFile, yaml, StandardCharsets.UTF_8);
@@ -218,12 +209,6 @@ public class McpBuildTask {
         }
     }
 
-    private Path resolveBasePath() {
-        return project != null && project.getBasePath() != null
-                ? Paths.get(project.getBasePath())
-                : Paths.get(System.getProperty("user.home"));
-    }
-
     private void buildServerPackage(Runnable onBuildFailure) {
         Progress.prompt(project, null, true,
                 txt("prc.mcp.title.BuildingMcpServer"),
@@ -233,12 +218,12 @@ public class McpBuildTask {
             try {
                 indicator.setText2(txt("prc.mcp.text.PreparingProject"));
                 Path outputDirectory = result.getOutputDirectory();
-                Path sourceDirectory = outputDirectory.resolve(SOURCE_PROJECT).toAbsolutePath().normalize();
+                Path sourceDirectory = outputDirectory.resolve(McpDistPaths.SOURCE_PROJECT).toAbsolutePath().normalize();
                 result.setSourceDirectory(sourceDirectory);
                 indicator.setText2(txt("prc.mcp.text.RunningMavenBuild"));
                 Path serverArtifact = McpMavenBuilder.build(
                         project,
-                        result.getBaseDirectory().resolve(DIST),
+                        McpDistPaths.distRoot(project),
                         outputDirectory,
                         generator,
                         sourceDirectory,
@@ -251,11 +236,10 @@ public class McpBuildTask {
                     result.setServerJar(serverArtifact);
                 }
 
-                Path payloadDirectory = definition.getImplementation().isContainer() ?
-                        outputDirectory.resolve(CONTAINER_MOUNT_DIR) : outputDirectory;
+                Path payloadDirectory = McpDistPaths.payloadDirectory(outputDirectory, definition.getImplementation());
                 Files.createDirectories(payloadDirectory);
 
-                Path outputConfigFile = payloadDirectory.resolve(CONFIG).toAbsolutePath().normalize();
+                Path outputConfigFile = payloadDirectory.resolve(McpDistPaths.CONFIG).toAbsolutePath().normalize();
                 Files.copy(result.getConfigFile(), outputConfigFile, StandardCopyOption.REPLACE_EXISTING);
                 result.setConfigFile(outputConfigFile);
 
@@ -279,18 +263,18 @@ public class McpBuildTask {
         });
     }
 
-    private void showResult() {
+    private void showResult() throws IOException {
         Path outputDirectory = result.getOutputDirectory();
-        Path payloadDirectory = definition.getImplementation().isContainer() ?
-                outputDirectory.resolve(CONTAINER_MOUNT_DIR) : outputDirectory;
+        Path payloadDirectory = McpDistPaths.payloadDirectory(outputDirectory, definition.getImplementation());
 
         McpTransportType transportType = definition.getTransportType();
 
-        result.setWalletDirectory(payloadDirectory.resolve("wallet").toAbsolutePath().normalize());
+        result.setWalletDirectory(payloadDirectory.resolve(McpDistPaths.WALLET).toAbsolutePath().normalize());
 
         String serverArtifact = result.getServerJar() == null ? result.getImageName() : result.getServerJar().toString();
         result.setClaudeSnippetJson(clientConfiguration.buildClaudeJson(serverArtifact));
         result.setClineSnippetJson(transportType.isHttp() ? clientConfiguration.buildClineJson() : null);
+        McpServerRegistry.getInstance(project).registerBuild(connection.getConnectionId(), definition, result);
         Dialogs.show(() -> new McpBuildResultDialog(project, connection, definition, result));
     }
 

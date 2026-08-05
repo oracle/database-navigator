@@ -99,7 +99,7 @@ public class McpBuildResultForm extends DBNFormBase {
         return "docker run -d --name " + definition.getServerName() + " \\\n" +
                 "    -p " + definition.getHttpPort() + ":" + definition.getHttpPort() + " \\\n" +
                 "    -e MICRONAUT_SERVER_HOST=0.0.0.0 \\\n" +
-                "    -v ./" + McpBuildTask.CONTAINER_MOUNT_DIR + ":/config:ro \\\n" +
+                "    -v ./" + McpDistPaths.CONTAINER_MOUNT_DIR + ":/config:ro \\\n" +
                 "    " + result.getImageName() + " --config=/config/mcp-config.yaml";
     }
 
