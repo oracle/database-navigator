@@ -25,7 +25,6 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.Hyperlinks;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.mcp.build.McpBuilderResult;
 import com.dbn.mcp.build.McpClientConfiguration;
 import com.dbn.mcp.build.McpRunCommands;
 import com.dbn.mcp.model.McpServerImplementation;
@@ -99,41 +98,43 @@ public class McpServerDetailsForm extends DBNFormBase {
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setBorder(JBUI.Borders.empty(12));
 
-        content.add(createBadgePanel());
-        content.add(Box.createVerticalStrut(8));
-        content.add(createSummaryLabel());
+        // BoxLayout positions each child by its own alignmentX - one center-aligned child
+        // shifts the whole column, so every child is normalized to LEFT_ALIGNMENT
+        content.add(left(createBadgePanel()));
+        content.add(Box.createVerticalStrut(10));
+        content.add(left(createDescriptionLabel()));
 
         if (record.getStatus() == McpServerStatus.STALE) {
             content.add(Box.createVerticalStrut(8));
-            content.add(createHint(txt("msg.mcp.text.StaleServerHint"), MessageType.WARNING));
+            content.add(left(createHint(txt("msg.mcp.text.StaleServerHint"), MessageType.WARNING)));
         }
         if (record.getDefinition().getTools().isEmpty()) {
             content.add(Box.createVerticalStrut(8));
-            content.add(createHint(txt("msg.mcp.text.ImportedDefinitionIncomplete"), MessageType.INFO));
+            content.add(left(createHint(txt("msg.mcp.text.ImportedDefinitionIncomplete"), MessageType.INFO)));
         }
 
         content.add(Box.createVerticalStrut(12));
         if (record.getImplementation().isContainer()) {
-            content.add(createValueRow(txt("msg.mcp.text.ContainerImage"), record.getImageName(), true));
+            content.add(left(createValueRow(txt("msg.mcp.text.ContainerImage"), record.getImageName(), true)));
             content.add(Box.createVerticalStrut(6));
         }
-        content.add(createOutputFolderRow());
+        content.add(left(createOutputFolderRow()));
 
         if (record.getBuildTimestamp() > 0) {
             content.add(Box.createVerticalStrut(6));
             String builtOn = DateFormat.getDateTimeInstance().format(new Date(record.getBuildTimestamp()));
-            content.add(createValueRow(txt("msg.mcp.text.BuiltOn"), builtOn, false));
+            content.add(left(createLabelRow(txt("msg.mcp.text.BuiltOn"), builtOn)));
         }
 
         if (record.isDeployed() && record.getDeployment().getEndpoint() != null) {
             content.add(Box.createVerticalStrut(6));
-            content.add(createEndpointRow(record.getDeployment().getEndpoint()));
+            content.add(left(createEndpointRow(record.getDeployment().getEndpoint())));
         }
 
         content.add(Box.createVerticalStrut(12));
-        content.add(createReadmeHint());
+        content.add(left(createReadmeHint()));
         content.add(Box.createVerticalStrut(12));
-        content.add(createConfigTabs());
+        content.add(left(createConfigTabs()));
         return content;
     }
 
@@ -160,35 +161,21 @@ public class McpServerDetailsForm extends DBNFormBase {
         };
     }
 
-    private JLabel createSummaryLabel() {
-        McpBuilderResult result = record.toBuilderResult();
-        String summary;
-        if (record.getImplementation().isContainer()) {
-            summary = txt("msg.mcp.text.BuildResultContainer",
-                    escapeHtml(record.getImageName()),
-                    escapeHtml(result.getConfigFile().toString()),
-                    escapeHtml(result.getWalletDirectory().toString()),
-                    escapeHtml(result.getSourceDirectory().toString()),
-                    txt("msg.mcp.text.ContainerBuilderPlatform"));
-        } else {
-            summary = txt(resolveSummaryKey(),
-                    escapeHtml(result.getServerJar() == null ? "" : result.getServerJar().toString()),
-                    escapeHtml(result.getConfigFile().toString()),
-                    escapeHtml(result.getWalletDirectory().toString()),
-                    escapeHtml(result.getSourceDirectory().toString()));
-        }
-        JLabel label = new JLabel(summary);
-        fixedHeight(label);
-        return label;
-    }
+    /**
+     * Short per-implementation description of what was generated. Unlike the retired build-result
+     * dialog, the dashboard does not repeat output paths here - the output folder row and the
+     * README cover those.
+     */
+    private JComponent createDescriptionLabel() {
+        McpServerImplementation implementation = record.getImplementation();
+        String description =
+                implementation.isContainer() ? txt("msg.mcp.text.ServerDescriptionContainer") :
+                implementation.isNative() ? txt("msg.mcp.text.ServerDescriptionNative") :
+                txt("msg.mcp.text.ServerDescriptionJar");
 
-    private String resolveSummaryKey() {
-        if (record.getImplementation().isNative()) {
-            return record.getTransportType().isHttp() ?
-                    "msg.mcp.text.BuildResultNativeHttp" : "msg.mcp.text.BuildResultNativeStdio";
-        }
-        return record.getTransportType().isHttp() ?
-                "msg.mcp.text.BuildResultHttp" : "msg.mcp.text.BuildResultStdio";
+        JBLabel label = new JBLabel("<html>" + description + "</html>");
+        label.setForeground(JBColor.GRAY);
+        return fixedHeight(label);
     }
 
     private JComponent createOutputFolderRow() {
@@ -203,7 +190,6 @@ public class McpServerDetailsForm extends DBNFormBase {
 
     private JComponent createEndpointRow(String endpoint) {
         JPanel row = new JPanel(new BorderLayout(8, 0));
-        row.setAlignmentX(LEFT_ALIGNMENT);
         row.add(new JBLabel(txt("msg.mcp.text.Endpoint") + ":"), BorderLayout.WEST);
 
         HyperlinkLabel endpointLink = new HyperlinkLabel();
@@ -216,7 +202,6 @@ public class McpServerDetailsForm extends DBNFormBase {
     private JPanel createValueRow(String labelText, @Nullable String value, boolean highlighted) {
         String content = value == null ? "" : value;
         JPanel row = new JPanel(new BorderLayout(8, 0));
-        row.setAlignmentX(LEFT_ALIGNMENT);
         row.add(new JBLabel(labelText + ":"), BorderLayout.WEST);
 
         JBTextField valueField = new JBTextField(content);
@@ -224,9 +209,24 @@ public class McpServerDetailsForm extends DBNFormBase {
         valueField.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
         if (highlighted) {
             valueField.setBackground(new JBColor(new Color(246, 242, 220), new Color(70, 65, 45)));
+            valueField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, valueField.getFont().getSize()));
+        } else {
+            // selectable but visually a plain value, not an input field
+            valueField.setOpaque(false);
+            valueField.setBackground(null);
         }
         row.add(valueField, BorderLayout.CENTER);
         if (highlighted) row.add(createCopyButton(content), BorderLayout.EAST);
+        return fixedHeight(row);
+    }
+
+    /** A plain read-only label row for short values that need no selection or actions. */
+    private JPanel createLabelRow(String labelText, String value) {
+        JPanel row = new JPanel(new BorderLayout(8, 0));
+        row.add(new JBLabel(labelText + ":"), BorderLayout.WEST);
+        JBLabel valueLabel = new JBLabel(value);
+        valueLabel.setForeground(JBColor.GRAY);
+        row.add(valueLabel, BorderLayout.CENTER);
         return fixedHeight(row);
     }
 
@@ -268,8 +268,8 @@ public class McpServerDetailsForm extends DBNFormBase {
             tabs.addTab(txt("app.mcp.title.RunCommand"), createConfigTab(
                     McpRunCommands.containerRunCommand(record.getDefinition(), record.getImageName())));
         }
-        tabs.setPreferredSize(new Dimension(600, 260));
-        tabs.setAlignmentX(LEFT_ALIGNMENT);
+        // height only - the width must follow the panel, a fixed width breaks the column layout
+        tabs.setPreferredSize(new Dimension(0, 260));
         return tabs;
     }
 
@@ -318,6 +318,12 @@ public class McpServerDetailsForm extends DBNFormBase {
         };
     }
 
+    /** Normalizes a BoxLayout child to left alignment - mixed alignments shift the whole column. */
+    private static <T extends JComponent> T left(T component) {
+        component.setAlignmentX(LEFT_ALIGNMENT);
+        return component;
+    }
+
     private static <T extends JComponent> T fixedHeight(T component) {
         Dimension preferredSize = component.getPreferredSize();
         component.setAlignmentX(LEFT_ALIGNMENT);
@@ -334,12 +340,5 @@ public class McpServerDetailsForm extends DBNFormBase {
     @Override
     protected @NotNull JComponent getMainComponent() {
         return mainPanel;
-    }
-
-    private static String escapeHtml(@Nullable String value) {
-        if (value == null) return "";
-        return value.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;");
     }
 }
