@@ -1,7 +1,6 @@
 package com.dbn.mcp.build;
 
 import com.dbn.common.thread.Progress;
-import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
@@ -23,6 +22,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import static com.dbn.common.notification.NotificationCategory.MCP;
+import static com.dbn.common.notification.NotificationSupport.sendInfoNotification;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -31,8 +32,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class McpBuildTask {
     private final Project project;
-    // retained so the build result can offer deployment actions that need to talk to the
-    // originating database (deliberately not stored on McpBuilderResult, which stays build-output data)
+    // Retained as a lightweight reference so successful builds can record their originating connection.
     private final ConnectionRef connection;
     private final McpServerDefinition definition;
     private final McpBuilderResult result = new McpBuilderResult();
@@ -274,8 +274,10 @@ public class McpBuildTask {
         String serverArtifact = result.getServerJar() == null ? result.getImageName() : result.getServerJar().toString();
         result.setClaudeSnippetJson(clientConfiguration.buildClaudeJson(serverArtifact));
         result.setClineSnippetJson(transportType.isHttp() ? clientConfiguration.buildClineJson() : null);
-        McpServerRegistry.getInstance(project).registerBuild(connection.getConnectionId(), definition, result);
-        Dialogs.show(() -> new McpBuildResultDialog(project, connection, definition, result));
+        McpServerRegistry registry = McpServerRegistry.getInstance(project);
+        registry.registerBuild(connection.getConnectionId(), definition, result);
+        sendInfoNotification(project, MCP, txt("ntf.mcp.info.ServerBuildSuccessful", definition.getServerName()));
+        registry.showDashboard(outputDirectory.toAbsolutePath().normalize().toString());
     }
 
     private static void cancelProcess() {

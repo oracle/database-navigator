@@ -37,6 +37,7 @@ public enum NotificationCategory {
     BROWSER         (NotificationGroup.BROWSER),
     METADATA        (NotificationGroup.BROWSER),
     DATA            (NotificationGroup.DEFAULT),
+    MCP             (NotificationGroup.DEFAULT),
     DDL             (NotificationGroup.BROWSER),
     DCN             (NotificationGroup.EVENTS),
     ;
