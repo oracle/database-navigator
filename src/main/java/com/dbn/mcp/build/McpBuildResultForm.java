@@ -96,11 +96,7 @@ public class McpBuildResultForm extends DBNFormBase {
      * straight from the result dialog too, without having to go open the file.
      */
     private @NonNls String buildContainerRunCommand() {
-        return "docker run -d --name " + definition.getServerName() + " \\\n" +
-                "    -p " + definition.getHttpPort() + ":" + definition.getHttpPort() + " \\\n" +
-                "    -e MICRONAUT_SERVER_HOST=0.0.0.0 \\\n" +
-                "    -v ./" + McpDistPaths.CONTAINER_MOUNT_DIR + ":/config:ro \\\n" +
-                "    " + result.getImageName() + " --config=/config/mcp-config.yaml";
+        return McpRunCommands.containerRunCommand(definition, result.getImageName());
     }
 
     private JComponent createConfigTab(String content) {

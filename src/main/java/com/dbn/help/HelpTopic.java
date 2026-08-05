@@ -32,6 +32,7 @@ public enum HelpTopic implements Constant<HelpTopic> {
     DATABASE_ASSISTANT("database-assistant.html"),
     DATABASE_ASSISTANT_TOOLS("tool-approvals-and-tool-data.html"),
     DATABASE_ASSISTANT_SELECT_AI("oracle-select-ai.html"),
+    MCP_SERVER_BUILDER("mcp-server-builder.html"),
     VECTOR_TOOLBOX("vector-toolbox.html"),
     VECTOR_SEARCH("vector-toolbox.html"), // TODO point to rag documentation
     TABLE_EDITORS("table-editors.html"),

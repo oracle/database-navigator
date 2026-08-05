@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
-final class McpClientConfiguration {
+public final class McpClientConfiguration {
     private final McpServerDefinition definition;
 
-    String buildClaudeJson(String serverArtifact) {
+    public String buildClaudeJson(String serverArtifact) {
         String command;
         List<String> args;
         if (definition.getTransportType().isHttp()) {
@@ -45,7 +45,7 @@ final class McpClientConfiguration {
         return buildCommandSnippetJson(definition.getServerName(), command, args);
     }
 
-    String buildClineJson() {
+    public String buildClineJson() {
         Map<String, Object> server = new LinkedHashMap<>();
         String httpPort = definition.getHttpPort();
         server.put("type", "streamableHttp");

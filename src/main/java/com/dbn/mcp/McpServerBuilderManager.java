@@ -67,11 +67,15 @@ public class McpServerBuilderManager extends ProjectComponentBase implements Per
     }
 
     public void openMCPBuilder(@NotNull ConnectionHandler connection) {
+        McpServerDefinition serverDefinition = getServerDefinition(connection.getConnectionId());
+        openMCPBuilder(connection, serverDefinition);
+    }
+
+    public void openMCPBuilder(
+            @NotNull ConnectionHandler connection,
+            @NotNull McpServerDefinition serverDefinition) {
         Project project = connection.getProject();
         verifyMavenAvailability(project);
-
-        McpServerBuilderManager builderManager = McpServerBuilderManager.getInstance(project);
-        McpServerDefinition serverDefinition = builderManager.getServerDefinition(connection.getConnectionId());
         Dialogs.show(() -> new McpServerDefinitionDialog(connection, serverDefinition));
     }
 

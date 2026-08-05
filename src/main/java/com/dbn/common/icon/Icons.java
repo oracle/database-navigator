@@ -39,6 +39,7 @@ public class Icons {
     public static final Latent<Icon> WINDOW_DATABASE_DIAGNOSTICS = Latent.basic(()-> init("/img/window/DatabaseDiagnostics.svg"));
     public static final Latent<Icon> WINDOW_DATABASE_ASSISTANT   = Latent.basic(()-> init("/img/window/DatabaseAssistant.svg"));
     public static final Latent<Icon> WINDOW_DATABASE_EVENTS      = Latent.basic(()-> init("/img/window/DatabaseEvents.svg"));
+    public static final Latent<Icon> WINDOW_MCP_SERVERS          = Latent.basic(()-> init("/img/window/McpServers.svg"));
 
 
     public static final Icon DBN_SPLASH = load("/img/DBN.png");

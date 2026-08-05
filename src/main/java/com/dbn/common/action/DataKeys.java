@@ -48,6 +48,7 @@ import com.dbn.execution.method.result.ui.MethodExecutionCursorResultForm;
 import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
+import com.dbn.mcp.registry.McpServerRecord;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.prerequisite.ui.PrerequisitesForm;
@@ -66,6 +67,7 @@ public interface DataKeys {
     DataKey<StatementExecutionCursorResult> STATEMENT_EXECUTION_CURSOR_RESULT = DataKey.create("DBNavigator.StatementExecutionCursorResult");
     DataKey<LiquibaseOperationResult> LIQUIBASE_EXECUTION_RESULT = DataKey.create("DBNavigator.LiquibaseExecutionResult");
     DataKey<LiquibaseWorkflowResult> LIQUIBASE_WORKFLOW_RESULT = DataKey.create("DBNavigator.LiquibaseWorkflowResult");
+    DataKey<McpServerRecord> MCP_SERVER_RECORD = DataKey.create("DBNavigator.McpServerRecord");
     DataKey<MethodExecutionResult> METHOD_EXECUTION_RESULT = DataKey.create("DBNavigator.MethodExecutionResult");
     DataKey<JavaExecutionResult> JAVA_EXECUTION_RESULT = DataKey.create("DBNavigator.JavaExecutionResult");
     DataKey<VectorEmbeddingExecutionResult> EMBEDDING_EXECUTION_RESULT = DataKey.create("DBNavigator.VectorEmbeddingExecutionResult");

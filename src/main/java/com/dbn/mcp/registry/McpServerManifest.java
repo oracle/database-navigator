@@ -20,6 +20,7 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.intellij.openapi.util.JDOMUtil;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +42,9 @@ import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setLongAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
+@Slf4j
 @NonNls
 @UtilityClass
 public final class McpServerManifest {
@@ -111,6 +114,8 @@ public final class McpServerManifest {
             }
             return record;
         } catch (Exception e) {
+            conditionallyLog(e);
+            log.warn("Could not read MCP server manifest {}", manifest, e);
             return null;
         }
     }

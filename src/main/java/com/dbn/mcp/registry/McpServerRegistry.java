@@ -19,29 +19,43 @@ package com.dbn.mcp.registry;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.latent.Latent;
+import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.window.ToolWindows;
 import com.dbn.connection.ConnectionId;
 import com.dbn.mcp.build.McpBuilderResult;
+import com.dbn.mcp.build.McpDistPaths;
 import com.dbn.mcp.model.McpServerDefinition;
+import com.dbn.mcp.ui.McpServersForm;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentFactory;
+import com.intellij.ui.content.ContentManager;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.util.Modality.nonModal;
 
 @State(
         name = McpServerRegistry.COMPONENT_NAME,
@@ -49,8 +63,11 @@ import static com.dbn.common.options.setting.Settings.newStateElement;
 )
 public class McpServerRegistry extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.McpServerRegistry";
+    public static final String TOOL_WINDOW_ID = "DB MCP Servers";
 
     private final Map<String, McpServerRecord> records = new ConcurrentHashMap<>();
+    private final Latent<McpServersForm> dashboardForm = Latent.basic(() ->
+            Dispatch.call(true, () -> new McpServersForm(getProject())));
 
     public McpServerRegistry(@NotNull Project project) {
         super(project, COMPONENT_NAME);
@@ -98,6 +115,56 @@ public class McpServerRegistry extends ProjectComponentBase implements Persisten
         return record;
     }
 
+    public void removeRecord(@NotNull McpServerRecord record, boolean deleteFiles) {
+        if (deleteFiles) {
+            Background.run(() -> {
+                deleteFiles(record.getOutputPath());
+                removeEntry(record);
+            });
+        } else {
+            removeEntry(record);
+        }
+    }
+
+    private void removeEntry(McpServerRecord record) {
+        McpServerRecord removed = records.remove(record.getOutputDirectory());
+        if (removed != null) {
+            ProjectEvents.notify(getProject(), McpServerRegistryListener.TOPIC,
+                    listener -> listener.recordRemoved(removed));
+        }
+    }
+
+    public void reconcile() {
+        List<McpServerRecord> discovered = McpServerDiscovery.scan(
+                getProject(), McpDistPaths.distRoot(getProject()), getRecords());
+        records.clear();
+        for (McpServerRecord record : discovered) {
+            records.put(record.getOutputDirectory(), record);
+        }
+        ProjectEvents.notify(getProject(), McpServerRegistryListener.TOPIC,
+                McpServerRegistryListener::registryReloaded);
+    }
+
+    public void showDashboard(@Nullable String selectKey) {
+        Dispatch.run(nonModal(), () -> {
+            ToolWindow toolWindow = ToolWindows.getToolWindow(getProject(), TOOL_WINDOW_ID);
+            if (toolWindow == null) return;
+
+            McpServersForm form = dashboardForm.get();
+            ContentManager contentManager = toolWindow.getContentManager();
+            if (contentManager.getContentCount() == 0) {
+                ContentFactory contentFactory = contentManager.getFactory();
+                Content content = contentFactory.createContent(form.getComponent(), null, false);
+                Disposer.register(content, form);
+                contentManager.addContent(content);
+                toolWindow.setAvailable(true, null);
+            }
+
+            if (selectKey != null) form.selectRecord(selectKey);
+            toolWindow.show(null);
+        });
+    }
+
     private static void initArtifact(McpServerRecord record, McpBuilderResult result, Path outputDirectory) {
         if (record.getImplementation().isContainer()) {
             record.setArtifactType(McpArtifactType.IMAGE);
@@ -111,6 +178,16 @@ public class McpServerRegistry extends ProjectComponentBase implements Persisten
         if (artifact != null) {
             String relativePath = outputDirectory.relativize(artifact.toAbsolutePath().normalize()).toString();
             record.setArtifactPath(relativePath.replace('\\', '/'));
+        }
+    }
+
+    private static void deleteFiles(Path outputDirectory) throws IOException {
+        if (!Files.exists(outputDirectory)) return;
+
+        try (Stream<Path> paths = Files.walk(outputDirectory)) {
+            for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
+                Files.deleteIfExists(path);
+            }
         }
     }
 
