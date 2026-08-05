@@ -30,6 +30,8 @@ import com.dbn.mcp.build.McpRunCommands;
 import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.registry.McpServerRecord;
 import com.dbn.mcp.registry.McpServerStatus;
+import com.dbn.common.ui.util.RoundedCornerBorder;
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.actions.RevealFileAction;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -40,20 +42,19 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.datatransfer.StringSelection;
 import java.nio.file.Files;
@@ -73,7 +74,7 @@ public class McpServerDetailsForm extends DBNFormBase {
     private JPanel imagePanel;
     private JPanel endpointPanel;
     private JPanel readmePanel;
-    private JPanel tabsPanel;
+    private JPanel snippetsPanel;
     private JLabel implBadgeLabel;
     private JLabel statusBadgeLabel;
     private JLabel descriptionLabel;
@@ -103,7 +104,7 @@ public class McpServerDetailsForm extends DBNFormBase {
         initBuiltOnLabel();
         initEndpointRow();
         initReadmeHint();
-        initConfigTabs();
+        initSnippets();
     }
 
     private void initHeader() {
@@ -119,22 +120,23 @@ public class McpServerDetailsForm extends DBNFormBase {
 
     private void initBadges() {
         initBadge(implBadgeLabel, implementationName(),
-                new JBColor(new Color(225, 235, 248), new Color(55, 65, 80)));
-        initBadge(statusBadgeLabel, statusName(), statusBackground());
+                new JBColor(new Color(70, 110, 165), new Color(110, 150, 210)));
+        initBadge(statusBadgeLabel, statusName(), statusColor());
     }
 
-    private static void initBadge(JLabel label, String text, Color background) {
+    /** Rounded outline chip: colored text and border, transparent fill. */
+    private static void initBadge(JLabel label, String text, Color color) {
         label.setText(text);
-        label.setOpaque(true);
-        label.setBackground(background);
-        label.setBorder(JBUI.Borders.empty(3, 7));
+        label.setForeground(color);
+        label.setFont(label.getFont().deriveFont(label.getFont().getSize2D() - 1f));
+        label.setBorder(new RoundedCornerBorder(color, 1, 10, 3));
     }
 
-    private Color statusBackground() {
+    private Color statusColor() {
         return switch (record.getStatus()) {
-            case BUILT -> new JBColor(new Color(235, 235, 235), new Color(70, 70, 70));
-            case DEPLOYED -> new JBColor(new Color(220, 242, 224), new Color(45, 80, 50));
-            case STALE -> new JBColor(new Color(252, 232, 200), new Color(95, 65, 30));
+            case BUILT -> new JBColor(new Color(110, 110, 110), new Color(160, 160, 160));
+            case DEPLOYED -> new JBColor(new Color(45, 125, 55), new Color(105, 190, 115));
+            case STALE -> new JBColor(new Color(180, 105, 0), new Color(230, 155, 55));
         };
     }
 
@@ -217,15 +219,19 @@ public class McpServerDetailsForm extends DBNFormBase {
         initCopyButton(endpointCopyButton, endpoint);
     }
 
+    /** Compact single-line callout: info icon + text, with the open action right-aligned. */
     private void initReadmeHint() {
-        DBNHintForm hintForm = new DBNHintForm(
-                this,
-                TextContent.plain(txt("msg.mcp.text.ReadmeCallout")),
-                MessageType.INFO,
-                true,
-                txt("msg.mcp.button.OpenReadme"),
-                this::openReadme);
-        readmePanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+        JPanel row = new JPanel(new BorderLayout(8, 0));
+        row.setBorder(new RoundedCornerBorder(JBColor.border(), 1, 8, 6));
+
+        JLabel textLabel = new JLabel(txt("msg.mcp.text.ReadmeCallout"), AllIcons.General.Information, JLabel.LEADING);
+        row.add(textLabel, BorderLayout.CENTER);
+
+        HyperlinkLabel openLink = new HyperlinkLabel();
+        Hyperlinks.initHyperlink(openLink, txt("msg.mcp.button.OpenReadme"), this::openReadme);
+        row.add(openLink, BorderLayout.EAST);
+
+        readmePanel.add(row, BorderLayout.CENTER);
     }
 
     private void openReadme() {
@@ -236,22 +242,52 @@ public class McpServerDetailsForm extends DBNFormBase {
         if (file != null) FileEditorManager.getInstance(ensureProject()).openFile(file, true);
     }
 
-    private void initConfigTabs() {
+    /** Stacked labeled code blocks with an icon copy action, per the dashboard design. */
+    private void initSnippets() {
         String artifact = resolveArtifact();
         McpClientConfiguration configuration = new McpClientConfiguration(record.getDefinition());
-
-        JBTabbedPane tabs = new JBTabbedPane();
         boolean http = record.getTransportType().isHttp();
-        tabs.addTab(http ? txt("app.mcp.title.Claude") : txt("app.mcp.title.McpConfig"),
-                createConfigTab(configuration.buildClaudeJson(artifact)));
+
+        JPanel stack = new JPanel();
+        verticalBoxLayout(stack);
+
+        addSnippetBlock(stack, http ? txt("app.mcp.title.Claude") : txt("app.mcp.title.McpConfig"),
+                configuration.buildClaudeJson(artifact));
         if (http) {
-            tabs.addTab(txt("app.mcp.title.Cline"), createConfigTab(configuration.buildClineJson()));
+            addSnippetBlock(stack, txt("app.mcp.title.Cline"), configuration.buildClineJson());
         }
         if (record.getImplementation().isContainer() && record.getImageName() != null) {
-            tabs.addTab(txt("app.mcp.title.RunCommand"), createConfigTab(
-                    McpRunCommands.containerRunCommand(record.getDefinition(), record.getImageName())));
+            addSnippetBlock(stack, txt("app.mcp.title.RunCommand"),
+                    McpRunCommands.containerRunCommand(record.getDefinition(), record.getImageName()));
         }
-        tabsPanel.add(tabs, BorderLayout.CENTER);
+        snippetsPanel.add(stack, BorderLayout.CENTER);
+    }
+
+    private void addSnippetBlock(JPanel stack, String title, String content) {
+        JPanel headerRow = new JPanel(new BorderLayout());
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setForeground(JBColor.GRAY);
+        headerRow.add(titleLabel, BorderLayout.CENTER);
+        headerRow.add(createCopyButton(content), BorderLayout.EAST);
+
+        JBTextArea textArea = new JBTextArea(content);
+        textArea.setEditable(false);
+        textArea.setLineWrap(false);
+        textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        textArea.setBorder(JBUI.Borders.empty(6, 8));
+
+        JBScrollPane scrollPane = new JBScrollPane(textArea);
+        scrollPane.setBorder(new RoundedCornerBorder(JBColor.border(), 1, 8, 0));
+
+        JPanel block = new JPanel(new BorderLayout(0, 2));
+        block.add(headerRow, BorderLayout.NORTH);
+        block.add(scrollPane, BorderLayout.CENTER);
+        block.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        int height = block.getPreferredSize().height;
+        block.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, height));
+
+        if (stack.getComponentCount() > 0) stack.add(Box.createVerticalStrut(10));
+        stack.add(block);
     }
 
     private String resolveArtifact() {
@@ -259,20 +295,13 @@ public class McpServerDetailsForm extends DBNFormBase {
         return record.getOutputPath().resolve(record.getArtifactPath()).toString();
     }
 
-    private JComponent createConfigTab(String content) {
-        JBTextArea textArea = new JBTextArea(content);
-        textArea.setEditable(false);
-        textArea.setLineWrap(false);
-        textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(new JBScrollPane(textArea), BorderLayout.CENTER);
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton copyButton = new JButton(txt("app.mcp.button.CopyToClipboard"));
-        initCopyButton(copyButton, content);
-        buttons.add(copyButton);
-        panel.add(buttons, BorderLayout.SOUTH);
-        return panel;
+    private JButton createCopyButton(String content) {
+        JButton button = new JButton(AllIcons.Actions.Copy);
+        button.setToolTipText(txt("app.mcp.button.CopyToClipboard"));
+        button.setContentAreaFilled(false);
+        button.setBorder(JBUI.Borders.empty(2));
+        initCopyButton(button, content);
+        return button;
     }
 
     private static void initCopyButton(JButton button, String content) {
