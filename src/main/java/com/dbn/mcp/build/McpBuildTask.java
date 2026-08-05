@@ -16,7 +16,6 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -263,7 +262,7 @@ public class McpBuildTask {
         });
     }
 
-    private void showResult() throws IOException {
+    private void showResult() {
         Path outputDirectory = result.getOutputDirectory();
         Path payloadDirectory = McpDistPaths.payloadDirectory(outputDirectory, definition.getImplementation());
 

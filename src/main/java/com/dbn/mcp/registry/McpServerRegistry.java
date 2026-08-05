@@ -37,6 +37,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
+import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,7 +57,9 @@ import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Modality.nonModal;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
+@Slf4j
 @State(
         name = McpServerRegistry.COMPONENT_NAME,
         storages = @Storage(DatabaseNavigator.STORAGE_FILE)
@@ -92,7 +95,7 @@ public class McpServerRegistry extends ProjectComponentBase implements Persisten
     public @NotNull McpServerRecord registerBuild(
             @NotNull ConnectionId connectionId,
             @NotNull McpServerDefinition definition,
-            @NotNull McpBuilderResult result) throws IOException {
+            @NotNull McpBuilderResult result) {
         Path outputDirectory = result.getOutputDirectory().toAbsolutePath().normalize();
 
         McpServerRecord record = new McpServerRecord();
@@ -103,7 +106,7 @@ public class McpServerRegistry extends ProjectComponentBase implements Persisten
         record.setStatus(McpServerStatus.BUILT);
         initArtifact(record, result, outputDirectory);
 
-        McpServerManifest.write(record);
+        writeManifest(record);
         McpServerRecord previous = records.put(record.getOutputDirectory(), record);
         ProjectEvents.notify(getProject(), McpServerRegistryListener.TOPIC, listener -> {
             if (previous == null) {
@@ -113,6 +116,20 @@ public class McpServerRegistry extends ProjectComponentBase implements Persisten
             }
         });
         return record;
+    }
+
+    /**
+     * The manifest is a redundancy convenience (folder portability and rediscovery) - failing to
+     * write it must never fail an otherwise successful build, so it is logged and skipped.
+     */
+    private static void writeManifest(McpServerRecord record) {
+        try {
+            McpServerManifest.write(record);
+        } catch (IOException e) {
+            conditionallyLog(e);
+            log.warn("Could not write MCP server manifest for {}: {}",
+                    record.getOutputDirectory(), e.getMessage());
+        }
     }
 
     public void removeRecord(@NotNull McpServerRecord record, boolean deleteFiles) {
