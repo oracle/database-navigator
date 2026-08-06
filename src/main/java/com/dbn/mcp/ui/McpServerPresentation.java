@@ -18,6 +18,7 @@ package com.dbn.mcp.ui;
 
 import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.registry.McpServerStatus;
+import com.intellij.icons.AllIcons;
 import com.intellij.ui.JBColor;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
@@ -47,6 +48,14 @@ final class McpServerPresentation {
         if (implementation.isContainer()) return txt("msg.mcp.text.ImplementationContainer");
         if (implementation.isNative()) return txt("msg.mcp.text.ImplementationNative");
         return txt("msg.mcp.text.ImplementationJar");
+    }
+
+    static Icon statusIcon(@NotNull McpServerStatus status) {
+        return switch (status) {
+            case BUILT -> AllIcons.General.InspectionsOK;
+            case DEPLOYED -> AllIcons.Actions.Commit;
+            case STALE -> AllIcons.General.Warning;
+        };
     }
 
     static String statusName(@NotNull McpServerStatus status) {

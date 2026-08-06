@@ -19,6 +19,8 @@ package com.dbn.mcp.build;
 import com.dbn.common.util.Json;
 import com.dbn.mcp.model.McpServerDefinition;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,15 +28,25 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 public final class McpClientConfiguration {
+    private static final @NonNls String LOCAL_HOST_URL = "http://127.0.0.1:";
+    private static final @NonNls String MCP_ENDPOINT_PATH = "/mcp";
+
     private final McpServerDefinition definition;
+
+    /**
+     * The address an HTTP server serves on when started locally - the same one the generated
+     * client configurations point at.
+     */
+    public static String localEndpoint(@NotNull McpServerDefinition definition) {
+        return LOCAL_HOST_URL + definition.getHttpPort() + MCP_ENDPOINT_PATH;
+    }
 
     public String buildClaudeJson(String serverArtifact) {
         String command;
         List<String> args;
         if (definition.getTransportType().isHttp()) {
             command = "npx";
-            String httpPort = definition.getHttpPort();
-            args = List.of("-y", "mcp-remote", "http://127.0.0.1:" + httpPort + "/mcp");
+            args = List.of("-y", "mcp-remote", localEndpoint(definition));
         } else if (definition.getImplementation().isNative()) {
             command = serverArtifact;
             args = List.of();
@@ -47,9 +59,8 @@ public final class McpClientConfiguration {
 
     public String buildClineJson() {
         Map<String, Object> server = new LinkedHashMap<>();
-        String httpPort = definition.getHttpPort();
         server.put("type", "streamableHttp");
-        server.put("url", "http://127.0.0.1:" + httpPort + "/mcp");
+        server.put("url", localEndpoint(definition));
         Map<String, Object> entry = new LinkedHashMap<>();
         entry.put(definition.getServerName(), server);
         String json = Json.writeAsFormattedString(entry);

@@ -36,6 +36,7 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.ide.CopyPasteManager;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.HyperlinkLabel;
@@ -75,6 +76,12 @@ public class McpServerDetailsForm extends DBNFormBase {
     private JTabbedPane tabbedPane;
     private JLabel subtitleLabel;
     private JLabel descriptionLabel;
+    private JLabel statusLabel;
+    private JLabel statusValueLabel;
+    private JLabel implLabel;
+    private JLabel implValueLabel;
+    private JLabel transportLabel;
+    private JLabel transportValueLabel;
     private JLabel imageLabel;
     private JLabel imageValueLabel;
     private JLabel folderLabel;
@@ -111,6 +118,7 @@ public class McpServerDetailsForm extends DBNFormBase {
         initSubtitle();
         initDescription();
         initHints();
+        initStatusRows();
         initImageRow();
         initEndpointRow();
         initFolderRow();
@@ -145,13 +153,8 @@ public class McpServerDetailsForm extends DBNFormBase {
                 .append(" · ")
                 .append(record.getTransportType());
 
-        McpServerStatus status = record.getStatus();
-        if (status != McpServerStatus.BUILT) {
-            subtitle.append(" · ").append(McpServerPresentation.statusName(status));
-        }
         subtitleLabel.setText(subtitle.toString());
-        subtitleLabel.setForeground(status == McpServerStatus.BUILT ?
-                JBColor.GRAY : McpServerPresentation.statusColor(status));
+        subtitleLabel.setForeground(JBColor.GRAY);
     }
 
     private void initDescription() {
@@ -163,6 +166,7 @@ public class McpServerDetailsForm extends DBNFormBase {
 
         descriptionLabel.setText("<html>" + description + "</html>");
         descriptionLabel.setForeground(JBColor.GRAY);
+        descriptionLabel.setBorder(JBUI.Borders.emptyTop(8));
     }
 
     /** Hints are reserved for actionable conditions - never for plain information. */
@@ -199,8 +203,34 @@ public class McpServerDetailsForm extends DBNFormBase {
                 txt("app.mcp.button.CopyToClipboard"), () -> copyToClipboard(imageName));
     }
 
+    /** The facts that were previously only implied by the subtitle, stated as first-class rows. */
+    private void initStatusRows() {
+        McpServerStatus status = record.getStatus();
+        statusLabel.setText(txt("msg.mcp.text.Status"));
+        statusValueLabel.setText(McpServerPresentation.statusName(status));
+        statusValueLabel.setIcon(McpServerPresentation.statusIcon(status));
+        statusValueLabel.setIconTextGap(5);
+        if (status != McpServerStatus.BUILT) {
+            statusValueLabel.setForeground(McpServerPresentation.statusColor(status));
+        }
+
+        implLabel.setText(txt("msg.mcp.text.Implementation"));
+        implValueLabel.setText(McpServerPresentation.implementationName(record.getImplementation()));
+
+        transportLabel.setText(txt("msg.mcp.text.Transport"));
+        transportValueLabel.setText(String.valueOf(record.getTransportType()));
+    }
+
+    /**
+     * The deployed endpoint when the server runs on Graal, otherwise the local address an HTTP
+     * server serves on - for an HTTP server that is the most operationally useful value here.
+     */
     private void initEndpointRow() {
-        String endpoint = record.isDeployed() ? record.getDeployment().getEndpoint() : null;
+        String endpoint =
+                record.isDeployed() ? record.getDeployment().getEndpoint() :
+                record.getTransportType().isHttp() ? McpClientConfiguration.localEndpoint(record.getDefinition()) :
+                null;
+
         if (endpoint == null) {
             setRowVisible(false, endpointLabel, endpointLink, endpointCopyButton);
             return;
@@ -215,7 +245,9 @@ public class McpServerDetailsForm extends DBNFormBase {
     private void initFolderRow() {
         Path outputPath = record.getOutputPath();
         folderLabel.setText(txt("msg.mcp.text.OutputFolder"));
-        folderValueLabel.setText(outputPath.toString());
+        // home-relative keeps the value column narrow, so the row actions stay near their values
+        folderValueLabel.setText(FileUtil.getLocationRelativeToUserHome(outputPath.toString()));
+        folderValueLabel.setToolTipText(outputPath.toString());
         initIconButton(revealButton, AllIcons.Actions.MenuOpen,
                 txt("msg.mcp.button.RevealFolder"), () -> RevealFileAction.openFile(outputPath.toFile()));
     }
