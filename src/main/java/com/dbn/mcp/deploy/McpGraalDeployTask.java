@@ -75,18 +75,29 @@ public class McpGraalDeployTask {
     private final Runnable operationFinishedHandler;
 
     public void buildAndPushImage(@NotNull McpGraalDeploymentInput input) {
+        runImageStep(input, null, txt("prc.mcp.text.BuildingGraalImage"));
+    }
+
+    /** Runs one image step on its own, so a long build need not be repeated to retry a push. */
+    public void runImageStep(@NotNull McpDeploymentStep step, @NotNull McpGraalDeploymentInput input) {
+        runImageStep(input, step, step.getTitle());
+    }
+
+    private void runImageStep(
+            @NotNull McpGraalDeploymentInput input,
+            @Nullable McpDeploymentStep step,
+            String progressText) {
         if (!verifyDeployable()) {
             operationFinishedHandler.run();
             return;
         }
 
         Path sourceProjectDir = result.getSourceDirectory();
-        Progress.prompt(project, null, true,
-                txt("prc.mcp.title.DeployingToGraal"),
-                txt("prc.mcp.text.BuildingGraalImage"),
+        Progress.background(project, null, true,
+                txt("prc.mcp.title.DeployingToGraal"), progressText,
                 indicator -> {
             try {
-                publishImage(sourceProjectDir, input, indicator);
+                publishImage(sourceProjectDir, input, indicator, step);
             } finally {
                 operationFinishedHandler.run();
             }
@@ -96,13 +107,22 @@ public class McpGraalDeployTask {
     private void publishImage(
             Path sourceProjectDir,
             McpGraalDeploymentInput input,
-            ProgressIndicator indicator) {
+            ProgressIndicator indicator,
+            @Nullable McpDeploymentStep step) {
         StringBuilder output = new StringBuilder();
         try {
-            new McpGraalImagePublisher().publish(
-                    sourceProjectDir, definition, input, indicator,
-                    line -> appendOutput(output, line));
-            resolveImageOcid(input, indicator, output);
+            McpGraalImagePublisher publisher = new McpGraalImagePublisher();
+            Consumer<String> outputHandler = line -> appendOutput(output, line);
+
+            if (step == null || step == McpDeploymentStep.BUILD_IMAGE) {
+                publisher.buildImage(sourceProjectDir, definition, input, indicator, outputHandler);
+                recordStep(McpDeploymentStep.BUILD_IMAGE, input);
+            }
+            if (step == null || step == McpDeploymentStep.PUSH_IMAGE) {
+                publisher.pushImage(sourceProjectDir, input, indicator, outputHandler);
+                recordStep(McpDeploymentStep.PUSH_IMAGE, input);
+                resolveImageOcid(input, indicator, output);
+            }
         } catch (ProcessCanceledException e) {
             throw e;
         } catch (Throwable e) {
@@ -285,6 +305,13 @@ public class McpGraalDeployTask {
         McpBuildLogs logs = McpServerRegistry.getInstance(project).getBuildLogs();
         logs.appendRecorded(recordKey, output);
         logs.release(recordKey);
+    }
+
+    private void recordStep(McpDeploymentStep step, McpGraalDeploymentInput input) {
+        if (recordKey == null) return;
+
+        McpServerRegistry.getInstance(project).applyDeploymentStep(recordKey, step,
+                input.getRegionKey(), input.getNamespace(), input.getRepository(), input.getTag());
     }
 
     private void applyDeployment(McpGraalDeploymentInput input, @Nullable String endpoint) {

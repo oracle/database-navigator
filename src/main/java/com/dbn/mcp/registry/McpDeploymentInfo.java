@@ -32,12 +32,28 @@ public class McpDeploymentInfo implements PersistentStateElement {
     private String imageOcid;
     private long deployTimestamp;
 
+    // registry coordinates, kept so a later step or a retry does not ask for them again
+    private String regionKey;
+    private String namespace;
+    private String repository;
+    private String tag;
+
+    // when each deployment step last succeeded; a step is complete when its stamp is set
+    private long imageBuiltAt;
+    private long imagePushedAt;
+
     @Override
     public void readState(Element element) {
         endpoint = stringAttribute(element, "endpoint");
         applicationName = stringAttribute(element, "application-name");
         imageOcid = stringAttribute(element, "image-ocid");
         deployTimestamp = longAttribute(element, "deploy-timestamp", 0);
+        regionKey = stringAttribute(element, "region-key");
+        namespace = stringAttribute(element, "namespace");
+        repository = stringAttribute(element, "repository");
+        tag = stringAttribute(element, "tag");
+        imageBuiltAt = longAttribute(element, "image-built-at", 0);
+        imagePushedAt = longAttribute(element, "image-pushed-at", 0);
     }
 
     @Override
@@ -46,5 +62,11 @@ public class McpDeploymentInfo implements PersistentStateElement {
         setStringAttribute(element, "application-name", applicationName);
         setStringAttribute(element, "image-ocid", imageOcid);
         setLongAttribute(element, "deploy-timestamp", deployTimestamp);
+        setStringAttribute(element, "region-key", regionKey);
+        setStringAttribute(element, "namespace", namespace);
+        setStringAttribute(element, "repository", repository);
+        setStringAttribute(element, "tag", tag);
+        setLongAttribute(element, "image-built-at", imageBuiltAt);
+        setLongAttribute(element, "image-pushed-at", imagePushedAt);
     }
 }

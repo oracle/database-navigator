@@ -17,6 +17,7 @@
 package com.dbn.mcp.deploy;
 
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +38,7 @@ import static com.dbn.nls.NlsResources.txt;
  * probed first. Whether the daemon (or Podman machine) is actually up is left to the command
  * itself, whose own error is clearer than anything re-derived here.
  */
-final class McpContainerRuntimeSupport {
+public final class McpContainerRuntimeSupport {
     private static final @NonNls List<String> CLI_NAMES = List.of("docker", "podman");
     private static final @NonNls List<String> CLI_LOCATIONS = List.of(
             "/usr/local/bin",
@@ -46,6 +47,15 @@ final class McpContainerRuntimeSupport {
             "/usr/bin");
 
     private McpContainerRuntimeSupport() {}
+
+    /** The resolved runtime path, or null when none is installed - for display, never for running. */
+    public static @Nullable String findContainerRuntime() {
+        try {
+            return locateContainerRuntime();
+        } catch (IOException e) {
+            return null;
+        }
+    }
 
     static @NonNls String locateContainerRuntime() throws IOException {
         for (String cli : CLI_NAMES) {

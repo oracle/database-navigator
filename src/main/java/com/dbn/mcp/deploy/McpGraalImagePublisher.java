@@ -72,18 +72,41 @@ final class McpGraalImagePublisher {
             @NotNull ProgressIndicator indicator,
             @Nullable Consumer<String> outputHandler) throws IOException {
 
-        @NonNls String runtime = McpContainerRuntimeSupport.locateContainerRuntime();
-        String imageName = input.getFullImageName();
+        buildImage(sourceProjectDir, definition, input, indicator, outputHandler);
+        pushImage(sourceProjectDir, input, indicator, outputHandler);
+    }
 
+    /**
+     * Compiles the deployment image. Runnable on its own, because it is by far the longest part of
+     * a deployment and the one most likely to need repeating.
+     */
+    void buildImage(
+            @NotNull Path sourceProjectDir,
+            @NotNull McpServerDefinition definition,
+            @NotNull McpGraalDeploymentInput input,
+            @NotNull ProgressIndicator indicator,
+            @Nullable Consumer<String> outputHandler) throws IOException {
+
+        @NonNls String runtime = McpContainerRuntimeSupport.locateContainerRuntime();
         writeGraalConfig(sourceProjectDir, definition);
 
         indicator.setText2(txt("prc.mcp.text.BuildingGraalImage"));
         emit(outputHandler, "[SYSTEM] " + txt("prc.mcp.text.BuildingGraalImage"));
-        runImageBuild(runtime, sourceProjectDir, imageName, indicator, outputHandler);
+        runImageBuild(runtime, sourceProjectDir, input.getFullImageName(), indicator, outputHandler);
+    }
+
+    /** Uploads an already built image. Requires the user to be logged in to the registry. */
+    void pushImage(
+            @NotNull Path sourceProjectDir,
+            @NotNull McpGraalDeploymentInput input,
+            @NotNull ProgressIndicator indicator,
+            @Nullable Consumer<String> outputHandler) throws IOException {
+
+        @NonNls String runtime = McpContainerRuntimeSupport.locateContainerRuntime();
 
         indicator.setText2(txt("prc.mcp.text.PushingImageToOcir"));
         emit(outputHandler, "[SYSTEM] " + txt("prc.mcp.text.PushingImageToOcir"));
-        runImagePush(runtime, sourceProjectDir, imageName, indicator, outputHandler);
+        runImagePush(runtime, sourceProjectDir, input.getFullImageName(), indicator, outputHandler);
     }
 
     /**

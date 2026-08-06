@@ -28,6 +28,7 @@ import com.dbn.common.ui.window.ToolWindows;
 import com.dbn.connection.ConnectionId;
 import com.dbn.mcp.build.McpBuilderResult;
 import com.dbn.mcp.build.McpDistPaths;
+import com.dbn.mcp.deploy.McpDeploymentStep;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.ui.McpServersForm;
 import com.intellij.openapi.components.State;
@@ -167,17 +168,62 @@ public class McpServerRegistry extends ProjectComponentBase implements Persisten
         McpServerRecord record = getRecord(outputDirectory);
         if (record == null) return;
 
-        McpDeploymentInfo deployment = new McpDeploymentInfo();
+        // merged, not replaced: the earlier steps recorded their own progress here
+        McpDeploymentInfo deployment = ensureDeployment(record);
         deployment.setApplicationName(applicationName);
         deployment.setImageOcid(imageOcid);
         deployment.setEndpoint(endpoint);
         deployment.setDeployTimestamp(System.currentTimeMillis());
 
-        record.setDeployment(deployment);
         record.setStatus(McpServerStatus.DEPLOYED);
         writeManifest(record);
         ProjectEvents.notify(getProject(), McpServerRegistryListener.TOPIC,
                 listener -> listener.recordUpdated(record));
+    }
+
+    /**
+     * Records that a deployment step succeeded, along with the registry coordinates it used, so a
+     * later step - or a retry after a failure - resumes from what has already been achieved.
+     */
+    public void applyDeploymentStep(
+            @NotNull String outputDirectory,
+            @NotNull McpDeploymentStep step,
+            @NotNull String regionKey,
+            @NotNull String namespace,
+            @NotNull String repository,
+            @NotNull String tag) {
+        McpServerRecord record = getRecord(outputDirectory);
+        if (record == null) return;
+
+        McpDeploymentInfo deployment = ensureDeployment(record);
+        deployment.setRegionKey(regionKey);
+        deployment.setNamespace(namespace);
+        deployment.setRepository(repository);
+        deployment.setTag(tag);
+
+        long now = System.currentTimeMillis();
+        switch (step) {
+            case BUILD_IMAGE -> {
+                deployment.setImageBuiltAt(now);
+                // a rebuilt image is no longer the pushed one
+                deployment.setImagePushedAt(0);
+            }
+            case PUSH_IMAGE -> deployment.setImagePushedAt(now);
+            case CREATE_APPLICATION -> { /* recorded by applyDeployment once it is active */ }
+        }
+
+        writeManifest(record);
+        ProjectEvents.notify(getProject(), McpServerRegistryListener.TOPIC,
+                listener -> listener.recordUpdated(record));
+    }
+
+    private static McpDeploymentInfo ensureDeployment(McpServerRecord record) {
+        McpDeploymentInfo deployment = record.getDeployment();
+        if (deployment == null) {
+            deployment = new McpDeploymentInfo();
+            record.setDeployment(deployment);
+        }
+        return deployment;
     }
 
     /**
