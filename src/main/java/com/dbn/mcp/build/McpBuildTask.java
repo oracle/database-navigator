@@ -53,7 +53,9 @@ public class McpBuildTask {
     }
 
     public void execute(Runnable onInitSuccess, Runnable onBuildFailure) {
-        Progress.prompt(project, null, true,
+        // verification is brief and reports its own problems as dialogs, so it needs no progress
+        // dialog of its own - it would only flash before the build opens the dashboard
+        Progress.background(project, null, true,
                 txt("prc.mcp.title.BuildingMcpServer"),
                 txt("prc.mcp.text.VerifyingBuildPrerequisites"),
                 indicator -> {
@@ -209,7 +211,9 @@ public class McpBuildTask {
     }
 
     private void buildServerPackage(Runnable onBuildFailure) {
-        Progress.prompt(project, null, true,
+        // background, not a progress dialog: the dashboard opens on the server being built and
+        // streams its output, so a modal asking to be sent to the background adds nothing
+        Progress.background(project, null, true,
                 txt("prc.mcp.title.BuildingMcpServer"),
                 txt("prc.mcp.text.MavenBuild"),
                 indicator -> {
