@@ -40,36 +40,39 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.JBColor;
-import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Box;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.datatransfer.StringSelection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.nls.NlsResources.txt;
 
 public class McpServerDetailsForm extends DBNFormBase {
     private JPanel mainPanel;
-    private JPanel contentPanel;
     private JPanel headerPanel;
+    private JPanel overviewPanel;
+    private JPanel clientPanel;
     private JPanel hintsPanel;
-    private JPanel snippetsPanel;
+    private JTabbedPane tabbedPane;
     private JLabel subtitleLabel;
     private JLabel descriptionLabel;
     private JLabel imageLabel;
@@ -77,13 +80,28 @@ public class McpServerDetailsForm extends DBNFormBase {
     private JLabel folderLabel;
     private JLabel folderValueLabel;
     private JLabel endpointLabel;
+    private JLabel builtLabel;
+    private JLabel builtValueLabel;
+    private JLabel documentationLabel;
+    private JLabel clientLabel;
     private JButton imageCopyButton;
     private JButton endpointCopyButton;
     private JButton revealButton;
+    private JButton clientCopyButton;
+    private JComboBox<ClientConfiguration> clientComboBox;
+    private JBTextArea clientTextArea;
     private HyperlinkLabel endpointLink;
     private HyperlinkLabel readmeLink;
 
     private final McpServerRecord record;
+
+    /** A named, copyable configuration snippet offered in the client selector. */
+    private record ClientConfiguration(String name, String content) {
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
 
     public McpServerDetailsForm(@NotNull DBNForm parent, @NotNull McpServerRecord record) {
         super(parent);
@@ -96,15 +114,13 @@ public class McpServerDetailsForm extends DBNFormBase {
         initImageRow();
         initEndpointRow();
         initFolderRow();
-        initReadmeLink();
-        initSnippets();
+        initBuiltRow();
+        initDocumentationRow();
+        initClientSetup();
     }
 
     private void initHeader() {
-        String connectionName = connectionName();
-        String title = connectionName.isEmpty() ? record.getServerName() :
-                record.getServerName() + "  |  " + connectionName;
-        DBNHeaderForm header = new DBNHeaderForm(this, title,
+        DBNHeaderForm header = new DBNHeaderForm(this, record.getServerName(),
                 McpServerPresentation.icon(record.getImplementation()));
 
         ActionGroup actionGroup = (ActionGroup) ActionManager.getInstance().getAction("DBN.ActionGroup.McpServerDashboard");
@@ -112,29 +128,25 @@ public class McpServerDetailsForm extends DBNFormBase {
         headerPanel.add(header.getComponent(), BorderLayout.CENTER);
     }
 
-    /** Implementation, transport and build state condensed into one muted line, IDE-style. */
+    /** Identity metadata directly under the name: where it came from and what it is. */
     private void initSubtitle() {
-        StringBuilder subtitle = new StringBuilder()
-                .append(McpServerPresentation.implementationName(record.getImplementation()))
-                .append(" · ")
-                .append(record.getTransportType())
-                .append(" · ")
-                .append(McpServerPresentation.statusName(record.getStatus()));
+        StringBuilder subtitle = new StringBuilder();
+        String connectionName = connectionName();
+        if (!connectionName.isEmpty()) subtitle.append(connectionName).append(" · ");
 
-        if (record.getBuildTimestamp() > 0) {
-            subtitle.append(' ').append(DateFormat.getDateInstance(DateFormat.MEDIUM)
-                    .format(new Date(record.getBuildTimestamp())));
+        subtitle.append(McpServerPresentation.implementationName(record.getImplementation()))
+                .append(" · ")
+                .append(record.getTransportType());
+
+        McpServerStatus status = record.getStatus();
+        if (status != McpServerStatus.BUILT) {
+            subtitle.append(" · ").append(McpServerPresentation.statusName(status));
         }
         subtitleLabel.setText(subtitle.toString());
-        subtitleLabel.setForeground(record.getStatus() == McpServerStatus.BUILT ?
-                JBColor.GRAY : McpServerPresentation.statusColor(record.getStatus()));
+        subtitleLabel.setForeground(status == McpServerStatus.BUILT ?
+                JBColor.GRAY : McpServerPresentation.statusColor(status));
     }
 
-    /**
-     * Short per-implementation description of what was generated. Unlike the retired build-result
-     * dialog, the dashboard does not repeat output paths here - the output folder row and the
-     * README cover those.
-     */
     private void initDescription() {
         McpServerImplementation implementation = record.getImplementation();
         String description =
@@ -197,13 +209,23 @@ public class McpServerDetailsForm extends DBNFormBase {
         Path outputPath = record.getOutputPath();
         folderLabel.setText(txt("msg.mcp.text.OutputFolder"));
         folderValueLabel.setText(outputPath.toString());
-        folderValueLabel.setFont(monospaced(folderValueLabel));
         initIconButton(revealButton, AllIcons.Actions.MenuOpen,
                 txt("msg.mcp.button.RevealFolder"), () -> RevealFileAction.openFile(outputPath.toFile()));
     }
 
-    private void initReadmeLink() {
-        Hyperlinks.initHyperlink(readmeLink, txt("msg.mcp.button.OpenReadme"), this::openReadme);
+    private void initBuiltRow() {
+        if (record.getBuildTimestamp() <= 0) {
+            setRowVisible(false, builtLabel, builtValueLabel);
+            return;
+        }
+        builtLabel.setText(txt("msg.mcp.text.BuiltOn"));
+        builtValueLabel.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
+                .format(new Date(record.getBuildTimestamp())));
+    }
+
+    private void initDocumentationRow() {
+        documentationLabel.setText(txt("msg.mcp.text.Documentation"));
+        Hyperlinks.initHyperlink(readmeLink, txt("msg.mcp.text.ReadmeFile"), this::openReadme);
     }
 
     private void openReadme() {
@@ -214,52 +236,44 @@ public class McpServerDetailsForm extends DBNFormBase {
         if (file != null) FileEditorManager.getInstance(ensureProject()).openFile(file, true);
     }
 
-    /** Stacked labeled code blocks with an icon copy action, per the dashboard design. */
-    private void initSnippets() {
-        String artifact = resolveArtifact();
+    /**
+     * One configuration at a time, chosen from the client selector - the snippets are largely
+     * redundant variants of each other, so showing them all at once only adds scrolling.
+     */
+    private void initClientSetup() {
+        clientLabel.setText(txt("msg.mcp.text.Client"));
+        clientTextArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        clientTextArea.setBorder(JBUI.Borders.empty(6, 8));
+
+        clientComboBox.setModel(new DefaultComboBoxModel<>(clientConfigurations().toArray(new ClientConfiguration[0])));
+        clientComboBox.addActionListener(e -> showSelectedConfiguration());
+        initIconButton(clientCopyButton, AllIcons.Actions.Copy,
+                txt("app.mcp.button.CopyToClipboard"), () -> copyToClipboard(clientTextArea.getText()));
+        showSelectedConfiguration();
+    }
+
+    private List<ClientConfiguration> clientConfigurations() {
         McpClientConfiguration configuration = new McpClientConfiguration(record.getDefinition());
         boolean http = record.getTransportType().isHttp();
 
-        JPanel stack = new JPanel();
-        verticalBoxLayout(stack);
-
-        addSnippetBlock(stack, http ? txt("app.mcp.title.Claude") : txt("app.mcp.title.McpConfig"),
-                configuration.buildClaudeJson(artifact));
+        List<ClientConfiguration> configurations = new ArrayList<>();
+        configurations.add(new ClientConfiguration(
+                http ? txt("app.mcp.title.Claude") : txt("app.mcp.title.McpConfig"),
+                configuration.buildClaudeJson(resolveArtifact())));
         if (http) {
-            addSnippetBlock(stack, txt("app.mcp.title.Cline"), configuration.buildClineJson());
+            configurations.add(new ClientConfiguration(txt("app.mcp.title.Cline"), configuration.buildClineJson()));
         }
         if (record.getImplementation().isContainer() && record.getImageName() != null) {
-            addSnippetBlock(stack, txt("app.mcp.title.RunCommand"),
-                    McpRunCommands.containerRunCommand(record.getDefinition(), record.getImageName()));
+            configurations.add(new ClientConfiguration(txt("app.mcp.title.RunCommand"),
+                    McpRunCommands.containerRunCommand(record.getDefinition(), record.getImageName())));
         }
-        snippetsPanel.add(stack, BorderLayout.CENTER);
+        return configurations;
     }
 
-    private void addSnippetBlock(JPanel stack, String title, String content) {
-        JPanel headerRow = new JPanel(new BorderLayout());
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setForeground(JBColor.GRAY);
-        headerRow.add(titleLabel, BorderLayout.CENTER);
-
-        JButton copyButton = new JButton();
-        initIconButton(copyButton, AllIcons.Actions.Copy,
-                txt("app.mcp.button.CopyToClipboard"), () -> copyToClipboard(content));
-        headerRow.add(copyButton, BorderLayout.EAST);
-
-        JBTextArea textArea = new JBTextArea(content);
-        textArea.setEditable(false);
-        textArea.setLineWrap(false);
-        textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-        textArea.setBorder(JBUI.Borders.empty(6, 8));
-
-        JPanel block = new JPanel(new BorderLayout(0, 2));
-        block.add(headerRow, BorderLayout.NORTH);
-        block.add(new JBScrollPane(textArea), BorderLayout.CENTER);
-        block.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        block.setMaximumSize(new Dimension(Integer.MAX_VALUE, block.getPreferredSize().height));
-
-        if (stack.getComponentCount() > 0) stack.add(Box.createVerticalStrut(10));
-        stack.add(block);
+    private void showSelectedConfiguration() {
+        ClientConfiguration selected = (ClientConfiguration) clientComboBox.getSelectedItem();
+        clientTextArea.setText(selected == null ? "" : selected.content());
+        clientTextArea.setCaretPosition(0);
     }
 
     private String resolveArtifact() {

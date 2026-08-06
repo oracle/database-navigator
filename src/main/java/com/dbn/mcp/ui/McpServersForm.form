@@ -24,11 +24,27 @@
             <properties/>
             <border type="none"/>
             <children>
-              <grid id="list-actions" binding="actionsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+              <grid id="list-header" layout-manager="BorderLayout" hgap="0" vgap="0">
                 <constraints border-constraint="North"/>
                 <properties/>
                 <border type="none"/>
-                <children/>
+                <children>
+                  <component id="list-title" class="javax.swing.JLabel" binding="listTitleLabel">
+                    <constraints border-constraint="West"/>
+                    <properties>
+                      <border type="empty">
+                        <size top="0" left="8" bottom="0" right="0"/>
+                      </border>
+                      <text resource-bundle="messages/DBNResources" key="app.mcp.title.Servers"/>
+                    </properties>
+                  </component>
+                  <grid id="list-actions" binding="actionsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+                    <constraints border-constraint="East"/>
+                    <properties/>
+                    <border type="none"/>
+                    <children/>
+                  </grid>
+                </children>
               </grid>
               <scrollpane id="servers-scroll" class="com.dbn.common.ui.misc.DBNScrollPane">
                 <constraints border-constraint="Center"/>
