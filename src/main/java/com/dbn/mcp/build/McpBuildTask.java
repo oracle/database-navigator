@@ -313,9 +313,6 @@ public class McpBuildTask {
 
         result.setWalletDirectory(payloadDirectory.resolve(McpDistPaths.WALLET).toAbsolutePath().normalize());
 
-        String serverArtifact = result.getServerJar() == null ? result.getImageName() : result.getServerJar().toString();
-        result.setClaudeSnippetJson(clientConfiguration.buildClaudeJson(serverArtifact));
-        result.setClineSnippetJson(transportType.isHttp() ? clientConfiguration.buildClineJson() : null);
         McpServerRegistry registry = McpServerRegistry.getInstance(project);
         registry.registerBuild(connection.getConnectionId(), definition, result, buildDuration);
         sendInfoNotification(project, MCP, txt("ntf.mcp.info.ServerBuildSuccessful", definition.getServerName()));

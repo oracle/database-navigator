@@ -181,6 +181,27 @@ public class McpServerRegistry extends ProjectComponentBase implements Persisten
                 listener -> listener.recordUpdated(record));
     }
 
+    /** Stores where the image should be published, before any step has run. */
+    public void saveDeploymentTarget(
+            @NotNull String outputDirectory,
+            @NotNull String regionKey,
+            @NotNull String namespace,
+            @NotNull String repository,
+            @NotNull String tag) {
+        McpServerRecord record = getRecord(outputDirectory);
+        if (record == null) return;
+
+        McpDeploymentInfo deployment = ensureDeployment(record);
+        deployment.setRegionKey(regionKey);
+        deployment.setNamespace(namespace);
+        deployment.setRepository(repository);
+        deployment.setTag(tag);
+
+        writeManifest(record);
+        ProjectEvents.notify(getProject(), McpServerRegistryListener.TOPIC,
+                listener -> listener.recordUpdated(record));
+    }
+
     /**
      * Records that a deployment step succeeded, along with the registry coordinates it used, so a
      * later step - or a retry after a failure - resumes from what has already been achieved.

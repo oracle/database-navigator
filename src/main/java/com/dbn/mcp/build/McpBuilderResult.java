@@ -16,6 +16,4 @@ public class McpBuilderResult {
     private Path serverJar;           // Built server JAR in the output directory (null for container builds).
 
     private String imageName;         // Container image reference (<serverName>:latest), for container builds.
-    private String claudeSnippetJson; // Claude Desktop MCP server configuration snippet.
-    private String clineSnippetJson;  // Cline MCP server configuration snippet, when applicable.
 }

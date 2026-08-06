@@ -16,99 +16,47 @@
 
 package com.dbn.mcp.deploy;
 
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionRef;
-import com.dbn.mcp.build.McpBuilderResult;
-import com.dbn.mcp.model.McpServerDefinition;
-import com.dbn.mcp.model.McpTransportType;
 import com.dbn.mcp.registry.McpServerRecord;
-import com.intellij.openapi.application.ModalityState;
+import com.dbn.mcp.registry.McpServerRegistry;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
- * Publishes a built MCP container image to OCIR and creates a Graal application from it.
- * Collects input only; the Docker and database work runs in {@link McpGraalDeployTask}.
+ * Collects where a generated server should be published: the registry coordinates that identify
+ * the image. Nothing is deployed from here - the deployment steps run from the dashboard, where
+ * their output stays visible while they work.
  */
 public class McpGraalDeployDialog extends DBNDialog<McpGraalDeployForm> {
-    private static final String GRAAL_DEPLOYMENT_PORT = "8080";
-
-    private final ConnectionRef connection;
-    private final McpServerDefinition definition;
-    private final McpBuilderResult result;
-    private final @Nullable String recordKey;
-
-    private Action buildAndPushAction;
-    private Action createApplicationAction;
-    private boolean operationRunning;
-
-    public McpGraalDeployDialog(
-            @Nullable Project project,
-            @NotNull ConnectionRef connection,
-            @NotNull McpServerDefinition definition,
-            @NotNull McpBuilderResult result) {
-        this(project, connection, definition, result, null);
-    }
+    private final McpServerRecord record;
 
     public McpGraalDeployDialog(
             @Nullable Project project,
             @NotNull ConnectionRef connection,
             @NotNull McpServerRecord record) {
-        this(project, connection, record.getDefinition(), record.toBuilderResult(), record.getOutputDirectory());
-    }
-
-    private McpGraalDeployDialog(
-            @Nullable Project project,
-            @NotNull ConnectionRef connection,
-            @NotNull McpServerDefinition definition,
-            @NotNull McpBuilderResult result,
-            @Nullable String recordKey) {
-        super(project, txt("msg.mcp.title.GraalDeployment"), true);
-        this.connection = connection;
-        this.definition = definition;
-        this.result = result;
-        this.recordKey = recordKey;
-        setDefaultSize(620, 460);
-
+        super(project, txt("msg.mcp.title.DeploymentTarget"), true);
+        this.record = record;
+        setDefaultSize(560, 300);
         init();
-        getForm().setInputChangeHandler(() -> updateActionAvailability());
-        updateActionAvailability();
     }
 
     @NotNull
     @Override
     protected McpGraalDeployForm createForm() {
-        return new McpGraalDeployForm(this, definition, result);
+        return new McpGraalDeployForm(this, record);
     }
 
+    @Override
     protected final Action[] initializeActions() {
-        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
-
-        buildAndPushAction = createAction(txt("msg.mcp.button.BuildAndPushImage"), () -> buildAndPushImage());
-        createApplicationAction = createAction(txt("msg.mcp.button.CreateGraalApplication"), () -> createApplication());
-
-        return actions(buildAndPushAction, createApplicationAction, getCancelAction());
-    }
-
-    /**
-     * The application can only be created once the user has pushed the image and pasted back the
-     * OCID that OCI assigns to it - the image name alone is not accepted by Graal.
-     */
-    private void updateActionAvailability() {
-        McpGraalDeploymentInput input = getForm().getDeploymentInput();
-        buildAndPushAction.setEnabled(!operationRunning);
-        createApplicationAction.setEnabled(!operationRunning &&
-                McpGraalDeploymentInput.isValidContainerImageOcid(input.getContainerImageOcid()));
+        return actions(getOKAction(), getCancelAction());
     }
 
     @Nullable
@@ -116,9 +64,6 @@ public class McpGraalDeployDialog extends DBNDialog<McpGraalDeployForm> {
     protected ValidationInfo doValidate() {
         McpGraalDeploymentInput input = getForm().getDeploymentInput();
 
-        if (isEmptyOrSpaces(input.getApplicationName())) {
-            return new ValidationInfo(txt("msg.mcp.error.GraalApplicationNameRequired"));
-        }
         if (!McpGraalDeploymentInput.isValidRegionKey(input.getRegionKey())) {
             return new ValidationInfo(txt("msg.mcp.error.OcirRegionInvalid"));
         }
@@ -134,73 +79,12 @@ public class McpGraalDeployDialog extends DBNDialog<McpGraalDeployForm> {
         return super.doValidate();
     }
 
-    /**
-     * Deployment targets the documented Graal environment, which accepts only a linux/amd64
-     * HTTP server image listening on {@value #GRAAL_DEPLOYMENT_PORT}.
-     */
-    @Nullable
-    private String validateDeployability() {
-        // both Micronaut variants compile to the same native image; the container one merely
-        // performs that compilation inside a builder container, so either can be deployed
-        if (!definition.getImplementation().isNative()) {
-            return txt("msg.mcp.error.GraalDeploymentRequiresMicronaut");
-        }
-        if (definition.getTransportType() != McpTransportType.HTTP) {
-            return txt("msg.mcp.error.GraalDeploymentRequiresHttp");
-        }
-        if (!GRAAL_DEPLOYMENT_PORT.equals(definition.getHttpPort())) {
-            return txt("msg.mcp.error.GraalDeploymentRequiresPort", GRAAL_DEPLOYMENT_PORT);
-        }
-
-        Path sourceDirectory = result.getSourceDirectory();
-        if (sourceDirectory == null || !Files.isDirectory(sourceDirectory)) {
-            return txt("msg.mcp.error.GraalSourceProjectMissing");
-        }
-        if (!Files.isRegularFile(sourceDirectory.resolve("Dockerfile.graal"))
-                || !Files.isRegularFile(sourceDirectory.resolve("pom.xml"))) {
-            return txt("msg.mcp.error.GraalSourceProjectIncomplete");
-        }
-        return null;
-    }
-
-    private void buildAndPushImage() {
-        beginOperation();
-        deployTask().buildAndPushImage(getForm().getDeploymentInput());
-    }
-
-    private void createApplication() {
-        beginOperation();
-        deployTask().createApplication(getForm().getDeploymentInput());
-    }
-
-    private void beginOperation() {
-        operationRunning = true;
-        updateActionAvailability();
-    }
-
-    private McpGraalDeployTask deployTask() {
-        return new McpGraalDeployTask(
-                getProject(), connection, definition, result,
-                this::validateDeployability,
-                ocid -> applyResolvedOcid(ocid),
-                recordKey,
-                this::operationFinished);
-    }
-
-    /** Fills in the OCID resolved from the registry and unlocks the application-creation action. */
-    private void applyResolvedOcid(String ocid) {
-        Dispatch.run((ModalityState) null, () -> {
-            if (isDisposed()) return;
-            getForm().setContainerImageOcid(ocid);
-            updateActionAvailability();
-        });
-    }
-
-    private void operationFinished() {
-        Dispatch.run((ModalityState) null, () -> {
-            if (isDisposed()) return;
-            operationRunning = false;
-            updateActionAvailability();
-        });
+    @Override
+    protected void doOKAction() {
+        McpGraalDeploymentInput input = getForm().getDeploymentInput();
+        McpServerRegistry.getInstance(ensureProject()).saveDeploymentTarget(
+                record.getOutputDirectory(),
+                input.getRegionKey(), input.getNamespace(), input.getRepository(), input.getTag());
+        super.doOKAction();
     }
 }

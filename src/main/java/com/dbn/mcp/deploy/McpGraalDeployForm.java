@@ -20,12 +20,13 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
-import com.dbn.mcp.build.McpBuilderResult;
-import com.dbn.mcp.model.McpServerDefinition;
+import com.dbn.mcp.registry.McpDeploymentInfo;
+import com.dbn.mcp.registry.McpServerRecord;
 import com.intellij.openapi.Disposable;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -55,23 +56,18 @@ public class McpGraalDeployForm extends DBNFormBase {
     private final JBTextField namespaceField = new JBTextField();
     private final JBTextField repositoryField = new JBTextField();
     private final JBTextField tagField = new JBTextField(DEFAULT_TAG);
-    private final JBTextField ocidField = new JBTextField();
 
-    private final JLabel localImageLabel = new JLabel();
     private final JLabel fullImageNameLabel = new JLabel();
 
     private Runnable inputChangeHandler = () -> {};
 
-    public McpGraalDeployForm(
-            @NotNull Disposable parent,
-            @NotNull McpServerDefinition definition,
-            @NotNull McpBuilderResult result) {
+    public McpGraalDeployForm(@NotNull Disposable parent, @NotNull McpServerRecord record) {
         super(parent);
 
-        String serverName = definition.getServerName();
+        String serverName = record.getServerName();
         applicationNameField.setText(serverName);
         repositoryField.setText(serverName);
-        localImageLabel.setText(result.getImageName());
+        applyStoredTarget(record.getDeployment(), serverName);
 
         mainPanel = new JPanel(new BorderLayout(8, 8));
         mainPanel.add(createHintPanel(), BorderLayout.NORTH);
@@ -79,6 +75,18 @@ public class McpGraalDeployForm extends DBNFormBase {
 
         initChangeListeners();
         updateFullImageName();
+    }
+
+    /** A previously configured target is shown as it was, so reopening never silently resets it. */
+    private void applyStoredTarget(@Nullable McpDeploymentInfo deployment, String serverName) {
+        if (deployment == null) return;
+
+        if (deployment.getRegionKey() != null) regionKeyField.setText(deployment.getRegionKey());
+        if (deployment.getNamespace() != null) namespaceField.setText(deployment.getNamespace());
+        if (deployment.getRepository() != null) repositoryField.setText(deployment.getRepository());
+        if (deployment.getTag() != null) tagField.setText(deployment.getTag());
+        if (deployment.getApplicationName() != null) applicationNameField.setText(deployment.getApplicationName());
+        else applicationNameField.setText(serverName);
     }
 
     private JComponent createHintPanel() {
@@ -89,14 +97,12 @@ public class McpGraalDeployForm extends DBNFormBase {
     private JComponent createFieldsPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         int row = 0;
-        addRow(panel, row++, txt("msg.mcp.label.LocalImage"), localImageLabel);
         addRow(panel, row++, txt("msg.mcp.label.GraalApplicationName"), applicationNameField);
         addRow(panel, row++, txt("msg.mcp.label.OcirRegion"), regionKeyField);
         addRow(panel, row++, txt("msg.mcp.label.OcirNamespace"), namespaceField);
         addRow(panel, row++, txt("msg.mcp.label.OcirRepository"), repositoryField);
         addRow(panel, row++, txt("msg.mcp.label.ImageTag"), tagField);
-        addRow(panel, row++, txt("msg.mcp.label.FullImageName"), fullImageNameLabel);
-        addRow(panel, row, txt("msg.mcp.label.ContainerImageOcid"), ocidField);
+        addRow(panel, row, txt("msg.mcp.label.FullImageName"), fullImageNameLabel);
         return panel;
     }
 
@@ -123,7 +129,6 @@ public class McpGraalDeployForm extends DBNFormBase {
         onTextChange(repositoryField, e -> onInputChanged());
         onTextChange(tagField, e -> onInputChanged());
         onTextChange(applicationNameField, e -> onInputChanged());
-        onTextChange(ocidField, e -> onInputChanged());
     }
 
     private void onInputChanged() {
@@ -140,11 +145,6 @@ public class McpGraalDeployForm extends DBNFormBase {
         this.inputChangeHandler = handler;
     }
 
-    /** Populates the OCID resolved from the registry after a successful push. */
-    void setContainerImageOcid(@NotNull String ocid) {
-        ocidField.setText(ocid);
-    }
-
     @NotNull
     McpGraalDeploymentInput getDeploymentInput() {
         return new McpGraalDeploymentInput(
@@ -153,7 +153,7 @@ public class McpGraalDeployForm extends DBNFormBase {
                 getText(namespaceField).trim(),
                 getText(repositoryField).trim(),
                 getText(tagField).trim(),
-                getText(ocidField).trim());
+                "");
     }
 
     @NotNull
