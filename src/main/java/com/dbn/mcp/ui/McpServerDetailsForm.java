@@ -131,8 +131,15 @@ public class McpServerDetailsForm extends DBNFormBase {
     /** Identity metadata directly under the name: where it came from and what it is. */
     private void initSubtitle() {
         StringBuilder subtitle = new StringBuilder();
-        String connectionName = connectionName();
-        if (!connectionName.isEmpty()) subtitle.append(connectionName).append(" · ");
+
+        // the connection icon identifies the source database (and its state) at a glance,
+        // where the header icon identifies the built artifact
+        ConnectionHandler connection = ConnectionHandler.get(record.getConnectionId());
+        if (connection != null) {
+            subtitleLabel.setIcon(connection.getIcon());
+            subtitleLabel.setIconTextGap(6);
+            subtitle.append(connection.getName()).append(" · ");
+        }
 
         subtitle.append(McpServerPresentation.implementationName(record.getImplementation()))
                 .append(" · ")
@@ -302,11 +309,6 @@ public class McpServerDetailsForm extends DBNFormBase {
 
     private static void setRowVisible(boolean visible, JComponent... components) {
         for (JComponent component : components) component.setVisible(visible);
-    }
-
-    private String connectionName() {
-        ConnectionHandler connection = ConnectionHandler.get(record.getConnectionId());
-        return connection == null ? "" : connection.getName();
     }
 
     @Override
