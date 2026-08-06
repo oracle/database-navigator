@@ -119,8 +119,10 @@ public class McpGraalDeployDialog extends DBNDialog<McpGraalDeployForm> {
      */
     @Nullable
     private String validateDeployability() {
-        if (!definition.getImplementation().isContainer()) {
-            return txt("msg.mcp.error.GraalDeploymentRequiresContainer");
+        // both Micronaut variants compile to the same native image; the container one merely
+        // performs that compilation inside a builder container, so either can be deployed
+        if (!definition.getImplementation().isNative()) {
+            return txt("msg.mcp.error.GraalDeploymentRequiresMicronaut");
         }
         if (definition.getTransportType() != McpTransportType.HTTP) {
             return txt("msg.mcp.error.GraalDeploymentRequiresHttp");
