@@ -17,11 +17,8 @@
 package com.dbn.mcp.ui;
 
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.message.MessageType;
-import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.Hyperlinks;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Actions;
@@ -53,6 +50,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.datatransfer.StringSelection;
@@ -142,7 +140,11 @@ public class McpServerDetailsForm extends DBNFormBase {
         // the connection icon identifies the source database (and its state) at a glance,
         // where the header icon identifies the built artifact
         ConnectionHandler connection = ConnectionHandler.get(record.getConnectionId());
-        if (connection != null) subtitle.append(connection.getName()).append(" · ");
+        if (connection != null) {
+            subtitleLabel.setIcon(connection.getIcon());
+            subtitleLabel.setIconTextGap(6);
+            subtitle.append(connection.getName()).append(" · ");
+        }
 
         subtitle.append(McpServerPresentation.implementationName(record.getImplementation()))
                 .append(" · ")
@@ -163,13 +165,21 @@ public class McpServerDetailsForm extends DBNFormBase {
 
         JPanel stack = new JPanel();
         verticalBoxLayout(stack);
-        if (stale) stack.add(createHint(txt("msg.mcp.text.StaleServerHint"), MessageType.WARNING));
-        if (incomplete) stack.add(createHint(txt("msg.mcp.text.ImportedDefinitionIncomplete"), MessageType.INFO));
+        if (stale) stack.add(createHint(txt("msg.mcp.text.StaleServerHint"), AllIcons.General.ShowWarning));
+        if (incomplete) stack.add(createHint(txt("msg.mcp.text.ImportedDefinitionIncomplete"), AllIcons.General.ShowInfos));
         hintsPanel.add(stack, BorderLayout.CENTER);
     }
 
-    private JComponent createHint(String text, MessageType messageType) {
-        return new DBNHintForm(this, TextContent.plain(text), messageType, false).getComponent();
+    /**
+     * A single compact line rather than a boxed hint form - at this size the framed variant spends
+     * more space on padding around its icon than on the message itself.
+     */
+    private static JComponent createHint(String text, Icon icon) {
+        JLabel hint = new JLabel(text, icon, SwingConstants.LEADING);
+        hint.setIconTextGap(6);
+        hint.setForeground(JBColor.GRAY);
+        hint.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        return hint;
     }
 
     private void initImageRow() {
