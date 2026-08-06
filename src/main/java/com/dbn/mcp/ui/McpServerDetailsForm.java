@@ -130,12 +130,12 @@ public class McpServerDetailsForm extends DBNFormBase {
 
         contentTabs.addTab(txt("app.mcp.title.Overview"), overviewForm.getComponent());
         contentTabs.addTab(txt("app.mcp.title.ClientSetup"), clientSetupForm.getComponent());
+        contentTabs.addTab(txt("app.mcp.title.BuildOutput"), buildOutputForm.getComponent());
         if (record.getImplementation().isNative()) {
-            // only the Micronaut implementations compile to an image Graal can run
+            // last, and only for the Micronaut implementations, which compile to an image Graal runs
             McpServerDeploymentForm deploymentForm = new McpServerDeploymentForm(this, record);
             contentTabs.addTab(txt("app.mcp.title.Deployment"), deploymentForm.getComponent());
         }
-        contentTabs.addTab(txt("app.mcp.title.BuildOutput"), buildOutputForm.getComponent());
 
         // a running build is what the user is waiting on, and a failed one is only actionable
         // through its output - either way the output is the tab to land on
