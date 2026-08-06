@@ -83,6 +83,7 @@ public class McpServersForm extends DBNFormBase {
         markBorderless(serversList);
         Splitters.setSplitPaneProportion(splitPane, 0.18);
         listTitleLabel.setForeground(JBColor.GRAY);
+        listTitleLabel.setBorder(JBUI.Borders.emptyLeft(8));
         // a hairline under the list header, as IntelliJ toolbars carry
         listHeaderPanel.setBorder(JBUI.Borders.customLineBottom(JBColor.border()));
 
