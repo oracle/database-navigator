@@ -110,7 +110,7 @@ public class McpServerOverviewForm extends DBNFormBase {
      */
     private void initEndpointRow() {
         String endpoint =
-                record.isDeployed() ? record.getDeployment().getEndpoint() :
+                record.isDeployed() ? McpClientConfiguration.mcpEndpoint(record.getDeployment().getEndpoint()) :
                 record.getTransportType().isHttp() ? McpClientConfiguration.localEndpoint(record.getDefinition()) :
                 null;
 

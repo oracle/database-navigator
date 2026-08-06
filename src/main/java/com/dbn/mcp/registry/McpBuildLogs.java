@@ -21,13 +21,21 @@ import com.intellij.openapi.project.Project;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.mcp.build.McpDistPaths.BUILD_LOG;
+
 /**
- * Output of builds that are running now, held per server until the build ends and the log is
- * written to disk. Bounded, because a native-image build can produce a lot of output and this is
- * only ever a live view - the file beside the generated server remains the durable record.
+ * Output of server operations that are running now, held per server until the build or deployment
+ * step ends and the log is written to disk. Bounded, because a native-image build can produce a
+ * lot of output and this is only ever a live view - the file remains the durable record.
  */
 @RequiredArgsConstructor
 public class McpBuildLogs {
@@ -63,5 +71,23 @@ public class McpBuildLogs {
     /** Drops the live buffer once the output has been persisted beside the generated server. */
     public void release(@NotNull String outputDirectory) {
         logs.remove(outputDirectory);
+    }
+
+    /**
+     * Appends a completed operation to the durable server output. Deployment follows the original
+     * server build in the same console, so users keep one chronological diagnostic record.
+     */
+    public void appendRecorded(@NotNull String outputDirectory, @NotNull CharSequence output) {
+        if (output.isEmpty()) return;
+
+        Path logFile = Path.of(outputDirectory).resolve(BUILD_LOG);
+        try {
+            Files.createDirectories(logFile.getParent());
+            String separator = Files.isRegularFile(logFile) && Files.size(logFile) > 0 ? "\n" : "";
+            Files.writeString(logFile, separator + output, StandardCharsets.UTF_8,
+                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            conditionallyLog(e);
+        }
     }
 }

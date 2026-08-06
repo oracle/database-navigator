@@ -48,8 +48,7 @@ public class McpServerDeployAction extends McpServerAction {
         ConnectionHandler connection = ConnectionHandler.get(record.getConnectionId());
         if (connection == null) return;
 
-        Dialogs.show(() -> new McpGraalDeployDialog(project, ConnectionRef.of(connection),
-                record.getDefinition(), record.toBuilderResult()));
+        Dialogs.show(() -> new McpGraalDeployDialog(project, ConnectionRef.of(connection), record));
     }
 
     @Override

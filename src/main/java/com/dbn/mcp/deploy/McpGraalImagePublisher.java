@@ -26,7 +26,6 @@ import com.intellij.execution.process.ProcessListener;
 import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.util.Key;
-import com.intellij.util.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +38,7 @@ import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -78,9 +78,11 @@ final class McpGraalImagePublisher {
         writeGraalConfig(sourceProjectDir, definition);
 
         indicator.setText2(txt("prc.mcp.text.BuildingGraalImage"));
+        emit(outputHandler, "[SYSTEM] " + txt("prc.mcp.text.BuildingGraalImage"));
         runImageBuild(runtime, sourceProjectDir, imageName, indicator, outputHandler);
 
         indicator.setText2(txt("prc.mcp.text.PushingImageToOcir"));
+        emit(outputHandler, "[SYSTEM] " + txt("prc.mcp.text.PushingImageToOcir"));
         runImagePush(runtime, sourceProjectDir, imageName, indicator, outputHandler);
     }
 
@@ -153,7 +155,7 @@ final class McpGraalImagePublisher {
                             outputType == ProcessOutputTypes.STDERR ? "STDERR" :
                             outputType == ProcessOutputTypes.STDOUT ? "STDOUT" : "SYSTEM";
                     for (String line : text.split("\\R")) {
-                        if (!line.isBlank()) outputHandler.consume("[" + source + "] " + line);
+                        if (!line.isBlank()) outputHandler.accept("[" + source + "] " + line);
                     }
                 }
             }
@@ -196,5 +198,9 @@ final class McpGraalImagePublisher {
             int from = Math.max(0, builder.length() - OUTPUT_TAIL_LIMIT);
             return builder.substring(from);
         }
+    }
+
+    private static void emit(@Nullable Consumer<String> outputHandler, @NotNull String line) {
+        if (outputHandler != null) outputHandler.accept(line);
     }
 }

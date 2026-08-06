@@ -22,6 +22,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.mcp.build.McpBuilderResult;
 import com.dbn.mcp.model.McpServerDefinition;
+import com.dbn.mcp.registry.McpBuildLogs;
+import com.dbn.mcp.registry.McpServerRegistry;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -66,27 +68,51 @@ public class McpGraalDeployTask {
     /** Receives the image OCID resolved from the registry, so the dialog can fill it in. */
     private final Consumer<String> resolvedOcidHandler;
 
+    /** Dashboard record receiving live output and the successful deployment, if launched there. */
+    private final @Nullable String recordKey;
+
+    /** Re-enables the deployment dialog actions after a backgroundable operation finishes. */
+    private final Runnable operationFinishedHandler;
+
     public void buildAndPushImage(@NotNull McpGraalDeploymentInput input) {
-        if (!verifyDeployable()) return;
+        if (!verifyDeployable()) {
+            operationFinishedHandler.run();
+            return;
+        }
 
         Path sourceProjectDir = result.getSourceDirectory();
-        // modal, not background: launched from the modal deployment dialog, a background
-        // indicator would sit in the status bar behind it and never be seen
-        Progress.modal(project, null, true,
+        Progress.prompt(project, null, true,
                 txt("prc.mcp.title.DeployingToGraal"),
                 txt("prc.mcp.text.BuildingGraalImage"),
                 indicator -> {
             try {
-                new McpGraalImagePublisher().publish(sourceProjectDir, definition, input, indicator, null);
-                resolveImageOcid(input, indicator);
-            } catch (ProcessCanceledException e) {
-                throw e;
-            } catch (Throwable e) {
-                conditionallyLog(e);
-                showErrorDialog(project, txt("msg.mcp.title.GraalDeployment"),
-                        txt("msg.mcp.error.GraalImageBuildFailed"), e);
+                publishImage(sourceProjectDir, input, indicator);
+            } finally {
+                operationFinishedHandler.run();
             }
         });
+    }
+
+    private void publishImage(
+            Path sourceProjectDir,
+            McpGraalDeploymentInput input,
+            ProgressIndicator indicator) {
+        StringBuilder output = new StringBuilder();
+        try {
+            new McpGraalImagePublisher().publish(
+                    sourceProjectDir, definition, input, indicator,
+                    line -> appendOutput(output, line));
+            resolveImageOcid(input, indicator, output);
+        } catch (ProcessCanceledException e) {
+            throw e;
+        } catch (Throwable e) {
+            appendOutput(output, "[STDERR] " + e);
+            conditionallyLog(e);
+            showErrorDialog(project, txt("msg.mcp.title.GraalDeployment"),
+                    txt("msg.mcp.error.GraalImageBuildFailed"), e);
+        } finally {
+            persistOutput(output);
+        }
     }
 
     /**
@@ -94,8 +120,12 @@ public class McpGraalDeployTask {
      * A lookup failure is not fatal - the image is already published, so the user can still paste
      * the OCID from the OCI console and continue.
      */
-    private void resolveImageOcid(McpGraalDeploymentInput input, ProgressIndicator indicator) {
+    private void resolveImageOcid(
+            McpGraalDeploymentInput input,
+            ProgressIndicator indicator,
+            StringBuilder output) {
         indicator.setText2(txt("prc.mcp.text.ResolvingImageOcid"));
+        appendOutput(output, "[SYSTEM] " + txt("prc.mcp.text.ResolvingImageOcid"));
         String imageName = input.getFullImageName();
         try {
             String ocid = new McpOciImageResolver().resolveImageOcid(input);
@@ -119,29 +149,53 @@ public class McpGraalDeployTask {
     }
 
     public void createApplication(@NotNull McpGraalDeploymentInput input) {
-        if (!verifyDeployable()) return;
+        if (!verifyDeployable()) {
+            operationFinishedHandler.run();
+            return;
+        }
 
         ConnectionHandler connectionHandler = ConnectionRef.ensure(connection);
         ConnectionAction.invoke(txt("msg.mcp.title.GraalDeployment"), true, connectionHandler,
-                action -> Progress.modal(project, connectionHandler, true,
+                action -> Progress.prompt(project, connectionHandler, true,
                         txt("prc.mcp.title.DeployingToGraal"),
                         txt("prc.mcp.text.CreatingGraalApplication"),
                         indicator -> {
             try {
-                McpGraalApplicationManager manager = new McpGraalApplicationManager(connection);
-                manager.createApplication(input);
-                // POC: grant public read access so the app's GRAAL_ user can query the tool tables
-                indicator.setText2(txt("prc.mcp.text.GrantingTableAccess"));
-                manager.grantPublicTableAccess();
-                reportActivation(manager, input, indicator);
-            } catch (ProcessCanceledException e) {
-                throw e;
-            } catch (Throwable e) {
-                conditionallyLog(e);
-                showErrorDialog(project, txt("msg.mcp.title.GraalDeployment"),
-                        txt("msg.mcp.error.GraalApplicationCreationFailed"), e);
+                provisionApplication(input, indicator);
+            } finally {
+                operationFinishedHandler.run();
             }
-        }));
+        }),
+                action -> operationFinishedHandler.run(),
+                null);
+    }
+
+    private void provisionApplication(
+            McpGraalDeploymentInput input,
+            ProgressIndicator indicator) {
+        StringBuilder output = new StringBuilder();
+        String endpoint = null;
+        try {
+            appendOutput(output, "[SYSTEM] " + txt("prc.mcp.text.CreatingGraalApplication"));
+            McpGraalApplicationManager manager = new McpGraalApplicationManager(connection);
+            manager.createApplication(input);
+
+            // POC: grant public read access so the app's GRAAL_ user can query the tool tables
+            indicator.setText2(txt("prc.mcp.text.GrantingTableAccess"));
+            appendOutput(output, "[SYSTEM] " + txt("prc.mcp.text.GrantingTableAccess"));
+            manager.grantPublicTableAccess();
+            endpoint = reportActivation(manager, input, indicator, output);
+        } catch (ProcessCanceledException e) {
+            throw e;
+        } catch (Throwable e) {
+            appendOutput(output, "[STDERR] " + e);
+            conditionallyLog(e);
+            showErrorDialog(project, txt("msg.mcp.title.GraalDeployment"),
+                    txt("msg.mcp.error.GraalApplicationCreationFailed"), e);
+        } finally {
+            persistOutput(output);
+        }
+        applyDeployment(input, endpoint);
     }
 
     /**
@@ -149,11 +203,15 @@ public class McpGraalDeployTask {
      * or the timeout elapses - keeping the progress indicator updated and honouring cancellation.
      * Cancelling only stops watching; the application keeps provisioning on the service.
      */
-    private void reportActivation(
-            McpGraalApplicationManager manager, McpGraalDeploymentInput input, ProgressIndicator indicator)
+    private @Nullable String reportActivation(
+            McpGraalApplicationManager manager,
+            McpGraalDeploymentInput input,
+            ProgressIndicator indicator,
+            StringBuilder output)
             throws SQLException {
 
         indicator.setText2(txt("prc.mcp.text.WaitingForGraalApplication"));
+        appendOutput(output, "[SYSTEM] " + txt("prc.mcp.text.WaitingForGraalApplication"));
         String name = input.getApplicationName();
         long deadline = System.currentTimeMillis() + ACTIVATION_TIMEOUT_MILLIS;
         String lastState = null;
@@ -162,19 +220,23 @@ public class McpGraalDeployTask {
             indicator.checkCanceled();
             McpGraalApplicationManager.ApplicationStatus status = manager.getApplicationStatus(name);
             if (status != null && status.lifecycleState() != null) {
-                lastState = status.lifecycleState();
+                String currentState = status.lifecycleState();
+                if (!currentState.equalsIgnoreCase(lastState)) {
+                    appendOutput(output, "[SYSTEM] " + txt("prc.mcp.text.GraalApplicationState", currentState));
+                }
+                lastState = currentState;
                 indicator.setText2(txt("prc.mcp.text.GraalApplicationState", lastState));
 
                 if (STATE_ACTIVE.equalsIgnoreCase(lastState)) {
                     String endpoint = status.endpoint() == null ? "-" : status.endpoint();
                     showInfoDialog(project, txt("msg.mcp.title.GraalDeployment"),
                             txt("msg.mcp.text.GraalApplicationActive", name, endpoint));
-                    return;
+                    return status.endpoint();
                 }
                 if (STATE_FAILED.equalsIgnoreCase(lastState)) {
                     showErrorDialog(project, txt("msg.mcp.title.GraalDeployment"),
                             txt("msg.mcp.error.GraalApplicationFailedState", name));
-                    return;
+                    return null;
                 }
             }
             sleep(ACTIVATION_POLL_INTERVAL_MILLIS, indicator);
@@ -184,6 +246,7 @@ public class McpGraalDeployTask {
         showInfoDialog(project, txt("msg.mcp.title.GraalDeployment"),
                 txt("msg.mcp.text.GraalApplicationPending", name,
                         lastState == null ? STATE_PROVISIONING : lastState));
+        return null;
     }
 
     private static void sleep(long millis, ProgressIndicator indicator) {
@@ -205,5 +268,32 @@ public class McpGraalDeployTask {
 
         showErrorDialog(project, txt("msg.mcp.title.GraalDeployment"), problem);
         return false;
+    }
+
+    private void appendOutput(StringBuilder output, String line) {
+        if (line == null || line.isBlank()) return;
+
+        output.append(line).append('\n');
+        if (recordKey != null) {
+            McpServerRegistry.getInstance(project).getBuildLogs().append(recordKey, line);
+        }
+    }
+
+    private void persistOutput(StringBuilder output) {
+        if (recordKey == null || output.isEmpty()) return;
+
+        McpBuildLogs logs = McpServerRegistry.getInstance(project).getBuildLogs();
+        logs.appendRecorded(recordKey, output);
+        logs.release(recordKey);
+    }
+
+    private void applyDeployment(McpGraalDeploymentInput input, @Nullable String endpoint) {
+        if (recordKey == null || endpoint == null || endpoint.isBlank()) return;
+
+        McpServerRegistry.getInstance(project).applyDeployment(
+                recordKey,
+                input.getApplicationName(),
+                input.getContainerImageOcid(),
+                endpoint);
     }
 }

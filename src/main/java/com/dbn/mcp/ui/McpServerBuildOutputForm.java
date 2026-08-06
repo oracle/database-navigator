@@ -50,9 +50,8 @@ import static com.dbn.mcp.ui.McpServerPresentation.initIconButton;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
- * The output of the most recent build attempt. A running build streams into it; otherwise it is
- * read back from the log written beside the generated server, so the output survives restarts and
- * is available for failed builds - which is when it matters most.
+ * The generated server's chronological build and deployment output. Running operations stream
+ * into it; otherwise it is read from the log beside the server, so diagnostics survive restarts.
  */
 public class McpServerBuildOutputForm extends DBNFormBase {
     // the build output is line-tagged by its source; the console colors it accordingly
@@ -77,11 +76,9 @@ public class McpServerBuildOutputForm extends DBNFormBase {
         Disposer.register(this, console);
         consolePanel.add(console.getComponent(), BorderLayout.CENTER);
 
-        if (record.getStatus() == McpServerStatus.BUILDING) {
-            initLiveOutput();
-        } else {
-            initRecordedOutput();
-        }
+        if (record.getStatus() == McpServerStatus.BUILDING) initLiveOutput();
+        else initRecordedOutput();
+        subscribeToOutput();
     }
 
     /**
@@ -94,6 +91,14 @@ public class McpServerBuildOutputForm extends DBNFormBase {
 
         initOutcomeLabel(true);
         printAll(registry.getBuildLogs().snapshot(key));
+    }
+
+    /**
+     * Output may arrive after a successful build as well: deployment image builds and Graal
+     * provisioning append to the same per-server console.
+     */
+    private void subscribeToOutput() {
+        String key = record.getOutputDirectory();
 
         ProjectEvents.subscribe(ensureProject(), this, McpBuildLogListener.TOPIC, new McpBuildLogListener() {
             @Override

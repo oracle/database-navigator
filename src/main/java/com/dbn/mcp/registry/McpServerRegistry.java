@@ -158,6 +158,28 @@ public class McpServerRegistry extends ProjectComponentBase implements Persisten
         return record;
     }
 
+    /** Persists a successful Graal deployment and refreshes every dashboard view of the server. */
+    public void applyDeployment(
+            @NotNull String outputDirectory,
+            @NotNull String applicationName,
+            @NotNull String imageOcid,
+            @NotNull String endpoint) {
+        McpServerRecord record = getRecord(outputDirectory);
+        if (record == null) return;
+
+        McpDeploymentInfo deployment = new McpDeploymentInfo();
+        deployment.setApplicationName(applicationName);
+        deployment.setImageOcid(imageOcid);
+        deployment.setEndpoint(endpoint);
+        deployment.setDeployTimestamp(System.currentTimeMillis());
+
+        record.setDeployment(deployment);
+        record.setStatus(McpServerStatus.DEPLOYED);
+        writeManifest(record);
+        ProjectEvents.notify(getProject(), McpServerRegistryListener.TOPIC,
+                listener -> listener.recordUpdated(record));
+    }
+
     /**
      * Records a build that produced no artifact, so its output remains reachable from the
      * dashboard - a failed build is exactly when a user needs to read it. An existing record is

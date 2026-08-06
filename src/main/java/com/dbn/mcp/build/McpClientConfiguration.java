@@ -18,20 +18,31 @@ package com.dbn.mcp.build;
 
 import com.dbn.common.util.Json;
 import com.dbn.mcp.model.McpServerDefinition;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-@RequiredArgsConstructor
 public final class McpClientConfiguration {
     private static final @NonNls String LOCAL_HOST_URL = "http://127.0.0.1:";
     private static final @NonNls String MCP_ENDPOINT_PATH = "/mcp";
 
     private final McpServerDefinition definition;
+    private final @Nullable String remoteEndpoint;
+
+    public McpClientConfiguration(@NotNull McpServerDefinition definition) {
+        this(definition, null);
+    }
+
+    public McpClientConfiguration(
+            @NotNull McpServerDefinition definition,
+            @Nullable String remoteEndpoint) {
+        this.definition = definition;
+        this.remoteEndpoint = remoteEndpoint;
+    }
 
     /**
      * The address an HTTP server serves on when started locally - the same one the generated
@@ -41,12 +52,20 @@ public final class McpClientConfiguration {
         return LOCAL_HOST_URL + definition.getHttpPort() + MCP_ENDPOINT_PATH;
     }
 
+    /** Graal reports the application base URL; MCP clients need its streamable HTTP endpoint. */
+    public static String mcpEndpoint(@NotNull String applicationEndpoint) {
+        if (applicationEndpoint.endsWith(MCP_ENDPOINT_PATH)) return applicationEndpoint;
+        return applicationEndpoint.endsWith("/") ?
+                applicationEndpoint.substring(0, applicationEndpoint.length() - 1) + MCP_ENDPOINT_PATH :
+                applicationEndpoint + MCP_ENDPOINT_PATH;
+    }
+
     public String buildClaudeJson(String serverArtifact) {
         String command;
         List<String> args;
         if (definition.getTransportType().isHttp()) {
             command = "npx";
-            args = List.of("-y", "mcp-remote", localEndpoint(definition));
+            args = List.of("-y", "mcp-remote", endpoint());
         } else if (definition.getImplementation().isNative()) {
             command = serverArtifact;
             args = List.of();
@@ -60,7 +79,7 @@ public final class McpClientConfiguration {
     public String buildClineJson() {
         Map<String, Object> server = new LinkedHashMap<>();
         server.put("type", "streamableHttp");
-        server.put("url", localEndpoint(definition));
+        server.put("url", endpoint());
         Map<String, Object> entry = new LinkedHashMap<>();
         entry.put(definition.getServerName(), server);
         String json = Json.writeAsFormattedString(entry);
@@ -77,5 +96,9 @@ public final class McpClientConfiguration {
 
         String json = Json.writeAsFormattedString(entry);
         return json.substring(1, json.length() - 1).trim();
+    }
+
+    private String endpoint() {
+        return remoteEndpoint == null ? localEndpoint(definition) : mcpEndpoint(remoteEndpoint);
     }
 }

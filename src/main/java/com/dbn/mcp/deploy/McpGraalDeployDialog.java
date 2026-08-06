@@ -22,6 +22,7 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.mcp.build.McpBuilderResult;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpTransportType;
+import com.dbn.mcp.registry.McpServerRecord;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ValidationInfo;
@@ -45,19 +46,38 @@ public class McpGraalDeployDialog extends DBNDialog<McpGraalDeployForm> {
     private final ConnectionRef connection;
     private final McpServerDefinition definition;
     private final McpBuilderResult result;
+    private final @Nullable String recordKey;
 
     private Action buildAndPushAction;
     private Action createApplicationAction;
+    private boolean operationRunning;
 
     public McpGraalDeployDialog(
             @Nullable Project project,
             @NotNull ConnectionRef connection,
             @NotNull McpServerDefinition definition,
             @NotNull McpBuilderResult result) {
+        this(project, connection, definition, result, null);
+    }
+
+    public McpGraalDeployDialog(
+            @Nullable Project project,
+            @NotNull ConnectionRef connection,
+            @NotNull McpServerRecord record) {
+        this(project, connection, record.getDefinition(), record.toBuilderResult(), record.getOutputDirectory());
+    }
+
+    private McpGraalDeployDialog(
+            @Nullable Project project,
+            @NotNull ConnectionRef connection,
+            @NotNull McpServerDefinition definition,
+            @NotNull McpBuilderResult result,
+            @Nullable String recordKey) {
         super(project, txt("msg.mcp.title.GraalDeployment"), true);
         this.connection = connection;
         this.definition = definition;
         this.result = result;
+        this.recordKey = recordKey;
         setDefaultSize(620, 460);
 
         init();
@@ -86,7 +106,8 @@ public class McpGraalDeployDialog extends DBNDialog<McpGraalDeployForm> {
      */
     private void updateActionAvailability() {
         McpGraalDeploymentInput input = getForm().getDeploymentInput();
-        createApplicationAction.setEnabled(
+        buildAndPushAction.setEnabled(!operationRunning);
+        createApplicationAction.setEnabled(!operationRunning &&
                 McpGraalDeploymentInput.isValidContainerImageOcid(input.getContainerImageOcid()));
     }
 
@@ -143,24 +164,42 @@ public class McpGraalDeployDialog extends DBNDialog<McpGraalDeployForm> {
     }
 
     private void buildAndPushImage() {
+        beginOperation();
         deployTask().buildAndPushImage(getForm().getDeploymentInput());
     }
 
     private void createApplication() {
+        beginOperation();
         deployTask().createApplication(getForm().getDeploymentInput());
+    }
+
+    private void beginOperation() {
+        operationRunning = true;
+        updateActionAvailability();
     }
 
     private McpGraalDeployTask deployTask() {
         return new McpGraalDeployTask(
                 getProject(), connection, definition, result,
                 this::validateDeployability,
-                ocid -> applyResolvedOcid(ocid));
+                ocid -> applyResolvedOcid(ocid),
+                recordKey,
+                this::operationFinished);
     }
 
     /** Fills in the OCID resolved from the registry and unlocks the application-creation action. */
     private void applyResolvedOcid(String ocid) {
         Dispatch.run((ModalityState) null, () -> {
+            if (isDisposed()) return;
             getForm().setContainerImageOcid(ocid);
+            updateActionAvailability();
+        });
+    }
+
+    private void operationFinished() {
+        Dispatch.run((ModalityState) null, () -> {
+            if (isDisposed()) return;
+            operationRunning = false;
             updateActionAvailability();
         });
     }

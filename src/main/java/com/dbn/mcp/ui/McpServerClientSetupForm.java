@@ -77,7 +77,8 @@ public class McpServerClientSetupForm extends DBNFormBase {
     }
 
     private List<ClientConfiguration> configurations() {
-        McpClientConfiguration configuration = new McpClientConfiguration(record.getDefinition());
+        String endpoint = record.isDeployed() ? record.getDeployment().getEndpoint() : null;
+        McpClientConfiguration configuration = new McpClientConfiguration(record.getDefinition(), endpoint);
         boolean http = record.getTransportType().isHttp();
 
         List<ClientConfiguration> configurations = new ArrayList<>();
