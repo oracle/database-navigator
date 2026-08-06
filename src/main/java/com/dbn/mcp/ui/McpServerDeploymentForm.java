@@ -17,15 +17,16 @@
 package com.dbn.mcp.ui;
 
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.Hyperlinks;
 import com.dbn.mcp.deploy.McpDeploymentStep;
 import com.dbn.mcp.registry.McpDeploymentInfo;
 import com.dbn.mcp.registry.McpServerRecord;
 import com.dbn.mcp.registry.McpServerRegistryListener;
 import com.intellij.ui.HyperlinkLabel;
-import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,7 +52,7 @@ public class McpServerDeploymentForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel stepsPanel;
     private JPanel ocidPanel;
-    private JLabel introLabel;
+    private JPanel introPanel;
     private JLabel targetLabel;
     private JLabel ocidLabel;
     private JButton deployButton;
@@ -65,8 +66,11 @@ public class McpServerDeploymentForm extends DBNFormBase {
         super(parent);
         this.record = record;
 
-        introLabel.setText("<html>" + txt("msg.mcp.text.DeploymentIntro") + "</html>");
-        introLabel.setForeground(JBColor.GRAY);
+        // a hint form rather than a label: it wraps to the panel width, where a label would
+        // report its whole single line as a minimum size and refuse to let the split pane shrink
+        introPanel.add(new DBNHintForm(this,
+                TextContent.plain(txt("msg.mcp.text.DeploymentIntro")), null, true).getComponent(),
+                BorderLayout.CENTER);
 
         targetLabel.setFont(monospaced(targetLabel));
         Hyperlinks.initHyperlink(configureLink, txt("msg.mcp.button.EditRegistry"), this::configureTarget);

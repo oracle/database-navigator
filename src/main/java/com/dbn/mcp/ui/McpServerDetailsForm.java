@@ -19,6 +19,7 @@ package com.dbn.mcp.ui;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionHandler;
@@ -28,6 +29,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBTabbedPane;
+import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -134,7 +136,10 @@ public class McpServerDetailsForm extends DBNFormBase {
         if (record.getImplementation().isNative()) {
             // last, and only for the Micronaut implementations, which compile to an image Graal runs
             McpServerDeploymentForm deploymentForm = new McpServerDeploymentForm(this, record);
-            contentTabs.addTab(txt("app.mcp.title.Deployment"), deploymentForm.getComponent());
+            // scrolled, so a narrow toolwindow clips nothing and the pane stays freely resizable
+            DBNScrollPane deploymentScrollPane = new DBNScrollPane(deploymentForm.getComponent());
+            deploymentScrollPane.setBorder(JBUI.Borders.empty());
+            contentTabs.addTab(txt("app.mcp.title.Deployment"), deploymentScrollPane);
         }
 
         // a running build is what the user is waiting on, and a failed one is only actionable

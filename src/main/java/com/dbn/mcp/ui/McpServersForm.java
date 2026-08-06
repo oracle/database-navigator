@@ -34,6 +34,7 @@ import com.dbn.mcp.registry.McpServerStatus;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
+import com.intellij.util.ui.JBDimension;
 import com.intellij.util.ui.JBUI;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -81,7 +82,12 @@ public class McpServersForm extends DBNFormBase {
             if (!e.getValueIsAdjusting()) showDetails(serversList.getSelectedValue());
         });
         markBorderless(serversList);
-        Splitters.setSplitPaneProportion(splitPane, 0.18);
+        Splitters.setSplitPaneProportion(splitPane, 0.22);
+
+        // the splitter honours minimum sizes, so without these the widest piece of detail content
+        // would pin the divider in place and squeeze the list down to its truncated names
+        detailsPanel.setMinimumSize(new JBDimension(320, 0));
+        serversList.setMinimumSize(new JBDimension(120, 0));
         listTitleLabel.setForeground(JBColor.GRAY);
         listTitleLabel.setBorder(JBUI.Borders.emptyLeft(8));
         // a hairline under the list header, as IntelliJ toolbars carry
