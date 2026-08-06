@@ -149,6 +149,11 @@ public class Icons {
     public static final Icon ASSISTANT_TOOL = load("/img/tools/AssistantTool.svg");
     public static final Icon ASSISTANT_QUESTION = load("/img/tools/AssistantQuestion.svg");
 
+    // generated MCP server artifacts, by implementation type
+    public static final Icon MCP_SERVER_JAR = load("/img/mcp/ServerJar.svg");
+    public static final Icon MCP_SERVER_NATIVE = load("/img/mcp/ServerNative.svg");
+    public static final Icon MCP_SERVER_CONTAINER = load("/img/mcp/ServerContainer.svg");
+
     public static final Icon FILE_SQL_CONSOLE = load("/img/file/SQLConsoleFile.svg");
     public static final Icon FILE_SQL_DEBUG_CONSOLE = load("/img/file/SQLDebugConsole.svg");
     public static final Icon FILE_SEARCH_CONSOLE = load("/img/file/SearchConsoleFile.svg");

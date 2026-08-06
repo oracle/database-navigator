@@ -25,31 +25,24 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.util.Splitters;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.registry.McpServerRecord;
 import com.dbn.mcp.registry.McpServerRegistry;
 import com.dbn.mcp.registry.McpServerRegistryListener;
 import com.dbn.mcp.registry.McpServerStatus;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.DefaultListModel;
-import javax.swing.Icon;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import java.awt.Color;
 import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.dispose.Disposer.disposeMap;
-import static com.dbn.common.icon.Icons.DATABASE_MODULE;
-import static com.dbn.common.icon.Icons.DATABASE_NAVIGATOR;
-import static com.dbn.common.icon.Icons.DBO_JAVA_CLASS;
 import static com.dbn.common.ui.util.Borderless.markBorderless;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -163,13 +156,6 @@ public class McpServersForm extends DBNFormBase {
     }
 
     private static class ServerListCellRenderer extends ColoredListCellRenderer<McpServerRecord> {
-        private static final SimpleTextAttributes DEPLOYED_ATTRIBUTES = new SimpleTextAttributes(
-                SimpleTextAttributes.STYLE_SMALLER,
-                new JBColor(new Color(45, 125, 55), new Color(105, 190, 115)));
-        private static final SimpleTextAttributes STALE_ATTRIBUTES = new SimpleTextAttributes(
-                SimpleTextAttributes.STYLE_SMALLER,
-                new JBColor(new Color(180, 105, 0), new Color(230, 155, 55)));
-
         @Override
         protected void customize(
                 @NotNull JList<? extends McpServerRecord> list,
@@ -177,38 +163,18 @@ public class McpServersForm extends DBNFormBase {
                 int index,
                 boolean selected,
                 boolean hasFocus) {
-            setIcon(resolveIcon(value.getImplementation()));
+            setIcon(McpServerPresentation.icon(value.getImplementation()));
             append(value.getServerName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            append("  " + implementationName(value.getImplementation()), SimpleTextAttributes.GRAYED_ATTRIBUTES);
-            append("  " + statusName(value.getStatus()), statusAttributes(value.getStatus()));
-        }
-
-        private static Icon resolveIcon(McpServerImplementation implementation) {
-            if (implementation.isContainer()) return DATABASE_MODULE;
-            if (implementation.isNative()) return DATABASE_NAVIGATOR;
-            return DBO_JAVA_CLASS;
-        }
-
-        private static String implementationName(McpServerImplementation implementation) {
-            if (implementation.isContainer()) return txt("msg.mcp.text.ImplementationContainer");
-            if (implementation.isNative()) return txt("msg.mcp.text.ImplementationNative");
-            return txt("msg.mcp.text.ImplementationJar");
-        }
-
-        private static String statusName(McpServerStatus status) {
-            return switch (status) {
-                case BUILT -> txt("msg.mcp.text.StatusBuilt");
-                case DEPLOYED -> txt("msg.mcp.text.StatusDeployed");
-                case STALE -> txt("msg.mcp.text.StatusStale");
-            };
+            append("  " + McpServerPresentation.implementationName(value.getImplementation()),
+                    SimpleTextAttributes.GRAYED_ATTRIBUTES);
+            append("  " + McpServerPresentation.statusName(value.getStatus()), statusAttributes(value.getStatus()));
         }
 
         private static SimpleTextAttributes statusAttributes(McpServerStatus status) {
-            return switch (status) {
-                case BUILT -> SimpleTextAttributes.GRAYED_SMALL_ATTRIBUTES;
-                case DEPLOYED -> DEPLOYED_ATTRIBUTES;
-                case STALE -> STALE_ATTRIBUTES;
-            };
+            return status == McpServerStatus.BUILT ?
+                    SimpleTextAttributes.GRAYED_SMALL_ATTRIBUTES :
+                    new SimpleTextAttributes(SimpleTextAttributes.STYLE_SMALLER,
+                            McpServerPresentation.statusColor(status));
         }
     }
 }

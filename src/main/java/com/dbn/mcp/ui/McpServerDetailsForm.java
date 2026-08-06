@@ -62,7 +62,6 @@ import java.nio.file.Path;
 import java.text.DateFormat;
 import java.util.Date;
 
-import static com.dbn.common.icon.Icons.WINDOW_MCP_SERVERS;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -111,7 +110,8 @@ public class McpServerDetailsForm extends DBNFormBase {
         String connectionName = connectionName();
         String title = connectionName.isEmpty() ? record.getServerName() :
                 record.getServerName() + "  |  " + connectionName;
-        DBNHeaderForm header = new DBNHeaderForm(this, title, WINDOW_MCP_SERVERS.get());
+        DBNHeaderForm header = new DBNHeaderForm(this, title,
+                McpServerPresentation.icon(record.getImplementation()));
 
         ActionGroup actionGroup = (ActionGroup) ActionManager.getInstance().getAction("DBN.ActionGroup.McpServerDashboard");
         if (actionGroup != null) header.setActions(actionGroup);
@@ -119,9 +119,12 @@ public class McpServerDetailsForm extends DBNFormBase {
     }
 
     private void initBadges() {
-        initBadge(implBadgeLabel, implementationName(),
-                new JBColor(new Color(70, 110, 165), new Color(110, 150, 210)));
-        initBadge(statusBadgeLabel, statusName(), statusColor());
+        initBadge(implBadgeLabel,
+                McpServerPresentation.implementationName(record.getImplementation()),
+                McpServerPresentation.implementationColor());
+        initBadge(statusBadgeLabel,
+                McpServerPresentation.statusName(record.getStatus()),
+                McpServerPresentation.statusColor(record.getStatus()));
     }
 
     /** Rounded outline chip: colored text and border, transparent fill. */
@@ -130,14 +133,6 @@ public class McpServerDetailsForm extends DBNFormBase {
         label.setForeground(color);
         label.setFont(label.getFont().deriveFont(label.getFont().getSize2D() - 1f));
         label.setBorder(new RoundedCornerBorder(color, 1, 10, 3));
-    }
-
-    private Color statusColor() {
-        return switch (record.getStatus()) {
-            case BUILT -> new JBColor(new Color(110, 110, 110), new Color(160, 160, 160));
-            case DEPLOYED -> new JBColor(new Color(45, 125, 55), new Color(105, 190, 115));
-            case STALE -> new JBColor(new Color(180, 105, 0), new Color(230, 155, 55));
-        };
     }
 
     /**
@@ -311,21 +306,6 @@ public class McpServerDetailsForm extends DBNFormBase {
     private String connectionName() {
         ConnectionHandler connection = ConnectionHandler.get(record.getConnectionId());
         return connection == null ? "" : connection.getName();
-    }
-
-    private String implementationName() {
-        McpServerImplementation implementation = record.getImplementation();
-        if (implementation.isContainer()) return txt("msg.mcp.text.ImplementationContainer");
-        if (implementation.isNative()) return txt("msg.mcp.text.ImplementationNative");
-        return txt("msg.mcp.text.ImplementationJar");
-    }
-
-    private String statusName() {
-        return switch (record.getStatus()) {
-            case BUILT -> txt("msg.mcp.text.StatusBuilt");
-            case DEPLOYED -> txt("msg.mcp.text.StatusDeployed");
-            case STALE -> txt("msg.mcp.text.StatusStale");
-        };
     }
 
     @Override
