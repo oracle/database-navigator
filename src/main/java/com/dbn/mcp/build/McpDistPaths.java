@@ -32,6 +32,7 @@ public final class McpDistPaths {
     public static final @NonNls String SOURCE_PROJECT = "source-project";
     public static final @NonNls String CONTAINER_MOUNT_DIR = "config";
     public static final @NonNls String README = "README.md";
+    public static final @NonNls String BUILD_LOG = "build.log";
     public static final @NonNls String WALLET = "wallet";
 
     public static @NotNull Path distRoot(@NotNull Project project) {

@@ -95,7 +95,8 @@ public class McpServerRegistry extends ProjectComponentBase implements Persisten
     public @NotNull McpServerRecord registerBuild(
             @NotNull ConnectionId connectionId,
             @NotNull McpServerDefinition definition,
-            @NotNull McpBuilderResult result) {
+            @NotNull McpBuilderResult result,
+            long buildDuration) {
         Path outputDirectory = result.getOutputDirectory().toAbsolutePath().normalize();
 
         McpServerRecord record = new McpServerRecord();
@@ -103,6 +104,7 @@ public class McpServerRegistry extends ProjectComponentBase implements Persisten
         record.setDefinition(definition.clone());
         record.setConnectionId(connectionId);
         record.setBuildTimestamp(System.currentTimeMillis());
+        record.setBuildDuration(buildDuration);
         record.setStatus(McpServerStatus.BUILT);
         initArtifact(record, result, outputDirectory);
 
@@ -116,6 +118,43 @@ public class McpServerRegistry extends ProjectComponentBase implements Persisten
             }
         });
         return record;
+    }
+
+    /**
+     * Records a build that produced no artifact, so its output remains reachable from the
+     * dashboard - a failed build is exactly when a user needs to read it. An existing record is
+     * only marked failed, keeping the artifact details of the last successful build.
+     */
+    public void registerFailedBuild(
+            @NotNull ConnectionId connectionId,
+            @NotNull McpServerDefinition definition,
+            @NotNull Path outputDirectory,
+            long buildDuration) {
+        String key = normalizePath(outputDirectory.toAbsolutePath().toString());
+
+        McpServerRecord record = records.get(key);
+        boolean existing = record != null;
+        if (!existing) {
+            record = new McpServerRecord();
+            record.setOutputDirectory(key);
+            record.setDefinition(definition.clone());
+            record.setConnectionId(connectionId);
+            record.setArtifactType(McpArtifactType.JAR);
+        }
+        record.setStatus(McpServerStatus.FAILED);
+        record.setBuildTimestamp(System.currentTimeMillis());
+        record.setBuildDuration(buildDuration);
+
+        McpServerRecord failed = record;
+        writeManifest(failed);
+        records.put(key, failed);
+        ProjectEvents.notify(getProject(), McpServerRegistryListener.TOPIC, listener -> {
+            if (existing) {
+                listener.recordUpdated(failed);
+            } else {
+                listener.recordAdded(failed);
+            }
+        });
     }
 
     /**

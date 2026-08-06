@@ -51,6 +51,7 @@ public class McpServerRecord implements PersistentStateElement {
     private String artifactPath;
     private String imageName;
     private long buildTimestamp;
+    private long buildDuration;
     private @Nullable McpDeploymentInfo deployment;
     private McpServerStatus status = McpServerStatus.BUILT;
 
@@ -76,6 +77,11 @@ public class McpServerRecord implements PersistentStateElement {
 
     public @NotNull Path getSourceProjectPath() {
         return getOutputPath().resolve(McpDistPaths.SOURCE_PROJECT);
+    }
+
+    /** Output of the most recent build attempt, written beside the generated server. */
+    public @NotNull Path getBuildLogPath() {
+        return getOutputPath().resolve(McpDistPaths.BUILD_LOG);
     }
 
     public @NotNull Path getReadmePath() {
@@ -107,6 +113,7 @@ public class McpServerRecord implements PersistentStateElement {
         connectionId = connectionIdAttribute(element, "connection-id");
         status = enumAttribute(element, "status", McpServerStatus.BUILT);
         buildTimestamp = longAttribute(element, "build-timestamp", 0);
+        buildDuration = longAttribute(element, "build-duration", 0);
 
         Element definitionElement = element.getChild("mcp-server-definition");
         if (definitionElement != null) definition.readState(definitionElement);
@@ -129,6 +136,7 @@ public class McpServerRecord implements PersistentStateElement {
         setConstantAttribute(element, "connection-id", connectionId);
         setEnumAttribute(element, "status", status);
         setLongAttribute(element, "build-timestamp", buildTimestamp);
+        setLongAttribute(element, "build-duration", buildDuration);
 
         definition.writeState(newElement(element, "mcp-server-definition"));
 

@@ -126,9 +126,16 @@ public class McpServerDetailsForm extends DBNFormBase {
     private void initContentTabs() {
         McpServerOverviewForm overviewForm = new McpServerOverviewForm(this, record);
         McpServerClientSetupForm clientSetupForm = new McpServerClientSetupForm(this, record);
+        McpServerBuildOutputForm buildOutputForm = new McpServerBuildOutputForm(this, record);
 
         contentTabs.addTab(txt("app.mcp.title.Overview"), overviewForm.getComponent());
         contentTabs.addTab(txt("app.mcp.title.ClientSetup"), clientSetupForm.getComponent());
+        contentTabs.addTab(txt("app.mcp.title.BuildOutput"), buildOutputForm.getComponent());
+
+        // a failed build is only actionable through its output, so open on it
+        if (record.getStatus() == McpServerStatus.FAILED) {
+            contentTabs.setSelectedComponent(buildOutputForm.getComponent());
+        }
     }
 
     @Override

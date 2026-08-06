@@ -214,9 +214,13 @@ public class McpBuildTask {
                 txt("prc.mcp.text.MavenBuild"),
                 indicator -> {
             indicator.setIndeterminate(true);
+            Path outputDirectory = result.getOutputDirectory();
+            // the build output is the only account of what happened, so it is collected for both
+            // outcomes and written beside the generated server rather than kept in memory
+            StringBuilder buildOutput = new StringBuilder();
+            long startTime = System.currentTimeMillis();
             try {
                 indicator.setText2(txt("prc.mcp.text.PreparingProject"));
-                Path outputDirectory = result.getOutputDirectory();
                 Path sourceDirectory = outputDirectory.resolve(McpDistPaths.SOURCE_PROJECT).toAbsolutePath().normalize();
                 result.setSourceDirectory(sourceDirectory);
                 indicator.setText2(txt("prc.mcp.text.RunningMavenBuild"));
@@ -227,7 +231,7 @@ public class McpBuildTask {
                         generator,
                         sourceDirectory,
                         indicator,
-                        null);
+                        line -> buildOutput.append(line).append('\n'));
                 indicator.setText2(txt("prc.mcp.text.FinalizingOutput"));
                 if (definition.getImplementation().isContainer()) {
                     result.setImageName(definition.getServerName() + ":latest");
@@ -249,20 +253,41 @@ public class McpBuildTask {
                 indicator.setText2(txt("prc.mcp.text.WritingReadme"));
                 readmeWriter.write(outputDirectory);
                 indicator.setText2(txt("prc.mcp.text.Done"));
-                showResult();
+                writeBuildLog(outputDirectory, buildOutput);
+                showResult(System.currentTimeMillis() - startTime);
+            } catch (ProcessCanceledException e) {
+                throw e;
             } catch (Throwable e) {
                 conditionallyLog(e);
                 String message =
                         definition.getImplementation().isContainer() ? txt("msg.mcp.error.ContainerServerBuildFailed") :
                         definition.getImplementation().isNative() ? txt("msg.mcp.error.NativeServerBuildFailed") :
                         txt("msg.mcp.error.McpServerBuildFailed");
+
+                buildOutput.append('\n').append(message).append('\n').append(e);
+                writeBuildLog(outputDirectory, buildOutput);
+                McpServerRegistry.getInstance(project).registerFailedBuild(
+                        connection.getConnectionId(), definition, outputDirectory,
+                        System.currentTimeMillis() - startTime);
+
                 showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), message, e);
                 onBuildFailure.run();
             }
         });
     }
 
-    private void showResult() {
+    /** Best effort: losing the log must not turn a successful build into a failed one. */
+    private static void writeBuildLog(Path outputDirectory, StringBuilder output) {
+        try {
+            if (!Files.isDirectory(outputDirectory)) return;
+            Files.writeString(outputDirectory.resolve(McpDistPaths.BUILD_LOG),
+                    output.toString(), StandardCharsets.UTF_8);
+        } catch (Throwable e) {
+            conditionallyLog(e);
+        }
+    }
+
+    private void showResult(long buildDuration) {
         Path outputDirectory = result.getOutputDirectory();
         Path payloadDirectory = McpDistPaths.payloadDirectory(outputDirectory, definition.getImplementation());
 
@@ -274,7 +299,7 @@ public class McpBuildTask {
         result.setClaudeSnippetJson(clientConfiguration.buildClaudeJson(serverArtifact));
         result.setClineSnippetJson(transportType.isHttp() ? clientConfiguration.buildClineJson() : null);
         McpServerRegistry registry = McpServerRegistry.getInstance(project);
-        registry.registerBuild(connection.getConnectionId(), definition, result);
+        registry.registerBuild(connection.getConnectionId(), definition, result, buildDuration);
         sendInfoNotification(project, MCP, txt("ntf.mcp.info.ServerBuildSuccessful", definition.getServerName()));
         registry.showDashboard(outputDirectory.toAbsolutePath().normalize().toString());
     }

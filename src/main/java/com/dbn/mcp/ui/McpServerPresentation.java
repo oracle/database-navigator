@@ -60,6 +60,7 @@ final class McpServerPresentation {
         return switch (status) {
             case BUILT -> AllIcons.General.InspectionsOK;
             case DEPLOYED -> AllIcons.Actions.Commit;
+            case FAILED -> AllIcons.General.Error;
             case STALE -> AllIcons.General.Warning;
         };
     }
@@ -68,6 +69,7 @@ final class McpServerPresentation {
         return switch (status) {
             case BUILT -> txt("msg.mcp.text.StatusBuilt");
             case DEPLOYED -> txt("msg.mcp.text.StatusDeployed");
+            case FAILED -> txt("msg.mcp.text.StatusFailed");
             case STALE -> txt("msg.mcp.text.StatusStale");
         };
     }
@@ -76,6 +78,7 @@ final class McpServerPresentation {
         return switch (status) {
             case BUILT -> new JBColor(new Color(110, 110, 110), new Color(160, 160, 160));
             case DEPLOYED -> new JBColor(new Color(45, 125, 55), new Color(105, 190, 115));
+            case FAILED -> new JBColor(new Color(180, 55, 50), new Color(225, 105, 100));
             case STALE -> new JBColor(new Color(180, 105, 0), new Color(230, 155, 55));
         };
     }

@@ -19,5 +19,7 @@ package com.dbn.mcp.registry;
 public enum McpServerStatus {
     BUILT,
     DEPLOYED,
+    /** The last build did not produce an artifact; its output is kept for diagnosis. */
+    FAILED,
     STALE
 }
