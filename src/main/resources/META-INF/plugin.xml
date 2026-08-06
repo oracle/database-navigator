@@ -925,6 +925,7 @@
         <!-- actions on the selected server, shown in the details header -->
         <group id="DBN.ActionGroup.McpServerDashboard">
             <action id="DBN.McpServerDashboard.Edit" class="com.dbn.mcp.action.McpServerEditAction"/>
+            <action id="DBN.McpServerDashboard.Deploy" class="com.dbn.mcp.action.McpServerDeployAction"/>
             <action id="DBN.McpServerDashboard.Delete" class="com.dbn.mcp.action.McpServerDeleteAction"/>
         </group>
 

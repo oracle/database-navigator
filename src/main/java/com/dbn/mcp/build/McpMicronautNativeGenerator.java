@@ -23,6 +23,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -44,6 +46,17 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
     private static final @NonNls String METADATA_TEMPLATE = "DBN - MCP Micronaut Reachability Metadata.json";
     private static final @NonNls String APPLICATION_YML_TEMPLATE = "DBN - MCP Micronaut Application Config.yaml";
     private static final @NonNls String DOCKERFILE_TEMPLATE = "DBN - MCP Micronaut Dockerfile";
+
+    // Graal deployment assets, emitted for every Micronaut server so that any of them can be
+    // deployed later: the credential-free deployment image, and the Maven wrapper its build stage
+    // runs because the GraalOS SDK image ships no Maven ("only-script" - no wrapper jar needed).
+    // The local-runtime "Dockerfile" is unaffected and still drives running the server locally.
+    private static final @NonNls String DOCKERFILE_GRAAL_TEMPLATE = "DBN - MCP Micronaut Dockerfile Graal";
+    private static final @NonNls String DOCKERFILE_GRAAL_FILE = "Dockerfile.graal";
+    private static final @NonNls String MVNW_FILE = "mvnw";
+    private static final @NonNls String MVNW_PROPERTIES_FILE = ".mvn/wrapper/maven-wrapper.properties";
+    private static final @NonNls String MVNW_RESOURCE = "/mcp/deploy/mvnw.template";
+    private static final @NonNls String MVNW_PROPERTIES_RESOURCE = "/mcp/deploy/maven-wrapper.properties";
 
     // generated class name -> file template name (one source file per class)
     private static final @NonNls Map<String, String> SOURCE_TEMPLATES = new LinkedHashMap<>();
@@ -102,6 +115,7 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
     private String metadataContent;
     private String applicationYmlContent;
     private String dockerfileContent;
+    private String graalDockerfileContent;
 
     McpMicronautNativeGenerator(@NotNull Project project, @NotNull McpServerDefinition definition) {
         this.project = project;
@@ -130,6 +144,7 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
         // standalone multi-stage build usable on a CI runner of any target architecture
         attributes.put("GRAALVM_IMAGE_TAG", resolveJavaVersion(project, definition.getImplementation()));
         dockerfileContent = TemplateUtilities.generateCode(project, DOCKERFILE_TEMPLATE, attributes);
+        graalDockerfileContent = TemplateUtilities.generateCode(project, DOCKERFILE_GRAAL_TEMPLATE, attributes);
     }
 
     @Override
@@ -139,7 +154,20 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
         files.put(APPLICATION_YML_FILE, applicationYmlContent);
         files.put(METADATA_FILE, metadataContent);
         files.put(DOCKERFILE_FILE, dockerfileContent);
+        files.put(DOCKERFILE_GRAAL_FILE, graalDockerfileContent);
+        files.put(MVNW_FILE, readResource(MVNW_RESOURCE));
+        files.put(MVNW_PROPERTIES_FILE, readResource(MVNW_PROPERTIES_RESOURCE));
         return files;
+    }
+
+    /** Reads a bundled verbatim resource (not a template - these must not go through Velocity). */
+    private static String readResource(@NonNls String resource) {
+        try (InputStream stream = McpMicronautNativeGenerator.class.getResourceAsStream(resource)) {
+            if (stream == null) throw new IllegalStateException("Missing bundled resource: " + resource);
+            return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not read bundled resource: " + resource, e);
+        }
     }
 
     @Override
