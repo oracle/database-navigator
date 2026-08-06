@@ -19,12 +19,18 @@ package com.dbn.mcp.ui;
 import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.registry.McpServerStatus;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.ui.JBColor;
+import com.intellij.util.ui.JBUI;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.datatransfer.StringSelection;
 
 import static com.dbn.common.icon.Icons.MCP_SERVER_CONTAINER;
 import static com.dbn.common.icon.Icons.MCP_SERVER_JAR;
@@ -76,5 +82,24 @@ final class McpServerPresentation {
 
     static Color implementationColor() {
         return new JBColor(new Color(70, 110, 165), new Color(110, 150, 210));
+    }
+
+    /** Borderless icon button - a secondary action must not compete with the value it belongs to. */
+    static void initIconButton(JButton button, Icon icon, String tooltip, Runnable action) {
+        button.setIcon(icon);
+        button.setToolTipText(tooltip);
+        button.setContentAreaFilled(false);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setBorder(JBUI.Borders.empty(1, 4));
+        button.addActionListener(e -> action.run());
+    }
+
+    static void copyToClipboard(String content) {
+        CopyPasteManager.getInstance().setContents(new StringSelection(content));
+    }
+
+    static Font monospaced(JComponent component) {
+        return new Font(Font.MONOSPACED, Font.PLAIN, component.getFont().getSize());
     }
 }
