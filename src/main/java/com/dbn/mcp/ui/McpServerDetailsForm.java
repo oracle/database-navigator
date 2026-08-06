@@ -132,8 +132,10 @@ public class McpServerDetailsForm extends DBNFormBase {
         contentTabs.addTab(txt("app.mcp.title.ClientSetup"), clientSetupForm.getComponent());
         contentTabs.addTab(txt("app.mcp.title.BuildOutput"), buildOutputForm.getComponent());
 
-        // a failed build is only actionable through its output, so open on it
-        if (record.getStatus() == McpServerStatus.FAILED) {
+        // a running build is what the user is waiting on, and a failed one is only actionable
+        // through its output - either way the output is the tab to land on
+        McpServerStatus status = record.getStatus();
+        if (status == McpServerStatus.BUILDING || status == McpServerStatus.FAILED) {
             contentTabs.setSelectedComponent(buildOutputForm.getComponent());
         }
     }

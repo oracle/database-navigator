@@ -58,6 +58,7 @@ final class McpServerPresentation {
 
     static Icon statusIcon(@NotNull McpServerStatus status) {
         return switch (status) {
+            case BUILDING -> AllIcons.Actions.Compile;
             case BUILT -> AllIcons.General.InspectionsOK;
             case DEPLOYED -> AllIcons.Actions.Commit;
             case FAILED -> AllIcons.General.Error;
@@ -67,6 +68,7 @@ final class McpServerPresentation {
 
     static String statusName(@NotNull McpServerStatus status) {
         return switch (status) {
+            case BUILDING -> txt("msg.mcp.text.StatusBuilding");
             case BUILT -> txt("msg.mcp.text.StatusBuilt");
             case DEPLOYED -> txt("msg.mcp.text.StatusDeployed");
             case FAILED -> txt("msg.mcp.text.StatusFailed");
@@ -76,6 +78,7 @@ final class McpServerPresentation {
 
     static Color statusColor(@NotNull McpServerStatus status) {
         return switch (status) {
+            case BUILDING -> new JBColor(new Color(60, 110, 170), new Color(110, 160, 220));
             case BUILT -> new JBColor(new Color(110, 110, 110), new Color(160, 160, 160));
             case DEPLOYED -> new JBColor(new Color(45, 125, 55), new Color(105, 190, 115));
             case FAILED -> new JBColor(new Color(180, 55, 50), new Color(225, 105, 100));

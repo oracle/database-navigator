@@ -16,9 +16,12 @@
 
 package com.dbn.mcp.ui;
 
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.mcp.registry.McpBuildLogListener;
 import com.dbn.mcp.registry.McpServerRecord;
+import com.dbn.mcp.registry.McpServerRegistry;
 import com.dbn.mcp.registry.McpServerStatus;
 import com.intellij.icons.AllIcons;
 import com.intellij.ui.JBColor;
@@ -65,14 +68,52 @@ public class McpServerBuildOutputForm extends DBNFormBase {
         outputTextArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         outputTextArea.setBorder(JBUI.Borders.empty(6, 8));
 
-        String output = readBuildLog();
-        initOutcomeLabel(output != null);
-        initOutput(output);
+        if (record.getStatus() == McpServerStatus.BUILDING) {
+            initLiveOutput();
+        } else {
+            String output = readBuildLog();
+            initOutcomeLabel(output != null);
+            initOutput(output);
+        }
+    }
+
+    /**
+     * While a build runs the log file does not exist yet, so the view starts from whatever the
+     * running build has already produced and follows it from there.
+     */
+    private void initLiveOutput() {
+        McpServerRegistry registry = McpServerRegistry.getInstance(ensureProject());
+        String key = record.getOutputDirectory();
+
+        initOutcomeLabel(false);
+        outputTextArea.setText(registry.getBuildLogs().snapshot(key));
+        scrollToTail();
+
+        ProjectEvents.subscribe(ensureProject(), this, McpBuildLogListener.TOPIC, new McpBuildLogListener() {
+            @Override
+            public void logAppended(String outputDirectory, String line) {
+                if (!key.equals(outputDirectory)) return;
+                dispatch(() -> {
+                    outputTextArea.append(line + "\n");
+                    scrollToTail();
+                });
+            }
+
+            @Override
+            public void logCleared(String outputDirectory) {
+                if (!key.equals(outputDirectory)) return;
+                dispatch(() -> outputTextArea.setText(""));
+            }
+        });
+    }
+
+    private void scrollToTail() {
+        outputTextArea.setCaretPosition(outputTextArea.getDocument().getLength());
     }
 
     private void initOutcomeLabel(boolean hasOutput) {
         McpServerStatus status = record.getStatus();
-        boolean failed = status == McpServerStatus.FAILED;
+        boolean highlighted = status == McpServerStatus.FAILED || status == McpServerStatus.BUILDING;
 
         StringBuilder outcome = new StringBuilder(McpServerPresentation.statusName(status));
         if (record.getBuildTimestamp() > 0) {
@@ -87,7 +128,7 @@ public class McpServerBuildOutputForm extends DBNFormBase {
         outcomeLabel.setText(outcome.toString());
         outcomeLabel.setIcon(McpServerPresentation.statusIcon(status));
         outcomeLabel.setIconTextGap(6);
-        if (failed) outcomeLabel.setForeground(McpServerPresentation.statusColor(status));
+        if (highlighted) outcomeLabel.setForeground(McpServerPresentation.statusColor(status));
 
         copyButton.setVisible(hasOutput);
         if (hasOutput) {

@@ -37,6 +37,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -69,11 +70,48 @@ public class McpServerRegistry extends ProjectComponentBase implements Persisten
     public static final String TOOL_WINDOW_ID = "DB MCP Servers";
 
     private final Map<String, McpServerRecord> records = new ConcurrentHashMap<>();
+    @Getter
+    private final McpBuildLogs buildLogs;
     private final Latent<McpServersForm> dashboardForm = Latent.basic(() ->
             Dispatch.call(true, () -> new McpServersForm(getProject())));
 
     public McpServerRegistry(@NotNull Project project) {
         super(project, COMPONENT_NAME);
+        this.buildLogs = new McpBuildLogs(project);
+    }
+
+    /**
+     * Registers a server as building before its output exists, so the dashboard can show the
+     * build as it runs. Re-running a build keeps the previous artifact details until it succeeds.
+     */
+    public @NotNull McpServerRecord registerBuildStarted(
+            @NotNull ConnectionId connectionId,
+            @NotNull McpServerDefinition definition,
+            @NotNull Path outputDirectory) {
+        String key = normalizePath(outputDirectory.toAbsolutePath().toString());
+        buildLogs.clear(key);
+
+        McpServerRecord record = records.get(key);
+        boolean existing = record != null;
+        if (!existing) {
+            record = new McpServerRecord();
+            record.setOutputDirectory(key);
+            record.setConnectionId(connectionId);
+            record.setArtifactType(McpArtifactType.JAR);
+        }
+        record.setDefinition(definition.clone());
+        record.setStatus(McpServerStatus.BUILDING);
+
+        McpServerRecord building = record;
+        records.put(key, building);
+        ProjectEvents.notify(getProject(), McpServerRegistryListener.TOPIC, listener -> {
+            if (existing) {
+                listener.recordUpdated(building);
+            } else {
+                listener.recordAdded(building);
+            }
+        });
+        return building;
     }
 
     public static McpServerRegistry getInstance(@NotNull Project project) {

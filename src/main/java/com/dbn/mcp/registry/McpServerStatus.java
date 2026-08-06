@@ -17,6 +17,8 @@
 package com.dbn.mcp.registry;
 
 public enum McpServerStatus {
+    /** A build is running now; its output is streaming into the dashboard. */
+    BUILDING,
     BUILT,
     DEPLOYED,
     /** The last build did not produce an artifact; its output is kept for diagnosis. */

@@ -215,10 +215,18 @@ public class McpBuildTask {
                 indicator -> {
             indicator.setIndeterminate(true);
             Path outputDirectory = result.getOutputDirectory();
+            String recordKey = outputDirectory.toAbsolutePath().normalize().toString();
+            McpServerRegistry registry = McpServerRegistry.getInstance(project);
+
             // the build output is the only account of what happened, so it is collected for both
             // outcomes and written beside the generated server rather than kept in memory
             StringBuilder buildOutput = new StringBuilder();
             long startTime = System.currentTimeMillis();
+
+            // publish the server as building before any output exists, so the dashboard can be
+            // opened on it and show the build as it runs
+            registry.registerBuildStarted(connection.getConnectionId(), definition, outputDirectory);
+            registry.showDashboard(recordKey);
             try {
                 indicator.setText2(txt("prc.mcp.text.PreparingProject"));
                 Path sourceDirectory = outputDirectory.resolve(McpDistPaths.SOURCE_PROJECT).toAbsolutePath().normalize();
@@ -231,7 +239,10 @@ public class McpBuildTask {
                         generator,
                         sourceDirectory,
                         indicator,
-                        line -> buildOutput.append(line).append('\n'));
+                        line -> {
+                            buildOutput.append(line).append('\n');
+                            registry.getBuildLogs().append(recordKey, line);
+                        });
                 indicator.setText2(txt("prc.mcp.text.FinalizingOutput"));
                 if (definition.getImplementation().isContainer()) {
                     result.setImageName(definition.getServerName() + ":latest");
@@ -254,8 +265,10 @@ public class McpBuildTask {
                 readmeWriter.write(outputDirectory);
                 indicator.setText2(txt("prc.mcp.text.Done"));
                 writeBuildLog(outputDirectory, buildOutput);
+                registry.getBuildLogs().release(recordKey);
                 showResult(System.currentTimeMillis() - startTime);
             } catch (ProcessCanceledException e) {
+                registry.getBuildLogs().release(recordKey);
                 throw e;
             } catch (Throwable e) {
                 conditionallyLog(e);
@@ -266,7 +279,8 @@ public class McpBuildTask {
 
                 buildOutput.append('\n').append(message).append('\n').append(e);
                 writeBuildLog(outputDirectory, buildOutput);
-                McpServerRegistry.getInstance(project).registerFailedBuild(
+                registry.getBuildLogs().release(recordKey);
+                registry.registerFailedBuild(
                         connection.getConnectionId(), definition, outputDirectory,
                         System.currentTimeMillis() - startTime);
 
