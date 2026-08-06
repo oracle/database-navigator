@@ -21,9 +21,10 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.Hyperlinks;
+import com.dbn.common.ui.util.Fonts;
+import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.mcp.build.McpClientConfiguration;
 import com.dbn.mcp.build.McpRunCommands;
@@ -31,8 +32,7 @@ import com.dbn.mcp.registry.McpServerRecord;
 import com.dbn.mcp.registry.McpServerStatus;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.actions.RevealFileAction;
-import com.intellij.openapi.actionSystem.ActionGroup;
-import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.util.io.FileUtil;
@@ -73,8 +73,11 @@ public class McpServerDetailsForm extends DBNFormBase {
     private JPanel clientPanel;
     private JPanel hintsPanel;
     private JTabbedPane tabbedPane;
+    private JPanel headerActionsPanel;
     private JPanel imageRowPanel;
     private JPanel endpointRowPanel;
+    private JLabel iconLabel;
+    private JLabel nameLabel;
     private JLabel subtitleLabel;
     private JLabel statusLabel;
     private JLabel statusValueLabel;
@@ -123,12 +126,13 @@ public class McpServerDetailsForm extends DBNFormBase {
     }
 
     private void initHeader() {
-        DBNHeaderForm header = new DBNHeaderForm(this, record.getServerName(),
-                McpServerPresentation.icon(record.getImplementation()));
+        iconLabel.setIcon(McpServerPresentation.icon(record.getImplementation()));
+        nameLabel.setText(record.getServerName());
+        nameLabel.setFont(Fonts.regularBold(1));
 
-        ActionGroup actionGroup = (ActionGroup) ActionManager.getInstance().getAction("DBN.ActionGroup.McpServerDashboard");
-        if (actionGroup != null) header.setActions(actionGroup);
-        headerPanel.add(header.getComponent(), BorderLayout.CENTER);
+        ActionToolbar actionToolbar = Actions.createActionToolbar(
+                headerActionsPanel, true, "DBN.ActionGroup.McpServerDashboard");
+        headerActionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
     }
 
     /** Identity metadata directly under the name: where it came from and what it is. */
@@ -138,11 +142,7 @@ public class McpServerDetailsForm extends DBNFormBase {
         // the connection icon identifies the source database (and its state) at a glance,
         // where the header icon identifies the built artifact
         ConnectionHandler connection = ConnectionHandler.get(record.getConnectionId());
-        if (connection != null) {
-            subtitleLabel.setIcon(connection.getIcon());
-            subtitleLabel.setIconTextGap(6);
-            subtitle.append(connection.getName()).append(" · ");
-        }
+        if (connection != null) subtitle.append(connection.getName()).append(" · ");
 
         subtitle.append(McpServerPresentation.implementationName(record.getImplementation()))
                 .append(" · ")
