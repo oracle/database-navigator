@@ -17,21 +17,34 @@
         </properties>
         <border type="none"/>
         <children>
-          <scrollpane id="servers-scroll" class="com.dbn.common.ui.misc.DBNScrollPane">
+          <grid id="servers-pane" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>
               <splitpane position="left"/>
             </constraints>
             <properties/>
             <border type="none"/>
             <children>
-              <component id="servers" class="com.intellij.ui.components.JBList" binding="serversList">
-                <constraints/>
-                <properties>
-                  <selectionMode value="0"/>
-                </properties>
-              </component>
+              <grid id="list-actions" binding="actionsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+                <constraints border-constraint="North"/>
+                <properties/>
+                <border type="none"/>
+                <children/>
+              </grid>
+              <scrollpane id="servers-scroll" class="com.dbn.common.ui.misc.DBNScrollPane">
+                <constraints border-constraint="Center"/>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="servers" class="com.intellij.ui.components.JBList" binding="serversList">
+                    <constraints/>
+                    <properties>
+                      <selectionMode value="0"/>
+                    </properties>
+                  </component>
+                </children>
+              </scrollpane>
             </children>
-          </scrollpane>
+          </grid>
           <grid id="details" binding="detailsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>
               <splitpane position="right"/>

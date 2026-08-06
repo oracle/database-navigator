@@ -25,6 +25,8 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.util.Splitters;
 import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Actions;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.dbn.mcp.registry.McpServerRecord;
 import com.dbn.mcp.registry.McpServerRegistry;
 import com.dbn.mcp.registry.McpServerRegistryListener;
@@ -39,6 +41,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +52,7 @@ import static com.dbn.nls.NlsResources.txt;
 public class McpServersForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel detailsPanel;
+    private JPanel actionsPanel;
     private JList<McpServerRecord> serversList;
     private JSplitPane splitPane;
 
@@ -73,6 +77,10 @@ public class McpServersForm extends DBNFormBase {
         });
         markBorderless(serversList);
         Splitters.setSplitPaneProportion(splitPane, 0.25);
+
+        // list-scoped actions (refresh) belong to the list, not to the selected server
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.ActionGroup.McpServers");
+        actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
 
         ProjectEvents.subscribe(project, this, McpServerRegistryListener.TOPIC, registryListener());
         rebuildModel();
@@ -166,15 +174,15 @@ public class McpServersForm extends DBNFormBase {
             setIcon(McpServerPresentation.icon(value.getImplementation()));
             append(value.getServerName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
             append("  " + McpServerPresentation.implementationName(value.getImplementation()),
-                    SimpleTextAttributes.GRAYED_ATTRIBUTES);
-            append("  " + McpServerPresentation.statusName(value.getStatus()), statusAttributes(value.getStatus()));
-        }
+                    SimpleTextAttributes.GRAYED_SMALL_ATTRIBUTES);
 
-        private static SimpleTextAttributes statusAttributes(McpServerStatus status) {
-            return status == McpServerStatus.BUILT ?
-                    SimpleTextAttributes.GRAYED_SMALL_ATTRIBUTES :
+            // the plain built state is the norm and stays implicit - only states that need
+            // attention (deployed, stale) are called out, and only those carry a color
+            McpServerStatus status = value.getStatus();
+            if (status == McpServerStatus.BUILT) return;
+            append("  " + McpServerPresentation.statusName(status),
                     new SimpleTextAttributes(SimpleTextAttributes.STYLE_SMALLER,
-                            McpServerPresentation.statusColor(status));
+                            McpServerPresentation.statusColor(status)));
         }
     }
 }

@@ -922,11 +922,15 @@
             <action id="DBN.BatchMonitor.Cancel" class="com.dbn.batch.actions.BatchMonitorStopAction"/>
         </group>
 
+        <!-- actions on the selected server, shown in the details header -->
         <group id="DBN.ActionGroup.McpServerDashboard">
             <action id="DBN.McpServerDashboard.Edit" class="com.dbn.mcp.action.McpServerEditAction"/>
             <action id="DBN.McpServerDashboard.Delete" class="com.dbn.mcp.action.McpServerDeleteAction"/>
-            <separator/>
-            <action id="DBN.McpServerDashboard.Refresh" class="com.dbn.mcp.action.McpServersRefreshAction"/>
+        </group>
+
+        <!-- actions on the server list as a whole, shown in the list toolbar -->
+        <group id="DBN.ActionGroup.McpServers">
+            <action id="DBN.McpServers.Refresh" class="com.dbn.mcp.action.McpServersRefreshAction"/>
         </group>
 
         <group id="DBN.Event.Registration">
