@@ -24,7 +24,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <grid id="list-header" layout-manager="BorderLayout" hgap="0" vgap="0">
+              <grid id="list-header" binding="listHeaderPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
                 <constraints border-constraint="North"/>
                 <properties/>
                 <border type="none"/>

@@ -27,7 +27,6 @@ import com.dbn.common.ui.link.Hyperlinks;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.mcp.build.McpClientConfiguration;
 import com.dbn.mcp.build.McpRunCommands;
-import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.registry.McpServerRecord;
 import com.dbn.mcp.registry.McpServerStatus;
 import com.intellij.icons.AllIcons;
@@ -74,14 +73,11 @@ public class McpServerDetailsForm extends DBNFormBase {
     private JPanel clientPanel;
     private JPanel hintsPanel;
     private JTabbedPane tabbedPane;
+    private JPanel imageRowPanel;
+    private JPanel endpointRowPanel;
     private JLabel subtitleLabel;
-    private JLabel descriptionLabel;
     private JLabel statusLabel;
     private JLabel statusValueLabel;
-    private JLabel implLabel;
-    private JLabel implValueLabel;
-    private JLabel transportLabel;
-    private JLabel transportValueLabel;
     private JLabel imageLabel;
     private JLabel imageValueLabel;
     private JLabel folderLabel;
@@ -116,9 +112,8 @@ public class McpServerDetailsForm extends DBNFormBase {
 
         initHeader();
         initSubtitle();
-        initDescription();
         initHints();
-        initStatusRows();
+        initStatusRow();
         initImageRow();
         initEndpointRow();
         initFolderRow();
@@ -157,18 +152,6 @@ public class McpServerDetailsForm extends DBNFormBase {
         subtitleLabel.setForeground(JBColor.GRAY);
     }
 
-    private void initDescription() {
-        McpServerImplementation implementation = record.getImplementation();
-        String description =
-                implementation.isContainer() ? txt("msg.mcp.text.ServerDescriptionContainer") :
-                implementation.isNative() ? txt("msg.mcp.text.ServerDescriptionNative") :
-                txt("msg.mcp.text.ServerDescriptionJar");
-
-        descriptionLabel.setText("<html>" + description + "</html>");
-        descriptionLabel.setForeground(JBColor.GRAY);
-        descriptionLabel.setBorder(JBUI.Borders.emptyTop(8));
-    }
-
     /** Hints are reserved for actionable conditions - never for plain information. */
     private void initHints() {
         boolean stale = record.getStatus() == McpServerStatus.STALE;
@@ -192,7 +175,7 @@ public class McpServerDetailsForm extends DBNFormBase {
     private void initImageRow() {
         String imageName = record.getImageName();
         if (!record.getImplementation().isContainer() || imageName == null) {
-            setRowVisible(false, imageLabel, imageValueLabel, imageCopyButton);
+            setRowVisible(false, imageLabel, imageRowPanel);
             return;
         }
 
@@ -203,8 +186,7 @@ public class McpServerDetailsForm extends DBNFormBase {
                 txt("app.mcp.button.CopyToClipboard"), () -> copyToClipboard(imageName));
     }
 
-    /** The facts that were previously only implied by the subtitle, stated as first-class rows. */
-    private void initStatusRows() {
+    private void initStatusRow() {
         McpServerStatus status = record.getStatus();
         statusLabel.setText(txt("msg.mcp.text.Status"));
         statusValueLabel.setText(McpServerPresentation.statusName(status));
@@ -213,12 +195,6 @@ public class McpServerDetailsForm extends DBNFormBase {
         if (status != McpServerStatus.BUILT) {
             statusValueLabel.setForeground(McpServerPresentation.statusColor(status));
         }
-
-        implLabel.setText(txt("msg.mcp.text.Implementation"));
-        implValueLabel.setText(McpServerPresentation.implementationName(record.getImplementation()));
-
-        transportLabel.setText(txt("msg.mcp.text.Transport"));
-        transportValueLabel.setText(String.valueOf(record.getTransportType()));
     }
 
     /**
@@ -232,7 +208,7 @@ public class McpServerDetailsForm extends DBNFormBase {
                 null;
 
         if (endpoint == null) {
-            setRowVisible(false, endpointLabel, endpointLink, endpointCopyButton);
+            setRowVisible(false, endpointLabel, endpointRowPanel);
             return;
         }
 

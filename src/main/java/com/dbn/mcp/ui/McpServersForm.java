@@ -34,6 +34,7 @@ import com.dbn.mcp.registry.McpServerStatus;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
+import com.intellij.util.ui.JBUI;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -55,6 +56,7 @@ public class McpServersForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel detailsPanel;
     private JPanel actionsPanel;
+    private JPanel listHeaderPanel;
     private JLabel listTitleLabel;
     private JList<McpServerRecord> serversList;
     private JSplitPane splitPane;
@@ -79,8 +81,10 @@ public class McpServersForm extends DBNFormBase {
             if (!e.getValueIsAdjusting()) showDetails(serversList.getSelectedValue());
         });
         markBorderless(serversList);
-        Splitters.setSplitPaneProportion(splitPane, 0.2);
+        Splitters.setSplitPaneProportion(splitPane, 0.18);
         listTitleLabel.setForeground(JBColor.GRAY);
+        // a hairline under the list header, as IntelliJ toolbars carry
+        listHeaderPanel.setBorder(JBUI.Borders.customLineBottom(JBColor.border()));
 
         // list-scoped actions (refresh) belong to the list, not to the selected server
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.ActionGroup.McpServers");
