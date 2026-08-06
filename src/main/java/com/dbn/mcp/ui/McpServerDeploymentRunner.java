@@ -26,17 +26,17 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Launches one deployment step outside the deployment dialog, so its output is visible in the
- * dashboard while it runs rather than hidden behind a modal.
+ * Launches deployment outside the deployment dialog, so its output is visible in the dashboard
+ * while it runs rather than hidden behind a modal.
  */
 @UtilityClass
 final class McpServerDeploymentRunner {
 
-    static void run(
+    static void deployFrom(
             @NotNull Project project,
             @NotNull ConnectionRef connection,
             @NotNull McpServerRecord record,
-            @NotNull McpDeploymentStep step,
+            @NotNull McpDeploymentStep from,
             @NotNull McpGraalDeploymentInput input) {
 
         McpGraalDeployTask task = new McpGraalDeployTask(
@@ -49,9 +49,6 @@ final class McpServerDeploymentRunner {
                 record.getOutputDirectory(),
                 () -> {});                      // no dialog actions to re-enable
 
-        switch (step) {
-            case BUILD_IMAGE, PUSH_IMAGE -> task.runImageStep(step, input);
-            case CREATE_APPLICATION -> task.createApplication(input);
-        }
+        task.deployFrom(from, input);
     }
 }

@@ -32,14 +32,14 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
-/** Runs a single deployment step for a dashboard record, or collects what it still needs. */
+/** Deploys a dashboard record from a given step on, or collects what deploying still needs. */
 @UtilityClass
 final class McpServerDeploymentActions {
 
-    static void run(
+    static void deploy(
             @NotNull Project project,
             @NotNull McpServerRecord record,
-            @NotNull McpDeploymentStep step,
+            @NotNull McpDeploymentStep from,
             @Nullable String imageOcid) {
         ConnectionHandler connection = ConnectionHandler.get(record.getConnectionId());
         if (connection == null) {
@@ -54,7 +54,7 @@ final class McpServerDeploymentActions {
             openRegistrySettings(project, record);
             return;
         }
-        McpServerDeploymentRunner.run(project, ConnectionRef.of(connection), record, step, input);
+        McpServerDeploymentRunner.deployFrom(project, ConnectionRef.of(connection), record, from, input);
     }
 
     /** Opens the deployment dialog purely to capture the target registry coordinates. */

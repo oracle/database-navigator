@@ -16,6 +16,7 @@
 
 package com.dbn.mcp.deploy;
 
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
@@ -74,42 +75,46 @@ public class McpGraalDeployTask {
     /** Re-enables the deployment dialog actions after a backgroundable operation finishes. */
     private final Runnable operationFinishedHandler;
 
-    public void buildAndPushImage(@NotNull McpGraalDeploymentInput input) {
-        runImageStep(input, null, txt("prc.mcp.text.BuildingGraalImage"));
-    }
-
-    /** Runs one image step on its own, so a long build need not be repeated to retry a push. */
-    public void runImageStep(@NotNull McpDeploymentStep step, @NotNull McpGraalDeploymentInput input) {
-        runImageStep(input, step, step.getTitle());
-    }
-
-    private void runImageStep(
-            @NotNull McpGraalDeploymentInput input,
-            @Nullable McpDeploymentStep step,
-            String progressText) {
+    /**
+     * Runs the remaining deployment steps in order, starting at the given one. Resuming rather
+     * than restarting is what keeps a failed push from rebuilding an image that already exists.
+     */
+    public void deployFrom(@NotNull McpDeploymentStep first, @NotNull McpGraalDeploymentInput input) {
+        if (first == McpDeploymentStep.CREATE_APPLICATION) {
+            createApplication(input);
+            return;
+        }
         if (!verifyDeployable()) {
             operationFinishedHandler.run();
             return;
         }
 
         Path sourceProjectDir = result.getSourceDirectory();
+        // null runs both image steps; resuming at the push keeps the existing image
+        McpDeploymentStep imageStep = first == McpDeploymentStep.PUSH_IMAGE ? first : null;
         Progress.background(project, null, true,
-                txt("prc.mcp.title.DeployingToGraal"), progressText,
+                txt("prc.mcp.title.DeployingToGraal"), first.getTitle(),
                 indicator -> {
+            String ocid;
             try {
-                publishImage(sourceProjectDir, input, indicator, step);
+                ocid = publishImage(sourceProjectDir, input, indicator, imageStep);
             } finally {
                 operationFinishedHandler.run();
             }
+            if (ocid == null) return;
+
+            // the create step needs a database connection, so it runs through its own path
+            Dispatch.run(() -> createApplication(input.withContainerImageOcid(ocid)));
         });
     }
 
-    private void publishImage(
+    private @Nullable String publishImage(
             Path sourceProjectDir,
             McpGraalDeploymentInput input,
             ProgressIndicator indicator,
             @Nullable McpDeploymentStep step) {
         StringBuilder output = new StringBuilder();
+        String resolvedOcid = null;
         try {
             McpGraalImagePublisher publisher = new McpGraalImagePublisher();
             Consumer<String> outputHandler = line -> appendOutput(output, line);
@@ -121,7 +126,7 @@ public class McpGraalDeployTask {
             if (step == null || step == McpDeploymentStep.PUSH_IMAGE) {
                 publisher.pushImage(sourceProjectDir, input, indicator, outputHandler);
                 recordStep(McpDeploymentStep.PUSH_IMAGE, input);
-                resolveImageOcid(input, indicator, output);
+                resolvedOcid = resolveImageOcid(input, indicator, output);
             }
         } catch (ProcessCanceledException e) {
             throw e;
@@ -133,6 +138,7 @@ public class McpGraalDeployTask {
         } finally {
             persistOutput(output);
         }
+        return resolvedOcid;
     }
 
     /**
@@ -140,7 +146,7 @@ public class McpGraalDeployTask {
      * A lookup failure is not fatal - the image is already published, so the user can still paste
      * the OCID from the OCI console and continue.
      */
-    private void resolveImageOcid(
+    private @Nullable String resolveImageOcid(
             McpGraalDeploymentInput input,
             ProgressIndicator indicator,
             StringBuilder output) {
@@ -150,21 +156,19 @@ public class McpGraalDeployTask {
         try {
             String ocid = new McpOciImageResolver().resolveImageOcid(input);
             if (ocid == null) {
-                showInfoDialog(project, txt("msg.mcp.title.GraalDeployment"),
-                        txt("msg.mcp.text.GraalImagePushed", imageName));
-                return;
+                appendOutput(output, "[SYSTEM] " + txt("msg.mcp.text.GraalImagePushed", imageName));
+                return null;
             }
-
             resolvedOcidHandler.accept(ocid);
-            showInfoDialog(project, txt("msg.mcp.title.GraalDeployment"),
-                    txt("msg.mcp.text.GraalImagePushedWithOcid", imageName, ocid));
+            appendOutput(output, "[SYSTEM] " + txt("msg.mcp.text.GraalImagePushedWithOcid", imageName, ocid));
+            return ocid;
         } catch (ProcessCanceledException e) {
             throw e;
         } catch (Throwable e) {
             conditionallyLog(e);
-            // fall back to the manual path rather than failing an otherwise successful push
-            showInfoDialog(project, txt("msg.mcp.title.GraalDeployment"),
-                    txt("msg.mcp.text.GraalImagePushedOcidUnresolved", imageName));
+            // the image is published either way, so the identifier can still be supplied by hand
+            appendOutput(output, "[SYSTEM] " + txt("msg.mcp.text.GraalImagePushedOcidUnresolved", imageName));
+            return null;
         }
     }
 

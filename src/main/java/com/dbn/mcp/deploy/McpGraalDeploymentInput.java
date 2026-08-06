@@ -43,6 +43,12 @@ public final class McpGraalDeploymentInput {
     private final String tag;
     private final String containerImageOcid;
 
+    /** The same target, identified by the image the push produced. */
+    public McpGraalDeploymentInput withContainerImageOcid(String containerImageOcid) {
+        return new McpGraalDeploymentInput(
+                applicationName, regionKey, namespace, repository, tag, containerImageOcid);
+    }
+
     /** Fully qualified OCIR image reference: {@code <region-key>.ocir.io/<namespace>/<repository>:<tag>}. */
     public @NonNls String getFullImageName() {
         return regionKey + OCIR_HOST_SUFFIX + "/" + namespace + "/" + repository + ":" + tag;
