@@ -54,7 +54,6 @@ public class MLTrainingContext {
     private long trainingStartTime;
 
     /** Scheduler job name for async training submissions. */
-    private String schedulerJobName;
 
     /** Target model name generated for async training submissions. */
     private String modelName;

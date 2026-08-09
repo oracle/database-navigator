@@ -428,30 +428,20 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      */
     String getModelFunction(DBNConnection conn, String modelName) throws SQLException;
 
-    // ==================== ASYNC TRAINING (DBMS_SCHEDULER) ====================
+    // ==================== ASYNC TRAINING ====================
 
     /**
-     * Submits a CREATE_MODEL call as a DBMS_SCHEDULER job so training
-     * continues on the DB server even after the client disconnects.
+     * Renders the model training PL/SQL block to be submitted as a scheduler job action.
+     * The statement is rendered, not executed - training is scheduled through
+     * {@link com.dbn.scheduler.DatabaseSchedulerManager}, which runs it on the database server.
      *
-     * @param jobName   Unique scheduler job name (max 30 chars)
-     * @param jobAction PL/SQL anonymous block: "BEGIN DBMS_DATA_MINING.CREATE_MODEL(...); END;"
+     * @param miningFunction the DBMS_DATA_MINING mining function constant name (e.g. CLASSIFICATION)
      */
-    void submitTrainingJob(DBNConnection conn, String jobName, String jobAction) throws SQLException;
-
-    /**
-     * Returns the STATE of a scheduler job: SCHEDULED, RUNNING, SUCCEEDED, FAILED, or null if not found.
-     */
-    String getSchedulerJobState(DBNConnection conn, String jobName) throws SQLException;
-
-    /**
-     * Returns the final run STATUS from USER_SCHEDULER_JOB_RUN_DETAILS: SUCCEEDED or FAILED.
-     * Returns null if the job has not run yet or the log entry is unavailable.
-     */
-    String getSchedulerJobRunStatus(DBNConnection conn, String jobName) throws SQLException;
-
-    /**
-     * Drops a completed DBMS_SCHEDULER job to clean up the job registry.
-     */
-    void dropSchedulerJob(DBNConnection conn, String jobName) throws SQLException;
+    String buildCreateModelAction(
+            DBNConnection conn,
+            String modelName,
+            String miningFunction,
+            String trainTableName,
+            String targetColumn,
+            String settingsTableName) throws SQLException;
 }

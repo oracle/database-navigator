@@ -21,9 +21,12 @@ import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.outcome.OutcomeHandler;
+import com.dbn.common.outcome.OutcomeHandlers;
+import com.dbn.common.outcome.OutcomeHandlersImpl;
+import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.thread.Threads;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Naming;
@@ -38,10 +41,13 @@ import com.dbn.ml.model.MLResult;
 import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.ml.result.MLExecutionResult;
 import com.dbn.ml.ui.MLToolboxDialog;
+import com.dbn.scheduler.DatabaseSchedulerManager;
+import com.dbn.scheduler.model.SchedulerJob;
+import com.dbn.scheduler.model.SchedulerJobCancellationPolicy;
+import com.dbn.scheduler.model.SchedulerJobCompletionPolicy;
+import com.dbn.scheduler.model.SchedulerJobMonitor;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
@@ -140,15 +146,22 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                 progress -> {
                     try {
                         MLPipelineExecutor executor = new MLPipelineExecutor();
-                        MLTrainingJobSubmission submission = executor.submitAsync(requestSnapshot, connection);
+                        MLTrainingJobSubmission submission = executor.prepareTrainingJob(requestSnapshot, connection);
                         String modelName = submission.getModelName();
-                        log.info("Training job submitted for model: {}", modelName);
+
+                        DatabaseSchedulerManager schedulerManager = DatabaseSchedulerManager.getInstance(getProject());
+                        SchedulerJob job = schedulerManager.submitJob(connection, submission.getJobRequest());
+                        log.info("Training job {} submitted for model: {}", job.getName(), modelName);
+
                         Dispatch.run(() -> Messages.showInfoDialog(
                                 getProject(),
                                 txt("msg.machineLearning.title.TrainingJobSubmitted"),
                                 txt("msg.machineLearning.info.TrainingJobSubmitted", modelName)
                         ));
-                        monitorTrainingJob(executor, submission, connection);
+
+                        schedulerManager.monitorJob(job,
+                                createTrainingJobMonitor(modelName),
+                                createTrainingOutcomeHandlers(executor, submission, connection));
                     } catch (Exception e) {
                         log.warn("Failed to submit training job", e);
                         Dispatch.run(() -> Messages.showErrorDialog(
@@ -160,117 +173,63 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                 });
     }
 
-    private void monitorTrainingJob(
+    @NotNull
+    private SchedulerJobMonitor createTrainingJobMonitor(String modelName) {
+        return new SchedulerJobMonitor(
+                txt("prc.machineLearning.title.MonitoringTrainingJob"),
+                txt("prc.machineLearning.text.MonitoringTrainingJob", modelName),
+                snapshot -> txt("prc.machineLearning.text.TrainingJobStatus", modelName, snapshot.getStatus().getName()),
+                JOB_POLL_INTERVAL_MILLIS,
+                JOB_POLL_TIMEOUT_MILLIS,
+                SchedulerJobCompletionPolicy.DROP,
+                // cancelling the monitor must not abort training - it continues on the database server
+                SchedulerJobCancellationPolicy.DETACH);
+    }
+
+    @NotNull
+    private OutcomeHandlers createTrainingOutcomeHandlers(
             MLPipelineExecutor executor,
             MLTrainingJobSubmission submission,
             ConnectionHandler connection) {
 
         String modelName = submission.getModelName();
-        String jobName = submission.getJobName();
-
-        Progress.background(
-                getProject(),
-                connection,
-                true,
-                txt("prc.machineLearning.title.MonitoringTrainingJob"),
-                txt("prc.machineLearning.text.MonitoringTrainingJob", modelName),
-                progress -> {
-                    boolean cancelled = false;
-                    try {
-                        waitForTrainingCompletion(executor, connection, jobName, progress);
-                        MLResult result = executor.completeAsync(submission, connection);
-                        Dispatch.run(() -> {
-                            showResultInExecutionManager(result);
-                            Messages.showInfoDialog(
-                                    getProject(),
-                                    txt("msg.machineLearning.title.TrainingCompleted"),
-                                    txt("msg.machineLearning.info.TrainingCompleted", modelName)
-                            );
-                        });
-                    } catch (ProcessCanceledException e) {
-                        cancelled = true;
-                        log.info("Training monitor cancelled for model: {}", modelName);
-                    } catch (Exception e) {
-                        log.warn("Async training monitor failed for model {}", modelName, e);
-                        Dispatch.run(() -> Messages.showErrorDialog(
-                                getProject(),
-                                txt("msg.machineLearning.title.TrainingMonitoringFailed"),
-                                txt("msg.machineLearning.error.TrainingMonitoringFailed", modelName, e.getMessage())
-                        ));
-                    } finally {
-                        if (!cancelled) {
-                            dropSchedulerJobQuietly(executor, connection, jobName);
-                        }
-                    }
-                });
+        OutcomeHandlers outcomeHandlers = new OutcomeHandlersImpl();
+        outcomeHandlers.addHandler(OutcomeType.SUCCESS,
+                (OutcomeHandler.HighPriority) outcome -> completeTrainingJob(executor, submission, connection));
+        outcomeHandlers.addHandler(OutcomeType.FAILURE, (OutcomeHandler.HighPriority) outcome -> {
+            log.warn("Async training monitor failed for model {}", modelName, outcome.getException());
+            Dispatch.run(() -> Messages.showErrorDialog(
+                    getProject(),
+                    txt("msg.machineLearning.title.TrainingMonitoringFailed"),
+                    txt("msg.machineLearning.error.TrainingMonitoringFailed", modelName, outcome.getMessage())
+            ));
+        });
+        return outcomeHandlers;
     }
 
-    private void waitForTrainingCompletion(
+    private void completeTrainingJob(
             MLPipelineExecutor executor,
-            ConnectionHandler connection,
-            String jobName,
-            ProgressIndicator progress) throws Exception {
+            MLTrainingJobSubmission submission,
+            ConnectionHandler connection) {
 
-        if (jobName == null || jobName.isBlank()) {
-            throw new IllegalStateException("Missing scheduler job name for async training");
-        }
-
-        long startTime = System.currentTimeMillis();
-        while (true) {
-            progress.checkCanceled();
-
-            String state = normalizeStatus(executor.getSchedulerJobState(connection, jobName));
-            String runStatus = normalizeStatus(executor.getSchedulerJobRunStatus(connection, jobName));
-            String statusText = statusText(state, runStatus);
-
-            progress.setText(txt("prc.machineLearning.text.TrainingJobStatus", jobName, statusText));
-
-            if (isJobSucceeded(state, runStatus)) {
-                return;
-            }
-            if (isJobFailed(state, runStatus)) {
-                throw new IllegalStateException("Scheduler job failed with status: " + statusText);
-            }
-
-            if (System.currentTimeMillis() - startTime > JOB_POLL_TIMEOUT_MILLIS) {
-                throw new IllegalStateException("Timed out while waiting for scheduler job completion");
-            }
-
-            Threads.sleep(JOB_POLL_INTERVAL_MILLIS);
-        }
-    }
-
-    private static String normalizeStatus(String value) {
-        return value == null ? null : value.trim().toUpperCase();
-    }
-
-    private static String statusText(String state, String runStatus) {
-        if (runStatus != null && !runStatus.isEmpty()) return runStatus;
-        if (state != null && !state.isEmpty()) return state;
-        return "PENDING";
-    }
-
-    private static boolean isJobSucceeded(String state, String runStatus) {
-        return "SUCCEEDED".equals(runStatus) || "SUCCEEDED".equals(state);
-    }
-
-    private static boolean isJobFailed(String state, String runStatus) {
-        return "FAILED".equals(runStatus)
-                || "FAILED".equals(state)
-                || "BROKEN".equals(state)
-                || "STOPPED".equals(state);
-    }
-
-    private void dropSchedulerJobQuietly(
-            MLPipelineExecutor executor,
-            ConnectionHandler connection,
-            String jobName) {
-
-        if (jobName == null || jobName.isBlank()) return;
+        String modelName = submission.getModelName();
         try {
-            executor.dropSchedulerJob(connection, jobName);
+            MLResult result = executor.completeAsync(submission, connection);
+            Dispatch.run(() -> {
+                showResultInExecutionManager(result);
+                Messages.showInfoDialog(
+                        getProject(),
+                        txt("msg.machineLearning.title.TrainingCompleted"),
+                        txt("msg.machineLearning.info.TrainingCompleted", modelName)
+                );
+            });
         } catch (Exception e) {
-            log.debug("Could not drop scheduler job {}", jobName, e);
+            log.warn("Failed to finalize training result for model {}", modelName, e);
+            Dispatch.run(() -> Messages.showErrorDialog(
+                    getProject(),
+                    txt("msg.machineLearning.title.TrainingMonitoringFailed"),
+                    txt("msg.machineLearning.error.TrainingMonitoringFailed", modelName, e.getMessage())
+            ));
         }
     }
 

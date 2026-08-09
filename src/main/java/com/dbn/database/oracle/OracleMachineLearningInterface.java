@@ -429,34 +429,18 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
         }
     }
 
-    // ==================== ASYNC TRAINING (DBMS_SCHEDULER) ====================
+    // ==================== ASYNC TRAINING ====================
 
     @Override
-    public void submitTrainingJob(DBNConnection conn, String jobName, String jobAction) throws SQLException {
-        log.debug("Submitting training job: {}", jobName);
-        executeUpdate(conn, "submit-training-job", jobName, jobAction);
-    }
-
-    @Override
-    public String getSchedulerJobState(DBNConnection conn, String jobName) throws SQLException {
-        try (ResultSet rs = executeQuery(conn, "get-scheduler-job-state", jobName)) {
-            if (rs.next()) return rs.getString("STATE");
-            return null;
-        }
-    }
-
-    @Override
-    public String getSchedulerJobRunStatus(DBNConnection conn, String jobName) throws SQLException {
-        try (ResultSet rs = executeQuery(conn, "get-scheduler-job-run-status", jobName)) {
-            if (rs.next()) return rs.getString("STATUS");
-            return null;
-        }
-    }
-
-    @Override
-    public void dropSchedulerJob(DBNConnection conn, String jobName) throws SQLException {
-        log.debug("Dropping scheduler job: {}", jobName);
-        executeUpdate(conn, "drop-scheduler-job", jobName);
+    public String buildCreateModelAction(
+            DBNConnection conn,
+            String modelName,
+            String miningFunction,
+            String trainTableName,
+            String targetColumn,
+            String settingsTableName) throws SQLException {
+        return renderStatementText(conn, "create-model-job-action",
+                modelName, miningFunction, trainTableName, targetColumn, settingsTableName);
     }
 
     // ==================== HELPER METHODS ====================

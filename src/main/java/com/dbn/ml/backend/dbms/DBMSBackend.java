@@ -30,6 +30,7 @@ import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.ml.model.source.MLSourceType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
+import com.dbn.scheduler.model.SchedulerJobRequest;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,6 +61,7 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @Slf4j
 public class DBMSBackend {
+    private static final String JOB_NAME_PREFIX = "ML";
 
     private final ConnectionHandler connection;
     private final DBMSDataManager dataManager;
@@ -72,13 +74,13 @@ public class DBMSBackend {
     }
 
     /**
-     * Prepares training data and submits CREATE_MODEL as a DBMS_SCHEDULER job.
-     * Returns immediately — Oracle trains the model server-side.
+     * Prepares the training data (staging, train/test split, settings table) and renders the
+     * CREATE_MODEL action to be scheduled through {@link com.dbn.scheduler.DatabaseSchedulerManager}.
      *
-     * @return the model name that will be created by Oracle
+     * @return the scheduler job request carrying the rendered training action
      */
-    public String submitAsync(MLTrainingContext context) throws Exception {
-        log.info("Submitting async training job for task: {}", context.getTaskType());
+    public SchedulerJobRequest prepareTrainingJob(MLTrainingContext context) throws Exception {
+        log.info("Preparing async training job for task: {}", context.getTaskType());
         context.setTrainingStartTime(System.currentTimeMillis());
 
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -103,52 +105,19 @@ public class DBMSBackend {
             }
         }
 
-        // Build scheduler job name and PL/SQL action
-        String jobName = "ML_JOB_" + timestamp;
-        String jobAction = "BEGIN DBMS_DATA_MINING.CREATE_MODEL(" +
-                "model_name=>'" + modelName + "'," +
-                "mining_function=>DBMS_DATA_MINING." + miningFunction + "," +
-                "data_table_name=>'" + trainTableName + "'," +
-                "case_id_column_name=>'CASE_ID'," +
-                "target_column_name=>'" + targetColumn + "'," +
-                "settings_table_name=>'" + settingsTableName + "'" +
-                "); END;";
-
-        // Submit the scheduler job — returns immediately
-        DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                txt("prc.machineLearning.title.SubmittingTrainingJob"),
-                txt("prc.machineLearning.text.SubmittingTrainingJob", modelName),
+        // render the training action from the ML statement definitions (never assembled in java)
+        String jobAction = DatabaseInterfaceInvoker.load(Priority.HIGH,
                 getProject(),
                 connection.getConnectionId(),
-                conn -> connection.getInterfaces().getMachineLearningInterface().submitTrainingJob(conn, jobName, jobAction));
+                conn -> connection.getInterfaces().getMachineLearningInterface().buildCreateModelAction(
+                        conn, modelName, miningFunction, trainTableName, targetColumn, settingsTableName));
 
-        context.setSchedulerJobName(jobName);
         context.setModelName(modelName);
 
-        log.info("Training job {} submitted for model: {}", jobName, modelName);
-        return modelName;
+        log.info("Training job action prepared for model: {}", modelName);
+        return new SchedulerJobRequest(JOB_NAME_PREFIX, jobAction);
     }
 
-    public String getSchedulerJobState(String jobName) throws SQLException {
-        return DatabaseInterfaceInvoker.load(Priority.LOW,
-                getProject(),
-                connection.getConnectionId(),
-                conn -> connection.getInterfaces().getMachineLearningInterface().getSchedulerJobState(conn, jobName));
-    }
-
-    public String getSchedulerJobRunStatus(String jobName) throws SQLException {
-        return DatabaseInterfaceInvoker.load(Priority.LOW,
-                getProject(),
-                connection.getConnectionId(),
-                conn -> connection.getInterfaces().getMachineLearningInterface().getSchedulerJobRunStatus(conn, jobName));
-    }
-
-    public void dropSchedulerJob(String jobName) throws SQLException {
-        DatabaseInterfaceInvoker.execute(Priority.LOW,
-                getProject(),
-                connection.getConnectionId(),
-                conn -> connection.getInterfaces().getMachineLearningInterface().dropSchedulerJob(conn, jobName));
-    }
 
     public DBMSModelHandle loadModelHandle(MLTrainingContext context, String modelName) throws SQLException {
         String trainTableName = context.getTrainTableName();

@@ -30,10 +30,10 @@ import com.dbn.object.DBView;
 import com.dbn.object.common.DBObjectUtil;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.scheduler.model.SchedulerJobRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * Executes ML training pipeline using Oracle DBMS_DATA_MINING.
@@ -44,15 +44,14 @@ import java.util.Objects;
 public class MLPipelineExecutor {
 
     /**
-     * Prepares training data and submits CREATE_MODEL as an Oracle Scheduler job.
-     * Returns immediately with a pending job descriptor — training continues server-side.
+     * Prepares training data and renders the CREATE_MODEL action to be scheduled.
+     * Training itself is submitted and monitored through the scheduler framework.
      */
-    public MLTrainingJobSubmission submitAsync(MLRequest request, ConnectionHandler connectionHandler) throws Exception {
+    public MLTrainingJobSubmission prepareTrainingJob(MLRequest request, ConnectionHandler connectionHandler) throws Exception {
         MLTrainingContext context = buildContext(request);
         DBMSBackend backend = new DBMSBackend(connectionHandler);
-        String modelName = backend.submitAsync(context);
-        String jobName = Objects.requireNonNullElse(context.getSchedulerJobName(), "");
-        return new MLTrainingJobSubmission(modelName, jobName, context);
+        SchedulerJobRequest jobRequest = backend.prepareTrainingJob(context);
+        return new MLTrainingJobSubmission(context.getModelName(), jobRequest, context);
     }
 
     public MLResult completeAsync(MLTrainingJobSubmission submission, ConnectionHandler connectionHandler) throws Exception {
@@ -75,20 +74,6 @@ public class MLPipelineExecutor {
         }
     }
 
-    public String getSchedulerJobState(ConnectionHandler connectionHandler, String jobName) throws Exception {
-        DBMSBackend backend = new DBMSBackend(connectionHandler);
-        return backend.getSchedulerJobState(jobName);
-    }
-
-    public String getSchedulerJobRunStatus(ConnectionHandler connectionHandler, String jobName) throws Exception {
-        DBMSBackend backend = new DBMSBackend(connectionHandler);
-        return backend.getSchedulerJobRunStatus(jobName);
-    }
-
-    public void dropSchedulerJob(ConnectionHandler connectionHandler, String jobName) throws Exception {
-        DBMSBackend backend = new DBMSBackend(connectionHandler);
-        backend.dropSchedulerJob(jobName);
-    }
 
     private MLResult buildResult(
             MLRequest request,

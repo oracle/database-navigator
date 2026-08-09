@@ -56,45 +56,21 @@
         </statement>
     </statement-execution-processor>
 
-    <!-- Submit CREATE_MODEL as DBMS_SCHEDULER job (fire-and-forget async training) -->
-    <statement-execution-processor id="submit-training-job" timeout="10000">
+    <!--
+      Model training action, rendered (not executed) and submitted through the scheduler framework.
+      {$N} render as escaped VARCHAR2 literals, {1} carries the trusted DBMS_DATA_MINING mining function constant.
+    -->
+    <statement-execution-processor id="create-model-job-action">
         <statement>
             BEGIN
-                DBMS_SCHEDULER.CREATE_JOB(
-                    job_name   => {#0},
-                    job_type   => 'PLSQL_BLOCK',
-                    job_action => {#1},
-                    start_date => SYSTIMESTAMP,
-                    enabled    => TRUE,
-                    auto_drop  => FALSE
+                DBMS_DATA_MINING.CREATE_MODEL(
+                    model_name          => {$0},
+                    mining_function     => DBMS_DATA_MINING.{1},
+                    data_table_name     => {$2},
+                    case_id_column_name => 'CASE_ID',
+                    target_column_name  => {$3},
+                    settings_table_name => {$4}
                 );
-            END;
-        </statement>
-    </statement-execution-processor>
-
-    <!-- Check if a DBMS_SCHEDULER job is still scheduled/running -->
-    <statement-execution-processor id="get-scheduler-job-state" timeout="5000">
-        <statement>
-            SELECT state FROM USER_SCHEDULER_JOBS WHERE job_name = UPPER({#0})
-        </statement>
-    </statement-execution-processor>
-
-    <!-- Get the final run status of a completed DBMS_SCHEDULER job -->
-    <statement-execution-processor id="get-scheduler-job-run-status" timeout="5000">
-        <statement>
-            SELECT status, TO_CHAR(error#) AS error_num, additional_info
-            FROM USER_SCHEDULER_JOB_RUN_DETAILS
-            WHERE job_name = UPPER({#0})
-            ORDER BY log_date DESC
-            FETCH FIRST 1 ROWS ONLY
-        </statement>
-    </statement-execution-processor>
-
-    <!-- Drop a DBMS_SCHEDULER job after it has completed -->
-    <statement-execution-processor id="drop-scheduler-job" timeout="5000">
-        <statement>
-            BEGIN
-                DBMS_SCHEDULER.DROP_JOB(job_name => {#0}, force => FALSE);
             END;
         </statement>
     </statement-execution-processor>
