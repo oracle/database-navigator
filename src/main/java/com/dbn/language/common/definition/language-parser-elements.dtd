@@ -78,7 +78,7 @@
         formatting-spacing-before (NO_SPACE | ONE_SPACE | ONE_LINE) #IMPLIED
         formatting-spacing-after (NO_SPACE | ONE_SPACE | ONE_LINE) #IMPLIED
         original-name CDATA #IMPLIED>
-<!ELEMENT sequence (#PCDATA|token|element|sequence|iteration|one-of|wrapper|qualified-identifier|object-def|object-ref|alias-def|alias-ref|variable-def|variable-ref)*>
+<!ELEMENT sequence (#PCDATA|token|element|sequence|iteration|one-of|wrapper|qualified-identifier|object-def|object-ref|alias-def|alias-ref|variable-def|variable-ref|exec-variable)*>
 <!ATTLIST sequence
         id CDATA #IMPLIED
         object-type CDATA #IMPLIED
@@ -182,7 +182,8 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT exec-variable (#PCDATA)>
 <!ATTLIST exec-variable
-        id CDATA #IMPLIED>
+        id CDATA #IMPLIED
+        original-name CDATA #IMPLIED>
 <!ELEMENT variable-def (#PCDATA)>
 <!ATTLIST variable-def
         id CDATA #IMPLIED
