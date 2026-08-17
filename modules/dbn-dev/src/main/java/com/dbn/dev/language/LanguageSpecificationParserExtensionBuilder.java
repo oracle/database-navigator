@@ -94,7 +94,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
     }
 
     private void buildExtension(OneOfElementType oneOfElement) {
-        System.out.println("Processing one-of element: " + oneOfElement.getId());
+        System.out.print(" " + oneOfElement.getId());
 
         ExtensionNode extensionNode = new ExtensionNode();
         LanguageNodeBase rootNode = new LanguageNodeBase(oneOfElement, null);
