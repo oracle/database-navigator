@@ -27,13 +27,11 @@ public enum ElementTypeDefinition {
 
     SEQUENCE("sequence"),
     ITERATION("iteration"),
-    ONE_OF_ITERATION("one-of-iteration"),
     QUALIFIED_IDENTIFIER("qualified-identifier"),
     ONE_OF("one-of"),
     TOKEN("token"),
     ELEMENT("element"),
     WRAPPER("wrapper"),
-    WRAPPED_ITERATION("wrapped-iteration"),
     OBJECT_DEF("object-def"),
     OBJECT_REF("object-ref"),
     ALIAS_DEF("alias-def"),
