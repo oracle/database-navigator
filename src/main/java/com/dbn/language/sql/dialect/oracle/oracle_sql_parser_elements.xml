@@ -9541,7 +9541,7 @@
     </element-def>
     <element-def description="TABLE PARTITION description" id="table_partition_description">
         <one-of optional="true" id="05393">
-            <token type-id="DT_INTERNAL" id="05394" flavor="keyword"/>
+            <token type-id="KW_INTERNAL" id="05394"/>
             <token type-id="KW_EXTERNAL" id="05395" />
         </one-of>
         <iteration optional="true" id="05396">
