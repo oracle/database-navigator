@@ -14150,7 +14150,7 @@
         <token id="07902" type-id="KW_CREATE" />
         <element ref-id="or_replace_clause" optional="true" />
         <token id="07903" type-id="KW_CONTEXT" />
-        <object-ref id="07904" original-name="namespace" type="CONTEXT" />
+        <object-def attributes="SUBJECT" id="07904" original-name="namespace" type="CONTEXT" />
         <token id="07905" type-id="KW_USING" />
         <element ref-id="package_reference" />
         <element optional="true" ref-id="sharing_metadata_clause" />
