@@ -9052,7 +9052,7 @@
                 <element ref-id="alter_overflow_clause" />
             </one-of>
         </iteration>
-        <iteration id="05167">
+        <iteration optional="true" id="05167">
             <sequence id="05168">
                 <one-of id="05169">
                     <sequence id="05170">
