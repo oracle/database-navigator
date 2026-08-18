@@ -14694,8 +14694,9 @@
         <token id="08194" type-id="KW_CREATE" />
         <element ref-id="or_replace_clause" optional="true" />
         <token id="08195" type-id="KW_DIRECTORY" />
-        <object-def id="08196" type="DIRECTORY" />
-        <element optional="true" ref-id="sharing_metadata_clause" />
+        <element ref-id="if_not_exists_clause" optional="true" />
+        <object-def attributes="SUBJECT" id="08196" original-name="directory" type="DIRECTORY" />
+        <element optional="true" ref-id="sharing_clause" />
         <token id="08197" type-id="KW_AS" />
         <token id="08198" original-name="path_name" type-id="STRING" />
     </element-def>

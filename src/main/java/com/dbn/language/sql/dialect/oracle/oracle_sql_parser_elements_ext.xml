@@ -9991,7 +9991,7 @@
                     <node ref="N0652" />
                     <node ref="N0653" />
                     <node ref="N0659" />
-                    <node id="N0668" tt="KW_DIRECTORY" pc="create_directory" cc="08196" />
+                    <node id="N0668" tt="KW_DIRECTORY" pc="create_directory" cc="11603, 08196" />
                     <node id="N0669" tt="KW_CONTEXT" pc="create_context" cc="08201" />
                     <node ref="N0660" />
                     <node id="N0670" tt="KW_NOFORCE" pc="create_analytic_view, create_attribute_dimension" cc="06133, 06428">
