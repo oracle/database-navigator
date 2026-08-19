@@ -144,24 +144,24 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         taskTypeLabel.setText(taskType);
         taskTypeLabel.setForeground(JBColor.gray);
 
-        // Overall score
-        double score = calculateOverallScore();
-        scoreLabel.setText(String.format("Score: %.0f", score));
+        DBMSEvaluationResult evalResult = result.getEvaluationResult();
+
+        // Headline metric - the standard primary metric for the task type, no derived scoring
         scoreLabel.setFont(scoreLabel.getFont().deriveFont(Font.BOLD));
+        if (evalResult == null) {
+            scoreLabel.setVisible(false);
+        } else if (result.isClassification()) {
+            scoreLabel.setText(String.format("Accuracy: %.1f%%", evalResult.getAccuracy() * 100));
+        } else {
+            scoreLabel.setText(String.format("R\u00B2: %.4f", evalResult.getR2Score()));
+        }
 
         // Metrics summary line
-        DBMSEvaluationResult evalResult = result.getEvaluationResult();
         if (evalResult != null) {
             if (result.isClassification()) {
-                metricsSummary.append("Accuracy: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                metricsSummary.append(String.format("%.1f%%", evalResult.getAccuracy() * 100), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-                metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
                 metricsSummary.append("F1: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
                 metricsSummary.append(String.format("%.1f%%", evalResult.getF1Score() * 100), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             } else {
-                metricsSummary.append("R\u00B2: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                metricsSummary.append(String.format("%.4f", evalResult.getR2Score()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-                metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
                 metricsSummary.append("RMSE: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
                 metricsSummary.append(String.format("%.4f", evalResult.getRMSE()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             }
@@ -469,19 +469,6 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         JLabel valueComp = new JLabel(value);
         valueComp.setFont(valueComp.getFont().deriveFont(Font.BOLD));
         panel.add(valueComp);
-    }
-
-    private double calculateOverallScore() {
-        DBMSEvaluationResult evalResult = result.getEvaluationResult();
-        if (evalResult == null) return 0;
-
-        if (result.isClassification()) {
-            double accuracy = evalResult.getAccuracy();
-            double f1 = evalResult.getF1Score();
-            return (accuracy * 0.6 + f1 * 0.4) * 100;
-        } else {
-            return Math.max(0, evalResult.getR2Score()) * 100;
-        }
     }
 
     @Override
