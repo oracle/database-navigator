@@ -182,18 +182,18 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         if (evalResult == null) return;
 
         if (result.isClassification()) {
-            metricsCardsPanel.add(new MLMetricCardPanel("Accuracy", evalResult.getAccuracy(), true));
-            metricsCardsPanel.add(new MLMetricCardPanel("Precision", evalResult.getPrecision(), true));
-            metricsCardsPanel.add(new MLMetricCardPanel("Recall", evalResult.getRecall(), true));
-            metricsCardsPanel.add(new MLMetricCardPanel("F1 Score", evalResult.getF1Score(), true));
+            metricsCardsPanel.add(new MLMetricCardPanel("Accuracy", evalResult.getAccuracy(), true, "info/accuracy_info.html.ft"));
+            metricsCardsPanel.add(new MLMetricCardPanel("Precision", evalResult.getPrecision(), true, "info/precision_info.html.ft"));
+            metricsCardsPanel.add(new MLMetricCardPanel("Recall", evalResult.getRecall(), true, "info/recall_info.html.ft"));
+            metricsCardsPanel.add(new MLMetricCardPanel("F1 Score", evalResult.getF1Score(), true, "info/f1_score_info.html.ft"));
 
             if (evalResult.getAucRoc() > 0) {
-                metricsCardsPanel.add(new MLMetricCardPanel("AUC-ROC", evalResult.getAucRoc(), true));
+                metricsCardsPanel.add(new MLMetricCardPanel("AUC-ROC", evalResult.getAucRoc(), true, "info/auc_roc_info.html.ft"));
             }
         } else {
-            metricsCardsPanel.add(new MLMetricCardPanel("R\u00B2 Score", evalResult.getR2Score(), true));
-            metricsCardsPanel.add(new MLMetricCardPanel("RMSE", evalResult.getRMSE(), false));
-            metricsCardsPanel.add(new MLMetricCardPanel("MAE", evalResult.getMAE(), false));
+            metricsCardsPanel.add(new MLMetricCardPanel("R\u00B2 Score", evalResult.getR2Score(), true, "info/r2_score_info.html.ft"));
+            metricsCardsPanel.add(new MLMetricCardPanel("RMSE", evalResult.getRMSE(), false, "info/rmse_info.html.ft"));
+            metricsCardsPanel.add(new MLMetricCardPanel("MAE", evalResult.getMAE(), false, "info/mae_info.html.ft"));
         }
     }
 
@@ -203,7 +203,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
             return;
         }
 
-        MLResultPanelHelper.initSection(confusionMatrixPanel, "Confusion Matrix");
+        MLResultPanelHelper.initSection(confusionMatrixPanel, "Confusion Matrix", "info/confusion_matrix_info.html.ft");
 
         // Try to get confusion matrix data
         Map<String, Integer> confusionData = null;
@@ -359,7 +359,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     }
 
     private void initializeModelViews() {
-        MLResultPanelHelper.initSection(modelViewsPanel, "Model Detail Views");
+        MLResultPanelHelper.initSection(modelViewsPanel, "Model Detail Views", "info/model_detail_views_info.html.ft");
 
         JPanel linksPanel = new JPanel();
         linksPanel.setLayout(new BoxLayout(linksPanel, BoxLayout.Y_AXIS));

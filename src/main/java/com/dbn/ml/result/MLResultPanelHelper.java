@@ -16,10 +16,13 @@
 
 package com.dbn.ml.result;
 
+import com.dbn.common.ui.info.DBNInfoLabel;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -28,7 +31,11 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.Font;
+
+import static com.dbn.common.text.TextContent.html;
+import static com.dbn.common.text.TextResources.getLocalizable;
 
 /**
  * Static helpers for building repeating ML result panel patterns.
@@ -49,11 +56,35 @@ public final class MLResultPanelHelper {
      * pinned to NORTH.
      */
     public static void initSection(JPanel panel, @Nls String title) {
+        initSection(panel, title, null);
+    }
+
+    /**
+     * Same as {@link #initSection(JPanel, String)}, additionally showing an info icon next to the
+     * title which reveals the given html content on hover or click.
+     *
+     * @param infoResourceName name of the html template, relative to {@code context}
+     */
+    public static void initSection(JPanel panel, @Nls String title, @Nullable @NonNls String infoResourceName) {
         panel.setLayout(new BorderLayout(8, 8));
         panel.setBorder(sectionBorder());
+
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
-        panel.add(titleLabel, BorderLayout.NORTH);
+
+        if (infoResourceName == null) {
+            panel.add(titleLabel, BorderLayout.NORTH);
+            return;
+        }
+
+        DBNInfoLabel infoLabel = new DBNInfoLabel();
+        infoLabel.setContent(html(getLocalizable(MLResultPanelHelper.class, infoResourceName)));
+
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+        titlePanel.setOpaque(false);
+        titlePanel.add(titleLabel);
+        titlePanel.add(infoLabel);
+        panel.add(titlePanel, BorderLayout.NORTH);
     }
 
     /** Non-editable JBTable with row height 24. */
