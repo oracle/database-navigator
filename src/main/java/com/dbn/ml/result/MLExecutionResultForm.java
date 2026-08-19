@@ -40,6 +40,7 @@ import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Box;
@@ -74,6 +75,7 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @Slf4j
 public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionResult> {
+    private static final @NonNls String MODEL_VIEW_PREFIX = "DM$V";
 
     // Form bindings
     private JPanel mainPanel;
@@ -407,8 +409,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
                 String viewName = view.getName();
                 if (viewName == null) continue;
 
-                String normalizedViewName = viewName.toUpperCase();
-                if (normalizedViewName.startsWith("DM$V") && normalizedViewName.endsWith(normalizedModelName)) {
+                if (isModelDetailView(viewName.toUpperCase(), normalizedModelName)) {
                     names.add(viewName);
                 }
             }
@@ -418,6 +419,20 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         }
 
         return names;
+    }
+
+    /**
+     * Model detail views are named DM$V + one algorithm specific letter + the model name.
+     * The name after that letter must match exactly, otherwise the views of a model like
+     * CUSTOMER_MODEL would also show up for a model named MODEL.
+     */
+    private static boolean isModelDetailView(String viewName, String modelName) {
+        if (!viewName.startsWith(MODEL_VIEW_PREFIX)) return false;
+
+        int modelNameStart = MODEL_VIEW_PREFIX.length() + 1;
+        if (viewName.length() <= modelNameStart) return false;
+
+        return viewName.substring(modelNameStart).equals(modelName);
     }
 
     private void openView(Project project, ConnectionHandler connection, String viewName) {
