@@ -85,7 +85,6 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     private JPanel titleBar;
     private JLabel titleLabel;
     private JLabel taskTypeLabel;
-    private JLabel scoreLabel;
     private com.intellij.ui.SimpleColoredComponent metricsSummary;
     private DBNScrollPane contentScrollPane;
     private JPanel contentPanel;
@@ -144,19 +143,8 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         taskTypeLabel.setText(taskType);
         taskTypeLabel.setForeground(JBColor.gray);
 
+        // Metrics summary line - the metrics themselves are shown as cards below
         DBMSEvaluationResult evalResult = result.getEvaluationResult();
-
-        // Headline metric - the standard primary metric for the task type, no derived scoring
-        scoreLabel.setFont(scoreLabel.getFont().deriveFont(Font.BOLD));
-        if (evalResult == null) {
-            scoreLabel.setVisible(false);
-        } else if (result.isClassification()) {
-            scoreLabel.setText(String.format("Accuracy: %.1f%%", evalResult.getAccuracy() * 100));
-        } else {
-            scoreLabel.setText(String.format("R\u00B2: %.4f", evalResult.getR2Score()));
-        }
-
-        // Metrics summary line
         if (evalResult != null) {
             if (result.isClassification()) {
                 metricsSummary.append("F1: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
