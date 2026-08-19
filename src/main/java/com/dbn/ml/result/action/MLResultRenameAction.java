@@ -19,6 +19,7 @@ package com.dbn.ml.result.action;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -26,14 +27,13 @@ import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.result.MLExecutionResult;
+import com.dbn.ml.ui.MLModelRenameDialog;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import javax.swing.JOptionPane;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -54,18 +54,8 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
         String currentModelName = getCurrentModelName(result);
         String defaultName = buildDefaultName(result, currentModelName);
 
-        String newName = JOptionPane.showInputDialog(
-                null,
-                txt("msg.machineLearning.text.EnterModelName"),
-                defaultName
-        );
-
-        if (newName == null || newName.trim().isEmpty()) return;
-        newName = newName.trim().toUpperCase();
-
-        if (newName.equals(currentModelName)) return; // No change
-
-        renameInDatabase(project, executionResult, modelHandle, currentModelName, newName);
+        Dialogs.show(() -> new MLModelRenameDialog(project, defaultName,
+                newName -> renameInDatabase(project, executionResult, modelHandle, currentModelName, newName)));
     }
 
     private void renameInDatabase(Project project, MLExecutionResult executionResult,
