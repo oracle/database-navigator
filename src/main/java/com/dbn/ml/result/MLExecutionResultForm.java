@@ -66,6 +66,7 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -169,7 +170,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
             metricsSummary.append(result.getAlgorithmName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
             metricsSummary.append("Time: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            metricsSummary.append(result.getTrainingTimeMs() + "ms", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+            metricsSummary.append(presentableDuration(result.getTrainingTimeMs(), true), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
         }
     }
 
@@ -346,7 +347,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         addDetailRow(detailsGrid, "Features", String.valueOf(result.getFeatureCount()));
         addDetailRow(detailsGrid, "Training Samples", String.valueOf(result.getTrainingDataSize()));
         addDetailRow(detailsGrid, "Test Samples", String.valueOf(result.getTestingDataSize()));
-        addDetailRow(detailsGrid, "Training Time", result.getTrainingTimeMs() + " ms");
+        addDetailRow(detailsGrid, "Training Time", presentableDuration(result.getTrainingTimeMs(), false));
 
         if (result.isClassification()) {
             addDetailRow(detailsGrid, "Classes", String.valueOf(result.getClassCount()));
