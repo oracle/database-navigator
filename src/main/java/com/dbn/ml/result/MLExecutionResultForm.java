@@ -19,6 +19,7 @@ package com.dbn.ml.result;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.util.Actions;
@@ -32,6 +33,7 @@ import com.dbn.ml.model.MLResult;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBView;
 import com.dbn.object.common.list.DBObjectList;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
@@ -82,9 +84,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     private JPanel mainPanel;
     private JPanel actionsPanel;
     private JPanel headerPanel;
-    private JPanel titleBar;
-    private JLabel titleLabel;
-    private JLabel taskTypeLabel;
+    private JPanel objectHeaderPanel;
     private com.intellij.ui.SimpleColoredComponent metricsSummary;
     private DBNScrollPane contentScrollPane;
     private JPanel contentPanel;
@@ -132,18 +132,16 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     }
 
     private void initializeHeader() {
-        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 16f));
-
-        // Set title with model name
-        String modelName = result.getModelName();
-        titleLabel.setText(modelName != null ? modelName : txt("app.machineLearning.title.MLTrainingResult"));
-
-        // Task type
-        String taskType = result.isClassification() ? "Classification" : "Regression";
-        taskTypeLabel.setText(taskType);
-        taskTypeLabel.setForeground(JBColor.gray);
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, getHeaderContext());
+        objectHeaderPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
         // Summary line - training context only, the metrics are shown as cards below
+        metricsSummary.append(result.isClassification() ?
+                        txt("app.machineLearning.const.MLTaskType_CLASSIFICATION") :
+                        txt("app.machineLearning.const.MLTaskType_REGRESSION"),
+                SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
+
         String algorithmName = result.getAlgorithmName();
         if (algorithmName != null) {
             metricsSummary.append("Algorithm: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
@@ -152,6 +150,23 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         }
         metricsSummary.append("Time: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
         metricsSummary.append(presentableDuration(result.getTrainingTimeMs(), true), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+    }
+
+    /**
+     * Context for the header form - a reference to the trained model, which renders as
+     * "connection - schema.model". Object references resolve their name lazily, so this does
+     * not trigger a load of the AI model object list. Falls back to the plain connection when
+     * the model is not identifiable (e.g. training failed before the model was created).
+     */
+    private Object getHeaderContext() {
+        ConnectionHandler connection = result.getConnection();
+        String modelName = result.getModelName();
+        if (modelName == null) return connection;
+
+        DBSchema schema = connection.getUserSchema();
+        if (schema == null) return connection;
+
+        return new DBObjectRef<>(schema.ref(), DBObjectType.AI_MODEL, modelName);
     }
 
     private void initializeMetricsCards() {
