@@ -75,19 +75,18 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
                 ConnectionHandler connection = modelHandle.getConnection();
                 DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
 
-                try (DBNConnection conn = connection.getMainConnection()) {
-                    mlInterface.renameModel(conn, oldName, newName);
+                DBNConnection conn = connection.getMainConnection();
+                mlInterface.renameModel(conn, oldName, newName);
 
-                    // Update the handle with new name
-                    modelHandle.setModelName(newName);
+                // Update the handle with new name
+                modelHandle.setModelName(newName);
 
-                    Dispatch.run(() -> {
-                        executionResult.setName(newName, true);
-                        Messages.showInfoDialog(project,
-                                txt("msg.machineLearning.title.RenameComplete"),
-                                txt("msg.machineLearning.info.ModelRenamed", oldName, newName));
-                    });
-                }
+                Dispatch.run(() -> {
+                    executionResult.setName(newName, true);
+                    Messages.showInfoDialog(project,
+                            txt("msg.machineLearning.title.RenameComplete"),
+                            txt("msg.machineLearning.info.ModelRenamed", oldName, newName));
+                });
             } catch (Exception ex) {
                 Dispatch.run(() -> Messages.showErrorDialog(project,
                         txt("msg.machineLearning.title.RenameFailed"),
