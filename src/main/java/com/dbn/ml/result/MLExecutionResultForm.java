@@ -143,23 +143,15 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         taskTypeLabel.setText(taskType);
         taskTypeLabel.setForeground(JBColor.gray);
 
-        // Metrics summary line - the metrics themselves are shown as cards below
-        DBMSEvaluationResult evalResult = result.getEvaluationResult();
-        if (evalResult != null) {
-            if (result.isClassification()) {
-                metricsSummary.append("F1: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                metricsSummary.append(String.format("%.1f%%", evalResult.getF1Score() * 100), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-            } else {
-                metricsSummary.append("RMSE: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                metricsSummary.append(String.format("%.4f", evalResult.getRMSE()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-            }
-            metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
+        // Summary line - training context only, the metrics are shown as cards below
+        String algorithmName = result.getAlgorithmName();
+        if (algorithmName != null) {
             metricsSummary.append("Algorithm: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            metricsSummary.append(result.getAlgorithmName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+            metricsSummary.append(algorithmName, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
-            metricsSummary.append("Time: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            metricsSummary.append(presentableDuration(result.getTrainingTimeMs(), true), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
         }
+        metricsSummary.append("Time: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        metricsSummary.append(presentableDuration(result.getTrainingTimeMs(), true), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
     }
 
     private void initializeMetricsCards() {
