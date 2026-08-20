@@ -50,6 +50,7 @@ When reading Oracle diagram text, distinguish diagram grouping from SQL punctuat
 
 - Prefer explicit child elements for complex grammar. Use `tokens="A,B,C"` only for simple fixed token sequences or alternatives already following that style.
 - `one-of` children are alternatives; child-level `optional="true"` is not supported there and the runtime warns about it. Put optionality on the `one-of` itself or wrap the optional alternative in a parent `sequence`.
+- Flatten redundant nested `one-of` alternatives when they represent the same alternatives at the same grammar position. Keep a nested `one-of` only when it is part of a distinct `sequence`/subproduction or preserves a meaningful grouping boundary.
 - `iteration` and `wrapper` must each contain exactly one child. Put repeated or wrapped multi-part constructs inside a single child `sequence`.
 - For deeply similar optional clause sequences that create parser ambiguity, preserve the established workaround of representing the sequence as an `iteration` over a `one-of` of the optional elements. Do not replace these intentional ambiguity workarounds with a plain optional sequence during unrelated grammar edits.
 - Use semantic identifier nodes (`object-def`, `object-ref`, `alias-def`, `alias-ref`, `variable-def`, `variable-ref`) when the parsed token should participate in resolve, rename, structure, or object context behavior.
