@@ -57,7 +57,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
     private static final String ATTR_COMPLETION_CANDIDATE_IDS = "cc";
     private static final String ATTR_NODE_ID = "id";
     private static final String ATTR_NODE_REF = "ref";
-    private static final int MAX_DEPTH = 7;
+    private static final int MAX_DEPTH = 6;
     private static final int MAX_COMPLETION_CANDIDATES = 300;
     private static final int MIN_EXTENSION_CANDIDATES = 10;
 
