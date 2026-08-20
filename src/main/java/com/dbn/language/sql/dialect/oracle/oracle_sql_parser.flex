@@ -47,13 +47,14 @@ NON_PSQL_BLOCK_ENTER = ("grant"|"revoke"){ws}"create"
 NON_PSQL_BLOCK_EXIT = "to"|"from"|";"
 
 PSQL_STUB_OR_REPLACE = ({ws}"or"{ws}"replace")?
+PSQL_STUB_IF_NOT_EXISTS = ({ws}"if"{ws}"not"{ws}"exists")?
 PSQL_STUB_EDITIONABLE = ({ws}("editionable"|"editioning"|'noneditionable'))?
 PSQL_STUB_FORCE = ({ws}("no"{ws})?"force")?
 PSQL_STUB_PUBLIC = ({ws}"public")?
 PSQL_STUB_PROGRAM = {ws}("package"|"trigger"|"function"|"procedure"|"type")
 PSQL_STUB_IDENTIFIER = ({ws}({IDENTIFIER}|{QUOTED_IDENTIFIER}))*
 
-PSQL_BLOCK_START_CREATE = "create"{PSQL_STUB_OR_REPLACE}{PSQL_STUB_FORCE}{PSQL_STUB_EDITIONABLE}{PSQL_STUB_PUBLIC}{PSQL_STUB_PROGRAM}
+PSQL_BLOCK_START_CREATE = "create"{PSQL_STUB_OR_REPLACE}{PSQL_STUB_IF_NOT_EXISTS}{PSQL_STUB_FORCE}{PSQL_STUB_EDITIONABLE}{PSQL_STUB_PUBLIC}{PSQL_STUB_PROGRAM}
 PSQL_BLOCK_START_DECLARE = "declare"
 PSQL_BLOCK_START_BEGIN = "begin"
 //PSQL_BLOCK_END_IGNORE = "end"{ws}("if"|"loop"|"case"){PSQL_STUB_IDENTIFIER}{wso}";"
