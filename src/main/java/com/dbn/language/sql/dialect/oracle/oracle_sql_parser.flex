@@ -66,6 +66,7 @@ SELECT_AI_START = "select"{ws}"ai"
 VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 SQLP_VARIABLE = "&""&"?({IDENTIFIER}|{INTEGER})
 VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}({ws}{IDENTIFIER})*">"
+DBLINK_QUALIFIER = "@"({IDENTIFIER}|{QUOTED_IDENTIFIER})("."({IDENTIFIER}|{QUOTED_IDENTIFIER}))*
 
 %state PSQL_BLOCK
 %state NON_PSQL_BLOCK
@@ -136,6 +137,7 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 {VARIABLE}             { return stt.variable; }
 {VARIABLE_IDENTIFIER}  { return stt.identifier; }
 {SQLP_VARIABLE}        { return stt.variable; }
+{DBLINK_QUALIFIER}     { return tt.getTokenType("CT_DBLINK_QUALIFIER"); }
 
 "("{wso}"+"{wso}")"  {return tt.getTokenType("CT_OUTER_JOIN");}
 
