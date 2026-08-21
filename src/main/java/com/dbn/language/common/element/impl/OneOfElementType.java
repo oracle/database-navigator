@@ -35,6 +35,7 @@ import java.util.Set;
 
 import static com.dbn.common.Linked.linkElements;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SYNTHETIC;
 
 @Slf4j
 public class OneOfElementType extends ElementTypeBase {
@@ -64,6 +65,7 @@ public class OneOfElementType extends ElementTypeBase {
                 String tokenTypeId = tokens[i].trim();
 
                 TokenElementType tokenElementType = new TokenElementType(this, tokenTypeId);
+                tokenElementType.set(SYNTHETIC, false);
                 children[i] = new ElementTypeRef(tokenElementType);
             }
         } else {

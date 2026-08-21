@@ -41,6 +41,7 @@ import java.util.Set;
 
 import static com.dbn.common.Linked.linkElements;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SYNTHETIC;
 
 public class SequenceElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
@@ -125,6 +126,7 @@ public class SequenceElementType extends ElementTypeBase {
 
                 TokenElementType tokenElementType = new TokenElementType(this, tokenTypeId);
                 tokenElementType.setFlavor(tokenFlavor);
+                tokenElementType.set(SYNTHETIC, false);
                 children[i] = new ElementTypeRef(tokenElementType);
             }
         } else {
