@@ -23401,763 +23401,758 @@
 
     <element-def attributes="CLAUSE" description="Object privilege" id="object_privilege">
         <one-of id="12677">
-            <sequence tokens="KW_ASSERTION, KW_REFERENCES" id="12678" />
-            <sequence tokens="KW_FLASHBACK, KW_ARCHIVE" id="12679" />
-            <sequence tokens="KW_INHERIT, KW_REMOTE, KW_PRIVILEGES" id="12680" />
-            <sequence tokens="KW_KEEP, KW_SEQUENCE" id="12681" />
-            <sequence tokens="KW_MERGE, KW_VIEW" id="12682" />
-            <sequence tokens="KW_ON, KW_COMMIT, KW_REFRESH" id="12683" />
-            <sequence tokens="KW_QUERY, KW_REWRITE" id="12684" />
-            <token type-id="FN_SIGN" id="12685" flavor="keyword" />
-            <sequence id="12686">
-                <token type-id="FN_TRANSLATE" flavor="keyword" id="12687" />
-                <token type-id="KW_SQL" id="12688" />
-            </sequence>
+            <sequence tokens="FN_TRANSLATE:keyword, KW_SQL" id="12678" />
+            <sequence tokens="KW_ASSERTION, KW_REFERENCES" id="12679" />
+            <sequence tokens="KW_FLASHBACK, KW_ARCHIVE" id="12680" />
+            <sequence tokens="KW_INHERIT, KW_PRIVILEGES" id="12681" />
+            <sequence tokens="KW_INHERIT, KW_REMOTE, KW_PRIVILEGES" id="12682" />
+            <sequence tokens="KW_KEEP, KW_SEQUENCE" id="12683" />
+            <sequence tokens="KW_MERGE, KW_VIEW" id="12684" />
+            <sequence tokens="KW_ON, KW_COMMIT, KW_REFRESH" id="12685" />
+            <sequence tokens="KW_QUERY, KW_REWRITE" id="12686" />
+            <token type-id="FN_SIGN:keyword" id="12687" flavor="keyword" />
+            <token type-id="KW_ALTER" id="12688" />
             <token type-id="KW_DEBUG" id="12689" />
-            <token type-id="KW_UNDER" id="12690" />
-            <token type-id="KW_ALTER" id="12691" />
-            <token type-id="KW_DELETE" id="12692" />
-            <token type-id="KW_EXECUTE" id="12693" />
-            <token type-id="KW_FLASHBACK" id="12694" />
-            <token type-id="KW_INDEX" id="12695" />
-            <token type-id="KW_INHERIT" id="12696" />
-            <token type-id="KW_INSERT" id="12697" />
-            <token type-id="KW_READ" id="12698" />
-            <token type-id="KW_REFERENCES" id="12699" />
-            <token type-id="KW_SELECT" id="12700" />
-            <token type-id="KW_UPDATE" id="12701" />
+            <token type-id="KW_DELETE" id="12690" />
+            <token type-id="KW_EXECUTE" id="12691" />
+            <token type-id="KW_FLASHBACK" id="12692" />
+            <token type-id="KW_INDEX" id="12693" />
+            <token type-id="KW_INHERIT" id="12694" />
+            <token type-id="KW_INSERT" id="12695" />
+            <token type-id="KW_READ" id="12696" />
+            <token type-id="KW_REFERENCES" id="12697" />
+            <token type-id="KW_SELECT" id="12698" />
+            <token type-id="KW_UNDER" id="12699" />
+            <token type-id="KW_UPDATE" id="12700" />
+            <token type-id="KW_USE" id="12701" />
             <token type-id="KW_WRITE" id="12702" />
-            <token type-id="KW_USE" id="12703" />
         </one-of>
     </element-def>
     <element-def custom="true" description="Object audit action" id="object_action">
-        <one-of id="12704">
-            <token type-id="KW_ALTER" id="12705" />
-            <token type-id="KW_AUDIT" id="12706" />
-            <token type-id="KW_COMMENT" id="12707" />
-            <token type-id="KW_DELETE" id="12708" />
-            <token type-id="KW_EXECUTE" id="12709" />
-            <token type-id="KW_FLASHBACK" id="12710" />
-            <token type-id="KW_GRANT" id="12711" />
-            <token type-id="KW_INDEX" id="12712" />
-            <token type-id="KW_INSERT" id="12713" />
-            <token type-id="KW_LOCK" id="12714" />
-            <token type-id="KW_READ" id="12715" />
-            <token type-id="KW_RENAME" id="12716" />
-            <token type-id="KW_SELECT" id="12717" />
-            <token type-id="KW_UPDATE" id="12718" />
-            <token type-id="KW_TRUNCATE" id="12719" />
-            <token type-id="IDENTIFIER" id="12720" />
+        <one-of id="12703">
+            <token type-id="KW_ALTER" id="12704" />
+            <token type-id="KW_AUDIT" id="12705" />
+            <token type-id="KW_COMMENT" id="12706" />
+            <token type-id="KW_DELETE" id="12707" />
+            <token type-id="KW_EXECUTE" id="12708" />
+            <token type-id="KW_FLASHBACK" id="12709" />
+            <token type-id="KW_GRANT" id="12710" />
+            <token type-id="KW_INDEX" id="12711" />
+            <token type-id="KW_INSERT" id="12712" />
+            <token type-id="KW_LOCK" id="12713" />
+            <token type-id="KW_READ" id="12714" />
+            <token type-id="KW_RENAME" id="12715" />
+            <token type-id="KW_SELECT" id="12716" />
+            <token type-id="KW_UPDATE" id="12717" />
+            <token type-id="KW_TRUNCATE" id="12718" />
+            <token type-id="IDENTIFIER" id="12719" />
         </one-of>
     </element-def>
     <element-def custom="true" description="System action" id="system_action">
-        <one-of id="12721">
-            <sequence tokens="KW_ADMINISTER, KW_KEY, KW_MANAGEMENT" id="12722" />
-            <token type-id="KW_ALL" id="12723" />
-            <sequence tokens="KW_ALTER, KW_ANALYTIC, KW_VIEW" id="12724" />
-            <sequence tokens="KW_ALTER, KW_ASSEMBLY" id="12725" />
-            <sequence tokens="KW_ALTER, KW_ATTRIBUTE, KW_DIMENSION" id="12726" />
-            <sequence tokens="KW_ALTER, KW_AUDIT, KW_POLICY" id="12727" />
-            <sequence tokens="KW_ALTER, KW_CLUSTER" id="12728" />
-            <sequence tokens="KW_ALTER, KW_DATA, KW_LABEL" id="12729" />
-            <sequence tokens="KW_ALTER, KW_DATABASE" id="12730" />
-            <sequence tokens="KW_ALTER, KW_DATABASE, KW_DICTIONARY" id="12731" />
-            <sequence tokens="KW_ALTER, KW_DATABASE, KW_LINK" id="12732" />
-            <sequence tokens="KW_ALTER, KW_DIMENSION" id="12733" />
-            <sequence tokens="KW_ALTER, KW_DISK, KW_GROUP" id="12734" />
-            <sequence tokens="KW_ALTER, KW_FLASHBACK, KW_ARCHIVE" id="12735" />
-            <sequence tokens="KW_ALTER, KW_FUNCTION" id="12736" />
-            <sequence tokens="KW_ALTER, KW_HIERARCHY" id="12737" />
-            <sequence tokens="KW_ALTER, KW_INDEX" id="12738" />
-            <sequence tokens="KW_ALTER, KW_INDEXTYPE" id="12739" />
-            <sequence tokens="KW_ALTER, KW_INMEMORY, KW_JOIN, KW_GROUP" id="12740" />
-            <sequence tokens="KW_ALTER, KW_JAVA" id="12741" />
-            <sequence tokens="KW_ALTER, KW_LABEL, KW_COMPONENTS" id="12742" />
-            <sequence tokens="KW_ALTER, KW_LIBRARY" id="12743" />
-            <sequence tokens="KW_ALTER, KW_LOCKDOWN, KW_PROFILE" id="12744" />
-            <sequence tokens="KW_ALTER, KW_MATERIALIZED, KW_VIEW" id="12745" />
-            <sequence tokens="KW_ALTER, KW_MATERIALIZED, KW_VIEW, KW_LOG" id="12746" />
-            <sequence tokens="KW_ALTER, KW_MATERIALIZED, KW_ZONEMAP" id="12747" />
-            <sequence tokens="KW_ALTER, KW_MINING, KW_MODEL" id="12748" />
-            <sequence tokens="KW_ALTER, KW_OPERATOR" id="12749" />
-            <sequence tokens="KW_ALTER, KW_OUTLINE" id="12750" />
-            <sequence tokens="KW_ALTER, KW_PACKAGE" id="12751" />
-            <sequence tokens="KW_ALTER, KW_PACKAGE, KW_BODY" id="12752" />
-            <sequence tokens="KW_ALTER, KW_PLUGGABLE, KW_DATABASE" id="12753" />
-            <sequence tokens="KW_ALTER, KW_POLICY" id="12754" />
-            <sequence tokens="KW_ALTER, KW_PROCEDURE" id="12755" />
-            <sequence tokens="KW_ALTER, KW_PROFILE" id="12756" />
-            <sequence tokens="KW_ALTER, KW_RESOURCE, KW_COST" id="12757" />
-            <sequence tokens="KW_ALTER, KW_ROLE" id="12758" />
-            <sequence tokens="KW_ALTER, KW_ROLLBACK, KW_SEGMENT" id="12759" />
-            <sequence tokens="KW_ALTER, KW_SEQUENCE" id="12760" />
-            <sequence tokens="KW_ALTER, KW_SESSION" id="12761" />
-            <sequence tokens="KW_ALTER, KW_SYNONYM" id="12762" />
-            <sequence tokens="KW_ALTER, KW_SYSTEM" id="12763" />
-            <sequence tokens="KW_ALTER, KW_TABLE" id="12764" />
-            <sequence tokens="KW_ALTER, KW_TABLESPACE" id="12765" />
-            <sequence tokens="KW_ALTER, KW_TRACING" id="12766" />
-            <sequence tokens="KW_ALTER, KW_TRIGGER" id="12767" />
-            <sequence tokens="KW_ALTER, KW_TYPE" id="12768" />
-            <sequence tokens="KW_ALTER, KW_TYPE, KW_BODY" id="12769" />
-            <sequence tokens="KW_ALTER, KW_USER" id="12770" />
-            <sequence tokens="KW_ALTER, KW_VIEW" id="12771" />
-            <sequence tokens="KW_ANALYZE, KW_CLUSTER" id="12772" />
-            <sequence tokens="KW_ANALYZE, KW_INDEX" id="12773" />
-            <sequence tokens="KW_ANALYZE, KW_TABLE" id="12774" />
-            <sequence tokens="KW_ASSOCIATE, KW_STATISTICS" id="12775" />
-            <sequence tokens="KW_AUDIT" id="12776" />
-            <sequence tokens="KW_CALL" id="12777" />
-            <sequence tokens="KW_CHANGE, KW_PASSWORD" id="12778" />
-            <sequence tokens="KW_COMMENT" id="12779" />
-            <sequence tokens="KW_COMMIT" id="12780" />
-            <sequence tokens="KW_CREATE, KW_ACL" id="12781" />
-            <sequence tokens="KW_CREATE, KW_ANALYTIC, KW_VIEW" id="12782" />
-            <sequence tokens="KW_CREATE, KW_ASSEMBLY" id="12783" />
-            <sequence tokens="KW_CREATE, KW_ATTRIBUTE, KW_DIMENSION" id="12784" />
-            <sequence tokens="KW_CREATE, KW_AUDIT, KW_POLICY" id="12785" />
-            <sequence tokens="KW_CREATE, KW_CLUSTER" id="12786" />
-            <sequence tokens="KW_CREATE, KW_CONTEXT" id="12787" />
-            <sequence tokens="KW_CREATE, KW_DATA, KW_LABEL" id="12788" />
-            <sequence tokens="KW_CREATE, KW_DATA, KW_SECURITY" id="12789" />
-            <sequence tokens="KW_CREATE, KW_DATABASE, KW_LINK" id="12790" />
-            <sequence tokens="KW_CREATE, KW_DIMENSION" id="12791" />
-            <sequence tokens="KW_CREATE, KW_DIRECTORY" id="12792" />
-            <sequence tokens="KW_CREATE, KW_DISK, KW_GROUP" id="12793" />
-            <sequence tokens="KW_CREATE, KW_EDITION" id="12794" />
-            <sequence tokens="KW_CREATE, KW_FLASHBACK, KW_ARCHIVE" id="12795" />
-            <sequence tokens="KW_CREATE, KW_FUNCTION" id="12796" />
-            <sequence tokens="KW_CREATE, KW_HIERARCHY" id="12797" />
-            <sequence tokens="KW_CREATE, KW_INDEX" id="12798" />
-            <sequence tokens="KW_CREATE, KW_INDEXTYPE" id="12799" />
-            <sequence tokens="KW_CREATE, KW_INMEMORY, KW_JOIN, KW_GROUP" id="12800" />
-            <sequence tokens="KW_CREATE, KW_JAVA" id="12801" />
-            <sequence tokens="KW_CREATE, KW_LABEL, KW_COMPONENTS" id="12802" />
-            <sequence tokens="KW_CREATE, KW_LIBRARY" id="12803" />
-            <sequence tokens="KW_CREATE, KW_LOCKDOWN, KW_PROFILE" id="12804" />
-            <sequence tokens="KW_CREATE, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="12805" />
-            <sequence tokens="KW_CREATE, KW_MATERIALIZED, KW_VIEW" id="12806" />
-            <sequence tokens="KW_CREATE, KW_MATERIALIZED, KW_VIEW, KW_LOG" id="12807" />
-            <sequence tokens="KW_CREATE, KW_MATERIALIZED, KW_ZONEMAP" id="12808" />
-            <sequence tokens="KW_CREATE, KW_MINING, KW_MODEL" id="12809" />
-            <sequence tokens="KW_CREATE, KW_NAMESPACE, KW_ATTRIBUTE" id="12810" />
-            <sequence tokens="KW_CREATE, KW_NAMESPACE, KW_TEMPLATE" id="12811" />
-            <sequence tokens="KW_CREATE, KW_OPERATOR" id="12812" />
-            <sequence tokens="KW_CREATE, KW_OUTLINE" id="12813" />
-            <sequence tokens="KW_CREATE, KW_PACKAGE" id="12814" />
-            <sequence tokens="KW_CREATE, KW_PACKAGE, KW_BODY" id="12815" />
-            <sequence tokens="KW_CREATE, KW_PFILE" id="12816" />
-            <sequence tokens="KW_CREATE, KW_PLUGGABLE, KW_DATABASE" id="12817" />
-            <sequence tokens="KW_CREATE, KW_POLICY" id="12818" />
-            <sequence tokens="KW_CREATE, KW_PROCEDURE" id="12819" />
-            <sequence tokens="KW_CREATE, KW_PROFILE" id="12820" />
-            <sequence tokens="KW_CREATE, KW_RESTORE, KW_POINT" id="12821" />
-            <sequence tokens="KW_CREATE, KW_ROLE" id="12822" />
-            <sequence tokens="KW_CREATE, KW_ROLE" id="12823" />
-            <sequence tokens="KW_CREATE, KW_ROLESET" id="12824" />
-            <sequence tokens="KW_CREATE, KW_ROLLBACK, KW_SEGMENT" id="12825" />
-            <sequence tokens="KW_CREATE, KW_SCHEMA" id="12826" />
-            <sequence tokens="KW_CREATE, KW_SCHEMA, KW_SYNONYM" id="12827" />
-            <sequence tokens="KW_CREATE, KW_SECURITY, KW_CLASS" id="12828" />
-            <sequence tokens="KW_CREATE, KW_SEQUENCE" id="12829" />
-            <sequence tokens="KW_CREATE, KW_SESSION" id="12830" />
-            <sequence tokens="KW_CREATE, KW_SESSION, KW_NAMESPACE" id="12831" />
-            <sequence tokens="KW_CREATE, KW_SPFILE" id="12832" />
-            <sequence tokens="KW_CREATE, KW_SYNONYM" id="12833" />
-            <sequence tokens="KW_CREATE, KW_TABLE" id="12834" />
-            <sequence tokens="KW_CREATE, KW_TABLESPACE" id="12835" />
-            <sequence tokens="KW_CREATE, KW_TRIGGER" id="12836" />
-            <sequence tokens="KW_CREATE, KW_TYPE" id="12837" />
-            <sequence tokens="KW_CREATE, KW_TYPE, KW_BODY" id="12838" />
-            <sequence tokens="KW_CREATE, KW_USER" id="12839" />
-            <sequence tokens="KW_CREATE, KW_USER" id="12840" />
-            <sequence tokens="KW_CREATE, KW_VIEW" id="12841" />
-            <sequence tokens="KW_DELETE" id="12842" />
-            <sequence tokens="KW_DESTROY, KW_SESSION" id="12843" />
-            <sequence tokens="KW_DISASSOCIATE, KW_STATISTICS" id="12844" />
-            <sequence tokens="KW_DROP, KW_ANALYTIC, KW_VIEW" id="12845" />
-            <sequence tokens="KW_DROP, KW_ASSEMBLY" id="12846" />
-            <sequence tokens="KW_DROP, KW_ATTRIBUTE, KW_DIMENSION" id="12847" />
-            <sequence tokens="KW_DROP, KW_AUDIT, KW_POLICY" id="12848" />
-            <sequence tokens="KW_DROP, KW_CLUSTER" id="12849" />
-            <sequence tokens="KW_DROP, KW_CONTEXT" id="12850" />
-            <sequence tokens="KW_DROP, KW_DATA, KW_LABEL" id="12851" />
-            <sequence tokens="KW_DROP, KW_DATABASE, KW_LINK" id="12852" />
-            <sequence tokens="KW_DROP, KW_DIMENSION" id="12853" />
-            <sequence tokens="KW_DROP, KW_DIRECTORY" id="12854" />
-            <sequence tokens="KW_DROP, KW_DISK, KW_GROUP" id="12855" />
-            <sequence tokens="KW_DROP, KW_EDITION" id="12856" />
-            <sequence tokens="KW_DROP, KW_FLASHBACK, KW_ARCHIVE" id="12857" />
-            <sequence tokens="KW_DROP, KW_FUNCTION" id="12858" />
-            <sequence tokens="KW_DROP, KW_HIERARCHY" id="12859" />
-            <sequence tokens="KW_DROP, KW_INDEX" id="12860" />
-            <sequence tokens="KW_DROP, KW_INDEXTYPE" id="12861" />
-            <sequence tokens="KW_DROP, KW_INMEMORY, KW_JOIN, KW_GROUP" id="12862" />
-            <sequence tokens="KW_DROP, KW_JAVA" id="12863" />
-            <sequence tokens="KW_DROP, KW_LABEL, KW_COMPONENTS" id="12864" />
-            <sequence tokens="KW_DROP, KW_LIBRARY" id="12865" />
-            <sequence tokens="KW_DROP, KW_LOCKDOWN, KW_PROFILE" id="12866" />
-            <sequence tokens="KW_DROP, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="12867" />
-            <sequence tokens="KW_DROP, KW_MATERIALIZED, KW_VIEW" id="12868" />
-            <sequence tokens="KW_DROP, KW_MATERIALIZED, KW_VIEW, KW_LOG" id="12869" />
-            <sequence tokens="KW_DROP, KW_MATERIALIZED, KW_ZONEMAP" id="12870" />
-            <sequence tokens="KW_DROP, KW_MINING, KW_MODEL" id="12871" />
-            <sequence tokens="KW_DROP, KW_OPERATOR" id="12872" />
-            <sequence tokens="KW_DROP, KW_OUTLINE" id="12873" />
-            <sequence tokens="KW_DROP, KW_PACKAGE" id="12874" />
-            <sequence tokens="KW_DROP, KW_PACKAGE, KW_BODY" id="12875" />
-            <sequence tokens="KW_DROP, KW_PLUGGABLE, KW_DATABASE" id="12876" />
-            <sequence tokens="KW_DROP, KW_POLICY" id="12877" />
-            <sequence tokens="KW_DROP, KW_PROCEDURE" id="12878" />
-            <sequence tokens="KW_DROP, KW_PROFILE" id="12879" />
-            <sequence tokens="KW_DROP, KW_RESTORE, KW_POINT" id="12880" />
-            <sequence tokens="KW_DROP, KW_ROLE" id="12881" />
-            <sequence tokens="KW_DROP, KW_ROLLBACK, KW_SEGMENT" id="12882" />
-            <sequence tokens="KW_DROP, KW_SCHEMA, KW_SYNONYM" id="12883" />
-            <sequence tokens="KW_DROP, KW_SEQUENCE" id="12884" />
-            <sequence tokens="KW_DROP, KW_SYNONYM" id="12885" />
-            <sequence tokens="KW_DROP, KW_TABLE" id="12886" />
-            <sequence tokens="KW_DROP, KW_TABLESPACE" id="12887" />
-            <sequence tokens="KW_DROP, KW_TRIGGER" id="12888" />
-            <sequence tokens="KW_DROP, KW_TYPE" id="12889" />
-            <sequence tokens="KW_DROP, KW_TYPE, KW_BODY" id="12890" />
-            <sequence tokens="KW_DROP, KW_USER" id="12891" />
-            <sequence tokens="KW_DROP, KW_VIEW" id="12892" />
-            <token type-id="KW_EXECUTE" id="12893" />
-            <sequence tokens="KW_EXECUTE, KW_DIRECTORY" id="12894" />
-            <sequence tokens="KW_EXPLAIN, KW_PLAN" id="12895" />
-            <token type-id="KW_EXPORT" id="12896" />
-            <sequence tokens="KW_FLASHBACK, KW_TABLE" id="12897" />
-            <token type-id="KW_GRANT" id="12898" />
-            <token type-id="KW_IMPORT" id="12899" />
-            <token type-id="KW_INSERT" id="12900" />
-            <token type-id="KW_LOAD" id="12901" />
-            <sequence tokens="KW_LOCK, KW_TABLE" id="12902" />
-            <token type-id="KW_LOGOFF" id="12903" />
-            <token type-id="KW_LOGON" id="12904" />
-            <token type-id="KW_NOAUDIT" id="12905" />
-            <sequence tokens="KW_PRIVILEGED, KW_ACTION" id="12906" />
-            <sequence tokens="KW_PURGE, KW_DBA_RECYCLEBIN" id="12907" />
-            <sequence tokens="KW_PURGE, KW_INDEX" id="12908" />
-            <sequence tokens="KW_PURGE, KW_RECYCLEBIN" id="12909" />
-            <sequence tokens="KW_PURGE, KW_TABLE" id="12910" />
-            <sequence tokens="KW_PURGE, KW_TABLESPACE" id="12911" />
-            <sequence tokens="KW_READ, KW_DIRECTORY" id="12912" />
-            <token type-id="KW_RENAME" id="12913" />
-            <token type-id="KW_REVOKE" id="12914" />
-            <token type-id="KW_ROLLBACK" id="12915" />
-            <token type-id="KW_SELECT" id="12916" />
-            <sequence tokens="KW_SET, KW_TRANSACTION" id="12917" />
-            <sequence tokens="KW_SWITCH, KW_USER" id="12918" />
-            <sequence tokens="KW_TRUNCATE, KW_CLUSTER" id="12919" />
-            <sequence tokens="KW_TRUNCATE, KW_TABLE" id="12920" />
+        <one-of id="12720">
+            <sequence tokens="KW_ADMINISTER, KW_KEY, KW_MANAGEMENT" id="12721" />
+            <sequence tokens="KW_ALTER, KW_ANALYTIC, KW_VIEW" id="12722" />
+            <sequence tokens="KW_ALTER, KW_ASSEMBLY" id="12723" />
+            <sequence tokens="KW_ALTER, KW_ATTRIBUTE, KW_DIMENSION" id="12724" />
+            <sequence tokens="KW_ALTER, KW_AUDIT, KW_POLICY" id="12725" />
+            <sequence tokens="KW_ALTER, KW_CLUSTER" id="12726" />
+            <sequence tokens="KW_ALTER, KW_DATA, KW_LABEL" id="12727" />
+            <sequence tokens="KW_ALTER, KW_DATABASE" id="12728" />
+            <sequence tokens="KW_ALTER, KW_DATABASE, KW_DICTIONARY" id="12729" />
+            <sequence tokens="KW_ALTER, KW_DATABASE, KW_LINK" id="12730" />
+            <sequence tokens="KW_ALTER, KW_DIMENSION" id="12731" />
+            <sequence tokens="KW_ALTER, KW_DISK, KW_GROUP" id="12732" />
+            <sequence tokens="KW_ALTER, KW_FLASHBACK, KW_ARCHIVE" id="12733" />
+            <sequence tokens="KW_ALTER, KW_FUNCTION" id="12734" />
+            <sequence tokens="KW_ALTER, KW_HIERARCHY" id="12735" />
+            <sequence tokens="KW_ALTER, KW_INDEX" id="12736" />
+            <sequence tokens="KW_ALTER, KW_INDEXTYPE" id="12737" />
+            <sequence tokens="KW_ALTER, KW_INMEMORY, KW_JOIN, KW_GROUP" id="12738" />
+            <sequence tokens="KW_ALTER, KW_JAVA" id="12739" />
+            <sequence tokens="KW_ALTER, KW_LABEL, KW_COMPONENTS" id="12740" />
+            <sequence tokens="KW_ALTER, KW_LIBRARY" id="12741" />
+            <sequence tokens="KW_ALTER, KW_LOCKDOWN, KW_PROFILE" id="12742" />
+            <sequence tokens="KW_ALTER, KW_MATERIALIZED, KW_VIEW" id="12743" />
+            <sequence tokens="KW_ALTER, KW_MATERIALIZED, KW_VIEW, KW_LOG" id="12744" />
+            <sequence tokens="KW_ALTER, KW_MATERIALIZED, KW_ZONEMAP" id="12745" />
+            <sequence tokens="KW_ALTER, KW_MINING, KW_MODEL" id="12746" />
+            <sequence tokens="KW_ALTER, KW_OPERATOR" id="12747" />
+            <sequence tokens="KW_ALTER, KW_OUTLINE" id="12748" />
+            <sequence tokens="KW_ALTER, KW_PACKAGE" id="12749" />
+            <sequence tokens="KW_ALTER, KW_PACKAGE, KW_BODY" id="12750" />
+            <sequence tokens="KW_ALTER, KW_PLUGGABLE, KW_DATABASE" id="12751" />
+            <sequence tokens="KW_ALTER, KW_POLICY" id="12752" />
+            <sequence tokens="KW_ALTER, KW_PROCEDURE" id="12753" />
+            <sequence tokens="KW_ALTER, KW_PROFILE" id="12754" />
+            <sequence tokens="KW_ALTER, KW_RESOURCE, KW_COST" id="12755" />
+            <sequence tokens="KW_ALTER, KW_ROLE" id="12756" />
+            <sequence tokens="KW_ALTER, KW_ROLLBACK, KW_SEGMENT" id="12757" />
+            <sequence tokens="KW_ALTER, KW_SEQUENCE" id="12758" />
+            <sequence tokens="KW_ALTER, KW_SESSION" id="12759" />
+            <sequence tokens="KW_ALTER, KW_SYNONYM" id="12760" />
+            <sequence tokens="KW_ALTER, KW_SYSTEM" id="12761" />
+            <sequence tokens="KW_ALTER, KW_TABLE" id="12762" />
+            <sequence tokens="KW_ALTER, KW_TABLESPACE" id="12763" />
+            <sequence tokens="KW_ALTER, KW_TRACING" id="12764" />
+            <sequence tokens="KW_ALTER, KW_TRIGGER" id="12765" />
+            <sequence tokens="KW_ALTER, KW_TYPE" id="12766" />
+            <sequence tokens="KW_ALTER, KW_TYPE, KW_BODY" id="12767" />
+            <sequence tokens="KW_ALTER, KW_USER" id="12768" />
+            <sequence tokens="KW_ALTER, KW_VIEW" id="12769" />
+            <sequence tokens="KW_ANALYZE, KW_CLUSTER" id="12770" />
+            <sequence tokens="KW_ANALYZE, KW_INDEX" id="12771" />
+            <sequence tokens="KW_ANALYZE, KW_TABLE" id="12772" />
+            <sequence tokens="KW_ASSOCIATE, KW_STATISTICS" id="12773" />
+            <sequence tokens="KW_AUDIT" id="12774" />
+            <sequence tokens="KW_CALL" id="12775" />
+            <sequence tokens="KW_CHANGE, KW_PASSWORD" id="12776" />
+            <sequence tokens="KW_COMMENT" id="12777" />
+            <sequence tokens="KW_COMMIT" id="12778" />
+            <sequence tokens="KW_CREATE, KW_ACL" id="12779" />
+            <sequence tokens="KW_CREATE, KW_ANALYTIC, KW_VIEW" id="12780" />
+            <sequence tokens="KW_CREATE, KW_ASSEMBLY" id="12781" />
+            <sequence tokens="KW_CREATE, KW_ATTRIBUTE, KW_DIMENSION" id="12782" />
+            <sequence tokens="KW_CREATE, KW_AUDIT, KW_POLICY" id="12783" />
+            <sequence tokens="KW_CREATE, KW_CLUSTER" id="12784" />
+            <sequence tokens="KW_CREATE, KW_CONTEXT" id="12785" />
+            <sequence tokens="KW_CREATE, KW_DATA, KW_LABEL" id="12786" />
+            <sequence tokens="KW_CREATE, KW_DATA, KW_SECURITY" id="12787" />
+            <sequence tokens="KW_CREATE, KW_DATABASE, KW_LINK" id="12788" />
+            <sequence tokens="KW_CREATE, KW_DIMENSION" id="12789" />
+            <sequence tokens="KW_CREATE, KW_DIRECTORY" id="12790" />
+            <sequence tokens="KW_CREATE, KW_DISK, KW_GROUP" id="12791" />
+            <sequence tokens="KW_CREATE, KW_EDITION" id="12792" />
+            <sequence tokens="KW_CREATE, KW_FLASHBACK, KW_ARCHIVE" id="12793" />
+            <sequence tokens="KW_CREATE, KW_FUNCTION" id="12794" />
+            <sequence tokens="KW_CREATE, KW_HIERARCHY" id="12795" />
+            <sequence tokens="KW_CREATE, KW_INDEX" id="12796" />
+            <sequence tokens="KW_CREATE, KW_INDEXTYPE" id="12797" />
+            <sequence tokens="KW_CREATE, KW_INMEMORY, KW_JOIN, KW_GROUP" id="12798" />
+            <sequence tokens="KW_CREATE, KW_JAVA" id="12799" />
+            <sequence tokens="KW_CREATE, KW_LABEL, KW_COMPONENTS" id="12800" />
+            <sequence tokens="KW_CREATE, KW_LIBRARY" id="12801" />
+            <sequence tokens="KW_CREATE, KW_LOCKDOWN, KW_PROFILE" id="12802" />
+            <sequence tokens="KW_CREATE, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="12803" />
+            <sequence tokens="KW_CREATE, KW_MATERIALIZED, KW_VIEW" id="12804" />
+            <sequence tokens="KW_CREATE, KW_MATERIALIZED, KW_VIEW, KW_LOG" id="12805" />
+            <sequence tokens="KW_CREATE, KW_MATERIALIZED, KW_ZONEMAP" id="12806" />
+            <sequence tokens="KW_CREATE, KW_MINING, KW_MODEL" id="12807" />
+            <sequence tokens="KW_CREATE, KW_NAMESPACE, KW_ATTRIBUTE" id="12808" />
+            <sequence tokens="KW_CREATE, KW_NAMESPACE, KW_TEMPLATE" id="12809" />
+            <sequence tokens="KW_CREATE, KW_OPERATOR" id="12810" />
+            <sequence tokens="KW_CREATE, KW_OUTLINE" id="12811" />
+            <sequence tokens="KW_CREATE, KW_PACKAGE" id="12812" />
+            <sequence tokens="KW_CREATE, KW_PACKAGE, KW_BODY" id="12813" />
+            <sequence tokens="KW_CREATE, KW_PFILE" id="12814" />
+            <sequence tokens="KW_CREATE, KW_PLUGGABLE, KW_DATABASE" id="12815" />
+            <sequence tokens="KW_CREATE, KW_POLICY" id="12816" />
+            <sequence tokens="KW_CREATE, KW_PROCEDURE" id="12817" />
+            <sequence tokens="KW_CREATE, KW_PROFILE" id="12818" />
+            <sequence tokens="KW_CREATE, KW_RESTORE, KW_POINT" id="12819" />
+            <sequence tokens="KW_CREATE, KW_ROLE" id="12820" />
+            <sequence tokens="KW_CREATE, KW_ROLE" id="12821" />
+            <sequence tokens="KW_CREATE, KW_ROLESET" id="12822" />
+            <sequence tokens="KW_CREATE, KW_ROLLBACK, KW_SEGMENT" id="12823" />
+            <sequence tokens="KW_CREATE, KW_SCHEMA" id="12824" />
+            <sequence tokens="KW_CREATE, KW_SCHEMA, KW_SYNONYM" id="12825" />
+            <sequence tokens="KW_CREATE, KW_SECURITY, KW_CLASS" id="12826" />
+            <sequence tokens="KW_CREATE, KW_SEQUENCE" id="12827" />
+            <sequence tokens="KW_CREATE, KW_SESSION" id="12828" />
+            <sequence tokens="KW_CREATE, KW_SESSION, KW_NAMESPACE" id="12829" />
+            <sequence tokens="KW_CREATE, KW_SPFILE" id="12830" />
+            <sequence tokens="KW_CREATE, KW_SYNONYM" id="12831" />
+            <sequence tokens="KW_CREATE, KW_TABLE" id="12832" />
+            <sequence tokens="KW_CREATE, KW_TABLESPACE" id="12833" />
+            <sequence tokens="KW_CREATE, KW_TRIGGER" id="12834" />
+            <sequence tokens="KW_CREATE, KW_TYPE" id="12835" />
+            <sequence tokens="KW_CREATE, KW_TYPE, KW_BODY" id="12836" />
+            <sequence tokens="KW_CREATE, KW_USER" id="12837" />
+            <sequence tokens="KW_CREATE, KW_USER" id="12838" />
+            <sequence tokens="KW_CREATE, KW_VIEW" id="12839" />
+            <sequence tokens="KW_DELETE" id="12840" />
+            <sequence tokens="KW_DESTROY, KW_SESSION" id="12841" />
+            <sequence tokens="KW_DISASSOCIATE, KW_STATISTICS" id="12842" />
+            <sequence tokens="KW_DROP, KW_ANALYTIC, KW_VIEW" id="12843" />
+            <sequence tokens="KW_DROP, KW_ASSEMBLY" id="12844" />
+            <sequence tokens="KW_DROP, KW_ATTRIBUTE, KW_DIMENSION" id="12845" />
+            <sequence tokens="KW_DROP, KW_AUDIT, KW_POLICY" id="12846" />
+            <sequence tokens="KW_DROP, KW_CLUSTER" id="12847" />
+            <sequence tokens="KW_DROP, KW_CONTEXT" id="12848" />
+            <sequence tokens="KW_DROP, KW_DATA, KW_LABEL" id="12849" />
+            <sequence tokens="KW_DROP, KW_DATABASE, KW_LINK" id="12850" />
+            <sequence tokens="KW_DROP, KW_DIMENSION" id="12851" />
+            <sequence tokens="KW_DROP, KW_DIRECTORY" id="12852" />
+            <sequence tokens="KW_DROP, KW_DISK, KW_GROUP" id="12853" />
+            <sequence tokens="KW_DROP, KW_EDITION" id="12854" />
+            <sequence tokens="KW_DROP, KW_FLASHBACK, KW_ARCHIVE" id="12855" />
+            <sequence tokens="KW_DROP, KW_FUNCTION" id="12856" />
+            <sequence tokens="KW_DROP, KW_HIERARCHY" id="12857" />
+            <sequence tokens="KW_DROP, KW_INDEX" id="12858" />
+            <sequence tokens="KW_DROP, KW_INDEXTYPE" id="12859" />
+            <sequence tokens="KW_DROP, KW_INMEMORY, KW_JOIN, KW_GROUP" id="12860" />
+            <sequence tokens="KW_DROP, KW_JAVA" id="12861" />
+            <sequence tokens="KW_DROP, KW_LABEL, KW_COMPONENTS" id="12862" />
+            <sequence tokens="KW_DROP, KW_LIBRARY" id="12863" />
+            <sequence tokens="KW_DROP, KW_LOCKDOWN, KW_PROFILE" id="12864" />
+            <sequence tokens="KW_DROP, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="12865" />
+            <sequence tokens="KW_DROP, KW_MATERIALIZED, KW_VIEW" id="12866" />
+            <sequence tokens="KW_DROP, KW_MATERIALIZED, KW_VIEW, KW_LOG" id="12867" />
+            <sequence tokens="KW_DROP, KW_MATERIALIZED, KW_ZONEMAP" id="12868" />
+            <sequence tokens="KW_DROP, KW_MINING, KW_MODEL" id="12869" />
+            <sequence tokens="KW_DROP, KW_OPERATOR" id="12870" />
+            <sequence tokens="KW_DROP, KW_OUTLINE" id="12871" />
+            <sequence tokens="KW_DROP, KW_PACKAGE" id="12872" />
+            <sequence tokens="KW_DROP, KW_PACKAGE, KW_BODY" id="12873" />
+            <sequence tokens="KW_DROP, KW_PLUGGABLE, KW_DATABASE" id="12874" />
+            <sequence tokens="KW_DROP, KW_POLICY" id="12875" />
+            <sequence tokens="KW_DROP, KW_PROCEDURE" id="12876" />
+            <sequence tokens="KW_DROP, KW_PROFILE" id="12877" />
+            <sequence tokens="KW_DROP, KW_RESTORE, KW_POINT" id="12878" />
+            <sequence tokens="KW_DROP, KW_ROLE" id="12879" />
+            <sequence tokens="KW_DROP, KW_ROLLBACK, KW_SEGMENT" id="12880" />
+            <sequence tokens="KW_DROP, KW_SCHEMA, KW_SYNONYM" id="12881" />
+            <sequence tokens="KW_DROP, KW_SEQUENCE" id="12882" />
+            <sequence tokens="KW_DROP, KW_SYNONYM" id="12883" />
+            <sequence tokens="KW_DROP, KW_TABLE" id="12884" />
+            <sequence tokens="KW_DROP, KW_TABLESPACE" id="12885" />
+            <sequence tokens="KW_DROP, KW_TRIGGER" id="12886" />
+            <sequence tokens="KW_DROP, KW_TYPE" id="12887" />
+            <sequence tokens="KW_DROP, KW_TYPE, KW_BODY" id="12888" />
+            <sequence tokens="KW_DROP, KW_USER" id="12889" />
+            <sequence tokens="KW_DROP, KW_VIEW" id="12890" />
+            <sequence tokens="KW_EXECUTE, KW_DIRECTORY" id="12891" />
+            <sequence tokens="KW_EXPLAIN, KW_PLAN" id="12892" />
+            <sequence tokens="KW_FLASHBACK, KW_TABLE" id="12893" />
+            <sequence tokens="KW_LOCK, KW_TABLE" id="12894" />
+            <sequence tokens="KW_PRIVILEGED, KW_ACTION" id="12895" />
+            <sequence tokens="KW_PURGE, KW_DBA_RECYCLEBIN" id="12896" />
+            <sequence tokens="KW_PURGE, KW_INDEX" id="12897" />
+            <sequence tokens="KW_PURGE, KW_RECYCLEBIN" id="12898" />
+            <sequence tokens="KW_PURGE, KW_TABLE" id="12899" />
+            <sequence tokens="KW_PURGE, KW_TABLESPACE" id="12900" />
+            <sequence tokens="KW_READ, KW_DIRECTORY" id="12901" />
+            <sequence tokens="KW_SET, KW_TRANSACTION" id="12902" />
+            <sequence tokens="KW_SWITCH, KW_USER" id="12903" />
+            <sequence tokens="KW_TRUNCATE, KW_CLUSTER" id="12904" />
+            <sequence tokens="KW_TRUNCATE, KW_TABLE" id="12905" />
+            <sequence tokens="KW_WRITE, KW_DIRECTORY" id="12906" />
+            <token type-id="KW_ALL" id="12907" />
+            <token type-id="KW_EXECUTE" id="12908" />
+            <token type-id="KW_EXPORT" id="12909" />
+            <token type-id="KW_GRANT" id="12910" />
+            <token type-id="KW_IMPORT" id="12911" />
+            <token type-id="KW_INSERT" id="12912" />
+            <token type-id="KW_LOAD" id="12913" />
+            <token type-id="KW_LOGOFF" id="12914" />
+            <token type-id="KW_LOGON" id="12915" />
+            <token type-id="KW_NOAUDIT" id="12916" />
+            <token type-id="KW_RENAME" id="12917" />
+            <token type-id="KW_REVOKE" id="12918" />
+            <token type-id="KW_ROLLBACK" id="12919" />
+            <token type-id="KW_SELECT" id="12920" />
             <token type-id="KW_UPDATE" id="12921" />
-            <sequence tokens="KW_WRITE, KW_DIRECTORY" id="12922" />
         </one-of>
     </element-def>
     <element-def custom="true" description="Component action" id="component_action">
-        <one-of id="12923">
-            <sequence tokens="KW_ADD, KW_GLOBAL, KW_CALLBACK" id="12924" />
-            <sequence tokens="KW_ADD, KW_PROXY" id="12925" />
-            <sequence tokens="KW_APPLY, KW_POLICY" id="12926" />
-            <sequence tokens="KW_ASSIGN, KW_USER" id="12927" />
-            <sequence tokens="KW_DELETE, KW_ACL" id="12928" />
-            <sequence tokens="KW_DELETE, KW_DATA, KW_SECURITY" id="12929" />
-            <sequence tokens="KW_DELETE, KW_GLOBAL, KW_CALLBACK" id="12930" />
-            <sequence tokens="KW_DELETE, KW_NAMESPACE, KW_ATTRIBUTE" id="12931" />
-            <sequence tokens="KW_DELETE, KW_NAMESPACE, KW_TEMPLATE" id="12932" />
-            <sequence tokens="KW_DELETE, KW_ROLE" id="12933" />
-            <sequence tokens="KW_DELETE, KW_ROLESET" id="12934" />
-            <sequence tokens="KW_DELETE, KW_SECURITY, KW_CLASS" id="12935" />
-            <sequence tokens="KW_DELETE, KW_SESSION, KW_NAMESPACE" id="12936" />
-            <sequence tokens="KW_DELETE, KW_USER" id="12937" />
-            <sequence tokens="KW_DISABLE, KW_DATA, KW_SECURITY" id="12938" />
-            <sequence tokens="KW_DISABLE, KW_POLICY" id="12939" />
-            <sequence tokens="KW_DISABLE, KW_ROLE" id="12940" />
-            <sequence tokens="KW_ENABLE, KW_DATA, KW_SECURITY" id="12941" />
-            <sequence tokens="KW_ENABLE, KW_GLOBAL, KW_CALLBACK" id="12942" />
-            <sequence tokens="KW_ENABLE, KW_POLICY" id="12943" />
-            <sequence tokens="KW_ENABLE, KW_ROLE" id="12944" />
-            <sequence tokens="KW_FACTOR, KW_ALL" id="12945" />
-            <sequence tokens="KW_FACTOR, KW_ERROR" id="12946" />
-            <sequence tokens="KW_FACTOR, KW_NULL" id="12947" />
-            <sequence tokens="KW_FACTOR, KW_TRUST, KW_LEVEL, KW_NEG" id="12948" />
-            <sequence tokens="KW_FACTOR, KW_TRUST, KW_LEVEL, KW_NULL" id="12949" />
-            <sequence tokens="KW_FACTOR, KW_VALIDATE, KW_ERROR" id="12950" />
-            <sequence tokens="KW_FACTOR, KW_VALIDATE, KW_FALSE" id="12951" />
-            <sequence tokens="KW_GET, KW_NAMESPACE, KW_ATTRIBUTE" id="12952" />
-            <sequence tokens="KW_GRANT, KW_ROLE" id="12953" />
-            <sequence tokens="KW_GRANT, KW_SYSTEM, KW_PRIVILEGE" id="12954" />
-            <sequence tokens="KW_REALM, KW_ACCESS" id="12955" />
-            <sequence tokens="KW_REALM, KW_SUCCESS" id="12956" />
-            <sequence tokens="KW_REALM, KW_VIOLATION" id="12957" />
-            <sequence tokens="KW_REMOVE, KW_POLICY" id="12958" />
-            <sequence tokens="KW_REMOVE, KW_PROXY" id="12959" />
-            <sequence tokens="KW_REVOKE, KW_ROLE" id="12960" />
-            <sequence tokens="KW_REVOKE, KW_SYSTEM, KW_PRIVILEGE" id="12961" />
-            <sequence tokens="KW_RULE, KW_SET, KW_EVAL" id="12962" />
-            <sequence tokens="KW_RULE, KW_SET, KW_FAILURE" id="12963" />
-            <sequence tokens="KW_RULE, KW_SET, KW_SUCCESS" id="12964" />
-            <sequence tokens="KW_SET, KW_AUTHORIZATION" id="12965" />
-            <sequence tokens="KW_SET, KW_COOKIE" id="12966" />
-            <sequence tokens="KW_SET, KW_INACTIVE, KW_TIMEOUT" id="12967" />
-            <sequence tokens="KW_SET, KW_NAMESPACE, KW_ATTRIBUTE" id="12968" />
-            <sequence tokens="KW_SET, KW_ROLE" id="12969" />
-            <sequence tokens="KW_SET, KW_USER, KW_PASSWORD" id="12970" />
-            <sequence tokens="KW_SET, KW_USER, KW_PROFILE" id="12971" />
-            <sequence tokens="KW_SET, KW_USER, KW_VERIFIER" id="12972" />
-            <sequence tokens="KW_SUBSCRIBE, KW_OID" id="12973" />
-            <sequence tokens="KW_UNSUBSCRIBE, KW_OID" id="12974" />
-            <sequence tokens="KW_UPDATE, KW_ACL" id="12975" />
-            <sequence tokens="KW_UPDATE, KW_DATA, KW_SECURITY" id="12976" />
-            <sequence tokens="KW_UPDATE, KW_NAMESPACE, KW_TEMPLATE" id="12977" />
-            <sequence tokens="KW_UPDATE, KW_ROLE" id="12978" />
-            <sequence tokens="KW_UPDATE, KW_ROLESET" id="12979" />
-            <sequence tokens="KW_UPDATE, KW_SECURITY, KW_CLASS" id="12980" />
-            <sequence tokens="KW_UPDATE, KW_USER" id="12981" />
-            <token type-id="KW_FTP" id="12982" />
-            <token type-id="KW_HTTP" id="12983" />
-            <token type-id="KW_AUTHENTICATION" id="12984" />
-            <token type-id="KW_IMPORT" id="12985" />
-            <token type-id="KW_EXPORT" id="12986" />
+        <one-of id="12922">
+            <sequence tokens="KW_ADD, KW_GLOBAL, KW_CALLBACK" id="12923" />
+            <sequence tokens="KW_ADD, KW_PROXY" id="12924" />
+            <sequence tokens="KW_APPLY, KW_POLICY" id="12925" />
+            <sequence tokens="KW_ASSIGN, KW_USER" id="12926" />
+            <sequence tokens="KW_DELETE, KW_ACL" id="12927" />
+            <sequence tokens="KW_DELETE, KW_DATA, KW_SECURITY" id="12928" />
+            <sequence tokens="KW_DELETE, KW_GLOBAL, KW_CALLBACK" id="12929" />
+            <sequence tokens="KW_DELETE, KW_NAMESPACE, KW_ATTRIBUTE" id="12930" />
+            <sequence tokens="KW_DELETE, KW_NAMESPACE, KW_TEMPLATE" id="12931" />
+            <sequence tokens="KW_DELETE, KW_ROLE" id="12932" />
+            <sequence tokens="KW_DELETE, KW_ROLESET" id="12933" />
+            <sequence tokens="KW_DELETE, KW_SECURITY, KW_CLASS" id="12934" />
+            <sequence tokens="KW_DELETE, KW_SESSION, KW_NAMESPACE" id="12935" />
+            <sequence tokens="KW_DELETE, KW_USER" id="12936" />
+            <sequence tokens="KW_DISABLE, KW_DATA, KW_SECURITY" id="12937" />
+            <sequence tokens="KW_DISABLE, KW_POLICY" id="12938" />
+            <sequence tokens="KW_DISABLE, KW_ROLE" id="12939" />
+            <sequence tokens="KW_ENABLE, KW_DATA, KW_SECURITY" id="12940" />
+            <sequence tokens="KW_ENABLE, KW_GLOBAL, KW_CALLBACK" id="12941" />
+            <sequence tokens="KW_ENABLE, KW_POLICY" id="12942" />
+            <sequence tokens="KW_ENABLE, KW_ROLE" id="12943" />
+            <sequence tokens="KW_FACTOR, KW_ALL" id="12944" />
+            <sequence tokens="KW_FACTOR, KW_ERROR" id="12945" />
+            <sequence tokens="KW_FACTOR, KW_NULL" id="12946" />
+            <sequence tokens="KW_FACTOR, KW_TRUST, KW_LEVEL, KW_NEG" id="12947" />
+            <sequence tokens="KW_FACTOR, KW_TRUST, KW_LEVEL, KW_NULL" id="12948" />
+            <sequence tokens="KW_FACTOR, KW_VALIDATE, KW_ERROR" id="12949" />
+            <sequence tokens="KW_FACTOR, KW_VALIDATE, KW_FALSE" id="12950" />
+            <sequence tokens="KW_GET, KW_NAMESPACE, KW_ATTRIBUTE" id="12951" />
+            <sequence tokens="KW_GRANT, KW_ROLE" id="12952" />
+            <sequence tokens="KW_GRANT, KW_SYSTEM, KW_PRIVILEGE" id="12953" />
+            <sequence tokens="KW_REALM, KW_ACCESS" id="12954" />
+            <sequence tokens="KW_REALM, KW_SUCCESS" id="12955" />
+            <sequence tokens="KW_REALM, KW_VIOLATION" id="12956" />
+            <sequence tokens="KW_REMOVE, KW_POLICY" id="12957" />
+            <sequence tokens="KW_REMOVE, KW_PROXY" id="12958" />
+            <sequence tokens="KW_REVOKE, KW_ROLE" id="12959" />
+            <sequence tokens="KW_REVOKE, KW_SYSTEM, KW_PRIVILEGE" id="12960" />
+            <sequence tokens="KW_RULE, KW_SET, KW_EVAL" id="12961" />
+            <sequence tokens="KW_RULE, KW_SET, KW_FAILURE" id="12962" />
+            <sequence tokens="KW_RULE, KW_SET, KW_SUCCESS" id="12963" />
+            <sequence tokens="KW_SET, KW_AUTHORIZATION" id="12964" />
+            <sequence tokens="KW_SET, KW_COOKIE" id="12965" />
+            <sequence tokens="KW_SET, KW_INACTIVE, KW_TIMEOUT" id="12966" />
+            <sequence tokens="KW_SET, KW_NAMESPACE, KW_ATTRIBUTE" id="12967" />
+            <sequence tokens="KW_SET, KW_ROLE" id="12968" />
+            <sequence tokens="KW_SET, KW_USER, KW_PASSWORD" id="12969" />
+            <sequence tokens="KW_SET, KW_USER, KW_PROFILE" id="12970" />
+            <sequence tokens="KW_SET, KW_USER, KW_VERIFIER" id="12971" />
+            <sequence tokens="KW_SUBSCRIBE, KW_OID" id="12972" />
+            <sequence tokens="KW_UNSUBSCRIBE, KW_OID" id="12973" />
+            <sequence tokens="KW_UPDATE, KW_ACL" id="12974" />
+            <sequence tokens="KW_UPDATE, KW_DATA, KW_SECURITY" id="12975" />
+            <sequence tokens="KW_UPDATE, KW_NAMESPACE, KW_TEMPLATE" id="12976" />
+            <sequence tokens="KW_UPDATE, KW_ROLE" id="12977" />
+            <sequence tokens="KW_UPDATE, KW_ROLESET" id="12978" />
+            <sequence tokens="KW_UPDATE, KW_SECURITY, KW_CLASS" id="12979" />
+            <sequence tokens="KW_UPDATE, KW_USER" id="12980" />
+            <token type-id="KW_FTP" id="12981" />
+            <token type-id="KW_HTTP" id="12982" />
+            <token type-id="KW_AUTHENTICATION" id="12983" />
+            <token type-id="KW_IMPORT" id="12984" />
+            <token type-id="KW_EXPORT" id="12985" />
         </one-of>
     </element-def>
     <element-def custom="true" description="System privileges" id="system_privilege">
-        <one-of object-type="SYSTEM_PRIVILEGE" id="12987">
-            <sequence tokens="KW_ADMINISTER, KW_ANY, KW_SQL, KW_TUNING, KW_SET" id="12988" />
-            <sequence tokens="KW_ADMINISTER, KW_DATABASE, KW_TRIGGER" id="12989" />
-            <sequence tokens="KW_ADMINISTER, KW_KEY, KW_MANAGEMENT" id="12990" />
-            <sequence tokens="KW_ADMINISTER, KW_RESOURCE, KW_MANAGER" id="12991" />
-            <sequence tokens="KW_ADMINISTER, KW_SQL, KW_MANAGEMENT, KW_OBJECT" id="12992" />
-            <sequence tokens="KW_ADMINISTER, KW_SQL, KW_TUNING, KW_SET" id="12993" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_ANALYTIC, KW_VIEW" id="12994" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_ASSEMBLY" id="12995" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="12996" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_CLUSTER" id="12997" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_CUBE" id="12998" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="12999" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_CUBE, KW_DIMENSION" id="13000" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_DIMENSION" id="13001" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_EDITION" id="13002" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="13003" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_HIERARCHY" id="13004" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_INDEX" id="13005" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_INDEXTYPE" id="13006" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_LIBRARY" id="13007" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="13008" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_MEASURE, KW_FOLDER" id="13009" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_MINING, KW_MODEL" id="13010" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_OPERATOR" id="13011" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_OUTLINE" id="13012" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_PROCEDURE" id="13013" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_ROLE" id="13014" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_RULE" id="13015" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_RULE, KW_SET" id="13016" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_SEQUENCE" id="13017" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_SQL, KW_PROFILE" id="13018" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="13019" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_TABLE" id="13020" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_TRIGGER" id="13021" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_TYPE" id="13022" />
-            <sequence tokens="KW_ALTER, KW_DATABASE" id="13023" />
-            <sequence tokens="KW_ALTER, KW_DATABASE, KW_LINK" id="13024" />
-            <sequence tokens="KW_ALTER, KW_JAVA" id="13025" />
-            <sequence tokens="KW_ALTER, KW_LOCKDOWN, KW_PROFILE" id="13026" />
-            <sequence tokens="KW_ALTER, KW_PROFILE" id="13027" />
-            <sequence tokens="KW_ALTER, KW_RESOURCE, KW_COST" id="13028" />
-            <sequence tokens="KW_ALTER, KW_ROLLBACK, KW_SEGMENT" id="13029" />
-            <sequence tokens="KW_ALTER, KW_SESSION" id="13030" />
-            <sequence tokens="KW_ALTER, KW_SYSTEM" id="13031" />
-            <sequence tokens="KW_ALTER, KW_TABLESPACE" id="13032" />
-            <sequence tokens="KW_ALTER, KW_USER" id="13033" />
-            <sequence tokens="KW_ANALYZE, KW_ANY" id="13034" />
-            <sequence tokens="KW_ANALYZE, KW_ANY, KW_DICTIONARY" id="13035" />
-            <sequence tokens="KW_AUDIT, KW_ANY" id="13036" />
-            <sequence tokens="KW_AUDIT, KW_SYSTEM" id="13037" />
-            <sequence tokens="KW_BACKUP, KW_ANY, KW_TABLE" id="13038" />
-            <sequence tokens="KW_BECOME, KW_USER" id="13039" />
-            <sequence tokens="KW_CHANGE, KW_NOTIFICATION" id="13040" />
-            <sequence tokens="KW_COMMENT, KW_ANY, KW_MINING, KW_MODEL" id="13041" />
-            <sequence tokens="KW_COMMENT, KW_ANY, KW_TABLE" id="13042" />
-            <sequence tokens="KW_CREATE, KW_ANALYTIC, KW_VIEW" id="13043" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_ANALYTIC, KW_VIEW" id="13044" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_ASSEMBLY" id="13045" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="13046" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_CLUSTER" id="13047" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_CONTEXT" id="13048" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_CREDENTIAL" id="13049" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_CUBE" id="13050" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="13051" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_CUBE, KW_DIMENSION" id="13052" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_DIMENSION" id="13053" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_DIRECTORY" id="13054" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_EDITION" id="13055" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="13056" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_HIERARCHY" id="13057" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_INDEX" id="13058" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_INDEXTYPE" id="13059" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_JOB" id="13060" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_LIBRARY" id="13061" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="13062" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_MEASURE, KW_FOLDER" id="13063" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_MINING, KW_MODEL" id="13064" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_OPERATOR" id="13065" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_OUTLINE" id="13066" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_PROCEDURE" id="13067" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_RULE" id="13068" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_RULE, KW_SET" id="13069" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_SEQUENCE" id="13070" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_SQL, KW_PROFILE" id="13071" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="13072" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_SYNONYM" id="13073" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_TABLE" id="13074" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_TRIGGER" id="13075" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_TYPE" id="13076" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_VIEW" id="13077" />
-            <sequence tokens="KW_CREATE, KW_ASSEMBLY" id="13078" />
-            <sequence tokens="KW_CREATE, KW_ATTRIBUTE, KW_DIMENSION" id="13079" />
-            <sequence tokens="KW_CREATE, KW_CLUSTER" id="13080" />
-            <sequence tokens="KW_CREATE, KW_CREDENTIAL" id="13081" />
-            <sequence tokens="KW_CREATE, KW_CUBE" id="13082" />
-            <sequence tokens="KW_CREATE, KW_CUBE, KW_BUILD, KW_PROCESS" id="13083" />
-            <sequence tokens="KW_CREATE, KW_CUBE, KW_DIMENSION" id="13084" />
-            <sequence tokens="KW_CREATE, KW_DATABASE, KW_LINK" id="13085" />
-            <sequence tokens="KW_CREATE, KW_DIMENSION" id="13086" />
-            <sequence tokens="KW_CREATE, KW_EVALUATION, KW_CONTEXT" id="13087" />
-            <sequence tokens="KW_CREATE, KW_EXTERNAL, KW_JOB" id="13088" />
-            <sequence tokens="KW_CREATE, KW_HIERARCHY" id="13089" />
-            <sequence tokens="KW_CREATE, KW_INDEXTYPE" id="13090" />
-            <sequence tokens="KW_CREATE, KW_JAVA" id="13091" />
-            <sequence tokens="KW_CREATE, KW_JOB" id="13092" />
-            <sequence tokens="KW_CREATE, KW_LIBRARY" id="13093" />
-            <sequence tokens="KW_CREATE, KW_LOCKDOWN, KW_PROFILE" id="13094" />
-            <sequence tokens="KW_CREATE, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="13095" />
-            <sequence tokens="KW_CREATE, KW_MATERIALIZED, KW_VIEW" id="13096" />
-            <sequence tokens="KW_CREATE, KW_MEASURE, KW_FOLDER" id="13097" />
-            <sequence tokens="KW_CREATE, KW_MINING, KW_MODEL" id="13098" />
-            <sequence tokens="KW_CREATE, KW_OPERATOR" id="13099" />
-            <sequence tokens="KW_CREATE, KW_PLUGGABLE, KW_DATABASE" id="13100" />
-            <sequence tokens="KW_CREATE, KW_PROCEDURE" id="13101" />
-            <sequence tokens="KW_CREATE, KW_PROFILE" id="13102" />
-            <sequence tokens="KW_CREATE, KW_PUBLIC, KW_DATABASE, KW_LINK" id="13103" />
-            <sequence tokens="KW_CREATE, KW_PUBLIC, KW_SYNONYM" id="13104" />
-            <sequence tokens="KW_CREATE, KW_ROLE" id="13105" />
-            <sequence tokens="KW_CREATE, KW_ROLLBACK, KW_SEGMENT" id="13106" />
-            <sequence tokens="KW_CREATE, KW_RULE" id="13107" />
-            <sequence tokens="KW_CREATE, KW_RULE, KW_SET" id="13108" />
-            <sequence tokens="KW_CREATE, KW_SEQUENCE" id="13109" />
-            <sequence tokens="KW_CREATE, KW_SESSION" id="13110" />
-            <sequence tokens="KW_CREATE, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="13111" />
-            <sequence tokens="KW_CREATE, KW_SYNONYM" id="13112" />
-            <sequence tokens="KW_CREATE, KW_TABLE" id="13113" />
-            <sequence tokens="KW_CREATE, KW_TABLESPACE" id="13114" />
-            <sequence tokens="KW_CREATE, KW_TRIGGER" id="13115" />
-            <sequence tokens="KW_CREATE, KW_TYPE" id="13116" />
-            <sequence tokens="KW_CREATE, KW_USER" id="13117" />
-            <sequence tokens="KW_CREATE, KW_VIEW" id="13118" />
-            <sequence tokens="KW_DEBUG, KW_ANY, KW_PROCEDURE" id="13119" />
-            <sequence tokens="KW_DEBUG, KW_CONNECT, KW_ANY" id="13120" />
-            <sequence tokens="KW_DEBUG, KW_CONNECT, KW_SESSION" id="13121" />
-            <sequence tokens="KW_DELETE, KW_ANY, KW_CUBE, KW_DIMENSION" id="13122" />
-            <sequence tokens="KW_DELETE, KW_ANY, KW_MEASURE, KW_FOLDER" id="13123" />
-            <sequence tokens="KW_DELETE, KW_ANY, KW_TABLE" id="13124" />
-            <sequence tokens="KW_DEQUEUE, KW_ANY, KW_QUEUE" id="13125" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_ANALYTIC, KW_VIEW" id="13126" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_ASSEMBLY" id="13127" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="13128" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_CLUSTER" id="13129" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_CONTEXT" id="13130" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_CUBE" id="13131" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="13132" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_CUBE, KW_DIMENSION" id="13133" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_DIMENSION" id="13134" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_DIRECTORY" id="13135" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_EDITION" id="13136" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="13137" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_HIERARCHY" id="13138" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_INDEX" id="13139" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_INDEXTYPE" id="13140" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_LIBRARY" id="13141" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="13142" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_MEASURE, KW_FOLDER" id="13143" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_MINING, KW_MODEL" id="13144" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_OPERATOR" id="13145" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_OUTLINE" id="13146" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_PROCEDURE" id="13147" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_ROLE" id="13148" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_RULE" id="13149" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_RULE, KW_SET" id="13150" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_SEQUENCE" id="13151" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_SQL, KW_PROFILE" id="13152" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="13153" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_SYNONYM" id="13154" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_TABLE" id="13155" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_TRIGGER" id="13156" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_TYPE" id="13157" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_VIEW" id="13158" />
-            <sequence tokens="KW_DROP, KW_JAVA" id="13159" />
-            <sequence tokens="KW_DROP, KW_LOCKDOWN, KW_PROFILE" id="13160" />
-            <sequence tokens="KW_DROP, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="13161" />
-            <sequence tokens="KW_DROP, KW_PROFILE" id="13162" />
-            <sequence tokens="KW_DROP, KW_PUBLIC, KW_DATABASE, KW_LINK" id="13163" />
-            <sequence tokens="KW_DROP, KW_PUBLIC, KW_SYNONYM" id="13164" />
-            <sequence tokens="KW_DROP, KW_ROLLBACK, KW_SEGMENT" id="13165" />
-            <sequence tokens="KW_DROP, KW_TABLESPACE" id="13166" />
-            <sequence tokens="KW_DROP, KW_USER" id="13167" />
-            <sequence tokens="KW_EM, KW_EXPRESS, KW_CONNECT" id="13168" />
-            <sequence tokens="KW_ENQUEUE, KW_ANY, KW_QUEUE" id="13169" />
-            <sequence tokens="KW_EXECUTE, KW_ANY, KW_ASSEMBLY" id="13170" />
-            <sequence tokens="KW_EXECUTE, KW_ANY, KW_CLASS" id="13171" />
-            <sequence tokens="KW_EXECUTE, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="13172" />
-            <sequence tokens="KW_EXECUTE, KW_ANY, KW_INDEXTYPE" id="13173" />
-            <sequence tokens="KW_EXECUTE, KW_ANY, KW_LIBRARY" id="13174" />
-            <sequence tokens="KW_EXECUTE, KW_ANY, KW_OPERATOR" id="13175" />
-            <sequence tokens="KW_EXECUTE, KW_ANY, KW_PROCEDURE" id="13176" />
-            <sequence tokens="KW_EXECUTE, KW_ANY, KW_PROGRAM" id="13177" />
-            <sequence tokens="KW_EXECUTE, KW_ANY, KW_RULE" id="13178" />
-            <sequence tokens="KW_EXECUTE, KW_ANY, KW_RULE, KW_SET" id="13179" />
-            <sequence tokens="KW_EXECUTE, KW_ANY, KW_TYPE" id="13180" />
-            <sequence tokens="KW_EXECUTE, KW_ASSEMBLY" id="13181" />
-            <sequence tokens="KW_EXEMPT, KW_ACCESS, KW_POLICY" id="13182" />
-            <sequence tokens="KW_EXEMPT, KW_REDACTION, KW_POLICY" id="13183" />
-            <sequence tokens="KW_EXPORT, KW_FULL, KW_DATABASE" id="13184" />
-            <sequence tokens="KW_FLASHBACK, KW_ANY, KW_TABLE" id="13185" />
-            <sequence tokens="KW_FLASHBACK, KW_ARCHIVE, KW_ADMINISTER" id="13186" />
-            <sequence tokens="KW_FORCE, KW_ANY, KW_TRANSACTION" id="13187" />
-            <sequence tokens="KW_FORCE, KW_TRANSACTION" id="13188" />
-            <sequence tokens="KW_GLOBAL, KW_QUERY, KW_REWRITE" id="13189" />
-            <sequence tokens="KW_GRANT, KW_ANY, KW_OBJECT, KW_PRIVILEGE" id="13190" />
-            <sequence tokens="KW_GRANT, KW_ANY, KW_PRIVILEGE" id="13191" />
-            <sequence tokens="KW_GRANT, KW_ANY, KW_ROLE" id="13192" />
-            <sequence tokens="KW_IMPORT, KW_FULL, KW_DATABASE" id="13193" />
-            <sequence tokens="KW_INHERIT, KW_ANY, KW_PRIVILEGES" id="13194" />
-            <sequence tokens="KW_INSERT, KW_ANY, KW_CUBE, KW_DIMENSION" id="13195" />
-            <sequence tokens="KW_INSERT, KW_ANY, KW_MEASURE, KW_FOLDER" id="13196" />
-            <sequence tokens="KW_INSERT, KW_ANY, KW_TABLE" id="13197" />
-            <sequence id="13198">
-                <token type-id="KW_KEEP" id="13199" />
-                <token type-id="DT_DATE" id="13200" flavor="keyword" />
-                <token type-id="KW_TIME" id="13201" />
-            </sequence>
-            <sequence tokens="KW_KEEP, KW_SYSGUID" id="13202" />
-            <sequence tokens="KW_LOCK, KW_ANY, KW_TABLE" id="13203" />
-            <token type-id="KW_LOGMINING" id="13204" />
-            <sequence tokens="KW_MANAGE, KW_ANY, KW_FILE, KW_GROUP" id="13205" />
-            <sequence tokens="KW_MANAGE, KW_ANY, KW_QUEUE" id="13206" />
-            <sequence tokens="KW_MANAGE, KW_FILE, KW_GROUP" id="13207" />
-            <sequence tokens="KW_MANAGE, KW_SCHEDULER" id="13208" />
-            <sequence tokens="KW_MANAGE, KW_TABLESPACE" id="13209" />
-            <sequence tokens="KW_MERGE, KW_ANY, KW_VIEW" id="13210" />
-            <sequence tokens="KW_ON, KW_COMMIT, KW_REFRESH" id="13211" />
-            <sequence tokens="KW_PURGE, KW_DBA_RECYCLEBIN" id="13212" />
-            <sequence tokens="KW_QUERY, KW_REWRITE" id="13213" />
-            <sequence tokens="KW_READ, KW_ANY, KW_ANALYTIC, KW_VIEW, KW_CACHE" id="13214" />
-            <sequence tokens="KW_READ, KW_ANY, KW_FILE, KW_GROUP" id="13215" />
-            <sequence tokens="KW_READ, KW_ANY, KW_TABLE" id="13216" />
-            <sequence tokens="KW_REDEFINE, KW_ANY, KW_TABLE" id="13217" />
-            <sequence tokens="KW_RESTRICTED, KW_SESSION" id="13218" />
-            <sequence tokens="KW_SELECT, KW_ANY, KW_CUBE" id="13219" />
-            <sequence tokens="KW_SELECT, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="13220" />
-            <sequence tokens="KW_SELECT, KW_ANY, KW_CUBE, KW_DIMENSION" id="13221" />
-            <sequence tokens="KW_SELECT, KW_ANY, KW_DICTIONARY" id="13222" />
-            <sequence tokens="KW_SELECT, KW_ANY, KW_MEASURE, KW_FOLDER" id="13223" />
-            <sequence tokens="KW_SELECT, KW_ANY, KW_MINING, KW_MODEL" id="13224" />
-            <sequence tokens="KW_SELECT, KW_ANY, KW_SEQUENCE" id="13225" />
-            <sequence tokens="KW_SELECT, KW_ANY, KW_TABLE" id="13226" />
-            <sequence tokens="KW_SELECT, KW_ANY, KW_TRANSACTION" id="13227" />
-            <sequence tokens="KW_SET, KW_CONTAINER" id="13228" />
-            <sequence id="13229">
-                <token type-id="FN_TRANSLATE" id="13230" flavor="keyword" />
-                <token type-id="KW_ANY" id="13231" />
-                <token type-id="KW_SQL" id="13232" />
-            </sequence>
-            <sequence tokens="KW_UNDER, KW_ANY, KW_TABLE" id="13233" />
-            <sequence tokens="KW_UNDER, KW_ANY, KW_TYPE" id="13234" />
-            <sequence tokens="KW_UNDER, KW_ANY, KW_VIEW" id="13235" />
-            <sequence tokens="KW_UNLIMITED, KW_TABLESPACE" id="13236" />
-            <sequence tokens="KW_UPDATE, KW_ANY, KW_CUBE" id="13237" />
-            <sequence tokens="KW_UPDATE, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="13238" />
-            <sequence tokens="KW_UPDATE, KW_ANY, KW_CUBE, KW_DIMENSION" id="13239" />
-            <sequence tokens="KW_UPDATE, KW_ANY, KW_TABLE" id="13240" />
-            <sequence tokens="KW_USE, KW_ANY, KW_JOB, KW_RESOURCE" id="13241" />
-            <sequence tokens="KW_USE, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="13242" />
-            <sequence tokens="KW_WRITE, KW_ANY, KW_ANALYTIC, KW_VIEW, KW_CACHE" id="13243" />
-            <sequence tokens="KW_ADMINISTER, KW_SQL, KW_TUNING, KW_SET" id="13244" />
-            <sequence tokens="KW_ADMINISTER, KW_ANY, KW_SQL, KW_TUNING, KW_SET" id="13245" />
-            <sequence tokens="KW_ADMINISTER, KW_SQL, KW_MANAGEMENT, KW_OBJECT" id="13246" />
-            <sequence tokens="KW_CREATE, KW_APPLICATION, KW_IDENTITY" id="13247" />
-            <sequence tokens="KW_DROP, KW_APPLICATION, KW_IDENTITY" id="13248" />
-            <sequence tokens="KW_CREATE, KW_ASSERTION" id="13249" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_ASSERTION" id="13250" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_ASSERTION" id="13251" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_ASSERTION" id="13252" />
-            <sequence tokens="KW_CREATE, KW_ATTRIBUTE, KW_DIMENSION" id="13253" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="13254" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="13255" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="13256" />
-            <sequence tokens="KW_CREATE, KW_DATA, KW_GRANT" id="13257" />
-            <sequence tokens="KW_ADMINISTER, KW_ANY, KW_DATA, KW_GRANT" id="13258" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_DATA, KW_GRANT" id="13259" />
-            <sequence tokens="KW_CREATE, KW_DATA, KW_ROLE" id="13260" />
-            <sequence tokens="KW_DROP, KW_DATA, KW_ROLE" id="13261" />
-            <sequence tokens="KW_GRANT, KW_ANY, KW_DATA, KW_ROLE" id="13262" />
-            <sequence tokens="KW_CREATE, KW_DOMAIN" id="13263" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_DOMAIN" id="13264" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_DOMAIN" id="13265" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_DOMAIN" id="13266" />
-            <sequence tokens="KW_EXECUTE, KW_ANY, KW_DOMAIN" id="13267" />
-            <sequence tokens="KW_CREATE, KW_END, KW_USER" id="13268" />
-            <sequence tokens="KW_ALTER, KW_END, KW_USER" id="13269" />
-            <sequence tokens="KW_DROP, KW_END, KW_USER" id="13270" />
-            <sequence tokens="KW_CREATE, KW_END, KW_USER, KW_CONTEXT" id="13271" />
-            <sequence tokens="KW_DROP, KW_END, KW_USER, KW_CONTEXT" id="13272" />
-            <sequence tokens="KW_UPDATE, KW_ANY, KW_END, KW_USER, KW_CONTEXT" id="13273" />
-            <sequence tokens="KW_SELECT, KW_ANY, KW_END, KW_USER, KW_CONTEXT" id="13274" />
-            <sequence tokens="KW_CREATE, KW_HIERARCHY" id="13275" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_HIERARCHY" id="13276" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_HIERARCHY" id="13277" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_HIERARCHY" id="13278" />
-            <sequence tokens="KW_CREATE, KW_ANY, KW_PROPERTY, KW_GRAPH" id="13279" />
-            <sequence tokens="KW_ALTER, KW_ANY, KW_PROPERTY, KW_GRAPH" id="13280" />
-            <sequence tokens="KW_DROP, KW_ANY, KW_PROPERTY, KW_GRAPH" id="13281" />
-            <sequence tokens="KW_READ, KW_ANY, KW_PROPERTY, KW_GRAPH" id="13282" />
-            <sequence tokens="KW_COMMENT, KW_ANY, KW_PROPERTY, KW_GRAPH" id="13283" />
-            <sequence tokens="KW_REDEFINE, KW_ANY, KW_TABLE" id="13284" />
-            <sequence tokens="KW_TABLE, KW_RETENTION" id="13285" />
-            <sequence tokens="KW_ENABLE, KW_DIAGNOSTICS" id="13286" />
-            <sequence tokens="KW_FORCE, KW_ANY, KW_TRANSACTION" id="13287" />
-            <sequence tokens="KW_FORCE, KW_TRANSACTION" id="13288" />
-            <sequence tokens="KW_GRANT, KW_ANY, KW_OBJECT, KW_PRIVILEGE" id="13289" />
-            <sequence tokens="KW_INHERIT, KW_ANY, KW_PRIVILEGES" id="13290" />
+        <one-of object-type="SYSTEM_PRIVILEGE" id="12986">
+            <sequence tokens="FN_TRANSLATE:keyword, KW_ANY, KW_SQL" id="12987" />
+            <sequence tokens="KW_ADMINISTER, KW_ANY, KW_DATA, KW_GRANT" id="12988" />
+            <sequence tokens="KW_ADMINISTER, KW_ANY, KW_SQL, KW_TUNING, KW_SET" id="12989" />
+            <sequence tokens="KW_ADMINISTER, KW_DATABASE, KW_TRIGGER" id="12990" />
+            <sequence tokens="KW_ADMINISTER, KW_KEY, KW_MANAGEMENT" id="12991" />
+            <sequence tokens="KW_ADMINISTER, KW_RESOURCE, KW_MANAGER" id="12992" />
+            <sequence tokens="KW_ADMINISTER, KW_SQL, KW_MANAGEMENT, KW_OBJECT" id="12993" />
+            <sequence tokens="KW_ADMINISTER, KW_SQL, KW_MANAGEMENT, KW_OBJECT" id="12994" />
+            <sequence tokens="KW_ADMINISTER, KW_SQL, KW_TUNING, KW_SET" id="12995" />
+            <sequence tokens="KW_ADMINISTER, KW_SQL, KW_TUNING, KW_SET" id="12996" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_ANALYTIC, KW_VIEW" id="12997" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_ASSEMBLY" id="12998" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_ASSERTION" id="12999" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="13000" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="13001" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_CLUSTER" id="13002" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_CUBE" id="13003" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="13004" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_CUBE, KW_DIMENSION" id="13005" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_DIMENSION" id="13006" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_DOMAIN" id="13007" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_EDITION" id="13008" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="13009" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_HIERARCHY" id="13010" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_HIERARCHY" id="13011" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_INDEX" id="13012" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_INDEXTYPE" id="13013" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_LIBRARY" id="13014" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="13015" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_MEASURE, KW_FOLDER" id="13016" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_MINING, KW_MODEL" id="13017" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_OPERATOR" id="13018" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_OUTLINE" id="13019" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_PROCEDURE" id="13020" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_PROPERTY, KW_GRAPH" id="13021" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_ROLE" id="13022" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_RULE" id="13023" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_RULE, KW_SET" id="13024" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_SEQUENCE" id="13025" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_SQL, KW_PROFILE" id="13026" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="13027" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_TABLE" id="13028" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_TRIGGER" id="13029" />
+            <sequence tokens="KW_ALTER, KW_ANY, KW_TYPE" id="13030" />
+            <sequence tokens="KW_ALTER, KW_DATABASE" id="13031" />
+            <sequence tokens="KW_ALTER, KW_DATABASE, KW_LINK" id="13032" />
+            <sequence tokens="KW_ALTER, KW_END, KW_USER" id="13033" />
+            <sequence tokens="KW_ALTER, KW_JAVA" id="13034" />
+            <sequence tokens="KW_ALTER, KW_LOCKDOWN, KW_PROFILE" id="13035" />
+            <sequence tokens="KW_ALTER, KW_PROFILE" id="13036" />
+            <sequence tokens="KW_ALTER, KW_RESOURCE, KW_COST" id="13037" />
+            <sequence tokens="KW_ALTER, KW_ROLLBACK, KW_SEGMENT" id="13038" />
+            <sequence tokens="KW_ALTER, KW_SESSION" id="13039" />
+            <sequence tokens="KW_ALTER, KW_SYSTEM" id="13040" />
+            <sequence tokens="KW_ALTER, KW_TABLESPACE" id="13041" />
+            <sequence tokens="KW_ALTER, KW_USER" id="13042" />
+            <sequence tokens="KW_ANALYZE, KW_ANY" id="13043" />
+            <sequence tokens="KW_ANALYZE, KW_ANY, KW_DICTIONARY" id="13044" />
+            <sequence tokens="KW_AUDIT, KW_ANY" id="13045" />
+            <sequence tokens="KW_AUDIT, KW_SYSTEM" id="13046" />
+            <sequence tokens="KW_BACKUP, KW_ANY, KW_TABLE" id="13047" />
+            <sequence tokens="KW_BECOME, KW_USER" id="13048" />
+            <sequence tokens="KW_CHANGE, KW_NOTIFICATION" id="13049" />
+            <sequence tokens="KW_COMMENT, KW_ANY, KW_MINING, KW_MODEL" id="13050" />
+            <sequence tokens="KW_COMMENT, KW_ANY, KW_PROPERTY, KW_GRAPH" id="13051" />
+            <sequence tokens="KW_COMMENT, KW_ANY, KW_TABLE" id="13052" />
+            <sequence tokens="KW_CREATE, KW_ANALYTIC, KW_VIEW" id="13053" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_ANALYTIC, KW_VIEW" id="13054" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_ASSEMBLY" id="13055" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_ASSERTION" id="13056" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="13057" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="13058" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_CLUSTER" id="13059" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_CONTEXT" id="13060" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_CREDENTIAL" id="13061" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_CUBE" id="13062" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="13063" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_CUBE, KW_DIMENSION" id="13064" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_DIMENSION" id="13065" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_DIRECTORY" id="13066" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_DOMAIN" id="13067" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_EDITION" id="13068" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="13069" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_HIERARCHY" id="13070" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_HIERARCHY" id="13071" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_INDEX" id="13072" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_INDEXTYPE" id="13073" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_JOB" id="13074" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_LIBRARY" id="13075" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="13076" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_MEASURE, KW_FOLDER" id="13077" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_MINING, KW_MODEL" id="13078" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_OPERATOR" id="13079" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_OUTLINE" id="13080" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_PROCEDURE" id="13081" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_PROPERTY, KW_GRAPH" id="13082" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_RULE" id="13083" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_RULE, KW_SET" id="13084" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_SEQUENCE" id="13085" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_SQL, KW_PROFILE" id="13086" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="13087" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_SYNONYM" id="13088" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_TABLE" id="13089" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_TRIGGER" id="13090" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_TYPE" id="13091" />
+            <sequence tokens="KW_CREATE, KW_ANY, KW_VIEW" id="13092" />
+            <sequence tokens="KW_CREATE, KW_APPLICATION, KW_IDENTITY" id="13093" />
+            <sequence tokens="KW_CREATE, KW_ASSEMBLY" id="13094" />
+            <sequence tokens="KW_CREATE, KW_ASSERTION" id="13095" />
+            <sequence tokens="KW_CREATE, KW_ATTRIBUTE, KW_DIMENSION" id="13096" />
+            <sequence tokens="KW_CREATE, KW_ATTRIBUTE, KW_DIMENSION" id="13097" />
+            <sequence tokens="KW_CREATE, KW_CLUSTER" id="13098" />
+            <sequence tokens="KW_CREATE, KW_CREDENTIAL" id="13099" />
+            <sequence tokens="KW_CREATE, KW_CUBE" id="13100" />
+            <sequence tokens="KW_CREATE, KW_CUBE, KW_BUILD, KW_PROCESS" id="13101" />
+            <sequence tokens="KW_CREATE, KW_CUBE, KW_DIMENSION" id="13102" />
+            <sequence tokens="KW_CREATE, KW_DATA, KW_GRANT" id="13103" />
+            <sequence tokens="KW_CREATE, KW_DATA, KW_ROLE" id="13104" />
+            <sequence tokens="KW_CREATE, KW_DATABASE, KW_LINK" id="13105" />
+            <sequence tokens="KW_CREATE, KW_DIMENSION" id="13106" />
+            <sequence tokens="KW_CREATE, KW_DOMAIN" id="13107" />
+            <sequence tokens="KW_CREATE, KW_END, KW_USER" id="13108" />
+            <sequence tokens="KW_CREATE, KW_END, KW_USER, KW_CONTEXT" id="13109" />
+            <sequence tokens="KW_CREATE, KW_EVALUATION, KW_CONTEXT" id="13110" />
+            <sequence tokens="KW_CREATE, KW_EXTERNAL, KW_JOB" id="13111" />
+            <sequence tokens="KW_CREATE, KW_HIERARCHY" id="13112" />
+            <sequence tokens="KW_CREATE, KW_HIERARCHY" id="13113" />
+            <sequence tokens="KW_CREATE, KW_INDEXTYPE" id="13114" />
+            <sequence tokens="KW_CREATE, KW_JAVA" id="13115" />
+            <sequence tokens="KW_CREATE, KW_JOB" id="13116" />
+            <sequence tokens="KW_CREATE, KW_LIBRARY" id="13117" />
+            <sequence tokens="KW_CREATE, KW_LOCKDOWN, KW_PROFILE" id="13118" />
+            <sequence tokens="KW_CREATE, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="13119" />
+            <sequence tokens="KW_CREATE, KW_MATERIALIZED, KW_VIEW" id="13120" />
+            <sequence tokens="KW_CREATE, KW_MEASURE, KW_FOLDER" id="13121" />
+            <sequence tokens="KW_CREATE, KW_MINING, KW_MODEL" id="13122" />
+            <sequence tokens="KW_CREATE, KW_OPERATOR" id="13123" />
+            <sequence tokens="KW_CREATE, KW_PLUGGABLE, KW_DATABASE" id="13124" />
+            <sequence tokens="KW_CREATE, KW_PROCEDURE" id="13125" />
+            <sequence tokens="KW_CREATE, KW_PROFILE" id="13126" />
+            <sequence tokens="KW_CREATE, KW_PUBLIC, KW_DATABASE, KW_LINK" id="13127" />
+            <sequence tokens="KW_CREATE, KW_PUBLIC, KW_SYNONYM" id="13128" />
+            <sequence tokens="KW_CREATE, KW_ROLE" id="13129" />
+            <sequence tokens="KW_CREATE, KW_ROLLBACK, KW_SEGMENT" id="13130" />
+            <sequence tokens="KW_CREATE, KW_RULE" id="13131" />
+            <sequence tokens="KW_CREATE, KW_RULE, KW_SET" id="13132" />
+            <sequence tokens="KW_CREATE, KW_SEQUENCE" id="13133" />
+            <sequence tokens="KW_CREATE, KW_SESSION" id="13134" />
+            <sequence tokens="KW_CREATE, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="13135" />
+            <sequence tokens="KW_CREATE, KW_SYNONYM" id="13136" />
+            <sequence tokens="KW_CREATE, KW_TABLE" id="13137" />
+            <sequence tokens="KW_CREATE, KW_TABLESPACE" id="13138" />
+            <sequence tokens="KW_CREATE, KW_TRIGGER" id="13139" />
+            <sequence tokens="KW_CREATE, KW_TYPE" id="13140" />
+            <sequence tokens="KW_CREATE, KW_USER" id="13141" />
+            <sequence tokens="KW_CREATE, KW_VIEW" id="13142" />
+            <sequence tokens="KW_DEBUG, KW_ANY, KW_PROCEDURE" id="13143" />
+            <sequence tokens="KW_DEBUG, KW_CONNECT, KW_ANY" id="13144" />
+            <sequence tokens="KW_DEBUG, KW_CONNECT, KW_SESSION" id="13145" />
+            <sequence tokens="KW_DELETE, KW_ANY, KW_CUBE, KW_DIMENSION" id="13146" />
+            <sequence tokens="KW_DELETE, KW_ANY, KW_MEASURE, KW_FOLDER" id="13147" />
+            <sequence tokens="KW_DELETE, KW_ANY, KW_TABLE" id="13148" />
+            <sequence tokens="KW_DEQUEUE, KW_ANY, KW_QUEUE" id="13149" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_ANALYTIC, KW_VIEW" id="13150" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_ASSEMBLY" id="13151" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_ASSERTION" id="13152" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="13153" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="13154" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_CLUSTER" id="13155" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_CONTEXT" id="13156" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_CUBE" id="13157" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="13158" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_CUBE, KW_DIMENSION" id="13159" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_DATA, KW_GRANT" id="13160" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_DIMENSION" id="13161" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_DIRECTORY" id="13162" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_DOMAIN" id="13163" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_EDITION" id="13164" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="13165" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_HIERARCHY" id="13166" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_HIERARCHY" id="13167" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_INDEX" id="13168" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_INDEXTYPE" id="13169" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_LIBRARY" id="13170" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="13171" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_MEASURE, KW_FOLDER" id="13172" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_MINING, KW_MODEL" id="13173" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_OPERATOR" id="13174" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_OUTLINE" id="13175" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_PROCEDURE" id="13176" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_PROPERTY, KW_GRAPH" id="13177" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_ROLE" id="13178" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_RULE" id="13179" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_RULE, KW_SET" id="13180" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_SEQUENCE" id="13181" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_SQL, KW_PROFILE" id="13182" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="13183" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_SYNONYM" id="13184" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_TABLE" id="13185" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_TRIGGER" id="13186" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_TYPE" id="13187" />
+            <sequence tokens="KW_DROP, KW_ANY, KW_VIEW" id="13188" />
+            <sequence tokens="KW_DROP, KW_APPLICATION, KW_IDENTITY" id="13189" />
+            <sequence tokens="KW_DROP, KW_DATA, KW_ROLE" id="13190" />
+            <sequence tokens="KW_DROP, KW_END, KW_USER" id="13191" />
+            <sequence tokens="KW_DROP, KW_END, KW_USER, KW_CONTEXT" id="13192" />
+            <sequence tokens="KW_DROP, KW_JAVA" id="13193" />
+            <sequence tokens="KW_DROP, KW_LOCKDOWN, KW_PROFILE" id="13194" />
+            <sequence tokens="KW_DROP, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="13195" />
+            <sequence tokens="KW_DROP, KW_PROFILE" id="13196" />
+            <sequence tokens="KW_DROP, KW_PUBLIC, KW_DATABASE, KW_LINK" id="13197" />
+            <sequence tokens="KW_DROP, KW_PUBLIC, KW_SYNONYM" id="13198" />
+            <sequence tokens="KW_DROP, KW_ROLLBACK, KW_SEGMENT" id="13199" />
+            <sequence tokens="KW_DROP, KW_TABLESPACE" id="13200" />
+            <sequence tokens="KW_DROP, KW_USER" id="13201" />
+            <sequence tokens="KW_EM, KW_EXPRESS, KW_CONNECT" id="13202" />
+            <sequence tokens="KW_ENABLE, KW_DIAGNOSTICS" id="13203" />
+            <sequence tokens="KW_ENQUEUE, KW_ANY, KW_QUEUE" id="13204" />
+            <sequence tokens="KW_EXECUTE, KW_ANY, KW_ASSEMBLY" id="13205" />
+            <sequence tokens="KW_EXECUTE, KW_ANY, KW_CLASS" id="13206" />
+            <sequence tokens="KW_EXECUTE, KW_ANY, KW_DOMAIN" id="13207" />
+            <sequence tokens="KW_EXECUTE, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="13208" />
+            <sequence tokens="KW_EXECUTE, KW_ANY, KW_INDEXTYPE" id="13209" />
+            <sequence tokens="KW_EXECUTE, KW_ANY, KW_LIBRARY" id="13210" />
+            <sequence tokens="KW_EXECUTE, KW_ANY, KW_OPERATOR" id="13211" />
+            <sequence tokens="KW_EXECUTE, KW_ANY, KW_PROCEDURE" id="13212" />
+            <sequence tokens="KW_EXECUTE, KW_ANY, KW_PROGRAM" id="13213" />
+            <sequence tokens="KW_EXECUTE, KW_ANY, KW_RULE" id="13214" />
+            <sequence tokens="KW_EXECUTE, KW_ANY, KW_RULE, KW_SET" id="13215" />
+            <sequence tokens="KW_EXECUTE, KW_ANY, KW_TYPE" id="13216" />
+            <sequence tokens="KW_EXECUTE, KW_ASSEMBLY" id="13217" />
+            <sequence tokens="KW_EXEMPT, KW_ACCESS, KW_POLICY" id="13218" />
+            <sequence tokens="KW_EXEMPT, KW_REDACTION, KW_POLICY" id="13219" />
+            <sequence tokens="KW_EXPORT, KW_FULL, KW_DATABASE" id="13220" />
+            <sequence tokens="KW_FLASHBACK, KW_ANY, KW_TABLE" id="13221" />
+            <sequence tokens="KW_FLASHBACK, KW_ARCHIVE, KW_ADMINISTER" id="13222" />
+            <sequence tokens="KW_FORCE, KW_ANY, KW_TRANSACTION" id="13223" />
+            <sequence tokens="KW_FORCE, KW_ANY, KW_TRANSACTION" id="13224" />
+            <sequence tokens="KW_FORCE, KW_TRANSACTION" id="13225" />
+            <sequence tokens="KW_FORCE, KW_TRANSACTION" id="13226" />
+            <sequence tokens="KW_GLOBAL, KW_QUERY, KW_REWRITE" id="13227" />
+            <sequence tokens="KW_GRANT, KW_ANY, KW_DATA, KW_ROLE" id="13228" />
+            <sequence tokens="KW_GRANT, KW_ANY, KW_OBJECT, KW_PRIVILEGE" id="13229" />
+            <sequence tokens="KW_GRANT, KW_ANY, KW_OBJECT, KW_PRIVILEGE" id="13230" />
+            <sequence tokens="KW_GRANT, KW_ANY, KW_PRIVILEGE" id="13231" />
+            <sequence tokens="KW_GRANT, KW_ANY, KW_ROLE" id="13232" />
+            <sequence tokens="KW_IMPORT, KW_FULL, KW_DATABASE" id="13233" />
+            <sequence tokens="KW_INHERIT, KW_ANY, KW_PRIVILEGES" id="13234" />
+            <sequence tokens="KW_INHERIT, KW_ANY, KW_PRIVILEGES" id="13235" />
+            <sequence tokens="KW_INSERT, KW_ANY, KW_CUBE, KW_DIMENSION" id="13236" />
+            <sequence tokens="KW_INSERT, KW_ANY, KW_MEASURE, KW_FOLDER" id="13237" />
+            <sequence tokens="KW_INSERT, KW_ANY, KW_TABLE" id="13238" />
+            <sequence tokens="KW_KEEP, DT_DATE:keyword, KW_TIME" id="13239" />
+            <sequence tokens="KW_KEEP, KW_SYSGUID" id="13240" />
+            <sequence tokens="KW_LOCK, KW_ANY, KW_TABLE" id="13241" />
+            <sequence tokens="KW_MANAGE, KW_ANY, KW_FILE, KW_GROUP" id="13242" />
+            <sequence tokens="KW_MANAGE, KW_ANY, KW_QUEUE" id="13243" />
+            <sequence tokens="KW_MANAGE, KW_FILE, KW_GROUP" id="13244" />
+            <sequence tokens="KW_MANAGE, KW_SCHEDULER" id="13245" />
+            <sequence tokens="KW_MANAGE, KW_TABLESPACE" id="13246" />
+            <sequence tokens="KW_MERGE, KW_ANY, KW_VIEW" id="13247" />
+            <sequence tokens="KW_ON, KW_COMMIT, KW_REFRESH" id="13248" />
+            <sequence tokens="KW_PURGE, KW_DBA_RECYCLEBIN" id="13249" />
+            <sequence tokens="KW_QUERY, KW_REWRITE" id="13250" />
+            <sequence tokens="KW_READ, KW_ANY, KW_ANALYTIC, KW_VIEW, KW_CACHE" id="13251" />
+            <sequence tokens="KW_READ, KW_ANY, KW_FILE, KW_GROUP" id="13252" />
+            <sequence tokens="KW_READ, KW_ANY, KW_PROPERTY, KW_GRAPH" id="13253" />
+            <sequence tokens="KW_READ, KW_ANY, KW_TABLE" id="13254" />
+            <sequence tokens="KW_REDEFINE, KW_ANY, KW_TABLE" id="13255" />
+            <sequence tokens="KW_REDEFINE, KW_ANY, KW_TABLE" id="13256" />
+            <sequence tokens="KW_RESTRICTED, KW_SESSION" id="13257" />
+            <sequence tokens="KW_SELECT, KW_ANY, KW_CUBE" id="13258" />
+            <sequence tokens="KW_SELECT, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="13259" />
+            <sequence tokens="KW_SELECT, KW_ANY, KW_CUBE, KW_DIMENSION" id="13260" />
+            <sequence tokens="KW_SELECT, KW_ANY, KW_DICTIONARY" id="13261" />
+            <sequence tokens="KW_SELECT, KW_ANY, KW_END, KW_USER, KW_CONTEXT" id="13262" />
+            <sequence tokens="KW_SELECT, KW_ANY, KW_MEASURE, KW_FOLDER" id="13263" />
+            <sequence tokens="KW_SELECT, KW_ANY, KW_MINING, KW_MODEL" id="13264" />
+            <sequence tokens="KW_SELECT, KW_ANY, KW_SEQUENCE" id="13265" />
+            <sequence tokens="KW_SELECT, KW_ANY, KW_TABLE" id="13266" />
+            <sequence tokens="KW_SELECT, KW_ANY, KW_TRANSACTION" id="13267" />
+            <sequence tokens="KW_SET, KW_CONTAINER" id="13268" />
+            <sequence tokens="KW_TABLE, KW_RETENTION" id="13269" />
+            <sequence tokens="KW_UNDER, KW_ANY, KW_TABLE" id="13270" />
+            <sequence tokens="KW_UNDER, KW_ANY, KW_TYPE" id="13271" />
+            <sequence tokens="KW_UNDER, KW_ANY, KW_VIEW" id="13272" />
+            <sequence tokens="KW_UNLIMITED, KW_TABLESPACE" id="13273" />
+            <sequence tokens="KW_UPDATE, KW_ANY, KW_CUBE" id="13274" />
+            <sequence tokens="KW_UPDATE, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="13275" />
+            <sequence tokens="KW_UPDATE, KW_ANY, KW_CUBE, KW_DIMENSION" id="13276" />
+            <sequence tokens="KW_UPDATE, KW_ANY, KW_END, KW_USER, KW_CONTEXT" id="13277" />
+            <sequence tokens="KW_UPDATE, KW_ANY, KW_TABLE" id="13278" />
+            <sequence tokens="KW_USE, KW_ANY, KW_JOB, KW_RESOURCE" id="13279" />
+            <sequence tokens="KW_USE, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="13280" />
+            <sequence tokens="KW_WRITE, KW_ANY, KW_ANALYTIC, KW_VIEW, KW_CACHE" id="13281" />
+            <token type-id="KW_LOGMINING" id="13282" />
         </one-of>
     </element-def>
 
 
 
+    <element-def custom="true" description="System privileges (factored)" id="system_privilege_new">
+        <one-of object-type="SYSTEM_PRIVILEGE" id="13283">
+            <sequence tokens="KW_ADMINISTER, KW_ANY, KW_SQL, KW_TUNING, KW_SET" id="13284" />
+        </one-of>
+    </element-def>
+
     <element-def description="COLUMN reference" id="column_ref">
-        <qualified-identifier id="13291" separator="CHR_DOT">
+        <qualified-identifier id="13285" separator="CHR_DOT">
             <variant>
-                <object-ref id="13292" optional="true" type="SCHEMA" />
-                <object-ref id="13293" optional="true" type="DATASET" />
-                <object-ref id="13294" type="COLUMN" />
+                <object-ref id="13286" optional="true" type="SCHEMA" />
+                <object-ref id="13287" optional="true" type="DATASET" />
+                <object-ref id="13288" type="COLUMN" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="COLUMN reference" id="table_column_ref">
-        <qualified-identifier id="13295" separator="CHR_DOT">
+        <qualified-identifier id="13289" separator="CHR_DOT">
             <variant>
-                <object-ref id="13296" optional="true" type="SCHEMA" />
-                <object-ref id="13297" optional="true" type="TABLE" />
-                <object-ref id="13298" type="COLUMN" />
+                <object-ref id="13290" optional="true" type="SCHEMA" />
+                <object-ref id="13291" optional="true" type="TABLE" />
+                <object-ref id="13292" type="COLUMN" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="TABLESPACE reference" id="tablespace_ref">
-        <qualified-identifier id="13299" separator="CHR_DOT">
+        <qualified-identifier id="13293" separator="CHR_DOT">
             <variant>
-                <object-ref id="13300" optional="true" type="SCHEMA" />
-                <object-ref id="13301" type="TABLESPACE" />
+                <object-ref id="13294" optional="true" type="SCHEMA" />
+                <object-ref id="13295" type="TABLESPACE" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="SYNONYM reference" id="synonym_ref">
-        <qualified-identifier id="13302" separator="CHR_DOT">
+        <qualified-identifier id="13296" separator="CHR_DOT">
             <variant>
-                <object-ref id="13303" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="13304" type="SYNONYM" />
+                <object-ref id="13297" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="13298" type="SYNONYM" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="PACKAGE reference" id="package_ref">
-        <qualified-identifier id="13305" separator="CHR_DOT">
+        <qualified-identifier id="13299" separator="CHR_DOT">
             <variant>
-                <object-ref id="13306" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="13307" type="PACKAGE" />
+                <object-ref id="13300" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="13301" type="PACKAGE" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="TRIGGER reference" id="trigger_ref">
-        <qualified-identifier id="13308" separator="CHR_DOT">
+        <qualified-identifier id="13302" separator="CHR_DOT">
             <variant>
-                <object-ref id="13309" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="13310" type="TRIGGER" />
+                <object-ref id="13303" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="13304" type="TRIGGER" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="TRIGGER reference" id="type_ref">
-        <qualified-identifier id="13311" separator="CHR_DOT">
+        <qualified-identifier id="13305" separator="CHR_DOT">
             <variant>
-                <object-ref id="13312" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="13313" type="TYPE" />
+                <object-ref id="13306" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="13307" type="TYPE" />
             </variant>
         </qualified-identifier>
     </element-def>
 
     <element-def description="METHOD reference" id="method_ref">
-        <qualified-identifier id="13314" separator="CHR_DOT">
+        <qualified-identifier id="13308" separator="CHR_DOT">
             <variant>
-                <object-ref id="13315" optional="true" type="SCHEMA" />
-                <object-ref id="13316" type="FUNCTION" />
+                <object-ref id="13309" optional="true" type="SCHEMA" />
+                <object-ref id="13310" type="FUNCTION" />
             </variant>
             <variant>
-                <object-ref id="13317" optional="true" type="SCHEMA" />
-                <object-ref id="13318" type="PROCEDURE" />
+                <object-ref id="13311" optional="true" type="SCHEMA" />
+                <object-ref id="13312" type="PROCEDURE" />
+            </variant>
+            <variant>
+                <object-ref id="13313" optional="true" type="SCHEMA" />
+                <object-ref id="13314" type="PACKAGE" />
+                <object-ref id="13315" type="PACKAGE_FUNCTION" />
+            </variant>
+            <variant>
+                <object-ref id="13316" optional="true" type="SCHEMA" />
+                <object-ref id="13317" type="PACKAGE" />
+                <object-ref id="13318" type="PACKAGE_PROCEDURE" />
             </variant>
             <variant>
                 <object-ref id="13319" optional="true" type="SCHEMA" />
-                <object-ref id="13320" type="PACKAGE" />
-                <object-ref id="13321" type="PACKAGE_FUNCTION" />
+                <object-ref id="13320" type="TYPE" />
+                <object-ref id="13321" type="TYPE_FUNCTION" />
             </variant>
             <variant>
                 <object-ref id="13322" optional="true" type="SCHEMA" />
-                <object-ref id="13323" type="PACKAGE" />
-                <object-ref id="13324" type="PACKAGE_PROCEDURE" />
-            </variant>
-            <variant>
-                <object-ref id="13325" optional="true" type="SCHEMA" />
-                <object-ref id="13326" type="TYPE" />
-                <object-ref id="13327" type="TYPE_FUNCTION" />
-            </variant>
-            <variant>
-                <object-ref id="13328" optional="true" type="SCHEMA" />
-                <object-ref id="13329" type="TYPE" />
-                <object-ref id="13330" type="TYPE_PROCEDURE" />
+                <object-ref id="13323" type="TYPE" />
+                <object-ref id="13324" type="TYPE_PROCEDURE" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="FUNCTION reference" id="function_ref">
-        <qualified-identifier id="13331" separator="CHR_DOT">
+        <qualified-identifier id="13325" separator="CHR_DOT">
             <variant>
-                <object-ref id="13332" optional="true" type="SCHEMA" />
-                <object-ref id="13333" type="FUNCTION" />
+                <object-ref id="13326" optional="true" type="SCHEMA" />
+                <object-ref id="13327" type="FUNCTION" />
             </variant>
             <variant>
-                <object-ref id="13334" optional="true" type="SCHEMA" />
-                <object-ref id="13335" type="PACKAGE" />
-                <object-ref id="13336" type="PACKAGE_FUNCTION" />
+                <object-ref id="13328" optional="true" type="SCHEMA" />
+                <object-ref id="13329" type="PACKAGE" />
+                <object-ref id="13330" type="PACKAGE_FUNCTION" />
             </variant>
             <variant>
-                <object-ref id="13337" optional="true" type="SCHEMA" />
-                <object-ref id="13338" type="TYPE" />
-                <object-ref id="13339" type="TYPE_FUNCTION" />
+                <object-ref id="13331" optional="true" type="SCHEMA" />
+                <object-ref id="13332" type="TYPE" />
+                <object-ref id="13333" type="TYPE_FUNCTION" />
             </variant>
         </qualified-identifier>
     </element-def>
 
     <element-def description="VIEW reference" id="view_ref">
-        <qualified-identifier id="13340" separator="CHR_DOT">
+        <qualified-identifier id="13334" separator="CHR_DOT">
             <variant>
-                <object-ref id="13341" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="13342" type="VIEW" />
+                <object-ref id="13335" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="13336" type="VIEW" />
             </variant>
         </qualified-identifier>
     </element-def>
 
     <element-def description="TABLE reference" id="table_ref">
-        <qualified-identifier id="13343" separator="CHR_DOT">
+        <qualified-identifier id="13337" separator="CHR_DOT">
             <variant>
-                <object-ref id="13344" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="13345" type="TABLE" />
+                <object-ref id="13338" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="13339" type="TABLE" />
             </variant>
         </qualified-identifier>
     </element-def>
@@ -24189,143 +24184,143 @@
         <element ref-id="simple_expression" />
     </element-def>
     <element-def description="Date string" id="date">
-        <token id="13346" type-id="STRING" />
+        <token id="13340" type-id="STRING" />
     </element-def>
     <element-def description="Number" id="number">
-        <one-of id="13347" optional="true">
-            <token id="13348" type-id="CHR_MINUS" />
-            <token id="13349" type-id="CHR_PLUS" />
+        <one-of id="13341" optional="true">
+            <token id="13342" type-id="CHR_MINUS" />
+            <token id="13343" type-id="CHR_PLUS" />
         </one-of>
-        <one-of id="13350">
-            <token id="13351" type-id="NUMBER" />
-            <token id="13352" type-id="INTEGER" />
+        <one-of id="13344">
+            <token id="13345" type-id="NUMBER" />
+            <token id="13346" type-id="INTEGER" />
         </one-of>
     </element-def>
 
 
     <element-def description="COMPARISON operator" id="comparison_operator">
-        <one-of id="13353">
-            <token id="13354" type-id="CHR_EQUAL" />
-            <token id="13355" type-id="CHR_LESS" />
-            <token id="13356" type-id="CHR_GREATER" />
-            <token id="13357" type-id="OPR_NOT_EQUAL" />
-            <token id="13358" type-id="OPR_LESS_GREATER" />
-            <token id="13359" type-id="OPR_LESS_EQUAL" />
-            <token id="13360" type-id="OPR_GREATER_EQUAL" />
+        <one-of id="13347">
+            <token id="13348" type-id="CHR_EQUAL" />
+            <token id="13349" type-id="CHR_LESS" />
+            <token id="13350" type-id="CHR_GREATER" />
+            <token id="13351" type-id="OPR_NOT_EQUAL" />
+            <token id="13352" type-id="OPR_LESS_GREATER" />
+            <token id="13353" type-id="OPR_LESS_EQUAL" />
+            <token id="13354" type-id="OPR_GREATER_EQUAL" />
         </one-of>
     </element-def>
 
 
     <element-def description="Function name" id="function_name" original-name="PLSQL_function_name">
-        <qualified-identifier id="13361" optional="true" separator="CHR_DOT">
+        <qualified-identifier id="13355" optional="true" separator="CHR_DOT">
+            <variant>
+                <object-ref id="13356" optional="true" type="SCHEMA" />
+                <object-ref id="13357" type="PACKAGE" />
+                <object-ref id="13358" type="PACKAGE_FUNCTION" />
+            </variant>
+            <variant>
+                <object-ref id="13359" optional="true" type="SCHEMA" />
+                <object-ref id="13360" type="TYPE" />
+                <object-ref id="13361" type="TYPE_FUNCTION" />
+            </variant>
             <variant>
                 <object-ref id="13362" optional="true" type="SCHEMA" />
-                <object-ref id="13363" type="PACKAGE" />
-                <object-ref id="13364" type="PACKAGE_FUNCTION" />
-            </variant>
-            <variant>
-                <object-ref id="13365" optional="true" type="SCHEMA" />
-                <object-ref id="13366" type="TYPE" />
-                <object-ref id="13367" type="TYPE_FUNCTION" />
-            </variant>
-            <variant>
-                <object-ref id="13368" optional="true" type="SCHEMA" />
-                <object-ref id="13369" type="FUNCTION" />
+                <object-ref id="13363" type="FUNCTION" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def custom="true" description="Chained references list" id="chained_references_list">
-        <iteration id="13370" separator="CHR_COMMA">
+        <iteration id="13364" separator="CHR_COMMA">
             <element ref-id="chained_references" />
         </iteration>
     </element-def>
     <element-def custom="true" description="Chained reference" id="chained_references">
-        <iteration id="13371" separator="CHR_DOT">
-            <one-of id="13372">
+        <iteration id="13365" separator="CHR_DOT">
+            <one-of id="13366">
                 <element ref-id="numeric_index_suffix" />
-                <sequence id="13373">
-                    <variable-ref attributes="SUBJECT" id="13374" type="ANY" />
+                <sequence id="13367">
+                    <variable-ref attributes="SUBJECT" id="13368" type="ANY" />
                     <element optional="true" ref-id="wrapped_expression_list" />
                 </sequence>
             </one-of>
         </iteration>
     </element-def>
     <element-def custom="true" description="Chained reference" id="chained_references_suffix">
-        <token id="13375" type-id="CHR_DOT" />
+        <token id="13369" type-id="CHR_DOT" />
         <element ref-id="chained_references" />
     </element-def>
     <element-def custom="true" description="Numeric index suffix" id="numeric_index_suffix">
-        <one-of id="13376">
-            <token id="13377" type-id="KW_FIRST" />
-            <token id="13378" type-id="KW_LAST" />
-            <token flavor="keyword" id="13379" type-id="FN_COUNT" />
+        <one-of id="13370">
+            <token id="13371" type-id="KW_FIRST" />
+            <token id="13372" type-id="KW_LAST" />
+            <token flavor="keyword" id="13373" type-id="FN_COUNT" />
         </one-of>
     </element-def>
     <element-def custom="true" description="DEFAULT ON CONVERSION ERROR" id="default_on_conversion_error">
-        <token id="13380" type-id="KW_DEFAULT" />
+        <token id="13374" type-id="KW_DEFAULT" />
         <element ref-id="expression" />
-        <token id="13381" type-id="KW_ON" />
-        <token id="13382" type-id="KW_CONVERSION" />
-        <token id="13383" type-id="KW_ERROR" />
+        <token id="13375" type-id="KW_ON" />
+        <token id="13376" type-id="KW_CONVERSION" />
+        <token id="13377" type-id="KW_ERROR" />
     </element-def>
     <element-def custom="true" description="FMT NLSPARAM" id="fmt_nlsparam">
-        <sequence id="13384">
-            <token id="13385" type-id="CHR_COMMA" />
+        <sequence id="13378">
+            <token id="13379" type-id="CHR_COMMA" />
             <element original-name="fmt" ref-id="expression" />
-            <sequence id="13386" optional="true">
-                <token id="13387" type-id="CHR_COMMA" />
+            <sequence id="13380" optional="true">
+                <token id="13381" type-id="CHR_COMMA" />
                 <element original-name="nlsparam" ref-id="expression" />
             </sequence>
         </sequence>
     </element-def>
     <element-def id="if_exists_clause" description="IF EXISTS clause">
-        <token type-id="KW_IF" id="13388" />
-        <token type-id="KW_EXISTS" id="13389" />
+        <token type-id="KW_IF" id="13382" />
+        <token type-id="KW_EXISTS" id="13383" />
     </element-def>
 
     <element-def id="if_not_exists_clause" description="IF NOT EXISTS clause">
-        <token type-id="KW_IF" id="13390" />
-        <token type-id="KW_NOT" id="13391" />
-        <token type-id="KW_EXISTS" id="13392" />
+        <token type-id="KW_IF" id="13384" />
+        <token type-id="KW_NOT" id="13385" />
+        <token type-id="KW_EXISTS" id="13386" />
     </element-def>
 
     <element-def description="Column alias definition" id="column_alias_definition">
-        <token id="13393" optional="true" type-id="KW_AS" />
-        <alias-def id="13394" type="COLUMN" attributes="ALIAS_DEFINITION" />
+        <token id="13387" optional="true" type-id="KW_AS" />
+        <alias-def id="13388" type="COLUMN" attributes="ALIAS_DEFINITION" />
     </element-def>
     <element-def description="Dataset alias definition" id="dataset_alias_definition">
-        <token id="13395" optional="true" type-id="KW_AS" />
-        <alias-def id="13396" type="DATASET" />
+        <token id="13389" optional="true" type-id="KW_AS" />
+        <alias-def id="13390" type="DATASET" />
     </element-def>
 
     <element-def description="Unknown identifier" id="custom_undefined">
-        <token id="13397" type-id="IDENTIFIER" />
+        <token id="13391" type-id="IDENTIFIER" />
     </element-def>
     <element-def description="Statement end" formatting-spacing-before="NO_SPACE" id="end" truncate-on-execution="true">
-        <one-of id="13398">
-            <token id="13399" type-id="CHR_SEMICOLON" />
-            <token id="13400" type-id="CHR_SLASH" />
+        <one-of id="13392">
+            <token id="13393" type-id="CHR_SEMICOLON" />
+            <token id="13394" type-id="CHR_SLASH" />
         </one-of>
     </element-def>
 
     <element-def description="String or identifier" id="string_identifier">
-        <one-of id="13401">
-            <token type-id="STRING" id="13402" />
-            <token type-id="IDENTIFIER" id="13403" />
-            <exec-variable id="13404" />
+        <one-of id="13395">
+            <token type-id="STRING" id="13396" />
+            <token type-id="IDENTIFIER" id="13397" />
+            <exec-variable id="13398" />
         </one-of>
     </element-def>
 
     <element-def custom="true" description="Wrapped string list" id="wrapped_string_list">
-        <wrapper template="PARENTHESES" id="13405">
-            <iteration separator="CHR_COMMA" id="13406">
-                <token type-id="STRING" id="13407" />
+        <wrapper template="PARENTHESES" id="13399">
+            <iteration separator="CHR_COMMA" id="13400">
+                <token type-id="STRING" id="13401" />
             </iteration>
         </wrapper>
     </element-def>
 
     <element-def id="comment_clause" description="COMMENT clause">
-        <token type-id="KW_COMMENT" id="13408" />
-        <token type-id="STRING" original-name="comment" id="13409" />
+        <token type-id="KW_COMMENT" id="13402" />
+        <token type-id="STRING" original-name="comment" id="13403" />
     </element-def>
 </element-defs>

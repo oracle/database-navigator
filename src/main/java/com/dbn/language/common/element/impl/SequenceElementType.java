@@ -119,9 +119,12 @@ public class SequenceElementType extends ElementTypeBase {
             String[] tokens = tokenIds.split(",");
             children = new ElementTypeRef[tokens.length];
             for (int i=0; i<tokens.length; i++) {
-                String tokenTypeId = tokens[i].trim();
+                String[] tokenId = tokens[i].trim().split(":");
+                String tokenTypeId = tokenId[0].trim();
+                String tokenFlavor = tokenId.length == 1 ? null : tokenId[1].trim();
 
                 TokenElementType tokenElementType = new TokenElementType(this, tokenTypeId);
+                tokenElementType.setFlavor(tokenFlavor);
                 children[i] = new ElementTypeRef(tokenElementType);
             }
         } else {
