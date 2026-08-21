@@ -84,6 +84,9 @@ public class OneOfElementType extends ElementTypeBase {
                 }
 
                 String type = child.getName();
+                if ("one-of".equals(type)) {
+                    log.warn("DBN - [{}] nested one-of element (one-of = {})", languageId, getId());
+                }
                 ElementTypeBase elementType = bundle.resolveElementDefinition(child, type, this);
                 double version = Double.parseDouble(Commons.nvl(stringAttribute(child, "version"), "0"));
                 Set<BranchCheck> branchChecks = parseBranchChecks(stringAttribute(child, "branch-check"));
