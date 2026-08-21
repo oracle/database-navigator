@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.options.setting.Settings.integerAttribute;
 import static com.dbn.dev.language.LanguageSpecificationXmlUtil.fileToDocument;
 import static com.dbn.dev.language.LanguageSpecificationXmlUtil.outputPrettyString;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.OPTIONAL_WRAPPING;
@@ -57,14 +58,17 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
     private static final String ATTR_COMPLETION_CANDIDATE_IDS = "cc";
     private static final String ATTR_NODE_ID = "id";
     private static final String ATTR_NODE_REF = "ref";
-    private static final int MAX_DEPTH = 6;
-    private static final int MAX_COMPLETION_CANDIDATES = 300;
-    private static final int MIN_EXTENSION_CANDIDATES = 10;
+    private static final int DEFAULT_MAX_DEPTH = 7;
+    private static final int DEFAULT_MAX_COMPLETION_CANDIDATES = 300;
+    private static final int DEFAULT_MAX_EXTENSION_CANDIDATES = 10;
 
     private final LanguageSpecificationBuilderInput input;
     private final LanguageSpecificationNextLeafResolver nextLeafResolver =
             new LanguageSpecificationNextLeafResolver();
     private final Map<String, ExtensionNode> extensionNodes = new LinkedHashMap<>();
+    private int maxDepth = DEFAULT_MAX_DEPTH;
+    private int maxCompletionCandidates = DEFAULT_MAX_COMPLETION_CANDIDATES;
+    private int maxExtensionCandidates = DEFAULT_MAX_EXTENSION_CANDIDATES;
 
     public LanguageSpecificationParserExtensionBuilder(LanguageSpecificationBuilderInput input) {
         this.input = input;
@@ -72,9 +76,23 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
     @Override
     public void build() throws Exception {
+        loadConfiguration();
         new LanguageSpecificationParserBundleLoader(input).load(
                 (bundle, builder) -> buildExtension(bundle, builder),
                 false);
+    }
+
+    private void loadConfiguration() throws Exception {
+        Document definitionDocument = fileToDocument(input.getParserElementsFile());
+        if (definitionDocument == null) {
+            throw new IllegalStateException(
+                    "Could not load parser elements definition " + input.getParserElementsFile());
+        }
+
+        Element definitionRoot = definitionDocument.getRootElement();
+        maxDepth = integerAttribute(definitionRoot, "max-depth", DEFAULT_MAX_DEPTH);
+        maxCompletionCandidates = integerAttribute(definitionRoot, "max-completion-candidates", DEFAULT_MAX_COMPLETION_CANDIDATES);
+        maxExtensionCandidates = integerAttribute(definitionRoot, "max-extension-candidates", DEFAULT_MAX_EXTENSION_CANDIDATES);
     }
 
     private void buildExtension(ElementTypeBundle bundle, ElementTypeBundle.Builder builder) {
@@ -108,12 +126,11 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             }
         }
 
-        if (oneOfElement.children.length <= MIN_EXTENSION_CANDIDATES &&
+        if (oneOfElement.children.length <= maxExtensionCandidates &&
                 !extensionNode.isAmbiguous()) return;
 
         extensionNodes.put(oneOfElement.getId(), extensionNode);
 
-        int maxDepth = MAX_DEPTH;
         extensionNode.aggregateChildren(1 >= maxDepth);
         for (Node node : extensionNode.childNodes) {
             expandNode(node, 1, maxDepth);
@@ -125,7 +142,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         if (depth >= maxDepth) return;
         if (!node.isAmbiguous()) return;
         if (!node.isExpandable()) return;
-        if (node.getCompletionCandidates().size() > MAX_COMPLETION_CANDIDATES) return;
+        if (node.getCompletionCandidates().size() > maxCompletionCandidates) return;
 
         for (Map.Entry<ElementTypeBase, Set<LanguageNodeBase>> entry : node.nextLeafs.entrySet()) {
             ElementTypeBase parseCandidate = entry.getKey();
@@ -200,7 +217,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         }
     }
 
-    private static void addOneOfExtension(
+    private void addOneOfExtension(
             Element extensionRoot,
             String oneOfId,
             ExtensionNode extensionNode,
@@ -217,7 +234,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         extensionRoot.addContent(extensionElement);
     }
 
-    private static Element toXmlElement(
+    private Element toXmlElement(
             Node node,
             Set<ElementTypeBase> inheritedCandidates,
             XmlWriteContext context) {
@@ -244,7 +261,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             setCandidateIds(element, ATTR_PARSE_CANDIDATE_IDS, node.parseCandidates);
         }
         Set<LeafElementType> completionCandidates = node.getCompletionCandidates();
-        if (completionCandidates.size() <= MAX_COMPLETION_CANDIDATES) {
+        if (completionCandidates.size() <= maxCompletionCandidates) {
             setCandidateIds(element, ATTR_COMPLETION_CANDIDATE_IDS, completionCandidates);
         }
 
@@ -458,7 +475,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         }
     }
 
-    private static final class XmlWriteContext {
+    private final class XmlWriteContext {
         private final Map<Node, SharedNode> sharedNodes = new IdentityHashMap<>();
         private final Map<NodeStructure, SharedNode> nodesByStructure = new HashMap<>();
         private final NodeIdSequence nodeIds;
@@ -488,7 +505,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             NodeStructure structure = new NodeStructure(
                     List.copyOf(node.tokenTypes),
                     List.copyOf(node.parseCandidates),
-                    completionCandidates.size() <= MAX_COMPLETION_CANDIDATES ?
+                    completionCandidates.size() <= maxCompletionCandidates ?
                             List.copyOf(completionCandidates) :
                             List.of(),
                     childNodes.stream().map(child -> child.structureId).toList());

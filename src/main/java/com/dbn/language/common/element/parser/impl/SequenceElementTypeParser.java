@@ -63,7 +63,7 @@ public class SequenceElementTypeParser<E extends SequenceElementType> extends El
                 TokenType token = builder.getToken();
                 if (token == null) {
 
-                    if (element.isFirst() || elementType.isExitIndex(index)) {
+                    if (elementType.isAtomic() || element.isFirst() || elementType.isExitIndex(index)) {
                         return stepOut(node, context, NO_MATCH);
                     }
 
@@ -89,7 +89,8 @@ public class SequenceElementTypeParser<E extends SequenceElementType> extends El
 
                     // not matched and not optional
                     if (result.type == NO_MATCH && !element.optional) {
-                        if (element.isFirst() ||
+                        if (elementType.isAtomic() ||
+                                element.isFirst() ||
                                 node.matchedElements == 0 ||
                                 node.matchedTokens == 0 ||
                                 elementType.isExitIndex(index) ||

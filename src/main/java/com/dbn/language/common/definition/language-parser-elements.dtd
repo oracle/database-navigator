@@ -17,7 +17,10 @@
 <!ELEMENT element-defs (element-def)*>
 <!ATTLIST element-defs
         language CDATA #REQUIRED
-        version CDATA #REQUIRED>
+        version CDATA #REQUIRED
+        max-depth CDATA #IMPLIED
+        max-completion-candidates CDATA #IMPLIED
+        max-extension-candidates CDATA #IMPLIED>
 <!ELEMENT element-def (token|element|sequence|iteration|one-of|wrapper|qualified-identifier|object-ref|object-def|alias-def|alias-ref|variable-def|variable-ref|block)*>
 <!ATTLIST element-def
         id CDATA #REQUIRED
@@ -84,6 +87,7 @@
         object-type CDATA #IMPLIED
         attributes CDATA #IMPLIED
         tokens CDATA #IMPLIED
+        atomic (true | false) #IMPLIED
         optional (true | false) #IMPLIED
         version CDATA #IMPLIED
         branch CDATA #IMPLIED

@@ -47,6 +47,7 @@ public class SequenceElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
     private int exitIndex;
     private boolean basic;
+    private boolean atomic;
 
     public ElementTypeRef getFirstChild() {
         // TODO check parser definitions (empty sequence blocks)
@@ -115,6 +116,7 @@ public class SequenceElementType extends ElementTypeBase {
     protected void loadDefinition(Element def) throws ElementTypeDefinitionException {
         super.loadDefinition(def);
         String tokenIds = stringAttribute(def, "tokens");
+        atomic = getBooleanAttribute(def, "atomic");
         if (Strings.isNotEmptyOrSpaces(tokenIds)) {
             basic = true;
             String[] tokens = tokenIds.split(",");
@@ -166,6 +168,10 @@ public class SequenceElementType extends ElementTypeBase {
 
     public boolean isExitIndex(int index) {
         return index <= exitIndex;
+    }
+
+    public boolean isAtomic() {
+        return atomic;
     }
 
     @NotNull
