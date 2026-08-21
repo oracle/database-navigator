@@ -100,6 +100,7 @@
 <!ATTLIST iteration
         id CDATA #IMPLIED
         separator CDATA #IMPLIED
+        attributes CDATA #IMPLIED
         optional (true | false) #IMPLIED
         version CDATA #IMPLIED
         branch CDATA #IMPLIED
