@@ -576,7 +576,7 @@
 
     <!-- ========= alter ========= -->
     <element-def description="ALTER statement" id="alter_statement">
-        <one-of id="00285">
+        <one-of id="00285" unbounded="true">
             <element ref-id="alter_analytic_view" />
             <element ref-id="alter_assertion" />
             <element ref-id="alter_directive_validate" />
@@ -10118,7 +10118,7 @@
 
     <!-- ========= create ========= -->
     <element-def attributes="DATA_DEFINITION" description="CREATE statemenft" id="create_statement">
-        <one-of id="05700">
+        <one-of id="05700" unbounded="true">
             <element ref-id="create_view" />
             <element ref-id="create_json_relational_duality_view" />
             <element ref-id="create_synonym" />
@@ -17039,7 +17039,7 @@
 
     <!-- ========= drop ========= -->
     <element-def description="DROP statement" id="drop_statement">
-        <one-of id="09343">
+        <one-of id="09343" unbounded="true">
             <element ref-id="drop_cluster" />
             <element ref-id="drop_context" />
             <element ref-id="drop_database" />
@@ -17855,7 +17855,7 @@
             <token optional="true" type-id="CT_DBLINK_QUALIFIER" id="09712" />
         </sequence>
         <token id="09713" type-id="KW_FOR" />
-        <one-of id="09714">
+        <one-of id="09714" unbounded="true">
             <element ref-id="alter_statement" />
             <element ref-id="create_statement" />
             <element ref-id="delete_statement" />
