@@ -10,24 +10,25 @@
     <element-def attributes="STRUCTURE, EXECUTABLE, STATEMENT, SCOPE_ISOLATION, GENERIC" description="SQL statement" formatting-indent="ABSOLUTE_NONE" id="sql_statement">
         <one-of id="00001">
             <element ref-id="administer_key_management" />
+            <element ref-id="alter_statement" />
             <element ref-id="analyze_statement" />
             <element ref-id="associate_statistics" />
             <element ref-id="audit_statement" />
             <element ref-id="call_statement" />
-            <element ref-id="alter_statement" />
-            <element ref-id="commit_statement" />
             <element ref-id="comment_statement" />
+            <element ref-id="commit_statement" />
             <element ref-id="create_statement" />
             <element ref-id="delete_statement" />
+            <element ref-id="disassociate_statistics" />
             <element ref-id="drop_statement" />
             <element ref-id="explain_statement" />
             <element ref-id="grant_statement" />
-            <element ref-id="revoke_statement" />
             <element ref-id="insert_statement" />
             <element ref-id="lock_table_statement" />
             <element ref-id="merge_statement" />
-            <element ref-id="rollback_statement" />
             <element ref-id="rename_statement" />
+            <element ref-id="revoke_statement" />
+            <element ref-id="rollback_statement" />
             <element ref-id="select_statement" />
             <element ref-id="truncate_statement" />
             <element ref-id="update_statement" />
@@ -18565,80 +18566,21 @@
         <element ref-id="storage_table_clause" optional="true" />
     </element-def>
     <element-def attributes="CLAUSE" description="Column association" id="column_association">
-        <token type-id="KW_COLUMNS" id="10224" />
-        <iteration separator="CHR_COMMA" id="10225">
-            <qualified-identifier id="10226">
-                <variant>
-                    <object-ref type="SCHEMA" optional="true" id="10227" />
-                    <object-ref type="TABLE" id="10228" />
-                    <object-ref type="COLUMN" id="10229" />
-                </variant>
-            </qualified-identifier>
-        </iteration>
+        <element ref-id="statistics_columns" />
         <element ref-id="using_statistics_type" />
     </element-def>
     <element-def attributes="CLAUSE" description="Function association" id="function_association">
-        <one-of id="10230">
-            <sequence id="10231">
-                <token type-id="KW_FUNCTIONS" id="10232" />
-                <iteration separator="CHR_COMMA" id="10233">
-                    <qualified-identifier id="10234">
-                        <variant>
-                            <object-ref type="SCHEMA" optional="true" id="10235" />
-                            <object-ref type="FUNCTION" id="10236" />
-                        </variant>
-                    </qualified-identifier>
-                </iteration>
-            </sequence>
-            <sequence id="10237">
-                <token type-id="KW_PACKAGES" id="10238" />
-                <iteration separator="CHR_COMMA" id="10239">
-                    <qualified-identifier id="10240">
-                        <variant>
-                            <object-ref type="SCHEMA" optional="true" id="10241" />
-                            <object-ref type="PACKAGE" id="10242" />
-                        </variant>
-                    </qualified-identifier>
-                </iteration>
-            </sequence>
-            <sequence id="10243">
-                <token type-id="KW_TYPES" id="10244" />
-                <iteration separator="CHR_COMMA" id="10245">
-                    <qualified-identifier id="10246">
-                        <variant>
-                            <object-ref type="SCHEMA" optional="true" id="10247" />
-                            <object-ref type="TYPE" id="10248" />
-                        </variant>
-                    </qualified-identifier>
-                </iteration>
-            </sequence>
-            <sequence id="10249">
-                <token type-id="KW_INDEXES" id="10250" />
-                <iteration separator="CHR_COMMA" id="10251">
-                    <qualified-identifier id="10252">
-                        <variant>
-                            <object-ref type="SCHEMA" optional="true" id="10253" />
-                            <object-ref type="INDEX" id="10254" />
-                        </variant>
-                    </qualified-identifier>
-                </iteration>
-            </sequence>
-            <sequence id="10255">
-                <token type-id="KW_INDEXTYPES" id="10256" />
-                <iteration separator="CHR_COMMA" id="10257">
-                    <qualified-identifier id="10258">
-                        <variant>
-                            <object-ref type="SCHEMA" optional="true" id="10259" />
-                            <object-ref type="INDEXTYPE" id="10260" />
-                        </variant>
-                    </qualified-identifier>
-                </iteration>
-            </sequence>
+        <one-of id="10224">
+            <element ref-id="statistics_functions" />
+            <element ref-id="statistics_packages" />
+            <element ref-id="statistics_types" />
+            <element ref-id="statistics_indexes" />
+            <element ref-id="statistics_indextypes" />
         </one-of>
-        <one-of id="10261">
+        <one-of id="10225">
             <element ref-id="using_statistics_type" />
-            <iteration id="10262">
-                <one-of id="10263">
+            <iteration id="10226">
+                <one-of id="10227">
                     <element ref-id="default_cost_clause" />
                     <element ref-id="default_selectivity_clause" />
                 </one-of>
@@ -18646,43 +18588,126 @@
         </one-of>
     </element-def>
     <element-def attributes="CLAUSE" description="USING statistics type clause" id="using_statistics_type">
-        <token type-id="KW_USING" id="10264" />
-        <one-of id="10265">
-            <qualified-identifier id="10266">
+        <token type-id="KW_USING" id="10228" />
+        <one-of id="10229">
+            <qualified-identifier id="10230">
                 <variant>
-                    <object-ref type="SCHEMA" optional="true" id="10267" />
-                    <object-ref type="TYPE" original-name="statistics_type" id="10268" />
+                    <object-ref type="SCHEMA" optional="true" id="10231" />
+                    <object-ref type="TYPE" original-name="statistics_type" id="10232" />
                 </variant>
             </qualified-identifier>
-            <token type-id="KW_NULL" id="10269" />
+            <token type-id="KW_NULL" id="10233" />
         </one-of>
     </element-def>
     <element-def attributes="CLAUSE" description="DEFAULT COST clause" id="default_cost_clause">
-        <token type-id="KW_DEFAULT" id="10270" />
-        <token type-id="KW_COST" exit="true" id="10271" />
-        <wrapper template="PARENTHESES" id="10272">
-            <sequence id="10273">
-                <token type-id="INTEGER" original-name="cpu_cost" id="10274" />
-                <token type-id="CHR_COMMA" id="10275" />
-                <token type-id="INTEGER" original-name="io_cost" id="10276" />
-                <token type-id="CHR_COMMA" id="10277" />
-                <token type-id="INTEGER" original-name="network_cost" id="10278" />
+        <token type-id="KW_DEFAULT" id="10234" />
+        <token type-id="KW_COST" exit="true" id="10235" />
+        <wrapper template="PARENTHESES" id="10236">
+            <sequence id="10237">
+                <token type-id="INTEGER" original-name="cpu_cost" id="10238" />
+                <token type-id="CHR_COMMA" id="10239" />
+                <token type-id="INTEGER" original-name="io_cost" id="10240" />
+                <token type-id="CHR_COMMA" id="10241" />
+                <token type-id="INTEGER" original-name="network_cost" id="10242" />
             </sequence>
         </wrapper>
     </element-def>
     <element-def attributes="CLAUSE" description="DEFAULT SELECTIVITY clause" id="default_selectivity_clause">
-        <token type-id="KW_DEFAULT" id="10279" />
-        <token type-id="KW_SELECTIVITY" exit="true" id="10280" />
-        <token type-id="INTEGER" original-name="default_selectivity" id="10281" />
+        <token type-id="KW_DEFAULT" id="10243" />
+        <token type-id="KW_SELECTIVITY" exit="true" id="10244" />
+        <token type-id="INTEGER" original-name="default_selectivity" id="10245" />
     </element-def>
     <element-def description="INTO clause" id="into_clause">
-        <token type-id="KW_INTO" id="10282" />
-        <qualified-identifier id="10283">
+        <token type-id="KW_INTO" id="10246" />
+        <qualified-identifier id="10247">
             <variant>
-                <object-ref type="SCHEMA" optional="true" id="10284" />
-                <object-ref type="TABLE" id="10285" />
+                <object-ref type="SCHEMA" optional="true" id="10248" />
+                <object-ref type="TABLE" id="10249" />
             </variant>
         </qualified-identifier>
+    </element-def>
+    <element-def description="Statistics columns" id="statistics_columns">
+        <token type-id="KW_COLUMNS" id="10250" />
+        <iteration separator="CHR_COMMA" id="10251">
+            <qualified-identifier id="10252">
+                <variant>
+                    <object-ref type="SCHEMA" optional="true" id="10253" />
+                    <object-ref type="TABLE" id="10254" />
+                    <object-ref type="COLUMN" id="10255" />
+                </variant>
+            </qualified-identifier>
+        </iteration>
+    </element-def>
+    <element-def description="Statistics functions" id="statistics_functions">
+        <token type-id="KW_FUNCTIONS" id="10256" />
+        <iteration separator="CHR_COMMA" id="10257">
+            <qualified-identifier id="10258">
+                <variant>
+                    <object-ref type="SCHEMA" optional="true" id="10259" />
+                    <object-ref type="FUNCTION" id="10260" />
+                </variant>
+            </qualified-identifier>
+        </iteration>
+    </element-def>
+    <element-def description="Statistics packages" id="statistics_packages">
+        <token type-id="KW_PACKAGES" id="10261" />
+        <iteration separator="CHR_COMMA" id="10262">
+            <qualified-identifier id="10263">
+                <variant>
+                    <object-ref type="SCHEMA" optional="true" id="10264" />
+                    <object-ref type="PACKAGE" id="10265" />
+                </variant>
+            </qualified-identifier>
+        </iteration>
+    </element-def>
+    <element-def description="Statistics types" id="statistics_types">
+        <token type-id="KW_TYPES" id="10266" />
+        <iteration separator="CHR_COMMA" id="10267">
+            <qualified-identifier id="10268">
+                <variant>
+                    <object-ref type="SCHEMA" optional="true" id="10269" />
+                    <object-ref type="TYPE" id="10270" />
+                </variant>
+            </qualified-identifier>
+        </iteration>
+    </element-def>
+    <element-def description="Statistics indexes" id="statistics_indexes">
+        <token type-id="KW_INDEXES" id="10271" />
+        <iteration separator="CHR_COMMA" id="10272">
+            <qualified-identifier id="10273">
+                <variant>
+                    <object-ref type="SCHEMA" optional="true" id="10274" />
+                    <object-ref type="INDEX" id="10275" />
+                </variant>
+            </qualified-identifier>
+        </iteration>
+    </element-def>
+    <element-def description="Statistics indextypes" id="statistics_indextypes">
+        <token type-id="KW_INDEXTYPES" id="10276" />
+        <iteration separator="CHR_COMMA" id="10277">
+            <qualified-identifier id="10278">
+                <variant>
+                    <object-ref type="SCHEMA" optional="true" id="10279" />
+                    <object-ref type="INDEXTYPE" id="10280" />
+                </variant>
+            </qualified-identifier>
+        </iteration>
+    </element-def>
+
+    <!-- ========= disassociate statistics ========= -->
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DISASSOCIATE STATISTICS statement" id="disassociate_statistics">
+        <token type-id="KW_DISASSOCIATE" id="10281" />
+        <token type-id="KW_STATISTICS" id="10282" />
+        <token type-id="KW_FROM" id="10283" />
+        <one-of id="10284">
+            <element ref-id="statistics_columns" />
+            <element ref-id="statistics_functions" />
+            <element ref-id="statistics_packages" />
+            <element ref-id="statistics_types" />
+            <element ref-id="statistics_indexes" />
+            <element ref-id="statistics_indextypes" />
+        </one-of>
+        <token type-id="KW_FORCE" optional="true" id="10285" />
     </element-def>
 
     <!-- ========= unified audit ========= -->
