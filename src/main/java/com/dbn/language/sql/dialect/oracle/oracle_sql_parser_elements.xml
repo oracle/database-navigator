@@ -17360,7 +17360,7 @@
             <sequence id="09589">
                 <token type-id="KW_WAIT" id="09590" />
                 <one-of id="09591">
-                    <token type-id="IDENTIFIER" original-name="FOREVER" id="09592" />
+                    <token type-id="KW_FOREVER" id="09592" />
                     <sequence id="09593">
                         <token type-id="INTEGER" id="09594" />
                         <one-of optional="true" id="09595">
