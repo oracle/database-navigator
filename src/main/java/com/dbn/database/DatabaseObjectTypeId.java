@@ -23,6 +23,7 @@ import com.dbn.common.util.Enumerations;
 public enum DatabaseObjectTypeId implements Constant<DatabaseObjectTypeId> {
     AI_PROFILE,
     AI_MODEL,
+    ANALYTIC_VIEW,
     ATTRIBUTE,
     ATTRIBUTE_DIMENSION,
     ARGUMENT,
