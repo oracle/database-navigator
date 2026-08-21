@@ -60,6 +60,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     AI_MODEL(DatabaseObjectTypeId.AI_MODEL,"AI model","AI models", Icons.DBO_AI_MODEL, null, Icons.DBO_AI_MODELS,false),
     AI_PROFILE(DatabaseObjectTypeId.AI_PROFILE, "AI profile", "AI profiles", Icons.DBO_AI_PROFILE, Icons.DBO_AI_PROFILE_DISABLED, Icons.DBO_AI_PROFILES, false),
     ANALYTIC_VIEW(DatabaseObjectTypeId.ANALYTIC_VIEW, "analytic view", "analytic views", null, null, null, false),
+    APPLICATION(DatabaseObjectTypeId.APPLICATION, "application", "applications", null, null, null, false),
     ATTRIBUTE(DatabaseObjectTypeId.ATTRIBUTE, "attribute", "attribute", Icons.DBO_ATTRIBUTE, null, Icons.DBO_ATTRIBUTES, false),
     ATTRIBUTE_DIMENSION(DatabaseObjectTypeId.ATTRIBUTE_DIMENSION, "attribute dimension", "attribute dimensions", null, null, null, false),
     ARGUMENT(DatabaseObjectTypeId.ARGUMENT, "argument", "arguments", Icons.DBO_ARGUMENT, null, Icons.DBO_ARGUMENTS, false),
@@ -562,6 +563,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TYPE_TYPE.addParent(TYPE);
         VIEW.addParent(SCHEMA);
         ANALYTIC_VIEW.addParent(SCHEMA);
+        APPLICATION.addParent(SCHEMA);
         JAVA_PRIMITIVE.addParent(SCHEMA);
         JAVA_CLASS.addParent(SCHEMA);
         JAVA_INNER_CLASS.addParent(JAVA_CLASS);
