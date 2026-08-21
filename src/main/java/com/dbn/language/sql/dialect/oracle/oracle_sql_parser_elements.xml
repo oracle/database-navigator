@@ -2,7 +2,7 @@
 <!DOCTYPE element-defs SYSTEM "../../../common/definition/language-parser-elements.dtd">
 <element-defs language="ORACLE-SQL" version="26.0"
               max-depth="6"
-              max-completion-candidates="400"
+              max-completion-candidates="300"
               max-extension-candidates="10">
 
     <element-def attributes="ROOT, STRUCTURE" description="SQL block" icon="FILE_BLOCK_SQL" id="sql_block" language="SQL">
@@ -17830,7 +17830,7 @@
         <token id="09689" type-id="KW_GRANT" />
         <one-of id="09690">
             <sequence id="09691">
-                <one-of id="09692">
+                <one-of id="09692" unbounded="true">
                     <element ref-id="grant_system_privileges" />
                     <element ref-id="grant_schema_privileges" />
                     <element ref-id="grant_object_privileges" />
@@ -23510,7 +23510,7 @@
     </element-def>
 
     <element-def custom="true" description="System action" id="system_action">
-        <one-of id="12722">
+        <one-of id="12722" unbounded="true">
             <sequence atomic="true" tokens="KW_ADMINISTER, KW_KEY, KW_MANAGEMENT" id="12723" />
             <sequence atomic="true" tokens="KW_ALTER, KW_ANALYTIC, KW_VIEW" id="12724" />
             <sequence atomic="true" tokens="KW_ALTER, KW_ASSEMBLY" id="12725" />
@@ -23715,7 +23715,7 @@
         </one-of>
     </element-def>
     <element-def custom="true" description="Component action" id="component_action">
-        <one-of id="12924">
+        <one-of id="12924" unbounded="true">
             <sequence atomic="true" tokens="KW_ADD, KW_GLOBAL, KW_CALLBACK" id="12925" />
             <sequence atomic="true" tokens="KW_ADD, KW_PROXY" id="12926" />
             <sequence atomic="true" tokens="KW_APPLY, KW_POLICY" id="12927" />
@@ -23802,7 +23802,7 @@
         </one-of>
     </element-def>
     <element-def custom="true" description="System privileges" id="system_privilege">
-        <one-of object-type="SYSTEM_PRIVILEGE" id="13005">
+        <one-of object-type="SYSTEM_PRIVILEGE" id="13005" unbounded="true">
             <sequence atomic="true" tokens="FN_TRANSLATE:keyword, KW_ANY, KW_SQL" id="13006" />
             <sequence atomic="true" tokens="KW_ADMINISTER, KW_ANY, KW_DATA, KW_GRANT" id="13007" />
             <sequence atomic="true" tokens="KW_ADMINISTER, KW_ANY, KW_SQL, KW_TUNING, KW_SET" id="13008" />
@@ -24102,7 +24102,7 @@
         </one-of>
     </element-def>
     <element-def description="Schema privilege" id="schema_privilege">
-        <one-of id="13302">
+        <one-of id="13302" unbounded="true">
             <sequence atomic="true" tokens="KW_ADMINISTER, KW_FINE, KW_GRAINED, KW_AUDIT, KW_POLICY" id="13303" />
             <sequence atomic="true" tokens="KW_ADMINISTER, KW_REDACTION, KW_POLICY" id="13304" />
             <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ANALYTIC, KW_VIEW" id="13305" />
@@ -24222,7 +24222,7 @@
         </one-of>
     </element-def>
     <element-def description="Object privilege" id="object_privilege">
-        <one-of id="13419">
+        <one-of id="13419" unbounded="true">
             <sequence atomic="true" tokens="FN_TRANSLATE:keyword, KW_SQL" id="13420" />
             <sequence atomic="true" tokens="KW_ASSERTION, KW_REFERENCES" id="13421" />
             <sequence atomic="true" tokens="KW_FLASHBACK, KW_ARCHIVE" id="13422" />

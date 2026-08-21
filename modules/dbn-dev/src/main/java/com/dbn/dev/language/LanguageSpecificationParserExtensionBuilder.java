@@ -66,6 +66,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
     private final LanguageSpecificationNextLeafResolver nextLeafResolver =
             new LanguageSpecificationNextLeafResolver();
     private final Map<String, ExtensionNode> extensionNodes = new LinkedHashMap<>();
+    private final Map<String, Boolean> extensionUnbounded = new HashMap<>();
     private int maxDepth = DEFAULT_MAX_DEPTH;
     private int maxCompletionCandidates = DEFAULT_MAX_COMPLETION_CANDIDATES;
     private int maxExtensionCandidates = DEFAULT_MAX_EXTENSION_CANDIDATES;
@@ -126,10 +127,12 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             }
         }
 
-        if (oneOfElement.children.length <= maxExtensionCandidates &&
+        if (!oneOfElement.unbounded &&
+                oneOfElement.children.length <= maxExtensionCandidates &&
                 !extensionNode.isAmbiguous()) return;
 
         extensionNodes.put(oneOfElement.getId(), extensionNode);
+        extensionUnbounded.put(oneOfElement.getId(), oneOfElement.unbounded);
 
         extensionNode.aggregateChildren(1 >= maxDepth);
         for (Node node : extensionNode.childNodes) {
@@ -199,7 +202,8 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
             NodeIdSequence nodeIds = new NodeIdSequence();
             for (Map.Entry<String, ExtensionNode> entry : extensionNodes.entrySet()) {
-                addOneOfExtension(extensionRoot, entry.getKey(), entry.getValue(), nodeIds);
+                addOneOfExtension(extensionRoot, entry.getKey(), entry.getValue(),
+                        extensionUnbounded.getOrDefault(entry.getKey(), false), nodeIds);
             }
 
             Document extensionDocument = new Document(extensionRoot);
@@ -221,15 +225,16 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             Element extensionRoot,
             String oneOfId,
             ExtensionNode extensionNode,
+            boolean unbounded,
             NodeIdSequence nodeIds) {
         if (extensionNode.childNodes.isEmpty()) return;
 
         Element extensionElement = new Element("one-of-extension");
         extensionElement.setAttribute("id", oneOfId);
         extensionElement.setAttribute("depth", Integer.toString(getChildDepth(extensionNode.childNodes)));
-        XmlWriteContext context = new XmlWriteContext(extensionNode.childNodes, nodeIds);
+        XmlWriteContext context = new XmlWriteContext(extensionNode.childNodes, unbounded, nodeIds);
         for (Node childNode : extensionNode.childNodes) {
-            extensionElement.addContent(toXmlElement(childNode, null, context));
+            extensionElement.addContent(toXmlElement(childNode, null, unbounded, context));
         }
         extensionRoot.addContent(extensionElement);
     }
@@ -237,6 +242,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
     private Element toXmlElement(
             Node node,
             Set<ElementTypeBase> inheritedCandidates,
+            boolean unbounded,
             XmlWriteContext context) {
         if (node.tokenTypes.isEmpty()) {
             throw new IllegalStateException("Extension node must contain at least one token type");
@@ -261,13 +267,13 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             setCandidateIds(element, ATTR_PARSE_CANDIDATE_IDS, node.parseCandidates);
         }
         Set<LeafElementType> completionCandidates = node.getCompletionCandidates();
-        if (completionCandidates.size() <= maxCompletionCandidates) {
+        if (unbounded || completionCandidates.size() <= maxCompletionCandidates) {
             setCandidateIds(element, ATTR_COMPLETION_CANDIDATE_IDS, completionCandidates);
         }
 
         if (node.isAmbiguous()) {
             for (Node childNode : node.childNodes) {
-                element.addContent(toXmlElement(childNode, node.parseCandidates, context));
+                element.addContent(toXmlElement(childNode, node.parseCandidates, unbounded, context));
             }
         }
         return element;
@@ -479,11 +485,14 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
         private final Map<Node, SharedNode> sharedNodes = new IdentityHashMap<>();
         private final Map<NodeStructure, SharedNode> nodesByStructure = new HashMap<>();
         private final NodeIdSequence nodeIds;
+        private final boolean unbounded;
 
         private XmlWriteContext(
                 List<Node> rootNodes,
+                boolean unbounded,
                 NodeIdSequence nodeIds) {
             this.nodeIds = nodeIds;
+            this.unbounded = unbounded;
             for (Node rootNode : rootNodes) {
                 register(rootNode);
             }
@@ -505,7 +514,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
             NodeStructure structure = new NodeStructure(
                     List.copyOf(node.tokenTypes),
                     List.copyOf(node.parseCandidates),
-                    completionCandidates.size() <= maxCompletionCandidates ?
+                    unbounded || completionCandidates.size() <= maxCompletionCandidates ?
                             List.copyOf(completionCandidates) :
                             List.of(),
                     childNodes.stream().map(child -> child.structureId).toList());

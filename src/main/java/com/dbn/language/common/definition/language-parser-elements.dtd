@@ -135,7 +135,8 @@
         formatting-wrap (NORMAL | ALWAYS | IF_LONG ) #IMPLIED
         formatting-spacing-before (NO_SPACE | ONE_SPACE | ONE_LINE | LINE_BREAK) #IMPLIED
         formatting-spacing-after (NO_SPACE | ONE_SPACE | ONE_LINE) #IMPLIED
-        original-name CDATA #IMPLIED>
+        original-name CDATA #IMPLIED
+        unbounded (true | false) #IMPLIED>
 <!ELEMENT qualified-identifier (variant)*>
 <!ATTLIST qualified-identifier
         id CDATA #IMPLIED

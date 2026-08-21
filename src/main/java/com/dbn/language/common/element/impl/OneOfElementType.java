@@ -41,6 +41,7 @@ import static com.dbn.language.common.element.util.ElementTypeAttribute.SYNTHETI
 public class OneOfElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
     public boolean basic;
+    public boolean unbounded;
 
     public OneOfElementTypeExtension extension;
 
@@ -55,6 +56,7 @@ public class OneOfElementType extends ElementTypeBase {
     @Override
     protected void loadDefinition(Element def) throws ElementTypeDefinitionException {
         super.loadDefinition(def);
+        unbounded = getBooleanAttribute(def, "unbounded");
         String tokenIds = stringAttribute(def, "tokens");
         if (Strings.isNotEmptyOrSpaces(tokenIds)) {
             basic = true;
