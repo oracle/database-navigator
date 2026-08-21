@@ -136,16 +136,16 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
         extensionNode.aggregateChildren(1 >= maxDepth);
         for (Node node : extensionNode.childNodes) {
-            expandNode(node, 1, maxDepth);
+            expandNode(node, 1, maxDepth, oneOfElement.unbounded);
         }
 
     }
 
-    private void expandNode(Node node, int depth, int maxDepth) {
+    private void expandNode(Node node, int depth, int maxDepth, boolean unbounded) {
         if (depth >= maxDepth) return;
         if (!node.isAmbiguous()) return;
         if (!node.isExpandable()) return;
-        if (node.getCompletionCandidates().size() > maxCompletionCandidates) return;
+        if (!unbounded && node.getCompletionCandidates().size() > maxCompletionCandidates) return;
 
         for (Map.Entry<ElementTypeBase, Set<LanguageNodeBase>> entry : node.nextLeafs.entrySet()) {
             ElementTypeBase parseCandidate = entry.getKey();
@@ -158,7 +158,7 @@ public class LanguageSpecificationParserExtensionBuilder implements LanguageSpec
 
         node.aggregateChildren(depth + 1 >= maxDepth);
         for (Node childNode : node.childNodes) {
-            expandNode(childNode, depth + 1, maxDepth);
+            expandNode(childNode, depth + 1, maxDepth, unbounded);
         }
     }
 

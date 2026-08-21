@@ -12,7 +12,7 @@
     </element-def>
 
     <element-def attributes="STRUCTURE, EXECUTABLE, STATEMENT, SCOPE_ISOLATION, GENERIC" description="SQL statement" formatting-indent="ABSOLUTE_NONE" id="sql_statement">
-        <one-of id="00001">
+        <one-of id="00001" unbounded="true">
             <element ref-id="administer_key_management" />
             <element ref-id="alter_statement" />
             <element ref-id="analyze_statement" />
