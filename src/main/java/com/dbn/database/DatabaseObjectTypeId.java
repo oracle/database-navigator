@@ -25,6 +25,7 @@ public enum DatabaseObjectTypeId implements Constant<DatabaseObjectTypeId> {
     AI_MODEL,
     ANALYTIC_VIEW,
     APPLICATION,
+    ASSERTION,
     ATTRIBUTE,
     ATTRIBUTE_DIMENSION,
     ARGUMENT,
