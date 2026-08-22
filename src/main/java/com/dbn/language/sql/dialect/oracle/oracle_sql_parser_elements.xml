@@ -21189,8 +21189,8 @@
         <iteration optional="true" id="11376">
             <one-of id="11377">
                 <element ref-id="fetch_clause" />
-                <element ref-id="row_limiting_partition_clause" />
                 <element ref-id="row_specification" />
+                <element ref-id="row_limiting_partition_clause" />
                 <element ref-id="accuracy_clause" />
             </one-of>
         </iteration>
