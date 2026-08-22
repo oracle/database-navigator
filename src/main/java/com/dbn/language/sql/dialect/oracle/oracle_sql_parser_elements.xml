@@ -18247,6 +18247,7 @@
     <element-def attributes="SPECIFIC" description="REVOKE statement" id="revoke_statement">
         <token id="09955" type-id="KW_REVOKE" />
         <one-of id="09956">
+            <element ref-id="revoke_roles_from_programs" />
             <sequence id="09957">
                 <one-of id="09958">
                     <element ref-id="revoke_system_privileges" />
@@ -18255,7 +18256,6 @@
                 </one-of>
                 <element ref-id="container_clause" optional="true" />
             </sequence>
-            <element ref-id="revoke_roles_from_programs" />
             <element ref-id="revoke_legacy_clause" />
         </one-of>
     </element-def>
@@ -18331,7 +18331,7 @@
             <token type-id="KW_ALL" id="09992" />
         </one-of>
         <token type-id="KW_FROM" id="09993" />
-        <iteration separator="CHR_COMMA" id="09994">
+        <iteration separator="CHR_COMMA" id="09994" exit="true">
             <element ref-id="program_unit" />
         </iteration>
     </element-def>
