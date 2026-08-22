@@ -53,7 +53,7 @@
         virtual-object CDATA #IMPLIED
         object-type CDATA #IMPLIED
         formatting-spacing-before CDATA #IMPLIED>
-<!ELEMENT wrapper (token|element|sequence|one-of|iteration|wrapper|qualified-identifier|object-ref|variable-ref|alias-ref)*>
+<!ELEMENT wrapper (token|element|sequence|one-of|iteration|wrapper|qualified-identifier|object-ref|variable-ref|alias-ref)>
 <!ATTLIST wrapper
         id CDATA #IMPLIED
         version CDATA #IMPLIED
@@ -100,7 +100,7 @@
         formatting-spacing-before (NO_SPACE | ONE_SPACE | ONE_LINE) #IMPLIED
         formatting-spacing-after (NO_SPACE | ONE_SPACE | ONE_LINE) #IMPLIED
         original-name CDATA #IMPLIED>
-<!ELEMENT iteration (token|element|sequence|one-of|wrapper|qualified-identifier|object-def|object-ref|variable-ref|alias-ref|alias-def)*>
+<!ELEMENT iteration (token|element|sequence|one-of|wrapper|qualified-identifier|object-def|object-ref|variable-ref|alias-ref|alias-def)>
 <!ATTLIST iteration
         id CDATA #IMPLIED
         separator CDATA #IMPLIED
