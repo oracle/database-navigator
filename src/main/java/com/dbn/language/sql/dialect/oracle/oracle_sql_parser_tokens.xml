@@ -53,11 +53,12 @@
         <token index="26" id="DT_REAL" value="real" category="datatype"/>
         <token index="27" id="DT_ROWID" value="rowid" category="datatype" reserved="true"/>
         <token index="28" id="DT_SMALLINT" value="smallint" category="datatype" reserved="true"/>
-        <token index="29" id="DT_TIMESTAMP" value="timestamp" category="datatype"/>
-        <token index="30" id="DT_UROWID" value="urowid" category="datatype"/>
-        <token index="31" id="DT_VARCHAR" value="varchar" category="datatype" reserved="true"/>
-        <token index="32" id="DT_VARCHAR2" value="varchar2" category="datatype" reserved="true"/>
-        <token index="33" id="DT_VECTOR" value="vector" category="datatype"/>
+        <token index="29" id="DT_STRING" value="string" category="datatype"/>
+        <token index="30" id="DT_TIMESTAMP" value="timestamp" category="datatype"/>
+        <token index="31" id="DT_UROWID" value="urowid" category="datatype"/>
+        <token index="32" id="DT_VARCHAR" value="varchar" category="datatype" reserved="true"/>
+        <token index="33" id="DT_VARCHAR2" value="varchar2" category="datatype" reserved="true"/>
+        <token index="34" id="DT_VECTOR" value="vector" category="datatype"/>
         <!-- MARKER_END_DATATYPES -->
 
 

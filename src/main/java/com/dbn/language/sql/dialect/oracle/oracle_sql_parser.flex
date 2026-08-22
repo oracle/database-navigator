@@ -209,11 +209,12 @@ DBLINK_QUALIFIER = "@"({IDENTIFIER}|{QUOTED_IDENTIFIER})("."({IDENTIFIER}|{QUOTE
 "real" {return tt.dtt(26);}
 "rowid" {return tt.dtt(27);}
 "smallint" {return tt.dtt(28);}
-"timestamp" {return tt.dtt(29);}
-"urowid" {return tt.dtt(30);}
-"varchar" {return tt.dtt(31);}
-"varchar2" {return tt.dtt(32);}
-"vector" {return tt.dtt(33);}
+"string" {return tt.dtt(29);}
+"timestamp" {return tt.dtt(30);}
+"urowid" {return tt.dtt(31);}
+"varchar" {return tt.dtt(32);}
+"varchar2" {return tt.dtt(33);}
+"vector" {return tt.dtt(34);}
 // MARKER_END_DATATYPES
 
 
