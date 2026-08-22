@@ -20478,6 +20478,7 @@
                         <element ref-id="partition_extension_clause" />
                         <element optional="true" ref-id="sample_clause" />
                     </sequence>
+                    <element ref-id="partition_extension_clause" />
                     <token type-id="CT_DBLINK_QUALIFIER" id="11030" />
                     <element ref-id="sample_clause" />
                 </one-of>
@@ -20943,7 +20944,7 @@
             <iteration id="11254" separator="CHR_COMMA">
                 <one-of id="11255">
                     <element ref-id="rollup_cube_clause" />
-                    <element ref-id="grouping_expression_list" />
+                    <element ref-id="wrapped_expression_list" original-name="grouping_expression_list" />
                 </one-of>
             </iteration>
         </wrapper>
