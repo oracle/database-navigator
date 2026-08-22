@@ -20497,6 +20497,7 @@
             <element ref-id="json_table_function" />
             <element ref-id="graphql_table_function" />
         </one-of>
+        <element optional="true" ref-id="flashback_query_clause" />
     </element-def>
     <element-def description="Sample clause" id="sample_clause">
         <token id="11035" type-id="KW_SAMPLE" />
