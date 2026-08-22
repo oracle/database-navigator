@@ -18,7 +18,7 @@ When reading Oracle diagram text, distinguish diagram grouping from SQL punctuat
 3. For dialect syntax work, use the official links in [references/parser-elements.md](references/parser-elements.md) `Specification References`.
 4. For token ids or lexer/token-list changes, inspect the `modules/dbn-dev` language tooling before inventing names.
 5. Keep XML changes declarative and local to the grammar construct requested. Do not refactor unrelated statement definitions while adding one clause or alternative.
-6. Preserve existing generated numeric child ids, but never add ids to new parser elements manually. Leave new elements without `id`; the parser tooling/reindexer assigns ids.
+6. Do not maintain numeric parser-element ids by hand. When adding or restructuring definitions, omit `id` attributes from the affected new/changed elements; the parser builder/reindexer assigns ids. Unchanged existing ids may remain until regeneration.
 7. Keep dbn-dev token registries sorted, de-duplicated, and free of blank token entries.
 8. Keep parser XMLs pointed at the shared DTD:
 
