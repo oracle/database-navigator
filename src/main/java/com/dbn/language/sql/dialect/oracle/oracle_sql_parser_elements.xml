@@ -19685,11 +19685,11 @@
             <sequence id="10670">
                 <iteration optional="true" id="10671">
                     <one-of id="10672">
-                        <element ref-id="row_pattern_partition_by"/>
-                        <element ref-id="row_pattern_order_by"/>
-                        <element ref-id="row_pattern_measures"/>
-                        <element ref-id="row_pattern_rows_per_match"/>
-                        <element ref-id="row_pattern_skip_to"/>
+                        <element ref-id="row_pattern_partition_by" />
+                        <element ref-id="row_pattern_order_by" />
+                        <element ref-id="row_pattern_measures" />
+                        <element ref-id="row_pattern_rows_per_match" />
+                        <element ref-id="row_pattern_skip_to" />
                     </one-of>
                 </iteration>
                 <token type-id="KW_PATTERN" id="10673" />
@@ -19736,15 +19736,14 @@
         </iteration>
     </element-def>
     <element-def description="Row pattern" id="row_pattern">
-        <sequence optional="true" id="10694">
-            <element optional="true" ref-id="row_pattern" />
-            <token type-id="CHR_VERTICAL_BAR" id="10695" />
-        </sequence>
-        <element ref-id="row_pattern_term" />
+        <iteration separator="CHR_VERTICAL_BAR" id="10694">
+            <element ref-id="row_pattern_term" />
+        </iteration>
     </element-def>
     <element-def description="Row pattern term" id="row_pattern_term">
-        <element optional="true" ref-id="row_pattern_term" />
-        <element ref-id="row_pattern_factor" />
+        <iteration id="10695">
+            <element ref-id="row_pattern_factor" />
+        </iteration>
     </element-def>
     <element-def description="Row pattern factor" id="row_pattern_factor">
         <element ref-id="row_pattern_primary" />
@@ -21696,7 +21695,7 @@
         <iteration id="11621" optional-wrapping="PARENTHESES" separator="CHR_COMMA">
             <sequence id="11622">
                 <element ref-id="boolean_expression" />
-                <alias-def type="ANY" id="11623" optional="true"/>
+                <alias-def type="ANY" id="11623" optional="true" />
             </sequence>
         </iteration>
     </element-def>
