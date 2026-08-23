@@ -20513,6 +20513,7 @@
             </sequence>
             <element ref-id="table_collection_expression" />
             <element ref-id="values_clause" />
+            <element ref-id="containers_clause" />
             <element ref-id="xmltable_function" />
             <element ref-id="json_table_function" />
             <element ref-id="graphql_table_function" />
@@ -20932,16 +20933,16 @@
         <token id="11249" type-id="KW_GROUP" />
         <token id="11250" type-id="KW_BY" />
         <one-of id="11251">
-            <iteration formatting-indent="NORMAL" separator="CHR_COMMA" optional-wrapping="PARENTHESES" id="11252">
-                <one-of id="11253">
+            <token type-id="KW_ALL" id="11252" />
+            <iteration formatting-indent="NORMAL" separator="CHR_COMMA" optional-wrapping="PARENTHESES" id="11253">
+                <one-of id="11254">
                     <element ref-id="expression" />
-                    <alias-ref type="COLUMN" original-name="c_alias" id="11254" />
-                    <token type-id="INTEGER" original-name="position" id="11255" />
+                    <alias-ref type="COLUMN" original-name="c_alias" id="11255" />
+                    <token type-id="INTEGER" original-name="position" id="11256" />
                     <element ref-id="rollup_cube_clause" />
                     <element ref-id="grouping_sets_clause" />
                 </one-of>
             </iteration>
-            <token type-id="KW_ALL" id="11256" />
         </one-of>
         <element optional="true" ref-id="having_clause" />
     </element-def>
