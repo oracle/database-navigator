@@ -20514,6 +20514,7 @@
             <element ref-id="table_collection_expression" />
             <element ref-id="values_clause" />
             <element ref-id="containers_clause" />
+            <element ref-id="shards_clause" />
             <element ref-id="xmltable_function" />
             <element ref-id="json_table_function" />
             <element ref-id="graphql_table_function" />
