@@ -20499,6 +20499,7 @@
                     <element ref-id="partition_extension_clause" />
                     <token type-id="CT_DBLINK_QUALIFIER" id="11039" />
                     <element ref-id="sample_clause" />
+                    <element ref-id="query_partition_clause" />
                 </one-of>
             </sequence>
             <sequence id="11040">
