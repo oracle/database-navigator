@@ -20406,10 +20406,10 @@
                     <sequence id="10992" optional="true">
                         <token id="10993" type-id="KW_AS" />
                         <one-of id="10994">
-                            <element original-name="constant" ref-id="expression" />
+                            <element original-name="constant" ref-id="typed_literal" />
                             <wrapper id="10995" template="PARENTHESES">
                                 <iteration id="10996" separator="CHR_COMMA">
-                                    <element original-name="constant" ref-id="expression" />
+                                    <element original-name="constant" ref-id="typed_literal" />
                                 </iteration>
                             </wrapper>
                         </one-of>
