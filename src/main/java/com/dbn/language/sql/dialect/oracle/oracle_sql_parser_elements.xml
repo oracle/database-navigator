@@ -20988,6 +20988,7 @@
                 <one-of id="11276">
                     <element ref-id="rollup_cube_clause" />
                     <element ref-id="wrapped_expression_list" original-name="grouping_expression_list" />
+                    <element ref-id="expression_list" original-name="grouping_expression_list" />
                 </one-of>
             </iteration>
         </wrapper>
