@@ -282,12 +282,6 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     }
 
     @Override
-    public ResultSet getModelVariableImportance(DBNConnection conn, String modelName) throws SQLException {
-        log.debug("Querying variable importance (DM$VA) for: {}", modelName);
-        return executeQuery(conn, "get-model-variable-importance", modelName);
-    }
-
-    @Override
     public ResultSet getModelComputedSettings(DBNConnection conn, String modelName) throws SQLException {
         log.debug("Querying model computed settings (DM$VS) for: {}", modelName);
         return executeQuery(conn, "get-model-computed-settings", modelName);
@@ -441,6 +435,44 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String settingsTableName) throws SQLException {
         return renderStatementText(conn, "create-model-job-action",
                 modelName, miningFunction, trainTableName, targetColumn, settingsTableName);
+    }
+
+    // ==================== FEATURE ANALYSIS ====================
+
+    @Override
+    public void computeAttributeImportance(
+            DBNConnection conn,
+            String dataTableName,
+            String targetColumn,
+            String resultTableName) throws SQLException {
+        log.debug("Computing attribute importance on {} for target {}", dataTableName, targetColumn);
+        executeUpdate(conn, "compute-attribute-importance", dataTableName, targetColumn, resultTableName);
+    }
+
+    @Override
+    public ResultSet getAttributeImportance(DBNConnection conn, String resultTableName) throws SQLException {
+        return executeQuery(conn, "get-attribute-importance", resultTableName);
+    }
+
+    @Override
+    public ResultSet getTableColumnTypes(DBNConnection conn, String tableName) throws SQLException {
+        return executeQuery(conn, "get-table-column-types", tableName);
+    }
+
+    @Override
+    public ResultSet getColumnStatistics(DBNConnection conn, String tableName, String columnName) throws SQLException {
+        return executeQuery(conn, "get-column-statistics", columnName, tableName);
+    }
+
+    @Override
+    public ResultSet getColumnCardinality(DBNConnection conn, String tableName, String columnName) throws SQLException {
+        return executeQuery(conn, "get-column-cardinality", columnName, tableName);
+    }
+
+    @Override
+    public ResultSet getPredictionImpact(DBNConnection conn, String modelName, String testTableName) throws SQLException {
+        log.debug("Aggregating prediction details of model {} over {}", modelName, testTableName);
+        return executeQuery(conn, "get-prediction-impact", modelName, testTableName);
     }
 
     // ==================== HELPER METHODS ====================

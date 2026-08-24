@@ -274,15 +274,6 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
     ResultSet getModelAttributeDetails(DBNConnection conn, String modelName) throws SQLException;
 
     /**
-     * Queries variable importance from DM$VA (ATTRIBUTE_NAME, ATTRIBUTE_IMPORTANCE).
-     * Supported by Random Forest, MDL/Attribute Importance, and EM algorithms.
-     * Throws SQLException for algorithms that don't support this view structure.
-     *
-     * @return ResultSet with columns: ATTRIBUTE_NAME, ATTRIBUTE_IMPORTANCE
-     */
-    ResultSet getModelVariableImportance(DBNConnection conn, String modelName) throws SQLException;
-
-    /**
      * Queries the computed settings view (DM$VS) for a model.
      * Returns the actual settings used to build the model.
      *
@@ -444,4 +435,57 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
             String trainTableName,
             String targetColumn,
             String settingsTableName) throws SQLException;
+
+    // ==================== FEATURE ANALYSIS ====================
+
+    /**
+     * Ranks the columns of a table by how well they explain the target column.
+     * This is a property of the data, not of any trained model - the ranking is the same
+     * whichever algorithm is later trained on it.
+     * <p>
+     * Creates {@code resultTableName}; the caller is responsible for dropping it.
+     */
+    void computeAttributeImportance(
+            DBNConnection conn,
+            String dataTableName,
+            String targetColumn,
+            String resultTableName) throws SQLException;
+
+    /**
+     * Reads the ranking produced by {@link #computeAttributeImportance}.
+     *
+     * @return ResultSet with columns: ATTRIBUTE_NAME, EXPLANATORY_VALUE, RANK
+     */
+    ResultSet getAttributeImportance(DBNConnection conn, String resultTableName) throws SQLException;
+
+    /**
+     * Returns an empty result set for the given table, to read column names and types
+     * off the result set metadata.
+     *
+     * @return ResultSet with no rows and the full column list of the table
+     */
+    ResultSet getTableColumnTypes(DBNConnection conn, String tableName) throws SQLException;
+
+    /**
+     * Statistics for a numeric column.
+     *
+     * @return ResultSet with columns: DISTINCT_VALUES, MIN_VALUE, MAX_VALUE, MEAN_VALUE, STD_DEV
+     */
+    ResultSet getColumnStatistics(DBNConnection conn, String tableName, String columnName) throws SQLException;
+
+    /**
+     * Statistics for a non numeric column, where mean and standard deviation do not apply.
+     *
+     * @return ResultSet with columns: DISTINCT_VALUES, MIN_VALUE, MAX_VALUE
+     */
+    ResultSet getColumnCardinality(DBNConnection conn, String tableName, String columnName) throws SQLException;
+
+    /**
+     * Ranks the columns by how much they contributed to the predictions of one specific model,
+     * by aggregating the per row attribute weights returned by PREDICTION_DETAILS.
+     * Unlike {@link #computeAttributeImportance} this describes the model, not the data.
+     *
+     * @return ResultSet with columns: ATTRIBUTE_NAME, IMPACT, OCCURRENCES
+     */
+    ResultSet getPredictionImpact(DBNConnection conn, String modelName, String testTableName) throws SQLException;
 }

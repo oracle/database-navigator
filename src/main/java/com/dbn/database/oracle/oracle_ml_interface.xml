@@ -377,16 +377,6 @@
         </statement>
     </statement-execution-processor>
 
-    <!-- Query variable importance from DM$VA (Random Forest, EM, MDL algorithms) -->
-    <!-- Parameters: 0=model_name -->
-    <statement-execution-processor id="get-model-variable-importance" timeout="10000">
-        <statement>
-            SELECT ATTRIBUTE_NAME, ATTRIBUTE_IMPORTANCE
-            FROM DM$VA{0}
-            ORDER BY ATTRIBUTE_IMPORTANCE DESC NULLS LAST
-        </statement>
-    </statement-execution-processor>
-
     <!-- Query Computed Settings view (DM$VS) for a model -->
     <!-- Parameters: 0=model_name -->
     <statement-execution-processor id="get-model-computed-settings" timeout="10000">
@@ -552,6 +542,84 @@
             SELECT MINING_FUNCTION
             FROM USER_MINING_MODELS
             WHERE MODEL_NAME = {#0}
+        </statement>
+    </statement-execution-processor>
+
+    <!-- ==================== FEATURE ANALYSIS ==================== -->
+
+    <!-- Rank the input columns by how well they explain the target (attribute importance, MDL). -->
+    <!-- Creates the result table; it must be dropped by the caller. -->
+    <!-- Parameters: 0=data_table, 1=target_column, 2=result_table -->
+    <statement-execution-processor id="compute-attribute-importance" timeout="300000">
+        <statement>
+            BEGIN
+                DBMS_PREDICTIVE_ANALYTICS.EXPLAIN(
+                    data_table_name     => {#0},
+                    explain_column_name => {#1},
+                    result_table_name   => {#2});
+            END;
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Read the attribute importance ranking produced by compute-attribute-importance -->
+    <!-- Parameters: 0=result_table -->
+    <statement-execution-processor id="get-attribute-importance" timeout="30000">
+        <statement>
+            SELECT ATTRIBUTE_NAME, EXPLANATORY_VALUE, RANK
+            FROM {@0}
+            ORDER BY RANK
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Empty result set used to read column names and types off the result set metadata -->
+    <!-- Parameters: 0=table_name -->
+    <statement-execution-processor id="get-table-column-types" timeout="30000">
+        <statement>
+            SELECT *
+            FROM {@0}
+            WHERE 1 = 0
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Statistics for a numeric column -->
+    <!-- Parameters: 0=column_name, 1=table_name -->
+    <statement-execution-processor id="get-column-statistics" timeout="120000">
+        <statement>
+            SELECT COUNT(DISTINCT {@0}) AS DISTINCT_VALUES,
+                   TO_CHAR(MIN({@0})) AS MIN_VALUE,
+                   TO_CHAR(MAX({@0})) AS MAX_VALUE,
+                   AVG({@0}) AS MEAN_VALUE,
+                   STDDEV({@0}) AS STD_DEV
+            FROM {@1}
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Statistics for a non numeric column (mean and standard deviation do not apply) -->
+    <!-- Parameters: 0=column_name, 1=table_name -->
+    <statement-execution-processor id="get-column-cardinality" timeout="120000">
+        <statement>
+            SELECT COUNT(DISTINCT {@0}) AS DISTINCT_VALUES,
+                   TO_CHAR(MIN({@0})) AS MIN_VALUE,
+                   TO_CHAR(MAX({@0})) AS MAX_VALUE
+            FROM {@1}
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Aggregate the per row attribute weights returned by PREDICTION_DETAILS into a -->
+    <!-- model specific ranking. Model name sits in an identifier position (like the DM$V views). -->
+    <!-- Parameters: 0=model_name, 1=test_table -->
+    <statement-execution-processor id="get-prediction-impact" timeout="300000">
+        <statement>
+            SELECT d.ATTRIBUTE_NAME,
+                   AVG(ABS(d.WEIGHT)) AS IMPACT,
+                   COUNT(*) AS OCCURRENCES
+            FROM (SELECT PREDICTION_DETAILS({0} USING *) AS DETAILS FROM {@1}) t,
+                 XMLTABLE('/Details/Attribute'
+                     PASSING t.DETAILS
+                     COLUMNS ATTRIBUTE_NAME VARCHAR2(128) PATH '@name',
+                             WEIGHT         NUMBER        PATH '@weight') d
+            GROUP BY d.ATTRIBUTE_NAME
+            ORDER BY IMPACT DESC NULLS LAST
         </statement>
     </statement-execution-processor>
 
