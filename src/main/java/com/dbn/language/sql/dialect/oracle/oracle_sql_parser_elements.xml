@@ -25109,7 +25109,7 @@
                 </sequence>
                 <token type-id="CHR_COMMA" id="13502" />
                 <token type-id="STRING" original-name="json_basic_path_expression" id="13503" />
-                <iteration id="13504">
+                <iteration id="13504" optional="true">
                     <one-of id="13505">
                         <element ref-id="json_value_returning_clause" />
                         <element ref-id="json_value_on_error_clause" />
