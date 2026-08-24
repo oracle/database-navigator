@@ -8990,6 +8990,7 @@
             <node tt="STRING" />
         </node>
         <node tt="KW_ROW, KW_ROWS" pc="row_specification" cc="11422, 11424" />
+        <node tt="KW_PARTITION, KW_PARTITIONS" pc="row_limiting_partition_clause" cc="11414" />
         <node tt="KW_WITH, KW_TARGET, KW_ACCURACY" pc="accuracy_clause" />
     </one-of-extension>
     <one-of-extension id="11415" depth="5">

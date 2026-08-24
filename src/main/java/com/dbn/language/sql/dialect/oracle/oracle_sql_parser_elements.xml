@@ -21269,7 +21269,7 @@
     <element-def description="Row limiting partition clause" id="row_limiting_partition_clause">
         <iteration separator="CHR_COMMA" id="11408">
             <sequence id="11409">
-                <element ref-id="expression" original-name="partition_count" />
+                <element ref-id="expression" original-name="partition_count" optional="true"/>
                 <sequence optional="true" id="11410">
                     <one-of id="11411">
                         <token type-id="KW_PARTITION" id="11412" />
