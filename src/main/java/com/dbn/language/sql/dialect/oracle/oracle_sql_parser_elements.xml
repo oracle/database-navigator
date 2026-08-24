@@ -18550,7 +18550,7 @@
                     <token type-id="KW_OLD" id="10071" />
                     <token type-id="KW_NEW" id="10072" />
                 </one-of>
-                <element ref-id="expr" />
+                <element ref-id="expression" />
             </sequence>
         </iteration>
         <token id="10073" type-id="KW_INTO" />
