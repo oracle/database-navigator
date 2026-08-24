@@ -19,6 +19,7 @@ package com.dbn.ml.execution;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.backend.dbms.DBMSBackend;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
+import com.dbn.ml.backend.dbms.DBMSFeatureAnalyzer;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.MLRequest;
@@ -102,6 +103,8 @@ public class MLPipelineExecutor {
         DBMSEvaluationResult evaluation = backend.evaluate(modelHandle, context);
         result.setEvaluationResult(evaluation);
 
+        analyzeFeatures(connectionHandler, context, modelHandle, result);
+
         result.setTrainingDataSize(context.getTrainingDataSize());
         result.setTestingDataSize(context.getTestingDataSize());
         result.setFeatureCount(request.getFeatureConfig().getFeatureColumns().size());
@@ -123,6 +126,30 @@ public class MLPipelineExecutor {
         result.setSourceName(extractSourceName(request));
         result.setTrainingTimeMs(System.currentTimeMillis() - startTime);
         return result;
+    }
+
+    /**
+     * Column analysis is supplementary - a database that cannot produce it (missing privileges,
+     * an algorithm without prediction details) must not fail an otherwise successful training.
+     */
+    private void analyzeFeatures(
+            ConnectionHandler connectionHandler,
+            MLTrainingContext context,
+            DBMSModelHandle modelHandle,
+            MLResult result) {
+
+        DBMSFeatureAnalyzer analyzer = new DBMSFeatureAnalyzer(connectionHandler);
+        try {
+            result.setFeatureImportance(analyzer.computeFeatureImportance(context));
+        } catch (Exception e) {
+            log.warn("Failed to compute feature importance - result will omit the table", e);
+        }
+
+        try {
+            result.setPredictionImpacts(analyzer.computePredictionImpact(modelHandle));
+        } catch (Exception e) {
+            log.warn("Failed to compute prediction impact - result will omit the table", e);
+        }
     }
 
     private MLTrainingContext buildContext(MLRequest request) {
