@@ -24056,7 +24056,7 @@
     <element-def description="JSON_TRANSFORM ADD SET operation" id="json_add_set_op">
         <sequence id="12861">
             <token type-id="KW_ADD_SET" id="12862" />
-            <element ref-id="expression" original-name="pathExpr" />
+            <element ref-id="expr" original-name="path_expr" />
             <token type-id="CHR_EQUAL" id="12863" />
             <element ref-id="json_rhs_expr" />
             <iteration optional="true" id="12864">
@@ -24095,7 +24095,7 @@
     <element-def description="JSON_TRANSFORM APPEND operation" id="json_append_op">
         <sequence id="12887">
             <token type-id="KW_APPEND" id="12888" />
-            <element ref-id="expression" original-name="pathExpr" />
+            <element ref-id="expr" original-name="path_expr" />
             <token type-id="CHR_EQUAL" id="12889" />
             <element ref-id="json_rhs_expr" />
             <iteration optional="true" id="12890">
@@ -24170,7 +24170,7 @@
     <element-def description="JSON_TRANSFORM COPY operation" id="json_copy_op">
         <sequence id="12934">
             <token type-id="KW_COPY" id="12935" />
-            <element ref-id="expression" original-name="pathExpr" />
+            <element ref-id="expr" original-name="path_expr" />
             <token type-id="CHR_EQUAL" id="12936" />
             <element ref-id="json_rhs_expr" />
             <iteration optional="true" id="12937">
@@ -24209,7 +24209,7 @@
     <element-def description="JSON_TRANSFORM INSERT operation" id="json_insert_op">
         <sequence id="12960">
             <token type-id="KW_INSERT" id="12961" />
-            <element ref-id="expression" original-name="pathExpr" />
+            <element ref-id="expr" original-name="path_expr" />
             <token type-id="CHR_EQUAL" id="12962" />
             <element ref-id="json_rhs_expr" />
             <iteration optional="true" id="12963">
@@ -24257,7 +24257,7 @@
     <element-def description="JSON_TRANSFORM INTERSECT operation" id="json_intersect_op">
         <sequence id="12993">
             <token type-id="KW_INTERSECT" id="12994" />
-            <element ref-id="expression" original-name="pathExpr" />
+            <element ref-id="expr" original-name="path_expr" />
             <token type-id="CHR_EQUAL" id="12995" />
             <element ref-id="json_rhs_expr" />
             <iteration optional="true" id="12996">
@@ -24290,7 +24290,7 @@
             <token type-id="KW_KEEP" id="13014" />
             <iteration separator="CHR_COMMA" id="13015">
                 <wrapper template="PARENTHESES" id="13016">
-                    <element ref-id="expression" original-name="pathExpr" />
+                    <element ref-id="expr" original-name="path_expr" />
                 </wrapper>
             </iteration>
             <sequence optional="true" id="13017">
@@ -24306,7 +24306,7 @@
     <element-def description="JSON_TRANSFORM MERGE operation" id="json_merge_op">
         <sequence id="13023">
             <token type-id="KW_MERGE" id="13024" />
-            <element ref-id="expression" original-name="pathExpr" />
+            <element ref-id="expr" original-name="path_expr" />
             <token type-id="CHR_EQUAL" id="13025" />
             <element ref-id="json_rhs_expr" />
             <iteration optional="true" id="13026">
@@ -24353,7 +24353,7 @@
     <element-def description="JSON_TRANSFORM MINUS operation" id="json_minus_op">
         <sequence id="13055">
             <token type-id="KW_MINUS" id="13056" />
-            <element ref-id="expression" original-name="pathExpr" />
+            <element ref-id="expr" original-name="path_expr" />
             <token type-id="CHR_EQUAL" id="13057" />
             <element ref-id="json_rhs_expr" />
             <iteration optional="true" id="13058">
@@ -24396,7 +24396,7 @@
     <element-def description="JSON_TRANSFORM PREPEND operation" id="json_prepend_op">
         <sequence id="13080">
             <token type-id="KW_PREPEND" id="13081" />
-            <element ref-id="expression" original-name="pathExpr" />
+            <element ref-id="expr" original-name="path_expr" />
             <token type-id="CHR_EQUAL" id="13082" />
             <element ref-id="json_rhs_expr" />
             <iteration optional="true" id="13083">
@@ -24445,7 +24445,7 @@
     <element-def description="JSON_TRANSFORM REMOVE operation" id="json_remove_op">
         <sequence id="13114">
             <token type-id="KW_REMOVE" id="13115" />
-            <element ref-id="expression" original-name="pathExpr" />
+            <element ref-id="expr" original-name="path_expr" />
             <sequence optional="true" id="13116">
                 <one-of id="13117">
                     <token type-id="KW_IGNORE" id="13118" />
@@ -24459,7 +24459,7 @@
     <element-def description="JSON_TRANSFORM REMOVE SET operation" id="json_remove_set_op">
         <sequence id="13122">
             <token type-id="KW_REMOVE_SET" id="13123" />
-            <element ref-id="expression" original-name="pathExpr" />
+            <element ref-id="expr" original-name="path_expr" />
             <token type-id="CHR_EQUAL" id="13124" />
             <element ref-id="json_rhs_expr" />
             <iteration optional="true" id="13125">
@@ -24497,7 +24497,7 @@
     <element-def description="JSON_TRANSFORM RENAME operation" id="json_rename_op">
         <sequence id="13147">
             <token type-id="KW_RENAME" id="13148" />
-            <element ref-id="expression" original-name="pathExpr" />
+            <element ref-id="expr" original-name="path_expr" />
             <token type-id="KW_WITH" id="13149" />
             <token type-id="STRING" original-name="string_literal" id="13150" />
             <sequence optional="true" id="13151">
@@ -24513,7 +24513,7 @@
     <element-def description="JSON_TRANSFORM REPLACE operation" id="json_replace_op">
         <sequence id="13157">
             <token type-id="KW_REPLACE" id="13158" />
-            <element ref-id="expression" original-name="pathExpr" />
+            <element ref-id="expr" original-name="path_expr" />
             <token type-id="CHR_EQUAL" id="13159" />
             <element ref-id="json_rhs_expr" />
             <iteration optional="true" id="13160">
@@ -24561,7 +24561,7 @@
     <element-def description="JSON_TRANSFORM SET operation" id="json_set_op">
         <sequence id="13190">
             <token type-id="KW_SET" id="13191" />
-            <element ref-id="expression" original-name="pathExpr" />
+            <element ref-id="expr" original-name="path_expr" />
             <token type-id="CHR_EQUAL" id="13192" />
             <element ref-id="json_rhs_expr" />
             <iteration optional="true" id="13193">
@@ -24699,7 +24699,7 @@
     <element-def description="JSON_TRANSFORM UNION operation" id="json_union_op">
         <sequence id="13284">
             <token type-id="KW_UNION" id="13285" />
-            <element ref-id="expression" original-name="pathExpr" />
+            <element ref-id="expr" original-name="path_expr" />
             <token type-id="CHR_EQUAL" id="13286" />
             <element ref-id="json_rhs_expr" />
             <iteration optional="true" id="13287">
