@@ -54,7 +54,7 @@ public class UserDataKeys {
     public static final Key<ConnectionRef> CONNECTION_REF = Key.create("DBNavigator.ConnectionRef");
     public static final Key<ModuleRef> MODULE_REF = Key.create("DBNavigator.ModuleRef");
     public static final Key<List<StatementExecutionProcessor>> STATEMENT_EXECUTION_PROCESSORS = Key.create("DBNavigator.StatementExecutionProcessors");
-    public static final Key<FileConnectionContext> FILE_CONNECTION_MAPPING = Key.create("DBNavigator.FileConnectionMapping");
+    public static final Key<FileConnectionContext> FILE_CONNECTION_CONTEXT = Key.create("DBNavigator.FileConnectionContext");
     public static final Key<Boolean> HAS_CONNECTIVITY_CONTEXT = Key.create("DBNavigator.HasConnectivityContext");
     public static final Key<DBLanguageDialect> LANGUAGE_DIALECT = Key.create("DBNavigator.LanguageDialect");
     public static final Key<String> GUARDED_BLOCK_REASON = Key.create("DBNavigator.GuardedBlockReason");

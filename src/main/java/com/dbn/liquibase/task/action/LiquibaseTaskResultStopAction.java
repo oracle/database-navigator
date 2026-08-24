@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.dbn.liquibase.operation.action;
+package com.dbn.liquibase.task.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.liquibase.DatabaseLiquibaseManager;
-import com.dbn.liquibase.operation.LiquibaseOperationResult;
+import com.dbn.common.task.TaskStatus;
+import com.dbn.liquibase.task.LiquibaseTaskResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -27,21 +27,27 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class LiquibaseOperationResultSettingsAction extends AbstractLiquibaseOperationResultAction {
-    public LiquibaseOperationResultSettingsAction() {
-        super(txt("app.execution.action.Settings"));
+public class LiquibaseTaskResultStopAction extends AbstractLiquibaseTaskResultAction {
+    public LiquibaseTaskResultStopAction() {
+        super(txt("app.execution.action.StopExecution"));
     }
 
     @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull LiquibaseOperationResult target) {
-        DatabaseLiquibaseManager liquibaseManager = getLiquibaseManager(project);
-        liquibaseManager.openWorkspaceSettings();
+    protected void actionPerformed(
+            @NotNull AnActionEvent e,
+            @NotNull Project project,
+            @NotNull LiquibaseTaskResult<?, ?, ?> target) {
+        getLiquibaseManager(project).cancelTask(target);
     }
 
     @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable LiquibaseOperationResult target) {
-        presentation.setEnabled(target != null);
-        presentation.setText(txt("app.execution.action.Settings"));
-        presentation.setIcon(Icons.EXEC_RESULT_OPTIONS);
+    protected void update(
+            @NotNull AnActionEvent e,
+            @NotNull Presentation presentation,
+            @NotNull Project project,
+            @Nullable LiquibaseTaskResult<?, ?, ?> target) {
+        presentation.setEnabled(target != null && target.getStatus() == TaskStatus.RUNNING);
+        presentation.setText(txt("app.execution.action.StopExecution"));
+        presentation.setIcon(Icons.ACTION_STOP);
     }
 }

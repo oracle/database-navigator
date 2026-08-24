@@ -16,8 +16,6 @@ import liquibase.database.Database;
 import liquibase.lockservice.DatabaseChangeLogLock;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-
 import static com.dbn.liquibase.execution.LiquibaseCommands.LIST_LOCKS;
 
 /** Lists Liquibase changelog locks currently held by the selected schema. */
@@ -32,14 +30,16 @@ public class LiquibaseListLocksProcessor extends LiquibaseExecutionProcessor {
         DBSchema targetSchema = context.getTargetSchema();
         withLiquibaseDatabase(context, true, targetSchema, database ->
                 withLiquibaseScope(context, classLoaderAccessor(), null,
-                        output -> executeListLocks(context, database, output)));
+                        output -> executeListLocks(database, context, output)));
     }
 
     private void executeListLocks(
-            @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
+            @NotNull LiquibaseOperationContext context,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
-        executeCommand(LIST_LOCKS, output, Map.of("database", database));
+
+        var arguments = arguments("database", database);
+        executeCommand(LIST_LOCKS, context, output, arguments);
         for (DatabaseChangeLogLock lock : ListLocksCommandStep.listLocks(database)) {
             checkCanceled(context);
             context.getResult().ensureLockItem(lock);

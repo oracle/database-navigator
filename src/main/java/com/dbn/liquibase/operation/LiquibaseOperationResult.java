@@ -16,15 +16,9 @@
 
 package com.dbn.liquibase.operation;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.common.task.TaskStatus;
-import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.util.ExecutionTiming;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
-import com.dbn.execution.ExecutionResultBase;
 import com.dbn.execution.logging.LogOutput;
-import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.liquibase.execution.LiquibaseChangeSetItem;
 import com.dbn.liquibase.execution.LiquibaseComparisonItem;
 import com.dbn.liquibase.execution.LiquibaseComparisonItemStatus;
@@ -34,7 +28,9 @@ import com.dbn.liquibase.execution.LiquibaseLockItem;
 import com.dbn.liquibase.execution.LiquibaseSnapshotItem;
 import com.dbn.liquibase.execution.logging.LogOutputBuffer;
 import com.dbn.liquibase.operation.ui.LiquibaseOperationResultForm;
-import com.intellij.openapi.project.Project;
+import com.dbn.liquibase.task.LiquibaseTaskResult;
+import com.dbn.liquibase.workflow.LiquibaseWorkflowContext;
+import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
 import liquibase.changelog.ChangeSet;
 import liquibase.diff.ObjectDifferences;
 import liquibase.structure.DatabaseObject;
@@ -45,7 +41,6 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -54,18 +49,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static com.dbn.liquibase.operation.LiquibaseFeature.RERUN_ON_SUCCESS;
+
 /** Execution-console result for a Liquibase operation and its console output. */
 @Getter
 @Setter
-public class LiquibaseOperationResult extends ExecutionResultBase<LiquibaseOperationResultForm> {
-    @Delegate
-    private final LiquibaseOperationInput input;
+public class LiquibaseOperationResult extends LiquibaseTaskResult<
+        LiquibaseOperationInput, LiquibaseOperationContext, LiquibaseOperationResultForm> {
 
     private Path changelogPath;
     private Path documentationPath;
     private String databaseChangeLogTableName = "DATABASECHANGELOG";
     private String databaseChangeLogLockTableName = "DATABASECHANGELOGLOCK";
-    private final Listeners<Runnable> listeners = Listeners.create(this);
     private final LogOutputBuffer output;
     private final StringBuilder sqlOutput = new StringBuilder();
     private final ExecutionTiming timing = new ExecutionTiming();
@@ -73,7 +68,26 @@ public class LiquibaseOperationResult extends ExecutionResultBase<LiquibaseOpera
     private final Map<String, LiquibaseChangeSetItem> changeSetItems = new LinkedHashMap<>();
     private final Map<String, LiquibaseComparisonItem> comparisonItems = new LinkedHashMap<>();
     private final Map<String, LiquibaseLockItem> lockItems = new LinkedHashMap<>();
-    private volatile TaskStatus status = TaskStatus.NEW;
+
+    public LiquibaseOperationResult(@NotNull LiquibaseOperationContext context) {
+        super(context);
+        this.output = new LogOutputBuffer(context.getProject());
+    }
+
+    @Override
+    public void disposeInner() {
+        snapshotItems.clear();
+        changeSetItems.clear();
+        comparisonItems.clear();
+        lockItems.clear();
+        super.disposeInner();
+    }
+
+    @Override
+    @Delegate
+    public @NotNull LiquibaseOperationInput getInput() {
+        return super.getInput();
+    }
 
     @NotNull
     public List<LiquibaseSnapshotItem> getSnapshotItems() {
@@ -187,18 +201,8 @@ public class LiquibaseOperationResult extends ExecutionResultBase<LiquibaseOpera
         notifyItemsChanged();
     }
 
-    public void addListener(@NotNull Runnable listener) {
-        listeners.add(listener);
-    }
-
     public void notifyItemsChanged() {
-        listeners.notify(Runnable::run);
-    }
-
-    public LiquibaseOperationResult(
-            @NotNull LiquibaseOperationInput input) {
-        this.input = input;
-        this.output = new LogOutputBuffer(input.getProject());
+        notifyChanged();
     }
 
     public void setLiquibaseTableNames(
@@ -212,21 +216,33 @@ public class LiquibaseOperationResult extends ExecutionResultBase<LiquibaseOpera
     }
 
     public void notifyStarted() {
-        status = TaskStatus.RUNNING;
+        getContext().start();
         timing.start();
         notifyItemsChanged();
     }
 
     public void notifyFinished(@NotNull TaskStatus status) {
-        this.status = status;
+        getContext().finish(status);
         timing.finish();
         notifyItemsChanged();
     }
 
     public void notifyCancelled() {
-        status = TaskStatus.CANCELLED;
+        getContext().finish(TaskStatus.CANCELLED);
         timing.finish();
         notifyItemsChanged();
+    }
+
+    public void notifyPaused() {
+        getContext().pause();
+        notifyItemsChanged();
+    }
+
+    public boolean canRerun() {
+        TaskStatus status = getStatus();
+        if (status == TaskStatus.CANCELLED) return true;
+        if (status == TaskStatus.FAILED) return true;
+        return status == TaskStatus.DONE && getOperation().supports(RERUN_ON_SUCCESS);
     }
 
     @NotNull
@@ -282,33 +298,11 @@ public class LiquibaseOperationResult extends ExecutionResultBase<LiquibaseOpera
     @NotNull
     @Override
     public String getName() {
-        return getConnection().getName() + " - " + input.getRelevantSchema().getName() + " - " + input.getOperation().getName();
+        return getConnection().getName() + " - " + getRelevantSchema().getName() + " - " + getOperation().getName();
     }
 
-    @Override
-    public Icon getIcon() {
-        return Icons.DB_LIQUIBASE;
-    }
-
-    @NotNull
-    @Override
-    public Project getProject() {
-        return getConnection().getProject();
-    }
-
-    @Override
-    public ConnectionId getConnectionId() {
-        return getConnection().getConnectionId();
-    }
-
-    @NotNull
-    @Override
-    public ConnectionHandler getConnection() {
-        return input.getRelevantConnection();
-    }
-
-    @Override
-    public DBLanguagePsiFile createPreviewFile() {
-        return null;
+    public LiquibaseWorkflowResult getWorkflowResult() {
+        LiquibaseWorkflowContext workflowContext = getContext().getWorkflowContext();
+        return workflowContext == null ? null : workflowContext.getResult();
     }
 }

@@ -22,7 +22,6 @@ import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.ValueSelector;
-import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -109,7 +108,7 @@ public abstract class DBObjectFactoryInputListForm extends DBNFormBase {
 
     private class DetailSelector extends ValueSelector<Presentable> {
         DetailSelector() {
-            super(PlatformIcons.ADD_ICON, txt("app.objects.action.AddObject", getObjectType().getDisplayName()), null, ValueSelectorOption.HIDE_DESCRIPTION);
+            super(PlatformIcons.ADD_ICON, txt("app.objects.action.AddObject", getObjectType().getDisplayName()), null);
             addListener((oldValue, newValue) -> createChildInputPanel(newValue));
 
             setEmptyValueFactory(new ValueFactory<>(txt("app.objects.action.CustomType")) {

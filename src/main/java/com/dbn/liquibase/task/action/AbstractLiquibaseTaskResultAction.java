@@ -14,23 +14,32 @@
  * limitations under the License.
  */
 
-package com.dbn.liquibase.workflow.action;
+package com.dbn.liquibase.task.action;
 
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ContextAction;
 import com.dbn.common.action.DataKeys;
-import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
+import com.dbn.liquibase.DatabaseLiquibaseManager;
+import com.dbn.liquibase.task.LiquibaseTaskResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @BackgroundUpdate
-public abstract class AbstractLiquibaseWorkflowResultAction extends ContextAction<LiquibaseWorkflowResult> {
-    protected AbstractLiquibaseWorkflowResultAction(String text) {
+public abstract class AbstractLiquibaseTaskResultAction extends ContextAction<LiquibaseTaskResult<?, ?, ?>> {
+    protected AbstractLiquibaseTaskResultAction(String text) {
         super(text);
     }
 
+    protected static @NotNull DatabaseLiquibaseManager getLiquibaseManager(@NotNull Project project) {
+        return DatabaseLiquibaseManager.getInstance(project);
+    }
+
     @Override
-    protected LiquibaseWorkflowResult getContext(@NotNull AnActionEvent e) {
-        return e.getData(DataKeys.LIQUIBASE_WORKFLOW_RESULT);
+    @Nullable
+    protected LiquibaseTaskResult<?, ?, ?> getContext(@NotNull AnActionEvent e) {
+        LiquibaseTaskResult<?, ?, ?> result = e.getData(DataKeys.LIQUIBASE_EXECUTION_RESULT);
+        return result == null ? e.getData(DataKeys.LIQUIBASE_WORKFLOW_RESULT) : result;
     }
 }

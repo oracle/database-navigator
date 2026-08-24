@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.liquibase.workflow.action;
+package com.dbn.liquibase.task.action;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.task.TaskStatus;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
-import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
+import com.dbn.liquibase.task.LiquibaseTaskResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -32,14 +32,17 @@ import static com.dbn.common.util.Messages.showQuestionDialog;
 import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.nls.NlsResources.txt;
 
-public class LiquibaseWorkflowResultCloseAction extends AbstractLiquibaseWorkflowResultAction {
-    public LiquibaseWorkflowResultCloseAction() {
+public class LiquibaseTaskResultCloseAction extends AbstractLiquibaseTaskResultAction {
+    public LiquibaseTaskResultCloseAction() {
         super(txt("app.execution.action.Close"));
     }
 
     @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull LiquibaseWorkflowResult target) {
-        if (target.getContext().getStatus() == TaskStatus.RUNNING) {
+    protected void actionPerformed(
+            @NotNull AnActionEvent e,
+            @NotNull Project project,
+            @NotNull LiquibaseTaskResult<?, ?, ?> target) {
+        if (target.getStatus() == TaskStatus.RUNNING) {
             showQuestionDialog(
                     project,
                     txt("msg.liquibase.title.ExecutionActive"),
@@ -52,29 +55,37 @@ public class LiquibaseWorkflowResultCloseAction extends AbstractLiquibaseWorkflo
     }
 
     @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable LiquibaseWorkflowResult target) {
+    protected void update(
+            @NotNull AnActionEvent e,
+            @NotNull Presentation presentation,
+            @NotNull Project project,
+            @Nullable LiquibaseTaskResult<?, ?, ?> target) {
         presentation.setEnabled(target != null);
         presentation.setText(txt("app.execution.action.Close"));
         presentation.setIcon(Icons.EXEC_RESULT_CLOSE);
     }
 
-    private static void cancelAndClose(@NotNull Project project, @NotNull LiquibaseWorkflowResult target) {
-        if (target.getContext().getStatus() != TaskStatus.RUNNING) {
+    private static void cancelAndClose(
+            @NotNull Project project,
+            @NotNull LiquibaseTaskResult<?, ?, ?> target) {
+        if (target.getStatus() != TaskStatus.RUNNING) {
             close(project, target);
             return;
         }
 
         target.addListener(() -> {
-            if (target.getContext().getStatus() != TaskStatus.RUNNING) close(project, target);
+            if (target.getStatus() != TaskStatus.RUNNING) close(project, target);
         });
-        if (target.getContext().getStatus() != TaskStatus.RUNNING) {
+        if (target.getStatus() != TaskStatus.RUNNING) {
             close(project, target);
             return;
         }
-        DatabaseLiquibaseManager.getInstance(project).cancelWorkflow(target);
+        DatabaseLiquibaseManager.getInstance(project).cancelTask(target);
     }
 
-    private static void close(@NotNull Project project, @NotNull LiquibaseWorkflowResult target) {
+    private static void close(
+            @NotNull Project project,
+            @NotNull LiquibaseTaskResult<?, ?, ?> target) {
         ExecutionManager.getInstance(project).removeResultTab(target);
     }
 }

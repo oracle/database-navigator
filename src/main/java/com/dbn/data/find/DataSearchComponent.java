@@ -545,4 +545,11 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         }
     }
 
+    @Nullable
+    public static DataSearchComponent get(SearchableDataComponent form) {
+        JPanel searchPanel = form.getSearchPanel();
+        return DATA_SEARCH_ADDON.get(searchPanel);
+    }
+
+
 }

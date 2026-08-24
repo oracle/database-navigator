@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.liquibase.workflow.action;
+package com.dbn.liquibase.task.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.liquibase.DatabaseLiquibaseManager;
-import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
+import com.dbn.liquibase.task.LiquibaseTaskResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -27,19 +26,25 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class LiquibaseWorkflowResultSettingsAction extends AbstractLiquibaseWorkflowResultAction {
-    public LiquibaseWorkflowResultSettingsAction() {
+public class LiquibaseTaskResultSettingsAction extends AbstractLiquibaseTaskResultAction {
+    public LiquibaseTaskResultSettingsAction() {
         super(txt("app.execution.action.Settings"));
     }
 
     @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull LiquibaseWorkflowResult target) {
-        DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
-        liquibaseManager.openWorkspaceSettings();
+    protected void actionPerformed(
+            @NotNull AnActionEvent e,
+            @NotNull Project project,
+            @NotNull LiquibaseTaskResult<?, ?, ?> target) {
+        getLiquibaseManager(project).openWorkspaceSettings();
     }
 
     @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable LiquibaseWorkflowResult target) {
+    protected void update(
+            @NotNull AnActionEvent e,
+            @NotNull Presentation presentation,
+            @NotNull Project project,
+            @Nullable LiquibaseTaskResult<?, ?, ?> target) {
         presentation.setEnabled(target != null);
         presentation.setText(txt("app.execution.action.Settings"));
         presentation.setIcon(Icons.EXEC_RESULT_OPTIONS);

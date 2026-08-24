@@ -94,7 +94,15 @@ public class DataSearchResultController {
         }
     }
 
+    boolean isSearchShowing() {
+        SearchableDataComponent searchableComponent = getSearchableComponent();
+        return searchableComponent.isSearchShowing();
+
+    }
+
     void updateResult(DataFindModel findModel) {
+        if (!isSearchShowing()) return;
+
         Background.run(searchHandle, () -> {
             BasicTable table = getSearchableComponent().getTable();
             DataModel dataModel = table.getModel();

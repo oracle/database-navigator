@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.liquibase.execution.LiquibaseCommands.GENERATE_CHANGELOG;
@@ -73,8 +72,7 @@ public class LiquibaseGenerateChangelogProcessor extends LiquibaseExecutionProce
         withLiquibaseDatabase(context, true, sourceSchema, database ->
                 withLiquibaseScope(context, contentRootAccessor(context), null, output ->
                         executeGeneration(
-                                context,
-                                database,
+                                database, context,
                                 output)));
 
         if (!Files.isRegularFile(changelogFile)) {
@@ -84,13 +82,11 @@ public class LiquibaseGenerateChangelogProcessor extends LiquibaseExecutionProce
     }
 
     private void executeGeneration(
-            @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
+            @NotNull LiquibaseOperationContext context,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
 
-
         var input = context.getInput();
-        var result = context.getResult();
         var paths = input.getWorkspacePaths();
 
         Path changelogFile = paths.getMasterChangelogPath();
@@ -99,14 +95,14 @@ public class LiquibaseGenerateChangelogProcessor extends LiquibaseExecutionProce
 
 
         collectDatabaseObjects(context, database, schemaName);
-        checkCanceled(context);
-        executeCommand(GENERATE_CHANGELOG, output, Map.of(
+        var arguments = arguments(
                 "database", database,
                 "schemas", schemaName,
                 "diffTypes", GENERATE_CHANGELOG_DIFF_TYPES,
                 "changelogFile", changelogFile.toString(),
                 "excludeObjects", buildTrackingTableFilter(database),
-                "author", input.getChangelogAuthor()));
+                "author", input.getChangelogAuthor());
+        executeCommand(GENERATE_CHANGELOG, context, output, arguments);
 
         String databaseTag = input.getDatabaseTag();
         if (isNotEmpty(databaseTag)) {

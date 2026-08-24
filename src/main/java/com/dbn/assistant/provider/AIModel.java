@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.provider;
 
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.property.PropertyHolderBase.ShortStore;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Csvs;
@@ -36,7 +37,7 @@ import static com.dbn.nls.NlsResources.txtOr;
  * @author Emmanuel Jannetti (Oracle)
  */
 @Getter
-public final class AIModel extends ShortStore<AIModelProperty> implements Presentable {
+public final class AIModel extends ShortStore<AIModelProperty> implements Presentable, Identifiable<String> {
     private static final @NonNls String MODEL_DESCRIPTION_KEY = "app.assistant.text.Model_";
 
     private final String id;

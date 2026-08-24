@@ -14,28 +14,24 @@
  * limitations under the License.
  */
 
-package com.dbn.liquibase.operation.action;
+package com.dbn.menu.action;
 
-import com.dbn.common.action.BackgroundUpdate;
-import com.dbn.common.action.ContextAction;
-import com.dbn.common.action.DataKeys;
+import com.dbn.common.action.ProjectAction;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
-import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-@BackgroundUpdate
-public abstract class AbstractLiquibaseOperationResultAction extends ContextAction<LiquibaseOperationResult> {
-    protected AbstractLiquibaseOperationResultAction(String text) {
-        super(text);
+import static com.dbn.nls.NlsResources.txt;
+
+/** Opens the project-level Liquibase environment profile settings. */
+public class LiquibaseEnvironmentProfilesOpenAction extends ProjectAction {
+    public LiquibaseEnvironmentProfilesOpenAction() {
+        super(txt("app.menu.action.LiquibaseEnvironmentProfiles"));
     }
 
-    protected static @NotNull DatabaseLiquibaseManager getLiquibaseManager(@NotNull Project project) {
-        return DatabaseLiquibaseManager.getInstance(project);
-    }
-
-    protected LiquibaseOperationResult getContext(@NotNull AnActionEvent e) {
-        return e.getData(DataKeys.LIQUIBASE_EXECUTION_RESULT);
+    @Override
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
+        DatabaseLiquibaseManager.getInstance(project).openEnvironmentProfiles();
     }
 }

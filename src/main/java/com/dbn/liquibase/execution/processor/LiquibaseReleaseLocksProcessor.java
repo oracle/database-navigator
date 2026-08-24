@@ -18,8 +18,6 @@ import com.dbn.object.DBSchema;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-
 import static com.dbn.liquibase.execution.LiquibaseCommands.RELEASE_LOCKS;
 
 /** Releases Liquibase changelog locks left by an interrupted or failed operation. */
@@ -34,12 +32,14 @@ public class LiquibaseReleaseLocksProcessor extends LiquibaseExecutionProcessor 
         DBSchema targetSchema = context.getTargetSchema();
         withLiquibaseDatabase(context, false, targetSchema, database ->
                 withLiquibaseScope(context, classLoaderAccessor(), null,
-                        output -> executeReleaseLocks(database, output)));
+                        output -> executeReleaseLocks(database, context, output)));
     }
 
     private void executeReleaseLocks(
             @NotNull Database database,
+            @NotNull LiquibaseOperationContext context,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
-        executeCommand(RELEASE_LOCKS, output, Map.of("database", database));
+        var arguments = arguments("database", database);
+        executeCommand(RELEASE_LOCKS, context, output, arguments);
     }
 }
