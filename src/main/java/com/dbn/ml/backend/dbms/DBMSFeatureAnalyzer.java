@@ -1,0 +1,227 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.ml.backend.dbms;
+
+import com.dbn.common.Priority;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
+import com.dbn.ml.backend.model.MLTrainingContext;
+import com.dbn.ml.model.analysis.MLFeatureImportance;
+import com.dbn.ml.model.analysis.MLPredictionImpact;
+import com.intellij.openapi.project.Project;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
+
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.dbn.nls.NlsResources.txt;
+
+/**
+ * Answers two questions about the columns behind a trained model.
+ * <ul>
+ *   <li>Which columns explain the target - a property of the data, computed with attribute importance</li>
+ *   <li>Which columns this model actually used - a property of the model, aggregated from PREDICTION_DETAILS</li>
+ * </ul>
+ * Kept apart from {@link DBMSBackend} so training and analysis stay separate concerns.
+ *
+ * @author ayoub allali
+ */
+@Slf4j
+public class DBMSFeatureAnalyzer {
+    private static final @NonNls String IMPORTANCE_TABLE_PREFIX = "ML_AI_";
+
+    private final ConnectionHandler connection;
+
+    public DBMSFeatureAnalyzer(ConnectionHandler connection) {
+        this.connection = connection;
+    }
+
+    /**
+     * Ranks the feature columns by how well they explain the target, and profiles each of them.
+     * Runs against the training table rather than the raw source, so the profile describes the
+     * data the model was actually built on.
+     */
+    public List<MLFeatureImportance> computeFeatureImportance(MLTrainingContext context) throws SQLException {
+        String trainTableName = context.getTrainTableName();
+        String targetColumn = context.getFeatureConfig().getLabelColumns().get(0);
+        List<String> featureColumns = context.getFeatureConfig().getFeatureColumns();
+
+        // register before the DDL, so cleanup drops the table even if the analysis fails midway
+        String importanceTable = IMPORTANCE_TABLE_PREFIX + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        context.setImportanceTableName(importanceTable);
+
+        return DatabaseInterfaceInvoker.load(Priority.HIGH,
+                txt("prc.machineLearning.title.AnalyzingFeatures"),
+                txt("prc.machineLearning.text.ComputingFeatureImportance"),
+                getProject(),
+                connection.getConnectionId(),
+                conn -> {
+                    DatabaseMachineLearningInterface mlInterface = getInterface();
+                    mlInterface.computeAttributeImportance(conn, trainTableName, targetColumn, importanceTable);
+
+                    Map<String, Double> importance = loadImportance(mlInterface, conn, importanceTable);
+                    Map<String, ColumnInfo> columns = loadColumns(mlInterface, conn, trainTableName);
+
+                    List<MLFeatureImportance> features = new ArrayList<>();
+                    for (String column : featureColumns) {
+                        ColumnInfo columnInfo = columns.get(column.toUpperCase());
+                        features.add(profileColumn(mlInterface, conn, trainTableName, column,
+                                importance.get(column.toUpperCase()), columnInfo));
+                    }
+                    return features;
+                });
+    }
+
+    /**
+     * Ranks the feature columns by how much they contributed to this model's predictions.
+     * <p>
+     * PREDICTION_DETAILS reports the top contributing attributes per scored row; averaging the
+     * absolute weights over the test set turns that into a model wide ranking. This is not the
+     * same calculation as the permutation importance used by Oracle AutoML - it answers the same
+     * question more cheaply, in a single pass.
+     */
+    public List<MLPredictionImpact> computePredictionImpact(DBMSModelHandle modelHandle) throws SQLException {
+        String modelName = modelHandle.getModelName();
+        String testTableName = modelHandle.getTestTableName();
+
+        return DatabaseInterfaceInvoker.load(Priority.HIGH,
+                txt("prc.machineLearning.title.AnalyzingFeatures"),
+                txt("prc.machineLearning.text.ComputingPredictionImpact"),
+                getProject(),
+                connection.getConnectionId(),
+                conn -> {
+                    List<MLPredictionImpact> impacts = new ArrayList<>();
+                    try (ResultSet rs = getInterface().getPredictionImpact(conn, modelName, testTableName)) {
+                        while (rs.next()) {
+                            impacts.add(new MLPredictionImpact(
+                                    rs.getString("ATTRIBUTE_NAME"),
+                                    rs.getDouble("IMPACT"),
+                                    rs.getLong("OCCURRENCES")));
+                        }
+                    }
+                    return impacts;
+                });
+    }
+
+    private Map<String, Double> loadImportance(
+            DatabaseMachineLearningInterface mlInterface,
+            DBNConnection conn,
+            String importanceTable) throws SQLException {
+
+        Map<String, Double> importance = new HashMap<>();
+        try (ResultSet rs = mlInterface.getAttributeImportance(conn, importanceTable)) {
+            while (rs.next()) {
+                importance.put(rs.getString("ATTRIBUTE_NAME"), rs.getDouble("EXPLANATORY_VALUE"));
+            }
+        }
+        return importance;
+    }
+
+    /**
+     * Column metadata of the training table, keyed by upper case name. The name is taken from the
+     * table itself rather than from the request, because column names given in a CSV header keep
+     * their original case there while the staging table is created with unquoted (upper cased) names.
+     */
+    private Map<String, ColumnInfo> loadColumns(
+            DatabaseMachineLearningInterface mlInterface,
+            DBNConnection conn,
+            String tableName) throws SQLException {
+
+        Map<String, ColumnInfo> columns = new HashMap<>();
+        try (ResultSet rs = mlInterface.getTableColumnTypes(conn, tableName)) {
+            ResultSetMetaData metaData = rs.getMetaData();
+            for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                String name = metaData.getColumnName(i);
+                columns.put(name.toUpperCase(),
+                        new ColumnInfo(name, metaData.getColumnTypeName(i), isNumeric(metaData.getColumnType(i))));
+            }
+        }
+        return columns;
+    }
+
+    /**
+     * Reads the statistics of a single column. Mean and standard deviation only apply to
+     * numeric columns, so text and date columns get the cardinality query instead.
+     */
+    private MLFeatureImportance profileColumn(
+            DatabaseMachineLearningInterface mlInterface,
+            DBNConnection conn,
+            String tableName,
+            String columnName,
+            Double importance,
+            ColumnInfo columnInfo) throws SQLException {
+
+        // the column is gone from the training table - report what we know and skip the statistics
+        if (columnInfo == null) {
+            return new MLFeatureImportance(columnName, importance, null, null, null, null, null, null);
+        }
+
+        boolean numeric = columnInfo.numeric();
+        String identifier = columnInfo.name();
+
+        try (ResultSet rs = numeric ?
+                mlInterface.getColumnStatistics(conn, tableName, identifier) :
+                mlInterface.getColumnCardinality(conn, tableName, identifier)) {
+
+            if (!rs.next()) {
+                return new MLFeatureImportance(columnName, importance, columnInfo.typeName(), null, null, null, null, null);
+            }
+
+            return new MLFeatureImportance(
+                    columnName,
+                    importance,
+                    columnInfo.typeName(),
+                    rs.getLong("DISTINCT_VALUES"),
+                    rs.getString("MIN_VALUE"),
+                    rs.getString("MAX_VALUE"),
+                    numeric ? nullableDouble(rs, "MEAN_VALUE") : null,
+                    numeric ? nullableDouble(rs, "STD_DEV") : null);
+        }
+    }
+
+    private static Double nullableDouble(ResultSet rs, @NonNls String columnName) throws SQLException {
+        double value = rs.getDouble(columnName);
+        return rs.wasNull() ? null : value;
+    }
+
+    private static boolean isNumeric(int sqlType) {
+        return sqlType == Types.NUMERIC || sqlType == Types.DECIMAL || sqlType == Types.INTEGER
+                || sqlType == Types.BIGINT || sqlType == Types.SMALLINT || sqlType == Types.TINYINT
+                || sqlType == Types.DOUBLE || sqlType == Types.FLOAT || sqlType == Types.REAL;
+    }
+
+    private DatabaseMachineLearningInterface getInterface() {
+        return connection.getInterfaces().getMachineLearningInterface();
+    }
+
+    private Project getProject() {
+        return connection.getProject();
+    }
+
+    private record ColumnInfo(String name, String typeName, boolean numeric) {}
+}

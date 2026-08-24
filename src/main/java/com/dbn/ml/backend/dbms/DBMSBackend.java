@@ -226,6 +226,10 @@ public class DBMSBackend {
                     if (context.getLiftTableName() != null) {
                         dropTableSafe(mlInterface, conn, context.getLiftTableName());
                     }
+
+                    if (context.getImportanceTableName() != null) {
+                        dropTableSafe(mlInterface, conn, context.getImportanceTableName());
+                    }
                 });
     }
 

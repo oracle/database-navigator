@@ -93,6 +93,9 @@ public class MLTrainingContext {
     /** Lift table name (DBMS backend only - from COMPUTE_LIFT for binary classification) */
     private String liftTableName;
 
+    /** Attribute importance result table name (DBMS backend only - from DBMS_PREDICTIVE_ANALYTICS.EXPLAIN) */
+    private String importanceTableName;
+
     // ==================== Convenience Accessors ====================
 
     public MLSourceConfig getSourceConfig() {
