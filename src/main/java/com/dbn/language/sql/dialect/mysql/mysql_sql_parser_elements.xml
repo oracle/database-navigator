@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- MySQL 9.7 SQL statement reference: https://dev.mysql.com/doc/refman/9.7/en/sql-statements.html -->
 <!DOCTYPE element-defs SYSTEM "../../../common/definition/language-parser-elements.dtd">
-<element-defs language="MYSQL-SQL" version="6.0">
+<element-defs language="MYSQL-SQL" version="7.9">
     <element-def attributes="ROOT, STRUCTURE" description="SQL block" icon="FILE_BLOCK_SQL" id="sql_block" language="SQL">
         <iteration id="00000">
             <element ref-id="sql_statement" />

@@ -15608,7 +15608,7 @@
                             <sequence id="08539">
                                 <token type-id="KW_INDEX" id="08540" />
                                 <element optional="true" ref-id="segment_attributes_clause" />
-                                <element ref-id="index_org_table_clause" />
+                                <element ref-id="index_org_table_clause" optional="true"/>
                             </sequence>
                             <sequence id="08541">
                                 <token type-id="KW_EXTERNAL" id="08542" />
