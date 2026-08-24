@@ -777,6 +777,7 @@
         </group>
         <group id="DBN.Vector.Embedding.Result">
             <action id="DBN.Vector.Embedding.Result.Close" class="com.dbn.vector.action.VectorEmbeddingCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBN.Vector.Embedding.Result.Stop" class="com.dbn.vector.action.VectorEmbeddingStopAction" icon="com.dbn.common.icon.Icons.ACTION_STOP"/>
             <action id="DBN.Vector.Embedding.Result.Toolbox" class="com.dbn.vector.action.VectorEmbeddingToolboxAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
         </group>
         <group id="DBN.Execution.Method.CursorResult">

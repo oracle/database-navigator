@@ -58,6 +58,6 @@ public class StepResult implements Task {
   }
 
   public long getDuration() {
-    return endTime - startTime;
+    return (endTime == 0 ? System.currentTimeMillis() : endTime) - startTime;
   }
 }

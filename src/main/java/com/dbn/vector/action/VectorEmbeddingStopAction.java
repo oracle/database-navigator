@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.dbn.liquibase.task.action;
+package com.dbn.vector.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.execution.ExecutionManager;
-import com.dbn.liquibase.task.LiquibaseTaskResult;
+import com.dbn.vector.model.VectorEmbeddingExecutionResult;
+import com.dbn.vector.model.VectorEmbeddingResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -27,17 +27,17 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class LiquibaseTaskResultCloseAction extends AbstractLiquibaseTaskResultAction {
-    public LiquibaseTaskResultCloseAction() {
-        super(txt("app.execution.action.Close"));
+public class VectorEmbeddingStopAction extends AbstractVectorEmbeddingResultAction {
+    public VectorEmbeddingStopAction() {
+        super(txt("action.DBN.Vector.Embedding.Result.Stop.text"));
     }
 
     @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,
             @NotNull Project project,
-            @NotNull LiquibaseTaskResult<?, ?, ?> target) {
-        close(project, target);
+            @NotNull VectorEmbeddingExecutionResult executionResult) {
+        executionResult.getVectorEmbeddingResult().cancel();
     }
 
     @Override
@@ -45,15 +45,10 @@ public class LiquibaseTaskResultCloseAction extends AbstractLiquibaseTaskResultA
             @NotNull AnActionEvent e,
             @NotNull Presentation presentation,
             @NotNull Project project,
-            @Nullable LiquibaseTaskResult<?, ?, ?> target) {
-        presentation.setEnabled(target != null);
-        presentation.setText(txt("app.execution.action.Close"));
-        presentation.setIcon(Icons.EXEC_RESULT_CLOSE);
-    }
-
-    private static void close(
-            @NotNull Project project,
-            @NotNull LiquibaseTaskResult<?, ?, ?> target) {
-        ExecutionManager.getInstance(project).removeResultTab(target);
+            @Nullable VectorEmbeddingExecutionResult target) {
+        presentation.setText(txt("action.DBN.Vector.Embedding.Result.Stop.text"));
+        presentation.setIcon(Icons.ACTION_STOP);
+        presentation.setEnabled(target != null &&
+                target.getVectorEmbeddingResult().getStatus() == VectorEmbeddingResult.Status.RUNNING);
     }
 }
