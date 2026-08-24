@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE element-defs SYSTEM "../../../common/definition/language-parser-elements.dtd">
-<element-defs language="ORACLE-SQL" version="26.0" max-depth="6" max-completion-candidates="300" max-extension-candidates="10">
+<element-defs language="ORACLE-SQL" version="26.0" max-depth="7" max-completion-candidates="300" max-extension-candidates="10">
 
     <element-def attributes="ROOT, STRUCTURE" description="SQL block" icon="FILE_BLOCK_SQL" id="sql_block" language="SQL">
         <iteration id="00000">
@@ -198,7 +198,7 @@
         </one-of>
     </element-def>
     <element-def custom="true" description="Keystore management clauses" id="keystore_management_clauses">
-        <one-of id="00089">
+        <one-of id="00089" unbounded="true">
             <element ref-id="create_keystore" />
             <element ref-id="open_keystore" />
             <element ref-id="close_keystore" />
@@ -359,9 +359,9 @@
         <element ref-id="identified_by_clause" />
         <iteration optional="true" id="00163">
             <one-of id="00164">
-                <element optional="true" ref-id="with_backup_clause" />
-                <element optional="true" ref-id="migrate_using_clause" />
-                <element optional="true" ref-id="container_clause" />
+                <element ref-id="with_backup_clause" />
+                <element ref-id="migrate_using_clause" />
+                <element ref-id="container_clause" />
             </one-of>
         </iteration>
     </element-def>
