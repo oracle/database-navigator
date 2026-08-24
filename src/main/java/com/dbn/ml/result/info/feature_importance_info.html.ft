@@ -1,0 +1,34 @@
+<!--
+  ~ Copyright 2025 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="en">
+<head>
+    <title>Feature Importance</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top: 0; }
+    </style>
+</head>
+<body>
+    <h3>Feature Importance</h3>
+    <p>How much each column tells you about the value you are predicting. Higher means the column carries more signal.</p>
+    <p>This is about your data, not about the model you just trained. Train a different algorithm on the same table and you get the same numbers.</p>
+    <p>The remaining columns describe the training data itself, so you can spot a column that is nearly always the same value, or one with a suspicious range.</p>
+</body>
+</html>

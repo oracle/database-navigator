@@ -18,18 +18,15 @@ package com.dbn.ml.result;
 
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.intellij.ui.JBColor;
-import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
-import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -85,24 +82,5 @@ public final class MLResultPanelHelper {
         titlePanel.add(titleLabel);
         titlePanel.add(infoLabel);
         panel.add(titlePanel, BorderLayout.NORTH);
-    }
-
-    /** Non-editable JBTable with row height 24. */
-    public static JBTable buildReadOnlyTable(Object[][] data, String[] columns) {
-        DefaultTableModel model = new DefaultTableModel(data, columns) {
-            @Override public boolean isCellEditable(int row, int col) { return false; }
-        };
-        JBTable table = new JBTable(model);
-        table.setRowHeight(24);
-        table.getTableHeader().setReorderingAllowed(false);
-        return table;
-    }
-
-    /** Wraps a JBTable in a panel that shows the table header above the body. */
-    public static JComponent wrapTable(JBTable table) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(table.getTableHeader(), BorderLayout.NORTH);
-        panel.add(table, BorderLayout.CENTER);
-        return panel;
     }
 }

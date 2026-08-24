@@ -113,6 +113,8 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         initializeConfusionMatrix();
         initializePerClassMetrics();
         initializeModelDetails();
+        initializeFeatureImportance();
+        initializePredictionImpact();
         hideDetailedModelPanels();
         initializeModelViews();
         createActionsPanel();
@@ -120,9 +122,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
 
     private void hideDetailedModelPanels() {
         alertsPanel.setVisible(false);
-        variableImportancePanel.setVisible(false);
         algorithmDetailsPanel.setVisible(false);
-        modelInsightsPanel.setVisible(false);
     }
 
     private void createActionsPanel() {
@@ -297,11 +297,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
             table.getColumnModel().getColumn(i).setCellRenderer(renderer);
         }
 
-        // Don't wrap in JScrollPane - let parent scroll pane handle scrolling
-        JPanel tablePanel = new JPanel(new BorderLayout());
-        tablePanel.add(table.getTableHeader(), BorderLayout.NORTH);
-        tablePanel.add(table, BorderLayout.CENTER);
-        return tablePanel;
+        return createTablePanel(table);
     }
 
     private void initializePerClassMetrics() {
@@ -352,6 +348,48 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         }
 
         modelDetailsPanel.add(detailsGrid, BorderLayout.CENTER);
+    }
+
+    private void initializeFeatureImportance() {
+        if (!result.hasFeatureImportance()) {
+            variableImportancePanel.setVisible(false);
+            return;
+        }
+
+        MLResultPanelHelper.initSection(variableImportancePanel,
+                txt("app.machineLearning.title.FeatureImportance"),
+                "info/feature_importance_info.html.ft");
+
+        MLFeatureImportanceTableModel model = new MLFeatureImportanceTableModel(result.getFeatureImportance());
+        variableImportancePanel.add(createTablePanel(new MLAnalysisTable<>(this, model,
+                txt("app.machineLearning.aria.FeatureImportanceTable"))), BorderLayout.CENTER);
+    }
+
+    private void initializePredictionImpact() {
+        if (!result.hasPredictionImpact()) {
+            modelInsightsPanel.setVisible(false);
+            return;
+        }
+
+        MLResultPanelHelper.initSection(modelInsightsPanel,
+                txt("app.machineLearning.title.PredictionImpact"),
+                "info/prediction_impact_info.html.ft");
+
+        MLPredictionImpactTableModel model = new MLPredictionImpactTableModel(result.getPredictionImpacts());
+        modelInsightsPanel.add(createTablePanel(new MLAnalysisTable<>(this, model,
+                txt("app.machineLearning.aria.PredictionImpactTable"))), BorderLayout.CENTER);
+    }
+
+    /**
+     * Lays out a table without its own scroll pane - the whole result content already scrolls,
+     * and nesting scroll panes would trap the wheel inside the table.
+     */
+    private static JPanel createTablePanel(JTable table) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setOpaque(false);
+        panel.add(table.getTableHeader(), BorderLayout.NORTH);
+        panel.add(table, BorderLayout.CENTER);
+        return panel;
     }
 
     private void initializeModelViews() {
