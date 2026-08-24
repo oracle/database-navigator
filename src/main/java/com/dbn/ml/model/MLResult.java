@@ -20,6 +20,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.backend.dbms.DBMSAlgorithmType;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
+import com.dbn.ml.model.analysis.MLFeatureImportance;
+import com.dbn.ml.model.analysis.MLPredictionImpact;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nls;
@@ -61,9 +63,21 @@ public class MLResult {
     // Source name for default model naming (table name or CSV file name)
     private String sourceName;
 
+    // Column analysis - both optional, absent when the database could not produce them
+    private List<MLFeatureImportance> featureImportance;
+    private List<MLPredictionImpact> predictionImpacts;
+
     /**
      * Returns the database model name.
      */
+    public boolean hasFeatureImportance() {
+        return featureImportance != null && !featureImportance.isEmpty();
+    }
+
+    public boolean hasPredictionImpact() {
+        return predictionImpacts != null && !predictionImpacts.isEmpty();
+    }
+
     public String getModelName() {
         return modelHandle != null ? modelHandle.getModelName() : null;
     }
