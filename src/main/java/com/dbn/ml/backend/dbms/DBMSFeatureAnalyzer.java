@@ -23,7 +23,7 @@ import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.analysis.MLFeatureImportance;
-import com.dbn.ml.model.analysis.MLPredictionImpact;
+import com.dbn.ml.model.analysis.MLAttributeContribution;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
@@ -101,30 +101,37 @@ public class DBMSFeatureAnalyzer {
      * Ranks the feature columns by how much they contributed to this model's predictions.
      * <p>
      * PREDICTION_DETAILS reports the top contributing attributes per scored row; averaging the
-     * absolute weights over the test set turns that into a model wide ranking. This is not the
-     * same calculation as the permutation importance used by Oracle AutoML - it answers the same
-     * question more cheaply, in a single pass.
+     * absolute weights over the test set turns that into a model wide ranking - our own
+     * aggregation of a documented per row function, the same technique used to derive global
+     * SHAP importance from local explanations. It is not the permutation importance Oracle
+     * AutoML computes; there is no SQL API for that. It answers the same question - what did
+     * this model actually rely on - more cheaply, in a single pass.
+     * <p>
+     * Scores every feature on every row (topN = feature count) rather than PREDICTION_DETAILS'
+     * default of 5, which would otherwise silently drop columns that were not top-5 on some rows
+     * and skew the average toward whichever columns usually are.
      */
-    public List<MLPredictionImpact> computePredictionImpact(DBMSModelHandle modelHandle) throws SQLException {
+    public List<MLAttributeContribution> computeAttributeContribution(DBMSModelHandle modelHandle) throws SQLException {
         String modelName = modelHandle.getModelName();
         String testTableName = modelHandle.getTestTableName();
+        int topN = modelHandle.getMetadata().getFeatureNames().size();
 
         return DatabaseInterfaceInvoker.load(Priority.HIGH,
                 txt("prc.machineLearning.title.AnalyzingFeatures"),
-                txt("prc.machineLearning.text.ComputingPredictionImpact"),
+                txt("prc.machineLearning.text.ComputingAttributeContribution"),
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    List<MLPredictionImpact> impacts = new ArrayList<>();
-                    try (ResultSet rs = getInterface().getPredictionImpact(conn, modelName, testTableName)) {
+                    List<MLAttributeContribution> contributions = new ArrayList<>();
+                    try (ResultSet rs = getInterface().getAttributeContribution(conn, modelName, testTableName, topN)) {
                         while (rs.next()) {
-                            impacts.add(new MLPredictionImpact(
+                            contributions.add(new MLAttributeContribution(
                                     rs.getString("ATTRIBUTE_NAME"),
-                                    rs.getDouble("IMPACT"),
+                                    rs.getDouble("CONTRIBUTION"),
                                     rs.getLong("OCCURRENCES")));
                         }
                     }
-                    return impacts;
+                    return contributions;
                 });
     }
 

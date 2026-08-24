@@ -146,9 +146,9 @@ public class MLPipelineExecutor {
         }
 
         try {
-            result.setPredictionImpacts(analyzer.computePredictionImpact(modelHandle));
+            result.setAttributeContributions(analyzer.computeAttributeContribution(modelHandle));
         } catch (Exception e) {
-            log.warn("Failed to compute prediction impact - result will omit the table", e);
+            log.warn("Failed to compute attribute contribution - result will omit the table", e);
         }
     }
 

@@ -21,18 +21,22 @@ import lombok.Getter;
 
 /**
  * How much one column contributed to the predictions of a specific model, aggregated from
- * the per row weights returned by PREDICTION_DETAILS. This describes the model, not the data.
+ * the per row weights returned by PREDICTION_DETAILS (mean absolute weight across the test set -
+ * the same technique used to derive global SHAP importance from local explanations).
+ * This is our own aggregation of a documented per row explanation, not a value Oracle computes
+ * or names "importance" or "impact" itself. It describes the model, not the data - contrast with
+ * {@link MLFeatureImportance}.
  *
  * @author ayoub allali
  */
 @Getter
 @AllArgsConstructor
-public class MLPredictionImpact {
+public class MLAttributeContribution {
     private final String name;
 
-    /** Average absolute contribution of the column across the scored rows. */
-    private final double impact;
+    /** Mean absolute contribution to predictions across the scored rows. */
+    private final double contribution;
 
-    /** Number of scored rows where the column was among the contributing attributes. */
+    /** Number of scored rows the column was scored on. */
     private final long occurrences;
 }

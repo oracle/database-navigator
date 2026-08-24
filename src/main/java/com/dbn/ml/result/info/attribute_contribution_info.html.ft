@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head>
-    <title>Prediction Impact</title>
+    <title>Attribute Contribution</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -26,9 +26,9 @@
     </style>
 </head>
 <body>
-    <h3>Prediction Impact</h3>
+    <h3>Attribute Contribution</h3>
     <p>How much each column actually drove the predictions of <em>this</em> model, measured over the test rows.</p>
     <p>A column can matter for the data but not for the model. If two columns say almost the same thing, the model leans on one and the other drops to nothing here.</p>
-    <p>Calculated from <code>PREDICTION_DETAILS</code>. Oracle AutoML computes its own Prediction Impact a different way, so the two are not directly comparable.</p>
+    <p>Calculated by averaging <code>PREDICTION_DETAILS</code>, which Oracle documents as a per row explanation, across every test row. This is our own aggregation, not a calculation Oracle performs itself - and not the same method as Oracle AutoML's Prediction Impact, which uses permutation.</p>
 </body>
 </html>

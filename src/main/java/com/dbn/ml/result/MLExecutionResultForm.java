@@ -114,7 +114,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         initializePerClassMetrics();
         initializeModelDetails();
         initializeFeatureImportance();
-        initializePredictionImpact();
+        initializeAttributeContribution();
         hideDetailedModelPanels();
         initializeModelViews();
         createActionsPanel();
@@ -365,19 +365,19 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
                 txt("app.machineLearning.aria.FeatureImportanceTable"))), BorderLayout.CENTER);
     }
 
-    private void initializePredictionImpact() {
-        if (!result.hasPredictionImpact()) {
+    private void initializeAttributeContribution() {
+        if (!result.hasAttributeContribution()) {
             modelInsightsPanel.setVisible(false);
             return;
         }
 
         MLResultPanelHelper.initSection(modelInsightsPanel,
-                txt("app.machineLearning.title.PredictionImpact"),
-                "info/prediction_impact_info.html.ft");
+                txt("app.machineLearning.title.AttributeContribution"),
+                "info/attribute_contribution_info.html.ft");
 
-        MLPredictionImpactTableModel model = new MLPredictionImpactTableModel(result.getPredictionImpacts());
+        MLAttributeContributionTableModel model = new MLAttributeContributionTableModel(result.getAttributeContributions());
         modelInsightsPanel.add(createTablePanel(new MLAnalysisTable<>(this, model,
-                txt("app.machineLearning.aria.PredictionImpactTable"))), BorderLayout.CENTER);
+                txt("app.machineLearning.aria.AttributeContributionTable"))), BorderLayout.CENTER);
     }
 
     /**

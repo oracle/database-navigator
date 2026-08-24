@@ -17,31 +17,31 @@
 package com.dbn.ml.result;
 
 import com.dbn.common.ui.table.DBNDynamicTableModel;
-import com.dbn.ml.model.analysis.MLPredictionImpact;
+import com.dbn.ml.model.analysis.MLAttributeContribution;
 
 import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
 
 /**
- * Columns of the "Prediction Impact" table.
+ * Columns of the "Attribute Contribution" table.
  *
  * @author ayoub allali
  */
-public class MLPredictionImpactTableModel extends DBNDynamicTableModel<MLPredictionImpact> {
-    private static final int COLUMN_IMPACT = 1;
+public class MLAttributeContributionTableModel extends DBNDynamicTableModel<MLAttributeContribution> {
+    private static final int COLUMN_CONTRIBUTION = 1;
 
-    public MLPredictionImpactTableModel(List<MLPredictionImpact> impacts) {
-        super(MLPredictionImpact.class, impacts);
+    public MLAttributeContributionTableModel(List<MLAttributeContribution> contributions) {
+        super(MLAttributeContribution.class, contributions);
 
-        addColumn(txt("app.shared.column.Name"), i -> i.getName());
-        addColumn(txt("app.machineLearning.column.Impact"), i -> i.getImpact());
-        addColumn(txt("app.machineLearning.column.RowsUsed"), i -> i.getOccurrences());
+        addColumn(txt("app.shared.column.Name"), c -> c.getName());
+        addColumn(txt("app.machineLearning.column.Contribution"), c -> c.getContribution());
+        addColumn(txt("app.machineLearning.column.RowsUsed"), c -> c.getOccurrences());
     }
 
     @Override
-    public String getPresentableValue(MLPredictionImpact row, int column) {
-        if (column == COLUMN_IMPACT) return String.format("%.4f", row.getImpact());
+    public String getPresentableValue(MLAttributeContribution row, int column) {
+        if (column == COLUMN_CONTRIBUTION) return String.format("%.4f", row.getContribution());
         return super.getPresentableValue(row, column);
     }
 }

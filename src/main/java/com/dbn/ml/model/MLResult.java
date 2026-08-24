@@ -21,7 +21,7 @@ import com.dbn.ml.backend.dbms.DBMSAlgorithmType;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.model.analysis.MLFeatureImportance;
-import com.dbn.ml.model.analysis.MLPredictionImpact;
+import com.dbn.ml.model.analysis.MLAttributeContribution;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nls;
@@ -65,7 +65,7 @@ public class MLResult {
 
     // Column analysis - both optional, absent when the database could not produce them
     private List<MLFeatureImportance> featureImportance;
-    private List<MLPredictionImpact> predictionImpacts;
+    private List<MLAttributeContribution> attributeContributions;
 
     /**
      * Returns the database model name.
@@ -74,8 +74,8 @@ public class MLResult {
         return featureImportance != null && !featureImportance.isEmpty();
     }
 
-    public boolean hasPredictionImpact() {
-        return predictionImpacts != null && !predictionImpacts.isEmpty();
+    public boolean hasAttributeContribution() {
+        return attributeContributions != null && !attributeContributions.isEmpty();
     }
 
     public String getModelName() {

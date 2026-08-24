@@ -481,11 +481,19 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
     ResultSet getColumnCardinality(DBNConnection conn, String tableName, String columnName) throws SQLException;
 
     /**
-     * Ranks the columns by how much they contributed to the predictions of one specific model,
-     * by aggregating the per row attribute weights returned by PREDICTION_DETAILS.
+     * Ranks the columns by how much they contributed to the predictions of one specific model.
+     * Aggregates the per row attribute weights returned by PREDICTION_DETAILS (mean absolute
+     * weight across the test set) - the same technique used to derive global SHAP importance
+     * from local explanations. This is our own aggregation, not a value Oracle computes or
+     * documents as a global measure; PREDICTION_DETAILS is documented as a per row explanation.
+     * See https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmprg/prediction-details.html
+     * <p>
      * Unlike {@link #computeAttributeImportance} this describes the model, not the data.
      *
-     * @return ResultSet with columns: ATTRIBUTE_NAME, IMPACT, OCCURRENCES
+     * @param topN number of attributes PREDICTION_DETAILS scores per row - pass the model's full
+     *             feature count, otherwise the default of 5 silently drops features from rows
+     *             where they were not among the top contributors, biasing the average
+     * @return ResultSet with columns: ATTRIBUTE_NAME, CONTRIBUTION, OCCURRENCES
      */
-    ResultSet getPredictionImpact(DBNConnection conn, String modelName, String testTableName) throws SQLException;
+    ResultSet getAttributeContribution(DBNConnection conn, String modelName, String testTableName, int topN) throws SQLException;
 }

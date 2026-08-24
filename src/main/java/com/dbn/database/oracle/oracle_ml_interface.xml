@@ -606,20 +606,26 @@
     </statement-execution-processor>
 
     <!-- Aggregate the per row attribute weights returned by PREDICTION_DETAILS into a -->
-    <!-- model specific ranking. Model name sits in an identifier position (like the DM$V views). -->
-    <!-- Parameters: 0=model_name, 1=test_table -->
-    <statement-execution-processor id="get-prediction-impact" timeout="300000">
+    <!-- model specific ranking. This is our own aggregation of a row level explanation -->
+    <!-- function, not a value Oracle computes or documents as a global measure - see -->
+    <!-- https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmprg/prediction-details.html -->
+    <!-- topN is set to the model's full feature count so every feature is scored on every row -->
+    <!-- (PREDICTION_DETAILS defaults to the top 5 only); ABS ranks by contribution magnitude, -->
+    <!-- otherwise DESC would favour positively-weighted attributes over negative ones. -->
+    <!-- Model name sits in an identifier position (like the DM$V views). -->
+    <!-- Parameters: 0=model_name, 1=test_table, 2=top_n (feature count) -->
+    <statement-execution-processor id="get-attribute-contribution" timeout="300000">
         <statement>
             SELECT d.ATTRIBUTE_NAME,
-                   AVG(ABS(d.WEIGHT)) AS IMPACT,
+                   AVG(ABS(d.WEIGHT)) AS CONTRIBUTION,
                    COUNT(*) AS OCCURRENCES
-            FROM (SELECT PREDICTION_DETAILS({0} USING *) AS DETAILS FROM {@1}) t,
+            FROM (SELECT PREDICTION_DETAILS({0}, NULL, {$2} ABS USING *) AS DETAILS FROM {@1}) t,
                  XMLTABLE('/Details/Attribute'
                      PASSING t.DETAILS
                      COLUMNS ATTRIBUTE_NAME VARCHAR2(128) PATH '@name',
                              WEIGHT         NUMBER        PATH '@weight') d
             GROUP BY d.ATTRIBUTE_NAME
-            ORDER BY IMPACT DESC NULLS LAST
+            ORDER BY CONTRIBUTION DESC NULLS LAST
         </statement>
     </statement-execution-processor>
 

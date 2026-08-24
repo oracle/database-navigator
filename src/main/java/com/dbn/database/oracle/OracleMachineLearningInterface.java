@@ -470,9 +470,9 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     }
 
     @Override
-    public ResultSet getPredictionImpact(DBNConnection conn, String modelName, String testTableName) throws SQLException {
-        log.debug("Aggregating prediction details of model {} over {}", modelName, testTableName);
-        return executeQuery(conn, "get-prediction-impact", modelName, testTableName);
+    public ResultSet getAttributeContribution(DBNConnection conn, String modelName, String testTableName, int topN) throws SQLException {
+        log.debug("Aggregating prediction details of model {} over {} (topN={})", modelName, testTableName, topN);
+        return executeQuery(conn, "get-attribute-contribution", modelName, testTableName, topN);
     }
 
     // ==================== HELPER METHODS ====================
