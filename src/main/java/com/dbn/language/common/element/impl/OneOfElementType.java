@@ -73,7 +73,7 @@ public class OneOfElementType extends ElementTypeBase {
         } else {
             List<Element> children = def.getChildren();
             this.children = new ElementTypeRef[children.size()];
-            String languageId = getLanguage().getID();
+            String languageId = getLanguageDialect().getID();
             if (this.children.length == 0) {
                 log.warn("DBN - [{}] empty one-of element (one-of = {})", languageId, getId());
             } else if  (this.children.length == 1) {

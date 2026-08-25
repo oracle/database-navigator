@@ -75,7 +75,7 @@ public class IterationElementType extends ElementTypeBase {
         String type = child.getName();
         if (isMarkedOptional(child)) {
             // not supported - prevent false expectations
-            log.warn("DBN - [{}] iterated element cannot be optional (iteration = {})", getLanguage().getID(), getId());
+            log.warn("DBN - [{}] iterated element cannot be optional (iteration = {})", getLanguageDialect().getID(), getId());
         }
 
         iteratedElement = bundle.resolveElementDefinition(child, type, this);

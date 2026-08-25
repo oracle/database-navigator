@@ -72,7 +72,7 @@ public class WrapperElementType extends ElementTypeBase {
         List<Element> children = def.getChildren();
         if (children.size() != 1) {
             throw new ElementTypeDefinitionException(
-                    "Invalid wrapper definition. " +
+                    "[" + getLanguageDialect().getID() + "] Invalid wrapper definition. " +
                     "Element should contain exact one child of type 'one-of', 'sequence', 'element', 'token'");
         }
         Element child = children.get(0);
