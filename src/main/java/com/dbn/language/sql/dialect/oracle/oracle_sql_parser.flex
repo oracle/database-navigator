@@ -59,7 +59,8 @@ PSQL_BLOCK_START_DECLARE = "declare"
 PSQL_BLOCK_START_BEGIN = "begin"
 //PSQL_BLOCK_END_IGNORE = "end"{ws}("if"|"loop"|"case"){PSQL_STUB_IDENTIFIER}{wso}";"
 PSQL_BLOCK_END_IGNORE = "end"{ws}("if"|"loop"){PSQL_STUB_IDENTIFIER}{wso}";"
-PSQL_BLOCK_END = "end"{PSQL_STUB_IDENTIFIER}({wso}";"({wso}"/")?)?
+PSQL_BLOCK_END_SLASH = "end"{PSQL_STUB_IDENTIFIER}{wso}";"{wso}"/"[^*]
+PSQL_BLOCK_END = "end"{PSQL_STUB_IDENTIFIER}{wso}";"
 
 SELECT_AI_START = "select"{ws}"ai"
 
@@ -76,9 +77,11 @@ DBLINK_QUALIFIER = "@"({IDENTIFIER}|{QUOTED_IDENTIFIER})("."({IDENTIFIER}|{QUOTE
 <PSQL_BLOCK> {
     {BLOCK_COMMENT}                 {}
     {LINE_COMMENT}                  {}
+    {STRING}                        {}
 
     {PSQL_BLOCK_START_CREATE}       {if (pbm.isBlockStarted()) { pbm.pushBack(); pbm.end(true); return getChameleon(); }}
     {PSQL_BLOCK_END_IGNORE}         { pbm.ignore();}
+    {PSQL_BLOCK_END_SLASH}          { yypushback(1); if (pbm.end(true)) return getChameleon();}
     {PSQL_BLOCK_END}                { if (pbm.end(false)) return getChameleon();}
 
     "begin"                         { pbm.mark(Marker.BEGIN); }
@@ -91,7 +94,6 @@ DBLINK_QUALIFIER = "@"({IDENTIFIER}|{QUOTED_IDENTIFIER})("."({IDENTIFIER}|{QUOTE
     {IDENTIFIER}                    {}
     {INTEGER}                       {}
     {NUMBER}                        {}
-    {STRING}                        {}
     {WHITE_SPACE}                   {}
     .                               {}
     <<EOF>>                         { pbm.end(true); return getChameleon(); }
