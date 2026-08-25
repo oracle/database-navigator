@@ -26587,6 +26587,7 @@
                     </sequence>
                 </wrapper>
             </sequence>
+            <element ref-id="json_type_specification"/>
             <qualified-identifier id="14366" separator="CHR_DOT">
                 <variant>
                     <object-ref id="14367" optional="true" type="SCHEMA" />
