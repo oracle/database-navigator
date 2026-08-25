@@ -16279,6 +16279,7 @@
         </one-of>
         <element optional="true" ref-id="constraint_state" />
         <sequence tokens="KW_DISABLE, KW_NOVALIDATE" optional="true" id="08909" />
+        <element optional="true" ref-id="using_index_clause" />
     </element-def>
     <element-def description="Inline REF CONSTRAINT" id="inline_ref_constraint">
         <one-of id="08910">
