@@ -16,6 +16,7 @@
 
 <!ELEMENT element-defs (element-def)*>
 <!ATTLIST element-defs
+        legacy (true | false) #IMPLIED
         language CDATA #REQUIRED
         version CDATA #REQUIRED
         max-depth CDATA #IMPLIED
@@ -23,6 +24,7 @@
         max-extension-candidates CDATA #IMPLIED>
 <!ELEMENT element-def (token|element|sequence|iteration|one-of|wrapper|qualified-identifier|object-ref|object-def|alias-def|alias-ref|variable-def|variable-ref|block)*>
 <!ATTLIST element-def
+        legacy (true | false) #IMPLIED
         id CDATA #REQUIRED
         description CDATA #REQUIRED
         attributes CDATA #IMPLIED
@@ -40,6 +42,7 @@
         virtual-object CDATA #IMPLIED>
 <!ELEMENT token (#PCDATA)>
 <!ATTLIST token
+        legacy (true | false) #IMPLIED
         id CDATA #IMPLIED
         type-id CDATA #REQUIRED
         text CDATA #IMPLIED
@@ -55,6 +58,7 @@
         formatting-spacing-before CDATA #IMPLIED>
 <!ELEMENT wrapper (token|element|sequence|one-of|iteration|wrapper|qualified-identifier|object-ref|variable-ref|alias-ref)>
 <!ATTLIST wrapper
+        legacy (true | false) #IMPLIED
         id CDATA #IMPLIED
         version CDATA #IMPLIED
         optional (true | false) #IMPLIED
@@ -70,6 +74,7 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT element (#PCDATA)>
 <!ATTLIST element
+        legacy (true | false) #IMPLIED
         ref-id CDATA #REQUIRED
         optional (true | false) #IMPLIED
         version CDATA #IMPLIED
@@ -83,6 +88,7 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT sequence (#PCDATA|token|element|sequence|iteration|one-of|wrapper|qualified-identifier|object-def|object-ref|alias-def|alias-ref|variable-def|variable-ref|exec-variable)*>
 <!ATTLIST sequence
+        legacy (true | false) #IMPLIED
         id CDATA #IMPLIED
         object-type CDATA #IMPLIED
         attributes CDATA #IMPLIED
@@ -102,6 +108,7 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT iteration (token|element|sequence|one-of|wrapper|qualified-identifier|object-def|object-ref|variable-ref|alias-ref|alias-def)>
 <!ATTLIST iteration
+        legacy (true | false) #IMPLIED
         id CDATA #IMPLIED
         separator CDATA #IMPLIED
         attributes CDATA #IMPLIED
@@ -120,6 +127,7 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT one-of (token|element|sequence|iteration|one-of|wrapper|qualified-identifier|object-ref|object-def|alias-ref|alias-def|variable-ref|variable-def|exec-variable)*>
 <!ATTLIST one-of
+        legacy (true | false) #IMPLIED
         id CDATA #IMPLIED
         object-type CDATA #IMPLIED
         attributes CDATA #IMPLIED
@@ -139,15 +147,18 @@
         unbounded (true | false) #IMPLIED>
 <!ELEMENT qualified-identifier (variant)*>
 <!ATTLIST qualified-identifier
+        legacy (true | false) #IMPLIED
         id CDATA #IMPLIED
         separator CDATA #IMPLIED
         optional (true | false) #IMPLIED
         original-name CDATA #IMPLIED>
 <!ELEMENT variant (token|object-def|object-ref|variable-ref|alias-ref|alias-def)*>
 <!ATTLIST variant
+        legacy (true | false) #IMPLIED
         original-name CDATA #IMPLIED>
 <!ELEMENT object-def (#PCDATA)>
 <!ATTLIST object-def
+        legacy (true | false) #IMPLIED
         id CDATA #IMPLIED
         type CDATA #REQUIRED
         attributes CDATA #IMPLIED
@@ -156,6 +167,7 @@
         underlying-object-resolver CDATA #IMPLIED>
 <!ELEMENT object-ref (#PCDATA)>
 <!ATTLIST object-ref
+        legacy (true | false) #IMPLIED
         id CDATA #IMPLIED
         type CDATA #REQUIRED
         attributes CDATA #IMPLIED
@@ -165,6 +177,7 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT alias-def (#PCDATA)>
 <!ATTLIST alias-def
+        legacy (true | false) #IMPLIED
         id CDATA #IMPLIED
         type CDATA #REQUIRED
         attributes CDATA #IMPLIED
@@ -172,6 +185,7 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT alias-ref (#PCDATA)>
 <!ATTLIST alias-ref
+        legacy (true | false) #IMPLIED
         id CDATA #IMPLIED
         type CDATA #REQUIRED
         optional (true | false) #IMPLIED
@@ -180,6 +194,7 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT variable-ref (#PCDATA)>
 <!ATTLIST variable-ref
+        legacy (true | false) #IMPLIED
         id CDATA #IMPLIED
         type CDATA #REQUIRED
         optional (true | false) #IMPLIED
@@ -188,10 +203,12 @@
         original-name CDATA #IMPLIED>
 <!ELEMENT exec-variable (#PCDATA)>
 <!ATTLIST exec-variable
+        legacy (true | false) #IMPLIED
         id CDATA #IMPLIED
         original-name CDATA #IMPLIED>
 <!ELEMENT variable-def (#PCDATA)>
 <!ATTLIST variable-def
+        legacy (true | false) #IMPLIED
         id CDATA #IMPLIED
         type CDATA #REQUIRED
         attributes CDATA #IMPLIED
@@ -200,6 +217,7 @@
         underlying-object-resolver CDATA #IMPLIED>
 <!ELEMENT block (element)*>
 <!ATTLIST block
+        legacy (true | false) #IMPLIED
         id CDATA #IMPLIED
         formatting-indent (NORMAL | CONTINUE | NONE | ABSOLUTE_NONE) #IMPLIED
         formatting-wrap (NORMAL | ALWAYS | IF_LONG ) #IMPLIED
