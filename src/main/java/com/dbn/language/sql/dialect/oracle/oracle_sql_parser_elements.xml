@@ -7889,6 +7889,7 @@
                     <element ref-id="modify_col_visibility" />
                 </iteration>
             </wrapper>
+            <element ref-id="modify_col_properties" />
             <element ref-id="modify_col_substitutable" />
             <element ref-id="modify_domain" />
         </one-of>
