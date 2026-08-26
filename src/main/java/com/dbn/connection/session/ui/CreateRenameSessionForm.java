@@ -57,9 +57,7 @@ public class CreateRenameSessionForm extends DBNFormBase {
         String name;
         if (session == null) {
             name = "Session 1";
-            while (sessionNames.contains(name)) {
-                name = Naming.nextNumberedIdentifier(name, true);
-            }
+            name = Naming.nextNumberedIdentifier(name, true, () -> sessionNames);
         } else {
             name = session.getName();
             sessionNames.remove(name);

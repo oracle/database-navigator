@@ -16,14 +16,14 @@
 
 package com.dbn.editor.json.ui;
 
-import com.dbn.common.action.BasicTextAction;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.editor.WrappingTextEditor;
 import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.util.Actions;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Json;
@@ -33,40 +33,40 @@ import com.dbn.editor.json.JsonFileCache;
 import com.dbn.editor.json.model.JsonDataEditorModelCell;
 import com.dbn.object.DBJsonView;
 import com.dbn.vfs.file.DBContentVirtualFile;
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.command.undo.UndoUtil;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
-import com.intellij.openapi.editor.ex.FocusChangeListener;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.KeyboardFocusManager;
 
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.UserInterface.updateScrollPanes;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Documents.resetText;
 import static com.dbn.common.util.Editors.enableSelectionOccurrenceHighlights;
 import static com.dbn.nls.NlsResources.txt;
+import static com.intellij.openapi.util.IconLoader.getDisabledIcon;
 
 public class JsonDataContentEditorForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel editorPanel;
     private JPanel headerPanel;
     private JPanel actionsPanel;
+    private JPanel buttonsPanel;
+    private JButton acceptButton;
+    private JButton revertButton;
 
 
     private WeakRef<JsonDataEditorModelCell> selectedCell;
@@ -80,7 +80,22 @@ public class JsonDataContentEditorForm extends DBNFormBase {
 
         ProjectEvents.subscribe(EnvironmentManagerListener.TOPIC, environmentManagerListener());
         initJsonContentEditor();
-        initActionsPanel();
+        initButtonsPanel();
+    }
+
+    private void initButtonsPanel() {
+        acceptButton.setIcon(Icons.ACTION_APPROVE);
+        revertButton.setIcon(Icons.ACTION_REJECT);
+        acceptButton.setDisabledIcon(getDisabledIcon(Icons.ACTION_CHECK));
+        revertButton.setDisabledIcon(getDisabledIcon(Icons.ACTION_REJECT));
+        onButtonClick(acceptButton, e -> applyChanges());
+        onButtonClick(revertButton, e -> revertChanges());
+    }
+
+    @Override
+    protected void initFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.initFieldsAvailability(() -> isEditorContentChanged(), array(acceptButton, revertButton));
     }
 
     private EnvironmentManagerListener environmentManagerListener() {
@@ -132,25 +147,10 @@ public class JsonDataContentEditorForm extends DBNFormBase {
         settings.setCaretRowShown(false);
         settings.setVirtualSpace(true);
 
-        editor.addFocusListener(new FocusChangeListener() {
-            @Override
-            public void focusLost(@NotNull Editor editor) {
-                updateCellValue();
-            }
-        });
-
-        Documents.onDocumentChanged(document, this, event -> updateActionToolbars());
-
+        Documents.onDocumentChanged(document, this, event -> updateFieldAvailability());
 
         editorPanel.add(editor.getComponent());
         updateScrollPanes(editorPanel);
-    }
-
-    private void initActionsPanel() {
-        var contentActionsToolbar = Actions.createActionToolbar(actionsPanel, true,
-                new ApplyContentChangesAction(),
-                new RevertContentChangesAction());
-        actionsPanel.add(contentActionsToolbar.getComponent());
     }
 
     public void selectRecord(JsonDataEditorModelCell cell) {
@@ -170,7 +170,7 @@ public class JsonDataContentEditorForm extends DBNFormBase {
         }
 
         updateEditorState();
-        updateActionToolbars();
+        updateFieldAvailability();
     }
 
     public void focusEditor() {
@@ -207,12 +207,12 @@ public class JsonDataContentEditorForm extends DBNFormBase {
         JsonValue userValue = new JsonValue(editorContent);
         selectedCell.updateUserValue(userValue, false);
         originalContent = editorContent;
-        updateActionToolbars();
+        updateFieldAvailability();
     }
 
     private void revertChanges() {
         resetText(editor, nvl(originalContent, ""), true);
-        updateActionToolbars();
+        updateFieldAvailability();
     }
 
 
@@ -251,41 +251,5 @@ public class JsonDataContentEditorForm extends DBNFormBase {
 
         Editors.setEditorReadonly(editor, readonly);
         Editors.setEditorReadonlyHint(editor, readonlyHint);
-    }
-
-    private abstract class ContentChangesAction extends BasicTextAction {
-        private ContentChangesAction(String text, Icon icon) {
-            super(text, null, icon);
-        }
-
-        @Override
-        public void update(@NotNull AnActionEvent e) {
-            Presentation presentation = e.getPresentation();
-            boolean changed = isEditorContentChanged();
-            presentation.setVisible(changed);
-            presentation.setEnabled(changed);
-        }
-    }
-
-    private class ApplyContentChangesAction extends ContentChangesAction {
-        private ApplyContentChangesAction() {
-            super(txt("app.dataEditor.action.AcceptChanges"), AllIcons.Actions.Checked);
-        }
-
-        @Override
-        public void actionPerformed(@NotNull AnActionEvent e) {
-            applyChanges();
-        }
-    }
-
-    private class RevertContentChangesAction extends ContentChangesAction {
-        private RevertContentChangesAction() {
-            super(txt("app.dataEditor.action.RevertChanges"), AllIcons.Actions.Rollback);
-        }
-
-        @Override
-        public void actionPerformed(@NotNull AnActionEvent e) {
-            revertChanges();
-        }
     }
 }

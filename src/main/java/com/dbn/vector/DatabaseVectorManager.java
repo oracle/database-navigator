@@ -7,7 +7,7 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.text.TextContent;
-import com.dbn.common.thread.Progress;
+import com.dbn.common.thread.Background;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
@@ -42,9 +42,7 @@ import com.dbn.vector.ui.VectorToolboxDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -186,47 +184,37 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
                 });
     }
 
-    @SneakyThrows
     public void createEmbeddings(VectorEmbeddingRequest request) {
         request.setTemplate(false); // no longer a template after used for embedding
         ConnectionHandler connection = request.getConnection();
+        VectorEmbeddingResult result = new VectorEmbeddingResult(request);
+        showResultDialog(result);
 
         EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
-        Progress.prompt(
-                getProject(),
-                connection.getSchema(), true,
+        Background.run(() -> DatabaseInterfaceInvoker.execute(
+                MEDIUM,
                 txt("prc.vector.title.EmbeddingData"),
                 txt("prc.vector.text.EmbeddingData", destinationConfig.getSchemaName(), destinationConfig.getTableName()),
-                p -> DatabaseInterfaceInvoker.execute(MEDIUM,
-                        p.getText(),
-                        p.getText2(),
-                        connection.getProject(),
-                        connection.getConnectionId(),
-                        connection.getSchemaId(),
-                        conn -> {
-                            VectorEmbeddingResult result = executePipeline(request, conn, p);
-                            result.finish();
-                            showResultDialog(result);
-//                                  callbackInfo.run();
-
-                        }));
+                connection.getProject(),
+                connection.getConnectionId(),
+                connection.getSchemaId(),
+                conn -> {
+                    executePipeline(request, conn, result);
+                    result.finish();
+                }));
     }
 
     /**
      * Execute the embedding pipeline for the given request.
      */
-    private VectorEmbeddingResult executePipeline(
+    private void executePipeline(
             @NotNull VectorEmbeddingRequest request,
             @NotNull DBNConnection connection,
-            @NotNull ProgressIndicator progressIndicator) {
-
-        VectorEmbeddingResult result = new VectorEmbeddingResult(request);
-        VectorEmbeddingContext context = new VectorEmbeddingContext(progressIndicator, connection);
+            @NotNull VectorEmbeddingResult result) {
+        VectorEmbeddingContext context = new VectorEmbeddingContext(request, result, connection);
 
         EmbeddingPipeline pipeline = createPipeline(request.getSourceConfig().getSourceType());
-        pipeline.execute(context, request, result);
-
-        return result;
+        pipeline.execute(context);
     }
 
     /**

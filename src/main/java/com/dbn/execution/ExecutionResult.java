@@ -72,7 +72,13 @@ public interface ExecutionResult<F extends ExecutionResultForm> extends Stateful
     ExecutionResult<F> getPrevious();
 
     void setPrevious(ExecutionResult<F> previous);
+
     default boolean isRenameable(){
         return false;
-    };
+    }
+
+    @Nullable
+    default ExecutionCancellationAdapter getCancellationAdapter() {
+        return null;
+    }
 }

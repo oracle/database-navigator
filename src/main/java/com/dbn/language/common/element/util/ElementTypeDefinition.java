@@ -51,4 +51,3 @@ public enum ElementTypeDefinition {
         return Objects.equals(this.name, name);
     }
 }
-

@@ -24,7 +24,7 @@
     </element-def>
 
     <element-def attributes="STRUCTURE, EXECUTABLE, STATEMENT, SCOPE_ISOLATION, GENERIC" description="SQL statement" formatting-indent="ABSOLUTE_NONE" id="sql_statement">
-        <one-of id="00001" ambiguous="true">
+        <one-of id="00001">
             <element ref-id="query_expression" />
             <element ref-id="delete_statement" />
             <element ref-id="insert_statement" />
@@ -135,7 +135,7 @@
                 <object-ref type="COLUMN" id="00034" />
             </iteration>
         </wrapper>
-        <one-of id="00035" ambiguous="true">
+        <one-of id="00035">
             <element ref-id="insert_values_clause" />
             <element ref-id="insert_default_values_clause" />
             <element ref-id="query_expression" />
@@ -150,7 +150,7 @@
         </wrapper>
     </element-def>
     <element-def custom="true" description="INSERT value" id="insert_value">
-        <one-of id="00039" ambiguous="true">
+        <one-of id="00039">
             <token type-id="KW_DEFAULT" id="00040" />
             <element ref-id="row_value_constructor" />
         </one-of>
@@ -179,14 +179,14 @@
         <element ref-id="update_source" />
     </element-def>
     <element-def description="UPDATE source" id="update_source">
-        <one-of id="00048" ambiguous="true">
+        <one-of id="00048">
             <token type-id="KW_DEFAULT" id="00049" />
             <element ref-id="value_expression" />
         </one-of>
     </element-def>
     <element-def attributes="CLAUSE" custom="true" description="UPDATE WHERE clause" id="update_where_clause">
         <token type-id="KW_WHERE" id="00050" />
-        <one-of id="00051" ambiguous="true">
+        <one-of id="00051">
             <element ref-id="search_condition" />
             <element ref-id="current_of_clause" />
         </one-of>
@@ -201,7 +201,7 @@
     </element-def>
     <element-def attributes="CLAUSE" custom="true" description="DELETE WHERE clause" id="delete_where_clause">
         <token type-id="KW_WHERE" id="00054" />
-        <one-of id="00055" ambiguous="true">
+        <one-of id="00055">
             <element ref-id="search_condition" />
             <element ref-id="current_of_clause" />
         </one-of>
@@ -306,7 +306,7 @@
         </one-of>
     </element-def>
     <element-def description="Fetch position" id="fetch_position">
-        <one-of id="00101" ambiguous="true">
+        <one-of id="00101">
             <element ref-id="simple_value_specification" />
             <token type-id="INTEGER" id="00102" />
         </one-of>
@@ -318,13 +318,13 @@
         </iteration>
     </element-def>
     <element-def description="Target specification" id="target_specification">
-        <one-of id="00105" ambiguous="true">
+        <one-of id="00105">
             <element ref-id="parameter_specification" />
             <element ref-id="variable_specification" />
         </one-of>
     </element-def>
     <element-def description="Simple value specification" id="simple_value_specification">
-        <one-of id="00106" ambiguous="true">
+        <one-of id="00106">
             <token type-id="NUMBER" id="00107" />
             <element ref-id="parameter_specification" />
             <element ref-id="variable_specification" />
@@ -339,7 +339,7 @@
 
     <!-- ========= dynamic sql ========= -->
     <element-def attributes="DATA_MANIPULATION, TRANSACTIONAL, STRUCTURE" custom="true" description="Dynamic SQL statement" id="dynamic_sql_statement">
-        <one-of id="00110" ambiguous="true">
+        <one-of id="00110">
             <element ref-id="prepare_statement" />
             <element ref-id="execute_statement" />
             <element ref-id="execute_immediate_statement" />
@@ -366,7 +366,7 @@
         <variable-ref original-name="statement_name" type="ANY" id="00114" />
     </element-def>
     <element-def description="Dynamic SQL source" id="dynamic_sql_source">
-        <one-of id="00115" ambiguous="true">
+        <one-of id="00115">
             <token type-id="STRING" id="00116" />
             <element ref-id="variable_specification" />
             <element ref-id="parameter_specification" />
@@ -391,7 +391,7 @@
         </iteration>
     </element-def>
     <element-def description="USING argument" id="using_argument">
-        <one-of id="00122" ambiguous="true">
+        <one-of id="00122">
             <element ref-id="target_specification" />
             <element ref-id="value_expression" />
         </one-of>
@@ -442,7 +442,7 @@
     <element-def attributes="DATA_MANIPULATION, TRANSACTIONAL, STRUCTURE" description="GET DESCRIPTOR statement" id="get_descriptor_statement">
         <token type-id="KW_GET" id="00139" />
         <element ref-id="sql_descriptor_reference" />
-        <one-of id="00140" ambiguous="true">
+        <one-of id="00140">
             <sequence id="00141">
                 <element ref-id="target_specification" />
                 <token type-id="CHR_EQUAL" id="00142" />
@@ -544,7 +544,7 @@
         </sequence>
     </element-def>
     <element-def description="Connection target" id="connection_target">
-        <one-of id="00194" ambiguous="true">
+        <one-of id="00194">
             <token type-id="KW_DEFAULT" id="00195" />
             <element ref-id="session_characteristic_value" />
         </one-of>
@@ -556,7 +556,7 @@
         <variable-ref original-name="connection_name" type="ANY" id="00197" />
     </element-def>
     <element-def description="Connection user name" id="connection_user_name">
-        <one-of id="00198" ambiguous="true">
+        <one-of id="00198">
             <element ref-id="session_characteristic_value" />
             <token original-name="user_name" type-id="IDENTIFIER" id="00199" />
         </one-of>
@@ -585,7 +585,7 @@
 
     <!-- ========= create ========= -->
     <element-def attributes="DATA_DEFINITION, STRUCTURE" custom="true" description="CREATE statement" id="create_statement">
-        <one-of id="00209" ambiguous="true">
+        <one-of id="00209">
             <element ref-id="create_table_statement" />
             <element ref-id="create_view_statement" />
             <element ref-id="create_domain_statement" />
@@ -673,7 +673,7 @@
         </one-of>
     </element-def>
     <element-def description="Default clause value" id="default_clause_value">
-        <one-of id="00239" ambiguous="true">
+        <one-of id="00239">
             <token type-id="KW_NULL" id="00240" />
             <element ref-id="value_expression" />
         </one-of>
@@ -921,7 +921,7 @@
         </one-of>
     </element-def>
     <element-def attributes="CLAUSE" description="Schema element" id="schema_element">
-        <one-of id="00351" ambiguous="true">
+        <one-of id="00351">
             <element ref-id="create_table_statement" />
             <element ref-id="create_view_statement" />
             <element ref-id="create_domain_statement" />
@@ -997,7 +997,7 @@
         </qualified-identifier>
     </element-def>
     <element-def description="Collation source" id="collation_source">
-        <one-of id="00378" ambiguous="true">
+        <one-of id="00378">
             <token type-id="KW_DEFAULT" id="00379" />
             <element ref-id="collation_name" />
         </one-of>
@@ -1042,7 +1042,7 @@
         <element ref-id="character_set_name" />
     </element-def>
     <element-def description="Translation source" id="translation_source">
-        <one-of id="00395" ambiguous="true">
+        <one-of id="00395">
             <token type-id="KW_DEFAULT" id="00396" />
             <element ref-id="translation_name" />
         </one-of>
@@ -1050,7 +1050,7 @@
 
     <!-- ========= drop ========= -->
     <element-def attributes="DATA_DEFINITION, STRUCTURE" custom="true" description="DROP statement" id="drop_statement">
-        <one-of id="00397" ambiguous="true">
+        <one-of id="00397">
             <element ref-id="drop_table_statement" />
             <element ref-id="drop_view_statement" />
             <element ref-id="drop_domain_statement" />
@@ -1145,7 +1145,7 @@
 
     <!-- ========= alter ========= -->
     <element-def attributes="DATA_DEFINITION, STRUCTURE" custom="true" description="ALTER statement" id="alter_statement">
-        <one-of id="00423" ambiguous="true">
+        <one-of id="00423">
             <element ref-id="alter_table_statement" />
             <element ref-id="alter_domain_statement" />
         </one-of>
@@ -1159,7 +1159,7 @@
         <element ref-id="alter_table_action" />
     </element-def>
     <element-def description="Alter table action" id="alter_table_action">
-        <one-of id="00426" ambiguous="true">
+        <one-of id="00426">
             <sequence id="00427">
                 <token type-id="KW_ADD" id="00428" />
                 <token optional="true" type-id="KW_COLUMN" id="00429" />
@@ -1192,7 +1192,7 @@
         <element ref-id="alter_domain_action" />
     </element-def>
     <element-def description="Alter domain action" id="alter_domain_action">
-        <one-of id="00442" ambiguous="true">
+        <one-of id="00442">
             <sequence id="00443">
                 <token type-id="KW_SET" id="00444" />
                 <token type-id="KW_DEFAULT" id="00445" />
@@ -1217,7 +1217,7 @@
 
     <!-- ========= transaction control ========= -->
     <element-def attributes="TRANSACTION_CONTROL, STRUCTURE" custom="true" description="Transaction control statement" id="transaction_control_statement">
-        <one-of id="00455" ambiguous="true">
+        <one-of id="00455">
             <element ref-id="commit_statement" />
             <element ref-id="rollback_statement" />
             <element ref-id="set_transaction_statement" />
@@ -1324,7 +1324,7 @@
     <element-def attributes="TRANSACTION_CONTROL, STRUCTURE" description="SET SCHEMA statement" id="set_schema_statement">
         <token type-id="KW_SET" id="00498" />
         <token type-id="KW_SCHEMA" id="00499" />
-        <one-of id="00500" ambiguous="true">
+        <one-of id="00500">
             <element ref-id="schema_name" />
             <element ref-id="session_characteristic_value" />
         </one-of>
@@ -1345,7 +1345,7 @@
         <element ref-id="session_characteristic_value" />
     </element-def>
     <element-def custom="true" description="Session characteristic value" id="session_characteristic_value">
-        <one-of id="00506" ambiguous="true">
+        <one-of id="00506">
             <token type-id="STRING" id="00507" />
             <element ref-id="value_expression" />
             <element ref-id="parameter_specification" />
@@ -1474,7 +1474,7 @@
         </one-of>
     </element-def>
     <element-def description="Select list" id="select_list">
-        <one-of id="00558" ambiguous="true">
+        <one-of id="00558">
             <token id="00559" original-name="asterisk" type-id="CHR_STAR" />
             <iteration id="00560" separator="CHR_COMMA">
                 <element ref-id="select_sublist" />
@@ -1482,7 +1482,7 @@
         </one-of>
     </element-def>
     <element-def description="Select sublist" id="select_sublist">
-        <one-of id="00561" ambiguous="true">
+        <one-of id="00561">
             <element ref-id="derived_column" />
             <sequence id="00562">
                 <element ref-id="qualifier" />
@@ -1500,7 +1500,8 @@
         <alias-def id="00566" original-name="column_name" type="COLUMN" />
     </element-def>
     <element-def description="Value expression" id="value_expression">
-        <one-of id="00567" ambiguous="true">
+        <one-of id="00567">
+            <element ref-id="query_specification" />
             <element ref-id="numeric_value_expression" />
             <element ref-id="string_value_expression" />
             <element ref-id="datetime_value_expression" />
@@ -1557,7 +1558,7 @@
         </iteration>
     </element-def>
     <element-def description="Table primary" id="table_primary">
-        <one-of id="00584" ambiguous="true">
+        <one-of id="00584">
             <element ref-id="table_factor" />
             <wrapper template="PARENTHESES" id="00585">
                 <element ref-id="table_reference" />
@@ -1566,7 +1567,7 @@
         <element optional="true" ref-id="correlation_specification" />
     </element-def>
     <element-def description="Table factor" id="table_factor">
-        <one-of id="00586" ambiguous="true">
+        <one-of id="00586">
             <element ref-id="table_name" />
             <element ref-id="derived_table" />
         </one-of>
@@ -1694,7 +1695,7 @@
         <element ref-id="boolean_test" />
     </element-def>
     <element-def description="Boolean test" id="boolean_test">
-        <one-of id="00630" ambiguous="true">
+        <one-of id="00630">
             <sequence id="00631">
                 <element ref-id="row_value_constructor" />
                 <element ref-id="row_value_predicate_tail" />
@@ -1719,7 +1720,7 @@
         </one-of>
     </element-def>
     <element-def description="Boolean primary" id="boolean_primary">
-        <one-of id="00640" ambiguous="true">
+        <one-of id="00640">
             <element ref-id="predicate" />
             <wrapper template="PARENTHESES" id="00641">
                 <element ref-id="search_condition" />
@@ -1727,7 +1728,7 @@
         </one-of>
     </element-def>
     <element-def description="Predicate" id="predicate">
-        <one-of id="00642" ambiguous="true">
+        <one-of id="00642">
             <element ref-id="null_predicate" />
             <element ref-id="like_predicate" />
             <element ref-id="between_predicate" />
@@ -1742,7 +1743,7 @@
         </one-of>
     </element-def>
     <element-def custom="true" description="Row value predicate tail" id="row_value_predicate_tail">
-        <one-of id="00643" ambiguous="true">
+        <one-of id="00643">
             <element ref-id="truth_value_test" />
             <element ref-id="comparison_predicate_tail" />
             <element ref-id="between_predicate_tail" />
@@ -1772,7 +1773,7 @@
         </one-of>
     </element-def>
     <element-def description="Row value constructor" id="row_value_constructor">
-        <one-of id="00651" ambiguous="true">
+        <one-of id="00651">
             <wrapper template="PARENTHESES" id="00652">
                 <iteration separator="CHR_COMMA" id="00653">
                     <element ref-id="value_expression" />
@@ -1824,7 +1825,7 @@
     <element-def custom="true" description="IN predicate tail" id="in_predicate_tail">
         <token optional="true" type-id="KW_NOT" id="00664" />
         <token type-id="KW_IN" id="00665" />
-        <one-of id="00666" ambiguous="true">
+        <one-of id="00666">
             <element ref-id="table_subquery" />
             <wrapper template="PARENTHESES" id="00667">
                 <iteration separator="CHR_COMMA" id="00668">
@@ -1936,13 +1937,13 @@
         </iteration>
     </element-def>
     <element-def description="Character factor" id="character_factor">
-        <one-of id="00698" ambiguous="true">
+        <one-of id="00698">
             <element ref-id="character_primary" />
             <element ref-id="column_reference" />
         </one-of>
     </element-def>
     <element-def description="Character primary" id="character_primary">
-        <one-of id="00699" ambiguous="true">
+        <one-of id="00699">
             <token type-id="STRING" id="00700" />
             <element ref-id="general_value_specification" />
             <element ref-id="character_value_function" />
@@ -1967,13 +1968,13 @@
         </iteration>
     </element-def>
     <element-def description="Bit factor" id="bit_factor">
-        <one-of id="00705" ambiguous="true">
+        <one-of id="00705">
             <element ref-id="bit_primary" />
             <element ref-id="column_reference" />
         </one-of>
     </element-def>
     <element-def description="Bit primary" id="bit_primary">
-        <one-of id="00706" ambiguous="true">
+        <one-of id="00706">
             <element ref-id="general_value_specification" />
             <element ref-id="bit_value_function" />
         </one-of>
@@ -1982,7 +1983,7 @@
         <element ref-id="substring_function" />
     </element-def>
     <element-def description="Datetime value expression" id="datetime_value_expression">
-        <one-of id="00707" ambiguous="true">
+        <one-of id="00707">
             <element ref-id="datetime_primary" />
             <element ref-id="column_reference" />
             <element ref-id="datetime_value_function" />
@@ -2011,19 +2012,19 @@
         </one-of>
     </element-def>
     <element-def description="Datetime primary" id="datetime_primary">
-        <one-of id="00719" ambiguous="true">
+        <one-of id="00719">
             <element ref-id="general_value_specification" />
             <element ref-id="unsigned_literal" />
         </one-of>
     </element-def>
     <element-def description="Interval value expression" id="interval_value_expression">
-        <one-of id="00720" ambiguous="true">
+        <one-of id="00720">
             <element ref-id="interval_primary" />
             <element ref-id="column_reference" />
         </one-of>
     </element-def>
     <element-def description="Interval primary" id="interval_primary">
-        <one-of id="00721" ambiguous="true">
+        <one-of id="00721">
             <element ref-id="general_value_specification" />
             <element ref-id="unsigned_literal" />
             <element ref-id="interval_literal" />
@@ -2039,13 +2040,13 @@
         <element ref-id="numeric_primary" />
     </element-def>
     <element-def description="Numeric primary" id="numeric_primary">
-        <one-of id="00724" ambiguous="true">
+        <one-of id="00724">
             <element ref-id="value_expression_primary" />
             <element ref-id="numeric_value_function" />
         </one-of>
     </element-def>
     <element-def description="Value expression primary" id="value_expression_primary">
-        <one-of id="00725" ambiguous="true">
+        <one-of id="00725">
             <element ref-id="unsigned_value_specification" />
             <element ref-id="column_reference" />
             <element ref-id="set_function_specification" />
@@ -2061,7 +2062,7 @@
         </one-of>
     </element-def>
     <element-def description="Unsigned value specification" id="unsigned_value_specification">
-        <one-of id="00729" ambiguous="true">
+        <one-of id="00729">
             <element ref-id="unsigned_literal" />
             <element ref-id="general_value_specification" />
         </one-of>
@@ -2164,7 +2165,7 @@
     <element-def description="TRIM function" id="trim_function">
         <token type-id="FN_TRIM" id="00765" />
         <wrapper template="PARENTHESES" id="00766">
-            <one-of id="00767" ambiguous="true">
+            <one-of id="00767">
                 <element ref-id="trim_operands" />
                 <element ref-id="character_value_expression" />
             </one-of>
@@ -2220,7 +2221,7 @@
     <element-def description="Set function specification" id="set_function_specification">
         <element ref-id="set_function_type" />
         <wrapper template="PARENTHESES" id="00786">
-            <one-of id="00787" ambiguous="true">
+            <one-of id="00787">
                 <token type-id="CHR_STAR" id="00788" />
                 <sequence id="00789">
                     <element optional="true" ref-id="set_quantifier" />
@@ -2261,7 +2262,7 @@
     </element-def>
     <element-def description="Case expression" id="case_expression">
         <token type-id="KW_CASE" id="00803" />
-        <one-of id="00804" ambiguous="true">
+        <one-of id="00804">
             <element ref-id="simple_case" />
             <element ref-id="searched_case" />
         </one-of>
@@ -2317,7 +2318,7 @@
         <element ref-id="value_expression" />
     </element-def>
     <element-def description="Cast target" id="cast_target">
-        <one-of id="00818" ambiguous="true">
+        <one-of id="00818">
             <element ref-id="domain_name" />
             <element ref-id="data_type" />
         </one-of>
@@ -2331,7 +2332,7 @@
         </qualified-identifier>
     </element-def>
     <element-def description="Data type" id="data_type">
-        <one-of id="00822" ambiguous="true">
+        <one-of id="00822">
             <element ref-id="character_string_type" />
             <element ref-id="bit_string_type" />
             <element ref-id="numeric_type" />
@@ -2340,7 +2341,7 @@
         </one-of>
     </element-def>
     <element-def description="Character string type" id="character_string_type">
-        <one-of id="00823" ambiguous="true">
+        <one-of id="00823">
             <sequence id="00824">
                 <one-of id="00825">
                     <token type-id="DT_CHAR" id="00826" />
@@ -2383,7 +2384,7 @@
         </one-of>
     </element-def>
     <element-def description="Bit string type" id="bit_string_type">
-        <one-of id="00848" ambiguous="true">
+        <one-of id="00848">
             <sequence id="00849">
                 <token type-id="DT_BIT" id="00850" />
                 <element optional="true" ref-id="length" />
@@ -2543,7 +2544,7 @@
         </wrapper>
     </element-def>
     <element-def description="General value specification" id="general_value_specification">
-        <one-of id="00930" ambiguous="true">
+        <one-of id="00930">
             <element ref-id="parameter_specification" />
             <element ref-id="variable_specification" />
             <token id="00931" flavor="keyword" type-id="FN_CURRENT_USER" />

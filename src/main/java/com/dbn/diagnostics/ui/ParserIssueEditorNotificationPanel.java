@@ -11,14 +11,20 @@ import com.dbn.common.util.Messages;
 import com.dbn.diagnostics.ParserDiagnosticsManager;
 import com.dbn.editor.code.options.CodeEditorGeneralSettings;
 import com.dbn.language.common.DBLanguagePsiFile;
+import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDocumentManager;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.util.Documents.getDocument;
+import static com.dbn.common.util.Documents.onDocumentChanged;
 import static com.dbn.common.util.Editors.updateNotifications;
 import static com.dbn.common.util.Messages.options;
+import static com.dbn.diagnostics.ParserIssueEditorNotificationProvider.VALIDATION_PENDING;
 import static com.dbn.diagnostics.ParserIssueEditorNotificationProvider.markDismissed;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -35,6 +41,23 @@ public class ParserIssueEditorNotificationPanel extends EditorNotificationPanel 
 
         createActionLabel(txt("app.diagnostics.action.SubmitErrorReport"), this::submitReport);
         createActionLabel(txt("app.shared.action.Dismiss"), this::dismiss);
+
+        Document document = getDocument(psiFile);
+        if (document != null) {
+            onDocumentChanged(document, this, event -> refreshWhenValid(project));
+        }
+    }
+
+    private void refreshWhenValid(@NotNull Project project) {
+        if (contentFile.getUserData(VALIDATION_PENDING) != null) return;
+        contentFile.putUserData(VALIDATION_PENDING, true);
+
+        PsiDocumentManager.getInstance(project).performWhenAllCommitted(() -> {
+            contentFile.putUserData(VALIDATION_PENDING, null);
+            if (isDisposed() || PsiUtil.hasErrors(psiFile)) return;
+
+            updateNotifications(project, getFile());
+        });
     }
 
     private void submitReport() {

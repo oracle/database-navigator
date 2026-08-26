@@ -19,7 +19,6 @@ package com.dbn.common.expression;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.Objects;
@@ -29,8 +28,8 @@ import static com.dbn.common.expression.SqlToGroovyExpressionConverter.cachedSql
 import static com.dbn.common.expression.SqlToGroovyExpressionConverter.sqlToGroovy;
 import static com.dbn.common.thread.Timeout.call;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
-@Slf4j
 public class GroovyExpressionEvaluator implements ExpressionEvaluator{
     private static final int EVALUATION_TIMEOUT_SECONDS = 2;
     private static final Object TIMED_OUT = new Object();
@@ -42,18 +41,13 @@ public class GroovyExpressionEvaluator implements ExpressionEvaluator{
 
     @Override
     public boolean verifyExpression(@NonNls String expression, ExpressionEvaluatorContext context, Class<?> expectedOutcome) {
-        evaluate(expression, context, expectedOutcome, true);
+        evaluate(expression, context, expectedOutcome);
         return context.isValid();
     }
 
     @Override
     public <T> T evaluateExpression(@NonNls String expression, ExpressionEvaluatorContext context) {
-        try {
-            return evaluate(expression, context, null, false);
-        } catch (Throwable e) {
-            log.error("Failed to evaluate expression", e);
-            return null;
-        }
+        return evaluate(expression, context, null);
     }
 
     @Override
@@ -63,7 +57,7 @@ public class GroovyExpressionEvaluator implements ExpressionEvaluator{
     }
 
     @SneakyThrows
-    private <T> T evaluate(@NonNls String expression, ExpressionEvaluatorContext context, Class<?> expectedOutcome, boolean silent) {
+    private <T> T evaluate(@NonNls String expression, ExpressionEvaluatorContext context, Class<?> expectedOutcome) {
         try {
             expression = context.isTemporary() ? sqlToGroovy(expression) : cachedSqlToGroovy(expression);
             context.setExpression(expression);
@@ -78,8 +72,8 @@ public class GroovyExpressionEvaluator implements ExpressionEvaluator{
             verifyResult(result, expectedOutcome);
             return cast(result);
         } catch (Throwable e) {
+            conditionallyLog(e);
             context.setError(e);
-            if (!silent) throw e;
             return null;
         }
     }

@@ -22,7 +22,7 @@ import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.util.Components;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Strings;
-import com.dbn.liquibase.LiquibaseDashboardItem;
+import com.dbn.liquibase.task.LiquibaseTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +48,7 @@ public class LiquibaseDashboardItemForm extends DBNFormBase {
 
     public LiquibaseDashboardItemForm(
             @NotNull DBNFormBase parent,
-            @NotNull LiquibaseDashboardItem item,
+            @NotNull LiquibaseTask item,
             @NotNull Runnable action) {
         this(parent, item.getDashboardName(), item.getDashboardDescription(), item.getDashboardDocumentationUrl(), action);
     }

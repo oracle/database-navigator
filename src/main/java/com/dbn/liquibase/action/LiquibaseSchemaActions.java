@@ -22,6 +22,7 @@ import com.dbn.liquibase.operation.LiquibaseOperation;
 import com.dbn.liquibase.operation.action.LiquibaseOperationDashboardAction;
 import com.dbn.liquibase.operation.action.LiquibaseOperationStartAction;
 import com.dbn.liquibase.workflow.LiquibaseWorkflow;
+import com.dbn.liquibase.workflow.LiquibaseWorkflowCategory;
 import com.dbn.liquibase.workflow.action.LiquibaseWorkflowDashboardAction;
 import com.dbn.liquibase.workflow.action.LiquibaseWorkflowStartAction;
 import com.dbn.menu.action.LiquibaseWorkspacesOpenAction;
@@ -64,7 +65,12 @@ public class LiquibaseSchemaActions extends DefaultActionGroup {
         DefaultActionGroup workflowActions = new DefaultActionGroup(txt("app.liquibase.group.Workflows"), true);
         workflowActions.add(new LiquibaseWorkflowDashboardAction(schema));
         workflowActions.addSeparator();
+        LiquibaseWorkflowCategory workflowCategory = null;
         for (LiquibaseWorkflow workflow : LiquibaseWorkflow.values()) {
+            if (workflowCategory != workflow.getCategory()) {
+                workflowCategory = workflow.getCategory();
+                workflowActions.addSeparator(workflowCategory.getName());
+            }
             workflowActions.add(new LiquibaseWorkflowStartAction(schema, workflow));
         }
         add(workflowActions);

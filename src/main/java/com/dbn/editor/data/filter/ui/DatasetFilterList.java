@@ -21,12 +21,13 @@ import com.dbn.common.ui.util.Borders;
 import com.dbn.editor.data.filter.DatasetFilter;
 import com.dbn.editor.data.filter.DatasetFilterGroup;
 import com.intellij.ui.SimpleTextAttributes;
+import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-public class DatasetFilterList extends JList {
+public class DatasetFilterList extends JBList {
 
     public DatasetFilterList() {
         super();
