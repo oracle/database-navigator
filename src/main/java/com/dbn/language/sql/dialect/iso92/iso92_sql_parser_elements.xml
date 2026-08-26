@@ -1501,6 +1501,7 @@
     </element-def>
     <element-def description="Value expression" id="value_expression">
         <one-of id="00567">
+            <element ref-id="query_specification" />
             <element ref-id="numeric_value_expression" />
             <element ref-id="string_value_expression" />
             <element ref-id="datetime_value_expression" />

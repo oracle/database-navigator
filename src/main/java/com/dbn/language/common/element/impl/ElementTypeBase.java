@@ -81,9 +81,6 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
     public WrappingDefinition wrapping;
     private ElementTypeAttributeHolder attributes;
 
-    protected transient boolean initialized;
-
-
     @Override
     public ASTNode createCompositeNode() {
         return new BasicCompositeElement(this);
@@ -130,10 +127,6 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
             }
         }
         return branches;
-    }
-
-    public void initialize() {
-        this.initialized = true;
     }
 
     public String nextChildId() {

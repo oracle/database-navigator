@@ -27,6 +27,7 @@ import com.intellij.psi.tree.IElementType;
 
 VARIABLE = ":"{INTEGER}
 SQLP_VARIABLE = "&""&"?{IDENTIFIER}
+DBLINK_QUALIFIER = "@"({IDENTIFIER}|{QUOTED_IDENTIFIER})("."({IDENTIFIER}|{QUOTED_IDENTIFIER}))*
 
 %state WRAPPED
 %state CONDITIONAL
@@ -50,8 +51,9 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 "$else"            { }
 "$then"            { }
 
-{VARIABLE}       { return stt.variable; }
-{SQLP_VARIABLE}  { return stt.variable; }
+{VARIABLE}         { return stt.variable; }
+{SQLP_VARIABLE}    { return stt.variable; }
+{DBLINK_QUALIFIER} { return tt.getTokenType("CT_DBLINK_QUALIFIER"); }
 
 
 {INTEGER}     { return stt.integer; }
@@ -880,5 +882,4 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 {QUOTED_IDENTIFIER}    { return stt.identifier; }
 {WHITE_SPACE}          { return stt.whiteSpace; }
 .                      { return stt.identifier; }
-
 
