@@ -67,7 +67,6 @@ public class ElementTypeBundle {
     public final TokenTypeBundle tokenTypeBundle;
     public final BasicElementType unknownElementType;
     private NamedElementType rootElementType;
-    public final boolean legacyParser;
 
     private final DBLanguageDialect languageDialect;
     private final AtomicInteger idCursor = new AtomicInteger();
@@ -116,7 +115,6 @@ public class ElementTypeBundle {
     public ElementTypeBundle(DBLanguageDialect languageDialect, TokenTypeBundle tokenTypeBundle, Document definitionDocument, Document extensionDocument, Consumer<Builder> builderCallback) {
         this.languageDialect = languageDialect;
         this.tokenTypeBundle = tokenTypeBundle;
-        this.legacyParser = extensionDocument == null;
         this.builder = new Builder(definitionDocument, extensionDocument);
 
         this.unknownElementType = new UnknownElementType(this);
@@ -133,7 +131,6 @@ public class ElementTypeBundle {
             notifyMissingDefinitions();
             registerLeafElements();
             loadElementExtensions();
-            initializeRootElements();
 
 /*            if (builder.dirty) {
                 Unsafe.warned(() -> {
@@ -196,10 +193,6 @@ public class ElementTypeBundle {
 
     private void registerLeafElements() {
         forEach(builder.leafElementTypes, e -> e.registerLeaf());
-    }
-
-    private void initializeRootElements() {
-        forEach(builder.rootElementTypes, e -> e.initialize());
     }
 
     public short nextIndex() {

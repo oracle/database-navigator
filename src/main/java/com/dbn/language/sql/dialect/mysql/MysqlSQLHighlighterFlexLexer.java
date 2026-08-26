@@ -4242,7 +4242,7 @@ public final class MysqlSQLHighlighterFlexLexer implements FlexLexer {
           // fall through
           case 25: break;
           case 8:
-            { return tt.getTokenType("OPERATOR");
+            { return tt.operator;
             }
           // fall through
           case 26: break;
@@ -4272,27 +4272,27 @@ public final class MysqlSQLHighlighterFlexLexer implements FlexLexer {
           // fall through
           case 31: break;
           case 14:
-            { return tt.getTokenType("VARIABLE");
+            { return tt.variable;
             }
           // fall through
           case 32: break;
           case 15:
-            { return tt.getTokenType("KEYWORD");
+            { return tt.keyword;
             }
           // fall through
           case 33: break;
           case 16:
-            { return tt.getTokenType("FUNCTION");
+            { return tt.function;
             }
           // fall through
           case 34: break;
           case 17:
-            { return tt.getTokenType("DATA_TYPE");
+            { return tt.dataType;
             }
           // fall through
           case 35: break;
           case 18:
-            { return tt.getTokenType("PARAMETER");
+            { return tt.parameter;
             }
           // fall through
           case 36: break;

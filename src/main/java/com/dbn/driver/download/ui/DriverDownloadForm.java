@@ -89,7 +89,10 @@ public class DriverDownloadForm extends DBNFormBase {
     }
 
     private void handleInfoButtonClick() {
-        Dialogs.show(() -> new DriverPackageInfoDialog(getProject(), "Driver Package Info", true, getSelection(libraryPackageComboBox)));
+        DriverPackage driverPackage = getSelection(libraryPackageComboBox);
+        if (driverPackage == null) return;
+
+        Dialogs.show(() -> new DriverPackageInfoDialog(getProject(), "Driver Package Info", true, driverPackage));
     }
 
 }

@@ -24,7 +24,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 class TextEditorRevertAction extends TextEditorAction {
     public TextEditorRevertAction() {
-        super(txt("app.dataEditor.action.RevertChanges"), null, Icons.TEXT_CELL_EDIT_REVERT);
+        super(txt("app.dataEditor.button.RevertChanges"), null, Icons.TEXT_CELL_EDIT_REVERT);
     }
 
     @Override

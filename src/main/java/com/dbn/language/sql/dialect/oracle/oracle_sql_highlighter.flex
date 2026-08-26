@@ -49,19 +49,19 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
     {VARIABLE_IDENTIFIER} { return stt.identifier; }
     {SQLP_VARIABLE}       { return stt.variable; }
 
-    {PLSQL_BLOCK_START}   { yybegin(PSQL_BLOCK); return tt.getKeyword();}
+    {PLSQL_BLOCK_START}   { yybegin(PSQL_BLOCK); return tt.keyword;}
     {SELECT_AI_START}     { yybegin(SELECT_AI); yypushback(yylength());}
 
-    {INTEGER}             { return tt.getInteger(); }
-    {NUMBER}              { return tt.getNumber(); }
-    {STRING}              { return tt.getString(); }
+    {INTEGER}             { return tt.integer; }
+    {NUMBER}              { return tt.number; }
+    {STRING}              { return tt.string; }
 
-    {SQL_FUNCTION}        { return tt.getFunction();}
-    {SQL_PARAMETER}       { return tt.getParameter();}
-    {SQL_DATATYPE}        { return tt.getDataType(); }
-    {SQL_KEYWORD}         { return tt.getKeyword(); }
+    {SQL_FUNCTION}        { return tt.function;}
+    {SQL_PARAMETER}       { return tt.parameter;}
+    {SQL_DATATYPE}        { return tt.dataType; }
+    {SQL_KEYWORD}         { return tt.keyword; }
 
-    {OPERATOR}            { return tt.getOperator(); }
+    {OPERATOR}            { return tt.operator; }
     {IDENTIFIER}          { return stt.identifier; }
     {QUOTED_IDENTIFIER}   { return stt.identifier; }
 
@@ -85,17 +85,17 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 
     {PLSQL_BLOCK_END}     { yybegin(YYINITIAL); return stt.identifier; }
 
-    {INTEGER}             { return tt.getInteger(); }
-    {NUMBER}              { return tt.getNumber(); }
-    {STRING}              { return tt.getString(); }
+    {INTEGER}             { return tt.integer; }
+    {NUMBER}              { return tt.number; }
+    {STRING}              { return tt.string; }
 
-    {PLSQL_FUNCTION}      { return tt.getFunction();}
-    {PLSQL_PARAMETER}     { return tt.getParameter();}
-    {PLSQL_EXCEPTION}     { return tt.getException();}
-    {PLSQL_DATATYPE}      { return tt.getDataType(); }
-    {PLSQL_KEYWORD}       { return tt.getKeyword(); }
+    {PLSQL_FUNCTION}      { return tt.function;}
+    {PLSQL_PARAMETER}     { return tt.parameter;}
+    {PLSQL_EXCEPTION}     { return tt.exception;}
+    {PLSQL_DATATYPE}      { return tt.dataType; }
+    {PLSQL_KEYWORD}       { return tt.keyword; }
 
-    {OPERATOR}            { return tt.getOperator(); }
+    {OPERATOR}            { return tt.operator; }
     {IDENTIFIER}          { return stt.identifier; }
     {QUOTED_IDENTIFIER}   { return stt.identifier; }
 
@@ -111,14 +111,14 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 }
 
 <SELECT_AI> {
-    "select"           { return tt.getKeyword(); }
-    "ai"               { return tt.getKeyword(); }
-    "showprompt"       { return tt.getKeyword(); }
-    "showsql"          { return tt.getKeyword(); }
-    "explainsql"       { return tt.getKeyword(); }
-    "executesql"       { return tt.getKeyword(); }
-    "narrate"          { return tt.getKeyword(); }
-    "chat"             { return tt.getKeyword(); }
+    "select"           { return tt.keyword; }
+    "ai"               { return tt.keyword; }
+    "showprompt"       { return tt.keyword; }
+    "showsql"          { return tt.keyword; }
+    "explainsql"       { return tt.keyword; }
+    "executesql"       { return tt.keyword; }
+    "narrate"          { return tt.keyword; }
+    "chat"             { return tt.keyword; }
     {STRING}           { yybegin(YYINITIAL); return stt.string; }    // string is allowed to have eols
     {eol}              { yybegin(YYINITIAL); return stt.whiteSpace;} // end of line -> exit the SELECT_AI block
     ";"                { yybegin(YYINITIAL); return stt.chrSemicolon;}
@@ -126,4 +126,3 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
     [^\r\n\t\f ;/]+    { return stt.string;}
     {wsc}+             { return stt.whiteSpace; }
 }
-

@@ -72,6 +72,7 @@ import static com.dbn.vfs.DBConsoleType.SEARCH;
 public class EmbeddingResultSummaryForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel messagePanel;
+    private DBNMessageForm messageForm;
     private JLabel sourceTypeLabel;
     private JLabel sourceCountLabel;
     private JLabel embeddedRowsLabel;
@@ -180,9 +181,7 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
         sourceTypeLabel.setText(sourceConfig.getSourceType().getName());
         sourceCountLabel.setText(sourceConfig.getSourceCount() + "");
 
-        embeddedRowsLabel.setText(result.getTotalInsertedRows() +"");
-        successRateLabel.setText(result.getSuccessRate() + "%");
-        taskDurationLabel.setText(presentableDuration(result.getDuration(), true));
+        updateSummaryLabels();
 
         stagingTableInfoLabel.setContent(html(this, "info/embedding_staging_table_info.html.ft"));
         embeddingsTableInfoLabel.setContent(html(this, "info/embedding_destination_table_info.html.ft"));
@@ -235,8 +234,19 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
 
     private void initMessagePanel() {
         TitledMessage message = result.getSummaryMessage();
-        DBNMessageForm messageForm = new DBNMessageForm(this, message);
+        messageForm = new DBNMessageForm(this, message);
         messagePanel.add(messageForm.getComponent());
+    }
+
+    public void refresh() {
+        updateSummaryLabels();
+        messageForm.setMessage(result.getSummaryMessage());
+    }
+
+    private void updateSummaryLabels() {
+        embeddedRowsLabel.setText(result.getTotalInsertedRows() + "");
+        successRateLabel.setText(result.getSuccessRate() + "%");
+        taskDurationLabel.setText(presentableDuration(result.getDuration(), true));
     }
 
     @Override

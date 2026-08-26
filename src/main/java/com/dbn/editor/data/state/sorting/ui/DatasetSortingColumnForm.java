@@ -19,7 +19,6 @@ package com.dbn.editor.data.state.sorting.ui;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.ValueSelector;
-import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Actions;
@@ -61,7 +60,6 @@ public class DatasetSortingColumnForm extends DBNFormBase {
         DBColumn column = sortingInstruction.getColumn(dataset);
         columnComboBox.setValues(dataset.getColumns());
         columnComboBox.setSelectedValue(column);
-        columnComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
         columnComboBox.setBackground(Colors.getTextFieldBackground());
         dataTypeLabel.setText(column.getDataType().getQualifiedName());
         dataTypeLabel.setForeground(UIUtil.getInactiveTextColor());
@@ -81,7 +79,7 @@ public class DatasetSortingColumnForm extends DBNFormBase {
 
     private class ColumnSelector extends ValueSelector<DBColumn>{
         ColumnSelector(DBColumn selectedColumn) {
-            super(Icons.DBO_COLUMN_HIDDEN, txt("app.dataEditor.action.SelectColumn"), selectedColumn, ValueSelectorOption.HIDE_DESCRIPTION);
+            super(Icons.DBO_COLUMN_HIDDEN, txt("app.dataEditor.action.SelectColumn"), selectedColumn);
             addListener((oldValue, newValue) -> {
                 sortingInstruction.setColumnName(newValue.getName());
                 dataTypeLabel.setText(newValue.getDataType().getQualifiedName());

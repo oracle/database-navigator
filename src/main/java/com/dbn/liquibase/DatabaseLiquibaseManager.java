@@ -20,6 +20,9 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.environment.EnvironmentTypeBundle;
+import com.dbn.common.environment.EnvironmentTypeId;
+import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.state.StateCategory;
@@ -38,13 +41,20 @@ import com.dbn.liquibase.operation.LiquibaseOperation;
 import com.dbn.liquibase.operation.LiquibaseOperationContext;
 import com.dbn.liquibase.operation.LiquibaseOperationInput;
 import com.dbn.liquibase.operation.LiquibaseOperationResult;
+import com.dbn.liquibase.task.LiquibaseTaskResult;
+import com.dbn.liquibase.workflow.LiquibaseWorkflowContext;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowExecutor;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowInput;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfileBundle;
 import com.dbn.liquibase.workspace.LiquibaseWorkspace;
 import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
-import com.dbn.liquibase.workspace.ui.LiquibaseWorkspaceBundleSettingsDialog;
-import com.dbn.liquibase.workspace.ui.LiquibaseWorkspaceSettingsDialog;
+import com.dbn.liquibase.workspace.ui.LiquibaseEnvironmentProfileDialog;
+import com.dbn.liquibase.workspace.ui.LiquibaseEnvironmentProfilesDialog;
+import com.dbn.liquibase.workspace.ui.LiquibaseWorkspaceDialog;
+import com.dbn.liquibase.workspace.ui.LiquibaseWorkspacesDialog;
+import com.dbn.options.general.GeneralProjectSettings;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -54,13 +64,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.task.TaskStatus.PAUSED;
 import static com.dbn.common.util.Dialogs.whenOk;
 import static com.dbn.connection.config.ConnectionConfigListener.whenRemoved;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
         name = DatabaseLiquibaseManager.COMPONENT_NAME,
@@ -71,15 +81,28 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
 
     private final StateContainer states = new StateContainer();
     private final LiquibaseWorkspaceBundle workspaces;
+    private final LiquibaseEnvironmentProfileBundle environmentProfiles;
     private final LiquibaseExecutionHistory executionHistory = new LiquibaseExecutionHistory();
-    private final Map<LiquibaseOperationResult, LiquibaseOperationContext> executionContexts = new ConcurrentHashMap<>();
-    private final Map<LiquibaseWorkflowResult, LiquibaseWorkflowExecutor> workflowExecutors = new ConcurrentHashMap<>();
 
     private DatabaseLiquibaseManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
         workspaces = new LiquibaseWorkspaceBundle(project);
+        environmentProfiles = new LiquibaseEnvironmentProfileBundle(project);
         ProjectEvents.subscribe(project, this, ConnectionConfigListener.TOPIC,
                 whenRemoved(c -> executionHistory.removeConnection(c)));
+        ProjectEvents.subscribe(project, this, EnvironmentManagerListener.TOPIC,
+                environmentManagerListener());
+    }
+
+    private @NotNull EnvironmentManagerListener environmentManagerListener() {
+        return new EnvironmentManagerListener() {
+            @Override
+            public void configurationChanged(Project project) {
+                GeneralProjectSettings projectSettings = GeneralProjectSettings.getInstance(project);
+                EnvironmentTypeBundle environmentTypes = projectSettings.getEnvironmentSettings().getEnvironmentTypes();
+                environmentProfiles.removeOrphanedProfiles(environmentTypes);
+            }
+        };
     }
 
     public static DatabaseLiquibaseManager getInstance(@NotNull Project project) {
@@ -89,6 +112,11 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     @NotNull
     public LiquibaseWorkspaceBundle getWorkspaces() {
         return workspaces;
+    }
+
+    @NotNull
+    public LiquibaseEnvironmentProfileBundle getEnvironmentProfiles() {
+        return environmentProfiles;
     }
 
     @NotNull
@@ -118,27 +146,69 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     }
 
     public void openWorkspaceSettings() {
-        Dialogs.show(() -> new LiquibaseWorkspaceBundleSettingsDialog(workspaces),
+        Dialogs.show(() -> new LiquibaseWorkspacesDialog(workspaces),
                 whenOk(d -> workspaces.replaceWorkspaces(d.getWorkspaces())));
     }
 
-    public void cancelExecution(@NotNull LiquibaseOperationResult result) {
-        LiquibaseOperationContext context = executionContexts.get(result);
-        if (context != null) context.cancel();
+    public void openEnvironmentProfiles() {
+        Dialogs.show(() -> new LiquibaseEnvironmentProfilesDialog(getProject(), environmentProfiles),
+                whenOk(d -> environmentProfiles.replaceProfiles(d.getBundle())));
     }
 
-    public void registerExecutionContext(
-            @NotNull LiquibaseOperationResult result,
-            @NotNull LiquibaseOperationContext context) {
-        executionContexts.put(result, context);
+    public void openEnvironmentProfileCreationDialog(
+            @NotNull EnvironmentTypeId environmentTypeId,
+            @NotNull Consumer<LiquibaseEnvironmentProfile> consumer) {
+        LiquibaseEnvironmentProfile profile = new LiquibaseEnvironmentProfile(
+                txt("app.liquibase.placeholder.NewEnvironmentProfile"),
+                environmentTypeId);
+
+        Dialogs.show(
+                () -> new LiquibaseEnvironmentProfileDialog(environmentProfiles, profile, true),
+                whenOk(d -> consumer.accept(d.getProfile())));
     }
 
-    public void unregisterExecutionContext(@NotNull LiquibaseOperationResult result) {
-        executionContexts.remove(result);
+    public void cancelTask(@NotNull LiquibaseTaskResult<?, ?, ?> result) {
+        if (result instanceof LiquibaseOperationResult operationResult) {
+            LiquibaseOperationContext context = operationResult.getContext();
+            if (context == null) return;
+
+            context.cancel();
+            if (operationResult.getStatus() == PAUSED) {
+                operationResult.notifyCancelled();
+            }
+
+            LiquibaseWorkflowResult workflowResult = operationResult.getWorkflowResult();
+            if (workflowResult != null) {
+                cancelTask(workflowResult);
+            }
+        } else if (result instanceof LiquibaseWorkflowResult workflowResult) {
+            LiquibaseWorkflowContext context = workflowResult.getContext();
+            LiquibaseWorkflowExecutor executor = context.getExecutor();
+            executor.cancel();
+        }
     }
 
-    public void rerunOperation(@NotNull LiquibaseOperationResult previousResult) {
-        executeOperation(previousResult.getInput(), previousResult);
+    public void resumeOperation(@NotNull LiquibaseOperationResult result) {
+        LiquibaseWorkflowResult workflowResult = result.getWorkflowResult();
+        if (workflowResult != null) {
+            LiquibaseWorkflowContext context = workflowResult.getContext();
+            LiquibaseWorkflowExecutor executor = context.getExecutor();
+            Background.run(() -> executor.resume(result));
+        } else {
+            LiquibaseOperationContext context = result.getContext();
+            if (context == null) return;
+
+            LiquibaseExecutionProcessor processor = LiquibaseExecutionProcessors.get(result.getOperation());
+            Background.run(() -> processor.execute(context));
+        }
+    }
+
+    public void rerunTask(@NotNull LiquibaseTaskResult<?, ?, ?> previousResult) {
+        if (previousResult instanceof LiquibaseOperationResult operationResult) {
+            executeOperation(operationResult.getInput(), operationResult);
+        } else if (previousResult instanceof LiquibaseWorkflowResult workflowResult) {
+            executeWorkflow(workflowResult.getInput(), workflowResult);
+        }
     }
 
     public void executeOperation(
@@ -147,47 +217,27 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
 
         LiquibaseOperation operation = input.getOperation();
         LiquibaseExecutionProcessor processor = LiquibaseExecutionProcessors.get(operation);
-        LiquibaseOperationContext context = new LiquibaseOperationContext(input);
-        LiquibaseOperationResult result = context.prepareExecutionResult();
+        LiquibaseOperationContext context = new LiquibaseOperationContext(input, null);
+        LiquibaseOperationResult result = context.getResult();
         result.setPrevious(previousResult);
-        registerExecutionContext(result, context);
 
         ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
         executionManager.addExecutionResult(result);
-        Background.run(() -> {
-            try {
-                processor.execute(context);
-            } finally {
-                unregisterExecutionContext(result);
-            }
-        });
-    }
-
-    public void rerunWorkflow(@NotNull LiquibaseWorkflowResult previousResult) {
-        executeWorkflow(previousResult.getInput(), previousResult);
+        Background.run(() -> processor.execute(context));
     }
 
     public void executeWorkflow(
             @NotNull LiquibaseWorkflowInput input,
             @Nullable LiquibaseWorkflowResult previousResult) {
-        LiquibaseWorkflowResult result = new LiquibaseWorkflowResult(input);
+        LiquibaseWorkflowContext context = new LiquibaseWorkflowContext(input);
+        LiquibaseWorkflowResult result = context.getResult();
         result.setPrevious(previousResult);
-        LiquibaseWorkflowExecutor executor = new LiquibaseWorkflowExecutor(result);
-        workflowExecutors.put(result, executor);
 
-        ExecutionManager.getInstance(getProject()).addExecutionResult(result);
-        Background.run(() -> {
-            try {
-                executor.execute();
-            } finally {
-                workflowExecutors.remove(result);
-            }
-        });
-    }
+        ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
+        executionManager.addExecutionResult(result);
 
-    public void cancelWorkflow(@NotNull LiquibaseWorkflowResult result) {
-        LiquibaseWorkflowExecutor executor = workflowExecutors.get(result);
-        if (executor != null) executor.cancel();
+        LiquibaseWorkflowExecutor executor = context.getExecutor();
+        Background.run(() -> executor.execute());
     }
 
     public void openWorkspaceCreationDialog(
@@ -197,7 +247,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         workspace.setDatabaseType(databaseType);
 
         Dialogs.show(
-                () -> new LiquibaseWorkspaceSettingsDialog(
+                () -> new LiquibaseWorkspaceDialog(
                         workspaces,
                         workspace,
                         databaseType, true),
@@ -212,6 +262,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         Element element = newStateElement();
         states.writeState(element);
         workspaces.writeState(element, "workspaces");
+        environmentProfiles.writeState(element, "environment-profiles");
         executionHistory.writeState(element, "execution-history");
 
         return element;
@@ -221,6 +272,7 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     public void loadComponentState(@NotNull Element element) {
         states.readState(element);
         workspaces.readState(element, "workspaces");
+        environmentProfiles.readState(element, "environment-profiles");
         executionHistory.readState(element, "execution-history");
     }
 }
