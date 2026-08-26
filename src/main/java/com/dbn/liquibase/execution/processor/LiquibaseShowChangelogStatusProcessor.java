@@ -28,7 +28,6 @@ import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
-import java.util.Map;
 
 import static com.dbn.liquibase.execution.LiquibaseCommands.SHOW_CHANGELOG_STATUS;
 import static com.dbn.nls.NlsResources.txt;
@@ -76,9 +75,11 @@ public class LiquibaseShowChangelogStatusProcessor extends LiquibaseExecutionPro
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
         LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
-        executeCommand(SHOW_CHANGELOG_STATUS, output, Map.of(
+
+        var arguments = arguments(
                 "database", database,
                 "changelogFile", paths.getMasterChangelogRelativePath(),
-                "verbose", true));
+                "verbose", true);
+        executeCommand(SHOW_CHANGELOG_STATUS, context, output, arguments);
     }
 }

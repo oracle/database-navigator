@@ -21,6 +21,7 @@ import com.dbn.code.common.lookup.CodeCompletionLookupItem;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementType;
@@ -74,8 +75,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.language.common.psi.lookup.LookupAdapters.aliasDefinition;
 import static com.dbn.object.DBSynonym.unwrap;
+import static com.dbn.object.type.DBObjectType.ANY;
 import static com.dbn.object.type.DBObjectType.SYNONYM;
 
 public class CodeCompletionProvider extends CompletionProvider<CompletionParameters> {
@@ -345,7 +349,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
     }
 
     private static void collectAliasElements(LeafPsiElement<?> scopeElement, CodeCompletionLookupConsumer consumer, DBObjectType objectType) {
-        PsiLookupAdapter lookupAdapter = LookupAdapters.aliasDefinition(objectType);
+        PsiLookupAdapter lookupAdapter = aliasDefinition(objectType);
         lookupAdapter.collectInParentScopeOf(scopeElement, consumer);
     }
 
@@ -375,29 +379,29 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
     }
 
     private static void buildAliasDefinitionNames(BasePsiElement aliasElement, CodeCompletionLookupConsumer consumer) {
-        IdentifierPsiElement aliasedObject = PsiUtil.lookupObjectPriorTo(aliasElement, DBObjectType.ANY);
+        IdentifierPsiElement aliasedObject = PsiUtil.lookupObjectPriorTo(aliasElement, ANY);
         if (aliasedObject == null) return;
         if (!aliasedObject.isObject()) return;
 
         CharSequence unquotedText = aliasedObject.getUnquotedText();
-        if (unquotedText.length() == 0) return;
+        if (unquotedText.isEmpty()) return;
 
         String[] aliasNames = Naming.createAliasNames(unquotedText);
-        BasePsiElement scope = aliasElement.getEnclosingScopeElement();
-
         for (int i = 0; i< aliasNames.length; i++) {
-            while (true) {
-                PsiLookupAdapter lookupAdapter = LookupAdapters.aliasDefinition(null, DBObjectType.ANY, aliasNames[i]);
-                boolean isExisting = scope != null && lookupAdapter.findInScope(scope) != null;
-                boolean isKeyword = aliasElement.getLanguageDialect().isReservedWord(aliasNames[i]);
-                if (isKeyword || isExisting) {
-                    aliasNames[i] = Naming.nextNumberedIdentifier(aliasNames[i], false);
-                } else {
-                    break;
-                }
-            }
+            aliasNames[i] = nextNumberedIdentifier(aliasNames[i], false, a -> isAliasNameTaken(aliasElement, a));
         }
         consumer.accept(aliasNames);
+    }
+
+    private static boolean isAliasNameTaken(BasePsiElement aliasElement, String name) {
+        DBLanguageDialect dialect = aliasElement.getLanguageDialect();
+        if (dialect.isReservedWord(name)) return true;
+
+        BasePsiElement scope = aliasElement.getEnclosingScopeElement();
+        if (scope == null) return false;
+
+        PsiLookupAdapter lookupAdapter = aliasDefinition(null, ANY, name);
+        return lookupAdapter.findInScope(scope) != null;
     }
 
     private static void collectObjectMatchingScope(

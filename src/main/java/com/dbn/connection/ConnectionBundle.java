@@ -70,7 +70,7 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
                 ConnectionId.VIRTUAL_ORACLE,
                 new VirtualConnectionHandler(
                         ConnectionId.VIRTUAL_ORACLE,
-                        "Virtual - Oracle 10.1",
+                        "Virtual - Oracle 26.0",
                         DatabaseType.ORACLE,
                         10.1,
                         this));
@@ -95,7 +95,7 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
         virtualConnections.put(ConnectionId.VIRTUAL_SQLITE,
                 new VirtualConnectionHandler(
                         ConnectionId.VIRTUAL_SQLITE,
-                        "Virtual - SQLite 3.10.2",
+                        "Virtual - SQLite 3.53.3",
                         DatabaseType.SQLITE,
                         3.10,
                         this));

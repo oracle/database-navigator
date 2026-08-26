@@ -23,6 +23,7 @@ import com.dbn.assistant.editor.SQLChatMessageConverter;
 import com.dbn.assistant.tool.event.AssistantToolStatus;
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.assistant.tool.execution.AssistantToolResponse;
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
 import com.dbn.common.state.PersistentStateElement;
@@ -63,7 +64,7 @@ import static com.dbn.common.util.Lists.removeLast;
 
 @Getter
 @Setter
-public class ChatMessage implements PersistentStateElement {
+public class ChatMessage implements PersistentStateElement, Identifiable<String> {
     /**
      * Unique identifier of the chat message to establish causality relations and chaining of messages
      */

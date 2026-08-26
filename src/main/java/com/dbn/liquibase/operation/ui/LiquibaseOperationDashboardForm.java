@@ -27,12 +27,12 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationCategory;
 import com.dbn.liquibase.operation.LiquibaseOperationInput;
 import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Box;
@@ -52,31 +52,6 @@ import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.util.Dialogs.show;
 import static com.dbn.common.util.Dialogs.whenOk;
 import static com.dbn.common.util.Lists.filter;
-import static com.dbn.liquibase.operation.LiquibaseOperation.CALCULATE_CHECKSUMS;
-import static com.dbn.liquibase.operation.LiquibaseOperation.CLEAR_CHECKSUMS;
-import static com.dbn.liquibase.operation.LiquibaseOperation.COMPARE_SCHEMAS;
-import static com.dbn.liquibase.operation.LiquibaseOperation.DROP_ALL;
-import static com.dbn.liquibase.operation.LiquibaseOperation.FUTURE_ROLLBACK;
-import static com.dbn.liquibase.operation.LiquibaseOperation.GENERATE_CHANGELOG;
-import static com.dbn.liquibase.operation.LiquibaseOperation.GENERATE_DATABASE_DOCUMENTATION;
-import static com.dbn.liquibase.operation.LiquibaseOperation.GENERATE_DIFF_CHANGELOG;
-import static com.dbn.liquibase.operation.LiquibaseOperation.LIST_LOCKS;
-import static com.dbn.liquibase.operation.LiquibaseOperation.MARK_NEXT_CHANGESET_RAN;
-import static com.dbn.liquibase.operation.LiquibaseOperation.RELEASE_LOCKS;
-import static com.dbn.liquibase.operation.LiquibaseOperation.ROLLBACK_CHANGESETS;
-import static com.dbn.liquibase.operation.LiquibaseOperation.ROLLBACK_SQL;
-import static com.dbn.liquibase.operation.LiquibaseOperation.SHOW_CHANGELOG_HISTORY;
-import static com.dbn.liquibase.operation.LiquibaseOperation.SHOW_CHANGELOG_STATUS;
-import static com.dbn.liquibase.operation.LiquibaseOperation.SNAPSHOT_DATABASE;
-import static com.dbn.liquibase.operation.LiquibaseOperation.SYNCHRONIZE_CHANGELOG;
-import static com.dbn.liquibase.operation.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_SQL;
-import static com.dbn.liquibase.operation.LiquibaseOperation.SYNCHRONIZE_CHANGELOG_TO_TAG;
-import static com.dbn.liquibase.operation.LiquibaseOperation.TAG_DATABASE;
-import static com.dbn.liquibase.operation.LiquibaseOperation.UNEXPECTED_CHANGESETS;
-import static com.dbn.liquibase.operation.LiquibaseOperation.UPDATE_DATABASE;
-import static com.dbn.liquibase.operation.LiquibaseOperation.UPDATE_SQL;
-import static com.dbn.liquibase.operation.LiquibaseOperation.UPDATE_TESTING_ROLLBACK;
-import static com.dbn.liquibase.operation.LiquibaseOperation.VALIDATE_CHANGELOG;
 import static com.dbn.liquibase.operation.LiquibaseOperationConfirmations.confirmWorkspaceAvailable;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
@@ -157,24 +132,23 @@ public class LiquibaseOperationDashboardForm extends DBNFormBase {
     }
 
     private void initOperationsPanel() {
-        addCategory("Changelog", GENERATE_CHANGELOG, GENERATE_DIFF_CHANGELOG, VALIDATE_CHANGELOG);
-        addCategory("Deploy", UPDATE_DATABASE, ROLLBACK_CHANGESETS, TAG_DATABASE, UPDATE_TESTING_ROLLBACK);
-        addCategory("Inspect", SHOW_CHANGELOG_STATUS, SHOW_CHANGELOG_HISTORY, UNEXPECTED_CHANGESETS, COMPARE_SCHEMAS, SNAPSHOT_DATABASE, GENERATE_DATABASE_DOCUMENTATION);
-        addCategory("Maintenance", SYNCHRONIZE_CHANGELOG, SYNCHRONIZE_CHANGELOG_TO_TAG, LIST_LOCKS, RELEASE_LOCKS, CALCULATE_CHECKSUMS, CLEAR_CHECKSUMS, MARK_NEXT_CHANGESET_RAN);
-        addCategory("PreviewSql", UPDATE_SQL, ROLLBACK_SQL, FUTURE_ROLLBACK, SYNCHRONIZE_CHANGELOG_SQL);
-        addCategory("More", DROP_ALL);
+        for (LiquibaseOperationCategory category : LiquibaseOperationCategory.values()) {
+            addCategory(category);
+        }
     }
 
-    private void addCategory(@NotNull @NonNls String key, @NotNull LiquibaseOperation... operations) {
+    private void addCategory(@NotNull LiquibaseOperationCategory category) {
         JPanel itemsPanel = new JPanel();
         verticalBoxLayout(itemsPanel);
-        for (LiquibaseOperation operation : operations) addOperation(itemsPanel, operation);
+        for (LiquibaseOperation operation : LiquibaseOperation.values()) {
+            if (operation.getCategory() == category) addOperation(itemsPanel, operation);
+        }
         itemsPanel.add(Box.createVerticalGlue());
 
         JScrollPane scrollPane = new JScrollPane(itemsPanel);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setBorder(null);
-        operationsPanel.addTab(txt("app.liquibase.group." + key), scrollPane);
+        operationsPanel.addTab(category.getName(), scrollPane);
     }
 
     private void addOperation(@NotNull JPanel parent, @NotNull LiquibaseOperation operation) {

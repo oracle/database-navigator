@@ -6,12 +6,18 @@
  * You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.dbn.liquibase.workflow;
 
-import com.dbn.liquibase.LiquibaseDashboardItem;
 import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.task.LiquibaseTask;
 import lombok.Getter;
 
 import java.util.List;
@@ -30,43 +36,66 @@ import static com.dbn.liquibase.operation.LiquibaseOperation.UNEXPECTED_CHANGESE
 import static com.dbn.liquibase.operation.LiquibaseOperation.UPDATE_DATABASE;
 import static com.dbn.liquibase.operation.LiquibaseOperation.UPDATE_SQL;
 import static com.dbn.liquibase.operation.LiquibaseOperation.VALIDATE_CHANGELOG;
+import static com.dbn.liquibase.workflow.LiquibaseWorkflowCategory.DEPLOY;
+import static com.dbn.liquibase.workflow.LiquibaseWorkflowCategory.PREPARE;
+import static com.dbn.liquibase.workflow.LiquibaseWorkflowCategory.RECOVER;
+import static com.dbn.liquibase.workflow.LiquibaseWorkflowCategory.REVIEW;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Defines a reusable sequence of Liquibase operations. */
 @Getter
-public enum LiquibaseWorkflow implements LiquibaseDashboardItem {
-    VALIDATE_AND_APPLY(
-            VALIDATE_CHANGELOG,
-            SHOW_CHANGELOG_STATUS,
-            UPDATE_SQL,
-            UPDATE_DATABASE),
-    COMPARE_AND_GENERATE(
-            COMPARE_SCHEMAS,
-            GENERATE_DIFF_CHANGELOG),
-    COMPARE_GENERATE_AND_APPLY(
-            COMPARE_SCHEMAS,
-            GENERATE_DIFF_CHANGELOG,
-            VALIDATE_CHANGELOG,
-            UPDATE_DATABASE),
-    GENERATE_AND_DOCUMENT(
-            GENERATE_CHANGELOG,
-            VALIDATE_CHANGELOG,
-            GENERATE_DATABASE_DOCUMENTATION),
-    ROLLBACK_SAFELY(
-            SHOW_CHANGELOG_HISTORY,
-            ROLLBACK_SQL,
-            ROLLBACK_CHANGESETS),
-    DIAGNOSE_DATABASE(
+public enum LiquibaseWorkflow implements LiquibaseTask {
+    DIAGNOSE_DATABASE(REVIEW,
             VALIDATE_CHANGELOG,
             SHOW_CHANGELOG_STATUS,
             UNEXPECTED_CHANGESETS,
             CALCULATE_CHECKSUMS,
-            LIST_LOCKS);
+            LIST_LOCKS),
+    VALIDATE_AND_PREVIEW(REVIEW,
+            VALIDATE_CHANGELOG,
+            SHOW_CHANGELOG_STATUS,
+            UPDATE_SQL),
+    DRIFT_AUDIT(REVIEW,
+            COMPARE_SCHEMAS,
+            GENERATE_DIFF_CHANGELOG,
+            VALIDATE_CHANGELOG),
+    COMPARE_AND_GENERATE(PREPARE,
+            COMPARE_SCHEMAS,
+            GENERATE_DIFF_CHANGELOG),
+    GENERATE_AND_DOCUMENT(PREPARE,
+            GENERATE_CHANGELOG,
+            VALIDATE_CHANGELOG,
+            GENERATE_DATABASE_DOCUMENTATION),
+    COMPARE_GENERATE_AND_APPLY(DEPLOY,
+            COMPARE_SCHEMAS,
+            GENERATE_DIFF_CHANGELOG,
+            VALIDATE_CHANGELOG,
+            UPDATE_DATABASE),
+    VALIDATE_AND_APPLY(DEPLOY,
+            VALIDATE_CHANGELOG,
+            SHOW_CHANGELOG_STATUS,
+            UPDATE_SQL,
+            UPDATE_DATABASE),
+    DEPLOY_AND_VERIFY(DEPLOY,
+            VALIDATE_CHANGELOG,
+            UPDATE_SQL,
+            UPDATE_DATABASE,
+            SHOW_CHANGELOG_STATUS),
+    RELEASE_CHECKPOINT(DEPLOY,
+            VALIDATE_CHANGELOG,
+            UPDATE_DATABASE,
+            SHOW_CHANGELOG_HISTORY),
+    ROLLBACK_SAFELY(RECOVER,
+            SHOW_CHANGELOG_HISTORY,
+            ROLLBACK_SQL,
+            ROLLBACK_CHANGESETS);
 
     private final List<LiquibaseOperation> operations;
+    private final LiquibaseWorkflowCategory category;
     private final LiquibaseWorkflowSupport support;
 
-    LiquibaseWorkflow(LiquibaseOperation... operations) {
+    LiquibaseWorkflow(LiquibaseWorkflowCategory category, LiquibaseOperation... operations) {
+        this.category = category;
         this.operations = List.of(operations);
         this.support = new LiquibaseWorkflowSupport(this);
     }

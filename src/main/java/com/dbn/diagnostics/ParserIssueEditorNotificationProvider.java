@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ParserIssueEditorNotificationProvider extends EditorNotificationProvider<ParserIssueEditorNotificationPanel> {
     public static final Key<String> DISMISSED_CONTENT = Key.create("DBNavigator.ParserIssueNotificationDismissedContent");
+    public static final Key<Boolean> VALIDATION_PENDING = Key.create("DBNavigator.ParserIssueNotificationValidationPending");
     private static final Key<ParserIssueEditorNotificationPanel> KEY = Key.create("DBNavigator.ParserIssueEditorNotificationPanel");
 
     @Override

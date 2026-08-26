@@ -19,9 +19,10 @@ package com.dbn.assistant.profile;
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderId;
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.ui.Presentable;
 
-public interface AssistantProfile extends Presentable {
+public interface AssistantProfile extends Presentable, Identifiable<String> {
     String getId();
     AssistantType getAssistantType();
     AIProviderId getProviderId();

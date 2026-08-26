@@ -24,8 +24,6 @@ import com.dbn.object.DBSchema;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.liquibase.execution.LiquibaseCommands.TAG;
 import static com.dbn.nls.NlsResources.txt;
@@ -49,8 +47,7 @@ public class LiquibaseTagDatabaseProcessor extends LiquibaseExecutionProcessor {
         withLiquibaseDatabase(context, false, targetSchema, database ->
                 withLiquibaseScope(context, classLoaderAccessor(), null,
                         output -> executeTag(
-                                context,
-                                database,
+                                database, context,
                                 output)));
 
         rememberTag(context, targetSchema, tag);
@@ -58,13 +55,15 @@ public class LiquibaseTagDatabaseProcessor extends LiquibaseExecutionProcessor {
     }
 
     private void executeTag(
-            @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
+            @NotNull LiquibaseOperationContext context,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
         String tag = context.getInput().getDatabaseTag();
-        executeCommand(TAG, output, Map.of(
+
+        var arguments = arguments(
                 "database", database,
-                "tag", tag));
+                "tag", tag);
+        executeCommand(TAG, context, output, arguments);
     }
 
 }

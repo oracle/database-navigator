@@ -16,9 +16,12 @@
 
 package com.dbn.liquibase.operation;
 
-import com.dbn.common.component.ProjectUnit;
+import com.dbn.common.environment.EnvironmentTypeId;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
+import com.dbn.liquibase.task.LiquibaseTaskInput;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfileBundle;
 import com.dbn.liquibase.workspace.LiquibaseWorkspace;
 import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
@@ -37,8 +40,9 @@ import static com.dbn.liquibase.operation.LiquibaseFeature.SOURCE_SCHEMA;
 /** Input describing a Liquibase operation and its optional source and target schemas. */
 @Getter
 @Setter
-public class LiquibaseOperationInput extends ProjectUnit {
+public class LiquibaseOperationInput extends LiquibaseTaskInput {
     private final LiquibaseWorkspaceBundle workspaces;
+    private final LiquibaseEnvironmentProfileBundle environmentProfiles;
     private final LiquibaseOperation operation;
 
     private DBObjectRef<DBSchema> sourceSchema;
@@ -49,7 +53,9 @@ public class LiquibaseOperationInput extends ProjectUnit {
     private String databaseTag;
     private String changelogTag;
     private String checkpointTag;
+    private String environmentProfileId;
     private boolean confirmed;
+    private boolean approved;
 
     private LiquibaseWorkspace workspace;
     private LiquibaseWorkspacePaths workspacePaths;
@@ -59,6 +65,7 @@ public class LiquibaseOperationInput extends ProjectUnit {
 
         DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
         this.workspaces = liquibaseManager.getWorkspaces();
+        this.environmentProfiles = liquibaseManager.getEnvironmentProfiles();
         this.operation = operation;
     }
 
@@ -119,6 +126,29 @@ public class LiquibaseOperationInput extends ProjectUnit {
     }
 
     @NotNull
+    public EnvironmentTypeId getEnvironmentTypeId() {
+        return getRelevantConnection().getEnvironmentType().getId();
+    }
+
+    @NotNull
+    public LiquibaseEnvironmentProfile getEnvironmentProfile() {
+        LiquibaseEnvironmentProfile selected = getSelectedEnvironmentProfile();
+        if (selected != null) return selected;
+        return environmentProfiles.getProfile(getEnvironmentTypeId());
+    }
+
+    @Nullable
+    public LiquibaseEnvironmentProfile getSelectedEnvironmentProfile() {
+        if (environmentProfileId == null) return null;
+        LiquibaseEnvironmentProfile profile = environmentProfiles.getProfile(environmentProfileId);
+        return profile != null && getEnvironmentTypeId().equals(profile.getEnvironmentTypeId()) ? profile : null;
+    }
+
+    public void setEnvironmentProfile(@Nullable LiquibaseEnvironmentProfile profile) {
+        environmentProfileId = profile == null ? null : profile.getId();
+    }
+
+    @NotNull
     public DBSchema getRelevantSchema() {
         DBSchema schema = getOperation().requires(SOURCE_SCHEMA)
                 ? coalesce(() -> getSourceSchema(), () -> getTargetSchema())
@@ -126,6 +156,10 @@ public class LiquibaseOperationInput extends ProjectUnit {
 
         if (schema == null) throw new IllegalStateException("No schema available");
         return schema;
+    }
+
+    public String getRelevantSchemaName() {
+        return getRelevantSchema().getName();
     }
 
     public void setSourceSchema(@Nullable DBSchema sourceSchema) {
@@ -151,6 +185,7 @@ public class LiquibaseOperationInput extends ProjectUnit {
         databaseTag = input.getDatabaseTag();
         changelogTag = input.getChangelogTag();
         checkpointTag = input.getCheckpointTag();
+        environmentProfileId = input.getEnvironmentProfileId();
         confirmed = input.isConfirmed();
         return this;
     }
