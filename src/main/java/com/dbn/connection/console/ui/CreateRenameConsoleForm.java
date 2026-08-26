@@ -62,9 +62,7 @@ public class CreateRenameConsoleForm extends DBNFormBase {
         String name;
         if (console == null) {
             name = connection.getName() + " 1";
-            while (consoleNames.contains(name)) {
-                name = Naming.nextNumberedIdentifier(name, true);
-            }
+            name = Naming.nextNumberedIdentifier(name, true, () -> consoleNames);
         } else {
             name = console.getName();
             consoleNames.remove(name);

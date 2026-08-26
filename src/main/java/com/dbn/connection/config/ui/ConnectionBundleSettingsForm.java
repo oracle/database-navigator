@@ -29,7 +29,6 @@ import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Messages;
-import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.DatabaseUrlPattern;
@@ -84,6 +83,7 @@ import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.anyMatch;
 import static com.dbn.common.util.Lists.count;
+import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -231,9 +231,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
 
         String name = "Connection";
         ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
-        while (model.getConnectionConfig(name) != null) {
-            name = Naming.nextNumberedIdentifier(name, true);
-        }
+        name = nextNumberedIdentifier(name, true, candidate -> model.getConnectionConfig(candidate) != null);
         ConnectionDatabaseSettings connectionConfig = connectionSettings.getDatabaseSettings();
         connectionConfig.setName(name);
         int index = connectionsList.getModel().getSize();
@@ -252,9 +250,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
 
         String name = ociConnectionData.getConnectionName() ;
         ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
-        while (model.getConnectionConfig(name) != null) {
-            name = Naming.nextNumberedIdentifier(name, true);
-        }
+        name = nextNumberedIdentifier(name, true, candidate -> model.getConnectionConfig(candidate) != null);
         ConnectionDatabaseSettings connectionConfig = connectionSettings.getDatabaseSettings();
         connectionConfig.setName(name);
         connectionConfig.setConfigType(configType);
@@ -305,9 +301,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
 
             String name = databaseSettings.getName();
             ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
-            while (model.getConnectionConfig(name) != null) {
-                name = Naming.nextNumberedIdentifier(name, true);
-            }
+            name = nextNumberedIdentifier(name, true, candidate -> model.getConnectionConfig(candidate) != null);
             databaseSettings.setName(name);
             int selectedIndex = connectionsList.getSelectedIndex() + 1;
             model.add(selectedIndex, duplicate);
@@ -445,15 +439,17 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             String name,
             ConnectionListModel model,
             List<ConnectionSettings> importedConnections) {
-        while (true) {
-            String candidateName = name;
-            boolean nameAlreadyUsed =
-                    model.getConnectionConfig(candidateName) != null ||
-                    anyMatch(importedConnections, connection -> Commons.match(connection.getDatabaseSettings().getName(), candidateName));
-            if (!nameAlreadyUsed) return candidateName;
+        return nextNumberedIdentifier(name, true,
+                candidate -> isConnectionNameTaken(candidate, model, importedConnections));
+    }
 
-            name = Naming.nextNumberedIdentifier(candidateName, true);
-        }
+    private static boolean isConnectionNameTaken(
+            String name,
+            ConnectionListModel model,
+            List<ConnectionSettings> importedConnections) {
+        if (model.getConnectionConfig(name) != null) return true;
+        return anyMatch(importedConnections,
+                connection -> Commons.match(connection.getDatabaseSettings().getName(), name));
     }
 
     public ConnectionId importTnsNames(TnsImportData importData){
@@ -487,9 +483,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             }else {
                 name = tnsProfile.getProfile();
             }
-            while (model.getConnectionConfig(name) != null) {
-                name = Naming.nextNumberedIdentifier(name, true);
-            }
+            name = nextNumberedIdentifier(name, true, candidate -> model.getConnectionConfig(candidate) != null);
             databaseSettings.setName(name);
             databaseSettings.setDatabaseType(DatabaseType.ORACLE);
             databaseSettings.setDriverSource(DriverSource.BUNDLED);

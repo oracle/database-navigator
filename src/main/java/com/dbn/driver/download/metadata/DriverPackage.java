@@ -16,6 +16,7 @@
 
 package com.dbn.driver.download.metadata;
 
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.provider.CloudConfigProviderFamily;
@@ -56,7 +57,7 @@ import static com.dbn.common.util.Lists.convert;
  */
 @Getter
 @Setter
-public class DriverPackage implements PersistentStateElement, Comparable<DriverPackage> {
+public class DriverPackage implements PersistentStateElement, Comparable<DriverPackage>, Identifiable<String> {
     private String id;
     private String name;
     private DatabaseType databaseType;

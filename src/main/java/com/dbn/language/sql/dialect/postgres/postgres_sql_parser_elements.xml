@@ -8,7 +8,7 @@
     </element-def>
 
     <element-def attributes="STRUCTURE, EXECUTABLE, GENERIC, SCOPE_ISOLATION, STATEMENT" description="SQL statement" formatting-indent="ABSOLUTE_NONE" id="sql_statement">
-        <one-of id="00001" ambiguous="true">
+        <one-of id="00001">
             <element ref-id="analyze_statement" version="7.3" />
             <element ref-id="alter_statement" />
             <element ref-id="create_statement" />
@@ -74,7 +74,7 @@
     <element-def custom="true" description="WITH statement" id="with_statement">
         <sequence branch="br_with_statement" id="00002">
             <element ref-id="with_clause" />
-            <one-of ambiguous="true" id="00003">
+            <one-of id="00003">
                 <element ref-id="select_statement" />
                 <element ref-id="insert_statement" />
                 <element ref-id="update_statement" />
@@ -97,7 +97,7 @@
                 </wrapper>
                 <token id="00012" type-id="KW_AS" />
                 <wrapper id="00013" template="PARENTHESES">
-                    <one-of id="00014" ambiguous="true">
+                    <one-of id="00014">
                         <element ref-id="subquery" />
                         <element ref-id="values_clause" />
                         <element ref-id="insert_statement" />
@@ -245,7 +245,7 @@
         </qualified-identifier>
         <wrapper original-name="arguments" template="PARENTHESES" id="00087">
             <iteration optional="true" separator="CHR_COMMA" id="00088">
-                <one-of id="00089" ambiguous="true">
+                <one-of id="00089">
                     <element original-name="argument" ref-id="expression" />
                     <sequence id="00090">
                         <token original-name="argument_name" type-id="IDENTIFIER" id="00091" />
@@ -275,7 +275,7 @@
     <!-- ========= cluster ========= -->
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CLUSTER statement" id="cluster_statement">
         <token type-id="KW_CLUSTER" id="00099" />
-        <one-of id="00100" ambiguous="true" optional="true">
+        <one-of id="00100" optional="true">
             <sequence version="17" id="00101">
                 <wrapper optional="true" template="PARENTHESES" id="00102">
                     <iteration separator="CHR_COMMA" id="00103">
@@ -344,7 +344,7 @@
     <!-- ========= copy ========= -->
     <element-def attributes="DATA_MANIPULATION, SPECIFIC" description="COPY statement" id="copy_statement">
         <token type-id="KW_COPY" id="00134" />
-        <one-of id="00135" ambiguous="true">
+        <one-of id="00135">
             <sequence id="00136">
                 <qualified-identifier original-name="table_name" id="00137">
                     <variant>
@@ -488,7 +488,7 @@
     <element-def attributes="SPECIFIC" description="COMMENT ON statement" id="comment_on_statement">
         <token id="00213" type-id="KW_COMMENT" />
         <token id="00214" type-id="KW_ON" />
-        <one-of id="00215" ambiguous="true">
+        <one-of id="00215">
             <sequence id="00216">
                 <token id="00217" type-id="KW_ACCESS" />
                 <token id="00218" type-id="KW_METHOD" />
@@ -718,7 +718,7 @@
                 <element original-name="operator_name" ref-id="operator_name" />
                 <wrapper template="PARENTHESES" id="00364">
                     <iteration separator="CHR_COMMA" id="00365">
-                        <one-of optional="true" id="00366" ambiguous="true">
+                        <one-of optional="true" id="00366">
                             <element ref-id="data_type" />
                             <token type-id="KW_NONE" id="00367" />
                         </one-of>
@@ -786,7 +786,7 @@
 
     <!-- ========= create ========= -->
     <element-def attributes="SCOPE_ISOLATION, DATA_DEFINITION, TRANSACTIONAL, SPECIFIC" description="CREATE statement" id="create_statement">
-        <one-of id="00416" ambiguous="true">
+        <one-of id="00416">
             <element ref-id="create_access_method_statement" version="9.6" />
             <element ref-id="create_aggregate_statement" version="7.4" />
             <element ref-id="create_cast_statement" version="7.3" />
@@ -848,7 +848,7 @@
             </variant>
         </qualified-identifier>
         <wrapper original-name="aggregate_signature" template="PARENTHESES" id="00425">
-            <one-of id="00426" ambiguous="true">
+            <one-of id="00426">
                 <token type-id="CHR_STAR" id="00427" />
                 <sequence id="00428">
                     <iteration optional="true" separator="CHR_COMMA" id="00429">
@@ -959,7 +959,7 @@
                 <token type-id="KW_FROM" id="00487" />
                 <wrapper template="PARENTHESES" id="00488">
                     <iteration separator="CHR_COMMA" id="00489">
-                        <one-of ambiguous="true" id="00490">
+                        <one-of id="00490">
                             <element ref-id="expression" />
                             <token type-id="KW_MINVALUE" id="00491" />
                             <token type-id="KW_MAXVALUE" id="00492" />
@@ -969,7 +969,7 @@
                 <token type-id="KW_TO" id="00493" />
                 <wrapper template="PARENTHESES" id="00494">
                     <iteration separator="CHR_COMMA" id="00495">
-                        <one-of ambiguous="true" id="00496">
+                        <one-of id="00496">
                             <element ref-id="expression" />
                             <token type-id="KW_MINVALUE" id="00497" />
                             <token type-id="KW_MAXVALUE" id="00498" />
@@ -1302,7 +1302,7 @@
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE OPERATOR statement" id="create_operator_statement">
         <token type-id="KW_CREATE" id="00687" />
         <token type-id="KW_OPERATOR" id="00688" />
-        <one-of original-name="name" id="00689" ambiguous="true">
+        <one-of original-name="name" id="00689">
             <qualified-identifier id="00690">
                 <variant>
                     <object-ref optional="true" type="SCHEMA" id="00691" />
@@ -1326,7 +1326,7 @@
                             <token type-id="KW_JOIN" id="00705" />
                         </one-of>
                         <token type-id="CHR_EQUAL" id="00706" />
-                        <one-of original-name="value" id="00707" ambiguous="true">
+                        <one-of original-name="value" id="00707">
                             <qualified-identifier id="00708">
                                 <variant>
                                     <object-ref optional="true" type="SCHEMA" id="00709" />
@@ -1492,7 +1492,7 @@
                         <token flavor="keyword" type-id="DT_OID" id="00804" />
                     </one-of>
                     <token optional="true" type-id="CHR_EQUAL" id="00805" />
-                    <one-of original-name="value" id="00806" ambiguous="true">
+                    <one-of original-name="value" id="00806">
                         <object-ref type="USER" id="00807" />
                         <object-ref type="DATABASE" id="00808" />
                         <object-ref type="TABLESPACE" id="00809" />
@@ -1589,7 +1589,7 @@
                 <element original-name="target_type" ref-id="data_type" />
             </sequence>
         </wrapper>
-        <one-of id="00863" ambiguous="true">
+        <one-of id="00863">
             <sequence id="00864">
                 <token type-id="KW_WITH" id="00865" />
                 <token type-id="KW_FUNCTION" id="00866" />
@@ -1672,7 +1672,7 @@
             <element ref-id="view_parameters" />
         </sequence>
         <token id="00912" type-id="KW_AS" />
-        <one-of id="00913" ambiguous="true">
+        <one-of id="00913">
             <element ref-id="subquery" />
             <sequence id="00914">
                 <element ref-id="values_clause" />
@@ -1735,7 +1735,7 @@
                 <object-def attributes="SUBJECT" type="STATISTICS" id="00944" />
             </variant>
         </qualified-identifier>
-        <one-of id="00945" ambiguous="true">
+        <one-of id="00945">
             <sequence id="00946">
                 <wrapper template="PARENTHESES" id="00947">
                     <element original-name="expression" ref-id="expression" />
@@ -1940,7 +1940,7 @@
         <sequence id="01067" optional="true" version="8.2">
             <token id="01068" type-id="KW_OWNED" />
             <token id="01069" type-id="KW_BY" />
-            <one-of id="01070" ambiguous="true">
+            <one-of id="01070">
                 <qualified-identifier id="01071">
                     <variant>
                         <object-ref id="01072" optional="true" type="SCHEMA" />
@@ -2122,10 +2122,10 @@
                 <token type-id="KW_INSTEAD" id="01185" />
             </one-of>
         </sequence>
-        <one-of id="01186" ambiguous="true">
+        <one-of id="01186">
             <token type-id="KW_NOTHING" id="01187" />
-            <one-of id="01188" ambiguous="true">
-                <one-of id="01189" ambiguous="true">
+            <one-of id="01188">
+                <one-of id="01189">
                     <element ref-id="select_statement" />
                     <element ref-id="insert_statement" />
                     <element ref-id="update_statement" />
@@ -2137,7 +2137,7 @@
                 </one-of>
                 <wrapper template="PARENTHESES" id="01193">
                     <iteration separator="CHR_SEMICOLON" id="01194">
-                        <one-of id="01195" ambiguous="true">
+                        <one-of id="01195">
                             <element ref-id="select_statement" />
                             <element ref-id="insert_statement" />
                             <element ref-id="update_statement" />
@@ -2186,7 +2186,7 @@
         </one-of>
     </element-def>
     <element-def attributes="CLAUSE" description="Schema element" id="schema_element">
-        <one-of id="01213" ambiguous="true">
+        <one-of id="01213">
             <element ref-id="create_table_statement" />
             <element ref-id="create_view_statement" />
             <element ref-id="create_index_statement" />
@@ -2221,7 +2221,7 @@
         </qualified-identifier>
         <sequence id="01227" optional="true">
             <token id="01228" type-id="KW_USING" />
-            <one-of id="01229" ambiguous="true">
+            <one-of id="01229">
                 <token id="01230" text="btree" type-id="IDENTIFIER" />
                 <token id="01231" text="hash" type-id="IDENTIFIER" />
                 <token id="01232" text="gist" type-id="IDENTIFIER" />
@@ -2439,7 +2439,7 @@
                     <sequence id="01361">
                         <token original-name="tablespace_option" type-id="IDENTIFIER" id="01362" />
                         <token type-id="CHR_EQUAL" id="01363" />
-                        <one-of original-name="value" id="01364" ambiguous="true">
+                        <one-of original-name="value" id="01364">
                             <element ref-id="expression" />
                             <token type-id="STRING" id="01365" />
                             <token type-id="NUMBER" id="01366" />
@@ -2500,7 +2500,7 @@
         </qualified-identifier>
         <wrapper optional="true" template="PARENTHESES" id="01390">
             <iteration separator="CHR_COMMA" id="01391">
-                <one-of id="01392" ambiguous="true">
+                <one-of id="01392">
                     <element ref-id="table_constraint" />
                     <sequence id="01393">
                         <object-def type="COLUMN" id="01394" />
@@ -2541,7 +2541,7 @@
     <element-def attributes="CLAUSE" description="Table columns clause" id="table_columns_clause">
         <wrapper id="01412" template="PARENTHESES">
             <iteration id="01413" separator="CHR_COMMA">
-                <one-of id="01414" ambiguous="true">
+                <one-of id="01414">
                     <element ref-id="table_constraint" />
                     <sequence id="01415">
                         <token id="01416" type-id="KW_LIKE" />
@@ -2602,7 +2602,7 @@
         </qualified-identifier>
         <wrapper id="01445" optional="true" template="PARENTHESES">
             <iteration id="01446" separator="CHR_COMMA">
-                <one-of id="01447" ambiguous="true">
+                <one-of id="01447">
                     <sequence id="01448">
                         <object-def id="01449" type="COLUMN" />
                         <token id="01450" type-id="KW_WITH" />
@@ -2655,7 +2655,7 @@
             <token id="01474" type-id="KW_CONSTRAINT" />
             <object-def id="01475" original-name="constraint_name" type="CONSTRAINT" />
         </sequence>
-        <one-of id="01476" ambiguous="true">
+        <one-of id="01476">
             <sequence id="01477">
                 <token id="01478" optional="true" type-id="KW_NOT" />
                 <token id="01479" type-id="KW_NULL" />
@@ -2763,7 +2763,7 @@
             <token id="01543" type-id="KW_CONSTRAINT" />
             <object-def id="01544" original-name="constraint_name" type="CONSTRAINT" />
         </sequence>
-        <one-of id="01545" ambiguous="true">
+        <one-of id="01545">
             <sequence id="01546">
                 <token type-id="KW_PRIMARY" id="01547" />
                 <token type-id="KW_KEY" id="01548" />
@@ -2972,7 +2972,7 @@
 
     <!-- ========= alter ========= -->
     <element-def attributes="SCOPE_ISOLATION" description="ALTER statement" id="alter_statement">
-        <one-of id="01677" ambiguous="true">
+        <one-of id="01677">
             <element ref-id="alter_aggregate_statement" version="7.4" />
             <element ref-id="alter_collation_statement" version="9.1" />
             <element ref-id="alter_conversion_statement" version="7.3" />
@@ -3029,7 +3029,7 @@
             </variant>
         </qualified-identifier>
         <wrapper original-name="aggregate_signature" template="PARENTHESES" id="01683">
-            <one-of id="01684" ambiguous="true">
+            <one-of id="01684">
                 <token type-id="CHR_STAR" id="01685" />
                 <sequence id="01686">
                     <iteration optional="true" separator="CHR_COMMA" id="01687">
@@ -3107,7 +3107,7 @@
                 </sequence>
             </iteration>
         </wrapper>
-        <one-of id="01733" ambiguous="true">
+        <one-of id="01733">
             <one-of id="01734">
                 <sequence id="01735">
                     <one-of id="01736">
@@ -3274,7 +3274,7 @@
                 </variant>
             </qualified-identifier>
         </sequence>
-        <one-of id="01847" ambiguous="true">
+        <one-of id="01847">
             <sequence id="01848">
                 <token type-id="KW_RENAME" id="01849" />
                 <token type-id="KW_TO" id="01850" />
@@ -3397,14 +3397,14 @@
                 </variant>
             </qualified-identifier>
         </sequence>
-        <one-of id="01927" ambiguous="true">
+        <one-of id="01927">
             <iteration separator="CHR_COMMA" id="01928">
-                <one-of id="01929" ambiguous="true">
+                <one-of id="01929">
                     <sequence id="01930">
                         <token type-id="KW_ALTER" id="01931" />
                         <token optional="true" type-id="KW_COLUMN" id="01932" />
                         <object-ref original-name="column_name" type="COLUMN" id="01933" />
-                        <one-of id="01934" ambiguous="true">
+                        <one-of id="01934">
                             <sequence id="01935">
                                 <token type-id="KW_SET" id="01936" />
                                 <token type-id="KW_STATISTICS" id="01937" />
@@ -3541,7 +3541,7 @@
         <element original-name="name" ref-id="operator_name" />
         <wrapper original-name="operator_signature" template="PARENTHESES" id="02028">
             <sequence id="02029">
-                <one-of original-name="left_type" id="02030" ambiguous="true">
+                <one-of original-name="left_type" id="02030">
                     <element ref-id="data_type" />
                     <token type-id="KW_NONE" id="02031" />
                 </one-of>
@@ -3549,7 +3549,7 @@
                 <element original-name="right_type" ref-id="data_type" />
             </sequence>
         </wrapper>
-        <one-of id="02033" ambiguous="true">
+        <one-of id="02033">
             <sequence id="02034">
                 <token type-id="KW_OWNER" id="02035" />
                 <token type-id="KW_TO" id="02036" />
@@ -3573,7 +3573,7 @@
                             <sequence id="02051">
                                 <token type-id="KW_RESTRICT" id="02052" />
                                 <token type-id="CHR_EQUAL" id="02053" />
-                                <one-of original-name="res_proc" id="02054" ambiguous="true">
+                                <one-of original-name="res_proc" id="02054">
                                     <qualified-identifier id="02055">
                                         <variant>
                                             <object-ref optional="true" type="SCHEMA" id="02056" />
@@ -3586,7 +3586,7 @@
                             <sequence id="02059">
                                 <token type-id="KW_JOIN" id="02060" />
                                 <token type-id="CHR_EQUAL" id="02061" />
-                                <one-of original-name="join_proc" id="02062" ambiguous="true">
+                                <one-of original-name="join_proc" id="02062">
                                     <qualified-identifier id="02063">
                                         <variant>
                                             <object-ref optional="true" type="SCHEMA" id="02064" />
@@ -3685,7 +3685,7 @@
                                 </iteration>
                             </wrapper>
                             <sequence optional="true" id="02120">
-                                <one-of id="02121" ambiguous="true">
+                                <one-of id="02121">
                                     <sequence id="02122">
                                         <token type-id="KW_FOR" id="02123" />
                                         <token type-id="KW_SEARCH" id="02124" />
@@ -3817,7 +3817,7 @@
                 </sequence>
             </iteration>
         </wrapper>
-        <one-of id="02198" ambiguous="true">
+        <one-of id="02198">
             <sequence id="02199">
                 <token optional="true" type-id="KW_EXTERNAL" id="02200" />
                 <token type-id="KW_SECURITY" id="02201" />
@@ -3894,7 +3894,7 @@
         <token type-id="KW_ALTER" id="02251" />
         <token type-id="KW_PUBLICATION" id="02252" />
         <object-ref attributes="SUBJECT" original-name="name" type="PUBLICATION" id="02253" />
-        <one-of id="02254" ambiguous="true">
+        <one-of id="02254">
             <sequence id="02255">
                 <one-of id="02256">
                     <token type-id="KW_ADD" id="02257" />
@@ -4285,7 +4285,7 @@
                 </sequence>
             </iteration>
         </wrapper>
-        <one-of id="02528" ambiguous="true">
+        <one-of id="02528">
             <one-of id="02529">
                 <token type-id="KW_IMMUTABLE" id="02530" />
                 <token type-id="KW_STABLE" id="02531" />
@@ -4435,9 +4435,9 @@
                 <object-ref attributes="SUBJECT" type="SEQUENCE" id="02628" />
             </variant>
         </qualified-identifier>
-        <one-of id="02629" ambiguous="true" optional="true">
+        <one-of id="02629" optional="true">
             <iteration id="02630">
-                <one-of ambiguous="true" id="02631">
+                <one-of id="02631">
                     <sequence id="02632">
                         <token type-id="KW_AS" id="02633" />
                         <element ref-id="data_type" />
@@ -4497,7 +4497,7 @@
                     <sequence id="02665">
                         <token type-id="KW_OWNED" id="02666" />
                         <token type-id="KW_BY" id="02667" />
-                        <one-of original-name="owned_by" id="02668" ambiguous="true">
+                        <one-of original-name="owned_by" id="02668">
                             <qualified-identifier id="02669">
                                 <variant>
                                     <object-ref optional="true" type="SCHEMA" id="02670" />
@@ -4599,7 +4599,7 @@
                 <object-ref attributes="SUBJECT" type="STATISTICS" id="02732" />
             </variant>
         </qualified-identifier>
-        <one-of id="02733" ambiguous="true">
+        <one-of id="02733">
             <sequence id="02734">
                 <token type-id="KW_OWNER" id="02735" />
                 <token type-id="KW_TO" id="02736" />
@@ -4636,7 +4636,7 @@
         <token type-id="KW_ALTER" id="02755" />
         <token type-id="KW_SUBSCRIPTION" id="02756" />
         <object-ref attributes="SUBJECT" original-name="name" type="SUBSCRIPTION" id="02757" />
-        <one-of id="02758" ambiguous="true">
+        <one-of id="02758">
             <sequence id="02759">
                 <token type-id="KW_CONNECTION" id="02760" />
                 <token original-name="conninfo" type-id="STRING" id="02761" />
@@ -4779,9 +4779,9 @@
             </variant>
         </qualified-identifier>
         <token optional="true" type-id="CHR_STAR" id="02850" />
-        <one-of id="02851" ambiguous="true">
+        <one-of id="02851">
             <iteration separator="CHR_COMMA" id="02852">
-                <one-of id="02853" ambiguous="true">
+                <one-of id="02853">
                     <sequence id="02854">
                         <token type-id="KW_ADD" id="02855" />
                         <token optional="true" type-id="KW_COLUMN" id="02856" />
@@ -4806,7 +4806,7 @@
                         <token type-id="KW_ALTER" id="02867" />
                         <token optional="true" type-id="KW_COLUMN" id="02868" />
                         <object-ref original-name="column_name" type="COLUMN" id="02869" />
-                        <one-of id="02870" ambiguous="true">
+                        <one-of id="02870">
                             <sequence id="02871">
                                 <token optional="true" type-id="KW_SET" id="02872" />
                                 <token optional="true" type-id="KW_DATA" id="02873" />
@@ -5354,7 +5354,7 @@
                 <object-def attributes="SUBJECT" type="TYPE" id="03236" />
             </variant>
         </qualified-identifier>
-        <one-of optional="true" id="03237" ambiguous="true">
+        <one-of optional="true" id="03237">
             <sequence id="03238">
                 <token type-id="KW_AS" id="03239" />
                 <wrapper template="PARENTHESES" id="03240">
@@ -5384,7 +5384,7 @@
                         <sequence id="03255">
                             <token type-id="IDENTIFIER" id="03256" />
                             <token type-id="CHR_EQUAL" id="03257" />
-                            <one-of id="03258" ambiguous="true">
+                            <one-of id="03258">
                                 <qualified-identifier id="03259">
                                     <variant>
                                         <object-ref optional="true" type="SCHEMA" id="03260" />
@@ -5410,7 +5410,7 @@
                             <token type-id="KW_ELEMENT" id="03273" />
                         </one-of>
                         <token type-id="CHR_EQUAL" id="03274" />
-                        <one-of id="03275" ambiguous="true">
+                        <one-of id="03275">
                             <qualified-identifier id="03276">
                                 <variant>
                                     <object-ref optional="true" type="SCHEMA" id="03277" />
@@ -5832,7 +5832,7 @@
                 <object-ref attributes="SUBJECT" type="TYPE" id="03528" />
             </variant>
         </qualified-identifier>
-        <one-of id="03529" ambiguous="true">
+        <one-of id="03529">
             <sequence id="03530">
                 <token type-id="KW_OWNER" id="03531" />
                 <token type-id="KW_TO" id="03532" />
@@ -6020,7 +6020,7 @@
         <token type-id="KW_ALTER" id="03655" />
         <token type-id="KW_DATABASE" id="03656" />
         <object-ref attributes="SUBJECT" original-name="name" type="DATABASE" id="03657" />
-        <one-of id="03658" ambiguous="true">
+        <one-of id="03658">
             <sequence id="03659">
                 <token optional="true" type-id="KW_WITH" id="03660" />
                 <iteration optional="true" id="03661">
@@ -6244,7 +6244,7 @@
                 <object-ref attributes="SUBJECT" type="DOMAIN" id="03822" />
             </variant>
         </qualified-identifier>
-        <one-of id="03823" ambiguous="true">
+        <one-of id="03823">
             <sequence id="03824">
                 <token type-id="KW_SET" id="03825" />
                 <token type-id="KW_DEFAULT" id="03826" />
@@ -6389,7 +6389,7 @@
                     <token type-id="KW_ADD" id="03924" />
                     <token type-id="KW_DROP" id="03925" />
                 </one-of>
-                <one-of original-name="member_object_type" id="03926" ambiguous="true">
+                <one-of original-name="member_object_type" id="03926">
                     <token type-id="KW_ACCESS" id="03927" />
                     <token type-id="KW_AGGREGATE" id="03928" />
                     <token type-id="KW_CAST" id="03929" />
@@ -6441,7 +6441,7 @@
                 </qualified-identifier>
                 <wrapper optional="true" original-name="function_signature" template="PARENTHESES" id="03966">
                     <iteration optional="true" separator="CHR_COMMA" id="03967">
-                        <one-of id="03968" ambiguous="true">
+                        <one-of id="03968">
                             <element ref-id="data_type" />
                             <token type-id="IDENTIFIER" id="03969" />
                         </one-of>
@@ -6458,7 +6458,7 @@
         <token type-id="KW_DATA" id="03972" />
         <token type-id="KW_WRAPPER" id="03973" />
         <object-ref attributes="SUBJECT" original-name="name" type="ANY" id="03974" />
-        <one-of id="03975" ambiguous="true">
+        <one-of id="03975">
             <sequence id="03976">
                 <one-of optional="true" id="03977">
                     <sequence id="03978">
@@ -6539,9 +6539,9 @@
             </variant>
         </qualified-identifier>
         <token optional="true" type-id="CHR_STAR" id="04025" />
-        <one-of id="04026" ambiguous="true">
+        <one-of id="04026">
             <iteration separator="CHR_COMMA" id="04027">
-                <one-of id="04028" ambiguous="true">
+                <one-of id="04028">
                     <sequence id="04029">
                         <token type-id="KW_ADD" id="04030" />
                         <token optional="true" type-id="KW_COLUMN" id="04031" />
@@ -6566,7 +6566,7 @@
                         <token type-id="KW_ALTER" id="04042" />
                         <token optional="true" type-id="KW_COLUMN" id="04043" />
                         <object-ref original-name="column_name" type="COLUMN" id="04044" />
-                        <one-of id="04045" ambiguous="true">
+                        <one-of id="04045">
                             <sequence id="04046">
                                 <token optional="true" type-id="KW_SET" id="04047" />
                                 <token optional="true" type-id="KW_DATA" id="04048" />
@@ -6717,7 +6717,7 @@
                 <object-ref attributes="SUBJECT" id="04142" type="VIEW" />
             </variant>
         </qualified-identifier>
-        <one-of id="04143" ambiguous="true">
+        <one-of id="04143">
             <sequence id="04144">
                 <token id="04145" type-id="KW_ALTER" />
                 <token id="04146" optional="true" type-id="KW_COLUMN" />
@@ -6960,7 +6960,7 @@
         </iteration>
         <sequence optional="true" id="04299">
             <token type-id="KW_IN" id="04300" />
-            <one-of id="04301" ambiguous="true">
+            <one-of id="04301">
                 <sequence id="04302">
                     <token type-id="KW_ACCESS" id="04303" />
                     <token type-id="KW_SHARE" id="04304" />
@@ -7446,7 +7446,7 @@
 
     <!-- ========= drop ========= -->
     <element-def attributes="SCOPE_ISOLATION" description="DROP statement" id="drop_statement">
-        <one-of id="04602" ambiguous="true">
+        <one-of id="04602">
             <element ref-id="drop_access_method_statement" version="9.6" />
             <element ref-id="drop_aggregate_statement" version="7.3" />
             <element ref-id="drop_cast_statement" version="7.3" />
@@ -7522,11 +7522,11 @@
             </variant>
         </qualified-identifier>
         <wrapper template="PARENTHESES" id="04615">
-            <one-of ambiguous="true" id="04616">
+            <one-of id="04616">
                 <token type-id="CHR_STAR" id="04617" />
                 <sequence id="04618">
                     <iteration optional="true" separator="CHR_COMMA" id="04619">
-                        <one-of ambiguous="true" id="04620">
+                        <one-of id="04620">
                             <sequence id="04621">
                                 <one-of optional="true" id="04622">
                                     <token type-id="KW_IN" id="04623" />
@@ -7548,7 +7548,7 @@
                         <token type-id="KW_ORDER" id="04631" />
                         <token type-id="KW_BY" id="04632" />
                         <iteration separator="CHR_COMMA" id="04633">
-                            <one-of ambiguous="true" id="04634">
+                            <one-of id="04634">
                                 <sequence id="04635">
                                     <token optional="true" type-id="KW_VARIADIC" id="04636" />
                                     <element ref-id="data_type" />
@@ -7746,7 +7746,7 @@
         <element optional="true" ref-id="if_exists_clause" />
         <iteration separator="CHR_COMMA" id="04707">
             <sequence id="04708">
-                <one-of id="04709" ambiguous="true">
+                <one-of id="04709">
                     <qualified-identifier id="04710">
                         <variant>
                             <object-ref optional="true" type="SCHEMA" id="04711" />
@@ -7757,12 +7757,12 @@
                 </one-of>
                 <wrapper template="PARENTHESES" id="04713">
                     <sequence id="04714">
-                        <one-of id="04715" ambiguous="true">
+                        <one-of id="04715">
                             <element ref-id="data_type" />
                             <token type-id="KW_NONE" id="04716" />
                         </one-of>
                         <token type-id="CHR_COMMA" id="04717" />
-                        <one-of id="04718" ambiguous="true">
+                        <one-of id="04718">
                             <element ref-id="data_type" />
                             <token type-id="KW_NONE" id="04719" />
                         </one-of>
@@ -8173,7 +8173,7 @@
         <token type-id="KW_ON" id="04895" />
         <element ref-id="condition" />
         <iteration id="04896">
-            <one-of id="04897" ambiguous="true">
+            <one-of id="04897">
                 <sequence id="04898">
                     <token type-id="KW_WHEN" id="04899" />
                     <token type-id="KW_MATCHED" id="04900" />
@@ -8342,7 +8342,7 @@
                 <iteration id="04996" separator="CHR_COMMA">
                     <wrapper attributes="COLUMN_PARAMETER_HANDLER" id="04997" template="PARENTHESES">
                         <iteration id="04998" separator="CHR_COMMA">
-                            <one-of id="04999" ambiguous="true">
+                            <one-of id="04999">
                                 <token id="05000" type-id="KW_DEFAULT" />
                                 <element ref-id="expression" />
                             </one-of>
@@ -8354,7 +8354,7 @@
         </one-of>
         <sequence optional="true" version="9.5" id="05001">
             <token type-id="KW_ON" id="05002" />
-            <one-of optional="true" id="05003" ambiguous="true">
+            <one-of optional="true" id="05003">
                 <sequence id="05004">
                     <token type-id="KW_CONFLICT" id="05005" />
                     <wrapper template="PARENTHESES" id="05006">
@@ -8378,7 +8378,7 @@
                     <object-ref type="CONSTRAINT" id="05016" />
                 </sequence>
             </one-of>
-            <one-of id="05017" ambiguous="true">
+            <one-of id="05017">
                 <sequence id="05018">
                     <token type-id="KW_DO" id="05019" />
                     <token type-id="KW_NOTHING" id="05020" />
@@ -8452,7 +8452,7 @@
             <alias-def id="05057" type="DATASET" />
         </sequence>
         <token id="05058" type-id="KW_SET" />
-        <one-of id="05059" ambiguous="true">
+        <one-of id="05059">
             <iteration id="05060" separator="CHR_COMMA">
                 <sequence id="05061">
                     <qualified-identifier id="05062">
@@ -8467,7 +8467,7 @@
                         </variant>
                     </qualified-identifier>
                     <token id="05068" type-id="CHR_EQUAL" />
-                    <one-of id="05069" ambiguous="true">
+                    <one-of id="05069">
                         <token id="05070" type-id="KW_DEFAULT" />
                         <element ref-id="expression" />
                     </one-of>
@@ -8492,7 +8492,7 @@
                 <token id="05080" type-id="CHR_EQUAL" />
                 <wrapper id="05081" template="PARENTHESES">
                     <iteration id="05082" separator="CHR_COMMA">
-                        <one-of id="05083" ambiguous="true">
+                        <one-of id="05083">
                             <token id="05084" type-id="KW_DEFAULT" />
                             <element ref-id="expression" />
                             <element ref-id="subquery" />
@@ -8504,7 +8504,7 @@
         <element optional="true" ref-id="from_clause" />
         <sequence id="05085" optional="true">
             <token id="05086" type-id="KW_WHERE" />
-            <one-of id="05087" ambiguous="true">
+            <one-of id="05087">
                 <sequence id="05088" version="8.3">
                     <token id="05089" type-id="KW_CURRENT" />
                     <token id="05090" type-id="KW_OF" />
@@ -8646,7 +8646,7 @@
         </sequence>
         <sequence id="05165" optional="true">
             <token id="05166" type-id="KW_WHERE" />
-            <one-of id="05167" ambiguous="true">
+            <one-of id="05167">
                 <sequence id="05168">
                     <token id="05169" type-id="KW_CURRENT" />
                     <token id="05170" type-id="KW_OF" />
@@ -8740,7 +8740,7 @@
             </sequence>
         </one-of>
         <iteration id="05209" separator="CHR_COMMA">
-            <one-of id="05210" ambiguous="true">
+            <one-of id="05210">
                 <token id="05211" type-id="CHR_STAR" />
                 <sequence id="05212">
                     <element ref-id="condition" />
@@ -8794,7 +8794,7 @@
         </wrapper>
     </element-def>
     <element-def description="Window definition" id="window_definition">
-        <one-of id="05234" ambiguous="true">
+        <one-of id="05234">
             <sequence id="05235">
                 <sequence optional="true" id="05236">
                     <token id="05237" type-id="KW_PARTITION" />
@@ -8810,7 +8810,7 @@
                     <token id="05243" type-id="KW_ROWS" />
                     <token type-id="KW_GROUPS" id="05244" />
                 </one-of>
-                <one-of id="05245" ambiguous="true">
+                <one-of id="05245">
                     <element original-name="frame_start" ref-id="frame_start_end" />
                     <sequence id="05246">
                         <token id="05247" type-id="KW_BETWEEN" />
@@ -8870,7 +8870,7 @@
         </sequence>
     </element-def>
     <element-def description="Frame START END" id="frame_start_end">
-        <one-of id="05280" ambiguous="true">
+        <one-of id="05280">
             <sequence id="05281">
                 <token id="05282" type-id="KW_UNBOUNDED" />
                 <one-of id="05283">
@@ -8993,7 +8993,7 @@
         <token id="05355" type-id="KW_JOIN" />
     </element-def>
     <element-def description="From item" id="from_item" optional-wrapping="PARENTHESES">
-        <one-of id="05356" ambiguous="true">
+        <one-of id="05356">
             <sequence id="05357">
                 <token id="05358" optional="true" type-id="KW_ONLY" />
                 <qualified-identifier id="05359">
@@ -9018,7 +9018,7 @@
             </sequence>
             <sequence id="05368">
                 <token id="05369" optional="true" type-id="KW_LATERAL" />
-                <one-of id="05370" ambiguous="true">
+                <one-of id="05370">
                     <element ref-id="subquery" />
                     <element ref-id="values_clause" />
                     <element ref-id="function_expression" />
@@ -9039,7 +9039,7 @@
         <alias-def id="05376" optional="true" type="DATASET" />
         <wrapper id="05377" optional="true" template="PARENTHESES">
             <iteration id="05378" separator="CHR_COMMA">
-                <one-of ambiguous="true" id="05379">
+                <one-of id="05379">
                     <sequence id="05380">
                         <alias-def type="COLUMN" id="05381" />
                         <element optional="true" ref-id="data_type" />
@@ -9180,7 +9180,7 @@
                         <token id="05463" type-id="KW_PRIOR" />
                         <token id="05464" type-id="KW_NOT" />
                     </one-of>
-                    <one-of id="05465" ambiguous="true">
+                    <one-of id="05465">
                         <element ref-id="expression" />
                         <element ref-id="expr" />
                     </one-of>
@@ -9188,7 +9188,7 @@
                 <iteration id="05466" optional="true">
                     <one-of id="05467">
                         <wrapper id="05468" template="BRACKETS">
-                            <one-of ambiguous="true" optional="true" id="05469" sortable="true">
+                            <one-of optional="true" id="05469">
                                 <element ref-id="expression_list" />
                                 <sequence id="05470">
                                     <element optional="true" ref-id="expression" />
@@ -9213,7 +9213,7 @@
         </iteration>
     </element-def>
     <element-def description="Expr" id="expr" optional-wrapping="PARENTHESES">
-        <one-of id="05478" ambiguous="true">
+        <one-of id="05478">
             <wrapper id="05479" template="PARENTHESES">
                 <element ref-id="subquery" />
             </wrapper>
@@ -9248,7 +9248,7 @@
     </element-def>
     <element-def description="Postfix cast expression" id="postfix_cast_expression">
         <token id="05488" type-id="OPR_CAST_PREFIX" />
-        <one-of id="05489" ambiguous="true">
+        <one-of id="05489">
             <element ref-id="data_type" />
             <qualified-identifier id="05490">
                 <variant>
@@ -9261,7 +9261,7 @@
     <element-def description="IN Expression" id="in_expression">
         <token id="05493" type-id="KW_IN" />
         <wrapper id="05494" template="PARENTHESES">
-            <one-of id="05495" ambiguous="true">
+            <one-of id="05495">
                 <element ref-id="subquery" />
                 <element ref-id="expression_list" />
             </one-of>
@@ -9294,7 +9294,7 @@
             <token flavor="function" id="05506" type-id="KW_ALL" />
         </one-of>
         <wrapper id="05507" template="PARENTHESES">
-            <one-of id="05508" ambiguous="true">
+            <one-of id="05508">
                 <sequence id="05509">
                     <token flavor="keyword" id="05510" type-id="DT_ARRAY" />
                     <wrapper begin-token="CHR_LEFT_BRACKET" end-token="CHR_RIGHT_BRACKET" id="05511">
@@ -9315,7 +9315,7 @@
         </wrapper>
     </element-def>
     <element-def description="Array constructor expression" id="array_constructor_expression">
-        <one-of sortable="true" ambiguous="true" id="05515">
+        <one-of id="05515">
             <sequence id="05516">
                 <token flavor="keyword" type-id="DT_ARRAY" id="05517" />
                 <wrapper template="PARENTHESES" id="05518">
@@ -9336,7 +9336,7 @@
         </wrapper>
     </element-def>
     <element-def description="Simple expression" id="simple_expression">
-        <one-of id="05523" sortable="true" ambiguous="true">
+        <one-of id="05523">
             <element ref-id="box_constructor_expression" />
             <element ref-id="array_constructor_expression" />
             <element ref-id="row_constructor_expression" />
@@ -9407,7 +9407,7 @@
         </one-of>
         <iteration id="05561" optional="true">
             <wrapper id="05562" template="BRACKETS">
-                <one-of optional="true" ambiguous="true" id="05563" sortable="true">
+                <one-of optional="true" id="05563">
                     <element ref-id="expression_list" />
                     <sequence id="05564">
                         <element optional="true" ref-id="expression" />
@@ -10210,7 +10210,7 @@
     </element-def>
 
     <element-def description="Function expression" id="function_expression">
-        <one-of id="06295" ambiguous="true">
+        <one-of id="06295">
             <sequence id="06296">
                 <qualified-identifier id="06297">
                     <variant>
@@ -10277,7 +10277,7 @@
                 <one-of id="06320" optional="true">
                     <sequence id="06321">
                         <element ref-id="comparison_operator" />
-                        <one-of id="06322" ambiguous="true">
+                        <one-of id="06322">
                             <wrapper id="06323" template="PARENTHESES">
                                 <element ref-id="subquery" />
                             </wrapper>
@@ -10308,7 +10308,7 @@
 
 
     <element-def description="Data type" id="data_type">
-        <one-of id="06335" ambiguous="true">
+        <one-of id="06335">
             <token id="06336" type-id="DT_ARRAY" />
             <token id="06337" type-id="DT_BIGINT" />
             <token id="06338" type-id="DT_BIGSERIAL" />
@@ -10347,7 +10347,7 @@
             <token id="06368" type-id="DT_INTEGER" />
             <sequence id="06369">
                 <token id="06370" type-id="DT_INTERVAL" />
-                <one-of id="06371" optional="true" ambiguous="true">
+                <one-of id="06371" optional="true">
                     <sequence id="06372">
                         <token flavor="datatype" id="06373" type-id="KW_YEAR" />
                         <sequence id="06374" optional="true">
@@ -10472,7 +10472,7 @@
 
 
     <element-def description="Operator name" id="operator_name">
-        <one-of id="06456" ambiguous="true">
+        <one-of id="06456">
             <element ref-id="comparison_operator" />
             <token type-id="OPR_GENERIC" id="06457" />
             <token id="06458" type-id="OPR_AT_AT" />

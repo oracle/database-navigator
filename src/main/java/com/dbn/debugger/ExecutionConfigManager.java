@@ -99,10 +99,7 @@ public class ExecutionConfigManager extends ProjectComponentBase implements Pers
         List<RunnerAndConfigurationSettings> configurationSettings = getRunManager().getConfigurationSettingsList(configurationType);
 
         String name = method.getName();
-        while (nameExists(configurationSettings, name)) {
-            name = Naming.nextNumberedIdentifier(name, true);
-        }
-        return name;
+        return Naming.nextNumberedIdentifier(name, true, candidate -> nameExists(configurationSettings, candidate));
     }
 
     public String createJavaMethodConfigurationName(DBJavaMethod javaMethod) {
@@ -110,10 +107,7 @@ public class ExecutionConfigManager extends ProjectComponentBase implements Pers
         List<RunnerAndConfigurationSettings> configurationSettings = getRunManager().getConfigurationSettingsList(configurationType);
 
         String name = javaMethod.getName();
-        while (nameExists(configurationSettings, name)) {
-            name = Naming.nextNumberedIdentifier(name, true);
-        }
-        return name;
+        return Naming.nextNumberedIdentifier(name, true, candidate -> nameExists(configurationSettings, candidate));
     }
 
     private static boolean nameExists(List<RunnerAndConfigurationSettings> configurationSettings, String name) {

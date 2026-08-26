@@ -11667,7 +11667,7 @@ final class OracleSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 30: break;
           case 3:
-            { return tt.getString();
+            { return tt.string;
             }
           // fall through
           case 31: break;
@@ -11682,17 +11682,17 @@ final class OracleSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 33: break;
           case 6:
-            { return tt.getInteger();
+            { return tt.integer;
             }
           // fall through
           case 34: break;
           case 7:
-            { return tt.getOperator();
+            { return tt.operator;
             }
           // fall through
           case 35: break;
           case 8:
-            { return tt.getKeyword();
+            { return tt.keyword;
             }
           // fall through
           case 36: break;
@@ -11752,7 +11752,7 @@ final class OracleSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 47: break;
           case 20:
-            { return tt.getNumber();
+            { return tt.number;
             }
           // fall through
           case 48: break;
@@ -11762,17 +11762,17 @@ final class OracleSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 49: break;
           case 22:
-            { return tt.getFunction();
+            { return tt.function;
             }
           // fall through
           case 50: break;
           case 23:
-            { return tt.getParameter();
+            { return tt.parameter;
             }
           // fall through
           case 51: break;
           case 24:
-            { return tt.getDataType();
+            { return tt.dataType;
             }
           // fall through
           case 52: break;
@@ -11782,7 +11782,7 @@ final class OracleSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 53: break;
           case 26:
-            { yybegin(PSQL_BLOCK); return tt.getKeyword();
+            { yybegin(PSQL_BLOCK); return tt.keyword;
             }
           // fall through
           case 54: break;
@@ -11792,7 +11792,7 @@ final class OracleSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 55: break;
           case 28:
-            { return tt.getException();
+            { return tt.exception;
             }
           // fall through
           case 56: break;

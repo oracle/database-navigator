@@ -21,7 +21,6 @@ import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
-import java.util.Map;
 
 import static com.dbn.liquibase.execution.LiquibaseCommands.SYNCHRONIZE_CHANGELOG_TO_TAG;
 import static com.dbn.nls.NlsResources.txt;
@@ -52,16 +51,18 @@ public class LiquibaseSynchronizeChangelogToTagProcessor extends LiquibaseExecut
         result.appendConsoleOutput(txt("log.liquibase.info.ChangelogSynchronized", changelogFile));
     }
 
-    private static void executeSynchronize(
+    private void executeSynchronize(
             @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output,
             @NotNull String tag) throws Exception {
         LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
-        executeCommand(SYNCHRONIZE_CHANGELOG_TO_TAG, output, Map.of(
+
+        var arguments = arguments(
                 "database", database,
                 "changelogFile", paths.getMasterChangelogRelativePath(),
                 "tag", tag,
-                "changeExecListener", new LiquibaseChangeSetSynchronizeListener(context.getResult())));
+                "changeExecListener", new LiquibaseChangeSetSynchronizeListener(context.getResult()));
+        executeCommand(SYNCHRONIZE_CHANGELOG_TO_TAG, context, output, arguments);
     }
 }

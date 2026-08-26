@@ -619,6 +619,7 @@
             </group>
             <group id="DBN.MainMenu.Liquibase" popup="true" icon="com.dbn.common.icon.Icons.DB_LIQUIBASE">
                 <action id="DBN.MainMenu.LiquibaseWorkspaces" class="com.dbn.menu.action.LiquibaseWorkspacesOpenAction"/>
+                <action id="DBN.MainMenu.LiquibaseEnvironmentProfiles" class="com.dbn.menu.action.LiquibaseEnvironmentProfilesOpenAction"/>
                 <separator/>
                 <action id="DBN.MainMenu.LiquibaseOperationDashboard" class="com.dbn.menu.action.LiquibaseOperationDashboardOpenAction"/>
                 <action id="DBN.MainMenu.LiquibaseWorkflowDashboard" class="com.dbn.menu.action.LiquibaseWorkflowDashboardOpenAction"/>
@@ -769,21 +770,15 @@
             <action id="DBN.Execution.Method.Result.Settings" class="com.dbn.execution.method.result.action.ExecutionEngineSettingsAction" icon="AllIcons.General.GearPlain"/>
         </group>
         <group id="DBN.Execution.Liquibase.Result">
-            <action id="DBN.Execution.Liquibase.Result.Close" class="com.dbn.liquibase.operation.action.LiquibaseOperationResultCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
-            <action id="DBN.Execution.Liquibase.Result.Stop" class="com.dbn.liquibase.operation.action.LiquibaseOperationResultStopAction" icon="com.dbn.common.icon.Icons.ACTION_STOP"/>
-            <action id="DBN.Execution.Liquibase.Result.Rerun" class="com.dbn.liquibase.operation.action.LiquibaseOperationResultRerunAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RERUN"/>
+            <action id="DBN.Execution.Liquibase.Result.Close" class="com.dbn.liquibase.task.action.LiquibaseTaskResultCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBN.Execution.Liquibase.Result.Stop" class="com.dbn.liquibase.task.action.LiquibaseTaskResultStopAction" icon="com.dbn.common.icon.Icons.ACTION_STOP"/>
+            <action id="DBN.Execution.Liquibase.Result.Rerun" class="com.dbn.liquibase.task.action.LiquibaseTaskResultRerunAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RERUN"/>
             <separator/>
-            <action id="DBN.Execution.Liquibase.Result.Settings" class="com.dbn.liquibase.operation.action.LiquibaseOperationResultSettingsAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_OPTIONS"/>
-        </group>
-        <group id="DBN.Execution.Liquibase.Workflow.Result">
-            <action id="DBN.Execution.Liquibase.Workflow.Result.Close" class="com.dbn.liquibase.workflow.action.LiquibaseWorkflowResultCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
-            <action id="DBN.Execution.Liquibase.Workflow.Result.Stop" class="com.dbn.liquibase.workflow.action.LiquibaseWorkflowResultStopAction" icon="com.dbn.common.icon.Icons.ACTION_STOP"/>
-            <action id="DBN.Execution.Liquibase.Workflow.Result.Rerun" class="com.dbn.liquibase.workflow.action.LiquibaseWorkflowResultRerunAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RERUN"/>
-            <separator/>
-            <action id="DBN.Execution.Liquibase.Workflow.Result.Settings" class="com.dbn.liquibase.workflow.action.LiquibaseWorkflowResultSettingsAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_OPTIONS"/>
+            <action id="DBN.Execution.Liquibase.Result.Settings" class="com.dbn.liquibase.task.action.LiquibaseTaskResultSettingsAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_OPTIONS"/>
         </group>
         <group id="DBN.Vector.Embedding.Result">
             <action id="DBN.Vector.Embedding.Result.Close" class="com.dbn.vector.action.VectorEmbeddingCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBN.Vector.Embedding.Result.Stop" class="com.dbn.vector.action.VectorEmbeddingStopAction" icon="com.dbn.common.icon.Icons.ACTION_STOP"/>
             <action id="DBN.Vector.Embedding.Result.Toolbox" class="com.dbn.vector.action.VectorEmbeddingToolboxAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
         </group>
         <group id="DBN.Execution.Method.CursorResult">
