@@ -4,6 +4,7 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.export.ExportDestination;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.state.StateCategory;
 import com.dbn.common.state.StateContainer;
@@ -91,7 +92,7 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
     }
 
     private static boolean confirmFileReplacement(@NotNull Project project, @NotNull ConfigProviderExportRequest request) {
-        if (request.getDestination() == ConfigProviderExportRequest.Destination.CLIPBOARD) return true;
+        if (request.getDestination() == ExportDestination.CLIPBOARD) return true;
 
         Path outputFile = request.getOutputFile();
         if (outputFile == null) return true;
@@ -148,7 +149,7 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
                     ConfigProviderFormatRegistry.getInstance().get(request.getFormatId());
 
             // 4) write output
-            if (request.getDestination() == ConfigProviderExportRequest.Destination.CLIPBOARD) {
+            if (request.getDestination() == ExportDestination.CLIPBOARD) {
                 CopyPasteManager.getInstance().setContents(new StringSelection(processor.render(payload, request.getWrapperKey())));
                 Messages.showInfoDialog(
                         project,
@@ -213,7 +214,7 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
 
         validateDatabasePassword(settings, request);
 
-        if (request.getDestination() != ConfigProviderExportRequest.Destination.CLIPBOARD) {
+        if (request.getDestination() != ExportDestination.CLIPBOARD) {
             Path outputFile = request.getOutputFile();
             if (outputFile == null) {
                 throw new IllegalArgumentException("Output file is required.");

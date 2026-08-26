@@ -68,7 +68,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     private JPanel headerPanel;
     private JButton infoButton;
     private JButton testButton;
-    private JButton jsonButton;
+    private JButton exportButton;
     private JBTabbedPane tabbedPane;
     private DBNHeaderForm headerForm;
 
@@ -134,11 +134,11 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         headerForm = new DBNHeaderForm(this, name, icon, color);
         testButton = new JButton(txt("cfg.connection.button.TestConnection"));
         infoButton = new JButton(txt("cfg.connection.button.Info"));
-        jsonButton = new JButton(txt("cfg.connection.button.Json"));
+        exportButton = new JButton(txt("cfg.connection.button.Export"));
         headerForm.addButton(testButton);
         headerForm.addButton(infoButton);
-        headerForm.addButton(jsonButton);
-        registerComponent(jsonButton);
+        headerForm.addButton(exportButton);
+        registerComponent(exportButton);
 
         updateJsonExportVisibility();
 
@@ -146,11 +146,11 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     }
 
     void updateJsonExportVisibility(DatabaseType databaseType, DatabaseUrlType urlType) {
-        if (jsonButton == null) return;
+        if (exportButton == null) return;
 
         boolean supportedUrlType = urlType != DatabaseUrlType.CUSTOM &&
                 urlType != DatabaseUrlType.CONFIG_FILE;
-        jsonButton.setVisible(databaseType == DatabaseType.ORACLE && supportedUrlType);
+        exportButton.setVisible(databaseType == DatabaseType.ORACLE && supportedUrlType);
     }
 
     private void updateJsonExportVisibility() {
@@ -234,7 +234,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
                     showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), getLocalizedMessage(e1));
                 }
             }
-            if (source == jsonButton){
+            if (source == exportButton){
                 Project project = ensureProject();
                 try{
                     ConnectionSettings tmp = getTemporaryConfig();

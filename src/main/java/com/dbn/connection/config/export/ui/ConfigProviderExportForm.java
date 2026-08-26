@@ -1,13 +1,19 @@
 package com.dbn.connection.config.export.ui;
 
 import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.export.ExportDestination;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.message.MessageType;
+import com.dbn.common.message.TitledMessage;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.info.DBNInfoLabel;
-import com.dbn.common.util.Messages;
+import com.dbn.common.ui.util.CheckBoxes;
+import com.dbn.common.ui.util.ComboBoxes;
+import com.dbn.common.util.FileChoosers;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
@@ -15,8 +21,7 @@ import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.export.ConfigProviderExportManager;
 import com.dbn.connection.config.export.ConfigProviderExportRequest;
 import com.dbn.connection.config.export.ConfigProviderMapper;
-import com.intellij.openapi.fileChooser.FileChooser;
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
 import com.intellij.openapi.fileChooser.FileSaverDescriptor;
 import com.intellij.openapi.fileChooser.FileSaverDialog;
@@ -26,23 +31,30 @@ import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.ui.components.JBCheckBox;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.ButtonGroup;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.nio.file.Path;
 
+import static com.dbn.common.export.ExportDestination.CLIPBOARD;
+import static com.dbn.common.export.ExportDestination.FILE;
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.CheckBoxes.installCheckConfirmation;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.PasswordFields.getPassword;
 import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Chars.isNotEmpty;
 import static com.dbn.common.util.Commons.matchArrays;
+import static com.dbn.common.util.FileChoosers.addFileChooser;
+import static com.dbn.common.util.FileChoosers.withExtensionFilter;
 import static com.dbn.common.util.Passwords.clearPassword;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.nls.NlsResources.txt;
@@ -50,33 +62,29 @@ import static com.dbn.nls.NlsResources.txt;
 public class ConfigProviderExportForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
-    private JPanel outputFilePanel;
 
     private JTextField wrapperKeyTextField;
-    private DBNCommentLabel wrapperKeyHintLabel;
-    private JPanel databasePasswordPanel;
-    private JBCheckBox includeDatabasePasswordCheckBox;
-    private DBNCommentLabel databasePasswordWarningLabel;
+    private JBCheckBox passwordCheckBox;
     private JLabel databasePasswordLabel;
     private JPasswordField databasePasswordField;
-    private TextFieldWithBrowseButton outputFileTextField;
-    private JRadioButton clipboardDestinationRadioButton;
-    private JRadioButton fileDestinationRadioButton;
+    private TextFieldWithBrowseButton destinationFileTextField;
 
-    private JBCheckBox includeWalletCheckBox;
+    private JBCheckBox walletCheckBox;
     private DBNInfoLabel walletInfoLabel;
-    private JPanel walletPanel;
 
     private TextFieldWithBrowseButton walletFileTextField;
     private DBNCommentLabel walletFileHintLabel;
     private JLabel walletFileLabel;
+    private JComboBox<ExportDestination> destinationComboBox;
+    private JLabel destinationFileLabel;
+    private DBNInfoLabel configKeyInfoLabel;
 
     private Path outputFile;
     private Path walletFile;
 
     private final ConnectionSettings connectionSettings;
-    private final boolean walletConfigured;
-    private final boolean databasePasswordExportAvailable;
+    private final boolean walletAvailable;
+    private final boolean passwordAvailable;
 
     ConfigProviderExportForm(
             @NotNull ConfigProviderExportDialog parent,
@@ -84,23 +92,18 @@ public class ConfigProviderExportForm extends DBNFormBase {
 
         super(parent);
         this.connectionSettings = connectionSettings;
-        this.walletConfigured = ConfigProviderMapper.hasConfiguredWallet(connectionSettings);
-        this.databasePasswordExportAvailable = hasConfiguredDatabasePassword(connectionSettings);
+        this.walletAvailable = ConfigProviderMapper.hasConfiguredWallet(connectionSettings);
+        this.passwordAvailable = hasConfiguredDatabasePassword(connectionSettings);
 
         initHeaderPanel();
         walletInfoLabel.setContent(plain(txt("cfg.connection.text.OracleWalletInfo")));
-        outputFileTextField.getTextField().setEditable(false);
+        destinationFileTextField.getTextField().setEditable(false);
         walletFileTextField.getTextField().setEditable(false);
 
-        ButtonGroup destinationGroup = new ButtonGroup();
-        destinationGroup.add(clipboardDestinationRadioButton);
-        destinationGroup.add(fileDestinationRadioButton);
-        fileDestinationRadioButton.setSelected(true);
+        ComboBoxes.initComboBox(destinationComboBox, ExportDestination.values());
 
+        configKeyInfoLabel.setContent(plain(txt("cfg.connection.hint.ExportWrapperKey")));
         initListeners();
-        updateDatabasePasswordControls();
-        updateWalletControls();
-        updateDestinationControls();
     }
 
     private static boolean hasConfiguredDatabasePassword(@NotNull ConnectionSettings connectionSettings) {
@@ -135,58 +138,57 @@ public class ConfigProviderExportForm extends DBNFormBase {
         StateAttributes state = exportManager.getExportFormState();
 
         initPersistence(wrapperKeyTextField, state, "last-wrapper-key");
-        initPersistence(outputFileTextField, state, "last-output-file");
-        initPersistence(includeWalletCheckBox, state, "last-include-wallet");
+        initPersistence(destinationFileTextField, state, "last-output-file");
+        initPersistence(walletCheckBox, state, "last-include-wallet");
         initPersistence(walletFileTextField, state, "last-wallet-file");
+        initPersistence(destinationComboBox, state, "last-destination");
 
-        if (Strings.isEmpty(getText(outputFileTextField))) {
-            setText(outputFileTextField, getDefaultOutputFile().toString());
+        if (Strings.isEmpty(getText(destinationFileTextField))) {
+            setText(destinationFileTextField, getDefaultOutputFile().toString());
         }
 
-        outputFile = toPath(getText(outputFileTextField));
+        outputFile = toPath(getText(destinationFileTextField));
         walletFile = toPath(getText(walletFileTextField));
-        updateWalletControls();
-        updateDestinationControls();
+        updateFieldAvailability();
     }
 
     private void initListeners() {
-        outputFileTextField.addActionListener(e -> chooseOutputFile());
+        destinationFileTextField.addActionListener(e -> chooseOutputFile());
 
-        clipboardDestinationRadioButton.addActionListener(e -> updateDestinationControls());
-        fileDestinationRadioButton.addActionListener(e -> updateDestinationControls());
+        onSelectionChange(destinationComboBox, e -> updateFieldAvailability());
+        CheckBoxes.onSelectionChange(walletCheckBox, e -> updateFieldAvailability());
+        CheckBoxes.onSelectionChange(passwordCheckBox, e -> updateFieldAvailability());
 
-        includeWalletCheckBox.addActionListener(e -> {
-            updateWalletControls();
-            updateDestinationControls();
-            if (!includeWalletCheckBox.isSelected()) {
-                walletFile = null;
-                walletFileTextField.setText("");
-            }
-            validateFormFields();
-        });
+        installCheckConfirmation(passwordCheckBox, getProject(), createPasswordExposureMessage());
+        addFileChooser(getProject(), walletFileTextField, tnsFileChooser());
+    }
 
-        includeDatabasePasswordCheckBox.addActionListener(e -> {
-            if (includeDatabasePasswordCheckBox.isSelected() && !confirmDatabasePasswordExport()) {
-                includeDatabasePasswordCheckBox.setSelected(false);
-            }
-            if (!includeDatabasePasswordCheckBox.isSelected()) {
-                clearDatabasePasswordFields();
-            }
-            updateDatabasePasswordControls();
-            validateFormFields();
-        });
+    public static @NotNull FileChooserDescriptor tnsFileChooser() {
+        FileChooserDescriptor descriptor = FileChoosers.singleFile().
+                withTitle(txt("cfg.connection.title.SelectSsoFile")).
+                withDescription(txt("cfg.connection.text.SelectSsoFile"))/*.
+                withExtensionFilter("ora")*/;
 
-        walletFileTextField.addActionListener(e -> chooseWalletFile());
+        return withExtensionFilter(descriptor, "sso");
+    }
+
+    private static @NotNull TitledMessage createPasswordExposureMessage() {
+        return new TitledMessage(
+                MessageType.WARNING,
+                txt("msg.connection.title.ExportDatabasePassword"),
+                txt("msg.connection.question.ExportDatabasePassword"));
     }
 
     @Override
     protected void initValidation() {
-        addTextValidation(outputFileTextField.getTextField(), f -> validateOutputFile());
+        addTextValidation(destinationFileTextField.getTextField(), f -> validateDestinationFile());
         addTextValidation(walletFileTextField.getTextField(), f -> validateWalletFile());
         addPasswordValidation(databasePasswordField, password -> !isDatabasePasswordExportSelected() || isNotEmpty(password),
                 txt("msg.connection.error.ExportPasswordRequired"));
         addPasswordValidation(databasePasswordField, this::matchesConfiguredDatabasePassword,
                 txt("msg.connection.error.ExportPasswordMismatch"));
+
+        addValidation(destinationComboBox, f -> validateDestination());
     }
 
     private boolean matchesConfiguredDatabasePassword(char[] password) {
@@ -214,67 +216,35 @@ public class ConfigProviderExportForm extends DBNFormBase {
         if (file == null) return;
 
         outputFile = Path.of(file.getPath());
-        outputFileTextField.setText(outputFile.toString());
+        destinationFileTextField.setText(outputFile.toString());
         validateFormFields();
     }
 
-    private void chooseWalletFile() {
-        if (!includeWalletCheckBox.isSelected()) return;
+    @Override
+    protected void initFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
 
-        var descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor();
-        descriptor.setTitle("Select Wallet File");
-        descriptor.setDescription("Select cwallet.sso");
-        descriptor.withFileFilter(vf -> {
-            String n = vf.getName().toLowerCase();
-            return n.equals("cwallet.sso");
-        });
+        fieldAdapter.initFieldsVisibility(() -> getExportDestination() == FILE, array(
+                destinationFileLabel,
+                destinationFileTextField));
 
-        VirtualFile vf = FileChooser.chooseFile(descriptor, getProject(), null);
-        if (vf == null) return;
+        fieldAdapter.initFieldsVisibility(() -> walletAvailable, array(
+                walletInfoLabel,
+                walletCheckBox));
 
-        walletFile = Path.of(vf.getPath());
-        walletFileTextField.setText(walletFile.toString());
-        validateFormFields();
-    }
+        fieldAdapter.initFieldsVisibility(() -> walletAvailable && walletCheckBox.isSelected(), array(
+                walletFileLabel,
+                walletFileTextField,
+                walletFileHintLabel));
 
-    private void updateWalletControls() {
-        if (!walletConfigured) {
-            includeWalletCheckBox.setSelected(false);
-            walletFile = null;
-            walletFileTextField.setText("");
-        }
-
-        boolean enabled = walletConfigured && includeWalletCheckBox.isSelected();
-        walletPanel.setVisible(walletConfigured);
-        walletFileLabel.setVisible(enabled);
-        walletFileTextField.setVisible(enabled);
-        walletFileTextField.setEnabled(enabled);
-        walletFileTextField.getTextField().setEnabled(enabled);
-        walletFileHintLabel.setVisible(enabled);
-    }
-
-    private void updateDatabasePasswordControls() {
-        boolean includePassword = isDatabasePasswordExportSelected();
-        databasePasswordPanel.setVisible(databasePasswordExportAvailable);
-        includeDatabasePasswordCheckBox.setVisible(databasePasswordExportAvailable);
-        databasePasswordWarningLabel.setVisible(includePassword);
-        databasePasswordLabel.setVisible(includePassword);
-        databasePasswordField.setVisible(includePassword);
+        fieldAdapter.initFieldsVisibility(() -> passwordAvailable, array(passwordCheckBox));
+        fieldAdapter.initFieldsVisibility(() -> passwordAvailable && passwordCheckBox.isSelected(), array(
+                databasePasswordLabel,
+                databasePasswordField));
     }
 
     private boolean isDatabasePasswordExportSelected() {
-        return databasePasswordExportAvailable && includeDatabasePasswordCheckBox.isSelected();
-    }
-
-    private boolean confirmDatabasePasswordExport() {
-        int option = Messages.showAcknowledgementDialog(
-                getProject(),
-                txt("msg.connection.title.ExportDatabasePassword"),
-                txt("msg.connection.question.ExportDatabasePassword"),
-                Messages.OPTIONS_YES_NO,
-                1,
-                null);
-        return option == 0;
+        return passwordAvailable && passwordCheckBox.isSelected();
     }
 
     private void clearDatabasePasswordFields() {
@@ -286,21 +256,9 @@ public class ConfigProviderExportForm extends DBNFormBase {
         }
     }
 
-    private void updateDestinationControls() {
-        boolean clipboardAvailable = !includeWalletCheckBox.isSelected();
-        clipboardDestinationRadioButton.setEnabled(clipboardAvailable);
-        clipboardDestinationRadioButton.setToolTipText(clipboardAvailable ? null :
-                txt("cfg.connection.tooltip.ClipboardWithWallet"));
 
-        if (!clipboardAvailable && clipboardDestinationRadioButton.isSelected()) {
-            fileDestinationRadioButton.setSelected(true);
-        }
-
-        boolean fileDestination = fileDestinationRadioButton.isSelected();
-        outputFilePanel.setVisible(fileDestination);
-        mainPanel.revalidate();
-        mainPanel.repaint();
-        validateFormFields();
+    private ExportDestination getExportDestination() {
+        return getSelection(destinationComboBox);
     }
 
     private Path getDefaultOutputFile() {
@@ -313,16 +271,23 @@ public class ConfigProviderExportForm extends DBNFormBase {
         return Strings.isEmpty(path) ? null : Path.of(path);
     }
 
-    private String validateOutputFile() {
-        if (clipboardDestinationRadioButton.isSelected()) return null;
-        if (outputFile == null) {
-            return "Please choose an output file.";
+    private String validateDestinationFile() {
+        if (getExportDestination() != FILE) return null;
+        if (outputFile == null) return "Please choose an output file.";
+        return null;
+    }
+
+    private String validateDestination() {
+        if (getExportDestination() == CLIPBOARD) {
+            if (walletCheckBox.isSelected()) {
+                return txt("cfg.connection.warning.ClipboardWithWallet");
+            }
         }
         return null;
     }
 
     private String validateWalletFile() {
-        if (includeWalletCheckBox.isSelected() && walletFile == null) {
+        if (walletCheckBox.isSelected() && walletFile == null) {
             return "Please choose a wallet file or uncheck 'Include wallet'.";
         }
         return null;
@@ -335,15 +300,13 @@ public class ConfigProviderExportForm extends DBNFormBase {
         char[] databasePassword = isDatabasePasswordExportSelected() ? getPassword(databasePasswordField) : null;
 
         return ConfigProviderExportRequest.builder()
-                .outputFile(fileDestinationRadioButton.isSelected() ? outputFile : null)
-                .destination(clipboardDestinationRadioButton.isSelected() ?
-                        ConfigProviderExportRequest.Destination.CLIPBOARD :
-                        ConfigProviderExportRequest.Destination.FILE)
+                .outputFile(getExportDestination() == FILE  ? outputFile : null)
+                .destination(getExportDestination())
                 .formatId("json") // JSON-only UI
                 .wrapperKey(key)
                 .includeDatabasePassword(databasePassword != null)
                 .databasePassword(databasePassword)
-                .includeWallet(includeWalletCheckBox.isSelected())
+                .includeWallet(walletCheckBox.isSelected())
                 .walletFile(walletFile)
                 .build();
     }
