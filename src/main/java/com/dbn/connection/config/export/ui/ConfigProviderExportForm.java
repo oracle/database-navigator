@@ -13,42 +13,38 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.export.ConfigProviderExportManager;
-import com.dbn.connection.config.export.ConfigProviderMapper;
 import com.dbn.connection.config.export.ConfigProviderExportRequest;
-import com.intellij.openapi.fileChooser.FileSaverDescriptor;
-import com.intellij.openapi.fileChooser.FileSaverDialog;
+import com.dbn.connection.config.export.ConfigProviderMapper;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
-import com.intellij.openapi.vfs.VirtualFileWrapper;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.fileChooser.FileSaverDescriptor;
+import com.intellij.openapi.fileChooser.FileSaverDialog;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.ui.components.JBCheckBox;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.ButtonGroup;
-import javax.swing.JRadioButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.nio.file.Path;
 
+import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.PasswordFields.getPassword;
 import static com.dbn.common.ui.util.PasswordFields.setPassword;
-import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.TextFields.getText;
-import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Chars.isNotEmpty;
 import static com.dbn.common.util.Commons.matchArrays;
 import static com.dbn.common.util.Passwords.clearPassword;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
-import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_INCLUDE_WALLET;
-import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_OUTPUT_FILE;
-import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_WALLET_FILE;
-import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_WRAPPER_KEY;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ConfigProviderExportForm extends DBNFormBase {
@@ -78,35 +74,18 @@ public class ConfigProviderExportForm extends DBNFormBase {
     private Path outputFile;
     private Path walletFile;
 
-    private final ConfigProviderExportManager exportService;
-    private final ConnectionHandler connection;
     private final ConnectionSettings connectionSettings;
     private final boolean walletConfigured;
     private final boolean databasePasswordExportAvailable;
 
     ConfigProviderExportForm(
             @NotNull ConfigProviderExportDialog parent,
-            @NotNull ConfigProviderExportManager exportService,
-            @Nullable ConnectionHandler connection,
             @NotNull ConnectionSettings connectionSettings) {
 
         super(parent);
-        this.exportService = exportService;
-        this.connection = connection;
         this.connectionSettings = connectionSettings;
         this.walletConfigured = ConfigProviderMapper.hasConfiguredWallet(connectionSettings);
         this.databasePasswordExportAvailable = hasConfiguredDatabasePassword(connectionSettings);
-
-        // Fail-fast if .form bindings are wrong
-        if (mainPanel == null || headerPanel == null || outputFilePanel == null || wrapperKeyTextField == null || wrapperKeyHintLabel == null ||
-                databasePasswordPanel == null || includeDatabasePasswordCheckBox == null || databasePasswordWarningLabel == null ||
-                databasePasswordLabel == null || databasePasswordField == null ||
-                outputFileTextField == null ||
-                clipboardDestinationRadioButton == null || fileDestinationRadioButton == null ||
-                includeWalletCheckBox == null || walletInfoLabel == null || walletPanel == null ||
-                walletFileTextField == null || walletFileHintLabel == null || walletFileLabel == null) {
-            throw new IllegalStateException("Form binding failed. Check ConfigProviderExportForm.form bindings.");
-        }
 
         initHeaderPanel();
         walletInfoLabel.setContent(plain(txt("cfg.connection.text.OracleWalletInfo")));
@@ -126,7 +105,8 @@ public class ConfigProviderExportForm extends DBNFormBase {
 
     private static boolean hasConfiguredDatabasePassword(@NotNull ConnectionSettings connectionSettings) {
         AuthenticationInfo authentication = connectionSettings.getDatabaseSettings().getAuthenticationInfo();
-        if (authentication == null || authentication.getType() != USER_PASSWORD) return false;
+        if (authentication == null) return false;
+        if (authentication.getType() != USER_PASSWORD) return false;
 
         char[] password = authentication.getPassword();
         try {
@@ -138,6 +118,7 @@ public class ConfigProviderExportForm extends DBNFormBase {
 
     private void initHeaderPanel() {
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
+        ConnectionHandler connection = getConnection();
         DBNHeaderForm headerForm = connection == null ?
                 new DBNHeaderForm(
                         this,
@@ -150,19 +131,20 @@ public class ConfigProviderExportForm extends DBNFormBase {
 
     @Override
     protected void initStatePersistence() {
-        StateAttributes state = exportService.getExportFormState();
+        ConfigProviderExportManager exportManager = ConfigProviderExportManager.getInstance();
+        StateAttributes state = exportManager.getExportFormState();
 
-        initPersistence(wrapperKeyTextField, state, LAST_WRAPPER_KEY);
-        initPersistence(outputFileTextField.getTextField(), state, LAST_OUTPUT_FILE);
-        initPersistence(includeWalletCheckBox, state, LAST_INCLUDE_WALLET);
-        initPersistence(walletFileTextField.getTextField(), state, LAST_WALLET_FILE);
+        initPersistence(wrapperKeyTextField, state, "last-wrapper-key");
+        initPersistence(outputFileTextField, state, "last-output-file");
+        initPersistence(includeWalletCheckBox, state, "last-include-wallet");
+        initPersistence(walletFileTextField, state, "last-wallet-file");
 
-        if (Strings.isEmpty(getText(outputFileTextField.getTextField()))) {
-            outputFileTextField.setText(getDefaultOutputFile().toString());
+        if (Strings.isEmpty(getText(outputFileTextField))) {
+            setText(outputFileTextField, getDefaultOutputFile().toString());
         }
 
-        outputFile = toPath(getText(outputFileTextField.getTextField()));
-        walletFile = toPath(getText(walletFileTextField.getTextField()));
+        outputFile = toPath(getText(outputFileTextField));
+        walletFile = toPath(getText(walletFileTextField));
         updateWalletControls();
         updateDestinationControls();
     }
@@ -347,8 +329,8 @@ public class ConfigProviderExportForm extends DBNFormBase {
     }
 
     public ConfigProviderExportRequest getExportRequest() {
-        String key = Strings.trim(getText(wrapperKeyTextField));
-        if (key != null && key.isBlank()) key = null;
+        String key = getText(wrapperKeyTextField);
+        if (key.isBlank()) key = null;
 
         char[] databasePassword = isDatabasePasswordExportSelected() ? getPassword(databasePasswordField) : null;
 

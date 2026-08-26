@@ -100,7 +100,7 @@ public class SelectAiHelpForm extends DBNFormBase {
     initializeWindow();
   }
 
-  private ConnectionHandler getConnection() {
+    public ConnectionHandler getConnection() {
     return connection.ensure();
   }
 

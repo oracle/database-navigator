@@ -12,6 +12,7 @@ import com.dbn.connection.config.EasyConnectParameters;
 import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.dbn.connection.config.tns.TnsProfile;
+import lombok.experimental.UtilityClass;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -21,8 +22,8 @@ import java.util.Map;
 import static com.dbn.common.util.Files.normalizePath;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 
+@UtilityClass
 public class ConfigProviderMapper {
-    private ConfigProviderMapper(){}
 
     public static boolean hasConfiguredWallet(ConnectionSettings settings) {
         if (settings == null) return false;

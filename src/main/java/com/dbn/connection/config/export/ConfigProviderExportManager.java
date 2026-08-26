@@ -31,10 +31,10 @@ import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Chars.isNotEmpty;
 import static com.dbn.common.util.Commons.matchArrays;
+import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Passwords.clearPassword;
 import static com.dbn.connection.config.export.JsonExistingContentWriteMode.NONE;
 import static com.dbn.connection.config.export.JsonExistingContentWriteMode.REPLACE_ROOT;
-import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -46,11 +46,6 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
     public static final String COMPONENT_NAME = "DBNavigator.Application.ConfigProviderExportService";
     private static final StateCategory EXPORT_FORM = StateCategory.get("EXPORT_FORM");
     private static final String STATES = "states";
-
-    public static final String LAST_OUTPUT_FILE = "last-output-file";
-    public static final String LAST_WRAPPER_KEY = "last-wrapper-key";
-    public static final String LAST_INCLUDE_WALLET = "last-include-wallet";
-    public static final String LAST_WALLET_FILE = "last-wallet-file";
 
     private final StateContainer states = new StateContainer();
 
@@ -72,7 +67,7 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
             @NotNull Project project,
             @Nullable ConnectionHandler connection,
             @NotNull ConnectionSettings settings) {
-        Dialogs.show(() -> new ConfigProviderExportDialog(project, this, connection, settings));
+        Dialogs.show(() -> new ConfigProviderExportDialog(project, connection, settings));
     }
 
     public boolean confirmExport(

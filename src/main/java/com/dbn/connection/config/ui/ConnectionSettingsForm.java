@@ -26,8 +26,8 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.TabbedPanes;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Safe;
-import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.ConnectivityStatus;
 import com.dbn.connection.DatabaseType;
@@ -239,9 +239,8 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
                 try{
                     ConnectionSettings tmp = getTemporaryConfig();
                     ConnectionHandler connection = ConnectionHandler.get(configuration.getConnectionId());
-                    ConfigProviderExportManager
-                            .getInstance()
-                            .exportConnection(project, connection, tmp);
+                    ConfigProviderExportManager exportManager = ConfigProviderExportManager.getInstance();
+                    exportManager.exportConnection(project, connection, tmp);
                 }catch (ConfigurationException ex) {
                     conditionallyLog(ex);
                     showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), getLocalizedMessage(ex));

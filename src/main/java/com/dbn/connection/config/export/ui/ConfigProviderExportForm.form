@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dbn.connection.config.export.ui.ConfigProviderExportForm">
-  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="9" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-    <margin top="16" left="16" bottom="16" right="16"/>
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="10" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="8" left="8" bottom="8" right="8"/>
     <constraints>
-      <xy x="20" y="20" width="720" height="320"/>
+      <xy x="20" y="20" width="722" height="468"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -24,7 +24,7 @@
         </constraints>
         <properties>
           <labelFor value="8f31b"/>
-          <text value="Optional key:"/>
+          <text value="Optional key"/>
         </properties>
       </component>
       <component id="8f31b" class="javax.swing.JTextField" binding="wrapperKeyTextField">
@@ -126,7 +126,7 @@
             </constraints>
             <properties>
               <labelFor value="a2e67"/>
-              <text value="Save JSON to:"/>
+              <text value="Save JSON to"/>
             </properties>
           </component>
           <component id="a2e67" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="outputFileTextField">
@@ -193,6 +193,11 @@
           <text resource-bundle="messages/DBNResources" key="cfg.connection.hint.OracleWalletFileFormat"/>
         </properties>
       </component>
+      <vspacer id="f07d3">
+        <constraints>
+          <grid row="9" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
     </children>
   </grid>
 </form>

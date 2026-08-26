@@ -26,8 +26,8 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.provider.CloudConfigProviderAuthentication;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
-import com.dbn.oci.config.OciAuthenticationConfig;
 import com.dbn.credentials.Secret;
+import com.dbn.oci.config.OciAuthenticationConfig;
 import com.dbn.oci.config.OciConfigUtil;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -344,7 +344,7 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         return parent.getConfiguration().getDatabaseInfo();
     }
 
-    private ConnectionId getConnectionId() {
+    public ConnectionId getConnectionId() {
         ConnectionDatabaseSettingsForm parent = ensureParentComponent();
         return parent.getConfiguration().getConnectionId();
     }
