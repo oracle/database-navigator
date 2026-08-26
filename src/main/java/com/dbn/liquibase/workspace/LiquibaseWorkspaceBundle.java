@@ -129,7 +129,8 @@ public class LiquibaseWorkspaceBundle implements PersistentStateElement, Cloneab
     public void rememberWorkspace(
             @NotNull ConnectionId connectionId,
             @NotNull SchemaId schemaId,
-            @NotNull LiquibaseWorkspace workspace) {
+            @Nullable LiquibaseWorkspace workspace) {
+        if (workspace == null) return;
         selections.computeIfAbsent(connectionId, id -> new LinkedHashMap<>())
                 .put(schemaId, workspace.getId());
     }

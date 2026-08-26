@@ -32,7 +32,6 @@ import java.awt.BorderLayout;
 import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isValid;
-import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -121,13 +120,11 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         // model context combo-boxes
         connectionComboBox.setValues(connection);
         connectionComboBox.setSelectedValue(connection);
-        connectionComboBox.set(HIDE_DESCRIPTION, true);
         connectionComboBox.setEnabled(false); // TODO support connection switch
 
         SchemaId schemaId = schema.getSchemaId();
         schemaComboBox.setValues(schemaId);
         schemaComboBox.setSelectedValue(schemaId);
-        schemaComboBox.set(HIDE_DESCRIPTION, true);
         schemaComboBox.setEnabled(false); // TODO support connection switch
 
         // model source combo-box

@@ -19,7 +19,6 @@ package com.dbn.editor.data.state.sorting.ui;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.ValueSelector;
-import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.UserInterface;
@@ -90,7 +89,7 @@ public class DatasetEditorSortingForm extends DBNFormBase {
 
     private class ColumnSelector extends ValueSelector<DBColumn> {
         ColumnSelector() {
-            super(PlatformIcons.ADD_ICON, txt("app.dataEditor.action.AddSortingColumn"), null, ValueSelectorOption.HIDE_DESCRIPTION);
+            super(PlatformIcons.ADD_ICON, txt("app.dataEditor.action.AddSortingColumn"), null);
             addListener((oldValue, newValue) -> {
                 if (newValue != null) {
                     addSortingColumn(newValue);

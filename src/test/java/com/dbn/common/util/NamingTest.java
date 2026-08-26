@@ -20,10 +20,54 @@ import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.compatibility.Workaround;
 import org.junit.Test;
 
+import java.util.Set;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class NamingTest {
+
+    @Test
+    public void testNextNumberedIdentifier_withLargeNumericSuffix() {
+        String identifier = "35679075542";
+        assertEquals("356790755422", Naming.nextNumberedIdentifier(identifier, false,
+                () -> Set.of(identifier, "356790755421")));
+        assertEquals("35679075542 2", Naming.nextNumberedIdentifier(identifier, true,
+                () -> Set.of(identifier, "35679075542 1")));
+    }
+
+    @Test
+    public void testNextNumberedIdentifier_withFreeIdentifier() {
+        assertEquals("Connection", Naming.nextNumberedIdentifier("Connection", false, name -> false));
+        assertEquals("12345", Naming.nextNumberedIdentifier("12345", false, name -> false));
+    }
+
+    @Test
+    public void testNextNumberedIdentifier_withPrefixedIdentifier() {
+        assertEquals("Connection1", Naming.nextNumberedIdentifier("Connection", false, Set.of("Connection")::contains));
+        assertEquals("Connection 1", Naming.nextNumberedIdentifier("Connection", true, Set.of("Connection")::contains));
+        assertEquals("Connection 3", Naming.nextNumberedIdentifier("Connection 1", true,
+                Set.of("Connection 1", "Connection 2")::contains));
+    }
+
+    @Test
+    public void testNextNumberedIdentifier_withExistingNumber() {
+        assertEquals("Session 1", Naming.nextNumberedIdentifier("Session 1", true, name -> false));
+        assertEquals("Session 2", Naming.nextNumberedIdentifier("Session 1", true,
+                Set.of("Session 1")::contains));
+        assertEquals("Session 4", Naming.nextNumberedIdentifier("Session 1", true,
+                Set.of("Session 1", "Session 2", "Session 3")::contains));
+    }
+
+    @Test
+    public void testNextNumberedIdentifier_withPureNumericIdentifier() {
+        assertEquals("123451", Naming.nextNumberedIdentifier("12345", false,
+                Set.of("12345")::contains));
+        assertEquals("12345 1", Naming.nextNumberedIdentifier("12345", true,
+                Set.of("12345")::contains));
+        assertEquals("123453", Naming.nextNumberedIdentifier("12345", false,
+                Set.of("12345", "123451", "123452")::contains));
+    }
 
     @Test
     public void testLowerCaseWords_withCamelCase() {

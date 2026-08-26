@@ -28,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.dbn.liquibase.execution.LiquibaseCommands.CALCULATE_CHECKSUM;
 import static com.dbn.liquibase.execution.LiquibaseExecutionItemStatus.PROCESSED;
@@ -73,10 +72,11 @@ public class LiquibaseCalculateChecksumsProcessor extends LiquibaseExecutionProc
             items.add(item);
             item.startProcessing();
 
-            CommandResults commandResults = executeCommand(CALCULATE_CHECKSUM, output, Map.of(
+            var arguments = arguments(
                     "database", database,
                     "changelogFile", paths.getMasterChangelogRelativePath(),
-                    "changesetIdentifier", changeSet.toString()));
+                    "changesetIdentifier", changeSet.toString());
+            CommandResults commandResults = executeCommand(CALCULATE_CHECKSUM, context, output, arguments);
 
             CheckSum calculatedChecksum = commandResults.getResult(CalculateChecksumCommandStep.CHECKSUM_RESULT);
             RanChangeSet ranChangeSet = database.getRanChangeSet(changeSet);

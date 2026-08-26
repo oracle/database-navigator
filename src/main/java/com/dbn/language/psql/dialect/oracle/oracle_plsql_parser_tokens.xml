@@ -19,6 +19,7 @@
 <token-def>
     <tokens>
         <token id="UNKNOWN" value="" category="unknown"/>
+        <token id="CT_DBLINK_QUALIFIER" value="" category="identifier"/>
         <token id="CT_OUTER_JOIN" value="" category="character"/>
         <token id="CT_SIZE_CLAUSE" value="" category="keyword"/>
 
