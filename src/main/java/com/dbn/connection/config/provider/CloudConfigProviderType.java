@@ -89,7 +89,7 @@ public enum CloudConfigProviderType implements Presentable {
         return getFamily() == HASHICORP;
     }
 
-    public String getRegionParameterName() {
+    public String getAwsRegionParameterName() {
         return isAws() ? "AWS_REGION" : null;
     }
 }

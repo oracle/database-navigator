@@ -22,39 +22,28 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-import static com.dbn.connection.config.provider.CloudConfigProviderType.HASHICORP_VAULT;
-
 @UtilityClass
 public class ConfigProviderSecretStore {
 
     public static void addRuntimeSecrets(
             @NotNull Map<String, String> parameters,
-            @NotNull ConfigProviderInfo configProviderInfo) {
-        CloudAuthenticationType authentication = configProviderInfo.getCloudProviderAuthentication();
+            @NotNull ConfigProviderInfo configProvider) {
+        CloudAuthenticationType authentication = configProvider.getCloudProviderAuthentication();
         if (authentication == null) return;
 
-        if (configProviderInfo.getCloudProviderType() != HASHICORP_VAULT) {
+        if (configProvider.isAzureProvider()) {
             switch (authentication) {
-                case AZURE_SERVICE_PRINCIPAL_SECRET ->
-                        addRuntimeSecret(parameters, "AZURE_CLIENT_SECRET", configProviderInfo.getAzureClientSecret());
-                case AZURE_SERVICE_PRINCIPAL_CERTIFICATE ->
-                        addRuntimeSecret(parameters, "AZURE_CLIENT_CERTIFICATE_PASSWORD", configProviderInfo.getAzureClientCertificatePassword());
-                default -> {
-                }
+                case AZURE_SERVICE_PRINCIPAL_SECRET -> addRuntimeSecret(parameters, "AZURE_CLIENT_SECRET", configProvider.getAzureClientSecret());
+                case AZURE_SERVICE_PRINCIPAL_CERTIFICATE -> addRuntimeSecret(parameters, "AZURE_CLIENT_CERTIFICATE_PASSWORD", configProvider.getAzureClientCertificatePassword());
+                default -> {}
             }
-            return;
-        }
-
-        switch (authentication) {
-            case HCP_VAULT_TOKEN ->
-                    addRuntimeSecret(parameters, "VAULT_TOKEN", configProviderInfo.getHashicorpVaultToken());
-            case HCP_USERPASS ->
-                    addRuntimeSecret(parameters, "VAULT_PASSWORD", configProviderInfo.getHashicorpVaultPassword());
-            case HCP_APPROLE ->
-                    addRuntimeSecret(parameters, "SECRET_ID", configProviderInfo.getHashicorpAppRoleSecretId());
-            case HCP_GITHUB ->
-                    addRuntimeSecret(parameters, "GITHUB_TOKEN", configProviderInfo.getHashicorpGithubToken());
-            default -> {
+        } else if (configProvider.isHashicorpProvider()) {
+            switch (authentication) {
+                case HCP_VAULT_TOKEN -> addRuntimeSecret(parameters, "VAULT_TOKEN", configProvider.getHashicorpVaultToken());
+                case HCP_USERPASS -> addRuntimeSecret(parameters, "VAULT_PASSWORD", configProvider.getHashicorpVaultPassword());
+                case HCP_APPROLE -> addRuntimeSecret(parameters, "SECRET_ID", configProvider.getHashicorpAppRoleSecretId());
+                case HCP_GITHUB -> addRuntimeSecret(parameters, "GITHUB_TOKEN", configProvider.getHashicorpGithubToken());
+                default -> {}
             }
         }
     }

@@ -288,7 +288,7 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
             String azureAppConfigLabel) {
         this.providerSourceType = Commons.nvl(sourceType, ConfigSourceType.FILE);
         this.cloudProviderType = this.providerSourceType == ConfigSourceType.CLOUD ? cloudProviderType : null;
-        this.awsRegion = isRegionConfig() ? awsRegion : null;
+        this.awsRegion = isAwsRegionConfig() ? awsRegion : null;
         this.providerProfileKey = normalizeProfileKey(profileKey);
         this.azureAppConfigLabel = isAzureAppConfig() ? azureAppConfigLabel : null;
         setProviderLocation(configLocation);
@@ -343,10 +343,10 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         return isCloudProviderConfig() && cloudProviderType == CloudConfigProviderType.OCI_OBJECT;
     }
 
-    public boolean isRegionConfig() {
+    public boolean isAwsRegionConfig() {
         return isCloudProviderConfig() &&
                 cloudProviderType != null &&
-                cloudProviderType.getRegionParameterName() != null;
+                cloudProviderType.getAwsRegionParameterName() != null;
     }
 
     public boolean isInteractiveAuthentication() {
@@ -360,15 +360,15 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         return isCloudProviderConfig() && cloudProviderType == AZURE_APP_CONFIG;
     }
 
-    private boolean isOciProvider() {
+    public boolean isOciProvider() {
         return isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isOci();
     }
 
-    private boolean isAzureProvider() {
+    public boolean isAzureProvider() {
         return isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isAzure();
     }
 
-    private boolean isHashicorpProvider() {
+    public boolean isHashicorpProvider() {
         return isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isHashicorp();
     }
 
@@ -391,8 +391,8 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
             parameters.put("label", azureAppConfigLabel);
         }
 
-        if (isRegionConfig() && isNotEmptyOrSpaces(awsRegion)) {
-            parameters.put(cloudProviderType.getRegionParameterName(), awsRegion.trim());
+        if (isAwsRegionConfig() && isNotEmptyOrSpaces(awsRegion)) {
+            parameters.put(cloudProviderType.getAwsRegionParameterName(), awsRegion.trim());
         }
 
         if (includeAuthentication && isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isOci()) {
@@ -567,8 +567,8 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
             hashicorpAppRoleAuthPath = getParameterIgnoreCase(parameters, "APPROLE_AUTH_PATH");
             hashicorpGithubAuthPath = getParameterIgnoreCase(parameters, "GITHUB_AUTH_PATH");
         }
-        if (isRegionConfig()) {
-            awsRegion = getParameterIgnoreCase(parameters, cloudProviderType.getRegionParameterName());
+        if (isAwsRegionConfig()) {
+            awsRegion = getParameterIgnoreCase(parameters, cloudProviderType.getAwsRegionParameterName());
         }
     }
 

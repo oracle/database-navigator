@@ -557,7 +557,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
     private boolean isCloudRegionConfig() {
         CloudConfigProviderType provider = getCloudConfigProviderType();
-        return isCloudProviderConfig() && provider != null && provider.getRegionParameterName() != null;
+        return isCloudProviderConfig() && provider != null && provider.getAwsRegionParameterName() != null;
     }
 
     boolean isCloudProviderConfig() {
