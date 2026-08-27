@@ -53,7 +53,8 @@ public class MLFeatureImportanceTableModel extends DBNDynamicTableModel<MLFeatur
         if (value == null) return "";
 
         switch (column) {
-            case COLUMN_IMPORTANCE: return String.format("%.4f", (Double) value);
+            // EXPLAIN's EXPLANATORY_VALUE is documented as ranging 0 to 1, so it renders as a percentage
+            case COLUMN_IMPORTANCE: return String.format("%.1f%%", (Double) value * 100);
             case COLUMN_MEAN:
             case COLUMN_STD_DEV: return String.format("%.4f", (Double) value);
             default: return super.getPresentableValue(row, column);
