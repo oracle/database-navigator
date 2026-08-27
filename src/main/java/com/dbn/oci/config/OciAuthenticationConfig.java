@@ -16,12 +16,12 @@
 
 package com.dbn.oci.config;
 
-import com.dbn.connection.config.provider.CloudConfigProviderAuthentication;
+import com.dbn.connection.config.provider.CloudAuthenticationType;
 import lombok.Value;
 
 @Value
 public class OciAuthenticationConfig {
-    CloudConfigProviderAuthentication authentication;
+    CloudAuthenticationType authentication;
     String configFile;
     String profile;
 }

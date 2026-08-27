@@ -53,7 +53,7 @@ public class ConfigProviderInfoTest {
 
         assertEquals("ociobject", provider.getProviderSlug());
         assertEquals("objectstorage.eu-frankfurt-1.oraclecloud.com/n/example/b/connections/o/connections.json",
-                provider.getLocation());
+                provider.getProviderLocation());
         assertEquals(Map.of(), provider.getUrlParameters(false));
     }
 

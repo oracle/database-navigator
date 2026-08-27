@@ -22,8 +22,8 @@ import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
-import com.dbn.oci.config.OciAuthenticationConfig;
 import com.dbn.connection.ui.ConnectionAuthenticationFieldsForm;
+import com.dbn.oci.config.OciAuthenticationConfig;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -40,12 +40,11 @@ import javax.swing.border.TitledBorder;
 public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
     private JPanel mainPanel;
 
-    private final ConnectionAuthenticationFieldsForm fieldsForm = new ConnectionAuthenticationFieldsForm(this);
-    private final CloudConfigProviderAuthenticationSettingsForm cloudConfigProviderAuthSettingsForm;
+    private final ConnectionAuthenticationFieldsForm connectionFieldsForm = new ConnectionAuthenticationFieldsForm(this);
+    private final CloudAuthenticationFieldsForm cloudFieldsForm = new CloudAuthenticationFieldsForm(this);
 
     public ConnectionAuthenticationSettingsForm(@NotNull ConnectionDatabaseSettingsForm parentComponent) {
         super(parentComponent);
-        cloudConfigProviderAuthSettingsForm = new CloudConfigProviderAuthenticationSettingsForm(parentComponent);
 
         setCloudProviderMode(null);
     }
@@ -57,21 +56,21 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
 
     public boolean settingsChanged() {
         AuthenticationInfo authenticationInfo = getAuthenticationInfo();
-        return fieldsForm.settingsChanged(authenticationInfo);
+        return connectionFieldsForm.settingsChanged(authenticationInfo);
     }
 
     public boolean cloudProviderSettingsChanged() {
-        return cloudConfigProviderAuthSettingsForm.settingsChanged();
+        return cloudFieldsForm.settingsChanged();
     }
 
     public void resetFormChanges() {
         AuthenticationInfo authenticationInfo = getAuthenticationInfo();
-        fieldsForm.resetFormChanges(authenticationInfo);
-        cloudConfigProviderAuthSettingsForm.resetFormChanges();
+        connectionFieldsForm.resetFormChanges(authenticationInfo);
+        cloudFieldsForm.resetFormChanges();
     }
 
     public void setAuthenticationTypes(AuthenticationType ... authenticationTypes) {
-        fieldsForm.setAuthenticationTypes(authenticationTypes);
+        connectionFieldsForm.setAuthenticationTypes(authenticationTypes);
     }
 
     public void setCredentialsTitle(@Nls String title) {
@@ -88,30 +87,30 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
     public void setCloudProviderMode(CloudConfigProviderType cloudProviderType) {
         mainPanel.removeAll();
         if (cloudProviderType != null) {
-            cloudConfigProviderAuthSettingsForm.setCloudProviderType(cloudProviderType);
+            cloudFieldsForm.setCloudProviderType(cloudProviderType);
         }
         JComponent component = cloudProviderType != null ?
-                cloudConfigProviderAuthSettingsForm.getComponent() :
-                fieldsForm.getComponent();
+                cloudFieldsForm.getComponent() :
+                connectionFieldsForm.getComponent();
         mainPanel.add(component);
         mainPanel.revalidate();
         mainPanel.repaint();
     }
 
     public void applyCloudProviderFormChanges(ConfigProviderInfo configProviderInfo) {
-        cloudConfigProviderAuthSettingsForm.applyFormChanges(configProviderInfo);
+        cloudFieldsForm.applyFormChanges(configProviderInfo);
     }
 
     public void validateCloudProviderSettings() throws ConfigurationException {
-        cloudConfigProviderAuthSettingsForm.validateSettings();
+        cloudFieldsForm.validateSettings();
     }
 
     public void addCloudProviderChangeListeners(Runnable runnable) {
-        cloudConfigProviderAuthSettingsForm.addChangeListeners(runnable);
+        cloudFieldsForm.addChangeListeners(runnable);
     }
 
     public OciAuthenticationConfig getOciAuthenticationConfig() {
-        return cloudConfigProviderAuthSettingsForm.getOciAuthenticationConfig();
+        return cloudFieldsForm.getOciAuthenticationConfig();
     }
 
     private AuthenticationInfo getAuthenticationInfo() {
@@ -121,6 +120,6 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
     }
 
     public void applyFormChanges(AuthenticationInfo authenticationInfo) {
-        fieldsForm.applyFormChanges(authenticationInfo);
+        connectionFieldsForm.applyFormChanges(authenticationInfo);
     }
 }

@@ -41,7 +41,7 @@ import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.file.DatabaseFileBundle;
-import com.dbn.connection.config.provider.CloudConfigProviderAuthentication;
+import com.dbn.connection.config.provider.CloudAuthenticationType;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
 import com.dbn.connection.config.provider.ConfigSourceType;
@@ -441,7 +441,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         return urlSettingsForm.isCloudProviderConfig() &&
                 provider != null &&
                 (provider.isGcp() || provider.isAws() ||
-                        CloudConfigProviderAuthentication.values(provider).length > 0);
+                        CloudAuthenticationType.values(provider).length > 0);
     }
 
     private AuthenticationType[] getAuthenticationTypes() {

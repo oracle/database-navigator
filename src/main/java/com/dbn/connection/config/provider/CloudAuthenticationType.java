@@ -18,6 +18,7 @@ package com.dbn.connection.config.provider;
 
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Arrays;
 
@@ -29,7 +30,7 @@ import static com.dbn.connection.config.provider.CloudConfigProviderType.OCI_OBJ
 import static com.dbn.connection.config.provider.CloudConfigProviderType.OCI_VAULT;
 
 @Getter
-public enum CloudConfigProviderAuthentication implements Presentable {
+public enum CloudAuthenticationType implements Presentable {
     OCI_DEFAULT("OCI Default", "OCI_DEFAULT", OCI_OBJECT, OCI_DB_TOOLS, OCI_VAULT),
     OCI_INTERACTIVE("Interactive", "OCI_INTERACTIVE", OCI_OBJECT, OCI_DB_TOOLS, OCI_VAULT),
     AZURE_DEFAULT("Azure Default", "AZURE_DEFAULT", AZURE_APP_CONFIG, AZURE_VAULT),
@@ -46,7 +47,7 @@ public enum CloudConfigProviderAuthentication implements Presentable {
     private final String parameterValue;
     private final CloudConfigProviderType[] providers;
 
-    CloudConfigProviderAuthentication(String name, String parameterValue, CloudConfigProviderType... providers) {
+    CloudAuthenticationType(String name, @NonNls String parameterValue, CloudConfigProviderType... providers) {
         this.name = name;
         this.parameterValue = parameterValue;
         this.providers = providers;
@@ -56,16 +57,16 @@ public enum CloudConfigProviderAuthentication implements Presentable {
         return Arrays.asList(providers).contains(provider);
     }
 
-    public static CloudConfigProviderAuthentication[] values(CloudConfigProviderType provider) {
+    public static CloudAuthenticationType[] values(CloudConfigProviderType provider) {
         return Arrays.stream(values())
                 .filter(value -> value.supports(provider))
-                .toArray(CloudConfigProviderAuthentication[]::new);
+                .toArray(CloudAuthenticationType[]::new);
     }
 
-    public static CloudConfigProviderAuthentication get(String name) {
+    public static CloudAuthenticationType get(String name) {
         if (name == null) return null;
 
-        for (CloudConfigProviderAuthentication value : values()) {
+        for (CloudAuthenticationType value : values()) {
             if (value.name().equalsIgnoreCase(name)) {
                 return value;
             }
@@ -76,15 +77,15 @@ public enum CloudConfigProviderAuthentication implements Presentable {
         return null;
     }
 
-    public static CloudConfigProviderAuthentication getAzure(String name, boolean certificateAuthentication) {
+    public static CloudAuthenticationType getAzure(String name, boolean certificateAuthentication) {
         if ("AZURE_SERVICE_PRINCIPAL".equalsIgnoreCase(name)) {
             return certificateAuthentication ? AZURE_SERVICE_PRINCIPAL_CERTIFICATE : AZURE_SERVICE_PRINCIPAL_SECRET;
         }
         return get(name);
     }
 
-    public static CloudConfigProviderAuthentication getDefault(CloudConfigProviderType provider) {
-        CloudConfigProviderAuthentication[] values = values(provider);
+    public static CloudAuthenticationType getDefault(CloudConfigProviderType provider) {
+        CloudAuthenticationType[] values = values(provider);
         return values.length == 0 ? null : values[0];
     }
 }

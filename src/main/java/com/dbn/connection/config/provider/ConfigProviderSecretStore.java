@@ -22,9 +22,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
-import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_SECRET;
-import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.HCP_VAULT_TOKEN;
 import static com.dbn.connection.config.provider.CloudConfigProviderType.HASHICORP_VAULT;
 
 @UtilityClass
@@ -33,10 +30,10 @@ public class ConfigProviderSecretStore {
     public static void addRuntimeSecrets(
             @NotNull Map<String, String> parameters,
             @NotNull ConfigProviderInfo configProviderInfo) {
-        CloudConfigProviderAuthentication authentication = configProviderInfo.getAuthentication();
+        CloudAuthenticationType authentication = configProviderInfo.getProviderAuthentication();
         if (authentication == null) return;
 
-        if (configProviderInfo.getCloudProviderType() != HASHICORP_VAULT) {
+        if (configProviderInfo.getProviderType() != HASHICORP_VAULT) {
             switch (authentication) {
                 case AZURE_SERVICE_PRINCIPAL_SECRET ->
                         addRuntimeSecret(parameters, "AZURE_CLIENT_SECRET", configProviderInfo.getAzureClientSecret());

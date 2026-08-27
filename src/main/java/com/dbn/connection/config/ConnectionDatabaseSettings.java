@@ -212,7 +212,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                 databaseInfo.getProtocol(),
                 databaseInfo.getServerType(),
                 configProviderInfo.getProviderSlug(),
-                configProviderInfo.getLocation(),
+                configProviderInfo.getProviderLocation(),
                 getUrlParameters()
         );
         return appendConfigHttpsAuthentication(connectionUrl);
@@ -236,7 +236,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                     databaseInfo.getProtocol(),
                     databaseInfo.getServerType(),
                     configProviderInfo.getProviderSlug(),
-                    configProviderInfo.getLocation(),
+                    configProviderInfo.getProviderLocation(),
                     getUrlParameters()
             );
         }

@@ -275,7 +275,7 @@
         </constraints>
         <properties>
           <labelFor value="a311e"/>
-          <text value="Region"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.AwsRegion"/>
         </properties>
       </component>
       <component id="a311e" class="javax.swing.JTextField" binding="cloudRegionTextField">
@@ -290,7 +290,7 @@
         </constraints>
         <properties>
           <labelFor value="519e5"/>
-          <text value="Project"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.GcpProject"/>
         </properties>
       </component>
       <component id="519e5" class="javax.swing.JTextField" binding="gcpStorageProjectTextField">
@@ -305,7 +305,7 @@
         </constraints>
         <properties>
           <labelFor value="57ccb"/>
-          <text value="Bucket"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.GcpBucket"/>
         </properties>
       </component>
       <component id="57ccb" class="javax.swing.JTextField" binding="gcpStorageBucketTextField">
@@ -320,7 +320,7 @@
         </constraints>
         <properties>
           <labelFor value="943ed"/>
-          <text value="Object"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.GcpObject"/>
         </properties>
       </component>
       <component id="943ed" class="javax.swing.JTextField" binding="gcpStorageObjectTextField">
@@ -335,7 +335,7 @@
         </constraints>
         <properties>
           <labelFor value="9cfa1"/>
-          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.ProfileKey"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.ConfigProfileKey"/>
         </properties>
       </component>
       <component id="9cfa1" class="javax.swing.JTextField" binding="configFileProfileKeyTextField">
@@ -352,12 +352,14 @@
         </constraints>
         <properties>
           <labelFor value="222ed"/>
-          <text value="Label"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.AzureAppConfigLabel"/>
         </properties>
       </component>
       <component id="222ed" class="javax.swing.JTextField" binding="azureLabelTextField">
         <constraints>
-          <grid row="16" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="16" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
         </constraints>
         <properties/>
       </component>

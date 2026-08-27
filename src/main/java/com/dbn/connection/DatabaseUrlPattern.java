@@ -169,7 +169,8 @@ public enum DatabaseUrlPattern {
                 databaseInfo.getTnsProfile(),
                 databaseInfo.getProtocol(),
                 databaseInfo.getServerType(),
-                configProviderInfo == null ? null : configProviderInfo.getProviderSlug(), configProviderInfo == null ? null : configProviderInfo.getLocation(), configFileParameters(configProviderInfo)
+                configProviderInfo == null ? null : configProviderInfo.getProviderSlug(),
+                configProviderInfo == null ? null : configProviderInfo.getProviderLocation(), configFileParameters(configProviderInfo)
         );
     }
 

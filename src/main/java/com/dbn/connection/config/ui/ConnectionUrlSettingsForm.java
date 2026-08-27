@@ -282,7 +282,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     public String getConfigLocation() {
         ConfigSourceType sourceType = getConfigSourceType();
         if (sourceType == ConfigSourceType.FILE) return getText(configFileTextField);
-        if (isGcpStorageConfig()) return loadGcpStorageConfigProviderInfo().getLocation();
+        if (isGcpStorageConfig()) return loadGcpStorageConfigProviderInfo().getProviderLocation();
 
         String configLocation = getText(configLocationTextField);
         return sourceType == ConfigSourceType.URL || isOciObjectStorageConfig() ?
@@ -328,9 +328,9 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
         DatabaseType databaseType = getDatabaseType();
         DatabaseUrlPattern urlPattern = nvl(databaseType.getUrlPattern(urlType), DatabaseUrlPattern.GENERIC);
-        ConfigProviderInfo configProviderInfo = loadConfigProviderInfo();
+        ConfigProviderInfo configProvider = loadConfigProviderInfo();
         Map<String, String> urlParameters = urlType == DatabaseUrlType.PROVIDER ?
-                configProviderInfo.getUrlParameters(false) :
+                configProvider.getUrlParameters(false) :
                 getParameters();
         String url = urlPattern.buildUrl(
                 getVendor(),
@@ -342,8 +342,8 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                 getTnsProfile(),
                 getProtocol(),
                 getServerType(),
-                configProviderInfo.getProviderSlug(),
-                configProviderInfo.getLocation(),
+                configProvider.getProviderSlug(),
+                configProvider.getProviderLocation(),
                 urlParameters);
         urlTextField.setText(url);
     }
@@ -617,12 +617,12 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         portTextField.setText(databaseInfo.getPort());
         databaseTextField.setText(databaseInfo.getDatabase());
         tnsFolderTextField.setText(databaseInfo.getTnsFolder());
-        configFileTextField.setText(configProviderInfo.getLocation());
-        configLocationTextField.setText(configProviderInfo.getLocation());
-        cloudRegionTextField.setText(configProviderInfo.getRegion());
+        configFileTextField.setText(configProviderInfo.getProviderLocation());
+        configLocationTextField.setText(configProviderInfo.getProviderLocation());
+        cloudRegionTextField.setText(configProviderInfo.getAwsRegion());
         applyGcpStorageConfigLocation(configProviderInfo);
-        configFileProfileKeyTextField.setText(configProviderInfo.getProfileKey());
-        azureLabelTextField.setText(configProviderInfo.getLabel());
+        configFileProfileKeyTextField.setText(configProviderInfo.getProviderProfileKey());
+        azureLabelTextField.setText(configProviderInfo.getAzureAppConfigLabel());
         parameters = databaseInfo.getParameters();
 
         String tnsProfile = databaseInfo.getTnsProfile();
@@ -637,10 +637,10 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         setSelection(urlTypeComboBox, databaseInfo.getUrlType());
 
         initComboBox(sourceTypeComboBox, ConfigSourceType.values());
-        setSelection(sourceTypeComboBox, Commons.nvl(configProviderInfo.getSourceType(), ConfigSourceType.FILE));
+        setSelection(sourceTypeComboBox, Commons.nvl(configProviderInfo.getProviderSourceType(), ConfigSourceType.FILE));
 
         initComboBox(cloudProviderComboBox, values());
-        setSelection(cloudProviderComboBox, configProviderInfo.getCloudProviderType());
+        setSelection(cloudProviderComboBox, configProviderInfo.getProviderType());
 
         initComboBox(protocolComboBox, true, DatabaseProtocol.values());
         setSelection(protocolComboBox, databaseInfo.getProtocol());
@@ -677,12 +677,12 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
             !match(databaseInfo.getDatabase(), getDatabase()) ||
             !match(databaseInfo.getTnsFolder(), getTnsFolder()) ||
             !match(databaseInfo.getTnsProfile(), getTnsProfile()) ||
-            !match(configProviderInfo.getSourceType(), getConfigSourceType()) ||
-            !match(configProviderInfo.getCloudProviderType(), getCloudConfigProviderType()) ||
-            !match(configProviderInfo.getRegion(), isCloudRegionConfig() ? getCloudRegion() : null) ||
-            !match(configProviderInfo.getLocation(), getConfigLocation()) ||
-            !match(configProviderInfo.getProfileKey(), getConfigFileProfileKey()) ||
-            !match(configProviderInfo.getLabel(), getAzureLabel()) ||
+            !match(configProviderInfo.getProviderSourceType(), getConfigSourceType()) ||
+            !match(configProviderInfo.getProviderType(), getCloudConfigProviderType()) ||
+            !match(configProviderInfo.getAwsRegion(), isCloudRegionConfig() ? getCloudRegion() : null) ||
+            !match(configProviderInfo.getProviderLocation(), getConfigLocation()) ||
+            !match(configProviderInfo.getProviderProfileKey(), getConfigFileProfileKey()) ||
+            !match(configProviderInfo.getAzureAppConfigLabel(), getAzureLabel()) ||
             !match(databaseInfo.getUrl(), getUrl()) ||
             !match(databaseInfo.getUrlType(), urlType) ||
             !match(databaseInfo.getFileBundle(), urlType == DatabaseUrlType.FILE ? getFileBundle() : null);
