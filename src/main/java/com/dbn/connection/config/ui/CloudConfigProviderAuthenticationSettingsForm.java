@@ -49,8 +49,20 @@ import static com.dbn.common.ui.util.PasswordFields.getPassword;
 import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.Commons.match;
+import static com.dbn.common.util.Commons.matchArrays;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.AZURE_INTERACTIVE;
+import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
+import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_SECRET;
+import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.HCP_APPROLE;
+import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.HCP_GITHUB;
+import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.HCP_USERPASS;
+import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.HCP_VAULT_TOKEN;
+import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.OCI_DEFAULT;
+import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.getDefault;
+import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.values;
 import static com.dbn.nls.NlsResources.txt;
 
 public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
@@ -137,9 +149,9 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         if (this.cloudProviderType == cloudProviderType && authenticationComboBox.getItemCount() > 0) return;
 
         this.cloudProviderType = cloudProviderType;
-        CloudConfigProviderAuthentication[] authenticationTypes = CloudConfigProviderAuthentication.values(cloudProviderType);
+        CloudConfigProviderAuthentication[] authenticationTypes = values(cloudProviderType);
         initComboBox(authenticationComboBox, authenticationTypes);
-        setSelection(authenticationComboBox, CloudConfigProviderAuthentication.getDefault(cloudProviderType));
+        setSelection(authenticationComboBox, getDefault(cloudProviderType));
         updateFieldVisibility();
     }
 
@@ -172,8 +184,6 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     }
 
     public void applyFormChanges(ConfigProviderInfo configProviderInfo) {
-        configProviderInfo.setCredentialConnectionId(getConnectionId());
-
         CloudConfigProviderAuthentication authentication = getCloudConfigProviderAuthentication();
         if (isOciProvider()) {
             configProviderInfo.applyOciAuthentication(
@@ -216,23 +226,21 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     }
 
     public void resetFormChanges() {
-        DatabaseInfo databaseInfo = getDatabaseInfo();
-        ConfigProviderInfo configProviderInfo = databaseInfo.getConfigProviderInfo();
-        configProviderInfo.setCredentialConnectionId(getConnectionId());
+        ConfigProviderInfo configProviderInfo = getConfigProviderInfo();
         configProviderInfo.reloadSecrets();
         setCloudProviderType(configProviderInfo.getCloudProviderType());
 
         if (isAuthenticationProvider()) {
             setSelection(authenticationComboBox, Commons.nvl(
-                    databaseInfo.getConfigProviderInfo().getAuthentication(),
-                    CloudConfigProviderAuthentication.getDefault(cloudProviderType)));
+                    configProviderInfo.getAuthentication(),
+                    getDefault(cloudProviderType)));
         }
 
         if (isOciProvider()) {
-            configFileTextField.setText(databaseInfo.getConfigProviderInfo().getOciConfigFile());
+            configFileTextField.setText(configProviderInfo.getOciConfigFile());
             applyDefaultOciConfigFile();
             profileComboBox
-                    .withValuePreselector(p -> Objects.equals(p, databaseInfo.getConfigProviderInfo().getOciProfile()))
+                    .withValuePreselector(p -> Objects.equals(p, configProviderInfo.getOciProfile()))
                     .triggerLoad();
         } else {
             configFileTextField.setText(null);
@@ -244,20 +252,13 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         azureClientCertificatePathTextField.setText(isAzureProvider() ? configProviderInfo.getAzureClientCertificatePath() : null);
         setPassword(azureClientSecretPasswordField, isAzureProvider() ? configProviderInfo.getAzureClientSecret() : null);
         setPassword(azureClientCertificatePasswordField, isAzureProvider() ? configProviderInfo.getAzureClientCertificatePassword() : null);
-        vaultAddressTextField.setText(isHashicorpProvider() ?
-                databaseInfo.getConfigProviderInfo().getVaultAddress() : null);
-        vaultNamespaceTextField.setText(isHashicorpProvider() ?
-                databaseInfo.getConfigProviderInfo().getVaultNamespace() : null);
-        vaultUsernameTextField.setText(isHashicorpProvider() ?
-                databaseInfo.getConfigProviderInfo().getVaultUsername() : null);
-        userPassAuthPathTextField.setText(isHashicorpProvider() ?
-                databaseInfo.getConfigProviderInfo().getUserPassAuthPath() : null);
-        roleIdTextField.setText(isHashicorpProvider() ?
-                databaseInfo.getConfigProviderInfo().getRoleId() : null);
-        appRoleAuthPathTextField.setText(isHashicorpProvider() ?
-                databaseInfo.getConfigProviderInfo().getAppRoleAuthPath() : null);
-        githubAuthPathTextField.setText(isHashicorpProvider() ?
-                databaseInfo.getConfigProviderInfo().getGithubAuthPath() : null);
+        vaultAddressTextField.setText(isHashicorpProvider() ? configProviderInfo.getVaultAddress() : null);
+        vaultNamespaceTextField.setText(isHashicorpProvider() ? configProviderInfo.getVaultNamespace() : null);
+        vaultUsernameTextField.setText(isHashicorpProvider() ? configProviderInfo.getVaultUsername() : null);
+        userPassAuthPathTextField.setText(isHashicorpProvider() ? configProviderInfo.getUserPassAuthPath() : null);
+        roleIdTextField.setText(isHashicorpProvider() ? configProviderInfo.getRoleId() : null);
+        appRoleAuthPathTextField.setText(isHashicorpProvider() ? configProviderInfo.getAppRoleAuthPath() : null);
+        githubAuthPathTextField.setText(isHashicorpProvider() ? configProviderInfo.getGithubAuthPath() : null);
         setPassword(vaultTokenPasswordField, isHashicorpProvider() ? configProviderInfo.getHashicorpVaultToken() : null);
         setPassword(vaultPasswordField, isHashicorpProvider() ? configProviderInfo.getHashicorpVaultPassword() : null);
         setPassword(secretIdPasswordField, isHashicorpProvider() ? configProviderInfo.getHashicorpAppRoleSecretId() : null);
@@ -266,55 +267,41 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     }
 
     public boolean settingsChanged() {
-        DatabaseInfo databaseInfo = getDatabaseInfo();
+        ConfigProviderInfo configProviderInfo = getConfigProviderInfo();
         if (!isAuthenticationProvider()) return false;
 
         String configFile = isOciDefaultAuthentication() ? getOciConfigProviderConfigFile() : null;
         String profile = isOciDefaultAuthentication() ? getOciConfigProviderProfile() : null;
-        boolean authenticationChanged = !Commons.match(
-                Commons.nvl(databaseInfo.getConfigProviderInfo().getAuthentication(), CloudConfigProviderAuthentication.getDefault(cloudProviderType)),
+        boolean authenticationChanged = !match(
+                Commons.nvl(configProviderInfo.getAuthentication(), getDefault(cloudProviderType)),
                 getCloudConfigProviderAuthentication());
         if (isAzureProvider()) {
             return authenticationChanged ||
-                    isAzureClientIdAuthentication() &&
-                            !Commons.match(databaseInfo.getConfigProviderInfo().getAzureClientId(), getText(azureClientIdTextField)) ||
-                    isAzureServicePrincipalAuthentication() &&
-                            !Commons.match(databaseInfo.getConfigProviderInfo().getAzureTenantId(), getText(azureTenantIdTextField)) ||
-                    isAzureServicePrincipalSecretAuthentication() &&
-                            !Commons.matchArrays(databaseInfo.getConfigProviderInfo().getAzureClientSecret(), getPassword(azureClientSecretPasswordField)) ||
-                    isAzureServicePrincipalCertificateAuthentication() &&
-                            !Commons.match(databaseInfo.getConfigProviderInfo().getAzureClientCertificatePath(), getText(azureClientCertificatePathTextField)) ||
-                    isAzureServicePrincipalCertificateAuthentication() &&
-                            !Commons.matchArrays(databaseInfo.getConfigProviderInfo().getAzureClientCertificatePassword(), getPassword(azureClientCertificatePasswordField));
+                    isAzureClientIdAuthentication() && !match(configProviderInfo.getAzureClientId(), getText(azureClientIdTextField)) ||
+                    isAzureServicePrincipalAuthentication() && !match(configProviderInfo.getAzureTenantId(), getText(azureTenantIdTextField)) ||
+                    isAzureServicePrincipalSecretAuthentication() && !matchArrays(configProviderInfo.getAzureClientSecret(), getPassword(azureClientSecretPasswordField)) ||
+                    isAzureServicePrincipalCertificateAuthentication() && !match(configProviderInfo.getAzureClientCertificatePath(), getText(azureClientCertificatePathTextField)) ||
+                    isAzureServicePrincipalCertificateAuthentication() && !matchArrays(configProviderInfo.getAzureClientCertificatePassword(), getPassword(azureClientCertificatePasswordField));
         }
         if (isHashicorpProvider()) {
             return authenticationChanged ||
-                    !Commons.match(databaseInfo.getConfigProviderInfo().getVaultAddress(), getText(vaultAddressTextField)) ||
-                    !Commons.match(databaseInfo.getConfigProviderInfo().getVaultNamespace(), getText(vaultNamespaceTextField)) ||
-                    isHashicorpUserpassAuthentication() &&
-                            !Commons.match(databaseInfo.getConfigProviderInfo().getVaultUsername(), getText(vaultUsernameTextField)) ||
-                    isHashicorpUserpassAuthentication() &&
-                            !Commons.match(databaseInfo.getConfigProviderInfo().getUserPassAuthPath(), getText(userPassAuthPathTextField)) ||
-                    isHashicorpUserpassAuthentication() &&
-                            !Commons.matchArrays(databaseInfo.getConfigProviderInfo().getHashicorpVaultPassword(), getPassword(vaultPasswordField)) ||
-                    isHashicorpVaultTokenAuthentication() &&
-                            !Commons.matchArrays(databaseInfo.getConfigProviderInfo().getHashicorpVaultToken(), getPassword(vaultTokenPasswordField)) ||
-                    isHashicorpAppRoleAuthentication() &&
-                            !Commons.match(databaseInfo.getConfigProviderInfo().getRoleId(), getText(roleIdTextField)) ||
-                    isHashicorpAppRoleAuthentication() &&
-                            !Commons.match(databaseInfo.getConfigProviderInfo().getAppRoleAuthPath(), getText(appRoleAuthPathTextField)) ||
-                    isHashicorpAppRoleAuthentication() &&
-                            !Commons.matchArrays(databaseInfo.getConfigProviderInfo().getHashicorpAppRoleSecretId(), getPassword(secretIdPasswordField)) ||
-                    isHashicorpGithubAuthentication() &&
-                            !Commons.match(databaseInfo.getConfigProviderInfo().getGithubAuthPath(), getText(githubAuthPathTextField)) ||
-                    isHashicorpGithubAuthentication() &&
-                            !Commons.matchArrays(databaseInfo.getConfigProviderInfo().getHashicorpGithubToken(), getPassword(githubTokenPasswordField));
+                    !match(configProviderInfo.getVaultAddress(), getText(vaultAddressTextField)) ||
+                    !match(configProviderInfo.getVaultNamespace(), getText(vaultNamespaceTextField)) ||
+                    isHashicorpUserpassAuthentication() && !match(configProviderInfo.getVaultUsername(), getText(vaultUsernameTextField)) ||
+                    isHashicorpUserpassAuthentication() && !match(configProviderInfo.getUserPassAuthPath(), getText(userPassAuthPathTextField)) ||
+                    isHashicorpUserpassAuthentication() && !matchArrays(configProviderInfo.getHashicorpVaultPassword(), getPassword(vaultPasswordField)) ||
+                    isHashicorpVaultTokenAuthentication() && !matchArrays(configProviderInfo.getHashicorpVaultToken(), getPassword(vaultTokenPasswordField)) ||
+                    isHashicorpAppRoleAuthentication() && !match(configProviderInfo.getRoleId(), getText(roleIdTextField)) ||
+                    isHashicorpAppRoleAuthentication() && !match(configProviderInfo.getAppRoleAuthPath(), getText(appRoleAuthPathTextField)) ||
+                    isHashicorpAppRoleAuthentication() && !matchArrays(configProviderInfo.getHashicorpAppRoleSecretId(), getPassword(secretIdPasswordField)) ||
+                    isHashicorpGithubAuthentication() && !match(configProviderInfo.getGithubAuthPath(), getText(githubAuthPathTextField)) ||
+                    isHashicorpGithubAuthentication() && !matchArrays(configProviderInfo.getHashicorpGithubToken(), getPassword(githubTokenPasswordField));
         }
         if (!isOciProvider()) return authenticationChanged;
 
         return authenticationChanged ||
-                !Commons.match(databaseInfo.getConfigProviderInfo().getOciConfigFile(), configFile) ||
-                !Commons.match(databaseInfo.getConfigProviderInfo().getOciProfile(), profile);
+                !match(configProviderInfo.getOciConfigFile(), configFile) ||
+                !match(configProviderInfo.getOciProfile(), profile);
     }
 
     public void addChangeListeners(Runnable runnable) {
@@ -342,6 +329,11 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     private DatabaseInfo getDatabaseInfo() {
         ConnectionDatabaseSettingsForm parent = ensureParentComponent();
         return parent.getConfiguration().getDatabaseInfo();
+    }
+
+    private ConfigProviderInfo getConfigProviderInfo() {
+        ConnectionDatabaseSettingsForm parent = ensureParentComponent();
+        return parent.getConfiguration().getConfigProviderInfo();
     }
 
     public ConnectionId getConnectionId() {
@@ -429,12 +421,11 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     }
 
     private boolean isOciDefaultAuthentication() {
-        return getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.OCI_DEFAULT;
+        return getCloudConfigProviderAuthentication() == OCI_DEFAULT;
     }
 
     private boolean isAzureInteractiveAuthentication() {
-        return isAzureProvider() &&
-                getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.AZURE_INTERACTIVE;
+        return isAzureProvider() && getCloudConfigProviderAuthentication() == AZURE_INTERACTIVE;
     }
 
     private boolean isAzureClientIdAuthentication() {
@@ -448,33 +439,27 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     }
 
     private boolean isAzureServicePrincipalSecretAuthentication() {
-        return isAzureProvider() &&
-                getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_SECRET;
+        return isAzureProvider() && getCloudConfigProviderAuthentication() == AZURE_SERVICE_PRINCIPAL_SECRET;
     }
 
     private boolean isAzureServicePrincipalCertificateAuthentication() {
-        return isAzureProvider() &&
-                getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
+        return isAzureProvider() && getCloudConfigProviderAuthentication() == AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
     }
 
     private boolean isHashicorpVaultTokenAuthentication() {
-        return isHashicorpProvider() &&
-                getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.HCP_VAULT_TOKEN;
+        return isHashicorpProvider() && getCloudConfigProviderAuthentication() == HCP_VAULT_TOKEN;
     }
 
     private boolean isHashicorpUserpassAuthentication() {
-        return isHashicorpProvider() &&
-                getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.HCP_USERPASS;
+        return isHashicorpProvider() && getCloudConfigProviderAuthentication() == HCP_USERPASS;
     }
 
     private boolean isHashicorpAppRoleAuthentication() {
-        return isHashicorpProvider() &&
-                getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.HCP_APPROLE;
+        return isHashicorpProvider() && getCloudConfigProviderAuthentication() == HCP_APPROLE;
     }
 
     private boolean isHashicorpGithubAuthentication() {
-        return isHashicorpProvider() &&
-                getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.HCP_GITHUB;
+        return isHashicorpProvider() && getCloudConfigProviderAuthentication() == HCP_GITHUB;
     }
 
     private boolean isOciProvider() {
@@ -491,7 +476,7 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
 
     private boolean isAuthenticationProvider() {
         return cloudProviderType != null &&
-                CloudConfigProviderAuthentication.values(cloudProviderType).length > 0;
+                values(cloudProviderType).length > 0;
     }
 
     private boolean isInfoProvider() {

@@ -18,39 +18,48 @@ package com.dbn.connection.config.provider;
 
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
+
+import static com.dbn.connection.config.provider.CloudConfigProviderFamily.AWS;
+import static com.dbn.connection.config.provider.CloudConfigProviderFamily.AZURE;
+import static com.dbn.connection.config.provider.CloudConfigProviderFamily.GCP;
+import static com.dbn.connection.config.provider.CloudConfigProviderFamily.HASHICORP;
+import static com.dbn.connection.config.provider.CloudConfigProviderFamily.OCI;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public enum CloudConfigProviderType implements Presentable {
-    OCI_OBJECT("OCI Object Storage"),
-    OCI_DB_TOOLS("OCI Database Tools"),
-    OCI_VAULT("OCI Vault"),
-    AZURE_APP_CONFIG("Azure App Configuration"),
-    AZURE_VAULT("Azure Vault"),
-    AWS_S3("AWS S3"),
-    AWS_SECRETS("AWS Secrets Manager"),
-    GCP_STORAGE("GCP Cloud Storage"),
-    GCP_SECRET_MANAGER("GCP Secret Manager"),
-    HASHICORP_VAULT("HashiCorp Vault");
+    OCI_OBJECT(OCI, "OCI Object Storage", "ociobject"),
+    OCI_DB_TOOLS(OCI, "OCI Database Tools", "ocidbtools"),
+    OCI_VAULT(OCI, "OCI Vault", "ocivault"),
+    AZURE_APP_CONFIG(AZURE, "Azure App Configuration", "azure"),
+    AZURE_VAULT(AZURE, "Azure Vault", "azurevault"),
+    AWS_S3(AWS, "AWS S3", "awss3"),
+    AWS_SECRETS(AWS, "AWS Secrets Manager", "awssecretsmanager"),
+    GCP_STORAGE(GCP, "GCP Cloud Storage", "gcpstorage"),
+    GCP_SECRET_MANAGER(GCP, "GCP Secret Manager", "gcpsecretmanager"),
+    HASHICORP_VAULT(HASHICORP, "HashiCorp Vault", "hcpvaultdedicated");
 
+    private final CloudConfigProviderFamily family;
     private final String name;
+    private final String slug;
 
-    CloudConfigProviderType(String name) {
+    CloudConfigProviderType(CloudConfigProviderFamily family, String name, @NonNls String slug) {
+        this.family = family;
         this.name = name;
+        this.slug = slug;
     }
 
-    public String getSlug() {
-        return switch (this) {
-            case OCI_OBJECT -> "ociobject";
-            case OCI_DB_TOOLS -> "ocidbtools";
-            case OCI_VAULT -> "ocivault";
-            case AZURE_APP_CONFIG -> "azure";
-            case AZURE_VAULT -> "azurevault";
-            case AWS_S3 -> "awss3";
-            case AWS_SECRETS -> "awssecretsmanager";
-            case GCP_STORAGE -> "gcpstorage";
-            case GCP_SECRET_MANAGER -> "gcpsecretmanager";
-            case HASHICORP_VAULT -> "hcpvaultdedicated";
-        };
+    public String getLocationLabel() {
+        return txt("cfg.connection.label.ProviderSourceLocation_" + name());
+    }
+
+    public String getLocationPlaceholder() {
+        return txt("cfg.connection.placeholder.ProviderSourceLocation_" + name());
+    }
+
+    public String getDocUrl() {
+        return txt("cfg.connection.url.ProviderDocumentation_" + name());
     }
 
     public static CloudConfigProviderType fromSlug(String slug) {
@@ -64,34 +73,24 @@ public enum CloudConfigProviderType implements Presentable {
         return null;
     }
 
-    public CloudConfigProviderFamily getFamily() {
-        return switch (this) {
-            case OCI_OBJECT, OCI_DB_TOOLS, OCI_VAULT -> CloudConfigProviderFamily.OCI;
-            case AZURE_APP_CONFIG, AZURE_VAULT -> CloudConfigProviderFamily.AZURE;
-            case AWS_S3, AWS_SECRETS -> CloudConfigProviderFamily.AWS;
-            case GCP_STORAGE, GCP_SECRET_MANAGER -> CloudConfigProviderFamily.GCP;
-            case HASHICORP_VAULT -> CloudConfigProviderFamily.HASHICORP;
-        };
-    }
-
     public boolean isOci() {
-        return getFamily() == CloudConfigProviderFamily.OCI;
+        return getFamily() == OCI;
     }
 
     public boolean isAws() {
-        return getFamily() == CloudConfigProviderFamily.AWS;
+        return getFamily() == AWS;
     }
 
     public boolean isGcp() {
-        return getFamily() == CloudConfigProviderFamily.GCP;
+        return getFamily() == GCP;
     }
 
     public boolean isAzure() {
-        return getFamily() == CloudConfigProviderFamily.AZURE;
+        return getFamily() == AZURE;
     }
 
     public boolean isHashicorp() {
-        return getFamily() == CloudConfigProviderFamily.HASHICORP;
+        return getFamily() == HASHICORP;
     }
 
     public String getRegionParameterName() {

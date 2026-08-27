@@ -25,7 +25,6 @@ import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.ServerType;
 import com.dbn.connection.config.file.DatabaseFile;
 import com.dbn.connection.config.file.DatabaseFileBundle;
-import com.dbn.connection.config.provider.ConfigProviderInfo;
 import com.dbn.connection.config.tns.TnsAdmin;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -41,6 +40,7 @@ import java.util.Map;
 import static com.dbn.connection.DatabaseUrlType.CUSTOM;
 import static com.dbn.connection.DatabaseUrlType.DATABASE;
 import static com.dbn.connection.DatabaseUrlType.FILE;
+import static com.dbn.connection.DatabaseUrlType.PROVIDER;
 import static com.dbn.connection.DatabaseUrlType.SID;
 
 @NonNls
@@ -68,7 +68,6 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
     private ServerType serverType;
     private String tnsFolder;
     private String tnsProfile;
-    private ConfigProviderInfo configProviderInfo = new ConfigProviderInfo();
     private Map<String, String> parameters = new HashMap<>();
 
     public DatabaseInfo() {}
@@ -100,18 +99,13 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.fileBundle = null;
         this.url = null;
         this.serverType = null;
-        this.configProviderInfo.reset();
         this.parameters = new HashMap<>();
-    }
-
-    public void initializeUrl(DatabaseUrlPattern urlPattern) {
-        this.url = urlPattern.buildUrl(this);
     }
 
     public void initializeDetails(DatabaseUrlPattern pattern) {
         if (Strings.isEmptyOrSpaces(url)) return;
 
-        this.vendor = pattern.getDefaultInfo().getVendor();
+        this.vendor = pattern.createDefaultInfo().getVendor();
         this.host = pattern.resolveHost(url);
         this.port = pattern.resolvePort(url);
         this.database = pattern.resolveDatabase(url);
@@ -120,7 +114,6 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.serverType = pattern.resolveServerType(url);
         this.parameters = pattern.resolveParameters(url);
         this.protocol = pattern.resolveProtocol(url);
-        this.configProviderInfo.initialize(url, pattern, parameters);
 
         // TODO: resolve serverType
         initializeFiles(pattern);
@@ -161,10 +154,8 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         return getUrlType() == CUSTOM;
     }
 
-    @NotNull
-    public ConfigProviderInfo getConfigProviderInfo() {
-        if (configProviderInfo == null) configProviderInfo = new ConfigProviderInfo();
-        return configProviderInfo;
+    public boolean isProviderUrl() {
+        return getUrlType() == PROVIDER;
     }
 
     @Override
@@ -181,7 +172,6 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         clone.tnsFolder = this.tnsFolder;
         clone.tnsProfile = this.tnsProfile;
         clone.serverType = this.serverType;
-        clone.configProviderInfo = this.getConfigProviderInfo().clone();
         clone.parameters = new HashMap<>(this.parameters);
         return clone;
     }

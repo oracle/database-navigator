@@ -148,8 +148,9 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     void updateJsonExportVisibility(DatabaseType databaseType, DatabaseUrlType urlType) {
         if (exportButton == null) return;
 
-        boolean supportedUrlType = urlType != DatabaseUrlType.CUSTOM &&
-                urlType != DatabaseUrlType.CONFIG_FILE;
+        boolean supportedUrlType =
+                urlType != DatabaseUrlType.CUSTOM &&
+                urlType != DatabaseUrlType.PROVIDER;
         exportButton.setVisible(databaseType == DatabaseType.ORACLE && supportedUrlType);
     }
 

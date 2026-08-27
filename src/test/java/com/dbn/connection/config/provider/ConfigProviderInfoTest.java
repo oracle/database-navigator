@@ -25,18 +25,18 @@ import static org.junit.Assert.assertEquals;
 public class ConfigProviderInfoTest {
     @Test
     public void applyUsesExpectedProviderSlugForEachSourceType() {
-        ConfigProviderInfo provider = new ConfigProviderInfo();
+        ConfigProviderInfo provider = new ConfigProviderInfo(null);
 
-        provider.apply(ConfigFileSourceType.LOCAL_FILE, null,
+        provider.apply(ConfigSourceType.FILE, null,
                 null, "/tmp/connections.json", null, null);
         assertEquals("file", provider.getProviderSlug());
 
-        provider.apply(ConfigFileSourceType.HTTPS, null,
+        provider.apply(ConfigSourceType.URL, null,
                 null, "https://example.com/connections.json", null, null);
         assertEquals("https", provider.getProviderSlug());
 
         for (CloudConfigProviderType type : CloudConfigProviderType.values()) {
-            provider.apply(ConfigFileSourceType.CLOUD_PROVIDER, type,
+            provider.apply(ConfigSourceType.CLOUD, type,
                     null, "config-location", null, null);
             assertEquals(type.getSlug(), provider.getProviderSlug());
         }
@@ -44,9 +44,9 @@ public class ConfigProviderInfoTest {
 
     @Test
     public void applyNormalizesOciObjectStorageLocation() {
-        ConfigProviderInfo provider = new ConfigProviderInfo();
+        ConfigProviderInfo provider = new ConfigProviderInfo(null);
 
-        provider.apply(ConfigFileSourceType.CLOUD_PROVIDER, CloudConfigProviderType.OCI_OBJECT,
+        provider.apply(ConfigSourceType.CLOUD, CloudConfigProviderType.OCI_OBJECT,
                 null,
                 " https://objectstorage.eu-frankfurt-1.oraclecloud.com/n/example/b/connections/o/connections.json ",
                 null, null);
@@ -59,9 +59,9 @@ public class ConfigProviderInfoTest {
 
     @Test
     public void applyExportsAwsRegionAndProfileKeyAsUrlParameters() {
-        ConfigProviderInfo provider = new ConfigProviderInfo();
+        ConfigProviderInfo provider = new ConfigProviderInfo(null);
 
-        provider.apply(ConfigFileSourceType.CLOUD_PROVIDER, CloudConfigProviderType.AWS_S3,
+        provider.apply(ConfigSourceType.CLOUD, CloudConfigProviderType.AWS_S3,
                 " eu-west-1 ", "s3.eu-west-1.amazonaws.com/example-bucket/connections.json", "production", null);
 
         assertEquals("awss3", provider.getProviderSlug());

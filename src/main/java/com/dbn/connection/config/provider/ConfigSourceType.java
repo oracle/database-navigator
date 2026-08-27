@@ -20,14 +20,14 @@ import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 
 @Getter
-public enum ConfigFileSourceType implements Presentable {
-    LOCAL_FILE("Local file"),
-    HTTPS("HTTPS"),
-    CLOUD_PROVIDER("Cloud provider");
+public enum ConfigSourceType implements Presentable {
+    FILE("File"),
+    URL("URL"),
+    CLOUD("Cloud");
 
     private final String name;
 
-    ConfigFileSourceType(String name) {
+    ConfigSourceType(String name) {
         this.name = name;
     }
 }

@@ -43,11 +43,11 @@ import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.provider.CloudConfigProviderAuthentication;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
-import com.dbn.connection.config.provider.ConfigFileSourceType;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
-import com.dbn.oci.config.OciAuthenticationConfig;
+import com.dbn.connection.config.provider.ConfigSourceType;
 import com.dbn.credentials.Secret;
 import com.dbn.driver.DriverSource;
+import com.dbn.oci.config.OciAuthenticationConfig;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.DocumentAdapter;
@@ -71,10 +71,10 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
-import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.connection.AuthenticationType.NONE;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
+import static com.dbn.nls.NlsResources.txt;
 import static java.awt.event.KeyEvent.VK_UNDEFINED;
 
 @SuppressWarnings("unused")
@@ -261,8 +261,8 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         DriverOption driverOption = driverSettingsForm.getDriverOption();
         DatabaseUrlType urlType = Commons.nvl(urlSettingsForm.getUrlType(), DatabaseUrlType.CUSTOM);
 
-        boolean localConfigFile = urlType == DatabaseUrlType.CONFIG_FILE &&
-                urlSettingsForm.getConfigFileSourceType() == ConfigFileSourceType.LOCAL_FILE;
+        boolean localConfigFile = urlType == DatabaseUrlType.PROVIDER &&
+                urlSettingsForm.getConfigSourceType() == ConfigSourceType.FILE;
 
         String url = urlSettingsForm.getUrl();
         DatabaseUrlPattern urlPattern = urlType == DatabaseUrlType.CUSTOM ?
@@ -277,8 +277,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         configuration.setUrlPattern(urlPattern);
 
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
-        ConfigProviderInfo configProviderInfo = databaseInfo.getConfigProviderInfo();
-        configProviderInfo.setCredentialConnectionId(configuration.getConnectionId());
+        ConfigProviderInfo configProviderInfo = configuration.getConfigProviderInfo();
         Secret[] oldConfigProviderSecrets = configProviderInfo.snapshotSecrets();
         databaseInfo.reset();
 
@@ -299,12 +298,12 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         else if (urlType == DatabaseUrlType.TNS) {
         	databaseInfo.setTnsFolder(urlSettingsForm.getTnsFolder());
         	databaseInfo.setTnsProfile(urlSettingsForm.getTnsProfile());
-        } else if (urlType == DatabaseUrlType.CONFIG_FILE) {
-            urlSettingsForm.applyConfigProviderInfo(databaseInfo.getConfigProviderInfo());
+        } else if (urlType == DatabaseUrlType.PROVIDER) {
+            urlSettingsForm.applyConfigProviderInfo(configuration.getConfigProviderInfo());
             if (isCloudProviderAuthenticationVisible()) {
-                authSettingsForm.applyCloudProviderFormChanges(databaseInfo.getConfigProviderInfo());
+                authSettingsForm.applyCloudProviderFormChanges(configuration.getConfigProviderInfo());
             }
-            if (urlSettingsForm.getConfigFileSourceType() == ConfigFileSourceType.LOCAL_FILE &&
+            if (urlSettingsForm.getConfigSourceType() == ConfigSourceType.FILE &&
                     isEmptyOrSpaces(urlSettingsForm.getConfigLocation())) {
                 throw new ConfigurationException("Config file is required.");
             }
@@ -463,8 +462,8 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
     }
 
     private boolean isHttpsConfigFile(DatabaseUrlType urlType) {
-        return urlType == DatabaseUrlType.CONFIG_FILE &&
-                urlSettingsForm.getConfigFileSourceType() == ConfigFileSourceType.HTTPS;
+        return urlType == DatabaseUrlType.PROVIDER &&
+                urlSettingsForm.getConfigSourceType() == ConfigSourceType.URL;
     }
 
     @Override

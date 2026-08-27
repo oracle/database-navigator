@@ -16,18 +16,22 @@
 
 package com.dbn.connection.config.provider;
 
+import com.dbn.common.options.BasicConfiguration;
+import com.dbn.common.options.PersistentConfiguration;
+import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
-import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseUrlPattern;
+import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.OciConfigProviderParameters;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -40,12 +44,14 @@ import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
-import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
-import static com.dbn.connection.DatabaseUrlType.CONFIG_FILE;
+import static com.dbn.connection.DatabaseUrlType.PROVIDER;
+import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.AZURE_INTERACTIVE;
+import static com.dbn.connection.config.provider.CloudConfigProviderAuthentication.OCI_INTERACTIVE;
+import static com.dbn.connection.config.provider.CloudConfigProviderType.AZURE_APP_CONFIG;
 import static com.dbn.credentials.SecretType.CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD;
 import static com.dbn.credentials.SecretType.CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET;
 import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_APPROLE_SECRET_ID;
@@ -55,9 +61,8 @@ import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_VAULT_TOKEN;
 
 @Getter
 @Setter
-@EqualsAndHashCode
-public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, SecretsOwner {
-    private ConfigFileSourceType sourceType = ConfigFileSourceType.LOCAL_FILE;
+public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSettings, ConfigurationEditorForm> implements Cloneable<ConfigProviderInfo>, SecretsOwner, PersistentConfiguration {
+    private ConfigSourceType sourceType = ConfigSourceType.FILE;
     private CloudConfigProviderType cloudProviderType;
     private CloudConfigProviderAuthentication authentication;
     private String ociConfigFile;
@@ -76,40 +81,43 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, Secret
     private String roleId;
     private String appRoleAuthPath;
     private String githubAuthPath;
-    private transient ConnectionId credentialConnectionId;
-    @EqualsAndHashCode.Exclude
+
     private final Secret azureClientSecret = new Secret(
             CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET,
-            this::getSecretOwnerId,
-            () -> null);
-    @EqualsAndHashCode.Exclude
-    private final Secret azureClientCertificatePassword = new Secret(
-            CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD,
-            this::getSecretOwnerId,
-            () -> null);
-    @EqualsAndHashCode.Exclude
-    private final Secret hashicorpVaultToken = new Secret(
-            CONNECTION_HASHICORP_VAULT_TOKEN,
-            this::getSecretOwnerId,
-            () -> null);
-    @EqualsAndHashCode.Exclude
-    private final Secret hashicorpVaultPassword = new Secret(
-            CONNECTION_HASHICORP_VAULT_PASSWORD,
-            this::getSecretOwnerId,
-            () -> null);
-    @EqualsAndHashCode.Exclude
-    private final Secret hashicorpAppRoleSecretId = new Secret(
-            CONNECTION_HASHICORP_APPROLE_SECRET_ID,
-            this::getSecretOwnerId,
-            () -> null);
-    @EqualsAndHashCode.Exclude
-    private final Secret hashicorpGithubToken = new Secret(
-            CONNECTION_HASHICORP_GITHUB_TOKEN,
-            this::getSecretOwnerId,
+            () -> getSecretOwnerId(),
             () -> null);
 
+    private final Secret azureClientCertificatePassword = new Secret(
+            CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD,
+            () -> getSecretOwnerId(),
+            () -> null);
+
+    private final Secret hashicorpVaultToken = new Secret(
+            CONNECTION_HASHICORP_VAULT_TOKEN,
+            () -> getSecretOwnerId(),
+            () -> null);
+
+    private final Secret hashicorpVaultPassword = new Secret(
+            CONNECTION_HASHICORP_VAULT_PASSWORD,
+            () -> getSecretOwnerId(),
+            () -> null);
+
+    private final Secret hashicorpAppRoleSecretId = new Secret(
+            CONNECTION_HASHICORP_APPROLE_SECRET_ID,
+            () -> getSecretOwnerId(),
+            () -> null);
+
+    private final Secret hashicorpGithubToken = new Secret(
+            CONNECTION_HASHICORP_GITHUB_TOKEN,
+            () -> getSecretOwnerId(),
+            () -> null);
+
+    public ConfigProviderInfo(ConnectionDatabaseSettings parent) {
+        super(parent);
+    }
+
     public void reset() {
-        sourceType = ConfigFileSourceType.LOCAL_FILE;
+        sourceType = ConfigSourceType.FILE;
         cloudProviderType = null;
         authentication = null;
         ociConfigFile = null;
@@ -132,7 +140,11 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, Secret
 
     @Override
     public @NotNull Object getSecretOwnerId() {
-        return nn(credentialConnectionId);
+        return getConnectionSettings().getSecretOwnerId();
+    }
+
+    private @NotNull ConnectionSettings getConnectionSettings() {
+        return ensureParent().ensureParent();
     }
 
     @Override
@@ -250,14 +262,14 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, Secret
     }
 
     public void apply(
-            ConfigFileSourceType sourceType,
+            ConfigSourceType sourceType,
             CloudConfigProviderType cloudProviderType,
             String region,
             String location,
             String profileKey,
             String label) {
-        this.sourceType = Commons.nvl(sourceType, ConfigFileSourceType.LOCAL_FILE);
-        this.cloudProviderType = this.sourceType == ConfigFileSourceType.CLOUD_PROVIDER ? cloudProviderType : null;
+        this.sourceType = Commons.nvl(sourceType, ConfigSourceType.FILE);
+        this.cloudProviderType = this.sourceType == ConfigSourceType.CLOUD ? cloudProviderType : null;
         this.region = isRegionConfig() ? region : null;
         this.profileKey = normalizeProfileKey(profileKey);
         this.label = isAzureAppConfig() ? label : null;
@@ -277,18 +289,18 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, Secret
         return normalized;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(@NonNls String location) {
         this.location = isConfigHttps() || isOciObjectStorageConfig() ?
                 DatabaseUrlPattern.normalizeConfigHttpsLocation(location) :
                 location;
     }
 
     public boolean isConfigHttps() {
-        return sourceType == ConfigFileSourceType.HTTPS;
+        return sourceType == ConfigSourceType.URL;
     }
 
     public boolean isCloudProviderConfig() {
-        return sourceType == ConfigFileSourceType.CLOUD_PROVIDER;
+        return sourceType == ConfigSourceType.CLOUD;
     }
 
     public boolean isOciObjectStorageConfig() {
@@ -304,14 +316,12 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, Secret
     public boolean isInteractiveAuthentication() {
         return isCloudProviderConfig() &&
                 cloudProviderType != null &&
-                ((cloudProviderType.isOci() &&
-                        authentication == CloudConfigProviderAuthentication.OCI_INTERACTIVE) ||
-                 (cloudProviderType.isAzure() &&
-                        authentication == CloudConfigProviderAuthentication.AZURE_INTERACTIVE));
+                ((cloudProviderType.isOci() && authentication == OCI_INTERACTIVE) ||
+                 (cloudProviderType.isAzure() && authentication == AZURE_INTERACTIVE));
     }
 
     public boolean isAzureAppConfig() {
-        return isCloudProviderConfig() && cloudProviderType == CloudConfigProviderType.AZURE_APP_CONFIG;
+        return isCloudProviderConfig() && cloudProviderType == AZURE_APP_CONFIG;
     }
 
     private boolean isAzureProvider() {
@@ -323,15 +333,16 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, Secret
     }
 
     public String getProviderSlug() {
-        ConfigFileSourceType sourceType = Commons.nvl(this.sourceType, ConfigFileSourceType.LOCAL_FILE);
+        ConfigSourceType sourceType = Commons.nvl(this.sourceType, ConfigSourceType.FILE);
         return switch (sourceType) {
-            case LOCAL_FILE -> "file";
-            case HTTPS -> "https";
-            case CLOUD_PROVIDER -> cloudProviderType == null ? "" : cloudProviderType.getSlug();
+            case FILE -> "file";
+            case URL -> "https";
+            case CLOUD -> cloudProviderType == null ? "" : cloudProviderType.getSlug();
         };
     }
 
     public Map<String, String> getUrlParameters(boolean includeAuthentication) {
+        @NonNls
         Map<String, String> parameters = new LinkedHashMap<>();
         if (isNotEmpty(profileKey)) {
             parameters.put("key", profileKey);
@@ -425,13 +436,13 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, Secret
                 ";object=" + nvl(object, "").trim());
     }
 
-    private String getNamedLocationValue(String key) {
+    private String getNamedLocationValue(@NonNls String key) {
         return parseNamedLocation().get(key);
     }
 
     public void validate(List<String> errors) {
         if (isAzureProvider() &&
-                authentication == CloudConfigProviderAuthentication.AZURE_INTERACTIVE &&
+                authentication == AZURE_INTERACTIVE &&
                 isEmptyOrSpaces(azureClientId)) {
             errors.add("Azure interactive authentication requires client ID");
         }
@@ -458,6 +469,7 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, Secret
         }
     }
 
+    @NonNls
     private Map<String, String> parseNamedLocation() {
         Map<String, String> values = new HashMap<>();
         if (isEmptyOrSpaces(location)) return values;
@@ -477,17 +489,17 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, Secret
         profileKey = getParameterIgnoreCase(parameters, "key");
         label = getParameterIgnoreCase(parameters, "label");
 
-        if (pattern.getUrlType() != CONFIG_FILE) return;
+        if (pattern.getUrlType() != PROVIDER) return;
 
         String provider = pattern.resolveConfigProvider(url);
         if (Strings.isEmptyOrSpaces(provider)) return;
 
         if ("file".equalsIgnoreCase(provider)) {
-            apply(ConfigFileSourceType.LOCAL_FILE, null, null, location, profileKey, null);
+            apply(ConfigSourceType.FILE, null, null, location, profileKey, null);
         } else if ("https".equalsIgnoreCase(provider)) {
-            apply(ConfigFileSourceType.HTTPS, null, null, location, profileKey, null);
+            apply(ConfigSourceType.URL, null, null, location, profileKey, null);
         } else {
-            apply(ConfigFileSourceType.CLOUD_PROVIDER, CloudConfigProviderType.fromSlug(provider), null, location, profileKey, label);
+            apply(ConfigSourceType.CLOUD, CloudConfigProviderType.fromSlug(provider), null, location, profileKey, label);
         }
 
         if (cloudProviderType != null && cloudProviderType.isOci()) {
@@ -520,7 +532,7 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, Secret
         }
     }
 
-    private static String getParameterIgnoreCase(Map<String, String> parameters, String key) {
+    private static String getParameterIgnoreCase(Map<String, String> parameters, @NonNls String key) {
         for (Map.Entry<String, String> entry : parameters.entrySet()) {
             if (entry.getKey().equalsIgnoreCase(key)) {
                 return entry.getValue();
@@ -530,7 +542,7 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, Secret
     }
 
     public void readConfiguration(Element element) {
-        ConfigFileSourceType sourceType = getEnum(element, "config-file-source-type", ConfigFileSourceType.LOCAL_FILE);
+        ConfigSourceType sourceType = getEnum(element, "config-file-source-type", ConfigSourceType.FILE);
         CloudConfigProviderType cloudProviderType = getEnum(element, "cloud-config-provider-type", CloudConfigProviderType.class);
         String region = getString(element, "cloud-config-provider-region", null);
         String location = getString(element, "config-location", getString(element, "config-file-path", null));
@@ -588,7 +600,7 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, Secret
 
     @Override
     public ConfigProviderInfo clone() {
-        ConfigProviderInfo clone = new ConfigProviderInfo();
+        ConfigProviderInfo clone = new ConfigProviderInfo(getParent());
         clone.sourceType = sourceType;
         clone.cloudProviderType = cloudProviderType;
         clone.authentication = authentication;
@@ -608,7 +620,6 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, Secret
         clone.roleId = roleId;
         clone.appRoleAuthPath = appRoleAuthPath;
         clone.githubAuthPath = githubAuthPath;
-        clone.credentialConnectionId = credentialConnectionId;
         clone.azureClientSecret.setToken(azureClientSecret);
         clone.azureClientCertificatePassword.setToken(azureClientCertificatePassword);
         clone.hashicorpVaultToken.setToken(hashicorpVaultToken);
@@ -619,7 +630,7 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo>, Secret
     }
 
     private static boolean isAzureClientIdAuthentication(CloudConfigProviderAuthentication authentication) {
-        return authentication == CloudConfigProviderAuthentication.AZURE_INTERACTIVE ||
+        return authentication == AZURE_INTERACTIVE ||
                 isAzureServicePrincipalAuthentication(authentication);
     }
 

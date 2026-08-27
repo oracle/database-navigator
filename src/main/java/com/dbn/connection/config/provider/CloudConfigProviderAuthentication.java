@@ -21,19 +21,26 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
+import static com.dbn.connection.config.provider.CloudConfigProviderType.AZURE_APP_CONFIG;
+import static com.dbn.connection.config.provider.CloudConfigProviderType.AZURE_VAULT;
+import static com.dbn.connection.config.provider.CloudConfigProviderType.HASHICORP_VAULT;
+import static com.dbn.connection.config.provider.CloudConfigProviderType.OCI_DB_TOOLS;
+import static com.dbn.connection.config.provider.CloudConfigProviderType.OCI_OBJECT;
+import static com.dbn.connection.config.provider.CloudConfigProviderType.OCI_VAULT;
+
 @Getter
 public enum CloudConfigProviderAuthentication implements Presentable {
-    OCI_DEFAULT("OCI Default", "OCI_DEFAULT", CloudConfigProviderType.OCI_OBJECT, CloudConfigProviderType.OCI_DB_TOOLS, CloudConfigProviderType.OCI_VAULT),
-    OCI_INTERACTIVE("Interactive", "OCI_INTERACTIVE", CloudConfigProviderType.OCI_OBJECT, CloudConfigProviderType.OCI_DB_TOOLS, CloudConfigProviderType.OCI_VAULT),
-    AZURE_DEFAULT("Azure Default", "AZURE_DEFAULT", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT),
-    AZURE_SERVICE_PRINCIPAL_SECRET("Service Principal Secret", "AZURE_SERVICE_PRINCIPAL", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT),
-    AZURE_SERVICE_PRINCIPAL_CERTIFICATE("Service Principal Certificate", "AZURE_SERVICE_PRINCIPAL", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT),
-    AZURE_INTERACTIVE("Interactive", "AZURE_INTERACTIVE", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT),
-    HCP_DEFAULT("HashiCorp Default", "auto_detect", CloudConfigProviderType.HASHICORP_VAULT),
-    HCP_VAULT_TOKEN("Vault Token", "vault_token", CloudConfigProviderType.HASHICORP_VAULT),
-    HCP_USERPASS("Userpass", "userpass", CloudConfigProviderType.HASHICORP_VAULT),
-    HCP_APPROLE("AppRole", "approle", CloudConfigProviderType.HASHICORP_VAULT),
-    HCP_GITHUB("GitHub", "github", CloudConfigProviderType.HASHICORP_VAULT);
+    OCI_DEFAULT("OCI Default", "OCI_DEFAULT", OCI_OBJECT, OCI_DB_TOOLS, OCI_VAULT),
+    OCI_INTERACTIVE("Interactive", "OCI_INTERACTIVE", OCI_OBJECT, OCI_DB_TOOLS, OCI_VAULT),
+    AZURE_DEFAULT("Azure Default", "AZURE_DEFAULT", AZURE_APP_CONFIG, AZURE_VAULT),
+    AZURE_SERVICE_PRINCIPAL_SECRET("Service Principal Secret", "AZURE_SERVICE_PRINCIPAL", AZURE_APP_CONFIG, AZURE_VAULT),
+    AZURE_SERVICE_PRINCIPAL_CERTIFICATE("Service Principal Certificate", "AZURE_SERVICE_PRINCIPAL", AZURE_APP_CONFIG, AZURE_VAULT),
+    AZURE_INTERACTIVE("Interactive", "AZURE_INTERACTIVE", AZURE_APP_CONFIG, AZURE_VAULT),
+    HCP_DEFAULT("HashiCorp Default", "auto_detect", HASHICORP_VAULT),
+    HCP_VAULT_TOKEN("Vault Token", "vault_token", HASHICORP_VAULT),
+    HCP_USERPASS("Userpass", "userpass", HASHICORP_VAULT),
+    HCP_APPROLE("AppRole", "approle", HASHICORP_VAULT),
+    HCP_GITHUB("GitHub", "github", HASHICORP_VAULT);
 
     private final String name;
     private final String parameterValue;

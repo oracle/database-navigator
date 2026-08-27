@@ -34,10 +34,10 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.EasyConnectParameters;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.file.ui.DatabaseFileSettingsForm;
+import com.dbn.connection.config.parameter.ui.UrlParameterInputDialog;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
-import com.dbn.connection.config.provider.ConfigFileSourceType;
-import com.dbn.connection.config.parameter.ui.UrlParameterInputDialog;
+import com.dbn.connection.config.provider.ConfigSourceType;
 import com.dbn.connection.config.tns.TnsAdmin;
 import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
@@ -72,6 +72,7 @@ import static com.dbn.common.ui.util.Labels.setText;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Commons.coalesce;
+import static com.dbn.common.util.Commons.match;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.FileChoosers.addSingleFolderChooser;
@@ -79,6 +80,11 @@ import static com.dbn.common.util.Files.normalizePath;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Strings.toLowerCase;
+import static com.dbn.connection.config.provider.CloudConfigProviderType.AZURE_APP_CONFIG;
+import static com.dbn.connection.config.provider.CloudConfigProviderType.GCP_STORAGE;
+import static com.dbn.connection.config.provider.CloudConfigProviderType.OCI_DB_TOOLS;
+import static com.dbn.connection.config.provider.CloudConfigProviderType.OCI_OBJECT;
+import static com.dbn.connection.config.provider.CloudConfigProviderType.values;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.unmodifiableMap;
@@ -107,7 +113,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JLabel gcpStorageObjectLabel;
     private JPanel databaseFilesPanel;
     private ComboBox<DatabaseUrlType> urlTypeComboBox;
-    private JComboBox<ConfigFileSourceType> sourceTypeComboBox;
+    private JComboBox<ConfigSourceType> sourceTypeComboBox;
     private JComboBox<CloudConfigProviderType> cloudProviderComboBox;
     private JComboBox<ServerType> serverTypeComboBox;
     private JComboBox<DatabaseProtocol> protocolComboBox;
@@ -265,8 +271,8 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         urlTypeComboBox.addActionListener(e -> listener.run());
     }
 
-    public ConfigFileSourceType getConfigFileSourceType() {
-        return Commons.nvl(getSelection(sourceTypeComboBox), ConfigFileSourceType.LOCAL_FILE);
+    public ConfigSourceType getConfigSourceType() {
+        return Commons.nvl(getSelection(sourceTypeComboBox), ConfigSourceType.FILE);
     }
 
     public CloudConfigProviderType getCloudConfigProviderType() {
@@ -274,20 +280,20 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     }
 
     public String getConfigLocation() {
-        ConfigFileSourceType sourceType = getConfigFileSourceType();
-        if (sourceType == ConfigFileSourceType.LOCAL_FILE) return getText(configFileTextField);
+        ConfigSourceType sourceType = getConfigSourceType();
+        if (sourceType == ConfigSourceType.FILE) return getText(configFileTextField);
         if (isGcpStorageConfig()) return loadGcpStorageConfigProviderInfo().getLocation();
 
         String configLocation = getText(configLocationTextField);
-        return sourceType == ConfigFileSourceType.HTTPS || isOciObjectStorageConfig() ?
+        return sourceType == ConfigSourceType.URL || isOciObjectStorageConfig() ?
                 DatabaseUrlPattern.normalizeConfigHttpsLocation(configLocation) :
                 configLocation;
     }
 
     private ConfigProviderInfo loadGcpStorageConfigProviderInfo() {
-        ConfigProviderInfo configProviderInfo = new ConfigProviderInfo();
+        ConfigProviderInfo configProviderInfo = new ConfigProviderInfo(null);
         configProviderInfo.apply(
-                getConfigFileSourceType(),
+                getConfigSourceType(),
                 getCloudConfigProviderType(),
                 getCloudConfigProviderRegion(),
                 null,
@@ -313,7 +319,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     }
 
     public boolean requiresAuthentication() {
-        return getUrlType() != DatabaseUrlType.CONFIG_FILE || getConfigFileSourceType() != ConfigFileSourceType.LOCAL_FILE;
+        return getUrlType() != DatabaseUrlType.PROVIDER || getConfigSourceType() != ConfigSourceType.FILE;
     }
 
     void updateUrlField() {
@@ -323,7 +329,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         DatabaseType databaseType = getDatabaseType();
         DatabaseUrlPattern urlPattern = nvl(databaseType.getUrlPattern(urlType), DatabaseUrlPattern.GENERIC);
         ConfigProviderInfo configProviderInfo = loadConfigProviderInfo();
-        Map<String, String> urlParameters = urlType == DatabaseUrlType.CONFIG_FILE ?
+        Map<String, String> urlParameters = urlType == DatabaseUrlType.PROVIDER ?
                 configProviderInfo.getUrlParameters(false) :
                 getParameters();
         String url = urlPattern.buildUrl(
@@ -336,14 +342,14 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                 getTnsProfile(),
                 getProtocol(),
                 getServerType(),
-                urlParameters,
                 configProviderInfo.getProviderSlug(),
-                configProviderInfo.getLocation());
+                configProviderInfo.getLocation(),
+                urlParameters);
         urlTextField.setText(url);
     }
 
     private ConfigProviderInfo loadConfigProviderInfo() {
-        ConfigProviderInfo configProviderInfo = new ConfigProviderInfo();
+        ConfigProviderInfo configProviderInfo = new ConfigProviderInfo(null);
         applyConfigProviderInfo(configProviderInfo);
         return configProviderInfo;
     }
@@ -402,15 +408,15 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
     public void updateFieldVisibility() {
         DatabaseUrlType urlType = nvl(getUrlType(), DatabaseUrlType.CUSTOM);
-        ConfigFileSourceType configFileSourceType = getConfigFileSourceType();
+        ConfigSourceType configFileSourceType = getConfigSourceType();
 
         boolean ezConnectVisible = urlType == DatabaseUrlType.EZCONNECT;
         boolean tnsVisible = urlType == DatabaseUrlType.TNS;
         boolean flsVisible = urlType == DatabaseUrlType.FILE;
-        boolean configFileVisible = urlType == DatabaseUrlType.CONFIG_FILE;
-        boolean localConfigFileVisible = configFileVisible && configFileSourceType == ConfigFileSourceType.LOCAL_FILE;
-        boolean remoteConfigVisible = configFileVisible && configFileSourceType != ConfigFileSourceType.LOCAL_FILE;
-        boolean cloudProviderVisible = configFileVisible && configFileSourceType == ConfigFileSourceType.CLOUD_PROVIDER;
+        boolean configFileVisible = urlType == DatabaseUrlType.PROVIDER;
+        boolean localConfigFileVisible = configFileVisible && configFileSourceType == ConfigSourceType.FILE;
+        boolean remoteConfigVisible = configFileVisible && configFileSourceType != ConfigSourceType.FILE;
+        boolean cloudProviderVisible = configFileVisible && configFileSourceType == ConfigSourceType.CLOUD;
         boolean gcpStorageConfig = remoteConfigVisible && isGcpStorageConfig();
         boolean cloudRegionConfig = remoteConfigVisible && isCloudRegionConfig();
         boolean azureLabelConfig = remoteConfigVisible && isAzureAppConfig();
@@ -491,46 +497,22 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     }
 
     private static String getCloudProviderDocumentationUrl(CloudConfigProviderType provider) {
-        if (provider == null) return null;
-
-        return switch (provider) {
-            case OCI_OBJECT -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-oci#oci-object-storage-config-provider";
-            case OCI_DB_TOOLS -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-oci#oci-database-tools-connections-config-provider";
-            case OCI_VAULT -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-oci#oci-vault-config-provider";
-            case AZURE_APP_CONFIG -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-azure#azure-app-configuration-provider";
-            case AZURE_VAULT -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-azure#azure-vault-config-provider";
-            case AWS_S3 -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-aws#aws-s3-configuration-provider";
-            case AWS_SECRETS -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-aws#aws-secrets-manager-config-provider";
-            case GCP_STORAGE -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-gcp#gcp-cloud-storage-config-provider";
-            case GCP_SECRET_MANAGER -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-gcp#gcp-secret-manager-config-provider";
-            case HASHICORP_VAULT -> "https://github.com/oracle/ojdbc-extensions/tree/main/ojdbc-provider-hashicorp#hcp-vault-dedicated-config-provider";
-        };
+        return provider == null ? null : provider.getDocUrl();
     }
 
-    private String resolveConfigLocationLabel(ConfigFileSourceType sourceType) {
-        if (sourceType == ConfigFileSourceType.HTTPS) {
-            return txt("cfg.connection.label.ConfigLocationHttps");
+    private String resolveConfigLocationLabel(ConfigSourceType sourceType) {
+        if (sourceType == ConfigSourceType.URL) {
+            return txt("cfg.connection.label.ProviderConfigLocation_URL");
         }
 
-        if (sourceType != ConfigFileSourceType.CLOUD_PROVIDER) {
+        if (sourceType != ConfigSourceType.CLOUD) {
             return txt("cfg.connection.label.ConfigLocation");
         }
 
         CloudConfigProviderType providerType = getCloudConfigProviderType();
         if (providerType == null) return txt("cfg.connection.label.ConfigLocation");
 
-        return switch (providerType) {
-            case OCI_OBJECT -> txt("cfg.connection.label.ConfigLocationOciObjectStorage");
-            case OCI_DB_TOOLS -> txt("cfg.connection.label.ConfigLocationOciDatabaseTools");
-            case OCI_VAULT -> txt("cfg.connection.label.ConfigLocationOciVault");
-            case AZURE_APP_CONFIG -> txt("cfg.connection.label.ConfigLocationAzureAppConfiguration");
-            case AZURE_VAULT -> txt("cfg.connection.label.ConfigLocationAzureVault");
-            case AWS_S3 -> txt("cfg.connection.label.ConfigLocationAwsS3");
-            case AWS_SECRETS -> txt("cfg.connection.label.ConfigLocationAwsSecretsManager");
-            case GCP_STORAGE -> txt("cfg.connection.label.ConfigLocationGcpCloudStorage");
-            case GCP_SECRET_MANAGER -> txt("cfg.connection.label.ConfigLocationGcpSecretManager");
-            case HASHICORP_VAULT -> txt("cfg.connection.label.ConfigLocationHashicorpVault");
-        };
+        return providerType.getLocationLabel();
     }
 
     boolean isOciCloudProvider() {
@@ -539,23 +521,19 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     }
 
     private boolean isOciObjectStorageConfig() {
-        return isCloudProviderConfig() &&
-                getCloudConfigProviderType() == CloudConfigProviderType.OCI_OBJECT;
+        return isCloudProviderConfig() && getCloudConfigProviderType() == OCI_OBJECT;
     }
 
     private boolean isOciDatabaseToolsConfig() {
-        return isCloudProviderConfig() &&
-                getCloudConfigProviderType() == CloudConfigProviderType.OCI_DB_TOOLS;
+        return isCloudProviderConfig() && getCloudConfigProviderType() == OCI_DB_TOOLS;
     }
 
     private boolean isGcpStorageConfig() {
-        return isCloudProviderConfig() &&
-                getCloudConfigProviderType() == CloudConfigProviderType.GCP_STORAGE;
+        return isCloudProviderConfig() && getCloudConfigProviderType() == GCP_STORAGE;
     }
 
     private boolean isAzureAppConfig() {
-        return isCloudProviderConfig() &&
-                getCloudConfigProviderType() == CloudConfigProviderType.AZURE_APP_CONFIG;
+        return isCloudProviderConfig() && getCloudConfigProviderType() == AZURE_APP_CONFIG;
     }
 
     private boolean isCloudRegionConfig() {
@@ -564,8 +542,8 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     }
 
     boolean isCloudProviderConfig() {
-        return getUrlType() == DatabaseUrlType.CONFIG_FILE &&
-                getConfigFileSourceType() == ConfigFileSourceType.CLOUD_PROVIDER;
+        return getUrlType() == DatabaseUrlType.PROVIDER &&
+                getConfigSourceType() == ConfigSourceType.CLOUD;
     }
 
     void handleDatabaseTypeChange(DatabaseType oldDatabaseType, DatabaseType newDatabaseType) {
@@ -582,7 +560,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                     () -> newDatabaseType.getUrlPattern(previousUrlType),
                     () -> newDatabaseType.getDefaultUrlPattern());
 
-            histInfo = urlPattern.getDefaultInfo();
+            histInfo = urlPattern.createDefaultInfo();
             if (Strings.isNotEmptyOrSpaces(previousUrl)) {
                 histInfo.setUrl(previousUrl);
                 histInfo.initializeDetails(urlPattern);
@@ -610,7 +588,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         databaseInfo.setFileBundle(getFileBundle().clone());
         databaseInfo.setTnsFolder(getTnsFolder());
         databaseInfo.setTnsProfile(getTnsProfile());
-        applyConfigProviderInfo(databaseInfo.getConfigProviderInfo());
+        applyConfigProviderInfo(getDatabaseSettings().getConfigProviderInfo());
         databaseInfo.setUrlType(getUrlType());
         databaseInfo.setUrl(getUrl());
         databaseInfo.setServerType(getServerType());
@@ -621,7 +599,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
     void applyConfigProviderInfo(ConfigProviderInfo configProviderInfo) {
         configProviderInfo.apply(
-                getConfigFileSourceType(),
+                getConfigSourceType(),
                 getCloudConfigProviderType(),
                 getCloudConfigProviderRegion(),
                 getConfigLocation(),
@@ -632,17 +610,19 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
 
     private void applyDatabaseInfo(DatabaseInfo databaseInfo) {
+        ConfigProviderInfo configProviderInfo = getDatabaseSettings().getConfigProviderInfo();
+
         databaseFileSettingsForm.setFileBundle(databaseInfo.getFileBundle());
         hostTextField.setText(databaseInfo.getHost());
         portTextField.setText(databaseInfo.getPort());
         databaseTextField.setText(databaseInfo.getDatabase());
         tnsFolderTextField.setText(databaseInfo.getTnsFolder());
-        configFileTextField.setText(databaseInfo.getConfigProviderInfo().getLocation());
-        configLocationTextField.setText(databaseInfo.getConfigProviderInfo().getLocation());
-        cloudRegionTextField.setText(databaseInfo.getConfigProviderInfo().getRegion());
-        applyGcpStorageConfigLocation(databaseInfo.getConfigProviderInfo());
-        configFileProfileKeyTextField.setText(databaseInfo.getConfigProviderInfo().getProfileKey());
-        azureLabelTextField.setText(databaseInfo.getConfigProviderInfo().getLabel());
+        configFileTextField.setText(configProviderInfo.getLocation());
+        configLocationTextField.setText(configProviderInfo.getLocation());
+        cloudRegionTextField.setText(configProviderInfo.getRegion());
+        applyGcpStorageConfigLocation(configProviderInfo);
+        configFileProfileKeyTextField.setText(configProviderInfo.getProfileKey());
+        azureLabelTextField.setText(configProviderInfo.getLabel());
         parameters = databaseInfo.getParameters();
 
         String tnsProfile = databaseInfo.getTnsProfile();
@@ -656,11 +636,11 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         initComboBox(urlTypeComboBox, urlTypes);
         setSelection(urlTypeComboBox, databaseInfo.getUrlType());
 
-        initComboBox(sourceTypeComboBox, ConfigFileSourceType.values());
-        setSelection(sourceTypeComboBox, Commons.nvl(databaseInfo.getConfigProviderInfo().getSourceType(), ConfigFileSourceType.LOCAL_FILE));
+        initComboBox(sourceTypeComboBox, ConfigSourceType.values());
+        setSelection(sourceTypeComboBox, Commons.nvl(configProviderInfo.getSourceType(), ConfigSourceType.FILE));
 
-        initComboBox(cloudProviderComboBox, CloudConfigProviderType.values());
-        setSelection(cloudProviderComboBox, databaseInfo.getConfigProviderInfo().getCloudProviderType());
+        initComboBox(cloudProviderComboBox, values());
+        setSelection(cloudProviderComboBox, configProviderInfo.getCloudProviderType());
 
         initComboBox(protocolComboBox, true, DatabaseProtocol.values());
         setSelection(protocolComboBox, databaseInfo.getProtocol());
@@ -689,22 +669,23 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         ConnectionDatabaseSettings configuration = getDatabaseSettings();
 
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
+        ConfigProviderInfo configProviderInfo = configuration.getConfigProviderInfo();
         DatabaseUrlType urlType = getUrlType();
         return
-            !Commons.match(databaseInfo.getHost(), getHost()) ||
-            !Commons.match(databaseInfo.getPort(), getPort()) ||
-            !Commons.match(databaseInfo.getDatabase(), getDatabase()) ||
-            !Commons.match(databaseInfo.getTnsFolder(), getTnsFolder()) ||
-            !Commons.match(databaseInfo.getTnsProfile(), getTnsProfile()) ||
-            !Commons.match(databaseInfo.getConfigProviderInfo().getSourceType(), getConfigFileSourceType()) ||
-            !Commons.match(databaseInfo.getConfigProviderInfo().getCloudProviderType(), getCloudConfigProviderType()) ||
-            !Commons.match(databaseInfo.getConfigProviderInfo().getRegion(), isCloudRegionConfig() ? getCloudRegion() : null) ||
-            !Commons.match(databaseInfo.getConfigProviderInfo().getLocation(), getConfigLocation()) ||
-            !Commons.match(databaseInfo.getConfigProviderInfo().getProfileKey(), getConfigFileProfileKey()) ||
-            !Commons.match(databaseInfo.getConfigProviderInfo().getLabel(), getAzureLabel()) ||
-            !Commons.match(databaseInfo.getUrl(), getUrl()) ||
-            !Commons.match(databaseInfo.getUrlType(), urlType) ||
-            !Commons.match(databaseInfo.getFileBundle(), urlType == DatabaseUrlType.FILE ? getFileBundle() : null);
+            !match(databaseInfo.getHost(), getHost()) ||
+            !match(databaseInfo.getPort(), getPort()) ||
+            !match(databaseInfo.getDatabase(), getDatabase()) ||
+            !match(databaseInfo.getTnsFolder(), getTnsFolder()) ||
+            !match(databaseInfo.getTnsProfile(), getTnsProfile()) ||
+            !match(configProviderInfo.getSourceType(), getConfigSourceType()) ||
+            !match(configProviderInfo.getCloudProviderType(), getCloudConfigProviderType()) ||
+            !match(configProviderInfo.getRegion(), isCloudRegionConfig() ? getCloudRegion() : null) ||
+            !match(configProviderInfo.getLocation(), getConfigLocation()) ||
+            !match(configProviderInfo.getProfileKey(), getConfigFileProfileKey()) ||
+            !match(configProviderInfo.getLabel(), getAzureLabel()) ||
+            !match(databaseInfo.getUrl(), getUrl()) ||
+            !match(databaseInfo.getUrlType(), urlType) ||
+            !match(databaseInfo.getFileBundle(), urlType == DatabaseUrlType.FILE ? getFileBundle() : null);
 
     }
 
