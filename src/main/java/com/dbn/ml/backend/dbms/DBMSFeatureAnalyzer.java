@@ -27,6 +27,7 @@ import com.dbn.ml.model.analysis.MLAttributeContribution;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -199,16 +200,35 @@ public class DBMSFeatureAnalyzer {
                 return new MLFeatureImportance(columnName, importance, columnInfo.typeName(), null, null, null, null, null);
             }
 
+            String minValue = rs.getString("MIN_VALUE");
+            String maxValue = rs.getString("MAX_VALUE");
+            if (numeric) {
+                minValue = withLeadingZero(minValue);
+                maxValue = withLeadingZero(maxValue);
+            }
+
             return new MLFeatureImportance(
                     columnName,
                     importance,
                     columnInfo.typeName(),
                     rs.getLong("DISTINCT_VALUES"),
-                    rs.getString("MIN_VALUE"),
-                    rs.getString("MAX_VALUE"),
+                    minValue,
+                    maxValue,
                     numeric ? nullableDouble(rs, "MEAN_VALUE") : null,
                     numeric ? nullableDouble(rs, "STD_DEV") : null);
         }
+    }
+
+    /**
+     * Oracle's default TO_CHAR(number) drops the leading zero of a fraction between -1 and 1
+     * (0.1 renders as ".1", -0.1 as "-.1"). Restores it without touching the rest of the value,
+     * so integers and larger numbers keep Oracle's natural precision untouched.
+     */
+    private static @Nullable String withLeadingZero(@Nullable String value) {
+        if (value == null) return null;
+        if (value.startsWith(".")) return "0" + value;
+        if (value.startsWith("-.")) return "-0" + value.substring(1);
+        return value;
     }
 
     private static Double nullableDouble(ResultSet rs, @NonNls String columnName) throws SQLException {
