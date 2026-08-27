@@ -19,6 +19,7 @@ package com.dbn.vector.model;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.execution.ExecutionCancellationAdapter;
 import com.dbn.execution.ExecutionResultBase;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.vector.ui.result.EmbeddingResultForm;
@@ -81,5 +82,12 @@ public class VectorEmbeddingExecutionResult extends ExecutionResultBase<Embeddin
   @Override
   public void setName(@NotNull String name, boolean sticky) {
     this.name = name;
+  }
+
+  @Override
+  public ExecutionCancellationAdapter getCancellationAdapter() {
+    return vectorEmbeddingResult.getStatus() == VectorEmbeddingResult.Status.RUNNING
+            ? new VectorEmbeddingCancellationAdapter(vectorEmbeddingResult)
+            : null;
   }
 }

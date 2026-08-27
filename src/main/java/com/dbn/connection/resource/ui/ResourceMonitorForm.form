@@ -46,7 +46,7 @@
                   <color color="-52429"/>
                 </border>
                 <children>
-                  <component id="2d1a6" class="javax.swing.JList" binding="connectionsList">
+                  <component id="2d1a6" class="com.intellij.ui.components.JBList" binding="connectionsList">
                     <constraints/>
                     <properties>
                       <selectionMode value="0"/>

@@ -18,6 +18,7 @@ package com.dbn.execution.script;
 
 import com.dbn.common.approval.UserApprovable;
 import com.dbn.common.approval.UserApprovalAction;
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
@@ -44,7 +45,7 @@ import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
 
 @Data
-public class CmdLineInterface implements Cloneable<CmdLineInterface>, PersistentConfiguration, Presentable, UserApprovable {
+public class CmdLineInterface implements Cloneable<CmdLineInterface>, PersistentConfiguration, Presentable, UserApprovable, Identifiable<String> {
     public static final String DEFAULT_ID = "DEFAULT";
 
     private DatabaseType databaseType;

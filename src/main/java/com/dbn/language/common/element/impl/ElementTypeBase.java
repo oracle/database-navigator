@@ -21,6 +21,7 @@ import com.dbn.code.common.style.formatting.FormattingDefinitionFactory;
 import com.dbn.code.common.style.formatting.IndentDefinition;
 import com.dbn.code.common.style.formatting.SpacingDefinition;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
@@ -60,7 +61,7 @@ import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMEN
 
 @Slf4j
 @Setter
-public abstract class ElementTypeBase extends IElementType implements ElementType, ICompositeElementType {
+public abstract class ElementTypeBase extends IElementType implements ElementType, ICompositeElementType, Identifiable<String> {
     private static final FormattingDefinition STATEMENT_FORMATTING = new FormattingDefinition(null, IndentDefinition.NORMAL, SpacingDefinition.MIN_LINE_BREAK, null);
 
     private final int hashCode;
@@ -79,9 +80,6 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
     public DBObjectType virtualObjectType;
     public WrappingDefinition wrapping;
     private ElementTypeAttributeHolder attributes;
-
-    protected transient boolean initialized;
-
 
     @Override
     public ASTNode createCompositeNode() {
@@ -129,10 +127,6 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
             }
         }
         return branches;
-    }
-
-    public void initialize() {
-        this.initialized = true;
     }
 
     public String nextChildId() {

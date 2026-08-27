@@ -3945,12 +3945,12 @@ final class OraclePLSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 26: break;
           case 8:
-            { return tt.getOperator();
+            { return tt.operator;
             }
           // fall through
           case 27: break;
           case 9:
-            { return tt.getKeyword();
+            { return tt.keyword;
             }
           // fall through
           case 28: break;
@@ -3980,27 +3980,27 @@ final class OraclePLSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 33: break;
           case 15:
-            { return tt.getFunction();
+            { return tt.function;
             }
           // fall through
           case 34: break;
           case 16:
-            { return tt.getDataType();
+            { return tt.dataType;
             }
           // fall through
           case 35: break;
           case 17:
-            { yybegin(WRAPPED); return tt.getKeyword();
+            { yybegin(WRAPPED); return tt.keyword;
             }
           // fall through
           case 36: break;
           case 18:
-            { return tt.getException();
+            { return tt.exception;
             }
           // fall through
           case 37: break;
           case 19:
-            { return tt.getParameter();
+            { return tt.parameter;
             }
           // fall through
           case 38: break;

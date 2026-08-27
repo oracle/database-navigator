@@ -58,11 +58,7 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
         setDefaultFormatting(tokenType.getFormatting());
 
         String flavorName = stringAttribute(def, "flavor");
-        if (Strings.isNotEmpty(flavorName)) {
-            flavor = getCategory(flavorName);
-        }
-
-        description = tokenType.getValue() + " " + getTokenTypeCategory();
+        setFlavor(flavorName);
     }
 
     public TokenElementType(ElementTypeBase parent, @NonNls TokenType tokenType, @NonNls String id) {
@@ -85,6 +81,13 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
 
         set(SYNTHETIC, true);
         setDefaultFormatting(tokenType.getFormatting());
+    }
+
+    void setFlavor(String flavorName) {
+        if (Strings.isNotEmpty(flavorName)) {
+            flavor = getCategory(flavorName);
+        }
+        description = tokenType.getValue() + " " + getTokenTypeCategory();
     }
 
     @Nullable

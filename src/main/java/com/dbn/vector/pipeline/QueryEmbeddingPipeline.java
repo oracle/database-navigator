@@ -20,7 +20,6 @@ import com.dbn.vector.model.result.EmbeddingQueryResult;
 import com.dbn.vector.model.result.PipelineStep;
 import com.dbn.vector.model.result.StepResult;
 import com.dbn.vector.service.QueryProcessingService;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +30,6 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.connection.Resources.commit;
 import static com.dbn.connection.Resources.rollbackSilently;
-import static com.dbn.nls.NlsResources.txt;
 
 
 public class QueryEmbeddingPipeline implements EmbeddingPipeline {
@@ -41,19 +39,17 @@ public class QueryEmbeddingPipeline implements EmbeddingPipeline {
     private final QueryProcessingService queryProcessingService = new QueryProcessingService();
 
     @Override
-    public void execute(
-            @NotNull VectorEmbeddingContext context,
-            @NotNull VectorEmbeddingRequest request,
-            @NotNull VectorEmbeddingResult result) {
+    public void execute(@NotNull VectorEmbeddingContext context) {
+        VectorEmbeddingRequest request = context.getRequest();
+        VectorEmbeddingResult result = context.getResult();
 
         EmbeddingSourceQueries sources = request.getSourceConfig().getSourceQueries();
         for (EmbeddingSourceQuery source : sources.getElements()) {
+            if (context.isCancellationRequested()) break;
             EmbeddingQueryResult queryResult = result.getResult(source);
 
             String metadata = queryProcessingService.buildRowMetadata(request, source);
             queryResult.setMetadata(metadata);
-            context.getProgressIndicator().setText2(txt("prc.vector.text.ProcessingQuery", queryResult.getName()));
-
             // Execute the embedding with batching
             embedQueryDataInBatches(context, request, queryResult);
         }
@@ -70,7 +66,6 @@ public class QueryEmbeddingPipeline implements EmbeddingPipeline {
             @NotNull EmbeddingQueryResult result) {
 
         StepResult embedStep = result.startStep(PipelineStep.EMBED);
-        ProgressIndicator progressIndicator = context.getProgressIndicator();
         DBNConnection conn = context.getConnection();
 
         try {
@@ -84,10 +79,9 @@ public class QueryEmbeddingPipeline implements EmbeddingPipeline {
             selectStatement = adjustSelectStatement(connection, selectStatement);
 
             while (true) {
-                if (progressIndicator.isCanceled()) break;
+                if (context.isCancellationRequested()) break;
 
                 batchNumber++;
-                progressIndicator.setText2(txt("prc.vector.text.ProcessingQueryBatch", result.getName(), batchNumber, totalRowsEmbedded));
                 EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
 
                 // Process one batch
@@ -108,7 +102,7 @@ public class QueryEmbeddingPipeline implements EmbeddingPipeline {
                 if (rowsEmbedded == 0) break;
             }
 
-            if (progressIndicator.isCanceled()) {
+            if (context.isCancellationRequested()) {
                 embedStep.markSuccess();
                 result.finishSuccess(totalRowsEmbedded);
             } else {

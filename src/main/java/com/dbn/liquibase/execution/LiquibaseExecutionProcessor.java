@@ -17,28 +17,37 @@
 package com.dbn.liquibase.execution;
 
 import com.dbn.common.exception.ElementSkippedException;
+import com.dbn.common.exception.ExecutionPausedException;
 import com.dbn.common.exception.RequestCancelledException;
 import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.common.routine.ThrowableConsumer;
 import com.dbn.common.task.TaskStatus;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.connection.ConnectionContext;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.PooledConnection;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
+import com.dbn.execution.ExecutionManager;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionLogService;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
+import com.dbn.liquibase.execution.processor.LiquibaseExecutionProcessors;
 import com.dbn.liquibase.operation.LiquibaseOperation;
 import com.dbn.liquibase.operation.LiquibaseOperationContext;
 import com.dbn.liquibase.operation.LiquibaseOperationInput;
 import com.dbn.liquibase.operation.LiquibaseOperationResult;
+import com.dbn.liquibase.operation.ui.LiquibaseOperationResultForm;
+import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
+import com.dbn.liquibase.workflow.ui.LiquibaseWorkflowResultForm;
+import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
 import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.extensions.ExtensionPointName;
+import com.intellij.openapi.project.Project;
 import liquibase.CatalogAndSchema;
 import liquibase.Scope;
 import liquibase.change.core.TagDatabaseChange;
@@ -75,6 +84,7 @@ import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -83,6 +93,8 @@ import java.util.function.Function;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.exception.Exceptions.unwrap;
 import static com.dbn.common.util.Classes.withClassLoader;
+import static com.dbn.common.util.Messages.showConfirmationDialog;
+import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
@@ -304,15 +316,39 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
 
     public abstract LiquibaseOperation getOperation();
 
+    /** Executes the SQL-preview processor against the current context without creating a second result. */
+    public final void executePreview(@NotNull LiquibaseOperationContext context) throws Exception {
+        if (!context.requiresSqlPreview()) return;
+
+        LiquibaseOperation previewOperation = getPreviewOperation();
+        if (previewOperation == null) return;
+
+        LiquibaseExecutionProcessor previewProcessor = LiquibaseExecutionProcessors.get(previewOperation);
+        previewProcessor.executeOperation(context);
+        context.getResult().notifyPaused();
+        if (!showSqlPreviewPrompt(context)) {
+            throw new RequestCancelledException("SQL preview confirmation canceled");
+        }
+        throw new ExecutionPausedException();
+    }
+
+    @Nullable
+    protected LiquibaseOperation getPreviewOperation() {
+        return null;
+    }
+
     @NotNull
     public final LiquibaseOperationResult execute(@NotNull LiquibaseOperationContext context) {
-        LiquibaseOperationResult result = context.prepareExecutionResult();
+        LiquibaseOperationResult result = context.getResult();
         context.setExecutionThread(Thread.currentThread());
         result.notifyStarted();
         try {
             ensureConfirmed(context.getInput());
+            executePreview(context);
             executeOperation(context);
             finishResult(context, TaskStatus.DONE);
+        } catch (ExecutionPausedException e) {
+            return result;
         } catch (ElementSkippedException e) {
             finishResult(context, TaskStatus.SKIPPED);
         } catch (RequestCancelledException e) {
@@ -324,11 +360,54 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
         return result;
     }
 
-    protected abstract void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception;
-
-    protected final void checkCanceled(@NotNull LiquibaseOperationContext context) {
-        if (context.isCancellationRequested()) throw new RequestCancelledException("Liquibase execution canceled");
+    private boolean showSqlPreviewPrompt(@NotNull LiquibaseOperationContext context) {
+        int option = showConfirmationDialog(
+                context.getProject(),
+                txt("msg.liquibase.title.SqlReviewRequired"),
+                txt("msg.liquibase.message.SqlPreviewRequired",
+                        context.getInput().getOperation().getName(),
+                        context.getTargetSchema().getName()),
+                new String[]{
+                        txt("msg.liquibase.button.ShowSqlPreview"),
+                        txt("msg.liquibase.button.CancelOperation")},
+                0,
+                selected -> {
+                    if (selected == 0) {
+                        LiquibaseOperationResult result = context.getResult();
+                        showSqlPreview(result);
+                    }
+                });
+        return option == 0;
     }
+
+    public void showSqlPreview(LiquibaseOperationResult result) {
+        Project project = result.getProject();
+        ExecutionManager executionManager = ExecutionManager.getInstance(project);
+
+        LiquibaseWorkflowResult workflowResult = result.getWorkflowResult();
+        if (workflowResult == null) {
+            executionManager.selectResultTab(result);
+            Dispatch.run(nonModal(), () -> {
+                LiquibaseOperationResultForm form = result.getForm();
+                if (form == null) return;
+
+                form.showSqlPreview();
+            });
+        } else {
+            executionManager.selectResultTab(workflowResult);
+            Dispatch.run(nonModal(), () -> {
+                LiquibaseWorkflowResultForm form = workflowResult.getForm();
+                if (form == null) return;
+
+                LiquibaseOperationResultForm operationForm = form.getOperationResultForm(result);
+                if (operationForm == null) return;
+
+                operationForm.showSqlPreview();
+            });
+        }
+    }
+
+    protected abstract void executeOperation(@NotNull LiquibaseOperationContext context) throws Exception;
 
     @NotNull
     protected final String formatException(@NotNull Exception exception) {
@@ -420,30 +499,59 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
                 }));
     }
 
-    protected static CommandResults executeCommand(String commandName, LiquibaseExecutionOutputStream output, @NonNls Map<String, Object> arguments) throws CommandExecutionException {
-        return executeCommand(commandName, output, arguments, Map.of());
+    protected static CommandResults executeCommand(
+            @NotNull @NonNls String commandName,
+            @NotNull LiquibaseOperationContext context,
+            @NotNull LiquibaseExecutionOutputStream output,
+            @NonNls Map<String, Object> arguments) throws CommandExecutionException {
+        return executeCommand(commandName, context, output, arguments, null);
     }
 
     protected static CommandResults executeCommand(
-            String commandName,
-            LiquibaseExecutionOutputStream output,
+            @NotNull @NonNls String commandName,
+            @NotNull LiquibaseOperationContext context,
+            @NotNull LiquibaseExecutionOutputStream output,
             @NonNls Map<String, Object> arguments,
-            Map<Class<?>, Object> dependencies) throws CommandExecutionException {
+            @Nullable Map<Class<?>, Object> dependencies) throws CommandExecutionException {
+        checkCanceled(context);
         CommandScope command = new CommandScope(commandName);
 
-        for (String argument : arguments.keySet()) {
-            Object value = arguments.get(argument);
-            if (value == null || value == LiquibaseCommands.NULL_ARGUMENT) continue;
+        Map<String, Object> args = new HashMap<>(arguments);
+        LiquibaseEnvironmentProfile profile = context.getInput().getEnvironmentProfile();
+        args.put("contextFilter", profile.getContexts());
+        args.put("labelFilter", profile.getLabels());
+
+        for (String argument : args.keySet()) {
+            Object value = args.get(argument);
+            if (value == null) continue;
+            if (value == LiquibaseCommands.NULL_ARGUMENT) continue;
 
             command.addArgumentValue(argument, value);
         }
 
-        for (Map.Entry<Class<?>, Object> dependency : dependencies.entrySet()) {
-            command.provideDependency(dependency.getKey(), dependency.getValue());
+        if (dependencies != null) {
+            for (var dependency : dependencies.entrySet()) {
+                command.provideDependency(dependency.getKey(), dependency.getValue());
+            }
         }
 
         command.setOutput(output);
         return command.execute();
     }
 
+    protected static void checkCanceled(@NotNull LiquibaseOperationContext context) {
+        if (context.isCancellationRequested()) throw new RequestCancelledException("Liquibase execution canceled");
+    }
+
+    @NonNls
+    protected static Map<String, Object> arguments(Object ... keyValues) {
+        Map<String, Object> arguments = new HashMap<>();
+        for (int i = 0; i < keyValues.length; i += 2) {
+            String key = keyValues[i].toString();
+            Object value = keyValues[i + 1];
+
+            arguments.put(key, value);
+        }
+        return arguments;
+    }
 }

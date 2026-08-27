@@ -16,8 +16,6 @@
 
 package com.dbn.dev.language;
 
-import com.dbn.common.data.Data;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseType;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.psql.PSQLLanguage;
@@ -41,7 +39,6 @@ import static com.dbn.connection.DatabaseType.SQLITE;
 @NonNls
 public class LanguageSpecificationBuilderInput {
     private static final String CONFIG_FILE_PATH = "modules/dbn-dev/language-builder.properties";
-    private static final String PARSER_EXT_BUILDER_PROPERTY = "parserExtBuilder";
 
     public DatabaseType database;
     public DBLanguage language;
@@ -149,16 +146,6 @@ public class LanguageSpecificationBuilderInput {
                     " (provide -D" + name + "=<path> or set it in " + CONFIG_FILE_PATH + ")");
         }
         return value;
-    }
-
-    public boolean isParserExtBuilderEnabled() {
-        return getBooleanProperty(PARSER_EXT_BUILDER_PROPERTY, true);
-    }
-
-    private boolean getBooleanProperty(String name, boolean defaultValue) {
-        String value = getProperty(name);
-        if (Strings.isEmpty(value)) return defaultValue;
-        return Data.asBoolean(value);
     }
 
     private String getProperty(String name) {

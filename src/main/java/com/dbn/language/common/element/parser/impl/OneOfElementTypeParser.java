@@ -44,14 +44,14 @@ public class OneOfElementTypeParser<E extends OneOfElementType> extends ElementT
 
         ElementTypeRef[] candidates = parseCandidates(context);
         for (ElementTypeRef candidate : candidates) {
-            if (context.check(candidate) && shouldParseElement(candidate.elementType, node, context)) {
-                ParseResult result = candidate.elementType.parser.parse(node, context);
+            if (!context.check(candidate)) continue;
+            if (!shouldParseElement(candidate.elementType, node, context)) continue;
 
-                if (result.type != NO_MATCH) {
-                    node.matchedTokens = result.matchedTokens;
-                    return stepOut(node, context, result.type);
-                }
-            }
+            ParseResult result = candidate.elementType.parser.parse(node, context);
+            if (result.type == NO_MATCH) continue;
+
+            node.matchedTokens = result.matchedTokens;
+            return stepOut(node, context, result.type);
         }
         return stepOut(node, context, NO_MATCH);
     }

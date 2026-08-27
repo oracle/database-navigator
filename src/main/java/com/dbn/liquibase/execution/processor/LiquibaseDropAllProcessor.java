@@ -16,14 +16,13 @@ import com.dbn.liquibase.operation.LiquibaseOperation;
 import com.dbn.liquibase.operation.LiquibaseOperationContext;
 import com.dbn.object.DBSchema;
 import liquibase.CatalogAndSchema;
-import liquibase.command.core.DropAllCommandStep;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-
 import static com.dbn.liquibase.execution.LiquibaseCommands.DROP_ALL;
 import static com.dbn.nls.NlsResources.txt;
+import static liquibase.command.core.DropAllCommandStep.CATALOG_AND_SCHEMAS_ARG;
+import static liquibase.command.core.DropAllCommandStep.FORCE_ARG;
 
 /** Drops all Liquibase-visible database objects owned by the selected target schema. */
 public class LiquibaseDropAllProcessor extends LiquibaseExecutionProcessor {
@@ -38,7 +37,7 @@ public class LiquibaseDropAllProcessor extends LiquibaseExecutionProcessor {
 
         withLiquibaseDatabase(context, false, targetSchema, database ->
                 withLiquibaseScope(context, classLoaderAccessor(), null,
-                        output -> executeDropAll(database, targetSchema, output)));
+                        output -> executeDropAll(database, targetSchema, context, output)));
 
         notifySchemaObjectChanges(targetSchema);
         context.getResult().appendConsoleOutput(txt("log.liquibase.info.DropAllCompleted", targetSchema.getName()));
@@ -47,13 +46,16 @@ public class LiquibaseDropAllProcessor extends LiquibaseExecutionProcessor {
     private static void executeDropAll(
             @NotNull Database database,
             @NotNull DBSchema schema,
+            @NotNull LiquibaseOperationContext context,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
         CatalogAndSchema catalogAndSchema = new CatalogAndSchema(
                 database.getDefaultCatalogName(),
                 schema.getName());
-        executeCommand(DROP_ALL, output, Map.of(
+
+        var arguments = arguments(
                 "database", database,
-                DropAllCommandStep.CATALOG_AND_SCHEMAS_ARG.getName(), new CatalogAndSchema[]{catalogAndSchema},
-                DropAllCommandStep.FORCE_ARG.getName(), true));
+                CATALOG_AND_SCHEMAS_ARG.getName(), new CatalogAndSchema[]{catalogAndSchema},
+                FORCE_ARG.getName(), true);
+        executeCommand(DROP_ALL, context, output, arguments);
     }
 }

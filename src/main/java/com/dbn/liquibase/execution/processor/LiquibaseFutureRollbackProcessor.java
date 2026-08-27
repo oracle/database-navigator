@@ -17,8 +17,6 @@ import com.dbn.liquibase.operation.LiquibaseOperationContext;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-
 import static com.dbn.liquibase.execution.LiquibaseCommands.FUTURE_ROLLBACK_SQL;
 
 /** Generates SQL for rolling back Liquibase changesets that have not yet been deployed. */
@@ -41,10 +39,13 @@ public class LiquibaseFutureRollbackProcessor extends LiquibaseExecutionProcesso
             @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
+
         var paths = context.getInput().getWorkspacePaths();
-        executeCommand(FUTURE_ROLLBACK_SQL, output, Map.of(
+        var listener = new LiquibaseChangeSetRollbackListener(context.getResult(), "SQL generated");
+        var arguments = arguments(
                 "database", database,
                 "changelogFile", paths.getMasterChangelogRelativePath(),
-                "changeExecListener", new LiquibaseChangeSetRollbackListener(context.getResult(), "SQL generated")));
+                "changeExecListener", listener);
+        executeCommand(FUTURE_ROLLBACK_SQL, context, output, arguments);
     }
 }

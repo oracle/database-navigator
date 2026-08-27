@@ -10,7 +10,6 @@
 
 package com.dbn.liquibase.execution.processor;
 
-import com.dbn.liquibase.execution.LiquibaseCommands;
 import com.dbn.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.liquibase.execution.logging.LiquibaseExecutionOutputStream;
 import com.dbn.liquibase.operation.LiquibaseOperation;
@@ -19,7 +18,7 @@ import com.dbn.object.DBSchema;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
+import static com.dbn.liquibase.execution.LiquibaseCommands.UPDATE_TESTING_ROLLBACK;
 
 /**
  * Tests the rollback definitions of all pending changesets in the selected workspace.
@@ -44,17 +43,17 @@ public class LiquibaseUpdateTestingRollbackProcessor extends LiquibaseExecutionP
                         output -> executeUpdateTestingRollback(context, database, output)));
     }
 
-    private static void executeUpdateTestingRollback(
+    private void executeUpdateTestingRollback(
             @NotNull LiquibaseOperationContext context,
             @NotNull Database database,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
+
         var paths = context.getInput().getWorkspacePaths();
-        executeCommand(
-                LiquibaseCommands.UPDATE_TESTING_ROLLBACK,
-                output,
-                Map.of(
-                        "database", database,
-                        "changelogFile", paths.getMasterChangelogRelativePath(),
-                        "changeExecListener", new LiquibaseChangeSetTestingRollbackListener(context.getResult())));
+        var listener = new LiquibaseChangeSetTestingRollbackListener(context.getResult());
+        var arguments = arguments(
+                "database", database,
+                "changelogFile", paths.getMasterChangelogRelativePath(),
+                "changeExecListener", listener);
+        executeCommand(UPDATE_TESTING_ROLLBACK, context, output, arguments);
     }
 }

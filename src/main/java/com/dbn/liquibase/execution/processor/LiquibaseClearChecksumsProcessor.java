@@ -18,8 +18,6 @@ import com.dbn.object.DBSchema;
 import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-
 import static com.dbn.liquibase.execution.LiquibaseCommands.CLEAR_CHECKSUMS;
 
 /** Clears stored Liquibase checksums so they can be recalculated on the next changelog run. */
@@ -34,12 +32,15 @@ public class LiquibaseClearChecksumsProcessor extends LiquibaseExecutionProcesso
         DBSchema targetSchema = context.getTargetSchema();
         withLiquibaseDatabase(context, false, targetSchema, database ->
                 withLiquibaseScope(context, classLoaderAccessor(), null,
-                        output -> executeClearChecksums(database, output)));
+                        output -> executeClearChecksums(database, context, output)));
     }
 
     private void executeClearChecksums(
             @NotNull Database database,
+            @NotNull LiquibaseOperationContext context,
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
-        executeCommand(CLEAR_CHECKSUMS, output, Map.of("database", database));
+
+        var arguments = arguments("database", database);
+        executeCommand(CLEAR_CHECKSUMS, context, output, arguments);
     }
 }

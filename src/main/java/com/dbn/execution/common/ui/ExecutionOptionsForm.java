@@ -47,7 +47,6 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleForm {
@@ -74,13 +73,11 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
         ConnectionHandler connection = executionInput.ensureConnection();
         targetConnectionComboBox.setValues(connection);
         targetConnectionComboBox.setSelectedValue(connection);
-        targetConnectionComboBox.set(HIDE_DESCRIPTION, true);
         targetConnectionComboBox.setEnabled(false);
 
         if (isSchemaSelectionAllowed()) {
             targetSchemaComboBox.setValues(connection.getSchemaIds());
             targetSchemaComboBox.setSelectedValue(executionInput.getTargetSchemaId());
-            targetSchemaComboBox.set(HIDE_DESCRIPTION, true);
             targetSchemaComboBox.addActionListener(actionListener);
         } else {
             SchemaId targetSchema = executionInput.getTargetSchemaId();
@@ -100,7 +97,6 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
 
             targetSessionComboBox.setValues(sessions);
             targetSessionComboBox.setSelectedValue(targetSession);
-            targetSessionComboBox.set(HIDE_DESCRIPTION, true);
             targetSessionComboBox.addActionListener(actionListener);
         } else {
             targetSessionId = debuggerType == DBDebuggerType.NONE ? targetSessionId : SessionId.DEBUG;

@@ -23,6 +23,7 @@ import lombok.experimental.UtilityClass;
 import java.util.Arrays;
 import java.util.Set;
 
+import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.options.ConfigActivity.APPLYING;
 import static com.dbn.common.options.ConfigActivity.CLONING;
 import static com.dbn.common.options.ConfigActivity.TRANSFERRING;
@@ -32,18 +33,26 @@ import static com.dbn.common.util.Commons.matchArrays;
 @UtilityClass
 public class Secrets {
     private static final Set<Secret> REGISTRY = ContainerUtil.createWeakSet();
+    private static final Object REGISTRY_LOCK = new Object();
 
     static void register(Secret secret) {
         if (!secret.isPersistent()) return;
-        if (is(CLONING) || is(APPLYING) || is(TRANSFERRING)) return;
+        if (is(CLONING)) return;
+        if (is(APPLYING)) return;
+        if (is(TRANSFERRING)) return;
 
-        REGISTRY.add(secret);
+        synchronized (REGISTRY_LOCK) {
+            REGISTRY.add(secret);
+        }
     }
 
     public static void initialize() {
         Background.run(() -> {
-            Secret[] secrets = REGISTRY.toArray(new Secret[0]);
-            Arrays.stream(secrets).forEach(s -> s.ensureLoaded());
+            Secret[] secrets;
+            synchronized (REGISTRY_LOCK) {
+                secrets = REGISTRY.toArray(new Secret[0]);
+            }
+            Arrays.stream(secrets).forEach(s -> guarded(() -> s.ensureLoaded()));
         });
     }
 

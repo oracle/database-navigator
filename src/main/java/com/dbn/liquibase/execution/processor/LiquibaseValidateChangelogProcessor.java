@@ -10,7 +10,6 @@ import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
-import java.util.Map;
 
 import static com.dbn.liquibase.execution.LiquibaseCommands.VALIDATE_CHANGELOG;
 import static com.dbn.nls.NlsResources.txt;
@@ -60,9 +59,10 @@ public class LiquibaseValidateChangelogProcessor extends LiquibaseExecutionProce
             @NotNull LiquibaseExecutionOutputStream output) throws Exception {
         LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
 
-        executeCommand(VALIDATE_CHANGELOG, output, Map.of(
+        var arguments = arguments(
                 "database", database,
-                "changelogFile", paths.getMasterChangelogRelativePath()));
+                "changelogFile", paths.getMasterChangelogRelativePath());
+        executeCommand(VALIDATE_CHANGELOG, context, output, arguments);
     }
 
 }

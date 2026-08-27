@@ -17,6 +17,7 @@
 package com.dbn.assistant.credential;
 
 import com.dbn.assistant.provider.AIProviderId;
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
@@ -42,7 +43,7 @@ import static com.dbn.credentials.SecretType.GENERIC_CREDENTIAL;
 
 @Getter
 @Setter
-public class AssistantCredential implements Cloneable<AssistantCredential>, PersistentConfiguration, Presentable, SecretsOwner {
+public class AssistantCredential implements Cloneable<AssistantCredential>, PersistentConfiguration, Presentable, SecretsOwner, Identifiable<String> {
     private String id = UUIDs.regular();
     private AIProviderId providerId;
     private String name;

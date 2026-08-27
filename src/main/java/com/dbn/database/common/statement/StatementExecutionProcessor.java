@@ -17,6 +17,7 @@
 package com.dbn.database.common.statement;
 
 import com.dbn.common.compatibility.Exploitable;
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Compactables;
 import com.dbn.common.util.Lists;
@@ -53,7 +54,7 @@ import static com.dbn.diagnostics.Diagnostics.isDatabaseAccessDebug;
 
 @Slf4j
 @Getter
-public class StatementExecutionProcessor {
+public class StatementExecutionProcessor implements Identifiable<String> {
     public static final SQLFeatureNotSupportedException NO_STATEMENT_DEFINITION_EXCEPTION = new SQLFeatureNotSupportedException("No statement definition found");
 
     private final DatabaseInterfaces interfaces;

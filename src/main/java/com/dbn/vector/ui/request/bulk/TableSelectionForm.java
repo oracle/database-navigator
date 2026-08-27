@@ -29,6 +29,7 @@ import com.dbn.object.DBTable;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.vector.model.request.EmbeddingSourceTable;
 import com.dbn.vector.ui.VectorToolboxFormBase;
+import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -546,8 +547,8 @@ public class TableSelectionForm extends VectorToolboxFormBase {
 
     private void createUIComponents() {
         // Custom component initialization for form designer
-        availableTablesList = new JList<>();
-        selectedTablesList = new JList<>();
+        availableTablesList = new JBList<>();
+        selectedTablesList = new JBList<>();
         schemaComboBox = new DBObjectSelector<>();
         keyColumnComboBox = new DBObjectSelector<>();
         dataColumnComboBox = new DBObjectSelector<>();

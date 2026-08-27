@@ -23,7 +23,6 @@ import liquibase.database.Database;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
 
 import static com.dbn.liquibase.execution.LiquibaseCommands.MARK_NEXT_CHANGESET_RAN;
 import static com.dbn.nls.NlsResources.txt;
@@ -56,9 +55,10 @@ public class LiquibaseMarkNextChangesetRanProcessor extends LiquibaseExecutionPr
                 LiquibaseExecutionItemStatus.DISCOVERED,
                 txt("msg.liquibase.text.ChangeSetMarkNextPending"));
 
-        executeCommand(MARK_NEXT_CHANGESET_RAN, output, Map.of(
+        var arguments = arguments(
                 "database", database,
-                "changelogFile", paths.getMasterChangelogRelativePath()));
+                "changelogFile", paths.getMasterChangelogRelativePath());
+        executeCommand(MARK_NEXT_CHANGESET_RAN, context, output, arguments);
 
         if (item != null) {
             completeChangeSetItems(

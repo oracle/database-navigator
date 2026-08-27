@@ -17,6 +17,7 @@
 package com.dbn.language.common;
 
 import com.dbn.code.common.style.formatting.FormattingDefinition;
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.index.Indexable;
 import com.dbn.language.common.element.TokenPairTemplate;
 import com.dbn.object.type.DBObjectType;
@@ -25,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
-public interface TokenType extends Indexable {
+public interface TokenType extends Indexable, Identifiable<String> {
 
     String getId();
 

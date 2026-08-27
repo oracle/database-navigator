@@ -285,7 +285,7 @@ public abstract class ValueSelector<T extends Presentable> extends DBNButtonPane
         if (value != null) {
             String description = value.getDescription();
             String name = value.getName();
-            return options.is(ValueSelectorOption.HIDE_DESCRIPTION) || Strings.isEmpty(description) ? name : name + " (" + description + ")";
+            return !options.is(ValueSelectorOption.SHOW_DESCRIPTION) || Strings.isEmpty(description) ? name : name + " (" + description + ")";
         } else {
             return "";
         }

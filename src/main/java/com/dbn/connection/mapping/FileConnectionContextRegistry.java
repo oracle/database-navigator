@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static com.dbn.common.action.UserDataKeys.FILE_CONNECTION_MAPPING;
+import static com.dbn.common.action.UserDataKeys.FILE_CONNECTION_CONTEXT;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.file.util.VirtualFiles.isDatabaseFileSystem;
 import static com.dbn.common.file.util.VirtualFiles.isLocalFileSystem;
@@ -80,10 +80,8 @@ public class FileConnectionContextRegistry extends StatefulDisposableBase implem
         removeMappings(connectionId);
     }
 
-    public boolean setConnectionHandler(@NotNull VirtualFile file, @Nullable ConnectionHandler connection) {
-        if (isDatabaseFileSystem(file)) {
-            return false;
-        }
+    public boolean setDatabaseConnection(@NotNull VirtualFile file, @Nullable ConnectionHandler connection) {
+        if (isDatabaseFileSystem(file)) return false;
 
         FileConnectionContext context = ensureFileConnectionMapping(file);
         boolean changed = context.setConnectionId(connection == null ? null : connection.getConnectionId());
@@ -206,17 +204,17 @@ public class FileConnectionContextRegistry extends StatefulDisposableBase implem
 
         FileConnectionContext context = null;
         if (file instanceof LightVirtualFile) {
-            context = file.getUserData(FILE_CONNECTION_MAPPING);
+            context = file.getUserData(FILE_CONNECTION_CONTEXT);
 
             if (context == null && ensure) {
                 context = new FileConnectionContextImpl(file);
-                file.putUserData(FILE_CONNECTION_MAPPING, context);
+                file.putUserData(FILE_CONNECTION_CONTEXT, context);
             }
             return context;
         }
 
         if (isLocalFileSystem(file)) {
-            context = file.getUserData(FILE_CONNECTION_MAPPING);
+            context = file.getUserData(FILE_CONNECTION_CONTEXT);
             if (context == null) {
                 context = mappings.get(file.getUrl());
 
@@ -226,10 +224,12 @@ public class FileConnectionContextRegistry extends StatefulDisposableBase implem
                 }
 
                 if (context != null) {
-                    file.putUserData(FILE_CONNECTION_MAPPING, context);
+                    file.putUserData(FILE_CONNECTION_CONTEXT, context);
                 }
             }
-            if (context == null) {
+            if (ensure) return context;
+
+            if (context == null || !context.isValid()) {
                 VirtualFile parent = file.getParent();
                 if (parent != null) {
                     return getFileConnectionContext(parent);
@@ -243,8 +243,8 @@ public class FileConnectionContextRegistry extends StatefulDisposableBase implem
 
     public boolean removeMapping(VirtualFile file) {
         FileConnectionContext context = mappings.remove(file.getUrl());
-        FileConnectionContext localMapping = file.getUserData(FILE_CONNECTION_MAPPING);
-        file.putUserData(FILE_CONNECTION_MAPPING, null);
+        FileConnectionContext localMapping = file.getUserData(FILE_CONNECTION_CONTEXT);
+        file.putUserData(FILE_CONNECTION_CONTEXT, null);
 
         return context != null || localMapping != null;
     }

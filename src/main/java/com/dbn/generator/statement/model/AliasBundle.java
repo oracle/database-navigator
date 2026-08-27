@@ -22,7 +22,8 @@ import com.dbn.object.lookup.DBObjectRef;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+
+import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 
 public class AliasBundle {
     private final Map<DBObjectRef, String> aliases = new HashMap<>();
@@ -39,12 +40,7 @@ public class AliasBundle {
     }
 
     private String getNextAvailable(String alias) {
-        for (String availableAlias : aliases.values()) {
-            if (Objects.equals(alias, availableAlias)) {
-                alias = Naming.nextNumberedIdentifier(alias, false);
-            }
-        }
-        return alias;
+        return nextNumberedIdentifier(alias, false, o -> aliases.containsValue(o));
     }
 
 }

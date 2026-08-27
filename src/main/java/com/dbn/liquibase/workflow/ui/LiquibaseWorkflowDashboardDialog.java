@@ -42,7 +42,7 @@ public class LiquibaseWorkflowDashboardDialog extends DBNDialog<LiquibaseWorkflo
     private LiquibaseWorkflowDashboardDialog(@NotNull Project project, @Nullable DBSchema initialSchema) {
         super(project, txt("msg.liquibase.title.WorkflowDashboard"), false);
         this.initialSchema = DBObjectRef.of(initialSchema);
-        setDefaultSize(780, 860);
+        setDefaultSize(640, 720);
         setModal(false);
         init();
     }
