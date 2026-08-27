@@ -16,10 +16,17 @@
 
 package com.dbn.ml.ui.trainer;
 
+import com.dbn.common.Priority;
+import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.model.MLMiningFunction;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
@@ -27,6 +34,7 @@ import com.dbn.ml.model.trainer.MLTrainerType;
 import com.dbn.ml.ui.MLToolboxForm;
 import com.dbn.ml.ui.MLToolboxFormBase;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBTextField;
 
@@ -37,10 +45,17 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.text.JTextComponent;
 import java.awt.FlowLayout;
+import java.sql.ResultSet;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.nls.NlsResources.txt;
 
 public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleForm {
     private JPanel mainPanel;
@@ -58,9 +73,15 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
 
     private final HyperlinkLabel algorithmDocLink = new HyperlinkLabel("Oracle Documentation");
 
+    // Loaded once in the background - null until the load completes, at which point the
+    // model name field is re-validated. Empty result and "not loaded yet" are indistinguishable
+    // on purpose: while unknown, a typed name is assumed available rather than blocking Train.
+    private volatile Set<String> existingModelNames;
+
     public MLTrainerForm(Disposable parent, ConnectionHandler connection) {
         super(parent, connection);
         initComponents();
+        loadExistingModelNames();
     }
 
     private void initComponents() {
@@ -73,6 +94,50 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         algorithmLinkPanel.setOpaque(false);
         algorithmLinkPanel.add(algorithmDocLink);
 
+    }
+
+    /**
+     * Fetches the model names already present in the schema, so the name field can warn about a
+     * collision before the training job is submitted instead of after it fails on the server.
+     */
+    private void loadExistingModelNames() {
+        Background.run(() -> {
+            Set<String> names = new HashSet<>();
+            ConnectionHandler connection = getConnection();
+            DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
+
+            DatabaseInterfaceInvoker.execute(Priority.LOW,
+                    connection.getProject(),
+                    getConnectionId(),
+                    (DBNConnection conn) -> {
+                        try (ResultSet rs = mlInterface.getExistingModelNames(conn)) {
+                            while (rs.next()) {
+                                names.add(rs.getString("MODEL_NAME").toUpperCase());
+                            }
+                        }
+                    });
+
+            existingModelNames = names;
+            Dispatch.run(() -> validateInput(modelNameField));
+        });
+    }
+
+    @Override
+    protected void initValidation() {
+        addTextValidation(modelNameField, this::validateModelName);
+    }
+
+    private @DialogMessage String validateModelName(JTextComponent field) {
+        String name = getText(field).trim();
+        if (name.isEmpty()) return null; // blank means auto-generate, always valid
+
+        String upperName = name.toUpperCase();
+        if (!Strings.isAlphanumericWithUnderscore(upperName)) return txt("msg.machineLearning.error.ModelNameInvalid");
+
+        Set<String> names = existingModelNames;
+        if (names != null && names.contains(upperName)) return txt("msg.machineLearning.error.ModelNameExists");
+
+        return null;
     }
 
     @Override
