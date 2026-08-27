@@ -411,7 +411,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             databaseInfo.setTnsProfile(getString(element, "tns-profile", null));
             databaseInfo.setServerType(getEnum(element, "server-type", ServerType.class));
             databaseInfo.setProtocol(getEnum(element, "protocol", DatabaseProtocol.class));
-            configProviderInfo.readConfiguration(element);
+            configProviderInfo.readConfiguration(element.getChild("config-provider"));
 
             Element paramsElement = element.getChild("url-parameters");
             Map<String, String> parameters = new HashMap<>();
@@ -484,7 +484,11 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             setString(element, "tns-profile", nvle(databaseInfo.getTnsProfile()));
             setEnum(element, "server-type", databaseInfo.getServerType());
             setEnum(element, "protocol", databaseInfo.getProtocol());
-            configProviderInfo.writeConfiguration(element);
+
+            if (databaseInfo.isProviderUrl()) {
+                Element configProviderElement = newElement(element, "config-provider");
+                configProviderInfo.writeConfiguration(configProviderElement);
+            }
 
             Element paramsElement = newElement(element, "url-parameters");
             databaseInfo.getParameters().forEach((key, value) -> {

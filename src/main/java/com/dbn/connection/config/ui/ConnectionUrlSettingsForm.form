@@ -48,7 +48,7 @@
           <text resource-bundle="messages/DBNResources" key="cfg.connection.label.Host"/>
         </properties>
       </component>
-      <component id="8771d" class="javax.swing.JTextField" binding="hostTextField">
+      <component id="8771d" class="com.intellij.ui.components.JBTextField" binding="hostTextField">
         <constraints>
           <grid row="4" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -121,7 +121,7 @@
           <text resource-bundle="messages/DBNResources" key="cfg.connection.label.Database"/>
         </properties>
       </component>
-      <component id="6cce8" class="javax.swing.JTextField" binding="databaseTextField">
+      <component id="6cce8" class="com.intellij.ui.components.JBTextField" binding="databaseTextField">
         <constraints>
           <grid row="5" column="1" row-span="1" col-span="5" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -152,7 +152,7 @@
           <text resource-bundle="messages/DBNResources" key="cfg.connection.label.ServerType"/>
         </properties>
       </component>
-      <component id="a622a" class="javax.swing.JTextField" binding="portTextField">
+      <component id="a622a" class="com.intellij.ui.components.JBTextField" binding="portTextField">
         <constraints>
           <grid row="4" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="80" height="-1"/>
@@ -255,7 +255,7 @@
           <text resource-bundle="messages/DBNResources" key="cfg.connection.label.ConfigLocation"/>
         </properties>
       </component>
-      <component id="87dfa" class="javax.swing.JTextField" binding="configLocationTextField">
+      <component id="87dfa" class="com.intellij.ui.components.JBTextField" binding="configLocationTextField">
         <constraints>
           <grid row="10" column="1" row-span="1" col-span="4" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -278,7 +278,7 @@
           <text resource-bundle="messages/DBNResources" key="cfg.connection.label.AwsRegion"/>
         </properties>
       </component>
-      <component id="a311e" class="javax.swing.JTextField" binding="cloudRegionTextField">
+      <component id="a311e" class="com.intellij.ui.components.JBTextField" binding="cloudRegionTextField">
         <constraints>
           <grid row="11" column="1" row-span="1" col-span="5" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -293,7 +293,7 @@
           <text resource-bundle="messages/DBNResources" key="cfg.connection.label.GcpProject"/>
         </properties>
       </component>
-      <component id="519e5" class="javax.swing.JTextField" binding="gcpStorageProjectTextField">
+      <component id="519e5" class="com.intellij.ui.components.JBTextField" binding="gcpStorageProjectTextField">
         <constraints>
           <grid row="12" column="1" row-span="1" col-span="5" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -308,7 +308,7 @@
           <text resource-bundle="messages/DBNResources" key="cfg.connection.label.GcpBucket"/>
         </properties>
       </component>
-      <component id="57ccb" class="javax.swing.JTextField" binding="gcpStorageBucketTextField">
+      <component id="57ccb" class="com.intellij.ui.components.JBTextField" binding="gcpStorageBucketTextField">
         <constraints>
           <grid row="13" column="1" row-span="1" col-span="5" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -323,7 +323,7 @@
           <text resource-bundle="messages/DBNResources" key="cfg.connection.label.GcpObject"/>
         </properties>
       </component>
-      <component id="943ed" class="javax.swing.JTextField" binding="gcpStorageObjectTextField">
+      <component id="943ed" class="com.intellij.ui.components.JBTextField" binding="gcpStorageObjectTextField">
         <constraints>
           <grid row="14" column="1" row-span="1" col-span="5" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -338,7 +338,7 @@
           <text resource-bundle="messages/DBNResources" key="cfg.connection.label.ConfigProfileKey"/>
         </properties>
       </component>
-      <component id="9cfa1" class="javax.swing.JTextField" binding="configFileProfileKeyTextField">
+      <component id="9cfa1" class="com.intellij.ui.components.JBTextField" binding="configFileProfileKeyTextField">
         <constraints>
           <grid row="15" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="220" height="-1"/>
@@ -355,7 +355,7 @@
           <text resource-bundle="messages/DBNResources" key="cfg.connection.label.AzureAppConfigLabel"/>
         </properties>
       </component>
-      <component id="222ed" class="javax.swing.JTextField" binding="azureLabelTextField">
+      <component id="222ed" class="com.intellij.ui.components.JBTextField" binding="azureLabelTextField">
         <constraints>
           <grid row="16" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>

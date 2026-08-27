@@ -55,7 +55,6 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.io.File;
 import java.util.Collections;
@@ -65,12 +64,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
-import static com.dbn.common.ui.util.Labels.setText;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.ui.util.TextFields.setEmptyText;
+import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Commons.match;
 import static com.dbn.common.util.Commons.nvl;
@@ -118,17 +120,17 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JComboBox<ServerType> serverTypeComboBox;
     private JComboBox<DatabaseProtocol> protocolComboBox;
     private DBNComboBox<Presentable> tnsProfileComboBox;
-    private JTextField hostTextField;
-    private JTextField portTextField;
-    private JTextField databaseTextField;
-    private JTextField configLocationTextField;
+    private JBTextField hostTextField;
+    private JBTextField portTextField;
+    private JBTextField databaseTextField;
+    private JBTextField configLocationTextField;
     private JButton configLocationBrowseButton;
-    private JTextField cloudRegionTextField;
-    private JTextField gcpStorageProjectTextField;
-    private JTextField gcpStorageBucketTextField;
-    private JTextField gcpStorageObjectTextField;
-    private JTextField configFileProfileKeyTextField;
-    private JTextField azureLabelTextField;
+    private JBTextField cloudRegionTextField;
+    private JBTextField gcpStorageProjectTextField;
+    private JBTextField gcpStorageBucketTextField;
+    private JBTextField gcpStorageObjectTextField;
+    private JBTextField configFileProfileKeyTextField;
+    private JBTextField azureLabelTextField;
     private TextFieldWithBrowseButton tnsFolderTextField;
     private TextFieldWithBrowseButton configFileTextField;
     private ExpandableTextField urlTextField;
@@ -145,11 +147,12 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
         databaseFileSettingsForm = new DatabaseFileSettingsForm(this, configuration.getDatabaseInfo().getFileBundle());
         databaseFilesPanel.add(databaseFileSettingsForm.getComponent(), BorderLayout.CENTER);
-        urlTypeComboBox.addActionListener(e -> updateFieldVisibility());
-        sourceTypeComboBox.addActionListener(e -> updateFieldVisibility());
-        cloudProviderComboBox.addActionListener(e -> updateFieldVisibility());
-        parametersButton.addActionListener(e -> openParametersDialog());
-        configLocationBrowseButton.addActionListener(e -> openOciDatabaseToolsConnectionDialog());
+
+        onSelectionChange(urlTypeComboBox, e -> updateFieldVisibility());
+        onSelectionChange(sourceTypeComboBox, e -> updateProviderLocation());
+        onSelectionChange(cloudProviderComboBox, e -> updateProviderLocation());
+        onButtonClick(parametersButton, e -> openParametersDialog());
+        onButtonClick(configLocationBrowseButton, e -> openOciDatabaseToolsConnectionDialog());
 
         updateTnsAdminField();
 
@@ -173,11 +176,16 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         onTextChange(gcpStorageObjectTextField, e -> updateUrlField());
         onTextChange(configFileProfileKeyTextField, e -> updateUrlField());
         onTextChange(azureLabelTextField, e -> updateUrlField());
-        tnsProfileComboBox.addActionListener(e -> updateUrlField());
-        serverTypeComboBox.addActionListener(e -> updateUrlField());
-        protocolComboBox.addActionListener(e -> updateUrlField());
+        onSelectionChange(tnsProfileComboBox, e -> updateUrlField());
+        onSelectionChange(serverTypeComboBox, e -> updateUrlField());
+        onSelectionChange(protocolComboBox, e -> updateUrlField());
 
         updateTnsProfilesField();
+    }
+
+    private void updateProviderLocation() {
+        getDatabaseSettings().getConfigProviderInfo().setProviderLocation(getText(configLocationTextField));
+        updateFieldVisibility();
     }
 
     private void openParametersDialog() {
@@ -461,7 +469,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         updateCloudProviderDocumentationLink(cloudProviderVisible);
         configFileLabel.setVisible(localConfigFileVisible);
         configFileTextField.setVisible(localConfigFileVisible);
-        setText(configLocationLabel, resolveConfigLocationLabel(configFileSourceType));
+        updateProviderLocationField();
         configLocationLabel.setVisible(remoteConfigVisible && !gcpStorageConfig);
         configLocationTextField.setVisible(remoteConfigVisible && !gcpStorageConfig);
         configLocationBrowseButton.setVisible(remoteConfigVisible && isOciDatabaseToolsConfig());
@@ -488,6 +496,17 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
     }
 
+    private void updateProviderLocationField() {
+        ConfigProviderInfo configProvider = getDatabaseSettings().getConfigProviderInfo();
+        configProvider.setProviderLocation(getText(configLocationTextField));
+
+        ConfigSourceType sourceType = getConfigSourceType();
+        CloudConfigProviderType providerType = getCloudConfigProviderType();
+        setText(configLocationTextField, configProvider.getProviderLocation(sourceType, providerType));
+
+        setEmptyText(configLocationTextField, resolveConfigLocationName(sourceType));
+    }
+
     private void updateCloudProviderDocumentationLink(boolean cloudProviderVisible) {
         String documentationUrl = getCloudProviderDocumentationUrl(getCloudConfigProviderType());
         cloudProviderDocumentationLink.setHyperlinkText(txt("cfg.connection.link.ProviderDocumentation"));
@@ -500,7 +519,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         return provider == null ? null : provider.getDocUrl();
     }
 
-    private String resolveConfigLocationLabel(ConfigSourceType sourceType) {
+    private String resolveConfigLocationName(ConfigSourceType sourceType) {
         if (sourceType == ConfigSourceType.URL) {
             return txt("cfg.connection.label.ProviderConfigLocation_URL");
         }
@@ -512,7 +531,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         CloudConfigProviderType providerType = getCloudConfigProviderType();
         if (providerType == null) return txt("cfg.connection.label.ConfigLocation");
 
-        return providerType.getLocationLabel();
+        return providerType.getLocationName();
     }
 
     boolean isOciCloudProvider() {
@@ -640,7 +659,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         setSelection(sourceTypeComboBox, Commons.nvl(configProviderInfo.getProviderSourceType(), ConfigSourceType.FILE));
 
         initComboBox(cloudProviderComboBox, values());
-        setSelection(cloudProviderComboBox, configProviderInfo.getProviderType());
+        setSelection(cloudProviderComboBox, configProviderInfo.getCloudProviderType());
 
         initComboBox(protocolComboBox, true, DatabaseProtocol.values());
         setSelection(protocolComboBox, databaseInfo.getProtocol());
@@ -678,7 +697,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
             !match(databaseInfo.getTnsFolder(), getTnsFolder()) ||
             !match(databaseInfo.getTnsProfile(), getTnsProfile()) ||
             !match(configProviderInfo.getProviderSourceType(), getConfigSourceType()) ||
-            !match(configProviderInfo.getProviderType(), getCloudConfigProviderType()) ||
+            !match(configProviderInfo.getCloudProviderType(), getCloudConfigProviderType()) ||
             !match(configProviderInfo.getAwsRegion(), isCloudRegionConfig() ? getCloudRegion() : null) ||
             !match(configProviderInfo.getProviderLocation(), getConfigLocation()) ||
             !match(configProviderInfo.getProviderProfileKey(), getConfigFileProfileKey()) ||

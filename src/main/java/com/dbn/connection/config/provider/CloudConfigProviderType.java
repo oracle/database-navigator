@@ -50,12 +50,8 @@ public enum CloudConfigProviderType implements Presentable {
         this.slug = slug;
     }
 
-    public String getLocationLabel() {
+    public String getLocationName() {
         return txt("cfg.connection.label.ProviderSourceLocation_" + name());
-    }
-
-    public String getLocationPlaceholder() {
-        return txt("cfg.connection.placeholder.ProviderSourceLocation_" + name());
     }
 
     public String getDocUrl() {

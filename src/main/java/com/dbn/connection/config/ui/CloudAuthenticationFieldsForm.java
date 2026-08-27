@@ -229,11 +229,11 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
     public void resetFormChanges() {
         ConfigProviderInfo configProviderInfo = getConfigProviderInfo();
         configProviderInfo.reloadSecrets();
-        setCloudProviderType(configProviderInfo.getProviderType());
+        setCloudProviderType(configProviderInfo.getCloudProviderType());
 
         if (isAuthenticationProvider()) {
             setSelection(authenticationComboBox, Commons.nvl(
-                    configProviderInfo.getProviderAuthentication(),
+                    configProviderInfo.getCloudProviderAuthentication(),
                     getDefault(cloudProviderType)));
         }
 
@@ -278,7 +278,7 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
         String configFile = isOciDefaultAuthentication() ? getOciConfigProviderConfigFile() : null;
         String profile = isOciDefaultAuthentication() ? getOciConfigProviderProfile() : null;
         boolean authenticationChanged = !match(
-                Commons.nvl(configProvider.getProviderAuthentication(), getDefault(cloudProviderType)),
+                Commons.nvl(configProvider.getCloudProviderAuthentication(), getDefault(cloudProviderType)),
                 getCloudConfigProviderAuthentication());
         if (isAzureProvider()) {
             return authenticationChanged ||

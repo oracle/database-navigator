@@ -30,10 +30,10 @@ public class ConfigProviderSecretStore {
     public static void addRuntimeSecrets(
             @NotNull Map<String, String> parameters,
             @NotNull ConfigProviderInfo configProviderInfo) {
-        CloudAuthenticationType authentication = configProviderInfo.getProviderAuthentication();
+        CloudAuthenticationType authentication = configProviderInfo.getCloudProviderAuthentication();
         if (authentication == null) return;
 
-        if (configProviderInfo.getProviderType() != HASHICORP_VAULT) {
+        if (configProviderInfo.getCloudProviderType() != HASHICORP_VAULT) {
             switch (authentication) {
                 case AZURE_SERVICE_PRINCIPAL_SECRET ->
                         addRuntimeSecret(parameters, "AZURE_CLIENT_SECRET", configProviderInfo.getAzureClientSecret());
