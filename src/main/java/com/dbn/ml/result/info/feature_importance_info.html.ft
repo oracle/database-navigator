@@ -27,8 +27,8 @@
 </head>
 <body>
     <h3>Feature Importance</h3>
-    <p>How much each column tells you about the value you are predicting. Higher means the column carries more signal.</p>
-    <p>This is about your data, not about the model you just trained. Train a different algorithm on the same table and you get the same numbers.</p>
-    <p>The remaining columns describe the training data itself, so you can spot a column that is nearly always the same value, or one with a suspicious range.</p>
+    <p>How much each column helps predict the target value, shown as a percentage from 0% (no relationship) to 100% (fully explains it). This is about your <em>data</em>, not the model you trained - the same for any algorithm.</p>
+    <p>SALARY at 80% and OFFICE_COLOR at 2%? Salary is one of the strongest predictors here; office color barely matters.</p>
+    <p>Calculated with <code>DBMS_PREDICTIVE_ANALYTICS.EXPLAIN</code> .</p>
 </body>
 </html>
