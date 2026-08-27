@@ -39,6 +39,12 @@ import static com.dbn.nls.NlsResources.txt;
 @Setter
 public class MLResult {
 
+    /**
+     * Snapshot of the configuration used to create this result. The request is kept separate
+     * from the connection's editable template so a retrain form can be modified safely.
+     */
+    private final MLRequest request;
+
     private MLTaskType taskType;
     private DBMSModelHandle modelHandle;
     private DBMSEvaluationResult evaluationResult;
@@ -66,6 +72,10 @@ public class MLResult {
     // Column analysis - both optional, absent when the database could not produce them
     private List<MLFeatureImportance> featureImportance;
     private List<MLAttributeContribution> attributeContributions;
+
+    public MLResult(MLRequest request) {
+        this.request = request;
+    }
 
     /**
      * Returns the database model name.

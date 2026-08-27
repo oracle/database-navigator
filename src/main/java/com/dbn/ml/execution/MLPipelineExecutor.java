@@ -84,7 +84,7 @@ public class MLPipelineExecutor {
             DBMSModelHandle modelHandle,
             long startTime) throws Exception {
 
-        MLResult result = new MLResult();
+        MLResult result = new MLResult(request.clone());
         result.setTaskType(context.getTaskType());
         result.setConnection(context.getConnection());
         result.setAlgorithmName(context.getAlgorithmName());

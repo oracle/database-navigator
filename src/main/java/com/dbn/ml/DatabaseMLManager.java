@@ -97,8 +97,13 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
     }
 
     public void openToolbox(ConnectionHandler connection) {
+        MLRequest request = getRequestTemplate(connection).clone();
+        request.setTemplate(true);
+        openToolbox(connection, request);
+    }
+
+    public void openToolbox(ConnectionHandler connection, MLRequest request) {
         try {
-            MLRequest request = getRequestTemplate(connection);
             Dialogs.show(() -> new MLToolboxDialog(connection, request));
         } catch (Exception e) {
             Messages.showErrorDialog(
