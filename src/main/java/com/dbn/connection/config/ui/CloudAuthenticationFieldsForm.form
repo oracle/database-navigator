@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="20" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="4" left="4" bottom="4" right="4"/>
     <constraints>
-      <xy x="20" y="20" width="620" height="480"/>
+      <xy x="20" y="20" width="620" height="773"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -40,10 +40,10 @@
           <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Authentication details"/>
+          <text value=""/>
         </properties>
       </component>
-      <component id="f0206" class="javax.swing.JLabel" binding="configFileLabel">
+      <component id="f0206" class="javax.swing.JLabel" binding="ociConfigFileLabel">
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -52,13 +52,13 @@
           <text resource-bundle="messages/DBNResources" key="cfg.connection.label.OciConfigFile"/>
         </properties>
       </component>
-      <component id="c9609" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="configFileTextField">
+      <component id="c9609" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="ociConfigFileTextField">
         <constraints>
           <grid row="2" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>
-      <component id="bde8d" class="javax.swing.JLabel" binding="profileLabel">
+      <component id="bde8d" class="javax.swing.JLabel" binding="ociProfileLabel">
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -67,7 +67,7 @@
           <text resource-bundle="messages/DBNResources" key="cfg.connection.label.OciProfile"/>
         </properties>
       </component>
-      <component id="a01e6" class="com.dbn.common.ui.misc.DBNComboBox" binding="profileComboBox">
+      <component id="a01e6" class="com.dbn.common.ui.misc.DBNComboBox" binding="ociProfileComboBox">
         <constraints>
           <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="220" height="-1"/>
@@ -155,7 +155,7 @@
         </constraints>
         <properties/>
       </component>
-      <component id="b6aae" class="javax.swing.JLabel" binding="vaultAddressLabel">
+      <component id="b6aae" class="javax.swing.JLabel" binding="hcpVaultAddressLabel">
         <constraints>
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -164,13 +164,13 @@
           <text value="Vault Address"/>
         </properties>
       </component>
-      <component id="e730d" class="javax.swing.JTextField" binding="vaultAddressTextField">
+      <component id="e730d" class="javax.swing.JTextField" binding="hcpVaultAddressTextField">
         <constraints>
           <grid row="4" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>
-      <component id="40f22" class="javax.swing.JLabel" binding="vaultNamespaceLabel">
+      <component id="40f22" class="javax.swing.JLabel" binding="hcpVaultNamespaceLabel">
         <constraints>
           <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -179,13 +179,13 @@
           <text value="Vault Namespace"/>
         </properties>
       </component>
-      <component id="5433c" class="javax.swing.JTextField" binding="vaultNamespaceTextField">
+      <component id="5433c" class="javax.swing.JTextField" binding="hcpVaultNamespaceTextField">
         <constraints>
           <grid row="5" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>
-      <component id="a37d0" class="javax.swing.JLabel" binding="vaultTokenLabel">
+      <component id="a37d0" class="javax.swing.JLabel" binding="hcpVaultTokenLabel">
         <constraints>
           <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -194,13 +194,13 @@
           <text value="Vault Token"/>
         </properties>
       </component>
-      <component id="9c189" class="javax.swing.JPasswordField" binding="vaultTokenPasswordField">
+      <component id="9c189" class="javax.swing.JPasswordField" binding="hcpVaultTokenPasswordField">
         <constraints>
           <grid row="6" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>
-      <component id="bb2e1" class="javax.swing.JLabel" binding="vaultUsernameLabel">
+      <component id="bb2e1" class="javax.swing.JLabel" binding="hcpVaultUsernameLabel">
         <constraints>
           <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -209,13 +209,13 @@
           <text value="Vault Username"/>
         </properties>
       </component>
-      <component id="e7b9d" class="javax.swing.JTextField" binding="vaultUsernameTextField">
+      <component id="e7b9d" class="javax.swing.JTextField" binding="hcpVaultUsernameTextField">
         <constraints>
           <grid row="7" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>
-      <component id="bb0db" class="javax.swing.JLabel" binding="vaultPasswordLabel">
+      <component id="bb0db" class="javax.swing.JLabel" binding="hcpVaultPasswordLabel">
         <constraints>
           <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -224,13 +224,13 @@
           <text value="Vault Password"/>
         </properties>
       </component>
-      <component id="71b85" class="javax.swing.JPasswordField" binding="vaultPasswordField">
+      <component id="71b85" class="javax.swing.JPasswordField" binding="hcpVaultPasswordField">
         <constraints>
           <grid row="8" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>
-      <component id="e9663" class="javax.swing.JLabel" binding="userPassAuthPathLabel">
+      <component id="e9663" class="javax.swing.JLabel" binding="hcpUserPassAuthPathLabel">
         <constraints>
           <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -239,13 +239,13 @@
           <text value="Auth Path"/>
         </properties>
       </component>
-      <component id="ad385" class="javax.swing.JTextField" binding="userPassAuthPathTextField">
+      <component id="ad385" class="javax.swing.JTextField" binding="hcpUserPassAuthPathTextField">
         <constraints>
           <grid row="9" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>
-      <component id="aa55f" class="javax.swing.JLabel" binding="roleIdLabel">
+      <component id="aa55f" class="javax.swing.JLabel" binding="hcpAppRoleIdLabel">
         <constraints>
           <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -254,13 +254,13 @@
           <text value="Role ID"/>
         </properties>
       </component>
-      <component id="aae2c" class="javax.swing.JTextField" binding="roleIdTextField">
+      <component id="aae2c" class="javax.swing.JTextField" binding="hcpAppRoleIdTextField">
         <constraints>
           <grid row="10" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>
-      <component id="e42bf" class="javax.swing.JLabel" binding="secretIdLabel">
+      <component id="e42bf" class="javax.swing.JLabel" binding="hcpSecretIdLabel">
         <constraints>
           <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -269,13 +269,13 @@
           <text value="Secret ID"/>
         </properties>
       </component>
-      <component id="f6d5c" class="javax.swing.JPasswordField" binding="secretIdPasswordField">
+      <component id="f6d5c" class="javax.swing.JPasswordField" binding="hcpSecretIdPasswordField">
         <constraints>
           <grid row="11" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>
-      <component id="e2da7" class="javax.swing.JLabel" binding="appRoleAuthPathLabel">
+      <component id="e2da7" class="javax.swing.JLabel" binding="hcpAppRoleAuthPathLabel">
         <constraints>
           <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -284,13 +284,13 @@
           <text value="Auth Path"/>
         </properties>
       </component>
-      <component id="c0277" class="javax.swing.JTextField" binding="appRoleAuthPathTextField">
+      <component id="c0277" class="javax.swing.JTextField" binding="hcpAppRoleAuthPathTextField">
         <constraints>
           <grid row="12" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>
-      <component id="d6cf1" class="javax.swing.JLabel" binding="githubTokenLabel">
+      <component id="d6cf1" class="javax.swing.JLabel" binding="hcpGithubTokenLabel">
         <constraints>
           <grid row="13" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -299,13 +299,13 @@
           <text value="GitHub Token"/>
         </properties>
       </component>
-      <component id="d6478" class="javax.swing.JPasswordField" binding="githubTokenPasswordField">
+      <component id="d6478" class="javax.swing.JPasswordField" binding="hcpGithubTokenPasswordField">
         <constraints>
           <grid row="13" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>
-      <component id="b3884" class="javax.swing.JLabel" binding="githubAuthPathLabel">
+      <component id="b3884" class="javax.swing.JLabel" binding="hcpGithubAuthPathLabel">
         <constraints>
           <grid row="14" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -314,7 +314,7 @@
           <text value="Auth Path"/>
         </properties>
       </component>
-      <component id="bb484" class="javax.swing.JTextField" binding="githubAuthPathTextField">
+      <component id="bb484" class="javax.swing.JTextField" binding="hcpGithubAuthPathTextField">
         <constraints>
           <grid row="14" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>

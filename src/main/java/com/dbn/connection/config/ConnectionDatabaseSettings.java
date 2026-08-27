@@ -35,7 +35,6 @@ import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.ServerType;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
-import com.dbn.connection.config.provider.ConfigProviderSecretStore;
 import com.dbn.connection.config.ui.ConnectionDatabaseSettingsForm;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverSource;
@@ -281,7 +280,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         }
 
         Map<String, String> parameters = new LinkedHashMap<>(configProviderInfo.getUrlParameters(true));
-        ConfigProviderSecretStore.addRuntimeSecrets(parameters, configProviderInfo);
+        configProviderInfo.getHandler().addRuntimeSecrets(parameters, configProviderInfo);
         return parameters;
     }
 

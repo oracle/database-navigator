@@ -235,6 +235,7 @@
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
     </extensions>
     <extensionPoints>
+        <extensionPoint name="cloudConfigProviderHandler" qualifiedName="com.dbn.cloudConfigProviderHandler" interface="com.dbn.connection.config.provider.impl.CloudConfigProviderHandler" dynamic="true"/>
         <extensionPoint name="objectFilter" qualifiedName="com.dbn.objectFilter" interface="com.dbn.object.cache.DBObjectFilter" dynamic="true"/>
         <extensionPoint name="objectPropertiesProvider" qualifiedName="com.dbn.objectPropertiesProvider" interface="com.dbn.object.properties.DBObjectPropertiesProvider" dynamic="true"/>
         <extensionPoint name="objectNavigationInfoProvider" qualifiedName="com.dbn.objectNavigationInfoProvider" interface="com.dbn.object.navigation.DBObjectNavigationInfoProvider" dynamic="true"/>
@@ -256,6 +257,13 @@
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
     </extensionPoints>
     <extensions defaultExtensionNs="com.dbn">
+        <cloudConfigProviderHandler implementation="com.dbn.connection.config.provider.impl.AzureConfigProviderHandler"/>
+        <cloudConfigProviderHandler implementation="com.dbn.connection.config.provider.impl.HashicorpConfigProviderHandler"/>
+        <cloudConfigProviderHandler implementation="com.dbn.connection.config.provider.impl.OciConfigProviderHandler"/>
+        <cloudConfigProviderHandler implementation="com.dbn.connection.config.provider.impl.AwsConfigProviderHandler"/>
+        <cloudConfigProviderHandler implementation="com.dbn.connection.config.provider.impl.GcpConfigProviderHandler"/>
+        <cloudConfigProviderHandler implementation="com.dbn.connection.config.provider.impl.NoOpConfigProviderHandler"/>
+
         <!--data export processors-->
         <dataExportProcessor implementation="com.dbn.data.export.processor.SQLDataExportProcessor"/>
         <dataExportProcessor implementation="com.dbn.data.export.processor.ExcelDataExportProcessor"/>

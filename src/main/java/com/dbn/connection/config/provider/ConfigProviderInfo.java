@@ -25,7 +25,9 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
-import com.dbn.connection.config.OciConfigProviderParameters;
+import com.dbn.connection.config.provider.impl.AzureConfigProviderHandler;
+import com.dbn.connection.config.provider.impl.CloudConfigProviderHandler;
+import com.dbn.connection.config.provider.impl.CloudConfigProviderHandlers;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
 import lombok.Getter;
@@ -56,11 +58,7 @@ import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.connection.DatabaseUrlType.PROVIDER;
 import static com.dbn.connection.config.provider.CloudAuthenticationType.AZURE_INTERACTIVE;
 import static com.dbn.connection.config.provider.CloudAuthenticationType.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
-import static com.dbn.connection.config.provider.CloudAuthenticationType.AZURE_SERVICE_PRINCIPAL_SECRET;
-import static com.dbn.connection.config.provider.CloudAuthenticationType.HCP_APPROLE;
 import static com.dbn.connection.config.provider.CloudAuthenticationType.HCP_DEFAULT;
-import static com.dbn.connection.config.provider.CloudAuthenticationType.HCP_GITHUB;
-import static com.dbn.connection.config.provider.CloudAuthenticationType.HCP_USERPASS;
 import static com.dbn.connection.config.provider.CloudAuthenticationType.OCI_INTERACTIVE;
 import static com.dbn.connection.config.provider.CloudAuthenticationType.get;
 import static com.dbn.connection.config.provider.CloudAuthenticationType.getAzure;
@@ -96,7 +94,7 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
     private String hashicorpVaultNamespace;
     private String hashicorpVaultUsername;
     private String hashicorpUserpassAuthPath;
-    private String hashicorpAppRoleRoleId;
+    private String hashicorpAppRoleId;
     private String hashicorpAppRoleAuthPath;
     private String hashicorpGithubAuthPath;
 
@@ -151,7 +149,7 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         hashicorpVaultNamespace = null;
         hashicorpVaultUsername = null;
         hashicorpUserpassAuthPath = null;
-        hashicorpAppRoleRoleId = null;
+        hashicorpAppRoleId = null;
         hashicorpAppRoleAuthPath = null;
         hashicorpGithubAuthPath = null;
     }
@@ -227,56 +225,6 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
 
     public void setHashicorpGithubToken(char[] token) {
         hashicorpGithubToken.setToken(token);
-    }
-
-    public void applyOciAuthentication(
-            CloudAuthenticationType authentication,
-            String ociConfigFile,
-            String ociProfile) {
-        this.cloudProviderAuthentication = authentication;
-        this.ociConfigFile = ociConfigFile;
-        this.ociConfigProfile = ociProfile;
-    }
-
-    public void applyAzureAuthentication(
-            CloudAuthenticationType authentication,
-            String azureClientId,
-            String azureTenantId,
-            String azureClientCertificatePath) {
-        this.cloudProviderAuthentication = authentication;
-        this.azureClientId = isAzureProvider() && isAzureClientIdAuthentication(authentication) ? azureClientId : null;
-        this.azureTenantId = isAzureProvider() && isAzureServicePrincipalAuthentication(authentication) ? azureTenantId : null;
-        this.azureClientCertificatePath = isAzureProvider() && authentication == AZURE_SERVICE_PRINCIPAL_CERTIFICATE ?
-                azureClientCertificatePath : null;
-    }
-
-    public void applyHashicorpAuthentication(
-            CloudAuthenticationType authentication,
-            String vaultAddress,
-            String vaultNamespace,
-            String vaultUsername,
-            String userPassAuthPath,
-            String roleId,
-            String appRoleAuthPath,
-            String githubAuthPath) {
-        if (isHashicorpProvider()) {
-            this.cloudProviderAuthentication = authentication;
-            this.hashicorpVaultAddress = vaultAddress;
-            this.hashicorpVaultNamespace = vaultNamespace;
-            this.hashicorpVaultUsername = authentication == HCP_USERPASS ? vaultUsername : null;
-            this.hashicorpUserpassAuthPath = authentication == HCP_USERPASS ? userPassAuthPath : null;
-            this.hashicorpAppRoleRoleId = authentication == HCP_APPROLE ? roleId : null;
-            this.hashicorpAppRoleAuthPath = authentication == HCP_APPROLE ? appRoleAuthPath : null;
-            this.hashicorpGithubAuthPath = authentication == HCP_GITHUB ? githubAuthPath : null;
-        } else {
-            this.hashicorpVaultAddress = null;
-            this.hashicorpVaultNamespace = null;
-            this.hashicorpVaultUsername = null;
-            this.hashicorpUserpassAuthPath = null;
-            this.hashicorpAppRoleRoleId = null;
-            this.hashicorpAppRoleAuthPath = null;
-            this.hashicorpGithubAuthPath = null;
-        }
     }
 
     public void apply(
@@ -372,6 +320,11 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         return isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isHashicorp();
     }
 
+    @NotNull
+    public CloudConfigProviderHandler getHandler() {
+        return CloudConfigProviderHandlers.get(cloudProviderType);
+    }
+
     public String getProviderSlug() {
         ConfigSourceType sourceType = Commons.nvl(this.providerSourceType, ConfigSourceType.FILE);
         return switch (sourceType) {
@@ -387,65 +340,8 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         if (isNotEmpty(providerProfileKey)) {
             parameters.put("key", providerProfileKey);
         }
-        if (isAzureAppConfig() && isNotEmpty(azureAppConfigLabel)) {
-            parameters.put("label", azureAppConfigLabel);
-        }
-
-        if (isAwsRegionConfig() && isNotEmptyOrSpaces(awsRegion)) {
-            parameters.put(cloudProviderType.getAwsRegionParameterName(), awsRegion.trim());
-        }
-
-        if (includeAuthentication && isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isOci()) {
-            parameters.putAll(OciConfigProviderParameters.build(cloudProviderAuthentication, ociConfigFile, ociConfigProfile));
-        }
-        if (includeAuthentication && isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isAzure() && cloudProviderAuthentication != null) {
-            parameters.put("AUTHENTICATION", cloudProviderAuthentication.getParameterValue());
-            if (isAzureClientIdAuthentication(cloudProviderAuthentication)) {
-                if (isNotEmptyOrSpaces(azureClientId)) {
-                    parameters.put("AZURE_CLIENT_ID", azureClientId.trim());
-                }
-            }
-            if (isAzureServicePrincipalAuthentication(cloudProviderAuthentication)) {
-                if (isNotEmptyOrSpaces(azureTenantId)) {
-                    parameters.put("AZURE_TENANT_ID", azureTenantId.trim());
-                }
-                if (cloudProviderAuthentication == AZURE_SERVICE_PRINCIPAL_CERTIFICATE &&
-                        isNotEmptyOrSpaces(azureClientCertificatePath)) {
-                    parameters.put("AZURE_CLIENT_CERTIFICATE_PATH", azureClientCertificatePath.trim());
-                }
-            }
-        }
-        if (includeAuthentication && isHashicorpProvider()) {
-            if (cloudProviderAuthentication != null && cloudProviderAuthentication != HCP_DEFAULT) {
-                parameters.put("AUTHENTICATION", cloudProviderAuthentication.getParameterValue().toUpperCase());
-            }
-            if (isNotEmptyOrSpaces(hashicorpVaultAddress)) {
-                parameters.put("VAULT_ADDR", hashicorpVaultAddress.trim());
-            }
-            if (isNotEmptyOrSpaces(hashicorpVaultNamespace)) {
-                parameters.put("VAULT_NAMESPACE", hashicorpVaultNamespace.trim());
-            }
-            if (cloudProviderAuthentication == HCP_USERPASS) {
-                if (isNotEmptyOrSpaces(hashicorpVaultUsername)) {
-                    parameters.put("VAULT_USERNAME", hashicorpVaultUsername.trim());
-                }
-                if (isNotEmptyOrSpaces(hashicorpUserpassAuthPath)) {
-                    parameters.put("USERPASS_AUTH_PATH", hashicorpUserpassAuthPath.trim());
-                }
-            }
-            if (cloudProviderAuthentication == HCP_APPROLE &&
-                    isNotEmptyOrSpaces(hashicorpAppRoleRoleId)) {
-                parameters.put("ROLE_ID", hashicorpAppRoleRoleId.trim());
-            }
-            if (cloudProviderAuthentication == HCP_APPROLE &&
-                    isNotEmptyOrSpaces(hashicorpAppRoleAuthPath)) {
-                parameters.put("APPROLE_AUTH_PATH", hashicorpAppRoleAuthPath.trim());
-            }
-            if (cloudProviderAuthentication == HCP_GITHUB &&
-                    isNotEmptyOrSpaces(hashicorpGithubAuthPath)) {
-                parameters.put("GITHUB_AUTH_PATH", hashicorpGithubAuthPath.trim());
-            }
-        }
+        CloudConfigProviderHandler handler = getHandler();
+        handler.addUrlParameters(parameters, this, includeAuthentication);
 
         return parameters.isEmpty() ? Collections.emptyMap() : parameters;
     }
@@ -485,7 +381,7 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
                 isEmptyOrSpaces(azureClientId)) {
             errors.add("Azure interactive authentication requires client ID");
         }
-        if (isAzureProvider() && isAzureServicePrincipalAuthentication(cloudProviderAuthentication)) {
+        if (isAzureProvider() && AzureConfigProviderHandler.isAzureServicePrincipalAuthentication(cloudProviderAuthentication)) {
             if (isEmptyOrSpaces(azureClientId)) {
                 errors.add("Azure service principal authentication requires client ID");
             }
@@ -563,7 +459,7 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
             hashicorpVaultNamespace = getParameterIgnoreCase(parameters, "VAULT_NAMESPACE");
             hashicorpVaultUsername = getParameterIgnoreCase(parameters, "VAULT_USERNAME");
             hashicorpUserpassAuthPath = getParameterIgnoreCase(parameters, "USERPASS_AUTH_PATH");
-            hashicorpAppRoleRoleId = getParameterIgnoreCase(parameters, "ROLE_ID");
+            hashicorpAppRoleId = getParameterIgnoreCase(parameters, "ROLE_ID");
             hashicorpAppRoleAuthPath = getParameterIgnoreCase(parameters, "APPROLE_AUTH_PATH");
             hashicorpGithubAuthPath = getParameterIgnoreCase(parameters, "GITHUB_AUTH_PATH");
         }
@@ -613,7 +509,7 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         hashicorpVaultNamespace = getString(element, "hashicorp-vault-namespace", null);
         hashicorpVaultUsername = getString(element, "hashicorp-vault-username", null);
         hashicorpUserpassAuthPath = getString(element, "hashicorp-userpass-auth-path", null);
-        hashicorpAppRoleRoleId = getString(element, "hashicorp-approle-role-id", null);
+        hashicorpAppRoleId = getString(element, "hashicorp-approle-role-id", null);
         hashicorpAppRoleAuthPath = getString(element, "hashicorp-approle-auth-path", null);
         hashicorpGithubAuthPath = getString(element, "hashicorp-github-auth-path", null);
 
@@ -638,7 +534,7 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         setString(element, "hashicorp-vault-namespace", hashicorpVaultNamespace);
         setString(element, "hashicorp-vault-username", hashicorpVaultUsername);
         setString(element, "hashicorp-userpass-auth-path", hashicorpUserpassAuthPath);
-        setString(element, "hashicorp-approle-role-id", hashicorpAppRoleRoleId);
+        setString(element, "hashicorp-approle-role-id", hashicorpAppRoleId);
         setString(element, "hashicorp-approle-auth-path", hashicorpAppRoleAuthPath);
         setString(element, "hashicorp-github-auth-path", hashicorpGithubAuthPath);
 
@@ -683,7 +579,7 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         clone.hashicorpVaultNamespace = this.hashicorpVaultNamespace;
         clone.hashicorpVaultUsername = this.hashicorpVaultUsername;
         clone.hashicorpUserpassAuthPath = this.hashicorpUserpassAuthPath;
-        clone.hashicorpAppRoleRoleId = this.hashicorpAppRoleRoleId;
+        clone.hashicorpAppRoleId = this.hashicorpAppRoleId;
         clone.hashicorpAppRoleAuthPath = this.hashicorpAppRoleAuthPath;
         clone.hashicorpGithubAuthPath = this.hashicorpGithubAuthPath;
         clone.hashicorpVaultToken.setToken(this.hashicorpVaultToken);
@@ -693,13 +589,4 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         return clone;
     }
 
-    private static boolean isAzureClientIdAuthentication(CloudAuthenticationType authentication) {
-        return authentication == AZURE_INTERACTIVE ||
-                isAzureServicePrincipalAuthentication(authentication);
-    }
-
-    private static boolean isAzureServicePrincipalAuthentication(CloudAuthenticationType authentication) {
-        return authentication == AZURE_SERVICE_PRINCIPAL_SECRET ||
-                authentication == AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
-    }
 }

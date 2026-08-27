@@ -26,7 +26,9 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.provider.CloudAuthenticationType;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
-import com.dbn.credentials.Secret;
+import com.dbn.connection.config.provider.impl.AzureConfigProviderHandler;
+import com.dbn.connection.config.provider.impl.HashicorpConfigProviderHandler;
+import com.dbn.connection.config.provider.impl.OciConfigProviderHandler;
 import com.dbn.oci.config.OciAuthenticationConfig;
 import com.dbn.oci.config.OciConfigUtil;
 import com.intellij.openapi.options.ConfigurationException;
@@ -77,10 +79,10 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
     private JComboBox<CloudAuthenticationType> authenticationComboBox;
     private JLabel authenticationInfoLabel;
     private DBNHyperlinkLabel authenticationInfoHyperlink;
-    private JLabel configFileLabel;
-    private TextFieldWithBrowseButton configFileTextField;
-    private JLabel profileLabel;
-    private DBNComboBox<String> profileComboBox;
+    private JLabel ociConfigFileLabel;
+    private TextFieldWithBrowseButton ociConfigFileTextField;
+    private JLabel ociProfileLabel;
+    private DBNComboBox<String> ociProfileComboBox;
     private JLabel azureClientIdLabel;
     private JTextField azureClientIdTextField;
     private JLabel azureTenantIdLabel;
@@ -91,39 +93,39 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
     private TextFieldWithBrowseButton azureClientCertificatePathTextField;
     private JLabel azureClientCertificatePasswordLabel;
     private JPasswordField azureClientCertificatePasswordField;
-    private JLabel vaultAddressLabel;
-    private JTextField vaultAddressTextField;
-    private JLabel vaultNamespaceLabel;
-    private JTextField vaultNamespaceTextField;
-    private JLabel vaultTokenLabel;
-    private JPasswordField vaultTokenPasswordField;
-    private JLabel vaultUsernameLabel;
-    private JTextField vaultUsernameTextField;
-    private JLabel vaultPasswordLabel;
-    private JPasswordField vaultPasswordField;
-    private JLabel userPassAuthPathLabel;
-    private JTextField userPassAuthPathTextField;
-    private JLabel roleIdLabel;
-    private JTextField roleIdTextField;
-    private JLabel secretIdLabel;
-    private JPasswordField secretIdPasswordField;
-    private JLabel appRoleAuthPathLabel;
-    private JTextField appRoleAuthPathTextField;
-    private JLabel githubTokenLabel;
-    private JPasswordField githubTokenPasswordField;
-    private JLabel githubAuthPathLabel;
-    private JTextField githubAuthPathTextField;
+    private JLabel hcpVaultAddressLabel;
+    private JTextField hcpVaultAddressTextField;
+    private JLabel hcpVaultNamespaceLabel;
+    private JTextField hcpVaultNamespaceTextField;
+    private JLabel hcpVaultTokenLabel;
+    private JPasswordField hcpVaultTokenPasswordField;
+    private JLabel hcpVaultUsernameLabel;
+    private JTextField hcpVaultUsernameTextField;
+    private JLabel hcpVaultPasswordLabel;
+    private JPasswordField hcpVaultPasswordField;
+    private JLabel hcpUserPassAuthPathLabel;
+    private JTextField hcpUserPassAuthPathTextField;
+    private JLabel hcpAppRoleIdLabel;
+    private JTextField hcpAppRoleIdTextField;
+    private JLabel hcpSecretIdLabel;
+    private JPasswordField hcpSecretIdPasswordField;
+    private JLabel hcpAppRoleAuthPathLabel;
+    private JTextField hcpAppRoleAuthPathTextField;
+    private JLabel hcpGithubTokenLabel;
+    private JPasswordField hcpGithubTokenPasswordField;
+    private JLabel hcpGithubAuthPathLabel;
+    private JTextField hcpGithubAuthPathTextField;
     private CloudConfigProviderType cloudProviderType;
 
     public CloudAuthenticationFieldsForm(@NotNull ConnectionAuthenticationSettingsForm parentComponent) {
         super(parentComponent);
 
-        profileComboBox.withValueLoader(() -> loadOciConfigProfiles());
+        ociProfileComboBox.withValueLoader(() -> loadOciConfigProfiles());
 
         setCloudProviderType(CloudConfigProviderType.OCI_OBJECT);
 
         addSingleFileChooser(
-                getProject(), configFileTextField,
+                getProject(), ociConfigFileTextField,
                 "Select OCI Configuration File",
                 "Select the OCI config file (usually ~/.oci/config)");
         addSingleFileChooser(
@@ -134,10 +136,10 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
             applyDefaultOciConfigFile();
             updateFieldVisibility();
             if (isOciDefaultAuthentication()) {
-                profileComboBox.reloadValues();
+                ociProfileComboBox.reloadValues();
             }
         });
-        onTextChange(configFileTextField, e -> profileComboBox.reloadValues());
+        onTextChange(ociConfigFileTextField, e -> ociProfileComboBox.reloadValues());
         updateFieldVisibility();
     }
 
@@ -161,11 +163,11 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
     }
 
     public String getOciConfigProviderProfile() {
-        return getSelection(profileComboBox);
+        return getSelection(ociProfileComboBox);
     }
 
     public String getOciConfigProviderConfigFile() {
-        return getText(configFileTextField);
+        return getText(ociConfigFileTextField);
     }
 
     public OciAuthenticationConfig getOciAuthenticationConfig() {
@@ -178,96 +180,89 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
     public void validateSettings() throws ConfigurationException {
         if (isOciDefaultAuthentication()) {
             ConfigurationEditors.validateStringValue(
-                    configFileTextField.getTextField(),
+                    ociConfigFileTextField.getTextField(),
                     txt("cfg.connection.label.OciConfigFile"),
                     true);
         }
     }
 
-    public void applyFormChanges(ConfigProviderInfo configProviderInfo) {
+    public void applyFormChanges(ConfigProviderInfo configProvider) {
         CloudAuthenticationType authentication = getCloudConfigProviderAuthentication();
         if (isOciProvider()) {
-            configProviderInfo.applyOciAuthentication(
+            OciConfigProviderHandler.applyAuthentication(
+                    configProvider,
                     authentication,
-                    isOciDefaultAuthentication() ? getOciConfigProviderConfigFile() : null,
-                    isOciDefaultAuthentication() ? getOciConfigProviderProfile() : null);
+                    getText(ociConfigFileTextField),
+                    getSelection(ociProfileComboBox));
         } else if (isAzureProvider()) {
-            if (isAzureClientIdAuthentication()) {
-                configProviderInfo.applyAzureAuthentication(
-                        authentication,
-                        getText(azureClientIdTextField),
-                        getText(azureTenantIdTextField),
-                        getText(azureClientCertificatePathTextField));
-            } else {
-                configProviderInfo.applyAzureAuthentication(authentication, null, null, null);
-            }
-            configProviderInfo.setAzureClientSecret(isAzureServicePrincipalSecretAuthentication() ?
-                    getPassword(azureClientSecretPasswordField, configProviderInfo.getAzureClientSecret()) : Secret.EMPTY);
-            configProviderInfo.setAzureClientCertificatePassword(isAzureServicePrincipalCertificateAuthentication() ?
-                    getPassword(azureClientCertificatePasswordField, configProviderInfo.getAzureClientCertificatePassword()) : Secret.EMPTY);
-        } else if (isHashicorpProvider()) {
-            configProviderInfo.applyHashicorpAuthentication(
+            AzureConfigProviderHandler.applyAuthentication(
+                    configProvider,
                     authentication,
-                    getText(vaultAddressTextField),
-                    getText(vaultNamespaceTextField),
-                    getText(vaultUsernameTextField),
-                    getText(userPassAuthPathTextField),
-                    getText(roleIdTextField),
-                    getText(appRoleAuthPathTextField),
-                    getText(githubAuthPathTextField));
-            configProviderInfo.setHashicorpVaultToken(isHashicorpVaultTokenAuthentication() ?
-                    getPassword(vaultTokenPasswordField, configProviderInfo.getHashicorpVaultToken()) : Secret.EMPTY);
-            configProviderInfo.setHashicorpVaultPassword(isHashicorpUserpassAuthentication() ?
-                    getPassword(vaultPasswordField, configProviderInfo.getHashicorpVaultPassword()) : Secret.EMPTY);
-            configProviderInfo.setHashicorpAppRoleSecretId(isHashicorpAppRoleAuthentication() ?
-                    getPassword(secretIdPasswordField, configProviderInfo.getHashicorpAppRoleSecretId()) : Secret.EMPTY);
-            configProviderInfo.setHashicorpGithubToken(isHashicorpGithubAuthentication() ?
-                    getPassword(githubTokenPasswordField, configProviderInfo.getHashicorpGithubToken()) : Secret.EMPTY);
+                    getText(azureClientIdTextField),
+                    getText(azureTenantIdTextField),
+                    getText(azureClientCertificatePathTextField),
+                    getPassword(azureClientSecretPasswordField),
+                    getPassword(azureClientCertificatePasswordField));
+        } else if (isHashicorpProvider()) {
+            HashicorpConfigProviderHandler.applyAuthentication(
+                    configProvider,
+                    authentication,
+                    getText(hcpVaultAddressTextField),
+                    getText(hcpVaultNamespaceTextField),
+                    getText(hcpVaultUsernameTextField),
+                    getText(hcpUserPassAuthPathTextField),
+                    getText(hcpAppRoleIdTextField),
+                    getText(hcpAppRoleAuthPathTextField),
+                    getText(hcpGithubAuthPathTextField),
+                    getPassword(hcpVaultTokenPasswordField),
+                    getPassword(hcpVaultPasswordField),
+                    getPassword(hcpSecretIdPasswordField),
+                    getPassword(hcpGithubTokenPasswordField));
         }
     }
 
     public void resetFormChanges() {
-        ConfigProviderInfo configProviderInfo = getConfigProviderInfo();
-        configProviderInfo.reloadSecrets();
-        setCloudProviderType(configProviderInfo.getCloudProviderType());
+        ConfigProviderInfo configProvider = getConfigProviderInfo();
+        configProvider.reloadSecrets();
+        setCloudProviderType(configProvider.getCloudProviderType());
 
         if (isAuthenticationProvider()) {
             setSelection(authenticationComboBox, Commons.nvl(
-                    configProviderInfo.getCloudProviderAuthentication(),
+                    configProvider.getCloudProviderAuthentication(),
                     getDefault(cloudProviderType)));
         }
 
         if (isOciProvider()) {
-            setText(configFileTextField, configProviderInfo.getOciConfigFile());
+            setText(ociConfigFileTextField, configProvider.getOciConfigFile());
             applyDefaultOciConfigFile();
-            profileComboBox
-                    .withValuePreselector(p -> Objects.equals(p, configProviderInfo.getOciConfigProfile()))
+            ociProfileComboBox
+                    .withValuePreselector(p -> Objects.equals(p, configProvider.getOciConfigProfile()))
                     .triggerLoad();
         } else {
-            setText(configFileTextField, null);
-            profileComboBox.removeAllItems();
+            setText(ociConfigFileTextField, null);
+            ociProfileComboBox.removeAllItems();
         }
 
         boolean azureProvider = isAzureProvider();
         boolean hashicorpProvider = isHashicorpProvider();
 
-        setText(azureClientIdTextField, azureProvider ? configProviderInfo.getAzureClientId() : null);
-        setText(azureTenantIdTextField, azureProvider ? configProviderInfo.getAzureTenantId() : null);
-        setText(azureClientCertificatePathTextField, azureProvider ? configProviderInfo.getAzureClientCertificatePath() : null);
-        setPassword(azureClientSecretPasswordField, azureProvider ? configProviderInfo.getAzureClientSecret() : null);
-        setPassword(azureClientCertificatePasswordField, azureProvider ? configProviderInfo.getAzureClientCertificatePassword() : null);
+        setText(azureClientIdTextField, azureProvider ? configProvider.getAzureClientId() : null);
+        setText(azureTenantIdTextField, azureProvider ? configProvider.getAzureTenantId() : null);
+        setText(azureClientCertificatePathTextField, azureProvider ? configProvider.getAzureClientCertificatePath() : null);
+        setPassword(azureClientSecretPasswordField, azureProvider ? configProvider.getAzureClientSecret() : null);
+        setPassword(azureClientCertificatePasswordField, azureProvider ? configProvider.getAzureClientCertificatePassword() : null);
 
-        setText(vaultAddressTextField, hashicorpProvider ? configProviderInfo.getHashicorpVaultAddress() : null);
-        setText(vaultNamespaceTextField, hashicorpProvider ? configProviderInfo.getHashicorpVaultNamespace() : null);
-        setText(vaultUsernameTextField, hashicorpProvider ? configProviderInfo.getHashicorpVaultUsername() : null);
-        setText(userPassAuthPathTextField, hashicorpProvider ? configProviderInfo.getHashicorpUserpassAuthPath() : null);
-        setText(roleIdTextField, hashicorpProvider ? configProviderInfo.getHashicorpAppRoleRoleId() : null);
-        setText(appRoleAuthPathTextField, hashicorpProvider ? configProviderInfo.getHashicorpAppRoleAuthPath() : null);
-        setText(githubAuthPathTextField, hashicorpProvider ? configProviderInfo.getHashicorpGithubAuthPath() : null);
-        setPassword(vaultTokenPasswordField, hashicorpProvider ? configProviderInfo.getHashicorpVaultToken() : null);
-        setPassword(vaultPasswordField, hashicorpProvider ? configProviderInfo.getHashicorpVaultPassword() : null);
-        setPassword(secretIdPasswordField, hashicorpProvider ? configProviderInfo.getHashicorpAppRoleSecretId() : null);
-        setPassword(githubTokenPasswordField, hashicorpProvider ? configProviderInfo.getHashicorpGithubToken() : null);
+        setText(hcpVaultAddressTextField, hashicorpProvider ? configProvider.getHashicorpVaultAddress() : null);
+        setText(hcpVaultNamespaceTextField, hashicorpProvider ? configProvider.getHashicorpVaultNamespace() : null);
+        setText(hcpVaultUsernameTextField, hashicorpProvider ? configProvider.getHashicorpVaultUsername() : null);
+        setText(hcpUserPassAuthPathTextField, hashicorpProvider ? configProvider.getHashicorpUserpassAuthPath() : null);
+        setText(hcpAppRoleIdTextField, hashicorpProvider ? configProvider.getHashicorpAppRoleId() : null);
+        setText(hcpAppRoleAuthPathTextField, hashicorpProvider ? configProvider.getHashicorpAppRoleAuthPath() : null);
+        setText(hcpGithubAuthPathTextField, hashicorpProvider ? configProvider.getHashicorpGithubAuthPath() : null);
+        setPassword(hcpVaultTokenPasswordField, hashicorpProvider ? configProvider.getHashicorpVaultToken() : null);
+        setPassword(hcpVaultPasswordField, hashicorpProvider ? configProvider.getHashicorpVaultPassword() : null);
+        setPassword(hcpSecretIdPasswordField, hashicorpProvider ? configProvider.getHashicorpAppRoleSecretId() : null);
+        setPassword(hcpGithubTokenPasswordField, hashicorpProvider ? configProvider.getHashicorpGithubToken() : null);
         updateFieldVisibility();
     }
 
@@ -290,17 +285,17 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
         }
         if (isHashicorpProvider()) {
             return authenticationChanged ||
-                    !match(configProvider.getHashicorpVaultAddress(), getText(vaultAddressTextField)) ||
-                    !match(configProvider.getHashicorpVaultNamespace(), getText(vaultNamespaceTextField)) ||
-                    isHashicorpUserpassAuthentication() && !match(configProvider.getHashicorpVaultUsername(), getText(vaultUsernameTextField)) ||
-                    isHashicorpUserpassAuthentication() && !match(configProvider.getHashicorpUserpassAuthPath(), getText(userPassAuthPathTextField)) ||
-                    isHashicorpUserpassAuthentication() && !matchArrays(configProvider.getHashicorpVaultPassword(), getPassword(vaultPasswordField)) ||
-                    isHashicorpVaultTokenAuthentication() && !matchArrays(configProvider.getHashicorpVaultToken(), getPassword(vaultTokenPasswordField)) ||
-                    isHashicorpAppRoleAuthentication() && !match(configProvider.getHashicorpAppRoleRoleId(), getText(roleIdTextField)) ||
-                    isHashicorpAppRoleAuthentication() && !match(configProvider.getHashicorpAppRoleAuthPath(), getText(appRoleAuthPathTextField)) ||
-                    isHashicorpAppRoleAuthentication() && !matchArrays(configProvider.getHashicorpAppRoleSecretId(), getPassword(secretIdPasswordField)) ||
-                    isHashicorpGithubAuthentication() && !match(configProvider.getHashicorpGithubAuthPath(), getText(githubAuthPathTextField)) ||
-                    isHashicorpGithubAuthentication() && !matchArrays(configProvider.getHashicorpGithubToken(), getPassword(githubTokenPasswordField));
+                    !match(configProvider.getHashicorpVaultAddress(), getText(hcpVaultAddressTextField)) ||
+                    !match(configProvider.getHashicorpVaultNamespace(), getText(hcpVaultNamespaceTextField)) ||
+                    isHashicorpUserpassAuthentication() && !match(configProvider.getHashicorpVaultUsername(), getText(hcpVaultUsernameTextField)) ||
+                    isHashicorpUserpassAuthentication() && !match(configProvider.getHashicorpUserpassAuthPath(), getText(hcpUserPassAuthPathTextField)) ||
+                    isHashicorpUserpassAuthentication() && !matchArrays(configProvider.getHashicorpVaultPassword(), getPassword(hcpVaultPasswordField)) ||
+                    isHashicorpVaultTokenAuthentication() && !matchArrays(configProvider.getHashicorpVaultToken(), getPassword(hcpVaultTokenPasswordField)) ||
+                    isHashicorpAppRoleAuthentication() && !match(configProvider.getHashicorpAppRoleId(), getText(hcpAppRoleIdTextField)) ||
+                    isHashicorpAppRoleAuthentication() && !match(configProvider.getHashicorpAppRoleAuthPath(), getText(hcpAppRoleAuthPathTextField)) ||
+                    isHashicorpAppRoleAuthentication() && !matchArrays(configProvider.getHashicorpAppRoleSecretId(), getPassword(hcpSecretIdPasswordField)) ||
+                    isHashicorpGithubAuthentication() && !match(configProvider.getHashicorpGithubAuthPath(), getText(hcpGithubAuthPathTextField)) ||
+                    isHashicorpGithubAuthentication() && !matchArrays(configProvider.getHashicorpGithubToken(), getPassword(hcpGithubTokenPasswordField));
         }
         if (!isOciProvider()) return authenticationChanged;
 
@@ -311,24 +306,24 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
 
     public void addChangeListeners(Runnable runnable) {
         authenticationComboBox.addActionListener(e -> runnable.run());
-        onTextChange(configFileTextField, e -> runnable.run());
+        onTextChange(ociConfigFileTextField, e -> runnable.run());
         onTextChange(azureClientIdTextField, e -> runnable.run());
         onTextChange(azureTenantIdTextField, e -> runnable.run());
         onTextChange(azureClientSecretPasswordField, e -> runnable.run());
         onTextChange(azureClientCertificatePathTextField, e -> runnable.run());
         onTextChange(azureClientCertificatePasswordField, e -> runnable.run());
-        onTextChange(vaultAddressTextField, e -> runnable.run());
-        onTextChange(vaultNamespaceTextField, e -> runnable.run());
-        onTextChange(vaultTokenPasswordField, e -> runnable.run());
-        onTextChange(vaultUsernameTextField, e -> runnable.run());
-        onTextChange(vaultPasswordField, e -> runnable.run());
-        onTextChange(userPassAuthPathTextField, e -> runnable.run());
-        onTextChange(roleIdTextField, e -> runnable.run());
-        onTextChange(secretIdPasswordField, e -> runnable.run());
-        onTextChange(appRoleAuthPathTextField, e -> runnable.run());
-        onTextChange(githubTokenPasswordField, e -> runnable.run());
-        onTextChange(githubAuthPathTextField, e -> runnable.run());
-        profileComboBox.addActionListener(e -> runnable.run());
+        onTextChange(hcpVaultAddressTextField, e -> runnable.run());
+        onTextChange(hcpVaultNamespaceTextField, e -> runnable.run());
+        onTextChange(hcpVaultTokenPasswordField, e -> runnable.run());
+        onTextChange(hcpVaultUsernameTextField, e -> runnable.run());
+        onTextChange(hcpVaultPasswordField, e -> runnable.run());
+        onTextChange(hcpUserPassAuthPathTextField, e -> runnable.run());
+        onTextChange(hcpAppRoleIdTextField, e -> runnable.run());
+        onTextChange(hcpSecretIdPasswordField, e -> runnable.run());
+        onTextChange(hcpAppRoleAuthPathTextField, e -> runnable.run());
+        onTextChange(hcpGithubTokenPasswordField, e -> runnable.run());
+        onTextChange(hcpGithubAuthPathTextField, e -> runnable.run());
+        ociProfileComboBox.addActionListener(e -> runnable.run());
     }
 
     private ConfigProviderInfo getConfigProviderInfo() {
@@ -349,8 +344,8 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
     }
 
     private void applyDefaultOciConfigFile() {
-        if (isOciDefaultAuthentication() && isEmpty(getText(configFileTextField))) {
-            configFileTextField.setText(OciConfigUtil.getDefaultConfigFilePath());
+        if (isOciDefaultAuthentication() && isEmpty(getText(ociConfigFileTextField))) {
+            ociConfigFileTextField.setText(OciConfigUtil.getDefaultConfigFilePath());
         }
     }
 
@@ -364,19 +359,20 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
         boolean azureServicePrincipalSecretAuthentication = isAzureServicePrincipalSecretAuthentication();
         boolean azureServicePrincipalCertificateAuthentication = isAzureServicePrincipalCertificateAuthentication();
         boolean hashicorpProvider = isHashicorpProvider();
-        boolean hashicorpVaultTokenAuthentication = isHashicorpVaultTokenAuthentication();
-        boolean hashicorpUserpassAuthentication = isHashicorpUserpassAuthentication();
-        boolean hashicorpAppRoleAuthentication = isHashicorpAppRoleAuthentication();
+        boolean hcpVaultTokenAuthentication = isHashicorpVaultTokenAuthentication();
+        boolean hcpUserpassAuthentication = isHashicorpUserpassAuthentication();
+        boolean hcpAppRoleAuthentication = isHashicorpAppRoleAuthentication();
         boolean hashicorpGithubAuthentication = isHashicorpGithubAuthentication();
 
         authenticationLabel.setVisible(authenticationProvider);
         authenticationComboBox.setVisible(authenticationProvider);
         authenticationInfoLabel.setVisible(infoProvider);
         authenticationInfoHyperlink.setVisible(infoProvider);
-        configFileLabel.setVisible(ociDefaultAuthentication);
-        configFileTextField.setVisible(ociDefaultAuthentication);
-        profileLabel.setVisible(ociDefaultAuthentication);
-        profileComboBox.setVisible(ociDefaultAuthentication);
+        ociConfigFileLabel.setVisible(ociDefaultAuthentication);
+        ociConfigFileTextField.setVisible(ociDefaultAuthentication);
+        ociProfileLabel.setVisible(ociDefaultAuthentication);
+        ociProfileComboBox.setVisible(ociDefaultAuthentication);
+
         azureClientIdLabel.setVisible(azureClientIdAuthentication);
         azureClientIdTextField.setVisible(azureClientIdAuthentication);
         azureTenantIdLabel.setVisible(azureServicePrincipalAuthentication);
@@ -387,28 +383,29 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
         azureClientCertificatePathTextField.setVisible(azureServicePrincipalCertificateAuthentication);
         azureClientCertificatePasswordLabel.setVisible(azureServicePrincipalCertificateAuthentication);
         azureClientCertificatePasswordField.setVisible(azureServicePrincipalCertificateAuthentication);
-        vaultAddressLabel.setVisible(hashicorpProvider);
-        vaultAddressTextField.setVisible(hashicorpProvider);
-        vaultNamespaceLabel.setVisible(hashicorpProvider);
-        vaultNamespaceTextField.setVisible(hashicorpProvider);
-        vaultTokenLabel.setVisible(hashicorpVaultTokenAuthentication);
-        vaultTokenPasswordField.setVisible(hashicorpVaultTokenAuthentication);
-        vaultUsernameLabel.setVisible(hashicorpUserpassAuthentication);
-        vaultUsernameTextField.setVisible(hashicorpUserpassAuthentication);
-        vaultPasswordLabel.setVisible(hashicorpUserpassAuthentication);
-        vaultPasswordField.setVisible(hashicorpUserpassAuthentication);
-        userPassAuthPathLabel.setVisible(hashicorpUserpassAuthentication);
-        userPassAuthPathTextField.setVisible(hashicorpUserpassAuthentication);
-        roleIdLabel.setVisible(hashicorpAppRoleAuthentication);
-        roleIdTextField.setVisible(hashicorpAppRoleAuthentication);
-        secretIdLabel.setVisible(hashicorpAppRoleAuthentication);
-        secretIdPasswordField.setVisible(hashicorpAppRoleAuthentication);
-        appRoleAuthPathLabel.setVisible(hashicorpAppRoleAuthentication);
-        appRoleAuthPathTextField.setVisible(hashicorpAppRoleAuthentication);
-        githubTokenLabel.setVisible(hashicorpGithubAuthentication);
-        githubTokenPasswordField.setVisible(hashicorpGithubAuthentication);
-        githubAuthPathLabel.setVisible(hashicorpGithubAuthentication);
-        githubAuthPathTextField.setVisible(hashicorpGithubAuthentication);
+
+        hcpVaultAddressLabel.setVisible(hashicorpProvider);
+        hcpVaultAddressTextField.setVisible(hashicorpProvider);
+        hcpVaultNamespaceLabel.setVisible(hashicorpProvider);
+        hcpVaultNamespaceTextField.setVisible(hashicorpProvider);
+        hcpVaultTokenLabel.setVisible(hcpVaultTokenAuthentication);
+        hcpVaultTokenPasswordField.setVisible(hcpVaultTokenAuthentication);
+        hcpVaultUsernameLabel.setVisible(hcpUserpassAuthentication);
+        hcpVaultUsernameTextField.setVisible(hcpUserpassAuthentication);
+        hcpVaultPasswordLabel.setVisible(hcpUserpassAuthentication);
+        hcpVaultPasswordField.setVisible(hcpUserpassAuthentication);
+        hcpUserPassAuthPathLabel.setVisible(hcpUserpassAuthentication);
+        hcpUserPassAuthPathTextField.setVisible(hcpUserpassAuthentication);
+        hcpAppRoleIdLabel.setVisible(hcpAppRoleAuthentication);
+        hcpAppRoleIdTextField.setVisible(hcpAppRoleAuthentication);
+        hcpSecretIdLabel.setVisible(hcpAppRoleAuthentication);
+        hcpSecretIdPasswordField.setVisible(hcpAppRoleAuthentication);
+        hcpAppRoleAuthPathLabel.setVisible(hcpAppRoleAuthentication);
+        hcpAppRoleAuthPathTextField.setVisible(hcpAppRoleAuthentication);
+        hcpGithubTokenLabel.setVisible(hashicorpGithubAuthentication);
+        hcpGithubTokenPasswordField.setVisible(hashicorpGithubAuthentication);
+        hcpGithubAuthPathLabel.setVisible(hashicorpGithubAuthentication);
+        hcpGithubAuthPathTextField.setVisible(hashicorpGithubAuthentication);
 
         if (cloudProviderType == null) return;
 
