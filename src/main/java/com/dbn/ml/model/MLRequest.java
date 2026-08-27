@@ -39,6 +39,7 @@ import static com.dbn.common.state.PersistentStateElement.cloneElement;
 public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
     private final ConnectionId connectionId;
     private transient boolean template;
+    private transient String modelToReplace;
 
     private MLMiningFunction miningFunction = MLMiningFunction.CLASSIFICATION;
 
@@ -63,6 +64,7 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
     }
 
     public void reset(SchemaId userSchema) {
+        modelToReplace = null;
         miningFunction = MLMiningFunction.CLASSIFICATION;
         sourceConfig = new MLSourceConfig();
         featureConfig = new MLFeatureConfig();
@@ -99,6 +101,13 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
 
     @Override
     public MLRequest clone() {
-        return cloneElement(this, new MLRequest(connectionId));
+        MLRequest clone = cloneElement(this, new MLRequest(connectionId));
+        clone.template = template;
+        clone.modelToReplace = modelToReplace;
+        return clone;
+    }
+
+    public boolean isModelReplacement() {
+        return modelToReplace != null;
     }
 }

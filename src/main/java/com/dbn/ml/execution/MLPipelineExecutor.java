@@ -34,6 +34,7 @@ import com.dbn.object.type.DBObjectType;
 import com.dbn.scheduler.model.SchedulerJobRequest;
 import lombok.extern.slf4j.Slf4j;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -58,14 +59,32 @@ public class MLPipelineExecutor {
     public MLResult completeAsync(MLTrainingJobSubmission submission, ConnectionHandler connectionHandler) throws Exception {
         MLTrainingContext context = submission.getContext();
         DBMSBackend backend = new DBMSBackend(connectionHandler);
+        MLRequest request = context.getRequest();
 
         long startTime = context.getTrainingStartTime() > 0
                 ? context.getTrainingStartTime()
                 : System.currentTimeMillis();
+        boolean replacementReady = false;
 
         try {
             DBMSModelHandle modelHandle = backend.loadModelHandle(context, submission.getModelName());
-            return buildResult(context.getRequest(), connectionHandler, context, backend, modelHandle, startTime);
+            MLResult result = buildResult(request, connectionHandler, context, backend, modelHandle, startTime);
+            replacementReady = true;
+            if (request.isModelReplacement()) {
+                replaceModel(result, backend);
+            }
+
+            refreshModelObjects(connectionHandler);
+            return result;
+        } catch (Exception e) {
+            if (request.isModelReplacement() && !replacementReady) {
+                try {
+                    backend.dropModel(submission.getModelName());
+                } catch (Exception cleanupError) {
+                    e.addSuppressed(cleanupError);
+                }
+            }
+            throw e;
         } finally {
             try {
                 backend.cleanup(context);
@@ -75,6 +94,32 @@ public class MLPipelineExecutor {
         }
     }
 
+    private void replaceModel(
+            MLResult result,
+            DBMSBackend backend) throws SQLException {
+
+        MLRequest request = result.getRequest();
+        DBMSModelHandle modelHandle = result.getModelHandle();
+        String modelToReplace = request.getModelToReplace();
+
+        backend.dropModel(modelToReplace);
+        backend.renameModel(modelHandle.getModelName(), modelToReplace);
+
+        modelHandle.setModelName(modelToReplace);
+        request.setModelToReplace(null);
+        request.getTrainerConfig().setModelName(modelToReplace);
+    }
+
+    private void refreshModelObjects(ConnectionHandler connectionHandler) {
+        DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.AI_MODEL);
+
+        // Model training creates DM$V* views, which belong to the separate VIEW object list.
+        DBSchema schema = connectionHandler.getUserSchema();
+        if (schema != null) {
+            DBObjectList<DBView> viewList = schema.getChildObjectList(DBObjectType.VIEW);
+            if (viewList != null) viewList.reloadInBackground();
+        }
+    }
 
     private MLResult buildResult(
             MLRequest request,
@@ -89,16 +134,6 @@ public class MLPipelineExecutor {
         result.setConnection(context.getConnection());
         result.setAlgorithmName(context.getAlgorithmName());
         result.setModelHandle(modelHandle);
-
-        // Notify browser to refresh AI models
-        DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.AI_MODEL);
-
-        // Oracle creates DM$V* views when a model is trained - reload schema views so they appear in the browser.
-        DBSchema schema = connectionHandler.getUserSchema();
-        if (schema != null) {
-            DBObjectList<DBView> viewList = schema.getChildObjectList(DBObjectType.VIEW);
-            if (viewList != null) viewList.reloadInBackground();
-        }
 
         DBMSEvaluationResult evaluation = backend.evaluate(modelHandle, context);
         result.setEvaluationResult(evaluation);

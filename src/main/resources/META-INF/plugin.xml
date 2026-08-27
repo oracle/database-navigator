@@ -783,7 +783,7 @@
             <action id="DBN.Vector.Embedding.Result.Toolbox" class="com.dbn.vector.action.VectorEmbeddingToolboxAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
         </group>
         <group id="DBN.MachineLearning.Result">
-            <action id="DBN.MachineLearning.Result.Toolbox" class="com.dbn.ml.result.action.MLResultOpenToolboxAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
+            <action id="DBN.MachineLearning.Result.Toolbox" class="com.dbn.ml.result.action.MLResultTrainAgainAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
             <action id="DBN.MachineLearning.Result.Predict" class="com.dbn.ml.result.action.MLResultPredictAction" icon="com.dbn.common.icon.Icons.ACTION_EXECUTE"/>
             <action id="DBN.MachineLearning.Result.ViewInDatabase" class="com.dbn.ml.result.action.MLResultViewInBrowserAction" icon="com.dbn.common.icon.Icons.DBO_AI_MODEL"/>
             <action id="DBN.MachineLearning.Result.RenameModel" class="com.dbn.ml.result.action.MLResultRenameAction" icon="com.dbn.common.icon.Icons.ACTION_EDIT"/>

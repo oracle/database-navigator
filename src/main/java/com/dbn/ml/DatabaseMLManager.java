@@ -152,11 +152,11 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                     try {
                         MLPipelineExecutor executor = new MLPipelineExecutor();
                         MLTrainingJobSubmission submission = executor.prepareTrainingJob(requestSnapshot, connection);
-                        String modelName = submission.getModelName();
+                        String modelName = getResultModelName(submission);
 
                         DatabaseSchedulerManager schedulerManager = DatabaseSchedulerManager.getInstance(getProject());
                         SchedulerJob job = schedulerManager.submitJob(connection, submission.getJobRequest());
-                        log.info("Training job {} submitted for model: {}", job.getName(), modelName);
+                        log.info("Training job {} submitted for model: {}", job.getName(), submission.getModelName());
 
                         Dispatch.run(() -> Messages.showInfoDialog(
                                 getProject(),
@@ -197,7 +197,7 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
             MLTrainingJobSubmission submission,
             ConnectionHandler connection) {
 
-        String modelName = submission.getModelName();
+        String modelName = getResultModelName(submission);
         OutcomeHandlers outcomeHandlers = new OutcomeHandlersImpl();
         outcomeHandlers.addHandler(OutcomeType.SUCCESS,
                 (OutcomeHandler.HighPriority) outcome -> completeTrainingJob(executor, submission, connection));
@@ -217,7 +217,7 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
             MLTrainingJobSubmission submission,
             ConnectionHandler connection) {
 
-        String modelName = submission.getModelName();
+        String modelName = getResultModelName(submission);
         try {
             MLResult result = executor.completeAsync(submission, connection);
             Dispatch.run(() -> {
@@ -236,6 +236,11 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                     txt("msg.machineLearning.error.TrainingMonitoringFailed", modelName, e.getMessage())
             ));
         }
+    }
+
+    private String getResultModelName(MLTrainingJobSubmission submission) {
+        MLRequest request = submission.getContext().getRequest();
+        return request.isModelReplacement() ? request.getModelToReplace() : submission.getModelName();
     }
 
     private String getSourceDisplayName(MLRequest request) {

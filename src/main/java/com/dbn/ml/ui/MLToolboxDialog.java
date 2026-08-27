@@ -55,10 +55,14 @@ public class MLToolboxDialog extends DBNDialog<MLToolboxForm> {
     protected Action[] initializeActions() {
         renameAction(getOKAction(), txt("msg.machineLearning.button.TrainModel"));
         renameAction(getCancelAction(), txt("msg.shared.button.Close"));
-        return actions(
-                getOKAction(),
-                getResetAction(),
-                getCancelAction());
+        return request.isTemplate() ?
+                actions(
+                        getOKAction(),
+                        getResetAction(),
+                        getCancelAction()) :
+                actions(
+                        getOKAction(),
+                        getCancelAction());
     }
 
     @NotNull

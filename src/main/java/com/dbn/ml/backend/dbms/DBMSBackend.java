@@ -181,6 +181,20 @@ public class DBMSBackend {
                 });
     }
 
+    public void dropModel(String modelName) throws SQLException {
+        DatabaseInterfaceInvoker.execute(Priority.HIGH,
+                getProject(),
+                connection.getConnectionId(),
+                conn -> connection.getInterfaces().getMachineLearningInterface().dropModel(conn, modelName));
+    }
+
+    public void renameModel(String oldModelName, String newModelName) throws SQLException {
+        DatabaseInterfaceInvoker.execute(Priority.HIGH,
+                getProject(),
+                connection.getConnectionId(),
+                conn -> connection.getInterfaces().getMachineLearningInterface().renameModel(conn, oldModelName, newModelName));
+    }
+
     public void cleanup(MLTrainingContext context) throws Exception {
         log.info("Cleaning up DBMS resources");
 

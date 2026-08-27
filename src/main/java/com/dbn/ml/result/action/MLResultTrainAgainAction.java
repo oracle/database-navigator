@@ -17,6 +17,7 @@
 package com.dbn.ml.result.action;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.util.Messages;
 import com.dbn.ml.DatabaseMLManager;
 import com.dbn.ml.model.MLRequest;
 import com.dbn.ml.model.MLResult;
@@ -28,31 +29,48 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
+import static com.dbn.common.util.Messages.options;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
- * Action to open the ML Toolbox dialog.
+ * Action to train a model again from an existing result.
  *
  * @author ayoub allali
  */
-public class MLResultOpenToolboxAction extends AbstractMLExecutionResultAction {
+public class MLResultTrainAgainAction extends AbstractMLExecutionResultAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull MLExecutionResult executionResult) {
         MLResult result = executionResult.getMlResult();
-        MLRequest retrainRequest = result.getRequest().clone();
         String modelName = result.getModelName();
-        if (modelName != null && !modelName.isBlank()) {
-            retrainRequest.getTrainerConfig().setModelName(
-                    nextNumberedIdentifier(modelName, false, modelName::equalsIgnoreCase));
-        }
+        if (modelName == null || modelName.isBlank()) return;
+
+        Messages.showQuestionDialog(
+                project,
+                txt("msg.machineLearning.title.TrainAgain"),
+                txt("msg.machineLearning.question.TrainAgainMode", modelName),
+                options(
+                        txt("msg.machineLearning.button.CreateNewModel"),
+                        txt("msg.machineLearning.button.ReplaceExistingModel"),
+                        txt("msg.shared.button.Cancel")),
+                0,
+                option -> openTrainAgainToolbox(project, result, modelName, option));
+    }
+
+    private void openTrainAgainToolbox(Project project, MLResult result, String modelName, int option) {
+        if (option < 0 || option > 1) return;
+
+        MLRequest retrainRequest = result.getRequest().clone();
+        retrainRequest.setModelToReplace(option == 1 ? modelName : null);
+        retrainRequest.getTrainerConfig().setModelName(
+                nextNumberedIdentifier(modelName, false, modelName::equalsIgnoreCase));
 
         DatabaseMLManager.getInstance(project).openToolbox(result.getConnection(), retrainRequest);
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable MLExecutionResult target) {
-        presentation.setText(txt("app.machineLearning.action.OpenMLToolbox"));
+        presentation.setText(txt("app.machineLearning.action.TrainAgain"));
         presentation.setIcon(Icons.EXEC_RESULT_INPUT_FORM);
     }
 }
