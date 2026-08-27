@@ -94,6 +94,7 @@ public class DBMSBackend {
         String modelName = generateModelName(context, timestamp);
 
         String miningFunction = DBMSAlgorithmType.getMiningFunction(context.getTaskType());
+        //todo for now we predict just one label ...
         String targetColumn = context.getFeatureConfig().getLabelColumns().get(0);
 
         // Pre-training validation
