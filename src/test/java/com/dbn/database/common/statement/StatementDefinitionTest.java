@@ -16,14 +16,18 @@
 
 package com.dbn.database.common.statement;
 
+import com.dbn.database.oracle.OracleDebuggerInterface;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
+import org.jdom.Element;
 import org.junit.Test;
 
 import java.sql.SQLException;
 
+import static com.dbn.common.util.XmlContents.fileToElement;
 import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class StatementDefinitionTest {
     private static final QuoteDefinition SQLITE_QUOTE_DEFINITION = new QuoteDefinition(
@@ -157,6 +161,27 @@ public class StatementDefinitionTest {
                 (Object) null);
 
         assertEquals("BEGIN MY_PKG.RUN(comment_text => NULL); END;", statementText);
+    }
+
+    @Test
+    public void prepareStatementTextEscapesProgramBreakpointObjectNames() throws Exception {
+        Element dataDictionary = fileToElement(OracleDebuggerInterface.class, "oracle_debug_interface.xml");
+        Element processor = dataDictionary.getChildren("statement-execution-processor").stream()
+                .filter(element -> "add-program-breakpoint".equals(element.getAttributeValue("id")))
+                .findFirst()
+                .orElseThrow();
+        StatementDefinition definition = new StatementDefinition(processor.getChildTextTrim("statement"), null, null, 0.0);
+
+        String statementText = definition.prepareStatementText(
+                StatementDefinitionTest::enquoteSqliteIdentifier,
+                "SCOTT' ; injected",
+                "PROGRAM' ; injected",
+                "PROCEDURE",
+                7);
+
+        assertTrue(statementText.contains("v_program_info.owner := 'SCOTT'' ; injected';"));
+        assertTrue(statementText.contains("v_program_info.name := 'PROGRAM'' ; injected';"));
+        assertTrue(statementText.contains("v_program_type := 'PROCEDURE';"));
     }
 
     private static String enquoteSqliteIdentifier(String identifier) {
