@@ -294,6 +294,12 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     }
 
     @Override
+    public ResultSet getModelDetailViewNames(DBNConnection conn, String modelName) throws SQLException {
+        log.debug("Querying model detail views for: {}", modelName);
+        return executeQuery(conn, "get-model-detail-view-names", modelName);
+    }
+
+    @Override
     public ResultSet getModelGLMCoefficients(DBNConnection conn, String modelName) throws SQLException {
         log.debug("Querying GLM coefficients (DM$VD) for: {}", modelName);
         return executeQuery(conn, "get-model-glm-coefficients", modelName);

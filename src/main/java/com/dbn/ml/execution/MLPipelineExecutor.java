@@ -26,10 +26,7 @@ import com.dbn.ml.model.MLRequest;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLSourceNames;
-import com.dbn.object.DBSchema;
-import com.dbn.object.DBView;
 import com.dbn.object.common.DBObjectUtil;
-import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.scheduler.model.SchedulerJobRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -74,6 +71,7 @@ public class MLPipelineExecutor {
                 replaceModel(result, backend);
             }
 
+            loadModelDetailViewNames(result, backend);
             refreshModelObjects(connectionHandler);
             return result;
         } catch (Exception e) {
@@ -112,12 +110,14 @@ public class MLPipelineExecutor {
 
     private void refreshModelObjects(ConnectionHandler connectionHandler) {
         DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.AI_MODEL);
+        DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.VIEW);
+    }
 
-        // Model training creates DM$V* views, which belong to the separate VIEW object list.
-        DBSchema schema = connectionHandler.getUserSchema();
-        if (schema != null) {
-            DBObjectList<DBView> viewList = schema.getChildObjectList(DBObjectType.VIEW);
-            if (viewList != null) viewList.reloadInBackground();
+    private void loadModelDetailViewNames(MLResult result, DBMSBackend backend) {
+        try {
+            result.setModelDetailViewNames(backend.loadModelDetailViewNames(result.getModelName()));
+        } catch (SQLException e) {
+            log.warn("Failed to load model detail views - result will omit the links", e);
         }
     }
 

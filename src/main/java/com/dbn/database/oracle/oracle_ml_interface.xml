@@ -395,6 +395,17 @@
         </statement>
     </statement-execution-processor>
 
+    <!-- Query the authoritative list of detail views created for a model -->
+    <!-- Parameters: 0=model_name -->
+    <statement-execution-processor id="get-model-detail-view-names" timeout="10000">
+        <statement>
+            SELECT VIEW_NAME
+            FROM USER_MINING_MODEL_VIEWS
+            WHERE MODEL_NAME = UPPER({#0})
+            ORDER BY VIEW_NAME
+        </statement>
+    </statement-execution-processor>
+
     <!-- Query GLM Coefficients view (DM$VD) — Logistic Regression, Linear Regression -->
     <!-- Parameters: 0=model_name -->
     <statement-execution-processor id="get-model-glm-coefficients" timeout="10000">

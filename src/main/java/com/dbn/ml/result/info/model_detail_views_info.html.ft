@@ -25,10 +25,10 @@
         p { margin-top: 0; }
     </style>
 </head>
-<body>
+<body style="width: 300px">
     <h3>Model Detail Views</h3>
-    <p>When Oracle trains a model, it also saves what the model learned into ordinary database views.</p>
-    <p>Query them like any other view to see things such as which columns mattered most, or the rules the model came up with.</p>
-    <p>They are named <code>DM$V</code> + one letter + your model name. Which ones you get depends on the algorithm.</p>
+    <p>When Oracle trains a model, it exposes model-specific information through database views.</p>
+    <p>Open them like any other view to inspect details such as model settings, build alerts, or algorithm-specific statistics.</p>
+    <p>The views use names beginning with <code>DM$V</code>. The exact views available depend on the algorithm.</p>
 </body>
 </html>

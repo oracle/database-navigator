@@ -42,7 +42,6 @@ import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Box;
@@ -78,8 +77,6 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @Slf4j
 public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionResult> {
-    private static final @NonNls String MODEL_VIEW_PREFIX = "DM$V";
-
     // Form bindings
     private JPanel mainPanel;
     private JPanel actionsPanel;
@@ -401,7 +398,12 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
 
         ConnectionHandler connection = modelHandle.getConnection();
         Project project = connection.getProject();
-        List<String> modelViews = loadModelViewNames(connection, modelName);
+        List<String> modelViews = result.getModelDetailViewNames();
+        if (modelViews == null) {
+            modelViewsPanel.setVisible(false);
+            return;
+        }
+
         if (modelViews.isEmpty()) {
             JLabel emptyLabel = new JLabel(txt("app.machineLearning.text.NoModelDetailViews"));
             emptyLabel.setForeground(JBColor.gray);
@@ -424,44 +426,6 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         modelViewsPanel.add(linksPanel, BorderLayout.CENTER);
     }
 
-    private List<String> loadModelViewNames(ConnectionHandler connection, String modelName) {
-        DBSchema schema = connection.getUserSchema();
-        if (schema == null || modelName == null || modelName.isBlank()) return List.of();
-
-        String normalizedModelName = modelName.toUpperCase();
-        List<String> names = new ArrayList<>();
-
-        try {
-            for (DBView view : schema.getViews()) {
-                String viewName = view.getName();
-                if (viewName == null) continue;
-
-                if (isModelDetailView(viewName.toUpperCase(), normalizedModelName)) {
-                    names.add(viewName);
-                }
-            }
-            names.sort(String.CASE_INSENSITIVE_ORDER);
-        } catch (Exception e) {
-            log.debug("Failed to load model detail views for model '{}'", modelName, e);
-        }
-
-        return names;
-    }
-
-    /**
-     * Model detail views are named DM$V + one algorithm specific letter + the model name.
-     * The name after that letter must match exactly, otherwise the views of a model like
-     * CUSTOMER_MODEL would also show up for a model named MODEL.
-     */
-    private static boolean isModelDetailView(String viewName, String modelName) {
-        if (!viewName.startsWith(MODEL_VIEW_PREFIX)) return false;
-
-        int modelNameStart = MODEL_VIEW_PREFIX.length() + 1;
-        if (viewName.length() <= modelNameStart) return false;
-
-        return viewName.substring(modelNameStart).equals(modelName);
-    }
-
     private void openView(Project project, ConnectionHandler connection, String viewName) {
         DBSchema schema = connection.getUserSchema();
         if (schema == null) return;
@@ -473,9 +437,14 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
                 action -> Progress.prompt(project, viewList, true,
                         txt("msg.machineLearning.title.OpeningView"), txt("msg.machineLearning.text.LoadingView", viewName),
                         progress -> {
-                            // schema.getView() auto-loads lazily on a progress thread (allowSyncLoad = true)
-                            // No full reload needed - avoids the expensive refresh-all-elements cycle
                             DBView view = schema.getView(viewName);
+                            if (view == null) {
+                                // The completion-time invalidation can be ignored when the view list is
+                                // already loading. Reload once on a miss before reporting a stale cache.
+                                viewList.reload();
+                                view = schema.getView(viewName);
+                            }
+
                             if (view != null) {
                                 view.navigate(true);
                             } else {

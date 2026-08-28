@@ -181,6 +181,22 @@ public class DBMSBackend {
                 });
     }
 
+    public List<String> loadModelDetailViewNames(String modelName) throws SQLException {
+        return DatabaseInterfaceInvoker.load(Priority.LOW,
+                getProject(),
+                connection.getConnectionId(),
+                conn -> {
+                    List<String> names = new ArrayList<>();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
+                    try (ResultSet resultSet = mlInterface.getModelDetailViewNames(conn, modelName)) {
+                        while (resultSet.next()) {
+                            names.add(resultSet.getString("VIEW_NAME"));
+                        }
+                    }
+                    return names;
+                });
+    }
+
     public void dropModel(String modelName) throws SQLException {
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
                 getProject(),

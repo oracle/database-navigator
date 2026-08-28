@@ -64,6 +64,9 @@ public class MLResult {
     private String labelColumn;
     private List<String> labelColumns;
 
+    // Model detail metadata - null when the database lookup was unavailable
+    private List<String> modelDetailViewNames;
+
     // Source name for default model naming (table name or CSV file name)
     private String sourceName;
 
