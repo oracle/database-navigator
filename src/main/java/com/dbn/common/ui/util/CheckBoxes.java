@@ -16,11 +16,17 @@
 
 package com.dbn.common.ui.util;
 
+import com.dbn.common.message.TitledMessage;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.util.Messages;
+import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
 
 import javax.swing.AbstractButton;
+import javax.swing.JCheckBox;
 import java.awt.event.ItemEvent;
+
+import static com.dbn.common.ui.util.ClientProperty.CONFIRMING_CHANGE;
 
 @UtilityClass
 public class CheckBoxes {
@@ -28,4 +34,28 @@ public class CheckBoxes {
         button.addItemListener(e -> consumer.accept(e));
     }
 
+
+    public static void installCheckConfirmation(JCheckBox checkBox, Project project, TitledMessage message) {
+        onSelectionChange(checkBox, e -> confirmChange(checkBox, project, message));
+    }
+
+    private static void confirmChange(JCheckBox checkBox, Project project, TitledMessage message) {
+        if (!checkBox.isSelected()) return;
+        if (CONFIRMING_CHANGE.is(checkBox)) return;
+
+        try {
+            CONFIRMING_CHANGE.set(checkBox, true);
+
+            int option = Messages.showAcknowledgementDialog(
+                    project,
+                    message.getTitle(),
+                    message.getText(),
+                    Messages.OPTIONS_YES_NO,
+                    1,
+                    null);
+            checkBox.setSelected(option == 0);
+        } finally {
+            CONFIRMING_CHANGE.set(checkBox, false);
+        }
+    }
 }

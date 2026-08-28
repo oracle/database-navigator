@@ -44,6 +44,7 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 import static com.dbn.common.ui.util.ClientProperty.FIELD_ERROR;
+import static com.dbn.common.util.Strings.isEmpty;
 
 @UtilityClass
 public class TextFields {
@@ -168,6 +169,7 @@ public class TextFields {
     }
 
     public static void setEmptyText(JTextField textField, @StatusText String emptyText) {
+        if (isEmpty(emptyText)) return;
         if (textField instanceof JBTextField jbTextField) {
             jbTextField.getEmptyText().setText(emptyText);
         }
