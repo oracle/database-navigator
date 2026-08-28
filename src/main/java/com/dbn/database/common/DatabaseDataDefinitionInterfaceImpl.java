@@ -116,12 +116,7 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
 
         String rawSchemaName = quotes.unquote(schemaName, DATABASE);
         String rawObjectName = quotes.unquote(objectName, DATABASE);
-        String bq = "(" + Pattern.quote(quotes.beginQuote()) + ")?";
-        String eq = "(" + Pattern.quote(quotes.endQuote()) + ")?";
-
-        String regex = objectType + "\\s+(" + bq + rawSchemaName + eq + "\\s*\\.)?\\s*" + bq + rawObjectName + eq;
-
-        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        Pattern pattern = createNameQualificationPattern(objectType, rawSchemaName, rawObjectName, quotes);
         Matcher matcher = pattern.matcher(code);
         if (matcher.find()) {
             String replacement = kco.format(objectType) + " " + (qualified ? schemaName + "." : "") + objectName;
@@ -130,6 +125,14 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
             code = buffer.toString();
         }
         return code;
+    }
+
+    static Pattern createNameQualificationPattern(String objectType, String rawSchemaName, String rawObjectName, QuotePair quotes) {
+        String bq = "(" + Pattern.quote(quotes.beginQuote()) + ")?";
+        String eq = "(" + Pattern.quote(quotes.endQuote()) + ")?";
+        String regex = objectType + "\\s+(" + bq + Pattern.quote(rawSchemaName) + eq + "\\s*\\.)?\\s*" + bq + Pattern.quote(rawObjectName) + eq;
+
+        return Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
     }
 
     @Override
