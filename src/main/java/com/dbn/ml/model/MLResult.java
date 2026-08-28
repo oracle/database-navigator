@@ -17,11 +17,11 @@
 package com.dbn.ml.model;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.ml.backend.dbms.DBMSAlgorithmType;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
-import com.dbn.ml.model.analysis.MLFeatureImportance;
 import com.dbn.ml.model.analysis.MLAttributeContribution;
+import com.dbn.ml.model.analysis.MLBuildWarning;
+import com.dbn.ml.model.analysis.MLFeatureImportance;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nls;
@@ -51,7 +51,6 @@ public class MLResult {
 
     private ConnectionHandler connection;
     private @Nls String algorithmName;
-    private DBMSAlgorithmType algorithmType;
 
     private int trainingDataSize;
     private int testingDataSize;
@@ -69,7 +68,8 @@ public class MLResult {
     // Source name for default model naming (table name or CSV file name)
     private String sourceName;
 
-    // Column analysis - both optional, absent when the database could not produce them
+    // Supplementary analysis - absent when the database could not produce it
+    private List<MLBuildWarning> buildWarnings;
     private List<MLFeatureImportance> featureImportance;
     private List<MLAttributeContribution> attributeContributions;
 
@@ -77,9 +77,10 @@ public class MLResult {
         this.request = request;
     }
 
-    /**
-     * Returns the database model name.
-     */
+    public boolean hasBuildWarnings() {
+        return buildWarnings != null && !buildWarnings.isEmpty();
+    }
+
     public boolean hasFeatureImportance() {
         return featureImportance != null && !featureImportance.isEmpty();
     }

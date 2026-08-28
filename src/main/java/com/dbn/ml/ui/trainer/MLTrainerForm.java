@@ -53,6 +53,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.common.ui.link.Hyperlinks.initHyperlink;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.nls.NlsResources.txt;
@@ -176,7 +177,10 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private void onAlgorithmChanged() {
         MLTrainerType trainerType = algorithmComboBox.getSelectedValue();
         if (trainerType != null) {
-            algorithmDocLink.setHyperlinkTarget(trainerType.getDocUrl());
+            initHyperlink(
+                    algorithmDocLink,
+                    txt("cfg.machineLearning.link.OracleDocumentation"),
+                    trainerType.getDocUrl());
         }
     }
 

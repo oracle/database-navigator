@@ -52,12 +52,10 @@
       </hspacer>
       <component id="j7k8l" class="com.intellij.ui.HyperlinkLabel" binding="algorithmDocLink">
         <constraints>
-          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="200" height="24"/>
-          </grid>
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.link.OracleDocumentation"/>
+          <text value=""/>
         </properties>
       </component>
       <component id="m9n0o" class="javax.swing.JLabel" binding="splitLabel">

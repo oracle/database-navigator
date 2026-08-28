@@ -38,7 +38,7 @@ public class MLToolboxDialog extends DBNDialog<MLToolboxForm> {
         this.connection = connection.ref();
         this.request = request;
 
-        setDefaultSize(680, 800);
+        setDefaultSize(520, 800);
         init();
     }
 
