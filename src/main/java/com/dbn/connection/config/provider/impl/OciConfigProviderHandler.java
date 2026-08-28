@@ -9,12 +9,20 @@ import java.util.Map;
 
 
 public class OciConfigProviderHandler extends CloudConfigProviderHandlerBase {
+    @Override
+    public void initialize(ConfigProviderInfo configProvider, Map<String, String> parameters) {
+        super.initialize(configProvider, parameters);
+        configProvider.setCloudAuthenticationType(CloudAuthenticationType.get(getParameter(parameters, "AUTHENTICATION")));
+        configProvider.setOciConfigFile(getParameter(parameters, "OCI_CONFIG_FILE"));
+        configProvider.setOciConfigProfile(getParameter(parameters, "OCI_PROFILE"));
+    }
+
     public static void applyAuthentication(
         ConfigProviderInfo configProvider,
             CloudAuthenticationType authentication,
             String configFile,
             String profile) {
-        configProvider.setCloudProviderAuthentication(authentication);
+        configProvider.setCloudAuthenticationType(authentication);
         configProvider.setOciConfigFile(authentication == CloudAuthenticationType.OCI_DEFAULT ? configFile : null);
         configProvider.setOciConfigProfile(authentication == CloudAuthenticationType.OCI_DEFAULT ? profile : null);
     }
@@ -27,7 +35,7 @@ public class OciConfigProviderHandler extends CloudConfigProviderHandlerBase {
 
     public void addUrlParameters(Map<String, String> parameters, ConfigProviderInfo configProvider, boolean includeAuthentication) {
         if (includeAuthentication) {
-            CloudAuthenticationType authenticationType = configProvider.getCloudProviderAuthentication();
+            CloudAuthenticationType authenticationType = configProvider.getCloudAuthenticationType();
             String ociConfigFile = configProvider.getOciConfigFile();
             String ociConfigProfile = configProvider.getOciConfigProfile();
 

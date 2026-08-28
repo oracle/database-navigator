@@ -15,6 +15,20 @@ import static com.dbn.connection.config.provider.CloudAuthenticationType.HCP_VAU
 
 
 public class HashicorpConfigProviderHandler extends CloudConfigProviderHandlerBase {
+    @Override
+    public void initialize(ConfigProviderInfo configProvider, Map<String, String> parameters) {
+        super.initialize(configProvider, parameters);
+        CloudAuthenticationType authenticationType = CloudAuthenticationType.get(getParameter(parameters, "AUTHENTICATION"));
+        configProvider.setCloudAuthenticationType(authenticationType == null ? HCP_DEFAULT : authenticationType);
+        configProvider.setHashicorpVaultAddress(getParameter(parameters, "VAULT_ADDR"));
+        configProvider.setHashicorpVaultNamespace(getParameter(parameters, "VAULT_NAMESPACE"));
+        configProvider.setHashicorpVaultUsername(getParameter(parameters, "VAULT_USERNAME"));
+        configProvider.setHashicorpUserpassAuthPath(getParameter(parameters, "USERPASS_AUTH_PATH"));
+        configProvider.setHashicorpAppRoleId(getParameter(parameters, "ROLE_ID"));
+        configProvider.setHashicorpAppRoleAuthPath(getParameter(parameters, "APPROLE_AUTH_PATH"));
+        configProvider.setHashicorpGithubAuthPath(getParameter(parameters, "GITHUB_AUTH_PATH"));
+    }
+
     public static void applyAuthentication(
             ConfigProviderInfo configProvider,
             CloudAuthenticationType authentication,
@@ -29,7 +43,7 @@ public class HashicorpConfigProviderHandler extends CloudConfigProviderHandlerBa
             char[] vaultPassword,
             char[] appRoleSecretId,
             char[] githubToken) {
-        configProvider.setCloudProviderAuthentication(authentication);
+        configProvider.setCloudAuthenticationType(authentication);
         configProvider.setHashicorpVaultAddress(vaultAddress);
         configProvider.setHashicorpVaultNamespace(vaultNamespace);
         configProvider.setHashicorpVaultUsername(authentication == HCP_USERPASS ? vaultUsername : null);
@@ -51,7 +65,7 @@ public class HashicorpConfigProviderHandler extends CloudConfigProviderHandlerBa
 
     @Override
     public void addRuntimeSecrets(Map<String, String> parameters, ConfigProviderInfo configProvider) {
-        switch (configProvider.getCloudProviderAuthentication()) {
+        switch (configProvider.getCloudAuthenticationType()) {
             case HCP_VAULT_TOKEN -> addRuntimeSecret(parameters, "VAULT_TOKEN", configProvider.getHashicorpVaultToken());
             case HCP_USERPASS -> addRuntimeSecret(parameters, "VAULT_PASSWORD", configProvider.getHashicorpVaultPassword());
             case HCP_APPROLE -> addRuntimeSecret(parameters, "SECRET_ID", configProvider.getHashicorpAppRoleSecretId());
@@ -62,7 +76,7 @@ public class HashicorpConfigProviderHandler extends CloudConfigProviderHandlerBa
 
     @Override
     public void addUrlParameters(Map<String, String> parameters, ConfigProviderInfo configProvider, boolean includeAuthentication) {
-        CloudAuthenticationType authenticationType = configProvider.getCloudProviderAuthentication();
+        CloudAuthenticationType authenticationType = configProvider.getCloudAuthenticationType();
 
         if (includeAuthentication && authenticationType != null && authenticationType != HCP_DEFAULT) {
             addParameter(parameters, "AUTHENTICATION", authenticationType.getParameterValue().toUpperCase());

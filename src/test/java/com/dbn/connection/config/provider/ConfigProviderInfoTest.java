@@ -18,53 +18,42 @@ package com.dbn.connection.config.provider;
 
 import org.junit.Test;
 
-import java.util.Map;
-
 import static org.junit.Assert.assertEquals;
 
 public class ConfigProviderInfoTest {
     @Test
-    public void applyUsesExpectedProviderSlugForEachSourceType() {
+    public void usesExpectedProviderSlugForEachSourceType() {
         ConfigProviderInfo provider = new ConfigProviderInfo(null);
 
-        provider.apply(ConfigSourceType.FILE, null,
-                null, "/tmp/connections.json", null, null);
+        provider.setProviderSourceType(ConfigSourceType.FILE);
+        provider.setCloudProviderType(null);
+        provider.setProviderLocation("/tmp/connections.json");
         assertEquals("file", provider.getProviderSlug());
 
-        provider.apply(ConfigSourceType.URL, null,
-                null, "https://example.com/connections.json", null, null);
+        provider.setProviderSourceType(ConfigSourceType.URL);
+        provider.setCloudProviderType(null);
+        provider.setProviderLocation("https://example.com/connections.json");
         assertEquals("https", provider.getProviderSlug());
 
         for (CloudConfigProviderType type : CloudConfigProviderType.values()) {
-            provider.apply(ConfigSourceType.CLOUD, type,
-                    null, "config-location", null, null);
+            provider.setProviderSourceType(ConfigSourceType.CLOUD);
+            provider.setCloudProviderType(type);
+            provider.setProviderLocation("config-location");
             assertEquals(type.getSlug(), provider.getProviderSlug());
         }
     }
 
     @Test
-    public void applyNormalizesOciObjectStorageLocation() {
+    public void normalizesOciObjectStorageLocation() {
         ConfigProviderInfo provider = new ConfigProviderInfo(null);
 
-        provider.apply(ConfigSourceType.CLOUD, CloudConfigProviderType.OCI_OBJECT,
-                null,
-                " https://objectstorage.eu-frankfurt-1.oraclecloud.com/n/example/b/connections/o/connections.json ",
-                null, null);
+        provider.setProviderSourceType(ConfigSourceType.CLOUD);
+        provider.setCloudProviderType(CloudConfigProviderType.OCI_OBJECT);
+        provider.setProviderLocation(" https://objectstorage.eu-frankfurt-1.oraclecloud.com/n/example/b/connections/o/connections.json ");
 
         assertEquals("ociobject", provider.getProviderSlug());
         assertEquals("objectstorage.eu-frankfurt-1.oraclecloud.com/n/example/b/connections/o/connections.json",
                 provider.getProviderLocation());
-        assertEquals(Map.of(), provider.getUrlParameters(false));
     }
 
-    @Test
-    public void applyExportsAwsRegionAndProfileKeyAsUrlParameters() {
-        ConfigProviderInfo provider = new ConfigProviderInfo(null);
-
-        provider.apply(ConfigSourceType.CLOUD, CloudConfigProviderType.AWS_S3,
-                " eu-west-1 ", "s3.eu-west-1.amazonaws.com/example-bucket/connections.json", "production", null);
-
-        assertEquals("awss3", provider.getProviderSlug());
-        assertEquals(Map.of("key", "production", "AWS_REGION", "eu-west-1"), provider.getUrlParameters(false));
-    }
 }

@@ -7,6 +7,12 @@ import java.util.Map;
 
 
 public class AwsConfigProviderHandler extends CloudConfigProviderHandlerBase {
+    @Override
+    public void initialize(ConfigProviderInfo configProvider, Map<String, String> parameters) {
+        super.initialize(configProvider, parameters);
+        configProvider.setAwsRegion(getParameter(parameters, configProvider.getCloudProviderType().getAwsRegionParameterName()));
+    }
+
     public CloudConfigProviderFamily getFamily() {
         return CloudConfigProviderFamily.AWS;
     }

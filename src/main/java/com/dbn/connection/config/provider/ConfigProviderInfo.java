@@ -25,7 +25,6 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
-import com.dbn.connection.config.provider.impl.AzureConfigProviderHandler;
 import com.dbn.connection.config.provider.impl.CloudConfigProviderHandler;
 import com.dbn.connection.config.provider.impl.CloudConfigProviderHandlers;
 import com.dbn.credentials.Secret;
@@ -54,14 +53,9 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isNotEmpty;
-import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.connection.DatabaseUrlType.PROVIDER;
 import static com.dbn.connection.config.provider.CloudAuthenticationType.AZURE_INTERACTIVE;
-import static com.dbn.connection.config.provider.CloudAuthenticationType.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
-import static com.dbn.connection.config.provider.CloudAuthenticationType.HCP_DEFAULT;
 import static com.dbn.connection.config.provider.CloudAuthenticationType.OCI_INTERACTIVE;
-import static com.dbn.connection.config.provider.CloudAuthenticationType.get;
-import static com.dbn.connection.config.provider.CloudAuthenticationType.getAzure;
 import static com.dbn.connection.config.provider.CloudConfigProviderType.AZURE_APP_CONFIG;
 import static com.dbn.credentials.SecretType.CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD;
 import static com.dbn.credentials.SecretType.CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET;
@@ -75,7 +69,7 @@ import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_VAULT_TOKEN;
 public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSettings, ConfigurationEditorForm> implements Cloneable<ConfigProviderInfo>, SecretsOwner, PersistentConfiguration {
     private ConfigSourceType providerSourceType = ConfigSourceType.FILE;
     private CloudConfigProviderType cloudProviderType;
-    private CloudAuthenticationType cloudProviderAuthentication;
+    private CloudAuthenticationType cloudAuthenticationType;
 
     private Map<String, String> providerLocations = new HashMap<>();
     private String providerProfileKey;
@@ -135,7 +129,7 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
     public void reset() {
         providerSourceType = ConfigSourceType.FILE;
         cloudProviderType = null;
-        cloudProviderAuthentication = null;
+        cloudAuthenticationType = null;
         ociConfigFile = null;
         ociConfigProfile = null;
         awsRegion = null;
@@ -227,19 +221,8 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         hashicorpGithubToken.setToken(token);
     }
 
-    public void apply(
-            ConfigSourceType sourceType,
-            CloudConfigProviderType cloudProviderType,
-            String awsRegion,
-            String configLocation,
-            String profileKey,
-            String azureAppConfigLabel) {
-        this.providerSourceType = Commons.nvl(sourceType, ConfigSourceType.FILE);
-        this.cloudProviderType = this.providerSourceType == ConfigSourceType.CLOUD ? cloudProviderType : null;
-        this.awsRegion = isAwsRegionConfig() ? awsRegion : null;
+    public void setProviderProfileKey(String profileKey) {
         this.providerProfileKey = normalizeProfileKey(profileKey);
-        this.azureAppConfigLabel = isAzureAppConfig() ? azureAppConfigLabel : null;
-        setProviderLocation(configLocation);
     }
 
     private String normalizeProfileKey(String profileKey) {
@@ -300,8 +283,8 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
     public boolean isInteractiveAuthentication() {
         return isCloudProviderConfig() &&
                 cloudProviderType != null &&
-                ((cloudProviderType.isOci() && cloudProviderAuthentication == OCI_INTERACTIVE) ||
-                 (cloudProviderType.isAzure() && cloudProviderAuthentication == AZURE_INTERACTIVE));
+                ((cloudProviderType.isOci() && cloudAuthenticationType == OCI_INTERACTIVE) ||
+                 (cloudProviderType.isAzure() && cloudAuthenticationType == AZURE_INTERACTIVE));
     }
 
     public boolean isAzureAppConfig() {
@@ -376,31 +359,7 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
     }
 
     public void validate(List<String> errors) {
-        if (isAzureProvider() &&
-                cloudProviderAuthentication == AZURE_INTERACTIVE &&
-                isEmptyOrSpaces(azureClientId)) {
-            errors.add("Azure interactive authentication requires client ID");
-        }
-        if (isAzureProvider() && AzureConfigProviderHandler.isAzureServicePrincipalAuthentication(cloudProviderAuthentication)) {
-            if (isEmptyOrSpaces(azureClientId)) {
-                errors.add("Azure service principal authentication requires client ID");
-            }
-            if (isEmptyOrSpaces(azureTenantId)) {
-                errors.add("Azure service principal authentication requires tenant ID");
-            }
-            if (cloudProviderAuthentication == AZURE_SERVICE_PRINCIPAL_CERTIFICATE && isEmptyOrSpaces(azureClientCertificatePath)) {
-                errors.add("Azure service principal certificate authentication requires certificate path");
-            }
-        }
-
-        if (cloudProviderType != CloudConfigProviderType.GCP_STORAGE) return;
-
-        Map<String, String> values = parseNamedLocation();
-        if (isEmptyOrSpaces(values.get("project")) ||
-                isEmptyOrSpaces(values.get("bucket")) ||
-                isEmptyOrSpaces(values.get("object"))) {
-            errors.add("GCP Cloud Storage config location requires project, bucket and object");
-        }
+        getHandler().validate(this, errors);
     }
 
     @NonNls
@@ -421,67 +380,36 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
     public void initialize(String url, DatabaseUrlPattern pattern, Map<String, String> parameters) {
         reset();
         providerLocations.clear();
-        String providerLocation = pattern.resolveConfigLocation(url);
-        providerProfileKey = getParameterIgnoreCase(parameters, "key");
-        azureAppConfigLabel = getParameterIgnoreCase(parameters, "label");
-
         if (pattern.getUrlType() != PROVIDER) return;
 
         String provider = pattern.resolveConfigProvider(url);
         if (Strings.isEmptyOrSpaces(provider)) return;
 
         if ("file".equalsIgnoreCase(provider)) {
-            apply(ConfigSourceType.FILE, null, null, providerLocation, providerProfileKey, null);
+            this.providerSourceType = ConfigSourceType.FILE;
+            this.cloudProviderType = null;
         } else if ("https".equalsIgnoreCase(provider)) {
-            apply(ConfigSourceType.URL, null, null, providerLocation, providerProfileKey, null);
+            this.providerSourceType = ConfigSourceType.URL;
+            this.cloudProviderType = null;
         } else {
-            apply(ConfigSourceType.CLOUD, CloudConfigProviderType.fromSlug(provider), null, providerLocation, providerProfileKey, azureAppConfigLabel);
+            this.providerSourceType = ConfigSourceType.CLOUD;
+            this.cloudProviderType = CloudConfigProviderType.fromSlug(provider);
         }
 
-        if (isOciProvider()) {
-            cloudProviderAuthentication = get(getParameterIgnoreCase(parameters, "AUTHENTICATION"));
-            ociConfigFile = getParameterIgnoreCase(parameters, "OCI_CONFIG_FILE");
-            ociConfigProfile = getParameterIgnoreCase(parameters, "OCI_PROFILE");
+        String providerLocation = pattern.resolveConfigLocation(url);
+        String normalizedLocation = isConfigHttps() || isOciObjectStorageConfig() ?
+                DatabaseUrlPattern.normalizeConfigHttpsLocation(providerLocation) :
+                providerLocation;
+        this.providerLocations.put(getProviderLocationKey(), normalizedLocation);
 
-        } else if (isAzureProvider()) {
-            cloudProviderAuthentication = getAzure(
-                    getParameterIgnoreCase(parameters, "AUTHENTICATION"),
-                    isNotEmptyOrSpaces(getParameterIgnoreCase(parameters, "AZURE_CLIENT_CERTIFICATE_PATH")));
-            azureClientId = getParameterIgnoreCase(parameters, "AZURE_CLIENT_ID");
-            azureTenantId = getParameterIgnoreCase(parameters, "AZURE_TENANT_ID");
-            azureClientCertificatePath = getParameterIgnoreCase(parameters, "AZURE_CLIENT_CERTIFICATE_PATH");
-
-        } else if (isHashicorpProvider()) {
-            cloudProviderAuthentication = nvl(
-                    get(getParameterIgnoreCase(parameters, "authentication")),
-                    HCP_DEFAULT);
-            hashicorpVaultAddress = getParameterIgnoreCase(parameters, "VAULT_ADDR");
-            hashicorpVaultNamespace = getParameterIgnoreCase(parameters, "VAULT_NAMESPACE");
-            hashicorpVaultUsername = getParameterIgnoreCase(parameters, "VAULT_USERNAME");
-            hashicorpUserpassAuthPath = getParameterIgnoreCase(parameters, "USERPASS_AUTH_PATH");
-            hashicorpAppRoleId = getParameterIgnoreCase(parameters, "ROLE_ID");
-            hashicorpAppRoleAuthPath = getParameterIgnoreCase(parameters, "APPROLE_AUTH_PATH");
-            hashicorpGithubAuthPath = getParameterIgnoreCase(parameters, "GITHUB_AUTH_PATH");
-        }
-        if (isAwsRegionConfig()) {
-            awsRegion = getParameterIgnoreCase(parameters, cloudProviderType.getAwsRegionParameterName());
-        }
-    }
-
-    private static String getParameterIgnoreCase(Map<String, String> parameters, @NonNls String key) {
-        for (Map.Entry<String, String> entry : parameters.entrySet()) {
-            if (entry.getKey().equalsIgnoreCase(key)) {
-                return entry.getValue();
-            }
-        }
-        return null;
+        getHandler().initialize(this, parameters);
     }
 
     public void readConfiguration(Element element) {
         if (element == null) return;
 
         providerSourceType = getEnum(element, "provider-source-type", ConfigSourceType.FILE);
-        cloudProviderAuthentication = getEnum(element, "cloud-provider-authentication", CloudAuthenticationType.class);
+        cloudAuthenticationType = getEnum(element, "cloud-provider-authentication", CloudAuthenticationType.class);
         cloudProviderType = getEnum(element, "cloud-provider-type", CloudConfigProviderType.class);
 
         providerLocations.clear();
@@ -520,7 +448,7 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
     public void writeConfiguration(Element element) {
         setEnum(element, "provider-source-type", providerSourceType);
         setEnum(element, "cloud-provider-type", cloudProviderType);
-        setEnum(element, "cloud-provider-authentication", cloudProviderAuthentication);
+        setEnum(element, "cloud-provider-authentication", cloudAuthenticationType);
 
         setString(element, "oci-config-file", ociConfigFile);
         setString(element, "oci-config-profile", ociConfigProfile);
@@ -558,7 +486,7 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         ConfigProviderInfo clone = new ConfigProviderInfo(getParent());
         clone.providerSourceType = this.providerSourceType;
         clone.cloudProviderType = this.cloudProviderType;
-        clone.cloudProviderAuthentication = this.cloudProviderAuthentication;
+        clone.cloudAuthenticationType = this.cloudAuthenticationType;
 
         clone.providerLocations = new HashMap<>(providerLocations);
         clone.providerProfileKey = this.providerProfileKey;

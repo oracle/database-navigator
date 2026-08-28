@@ -288,7 +288,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     }
 
     public String getConfigLocation() {
-        ConfigSourceType sourceType = getConfigSourceType();
+        ConfigSourceType sourceType = Commons.nvl(getConfigSourceType(), ConfigSourceType.FILE);
         if (sourceType == ConfigSourceType.FILE) return getText(configFileTextField);
         if (isGcpStorageConfig()) return loadGcpStorageConfigProviderInfo().getProviderLocation();
 
@@ -300,13 +300,13 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
     private ConfigProviderInfo loadGcpStorageConfigProviderInfo() {
         ConfigProviderInfo configProviderInfo = new ConfigProviderInfo(null);
-        configProviderInfo.apply(
-                getConfigSourceType(),
-                getCloudConfigProviderType(),
-                getCloudConfigProviderRegion(),
-                null,
-                getConfigFileProfileKey(),
-                getAzureLabel());
+        ConfigSourceType sourceType = Commons.nvl(getConfigSourceType(), ConfigSourceType.FILE);
+        CloudConfigProviderType providerType = sourceType == ConfigSourceType.CLOUD ? getCloudConfigProviderType() : null;
+        configProviderInfo.setProviderSourceType(sourceType);
+        configProviderInfo.setCloudProviderType(providerType);
+        configProviderInfo.setAwsRegion(configProviderInfo.isAwsRegionConfig() ? getCloudConfigProviderRegion() : null);
+        configProviderInfo.setProviderProfileKey(getConfigFileProfileKey());
+        configProviderInfo.setAzureAppConfigLabel(configProviderInfo.isAzureAppConfig() ? getAzureLabel() : null);
         configProviderInfo.applyGcpStorageLocation(
                 getText(gcpStorageProjectTextField),
                 getText(gcpStorageBucketTextField),
@@ -617,13 +617,14 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     }
 
     void applyConfigProviderInfo(ConfigProviderInfo configProviderInfo) {
-        configProviderInfo.apply(
-                getConfigSourceType(),
-                getCloudConfigProviderType(),
-                getCloudConfigProviderRegion(),
-                getConfigLocation(),
-                getConfigFileProfileKey(),
-                getAzureLabel());
+        ConfigSourceType sourceType = getConfigSourceType();
+        CloudConfigProviderType providerType = sourceType == ConfigSourceType.CLOUD ? getCloudConfigProviderType() : null;
+        configProviderInfo.setProviderSourceType(sourceType);
+        configProviderInfo.setCloudProviderType(providerType);
+        configProviderInfo.setAwsRegion(configProviderInfo.isAwsRegionConfig() ? getCloudConfigProviderRegion() : null);
+        configProviderInfo.setProviderLocation(getConfigLocation());
+        configProviderInfo.setProviderProfileKey(getConfigFileProfileKey());
+        configProviderInfo.setAzureAppConfigLabel(configProviderInfo.isAzureAppConfig() ? getAzureLabel() : null);
     }
 
 

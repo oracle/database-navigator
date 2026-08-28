@@ -4,11 +4,21 @@ import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
 
+import java.util.List;
 import java.util.Map;
 
 public abstract class CloudConfigProviderHandlerBase implements CloudConfigProviderHandler {
     @Override
     public void addUrlParameters(Map<String, String> parameters, ConfigProviderInfo configProvider, boolean includeAuthentication) {
+    }
+
+    @Override
+    public void initialize(ConfigProviderInfo configProvider, Map<String, String> parameters) {
+        configProvider.setProviderProfileKey(getParameter(parameters, "key"));
+    }
+
+    @Override
+    public void validate(ConfigProviderInfo configProvider, List<String> errors) {
     }
 
     protected static void addRuntimeSecret(Map<String, String> parameters, String parameterName, char[] value) {
@@ -20,5 +30,12 @@ public abstract class CloudConfigProviderHandlerBase implements CloudConfigProvi
     protected static void addParameter(Map<String, String> parameters, String parameterName, String value) {
         if (Strings.isEmptyOrSpaces(value)) return;
         parameters.put(parameterName, value.trim());
+    }
+
+    protected static String getParameter(Map<String, String> parameters, String parameterName) {
+        for (Map.Entry<String, String> entry : parameters.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(parameterName)) return entry.getValue();
+        }
+        return null;
     }
 }
