@@ -17,11 +17,15 @@
 package com.dbn.driver.download.ui;
 
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.DatabaseType;
+import com.dbn.driver.download.DownloadSession;
 import com.dbn.driver.download.DriverDownloadManager;
 import com.dbn.driver.download.metadata.DriverPackage;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.progress.EmptyProgressIndicator;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,6 +35,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -45,6 +50,8 @@ public class DriverDownloadForm extends DBNFormBase {
     TextFieldWithBrowseButton libraryPathTextField;
     JLabel errorHintLabel;
     private JButton infoButton;
+    private final EmptyProgressIndicator progressIndicator = new EmptyProgressIndicator();
+    private final DownloadSession downloadSession = new DownloadSession(progressIndicator).withDownloadSize(1);
 
     public DriverDownloadForm(@Nullable Disposable parent, DatabaseType databaseType, List<DriverPackage> driverPackages) {
         super(parent);
@@ -75,8 +82,9 @@ public class DriverDownloadForm extends DBNFormBase {
                 txt("cfg.connection.text.LibraryDriverClasses"));
 
         libraryPathTextField.setText(getSelectedPackageLocation());
-        libraryPackageComboBox.addActionListener(e ->
-                libraryPathTextField.setText(getSelectedPackageLocation()));
+        libraryPackageComboBox.addActionListener(e -> prepareSelectedPackage());
+        prepareSelectedPackage();
+        preloadRemainingPackages();
     }
 
     private String getSelectedPackageLocation() {
@@ -91,8 +99,69 @@ public class DriverDownloadForm extends DBNFormBase {
     private void handleInfoButtonClick() {
         DriverPackage driverPackage = getSelection(libraryPackageComboBox);
         if (driverPackage == null) return;
+        if (!driverPackage.isDetailsAvailable()) return;
 
         Dialogs.show(() -> new DriverPackageInfoDialog(getProject(), "Driver Package Info", true, driverPackage));
+    }
+
+    private void prepareSelectedPackage() {
+        DriverPackage driverPackage = getSelection(libraryPackageComboBox);
+        libraryPathTextField.setText(getSelectedPackageLocation());
+        if (driverPackage == null) {
+            updatePackageActions(false);
+            return;
+        }
+
+        if (driverPackage.isDetailsAvailable()) {
+            updatePackageActions(true);
+            return;
+        }
+
+        updatePackageActions(false);
+        if (driverPackage.isDetailsResolving()) return;
+
+        Background.run(() -> {
+            resolvePackageDetails(driverPackage);
+            Dispatch.run(mainPanel, () -> {
+                if (getSelection(libraryPackageComboBox) == driverPackage) {
+                    libraryPathTextField.setText(getSelectedPackageLocation());
+                    updatePackageActions(driverPackage.isDetailsAvailable());
+                }
+            });
+        });
+    }
+
+    private void preloadRemainingPackages() {
+        List<DriverPackage> driverPackages = new ArrayList<>();
+        for (int i = 0; i < libraryPackageComboBox.getItemCount(); i++) {
+            driverPackages.add(libraryPackageComboBox.getItemAt(i));
+        }
+
+        Background.run(() -> {
+            for (DriverPackage driverPackage : driverPackages) {
+                if (driverPackage == null) continue;
+                if (driverPackage.isDetailsAvailable()) continue;
+                if (driverPackage.isDetailsResolving()) continue;
+
+                resolvePackageDetails(driverPackage);
+                Dispatch.run(mainPanel, () -> {
+                    if (getSelection(libraryPackageComboBox) == driverPackage) {
+                        libraryPathTextField.setText(getSelectedPackageLocation());
+                        updatePackageActions(driverPackage.isDetailsAvailable());
+                    }
+                });
+            }
+        });
+    }
+
+    private void resolvePackageDetails(DriverPackage driverPackage) {
+        DriverDownloadManager.getInstance().resolveDriverPackageDetails(driverPackage, downloadSession);
+    }
+
+    private void updatePackageActions(boolean enabled) {
+        DriverDownloadDialog dialog = ensureParentDialog();
+        dialog.setDownloadEnabled(enabled);
+        infoButton.setEnabled(enabled);
     }
 
 }

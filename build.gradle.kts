@@ -124,6 +124,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.21.4@jar")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.4@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.76.1@jar")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-databasetools:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common:3.76.1@jar")

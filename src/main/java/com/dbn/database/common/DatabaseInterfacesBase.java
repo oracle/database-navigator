@@ -21,6 +21,7 @@ import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseDatasourceConfigInterface;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
+import com.dbn.database.interfaces.DatabaseDriverInterface;
 import com.dbn.database.interfaces.DatabaseEnvironmentInterface;
 import com.dbn.database.interfaces.DatabaseExecutionInterface;
 import com.dbn.database.interfaces.DatabaseInterface;
@@ -48,6 +49,7 @@ import static com.dbn.database.interfaces.DatabaseInterfaceType.COMPATIBILITY;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.DATA_DEFINITION;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.DATA_SOURCE_CONFIG;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.DEBUGGER;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.DRIVER;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.ENVIRONMENT;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.EXECUTION;
 import static com.dbn.database.interfaces.DatabaseInterfaceType.JAVA;
@@ -75,6 +77,11 @@ public abstract class DatabaseInterfacesBase implements DatabaseInterfaces {
         if (language == SQLLanguage.INSTANCE) return sqlLanguageDialect;
         if (language == PSQLLanguage.INSTANCE) return psqlLanguageDialect;
         return null;
+    }
+
+    @Override
+    public DatabaseDriverInterface getDriverInterface() {
+        return getInterface(DRIVER);
     }
 
     @Override

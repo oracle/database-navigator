@@ -18,15 +18,21 @@ package com.dbn.common.ui.component;
 
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.project.ProjectSupplier;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionRef;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.util.UserDataHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 
+import static com.dbn.common.action.UserDataKeys.CONNECTION_REF;
+import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
 
-public interface DBNComponent extends StatefulDisposable, ProjectSupplier {
+public interface DBNComponent extends StatefulDisposable, ProjectSupplier, UserDataHolder {
     @Nullable
     <T extends Disposable> T getParentComponent();
 
@@ -39,6 +45,33 @@ public interface DBNComponent extends StatefulDisposable, ProjectSupplier {
     JComponent getComponent();
 
 
+    @Nullable
+    default ConnectionId getConnectionId() {
+        ConnectionHandler connection = getConnection();
+        return connection == null ? null : connection.getConnectionId();
+    }
 
+    @NotNull
+    default ConnectionId ensureConnectionId() {
+        return nn(getConnectionId());
+    }
 
+    @Nullable
+    default ConnectionHandler getConnection() {
+        ConnectionRef connection = getUserData(CONNECTION_REF);
+        return ConnectionRef.get(connection);
+    }
+
+    @NotNull
+    default ConnectionHandler ensureConnection() {
+        return nd(getConnection());
+    }
+
+    default void setConnection(ConnectionHandler connection) {
+        putUserData(CONNECTION_REF, ConnectionRef.of(connection));
+    }
+
+    default void inheritConnection(DBNComponent component) {
+        setConnection(component.getConnection());
+    }
 }
