@@ -156,7 +156,7 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
     }
 
     @NotNull
-    private ConnectionHandler getConnection() {
+    public ConnectionHandler getConnection() {
         return getSessionBrowser().getConnection();
     }
 

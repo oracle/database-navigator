@@ -19,6 +19,7 @@ package com.dbn.connection.config;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.options.BasicConfiguration;
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Files;
@@ -33,6 +34,7 @@ import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.ServerType;
 import com.dbn.connection.config.file.DatabaseFileBundle;
+import com.dbn.connection.config.provider.ConfigProviderInfo;
 import com.dbn.connection.config.ui.ConnectionDatabaseSettingsForm;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverSource;
@@ -50,6 +52,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +68,7 @@ import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Strings.nvle;
+import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.config.EasyConnectParameters.sanitizeParameters;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -86,12 +90,14 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
     private String sessionUser;
     private boolean sessionUserConfirmed = false;
 
-    private final DatabaseInfo databaseInfo;
+    private ConnectionConfigType configType;
     private DriverSource driverSource;
     private String driverLibrary;
     private String driver;
 
-    private ConnectionConfigType configType;
+
+    private final DatabaseInfo databaseInfo;
+    private final ConfigProviderInfo configProviderInfo = new ConfigProviderInfo(this);
     private final AuthenticationInfo authenticationInfo = new AuthenticationInfo(this, false);
 
     private transient ConnectivityStatus connectivityStatus = ConnectivityStatus.UNKNOWN;
@@ -102,7 +108,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         this.databaseType = databaseType;
         this.configType = configType;
         this.urlPattern = databaseType.getDefaultUrlPattern();
-        this.databaseInfo = urlPattern.getDefaultInfo();
+        this.databaseInfo = urlPattern.createDefaultInfo();
         this.driverSource = databaseType == DatabaseType.GENERIC ?
                 DriverSource.EXTERNAL :
                 DriverSource.BUNDLED;
@@ -184,9 +190,31 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
     }
 
     public String getConnectionUrl() {
-        return databaseInfo.isCustomUrl() ?
+        return  databaseInfo.isCustomUrl() ?
                 databaseInfo.getUrl() :
-                urlPattern.buildUrl(databaseInfo);
+                urlPattern.buildUrl(databaseInfo, configProviderInfo);
+    }
+
+    public String getConnectionUrlForConnect() {
+        if (!isConfigFile() || databaseInfo.isCustomUrl()) {
+            return getConnectionUrl();
+        }
+
+        String connectionUrl = urlPattern.buildUrl(
+                databaseInfo.getVendor(),
+                databaseInfo.getHost(),
+                databaseInfo.getPort(),
+                databaseInfo.getDatabase(),
+                databaseInfo.getMainFilePath(),
+                databaseInfo.ensureTnsFolder(),
+                databaseInfo.getTnsProfile(),
+                databaseInfo.getProtocol(),
+                databaseInfo.getServerType(),
+                configProviderInfo.getProviderSlug(),
+                configProviderInfo.getProviderLocation(),
+                getUrlParameters()
+        );
+        return appendConfigHttpsAuthentication(connectionUrl);
     }
 
     public String getConnectionUrl(String host, String port) {
@@ -206,8 +234,58 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                     databaseInfo.getTnsProfile(),
                     databaseInfo.getProtocol(),
                     databaseInfo.getServerType(),
-                    databaseInfo.getParameters());
+                    configProviderInfo.getProviderSlug(),
+                    configProviderInfo.getProviderLocation(),
+                    getUrlParameters()
+            );
         }
+    }
+
+    public boolean isConfigHttps() {
+        return isConfigFile() && configProviderInfo.isConfigHttps();
+    }
+
+    public boolean isAuthenticationProvidedForConnect() {
+        return isConfigHttps() || authenticationInfo.isProvided();
+    }
+
+    public boolean isConfigFile() {
+        return databaseInfo.getUrlType() == DatabaseUrlType.PROVIDER;
+    }
+
+    // Oracle's HTTPS config provider expects Basic Auth credentials as URL query parameters.
+    // The password is added only to the runtime connect URL and is never stored in source code.
+    private String appendConfigHttpsAuthentication(String url) {
+        if (!isConfigHttpsUserPasswordAuth()) return url;
+
+        String user = authenticationInfo.getUser();
+        char[] password = authenticationInfo.getPassword();
+        if (Strings.isEmpty(user) || Chars.isEmpty(password)) return url;
+
+        return url +
+                (url.contains("?") ? "&" : "?") +
+                "authentication=basic" +
+                "&user=" + user +
+                "&password=" + Chars.toString(password);
+    }
+
+    private boolean isConfigHttpsUserPasswordAuth() {
+        return isConfigHttps() &&
+                authenticationInfo.getType() == USER_PASSWORD;
+    }
+
+    private Map<String, String> getUrlParameters() {
+        if (databaseInfo.getUrlType() != DatabaseUrlType.PROVIDER) {
+            return databaseInfo.getParameters();
+        }
+
+        Map<String, String> parameters = new LinkedHashMap<>(configProviderInfo.getUrlParameters(true));
+        configProviderInfo.getHandler().addRuntimeSecrets(parameters, configProviderInfo);
+        return parameters;
+    }
+
+    private boolean isConfigCloudProvider() {
+        return databaseInfo.getUrlType() == DatabaseUrlType.PROVIDER && configProviderInfo.isCloudProviderConfig();
     }
 
     public void updateSignature() {
@@ -243,6 +321,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                 errors.add(txt("cfg.connection.error.DatabaseInfoInvalid"));
             }
         }
+        validateConfigProvider(errors);
 
         if (getDriverSource() == DriverSource.EXTERNAL) {
             if (Strings.isEmpty(getDriverLibrary())) {
@@ -267,6 +346,11 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             }
             throw new ConfigurationException(message.toString());
         }
+    }
+
+    private void validateConfigProvider(List<String> errors) {
+        if (!isConfigCloudProvider()) return;
+        configProviderInfo.validate(errors);
     }
 
     @NotNull
@@ -317,6 +401,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         if (urlType == DatabaseUrlType.CUSTOM) {
             urlPattern = Commons.nvl(databaseType.resolveUrlPattern(url), DatabaseUrlPattern.GENERIC);
             databaseInfo.initializeDetails(urlPattern);
+            configProviderInfo.initialize(url, urlPattern, databaseInfo.getParameters());
         } else {
             databaseInfo.setHost(getString(element, "host", null));
             databaseInfo.setPort(getString(element, "port", null));
@@ -325,6 +410,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             databaseInfo.setTnsProfile(getString(element, "tns-profile", null));
             databaseInfo.setServerType(getEnum(element, "server-type", ServerType.class));
             databaseInfo.setProtocol(getEnum(element, "protocol", DatabaseProtocol.class));
+            configProviderInfo.readConfiguration(element.getChild("config-provider"));
 
             Element paramsElement = element.getChild("url-parameters");
             Map<String, String> parameters = new HashMap<>();
@@ -340,7 +426,6 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                 parameters = sanitizeParameters(parameters, databaseInfo.getProtocol());
             }
             databaseInfo.setParameters(parameters);
-
             urlPattern = DatabaseUrlPattern.get(databaseType, urlType);
 
             if (urlType == DatabaseUrlType.FILE) {
@@ -350,7 +435,8 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                 databaseInfo.setFileBundle(fileBundle);
             }
 
-            databaseInfo.initializeUrl(urlPattern);
+            String databaseUrl = urlPattern.buildUrl(databaseInfo, configProviderInfo);
+            databaseInfo.setDatabase(databaseUrl);
         }
 
         driverSource  = getEnum(element, "driver-source", driverSource);
@@ -398,6 +484,11 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             setEnum(element, "server-type", databaseInfo.getServerType());
             setEnum(element, "protocol", databaseInfo.getProtocol());
 
+            if (databaseInfo.isProviderUrl()) {
+                Element configProviderElement = newElement(element, "config-provider");
+                configProviderInfo.writeConfiguration(configProviderElement);
+            }
+
             Element paramsElement = newElement(element, "url-parameters");
             databaseInfo.getParameters().forEach((key, value) -> {
                 if (isEmptyOrSpaces(key)) return;
@@ -423,10 +514,15 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
     }
 
     public boolean isInteractiveAuthentication() {
+        if (configProviderInfo.isInteractiveAuthentication()) {
+            return true;
+        }
+
         AuthenticationType authenticationType = authenticationInfo.getType();
         if (authenticationType != AuthenticationType.TOKEN) return false;
 
         AuthenticationTokenType tokenType = authenticationInfo.getTokenType();
-        return tokenType == AuthenticationTokenType.OCI_INTERACTIVE; // TODO Azure interactive
+        return tokenType == AuthenticationTokenType.OCI_INTERACTIVE ||
+                tokenType == AuthenticationTokenType.AZURE_INTERACTIVE;
     }
 }

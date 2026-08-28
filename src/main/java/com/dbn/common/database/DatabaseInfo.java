@@ -40,6 +40,7 @@ import java.util.Map;
 import static com.dbn.connection.DatabaseUrlType.CUSTOM;
 import static com.dbn.connection.DatabaseUrlType.DATABASE;
 import static com.dbn.connection.DatabaseUrlType.FILE;
+import static com.dbn.connection.DatabaseUrlType.PROVIDER;
 import static com.dbn.connection.DatabaseUrlType.SID;
 
 @NonNls
@@ -101,14 +102,10 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.parameters = new HashMap<>();
     }
 
-    public void initializeUrl(DatabaseUrlPattern urlPattern) {
-        this.url = urlPattern.buildUrl(this);
-    }
-
     public void initializeDetails(DatabaseUrlPattern pattern) {
         if (Strings.isEmptyOrSpaces(url)) return;
 
-        this.vendor = pattern.getDefaultInfo().getVendor();
+        this.vendor = pattern.createDefaultInfo().getVendor();
         this.host = pattern.resolveHost(url);
         this.port = pattern.resolvePort(url);
         this.database = pattern.resolveDatabase(url);
@@ -155,6 +152,10 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
 
     public boolean isCustomUrl() {
         return getUrlType() == CUSTOM;
+    }
+
+    public boolean isProviderUrl() {
+        return getUrlType() == PROVIDER;
     }
 
     @Override
