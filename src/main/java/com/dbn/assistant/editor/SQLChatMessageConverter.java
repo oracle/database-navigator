@@ -43,6 +43,9 @@ public class SQLChatMessageConverter extends GenericChatMessageConverter {
     }
 
     protected String adjustComment(String comment) {
+        // Preserve model text as a SQL comment by preventing it from closing the generated block comment.
+        comment = comment.replace("*/", "* /");
+
         StringBuilder builder = new StringBuilder();
         String[] rows = comment.split("\n");
         for (String row : rows) {
