@@ -75,7 +75,7 @@ public class ConnectionInfo {
                 "Product version:\t" + productVersion + '\n' +
                 "Driver name:\t\t" + driverName + '\n' +
                 "Driver version:\t" + driverVersion + '\n'+
-                "JDBC Type:\t\t" + driverJdbcType + '\n' +
+                "JDBC Version:\t" + driverJdbcType + '\n' +
                 "URL:\t\t" + url + '\n' +
                 "User name:\t\t" + userName;
     }

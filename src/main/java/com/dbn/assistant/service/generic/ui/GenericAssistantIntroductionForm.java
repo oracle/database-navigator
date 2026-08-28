@@ -92,7 +92,7 @@ public class GenericAssistantIntroductionForm extends AssistantDetailFormBase im
         //Dialogs.show(() -> new GenericAssistantHelpDialog(getConnection()));
     }
 
-    private @NotNull ConnectionHandler getConnection() {
+    public @NotNull ConnectionHandler getConnection() {
         return getChatBox().getConnection();
     }
 
