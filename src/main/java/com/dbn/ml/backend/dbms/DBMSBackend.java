@@ -27,7 +27,6 @@ import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.backend.model.MLModelMetadata;
 import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.MLTaskType;
-import com.dbn.ml.model.analysis.MLBuildWarning;
 import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.ml.model.source.MLSourceType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
@@ -179,25 +178,6 @@ public class DBMSBackend {
                     } else {
                         return evaluateRegressionProper(mlInterface, conn, modelHandle, context);
                     }
-                });
-    }
-
-    public List<MLBuildWarning> loadBuildWarnings(DBMSModelHandle modelHandle) throws SQLException {
-        return DatabaseInterfaceInvoker.load(Priority.LOW,
-                getProject(),
-                connection.getConnectionId(),
-                conn -> {
-                    List<MLBuildWarning> warnings = new ArrayList<>();
-                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
-                    try (ResultSet resultSet = mlInterface.getModelAlerts(conn, modelHandle.getModelName())) {
-                        while (resultSet.next()) {
-                            double errorNumber = resultSet.getDouble("ERROR_NUMBER");
-                            warnings.add(new MLBuildWarning(
-                                    resultSet.wasNull() ? null : errorNumber,
-                                    resultSet.getString("ERROR_TEXT")));
-                        }
-                    }
-                    return warnings;
                 });
     }
 

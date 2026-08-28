@@ -138,7 +138,6 @@ public class MLPipelineExecutor {
         DBMSEvaluationResult evaluation = backend.evaluate(modelHandle, context);
         result.setEvaluationResult(evaluation);
 
-        loadBuildWarnings(backend, modelHandle, result);
         analyzeFeatures(connectionHandler, context, modelHandle, result);
 
         result.setTrainingDataSize(context.getTrainingDataSize());
@@ -162,14 +161,6 @@ public class MLPipelineExecutor {
         result.setSourceName(extractSourceName(request));
         result.setTrainingTimeMs(System.currentTimeMillis() - startTime);
         return result;
-    }
-
-    private void loadBuildWarnings(DBMSBackend backend, DBMSModelHandle modelHandle, MLResult result) {
-        try {
-            result.setBuildWarnings(backend.loadBuildWarnings(modelHandle));
-        } catch (Exception e) {
-            log.warn("Failed to load model build warnings - result will omit the table", e);
-        }
     }
 
     /**

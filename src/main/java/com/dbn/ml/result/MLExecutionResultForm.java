@@ -30,7 +30,6 @@ import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.model.MLResult;
-import com.dbn.ml.model.analysis.MLBuildWarning;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBView;
 import com.dbn.object.common.list.DBObjectList;
@@ -89,7 +88,6 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     private com.intellij.ui.SimpleColoredComponent metricsSummary;
     private DBNScrollPane contentScrollPane;
     private JPanel contentPanel;
-    private JPanel alertsPanel;
     private JPanel metricsCardsPanel;
     private JPanel confusionMatrixPanel;
     private JPanel perClassPanel;
@@ -109,7 +107,6 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
 
     private void initializeComponents() {
         initializeHeader();
-        initializeBuildWarnings();
         initializeMetricsCards();
         initializeConfusionMatrix();
         initializePerClassMetrics();
@@ -185,21 +182,6 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
             metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.RMSE"), evalResult.getRMSE(), false, "info/rmse_info.html.ft"));
             metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.MAE"), evalResult.getMAE(), false, "info/mae_info.html.ft"));
         }
-    }
-
-    private void initializeBuildWarnings() {
-        if (!result.hasBuildWarnings()) {
-            alertsPanel.setVisible(false);
-            return;
-        }
-
-        List<MLBuildWarning> warnings = result.getBuildWarnings();
-        MLResultPanelHelper.initSection(alertsPanel,
-                txt("app.machineLearning.title.BuildWarnings", warnings.size()));
-
-        MLBuildWarningTableModel model = new MLBuildWarningTableModel(warnings);
-        alertsPanel.add(createTablePanel(new MLAnalysisTable<>(this, model,
-                txt("app.machineLearning.aria.BuildWarningsTable"))), BorderLayout.CENTER);
     }
 
     private void initializeConfusionMatrix() {

@@ -20,7 +20,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.model.analysis.MLAttributeContribution;
-import com.dbn.ml.model.analysis.MLBuildWarning;
 import com.dbn.ml.model.analysis.MLFeatureImportance;
 import lombok.Getter;
 import lombok.Setter;
@@ -69,16 +68,11 @@ public class MLResult {
     private String sourceName;
 
     // Supplementary analysis - absent when the database could not produce it
-    private List<MLBuildWarning> buildWarnings;
     private List<MLFeatureImportance> featureImportance;
     private List<MLAttributeContribution> attributeContributions;
 
     public MLResult(MLRequest request) {
         this.request = request;
-    }
-
-    public boolean hasBuildWarnings() {
-        return buildWarnings != null && !buildWarnings.isEmpty();
     }
 
     public boolean hasFeatureImportance() {
