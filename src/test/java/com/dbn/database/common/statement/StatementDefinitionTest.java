@@ -17,6 +17,7 @@
 package com.dbn.database.common.statement;
 
 import com.dbn.database.oracle.OracleDebuggerInterface;
+import com.dbn.database.postgres.PostgresDataDefinitionInterface;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
 import org.jdom.Element;
@@ -161,6 +162,22 @@ public class StatementDefinitionTest {
                 (Object) null);
 
         assertEquals("BEGIN MY_PKG.RUN(comment_text => NULL); END;", statementText);
+    }
+
+    @Test
+    public void prepareStatementTextQuotesPostgresDropTriggerIdentifiers() throws Exception {
+        Element dataDictionary = fileToElement(PostgresDataDefinitionInterface.class, "postgres_ddl_interface.xml");
+        StatementDefinition definition = statementDefinition(dataDictionary, "drop-trigger");
+
+        String statementText = definition.prepareStatementText(
+                StatementDefinitionTest::enquoteSqliteIdentifier,
+                "schema\"; injected",
+                "table\"; injected",
+                "trigger\"; injected");
+
+        assertEquals(
+                "drop trigger \"trigger\"\"; injected\" on \"schema\"\"; injected\".\"table\"\"; injected\"",
+                statementText);
     }
 
     @Test
