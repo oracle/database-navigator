@@ -79,9 +79,7 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
     protected void initFieldAlignment() {
         FieldAlignerData alignerData = getFieldAlignerData();
         alignerData.registerFieldGroup(sourceTypeLabel, sourceTypeComboBox);
-        alignerData.registerForms(tableForm,tableForm,cloudForm);
-//        alignerData.registerForms(fileForm);
-//        alignerData.registerForms(cloudForm);
+        alignerData.registerForms(tableForm, fileForm, cloudForm);
     }
 
     @Override
