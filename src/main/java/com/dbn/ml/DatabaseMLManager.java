@@ -21,12 +21,14 @@ import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.message.InteractiveMessage;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandlers;
 import com.dbn.common.outcome.OutcomeHandlersImpl;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.util.Conditional;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Naming;
@@ -49,6 +51,8 @@ import com.dbn.scheduler.model.SchedulerJobMonitor;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -169,11 +173,11 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                                 createTrainingOutcomeHandlers(executor, submission, connection));
                     } catch (Exception e) {
                         log.warn("Failed to submit training job", e);
-                        Dispatch.run(() -> Messages.showErrorDialog(
-                                getProject(),
+                        Dispatch.run(() -> showRetryableTrainingFailure(
                                 txt("msg.machineLearning.title.TrainingJobSubmitFailed"),
-                                txt("msg.machineLearning.error.ModelTrainingFailed", e.getMessage())
-                        ));
+                                txt("msg.machineLearning.error.ModelTrainingFailed", e.getMessage()),
+                                connection,
+                                requestSnapshot));
                     }
                 });
     }
@@ -203,11 +207,11 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                 (OutcomeHandler.HighPriority) outcome -> completeTrainingJob(executor, submission, connection));
         outcomeHandlers.addHandler(OutcomeType.FAILURE, (OutcomeHandler.HighPriority) outcome -> {
             log.warn("Async training monitor failed for model {}", modelName, outcome.getException());
-            Dispatch.run(() -> Messages.showErrorDialog(
-                    getProject(),
+            Dispatch.run(() -> showRetryableTrainingFailure(
                     txt("msg.machineLearning.title.TrainingMonitoringFailed"),
-                    txt("msg.machineLearning.error.TrainingMonitoringFailed", modelName, outcome.getMessage())
-            ));
+                    txt("msg.machineLearning.error.TrainingMonitoringFailed", modelName, outcome.getMessage()),
+                    connection,
+                    submission.getContext().getRequest()));
         });
         return outcomeHandlers;
     }
@@ -230,12 +234,26 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
             });
         } catch (Exception e) {
             log.warn("Failed to finalize training result for model {}", modelName, e);
-            Dispatch.run(() -> Messages.showErrorDialog(
-                    getProject(),
+            Dispatch.run(() -> showRetryableTrainingFailure(
                     txt("msg.machineLearning.title.TrainingMonitoringFailed"),
-                    txt("msg.machineLearning.error.TrainingMonitoringFailed", modelName, e.getMessage())
-            ));
+                    txt("msg.machineLearning.error.TrainingMonitoringFailed", modelName, e.getMessage()),
+                    connection,
+                    submission.getContext().getRequest()));
         }
+    }
+
+    private void showRetryableTrainingFailure(
+            @DialogTitle String title,
+            @DialogMessage String message,
+            ConnectionHandler connection,
+            MLRequest request) {
+
+        MLRequest preservedRequest = request.clone();
+        InteractiveMessage failure = InteractiveMessage.error(title, message)
+                .withOptions(Messages.OPTIONS_RETRY_CANCEL, 0)
+                .withCallback(option -> Conditional.when(option == 0,
+                        () -> openToolbox(connection, preservedRequest)));
+        Messages.showMessageDialog(getProject(), failure);
     }
 
     private String getResultModelName(MLTrainingJobSubmission submission) {
