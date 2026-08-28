@@ -30,7 +30,7 @@ public class GcpConfigProviderHandlerTest {
         configProvider.setProviderSourceType(ConfigSourceType.CLOUD);
         configProvider.setCloudProviderType(CloudConfigProviderType.GCP_STORAGE);
 
-        GcpConfigProviderHandler.applyStorageLocation(configProvider,
+        new GcpConfigProviderHandler().setProviderLocation(configProvider,
                 "project=example-project;bucket=connections;object=connections.json");
 
         assertEquals("example-project", configProvider.getGcpStorageProject());

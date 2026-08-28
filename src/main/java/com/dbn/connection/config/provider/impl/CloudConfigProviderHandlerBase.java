@@ -2,7 +2,9 @@ package com.dbn.connection.config.provider.impl;
 
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
+import com.dbn.connection.config.provider.ConfigSourceType;
 
 import java.util.List;
 import java.util.Map;
@@ -10,6 +12,20 @@ import java.util.Map;
 public abstract class CloudConfigProviderHandlerBase implements CloudConfigProviderHandler {
     @Override
     public void addUrlParameters(Map<String, String> parameters, ConfigProviderInfo configProvider, boolean includeAuthentication) {
+    }
+
+    @Override
+    public boolean managesProviderLocation(ConfigSourceType sourceType, CloudConfigProviderType providerType) {
+        return false;
+    }
+
+    @Override
+    public void setProviderLocation(ConfigProviderInfo configProvider, String providerLocation) {
+    }
+
+    @Override
+    public String getProviderLocation(ConfigProviderInfo configProvider) {
+        return null;
     }
 
     @Override

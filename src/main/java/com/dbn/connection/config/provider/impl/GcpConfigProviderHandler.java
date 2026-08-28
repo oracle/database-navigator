@@ -3,6 +3,7 @@ package com.dbn.connection.config.provider.impl;
 import com.dbn.connection.config.provider.CloudConfigProviderFamily;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
+import com.dbn.connection.config.provider.ConfigSourceType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,11 +13,25 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 
 public class GcpConfigProviderHandler extends CloudConfigProviderHandlerBase {
-    public static void applyStorageLocation(ConfigProviderInfo configProvider, String providerLocation) {
+    @Override
+    public boolean managesProviderLocation(ConfigSourceType sourceType, CloudConfigProviderType providerType) {
+        return sourceType == ConfigSourceType.CLOUD && providerType == CloudConfigProviderType.GCP_STORAGE;
+    }
+
+    @Override
+    public void setProviderLocation(ConfigProviderInfo configProvider, String providerLocation) {
         Map<String, String> locationParameters = parseLocation(providerLocation);
         configProvider.setGcpStorageProject(locationParameters.get("project"));
         configProvider.setGcpStorageBucket(locationParameters.get("bucket"));
         configProvider.setGcpStorageObject(locationParameters.get("object"));
+    }
+
+    @Override
+    public String getProviderLocation(ConfigProviderInfo configProvider) {
+        return getStorageLocation(
+                configProvider.getGcpStorageProject(),
+                configProvider.getGcpStorageBucket(),
+                configProvider.getGcpStorageObject());
     }
 
     public static String getStorageLocation(String project, String bucket, String object) {

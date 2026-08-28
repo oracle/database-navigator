@@ -41,24 +41,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.dbn.common.options.setting.Settings.childrenOf;
-import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
-import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
-import static com.dbn.common.options.setting.Settings.setStringAttribute;
-import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.connection.DatabaseUrlType.PROVIDER;
 import static com.dbn.connection.config.provider.CloudAuthenticationType.AZURE_INTERACTIVE;
 import static com.dbn.connection.config.provider.CloudAuthenticationType.OCI_INTERACTIVE;
 import static com.dbn.connection.config.provider.CloudConfigProviderType.AZURE_APP_CONFIG;
-import static com.dbn.connection.config.provider.CloudConfigProviderType.GCP_STORAGE;
-import static com.dbn.connection.config.provider.impl.GcpConfigProviderHandler.applyStorageLocation;
-import static com.dbn.connection.config.provider.impl.GcpConfigProviderHandler.getStorageLocation;
 import static com.dbn.credentials.SecretType.CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD;
 import static com.dbn.credentials.SecretType.CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET;
 import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_APPROLE_SECRET_ID;
@@ -248,8 +240,9 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
     }
 
     public void setProviderLocation(@NonNls String providerLocation) {
-        if (isGcpStorageConfig()) {
-            applyStorageLocation(this, providerLocation);
+        if (isManagedLocation()) {
+            CloudConfigProviderHandler handler = getHandler();
+            handler.setProviderLocation(this, providerLocation);
             return;
         }
 
@@ -263,9 +256,14 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         return getProviderLocation(providerSourceType, cloudProviderType);
     }
 
+    private boolean isManagedLocation() {
+        return getHandler().managesProviderLocation(providerSourceType, cloudProviderType);
+    }
+
     public String getProviderLocation(ConfigSourceType sourceType, CloudConfigProviderType providerType) {
-        if (sourceType == ConfigSourceType.CLOUD && providerType == GCP_STORAGE) {
-            return getStorageLocation(gcpStorageProject, gcpStorageBucket, gcpStorageObject);
+        CloudConfigProviderHandler handler = CloudConfigProviderHandlers.get(providerType);
+        if (handler.managesProviderLocation(sourceType, providerType)) {
+            return handler.getProviderLocation(this);
         }
 
         return providerLocations.get(getProviderLocationKey(sourceType, providerType));
@@ -290,10 +288,6 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
 
     public boolean isOciObjectStorageConfig() {
         return isCloudProviderConfig() && cloudProviderType == CloudConfigProviderType.OCI_OBJECT;
-    }
-
-    public boolean isGcpStorageConfig() {
-        return isCloudProviderConfig() && cloudProviderType == GCP_STORAGE;
     }
 
     public boolean isAwsRegionConfig() {
@@ -376,16 +370,9 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         cloudProviderType = getEnum(element, "cloud-provider-type", CloudConfigProviderType.class);
 
         providerLocations.clear();
-        Element locationsElement = element.getChild("provider-locations");
-        for (Element locationElement : childrenOf(locationsElement, "location")) {
-            ConfigSourceType sourceType = enumAttribute(locationElement, "source-type", ConfigSourceType.class);
-            CloudConfigProviderType providerType = enumAttribute(locationElement, "provider-type", CloudConfigProviderType.class);
-            String location = stringAttribute(locationElement, "value");
-            if (sourceType != null && location != null &&
-                    !(sourceType == ConfigSourceType.CLOUD && providerType == GCP_STORAGE)) {
-                String locationKey = getProviderLocationKey(sourceType, providerType);
-                providerLocations.put(locationKey, location);
-            }
+        String providerLocation = getString(element, "provider-location", null);
+        if (providerLocation != null && !isManagedLocation()) {
+            providerLocations.put(getProviderLocationKey(), providerLocation);
         }
         providerProfileKey = getString(element, "provider-profile-key", null);
 
@@ -438,18 +425,8 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         setString(element, "gcp-storage-bucket", gcpStorageBucket);
         setString(element, "gcp-storage-object", gcpStorageObject);
 
-        Element locationsElement = newElement(element, "provider-locations");
-        providerLocations.forEach((key, location) -> {
-            String[] keyParts = key.split(":", 2);
-            if (ConfigSourceType.CLOUD.name().equals(keyParts[0]) && GCP_STORAGE.name().equals(keyParts[1])) return;
-
-            Element locationElement = newElement(locationsElement, "location");
-            setStringAttribute(locationElement, "source-type", keyParts[0]);
-            if (keyParts.length > 1 && !keyParts[1].isEmpty()) {
-                setStringAttribute(locationElement, "provider-type", keyParts[1]);
-            }
-            setStringAttribute(locationElement, "value", location);
-        });
+        String providerLocation = isManagedLocation() ? null : providerLocations.get(getProviderLocationKey());
+        setString(element, "provider-location", providerLocation);
         setString(element, "provider-profile-key", providerProfileKey);
     }
 
