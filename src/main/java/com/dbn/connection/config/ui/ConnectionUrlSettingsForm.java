@@ -87,6 +87,7 @@ import static com.dbn.connection.config.provider.CloudConfigProviderType.GCP_STO
 import static com.dbn.connection.config.provider.CloudConfigProviderType.OCI_DB_TOOLS;
 import static com.dbn.connection.config.provider.CloudConfigProviderType.OCI_OBJECT;
 import static com.dbn.connection.config.provider.CloudConfigProviderType.values;
+import static com.dbn.connection.config.provider.impl.GcpConfigProviderHandler.getStorageLocation;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.unmodifiableMap;
@@ -290,28 +291,17 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     public String getConfigLocation() {
         ConfigSourceType sourceType = Commons.nvl(getConfigSourceType(), ConfigSourceType.FILE);
         if (sourceType == ConfigSourceType.FILE) return getText(configFileTextField);
-        if (isGcpStorageConfig()) return loadGcpStorageConfigProviderInfo().getProviderLocation();
+        if (isGcpStorageConfig()) {
+            return getStorageLocation(
+                    getText(gcpStorageProjectTextField),
+                    getText(gcpStorageBucketTextField),
+                    getText(gcpStorageObjectTextField));
+        }
 
         String configLocation = getText(configLocationTextField);
         return sourceType == ConfigSourceType.URL || isOciObjectStorageConfig() ?
                 DatabaseUrlPattern.normalizeConfigHttpsLocation(configLocation) :
                 configLocation;
-    }
-
-    private ConfigProviderInfo loadGcpStorageConfigProviderInfo() {
-        ConfigProviderInfo configProviderInfo = new ConfigProviderInfo(null);
-        ConfigSourceType sourceType = Commons.nvl(getConfigSourceType(), ConfigSourceType.FILE);
-        CloudConfigProviderType providerType = sourceType == ConfigSourceType.CLOUD ? getCloudConfigProviderType() : null;
-        configProviderInfo.setProviderSourceType(sourceType);
-        configProviderInfo.setCloudProviderType(providerType);
-        configProviderInfo.setAwsRegion(configProviderInfo.isAwsRegionConfig() ? getCloudConfigProviderRegion() : null);
-        configProviderInfo.setProviderProfileKey(getConfigFileProfileKey());
-        configProviderInfo.setAzureAppConfigLabel(configProviderInfo.isAzureAppConfig() ? getAzureLabel() : null);
-        configProviderInfo.applyGcpStorageLocation(
-                getText(gcpStorageProjectTextField),
-                getText(gcpStorageBucketTextField),
-                getText(gcpStorageObjectTextField));
-        return configProviderInfo;
     }
 
     public String getConfigFileProfileKey() {
@@ -623,6 +613,9 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         configProviderInfo.setCloudProviderType(providerType);
         configProviderInfo.setAwsRegion(configProviderInfo.isAwsRegionConfig() ? getCloudConfigProviderRegion() : null);
         configProviderInfo.setProviderLocation(getConfigLocation());
+        configProviderInfo.setGcpStorageProject(isGcpStorageConfig() ? getText(gcpStorageProjectTextField) : null);
+        configProviderInfo.setGcpStorageBucket(isGcpStorageConfig() ? getText(gcpStorageBucketTextField) : null);
+        configProviderInfo.setGcpStorageObject(isGcpStorageConfig() ? getText(gcpStorageObjectTextField) : null);
         configProviderInfo.setProviderProfileKey(getConfigFileProfileKey());
         configProviderInfo.setAzureAppConfigLabel(configProviderInfo.isAzureAppConfig() ? getAzureLabel() : null);
     }

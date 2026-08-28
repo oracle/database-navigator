@@ -50,13 +50,15 @@ import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.connection.DatabaseUrlType.PROVIDER;
 import static com.dbn.connection.config.provider.CloudAuthenticationType.AZURE_INTERACTIVE;
 import static com.dbn.connection.config.provider.CloudAuthenticationType.OCI_INTERACTIVE;
 import static com.dbn.connection.config.provider.CloudConfigProviderType.AZURE_APP_CONFIG;
+import static com.dbn.connection.config.provider.CloudConfigProviderType.GCP_STORAGE;
+import static com.dbn.connection.config.provider.impl.GcpConfigProviderHandler.applyStorageLocation;
+import static com.dbn.connection.config.provider.impl.GcpConfigProviderHandler.getStorageLocation;
 import static com.dbn.credentials.SecretType.CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD;
 import static com.dbn.credentials.SecretType.CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET;
 import static com.dbn.credentials.SecretType.CONNECTION_HASHICORP_APPROLE_SECRET_ID;
@@ -78,6 +80,10 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
     private String ociConfigProfile;
 
     private String awsRegion;
+
+    private String gcpStorageProject;
+    private String gcpStorageBucket;
+    private String gcpStorageObject;
 
     private String azureAppConfigLabel;
     private String azureClientId;
@@ -133,6 +139,9 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         ociConfigFile = null;
         ociConfigProfile = null;
         awsRegion = null;
+        gcpStorageProject = null;
+        gcpStorageBucket = null;
+        gcpStorageObject = null;
         providerLocations.clear();
         providerProfileKey = null;
         azureAppConfigLabel = null;
@@ -239,6 +248,11 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
     }
 
     public void setProviderLocation(@NonNls String providerLocation) {
+        if (isGcpStorageConfig()) {
+            applyStorageLocation(this, providerLocation);
+            return;
+        }
+
         String normalizedLocation = isConfigHttps() || isOciObjectStorageConfig() ?
                 DatabaseUrlPattern.normalizeConfigHttpsLocation(providerLocation) :
                 providerLocation;
@@ -246,10 +260,14 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
     }
 
     public String getProviderLocation() {
-        return providerLocations.get(getProviderLocationKey());
+        return getProviderLocation(providerSourceType, cloudProviderType);
     }
 
     public String getProviderLocation(ConfigSourceType sourceType, CloudConfigProviderType providerType) {
+        if (sourceType == ConfigSourceType.CLOUD && providerType == GCP_STORAGE) {
+            return getStorageLocation(gcpStorageProject, gcpStorageBucket, gcpStorageObject);
+        }
+
         return providerLocations.get(getProviderLocationKey(sourceType, providerType));
     }
 
@@ -274,6 +292,10 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         return isCloudProviderConfig() && cloudProviderType == CloudConfigProviderType.OCI_OBJECT;
     }
 
+    public boolean isGcpStorageConfig() {
+        return isCloudProviderConfig() && cloudProviderType == GCP_STORAGE;
+    }
+
     public boolean isAwsRegionConfig() {
         return isCloudProviderConfig() &&
                 cloudProviderType != null &&
@@ -291,17 +313,6 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         return isCloudProviderConfig() && cloudProviderType == AZURE_APP_CONFIG;
     }
 
-    public boolean isOciProvider() {
-        return isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isOci();
-    }
-
-    public boolean isAzureProvider() {
-        return isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isAzure();
-    }
-
-    public boolean isHashicorpProvider() {
-        return isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isHashicorp();
-    }
 
     @NotNull
     public CloudConfigProviderHandler getHandler() {
@@ -329,52 +340,8 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         return parameters.isEmpty() ? Collections.emptyMap() : parameters;
     }
 
-    public String getGcpStorageProject() {
-        return getNamedLocationValue("project");
-    }
-
-    public String getGcpStorageBucket() {
-        return getNamedLocationValue("bucket");
-    }
-
-    public String getGcpStorageObject() {
-        return getNamedLocationValue("object");
-    }
-
-    public void applyGcpStorageLocation(String project, String bucket, String object) {
-        if (isEmptyOrSpaces(project) &&
-                isEmptyOrSpaces(bucket) &&
-                isEmptyOrSpaces(object)) {
-        setProviderLocation("");
-            return;
-        }
-
-        setProviderLocation("project=" + nvl(project, "").trim() +
-                ";bucket=" + nvl(bucket, "").trim() +
-                ";object=" + nvl(object, "").trim());
-    }
-
-    private String getNamedLocationValue(@NonNls String key) {
-        return parseNamedLocation().get(key);
-    }
-
     public void validate(List<String> errors) {
         getHandler().validate(this, errors);
-    }
-
-    @NonNls
-    private Map<String, String> parseNamedLocation() {
-        Map<String, String> values = new HashMap<>();
-        String providerLocation = getProviderLocation();
-        if (isEmptyOrSpaces(providerLocation)) return values;
-
-        String[] tokens = providerLocation.split(";");
-        for (String token : tokens) {
-            String[] entry = token.split("=", 2);
-            if (entry.length != 2) continue;
-            values.put(entry[0].trim().toLowerCase(), entry[1].trim());
-        }
-        return values;
     }
 
     public void initialize(String url, DatabaseUrlPattern pattern, Map<String, String> parameters) {
@@ -397,11 +364,7 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         }
 
         String providerLocation = pattern.resolveConfigLocation(url);
-        String normalizedLocation = isConfigHttps() || isOciObjectStorageConfig() ?
-                DatabaseUrlPattern.normalizeConfigHttpsLocation(providerLocation) :
-                providerLocation;
-        this.providerLocations.put(getProviderLocationKey(), normalizedLocation);
-
+        setProviderLocation(providerLocation);
         getHandler().initialize(this, parameters);
     }
 
@@ -418,7 +381,8 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
             ConfigSourceType sourceType = enumAttribute(locationElement, "source-type", ConfigSourceType.class);
             CloudConfigProviderType providerType = enumAttribute(locationElement, "provider-type", CloudConfigProviderType.class);
             String location = stringAttribute(locationElement, "value");
-            if (sourceType != null && location != null) {
+            if (sourceType != null && location != null &&
+                    !(sourceType == ConfigSourceType.CLOUD && providerType == GCP_STORAGE)) {
                 String locationKey = getProviderLocationKey(sourceType, providerType);
                 providerLocations.put(locationKey, location);
             }
@@ -442,6 +406,9 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         hashicorpGithubAuthPath = getString(element, "hashicorp-github-auth-path", null);
 
         awsRegion = getString(element, "aws-region", null);
+        gcpStorageProject = getString(element, "gcp-storage-project", null);
+        gcpStorageBucket = getString(element, "gcp-storage-bucket", null);
+        gcpStorageObject = getString(element, "gcp-storage-object", null);
 
     }
 
@@ -467,10 +434,15 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         setString(element, "hashicorp-github-auth-path", hashicorpGithubAuthPath);
 
         setString(element, "aws-region", awsRegion);
+        setString(element, "gcp-storage-project", gcpStorageProject);
+        setString(element, "gcp-storage-bucket", gcpStorageBucket);
+        setString(element, "gcp-storage-object", gcpStorageObject);
 
         Element locationsElement = newElement(element, "provider-locations");
         providerLocations.forEach((key, location) -> {
             String[] keyParts = key.split(":", 2);
+            if (ConfigSourceType.CLOUD.name().equals(keyParts[0]) && GCP_STORAGE.name().equals(keyParts[1])) return;
+
             Element locationElement = newElement(locationsElement, "location");
             setStringAttribute(locationElement, "source-type", keyParts[0]);
             if (keyParts.length > 1 && !keyParts[1].isEmpty()) {
@@ -495,6 +467,10 @@ public class ConfigProviderInfo extends BasicConfiguration<ConnectionDatabaseSet
         clone.ociConfigProfile = this.ociConfigProfile;
 
         clone.awsRegion = this.awsRegion;
+
+        clone.gcpStorageProject = this.gcpStorageProject;
+        clone.gcpStorageBucket = this.gcpStorageBucket;
+        clone.gcpStorageObject = this.gcpStorageObject;
 
         clone.azureAppConfigLabel = this.azureAppConfigLabel;
         clone.azureClientId = this.azureClientId;
