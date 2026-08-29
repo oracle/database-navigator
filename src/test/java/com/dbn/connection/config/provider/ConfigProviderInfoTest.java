@@ -16,11 +16,26 @@
 
 package com.dbn.connection.config.provider;
 
+import com.dbn.connection.config.provider.impl.AwsConfigProviderHandler;
+import com.dbn.connection.config.provider.impl.AzureConfigProviderHandler;
+import com.dbn.connection.config.provider.impl.CloudConfigProviderHandlers;
+import com.dbn.connection.config.provider.impl.GcpConfigProviderHandler;
+import com.dbn.connection.config.provider.impl.HashicorpConfigProviderHandler;
+import com.dbn.connection.config.provider.impl.OciConfigProviderHandler;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class ConfigProviderInfoTest {
+    static {
+        CloudConfigProviderHandlers handlers = CloudConfigProviderHandlers.INSTANCE;
+        handlers.register(new AwsConfigProviderHandler());
+        handlers.register(new AzureConfigProviderHandler());
+        handlers.register(new GcpConfigProviderHandler());
+        handlers.register(new HashicorpConfigProviderHandler());
+        handlers.register(new OciConfigProviderHandler());
+    }
+
     @Test
     public void usesExpectedProviderSlugForEachSourceType() {
         ConfigProviderInfo provider = new ConfigProviderInfo(null);
