@@ -22,12 +22,14 @@ import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.model.source.MLSourceConfig;
+import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.ml.model.source.MLSourceType;
 import com.dbn.ml.ui.MLToolboxFormBase;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -148,6 +150,20 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
      */
     public List<String> getCloudDiscoveredColumns() {
         return cloudForm.getDiscoveredColumns();
+    }
+
+    public @Nullable String getSelectedSourceBaseName() {
+        MLSourceType sourceType = getSelectedSourceType();
+        if (sourceType == null) return null;
+
+        return switch (sourceType) {
+            case DATABASE_TABLE -> {
+                DBTable table = getSelectedTable();
+                yield table == null ? null : table.getName();
+            }
+            case FILE_SYSTEM -> MLSourceNames.extractFileBaseName(getSelectedFilePath());
+            case OBJECT_STORAGE -> MLSourceNames.extractObjectBaseName(getSelectedCloudUri());
+        };
     }
 
     public boolean isConfiguredSourceSelected() {

@@ -199,13 +199,16 @@ public class MLToolboxForm extends MLToolboxFormBase {
     
     public void onSourceChanged() {
         featureForm.sourceChanged();
+        trainerForm.refreshGeneratedModelName();
     }
 
     public void onSourceInvalidated() {
         featureForm.sourceInvalidated();
+        trainerForm.invalidateGeneratedModelName();
     }
 
     public void onSourceLoaded() {
         featureForm.sourceLoaded();
+        trainerForm.refreshGeneratedModelName();
     }
 }

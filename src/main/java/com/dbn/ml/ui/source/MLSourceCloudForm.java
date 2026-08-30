@@ -168,7 +168,8 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
         if (sourceTextChanged) return;
 
         sourceTextChanged = true;
-        invalidateDiscoveredColumns();
+        clearDiscoveredColumns();
+        notifySourceInvalidated();
     }
 
     @Override
@@ -221,6 +222,10 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
 
     private void notifySourceChanged() {
         ensureParentFrom(MLSourceForm.class).notifySourceChanged(OBJECT_STORAGE);
+    }
+
+    private void notifySourceInvalidated() {
+        ensureParentFrom(MLSourceForm.class).notifySourceInvalidated(OBJECT_STORAGE);
     }
 
     private void notifySourceLoaded() {
@@ -281,11 +286,15 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
     }
 
     private void invalidateDiscoveredColumns() {
+        clearDiscoveredColumns();
+        notifySourceChanged();
+    }
+
+    private void clearDiscoveredColumns() {
         columnLoadSignature.incrementAndGet();
         discoveredColumns.clear();
         numericColumns.clear();
         resetLoadColumnsButton();
-        notifySourceChanged();
     }
 
     private void loadColumnsFromCloud() {

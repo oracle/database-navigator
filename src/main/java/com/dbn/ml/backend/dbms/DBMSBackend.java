@@ -537,11 +537,9 @@ public class DBMSBackend {
             return modelName;
         }
 
-        String baseName;
         String sourceName = extractSourceName(context);
-        if (sourceName != null && !sourceName.isEmpty()) {
-            baseName = sourceName.toUpperCase() + "_MODEL";
-        } else {
+        String baseName = MLSourceNames.getModelBaseName(sourceName);
+        if (baseName == null) {
             String taskPrefix = context.getTaskType() == MLTaskType.CLASSIFICATION ? "CLS" : "REG";
             baseName = "ML_MODEL_" + taskPrefix + "_" + timestamp;
         }
