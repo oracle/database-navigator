@@ -18,6 +18,7 @@ package com.dbn.ml.ui;
 
 import com.dbn.common.Priority;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -157,30 +158,32 @@ public class MLPredictForm extends DBNFormBase {
         boolean isClassification = taskType == MLTaskType.CLASSIFICATION;
         String featureClause = buildFeatureClause(featureColumns, values);
 
-        try {
-            DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                    "Predicting",
-                    "Running prediction",
-                    project,
-                    connection.getConnectionId(),
-                    conn -> {
-                        DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
-                        if (isClassification) {
-                            try (ResultSet rs = mlInterface.predictWithProbability(conn, modelName, featureClause)) {
-                                if (rs.next()) {
-                                    String prediction = rs.getString("PREDICTION");
-                                    double probability = rs.getDouble("PROBABILITY");
-                                    updateResult(prediction, probability);
+        Background.run(() -> {
+            try {
+                DatabaseInterfaceInvoker.execute(Priority.HIGH,
+                        "Predicting",
+                        "Running prediction",
+                        project,
+                        connection.getConnectionId(),
+                        conn -> {
+                            DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
+                            if (isClassification) {
+                                try (ResultSet rs = mlInterface.predictWithProbability(conn, modelName, featureClause)) {
+                                    if (rs.next()) {
+                                        String prediction = rs.getString("PREDICTION");
+                                        double probability = rs.getDouble("PROBABILITY");
+                                        updateResult(prediction, probability);
+                                    }
                                 }
+                            } else {
+                                String prediction = mlInterface.predict(conn, modelName, featureClause);
+                                updateResult(prediction, -1);
                             }
-                        } else {
-                            String prediction = mlInterface.predict(conn, modelName, featureClause);
-                            updateResult(prediction, -1);
-                        }
-                    });
-        } catch (Exception ex) {
-            updateError("Prediction failed: " + ex.getMessage());
-        }
+                        });
+            } catch (Exception ex) {
+                updateError("Prediction failed: " + ex.getMessage());
+            }
+        });
     }
 
     private void updateResult(String prediction, double probability) {

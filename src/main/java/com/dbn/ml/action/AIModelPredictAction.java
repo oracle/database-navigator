@@ -18,6 +18,7 @@ package com.dbn.ml.action;
 
 import com.dbn.common.Priority;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
@@ -55,53 +56,55 @@ public class AIModelPredictAction extends AnObjectAction<DBAIModel> {
         ConnectionHandler connection = model.getConnection();
         String modelName = model.getName();
 
-        try {
-            DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                    "Loading Model Metadata",
-                    "Querying attributes for model " + modelName,
-                    project,
-                    connection.getConnectionId(),
-                    conn -> {
-                        DatabaseMachineLearningInterface ml = connection.getInterfaces().getMachineLearningInterface();
+        Background.run(() -> {
+            try {
+                DatabaseInterfaceInvoker.execute(Priority.HIGH,
+                        "Loading Model Metadata",
+                        "Querying attributes for model " + modelName,
+                        project,
+                        connection.getConnectionId(),
+                        conn -> {
+                            DatabaseMachineLearningInterface ml = connection.getInterfaces().getMachineLearningInterface();
 
-                        String function = ml.getModelFunction(conn, modelName);
-                        if (function == null) {
-                            Dispatch.run(() -> Messages.showWarningDialog(project,
-                                    "Model '" + modelName + "' not found in USER_MINING_MODELS.",
-                                    "Model Not Found"));
-                            return;
-                        }
-
-                        MLTaskType taskType = "CLASSIFICATION".equalsIgnoreCase(function)
-                                ? MLTaskType.CLASSIFICATION
-                                : MLTaskType.REGRESSION;
-
-                        List<String> features = new ArrayList<>();
-                        try (ResultSet rs = ml.getModelInputAttributes(conn, modelName)) {
-                            while (rs.next()) {
-                                features.add(rs.getString("ATTRIBUTE_NAME"));
+                            String function = ml.getModelFunction(conn, modelName);
+                            if (function == null) {
+                                Dispatch.run(() -> Messages.showWarningDialog(project,
+                                        "Model '" + modelName + "' not found in USER_MINING_MODELS.",
+                                        "Model Not Found"));
+                                return;
                             }
-                        }
 
-                        if (features.isEmpty()) {
-                            Dispatch.run(() -> Messages.showWarningDialog(project,
-                                    "No input attributes found for model '" + modelName + "'.",
-                                    "Cannot Predict"));
-                            return;
-                        }
+                            MLTaskType taskType = "CLASSIFICATION".equalsIgnoreCase(function)
+                                    ? MLTaskType.CLASSIFICATION
+                                    : MLTaskType.REGRESSION;
 
-                        MLTaskType finalTaskType = taskType;
-                        List<String> finalFeatures = features;
-                        Dispatch.run(() -> {
-                            MLPredictDialog dialog = new MLPredictDialog(connection, modelName, finalTaskType, finalFeatures);
-                            dialog.show();
+                            List<String> features = new ArrayList<>();
+                            try (ResultSet rs = ml.getModelInputAttributes(conn, modelName)) {
+                                while (rs.next()) {
+                                    features.add(rs.getString("ATTRIBUTE_NAME"));
+                                }
+                            }
+
+                            if (features.isEmpty()) {
+                                Dispatch.run(() -> Messages.showWarningDialog(project,
+                                        "No input attributes found for model '" + modelName + "'.",
+                                        "Cannot Predict"));
+                                return;
+                            }
+
+                            MLTaskType finalTaskType = taskType;
+                            List<String> finalFeatures = features;
+                            Dispatch.run(() -> {
+                                MLPredictDialog dialog = new MLPredictDialog(connection, modelName, finalTaskType, finalFeatures);
+                                dialog.show();
+                            });
                         });
-                    });
-        } catch (Exception ex) {
-            Dispatch.run(() -> Messages.showErrorDialog(project,
-                    "Failed to load model metadata: " + ex.getMessage(),
-                    "Predict Error"));
-        }
+            } catch (Exception ex) {
+                Dispatch.run(() -> Messages.showErrorDialog(project,
+                        "Failed to load model metadata: " + ex.getMessage(),
+                        "Predict Error"));
+            }
+        });
     }
 
     @Override
