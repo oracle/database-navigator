@@ -63,11 +63,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import static com.dbn.common.notification.NotificationCategory.EXECUTION;
+import static com.dbn.common.notification.NotificationSupport.sendInfoNotification;
+import static com.dbn.common.operation.DatabaseOperation.TRAIN_MACHINE_LEARNING_MODEL;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
-import static com.dbn.common.operation.DatabaseOperation.TRAIN_MACHINE_LEARNING_MODEL;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
@@ -167,12 +169,6 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                         SchedulerJob job = schedulerManager.submitJob(connection, submission.getJobRequest());
                         log.info("Training job {} submitted for model: {}", job.getName(), submission.getModelName());
 
-                        Dispatch.run(() -> Messages.showInfoDialog(
-                                getProject(),
-                                txt("msg.machineLearning.title.TrainingJobSubmitted"),
-                                txt("msg.machineLearning.info.TrainingJobSubmitted", modelName)
-                        ));
-
                         schedulerManager.monitorJob(job,
                                 createTrainingJobMonitor(modelName),
                                 createTrainingOutcomeHandlers(executor, submission, connection));
@@ -231,11 +227,8 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
             MLResult result = executor.completeAsync(submission, connection);
             Dispatch.run(() -> {
                 showResultInExecutionManager(result);
-                Messages.showInfoDialog(
-                        getProject(),
-                        txt("msg.machineLearning.title.TrainingCompleted"),
-                        txt("msg.machineLearning.info.TrainingCompleted", modelName)
-                );
+                sendInfoNotification(getProject(), EXECUTION,
+                        txt("ntf.machineLearning.info.TrainingCompleted", modelName));
             });
         } catch (Exception e) {
             log.warn("Failed to finalize training result for model {}", modelName, e);
