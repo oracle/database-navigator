@@ -25,6 +25,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.database.DatabaseFeature.MACHINE_LEARNING;
 import static com.dbn.nls.NlsResources.txt;
 
 public class MLToolboxOpenAction extends AbstractConnectionAction {
@@ -35,8 +36,7 @@ public class MLToolboxOpenAction extends AbstractConnectionAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler target) {
-        // ML Toolbox is available for all connections (uses Tribuo, not DB-specific features)
-        presentation.setVisible(true);
+        presentation.setVisible(MACHINE_LEARNING.isSupported(target));
         presentation.setText(txt("app.machineLearning.action.OpenMLToolbox"));
         presentation.setIcon(Icons.DBO_AI_MODEL); // TODO: Create ML-specific icon
     }

@@ -87,9 +87,10 @@ public class DBMSBackend {
 
         // Data prep — fast, requires connection
         String sourceTableName = prepareDataSource(context);
+        String sourceSchemaName = getSourceSchemaName(context);
         String trainTableName = "ML_TRAIN_" + timestamp;
         String testTableName = "ML_TEST_" + timestamp;
-        splitData(context, sourceTableName, trainTableName, testTableName);
+        splitData(context, sourceSchemaName, sourceTableName, trainTableName, testTableName);
         String settingsTableName = createSettingsTable(context, timestamp);
         String modelName = generateModelName(context, timestamp);
 
@@ -270,7 +271,7 @@ public class DBMSBackend {
      * Splits data into training and test sets using Oracle's SAMPLE SEED.
      * This follows Oracle's recommended approach for ML model evaluation.
      */
-    private void splitData(MLTrainingContext context, String sourceTableName,
+    private void splitData(MLTrainingContext context, String sourceSchemaName, String sourceTableName,
                           String trainTableName, String testTableName) throws SQLException {
 
         MLTrainerConfig trainerConfig = context.getTrainerConfig();
@@ -288,11 +289,13 @@ public class DBMSBackend {
                     DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
 
                     // Create training table with SAMPLE SEED
-                    mlInterface.createTrainingTable(conn, trainTableName, sourceTableName, trainPercent, seed);
+                    mlInterface.createTrainingTable(
+                            conn, trainTableName, sourceSchemaName, sourceTableName, trainPercent, seed);
 
                     // Create test table (source MINUS training)
                     log.info("Creating test table: {} (remaining data)", testTableName);
-                    mlInterface.createTestTable(conn, testTableName, sourceTableName, trainTableName);
+                    mlInterface.createTestTable(
+                            conn, testTableName, sourceSchemaName, sourceTableName, trainTableName);
 
                     // Add CASE_ID columns for evaluation procedures
                     mlInterface.addCaseIdColumn(conn, trainTableName);
@@ -445,6 +448,15 @@ public class DBMSBackend {
         }
     }
 
+    private String getSourceSchemaName(MLTrainingContext context) {
+        String schemaName = switch (context.getSourceConfig().getSourceType()) {
+            case DATABASE_TABLE -> context.getSourceConfig().getTableSourceConfig().getSchemaName();
+            case FILE_SYSTEM -> context.getStagingTableSchema();
+            case OBJECT_STORAGE -> connection.getUserName();
+        };
+        return Strings.isEmpty(schemaName) ? connection.getUserName() : schemaName;
+    }
+
     private String createCloudExternalTable(MLTrainingContext context) throws Exception {
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String extTableName = "ML_EXT_" + timestamp;
@@ -490,7 +502,8 @@ public class DBMSBackend {
         Map<String, String> settings = settingsBuilder.buildSettings(
                 context.getTaskType(),
                 algorithmType.getId(),
-                context.getTrainerConfig()
+                context.getTrainerConfig(),
+                connection.getDatabaseVersion()
         );
 
         DatabaseInterfaceInvoker.execute(Priority.HIGH,

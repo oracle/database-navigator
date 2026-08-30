@@ -80,26 +80,28 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     public void createTrainingTable(
             DBNConnection conn,
             String trainTableName,
+            String sourceSchemaName,
             String sourceTableName,
             int samplePercent,
             long seed
     ) throws SQLException {
-        log.debug("Creating training table: {} from {} ({}% with seed {})",
-                trainTableName, sourceTableName, samplePercent, seed);
+        log.debug("Creating training table: {} from {}.{} ({}% with seed {})",
+                trainTableName, sourceSchemaName, sourceTableName, samplePercent, seed);
         executeUpdate(conn, "create-training-table",
-                trainTableName, sourceTableName, String.valueOf(samplePercent), String.valueOf(seed));
+                trainTableName, sourceSchemaName, sourceTableName, samplePercent, seed);
     }
 
     @Override
     public void createTestTable(
             DBNConnection conn,
             String testTableName,
+            String sourceSchemaName,
             String sourceTableName,
             String trainTableName
     ) throws SQLException {
-        log.debug("Creating test table: {} (source {} MINUS training {})",
-                testTableName, sourceTableName, trainTableName);
-        executeUpdate(conn, "create-test-table", testTableName, sourceTableName, trainTableName);
+        log.debug("Creating test table: {} (source {}.{} MINUS training {})",
+                testTableName, sourceSchemaName, sourceTableName, trainTableName);
+        executeUpdate(conn, "create-test-table", testTableName, sourceSchemaName, sourceTableName, trainTableName);
     }
 
     @Override

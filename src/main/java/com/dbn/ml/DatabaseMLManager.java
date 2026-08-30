@@ -67,6 +67,7 @@ import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.common.operation.DatabaseOperation.TRAIN_MACHINE_LEARNING_MODEL;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
@@ -107,6 +108,10 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
     }
 
     public void openToolbox(ConnectionHandler connection, MLRequest request) {
+        TRAIN_MACHINE_LEARNING_MODEL.start(connection, () -> doOpenToolbox(connection, request));
+    }
+
+    private void doOpenToolbox(ConnectionHandler connection, MLRequest request) {
         try {
             Dialogs.show(() -> new MLToolboxDialog(connection, request));
         } catch (Exception e) {

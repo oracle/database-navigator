@@ -75,7 +75,8 @@ public enum MLTrainerType implements Presentable {
     XGBOOST_CLASSIFICATION(
             txt("app.machineLearning.const.MLTrainerType_XGBOOST_CLASSIFICATION"),
             "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/xgboost.html",
-            MLTaskType.CLASSIFICATION
+            MLTaskType.CLASSIFICATION,
+            21.0
     ),
 
     // ========== REGRESSION TRAINERS ==========
@@ -101,26 +102,38 @@ public enum MLTrainerType implements Presentable {
     XGBOOST_REGRESSION(
             txt("app.machineLearning.const.MLTrainerType_XGBOOST_REGRESSION"),
             "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/xgboost.html",
-            MLTaskType.REGRESSION
+            MLTaskType.REGRESSION,
+            21.0
     );
 
     private final @Nls String name;
     private final @NonNls String docUrl;
     private final MLTaskType taskType;
+    private final double minimumDatabaseVersion;
 
     MLTrainerType(@Nls String name, @NonNls String docUrl, MLTaskType taskType) {
+        this(name, docUrl, taskType, 0.0);
+    }
+
+    MLTrainerType(@Nls String name, @NonNls String docUrl, MLTaskType taskType, double minimumDatabaseVersion) {
         this.name = name;
         this.docUrl = docUrl;
         this.taskType = taskType;
+        this.minimumDatabaseVersion = minimumDatabaseVersion;
     }
 
     /**
      * Returns all trainers for a specific task type.
      */
-    public static List<MLTrainerType> getTrainersForTask(MLTaskType taskType) {
+    public static List<MLTrainerType> getTrainersForTask(MLTaskType taskType, double databaseVersion) {
         return Arrays.stream(values())
                 .filter(t -> t.getTaskType() == taskType)
+                .filter(t -> t.supportsDatabaseVersion(databaseVersion))
                 .collect(Collectors.toList());
+    }
+
+    public boolean supportsDatabaseVersion(double databaseVersion) {
+        return databaseVersion >= minimumDatabaseVersion;
     }
 
 }

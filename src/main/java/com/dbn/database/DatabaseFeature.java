@@ -59,6 +59,7 @@ public enum DatabaseFeature {
     CONSTRAINT_MANIPULATION(txt("app.database.const.DatabaseFeature_CONSTRAINT_MANIPULATION")),
     READONLY_CONNECTIVITY(txt("app.database.const.DatabaseFeature_READONLY_CONNECTIVITY")),
     AI_ASSISTANT(txt("app.database.const.DatabaseFeature_AI_ASSISTANT")),
+    MACHINE_LEARNING(txt("app.database.const.DatabaseFeature_MACHINE_LEARNING")),
     DATA_CHANGE_NOTIFICATION(txt("app.database.const.DatabaseFeature_DATA_CHANGE_NOTIFICATION")),
     VECTOR_EMBEDDING(txt("app.database.const.DatabaseFeature_VECTOR_EMBEDDING")),
     VECTOR_SEARCH(txt("app.database.const.DatabaseFeature_VECTOR_SEARCH")),

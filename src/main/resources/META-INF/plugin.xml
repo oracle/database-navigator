@@ -388,10 +388,12 @@
 
         <!--shared prerequisites-->
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_TABLE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_VIEW"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_JOB"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_PROCEDURE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_TYPE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_TABLE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_VIEW"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_PROCEDURE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_TYPE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_UNLIMITED_TABLESPACE"/>
@@ -419,6 +421,14 @@
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.ObjectPrivilege_EXECUTE_DBMS_VECTOR"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.ObjectPrivilege_EXECUTE_DBMS_VECTOR_CHAIN"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.DatabaseVersion_VECTOR_SUPPORT"/>
+
+        <!--machine learning prerequisites-->
+        <prerequisiteRequirementEvaluator implementation="com.dbn.ml.prerequisite.MLTrainingPrerequisitesEvaluator"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.ml.prerequisite.SystemPrivilege_CREATE_MINING_MODEL"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.ml.prerequisite.SystemPrivilege_CREATE_ANY_MINING_MODEL"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.ml.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DATA_MINING"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.ml.prerequisite.ObjectPrivilege_EXECUTE_DBMS_PREDICTIVE_ANALYTICS"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.ml.prerequisite.ObjectPrivilege_EXECUTE_DBMS_SCHEDULER"/>
 
         <!--data source configuration prerequisites-->
         <prerequisiteRequirementEvaluator implementation="com.dbn.object.datasource.prerequisite.DatasourceConfigPrerequisitesEvaluator"/>

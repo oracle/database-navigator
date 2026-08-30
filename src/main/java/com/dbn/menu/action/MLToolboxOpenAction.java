@@ -18,7 +18,6 @@ package com.dbn.menu.action;
 
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
@@ -35,6 +34,7 @@ import java.util.List;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
+import static com.dbn.database.DatabaseFeature.MACHINE_LEARNING;
 import static com.dbn.nls.NlsResources.txt;
 
 public class MLToolboxOpenAction extends ProjectAction {
@@ -43,20 +43,14 @@ public class MLToolboxOpenAction extends ProjectAction {
         Presentation presentation = e.getPresentation();
         presentation.setText(txt("app.machineLearning.action.OpenMLToolboxEllipsis"));
         presentation.setIcon(Icons.DBO_AI_MODEL);
-        presentation.setVisible(true);
+        presentation.setVisible(MACHINE_LEARNING.isSupported(project));
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
         ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
-        List<ConnectionHandler> connections = connectionBundle.getConnections();
-
-        if (connections.isEmpty()) {
-            Messages.showWarningDialog(project, "No Connections", 
-                "No database connections are configured. Please create a connection first.");
-            return;
-        }
+        List<ConnectionHandler> connections = connectionBundle.getConnections(MACHINE_LEARNING);
 
         if (connections.size() == 1) {
             openMLToolbox(connections.get(0));

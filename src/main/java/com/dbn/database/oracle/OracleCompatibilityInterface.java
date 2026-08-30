@@ -73,6 +73,7 @@ import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.EXPLAIN_PLAN;
 import static com.dbn.database.DatabaseFeature.FUNCTION_OUT_ARGUMENTS;
 import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
+import static com.dbn.database.DatabaseFeature.MACHINE_LEARNING;
 import static com.dbn.database.DatabaseFeature.MCP_SERVER_BUILDER;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
 import static com.dbn.database.DatabaseFeature.OBJECT_DDL_EXTRACTION;
@@ -242,6 +243,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 CONSTRAINT_MANIPULATION,
                 READONLY_CONNECTIVITY,
                 AI_ASSISTANT,
+                MACHINE_LEARNING,
                 DATA_CHANGE_NOTIFICATION,
                 VECTOR_EMBEDDING,
                 VECTOR_SEARCH,

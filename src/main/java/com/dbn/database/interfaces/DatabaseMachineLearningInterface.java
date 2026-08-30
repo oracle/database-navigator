@@ -64,6 +64,7 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      *
      * @param conn Database connection
      * @param trainTableName Name for the training table
+     * @param sourceSchemaName Schema containing the source table
      * @param sourceTableName Source data table
      * @param samplePercent Percentage of data for training (e.g., 80)
      * @param seed Random seed for reproducibility
@@ -71,6 +72,7 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
     void createTrainingTable(
             DBNConnection conn,
             String trainTableName,
+            String sourceSchemaName,
             String sourceTableName,
             int samplePercent,
             long seed
@@ -82,12 +84,14 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      *
      * @param conn Database connection
      * @param testTableName Name for the test table
+     * @param sourceSchemaName Schema containing the source table
      * @param sourceTableName Source data table
      * @param trainTableName Training table (to exclude)
      */
     void createTestTable(
             DBNConnection conn,
             String testTableName,
+            String sourceSchemaName,
             String sourceTableName,
             String trainTableName
     ) throws SQLException;

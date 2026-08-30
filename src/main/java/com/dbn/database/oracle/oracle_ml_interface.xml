@@ -87,18 +87,18 @@
     <!-- ==================== DATA SPLITTING ==================== -->
 
     <!-- Create Training Data Table using SAMPLE with SEED (80% by default) -->
-    <!-- Parameters: 0=train_table, 1=source_table, 2=sample_percent, 3=seed -->
+    <!-- Parameters: 0=train_table, 1=source_schema, 2=source_table, 3=sample_percent, 4=seed -->
     <statement-execution-processor id="create-training-table" timeout="60000">
         <statement>
-            CREATE TABLE {0} AS SELECT * FROM {1} SAMPLE ({2}) SEED ({3})
+            CREATE TABLE {@0} AS SELECT * FROM {@1}.{@2} SAMPLE ({$3}) SEED ({$4})
         </statement>
     </statement-execution-processor>
 
     <!-- Create Test Data Table (remaining data not in training) -->
-    <!-- Parameters: 0=test_table, 1=source_table, 2=train_table -->
+    <!-- Parameters: 0=test_table, 1=source_schema, 2=source_table, 3=train_table -->
     <statement-execution-processor id="create-test-table" timeout="60000">
         <statement>
-            CREATE TABLE {0} AS SELECT * FROM {1} MINUS SELECT * FROM {2}
+            CREATE TABLE {@0} AS SELECT * FROM {@1}.{@2} MINUS SELECT * FROM {@3}
         </statement>
     </statement-execution-processor>
 

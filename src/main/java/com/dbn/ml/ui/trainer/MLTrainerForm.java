@@ -160,7 +160,8 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
 
     public void refreshTrainers(MLMiningFunction miningFunction) {
         MLTaskType taskType = miningFunction != null ? miningFunction.getTaskType() : null;
-        List<MLTrainerType> availableTrainers = MLTrainerType.getTrainersForTask(taskType);
+        List<MLTrainerType> availableTrainers = MLTrainerType.getTrainersForTask(
+                taskType, getConnection().getDatabaseVersion());
 
         MLTrainerType currentSelection = algorithmComboBox.getSelectedValue();
         algorithmComboBox.setValues(availableTrainers.toArray(new MLTrainerType[0]));
@@ -217,7 +218,9 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
         MLMiningFunction miningFunction = toolboxForm != null ? toolboxForm.getMLRequest().getMiningFunction() : MLMiningFunction.CLASSIFICATION;
         refreshTrainers(miningFunction);
-        algorithmComboBox.setSelectedValue(trainerType);
+        if (trainerType.supportsDatabaseVersion(getConnection().getDatabaseVersion())) {
+            algorithmComboBox.setSelectedValue(trainerType);
+        }
 
         splitSlider.setValue((int) (config.getTrainTestSplitRatio() * 100));
         useFixedSeedCheckBox.setSelected(config.isUseFixedSeed());
