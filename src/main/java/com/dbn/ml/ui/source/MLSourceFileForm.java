@@ -19,12 +19,12 @@ package com.dbn.ml.ui.source;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.model.source.MLFileSourceConfig;
-import com.dbn.ml.ui.MLToolboxForm;
 import com.dbn.ml.ui.MLToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.ui.TextComponentAccessor;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,8 +33,12 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.util.Objects;
 
+import static com.dbn.common.ui.util.Focus.onFocusLost;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.ui.util.TextFields.setTextSilently;
+import static com.dbn.ml.model.source.MLSourceType.FILE_SYSTEM;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -49,6 +53,7 @@ public class MLSourceFileForm extends MLToolboxFormBase {
     private TextFieldWithBrowseButton filePathField;
     private JTextField delimiterField;
     private JCheckBox hasHeaderCheckBox;
+    private boolean sourceTextChanged;
 
     public MLSourceFileForm(@Nullable Disposable parent, ConnectionHandler connection) {
         super(parent, connection);
@@ -72,11 +77,51 @@ public class MLSourceFileForm extends MLToolboxFormBase {
                 txt("cfg.machineLearning.title.SelectCsvFile"),
                 txt("cfg.machineLearning.text.SelectTrainingCsvFile"),
                 null,
-                descriptor
+                descriptor,
+                new TextComponentAccessor<>() {
+                    @Override
+                    public String getText(JTextField component) {
+                        return component.getText();
+                    }
+
+                    @Override
+                    public void setText(JTextField component, String text) {
+                        component.setText(text);
+                        notifyTextSourceChanged();
+                    }
+                }
         );
         
-        // Notify parent when file changes
-        onTextChange(filePathField, e -> notifySourceChanged());
+    }
+
+    @Override
+    protected void initEventListeners() {
+        onTextChange(filePathField, e -> {
+            invalidateTextSource();
+            if (!filePathField.getTextField().hasFocus()) {
+                dispatch(this::notifyTextSourceChanged);
+            }
+        });
+        onTextChange(delimiterField, e -> invalidateTextSource());
+
+        onFocusLost(filePathField.getTextField(), e -> notifyTextSourceChanged());
+        onFocusLost(delimiterField, e -> notifyTextSourceChanged());
+
+        hasHeaderCheckBox.addActionListener(e -> notifySourceChanged());
+    }
+
+    private void invalidateTextSource() {
+        if (sourceTextChanged) return;
+
+        sourceTextChanged = true;
+        ensureParentFrom(MLSourceForm.class).notifySourceInvalidated(FILE_SYSTEM);
+    }
+
+    private void notifyTextSourceChanged() {
+        if (!sourceTextChanged) return;
+
+        sourceTextChanged = false;
+        notifySourceChanged();
     }
 
     @Override
@@ -95,10 +140,7 @@ public class MLSourceFileForm extends MLToolboxFormBase {
     }
 
     private void notifySourceChanged() {
-        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
-        if (toolboxForm != null) {
-            toolboxForm.onSourceChanged();
-        }
+        ensureParentFrom(MLSourceForm.class).notifySourceChanged(FILE_SYSTEM);
     }
 
     public String getSelectedFilePath() {
@@ -107,7 +149,22 @@ public class MLSourceFileForm extends MLToolboxFormBase {
 
     public String getSelectedDelimiter() {
         String delimiter = delimiterField.getText();
-        return (delimiter != null && !delimiter.isEmpty()) ? delimiter : ",";
+        return delimiter == null || delimiter.isEmpty() ? "," : delimiter;
+    }
+
+    private boolean hasHeader() {
+        return hasHeaderCheckBox.isSelected();
+    }
+
+    boolean isConfiguredSourceSelected() {
+        MLFileSourceConfig config = getConfig();
+        return Objects.equals(getSelectedFilePath(), config.getFilePath()) &&
+                Objects.equals(getSelectedDelimiter(), normalizeDelimiter(config.getDelimiter())) &&
+                hasHeader() == config.isHasHeader();
+    }
+
+    private static String normalizeDelimiter(String delimiter) {
+        return delimiter == null || delimiter.isEmpty() ? "," : delimiter;
     }
 
     @Nullable
@@ -117,17 +174,16 @@ public class MLSourceFileForm extends MLToolboxFormBase {
     }
 
     private MLFileSourceConfig getConfig() {
-        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
-        if (toolboxForm == null) return new MLFileSourceConfig();
-        return toolboxForm.getMLRequest().getSourceConfig().getFileSourceConfig();
+        return getMLRequest().getSourceConfig().getFileSourceConfig();
     }
 
     @Override
     public void resetFormChanges() {
         MLFileSourceConfig config = getConfig();
-        filePathField.setText(config.getFilePath() != null ? config.getFilePath() : "");
-        delimiterField.setText(config.getDelimiter() != null ? config.getDelimiter() : ",");
+        setTextSilently(filePathField, config.getFilePath() != null ? config.getFilePath() : "");
+        setTextSilently(delimiterField, config.getDelimiter() != null ? config.getDelimiter() : ",");
         hasHeaderCheckBox.setSelected(config.isHasHeader());
+        sourceTextChanged = false;
     }
 
     @Override

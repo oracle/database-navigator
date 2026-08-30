@@ -83,6 +83,12 @@ public class MLToolboxForm extends MLToolboxFormBase {
         alignerData.registerForms(sourceForm, featureForm, trainerForm);
     }
 
+    @Override
+    protected void initValidation() {
+        addValidation(sourcePanel, panel -> sourceForm.validateSourceSelection());
+        addValidation(featurePanel, panel -> featureForm.validateColumnSelection());
+    }
+
     private void initForms() {
         ConnectionHandler connection = getConnection();
 
@@ -97,7 +103,10 @@ public class MLToolboxForm extends MLToolboxFormBase {
         MLFeatureConfig featureConfig = request.getFeatureConfig();
         featureForm = new MLFeatureForm(this, connection);
         DBNCollapsiblePanel featureCollapsiblePanel = new DBNCollapsiblePanel(this, featureForm, true);
-        featureCollapsiblePanel.addToggleListener(expanded -> featureConfig.setExpanded(expanded));
+        featureCollapsiblePanel.addToggleListener(expanded -> {
+            featureConfig.setExpanded(expanded);
+            validateFormFields();
+        });
         featurePanel.add(featureCollapsiblePanel.getComponent());
 
         // Trainer configuration panel
@@ -188,10 +197,15 @@ public class MLToolboxForm extends MLToolboxFormBase {
         return mainPanel;
     }
     
-    // Called when source table changes - refresh available columns
     public void onSourceChanged() {
-        if (featureForm != null) {
-            featureForm.refreshColumns();
-        }
+        featureForm.sourceChanged();
+    }
+
+    public void onSourceInvalidated() {
+        featureForm.sourceInvalidated();
+    }
+
+    public void onSourceLoaded() {
+        featureForm.sourceLoaded();
     }
 }

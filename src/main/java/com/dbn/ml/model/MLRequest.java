@@ -16,6 +16,7 @@
 
 package com.dbn.ml.model;
 
+import com.dbn.common.cloud.CloudSourceConfig;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
 import com.dbn.connection.ConnectionHandler;
@@ -28,6 +29,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -104,6 +108,11 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
         MLRequest clone = cloneElement(this, new MLRequest(connectionId));
         clone.template = template;
         clone.modelToReplace = modelToReplace;
+
+        CloudSourceConfig sourceCloudConfig = sourceConfig.getCloudSourceConfig();
+        CloudSourceConfig targetCloudConfig = clone.sourceConfig.getCloudSourceConfig();
+        targetCloudConfig.setDiscoveredColumns(new ArrayList<>(sourceCloudConfig.getDiscoveredColumns()));
+        targetCloudConfig.setNumericColumns(new HashSet<>(sourceCloudConfig.getNumericColumns()));
         return clone;
     }
 

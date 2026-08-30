@@ -24,7 +24,6 @@ import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
-import com.dbn.ml.ui.MLToolboxForm;
 import com.dbn.ml.ui.MLToolboxFormBase;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
@@ -42,14 +41,19 @@ import javax.swing.JTextField;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.ClientProperty.LOADING;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.ui.util.TextFields.setTextSilently;
+import static com.dbn.ml.model.source.MLSourceType.OBJECT_STORAGE;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
@@ -76,12 +80,15 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
     private JCheckBox hasHeaderCheckBox;
     private JButton loadColumnsButton;
 
+    private final AtomicInteger columnLoadSignature = new AtomicInteger();
     private List<String> discoveredColumns = new ArrayList<>();
     private Set<String> numericColumns = new HashSet<>();
+    private String sourceCredentialSchemaName;
+    private String sourceCredentialName;
+    private boolean sourceTextChanged;
 
     public MLSourceCloudForm(@Nullable Disposable parent, ConnectionHandler connection) {
         super(parent, connection);
-        initCredentialComboBoxes();
     }
 
     private void initCredentialComboBoxes() {
@@ -92,18 +99,20 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
                 .withConnectionContext(() -> getConnection())
                 .withValueLoader(() -> loadSchemas())
                 .withValuePreselector(() -> config.getCredentialSchemaName())
-                .triggerLoad();
+                .withValueLoadConsumer(values -> onCredentialSchemasLoaded());
 
+        credentialComboBox.clearValues();
         credentialComboBox
                 .initialize(this, CREDENTIAL)
                 .withConnectionContext(() -> getConnection())
                 .withSchemaContext(() -> getSelectedCredentialSchema())
-                .withValueLoader(() -> loadCredentials())
+                .withValueLoader(List::of)
                 .withValuePreselector(() -> config.getCredentialName())
                 .withObjectFactory(txt("cfg.machineLearning.action.NewCredential"))
-                .triggerLoad();
+                .withValueLoadConsumer(values -> onCredentialsLoaded());
 
         updateFieldAvailability();
+        credentialSchemaComboBox.triggerLoad();
     }
 
     @Override
@@ -129,10 +138,37 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
 
     @Override
     protected void initEventListeners() {
-        onSelectionChange(credentialSchemaComboBox, s -> populateCredentials());
-        onTextChange(uriField, e -> notifySourceChanged());
-        noCredentialCheckBox.addActionListener(e -> updateFieldAvailability());
+        onSelectionChange(credentialSchemaComboBox, schema -> {
+            populateCredentials(schema);
+            if (!LOADING.is(credentialSchemaComboBox)) {
+                updateCredentialSelection();
+                invalidateDiscoveredColumns();
+            }
+        });
+        onSelectionChange(credentialComboBox, c -> {
+            if (!LOADING.is(credentialSchemaComboBox) &&
+                    !LOADING.is(credentialComboBox)) {
+                updateCredentialSelection();
+                invalidateDiscoveredColumns();
+            }
+        });
+
+        onTextChange(uriField, e -> invalidateTextSource());
+        onTextChange(delimiterField, e -> invalidateTextSource());
+        noCredentialCheckBox.addActionListener(e -> {
+            updateFieldAvailability();
+            updateCredentialSelection();
+            invalidateDiscoveredColumns();
+        });
+        hasHeaderCheckBox.addActionListener(e -> invalidateDiscoveredColumns());
         loadColumnsButton.addActionListener(e -> loadColumnsFromCloud());
+    }
+
+    private void invalidateTextSource() {
+        if (sourceTextChanged) return;
+
+        sourceTextChanged = true;
+        invalidateDiscoveredColumns();
     }
 
     @Override
@@ -145,62 +181,127 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
                 txt("msg.machineLearning.error.HttpsUriRequired"));
     }
 
-    private void populateCredentials() {
+    private void populateCredentials(DBSchema schema) {
         updateFieldAvailability();
+        credentialComboBox.withValueLoader(() -> schema == null ? emptyList() : schema.getCredentials());
         credentialComboBox.reloadValues();
+    }
+
+    private void onCredentialSchemasLoaded() {
+        if (!isNoCredential() &&
+                getSelectedCredentialSchema() == null &&
+                updateCredentialSelection()) {
+            invalidateDiscoveredColumns();
+        }
+    }
+
+    private void onCredentialsLoaded() {
+        if (!isNoCredential() && getSelectedCredentialSchema() == null) return;
+
+        if (updateCredentialSelection()) {
+            invalidateDiscoveredColumns();
+        } else {
+            notifySourceLoaded();
+        }
+    }
+
+    private boolean updateCredentialSelection() {
+        String schemaName = isNoCredential() ? null : getSelectedCredentialSchemaName();
+        String credentialName = isNoCredential() ? null : getSelectedCredential();
+        boolean changed = !Objects.equals(sourceCredentialSchemaName, schemaName) ||
+                !Objects.equals(sourceCredentialName, credentialName);
+        sourceCredentialSchemaName = schemaName;
+        sourceCredentialName = credentialName;
+        return changed;
     }
 
     private @Nullable DBSchema getSelectedCredentialSchema() {
         return getSelection(credentialSchemaComboBox);
     }
 
-    private List<DBCredential> loadCredentials() {
-        DBSchema schema = getSelectedCredentialSchema();
-        if (schema == null) return emptyList();
-        return schema.getCredentials();
+    private void notifySourceChanged() {
+        ensureParentFrom(MLSourceForm.class).notifySourceChanged(OBJECT_STORAGE);
     }
 
-    private void notifySourceChanged() {
-        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
-        if (toolboxForm != null) {
-            toolboxForm.onSourceChanged();
-        }
+    private void notifySourceLoaded() {
+        ensureParentFrom(MLSourceForm.class).notifySourceLoaded(OBJECT_STORAGE);
     }
 
     public String getSelectedUri() {
         return uriField.getText().trim();
     }
 
-    public @Nullable String getSelectedCredential() {
+    private @Nullable String getSelectedCredential() {
         if (noCredentialCheckBox.isSelected()) return null;
-        DBCredential credential = getSelection(credentialComboBox);
-        return credential == null ? null : credential.getName();
+        return getObjectName(getSelection(credentialComboBox));
     }
 
-    public @Nullable String getSelectedCredentialSchemaName() {
-        DBSchema schema = getSelectedCredentialSchema();
-        return schema == null ? null : schema.getName();
+    private @Nullable String getSelectedCredentialSchemaName() {
+        return getObjectName(getSelectedCredentialSchema());
     }
 
-    public String getSelectedDelimiter() {
+    private String getSelectedDelimiter() {
         String delimiter = delimiterField.getText();
-        return (delimiter != null && !delimiter.isEmpty()) ? delimiter : ",";
+        return delimiter == null || delimiter.isEmpty() ? "," : delimiter;
+    }
+
+    private boolean hasHeader() {
+        return hasHeaderCheckBox.isSelected();
+    }
+
+    private boolean isNoCredential() {
+        return noCredentialCheckBox.isSelected();
+    }
+
+    boolean isConfiguredSourceSelected() {
+        CloudSourceConfig config = getConfig();
+        boolean noCredential = isNoCredential();
+        if (!Objects.equals(getSelectedUri(), trim(config.getFileUri())) ||
+                noCredential != config.isNoCredential() ||
+                !Objects.equals(getSelectedDelimiter(), normalizeDelimiter(config.getDelimiter())) ||
+                hasHeader() != config.isHasHeader()) {
+            return false;
+        }
+
+        return noCredential ||
+                Objects.equals(getSelectedCredentialSchemaName(), config.getCredentialSchemaName()) &&
+                Objects.equals(getSelectedCredential(), config.getCredentialName());
+    }
+
+    private static String normalizeDelimiter(String delimiter) {
+        return delimiter == null || delimiter.isEmpty() ? "," : delimiter;
+    }
+
+    private static String trim(String value) {
+        return value == null ? null : value.trim();
     }
 
     public List<String> getDiscoveredColumns() {
-        return discoveredColumns;
+        return List.copyOf(discoveredColumns);
+    }
+
+    private void invalidateDiscoveredColumns() {
+        columnLoadSignature.incrementAndGet();
+        discoveredColumns.clear();
+        numericColumns.clear();
+        resetLoadColumnsButton();
+        notifySourceChanged();
     }
 
     private void loadColumnsFromCloud() {
-        String uri = uriField.getText().trim();
+        String uri = getSelectedUri();
         if (uri.isEmpty() || !uri.startsWith("https://")) {
             return;
         }
 
+        if (!isNoCredential() && getSelectedCredential() == null) return;
+
         String credential = getSelectedCredential();
         String delimiter = getSelectedDelimiter();
+        sourceTextChanged = false;
 
         ConnectionHandler connection = getConnection();
+        int signature = columnLoadSignature.incrementAndGet();
 
         loadColumnsButton.setEnabled(false);
         loadColumnsButton.setText(txt("cfg.machineLearning.button.Loading"));
@@ -220,21 +321,32 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
                             Set<String> numeric = detectNumericColumns(fileHead, columns, delimiter);
 
                             Dispatch.run(loadColumnsButton, () -> {
+                                if (!matchesColumnLoadSignature(signature)) return;
+
                                 discoveredColumns = columns;
                                 numericColumns = numeric;
-                                loadColumnsButton.setEnabled(true);
-                                loadColumnsButton.setText(txt("cfg.machineLearning.button.LoadColumns"));
-                                notifySourceChanged();
+                                resetLoadColumnsButton();
+                                notifySourceLoaded();
                             });
                         });
             } catch (Exception ex) {
                 log.error("Failed to load columns from cloud source", ex);
                 Dispatch.run(loadColumnsButton, () -> {
-                    loadColumnsButton.setEnabled(true);
-                    loadColumnsButton.setText(txt("cfg.machineLearning.button.LoadColumns"));
+                    if (!matchesColumnLoadSignature(signature)) return;
+
+                    resetLoadColumnsButton();
                 });
             }
         });
+    }
+
+    private boolean matchesColumnLoadSignature(int signature) {
+        return signature == columnLoadSignature.get();
+    }
+
+    private void resetLoadColumnsButton() {
+        loadColumnsButton.setEnabled(true);
+        loadColumnsButton.setText(txt("cfg.machineLearning.button.LoadColumns"));
     }
 
     private List<String> parseHeaderLine(String fileHead, String delimiter) {
@@ -289,19 +401,25 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
     }
 
     private CloudSourceConfig getConfig() {
-        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
-        if (toolboxForm == null) return new CloudSourceConfig();
-        return toolboxForm.getMLRequest().getSourceConfig().getCloudSourceConfig();
+        return getMLRequest().getSourceConfig().getCloudSourceConfig();
     }
 
     @Override
     public void resetFormChanges() {
+        columnLoadSignature.incrementAndGet();
+        resetLoadColumnsButton();
+
         CloudSourceConfig config = getConfig();
-        uriField.setText(config.getFileUri() != null ? config.getFileUri() : "");
+        setTextSilently(uriField, config.getFileUri() != null ? config.getFileUri() : "");
         noCredentialCheckBox.setSelected(config.isNoCredential());
-        delimiterField.setText(config.getDelimiter() != null ? config.getDelimiter() : ",");
+        setTextSilently(delimiterField, config.getDelimiter() != null ? config.getDelimiter() : ",");
         hasHeaderCheckBox.setSelected(config.isHasHeader());
+        sourceCredentialSchemaName = config.isNoCredential() ? null : config.getCredentialSchemaName();
+        sourceCredentialName = config.isNoCredential() ? null : config.getCredentialName();
         initCredentialComboBoxes();
+        discoveredColumns = new ArrayList<>(config.getDiscoveredColumns());
+        numericColumns = new HashSet<>(config.getNumericColumns());
+        sourceTextChanged = false;
     }
 
     @Override

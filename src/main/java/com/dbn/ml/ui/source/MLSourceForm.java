@@ -23,16 +23,15 @@ import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.model.source.MLSourceConfig;
 import com.dbn.ml.model.source.MLSourceType;
-import com.dbn.ml.ui.MLToolboxForm;
 import com.dbn.ml.ui.MLToolboxFormBase;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
@@ -44,6 +43,7 @@ import static com.dbn.nls.NlsResources.txt;
  * Swaps between child forms based on selected source type:
  * - DATABASE_TABLE -> MLSourceTableForm
  * - FILE_SYSTEM -> MLSourceFileForm
+ * - OBJECT_STORAGE -> MLSourceCloudForm
  */
 public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleForm {
     private JPanel mainPanel;
@@ -84,7 +84,10 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
 
     @Override
     protected void initEventListeners() {
-        onSelectionChange(sourceTypeComboBox, t -> updateSourceForm());
+        onSelectionChange(sourceTypeComboBox, t -> {
+            updateSourceForm();
+            notifySourceChanged();
+        });
     }
 
     private void updateSourceForm() {
@@ -112,59 +115,84 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
      * Get selected schema (only valid for DATABASE_TABLE source type)
      */
     public DBSchema getSelectedSchema() {
-        return tableForm != null ? tableForm.getSelectedSchema() : null;
+        return tableForm.getSelectedSchema();
     }
 
     /**
      * Get selected table (only valid for DATABASE_TABLE source type)
      */
     public DBTable getSelectedTable() {
-        return tableForm != null ? tableForm.getSelectedTable() : null;
+        return tableForm.getSelectedTable();
     }
 
     /**
      * Get selected file path (only valid for FILE_SYSTEM source type)
      */
     public String getSelectedFilePath() {
-        return fileForm != null ? fileForm.getSelectedFilePath() : null;
+        return fileForm.getSelectedFilePath();
     }
 
-    /**
-     * Get selected delimiter (only valid for FILE_SYSTEM or OBJECT_STORAGE source type)
-     */
-    public String getSelectedDelimiter() {
-        MLSourceType sourceType = getSelectedSourceType();
-        if (sourceType == MLSourceType.OBJECT_STORAGE) {
-            return cloudForm != null ? cloudForm.getSelectedDelimiter() : ",";
-        }
-        return fileForm != null ? fileForm.getSelectedDelimiter() : ",";
+    public String getSelectedFileDelimiter() {
+        return fileForm.getSelectedDelimiter();
     }
 
     /**
      * Get selected cloud URI (only valid for OBJECT_STORAGE source type)
      */
     public String getSelectedCloudUri() {
-        return cloudForm != null ? cloudForm.getSelectedUri() : null;
-    }
-
-    /**
-     * Get selected credential name (only valid for OBJECT_STORAGE source type)
-     */
-    public String getSelectedCredential() {
-        return cloudForm != null ? cloudForm.getSelectedCredential() : null;
+        return cloudForm.getSelectedUri();
     }
 
     /**
      * Get discovered column names from cloud source (only valid for OBJECT_STORAGE source type)
      */
     public List<String> getCloudDiscoveredColumns() {
-        return cloudForm != null ? cloudForm.getDiscoveredColumns() : Collections.emptyList();
+        return cloudForm.getDiscoveredColumns();
+    }
+
+    public boolean isConfiguredSourceSelected() {
+        MLSourceConfig config = getConfig();
+        MLSourceType sourceType = getSelectedSourceType();
+        if (sourceType == null || sourceType != config.getSourceType()) return false;
+
+        return switch (sourceType) {
+            case DATABASE_TABLE -> tableForm.isConfiguredSourceSelected();
+            case FILE_SYSTEM -> fileForm.isConfiguredSourceSelected();
+            case OBJECT_STORAGE -> cloudForm.isConfiguredSourceSelected();
+        };
+    }
+
+    private void notifySourceChanged() {
+        getToolboxForm().onSourceChanged();
+    }
+
+    void notifySourceInvalidated(MLSourceType sourceType) {
+        if (sourceType == getSelectedSourceType()) {
+            getToolboxForm().onSourceInvalidated();
+        }
+    }
+
+    void notifySourceChanged(MLSourceType sourceType) {
+        if (sourceType == getSelectedSourceType()) {
+            notifySourceChanged();
+        }
+    }
+
+    void notifySourceLoaded(MLSourceType sourceType) {
+        if (sourceType != getSelectedSourceType()) return;
+
+        getToolboxForm().onSourceLoaded();
+    }
+
+    public @DialogMessage String validateSourceSelection() {
+        if (getSelectedSourceType() != MLSourceType.DATABASE_TABLE) return null;
+        if (getSelectedSchema() == null) return txt("msg.shared.error.SelectSchema");
+        if (getSelectedTable() == null) return txt("msg.shared.error.SelectTable");
+        return null;
     }
 
     private MLSourceConfig getConfig() {
-        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
-        if (toolboxForm == null) return new MLSourceConfig();
-        return toolboxForm.getMLRequest().getSourceConfig();
+        return getMLRequest().getSourceConfig();
     }
 
     @Override

@@ -54,15 +54,14 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -86,6 +85,8 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     private ValueFactory<T> valueFactory;
     private Supplier<List<T>> valueLoader;
     private Predicate<T> valuePreselector;
+    private Consumer<List<T>> valueLoadConsumer;
+    private boolean loadPending;
 
     private final AtomicInteger loadSignature = new AtomicInteger(0);
     private final Lock loadLock = new ReentrantLock();
@@ -221,6 +222,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     }
 
     public void loadValues() {
+        loadPending = false;
         if (valueLoader == null) return;
 
         try {
@@ -229,36 +231,57 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
             // block the control
             LOADING.set(this, true);
             disableFormField(this, "TEMPORARY_LOAD");
-            ActionListener[] actionListeners = muteActionListeners();
+            int signature = loadSignature.incrementAndGet();
 
             // reset values and selection
-            setValues(new ArrayList<>());
-            setSelectedValue(null);
+            ActionListener[] actionListeners = muteActionListeners();
+            try {
+                setValues(List.of());
+            } finally {
+                unmuteActionListeners(actionListeners);
+            }
 
-            int signature = loadSignature.incrementAndGet();
-            Background.run(() -> {
-                if (!matchesLoadSignature(signature)) return;
-                try {
-                    List<T> values = performValueLoad();
-
-                    if (matchesLoadSignature(signature)) {
-                        Dispatch.run(this, () -> {
-                            setValues(values);
-                            preselectValue();
-                        });
-                    }
-
-                } finally {
-                    if (matchesLoadSignature(signature)) {
-                        LOADING.set(this, false);
-                        enableFormField(this, "TEMPORARY_LOAD");
-                        unmuteActionListeners(actionListeners);
-                    }
-                }
-            });
+            Background.run(() -> loadValuesInBackground(signature));
 
         } finally {
             loadLock.unlock();
+        }
+    }
+
+    private void loadValuesInBackground(int signature) {
+        if (!matchesLoadSignature(signature)) return;
+
+        List<T> values = null;
+        boolean successful = false;
+        try {
+            values = performValueLoad();
+            successful = true;
+        } finally {
+            List<T> loadedValues = values;
+            boolean loadSuccessful = successful;
+            Dispatch.run(this, () -> completeValueLoad(signature, loadedValues, loadSuccessful));
+        }
+    }
+
+    private void completeValueLoad(int signature, @Nullable List<T> values, boolean successful) {
+        if (!matchesLoadSignature(signature)) return;
+
+        List<T> loadedValues = values == null ? List.of() : values;
+        try {
+            if (successful) {
+                setValues(loadedValues);
+                preselectValue();
+            }
+        } finally {
+            if (matchesLoadSignature(signature)) {
+                LOADING.set(this, false);
+                enableFormField(this, "TEMPORARY_LOAD");
+            }
+        }
+
+        if (matchesLoadSignature(signature)) {
+            Consumer<List<T>> valueLoadConsumer = this.valueLoadConsumer;
+            if (valueLoadConsumer != null) valueLoadConsumer.accept(loadedValues);
         }
     }
 
@@ -298,16 +321,32 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         return this;
     }
 
+    /**
+     * Registers a consumer notified after the current asynchronous load completes. Invoked on the
+     * dispatch thread after values and preselection are applied. A failed load leaves the model
+     * empty and supplies an empty list, allowing dependent controls to clear their stale values.
+     */
+    public DBNComboBox<T> withValueLoadConsumer(Consumer<List<T>> valueLoadConsumer) {
+        this.valueLoadConsumer = valueLoadConsumer;
+        return this;
+    }
+
     public DBNComboBox<T> withValueFactory(ValueFactory<T> valueFactory) {
         this.valueFactory = valueFactory;
         return this;
     }
 
-    public void triggerLoad(){
+    public void triggerLoad() {
         if (isShowing()) {
             loadValues();
         } else {
-            whenFirstShown(this, () -> loadValues());
+            loadSignature.incrementAndGet();
+            if (loadPending) return;
+
+            loadPending = true;
+            whenFirstShown(this, () -> {
+                if (loadPending) loadValues();
+            });
         }
     }
 
@@ -340,7 +379,6 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
                 this.valuePreselector = t -> getValueName(t).equals(selectedValueName);
             }
         }
-        setValues(Collections.emptyList());
         loadValues();
     }
 

@@ -17,8 +17,6 @@
 package com.dbn.ml.ui.feature;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.thread.Background;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.dialog.SelectionListCellRenderer;
@@ -33,7 +31,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.model.feature.MLFeatureConfig;
 import com.dbn.ml.model.source.MLSourceType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
-import com.dbn.ml.ui.MLToolboxForm;
 import com.dbn.ml.ui.MLToolboxFormBase;
 import com.dbn.ml.ui.source.MLSourceForm;
 import com.dbn.object.DBColumn;
@@ -54,22 +51,25 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 import static com.dbn.common.text.TextContent.html;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.link.Hyperlinks.initHyperlink;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Form for selecting features and labels for ML training.
- * Supports both database tables and CSV files as data sources.
+ * Supports database tables, local CSV files and object-storage CSV files.
  *
  * For CSV: reads headers from file and displays as column names
  * For DB: loads columns from selected table
@@ -100,8 +100,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private HyperlinkLabel selectAllFeaturesLink;
     private HyperlinkLabel clearFeaturesLink;
 
-    // Cached column names (works for both CSV headers and DB columns)
-    private List<String> availableColumns = new ArrayList<>();
+    private boolean restoreConfiguredSelection;
 
     public MLFeatureForm(Disposable parent, ConnectionHandler connection) {
         super(parent, connection);
@@ -128,6 +127,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
 
         partitionInfoLabel.setContent(html(this, "info/partition_model_info.html.ft"));
 
+        initLabelComboBox();
         initFeatureSelectionLinks();
         featuresLabel.setLabelFor(featuresList);
         labelLabel.setLabelFor(labelComboBox);
@@ -171,8 +171,8 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     protected void initFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
         fieldAdapter.initFieldsAvailability(
-                () -> !availableColumns.isEmpty(),
-                array(featuresScrollPane, labelComboBox));
+                () -> !featuresListModel.isEmpty(),
+                array(featuresScrollPane, labelComboBox, partitionScrollPane));
     }
 
     @Override
@@ -239,85 +239,77 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         alignerData.registerFieldGroup(partitionLabelPanel, partitionEnabledCheckBox);
     }
 
-    /**
-     * Called when source changes - reload columns from new source.
-     * Handles both CSV files and database tables.
-     */
-    public void refreshColumns() {
-        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
-        if (toolboxForm == null) return;
+    /** Reloads dependent columns, preserving matching selections for passive source reloads. */
+    private void refreshColumns(boolean preserveSelection) {
+        MLSourceForm sourceForm = getSourceForm();
+        boolean restoreSelection = restoreConfiguredSelection &&
+                sourceForm.isConfiguredSourceSelected();
 
-        MLSourceForm sourceForm = toolboxForm.getSourceForm();
-        if (sourceForm == null) return;
+        if (restoreSelection) {
+            armTargetPreselector(getConfig().getLabelColumn());
+        } else if (!preserveSelection) {
+            armTargetPreselector(null);
+        }
 
+        labelComboBox.withValueLoader(createColumnLoader(sourceForm));
+        if (preserveSelection) {
+            labelComboBox.reloadValues();
+            validateFormFields();
+        } else {
+            clearColumns();
+            labelComboBox.triggerLoad();
+        }
+    }
+
+    private Supplier<List<Presentable>> createColumnLoader(MLSourceForm sourceForm) {
         MLSourceType sourceType = sourceForm.getSelectedSourceType();
+        if (sourceType == null) return Collections::emptyList;
 
         if (sourceType == MLSourceType.FILE_SYSTEM) {
-            loadColumnsFromCSV(sourceForm);
-        } else if (sourceType == MLSourceType.DATABASE_TABLE) {
-            loadColumnsFromDatabase();
-        } else if (sourceType == MLSourceType.OBJECT_STORAGE) {
-            loadColumnsFromCloud(sourceForm);
+            String filePath = sourceForm.getSelectedFilePath();
+            String delimiter = sourceForm.getSelectedFileDelimiter();
+            return () -> loadFileColumns(filePath, delimiter);
+        }
+
+        if (sourceType == MLSourceType.DATABASE_TABLE) {
+            DBTable table = sourceForm.getSelectedTable();
+            return () -> table == null ?
+                    Collections.emptyList() :
+                    toColumnOptions(Lists.convert(table.getColumns(), DBColumn::getName));
+        }
+
+        if (sourceType == MLSourceType.OBJECT_STORAGE) {
+            List<String> columns = sourceForm.getCloudDiscoveredColumns();
+            return () -> toColumnOptions(columns);
+        }
+
+        return Collections::emptyList;
+    }
+
+    private List<Presentable> loadFileColumns(String filePath, String delimiter) {
+        try {
+            return toColumnOptions(readCSVHeaders(filePath, delimiter));
+        } catch (IOException e) {
+            conditionallyLog(e);
+            log.warn("Failed to load source columns", e);
+            return Collections.emptyList();
         }
     }
 
-    private void showLoadingState() {
-        JLabel loadingLabel = new JLabel(txt("app.shared.placeholder.Loading"), SwingConstants.CENTER);
-        loadingLabel.setEnabled(false);
-        featuresScrollPane.setViewportView(loadingLabel);
-        labelComboBox.setEnabled(false);
+    private List<Presentable> toColumnOptions(List<String> columns) {
+        return Lists.convert(columns, column -> Presentable.basic(column, Icons.DBO_COLUMN));
     }
 
-    private void showLoadedState() {
-        featuresScrollPane.setViewportView(featuresList);
-        labelComboBox.setEnabled(true);
-    }
+    private List<String> readCSVHeaders(String filePath, String delimiter) throws IOException {
+        if (filePath == null || filePath.isBlank()) return Collections.emptyList();
 
-    /**
-     * Loads column names from CSV file headers.
-     * Reads file path directly from source form (not config) because config may not be updated yet.
-     */
-    private void loadColumnsFromCSV(MLSourceForm sourceForm) {
-        // Get file path directly from the source form's file field
-        String filePath = sourceForm.getSelectedFilePath();
-
-        if (filePath == null || filePath.isEmpty()) {
-            clearColumns();
-            return;
-        }
-
-        // Get delimiter directly from source form
-        String delimiter = sourceForm.getSelectedDelimiter();
-
-        showLoadingState();
-
-        // Read CSV headers in background
-        Background.run(() -> {
-            try {
-                List<String> headers = readCSVHeaders(filePath, delimiter);
-
-                // Update UI on EDT
-                Dispatch.run(featuresScrollPane, () -> {
-                    updateColumnsUI(headers);
-                });
-            } catch (Exception e) {
-                log.warn("Failed to read CSV headers", e);
-                Dispatch.run(featuresScrollPane, this::clearColumns);
-            }
-        });
-    }
-
-    /**
-     * Reads headers from a CSV file.
-     */
-    private List<String> readCSVHeaders(String filePath, String delimiter) throws Exception {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String headerLine = reader.readLine();
             if (headerLine == null || headerLine.isEmpty()) {
                 return Collections.emptyList();
             }
 
-            String[] headers = headerLine.split(delimiter);
+            String[] headers = headerLine.split(Pattern.quote(delimiter));
             List<String> result = new ArrayList<>(headers.length);
             for (String header : headers) {
                 result.add(header.trim());
@@ -326,105 +318,79 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         }
     }
 
-    private String getDelimiter() {
-        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
-        if (toolboxForm == null) return ",";
-
-        String delimiter = toolboxForm.getMLRequest().getSourceConfig()
-                .getFileSourceConfig().getDelimiter();
-        return delimiter != null ? delimiter : ",";
-    }
-
-    /**
-     * Loads column names from database table.
-     */
-    private void loadColumnsFromDatabase() {
-        DBTable table = getSelectedTable();
-        if (table == null) {
-            clearColumns();
-            return;
-        }
-
-        showLoadingState();
-
-        // Load columns in background
-        Background.run(() -> {
-            List<DBColumn> columns = table.getColumns();
-            List<String> columnNames = new ArrayList<>(columns.size());
-            for (DBColumn column : columns) {
-                columnNames.add(column.getName());
-            }
-
-            // Update UI on EDT
-            Dispatch.run(featuresScrollPane, () -> {
-                updateColumnsUI(columnNames);
-            });
-        });
-    }
-
-    /**
-     * Loads column names from cloud source (already cached by MLSourceCloudForm).
-     */
-    private void loadColumnsFromCloud(MLSourceForm sourceForm) {
-        List<String> columns = sourceForm.getCloudDiscoveredColumns();
-        if (columns == null || columns.isEmpty()) {
-            clearColumns();
-            return;
-        }
-        updateColumnsUI(columns);
-    }
-
-    private DBTable getSelectedTable() {
-        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
-        if (toolboxForm == null) return null;
-
-        MLSourceForm sourceForm = toolboxForm.getSourceForm();
-        if (sourceForm == null) return null;
-
-        return sourceForm.getSelectedTable();
-    }
-
-    /**
-     * Updates the UI with new column names.
-     * Called on EDT after loading columns from CSV or DB.
-     */
-    private void updateColumnsUI(List<String> columns) {
-        showLoadedState();
-        this.availableColumns = new ArrayList<>(columns);
-        List<Presentable> columnOptions = Lists.convert(columns, column -> Presentable.basic(column, Icons.DBO_COLUMN));
-
-        // Update features list
-        featuresListModel.clear();
-        featuresListModel.addAll(columnOptions);
-
-        // Update label combo box
-        initLabelComboBox(columnOptions);
-
-        // Update partition list
-        partitionsListModel.clear();
-        partitionsListModel.addAll(columnOptions);
-
-        updateFieldAvailability();
-
-        // Restore saved selections if any
-        MLFeatureConfig config = getConfig();
-        restoreSelections(config);
-        updateFeatureSelectionState();
-    }
-
     private void clearColumns() {
-        showLoadedState();
-        availableColumns.clear();
+        labelComboBox.clearValues();
         featuresListModel.clear();
         partitionsListModel.clear();
-        initLabelComboBox(Collections.emptyList());
         updateFieldAvailability();
         updateFeatureSelectionState();
+        validateFormFields();
     }
 
-    private void initLabelComboBox(List<Presentable> columns) {
-        ComboBoxes.initComboBox(labelComboBox, columns);
+    /**
+     * Applies a completed column load. Invoked on the dispatch thread by the combo box loader,
+     * only for the load that is still current and after the target selection has been applied.
+     */
+    private void onColumnsLoaded(List<Presentable> columns) {
+        boolean restoreSelection = restoreConfiguredSelection && isConfiguredSourceSelected();
+        List<String> selectedFeatures = restoreSelection ?
+                getConfig().getFeatureColumns() :
+                getSelectedFeatures();
+        List<String> selectedPartitions = restoreSelection ?
+                getTrainerConfig().getPartitionColumns() :
+                getSelectedPartitionColumns();
+
+        featuresListModel.clear();
+        partitionsListModel.clear();
+        featuresListModel.addAll(columns);
+        partitionsListModel.addAll(columns);
+
+        updateFieldAvailability();
+        restoreListSelections(featuresList, featuresListModel, selectedFeatures);
+        restoreListSelections(partitionsList, partitionsListModel, selectedPartitions);
+
+        if (restoreSelection && !columns.isEmpty()) {
+            restoreConfiguredSelection = false;
+            armTargetPreselector(null);
+        }
+
+        updateFeatureSelectionState();
+        validateFormFields();
+    }
+
+    private boolean isConfiguredSourceSelected() {
+        return getSourceForm().isConfiguredSourceSelected();
+    }
+
+    private MLSourceForm getSourceForm() {
+        return getToolboxForm().getSourceForm();
+    }
+
+    public @DialogMessage String validateColumnSelection() {
+        if (mainPanel.isShowing() &&
+                featuresList.isEnabled() &&
+                labelComboBox.isEnabled() &&
+                (!partitionEnabledCheckBox.isSelected() || partitionsList.isEnabled())) {
+            return null;
+        }
+
+        if (getSelectedFeatures().isEmpty()) {
+            return txt("msg.machineLearning.error.SelectFeature");
+        }
+
+        String targetValidation = validateTargetColumn(labelComboBox);
+        if (targetValidation != null) return targetValidation;
+
+        if (partitionEnabledCheckBox.isSelected() && getSelectedPartitionColumns().isEmpty()) {
+            return txt("msg.machineLearning.error.SelectPartitionColumn");
+        }
+
+        return null;
+    }
+
+    private void initLabelComboBox() {
         labelComboBox.setRenderer(createTargetColumnCellRenderer());
+        labelComboBox.withValueLoadConsumer(this::onColumnsLoaded);
     }
 
     private ListCellRenderer<Presentable> createTargetColumnCellRenderer() {
@@ -441,18 +407,8 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         };
     }
 
-    private void restoreSelections(MLFeatureConfig config) {
-        restoreListSelections(featuresList, featuresListModel, config.getFeatureColumns());
-
-        String savedLabel1 = config.getLabelColumn();
-        if (savedLabel1 != null && availableColumns.contains(savedLabel1)) {
-            labelComboBox.setSelectedValue(Presentable.basic(savedLabel1, Icons.DBO_COLUMN));
-        }
-
-        restoreListSelections(partitionsList, partitionsListModel, getTrainerConfig().getPartitionColumns());
-    }
-
     private void restoreListSelections(JBList<Presentable> list, DefaultListModel<Presentable> model, List<String> saved) {
+        list.clearSelection();
         if (saved == null || saved.isEmpty()) return;
         List<Integer> indices = new ArrayList<>();
         for (int i = 0; i < model.size(); i++) {
@@ -479,15 +435,11 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     }
 
     private MLFeatureConfig getConfig() {
-        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
-        if (toolboxForm == null) return new MLFeatureConfig();
-        return toolboxForm.getMLRequest().getFeatureConfig();
+        return getMLRequest().getFeatureConfig();
     }
 
     private MLTrainerConfig getTrainerConfig() {
-        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
-        if (toolboxForm == null) return new MLTrainerConfig();
-        return toolboxForm.getMLRequest().getTrainerConfig();
+        return getMLRequest().getTrainerConfig();
     }
 
     @Override
@@ -496,7 +448,37 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         MLTrainerConfig trainerConfig = getTrainerConfig();
         partitionEnabledCheckBox.setSelected(trainerConfig.isPartitioned());
         updatePartitionVisibility();
-        refreshColumns();
+
+        restoreConfiguredSelection = true;
+        refreshColumns(false);
+    }
+
+    public void sourceChanged() {
+        restoreConfiguredSelection = false;
+        refreshColumns(false);
+    }
+
+    public void sourceInvalidated() {
+        restoreConfiguredSelection = false;
+        armTargetPreselector(null);
+        labelComboBox.withValueLoader(Collections::emptyList);
+        clearColumns();
+        labelComboBox.triggerLoad();
+    }
+
+    public void sourceLoaded() {
+        refreshColumns(true);
+    }
+
+    /**
+     * Arms a one-time preselection of the configured target column. Cleared on a genuine source
+     * change, so a target that never matched cannot be applied to an unrelated source later on.
+     */
+    private void armTargetPreselector(String targetColumn) {
+        labelComboBox.withValuePreselector(
+                targetColumn == null || targetColumn.isBlank() ?
+                        null :
+                        column -> targetColumn.equals(column.getName()));
     }
 
     @Override
