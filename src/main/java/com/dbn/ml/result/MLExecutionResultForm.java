@@ -30,6 +30,7 @@ import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.model.MLResult;
+import com.dbn.ml.result.action.MLResultRenameAction;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBView;
 import com.dbn.object.common.list.DBObjectList;
@@ -122,8 +123,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     }
 
     private void initializeHeader() {
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, getHeaderContext());
-        objectHeaderPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+        initializeObjectHeader();
 
         // Summary line - training context only, the metrics are shown as cards below
         metricsSummary.append(result.isClassification() ?
@@ -140,6 +140,27 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         }
         metricsSummary.append(txt("app.machineLearning.label.Time") + ": ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
         metricsSummary.append(presentableDuration(result.getTrainingTimeMs(), true), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+    }
+
+    private void initializeObjectHeader() {
+        objectHeaderPanel.removeAll();
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, getHeaderContext());
+        if (result.getModelHandle() != null) {
+            headerForm.setActions(Actions.createActionGroup(new MLResultRenameAction()));
+        }
+        objectHeaderPanel.setBackground(headerForm.getBackground());
+        objectHeaderPanel.add(headerForm.getComponent(), BorderLayout.WEST);
+    }
+
+    public void refreshModelPresentation() {
+        initializeObjectHeader();
+
+        modelViewsPanel.removeAll();
+        modelViewsPanel.setVisible(true);
+        initializeModelViews();
+
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
 
     /**

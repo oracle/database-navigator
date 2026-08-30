@@ -796,7 +796,6 @@
             <action id="DBN.MachineLearning.Result.Toolbox" class="com.dbn.ml.result.action.MLResultTrainAgainAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
             <action id="DBN.MachineLearning.Result.Predict" class="com.dbn.ml.result.action.MLResultPredictAction" icon="com.dbn.common.icon.Icons.ACTION_EXECUTE"/>
             <action id="DBN.MachineLearning.Result.ViewInDatabase" class="com.dbn.ml.result.action.MLResultViewInBrowserAction" icon="com.dbn.common.icon.Icons.DBO_AI_MODEL"/>
-            <action id="DBN.MachineLearning.Result.RenameModel" class="com.dbn.ml.result.action.MLResultRenameAction" icon="com.dbn.common.icon.Icons.ACTION_EDIT"/>
             <separator/>
             <action id="DBN.MachineLearning.Result.Close" class="com.dbn.ml.result.action.MLResultCloseAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_CLOSE"/>
         </group>
