@@ -295,9 +295,9 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
     /**
      * Gets the detail views created for a model from USER_MINING_MODEL_VIEWS.
      *
-     * @return ResultSet with column VIEW_NAME
+     * @return ResultSet with columns: VIEW_NAME, VIEW_TYPE
      */
-    ResultSet getModelDetailViewNames(DBNConnection conn, String modelName) throws SQLException;
+    ResultSet getModelDetailViews(DBNConnection conn, String modelName) throws SQLException;
 
     /**
      * Queries GLM coefficients (DM$VD) — Logistic Regression and Linear Regression.

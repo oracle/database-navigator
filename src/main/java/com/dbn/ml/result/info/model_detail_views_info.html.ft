@@ -29,6 +29,13 @@
     <h3>Model Detail Views</h3>
     <p>When Oracle trains a model, it exposes model-specific information through database views.</p>
     <p>Open them like any other view to inspect details such as model settings, build alerts, or algorithm-specific statistics.</p>
-    <p>The views use names beginning with <code>DM$V</code>. The exact views available depend on the algorithm.</p>
+    <p>Common views include:</p>
+    <ul>
+        <li><code>DM$VG</code> — global model information</li>
+        <li><code>DM$VS</code> — computed settings</li>
+        <li><code>DM$VW</code> — build alerts</li>
+        <li><code>DM$VN</code> — automatic preprocessing</li>
+    </ul>
+    <p>Algorithm-specific views and their columns vary. A registered view may contain no rows. For example, an empty <code>DM$VW</code> view normally means Oracle recorded no build alerts; it does not mean the view is missing.</p>
 </body>
 </html>

@@ -397,9 +397,9 @@
 
     <!-- Query the authoritative list of detail views created for a model -->
     <!-- Parameters: 0=model_name -->
-    <statement-execution-processor id="get-model-detail-view-names" timeout="10000">
+    <statement-execution-processor id="get-model-detail-views" timeout="10000">
         <statement>
-            SELECT VIEW_NAME
+            SELECT VIEW_NAME, VIEW_TYPE
             FROM USER_MINING_MODEL_VIEWS
             WHERE MODEL_NAME = UPPER({#0})
             ORDER BY VIEW_NAME

@@ -40,6 +40,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -182,19 +183,19 @@ public class DBMSBackend {
                 });
     }
 
-    public List<String> loadModelDetailViewNames(String modelName) throws SQLException {
+    public Map<String, String> loadModelDetailViews(String modelName) throws SQLException {
         return DatabaseInterfaceInvoker.load(Priority.LOW,
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    List<String> names = new ArrayList<>();
+                    Map<String, String> views = new LinkedHashMap<>();
                     DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
-                    try (ResultSet resultSet = mlInterface.getModelDetailViewNames(conn, modelName)) {
+                    try (ResultSet resultSet = mlInterface.getModelDetailViews(conn, modelName)) {
                         while (resultSet.next()) {
-                            names.add(resultSet.getString("VIEW_NAME"));
+                            views.put(resultSet.getString("VIEW_NAME"), resultSet.getString("VIEW_TYPE"));
                         }
                     }
-                    return names;
+                    return views;
                 });
     }
 

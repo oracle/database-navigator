@@ -42,6 +42,7 @@ import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Box;
@@ -398,18 +399,14 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
 
         ConnectionHandler connection = modelHandle.getConnection();
         Project project = connection.getProject();
-        List<String> modelViews = result.getModelDetailViewNames();
+        Map<String, String> modelViews = result.getModelDetailViews();
         if (modelViews == null) {
-            modelViewsPanel.setVisible(false);
-            return;
-        }
-
-        if (modelViews.isEmpty()) {
-            JLabel emptyLabel = new JLabel(txt("app.machineLearning.text.NoModelDetailViews"));
-            emptyLabel.setForeground(JBColor.gray);
-            linksPanel.add(emptyLabel);
+            addMutedLabel(linksPanel, txt("app.machineLearning.text.ModelDetailViewsLookupFailed"));
+        } else if (modelViews.isEmpty()) {
+            addMutedLabel(linksPanel, txt("app.machineLearning.text.NoModelDetailViews"));
         } else {
-            for (String viewName : modelViews) {
+            for (Map.Entry<String, String> modelView : modelViews.entrySet()) {
+                String viewName = modelView.getKey();
                 JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
                 row.setOpaque(false);
 
@@ -419,11 +416,23 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
                 link.addHyperlinkListener(e -> openView(project, connection, viewName));
 
                 row.add(link);
+                String viewType = modelView.getValue();
+                if (viewType != null && !viewType.isBlank()) {
+                    JLabel typeLabel = new JLabel("— " + viewType);
+                    typeLabel.setForeground(JBColor.gray);
+                    row.add(typeLabel);
+                }
                 linksPanel.add(row);
             }
         }
 
         modelViewsPanel.add(linksPanel, BorderLayout.CENTER);
+    }
+
+    private static void addMutedLabel(JPanel panel, @Nls String text) {
+        JLabel label = new JLabel(text);
+        label.setForeground(JBColor.gray);
+        panel.add(label);
     }
 
     private void openView(Project project, ConnectionHandler connection, String viewName) {

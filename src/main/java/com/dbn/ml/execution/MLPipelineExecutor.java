@@ -71,7 +71,7 @@ public class MLPipelineExecutor {
                 replaceModel(result, backend);
             }
 
-            loadModelDetailViewNames(result, backend);
+            loadModelDetailViews(result, backend);
             refreshModelObjects(connectionHandler);
             return result;
         } catch (Exception e) {
@@ -113,11 +113,11 @@ public class MLPipelineExecutor {
         DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.VIEW);
     }
 
-    private void loadModelDetailViewNames(MLResult result, DBMSBackend backend) {
+    private void loadModelDetailViews(MLResult result, DBMSBackend backend) {
         try {
-            result.setModelDetailViewNames(backend.loadModelDetailViewNames(result.getModelName()));
+            result.setModelDetailViews(backend.loadModelDetailViews(result.getModelName()));
         } catch (SQLException e) {
-            log.warn("Failed to load model detail views - result will omit the links", e);
+            log.warn("Failed to load model detail views", e);
         }
     }
 

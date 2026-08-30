@@ -26,6 +26,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.Nls;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -65,7 +66,7 @@ public class MLResult {
     private List<String> labelColumns;
 
     // Model detail metadata - null when the database lookup was unavailable
-    private List<String> modelDetailViewNames;
+    private Map<String, String> modelDetailViews;
 
     // Source name for default model naming (table name or CSV file name)
     private String sourceName;
