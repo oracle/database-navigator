@@ -5,7 +5,7 @@ import com.dbn.connection.config.provider.CloudConfigProviderFamily;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
 
 public class CloudConfigProviderHandlers extends ExtensionPointCache<CloudConfigProviderFamily, CloudConfigProviderHandler> {
-    private static final CloudConfigProviderHandlers INSTANCE = new CloudConfigProviderHandlers();
+    public static final CloudConfigProviderHandlers INSTANCE = new CloudConfigProviderHandlers();
 
     private CloudConfigProviderHandlers() {
         super(CloudConfigProviderHandler.EP, CloudConfigProviderHandler::getFamily);
