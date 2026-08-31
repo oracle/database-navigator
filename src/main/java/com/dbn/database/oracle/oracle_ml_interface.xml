@@ -166,7 +166,8 @@
     <!-- ==================== EVALUATION PROCEDURES ==================== -->
 
     <!-- Compute Confusion Matrix using DBMS_DATA_MINING.COMPUTE_CONFUSION_MATRIX -->
-    <!-- Parameters: 0=apply_result_table, 1=target_table, 2=target_column, 3=confusion_matrix_table -->
+    <!-- Parameters: 0=apply_result_table, 1=target_table, 2=target_column,
+         3=confusion_matrix_table, 4=accuracy_table -->
     <!-- Returns: accuracy as OUT parameter -->
     <statement-execution-processor id="compute-confusion-matrix" timeout="120000">
         <statement>
@@ -189,8 +190,8 @@
                     score_criterion_type        => 'PROBABILITY'
                 );
                 -- Store accuracy in a temp table so we can retrieve it
-                EXECUTE IMMEDIATE 'CREATE TABLE {3}_ACC (ACCURACY NUMBER)';
-                EXECUTE IMMEDIATE 'INSERT INTO {3}_ACC VALUES (' || v_accuracy || ')';
+                EXECUTE IMMEDIATE 'CREATE TABLE {4} (ACCURACY NUMBER)';
+                EXECUTE IMMEDIATE 'INSERT INTO {4} VALUES (' || v_accuracy || ')';
             END;
         </statement>
     </statement-execution-processor>
@@ -198,7 +199,7 @@
     <!-- Get accuracy from temp table created by compute-confusion-matrix -->
     <statement-execution-processor id="get-accuracy" timeout="5000">
         <statement>
-            SELECT ACCURACY FROM {0}_ACC
+            SELECT ACCURACY FROM {0}
         </statement>
     </statement-execution-processor>
 
@@ -212,7 +213,8 @@
     </statement-execution-processor>
 
     <!-- Compute ROC (for binary classification) -->
-    <!-- Parameters: 0=apply_result_table, 1=target_table, 2=target_column, 3=roc_table, 4=positive_target_value -->
+    <!-- Parameters: 0=apply_result_table, 1=target_table, 2=target_column,
+         3=roc_table, 4=auc_table, 5=positive_target_value -->
     <statement-execution-processor id="compute-roc" timeout="120000">
         <statement>
             DECLARE
@@ -225,15 +227,15 @@
                     case_id_column_name         => 'CASE_ID',
                     target_column_name          => {#2},
                     roc_table_name              => {#3},
-                    positive_target_value       => {#4},
+                    positive_target_value       => {#5},
                     score_column_name           => 'PREDICTION',
                     score_criterion_column_name => 'PROBABILITY',
                     apply_result_schema_name    => NULL,
                     target_schema_name          => NULL
                 );
                 -- Store AUC in a temp table
-                EXECUTE IMMEDIATE 'CREATE TABLE {3}_AUC (AUC NUMBER)';
-                EXECUTE IMMEDIATE 'INSERT INTO {3}_AUC VALUES (' || v_auc || ')';
+                EXECUTE IMMEDIATE 'CREATE TABLE {4} (AUC NUMBER)';
+                EXECUTE IMMEDIATE 'INSERT INTO {4} VALUES (' || v_auc || ')';
             END;
         </statement>
     </statement-execution-processor>
@@ -241,7 +243,7 @@
     <!-- Get AUC from temp table -->
     <statement-execution-processor id="get-auc" timeout="5000">
         <statement>
-            SELECT AUC FROM {0}_AUC
+            SELECT AUC FROM {0}
         </statement>
     </statement-execution-processor>
 

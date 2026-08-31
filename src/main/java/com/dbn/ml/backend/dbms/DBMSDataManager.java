@@ -29,9 +29,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
@@ -57,8 +55,7 @@ public class DBMSDataManager {
         List<String> featureColumns = context.getFeatureConfig().getFeatureColumns();
 
         // Generate unique table name
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String tableName = "ML_STAGING_" + timestamp;
+        String tableName = MLObjectNames.stagingTable(MLObjectNames.timestamp());
         String schemaName = getSchemaName(connection, context);
 
         // Read CSV and detect column types

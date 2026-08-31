@@ -171,17 +171,18 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String applyResultTableName,
             String targetTableName,
             String targetColumn,
-            String confusionMatrixTableName
+            String confusionMatrixTableName,
+            String accuracyTableName
     ) throws SQLException {
         log.debug("Computing confusion matrix: {} from apply={}, target={}",
                 confusionMatrixTableName, applyResultTableName, targetTableName);
         executeUpdate(conn, "compute-confusion-matrix",
-                applyResultTableName, targetTableName, targetColumn, confusionMatrixTableName);
+                applyResultTableName, targetTableName, targetColumn, confusionMatrixTableName, accuracyTableName);
     }
 
     @Override
-    public double getAccuracy(DBNConnection conn, String confusionMatrixTableName) throws SQLException {
-        try (ResultSet rs = executeQuery(conn, "get-accuracy", confusionMatrixTableName)) {
+    public double getAccuracy(DBNConnection conn, String accuracyTableName) throws SQLException {
+        try (ResultSet rs = executeQuery(conn, "get-accuracy", accuracyTableName)) {
             if (rs.next()) {
                 return rs.getDouble("ACCURACY");
             }
@@ -201,16 +202,17 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String targetTableName,
             String targetColumn,
             String rocTableName,
+            String aucTableName,
             String positiveTargetValue
     ) throws SQLException {
         log.debug("Computing ROC: {} for positive class '{}'", rocTableName, positiveTargetValue);
         executeUpdate(conn, "compute-roc",
-                applyResultTableName, targetTableName, targetColumn, rocTableName, positiveTargetValue);
+                applyResultTableName, targetTableName, targetColumn, rocTableName, aucTableName, positiveTargetValue);
     }
 
     @Override
-    public double getAUC(DBNConnection conn, String rocTableName) throws SQLException {
-        try (ResultSet rs = executeQuery(conn, "get-auc", rocTableName)) {
+    public double getAUC(DBNConnection conn, String aucTableName) throws SQLException {
+        try (ResultSet rs = executeQuery(conn, "get-auc", aucTableName)) {
             if (rs.next()) {
                 return rs.getDouble("AUC");
             }

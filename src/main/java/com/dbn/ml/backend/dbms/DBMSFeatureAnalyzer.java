@@ -33,9 +33,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,8 +52,6 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @Slf4j
 public class DBMSFeatureAnalyzer {
-    private static final @NonNls String IMPORTANCE_TABLE_PREFIX = "ML_AI_";
-
     private final ConnectionHandler connection;
 
     public DBMSFeatureAnalyzer(ConnectionHandler connection) {
@@ -73,7 +69,7 @@ public class DBMSFeatureAnalyzer {
         List<String> featureColumns = context.getFeatureConfig().getFeatureColumns();
 
         // register before the DDL, so cleanup drops the table even if the analysis fails midway
-        String importanceTable = IMPORTANCE_TABLE_PREFIX + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String importanceTable = MLObjectNames.featureImportanceTable(MLObjectNames.timestamp());
         context.setImportanceTableName(importanceTable);
 
         return DatabaseInterfaceInvoker.load(Priority.HIGH,

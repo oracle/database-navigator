@@ -163,19 +163,21 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      * @param targetTableName Table with actual values (test data)
      * @param targetColumn Target column name
      * @param confusionMatrixTableName Name for the confusion matrix output table
+     * @param accuracyTableName Name for the accuracy output table
      */
     void computeConfusionMatrix(
             DBNConnection conn,
             String applyResultTableName,
             String targetTableName,
             String targetColumn,
-            String confusionMatrixTableName
+            String confusionMatrixTableName,
+            String accuracyTableName
     ) throws SQLException;
 
     /**
      * Gets the accuracy value computed by computeConfusionMatrix.
      */
-    double getAccuracy(DBNConnection conn, String confusionMatrixTableName) throws SQLException;
+    double getAccuracy(DBNConnection conn, String accuracyTableName) throws SQLException;
 
     /**
      * Gets the confusion matrix results.
@@ -188,6 +190,7 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      * Computes ROC curve and AUC using DBMS_DATA_MINING.COMPUTE_ROC.
      * Only for binary classification.
      *
+     * @param aucTableName Name for the AUC output table
      * @param positiveTargetValue The value representing the positive class
      */
     void computeROC(
@@ -196,13 +199,14 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
             String targetTableName,
             String targetColumn,
             String rocTableName,
+            String aucTableName,
             String positiveTargetValue
     ) throws SQLException;
 
     /**
      * Gets the AUC (Area Under Curve) computed by computeROC.
      */
-    double getAUC(DBNConnection conn, String rocTableName) throws SQLException;
+    double getAUC(DBNConnection conn, String aucTableName) throws SQLException;
 
     /**
      * Computes Lift using DBMS_DATA_MINING.COMPUTE_LIFT.

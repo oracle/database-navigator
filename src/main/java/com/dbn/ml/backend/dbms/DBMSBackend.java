@@ -36,9 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,8 +60,6 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @Slf4j
 public class DBMSBackend {
-    private static final String JOB_NAME_PREFIX = "ML";
-
     private final ConnectionHandler connection;
     private final DBMSDataManager dataManager;
     private final DBMSSettingsBuilder settingsBuilder;
@@ -84,13 +80,13 @@ public class DBMSBackend {
         log.info("Preparing async training job for task: {}", context.getTaskType());
         context.setTrainingStartTime(System.currentTimeMillis());
 
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timestamp = MLObjectNames.timestamp();
 
         // Data prep — fast, requires connection
         String sourceTableName = prepareDataSource(context);
         String sourceSchemaName = getSourceSchemaName(context);
-        String trainTableName = "ML_TRAIN_" + timestamp;
-        String testTableName = "ML_TEST_" + timestamp;
+        String trainTableName = MLObjectNames.trainTable(timestamp);
+        String testTableName = MLObjectNames.testTable(timestamp);
         splitData(context, sourceSchemaName, sourceTableName, trainTableName, testTableName);
         String settingsTableName = createSettingsTable(context, timestamp);
         String modelName = generateModelName(context, timestamp);
@@ -118,7 +114,7 @@ public class DBMSBackend {
         context.setModelName(modelName);
 
         log.info("Training job action prepared for model: {}", modelName);
-        return new SchedulerJobRequest(JOB_NAME_PREFIX, jobAction);
+        return new SchedulerJobRequest(MLObjectNames.SCHEDULER_JOB_PREFIX, jobAction);
     }
 
 
@@ -250,11 +246,13 @@ public class DBMSBackend {
                     }
                     if (context.getConfusionMatrixTableName() != null) {
                         dropTableSafe(mlInterface, conn, context.getConfusionMatrixTableName());
-                        dropTableSafe(mlInterface, conn, context.getConfusionMatrixTableName() + "_ACC");
+                        String accuracyTable = MLObjectNames.accuracyTable(context.getConfusionMatrixTableName());
+                        dropTableSafe(mlInterface, conn, accuracyTable);
                     }
                     if (context.getRocTableName() != null) {
                         dropTableSafe(mlInterface, conn, context.getRocTableName());
-                        dropTableSafe(mlInterface, conn, context.getRocTableName() + "_AUC");
+                        String aucTable = MLObjectNames.aucTable(context.getRocTableName());
+                        dropTableSafe(mlInterface, conn, aucTable);
                     }
                     if (context.getLiftTableName() != null) {
                         dropTableSafe(mlInterface, conn, context.getLiftTableName());
@@ -332,11 +330,12 @@ public class DBMSBackend {
         String modelName = modelHandle.getModelName();
         String testTableName = modelHandle.getTestTableName();
         String targetColumn = context.getFeatureConfig().getLabelColumns().get(0);
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timestamp = MLObjectNames.timestamp();
 
         // Table names for evaluation artifacts
-        String applyResultTable = "ML_APPLY_" + timestamp;
-        String confusionMatrixTable = "ML_CM_" + timestamp;
+        String applyResultTable = MLObjectNames.applyResultTable(timestamp);
+        String confusionMatrixTable = MLObjectNames.confusionMatrixTable(timestamp);
+        String accuracyTable = MLObjectNames.accuracyTable(confusionMatrixTable);
 
         // Store for cleanup
         context.setApplyResultTableName(applyResultTable);
@@ -349,10 +348,11 @@ public class DBMSBackend {
 
         // Step 2: Compute confusion matrix using Oracle's COMPUTE_CONFUSION_MATRIX
         log.info("Computing confusion matrix using DBMS_DATA_MINING.COMPUTE_CONFUSION_MATRIX");
-        mlInterface.computeConfusionMatrix(conn, applyResultTable, testTableName, targetColumn, confusionMatrixTable);
+        mlInterface.computeConfusionMatrix(
+                conn, applyResultTable, testTableName, targetColumn, confusionMatrixTable, accuracyTable);
 
         // Step 3: Get accuracy
-        double accuracy = mlInterface.getAccuracy(conn, confusionMatrixTable);
+        double accuracy = mlInterface.getAccuracy(conn, accuracyTable);
         log.info("Test accuracy: {}%", accuracy);
 
         // Step 5: For binary classification, compute AUC and Lift
@@ -360,8 +360,9 @@ public class DBMSBackend {
         ResultSet liftRs = null;
         List<String> classValues = modelHandle.getClassValues();
         if (classValues != null && classValues.size() == 2) {
-            String rocTable = "ML_ROC_" + timestamp;
-            String liftTable = "ML_LIFT_" + timestamp;
+            String rocTable = MLObjectNames.rocTable(timestamp);
+            String aucTable = MLObjectNames.aucTable(rocTable);
+            String liftTable = MLObjectNames.liftTable(timestamp);
             context.setRocTableName(rocTable);
             context.setLiftTableName(liftTable);
 
@@ -370,8 +371,9 @@ public class DBMSBackend {
             // Compute ROC/AUC
             try {
                 log.info("Computing ROC/AUC for binary classification (positive class: {})", positiveClass);
-                mlInterface.computeROC(conn, applyResultTable, testTableName, targetColumn, rocTable, positiveClass);
-                auc = mlInterface.getAUC(conn, rocTable);
+                mlInterface.computeROC(
+                        conn, applyResultTable, testTableName, targetColumn, rocTable, aucTable, positiveClass);
+                auc = mlInterface.getAUC(conn, aucTable);
                 log.info("AUC: {}", auc);
             } catch (Exception e) {
                 log.warn("Failed to compute ROC/AUC: {}", e.getMessage());
@@ -459,8 +461,7 @@ public class DBMSBackend {
     }
 
     private String createCloudExternalTable(MLTrainingContext context) throws Exception {
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String extTableName = "ML_EXT_" + timestamp;
+        String extTableName = MLObjectNames.externalTable(MLObjectNames.timestamp());
         CloudSourceConfig cloudConfig = context.getSourceConfig().getCloudSourceConfig();
 
         List<String> columns = cloudConfig.getDiscoveredColumns();
@@ -497,7 +498,7 @@ public class DBMSBackend {
     }
 
     private String createSettingsTable(MLTrainingContext context, String timestamp) throws SQLException {
-        String settingsTableName = "ML_SETTINGS_" + timestamp;
+        String settingsTableName = MLObjectNames.settingsTable(timestamp);
         DBMSAlgorithmType algorithmType = DBMSAlgorithmType.fromTrainerType(context.getTrainerType());
 
         Map<String, String> settings = settingsBuilder.buildSettings(
@@ -541,8 +542,7 @@ public class DBMSBackend {
         String sourceName = extractSourceName(context);
         String baseName = MLSourceNames.getModelBaseName(sourceName);
         if (baseName == null) {
-            String taskPrefix = context.getTaskType() == MLTaskType.CLASSIFICATION ? "CLS" : "REG";
-            baseName = "ML_MODEL_" + taskPrefix + "_" + timestamp;
+            baseName = MLObjectNames.fallbackModel(context.getTaskType(), timestamp);
         }
 
         // Use Naming utility to generate unique name
