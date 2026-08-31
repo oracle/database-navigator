@@ -379,7 +379,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
             tabs.setTabIcon(component, Icons.EXEC_RESULT_MESSAGES);
         }
 
-        tabs.selectTab(messagesPanel, instructions.isFocus());
+        dispatch(() -> tabs.selectTab(messagesPanel, instructions.isFocus()));
     }
 
 
