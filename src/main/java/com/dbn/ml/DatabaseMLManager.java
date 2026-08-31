@@ -64,7 +64,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.notification.NotificationCategory.EXECUTION;
-import static com.dbn.common.notification.NotificationSupport.sendInfoNotification;
 import static com.dbn.common.operation.DatabaseOperation.TRAIN_MACHINE_LEARNING_MODEL;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
@@ -168,6 +167,8 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                         DatabaseSchedulerManager schedulerManager = DatabaseSchedulerManager.getInstance(getProject());
                         SchedulerJob job = schedulerManager.submitJob(connection, submission.getJobRequest());
                         log.info("Training job {} submitted for model: {}", job.getName(), submission.getModelName());
+                        Dispatch.run(() -> sendInfoNotification(EXECUTION,
+                                txt("ntf.machineLearning.info.TrainingSubmitted", modelName)));
 
                         schedulerManager.monitorJob(job,
                                 createTrainingJobMonitor(modelName),
@@ -227,7 +228,7 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
             MLResult result = executor.completeAsync(submission, connection);
             Dispatch.run(() -> {
                 showResultInExecutionManager(result);
-                sendInfoNotification(getProject(), EXECUTION,
+                sendInfoNotification(EXECUTION,
                         txt("ntf.machineLearning.info.TrainingCompleted", modelName));
             });
         } catch (Exception e) {
@@ -250,7 +251,7 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
         InteractiveMessage failure = InteractiveMessage.error(title, message)
                 .withOptions(Messages.OPTIONS_RETRY_CANCEL, 0)
                 .withCallback(option -> Conditional.when(option == 0,
-                        () -> openToolbox(connection, preservedRequest)));
+                        () -> doOpenToolbox(connection, preservedRequest)));
         Messages.showMessageDialog(getProject(), failure);
     }
 
