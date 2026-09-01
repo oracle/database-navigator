@@ -65,7 +65,6 @@ public abstract class DBLanguageDialect extends Language implements DBFileElemen
     public boolean isInitialized() {
         if (!syntaxHighlighter.loaded()) return false;
         if (!parserDefinition.loaded()) return false;
-        if (!fileElementType.loaded()) return false;
 
         return getParserDefinition().isInitialized();
     }
