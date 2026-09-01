@@ -16,12 +16,17 @@
 
 package com.dbn.database.oracle;
 
+import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.jdbc.DBNPreparedStatement;
+import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.interfaces.DatabaseInterfaceType;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
+import com.dbn.ml.backend.model.MLPredictionAttribute;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +34,10 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.StringJoiner;
+
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 
 /**
  * Oracle implementation of DatabaseMLInterface.
@@ -39,6 +48,7 @@ import java.sql.SQLException;
 @Slf4j
 public class OracleMachineLearningInterface extends DatabaseInterfaceBase implements DatabaseMachineLearningInterface {
     private static final int CLOUD_CSV_SAMPLE_BYTES = 1024 * 1024;
+    private static final int PREDICTION_QUERY_TIMEOUT = 30000;
 
     public OracleMachineLearningInterface(DatabaseInterfaces provider) {
         super("oracle_ml_interface.xml", provider);
@@ -128,20 +138,61 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     // ==================== MODEL APPLICATION ====================
 
     @Override
-    public String predict(DBNConnection conn, String modelName, String featureClause) throws SQLException {
-        log.debug("Ad-hoc prediction using model: {}", modelName);
-        try (ResultSet rs = executeQuery(conn, "predict-adhoc", modelName, featureClause)) {
-            if (rs.next()) {
-                return rs.getString("PREDICTION");
-            }
-            return null;
+    public @NonNls String buildPredictionStatement(
+            DBNConnection conn,
+            @NonNls String modelName,
+            List<MLPredictionAttribute> attributes,
+            boolean withProbability) {
+
+        String quotedModelName = getIdentifierEnquoter(conn).quote(modelName, DATABASE);
+        StringJoiner inputs = new StringJoiner(",\n       ");
+        for (MLPredictionAttribute attribute : attributes) {
+            String quotedAttributeName = getIdentifierEnquoter(conn).quote(attribute.getName(), DATABASE);
+            inputs.add("? AS " + quotedAttributeName);
         }
+
+        String probability = withProbability ?
+                ",\n    PREDICTION_PROBABILITY(" + quotedModelName + " USING *) AS PROBABILITY" : "";
+        return "SELECT\n" +
+                "    PREDICTION(" + quotedModelName + " USING *) AS PREDICTION" + probability + "\n" +
+                "FROM (\n" +
+                "    SELECT " + inputs + "\n" +
+                "    FROM DUAL\n" +
+                ")";
     }
 
     @Override
-    public ResultSet predictWithProbability(DBNConnection conn, String modelName, String featureClause) throws SQLException {
-        log.debug("Ad-hoc prediction with probability using model: {}", modelName);
-        return executeQuery(conn, "predict-adhoc-with-probability", modelName, featureClause);
+    public DBNResultSet predict(
+            DBNConnection conn,
+            String modelName,
+            List<MLPredictionAttribute> attributes,
+            List<Object> values,
+            boolean withProbability) throws SQLException {
+
+        if (attributes.size() != values.size()) {
+            throw new IllegalArgumentException("Each prediction attribute must have a value");
+        }
+
+        log.debug("Ad-hoc prediction using model: {}", modelName);
+        String statementText = buildPredictionStatement(conn, modelName, attributes, withProbability);
+        DBNPreparedStatement<?> statement = conn.prepareStatement(statementText);
+        try {
+            statement.setQueryTimeout(PREDICTION_QUERY_TIMEOUT);
+            for (int i = 0; i < values.size(); i++) {
+                Object value = values.get(i);
+                MLPredictionAttribute attribute = attributes.get(i);
+                if (value == null) {
+                    statement.setNull(i + 1, attribute.getJdbcType());
+                } else {
+                    statement.setObject(i + 1, value);
+                }
+            }
+
+            return statement.executeQuery();
+        } catch (SQLException | RuntimeException e) {
+            Resources.close(statement);
+            throw e;
+        }
     }
 
     @Override

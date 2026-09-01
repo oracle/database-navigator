@@ -26,6 +26,7 @@ import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandlers;
 import com.dbn.common.outcome.OutcomeHandlersImpl;
 import com.dbn.common.outcome.OutcomeType;
+import com.dbn.common.Priority;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Conditional;
@@ -35,13 +36,18 @@ import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.ml.execution.MLPipelineExecutor;
 import com.dbn.ml.execution.MLTrainingJobSubmission;
+import com.dbn.ml.backend.model.MLPredictionAttribute;
 import com.dbn.ml.model.MLRequest;
 import com.dbn.ml.model.MLResult;
+import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.ml.result.MLExecutionResult;
+import com.dbn.ml.ui.MLPredictDialog;
 import com.dbn.ml.ui.MLToolboxDialog;
 import com.dbn.scheduler.DatabaseSchedulerManager;
 import com.dbn.scheduler.model.SchedulerJob;
@@ -58,6 +64,9 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -123,6 +132,83 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
             );
             log.warn("Failed to open ML Toolbox", e);
         }
+    }
+
+    /**
+     * Loads the current model signature and opens a typed ad-hoc prediction dialog.
+     */
+    public void openPredictionDialog(
+            @NotNull ConnectionHandler connection,
+            @NotNull String modelName,
+            @Nullable MLTaskType taskType) {
+
+        String title = txt("prc.machineLearning.title.LoadingModelMetadata");
+        String text = txt("prc.machineLearning.text.LoadingModelMetadata", modelName);
+        Progress.modal(getProject(), connection, true, title, text, progress -> {
+            try {
+                DatabaseInterfaceInvoker.execute(Priority.HIGH,
+                        title,
+                        text,
+                        getProject(),
+                        connection.getConnectionId(),
+                        conn -> {
+                            DatabaseMachineLearningInterface ml = connection.getInterfaces().getMachineLearningInterface();
+                            MLTaskType resolvedTaskType = taskType;
+                            if (resolvedTaskType == null) {
+                                String miningFunction = ml.getModelFunction(conn, modelName);
+                                if (miningFunction == null) {
+                                    Dispatch.run(() -> Messages.showWarningDialog(getProject(),
+                                            txt("msg.machineLearning.title.ModelNotFound"),
+                                            txt("msg.machineLearning.error.ModelNotFound", modelName)));
+                                    return;
+                                }
+                                resolvedTaskType = "CLASSIFICATION".equalsIgnoreCase(miningFunction) ?
+                                        MLTaskType.CLASSIFICATION : MLTaskType.REGRESSION;
+                            }
+
+                            List<MLPredictionAttribute> attributes = new ArrayList<>();
+                            try (ResultSet resultSet = ml.getModelInputAttributes(conn, modelName)) {
+                                while (resultSet.next()) {
+                                    attributes.add(new MLPredictionAttribute(
+                                            resultSet.getString("ATTRIBUTE_NAME"),
+                                            resultSet.getString("ATTRIBUTE_TYPE"),
+                                            resultSet.getString("DATA_TYPE")));
+                                }
+                            }
+
+                            if (attributes.isEmpty()) {
+                                Dispatch.run(() -> Messages.showWarningDialog(getProject(),
+                                        txt("msg.machineLearning.title.CannotPredict"),
+                                        txt("msg.machineLearning.error.NoFeatureColumns")));
+                                return;
+                            }
+
+                            for (MLPredictionAttribute attribute : attributes) {
+                                if (!attribute.isSupportedForPrediction()) {
+                                    Dispatch.run(() -> Messages.showWarningDialog(getProject(),
+                                            txt("msg.machineLearning.title.CannotPredict"),
+                                            txt("msg.machineLearning.error.PredictionAttributeTypeUnsupported",
+                                                    attribute.getName(), attribute.getDisplayDataType())));
+                                    return;
+                                }
+                            }
+
+                            boolean withProbability = resolvedTaskType == MLTaskType.CLASSIFICATION;
+                            String statement = ml.buildPredictionStatement(conn, modelName, attributes, withProbability);
+                            MLTaskType finalTaskType = resolvedTaskType;
+                            Dispatch.run(() -> {
+                                MLPredictDialog dialog = new MLPredictDialog(
+                                        connection, modelName, finalTaskType, attributes, statement);
+                                dialog.show();
+                            });
+                        });
+            } catch (Exception e) {
+                log.warn("Failed to load prediction metadata for model {}", modelName, e);
+                Dispatch.run(() -> Messages.showErrorDialog(getProject(),
+                        txt("msg.machineLearning.title.CannotPredict"),
+                        txt("msg.machineLearning.error.ModelMetadataLoadFailed", e.getMessage())));
+            }
+        });
     }
 
     @NotNull

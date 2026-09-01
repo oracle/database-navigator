@@ -17,35 +17,54 @@
 package com.dbn.ml.ui;
 
 import com.dbn.common.Priority;
-import com.dbn.common.icon.Icons;
+import com.dbn.common.color.Colors;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.misc.DBNScrollPane;
+import com.dbn.common.ui.misc.DBNTableScrollPane;
+import com.dbn.common.ui.util.Borders;
+import com.dbn.common.util.Documents;
+import com.dbn.common.util.Editors;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.Resources;
+import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
+import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
+import com.dbn.data.model.resultSet.ResultSetDataModel;
+import com.dbn.data.record.RecordViewInfo;
+import com.dbn.language.common.DBLanguageDialect;
+import com.dbn.language.common.DBLanguagePsiFile;
+import com.dbn.language.sql.SQLFileType;
+import com.dbn.language.sql.SQLLanguage;
+import com.dbn.ml.backend.model.MLPredictionAttribute;
 import com.dbn.ml.model.MLTaskType;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Form for entering feature values for ad-hoc prediction.
@@ -53,194 +72,236 @@ import java.util.List;
  * @author ayoub allali
  */
 public class MLPredictForm extends DBNFormBase {
+    private static final int PREDICTION_ROW_LIMIT = 1;
+
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel fieldsPanel;
-    private JScrollPane fieldsScrollPane;
+    private DBNScrollPane fieldsScrollPane;
+    private JPanel actionPanel;
+    private JButton predictButton;
     private JPanel resultPanel;
-    private JLabel resultLabel;
-    private JLabel probabilityLabel;
+    private DBNTableScrollPane resultScrollPane;
+    private JPanel sqlPreviewPanel;
 
     private final String modelName;
     private final ConnectionHandler connection;
     private final MLTaskType taskType;
-    private final List<String> featureColumns;
+    private final List<MLPredictionAttribute> attributes;
+    private final @NonNls String predictionStatement;
     private final List<JTextField> inputFields = new ArrayList<>();
 
-    MLPredictForm(MLPredictDialog parent, String modelName, ConnectionHandler connection,
-                  MLTaskType taskType, List<String> featureColumns) {
+    private EditorEx sqlPreviewViewer;
+    private Document sqlPreviewDocument;
+    private ResultSetTable resultTable;
+
+    MLPredictForm(
+            MLPredictDialog parent,
+            String modelName,
+            ConnectionHandler connection,
+            MLTaskType taskType,
+            List<MLPredictionAttribute> attributes,
+            @NonNls String predictionStatement) {
+
         super(parent);
         this.modelName = modelName;
         this.connection = connection;
         this.taskType = taskType;
-        this.featureColumns = new ArrayList<>(featureColumns);
+        this.attributes = new ArrayList<>(attributes);
+        this.predictionStatement = predictionStatement;
 
-        DBNHeaderForm headerForm = new DBNHeaderForm(this,
-                "Prediction using " + modelName,
-                Icons.DBO_AI_MODEL,
-                connection.getEnvironmentType().getColor());
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
         buildFieldsPanel();
-        buildResultPanel();
+        initResultPanel();
+        initPredictButton();
+        whenFirstShown(this::initSqlPreview);
     }
 
     private void buildFieldsPanel() {
-        fieldsPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(4, 4, 4, 4);
         gbc.anchor = GridBagConstraints.WEST;
 
-        for (int i = 0; i < featureColumns.size(); i++) {
+        for (int i = 0; i < attributes.size(); i++) {
+            MLPredictionAttribute attribute = attributes.get(i);
             // Label
             gbc.gridx = 0;
             gbc.gridy = i;
             gbc.fill = GridBagConstraints.NONE;
             gbc.weightx = 0;
-            fieldsPanel.add(new JLabel(featureColumns.get(i) + ":"), gbc);
+            fieldsPanel.add(new JLabel(txt("app.machineLearning.label.FeatureInputType",
+                    attribute.getName(), attribute.getDisplayDataType())), gbc);
 
             // Text field
             gbc.gridx = 1;
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.weightx = 1.0;
             JTextField field = new JTextField(20);
+            field.setToolTipText(attribute.getDisplayDataType());
+            onTextChange(field, e -> updateSqlPreview());
             inputFields.add(field);
             fieldsPanel.add(field, gbc);
         }
-
-        // Add vertical glue at the bottom
-        gbc.gridx = 0;
-        gbc.gridy = featureColumns.size();
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.VERTICAL;
-        fieldsPanel.add(new JPanel(), gbc);
     }
 
-    private void buildResultPanel() {
-        resultPanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-
-        // Result label
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        resultLabel = new JLabel("Click 'Predict' to get a prediction", SwingConstants.CENTER);
-        resultLabel.setFont(resultLabel.getFont().deriveFont(Font.BOLD, 14f));
-        resultPanel.add(resultLabel, gbc);
-
-        // Probability label (for classification)
-        gbc.gridy = 1;
-        probabilityLabel = new JLabel("", SwingConstants.CENTER);
-        probabilityLabel.setForeground(Color.GRAY);
-        resultPanel.add(probabilityLabel, gbc);
+    private void initResultPanel() {
+        RecordViewInfo recordViewInfo = new RecordViewInfo(txt("app.machineLearning.title.Result"), null);
+        ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
+        resultTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
+        resultScrollPane.setViewportView(resultTable);
+        resultTable.installValuePopupAddon();
+        resultPanel.setBorder(Borders.lineBorder(Colors.getOutlineColor()));
+        resultTable.setLoading(false);
     }
 
-    public void runPrediction() {
-        // Validate inputs
-        List<String> values = getFeatureValues();
-        for (String value : values) {
+    private void initSqlPreview() {
+        Project project = getProject();
+        if (project == null) return;
+
+        DBLanguageDialect languageDialect = connection.getLanguageDialect(SQLLanguage.INSTANCE);
+        DBLanguagePsiFile previewFile = DBLanguagePsiFile.createFromText(
+                project,
+                "ml-prediction.sql",
+                languageDialect,
+                predictionStatement,
+                connection,
+                null);
+
+        sqlPreviewDocument = previewFile == null ?
+                Documents.createDocument(predictionStatement) :
+                Documents.ensureDocument(previewFile);
+
+        sqlPreviewViewer = Editors.createEditor(sqlPreviewDocument, project, null, SQLFileType.INSTANCE);
+        sqlPreviewViewer.setEmbeddedIntoDialogWrapper(true);
+        Editors.initEditorHighlighter(sqlPreviewViewer, SQLLanguage.INSTANCE, connection);
+        Editors.setEditorReadonly(sqlPreviewViewer, true);
+
+        EditorSettings settings = sqlPreviewViewer.getSettings();
+        settings.setFoldingOutlineShown(false);
+        settings.setLineMarkerAreaShown(false);
+        settings.setLineNumbersShown(false);
+        settings.setVirtualSpace(false);
+        settings.setDndEnabled(false);
+        settings.setAdditionalLinesCount(2);
+        settings.setRightMarginShown(false);
+        settings.setUseSoftWraps(true);
+        settings.setCaretRowShown(false);
+
+        Editors.updateEditorScrollPane(sqlPreviewViewer);
+        Editors.installEditorLayoutUpdater(sqlPreviewViewer, this);
+        sqlPreviewPanel.add(sqlPreviewViewer.getComponent());
+        updateSqlPreview();
+    }
+
+    private void updateSqlPreview() {
+        if (sqlPreviewDocument == null) return;
+
+        StringBuilder preview = new StringBuilder(predictionStatement.length());
+        int attributeIndex = 0;
+        boolean quotedIdentifier = false;
+        for (int index = 0; index < predictionStatement.length(); index++) {
+            char character = predictionStatement.charAt(index);
+            if (character == '"') {
+                preview.append(character);
+                if (quotedIdentifier && index + 1 < predictionStatement.length() &&
+                        predictionStatement.charAt(index + 1) == '"') {
+                    preview.append('"');
+                    index++;
+                } else {
+                    quotedIdentifier = !quotedIdentifier;
+                }
+            } else if (character == '?' && !quotedIdentifier && attributeIndex < attributes.size()) {
+                preview.append(toSqlLiteral(attributes.get(attributeIndex), inputFields.get(attributeIndex).getText().trim()));
+                attributeIndex++;
+            } else {
+                preview.append(character);
+            }
+        }
+        Documents.setText(sqlPreviewDocument, preview.toString());
+    }
+
+    private static String toSqlLiteral(MLPredictionAttribute attribute, String value) {
+        try {
+            return attribute.toSqlLiteral(value);
+        } catch (IllegalArgumentException e) {
+            return "NULL /* invalid input */";
+        }
+    }
+
+    private void initPredictButton() {
+        predictButton.addActionListener(e -> runPrediction());
+    }
+
+    private void runPrediction() {
+        List<Object> values = new ArrayList<>();
+        for (int i = 0; i < inputFields.size(); i++) {
+            String value = inputFields.get(i).getText().trim();
             if (Strings.isEmpty(value)) {
-                resultLabel.setText("Please fill in all feature values");
-                resultLabel.setForeground(Color.RED);
-                probabilityLabel.setText("");
+                showError(txt("msg.machineLearning.error.FeatureValuesRequired"));
+                return;
+            }
+
+            MLPredictionAttribute attribute = attributes.get(i);
+            try {
+                values.add(attribute.parseValue(value));
+            } catch (IllegalArgumentException e) {
+                showError(txt("msg.machineLearning.error.PredictionValueInvalid",
+                        attribute.getName(), attribute.getDisplayDataType()));
                 return;
             }
         }
 
-        resultLabel.setText("Predicting...");
-        resultLabel.setForeground(Color.GRAY);
-        probabilityLabel.setText("");
+        resultTable.setLoading(true);
+        predictButton.setEnabled(false);
 
         Project project = connection.getProject();
         boolean isClassification = taskType == MLTaskType.CLASSIFICATION;
-        String featureClause = buildFeatureClause(featureColumns, values);
 
         Background.run(() -> {
             try {
-                DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                        "Predicting",
-                        "Running prediction",
-                        project,
-                        connection.getConnectionId(),
-                        conn -> {
-                            DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
-                            if (isClassification) {
-                                try (ResultSet rs = mlInterface.predictWithProbability(conn, modelName, featureClause)) {
-                                    if (rs.next()) {
-                                        String prediction = rs.getString("PREDICTION");
-                                        double probability = rs.getDouble("PROBABILITY");
-                                        updateResult(prediction, probability);
-                                    }
-                                }
-                            } else {
-                                String prediction = mlInterface.predict(conn, modelName, featureClause);
-                                updateResult(prediction, -1);
-                            }
-                        });
+                ResultSetDataModel result = executePrediction(project, values, isClassification);
+                Dispatch.run(resultTable, () -> resultTable.setModel(result));
             } catch (Exception ex) {
-                updateError("Prediction failed: " + ex.getMessage());
+                Dispatch.run(resultTable, () ->
+                        showError(txt("msg.machineLearning.error.PredictionFailed", ex.getMessage())));
+            } finally {
+                Dispatch.run(resultTable, () -> {
+                    resultTable.setLoading(false);
+                    predictButton.setEnabled(true);
+                });
             }
         });
     }
 
-    private void updateResult(String prediction, double probability) {
-        Dispatch.run(resultLabel, () -> {
-            resultLabel.setText("Prediction: " + prediction);
-            resultLabel.setForeground(new Color(0, 128, 0)); // Green
+    private ResultSetDataModel executePrediction(
+            Project project,
+            List<Object> values,
+            boolean withProbability) throws Exception {
 
-            if (probability >= 0) {
-                probabilityLabel.setText(String.format("Confidence: %.2f%%", probability * 100));
-            } else {
-                probabilityLabel.setText("");
-            }
-        });
+        return DatabaseInterfaceInvoker.load(Priority.HIGH,
+                "Predicting",
+                "Running prediction",
+                project,
+                connection.getConnectionId(),
+                conn -> {
+                    DBNResultSet resultSet = null;
+                    try {
+                        DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
+                        resultSet = mlInterface.predict(conn, modelName, attributes, values, withProbability);
+
+                        ResultSetDataModel dataModel = new ResultSetDataModel(resultSet, connection, -1);
+                        dataModel.fetchNextRecords(PREDICTION_ROW_LIMIT, false);
+                        return dataModel;
+                    } finally {
+                        Resources.close(resultSet);
+                    }
+                });
     }
 
-    private void updateError(String message) {
-        Dispatch.run(resultLabel, () -> {
-            resultLabel.setText(message);
-            resultLabel.setForeground(Color.RED);
-            probabilityLabel.setText("");
-        });
-    }
-
-    private String buildFeatureClause(List<String> columns, List<String> values) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < columns.size(); i++) {
-            if (i > 0) sb.append(", ");
-            String value = values.get(i);
-
-            if (Strings.isEmpty(value)) {
-                sb.append("NULL");
-            } else if (isNumeric(value)) {
-                sb.append(value);
-            } else {
-                sb.append("'").append(value.replace("'", "''")).append("'");
-            }
-            sb.append(" AS ").append(columns.get(i));
-        }
-        return sb.toString();
-    }
-
-    private boolean isNumeric(String str) {
-        if (str == null || str.isEmpty()) return false;
-        try {
-            Double.parseDouble(str);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
-    public List<String> getFeatureValues() {
-        List<String> values = new ArrayList<>();
-        for (JTextField field : inputFields) {
-            values.add(field.getText().trim());
-        }
-        return values;
+    private void showError(String message) {
+        showErrorDialog(getProject(), txt("msg.machineLearning.title.AdHocPrediction"), message);
     }
 
     @Nullable
@@ -253,5 +314,13 @@ public class MLPredictForm extends DBNFormBase {
     @Override
     public JPanel getMainComponent() {
         return mainPanel;
+    }
+
+    @Override
+    public void disposeInner() {
+        Editors.releaseEditor(sqlPreviewViewer);
+        sqlPreviewViewer = null;
+        sqlPreviewDocument = null;
+        super.disposeInner();
     }
 }

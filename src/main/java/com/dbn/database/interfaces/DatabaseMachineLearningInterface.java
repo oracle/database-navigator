@@ -17,9 +17,12 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.jdbc.DBNResultSet;
+import com.dbn.ml.backend.model.MLPredictionAttribute;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Database interface for Oracle DBMS_DATA_MINING operations.
@@ -110,25 +113,23 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
     // ==================== MODEL APPLICATION ====================
 
     /**
-     * Makes an ad-hoc prediction using a trained model.
-     *
-     * @param conn Database connection
-     * @param modelName The trained model name
-     * @param featureClause SQL clause with feature values (e.g., "1.5 AS col1, 'A' AS col2")
-     * @return The predicted value as a string
+     * Builds the parameterized SQL used to score one row with a trained model.
      */
-    String predict(DBNConnection conn, String modelName, String featureClause) throws SQLException;
+    String buildPredictionStatement(
+            DBNConnection conn,
+            String modelName,
+            List<MLPredictionAttribute> attributes,
+            boolean withProbability) throws SQLException;
 
     /**
-     * Makes an ad-hoc prediction with probability using a trained model.
-     * For classification models only.
-     *
-     * @param conn Database connection
-     * @param modelName The trained model name
-     * @param featureClause SQL clause with feature values (e.g., "1.5 AS col1, 'A' AS col2")
-     * @return ResultSet with PREDICTION and PROBABILITY columns
+     * Scores one typed row with a trained model and returns Oracle's result set.
      */
-    ResultSet predictWithProbability(DBNConnection conn, String modelName, String featureClause) throws SQLException;
+    DBNResultSet predict(
+            DBNConnection conn,
+            String modelName,
+            List<MLPredictionAttribute> attributes,
+            List<Object> values,
+            boolean withProbability) throws SQLException;
 
     /**
      * Creates an apply results table with predictions for classification.

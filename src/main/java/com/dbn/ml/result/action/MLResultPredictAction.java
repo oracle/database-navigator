@@ -17,17 +17,14 @@
 package com.dbn.ml.result.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Messages;
+import com.dbn.ml.DatabaseMLManager;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.result.MLExecutionResult;
-import com.dbn.ml.ui.MLPredictDialog;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -43,15 +40,8 @@ public class MLResultPredictAction extends AbstractMLExecutionResultAction {
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull MLExecutionResult executionResult) {
         MLResult result = executionResult.getMlResult();
 
-        List<String> featureColumns = result.getModelHandle().getMetadata().getFeatureNames();
-        if (featureColumns == null || featureColumns.isEmpty()) {
-            Messages.showWarningDialog(project, txt("msg.machineLearning.title.CannotPredict"), txt("msg.machineLearning.error.NoFeatureColumns"));
-            return;
-        }
-
-        // Show prediction dialog (non-modal, allows multiple predictions)
-        MLPredictDialog dialog = new MLPredictDialog(result, featureColumns);
-        dialog.show();
+        DatabaseMLManager.getInstance(project).openPredictionDialog(
+                result.getConnection(), result.getModelHandle().getModelName(), result.getTaskType());
     }
 
     @Override
