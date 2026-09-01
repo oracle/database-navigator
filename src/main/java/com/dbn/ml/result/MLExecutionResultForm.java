@@ -60,6 +60,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -79,6 +80,8 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @Slf4j
 public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionResult> {
+    private static final int MAX_ANALYSIS_TABLE_ROWS = 12;
+
     // Form bindings
     private JPanel mainPanel;
     private JPanel actionsPanel;
@@ -372,7 +375,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
                 "info/feature_importance_info.html.ft");
 
         MLFeatureImportanceTableModel model = new MLFeatureImportanceTableModel(result.getFeatureImportance());
-        variableImportancePanel.add(createTablePanel(new MLAnalysisTable<>(this, model,
+        variableImportancePanel.add(createAnalysisTablePanel(new MLAnalysisTable<>(this, model,
                 txt("app.machineLearning.aria.FeatureImportanceTable"))), BorderLayout.CENTER);
     }
 
@@ -387,20 +390,31 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
                 "info/attribute_contribution_info.html.ft");
 
         MLAttributeContributionTableModel model = new MLAttributeContributionTableModel(result.getAttributeContributions());
-        modelInsightsPanel.add(createTablePanel(new MLAnalysisTable<>(this, model,
+        modelInsightsPanel.add(createAnalysisTablePanel(new MLAnalysisTable<>(this, model,
                 txt("app.machineLearning.aria.AttributeContributionTable"))), BorderLayout.CENTER);
     }
 
-    /**
-     * Lays out a table without its own scroll pane - the whole result content already scrolls,
-     * and nesting scroll panes would trap the wheel inside the table.
-     */
     private static JPanel createTablePanel(JTable table) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
         panel.add(table.getTableHeader(), BorderLayout.NORTH);
         panel.add(table, BorderLayout.CENTER);
         return panel;
+    }
+
+    /**
+     * Caps analysis tables so a long result table cannot make the result dashboard excessively tall.
+     * The inner scrollbar is intentional: it preserves the dashboard layout while retaining access
+     * to every ranked attribute.
+     */
+    private static DBNScrollPane createAnalysisTablePanel(JTable table) {
+        DBNScrollPane scrollPane = new DBNScrollPane(table);
+        int visibleRows = Math.min(table.getRowCount(), MAX_ANALYSIS_TABLE_ROWS);
+        int height = table.getTableHeader().getPreferredSize().height + visibleRows * table.getRowHeight();
+        Dimension size = new Dimension(0, height);
+        scrollPane.setPreferredSize(size);
+        scrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
+        return scrollPane;
     }
 
     private void initializeModelViews() {

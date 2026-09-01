@@ -30,6 +30,7 @@
     <p><strong>DBN calculation · model-level</strong></p>
     <p>Oracle's <code>PREDICTION_DETAILS</code> returns a signed influence weight for each attribute in each test-row prediction of <em>this trained model</em>. DBN averages the absolute weights for each attribute across the test set.</p>
     <p>Higher values mean stronger influence, whether an attribute supported or opposed the predicted outcome. This is not a percentage, has no fixed maximum, and does not mean that an attribute is positive or desirable.</p>
+    <p><strong>Rows with contribution</strong> is the number of test rows where Oracle returned a non-zero weight for that attribute. All test rows are scored; zero-weight attributes are omitted from Oracle's prediction details.</p>
     <p>Unlike Attribute Importance, this is DBN's summary of Oracle's per-row explanations for this model. Oracle does not return this average directly.</p>
 </body>
 </html>

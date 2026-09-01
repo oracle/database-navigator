@@ -37,6 +37,6 @@ public class MLAttributeContribution {
     /** Mean absolute contribution to predictions across the scored rows. */
     private final double contribution;
 
-    /** Number of scored rows the column was scored on. */
+    /** Number of test rows where Oracle reported a non-zero weight for this column. */
     private final long occurrences;
 }

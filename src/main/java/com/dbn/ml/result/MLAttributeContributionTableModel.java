@@ -36,12 +36,12 @@ public class MLAttributeContributionTableModel extends DBNDynamicTableModel<MLAt
 
         addColumn(txt("app.shared.column.Name"), c -> c.getName());
         addColumn(txt("app.machineLearning.column.Contribution"), c -> c.getContribution());
-        addColumn(txt("app.machineLearning.column.RowsUsed"), c -> c.getOccurrences());
+        addColumn(txt("app.machineLearning.column.RowsWithContribution"), c -> c.getOccurrences());
     }
 
     @Override
     public String getPresentableValue(MLAttributeContribution row, int column) {
-        if (column == COLUMN_CONTRIBUTION) return String.format("%.4f", row.getContribution());
+        if (column == COLUMN_CONTRIBUTION) return MLAnalysisValueFormatter.formatNonNegative(row.getContribution());
         return super.getPresentableValue(row, column);
     }
 }
