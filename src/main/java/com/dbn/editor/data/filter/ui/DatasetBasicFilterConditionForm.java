@@ -205,7 +205,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
     }
 
     public String getValue() {
-        return nd(editorComponent).getText();
+        return nn(editorComponent).getText();
     }
 
     public DatasetBasicFilterCondition getCondition() {
