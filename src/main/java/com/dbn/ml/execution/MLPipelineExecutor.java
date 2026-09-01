@@ -150,8 +150,6 @@ public class MLPipelineExecutor {
             result.setOutputDimensions(modelHandle.getMetadata().getOutputDimensions());
         }
 
-        result.setFeatureColumns(new ArrayList<>(request.getFeatureConfig().getFeatureColumns()));
-
         if (context.getTaskType() == MLTaskType.CLASSIFICATION) {
             result.setLabelColumn(request.getFeatureConfig().getLabelColumn());
         } else {

@@ -19,7 +19,7 @@
       <component id="c9j0k" class="javax.swing.JTextField" binding="uriField">
         <constraints>
           <grid row="0" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="200" height="-1"/>
+            <preferred-size width="300" height="-1"/>
           </grid>
         </constraints>
         <properties/>
@@ -43,7 +43,9 @@
       </component>
       <component id="cn3o4" class="com.dbn.object.common.ui.DBObjectSelector" binding="credentialSchemaComboBox">
         <constraints>
-          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false">
+            <preferred-size width="200" height="-1"/>
+          </grid>
         </constraints>
         <properties/>
       </component>
@@ -98,14 +100,30 @@
           <selected value="true"/>
         </properties>
       </component>
-      <component id="cb7d8" class="javax.swing.JButton" binding="loadColumnsButton">
+      <grid id="cb7d8" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="4" vgap="0">
+        <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="6" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.button.LoadColumns"/>
-        </properties>
-      </component>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="loadColumnsButton" class="javax.swing.JButton" binding="loadColumnsButton">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text resource-bundle="messages/DBNResources" key="cfg.machineLearning.button.LoadColumns"/>
+            </properties>
+          </component>
+          <component id="loadColumnsInfo" class="com.dbn.common.ui.info.DBNInfoLabel" binding="loadColumnsInfoLabel">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+        </children>
+      </grid>
     </children>
   </grid>
 </form>

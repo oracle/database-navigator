@@ -60,8 +60,6 @@ public class MLResult {
 
     private long trainingTimeMs;
 
-    // Column names for prediction UI
-    private List<String> featureColumns;
     private String labelColumn;
     private List<String> labelColumns;
 

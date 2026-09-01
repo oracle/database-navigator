@@ -144,8 +144,8 @@ public class DBMSBackend {
         }
 
         MLModelMetadata metadata = MLModelMetadata.builder()
-                .featureNames(context.getFeatureConfig().getFeatureColumns())
-                .labelNames(context.getFeatureConfig().getLabelColumns())
+                .featureNames(new ArrayList<>(context.getFeatureConfig().getFeatureColumns()))
+                .labelNames(new ArrayList<>(context.getFeatureConfig().getLabelColumns()))
                 .algorithmName(context.getAlgorithmName())
                 .classCount(classCount)
                 .outputDimensions(outputDimensions)

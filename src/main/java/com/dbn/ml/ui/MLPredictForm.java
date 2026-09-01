@@ -73,7 +73,7 @@ public class MLPredictForm extends DBNFormBase {
         this.modelName = modelName;
         this.connection = connection;
         this.taskType = taskType;
-        this.featureColumns = featureColumns;
+        this.featureColumns = new ArrayList<>(featureColumns);
 
         DBNHeaderForm headerForm = new DBNHeaderForm(this,
                 "Prediction using " + modelName,

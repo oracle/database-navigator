@@ -43,7 +43,7 @@ public class MLResultPredictAction extends AbstractMLExecutionResultAction {
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull MLExecutionResult executionResult) {
         MLResult result = executionResult.getMlResult();
 
-        List<String> featureColumns = result.getFeatureColumns();
+        List<String> featureColumns = result.getModelHandle().getMetadata().getFeatureNames();
         if (featureColumns == null || featureColumns.isEmpty()) {
             Messages.showWarningDialog(project, txt("msg.machineLearning.title.CannotPredict"), txt("msg.machineLearning.error.NoFeatureColumns"));
             return;

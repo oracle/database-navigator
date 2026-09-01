@@ -38,6 +38,7 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBTable;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
@@ -64,7 +65,9 @@ import java.util.function.Supplier;
 import static com.dbn.common.text.TextContent.html;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.link.Hyperlinks.initHyperlink;
+import static com.dbn.common.ui.util.ClientProperty.LOADING;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.common.ui.util.ComboBoxes.setEmptyOptionsText;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -114,6 +117,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         featuresList.setCellRenderer(COLUMN_LIST_CELL_RENDERER);
         featuresList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         featuresList.setVisibleRowCount(6);
+        featuresList.getEmptyText().setText(txt("cfg.machineLearning.text.SelectSourceToLoadColumns"));
         if (featuresScrollPane != null) {
             featuresScrollPane.setViewportView(featuresList);
         }
@@ -382,6 +386,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
 
     private void initLabelComboBox() {
         labelComboBox.setRenderer(createTargetColumnCellRenderer());
+        setEmptyOptionsText(labelComboBox, txt("cfg.machineLearning.text.SelectSourceToLoadColumns"));
         labelComboBox.withValueLoadConsumer(this::onColumnsLoaded);
     }
 
@@ -393,6 +398,10 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
                                      int index,
                                      boolean selected,
                                      boolean hasFocus) {
+                if (value == null && index == -1 && !LOADING.is(labelComboBox)) {
+                    append(txt("cfg.machineLearning.text.SelectSourceToLoadColumns"), SimpleTextAttributes.GRAY_ATTRIBUTES);
+                    return;
+                }
                 super.customize(list, value, index, selected, hasFocus);
                 if (value != null && index == -1) setIcon(Icons.ML_TARGET_COLUMN);
             }

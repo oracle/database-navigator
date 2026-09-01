@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2025 Oracle and/or its affiliates
+  ~ Copyright 2026 Oracle and/or its affiliates
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head>
-    <title>Attribute Importance</title>
+    <title>Load Columns</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -26,10 +26,17 @@
     </style>
 </head>
 <body style="width: 300px">
-    <h3>Attribute Importance</h3>
-    <p><strong>Oracle calculation · data-level</strong></p>
-    <p><code>DBMS_PREDICTIVE_ANALYTICS.EXPLAIN</code> prepares the data, trains, tests, and scores a temporary model internally, then ranks how useful each input column is for explaining the target. The temporary model is separate from the model shown in this result.</p>
-    <p>Oracle returns an explanatory value from 0 (no useful correlation with the target) to 1 (perfect correlation). Each column is calculated independently, so the values do not add up to 1.</p>
-    <p>Unlike Attribute Contribution, this is Oracle's direct result about the data and target, not a DBN aggregation of prediction explanations.</p>
+    <h3>Load Columns</h3>
+    <p>
+        Reads a small sample of the CSV through the database connection to find its columns.
+    </p>
+    <p>
+        If the first row contains column names, they are used. Otherwise the columns are named
+        <code>COLUMN_1</code>, <code>COLUMN_2</code>, and so on. The sample also identifies
+        columns whose values appear numeric.
+    </p>
+    <p>
+        The source file is read only and is not changed.
+    </p>
 </body>
 </html>

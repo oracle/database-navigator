@@ -21,6 +21,7 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
@@ -49,6 +50,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.common.Priority.HIGH;
+import static com.dbn.common.text.TextContent.html;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ClientProperty.LOADING;
@@ -82,6 +84,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
     private JTextField delimiterField;
     private JCheckBox hasHeaderCheckBox;
     private JButton loadColumnsButton;
+    private DBNInfoLabel loadColumnsInfoLabel;
 
     private final AtomicInteger columnLoadSignature = new AtomicInteger();
     private List<String> discoveredColumns = new ArrayList<>();
@@ -92,6 +95,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
 
     public MLSourceCloudForm(@Nullable Disposable parent, ConnectionHandler connection) {
         super(parent, connection);
+        loadColumnsInfoLabel.setContent(html(this, "info/load_columns_info.html.ft"));
     }
 
     private void initCredentialComboBoxes() {
