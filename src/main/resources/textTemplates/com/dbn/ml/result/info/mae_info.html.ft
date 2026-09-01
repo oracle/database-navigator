@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head>
-    <title>AUC-ROC</title>
+    <title>MAE</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -25,10 +25,9 @@
         p { margin-top: 0; }
     </style>
 </head>
-<body>
-    <h3>AUC-ROC</h3>
-    <p>How well the model tells the two classes apart.</p>
-    <p>1.0 is perfect. 0.5 means it is guessing.</p>
-    <p>Unlike accuracy, this number does not change when you move the yes/no cut-off.</p>
+<body style="width: 300px">
+    <h3>MAE</h3>
+    <p>The average size of a miss, in the same unit as the value you predict.</p>
+    <p>Lower is better. Unlike RMSE, one huge mistake will not blow it up.</p>
 </body>
 </html>

@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head>
-    <title>Precision</title>
+    <title>Feature Importance</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -25,9 +25,10 @@
         p { margin-top: 0; }
     </style>
 </head>
-<body>
-    <h3>Precision</h3>
-    <p>When the model says yes, how often is it actually right?</p>
-    <p>Low precision means a lot of false alarms.</p>
+<body style="width: 300px">
+    <h3>Feature Importance</h3>
+    <p>Oracle's explanatory value for each column, from 0 (no useful correlation with the target) to 1 (perfect correlation). Each value is calculated independently, so the values do not add up to 1.</p>
+    <p>SALARY at 0.8 and OFFICE_COLOR at 0.02? Salary has a much stronger relationship with the target; office color has almost none.</p>
+    <p>Calculated with <code>DBMS_PREDICTIVE_ANALYTICS.EXPLAIN</code>, separately from the model shown in this result.</p>
 </body>
 </html>

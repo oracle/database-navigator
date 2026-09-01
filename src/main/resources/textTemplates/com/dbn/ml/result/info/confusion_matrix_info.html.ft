@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head>
-    <title>Accuracy</title>
+    <title>Confusion Matrix</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -25,9 +25,9 @@
         p { margin-top: 0; }
     </style>
 </head>
-<body>
-    <h3>Accuracy</h3>
-    <p>How often the model is right. 90% means it got 9 out of 10 test rows correct.</p>
-    <p>Watch out: if 95% of your rows are the same class, a model that always guesses that class scores 95% without learning anything. Check the other numbers too.</p>
+<body style="width: 300px">
+    <h3>Confusion Matrix</h3>
+    <p>Rows are what the row really was. Columns are what the model guessed.</p>
+    <p>The diagonal is where it got things right. Everything else is a mistake, and you can read off exactly what got mixed up with what.</p>
 </body>
 </html>

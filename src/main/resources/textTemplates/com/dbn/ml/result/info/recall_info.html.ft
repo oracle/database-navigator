@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head>
-    <title>Feature Importance</title>
+    <title>Recall</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -25,10 +25,9 @@
         p { margin-top: 0; }
     </style>
 </head>
-<body>
-    <h3>Feature Importance</h3>
-    <p>How much each column helps predict the target value, shown as a percentage from 0% (no relationship) to 100% (fully explains it). This is about your <em>data</em>, not the model you trained - the same for any algorithm.</p>
-    <p>SALARY at 80% and OFFICE_COLOR at 2%? Salary is one of the strongest predictors here; office color barely matters.</p>
-    <p>Calculated with <code>DBMS_PREDICTIVE_ANALYTICS.EXPLAIN</code> .</p>
+<body style="width: 300px">
+    <h3>Recall</h3>
+    <p>Of all the real cases out there, how many did the model find?</p>
+    <p>Low recall means it missed a lot of them.</p>
 </body>
 </html>

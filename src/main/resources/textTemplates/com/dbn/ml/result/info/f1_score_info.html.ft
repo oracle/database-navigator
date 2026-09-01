@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head>
-    <title>R² Score</title>
+    <title>F1 Score</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -25,9 +25,9 @@
         p { margin-top: 0; }
     </style>
 </head>
-<body>
-    <h3>R² Score</h3>
-    <p>How much of the movement in the value you are predicting the model can explain.</p>
-    <p>1.0 is perfect. 0 means it is no better than always guessing the average. Below 0 means it is worse than that.</p>
+<body style="width: 300px">
+    <h3>F1 Score</h3>
+    <p>Precision and recall rolled into one number.</p>
+    <p>It only goes high when both of them are high. Use it when you want a single number to judge by.</p>
 </body>
 </html>

@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head>
-    <title>MAE</title>
+    <title>Attribute Contribution</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -25,9 +25,10 @@
         p { margin-top: 0; }
     </style>
 </head>
-<body>
-    <h3>MAE</h3>
-    <p>The average size of a miss, in the same unit as the value you predict.</p>
-    <p>Lower is better. Unlike RMSE, one huge mistake will not blow it up.</p>
+<body style="width: 300px">
+    <h3>Attribute Contribution</h3>
+    <p>How much each column actually drove the predictions of <em>this trained model</em>, measured over the test rows. Not a percentage and has no fixed maximum - only meaningful compared to the other columns in this table, higher meaning more influence.</p>
+    <p>AGE at 0.42 and REGION at 0.03? This model leans much more heavily on age than region when making a prediction.</p>
+    <p>Calculated by averaging <code>PREDICTION_DETAILS</code> (Oracle's per row explanation) across the test set.</p>
 </body>
 </html>

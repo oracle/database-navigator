@@ -30,7 +30,7 @@ import static com.dbn.nls.NlsResources.txt;
  * @author ayoub allali
  */
 public class MLFeatureImportanceTableModel extends DBNDynamicTableModel<MLFeatureImportance> {
-    private static final int COLUMN_IMPORTANCE = 1;
+    private static final int COLUMN_EXPLANATORY_VALUE = 1;
     private static final int COLUMN_MEAN = 6;
     private static final int COLUMN_STD_DEV = 7;
 
@@ -38,7 +38,7 @@ public class MLFeatureImportanceTableModel extends DBNDynamicTableModel<MLFeatur
         super(MLFeatureImportance.class, features);
 
         addColumn(txt("app.shared.column.Name"), f -> f.getName());
-        addColumn(txt("app.machineLearning.column.Importance"), f -> f.getImportance());
+        addColumn(txt("app.machineLearning.column.ExplanatoryValue"), f -> f.getImportance());
         addColumn(txt("app.shared.column.Type"), f -> f.getTypeName());
         addColumn(txt("app.machineLearning.column.DistinctValues"), f -> f.getDistinctValues());
         addColumn(txt("app.machineLearning.column.Min"), f -> f.getMinValue());
@@ -53,8 +53,7 @@ public class MLFeatureImportanceTableModel extends DBNDynamicTableModel<MLFeatur
         if (value == null) return "";
 
         switch (column) {
-            // EXPLAIN's EXPLANATORY_VALUE is documented as ranging 0 to 1, so it renders as a percentage
-            case COLUMN_IMPORTANCE: return String.format("%.1f%%", (Double) value * 100);
+            case COLUMN_EXPLANATORY_VALUE: return String.format("%.4f", (Double) value);
             case COLUMN_MEAN:
             case COLUMN_STD_DEV: return String.format("%.4f", (Double) value);
             default: return super.getPresentableValue(row, column);

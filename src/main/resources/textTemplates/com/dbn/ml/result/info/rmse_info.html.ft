@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head>
-    <title>Recall</title>
+    <title>RMSE</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -25,9 +25,10 @@
         p { margin-top: 0; }
     </style>
 </head>
-<body>
-    <h3>Recall</h3>
-    <p>Of all the real cases out there, how many did the model find?</p>
-    <p>Low recall means it missed a lot of them.</p>
+<body style="width: 300px">
+    <h3>RMSE</h3>
+    <p>How far off the model usually is, in the same unit as the value you predict.</p>
+    <p>Predicting a price in euros? An RMSE of 500 means you are typically about €500 out.</p>
+    <p>Lower is better. A few big misses push this number up a lot.</p>
 </body>
 </html>

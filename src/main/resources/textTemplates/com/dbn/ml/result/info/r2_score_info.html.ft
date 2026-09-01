@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head>
-    <title>RMSE</title>
+    <title>R² Score</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -25,10 +25,9 @@
         p { margin-top: 0; }
     </style>
 </head>
-<body>
-    <h3>RMSE</h3>
-    <p>How far off the model usually is, in the same unit as the value you predict.</p>
-    <p>Predicting a price in euros? An RMSE of 500 means you are typically about €500 out.</p>
-    <p>Lower is better. A few big misses push this number up a lot.</p>
+<body style="width: 300px">
+    <h3>R² Score</h3>
+    <p>How much of the movement in the value you are predicting the model can explain.</p>
+    <p>1.0 is perfect. 0 means it is no better than always guessing the average. Below 0 means it is worse than that.</p>
 </body>
 </html>

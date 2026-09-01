@@ -16,7 +16,7 @@
 
 <html lang="en">
 <head>
-    <title>Confusion Matrix</title>
+    <title>Precision</title>
     <style>
         h3 { ${REGULAR_LARGE_FONT_STYLE} }
         body { ${REGULAR_FONT_STYLE} }
@@ -25,9 +25,9 @@
         p { margin-top: 0; }
     </style>
 </head>
-<body>
-    <h3>Confusion Matrix</h3>
-    <p>Rows are what the row really was. Columns are what the model guessed.</p>
-    <p>The diagonal is where it got things right. Everything else is a mistake, and you can read off exactly what got mixed up with what.</p>
+<body style="width: 300px">
+    <h3>Precision</h3>
+    <p>When the model says yes, how often is it actually right?</p>
+    <p>Low precision means a lot of false alarms.</p>
 </body>
 </html>

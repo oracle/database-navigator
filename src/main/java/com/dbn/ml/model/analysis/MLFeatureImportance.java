@@ -21,9 +21,9 @@ import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * How much one column explains the target, together with the profile of that column.
- * This describes the training data, not the trained model - the values are the same
- * whichever algorithm was used.
+ * Oracle EXPLAIN explanatory value for one column, together with the profile of that column.
+ * The value is produced by Oracle's internal model, independently of the trained model shown
+ * in the result.
  *
  * @author ayoub allali
  */
