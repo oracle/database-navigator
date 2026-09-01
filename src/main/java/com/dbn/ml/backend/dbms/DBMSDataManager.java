@@ -23,14 +23,22 @@ import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLFileSourceConfig;
+import com.dbn.ml.util.MLCSVParser;
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.sql.Types;
 import java.util.List;
+import java.util.Set;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -58,98 +66,91 @@ public class DBMSDataManager {
         String tableName = MLObjectNames.stagingTable(MLObjectNames.timestamp());
         String schemaName = getSchemaName(connection, context);
 
-        // Read CSV and detect column types
+        // Inspect the complete file before creating database objects.
         List<String> partitionColumns = context.getTrainerConfig().getPartitionColumns();
-        CSVParseResult parseResult = parseCSVFile(fileConfig, featureColumns,
-                context.getFeatureConfig().getLabelColumns(), partitionColumns);
+        MLCSVParser.Profile profile = profile(fileConfig);
+        if (context.getTaskType() == MLTaskType.REGRESSION) {
+            for (String labelColumn : context.getFeatureConfig().getLabelColumns()) {
+                if (!profile.getNumericColumns().contains(labelColumn)) {
+                    throw new IllegalArgumentException(txt(
+                            "msg.machineLearning.exception.CsvRegressionTargetNotNumeric",
+                            labelColumn));
+                }
+            }
+        }
+        CSVColumnMapping columnMapping = createColumnMapping(
+                profile,
+                featureColumns,
+                context.getFeatureConfig().getLabelColumns(),
+                partitionColumns);
 
-        // Create table with detected types
-        createStagingTable(connection, schemaName, tableName, context, parseResult.numericFeatures, parseResult.numericPartitions);
-
-        // Load CSV data
-        int rowCount = loadCSVData(connection, tableName, context, parseResult);
-
-        // Update context
+        // Register the table before creation so failure cleanup can remove partial work.
         context.setStagingTableSchema(schemaName);
         context.setStagingTableName(tableName);
-        context.setTrainingDataSize(rowCount);
         context.setShouldCleanupStagingTable(true);
+
+        // Create table with detected types
+        createStagingTable(
+                connection,
+                schemaName,
+                tableName,
+                context,
+                columnMapping.numericFeatures,
+                columnMapping.numericPartitions);
+
+        // Stream CSV data into the staging table.
+        int rowCount = loadCSVData(connection, tableName, context, columnMapping, fileConfig);
+        context.setTrainingDataSize(rowCount);
 
         log.info("Created and loaded staging table {} with {} rows", tableName, rowCount);
         return tableName;
     }
 
     /**
-     * Holds parsed CSV data and detected column types.
+     * Maps selected ML columns to their positions and detected CSV types.
      */
-    private static class CSVParseResult {
-        List<String[]> dataRows = new ArrayList<>();
-        int[] featureIndices;
-        int[] labelIndices;
-        int[] partitionIndices;
-        boolean[] numericFeatures;
-        boolean[] numericPartitions;
+    private static class CSVColumnMapping {
+        private int columnCount;
+        private int[] featureIndices;
+        private int[] labelIndices;
+        private int[] partitionIndices;
+        private boolean[] numericFeatures;
+        private boolean[] numericPartitions;
     }
 
     /**
-     * Parses CSV file and auto-detects which feature columns are numeric vs categorical.
-     * TODO: Refactor to use streaming for large files - current approach loads all rows into memory
+     * Profiles the complete CSV so type and shape errors are found before creating the staging table.
      */
-    private CSVParseResult parseCSVFile(MLFileSourceConfig fileConfig,
-                                         List<String> featureColumns,
-                                         List<String> labelColumns,
-                                         List<String> partitionColumns) throws Exception {
-        CSVParseResult result = new CSVParseResult();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileConfig.getFilePath()))) {
-            // Parse header
-            String headerLine = reader.readLine();
-            if (headerLine == null) throw new IllegalArgumentException(txt("msg.machineLearning.exception.EmptyCsvFile"));
-
-            String[] headers = headerLine.split(fileConfig.getDelimiter());
-            result.featureIndices = findColumnIndices(headers, featureColumns);
-            result.labelIndices = findColumnIndices(headers, labelColumns);
-            result.partitionIndices = findColumnIndices(headers, partitionColumns);
-            result.numericFeatures = new boolean[featureColumns.size()];
-            result.numericPartitions = new boolean[partitionColumns.size()];
-
-            // Read all data rows
-            String line;
-            while ((line = reader.readLine()) != null) {
-                result.dataRows.add(line.split(fileConfig.getDelimiter()));
-            }
-
-            // Detect numeric vs categorical for feature columns
-            for (int i = 0; i < result.featureIndices.length; i++) {
-                result.numericFeatures[i] = isNumericColumn(result.dataRows, result.featureIndices[i]);
-            }
-
-            // Detect numeric vs categorical for partition columns
-            for (int i = 0; i < result.partitionIndices.length; i++) {
-                result.numericPartitions[i] = isNumericColumn(result.dataRows, result.partitionIndices[i]);
-            }
+    private MLCSVParser.Profile profile(MLFileSourceConfig fileConfig) throws Exception {
+        Path path = Path.of(fileConfig.getFilePath());
+        try (Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+            return MLCSVParser.profile(reader, fileConfig.getDelimiter(), fileConfig.isHasHeader(), 0);
         }
+    }
 
+    private CSVColumnMapping createColumnMapping(
+            MLCSVParser.Profile profile,
+            List<String> featureColumns,
+            List<String> labelColumns,
+            List<String> partitionColumns) {
+        CSVColumnMapping result = new CSVColumnMapping();
+        List<String> columns = profile.getColumns();
+        Set<String> numericColumns = profile.getNumericColumns();
+        result.columnCount = columns.size();
+        result.featureIndices = findColumnIndices(columns, featureColumns);
+        result.labelIndices = findColumnIndices(columns, labelColumns);
+        result.partitionIndices = findColumnIndices(columns, partitionColumns);
+        result.numericFeatures = numericFlags(featureColumns, numericColumns);
+        result.numericPartitions = numericFlags(partitionColumns, numericColumns);
         return result;
     }
 
-    /**
-     * Checks if a column is numeric by examining the first non-empty value.
-     */
-    private boolean isNumericColumn(List<String[]> dataRows, int columnIndex) {
-        for (String[] row : dataRows) {
-            if (columnIndex >= row.length) continue;
-            String value = row[columnIndex].trim();
-            if (value.isEmpty()) continue;
-
-            try {
-                Double.parseDouble(value);
-                return true;  // First non-empty value is numeric
-            } catch (NumberFormatException e) {
-                return false; // First non-empty value is not numeric
-            }
+    private boolean[] numericFlags(List<String> columns, Set<String> numericColumns) {
+        boolean[] flags = new boolean[columns.size()];
+        for (int i = 0; i < columns.size(); i++) {
+            flags[i] = numericColumns.contains(columns.get(i));
         }
-        return true; // All empty, default to numeric
+        return flags;
     }
 
     /**
@@ -201,16 +202,16 @@ public class DBMSDataManager {
         for (int i = 0; i < featureColumns.size(); i++) {
             if (i > 0) columnDefs.append(", ");
             columnDefs.append(featureColumns.get(i));
-            columnDefs.append(numericFeatures[i] ? " NUMBER" : " VARCHAR2(255)");
+            columnDefs.append(numericFeatures[i] ? " NUMBER" : " VARCHAR2(" + MLCSVParser.MAX_TEXT_LENGTH + ")");
         }
         for (String labelColumn : labelColumns) {
             columnDefs.append(", ").append(labelColumn);
-            columnDefs.append(isClassification ? " VARCHAR2(100)" : " NUMBER");
+            columnDefs.append(isClassification ? " VARCHAR2(" + MLCSVParser.MAX_TEXT_LENGTH + ")" : " NUMBER");
         }
         // Partition columns must be present in the input table for ODMS_PARTITION_COLUMNS
         for (int i = 0; i < partitionColumns.size(); i++) {
             columnDefs.append(", ").append(partitionColumns.get(i));
-            columnDefs.append(numericPartitions[i] ? " NUMBER" : " VARCHAR2(255)");
+            columnDefs.append(numericPartitions[i] ? " NUMBER" : " VARCHAR2(" + MLCSVParser.MAX_TEXT_LENGTH + ")");
         }
 
         // Execute create table
@@ -228,8 +229,12 @@ public class DBMSDataManager {
         log.info("Created staging table: {}.{}", schemaName, tableName);
     }
 
-    private int loadCSVData(ConnectionHandler connection, String tableName,
-                            MLTrainingContext context, CSVParseResult parseResult) throws Exception {
+    private int loadCSVData(
+            ConnectionHandler connection,
+            String tableName,
+            MLTrainingContext context,
+            CSVColumnMapping columnMapping,
+            MLFileSourceConfig fileConfig) throws SQLException {
         List<String> featureColumns = context.getFeatureConfig().getFeatureColumns();
         List<String> labelColumns = context.getFeatureConfig().getLabelColumns();
         List<String> partitionColumns = context.getTrainerConfig().getPartitionColumns();
@@ -247,12 +252,26 @@ public class DBMSDataManager {
                     conn.setAutoCommit(false);
                     int rowCount = 0;
                     int batchSize = 0;
+                    long csvRowNumber = fileConfig.isHasHeader() ? 2 : 1;
 
-                    try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
-                        for (String[] values : parseResult.dataRows) {
-                            bindValues(stmt, values, parseResult.featureIndices, parseResult.labelIndices,
-                                    parseResult.partitionIndices, parseResult.numericFeatures,
-                                    parseResult.numericPartitions, isClassification);
+                    try (Reader source = Files.newBufferedReader(Path.of(fileConfig.getFilePath()), StandardCharsets.UTF_8);
+                         CSVReader reader = MLCSVParser.createReader(source, fileConfig.getDelimiter());
+                         PreparedStatement stmt = conn.prepareStatement(insertSql)) {
+                        if (fileConfig.isHasHeader()) {
+                            reader.readNext();
+                        }
+
+                        String[] values;
+                        while ((values = reader.readNext()) != null) {
+                            if (MLCSVParser.isEmpty(values)) {
+                                csvRowNumber++;
+                                continue;
+                            }
+
+                            MLCSVParser.validateRow(values, columnMapping.columnCount, csvRowNumber++);
+                            bindValues(stmt, values, columnMapping.featureIndices, columnMapping.labelIndices,
+                                    columnMapping.partitionIndices, columnMapping.numericFeatures,
+                                    columnMapping.numericPartitions, isClassification);
                             stmt.addBatch();
                             batchSize++;
                             rowCount++;
@@ -268,21 +287,23 @@ public class DBMSDataManager {
                             stmt.executeBatch();
                             conn.commit();
                         }
+                    } catch (IOException | CsvValidationException e) {
+                        throw new SQLException(e.getMessage(), e);
                     }
 
                     return rowCount;
                 });
     }
 
-    private int[] findColumnIndices(String[] headers, List<String> columns) {
+    private int[] findColumnIndices(List<String> headers, List<String> columns) {
         int[] indices = new int[columns.size()];
-        for (int i = 0; i < headers.length; i++) {
-            String header = headers[i].trim();
-            for (int j = 0; j < columns.size(); j++) {
-                if (header.equals(columns.get(j))) {
-                    indices[j] = i;
-                }
+        for (int i = 0; i < columns.size(); i++) {
+            String column = columns.get(i);
+            int index = headers.indexOf(column);
+            if (index < 0) {
+                throw new IllegalArgumentException(txt("msg.machineLearning.exception.CsvColumnMissing", column));
             }
+            indices[i] = index;
         }
         return indices;
     }
@@ -324,7 +345,7 @@ public class DBMSDataManager {
             int idx = featureIndices[i];
             String value = values[idx].trim();
             if (numericFeatures[i]) {
-                stmt.setDouble(paramIndex++, value.isEmpty() ? 0.0 : Double.parseDouble(value));
+                setNumber(stmt, paramIndex++, value);
             } else {
                 stmt.setString(paramIndex++, value);
             }
@@ -336,7 +357,7 @@ public class DBMSDataManager {
             if (isClassification) {
                 stmt.setString(paramIndex++, value);
             } else {
-                stmt.setDouble(paramIndex++, Double.parseDouble(value));
+                setNumber(stmt, paramIndex++, value);
             }
         }
 
@@ -345,10 +366,18 @@ public class DBMSDataManager {
             int idx = partitionIndices[i];
             String value = values[idx].trim();
             if (numericPartitions[i]) {
-                stmt.setDouble(paramIndex++, value.isEmpty() ? 0.0 : Double.parseDouble(value));
+                setNumber(stmt, paramIndex++, value);
             } else {
                 stmt.setString(paramIndex++, value);
             }
+        }
+    }
+
+    private void setNumber(PreparedStatement statement, int index, String value) throws SQLException {
+        if (value.isEmpty()) {
+            statement.setNull(index, Types.NUMERIC);
+        } else {
+            statement.setBigDecimal(index, new BigDecimal(value));
         }
     }
 }

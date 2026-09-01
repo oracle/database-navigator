@@ -138,6 +138,10 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
         return fileForm.getSelectedDelimiter();
     }
 
+    public boolean isFileHeaderPresent() {
+        return fileForm.isHeaderPresent();
+    }
+
     /**
      * Get selected cloud URI (only valid for OBJECT_STORAGE source type)
      */

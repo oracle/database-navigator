@@ -23,6 +23,10 @@ import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -34,6 +38,7 @@ import java.sql.SQLException;
  */
 @Slf4j
 public class OracleMachineLearningInterface extends DatabaseInterfaceBase implements DatabaseMachineLearningInterface {
+    private static final int CLOUD_CSV_SAMPLE_BYTES = 1024 * 1024;
 
     public OracleMachineLearningInterface(DatabaseInterfaces provider) {
         super("oracle_ml_interface.xml", provider);
@@ -351,14 +356,29 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     }
 
     @Override
-    public String getCloudCsvHeader(DBNConnection conn, String credentialName, String fileUri) throws SQLException {
-        log.debug("Reading cloud CSV header from URI: {}", fileUri);
-        try (ResultSet rs = executeQuery(conn, "get-cloud-csv-header", credentialName, fileUri)) {
+    public String getCloudCsvSample(DBNConnection conn, String credentialName, String fileUri) throws SQLException {
+        log.debug("Reading cloud CSV sample from URI: {}", fileUri);
+        try (ResultSet rs = executeQuery(conn, "get-cloud-csv-sample", credentialName, fileUri)) {
             if (rs.next()) {
-                return rs.getString("FILE_HEAD");
+                Blob content = rs.getBlob("FILE_CONTENT");
+                if (content == null) return null;
+
+                try (InputStream input = content.getBinaryStream()) {
+                    return new String(input.readNBytes(CLOUD_CSV_SAMPLE_BYTES), StandardCharsets.UTF_8);
+                } catch (IOException e) {
+                    throw new SQLException("Failed to read cloud CSV sample", e);
+                } finally {
+                    content.free();
+                }
             }
             return null;
         }
+    }
+
+    @Override
+    public void validateCloudExternalTable(DBNConnection conn, String tableName) throws SQLException {
+        log.debug("Validating cloud external table: {}", tableName);
+        executeUpdate(conn, "validate-cloud-external-table", tableName);
     }
 
     // ==================== UTILITY OPERATIONS ====================

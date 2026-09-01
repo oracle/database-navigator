@@ -33,6 +33,7 @@ import com.dbn.ml.model.source.MLSourceType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
 import com.dbn.ml.ui.MLToolboxFormBase;
 import com.dbn.ml.ui.source.MLSourceForm;
+import com.dbn.ml.util.MLCSVParser;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBTable;
 import com.intellij.openapi.Disposable;
@@ -51,14 +52,14 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 
 import static com.dbn.common.text.TextContent.html;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
@@ -268,7 +269,8 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         if (sourceType == MLSourceType.FILE_SYSTEM) {
             String filePath = sourceForm.getSelectedFilePath();
             String delimiter = sourceForm.getSelectedFileDelimiter();
-            return () -> loadFileColumns(filePath, delimiter);
+            boolean hasHeader = sourceForm.isFileHeaderPresent();
+            return () -> loadFileColumns(filePath, delimiter, hasHeader);
         }
 
         if (sourceType == MLSourceType.DATABASE_TABLE) {
@@ -286,10 +288,10 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         return Collections::emptyList;
     }
 
-    private List<Presentable> loadFileColumns(String filePath, String delimiter) {
+    private List<Presentable> loadFileColumns(String filePath, String delimiter, boolean hasHeader) {
         try {
-            return toColumnOptions(readCSVHeaders(filePath, delimiter));
-        } catch (IOException e) {
+            return toColumnOptions(readCSVHeaders(filePath, delimiter, hasHeader));
+        } catch (Exception e) {
             conditionallyLog(e);
             log.warn("Failed to load source columns", e);
             return Collections.emptyList();
@@ -300,21 +302,11 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         return Lists.convert(columns, column -> Presentable.basic(column, Icons.DBO_COLUMN));
     }
 
-    private List<String> readCSVHeaders(String filePath, String delimiter) throws IOException {
+    private List<String> readCSVHeaders(String filePath, String delimiter, boolean hasHeader) throws Exception {
         if (filePath == null || filePath.isBlank()) return Collections.emptyList();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String headerLine = reader.readLine();
-            if (headerLine == null || headerLine.isEmpty()) {
-                return Collections.emptyList();
-            }
-
-            String[] headers = headerLine.split(Pattern.quote(delimiter));
-            List<String> result = new ArrayList<>(headers.length);
-            for (String header : headers) {
-                result.add(header.trim());
-            }
-            return result;
+        try (Reader reader = Files.newBufferedReader(Path.of(filePath), StandardCharsets.UTF_8)) {
+            return MLCSVParser.readColumns(reader, delimiter, hasHeader);
         }
     }
 

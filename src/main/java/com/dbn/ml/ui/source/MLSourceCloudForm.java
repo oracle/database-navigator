@@ -21,10 +21,12 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.ui.MLToolboxFormBase;
+import com.dbn.ml.util.MLCSVParser;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
@@ -38,6 +40,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -307,6 +310,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
 
         String credential = getSelectedCredential();
         String delimiter = getSelectedDelimiter();
+        boolean headerPresent = hasHeader();
         sourceTextChanged = false;
 
         ConnectionHandler connection = getConnection();
@@ -317,33 +321,39 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
 
         Background.run(() -> {
             try {
-                DatabaseInterfaceInvoker.execute(HIGH,
+                String sample = DatabaseInterfaceInvoker.load(HIGH,
                         txt("prc.machineLearning.title.LoadingColumns"),
-                        txt("prc.machineLearning.text.ReadingCloudCsvHeader"),
+                        txt("prc.machineLearning.text.ReadingCloudCsvSample"),
                         connection.getProject(),
                         connection.getConnectionId(),
                         conn -> {
                             DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
-                            String fileHead = mlInterface.getCloudCsvHeader(conn, credential, uri);
-
-                            List<String> columns = parseHeaderLine(fileHead, delimiter);
-                            Set<String> numeric = detectNumericColumns(fileHead, columns, delimiter);
-
-                            Dispatch.run(loadColumnsButton, () -> {
-                                if (!matchesColumnLoadSignature(signature)) return;
-
-                                discoveredColumns = columns;
-                                numericColumns = numeric;
-                                resetLoadColumnsButton();
-                                notifySourceLoaded();
-                            });
+                            return mlInterface.getCloudCsvSample(conn, credential, uri);
                         });
+                MLCSVParser.Profile profile = MLCSVParser.profile(
+                        new StringReader(sample == null ? "" : sample),
+                        delimiter,
+                        headerPresent,
+                        MLCSVParser.CLOUD_SAMPLE_ROWS);
+
+                Dispatch.run(loadColumnsButton, () -> {
+                    if (!matchesColumnLoadSignature(signature)) return;
+
+                    discoveredColumns = new ArrayList<>(profile.getColumns());
+                    numericColumns = new HashSet<>(profile.getNumericColumns());
+                    resetLoadColumnsButton();
+                    notifySourceLoaded();
+                });
             } catch (Exception ex) {
                 log.error("Failed to load columns from cloud source", ex);
                 Dispatch.run(loadColumnsButton, () -> {
                     if (!matchesColumnLoadSignature(signature)) return;
 
                     resetLoadColumnsButton();
+                    Messages.showErrorDialog(
+                            getProject(),
+                            txt("msg.machineLearning.title.MLToolboxError"),
+                            txt("msg.machineLearning.error.CloudColumnsLoadFailed", ex.getMessage()));
                 });
             }
         });
@@ -356,57 +366,6 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
     private void resetLoadColumnsButton() {
         loadColumnsButton.setEnabled(true);
         loadColumnsButton.setText(txt("cfg.machineLearning.button.LoadColumns"));
-    }
-
-    private List<String> parseHeaderLine(String fileHead, String delimiter) {
-        List<String> columns = new ArrayList<>();
-        if (fileHead == null || fileHead.isEmpty()) return columns;
-
-        // Extract first line only
-        int newlineIdx = fileHead.indexOf('\n');
-        String headerLine = newlineIdx >= 0 ? fileHead.substring(0, newlineIdx) : fileHead;
-        headerLine = headerLine.replace("\r", "").trim();
-
-        if (headerLine.isEmpty()) return columns;
-
-        String[] parts = headerLine.split(java.util.regex.Pattern.quote(delimiter));
-        for (String part : parts) {
-            String col = part.trim();
-            // Remove surrounding quotes if present
-            if (col.length() >= 2 && col.startsWith("\"") && col.endsWith("\"")) {
-                col = col.substring(1, col.length() - 1);
-            }
-            if (!col.isEmpty()) {
-                columns.add(col);
-            }
-        }
-        return columns;
-    }
-
-    private Set<String> detectNumericColumns(String fileHead, List<String> columns, String delimiter) {
-        Set<String> numeric = new HashSet<>();
-        if (fileHead == null || columns.isEmpty()) return numeric;
-
-        String quotedDelimiter = java.util.regex.Pattern.quote(delimiter);
-        String[] lines = fileHead.split("\\r?\\n");
-        // Skip header line (index 0), use first data line to detect types
-        for (int lineIdx = 1; lineIdx < lines.length; lineIdx++) {
-            String line = lines[lineIdx].trim();
-            if (line.isEmpty()) continue;
-            String[] values = line.split(quotedDelimiter);
-            for (int i = 0; i < columns.size() && i < values.length; i++) {
-                String val = values[i].trim();
-                if (val.isEmpty()) continue;
-                try {
-                    Double.parseDouble(val);
-                    numeric.add(columns.get(i));
-                } catch (NumberFormatException ignored) {
-                    // not numeric — leave out of set
-                }
-            }
-            break; // first data row is enough
-        }
-        return numeric;
     }
 
     private CloudSourceConfig getConfig() {

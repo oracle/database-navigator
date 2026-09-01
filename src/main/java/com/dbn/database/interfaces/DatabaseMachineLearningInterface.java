@@ -362,16 +362,19 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
     ) throws SQLException;
 
     /**
-     * Reads the first bytes of a cloud CSV file using DBMS_CLOUD.GET_OBJECT
-     * and returns the raw text head (up to 4000 chars).
-     * The caller is responsible for extracting the first line and splitting by delimiter.
+     * Reads a bounded sample of a cloud CSV file using DBMS_CLOUD.GET_OBJECT.
      *
      * @param conn Database connection
      * @param credentialName DB credential name
      * @param fileUri Cloud file URI (https://)
-     * @return The first portion of the file as a string
+     * @return The first portion of the file as UTF-8 text
      */
-    String getCloudCsvHeader(DBNConnection conn, String credentialName, String fileUri) throws SQLException;
+    String getCloudCsvSample(DBNConnection conn, String credentialName, String fileUri) throws SQLException;
+
+    /**
+     * Validates all rows of a DBMS_CLOUD external table against its declared column types.
+     */
+    void validateCloudExternalTable(DBNConnection conn, String tableName) throws SQLException;
 
     // ==================== UTILITY OPERATIONS ====================
 

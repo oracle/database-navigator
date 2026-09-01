@@ -30,10 +30,14 @@ import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.ml.model.source.MLSourceType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
+import com.dbn.ml.util.MLCSVParser;
 import com.dbn.scheduler.model.SchedulerJobRequest;
 import com.intellij.openapi.project.Project;
+import com.opencsv.exceptions.CsvValidationException;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -468,11 +472,29 @@ public class DBMSBackend {
         List<String> columns = cloudConfig.getDiscoveredColumns();
         if (columns == null || columns.isEmpty())
             throw new IllegalStateException(txt("msg.machineLearning.exception.CloudColumnsMissing"));
+        MLCSVParser.validateColumnNames(columns);
 
-        Set<String> numericCols = cloudConfig.getNumericColumns();
+        MLCSVParser.Profile profile = loadCloudProfile(cloudConfig);
+        if (!columns.equals(profile.getColumns())) {
+            throw new IllegalStateException(txt("msg.machineLearning.exception.CloudColumnsChanged"));
+        }
+
+        Set<String> numericCols = profile.getNumericColumns();
+        if (context.getTaskType() == MLTaskType.REGRESSION) {
+            for (String labelColumn : context.getFeatureConfig().getLabelColumns()) {
+                if (!numericCols.contains(labelColumn)) {
+                    throw new IllegalArgumentException(txt(
+                            "msg.machineLearning.exception.CsvRegressionTargetNotNumeric",
+                            labelColumn));
+                }
+            }
+        }
         String columnList = columns.stream()
                 .map(col -> col + (numericCols.contains(col) ? " NUMBER" : " VARCHAR2(4000)"))
                 .collect(Collectors.joining(", "));
+
+        context.setStagingTableName(extTableName);
+        context.setShouldCleanupStagingTable(true);
 
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
                 txt("prc.machineLearning.title.CreatingExternalTable"),
@@ -490,12 +512,35 @@ public class DBMSBackend {
                             cloudConfig.isHasHeader() ? "1" : "0",
                             columnList
                     );
+                    mlInterface.validateCloudExternalTable(conn, extTableName);
                 });
 
-        context.setStagingTableName(extTableName);
-        context.setShouldCleanupStagingTable(true);
-        log.info("Created cloud external table: {}", extTableName);
+        log.info("Created and validated cloud external table: {}", extTableName);
         return extTableName;
+    }
+
+    private MLCSVParser.Profile loadCloudProfile(CloudSourceConfig cloudConfig) throws SQLException {
+        return DatabaseInterfaceInvoker.load(Priority.HIGH,
+                txt("prc.machineLearning.title.LoadingColumns"),
+                txt("prc.machineLearning.text.ReadingCloudCsvSample"),
+                getProject(),
+                connection.getConnectionId(),
+                conn -> {
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
+                    String sample = mlInterface.getCloudCsvSample(
+                            conn,
+                            cloudConfig.getCredentialName(),
+                            cloudConfig.getFileUri());
+                    try {
+                        return MLCSVParser.profile(
+                                new StringReader(sample == null ? "" : sample),
+                                cloudConfig.getDelimiter(),
+                                cloudConfig.isHasHeader(),
+                                MLCSVParser.CLOUD_SAMPLE_ROWS);
+                    } catch (IOException | CsvValidationException e) {
+                        throw new SQLException(e.getMessage(), e);
+                    }
+                });
     }
 
     private String createSettingsTable(MLTrainingContext context, String timestamp) throws SQLException {

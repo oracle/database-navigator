@@ -152,7 +152,7 @@ public class MLSourceFileForm extends MLToolboxFormBase {
         return delimiter == null || delimiter.isEmpty() ? "," : delimiter;
     }
 
-    private boolean hasHeader() {
+    public boolean isHeaderPresent() {
         return hasHeaderCheckBox.isSelected();
     }
 
@@ -160,7 +160,7 @@ public class MLSourceFileForm extends MLToolboxFormBase {
         MLFileSourceConfig config = getConfig();
         return Objects.equals(getSelectedFilePath(), config.getFilePath()) &&
                 Objects.equals(getSelectedDelimiter(), normalizeDelimiter(config.getDelimiter())) &&
-                hasHeader() == config.isHasHeader();
+                isHeaderPresent() == config.isHasHeader();
     }
 
     private static String normalizeDelimiter(String delimiter) {
