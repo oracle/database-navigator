@@ -19,6 +19,7 @@ package com.dbn.connection.config.ui;
 import com.dbn.common.Result;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Threads;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -28,6 +29,8 @@ import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.provider.CloudConfigProviderFamily;
+import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverBundle;
 import com.dbn.driver.DriverSource;
@@ -37,7 +40,6 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Separator;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -93,6 +95,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     private JLabel driverLibraryLabel;
     private JLabel driverSourceLabel;
     private HyperlinkLabel reloadDriversLink;
+    private HyperlinkLabel useExternalLibraryLink;
     private JButton downloadButton;
     private JLabel driverErrorLabel;
     private JPanel loadingDriversPanel;
@@ -139,6 +142,9 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         loadingDriversPanel.add(new AsyncProcessIcon("Loading drivers..."), BorderLayout.WEST);
         reloadDriversLink.setHyperlinkText(txt("cfg.connection.link.ReloadDrivers"));
         onHyperlinkAccess(reloadDriversLink, e -> reloadDrivers());
+
+        useExternalLibraryLink.setHyperlinkText(txt("cfg.connection.link.UseExternalLibrary"));
+        onHyperlinkAccess(useExternalLibraryLink, e -> useExternalLibrary());
 
         driverErrorLabel.setText("");
         driverErrorLabel.setIcon(Icons.COMMON_ERROR);
@@ -200,20 +206,32 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
     private void initDriverDownloadFields() {
         downloadButton.addActionListener(e -> {
-            Progress.modal(ensureProject(),
-                    null, true,
-                    txt("prc.connection.title.LoadingDrivers"),
-                    txt("prc.connection.text.LoadingDriverPackageMetadata"),
-                    indicator -> showDownloadPopup()
-            );
+            DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+            CloudConfigProviderFamily providerFamily = getCloudConfigProviderFamily();
+            if (downloadManager.isDriverPackageMetadataOutdated(getDatabaseType(), providerFamily)) {
+                Progress.modal(ensureProject(),
+                        null, true,
+                        txt("prc.connection.title.LoadingDrivers"),
+                        txt("prc.connection.text.LoadingDriverPackageMetadata"),
+                        indicator -> showDownloadPopup(providerFamily)
+                );
+            } else {
+                Background.run(() -> showDownloadPopup(providerFamily));
+            }
         });
     }
 
-    private void showDownloadPopup() {
+    private void useExternalLibrary() {
+        setSelection(driverSourceComboBox, DriverSource.EXTERNAL);
+        driverLibraryTextField.getTextField().requestFocusInWindow();
+        downloadButton.doClick();
+    }
+
+    private void showDownloadPopup(@Nullable CloudConfigProviderFamily providerFamily) {
         try {
             DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-            List<DriverPackage> driverPackages = downloadManager.getDownloadedDriverPackages(getDatabaseType());
-            dispatch(() -> showDownloadPopup(downloadButton, driverPackages));
+            List<DriverPackage> driverPackages = downloadManager.getDownloadedDriverPackages(getDatabaseType(), providerFamily);
+            dispatch(() -> showDownloadPopup(downloadButton, driverPackages, providerFamily));
         } catch (Exception e) {
             conditionallyLog(e);
             showErrorDialog(ensureProject(), txt("msg.driver.error.DriverLibrariesMetadataDownloadFailed"), e);
@@ -236,7 +254,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
         fieldAdapter.initFieldsVisibility(() -> loadingDrivers && isExternalDriver(), array(loadingDriversPanel));
         fieldAdapter.initFieldsVisibility(() -> !loadingDrivers && isExternalDriver(), array(reloadDriversLink));
-        fieldAdapter.initFieldsVisibility(() -> driverError != null && isExternalDriver(), array(driverErrorLabel));
+        fieldAdapter.initFieldsVisibility(() -> isDriverErrorVisible(), array(driverErrorLabel));
+        fieldAdapter.initFieldsVisibility(() -> isCloudProviderSupportRequired(), array(useExternalLibraryLink));
         fieldAdapter.initFieldsAvailability(() -> !loadingDrivers, array(driverComboBox));
     }
 
@@ -249,7 +268,36 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             setSelection(driverSourceComboBox, DriverSource.EXTERNAL);
         }
 
+        updateDriverStatusMessage();
         updateFieldAvailability();
+    }
+
+    private void updateDriverStatusMessage() {
+        if (driverError != null && isExternalDriver()) return;
+
+        CloudConfigProviderType provider = getParentForm().getExternalLibraryCloudProvider();
+        driverErrorLabel.setText(isCloudProviderSupportRequired() ?
+                txt("cfg.connection.error.CloudProviderSupportRequired", getCloudProviderName(provider)) :
+                "");
+    }
+
+    private boolean isDriverErrorVisible() {
+        return driverError != null && isExternalDriver() || isCloudProviderSupportRequired();
+    }
+
+    private boolean isCloudProviderSupportRequired() {
+        return getParentForm().getExternalLibraryCloudProvider() != null && !isExternalDriver();
+    }
+
+    private static String getCloudProviderName(CloudConfigProviderType provider) {
+        if (provider == null) return "";
+        if (provider.isOci()) return "OCI";
+        if (provider.isAzure()) return "Azure";
+        if (provider.isAws()) return "AWS";
+        if (provider.isGcp()) return "GCP";
+        if (provider.isHashicorp()) return "HashiCorp";
+
+        return provider.getName();
     }
 
     private String verifyDriverLibrary() {
@@ -362,7 +410,10 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         setSelection(driverComboBox, DriverOption.get(driverOptions, configuration.getDriver()));
     }
 
-    private void showDownloadPopup(JButton button, List<DriverPackage> driverPackages) {
+    private void showDownloadPopup(
+            JButton button,
+            List<DriverPackage> driverPackages,
+            @Nullable CloudConfigProviderFamily providerFamily) {
         List<AnAction> actions = new ArrayList<>();
         for (DriverPackage driverPackage : driverPackages) {
                 String title = Actions.adjustActionName(driverPackage.getName());
@@ -378,11 +429,16 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         actions.add(new DumbAwareAction(txt("cfg.connection.action.DownloadLibraries"), null, AllIcons.Actions.Download) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
-                Project project = getProject();
-                Progress.modal(project, null, true,
-                        txt("prc.connection.title.LoadingDrivers"),
-                        txt("prc.connection.text.LoadingDriverPackageMetadata"),
-                        indicator -> initDownloadManagerDialog(indicator));
+                DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
+                if (downloadManager.isDriverPackageMetadataOutdated(getDatabaseType(), providerFamily)) {
+                    Project project = getProject();
+                    Progress.modal(project, null, true,
+                            txt("prc.connection.title.LoadingDrivers"),
+                            txt("prc.connection.text.LoadingDriverPackageMetadata"),
+                            indicator -> initDownloadManagerDialog(providerFamily));
+                } else {
+                    Background.run(() -> initDownloadManagerDialog(providerFamily));
+                }
             }
         });
         popupBuilder(actions, button).
@@ -400,15 +456,12 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         return downloadManager.getDownloadPath(driverPackage.getId());
     }
 
-    private void initDownloadManagerDialog(ProgressIndicator indicator) {
-        indicator.setIndeterminate(false);
-        indicator.setFraction(0.0);
-
+    private void initDownloadManagerDialog(@Nullable CloudConfigProviderFamily providerFamily) {
         Project project = ensureProject();
         DatabaseType databaseType = getDatabaseType();
 
         DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-        downloadManager.openDownloadDialog(project, databaseType, path -> {
+        downloadManager.openDownloadDialog(project, databaseType, providerFamily, path -> {
             String currentPath = driverLibraryTextField.getText();
             if (Objects.equals(currentPath, path)) {
                 // when download targets the already specified location (initially empty)
@@ -417,6 +470,12 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 setText(driverLibraryTextField, path);
             }
         });
+    }
+
+    @Nullable
+    private CloudConfigProviderFamily getCloudConfigProviderFamily() {
+        CloudConfigProviderType cloudProviderType = getParentForm().getCloudConfigProviderType();
+        return cloudProviderType == null ? null : cloudProviderType.getFamily();
     }
 
 }

@@ -131,7 +131,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
         inputPanel.add(inputEditor.getComponent());
     }
 
-    private ConnectionHandler getConnection() {
+    public ConnectionHandler getConnection() {
         return connection.ensure();
     }
 

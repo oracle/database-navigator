@@ -75,7 +75,7 @@ public class ProfilesAndCredentialsForm extends DBNFormBase {
         return null;
     }
 
-    private ConnectionHandler getConnection() {
+    public ConnectionHandler getConnection() {
         return connection.ensure();
     }
 
