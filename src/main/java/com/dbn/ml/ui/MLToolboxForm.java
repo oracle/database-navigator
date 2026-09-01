@@ -140,8 +140,7 @@ public class MLToolboxForm extends MLToolboxFormBase {
     public void saveRequestTemplate(boolean reset) {
         MLRequest requestTemplate = request.clone();
         if (reset) {
-            SchemaId userSchema = getConnection().getUserSchemaId();
-            requestTemplate.reset(userSchema);
+            requestTemplate.resetSoft();
         }
 
         ConnectionId connectionId = getConnectionId();

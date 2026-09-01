@@ -24,7 +24,10 @@ import com.dbn.common.ui.table.DBNTableTransferHandler;
 import com.intellij.openapi.util.NlsContexts.Label;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.table.TableModel;
+import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Borderless.markBorderless;
@@ -43,6 +46,7 @@ public class MLAnalysisTable<R> extends DBNTable<DBNDynamicTableModel<R>> {
         setDefaultRenderer(Object.class, new DBNDynamicTableCellRenderer());
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
         initTableSorter();
+        getRowSorter().setSortKeys(List.of(new RowSorter.SortKey(1, SortOrder.DESCENDING)));
         markBorderless(this);
 
         setProportionalColumnWidth(0, 30); // column name

@@ -77,6 +77,14 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
         initialize(userSchema);
     }
 
+    /**
+     * Clears the value that belongs to a single training run while retaining the user's
+     * reusable training configuration.
+     */
+    public void resetSoft() {
+        trainerConfig.setModelName(null);
+    }
+
     @Override
     public void readState(Element element) {
         if (element == null) return;
