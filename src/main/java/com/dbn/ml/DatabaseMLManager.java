@@ -105,11 +105,11 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
     public void openToolbox(ConnectionHandler connection) {
         MLRequest request = getRequestTemplate(connection).clone();
         request.setTemplate(true);
-        openToolbox(connection, request);
+        TRAIN_MACHINE_LEARNING_MODEL.start(connection, () -> doOpenToolbox(connection, request));
     }
 
     public void openToolbox(ConnectionHandler connection, MLRequest request) {
-        TRAIN_MACHINE_LEARNING_MODEL.start(connection, () -> doOpenToolbox(connection, request));
+        doOpenToolbox(connection, request);
     }
 
     private void doOpenToolbox(ConnectionHandler connection, MLRequest request) {

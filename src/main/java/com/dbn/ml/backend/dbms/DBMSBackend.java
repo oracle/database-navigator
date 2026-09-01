@@ -461,6 +461,7 @@ public class DBMSBackend {
     }
 
     private String createCloudExternalTable(MLTrainingContext context) throws Exception {
+        // TODO Support source-specific prerequisite checks for DBMS_CLOUD access.
         String extTableName = MLObjectNames.externalTable(MLObjectNames.timestamp());
         CloudSourceConfig cloudConfig = context.getSourceConfig().getCloudSourceConfig();
 
