@@ -250,6 +250,7 @@
                 </sequence>
                 <element optional="true" ref-id="indexed_clause" />
             </sequence>
+            <element ref-id="function_expression" />
             <wrapper id="00093" template="PARENTHESES">
                 <one-of id="00094">
                     <sequence id="00095">
