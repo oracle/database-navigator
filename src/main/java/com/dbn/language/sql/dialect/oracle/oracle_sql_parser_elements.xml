@@ -25750,6 +25750,21 @@
             <element ref-id="corr_function" />
             <element ref-id="covariance_function" />
             <element ref-id="count_function" />
+            <element ref-id="bit_and_agg_function" />
+            <element ref-id="bit_or_agg_function" />
+            <element ref-id="bit_xor_agg_function" />
+            <element ref-id="boolean_and_agg_function" />
+            <element ref-id="boolean_or_agg_function" />
+            <element ref-id="checksum_function" />
+            <element ref-id="collect_function" />
+            <element ref-id="every_function" />
+            <element ref-id="kurtosis_pop_function" />
+            <element ref-id="kurtosis_samp_function" />
+            <element ref-id="median_function" />
+            <element ref-id="max_function" />
+            <element ref-id="min_function" />
+            <element ref-id="percentile_function" />
+            <element ref-id="skewness_function" />
             <sequence id="13851">
                 <one-of id="13852">
                     <token id="13853" type-id="FN_FIRST_VALUE" />
@@ -25874,6 +25889,7 @@
             <element ref-id="stddev_samp_function" />
             <element ref-id="sum_function" />
             <element ref-id="var_pop_samp_function" />
+            <element ref-id="variance_function" />
             <element ref-id="listagg_function" />
             <element ref-id="linear_regr_function" />
         </one-of>
@@ -25917,7 +25933,7 @@
             </sequence>
         </one-of>
     </element-def>
-    <element-def description="SKEWNESS aggregate function" id="skewness_function">
+    <element-def description="SKEWNESS function" id="skewness_function">
         <one-of id="13940">
             <token type-id="FN_SKEWNESS_POP" id="13941" />
             <token type-id="FN_SKEWNESS_SAMP" id="13942" />
@@ -26071,13 +26087,13 @@
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="KURTOSIS_POP aggregate function" id="kurtosis_pop_function">
+    <element-def description="KURTOSIS_POP function" id="kurtosis_pop_function">
         <token type-id="FN_KURTOSIS_POP" id="13980" />
         <element ref-id="distinct_all_unique_expression" />
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="KURTOSIS_SAMP aggregate function" id="kurtosis_samp_function">
+    <element-def description="KURTOSIS_SAMP function" id="kurtosis_samp_function">
         <token type-id="FN_KURTOSIS_SAMP" id="13981" />
         <element ref-id="distinct_all_unique_expression" />
         <element ref-id="aggregate_filter_clause" optional="true" />
@@ -26166,7 +26182,7 @@
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="STDDEV aggregate function" id="stddev_function">
+    <element-def description="STDDEV function" id="stddev_function">
         <token type-id="FN_STDDEV" id="14015" />
         <wrapper template="PARENTHESES" id="14016">
             <sequence id="14017">
@@ -26181,7 +26197,7 @@
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="STDDEV_POP aggregate function" id="stddev_pop_function">
+    <element-def description="STDDEV_POP function" id="stddev_pop_function">
         <token type-id="FN_STDDEV_POP" id="14021" />
         <wrapper template="PARENTHESES" id="14022">
             <element ref-id="expression" />
@@ -26190,7 +26206,7 @@
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="SUM aggregate function" id="sum_function">
+    <element-def description="SUM function" id="sum_function">
         <token type-id="FN_SUM" id="14023" />
         <wrapper template="PARENTHESES" id="14024">
             <sequence id="14025">
@@ -26205,7 +26221,7 @@
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="STDDEV_SAMP aggregate function" id="stddev_samp_function">
+    <element-def description="STDDEV_SAMP function" id="stddev_samp_function">
         <token type-id="FN_STDDEV_SAMP" id="14029" />
         <wrapper template="PARENTHESES" id="14030">
             <element ref-id="expression" />
@@ -26214,7 +26230,7 @@
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="VARIANCE aggregate function" id="variance_function">
+    <element-def description="VARIANCE function" id="variance_function">
         <token type-id="FN_VARIANCE" id="14031" />
         <wrapper template="PARENTHESES" id="14032">
             <sequence id="14033">
@@ -26229,7 +26245,7 @@
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="VAR_POP/SAMP aggregate function" id="var_pop_samp_function">
+    <element-def description="VAR_POP/SAMP function" id="var_pop_samp_function">
         <one-of id="14037">
             <token type-id="FN_VAR_POP" id="14038" />
             <token type-id="FN_VAR_SAMP" id="14039" />
@@ -26241,7 +26257,7 @@
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="PERCENTILE_CONT/DISC aggregate function" id="percentile_function">
+    <element-def description="PERCENTILE_CONT/DISC function" id="percentile_function">
         <one-of id="14041">
             <token type-id="FN_PERCENTILE_CONT" id="14042" />
             <token type-id="FN_PERCENTILE_DISC" id="14043" />
@@ -26266,7 +26282,7 @@
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="MEDIAN aggregate function" id="median_function">
+    <element-def description="MEDIAN function" id="median_function">
         <token type-id="FN_MEDIAN" id="14054" />
         <wrapper template="PARENTHESES" id="14055">
             <element ref-id="expression" />
@@ -26377,7 +26393,7 @@
         </wrapper>
     </element-def>
 
-    <element-def description="COVAR_POP or COVAR_SAMP aggregate function" id="covariance_function">
+    <element-def description="COVAR_POP or COVAR_SAMP function" id="covariance_function">
         <one-of id="14105">
             <token type-id="FN_COVAR_POP" id="14106" />
             <token type-id="FN_COVAR_SAMP" id="14107" />
@@ -26391,7 +26407,7 @@
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="COUNT aggregate function" id="count_function">
+    <element-def description="COUNT function" id="count_function">
         <token type-id="FN_COUNT" id="14110" />
         <wrapper template="PARENTHESES" id="14111">
             <one-of id="14112">
@@ -26410,7 +26426,7 @@
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="CORR aggregate function" id="corr_function">
+    <element-def description="CORR function" id="corr_function">
         <token type-id="FN_CORR" id="14119" />
         <wrapper template="PARENTHESES" id="14120">
             <iteration elements-count="2" separator="CHR_COMMA" id="14121">
@@ -26420,7 +26436,7 @@
         <element ref-id="over_analytic_clause" optional="true" />
     </element-def>
 
-    <element-def description="CORR_K or CORR_S aggregate function" id="correlation_function">
+    <element-def description="CORR_K or CORR_S function" id="correlation_function">
         <one-of id="14122">
             <token type-id="FN_CORR_K" id="14123" />
             <token type-id="FN_CORR_S" id="14124" />
@@ -26574,39 +26590,39 @@
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="BIT_AND_AGG aggregate function" id="bit_and_agg_function">
+    <element-def description="BIT_AND_AGG function" id="bit_and_agg_function">
         <token type-id="FN_BIT_AND_AGG" id="14187" />
         <element ref-id="distinct_all_unique_expression" />
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="BIT_OR_AGG aggregate function" id="bit_or_agg_function">
+    <element-def description="BIT_OR_AGG function" id="bit_or_agg_function">
         <token type-id="FN_BIT_OR_AGG" id="14188" />
         <element ref-id="distinct_all_unique_expression" />
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="BIT_XOR_AGG aggregate function" id="bit_xor_agg_function">
+    <element-def description="BIT_XOR_AGG function" id="bit_xor_agg_function">
         <token type-id="FN_BIT_XOR_AGG" id="14189" />
         <element ref-id="distinct_all_unique_expression" />
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="BOOLEAN_AND_AGG aggregate function" id="boolean_and_agg_function">
+    <element-def description="BOOLEAN_AND_AGG function" id="boolean_and_agg_function">
         <token type-id="FN_BOOLEAN_AND_AGG" id="14190" />
         <element ref-id="distinct_all_expression" />
         <element ref-id="over_analytic_clause" optional="true" />
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="BOOLEAN_OR_AGG aggregate function" id="boolean_or_agg_function">
+    <element-def description="BOOLEAN_OR_AGG function" id="boolean_or_agg_function">
         <token type-id="FN_BOOLEAN_OR_AGG" id="14191" />
         <element ref-id="distinct_all_expression" />
         <element ref-id="over_analytic_clause" optional="true" />
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="CHECKSUM aggregate function" id="checksum_function">
+    <element-def description="CHECKSUM function" id="checksum_function">
         <token type-id="FN_CHECKSUM" id="14192" />
         <element ref-id="distinct_all_expression" />
         <element ref-id="over_analytic_clause" optional="true" />
@@ -26632,7 +26648,7 @@
         <element ref-id="aggregate_filter_clause" optional="true" />
     </element-def>
 
-    <element-def description="EVERY aggregate or analytic function" id="every_function">
+    <element-def description="EVERY function" id="every_function">
         <token type-id="KW_EVERY" flavor="function" id="14202" />
         <element ref-id="distinct_all_expression" />
         <element ref-id="over_analytic_clause" optional="true" />
